@@ -62,8 +62,6 @@ void sub_6FF54(int, DBloodActor* actor)
 
 void podAttack(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
-
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -108,7 +106,6 @@ void podAttack(int, DBloodActor* actor)
 
 void sub_70284(int, DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	sfxPlay3DSound(actor, 2502, -1, 0);
 	int nDist, nBurn;
 	DAMAGE_TYPE dmgType;
@@ -138,8 +135,6 @@ static void aiPodSearch(DBloodActor* actor)
 static void aiPodMove(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -168,7 +163,6 @@ static void aiPodMove(DBloodActor* actor)
 
 static void aiPodChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr) {
 		switch (actor->spr.type) {
 		case kDudePodGreen:
@@ -182,7 +176,6 @@ static void aiPodChase(DBloodActor* actor)
 		}
 		return;
 	}
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;

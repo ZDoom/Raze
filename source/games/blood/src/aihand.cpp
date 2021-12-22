@@ -66,7 +66,6 @@ static void handThinkSearch(DBloodActor* actor)
 static void handThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -81,7 +80,6 @@ static void handThinkGoto(DBloodActor* actor)
 
 static void handThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &handGoto);

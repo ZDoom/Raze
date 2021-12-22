@@ -58,7 +58,6 @@ void sub_71A90(int, DBloodActor* actor)
 
 void sub_71BD4(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int height = actor->spr.yrepeat * pDudeInfo->eyeHeight;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -126,7 +125,6 @@ void sub_71BD4(int, DBloodActor* actor)
 
 void sub_720AC(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -207,8 +205,6 @@ static void sub_72580(DBloodActor* actor)
 static void sub_725A4(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -266,8 +262,6 @@ static void sub_725A4(DBloodActor* actor)
 static void sub_72850(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -285,13 +279,11 @@ static void sub_72850(DBloodActor* actor)
 
 static void sub_72934(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &tcherno13A9B8);
 		return;
 	}
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;

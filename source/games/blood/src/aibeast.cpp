@@ -64,7 +64,6 @@ AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beas
 
 void SlashSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	int dx = bcos(actor->spr.ang);
@@ -81,7 +80,6 @@ void SlashSeqCallback(int, DBloodActor* actor)
 
 void StompSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	int x = actor->spr.pos.X;
@@ -167,7 +165,6 @@ void StompSeqCallback(int, DBloodActor* actor)
 
 static void MorphToBeast(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
 	actor->spr.type = kDudeBeast;
 }
@@ -182,7 +179,6 @@ static void beastThinkSearch(DBloodActor* actor)
 static void beastThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto pSector = actor->spr.sector();
@@ -205,7 +201,6 @@ static void beastThinkGoto(DBloodActor* actor)
 
 static void beastThinkChase(DBloodActor* actor)
 {
-	auto const pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		auto pSector = actor->spr.sector();
@@ -339,7 +334,6 @@ static void beastThinkChase(DBloodActor* actor)
 static void beastThinkSwimGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -354,7 +348,6 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 
 static void beastThinkSwimChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &beastSwimGoto);
@@ -410,7 +403,6 @@ static void beastThinkSwimChase(DBloodActor* actor)
 static void beastMoveForward(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -430,7 +422,6 @@ static void beastMoveForward(DBloodActor* actor)
 static void sub_628A0(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -463,7 +454,6 @@ static void sub_628A0(DBloodActor* actor)
 static void sub_62AE0(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -500,7 +490,6 @@ static void sub_62AE0(DBloodActor* actor)
 static void sub_62D7C(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

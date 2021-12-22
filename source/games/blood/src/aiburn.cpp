@@ -84,7 +84,6 @@ static void burnThinkSearch(DBloodActor* actor)
 static void burnThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -126,7 +125,6 @@ static void burnThinkGoto(DBloodActor* actor)
 
 static void burnThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		switch (actor->spr.type)

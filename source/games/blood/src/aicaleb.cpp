@@ -59,7 +59,6 @@ AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &
 
 void SeqAttackCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	int dz = actor->dudeSlope;
@@ -91,7 +90,6 @@ static void calebThinkSearch(DBloodActor* actor)
 static void calebThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 
@@ -115,7 +113,6 @@ static void calebThinkGoto(DBloodActor* actor)
 
 static void calebThinkChase(DBloodActor* actor)
 {
-	auto const pSprite = &actor->s();
 	auto pSector = actor->spr.sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
@@ -216,7 +213,6 @@ static void calebThinkChase(DBloodActor* actor)
 static void calebThinkSwimGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -231,7 +227,6 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 
 static void calebThinkSwimChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &tinycalebSwimGoto);
@@ -281,7 +276,6 @@ static void calebThinkSwimChase(DBloodActor* actor)
 static void sub_65D04(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -314,7 +308,6 @@ static void sub_65D04(DBloodActor* actor)
 static void sub_65F44(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -352,7 +345,6 @@ static void sub_65F44(DBloodActor* actor)
 static void sub_661E0(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

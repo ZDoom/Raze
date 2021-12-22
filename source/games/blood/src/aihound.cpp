@@ -44,10 +44,8 @@ AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, 
 
 void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -66,7 +64,6 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
     actFireMissile(actor, 0, 0, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileFlameHound);
 }
 
@@ -80,8 +77,6 @@ static void houndThinkSearch(DBloodActor* actor)
 static void houndThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -100,13 +95,11 @@ static void houndThinkGoto(DBloodActor* actor)
 
 static void houndThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &houndGoto);
 		return;
 	}
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;

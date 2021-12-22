@@ -45,7 +45,6 @@ AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, 
 
 static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 {
-	spritetype* pSprite = &actor->s();
 	if (actor->IsPlayerActor())
 	{
 		nBlind <<= 4;
@@ -60,7 +59,6 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	dx += Random2(2000);
@@ -109,7 +107,6 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	dx += Random2(200);
@@ -135,7 +132,6 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 void SpidBirthSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -176,7 +172,6 @@ static void spidThinkSearch(DBloodActor* actor)
 static void spidThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -191,7 +186,6 @@ static void spidThinkGoto(DBloodActor* actor)
 
 static void spidThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &spidGoto);

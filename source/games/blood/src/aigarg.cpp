@@ -77,7 +77,6 @@ static void playStatueBreakSnd(DBloodActor* actor) {
 
 void SlashFSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -104,7 +103,6 @@ void ThrowFSeqCallback(int, DBloodActor* actor)
 void BlastSSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -200,8 +198,6 @@ void ThrowSSeqCallback(int, DBloodActor* actor)
 static void gargThinkTarget(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -266,8 +262,6 @@ static void gargThinkSearch(DBloodActor* actor)
 static void gargThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -286,8 +280,6 @@ static void gargThinkGoto(DBloodActor* actor)
 static void gargMoveDodgeUp(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -315,8 +307,6 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 static void gargMoveDodgeDown(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -345,7 +335,6 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 
 static void gargThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &gargoyleFGoto);
@@ -522,7 +511,6 @@ static void gargThinkChase(DBloodActor* actor)
 
 static void entryFStatue(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = &dudeInfo[6];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
 	actor->spr.type = kDudeGargoyleFlesh;
@@ -530,7 +518,6 @@ static void entryFStatue(DBloodActor* actor)
 
 static void entrySStatue(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = &dudeInfo[7];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
 	actor->spr.type = kDudeGargoyleStone;
@@ -539,8 +526,6 @@ static void entrySStatue(DBloodActor* actor)
 static void gargMoveForward(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -576,8 +561,6 @@ static void gargMoveForward(DBloodActor* actor)
 static void gargMoveSlow(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -620,8 +603,6 @@ static void gargMoveSlow(DBloodActor* actor)
 static void gargMoveSwoop(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -663,8 +644,6 @@ static void gargMoveSwoop(DBloodActor* actor)
 static void gargMoveFly(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;

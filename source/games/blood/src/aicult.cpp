@@ -74,7 +74,6 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	int dz = actor->dudeSlope;
@@ -87,7 +86,6 @@ void TommySeqCallback(int, DBloodActor* actor)
 
 void TeslaSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (Chance(dword_138BB0[gGameOptions.nDifficulty]))
 	{
 		int dx = bcos(actor->spr.ang);
@@ -103,7 +101,6 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
 	int dz = actor->dudeSlope;
@@ -125,7 +122,6 @@ void ShotSeqCallback(int, DBloodActor* actor)
 
 void cultThrowSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
 		nMissile = kThingArmedTNTBundle;
@@ -160,7 +156,6 @@ void sub_68170(int, DBloodActor* actor)
 
 void sub_68230(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
 		nMissile = kThingArmedTNTBundle;
@@ -198,7 +193,6 @@ static void cultThinkSearch(DBloodActor* actor)
 static void cultThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -225,7 +219,6 @@ static void cultThinkGoto(DBloodActor* actor)
 static void cultThinkChase(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		switch (pXSprite->medium)

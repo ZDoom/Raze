@@ -61,7 +61,6 @@ AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL,
 void HackSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -93,7 +92,6 @@ static void zombaThinkSearch(DBloodActor* actor)
 static void zombaThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -108,7 +106,6 @@ static void zombaThinkGoto(DBloodActor* actor)
 
 static void zombaThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &zombieASearch);
@@ -159,7 +156,6 @@ static void zombaThinkChase(DBloodActor* actor)
 
 static void zombaThinkPonder(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &zombieASearch);
@@ -211,7 +207,6 @@ static void zombaThinkPonder(DBloodActor* actor)
 
 static void myThinkTarget(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -263,7 +258,6 @@ static void myThinkSearch(DBloodActor* actor)
 
 static void entryEZombie(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	actor->spr.type = kDudeZombieAxeNormal;
 	actor->spr.flags |= 1;
 }
@@ -276,7 +270,6 @@ static void entryAIdle(DBloodActor* actor)
 static void entryEStand(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	sfxPlay3DSound(actor, 1100, -1, 0);
 	actor->spr.ang = getangle(pXSprite->targetX - actor->spr.pos.X, pXSprite->targetY - actor->spr.pos.Y);
 }

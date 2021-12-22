@@ -57,10 +57,8 @@ AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &c
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	int dx = bcos(actor->spr.ang);
 	int dy = bsin(actor->spr.ang);
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -75,7 +73,6 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int height = pDudeInfo->eyeHeight * actor->spr.yrepeat;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -92,8 +89,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
 	{
-		spritetype* pSprite2 = &actor2->s();
-		if (pSprite == pSprite2 || !(actor2->spr.flags & 8))
+		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
 		int x2 = actor2->spr.pos.X;
 		int y2 = actor2->spr.pos.Y;
@@ -113,7 +109,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
 		int tsr = MulScale(9460, nDist, 10);
 		int top, bottom;
-		GetSpriteExtents(pSprite2, &top, &bottom);
+		GetActorExtents(actor2, &top, &bottom);
 		if (tz - tsr > bottom || tz + tsr < top)
 			continue;
 		int dx = (tx - x2) >> 4;
@@ -152,7 +148,6 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 
 void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int height = pDudeInfo->eyeHeight * actor->spr.yrepeat;
@@ -240,8 +235,6 @@ static void cerberusThinkSearch(DBloodActor* actor)
 static void cerberusThinkTarget(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -302,8 +295,6 @@ static void cerberusThinkTarget(DBloodActor* actor)
 static void cerberusThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -330,7 +321,6 @@ static void cerberusThinkGoto(DBloodActor* actor)
 
 static void cerberusThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr) {
 		switch (actor->spr.type) {
 		case kDudeCerberusTwoHead:

@@ -47,7 +47,6 @@ AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zomb
 
 void zombfHackSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
 	if (actor->spr.type != kDudeZombieButcher)
 		return;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -62,7 +61,6 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 void PukeSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -80,7 +78,6 @@ void PukeSeqCallback(int, DBloodActor* actor)
 
 void ThrowSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
     actFireMissile(actor, 0, -getDudeInfo(actor->spr.type)->eyeHeight, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileButcherKnife);
 }
 
@@ -94,7 +91,6 @@ static void zombfThinkSearch(DBloodActor* actor)
 static void zombfThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -109,7 +105,6 @@ static void zombfThinkGoto(DBloodActor* actor)
 
 static void zombfThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &zombieFGoto);

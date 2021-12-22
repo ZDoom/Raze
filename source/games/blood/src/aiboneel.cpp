@@ -63,8 +63,6 @@ AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NU
 
 void eelBiteSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor->s();
-
 	/*
 	 * workaround for
 	 * pXSprite->target >= 0 in file NBlood/source/blood/src/aiboneel.cpp at line 86
@@ -92,7 +90,6 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 static void eelThinkTarget(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
@@ -155,7 +152,6 @@ static void eelThinkSearch(DBloodActor* actor)
 static void eelThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = pXSprite->targetX - actor->spr.pos.X;
@@ -170,7 +166,6 @@ static void eelThinkGoto(DBloodActor* actor)
 
 static void eelThinkPonder(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &eelSearch);
@@ -225,7 +220,6 @@ static void eelThinkPonder(DBloodActor* actor)
 static void eelMoveDodgeUp(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -250,7 +244,6 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 static void eelMoveDodgeDown(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -276,7 +269,6 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 
 static void eelThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
 		aiNewState(actor, &eelGoto);
@@ -333,7 +325,6 @@ static void eelThinkChase(DBloodActor* actor)
 static void eelMoveForward(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -366,7 +357,6 @@ static void eelMoveForward(DBloodActor* actor)
 static void eelMoveSwoop(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -395,7 +385,6 @@ static void eelMoveSwoop(DBloodActor* actor)
 static void eelMoveAscend(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -424,7 +413,6 @@ static void eelMoveAscend(DBloodActor* actor)
 void eelMoveToCeil(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	int x = actor->spr.pos.X;
 	int y = actor->spr.pos.Y;
 	int z = actor->spr.pos.Z;
