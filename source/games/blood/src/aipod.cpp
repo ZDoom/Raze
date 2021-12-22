@@ -65,12 +65,12 @@ void podAttack(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int x = pTarget->pos.X - pSprite->pos.X;
-	int y = pTarget->pos.Y - pSprite->pos.Y;
-	int dz = pTarget->pos.Z - pSprite->pos.Z;
+	int x = target->spr.pos.X - pSprite->pos.X;
+	int y = target->spr.pos.Y - pSprite->pos.Y;
+	int dz = target->spr.pos.Z - pSprite->pos.Z;
 	x += Random2(1000);
 	y += Random2(1000);
 	int nDist = approxDist(x, y);
@@ -188,10 +188,10 @@ static void aiPodChase(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0) {
 
@@ -212,12 +212,12 @@ static void aiPodChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (abs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
+				if (abs(nDeltaAngle) < 85 && target->spr.type != kDudePodGreen && target->spr.type != kDudePodFire) {
 					switch (pSprite->type) {
 					case kDudePodGreen:
 					case kDudePodFire:

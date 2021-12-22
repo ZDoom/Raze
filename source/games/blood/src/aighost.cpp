@@ -64,11 +64,11 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	int height = (pSprite->yrepeat * pDudeInfo->eyeHeight) << 2;
-	int height2 = (pTarget->yrepeat * pDudeInfoT->eyeHeight) << 2;
+	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
 	int dz = height - height2;
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -93,7 +93,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	int height = (pSprite->yrepeat * getDudeInfo(pSprite->type)->eyeHeight) << 2;
 	int x = pSprite->pos.X;
 	int y = pSprite->pos.Y;
@@ -166,12 +166,12 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 	}
 #ifdef NOONE_EXTENSIONS
 	// allow fire missile in non-player targets if not a demo
-	if (IsPlayerSprite(pTarget) || gModernMap) {
+	if (target->IsPlayerActor() || gModernMap) {
 		sfxPlay3DSound(actor, 489, 0, 0);
             actFireMissile(actor, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
 	}
 #else
-	if (IsPlayerSprite(pTarget)) {
+	if (target->IsPlayerActor()) {
 		sfxPlay3DSound(actor, 489, 0, 0);
             actFireMissile(actor, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
 	}
@@ -338,17 +338,17 @@ static void ghostThinkChase(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
 		aiNewState(actor, &ghostSearch);
 		return;
 	}
-	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &ghostSearch);
 		return;
@@ -358,11 +358,11 @@ static void ghostThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		// Should be dudeInfo[pTarget->type-kDudeBase]
-		int height2 = (pDudeInfo->eyeHeight * pTarget->yrepeat) << 2;
+		// Should be dudeInfo[target->spr.type-kDudeBase]
+		int height2 = (pDudeInfo->eyeHeight * target->spr.yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

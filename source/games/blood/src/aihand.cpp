@@ -44,10 +44,10 @@ AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &hand
 void HandJumpSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
-	if (IsPlayerSprite(pTarget))
+	auto target = actor->GetTarget();
+	if (target->IsPlayerActor())
 	{
-		PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+		PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
 		if (!pPlayer->hand)
 		{
 			pPlayer->hand = 1;
@@ -90,17 +90,17 @@ static void handThinkChase(DBloodActor* actor)
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
 		aiNewState(actor, &handSearch);
 		return;
 	}
-	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &handSearch);
 		return;
@@ -110,7 +110,7 @@ static void handThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

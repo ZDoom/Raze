@@ -66,8 +66,8 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 		return;
 	}
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
-	int dz = pTarget->pos.Z - pSprite->pos.Z;
+	auto target = actor->GetTarget();
+	int dz = target->spr.pos.Z - pSprite->pos.Z;
 	actFireVector(actor, 350, -100, dx, dy, dz, kVectorCerberusHack);
 	actFireVector(actor, -350, 0, dx, dy, dz, kVectorCerberusHack);
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorCerberusHack);
@@ -353,10 +353,10 @@ static void cerberusThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 
 	if (pXTarget->health == 0) {
@@ -371,7 +371,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
+	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0) {
 		switch (pSprite->type) {
 		case kDudeCerberusTwoHead:
 			aiNewState(actor, &cerberusSearch);
@@ -388,7 +388,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
 				aiSetTarget(actor, actor->GetTarget());

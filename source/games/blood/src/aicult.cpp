@@ -132,11 +132,11 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	uint8_t v4 = Chance(0x6000);
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
-	int dz = pTarget->pos.Z - pSprite->pos.Z;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
+	int dz = target->spr.pos.Z - pSprite->pos.Z;
 	int nDist = approxDist(dx, dy);
 	int nDist2 = nDist / 540;
 	if (nDist > 0x1e00)
@@ -166,20 +166,20 @@ void sub_68230(int, DBloodActor* actor)
 		nMissile = kThingArmedTNTBundle;
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
-	int dz = pTarget->pos.Z - pSprite->pos.Z;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
+	int dz = target->spr.pos.Z - pSprite->pos.Z;
 	int nDist = approxDist(dx, dy);
 	int nDist2 = nDist / 540;
 	auto pMissile = actFireThing(actor, 0, 0, dz / 128 - 14500, nMissile, (nDist2 << 17) / 120);
 	pMissile->xspr.Impact = 1;
 }
 
-static bool TargetNearExplosion(spritetype* pSprite)
+static bool TargetNearExplosion(sectortype* sector)
 {
-	BloodSectIterator it(pSprite->sector());
+	BloodSectIterator it(sector);
 	while (auto actor = it.Next())
 	{
 		if (actor->spr.type == kThingArmedTNTStick || actor->spr.statnum == kStatExplosion)
@@ -242,10 +242,10 @@ static void cultThinkChase(DBloodActor* actor)
 	}
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	spritetype* pTarget = &actor->GetTarget()->s();
+	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - pSprite->pos.X;
+	int dy = target->spr.pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
@@ -265,7 +265,7 @@ static void cultThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
 		switch (pXSprite->medium)
 		{
@@ -284,16 +284,16 @@ static void cultThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->pos.Z - pSprite->pos.Z, nDist, 10);
+				actor->dudeSlope = nDist == 0 ? 0 : DivScale(target->spr.pos.Z - pSprite->pos.Z, nDist, 10);
 				switch (pSprite->type) {
 				case kDudeCultistTommy:
-					if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(pTarget)
-						&& (pTarget->flags & 2) && gGameOptions.nDifficulty > 2 && IsPlayerSprite(pTarget) && gPlayer[pTarget->type - kDudePlayer1].isRunning
+					if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(target->spr.sector())
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
@@ -360,8 +360,8 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistShotgun:
-					if (nDist < 0x2c00 && nDist > 0x1400 && !TargetNearExplosion(pTarget)
-						&& (pTarget->flags & 2) && gGameOptions.nDifficulty >= 2 && IsPlayerSprite(pTarget) && !gPlayer[pTarget->type - kDudePlayer1].isRunning
+					if (nDist < 0x2c00 && nDist > 0x1400 && !TargetNearExplosion(target->spr.sector())
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
@@ -428,8 +428,8 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistTesla:
-					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(pTarget)
-						&& (pTarget->flags & 2) && gGameOptions.nDifficulty > 2 && IsPlayerSprite(pTarget) && gPlayer[pTarget->type - kDudePlayer1].isRunning
+					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->spr.sector())
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
@@ -497,7 +497,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistTNT:
 					if (nDist < 0x2c00 && nDist > 0x1400 && abs(nDeltaAngle) < 85
-						&& (pTarget->flags & 2) && IsPlayerSprite(pTarget))
+						&& (target->spr.flags & 2) && target->IsPlayerActor())
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
@@ -518,7 +518,7 @@ static void cultThinkChase(DBloodActor* actor)
 						}
 					}
 					else if (nDist < 0x1400 && abs(nDeltaAngle) < 85
-						&& (pTarget->flags & 2) && IsPlayerSprite(pTarget))
+						&& (target->spr.flags & 2) && target->IsPlayerActor())
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
@@ -540,8 +540,8 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistBeast:
-					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(pTarget)
-						&& (pTarget->flags & 2) && gGameOptions.nDifficulty > 2 && IsPlayerSprite(pTarget) && gPlayer[pTarget->type - kDudePlayer1].isRunning
+					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->spr.sector())
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
