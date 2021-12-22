@@ -414,7 +414,7 @@ void GameInterface::UpdateSounds(void)
 		listener.Environment = nullptr;
 		listener.valid = false;
 	}
-	listener.ListenerObject = ud.cameraactor == nullptr ? nullptr : ud.cameraactor;
+	listener.ListenerObject = ud.cameraactor == nullptr ? nullptr : ud.cameraactor.Get();
 	soundEngine->SetListener(listener);
 }
 
