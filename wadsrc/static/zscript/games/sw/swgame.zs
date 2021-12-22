@@ -152,7 +152,7 @@ struct SWPlayer native
 	*/
     
     // interpolation
-    //int oposx, oposy, oposz;
+    //int oposy, oposz;
 
     // holds last valid move position
     //int16 lv_sectnum;

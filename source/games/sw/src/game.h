@@ -661,7 +661,7 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    vec3_t pos;
+    vec3_t pos, opos;
     
     TObjPtr<DSWActor*> actor;
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -677,7 +677,7 @@ struct PLAYERstruct
     }
 
     // interpolation
-    int oposx, oposy, oposz;
+    int oposy, oposz;
 
     // holds last valid move position
     int lv_x,lv_y,lv_z;

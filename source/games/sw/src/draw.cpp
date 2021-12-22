@@ -824,7 +824,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             {
                 PLAYERp pp = tu->PlayerP;
                 int sr = 65536 - int(smoothratio);
-                tsp->pos.X -= MulScale(pp->pos.X - pp->oposx, sr, 16);
+                tsp->pos.X -= MulScale(pp->pos.X - pp->opos.X, sr, 16);
                 tsp->pos.Y -= MulScale(pp->pos.Y - pp->oposy, sr, 16);
                 tsp->pos.Z -= MulScale(pp->pos.Z - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
@@ -1458,7 +1458,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
     else
         camerapp = pp;
 
-    tx = interpolatedvalue(camerapp->oposx, camerapp->pos.X, sr);
+    tx = interpolatedvalue(camerapp->opos.X, camerapp->pos.X, sr);
     ty = interpolatedvalue(camerapp->oposy, camerapp->pos.Y, sr);
     tz = interpolatedvalue(camerapp->oposz, camerapp->pos.Z, sr);
 

@@ -1280,7 +1280,7 @@ void DoPlayerTeleportPause(PLAYERp pp)
 void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
-    pp->pos.X = pp->oposx = pp->oldposx = sp->X;
+    pp->pos.X = pp->opos.X = pp->oldposx = sp->X;
     pp->pos.Y = pp->oposy = pp->oldposy = sp->Y;
 
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
@@ -1294,7 +1294,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 
 void DoPlayerTeleportToOffset(PLAYERp pp)
 {
-    pp->oposx = pp->oldposx = pp->pos.X;
+    pp->opos.X = pp->oldposx = pp->pos.X;
     pp->oposy = pp->oldposy = pp->pos.Y;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
@@ -2081,7 +2081,7 @@ void DoPlayerMove(PLAYERp pp)
         auto sect = pp->cursector;
         if (interpolate_ride)
         {
-            pp->oposx = pp->pos.X;
+            pp->opos.X = pp->pos.X;
             pp->oposy = pp->pos.Y;
         }
         pp->pos.X += pp->xvect >> 14;
@@ -2108,7 +2108,7 @@ void DoPlayerMove(PLAYERp pp)
 
         if (interpolate_ride)
         {
-            pp->oposx = pp->pos.X;
+            pp->opos.X = pp->pos.X;
             pp->oposy = pp->pos.Y;
         }
 
@@ -3603,7 +3603,7 @@ void PlayerWarpUpdatePos(PLAYERp pp)
     if (Prediction)
         return;
 
-    pp->oposx = pp->pos.X;
+    pp->opos.X = pp->pos.X;
     pp->oposy = pp->pos.Y;
     pp->oposz = pp->pos.Z;
     DoPlayerZrange(pp);
@@ -4119,7 +4119,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     pp->pos.Z = under_sp->sector()->ceilingz + Z(6);
 
-    pp->oposx = pp->pos.X;
+    pp->opos.X = pp->pos.X;
     pp->oposy = pp->pos.Y;
     pp->oposz = pp->pos.Z;
 
@@ -4197,7 +4197,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     pp->pos.Z -= Z(pp->WadeDepth);
 
-    pp->oposx = pp->pos.X;
+    pp->opos.X = pp->pos.X;
     pp->oposy = pp->pos.Y;
     pp->oposz = pp->pos.Z;
 
@@ -6485,7 +6485,7 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->oposx = pp->pos.X;
+        pp->opos.X = pp->pos.X;
         pp->oposy = pp->pos.Y;
         pp->oposz = pp->pos.Z;
         pp->obob_z = pp->bob_z;
@@ -6825,7 +6825,7 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->pos.X = pp->oposx = pfirst->pos.X;
+        pp->pos.X = pp->opos.X = pfirst->pos.X;
         pp->pos.Y = pp->oposy = pfirst->pos.Y;
         pp->pos.Z = pp->oposz = pfirst->pos.Z;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
@@ -6982,7 +6982,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     sp = &spawn_sprite->s();
 
 
-    pp->pos.X = pp->oposx = sp->pos.X;
+    pp->pos.X = pp->opos.X = sp->pos.X;
     pp->pos.Y = pp->oposy = sp->pos.Y;
     pp->pos.Z = pp->oposz = sp->pos.Z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
