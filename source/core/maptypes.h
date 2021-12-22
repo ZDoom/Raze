@@ -383,7 +383,7 @@ struct spritetypebase
 	// todo: get rid of the single variables!
 	vec3_t pos;
 	union {
-		struct { int32_t ox, oy, oz; };
+		struct { int32_t BLAHBLAHX, oy, oz; };
 		vec3_t opos;
 	};
 	
@@ -423,7 +423,7 @@ struct spritetypebase
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(ox, pos.X, smoothratio, scale);
+		return interpolatedvalue(BLAHBLAHX, pos.X, smoothratio, scale);
 	}
 
 	int32_t interpolatedy(double const smoothratio, int const scale = 16)

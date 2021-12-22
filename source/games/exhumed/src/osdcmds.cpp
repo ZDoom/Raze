@@ -38,7 +38,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     Player     *nPlayer = &PlayerList[nLocalPlayer];
     spritetype *pSprite = &nPlayer->Actor()->s(); 
 
-    pSprite->ox = pSprite->pos.X = x;
+    pSprite->opos.X = pSprite->pos.X = x;
     pSprite->oy = pSprite->pos.Y = y;
     pSprite->oz = pSprite->pos.Z = z;
 
