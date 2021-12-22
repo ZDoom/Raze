@@ -4250,8 +4250,6 @@ static void checkCeilHit(DBloodActor* actor)
 
 static void checkHit(DBloodActor* actor)
 {
-	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
-
 	const auto& coll = actor->hit.hit;
 	switch (coll.type)
 	{
@@ -4305,7 +4303,7 @@ static void checkHit(DBloodActor* actor)
 			case kDudeBurningZombieAxe:
 			case kDudeBurningZombieButcher:
 				// This does not make sense
-				pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+				actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
 				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 				break;
 			}
@@ -4735,7 +4733,6 @@ static Collision MoveThing(DBloodActor* actor)
 
 void MoveDude(DBloodActor* actor)
 {
-	auto const pXSprite = &actor->x();
 	PLAYER* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
@@ -4751,7 +4748,7 @@ void MoveDude(DBloodActor* actor)
 	int tz = (actor->spr.pos.Z - top) / 4;
 	int wd = actor->spr.clipdist << 2;
 	auto pSector = actor->spr.sector();
-	int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
+	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
 
 	assert(pSector);
 
@@ -4921,9 +4918,9 @@ void MoveDude(DBloodActor* actor)
 			actor->zvel += vc;
 		}
 	}
-	if (pPlayer && actor->zvel > 0x155555 && !pPlayer->fallScream && pXSprite->height > 0)
+	if (pPlayer && actor->zvel > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
 	{
-		const bool playerAlive = (pXSprite->health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
+		const bool playerAlive = (actor->xspr.health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
 		if (playerAlive)
 		{
 			pPlayer->fallScream = 1;
@@ -4949,7 +4946,7 @@ void MoveDude(DBloodActor* actor)
 			break;
 		case kMarkerLowWater:
 		case kMarkerLowGoo:
-			pXSprite->medium = kMediumNormal;
+			actor->xspr.medium = kMediumNormal;
 			if (pPlayer)
 			{
 				pPlayer->posture = 0;
@@ -4979,7 +4976,7 @@ void MoveDude(DBloodActor* actor)
 				}
 
 #ifdef NOONE_EXTENSIONS
-				if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
+				if (actor->IsDudeActor() && actor->xspr.health > 0 && aiInPatrolState(nAiStateType))
 					aiPatrolState(actor, kAiStatePatrolMoveL); // continue patrol when going from water
 #endif
 			}
@@ -4993,7 +4990,7 @@ void MoveDude(DBloodActor* actor)
 				chance = 0x400;
 			}
 
-			pXSprite->medium = medium;
+			actor->xspr.medium = medium;
 
 			if (pPlayer)
 			{
@@ -5008,7 +5005,7 @@ void MoveDude(DBloodActor* actor)
 #endif
 
 				pPlayer->posture = 1;
-				pXSprite->burnTime = 0;
+				actor->xspr.burnTime = 0;
 				pPlayer->bubbleTime = abs(actor->zvel) >> 12;
 				evPostActor(actor, 0, kCallbackPlayerBubble);
 				sfxPlay3DSound(actor, 720, -1, 0);
@@ -5019,7 +5016,7 @@ void MoveDude(DBloodActor* actor)
 				{
 				case kDudeCultistTommy:
 				case kDudeCultistShotgun:
-					pXSprite->burnTime = 0;
+					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &cultistSwimGoto);
@@ -5033,26 +5030,26 @@ void MoveDude(DBloodActor* actor)
 						actor->spr.type = kDudeCultistShotgun;
 					if (fixRandomCultist) // fix burning cultists randomly switching types underwater
 						actor->spr.type = actor->spr.inittype; // restore back to spawned cultist type
-					pXSprite->burnTime = 0;
+					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &cultistSwimGoto);
 					break;
 				}
 				case kDudeZombieAxeNormal:
-					pXSprite->burnTime = 0;
+					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &zombieAGoto);
 					break;
 				case kDudeZombieButcher:
-					pXSprite->burnTime = 0;
+					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &zombieFGoto);
 					break;
 				case kDudeGillBeast:
-					pXSprite->burnTime = 0;
+					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &gillBeastSwimGoto);
@@ -5082,7 +5079,7 @@ void MoveDude(DBloodActor* actor)
 					}
 
 					// continue patrol when fall into water
-					if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
+					if (actor->IsDudeActor() && actor->xspr.health > 0 && aiInPatrolState(nAiStateType))
 						aiPatrolState(actor, kAiStatePatrolMoveW);
 
 				}
@@ -5184,7 +5181,7 @@ void MoveDude(DBloodActor* actor)
 
 	GetActorExtents(actor, &top, &bottom);
 
-	pXSprite->height = ClipLow(floorZ - bottom, 0) >> 8;
+	actor->xspr.height = ClipLow(floorZ - bottom, 0) >> 8;
 	if (actor->xvel || actor->yvel)
 	{
 		if (floorColl.type == kHitSprite)
@@ -5199,11 +5196,11 @@ void MoveDude(DBloodActor* actor)
 		}
 		if (IsUnderwaterSector(actor->spr.sector()))
 			return;
-		if (pXSprite->height >= 0x100)
+		if (actor->xspr.height >= 0x100)
 			return;
 		int nDrag = gDudeDrag;
-		if (pXSprite->height > 0)
-			nDrag -= scale(gDudeDrag, pXSprite->height, 0x100);
+		if (actor->xspr.height > 0)
+			nDrag -= scale(gDudeDrag, actor->xspr.height, 0x100);
 		actor->xvel -= mulscale16r(actor->xvel, nDrag);
 		actor->yvel -= mulscale16r(actor->yvel, nDrag);
 
@@ -5234,9 +5231,8 @@ int MoveMissile(DBloodActor* actor)
 	if (actor->GetTarget() != nullptr && (actor->xvel || actor->yvel || actor->zvel))
 	{
 		auto target = actor->GetTarget();
-		XSPRITE* pXTarget = target->hasX() ? &target->x() : nullptr;
 
-		if (target->spr.statnum == kStatDude && target->hasX() && pXTarget->health > 0)
+		if (target->spr.statnum == kStatDude && target->hasX() && target->xspr.health > 0)
 		{
 			int nTargetAngle = getangle(-(target->spr.pos.Y - actor->spr.pos.Y), target->spr.pos.X - actor->spr.pos.X);
 			int vx = missileInfo[actor->spr.type - kMissileBase].velocity;
@@ -5373,8 +5369,6 @@ int MoveMissile(DBloodActor* actor)
 void actExplodeSprite(DBloodActor* actor)
 {
 	if (!actor->hasX()) return;
-	auto pXSprite = &actor->x();
-	//auto Owner = actor->GetOwner();
 
 	if (actor->spr.statnum == kStatExplosion) return;
 	sfxKill3DSound(actor, -1, -1);
@@ -5443,15 +5437,14 @@ void actExplodeSprite(DBloodActor* actor)
 		spawned->SetOwner(actor->GetOwner());
 		if (actCheckRespawn(actor))
 		{
-			pXSprite->state = 1;
-			pXSprite->health = thingInfo[0].startHealth << 4;
+			actor->xspr.state = 1;
+			actor->xspr.health = thingInfo[0].startHealth << 4;
 		}
 		else actPostSprite(actor, kStatFree);
 
 		nType = kExplosionLarge;
 		seqSpawn(4, spawned, -1);
 		actor = spawned;
-		pXSprite = &actor->x();
 
 		sfxPlay3DSound(actor, 305, -1, 0);
 		GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
@@ -5468,9 +5461,9 @@ void actExplodeSprite(DBloodActor* actor)
 		// allow to customize hidden exploder trap
 		if (gModernMap)
 		{
-			nType = pXSprite->data1;  // Explosion type
-			int tSeq = pXSprite->data2; // SEQ id
-			int tSnd = pXSprite->data3; // Sound Id
+			nType = actor->xspr.data1;  // Explosion type
+			int tSeq = actor->xspr.data2; // SEQ id
+			int tSnd = actor->xspr.data3; // Sound Id
 
 			if (nType <= 1 || nType > kExplodeMax) { nType = 1; nSeq = 4; nSnd = 304; }
 			else if (nType == 2) { nSeq = 4; nSnd = 305; }
@@ -5515,9 +5508,9 @@ void actExplodeSprite(DBloodActor* actor)
 	const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 	actor->SetTarget(nullptr);
 	actor->explosionhackflag = true;
-	pXSprite->data1 = pExplodeInfo->ticks;
-	pXSprite->data2 = pExplodeInfo->quakeEffect;
-	pXSprite->data3 = pExplodeInfo->flashEffect;
+	actor->xspr.data1 = pExplodeInfo->ticks;
+	actor->xspr.data2 = pExplodeInfo->quakeEffect;
+	actor->xspr.data3 = pExplodeInfo->flashEffect;
 }
 
 //---------------------------------------------------------------------------
@@ -5528,17 +5521,15 @@ void actExplodeSprite(DBloodActor* actor)
 
 void actActivateGibObject(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-
-	int gib1 = ClipRange(pXSprite->data1, 0, 31);
-	int gib2 = ClipRange(pXSprite->data2, 0, 31);
-	int gib3 = ClipRange(pXSprite->data3, 0, 31);
-	int sound = pXSprite->data4;
-	int dropmsg = pXSprite->dropMsg;
+	int gib1 = ClipRange(actor->xspr.data1, 0, 31);
+	int gib2 = ClipRange(actor->xspr.data2, 0, 31);
+	int gib3 = ClipRange(actor->xspr.data3, 0, 31);
+	int sound = actor->xspr.data4;
+	int dropmsg = actor->xspr.dropMsg;
 
 	if (gib1 > 0) GibSprite(actor, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
 	if (gib2 > 0) GibSprite(actor, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
-	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
+	if (gib3 > 0 && actor->xspr.burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
 	if (sound > 0) sfxPlay3DSound(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, sound, actor->spr.sector());
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
