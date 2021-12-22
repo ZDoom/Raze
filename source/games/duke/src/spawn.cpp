@@ -122,8 +122,8 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	if (show2dsector[act->spr.sectno()]) act->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	else act->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
 
-	act->sx() = {};
-	act->sm() = {};
+	act->sprext = {};
+	act->spsmooth = {};
 
 	return act;
 }

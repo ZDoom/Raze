@@ -688,12 +688,12 @@ void GameInterface::UpdateCameras(double smoothratio)
     JS_DrawCameras(cam_pp, cam_tx, cam_ty, cam_tz, smoothratio);
 }
 
-void GameInterface::EnterPortal(spritetype* viewer, int type)
+void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR) display_mirror++;
 }
 
-void GameInterface::LeavePortal(spritetype* viewer, int type)
+void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
@@ -864,7 +864,7 @@ void JAnalyzeSprites(tspriteptr_t tspr)
     //if (bVoxelsOn)
     if (r_voxels)
     {
-        if (aVoxelArray[tspr->picnum].Voxel >= 0 && !(tspr->ownerActor->sx().flags & SPREXT_NOTMD))
+        if (aVoxelArray[tspr->picnum].Voxel >= 0 && !(tspr->ownerActor->sprext.flags & SPREXT_NOTMD))
         {
             // Turn on voxels
             tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
@@ -877,7 +877,7 @@ void JAnalyzeSprites(tspriteptr_t tspr)
         {
         case 764: // Gun barrel
 
-            if (!r_voxels || (tspr->ownerActor->sx().flags & SPREXT_NOTMD))
+            if (!r_voxels || (tspr->ownerActor->sprext.flags & SPREXT_NOTMD))
             {
                 tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
                 break;

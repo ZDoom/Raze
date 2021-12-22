@@ -288,7 +288,7 @@ int32_t polymost_maskWallHasTranslucency(walltype const * const wall)
 int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 {
     if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
-        (tspr->ownerActor && tspr->ownerActor->sx().alpha))
+        (tspr->ownerActor && tspr->ownerActor->sprext.alpha))
         return true;
 
     return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
@@ -2694,12 +2694,12 @@ void polymost_drawsprite(int32_t snum)
 
     SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
-    drawpoly_alpha = actor->sx().alpha;
+    drawpoly_alpha = actor->sprext.alpha;
     drawpoly_blend = tspr->blend;
 
     sec = (usectorptr_t)tspr->sector();
 
-    while (!(actor->sx().flags & SPREXT_NOTMD))
+    while (!(actor->sprext.flags & SPREXT_NOTMD))
     {
         if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
             tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
@@ -2731,12 +2731,12 @@ void polymost_drawsprite(int32_t snum)
 
     vec3_t pos = tspr->pos;
 
-    if (actor->sx().flags & SPREXT_AWAY1)
+    if (actor->sprext.flags & SPREXT_AWAY1)
     {
         pos.X += bcos(tspr->ang, -13);
         pos.Y += bsin(tspr->ang, -13);
     }
-    else if (actor->sx().flags & SPREXT_AWAY2)
+    else if (actor->sprext.flags & SPREXT_AWAY2)
     {
         pos.X -= bcos(tspr->ang, -13);
         pos.Y -= bsin(tspr->ang, -13);
@@ -3459,7 +3459,7 @@ static void sortsprites(int const start, int const end)
 
 static bool spriteIsModelOrVoxel(const tspritetype* tspr)
 {
-    if (!tspr->ownerActor || tspr->ownerActor->sx().flags & SPREXT_NOTMD)
+    if (!tspr->ownerActor || tspr->ownerActor->sprext.flags & SPREXT_NOTMD)
         return false;
 
     if (hw_models)
@@ -3814,8 +3814,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if ((tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
     {
         f *= 1.25f;
-        a0.Y -= tspr->xoffset * bcosf(tspr->ownerActor->sx().angoff, -20);
-        a0.X += tspr->xoffset * bsinf(tspr->ownerActor->sx().angoff, -20);
+        a0.Y -= tspr->xoffset * bcosf(tspr->ownerActor->sprext.angoff, -20);
+        a0.X += tspr->xoffset * bsinf(tspr->ownerActor->sprext.angoff, -20);
     }
 
     if (globalorientation & 8) { m0.Z = -m0.Z; a0.Z = -a0.Z; } //y-flipping
@@ -3826,7 +3826,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     f = (float)tspr->yrepeat * k0;
     m0.Z *= f; a0.Z *= f;
 
-    k0 = (float)(tspr->pos.Z + tspr->ownerActor->sx().position_offset.Z);
+    k0 = (float)(tspr->pos.Z + tspr->ownerActor->sprext.position_offset.Z);
     f = ((globalorientation & 8) && (tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.Z * .5f;
@@ -3844,8 +3844,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
-    m0.Y *= f; a0.Y = (((float)(tspr->pos.X + tspr->ownerActor->sx().position_offset.X - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
-    m0.X *= -f; a0.X = (((float)(tspr->pos.Y + tspr->ownerActor->sx().position_offset.Y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
+    m0.Y *= f; a0.Y = (((float)(tspr->pos.X + tspr->ownerActor->sprext.position_offset.X - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
+    m0.X *= -f; a0.X = (((float)(tspr->pos.Y + tspr->ownerActor->sprext.position_offset.Y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
     m0.Z *= g; a0.Z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.Z) * g;
 
     float mat[16];
@@ -3877,11 +3877,11 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if (!shadowHack)
     {
         pc[3] = (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? glblend[tspr->blend].def[!!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP)].alpha : 1.0f;
-        pc[3] *= 1.0f - tspr->ownerActor->sx().alpha;
+        pc[3] *= 1.0f - tspr->ownerActor->sprext.alpha;
 
         SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
-        if (!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || tspr->ownerActor->sx().alpha > 0.f || pc[3] < 1.0f)
+        if (!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || tspr->ownerActor->sprext.alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
@@ -3941,7 +3941,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
         RenderStyle = LegacyRenderStyles[STYLE_Translucent];
         alpha = 1.f;
     }
-    alpha *= 1.f - tspr->ownerActor->sx().alpha;
+    alpha *= 1.f - tspr->ownerActor->sprext.alpha;
     GLInterface.SetRenderStyle(RenderStyle);
     GLInterface.SetColor(pc[0], pc[1], pc[2], alpha);
 

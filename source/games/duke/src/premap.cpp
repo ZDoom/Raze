@@ -945,9 +945,9 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 		auto actor = static_cast<DDukeActor*>(InsertActor(RUNTIME_CLASS(DDukeActor), sprt->sector(), sprt->statnum));
 		spawns[j++] = actor;
 		actor->spr = sprites.sprites[i];
-		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
-		else actor->sx() = {};
-		actor->sm() = {};
+		if (sprites.sprext.Size()) actor->sprext = sprites.sprext[i];
+		else actor->sprext = {};
+		actor->spsmooth = {};
 	}
 	return spawns;
 }

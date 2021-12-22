@@ -448,7 +448,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, sectortype* sector, bool rotate)
 {
 	Sprite = spr;
-	auto sprext = &spr->ownerActor->sx();
+	auto ownerActor = spr->ownerActor;
 
 	texture = nullptr;
 	modelframe = -1;
@@ -459,7 +459,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	visibility = sectorVisibility(sector);
 	voxel = vox;
 
-	auto ang = spr->ang + sprext->angoff;
+	auto ang = spr->ang + ownerActor->sprext.angoff;
 	if ((spr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
@@ -480,8 +480,8 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	if ((spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;
-		translatevec.Y -= spr->xoffset * bcosf(sprext->angoff, -20);
-		translatevec.X += spr->xoffset * bsinf(sprext->angoff, -20);
+		translatevec.Y -= spr->xoffset * bcosf(ownerActor->sprext.angoff, -20);
+		translatevec.X += spr->xoffset * bsinf(ownerActor->sprext.angoff, -20);
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) 
@@ -504,13 +504,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
-	float zpos = (float)(spr->pos.Z + sprext->position_offset.Z);
+	float zpos = (float)(spr->pos.Z + ownerActor->sprext.position_offset.Z);
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
-	x = (spr->pos.X + sprext->position_offset.X) * (1 / 16.f);
+	x = (spr->pos.X + ownerActor->sprext.position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
-	y = (spr->pos.Y + sprext->position_offset.Y) * (1 / -16.f);
+	y = (spr->pos.Y + ownerActor->sprext.position_offset.Y) * (1 / -16.f);
 
 	float zoff = voxel->siz.Z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))

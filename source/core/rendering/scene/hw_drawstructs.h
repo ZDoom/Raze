@@ -377,7 +377,7 @@ inline bool maskWallHasTranslucency(const walltype* wall)
 inline bool spriteHasTranslucency(const tspritetype* tspr)
 {
 	if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || //(tspr->clipdist & TSPR_FLAGS_DRAW_LAST) ||
-		(tspr->ownerActor->sx().alpha))
+		(tspr->ownerActor->sprext.alpha))
 		return true;
 
 	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
@@ -396,7 +396,7 @@ inline void SetSpriteTranslucency(const tspritetype* sprite, float& alpha, FRend
 		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
 		alpha = 1.f;
 	}
-	alpha *= 1.f - sprite->ownerActor->sx().alpha;
+	alpha *= 1.f - sprite->ownerActor->sprext.alpha;
 }
 
 //==========================================================================

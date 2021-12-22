@@ -54,29 +54,9 @@ public:
 		return spr;
 	}
 
-	const spriteext_t& sx() const
-	{
-		return sprext;
-	}
-
-	spriteext_t& sx()
-	{
-		return sprext;
-	}
-
-	const spritesmooth_t& sm() const
-	{
-		return spsmooth;
-	}
-
-	spritesmooth_t& sm()
-	{
-		return spsmooth;
-	}
-
 	int GetIndex() const
 	{ 
-		// For error printing only! This is only identical with the sprite index for items spawned at map start.
+		// This is only identical with the sprite index for items spawned at map start.
 		return s().time; 
 	}	
 

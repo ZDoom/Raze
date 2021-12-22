@@ -287,7 +287,7 @@ void HWDrawInfo::DispatchSprites()
 		tspr->picnum = tilenum;
 		gotpic.Set(tilenum);
 
-		if (!(actor->sx().flags & SPREXT_NOTMD))
+		if (!(actor->sprext.flags & SPREXT_NOTMD))
 		{
 			int pt = Ptile2tile(tilenum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
@@ -314,12 +314,12 @@ void HWDrawInfo::DispatchSprites()
 			}
 		}
 
-		if (actor->sx().flags & SPREXT_AWAY1)
+		if (actor->sprext.flags & SPREXT_AWAY1)
 		{
 			tspr->pos.X += bcos(tspr->ang, -13);
 			tspr->pos.Y += bsin(tspr->ang, -13);
 		}
-		else if (actor->sx().flags & SPREXT_AWAY2)
+		else if (actor->sprext.flags & SPREXT_AWAY2)
 		{
 			tspr->pos.X -= bcos(tspr->ang, -13);
 			tspr->pos.Y -= bsin(tspr->ang, -13);

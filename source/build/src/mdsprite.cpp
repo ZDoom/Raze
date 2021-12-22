@@ -410,15 +410,8 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     int32_t const tile = Ptile2tile(tspr->picnum,lpal);
     m->cframe = m->nframe = tile2model[tile].framenum;
 
-#ifdef DEBUGGINGAIDS
-    if (m->cframe >= m->numframes)
-        Printf("1: c > n\n");
-#endif
-
     auto ownerActor = tspr->ownerActor;
     int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
-    spritesmooth_t* const smooth = &ownerActor->sm();
-    spriteext_t* const sprext = &ownerActor->sx();
 
     const mdanim_t *anim;
     for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
@@ -431,47 +424,45 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
     if (!anim)
     {
-        if (!smoothdurationp || ((smooth->mdoldframe == m->cframe) && (smooth->mdcurframe == m->cframe)))
+        if (!smoothdurationp || ((ownerActor->spsmooth.mdoldframe == m->cframe) && (ownerActor->spsmooth.mdcurframe == m->cframe)))
         {
             m->interpol = 0;
             return;
         }
 
-        // assert(smoothdurationp && ((smooth->mdoldframe != m->cframe) || (smooth->mdcurframe != m->cframe)))
-
-        if (smooth->mdoldframe != m->cframe)
+        if (ownerActor->spsmooth.mdoldframe != m->cframe)
         {
-            if (smooth->mdsmooth == 0)
+            if (ownerActor->spsmooth.mdsmooth == 0)
             {
-                sprext->mdanimtims = mdtims;
+                ownerActor->sprext.mdanimtims = mdtims;
                 m->interpol = 0;
-                smooth->mdsmooth = 1;
-                smooth->mdcurframe = m->cframe;
+                ownerActor->spsmooth.mdsmooth = 1;
+                ownerActor->spsmooth.mdcurframe = m->cframe;
             }
-            else if (smooth->mdcurframe != m->cframe)
+            else if (ownerActor->spsmooth.mdcurframe != m->cframe)
             {
-                sprext->mdanimtims = mdtims;
+                ownerActor->sprext.mdanimtims = mdtims;
                 m->interpol = 0;
-                smooth->mdsmooth = 1;
-                smooth->mdoldframe = smooth->mdcurframe;
-                smooth->mdcurframe = m->cframe;
+                ownerActor->spsmooth.mdsmooth = 1;
+                ownerActor->spsmooth.mdoldframe = ownerActor->spsmooth.mdcurframe;
+                ownerActor->spsmooth.mdcurframe = m->cframe;
             }
         }
-        else  // if (smooth->mdcurframe != m->cframe)
+        else  // if (ownerActor->spsmooth.mdcurframe != m->cframe)
         {
-            sprext->mdanimtims = mdtims;
+            ownerActor->sprext.mdanimtims = mdtims;
             m->interpol = 0;
-            smooth->mdsmooth = 1;
-            smooth->mdoldframe = smooth->mdcurframe;
-            smooth->mdcurframe = m->cframe;
+            ownerActor->spsmooth.mdsmooth = 1;
+            ownerActor->spsmooth.mdoldframe = ownerActor->spsmooth.mdcurframe;
+            ownerActor->spsmooth.mdcurframe = m->cframe;
         }
     }
-    else if (/* anim && */ sprext->mdanimcur != anim->startframe)
+    else if (/* anim && */ ownerActor->sprext.mdanimcur != anim->startframe)
     {
-        //if (sprext->flags & SPREXT_NOMDANIM) Printf("SPREXT_NOMDANIM\n");
-        //Printf("smooth launched ! oldanim %i new anim %i\n", sprext->mdanimcur, anim->startframe);
-        sprext->mdanimcur = (int16_t)anim->startframe;
-        sprext->mdanimtims = mdtims;
+        //if (ownerActor->sprext.flags & SPREXT_NOMDANIM) Printf("SPREXT_NOMDANIM\n");
+        //Printf("smooth launched ! oldanim %i new anim %i\n", ownerActor->sprext.mdanimcur, anim->startframe);
+        ownerActor->sprext.mdanimcur = (int16_t)anim->startframe;
+        ownerActor->sprext.mdanimtims = mdtims;
         m->interpol = 0;
 
         if (!smoothdurationp)
@@ -482,24 +473,24 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         }
 
         m->nframe = anim->startframe;
-        m->cframe = smooth->mdoldframe;
+        m->cframe = ownerActor->spsmooth.mdoldframe;
 
-        smooth->mdsmooth = 1;
+        ownerActor->spsmooth.mdsmooth = 1;
         goto prep_return;
     }
 
-    fps = smooth->mdsmooth ? xs_CRoundToInt((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
+    fps = ownerActor->spsmooth.mdsmooth ? xs_CRoundToInt((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
                                    : anim ? anim->fpssc : 1;
 
-    i = (mdtims - sprext->mdanimtims) * ((fps * 120) / 120);
+    i = (mdtims - ownerActor->sprext.mdanimtims) * ((fps * 120) / 120);
 
-    j = (smooth->mdsmooth || !anim) ? 65536 : IntToFixed(anim->endframe + 1 - anim->startframe);
+    j = (ownerActor->spsmooth.mdsmooth || !anim) ? 65536 : IntToFixed(anim->endframe + 1 - anim->startframe);
 
     // XXX: Just in case you play the game for a VERY long time...
-    if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
+    if (i < 0) { i = 0; ownerActor->sprext.mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if (anim && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        sprext->mdanimtims += j/((fps*120)/120);
+        ownerActor->sprext.mdanimtims += j/((fps*120)/120);
 
     k = i;
 
@@ -507,20 +498,20 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         { if (i > j-65536) i = j-65536; }
     else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
-    if (hw_animsmoothing && smooth->mdsmooth)
+    if (hw_animsmoothing && ownerActor->spsmooth.mdsmooth)
     {
-        m->nframe = anim ? anim->startframe : smooth->mdcurframe;
-        m->cframe = smooth->mdoldframe;
+        m->nframe = anim ? anim->startframe : ownerActor->spsmooth.mdcurframe;
+        m->cframe = ownerActor->spsmooth.mdoldframe;
 
         //Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
-            sprext->mdanimtims = mdtims;
+            ownerActor->sprext.mdanimtims = mdtims;
             m->interpol = 0;
-            smooth->mdsmooth = 0;
-            m->cframe = m->nframe; // = anim ? anim->startframe : smooth->mdcurframe;
+            ownerActor->spsmooth.mdsmooth = 0;
+            m->cframe = m->nframe; // = anim ? anim->startframe : ownerActor->spsmooth.mdcurframe;
 
-            smooth->mdoldframe = m->cframe;
+            ownerActor->spsmooth.mdoldframe = m->cframe;
             //Printf("smooth stopped !\n");
             goto prep_return;
         }
@@ -533,15 +524,13 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
         m->nframe = m->cframe+1;
 
-        if (anim && m->nframe > anim->endframe)  // VERIFY: (!(hw_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
+        if (anim && m->nframe > anim->endframe)  // VERIFY: (!(hw_animsmoothing && ownerActor->spsmooth.mdsmooth)) implies (anim!=NULL) ?
             m->nframe = anim->startframe;
 
-        smooth->mdoldframe = m->cframe;
-        //Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
+        ownerActor->spsmooth.mdoldframe = m->cframe;
     }
 
     m->interpol = clamp(i, 0, 65535) / 65536.f;
-    //Printf("interpol %f\n", m->interpol);
 
 prep_return:
     if (m->cframe >= m->numframes)
@@ -1088,11 +1077,11 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, floa
 {
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
-    auto& sext = tspr->ownerActor->sx();
-    k0 = ((float)(tspr->pos.X+sext.position_offset.X-globalposx))*f*(1.f/1024.f);
-    k1 = ((float)(tspr->pos.Y+sext.position_offset.Y-globalposy))*f*(1.f/1024.f);
-    k4 = -bsinf(tspr->ang+sext.angoff, -14);
-    k5 = bcosf(tspr->ang+sext.angoff, -14);
+    auto ownerActor = tspr->ownerActor;
+    k0 = ((float)(tspr->pos.X+ownerActor->sprext.position_offset.X-globalposx))*f*(1.f/1024.f);
+    k1 = ((float)(tspr->pos.Y+ownerActor->sprext.position_offset.Y-globalposy))*f*(1.f/1024.f);
+    k4 = -bsinf(tspr->ang+ownerActor->sprext.angoff, -14);
+    k5 = bcosf(tspr->ang+ownerActor->sprext.angoff, -14);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = - gsinang; 
@@ -1149,7 +1138,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     auto ownerActor = tspr->ownerActor;
     const spritetype* const spr = &ownerActor->s();
-    const spriteext_t* const sext = &ownerActor->sx();
     const uint8_t lpal = spr->pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
@@ -1180,7 +1168,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     a0.Z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = (float)tspr->pos.Z+sext->position_offset.Z;
+    k0 = (float)tspr->pos.Z+ownerActor->sprext.position_offset.Z;
     f = ((globalorientation & 8) && (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FACING) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f;
     if ((globalorientation&128) && !((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -1205,7 +1193,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     m0.Z *= f; m1.Z *= f; a0.Z *= f;
 
     // floor aligned
-    k1 = (float)tspr->pos.Y+sext->position_offset.Y;
+    k1 = (float)tspr->pos.Y+ ownerActor->sprext.position_offset.Y;
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
@@ -1218,7 +1206,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // calculations below again, but are needed for the base offsets.
     f = (65536.f*512.f)/(fxdimen*fviewingrange);
     g = 32.f/(fxdimen*gxyaspect);
-    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->pos.X+sext->position_offset.X-globalposx))*  (1.f/1024.f) + a0.Y)*f;
+    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->pos.X+ ownerActor->sprext.position_offset.X-globalposx))*  (1.f/1024.f) + a0.Y)*f;
     m0.X *=-f; m1.X *=-f; a0.X = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.X)*-f;
     m0.Z *= g; m1.Z *= g; a0.Z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.Z)*g;
 
@@ -1253,7 +1241,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * hw_shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
 
     pc[3] = (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? glblend[tspr->blend].def[!!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP)].alpha : 1.0f;
-    pc[3] *= 1.0f - sext->alpha;
+    pc[3] *= 1.0f - ownerActor->sprext.alpha;
 
     SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
@@ -1266,7 +1254,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     }
     else
     {
-        if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || sext->alpha > 0.f || pc[3] < 1.0f)
+        if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || ownerActor->sprext.alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true); //else GLInterface.EnableBlend(false);
     }
     GLInterface.SetColor(pc[0],pc[1],pc[2],pc[3]);
@@ -1275,24 +1263,24 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (sext->pitch || sext->roll)
+    if (ownerActor->sprext.pitch || ownerActor->sprext.roll)
     {
         float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.X+m1.X));
         memset(&a0, 0, sizeof(a0));
 
-        if (sext->pivot_offset.X)
-            a0.X = (float) sext->pivot_offset.X * f;
+        if (ownerActor->sprext.pivot_offset.X)
+            a0.X = (float) ownerActor->sprext.pivot_offset.X * f;
 
-        if (sext->pivot_offset.Y)  // Compare with SCREEN_FACTORS above
-            a0.Y = (float) sext->pivot_offset.Y * f;
+        if (ownerActor->sprext.pivot_offset.Y)  // Compare with SCREEN_FACTORS above
+            a0.Y = (float) ownerActor->sprext.pivot_offset.Y * f;
 
-        if ((sext->pivot_offset.Z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.Z = (float)sext->pivot_offset.Z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
+        if ((ownerActor->sprext.pivot_offset.Z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
+            a0.Z = (float)ownerActor->sprext.pivot_offset.Z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
 
-        k0 = bcosf(sext->pitch, -14);
-        k1 = bsinf(sext->pitch, -14);
-        k2 = bcosf(sext->roll, -14);
-        k3 = bsinf(sext->roll, -14);
+        k0 = bcosf(ownerActor->sprext.pitch, -14);
+        k1 = bsinf(ownerActor->sprext.pitch, -14);
+        k2 = bcosf(ownerActor->sprext.roll, -14);
+        k3 = bsinf(ownerActor->sprext.roll, -14);
     }
 
     VSMatrix imat = 0;
@@ -1310,7 +1298,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
-        if (sext->pitch || sext->roll)
+        if (ownerActor->sprext.pitch || ownerActor->sprext.roll)
         {
             FVector3 fp1, fp2;
 
@@ -1557,9 +1545,8 @@ void updateModelInterpolation()
     TSpriteIterator<DCoreActor> it;
     while (auto actor = it.Next())
     {
-        auto& sx = actor->sx();
-        if ((mdpause && sx.mdanimtims) || (sx.flags & SPREXT_NOMDANIM))
-            sx.mdanimtims += mdtims - omdtims;
+        if ((mdpause && actor->sprext.mdanimtims) || (actor->sprext.flags & SPREXT_NOMDANIM))
+            actor->sprext.mdanimtims += mdtims - omdtims;
     }
 }
 #endif
