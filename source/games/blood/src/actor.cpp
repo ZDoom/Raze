@@ -6580,34 +6580,32 @@ int actGetRespawnTime(DBloodActor* actor)
 {
 	if (!actor->hasX()) return -1;
 
-	XSPRITE* pXSprite = &actor->x();
-
 	if (actor->IsDudeActor() && !actor->IsPlayerActor())
 	{
-		if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nMonsterSettings == 2))
+		if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nMonsterSettings == 2))
 			return gGameOptions.nMonsterRespawnTime;
 		return -1;
 	}
 
 	if (actor->IsWeaponActor())
 	{
-		if (pXSprite->respawn == 3 || gGameOptions.nWeaponSettings == 1) return 0;
-		else if (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0)
+		if (actor->xspr.respawn == 3 || gGameOptions.nWeaponSettings == 1) return 0;
+		else if (actor->xspr.respawn != 1 && gGameOptions.nWeaponSettings != 0)
 			return gGameOptions.nWeaponRespawnTime;
 		return -1;
 	}
 
 	if (actor->IsAmmoActor())
 	{
-		if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0))
+		if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nWeaponSettings != 0))
 			return gGameOptions.nWeaponRespawnTime;
 		return -1;
 	}
 
 	if (actor->IsItemActor())
 	{
-		if (pXSprite->respawn == 3 && gGameOptions.nGameType == 1) return 0;
-		else if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nItemSettings != 0))
+		if (actor->xspr.respawn == 3 && gGameOptions.nGameType == 1) return 0;
+		else if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nItemSettings != 0))
 		{
 			switch (actor->spr.type)
 			{
@@ -6636,19 +6634,18 @@ bool actCheckRespawn(DBloodActor* actor)
 {
 	if (actor->hasX())
 	{
-		XSPRITE* pXSprite = &actor->x();
 		int nRespawnTime = actGetRespawnTime(actor);
 		if (nRespawnTime < 0) return 0;
 
-		pXSprite->respawnPending = 1;
+		actor->xspr.respawnPending = 1;
 		if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
 		{
-			pXSprite->respawnPending = 3;
+			actor->xspr.respawnPending = 3;
 			if (actor->spr.type == kThingTNTBarrel) actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		if (nRespawnTime > 0)
 		{
-			if (pXSprite->respawnPending == 1) nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
+			if (actor->xspr.respawnPending == 1) nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
 			actor->spr.owner = actor->spr.statnum;
 			actPostSprite(actor, kStatRespawn);
 			actor->spr.flags |= kHitagRespawn;
@@ -6876,8 +6873,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
 				if (actor->hasX())
 				{
-					XSPRITE* pXSprite = &actor->x();
-					if (pXSprite->physAttr & kPhysDebrisVector) {
+					if (actor->xspr.physAttr & kPhysDebrisVector) {
 
                         int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
                         actor->xvel += MulScale(a4, impulse, 16);
@@ -6885,7 +6881,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 						actor->zvel += MulScale(a6, impulse, 16);
 
 						if (pVectorData->burnTime != 0) {
-                            if (!pXSprite->burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+                            if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
 							actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 						}
 
