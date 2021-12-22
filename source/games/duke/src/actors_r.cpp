@@ -545,14 +545,14 @@ void movefta_r(void)
 						{
 							int r1 = krand();
 							int r2 = krand();
-							j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->spr.sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector);
+							j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->spr.sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
+						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 
@@ -1606,7 +1606,7 @@ void movetransports_r(void)
 
 							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
 							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
-							ps[p].oposz = ps[p].pos.Z = Owner->spr.pos.Z - (gs.playerheight - (4 << 8));
+							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - (gs.playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->spr.sector());
@@ -1629,7 +1629,7 @@ void movetransports_r(void)
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].pos.Z = Owner->spr.pos.Z - 6144;
 							else ps[p].pos.Z = Owner->spr.pos.Z + 6144;
-							ps[p].oposz = ps[p].pos.Z;
+							ps[p].opos.Z = ps[p].pos.Z;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1644,7 +1644,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].pos.Z > (sectp->floorz - (48 << 8)))
 						{
 							k = 2;
-							ps[p].oposz = ps[p].pos.Z =
+							ps[p].opos.Z = ps[p].pos.Z =
 								Owner->sector()->ceilingz + (7 << 8);
 						}
 
@@ -1652,7 +1652,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].oposz = ps[p].pos.Z =
+							ps[p].opos.Z = ps[p].pos.Z =
 								Owner->sector()->floorz - (49 << 8);
 						}
 					}
@@ -1667,7 +1667,7 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].oposz = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].pos.Z =
 							Owner->sector()->ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
@@ -1683,7 +1683,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].oposz = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].pos.Z =
 							Owner->sector()->floorz - (7 << 8);
 					}
 
@@ -2451,7 +2451,7 @@ void rr_specialstats()
 						ps[p].angle.ang = buildang(act2->spr.ang);
 						ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = act2->spr.pos.X;
 						ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = act2->spr.pos.Y;
-						ps[p].oposz = ps[p].pos.Z = act2->spr.pos.Z - (36 << 8);
+						ps[p].opos.Z = ps[p].pos.Z = act2->spr.pos.Z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());

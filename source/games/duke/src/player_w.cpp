@@ -439,7 +439,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_STANDSTILL
 			&& p->kickback_pic < (aplWeaponFireDelay(p->curr_weapon, snum) + 1))
 		{
-			p->pos.Z = p->oposz;
+			p->pos.Z = p->opos.Z;
 			p->poszv = 0;
 		}
 		if (p->kickback_pic == aplWeaponSound2Time(p->curr_weapon, snum))

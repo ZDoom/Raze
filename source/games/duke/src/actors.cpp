@@ -204,7 +204,7 @@ void clearcamera(player_struct* ps)
 	ps->newOwner = nullptr;
 	ps->pos.X = ps->opos.X;
 	ps->pos.Y = ps->opos.Y;
-	ps->pos.Z = ps->oposz;
+	ps->pos.Z = ps->opos.Z;
 	ps->angle.restore();
 	updatesector(ps->pos.X, ps->pos.Y, &ps->cursector);
 
@@ -403,7 +403,7 @@ void moveplayers(void)
 			{
 				act->spr.pos.X = p->opos.X;
 				act->spr.pos.Y = p->opos.Y;
-				act->spr.pos.Z = p->oposz + gs.playerheight;
+				act->spr.pos.Z = p->opos.Z + gs.playerheight;
 				act->spr.backupz();
 				act->spr.ang = p->angle.oang.asbuild();
 				SetActor(act, act->spr.pos);
@@ -799,7 +799,7 @@ void movecrane(DDukeActor *actor, int crane)
 			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].opos.X = ps[p].pos.X;
 			ps[p].opos.Y = ps[p].pos.Y;
-			ps[p].oposz = ps[p].pos.Z;
+			ps[p].opos.Z = ps[p].pos.Z;
 			ps[p].pos.X = actor->spr.pos.X - bcos(ang, -6);
 			ps[p].pos.Y = actor->spr.pos.Y - bsin(ang, -6);
 			ps[p].pos.Z = actor->spr.pos.Z + (2 << 8);
@@ -3874,11 +3874,11 @@ void handle_se17(DDukeActor* actor)
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
 			int p = act1->spr.yvel;
-			if (numplayers < 2) ps[p].oposz = ps[p].pos.Z;
+			if (numplayers < 2) ps[p].opos.Z = ps[p].pos.Z;
 			ps[p].pos.Z += q;
 			ps[p].truefz += q;
 			ps[p].truecz += q;
-			if (numplayers > 1)	ps[p].oposz = ps[p].pos.Z;
+			if (numplayers > 1)	ps[p].opos.Z = ps[p].pos.Z;
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR)
 		{
@@ -3935,7 +3935,7 @@ void handle_se17(DDukeActor* actor)
 
 				ps[p].bobposx = ps[p].opos.X = ps[p].pos.X;
 				ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y;
-				ps[p].oposz = ps[p].pos.Z;
+				ps[p].opos.Z = ps[p].pos.Z;
 
 				ps[p].truefz = act3->floorz;
 				ps[p].truecz = act3->ceilingz;

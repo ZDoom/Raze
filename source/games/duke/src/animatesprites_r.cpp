@@ -148,7 +148,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		{
 			t->pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16);
 			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16);
-			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
+			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio);
 			t->pos.Z += PHEIGHT_RR;
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;

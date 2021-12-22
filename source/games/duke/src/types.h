@@ -216,7 +216,7 @@ struct player_struct
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	int exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	int invdisptime;
-	int bobposx, bobposy, oposz, pyoff, opyoff;
+	int bobposx, bobposy, pyoff, opyoff;
 	int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
 	int player_par, visibility;
 	int bobcounter;

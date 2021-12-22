@@ -641,13 +641,13 @@ void movefta_d(void)
 
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->spr.sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector);
+						j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->spr.sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
+						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 
@@ -1942,7 +1942,7 @@ void movetransports_d(void)
 							
 							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
 							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
-							ps[p].oposz = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
+							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
 							
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->spr.sector());
@@ -1968,7 +1968,7 @@ void movetransports_d(void)
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].pos.Z = Owner->spr.pos.Z - 6144;
 							else ps[p].pos.Z = Owner->spr.pos.Z + 6144;
-							ps[p].oposz = ps[p].pos.Z;
+							ps[p].opos.Z = ps[p].pos.Z;
 							
 							auto pa = ps[p].GetActor();
 							pa->spr.opos = ps[p].pos;
@@ -1991,7 +1991,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].oposz = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].pos.Z =
 						Owner->sector()->ceilingz + (7 << 8);
 						
 						ps[p].posxv = 4096 - (krand() & 8192);
@@ -2009,7 +2009,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 						
-						ps[p].oposz = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].pos.Z =
 						Owner->sector()->floorz - (7 << 8);
 						
 						ps[p].jumping_toggle = 1;
@@ -2340,7 +2340,7 @@ static void greenslime(DDukeActor *actor)
 			ps[p].newOwner = nullptr;
 			ps[p].pos.X = ps[p].opos.X;
 			ps[p].pos.Y = ps[p].opos.Y;
-			ps[p].pos.Z = ps[p].oposz;
+			ps[p].pos.Z = ps[p].opos.Z;
 			ps[p].angle.restore();
 
 			updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);

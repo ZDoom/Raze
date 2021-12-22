@@ -529,7 +529,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		else if (actor->spr.picnum != UFOBEAM)
 			sa += 16 - (krand() & 31);
 
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -654,7 +654,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		}
 
 		l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].oposz - sz) * vel) / l;
+		zvel = ((ps[j].opos.Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			sa = actor->spr.ang + (krand() & 31) - 16;
@@ -793,7 +793,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 			sa -= (krand() & 16);
 		else
 			sa += 16 - (krand() & 31);
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;

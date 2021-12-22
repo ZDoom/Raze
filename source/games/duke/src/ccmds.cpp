@@ -117,7 +117,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 
 	p->opos.X = p->pos.X = x;
 	p->opos.Y = p->pos.Y = y;
-	p->oposz = p->pos.Z = z;
+	p->opos.Z = p->pos.Z = z;
 
 	if (ang != INT_MIN)
 	{

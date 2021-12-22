@@ -329,7 +329,7 @@ void displayrooms(int snum, double smoothratio)
 		{
 			cposx = interpolatedvalue(p->opos.X, p->pos.X, smoothratio);
 			cposy = interpolatedvalue(p->opos.Y, p->pos.Y, smoothratio);
-			cposz = interpolatedvalue(p->oposz, p->pos.Z, smoothratio);;
+			cposz = interpolatedvalue(p->opos.Z, p->pos.Z, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
