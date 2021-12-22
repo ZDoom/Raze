@@ -88,14 +88,14 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 		else
 		{
 			// If you hit a sprite that's not a wall sprite - try again.
-			spritetype* hspr = &hitinfo.hitActor->s();
+			auto hit = hitinfo.hitActor;
 
-			if (!(hspr->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+			if (!(hit->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 			{
-				bakcstat = hspr->cstat;
-				hspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+				bakcstat = hit->spr.cstat;
+				hit->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 				calcChaseCamPos(px, py, pz, pspr, psect, ang, horiz, smoothratio);
-				hspr->cstat = bakcstat;
+				hit->spr.cstat = bakcstat;
 				return false;
 			}
 			else

@@ -592,14 +592,12 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
         TSectIterator<DCoreActor> it(dasect);
         while (auto actor = it.Next())
         {
-            auto const spr = &actor->s();
-
-            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
+            if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
 
-            if (((tagsearch&1) && spr->lotag) || ((tagsearch&2) && spr->hitag))
+            if (((tagsearch&1) && actor->spr.lotag) || ((tagsearch&2) && actor->spr.hitag))
             {
-                if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
+                if (try_facespr_intersect(&actor->spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     result.hitActor = actor;
                     result.hitpos.X = DMulScale(hitv.X-sv.X, bcos(ange), hitv.Y-sv.Y, bsin(ange), 14);

@@ -602,20 +602,18 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 		CoreSectIterator it(sectnum);
 		while (auto actor = it.Next())
 		{
-			auto const spr = &actor->s();
-
-			if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
+			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.xrepeat == 0 || actor->spr.yrepeat == 0) // skip invisible sprites
 				continue;
 
-			int sx = spr->pos.X - iview.X, sy = spr->pos.Y - int(iview.Y);
+			int sx = actor->spr.pos.X - iview.X, sy = actor->spr.pos.Y - int(iview.Y);
 
 			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
-			//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
+			//if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[actor->spr.picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
 			{
-				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
-					(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-					(r_voxels && gi->Voxelize(spr->picnum) > -1) ||
-					DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
+				if ((actor->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
+					(r_voxels && tiletovox[actor->spr.picnum] >= 0 && voxmodels[tiletovox[actor->spr.picnum]]) ||
+					(r_voxels && gi->Voxelize(actor->spr.picnum) > -1) ||
+					DMulScale(bcos(actor->spr.ang), -sx, bsin(actor->spr.ang), -sy, 6) > 0)
 					if (!renderAddTsprite(di->tsprite, di->spritesortcnt, actor))
 						break;
 			}

@@ -1876,20 +1876,19 @@ void polymost_scansector(int32_t sectnum)
         TSectIterator<DCoreActor> it(sectnum);
         while (auto act = it.Next())
         {
-            auto spr = &act->s();
-            if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0)
+            if ((act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.xrepeat == 0 || act->spr.yrepeat == 0)
                 continue;
 
-            vec2_t const s = { spr->pos.X-globalposx, spr->pos.Y-globalposy };
+            vec2_t const s = { act->spr.pos.X-globalposx, act->spr.pos.Y-globalposy };
 
-            if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ||
-                (hw_models && tile2model[spr->picnum].modelid>=0) ||
+            if ((act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ||
+                (hw_models && tile2model[act->spr.picnum].modelid>=0) ||
                 ((s.X * gcosang) + (s.Y * gsinang) > 0))
             {
-                if ((spr->cstat&(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK))!=(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
-                    (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-                    (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
-                    DMulScale(bcos(spr->ang), -s.X, bsin(spr->ang), -s.Y, 6) > 0)
+                if ((act->spr.cstat&(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK))!=(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
+                    (r_voxels && tiletovox[act->spr.picnum] >= 0 && voxmodels[tiletovox[act->spr.picnum]]) ||
+                    (r_voxels && gi->Voxelize(act->spr.picnum) > -1) ||
+                    DMulScale(bcos(act->spr.ang), -s.X, bsin(act->spr.ang), -s.Y, 6) > 0)
                     if (!renderAddTsprite(pm_tsprite, pm_spritesortcnt, act))
                         break;
             }

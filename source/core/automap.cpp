@@ -565,15 +565,14 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		TSectIterator<DCoreActor> it(sect);
 		while (auto act = it.Next())
 		{
-			auto spr = &act->s();
-			if (spr->cstat & CSTAT_SPRITE_INVISIBLE)
+			if (act->spr.cstat & CSTAT_SPRITE_INVISIBLE)
 				continue;
 
-			if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)	// floor and slope sprites
+			if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)	// floor and slope sprites
 			{
-				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP))
+				if ((act->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP))
 					continue; // upside down
-				floorsprites.Push(spr);
+				floorsprites.Push(&act->spr);
 			}
 		}
 

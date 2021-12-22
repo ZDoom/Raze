@@ -1137,8 +1137,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
  //   int32_t texunits = GL_TEXTURE0;
 
     auto ownerActor = tspr->ownerActor;
-    const spritetype* const spr = &ownerActor->s();
-    const uint8_t lpal = spr->pal;
+    const uint8_t lpal = ownerActor->spr.pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
     updateanimation((md2model_t *)m, tspr, lpal);
@@ -1169,7 +1168,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = (float)tspr->pos.Z+ownerActor->sprext.position_offset.Z;
-    f = ((globalorientation & 8) && (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FACING) ? -4.f : 4.f;
+    f = ((globalorientation & 8) && (ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FACING) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f;
     if ((globalorientation&128) && !((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR))
         k0 += (float)(sizyrep<<1);

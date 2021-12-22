@@ -591,7 +591,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         TSectIterator<DCoreActor> it(dasect);
         while (auto actor = it.Next())
         {
-            auto const spr = &actor->s();
+            auto const spr = &actor->spr;
             const int32_t cstat = spr->cstat;
 
             if ((cstat&dasprclipmask) == 0)

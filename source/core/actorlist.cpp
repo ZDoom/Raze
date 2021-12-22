@@ -349,9 +349,6 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	auto actor = static_cast<DCoreActor*>(type->CreateNew());
 	GC::WriteBarrier(actor);
 
-	spritetype* pSprite = &actor->s();
-	pSprite->clear();
-
 	InsertActorStat(actor, stat, tail);
 	InsertActorSect(actor, sector, tail);
 
