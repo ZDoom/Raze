@@ -33,7 +33,6 @@ BEGIN_BLD_NS
 void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 {
     if (!actor) return;
-    XSPRITE *pXSprite = &actor->x();
     int top, bottom;
     GetActorExtents(actor, &top, &bottom);
     for (int i = 0; i < 3; i++)
@@ -53,7 +52,7 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
             pFX->zvel = actor->zvel - Random(0x1aaaa);
         }
     }
-    if (pXSprite->burnTime > 0)
+    if (actor->xspr.burnTime > 0)
         evPostActor(actor, 5, kCallbackFXFlameLick);
 }
 
@@ -129,7 +128,6 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 {
     if (!actor) return;
     assert(actor->hasX());
-    XSPRITE *pXSprite = &actor->x();
     int top, bottom;
     GetActorExtents(actor, &top, &bottom);
     auto pFX = gFX.fxSpawnActor(FX_27, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, top, 0);
@@ -139,16 +137,16 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
         pFX->yvel = actor->yvel + Random2(0x11111);
         pFX->zvel = actor->zvel - 0x6aaaa;
     }
-    if (pXSprite->data1 > 0)
+    if (actor->xspr.data1 > 0)
     {
         evPostActor(actor, 4, kCallbackFXZombieSpurt);
-        pXSprite->data1 -= 4;
+        actor->xspr.data1 -= 4;
     }
-    else if (pXSprite->data2 > 0)
+    else if (actor->xspr.data2 > 0)
     {
         evPostActor(actor, 60, kCallbackFXZombieSpurt);
-        pXSprite->data1 = 40;
-        pXSprite->data2--;
+        actor->xspr.data1 = 40;
+        actor->xspr.data2--;
     }
 }
 
@@ -205,7 +203,6 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 {
     if (!actor) return;
     assert(actor->hasX());
-    XSPRITE *pXSprite = &actor->x();
     
     if (actor->spr.statnum != kStatRespawn && actor->spr.statnum != kStatThing) {
         viewSetSystemMessage("Sprite #%d is not on Respawn or Thing list\n", actor->GetIndex());
@@ -215,16 +212,16 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
         return;
     }
 
-    switch (pXSprite->respawnPending) {
+    switch (actor->xspr.respawnPending) {
         case 1: {
             int nTime = MulScale(actGetRespawnTime(actor), 0x4000, 16);
-            pXSprite->respawnPending = 2;
+            actor->xspr.respawnPending = 2;
             evPostActor(actor, nTime, kCallbackRespawn);
             break;
         }
         case 2: {
             int nTime = MulScale(actGetRespawnTime(actor), 0x2000, 16);
-            pXSprite->respawnPending = 3;
+            actor->xspr.respawnPending = 3;
             evPostActor(actor, nTime, kCallbackRespawn);
             break;
         }
@@ -236,17 +233,17 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
             actor->SetOwner(nullptr);
             actor->spr.flags &= ~kHitagRespawn;
             actor->xvel = actor->yvel = actor->zvel = 0;
-            pXSprite->respawnPending = 0;
-            pXSprite->burnTime = 0;
-            pXSprite->isTriggered = 0;
+            actor->xspr.respawnPending = 0;
+            actor->xspr.burnTime = 0;
+            actor->xspr.isTriggered = 0;
             if (actor->IsDudeActor()) 
             {
                 int nType = actor->spr.type-kDudeBase;
                 actor->spr.pos = actor->basePoint;
                 actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
                 #ifdef NOONE_EXTENSIONS
-                if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[actor->spr.type - kDudeBase].startHealth << 4;
-                else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
+                if (!gModernMap || actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->spr.type - kDudeBase].startHealth << 4;
+                else actor->xspr.health = ClipRange(actor->xspr.sysData2 << 4, 1, 65535);
 
                 switch (actor->spr.type) {
                     default:
@@ -260,18 +257,18 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
                 }
                 
                 // return dude to the patrol state
-                if (gModernMap && pXSprite->dudeFlag4) {
-                    pXSprite->data3 = 0;
+                if (gModernMap && actor->xspr.dudeFlag4) {
+                    actor->xspr.data3 = 0;
                     actor->SetTarget(nullptr);
                 }
                 #else
                 actor->spr.clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
-                pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
+                actor->xspr.health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
                 if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                     seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                 #endif
                 aiInitSprite(actor);
-                pXSprite->key = 0;
+                actor->xspr.key = 0;
             } else if (actor->spr.type == kThingTNTBarrel) {
                 actor->spr.cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
                 actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -616,8 +613,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
     actor->spr.ang = getangle(Owner->spr.pos.X-actor->spr.pos.X, Owner->spr.pos.Y-actor->spr.pos.Y);
     if (actor->hasX())
     {
-        XSPRITE *pXSprite = &actor->x();
-        if (pXSprite->data1 == 0)
+        if (actor->xspr.data1 == 0)
         {
             evPostActor(actor, 0, kCallbackRemove);
             return;
@@ -631,14 +627,13 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                 continue;
             if (actor2->hasX())
             {
-                XSPRITE *pXSprite2 = &actor2->x();
                 PLAYER *pPlayer2;
                 if (actor2->IsPlayerActor())
                     pPlayer2 = &gPlayer[actor2->spr.type-kDudePlayer1];
                 else
                     pPlayer2 = nullptr;
 
-                if (pXSprite2->health > 0 && (pPlayer2 || pXSprite2->key == 0))
+                if (actor2->xspr.health > 0 && (pPlayer2 || actor2->xspr.key == 0))
                 {
                     if (pPlayer2)
                     {
@@ -651,8 +646,8 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                             t += ((3200-pPlayer2->armor[2])<<15)/3200;
                         if (Chance(t) || nextactor == nullptr)
                         {
-                            int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
-                            pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
+                            int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, actor->xspr.data1<<4);
+                            actor->xspr.data1 = ClipLow(actor->xspr.data1-nDmg, 0);
                             sub_76A08(actor2, actor, pPlayer2);
                             evPostActor(actor, 0, kCallbackRemove);
                             return;
@@ -702,17 +697,16 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                 }
             }
         }
-        pXSprite->data1 = ClipLow(pXSprite->data1-1, 0);
+        actor->xspr.data1 = ClipLow(actor->xspr.data1-1, 0);
         evPostActor(actor, 0, kCallbackRemove);
     }
 }
 
 void callbackCondition(DBloodActor* actor, sectortype*)
 {
-    XSPRITE* pXSprite = &actor->x();
-    if (pXSprite->isTriggered) return;
+    if (actor->xspr.isTriggered) return;
 
-    TRCONDITION const* pCond = &gCondition[pXSprite->sysData1];
+    TRCONDITION const* pCond = &gCondition[actor->xspr.sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  
         evn.target = pCond->obj[i].obj;
@@ -721,7 +715,7 @@ void callbackCondition(DBloodActor* actor, sectortype*)
         useCondition(actor, evn);
     }
 
-    evPostActor(actor, pXSprite->busyTime, kCallbackCondition);
+    evPostActor(actor, actor->xspr.busyTime, kCallbackCondition);
     return;
 }
 
