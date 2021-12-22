@@ -22,19 +22,9 @@ inline int badguypic(int const tileNum)
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
 }
 
-inline int badguy(spritetype const * const pSprite)
-{
-	return badguypic(pSprite->picnum);
-}
-
 inline int bossguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
-}
-
-inline int bossguy(spritetype const* const pSprite)
-{
-	return bossguypic(pSprite->picnum);
 }
 
 inline int actorflag(DDukeActor * actor, int mask)
