@@ -356,10 +356,10 @@ void spawnactors(SpawnSpriteDef& sprites)
         }
         auto sprt = &sprites.sprites[i];
         auto actor = insertActor(sprt->sector(), sprt->statnum);
-        actor->s() = sprites.sprites[i];
-        if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
-        else actor->sx() = {};
-        actor->sm() = {};
+        actor->spr = sprites.sprites[i];
+        if (sprites.sprext.Size()) actor->sprext = sprites.sprext[i];
+        else actor->sprext = {};
+        actor->spsmooth = {};
     }
 }
 

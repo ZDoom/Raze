@@ -4814,7 +4814,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    SPRITEp wp = weapActor? &weapActor->s() : nullptr;
     USERp wu = weapActor? weapActor->u() : nullptr;
 
     if (u->Health > 0)

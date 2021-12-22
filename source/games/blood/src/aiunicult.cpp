@@ -331,7 +331,6 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     int dist = approxDist(dx, dy);
     
     auto actLeech = leechIsDropped(actor);
-    spritetype* pLeech = actLeech? &actLeech->s() : nullptr;
     XSPRITE* pXLeech = actLeech && actLeech->hasX()? &actLeech->x() : nullptr;
     
     switch (curWeapon) {
@@ -382,7 +381,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pXSpawned->Proximity = true;
             return;
         case kModernThingEnemyLifeLeech:
-            if (pLeech != NULL) pXSpawned->health = pXLeech->health;
+            if (actLeech != nullptr) pXSpawned->health = pXLeech->health;
             else pXSpawned->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
             sfxPlay3DSound(actor, 490, -1, 0);
@@ -566,7 +565,6 @@ static void unicultThinkChase(DBloodActor* actor)
         int weaponType = actor->genDudeExtra.weaponType;
 
         auto actLeech = leechIsDropped(actor);
-        spritetype* pLeech = actLeech? &actLeech->s() : nullptr;
 
         const VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) 
@@ -599,7 +597,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     {
                         case kModernThingEnemyLifeLeech: 
                         {
-                            if (pLeech == NULL) 
+                            if (actLeech == nullptr) 
                             {
                                 aiGenDudeNewState(actor, &genDudeThrow2);
                                 genDudeThrow2.nextState = &genDudeDodgeShortL;
@@ -608,7 +606,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
                             int ldist = aiFightGetTargetDist(targetactor, pDudeInfo, actLeech);
                             if (ldist > 3 || !cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(),
-                                pLeech->pos.X, pLeech->pos.Y, pLeech->pos.Z, pLeech->sector()) || actLeech->GetTarget() == nullptr)
+                                actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.sector()) || actLeech->GetTarget() == nullptr)
                             {
                                 aiGenDudeNewState(actor, &genDudeThrow2);
                                 genDudeThrow2.nextState = &genDudeDodgeShortL;

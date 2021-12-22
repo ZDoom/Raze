@@ -176,7 +176,7 @@ using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
 
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {
-	GetSpriteExtents(&actor->s(), top, bottom);
+	GetSpriteExtents(&actor->spr, top, bottom);
 }
 
 inline bool CheckSector(const BitArray& bits, DBloodActor* act)

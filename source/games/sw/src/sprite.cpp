@@ -976,7 +976,7 @@ bool ActorTestSpawn(DSWActor* actor)
     {
         auto actorNew = insertActor(sp->sector(), STAT_DEFAULT);
         int t = actorNew->spr.time;  // must be preserved!
-        actorNew->s() = *sp;
+        actorNew->spr = *sp;
         actorNew->spr.time = t;
         change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
