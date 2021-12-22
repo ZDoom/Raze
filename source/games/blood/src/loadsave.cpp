@@ -467,7 +467,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 		// The rest is only relevant if the actor has an xsprite.
 	if (hasX())
 		{
-		arc("xsprite", xsprite)
+		arc("xsprite", xspr)
 			("dudeslope", dudeSlope)
 			("dudeextra", dudeExtra)
 			("explosionflag", explosionhackflag)

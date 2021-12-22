@@ -21,7 +21,7 @@ public:
 	int dudeSlope;
 	int xvel, yvel, zvel;
 	bool hasx;
-	XSPRITE xsprite;
+	XSPRITE xspr;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
@@ -52,7 +52,7 @@ public:
 		prevmarker = nullptr;
 		ownerActor = nullptr;
 		basePoint = {};
-		xsprite = {};
+		xspr = {};
 		hasx = false;
 		interpolated = false;
 		xvel = yvel = zvel = 0;
@@ -66,7 +66,7 @@ public:
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 
-	XSPRITE& x() { return xsprite; }	// calling this does not validate the xsprite!
+	XSPRITE& x() { return xspr; }	// calling this does not validate the xsprite!
 
 	void SetOwner(DBloodActor* own)
 	{

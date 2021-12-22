@@ -67,8 +67,8 @@ IMPLEMENT_POINTER(genDudeExtra.slave[3])
 IMPLEMENT_POINTER(genDudeExtra.slave[4])
 IMPLEMENT_POINTER(genDudeExtra.slave[5])
 IMPLEMENT_POINTER(genDudeExtra.slave[6])
-IMPLEMENT_POINTER(xsprite.burnSource)
-IMPLEMENT_POINTER(xsprite.target)
+IMPLEMENT_POINTER(xspr.burnSource)
+IMPLEMENT_POINTER(xspr.target)
 IMPLEMENT_POINTERS_END
 
 size_t DBloodActor::PropagateMark()
