@@ -31,7 +31,7 @@ public:
     int TotalKills, Kills;
     void SetCount(int);
     void AddNewKill(int);
-    void AddKill(spritetype *pSprite);
+    void AddKill(DBloodActor *actor);
     void CountTotalKills(void);
     void Clear(void);
 };

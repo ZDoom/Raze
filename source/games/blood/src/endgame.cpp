@@ -78,9 +78,9 @@ void CKillMgr::AddNewKill(int nCount)
 	TotalKills += nCount;
 }
 
-void CKillMgr::AddKill(spritetype* pSprite)
+void CKillMgr::AddKill(DBloodActor* actor)
 {
-	if (pSprite->statnum == kStatDude && pSprite->type != kDudeBat && pSprite->type != kDudeRat && pSprite->type != kDudeInnocent && pSprite->type != kDudeBurningInnocent)
+	if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)
 		Kills++;
 }
 
@@ -90,10 +90,9 @@ void CKillMgr::CountTotalKills(void)
 	BloodStatIterator it(kStatDude);
 	while (auto actor = it.Next())
 	{
-		spritetype* pSprite = &actor->s();
-		if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
+		if (actor->spr.type < kDudeBase || actor->spr.type >= kDudeMax)
 			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", actor->GetIndex());
-		if (pSprite->statnum == kStatDude && pSprite->type != kDudeBat && pSprite->type != kDudeRat && pSprite->type != kDudeInnocent && pSprite->type != kDudeBurningInnocent)
+		if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)
 			TotalKills++;
 	}
 }

@@ -2590,7 +2590,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
             fxSpawnBlood(actor, damage);
     }
     
-    gKillMgr.AddKill(pSprite);
+    gKillMgr.AddKill(actor);
 
     pSprite->type = kThingBloodChunks;
     actPostSprite(actor, kStatThing);
