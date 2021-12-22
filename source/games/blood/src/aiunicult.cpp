@@ -773,7 +773,6 @@ static void unicultThinkChase(DBloodActor* actor)
                         DBloodActor* hitactor = nullptr;
                         walltype* pHWall = NULL; 
                         XWALL* pXHWall = NULL;
-                        XSPRITE* pXHSprite = NULL;
                         bool hscn = false; 
                         bool blck = false; 
                         bool failed = false;
@@ -806,7 +805,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             else aiGenDudeNewState(actor, &genDudeChaseL);
                             return;
                         case 3:
-                            if (pHSprite->statnum == kStatFX || pHSprite->statnum == kStatProjectile || pHSprite->statnum == kStatDebris)
+                            if (hitactor->spr.statnum == kStatFX || hitactor->spr.statnum == kStatProjectile || hitactor->spr.statnum == kStatDebris)
                                 break;
                             if (hitactor->IsDudeActor() && (weaponType != kGenDudeWeaponHitscan || hscn)) 
                             {
@@ -823,12 +822,12 @@ static void unicultThinkChase(DBloodActor* actor)
                                     else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(actor, &genDudeDodgeShortD);
                                     else aiGenDudeNewState(actor, &genDudeDodgeShortL);
 
-                                    switch (pHSprite->type) 
+                                    switch (hitactor->spr.type) 
                                     {
                                         case kDudeModernCustom: // and make dude which could be hit to dodge too
                                             if (!dudeIsMelee(hitactor) && Chance(dist << 4)) 
                                             {
-                                                if (!inAttack(pXHSprite->aiState)) 
+                                                if (!inAttack(hitactor->xspr.aiState)) 
                                                 {
                                                     if (spriteIsUnderwater(hitactor)) aiGenDudeNewState(hitactor, &genDudeDodgeShorterW);
                                                     else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(hitactor, &genDudeDodgeShorterD);
@@ -837,32 +836,32 @@ static void unicultThinkChase(DBloodActor* actor)
                                                     // preferable in opposite sides
                                                     if (Chance(0x8000)) 
                                                     {
-                                                        if (pXSprite->dodgeDir == 1) pXHSprite->dodgeDir = -1;
-                                                        else if (pXSprite->dodgeDir == -1) pXHSprite->dodgeDir = 1;
+                                                        if (pXSprite->dodgeDir == 1) hitactor->xspr.dodgeDir = -1;
+                                                        else if (pXSprite->dodgeDir == -1) hitactor->xspr.dodgeDir = 1;
                                                     }
                                                     break;
                                                 }
-                                                if (pSprite->pos.X < pHSprite->pos.X) 
+                                                if (pSprite->pos.X < hitactor->spr.pos.X) 
                                                 {
-                                                    if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                                    if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = -1;
                                                     else pXSprite->dodgeDir = 1;
                                                 }
                                                 else 
                                                 {
-                                                    if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                                    if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = 1;
                                                     else pXSprite->dodgeDir = -1;
                                                 }
                                             }
                                             break;
                                         default:
-                                            if (pSprite->pos.X < pHSprite->pos.X) 
+                                            if (pSprite->pos.X < hitactor->spr.pos.X) 
                                             {
-                                                if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                                if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = -1;
                                                 else pXSprite->dodgeDir = 1;
                                             } 
                                             else 
                                             {
-                                                if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                                if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = 1;
                                                 else pXSprite->dodgeDir = -1;
                                             }
                                             break;
@@ -878,7 +877,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 if (actor == gHitInfo.actor()) break;
                                 
                                 bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
-                                if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
+                                if (!(hitactor->hasX() && (!immune || (immune && hitactor->spr.statnum == kStatThing && hitactor->xspr.Vector)) && !hitactor->xspr.locked)) 
                                 {
                                     if ((approxDist(gHitInfo.hitpos.X - pSprite->pos.X, gHitInfo.hitpos.Y - pSprite->pos.Y) <= 1500 && !blck)
                                         || (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1)))) 
@@ -890,7 +889,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
                                     }
 
-                                    int wd1 = picWidth(pHSprite->picnum, pHSprite->xrepeat);
+                                    int wd1 = picWidth(hitactor->spr.picnum, hitactor->spr.xrepeat);
                                     int wd2 = picWidth(pSprite->picnum, pSprite->xrepeat);
                                     if (wd1 < (wd2 << 3)) 
                                     {
@@ -899,14 +898,14 @@ static void unicultThinkChase(DBloodActor* actor)
                                         else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(actor, &genDudeDodgeShorterD);
                                         else aiGenDudeNewState(actor, &genDudeDodgeShorterL);
 
-                                        if (pSprite->pos.X < pHSprite->pos.X) 
+                                        if (pSprite->pos.X < hitactor->spr.pos.X) 
                                         {
-                                            if (Chance(0x3000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                            if (Chance(0x3000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = -1;
                                             else pXSprite->dodgeDir = 1;
                                         }
                                         else 
                                         {
-                                            if (Chance(0x3000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                            if (Chance(0x3000) && target->spr.pos.X > hitactor->spr.pos.X) pXSprite->dodgeDir = 1;
                                             else pXSprite->dodgeDir = -1;
                                         }
 
@@ -974,7 +973,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 default:
                                     //viewSetSystemMessage("DEF HIT: %d, MDIST: %d", hit, mdist);
                                     if (hit == 4) failed = (pHWall->type != kWallGib || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked);
-                                    else if (hit == 3 && (failed = (pHSprite->statnum != kStatThing || pXHSprite == NULL || pXHSprite->locked)) == false) 
+                                    else if (hit == 3 && (failed = (hitactor->spr.statnum != kStatThing || !hitactor->hasX() || hitactor->xspr.locked)) == false) 
                                     {
                                         // check also for damage resistance (all possible damages missile can use)
                                         for (int i = 0; i < kDmgMax; i++) 
