@@ -103,7 +103,6 @@ void DestroySnake(int nSnake)
 
 void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
-    auto pSprite = &pActor->s();
     int nDamage = BulletInfo[kWeaponStaff].nDamage;
 
     if (PlayerList[nPlayer].nDouble > 0) {
@@ -118,9 +117,9 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     pActor->pTarget = nOwner;
 
-    BuildAnim(nullptr, 23, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), 40, 4);
+    BuildAnim(nullptr, 23, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), 40, 4);
 
-    AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 128);
+    AddFlash(pActor->spr.sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
 
     StopActorSound(pActor);
 }
@@ -160,10 +159,7 @@ void BuildSnake(int nPlayer, int zVal)
     {
         BackUpBullet(&hit.hitpos.X, &hit.hitpos.Y, nAngle);
         auto pActor = insertActor(hit.hitSector, 202);
-		auto pSprite = &pActor->s();
-        pSprite->pos.X = hit.hitpos.X;
-        pSprite->pos.Y = hit.hitpos.Y;
-        pSprite->pos.Z = hit.hitpos.Z;
+        pActor->spr.pos = hit.hitpos;
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);
@@ -191,49 +187,48 @@ void BuildSnake(int nPlayer, int zVal)
         for (int i = 0; i < kSnakeSprites; i++)
         {
             auto pActor = insertActor(pViewSect, 202);
-            auto pSprite = &pActor->s();
 
 			pActor->pTarget = pPlayerActor;
-            //pSprite->owner = nPlayerSprite;
-            pSprite->picnum = nPic;
+            //pActor->spr.owner = nPlayerSprite;
+            pActor->spr.picnum = nPic;
 
             if (i == 0)
             {
-                pSprite->pos.X = pPlayerSprite->pos.X;
-                pSprite->pos.Y = pPlayerSprite->pos.Y;
-                pSprite->pos.Z = pPlayerSprite->pos.Z + zVal;
-                pSprite->xrepeat = 32;
-                pSprite->yrepeat = 32;
-                pViewSect = pSprite->sector();
+                pActor->spr.pos.X = pPlayerSprite->pos.X;
+                pActor->spr.pos.Y = pPlayerSprite->pos.Y;
+                pActor->spr.pos.Z = pPlayerSprite->pos.Z + zVal;
+                pActor->spr.xrepeat = 32;
+                pActor->spr.yrepeat = 32;
+                pViewSect = pActor->spr.sector();
                 sprt = pActor;
             }
             else
             {
-                pSprite->pos.X = sprt->spr.pos.X;
-                pSprite->pos.Y = sprt->spr.pos.Y;
-                pSprite->pos.Z = sprt->spr.pos.Z;
-                pSprite->xrepeat = 40 - 3 * i;
-                pSprite->yrepeat = 40 - 3 * i;
+                pActor->spr.pos.X = sprt->spr.pos.X;
+                pActor->spr.pos.Y = sprt->spr.pos.Y;
+                pActor->spr.pos.Z = sprt->spr.pos.Z;
+                pActor->spr.xrepeat = 40 - 3 * i;
+                pActor->spr.yrepeat = 40 - 3 * i;
             }
 
-            pSprite->clipdist = 10;
-            pSprite->cstat = 0;
-            pSprite->shade = -64;
-            pSprite->pal = 0;
-            pSprite->xoffset = 0;
-            pSprite->yoffset = 0;
-            pSprite->ang = pPlayerSprite->ang;
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
-            pSprite->zvel = 0;
-            pSprite->hitag = 0;
-            pSprite->extra = -1;
-            pSprite->lotag = runlist_HeadRun() + 1;
-            pSprite->backuppos();
+            pActor->spr.clipdist = 10;
+            pActor->spr.cstat = 0;
+            pActor->spr.shade = -64;
+            pActor->spr.pal = 0;
+            pActor->spr.xoffset = 0;
+            pActor->spr.yoffset = 0;
+            pActor->spr.ang = pPlayerSprite->ang;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
+            pActor->spr.zvel = 0;
+            pActor->spr.hitag = 0;
+            pActor->spr.extra = -1;
+            pActor->spr.lotag = runlist_HeadRun() + 1;
+            pActor->spr.backuppos();
 
             SnakeList[nSnake].pSprites[i] = pActor;
 
-            pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, ((nSnake << 8) | i), 0x110000);
+            pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, ((nSnake << 8) | i), 0x110000);
         }
 
         SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake, 0x110000);
@@ -268,10 +263,9 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
 	
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;
-    auto pSprite = &pActor->s();
 
-    int nAngle = pSprite->ang;
-    auto pSector =pSprite->sector();
+    int nAngle = pActor->spr.ang;
+    auto pSector =pActor->spr.sector();
 
     int esi = 2048;
 
@@ -320,7 +314,6 @@ void AISnake::Tick(RunListEvent* ev)
 
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0];
     if (!pActor) return;
-    auto pSprite = &pActor->s();
 
     seq_MoveSequence(pActor, SeqOffsets[kSeqSnakehed], 0);
 
@@ -333,8 +326,8 @@ void AISnake::Tick(RunListEvent* ev)
     {
     SEARCH_ENEMY:
         nMov = movesprite(pActor,
-            600 * bcos(pSprite->ang),
-            600 * bsin(pSprite->ang),
+            600 * bcos(pActor->spr.ang),
+            600 * bsin(pActor->spr.ang),
             bsin(SnakeList[nSnake].nAngle, -5),
             0, 0, CLIPMASK1);
 
@@ -350,11 +343,11 @@ void AISnake::Tick(RunListEvent* ev)
             goto SEARCH_ENEMY;
         }
 
-        zVal = pSprite->pos.Z;
+        zVal = pActor->spr.pos.Z;
 
         nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, 32);
 
-        zVal = pSprite->pos.Z - zVal;
+        zVal = pActor->spr.pos.Z - zVal;
     }
 
     if (nMov.type || nMov.exbits)
@@ -369,7 +362,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        int nAngle = pSprite->ang;
+        int nAngle = pActor->spr.ang;
         int var_30 = -bcos(nAngle, 6);
         int var_34 = -bsin(nAngle, 6);
 
@@ -378,11 +371,11 @@ void AISnake::Tick(RunListEvent* ev)
         SnakeList[nSnake].nAngle = (SnakeList[nSnake].nAngle + 64) & 0x7FF;
 
         int var_28 = (nAngle + 512) & kAngleMask;
-        auto pSector = pSprite->sector();
+        auto pSector = pActor->spr.sector();
 
-        int x = pSprite->pos.X;
-        int y = pSprite->pos.Y;
-        int z = pSprite->pos.Z;
+        int x = pActor->spr.pos.X;
+        int y = pActor->spr.pos.Y;
+        int z = pActor->spr.pos.Z;
 
         for (int i = 7; i > 0; i--)
         {
