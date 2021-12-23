@@ -88,13 +88,12 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
     int var_38 = 20;
     int var_2C = 30000;
 
-    spritetype *pPlayerSprite = &pPlayerActor->s();
 
     bestTarget = nullptr;
 
-    auto pSector =pPlayerSprite->sector();
+    auto pSector =pPlayerActor->spr.sector();
 
-    int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
+    int nAngle = (2048 - pPlayerActor->spr.ang) & kAngleMask;
 
     int nTSprite;
 
@@ -165,13 +164,12 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
             }
         }
     }
-    if (bestTarget != nullptr)
+    auto targ = bestTarget;
+    if (targ != nullptr)
     {
-        spritetype *pTarget = &bestTarget->s();
-
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z - GetActorHeight(bestTarget), pTarget->sector()))
+        if (!cansee(x, y, z, pSector, targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - GetActorHeight(targ), targ->spr.sector()))
         {
             bestTarget = nullptr;
         }
@@ -209,10 +207,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     pm_smoothratio = (int)smoothRatio;
 
     auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
-	auto pPlayerSprite = &pPlayerActor->s();
-    auto nPlayerOldCstat = pPlayerSprite->cstat;
-    auto pDop = &PlayerList[nLocalPlayer].pDoppleSprite->s();
-    auto nDoppleOldCstat = pDop->cstat;
+    auto nPlayerOldCstat = pPlayerActor->spr.cstat;
+    auto pDop = PlayerList[nLocalPlayer].pDoppleSprite;
+    auto nDoppleOldCstat = pDop->spr.cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -241,9 +238,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        playerX = pPlayerSprite->interpolatedx(smoothRatio);
-        playerY = pPlayerSprite->interpolatedy(smoothRatio);
-        playerZ = pPlayerSprite->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
+        playerX = pPlayerActor->spr.interpolatedx(smoothRatio);
+        playerY = pPlayerActor->spr.interpolatedy(smoothRatio);
+        playerZ = pPlayerActor->spr.interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(playerX, playerY, &pSector);
@@ -264,13 +261,13 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!bCamera)
         {
-            pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+            pDop->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
-            pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            pDop->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
@@ -285,7 +282,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = pPlayerSprite->sector()->floorz;
+        int floorZ = pPlayerActor->spr.sector()->floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;
@@ -396,9 +393,9 @@ void DrawView(double smoothRatio, bool sceneonly)
                 {
                     nHeadStage = 5;
 
-                    pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                    pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraa.asbuild() - pPlayerSprite->ang;
+                    int ang2 = nCameraa.asbuild() - pPlayerActor->spr.ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
 
@@ -454,8 +451,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         twod->ClearScreen();
     }
 
-    pPlayerSprite->cstat = nPlayerOldCstat;
-    pDop->cstat = nDoppleOldCstat;
+    pPlayerActor->spr.cstat = nPlayerOldCstat;
+    pDop->spr.cstat = nDoppleOldCstat;
     RestoreInterpolations();
 
     flash = 0;
