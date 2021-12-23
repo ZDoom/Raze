@@ -321,7 +321,7 @@ struct HWSkyboxPortal : public HWScenePortalBase
 {
 	bool oldclamp;
 	int old_pm;
-	spritetype * portal;
+	DCoreActor * portal;
 
 protected:
 	bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) override;
@@ -334,7 +334,7 @@ protected:
 public:
 
 
-	HWSkyboxPortal(FPortalSceneState *state, spritetype * pt) : HWScenePortalBase(state)
+	HWSkyboxPortal(FPortalSceneState *state, DCoreActor * pt) : HWScenePortalBase(state)
 	{
 		portal = pt;
 	}

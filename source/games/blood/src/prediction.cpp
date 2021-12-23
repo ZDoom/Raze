@@ -263,7 +263,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 {
 #if 0
-    spritetype *pSprite = pPlayer->pSprite;
+    auto pSprite = pPlayer->actor;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
 
@@ -357,7 +357,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 #endif
 }
 
-static void fakeMoveDude(spritetype *pSprite)
+static void fakeMoveDude(DBloodActor *actor)
 {
 #if 0 // not needed for single player, temporarily disabled due to icompatibilities with the refactored API.
     PLAYER *pPlayer = NULL;
@@ -448,9 +448,8 @@ static void fakeMoveDude(spritetype *pSprite)
     if (predict.zvel)
         predict.z += predict.zvel >> 8;
 
-    static_assert(sizeof(tspritetype) == sizeof(spritetype));
-    tspritetype pSpriteBak; memcpy(&pSpriteBak, pSprite, sizeof(pSpriteBak)); // how dare you??? (Use a tspritetype here so that if the sprite storage gets refactored, this line gets flagged.)
-    spritetype *pTempSprite = pSprite;
+    spritetype pSpriteBak; memcpy(&pSpriteBak, pSprite, sizeof(pSpriteBak));
+    auto pTempSprite = pSprite;
     pTempSprite->x = predict.x;
     pTempSprite->y = predict.y;
     pTempSprite->z = predict.z;
@@ -570,7 +569,7 @@ static void fakeMoveDude(spritetype *pSprite)
 #endif
 }
 
-static void fakeActAirDrag(spritetype *, int num)
+static void fakeActAirDrag(DBloodActor *, int num)
 {
 #if 0
     int xvec = 0;
@@ -598,7 +597,7 @@ static void fakeActAirDrag(spritetype *, int num)
 void fakeActProcessSprites(void)
 {
 #if 0
-	spritetype *pSprite = gMe->pSprite;
+	auto pSprite = gMe->actor;
 	if (pSprite->statnum == kStatDude)
 	{
 		int nSector = predict.sector;
@@ -642,7 +641,7 @@ void fakeActProcessSprites(void)
 void viewCorrectPrediction(void)
 {
 #if 0
-    spritetype *pSprite = gMe->pSprite;
+    auto pSprite = gMe->actor;
     VIEW *pView = &predictFifo[(gNetFifoTail-1)&255];
     if (gMe->angle.ang != pView->at30 || pView->at24 != gMe->horizon.horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
     {

@@ -513,7 +513,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     for (int i = 0; i < mapHeader.numsprites; i++)
     {
         spritetypedisk load;
-        fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
+        fr.Read(&load, sizeof(spritetypedisk));
         if (encrypted) // What were these people thinking? :(
         {
             dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev * sizeof(spritetypedisk)) | 0x7474614d);
