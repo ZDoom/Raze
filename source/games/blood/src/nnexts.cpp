@@ -260,8 +260,6 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
     if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
         return NULL;
 
-    XSPRITE* pXDude = &pDudeActor->x();
-
     int angle = origin->spr.ang;
     int x, y, z = a4 + origin->spr.pos.Z;
     if (a3 < 0)
@@ -284,8 +282,8 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
     pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
     pDudeActor->spr.clipdist = getDudeInfo(nType)->clipdist;
 
-    pXDude->respawn = 1;
-    pXDude->health = getDudeInfo(nType)->startHealth << 4;
+    pDudeActor->xspr.respawn = 1;
+    pDudeActor->xspr.health = getDudeInfo(nType)->startHealth << 4;
 
     if (fileSystem.FindResource(getDudeInfo(nType)->seqStartID, "SEQ"))
         seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor, -1);
@@ -298,20 +296,20 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
             pDudeActor->spr.pal = sourceactor->spr.pal;
 
         // inherit spawn sprite trigger settings, so designer can count monsters.
-        pXDude->txID = sourceactor->xspr.txID;
-        pXDude->command = sourceactor->xspr.command;
-        pXDude->triggerOn = sourceactor->xspr.triggerOn;
-        pXDude->triggerOff = sourceactor->xspr.triggerOff;
+        pDudeActor->xspr.txID = sourceactor->xspr.txID;
+        pDudeActor->xspr.command = sourceactor->xspr.command;
+        pDudeActor->xspr.triggerOn = sourceactor->xspr.triggerOn;
+        pDudeActor->xspr.triggerOff = sourceactor->xspr.triggerOff;
 
         // inherit drop items
-        pXDude->dropMsg = sourceactor->xspr.dropMsg;
+        pDudeActor->xspr.dropMsg = sourceactor->xspr.dropMsg;
 
         // inherit dude flags
-        pXDude->dudeDeaf = sourceactor->xspr.dudeDeaf;
-        pXDude->dudeGuard = sourceactor->xspr.dudeGuard;
-        pXDude->dudeAmbush = sourceactor->xspr.dudeAmbush;
-        pXDude->dudeFlag4 = sourceactor->xspr.dudeFlag4;
-        pXDude->unused1 = sourceactor->xspr.unused1;
+        pDudeActor->xspr.dudeDeaf = sourceactor->xspr.dudeDeaf;
+        pDudeActor->xspr.dudeGuard = sourceactor->xspr.dudeGuard;
+        pDudeActor->xspr.dudeAmbush = sourceactor->xspr.dudeAmbush;
+        pDudeActor->xspr.dudeFlag4 = sourceactor->xspr.dudeFlag4;
+        pDudeActor->xspr.unused1 = sourceactor->xspr.unused1;
 
     }
 
@@ -321,11 +319,11 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 
     bool burning = IsBurningDude(pDudeActor);
     if (burning) {
-        pXDude->burnTime = 10;
+        pDudeActor->xspr.burnTime = 10;
         pDudeActor->SetTarget(nullptr);
     }
 
-    if ((burning || (sourceactor->spr.flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
+    if ((burning || (sourceactor->spr.flags & kModernTypeFlag3)) && !pDudeActor->xspr.dudeFlag4)
         aiActivateDude(pDudeActor);
 
     return pDudeActor;
@@ -625,8 +623,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
                     BloodStatIterator it(kStatDude);
                     while (DBloodActor* iactor = it.Next())
                     {
-                        XSPRITE* pXSpr = &iactor->x();
-                        if (pXSpr->rxID != actor->xspr.txID) continue;
+                        if (iactor->xspr.rxID != actor->xspr.txID) continue;
                         else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", actor->xspr.txID);
                         ChangeActorStat(iactor, kStatInactive);
                         found++;
@@ -658,8 +655,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
                         BloodStatIterator it(kStatModernPlayerLinker);
                         while (auto iactor = it.Next())
                             {
-                            XSPRITE* pXCtrl = &iactor->x();
-                                if (actor->xspr.data1 == pXCtrl->data1)
+                                if (actor->xspr.data1 == iactor->xspr.data1)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), actor->xspr.data1, iactor->GetIndex());
                             }
                             actor->xspr.sysData1 = -1;
@@ -794,7 +790,6 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
             if (!iactor->exists() || !iactor2->hasX() || iactor2->xspr.txID != iactor->xspr.rxID || iactor2 == iactor)
                 continue;
 
-            XSPRITE* pXSpr = &iactor2->x();
             switch (iactor2->spr.type) 
             {
                 case kSwitchToggle: // exceptions
@@ -809,7 +804,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].obj = EventObject(iactor2);
-            pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
+            pCond->obj[count++].cmd = (uint8_t)iactor2->xspr.command;
         }
 
         for (auto& sect: sector)
@@ -957,15 +952,14 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
                 if ((sourceactor->spr.flags & kModernTypeFlag1) && (sourceactor->xspr.txID > 0 || (sourceactor->xspr.txID != 3 && sourceactor->xspr.lockMsg > 0))) 
                 {
                     spawned->addX();
-                    XSPRITE* pXSprite2 = &spawned->x();
 
                     // inherit spawn sprite trigger settings, so designer can send command when item picked up.
-                    pXSprite2->txID = sourceactor->xspr.txID;
-                    pXSprite2->command = sourceactor->xspr.sysData1;
-                    pXSprite2->triggerOn = sourceactor->xspr.triggerOn;
-                    pXSprite2->triggerOff = sourceactor->xspr.triggerOff;
+                    spawned->xspr.txID = sourceactor->xspr.txID;
+                    spawned->xspr.command = sourceactor->xspr.sysData1;
+                    spawned->xspr.triggerOn = sourceactor->xspr.triggerOn;
+                    spawned->xspr.triggerOff = sourceactor->xspr.triggerOff;
 
-                    pXSprite2->Pickup = true;
+                    spawned->xspr.Pickup = true;
 
                 }
             }
@@ -1063,21 +1057,21 @@ void nnExtProcessSuperSprites()
         for (int i = 0; i < gTrackingCondsCount; i++) 
         {
             TRCONDITION const* pCond = &gCondition[i];
-            XSPRITE* pXCond = &pCond->actor->x();
-            if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
+            auto aCond = pCond->actor;
+            if (aCond->xspr.locked || aCond->xspr.isTriggered || ++aCond->xspr.busy < aCond->xspr.busyTime)
                 continue;
 
-            if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax)
+            if (aCond->xspr.data1 >= kCondGameBase && aCond->xspr.data1 < kCondGameMax)
             {
                 EVENT evn;
                 evn.target = EventObject(pCond->actor);
-                evn.cmd = (int8_t)pXCond->command;
+                evn.cmd = (int8_t)aCond->xspr.command;
                 evn.funcID = kCallbackMax;
                 useCondition(pCond->actor, evn);
             }
             else if (pCond->length > 0)
             {
-                pXCond->busy = 0;
+                aCond->xspr.busy = 0;
                 for (unsigned k = 0; k < pCond->length; k++)
                 {
                     EVENT evn;
@@ -1099,16 +1093,15 @@ void nnExtProcessSuperSprites()
         if (!(windactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) || windactor->spr.statnum >= kMaxStatus || !windactor->hasX())
             continue;
 
-        XSPRITE* pXWind = &windactor->x();
-        if (!pXWind->state || pXWind->locked)
+        if (!windactor->xspr.state || windactor->xspr.locked)
             continue;
 
         int j, rx;
         bool fWindAlways = (windactor->spr.flags & kModernTypeFlag1);
 
-        if (pXWind->txID) {
+        if (windactor->xspr.txID) {
 
-            rx = pXWind->txID;
+            rx = windactor->xspr.txID;
             for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
             {
                 if (!rxBucket[j].isSector()) continue;
@@ -1116,7 +1109,7 @@ void nnExtProcessSuperSprites()
                 XSECTOR* pXSector = &pSector->xs();
 
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                    windGenDoVerticalWind(pXWind->sysData2, pSector);
+                    windGenDoVerticalWind(windactor->xspr.sysData2, pSector);
             }
 
             DBloodActor* pXRedir = nullptr; // check redirected TX buckets
@@ -1129,7 +1122,7 @@ void nnExtProcessSuperSprites()
                     XSECTOR* pXSector = &pSector->xs();
 
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                        windGenDoVerticalWind(pXWind->sysData2, pSector);
+                        windGenDoVerticalWind(windactor->xspr.sysData2, pSector);
                 }
             }
 
@@ -1139,7 +1132,7 @@ void nnExtProcessSuperSprites()
             sectortype* pSect = windactor->spr.sector();
             XSECTOR* pXSector = (pSect->hasX()) ? &pSect->xs() : nullptr;
             if ((fWindAlways) || (pXSector && !pXSector->locked && (pXSector->windAlways || pXSector->busy)))
-                windGenDoVerticalWind(pXWind->sysData2, windactor->spr.sector());
+                windGenDoVerticalWind(windactor->xspr.sysData2, windactor->spr.sector());
         }
     }
 
@@ -1151,9 +1144,8 @@ void nnExtProcessSuperSprites()
             DBloodActor* pProx = gProxySpritesList[i];
             if (!pProx || !pProx->hasX()) continue;
 
-            XSPRITE* pXProxSpr = &pProx->x();
-            if (!pXProxSpr->Proximity || (!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1
-                || pXProxSpr->isTriggered) continue;  // don't process locked or triggered sprites
+            if (!pProx->xspr.Proximity || (!pProx->xspr.Interrutable && pProx->xspr.state != pProx->xspr.restState) || pProx->xspr.locked == 1
+                || pProx->xspr.isTriggered) continue;  // don't process locked or triggered sprites
 
             int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProx->spr.clipdist * 3, 32);
             int x = pProx->spr.pos.X;
@@ -1161,7 +1153,7 @@ void nnExtProcessSuperSprites()
             int z = pProx->spr.pos.Z;	
             auto pSect = pProx->spr.sector();
 
-            if (!pXProxSpr->DudeLockout)
+            if (!pProx->xspr.DudeLockout)
             {
                 BloodStatIterator it(kStatDude);
                 while (auto affected = it.Next())
@@ -1200,13 +1192,11 @@ void nnExtProcessSuperSprites()
             DBloodActor* pSight = gSightSpritesList[i];
             if (!pSight || !pSight->hasX()) continue;
 
-            XSPRITE* pXSightSpr = &pSight->x();
-
-            if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
-                pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
+            if ((!pSight->xspr.Interrutable && pSight->xspr.state != pSight->xspr.restState) || pSight->xspr.locked == 1 ||
+                pSight->xspr.isTriggered) continue; // don't process locked or triggered sprites
 
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (pSight->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
+            if ((pSight->xspr.unused3 & kTriggerSpriteScreen) && (pSight->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
             {
                 trTriggerSprite(pSight, kCmdSpriteSight);
                 pSight->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
@@ -1229,13 +1219,13 @@ void nnExtProcessSuperSprites()
                 GetActorExtents(plActor, &ztop2, &zbot2);
                 if (cansee(x, y, z, pSightSect, plActor->spr.pos.X, plActor->spr.pos.Y, ztop2, plActor->spr.sector()))
                 {
-                    if (pXSightSpr->Sight)
+                    if (pSight->xspr.Sight)
                     {
                     trTriggerSprite(pSight, kCmdSpriteSight);
                         break;
                     }
 
-                    if (pXSightSpr->unused3 & kTriggerSpriteAim)
+                    if (pSight->xspr.unused3 & kTriggerSpriteAim)
                     {
                         bool vector = (pSight->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
                         if (!vector)
@@ -1271,8 +1261,7 @@ void nnExtProcessSuperSprites()
                 continue;
             }
 
-            XSPRITE* pXDebris = &debrisactor->x();
-            if (!(pXDebris->physAttr & kPhysMove) && !(pXDebris->physAttr & kPhysGravity))
+            if (!(debrisactor->xspr.physAttr & kPhysMove) && !(debrisactor->xspr.physAttr & kPhysGravity))
             {
                 gPhysSpritesList[i] = nullptr;
                 continue;
@@ -1311,7 +1300,7 @@ void nnExtProcessSuperSprites()
 
             actAirDrag(debrisactor, airVel);
 
-            if (pXDebris->physAttr & kPhysDebrisTouch) 
+            if (debrisactor->xspr.physAttr & kPhysDebrisTouch) 
             {
                 PLAYER* pPlayer = NULL;
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) 
@@ -1332,28 +1321,28 @@ void nnExtProcessSuperSprites()
                 }
             }
             
-            if (pXDebris->physAttr & kPhysGravity) pXDebris->physAttr |= kPhysFalling;
-            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || debrisactor->spr.sector()->velFloor || debrisactor->spr.sector()->velCeil)
+            if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
+            if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || debrisactor->spr.sector()->velFloor || debrisactor->spr.sector()->velCeil)
             debrisMove(i);
 
             if (debrisactor->xvel || debrisactor->yvel)
-                pXDebris->goalAng = getangle(debrisactor->xvel, debrisactor->yvel) & 2047;
+                debrisactor->xspr.goalAng = getangle(debrisactor->xvel, debrisactor->yvel) & 2047;
 
             int ang = debrisactor->spr.ang & 2047;
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) 
             {
                 if (debrisactor->zvel > 0x100) debrisBubble(debrisactor);
-                if (ang == pXDebris->goalAng) 
+                if (ang == debrisactor->xspr.goalAng) 
                 {
-                   pXDebris->goalAng = (debrisactor->spr.ang + Random3(kAng60)) & 2047;
+                   debrisactor->xspr.goalAng = (debrisactor->spr.ang + Random3(kAng60)) & 2047;
                     debrisBubble(debrisactor);
         }
     }
 
             int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel) + abs(debrisactor->yvel)) >> 5)), (uwater) ? 1 : 0);
-            if (ang < pXDebris->goalAng) debrisactor->spr.ang = ClipHigh(ang + angStep, pXDebris->goalAng);
-            else if (ang > pXDebris->goalAng) debrisactor->spr.ang = ClipLow(ang - angStep, pXDebris->goalAng);
+            if (ang < debrisactor->xspr.goalAng) debrisactor->spr.ang = ClipHigh(ang + angStep, debrisactor->xspr.goalAng);
+            else if (ang > debrisactor->xspr.goalAng) debrisactor->spr.ang = ClipLow(ang - angStep, debrisactor->xspr.goalAng);
 
             auto pSector = debrisactor->spr.sector();
             int cz = getceilzofslopeptr(pSector, debrisactor->spr.pos.X, debrisactor->spr.pos.Y);
