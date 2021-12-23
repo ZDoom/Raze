@@ -224,11 +224,6 @@ int StdRandomRange(int range);
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-inline int PIC_SIZY(spritetype* sp)
-{
-    return tileHeight(sp->picnum);
-}
-
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
 inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty, int& tmin)
@@ -254,6 +249,10 @@ inline int SPRITEp_SIZE_Z(const spritetypebase* sp)
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
 }
 
+inline int SPRITEp_SIZE_Z(DSWActor* sp)
+{
+    return (tileHeight(sp->spr.picnum) * sp->spr.yrepeat) << 2;
+}
 
 
 // Given a z height and sprite return the correct y repeat value

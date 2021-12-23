@@ -130,17 +130,16 @@ void BuildSnake(int nPlayer, int zVal)
     zVal -= 1280;
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    auto pPlayerSprite = &pPlayerActor->s();
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
     int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
-    int x = pPlayerSprite->pos.X;
-    int y = pPlayerSprite->pos.Y;
-    int z = (pPlayerSprite->pos.Z + zVal) - 2560;
-    int nAngle = pPlayerSprite->ang;
+    int x = pPlayerActor->spr.pos.X;
+    int y = pPlayerActor->spr.pos.Y;
+    int z = (pPlayerActor->spr.pos.Z + zVal) - 2560;
+    int nAngle = pPlayerActor->spr.ang;
 
     HitInfo hit{};
-    hitscan({ x, y, z }, pPlayerSprite->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
+    hitscan({ x, y, z }, pPlayerActor->spr.sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
 
     uint32_t yDiff = abs(hit.hitpos.Y - y);
     uint32_t xDiff = abs(hit.hitpos.X - x);
@@ -194,9 +193,9 @@ void BuildSnake(int nPlayer, int zVal)
 
             if (i == 0)
             {
-                pActor->spr.pos.X = pPlayerSprite->pos.X;
-                pActor->spr.pos.Y = pPlayerSprite->pos.Y;
-                pActor->spr.pos.Z = pPlayerSprite->pos.Z + zVal;
+                pActor->spr.pos.X = pPlayerActor->spr.pos.X;
+                pActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
+                pActor->spr.pos.Z = pPlayerActor->spr.pos.Z + zVal;
                 pActor->spr.xrepeat = 32;
                 pActor->spr.yrepeat = 32;
                 pViewSect = pActor->spr.sector();
@@ -217,7 +216,7 @@ void BuildSnake(int nPlayer, int zVal)
             pActor->spr.pal = 0;
             pActor->spr.xoffset = 0;
             pActor->spr.yoffset = 0;
-            pActor->spr.ang = pPlayerSprite->ang;
+            pActor->spr.ang = pPlayerActor->spr.ang;
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
             pActor->spr.zvel = 0;
@@ -274,10 +273,9 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     ExhumedSectIterator it(pSector);
     while (auto pAct2 = it.Next())
     {
-		auto pSpr2 = &pAct2->s();
-        if (pSpr2->statnum >= 90 && pSpr2->statnum < 150 && (pSpr2->cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (pAct2->spr.statnum >= 90 && pAct2->spr.statnum < 150 && (pAct2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
-            if (pAct2 != pPlayerActor && !(pSpr2->cstat & CSTAT_SPRITE_INVISIBLE))
+            if (pAct2 != pPlayerActor && !(pAct2->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 int nAngle2 = (nAngle - GetAngleToSprite(pActor, pAct2)) & kAngleMask;
                 if (nAngle2 < esi)
@@ -381,12 +379,11 @@ void AISnake::Tick(RunListEvent* ev)
         {
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
-			auto pSprite2 = &pActor2->s();
 
-            pSprite2->ang = nAngle;
-            pSprite2->pos.X = x;
-            pSprite2->pos.Y = y;
-            pSprite2->pos.Z = z;
+            pActor2->spr.ang = nAngle;
+            pActor2->spr.pos.X = x;
+            pActor2->spr.pos.Y = y;
+            pActor2->spr.pos.Z = z;
 
             ChangeActorSect(pActor2, pSector);
 

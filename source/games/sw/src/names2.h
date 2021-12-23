@@ -224,8 +224,6 @@ enum STAT_ENUMS
 #define BLADE2  361
 #define BLADE3  362
 
-#define HORIZ_BLADES BLADE1 : BLADE2 : BLADE3
-
 //////////////////////
 //
 // WEAPON RELATED
