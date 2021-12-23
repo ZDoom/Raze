@@ -660,7 +660,6 @@ void playerStart(int nPlayer, int bNewLevel)
     auto actor = actSpawnSprite(pStartZone->sector, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
-    pPlayer->pSprite = &actor->spr;
     pPlayer->pXSprite = pXSprite;
     pPlayer->actor = actor;
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
@@ -2360,9 +2359,8 @@ void SerializePlayers(FSerializer& arc)
     {
         for (int i = 0; i < gNetPlayers; i++) 
         {
-            gPlayer[i].pSprite = &gPlayer[i].actor->s();
             gPlayer[i].pXSprite = &gPlayer[i].actor->x();
-            gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type - kDudeBase];
+            gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].actor->spr.type - kDudeBase];
 
 #ifdef NOONE_EXTENSIONS
             // load qav scene

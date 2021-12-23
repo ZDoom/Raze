@@ -475,7 +475,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
     }
     else
     {
-        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, &pSector, cA, cH, gInterpolate);
+        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, &gView->actor->spr, &pSector, cA, cH, gInterpolate);
     }
     CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
 }
@@ -526,7 +526,7 @@ void renderCrystalBall()
         vd4 += QRandom2(nValue >> 4);
         vd0 += QRandom2(nValue);
     }
-    CalcOtherPosition(pOther->pSprite, &vd8, &vd4, &vd0, &vcc, v50, 0, (int)gInterpolate);
+    CalcOtherPosition(pOther->actor, &vd8, &vd4, &vd0, &vcc, v50, 0, (int)gInterpolate);
     CheckLink(&vd8, &vd4, &vd0, &vcc);
     uint8_t v14 = 0;
     if (IsUnderwaterSector(vcc))
@@ -711,7 +711,7 @@ void viewDrawScreen(bool sceneonly)
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
     {
-        DrawMap (gView->pSprite);
+        DrawMap (&gView->actor->spr);
     }
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;

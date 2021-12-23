@@ -471,10 +471,10 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         pXSprite->isTriggered = 1;
         SetSpriteState(actor, 1);
         for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
-            spritetype *pPlayerSprite = gPlayer[p].pSprite;
-            int dx = (actor->spr.pos.X - pPlayerSprite->pos.X)>>4;
-            int dy = (actor->spr.pos.Y - pPlayerSprite->pos.Y)>>4;
-            int dz = (actor->spr.pos.Z - pPlayerSprite->pos.Z)>>8;
+            auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
+            int dx = (vec.X)>>4;
+            int dy = (vec.Y)>>4;
+            int dz = (vec.Z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
             gPlayer[p].quakeEffect = DivScale(pXSprite->data1, nDist, 16);
         }
