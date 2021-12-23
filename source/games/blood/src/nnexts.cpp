@@ -4765,15 +4765,13 @@ DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDis
     {
         if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, targactor)) continue;
 
-        auto pXTarget = &targactor->x();
-
         int dist = aiFightGetTargetDist(actor, pDudeInfo, targactor);
         if (dist < minDist || dist > maxDist) continue;
         else if (actor->GetTarget() == targactor) return targactor;
         else if (!targactor->IsDudeActor() || targactor == actor || targactor->IsPlayerActor()) continue;
         else if (IsBurningDude(targactor) || !IsKillableDude(targactor) || targactor->GetOwner() == actor) continue;
-        else if ((teamMode == 1 && actor->xspr.rxID == pXTarget->rxID) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
-        else if (data == 666 || pXTarget->data1 == data) 
+        else if ((teamMode == 1 && actor->xspr.rxID == targactor->xspr.rxID) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
+        else if (data == 666 || targactor->xspr.data1 == data) 
         {
             if (actor->GetTarget())
             {
@@ -4837,8 +4835,7 @@ DBloodActor* aiFightGetMateTargets(DBloodActor* actor)
 
 bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow) 
 {
-    auto pXLeader = &leaderactor->x();
-    int rx = pXLeader->rxID; 
+    int rx = leaderactor->xspr.rxID; 
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
@@ -4950,8 +4947,7 @@ void aiFightFreeAllTargets(DBloodActor* sourceactor)
 
 bool aiFightDudeIsAffected(DBloodActor* dudeactor) 
 {
-    auto pXDude = &dudeactor->x();
-    if (pXDude->rxID <= 0 || pXDude->locked == 1) return false;
+    if (dudeactor->xspr.rxID <= 0 || dudeactor->xspr.locked == 1) return false;
     BloodStatIterator it(kStatModernDudeTargetChanger);
     while (auto actor = it.Next())
     {
@@ -6422,7 +6418,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 
                         // restore old slope for next sprite
                         pSect->ceilingheinum = oslope;
-                }
+                    }
                 }
 
                 // finally set new slope of ceiling
@@ -6436,19 +6432,18 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
         BloodSectIterator it(pSect);
         while (auto iactor = it.Next())
         {
-            auto xspr = &iactor->x();
-            if (iactor->hasX() && xspr->physAttr > 0) 
+            if (iactor->hasX() && iactor->xspr.physAttr > 0) 
             {
-                xspr->physAttr |= kPhysFalling;
+                iactor->xspr.physAttr |= kPhysFalling;
                 iactor->zvel++;
             } 
             else if ((iactor->spr.statnum == kStatThing || iactor->spr.statnum == kStatDude) && (iactor->spr.flags & kPhysGravity))
             {
                 iactor->spr.flags |= kPhysFalling;
                 iactor->zvel++;
-                }
             }
-    } 
+        }
+    }
     else if (objType == OBJ_SPRITE) 
     {
         if (!(objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) objActor->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
@@ -6634,19 +6629,17 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     auto targetactor = actor->GetTarget();
     if (targetactor && targetactor->hasX() && playeractor == nullptr) 
     {
-        auto pXTarget = &targetactor->x();
-
         if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(targetactor) && !aiFightUnitCanFly(targetactor))
             actor->spr.flags |= 0x0002;
         else if (aiFightUnitCanFly(actor))
             actor->spr.flags &= ~0x0002;
 
-        if (!targetactor->IsDudeActor() || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, targetactor))
+        if (!targetactor->IsDudeActor() || targetactor->xspr.health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, targetactor))
         {
             aiSetTarget(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
         }
         // dude attack or attacked by target that does not fit by data id?
-        else if (sourceactor->xspr.data1 != 666 && pXTarget->data1 != sourceactor->xspr.data1) 
+        else if (sourceactor->xspr.data1 != 666 && targetactor->xspr.data1 != sourceactor->xspr.data1) 
         {
             if (aiFightDudeIsAffected(targetactor)) 
             {
@@ -6662,23 +6655,22 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 aiSetTarget(targetactor, targetactor->spr.pos.X, targetactor->spr.pos.Y, targetactor->spr.pos.Z);
                 if (targetactor->GetBurnSource() == actor) 
                 {
-                    pXTarget->burnTime = 0;
+                    targetactor->xspr.burnTime = 0;
                     targetactor->SetBurnSource(nullptr);
                 }
             }
         }
-        else if (sourceactor->xspr.data2 == 1 && actor->xspr.rxID == pXTarget->rxID) 
+        else if (sourceactor->xspr.data2 == 1 && actor->xspr.rxID == targetactor->xspr.rxID) 
         {
             auto mateactor = targetactor;
-            XSPRITE* pXMate = pXTarget;
 
             // heal dude
             int startHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
             if (actor->xspr.health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 
             // heal mate
-            startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(mateactor->spr.type)->startHealth << 4;
-            if (pXMate->health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
+            startHp = (mateactor->xspr.sysData2 > 0) ? ClipRange(mateactor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(mateactor->spr.type)->startHealth << 4;
+            if (mateactor->xspr.health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
 
             auto matetarget = mateactor->GetTarget();
             if (matetarget != nullptr && matetarget->hasX())
@@ -6759,8 +6751,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         BloodStatIterator it(kStatDude);
         while (auto newtargactor = it.Next())
         {
-            auto pXNewTarg = &newtargactor->x();
-
             if (newtargactor->GetTarget() == actor)
             {
                 aiSetTarget(actor, newtargactor);
@@ -6772,9 +6762,9 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             // avoid self aiming, those who dude can't see, and those who dude own
             else if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, newtargactor) || actor == newtargactor) continue;
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
-            else if (sourceactor->xspr.data1 != 666 && sourceactor->xspr.data1 != pXNewTarg->data1) continue;
+            else if (sourceactor->xspr.data1 != 666 && sourceactor->xspr.data1 != newtargactor->xspr.data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (sourceactor->xspr.data2 == 1 && actor->xspr.rxID == pXNewTarg->rxID))
+            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (sourceactor->xspr.data2 == 1 && actor->xspr.rxID == newtargactor->xspr.rxID))
                 continue;
 
             if (sourceactor->xspr.data2 == 0 || (sourceactor->xspr.data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
@@ -6918,10 +6908,9 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                         auto rxactor = rxBucket[i].actor();
                         if (!rxactor || !rxactor->hasX() || rxactor == initiator) continue;
 
-                        auto pXSpr = &rxactor->x();
-                        if (rxactor->spr.type == kModernPlayerControl && pXSpr->command == 67) 
+                        if (rxactor->spr.type == kModernPlayerControl && rxactor->xspr.command == 67) 
                         {
-                            if (pXSpr->data2 == initiator->xspr.data2 || pXSpr->locked) continue;
+                            if (rxactor->xspr.data2 == initiator->xspr.data2 || rxactor->xspr.locked) continue;
                             else trPlayerCtrlStartScene(rxactor, pPlayer, true);
                             return;
                         }
@@ -7394,7 +7383,6 @@ void aiPatrolState(DBloodActor* actor, int state)
     assert(actor->GetTarget());
     
     auto markeractor = actor->GetTarget();
-    XSPRITE* pXMarker = &markeractor->x();
     assert(markeractor->spr.type == kMarkerPath);
 
     bool nSeqOverride = false, crouch = false;
@@ -7445,7 +7433,7 @@ void aiPatrolState(DBloodActor* actor, int state)
     }
 
     
-    if (pXMarker->data4 > 0) seq = pXMarker->data4, nSeqOverride = true;
+    if (markeractor->xspr.data4 > 0) seq = markeractor->xspr.data4, nSeqOverride = true;
     else if (!nSeqOverride && state == kAiStatePatrolWaitC && (actor->spr.type == kDudeCultistTesla || actor->spr.type == kDudeCultistTNT))
         seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
 
@@ -7544,15 +7532,12 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
 
 DBloodActor* findNextMarker(DBloodActor* mark, bool back) 
 {
-    auto pXMark = &mark->x();
-
     BloodStatIterator it(kStatPathMarker);
     while (auto next = it.Next())
     {
         if (!next->hasX() || next == mark) continue;
 
-        XSPRITE* pXNext = &next->x();
-        if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
+        if ((next->xspr.locked || next->xspr.isTriggered || next->xspr.DudeLockout) || (back && next->xspr.data2 != mark->xspr.data1) || (!back && next->xspr.data1 != mark->xspr.data2))
             continue;
 
         return next;
@@ -7568,7 +7553,6 @@ DBloodActor* findNextMarker(DBloodActor* mark, bool back)
 
 bool markerIsNode(DBloodActor* mark, bool back) 
 {
-    auto pXMark = &mark->x();
     int cnt = 0;
 
     BloodStatIterator it(kStatPathMarker);
@@ -7576,9 +7560,7 @@ bool markerIsNode(DBloodActor* mark, bool back)
     {
         if (!next->hasX() || next == mark) continue;
 
-        XSPRITE* pXNext = &next->x();
-
-        if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
+        if ((next->xspr.locked || next->xspr.isTriggered || next->xspr.DudeLockout) || (back && next->xspr.data2 != mark->xspr.data1) || (!back && next->xspr.data1 != mark->xspr.data2))
             continue;
 
         if (++cnt > 1)
@@ -7611,9 +7593,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
         {
             if (!nextactor->hasX()) continue;
 
-            auto pXNext = &nextactor->x();
-
-            if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(nextactor->spr.pos.X - actor->spr.pos.X, nextactor->spr.pos.Y - actor->spr.pos.Y)) > closest)
+            if (nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout || (dist = approxDist(nextactor->spr.pos.X - actor->spr.pos.X, nextactor->spr.pos.Y - actor->spr.pos.Y)) > closest)
                 continue;
 
             GetActorExtents(nextactor, &zt1, &zb1); 
@@ -7639,7 +7619,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
         int next;
 
         int breakChance = 0;
-        auto pXCur = &targetactor->x();
         if (actor->prevmarker)
         {
             prevactor = actor->prevmarker;
@@ -7651,14 +7630,14 @@ void aiPatrolSetMarker(DBloodActor* actor)
         if (actor->xspr.unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             actor->xspr.unused2 = kPatrolMoveForward;
 
-        bool back = (actor->xspr.unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
+        bool back = (actor->xspr.unused2 == kPatrolMoveBackward); next = (back) ? targetactor->xspr.data1 : targetactor->xspr.data2;
         BloodStatIterator it(kStatPathMarker);
         while(auto nextactor = it.Next())
         {
             if (nextactor == targetactor || !nextactor->hasX()) continue;
             else if (actor->xspr.targetX >= 0 && nextactor == prevactor && node) 
             {
-                if (pXCur->data2 == pXPrev->data1)
+                if (targetactor->xspr.data2 == pXPrev->data1)
                     continue;
             }
 
