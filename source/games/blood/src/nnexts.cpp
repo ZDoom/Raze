@@ -3618,16 +3618,15 @@ void condError(DBloodActor* aCond, const char* pzFormat, ...)
     char buffer[256]; 
     char buffer2[512]; 
     FString condType = "Unknown";
-    auto pXCond = &aCond->x();
     for (int i = 0; i < 7; i++) 
     {
-        if (pXCond->data1 < gCondTypeNames[i].rng1 || pXCond->data1 >= gCondTypeNames[i].rng2) continue;
+        if (aCond->xspr.data1 < gCondTypeNames[i].rng1 || aCond->xspr.data1 >= gCondTypeNames[i].rng2) continue;
         condType = gCondTypeNames[i].name;
         condType.ToUpper();
         break;
     }
     
-    snprintf(buffer, 256, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType.GetChars(), pXCond->rxID, pXCond->txID, aCond->GetIndex());
+    snprintf(buffer, 256, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType.GetChars(), aCond->xspr.rxID, aCond->xspr.txID, aCond->GetIndex());
     va_list args;
     va_start(args, pzFormat);
     vsnprintf(buffer2, 512, pzFormat, args);
@@ -3642,13 +3641,10 @@ void condError(DBloodActor* aCond, const char* pzFormat, ...)
 
 bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 {
-    auto pXCond = &aCond->x();
-
-    //int var = -1;
-    int cond = pXCond->data1 - kCondGameBase; 
-    int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; 
-    int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondGameBase; 
+    int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; 
+    int arg3 = aCond->xspr.data4;
 
     switch (cond) {
         case 1:  return condCmp(gFrameCount / (kTicsPerSec * 60), arg1, arg2, cmpOp);            // compare level minutes
@@ -3681,11 +3677,9 @@ bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 
 bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 {
-    auto pXCond = &aCond->x();
-
     //int var = -1;
-    int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondMixedBase; int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; int arg3 = aCond->xspr.data4;
     
     auto eob = condGet(aCond);
 
@@ -3924,11 +3918,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 
 bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH) 
 {
-    auto pXCond = &aCond->x();
-
-    int cond = pXCond->data1 - kCondSectorBase; 
-    int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondSectorBase; 
+    int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; //int arg3 = aCond->xspr.data4;
     
     auto eob = condGet(aCond);
 
@@ -4015,11 +4007,9 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH) 
 {
-    auto pXCond = &aCond->x();
-
     int var = -1;
-    int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondWallBase; int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; //int arg3 = aCond->xspr.data4;
 
     auto eob = condGet(aCond);
     if (!eob.isWall())
@@ -4066,14 +4056,12 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH) 
 {
-    auto pXCond = &aCond->x();
-
     int var = -1;
     PLAYER* pPlayer = NULL;
-    int cond = pXCond->data1 - kCondPlayerBase; 
-    int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; 
-    int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondPlayerBase; 
+    int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; 
+    int arg3 = aCond->xspr.data4;
 
     auto eob = condGet(aCond);
 
@@ -4155,11 +4143,9 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH) 
 {
-    auto pXCond = &aCond->x();
-
     int var = -1;
-    int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondDudeBase; int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; int arg3 = aCond->xspr.data4;
     
     auto eob = condGet(aCond);
 
@@ -4315,11 +4301,9 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 {
-    auto pXCond = &aCond->x();
-
     int var = -1, var2 = -1, var3 = -1; PLAYER* pPlayer = NULL; bool retn = false;
-    int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int cond = aCond->xspr.data1 - kCondSpriteBase; int arg1 = aCond->xspr.data2;
+    int arg2 = aCond->xspr.data3; int arg3 = aCond->xspr.data4;
     
     auto eob = condGet(aCond);
 
