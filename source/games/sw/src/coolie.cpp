@@ -413,7 +413,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     u->lo_step = Z(32);
 
     u->floor_dist = u->zclip - u->lo_step;
-    u->ceiling_dist = SPRITEp_SIZE_Z(sp) - u->zclip;
+    u->ceiling_dist = GetSpriteSizeZ(sp) - u->zclip;
 
     u->Radius = 400;
 

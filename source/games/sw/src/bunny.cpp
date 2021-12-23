@@ -910,7 +910,7 @@ void DoPickCloseBunny(DSWActor* actor)
     int dist, near_dist = 1000, a,b,c;
 
     // if actor can still see the player
-    int look_height = SPRITEp_TOS(sp);
+    int look_height = GetSpriteZOfTop(sp);
     bool ICanSee = false;
 
     SWStatIterator it(STAT_ENEMY);
@@ -927,7 +927,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), tsp->pos.X, tsp->pos.Y, SPRITEp_UPPER(tsp), tsp->sector());
+        ICanSee = FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), tsp->pos.X, tsp->pos.Y, GetSpriteUpperZ(tsp), tsp->sector());
 
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
@@ -1032,7 +1032,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->pos.Y,SPRITEp_TOS(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfTop(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1047,7 +1047,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->pos.Y,SPRITEp_TOS(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfTop(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }

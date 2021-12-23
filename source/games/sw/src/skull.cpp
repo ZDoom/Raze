@@ -239,13 +239,13 @@ int SetupSkull(DSWActor* actor)
 
     u->Radius = 400;
 
-    if (SPRITEp_BOS(sp) > u->loz - Z(16))
+    if (GetSpriteZOfBottom(sp) > u->loz - Z(16))
     {
         sp->pos.Z = u->loz + Z(tileTopOffset(sp->picnum));
 
         u->loz = sp->pos.Z;
         // leave 8 pixels above the ground
-        sp->pos.Z += SPRITEp_SIZE_TOS(sp) - Z(3);;
+        sp->pos.Z += GetSpriteSizeToTop(sp) - Z(3);;
     }
     else
     {
@@ -643,13 +643,13 @@ int SetupBetty(DSWActor* actor)
 
     u->Radius = 400;
 
-    if (SPRITEp_BOS(sp) > u->loz - Z(16))
+    if (GetSpriteZOfBottom(sp) > u->loz - Z(16))
     {
         sp->pos.Z = u->loz + Z(tileTopOffset(sp->picnum));
 
         u->loz = sp->pos.Z;
         // leave 8 pixels above the ground
-        sp->pos.Z += SPRITEp_SIZE_TOS(sp) - Z(3);;
+        sp->pos.Z += GetSpriteSizeToTop(sp) - Z(3);;
     }
     else
     {

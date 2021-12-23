@@ -1667,7 +1667,7 @@ void SpriteSetup(void)
             case BREAKABLE:
                 // need something that tells missiles to hit them
                 // but allows actors to move through them
-                sp->clipdist = SPRITEp_SIZE_X(sp);
+                sp->clipdist = GetSpriteSizeX(sp);
                 SET(sp->extra, SPRX_BREAKABLE);
                 SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
                 break;
@@ -3488,7 +3488,7 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, sp->picnum, nullptr);
 
-            sp->clipdist = SPRITEp_SIZE_X(sp);
+            sp->clipdist = GetSpriteSizeX(sp);
             SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
             SET(sp->extra, SPRX_BREAKABLE);
             break;
@@ -3610,7 +3610,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = SPRITEp_MID(sp);
+        np->pos.Z = GetSpriteZOfMiddle(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3652,7 +3652,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = SPRITEp_MID(sp);
+        np->pos.Z = GetSpriteZOfMiddle(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3681,7 +3681,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = SPRITEp_MID(sp);
+        np->pos.Z = GetSpriteZOfMiddle(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3713,7 +3713,7 @@ int ActorCoughItem(DSWActor* actor)
             np->extra = 0;
             np->pos.X = sp->pos.X;
             np->pos.Y = sp->pos.Y;
-            np->pos.Z = SPRITEp_MID(sp);
+            np->pos.Z = GetSpriteZOfMiddle(sp);
             np->ang = 0;
             np->extra = 0;
 
@@ -3776,7 +3776,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = SPRITEp_MID(sp);
+        np->pos.Z = GetSpriteZOfMiddle(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3835,7 +3835,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = SPRITEp_LOWER(sp)+Z(10);
+        np->pos.Z = GetSpriteLowerZ(sp)+Z(10);
         np->ang = sp->ang;
 
         // vel
@@ -4397,11 +4397,11 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
         return false;
     }
 
-    spa_tos = SPRITEp_TOS(spa);
-    spa_bos = SPRITEp_BOS(spa);
+    spa_tos = GetSpriteZOfTop(spa);
+    spa_bos = GetSpriteZOfBottom(spa);
 
-    spb_tos = SPRITEp_TOS(spb);
-    spb_bos = SPRITEp_BOS(spb);
+    spb_tos = GetSpriteZOfTop(spb);
+    spb_bos = GetSpriteZOfBottom(spb);
 
 
     overlap_z = ua->OverlapZ + ub->OverlapZ;
@@ -4428,11 +4428,11 @@ bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
 
     int spa_tos, spa_bos, spb_tos, spb_bos;
 
-    spa_tos = SPRITEp_TOS(spa);
-    spa_bos = SPRITEp_BOS(spa);
+    spa_tos = GetSpriteZOfTop(spa);
+    spa_bos = GetSpriteZOfBottom(spa);
 
-    spb_tos = SPRITEp_TOS(spb);
-    spb_bos = SPRITEp_BOS(spb);
+    spb_tos = GetSpriteZOfTop(spb);
+    spb_bos = GetSpriteZOfBottom(spb);
 
 
     // if the top of sprite a is below the bottom of b
@@ -4585,7 +4585,7 @@ void DoActorZrange(DSWActor* actor)
     auto save_cstat = sp->cstat & CSTAT_SPRITE_BLOCK;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = sp->pos;
-    pos.Z -= DIV2(SPRITEp_SIZE_Z(sp));
+    pos.Z -= DIV2(GetSpriteSizeZ(sp));
     FAFgetzrange(pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     sp->cstat |= save_cstat;
 
@@ -4667,7 +4667,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     // look only at the center point for a floor sprite
     auto save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrangepoint(x, y, z - DIV2(SPRITEp_SIZE_Z(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(x, y, z - DIV2(GetSpriteSizeZ(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
     SET(sp->cstat, save_cstat);
 
     if (florhit.type < 0 || ceilhit.type < 0)
@@ -6031,7 +6031,7 @@ KeyMain:
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(np->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
-            nu->sz = SPRITEp_MID(&pp->Actor()->s());  // Set mid way up who it hit
+            nu->sz = GetSpriteZOfMiddle(&pp->Actor()->s());  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
@@ -6098,8 +6098,8 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
     //
 
     // if actor can still see the player
-    look_height = SPRITEp_TOS(sp);
-    if (FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, SPRITEp_UPPER(psp), psp->sector()))
+    look_height = GetSpriteZOfTop(sp);
+    if (FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, GetSpriteUpperZ(psp), psp->sector()))
     {
         // Player is visible
         // adjust update range of this sprite

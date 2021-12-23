@@ -519,7 +519,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
         else
             SET(sp->extra, SPRX_BREAKABLE);
 
-        sp->clipdist = SPRITEp_SIZE_X(sp);
+        sp->clipdist = GetSpriteSizeX(sp);
 
         SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
     }

@@ -1197,11 +1197,11 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (u && u->PlayerP)
                 zh = u->PlayerP->pos.Z;
             else
-                zh = SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
+                zh = GetSpriteZOfTop(sp) + (GetSpriteSizeZ(sp) >> 2);
 
-            ezh = SPRITEp_TOS(ep) + (SPRITEp_SIZE_Z(ep) >> 2);
-            ezhm = SPRITEp_TOS(ep) + DIV2(SPRITEp_SIZE_Z(ep));
-            ezhl = SPRITEp_BOS(ep) - (SPRITEp_SIZE_Z(ep) >> 2);
+            ezh = GetSpriteZOfTop(ep) + (GetSpriteSizeZ(ep) >> 2);
+            ezhm = GetSpriteZOfTop(ep) + DIV2(GetSpriteSizeZ(ep));
+            ezhl = GetSpriteZOfBottom(ep) - (GetSpriteSizeZ(ep) >> 2);
 
             // If you can't see 'em you can't shoot 'em
             if (!FAFcansee(sp->pos.X, sp->pos.Y, zh, sp->sector(), ep->pos.X, ep->pos.Y, ezh, ep->sector()) &&
@@ -1315,7 +1315,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     ny += sp->pos.Y;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         nx, ny, SPRITEp_TOS(sp) + Z(16),
+                         nx, ny, GetSpriteZOfTop(sp) + Z(16),
                          sp->ang, 0);
 
     ep = &effectActor->s();
@@ -1337,7 +1337,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     SPRITEp ep;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         sp->pos.X, sp->pos.Y, SPRITEp_TOS(sp) + Z(16),
+                         sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp) + Z(16),
                          sp->ang, 0);
 
     ep = &effectActor->s();
@@ -1715,7 +1715,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     water_level_z = over_sp->sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
-    above_water = (SPRITEp_BOS(over_sp) <= water_level_z);
+    above_water = (GetSpriteZOfBottom(over_sp) <= water_level_z);
     in_dive_area = SpriteInDiveArea(over_sp);
 
     // if not in dive area OR (in dive area AND above the water) - Kill it
@@ -1751,7 +1751,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level
-    zdiff = SPRITEp_BOS(over_sp) - water_level_z;
+    zdiff = GetSpriteZOfBottom(over_sp) - water_level_z;
 
     // add diff to ceiling
     sp->pos.Z = sp->sector()->ceilingz + zdiff;
@@ -3001,7 +3001,7 @@ void StackedWaterSplash(PLAYERp pp)
         auto sect = pp->cursector;
 
         auto psp = &pp->Actor()->s();
-        updatesectorz(pp->pos.X, pp->pos.Y, SPRITEp_BOS(psp), &sect);
+        updatesectorz(pp->pos.X, pp->pos.Y, GetSpriteZOfBottom(psp), &sect);
 
         if (SectorIsUnderwaterArea(sect))
         {
@@ -3870,7 +3870,7 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
         {
             auto sect = pp->cursector;
 
-            updatesectorz(pp->pos.X, pp->pos.Y, SPRITEp_BOS(&pp->Actor()->s()), &sect);
+            updatesectorz(pp->pos.X, pp->pos.Y, GetSpriteZOfBottom(&pp->Actor()->s()), &sect);
 
             if (SectorIsUnderwaterArea(sect))
             {
@@ -5797,7 +5797,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     {
         SPRITEp kp = &pp->KillerActor->s();
 
-        if (FAFcansee(kp->pos.X, kp->pos.Y, SPRITEp_TOS(kp), kp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+        if (FAFcansee(kp->pos.X, kp->pos.Y, GetSpriteZOfTop(kp), kp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
         {
             pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->pos.X - pp->pos.X, kp->pos.Y - pp->pos.Y)) >> 4);
         }
@@ -5947,7 +5947,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
     DoPlayerZrange(pp);
 
     // sector stomper kick
-    if (labs(pp->loz - pp->hiz) < SPRITEp_SIZE_Z(sp) - Z(8))
+    if (labs(pp->loz - pp->hiz) < GetSpriteSizeZ(sp) - Z(8))
     {
         u->slide_ang = RANDOM_P2(2048);
         u->slide_vel = 1000;

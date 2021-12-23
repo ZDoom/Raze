@@ -303,7 +303,7 @@ void SpawnMidSplash(DSWActor* actor)
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sector(),
-                      sp->pos.X, sp->pos.Y, SPRITEp_MID(sp), sp->ang, 0);
+                      sp->pos.X, sp->pos.Y, GetSpriteZOfMiddle(sp), sp->ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -1533,7 +1533,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - SPRITEp_SIZE_Z(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
@@ -1598,7 +1598,7 @@ int InitFlashBomb(DSWActor* actor)
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - SPRITEp_SIZE_Z(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1650,21 +1650,21 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     {
         if (u->flameActor != nullptr)
         {
-            int sizez = (SPRITEp_SIZE_Z(sp) * 5) >> 2;
+            int sizez = (GetSpriteSizeZ(sp) * 5) >> 2;
 
             auto np = &u->flameActor->s();
             auto nu = u->flameActor->u();
 
 
-            if (nu->Counter >= SPRITEp_SIZE_Z_2_YREPEAT(np, sizez))
+            if (nu->Counter >= GetRepeatFromHeight(np, sizez))
             {
                 // keep flame only slightly bigger than the enemy itself
-                nu->Counter = SPRITEp_SIZE_Z_2_YREPEAT(np, sizez) * 2;
+                nu->Counter = GetRepeatFromHeight(np, sizez) * 2;
             }
             else
             {
                 // increase max size
-                nu->Counter += SPRITEp_SIZE_Z_2_YREPEAT(np, 8 << 8) * 2;
+                nu->Counter += GetRepeatFromHeight(np, 8 << 8) * 2;
             }
 
             // Counter is max size
@@ -1694,7 +1694,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (u->flameActor != nullptr)
     {
-        nu->Counter = SPRITEp_SIZE_Z_2_YREPEAT(np, SPRITEp_SIZE_Z(sp) >> 1) * 4;
+        nu->Counter = GetRepeatFromHeight(np, GetSpriteSizeZ(sp) >> 1) * 4;
     }
     else
         nu->Counter = 0;                // max flame size
@@ -1941,7 +1941,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         nx = sp->pos.X;
         ny = sp->pos.Y;
-        nz = SPRITEp_TOS(sp)-20;
+        nz = GetSpriteZOfTop(sp)-20;
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sector(),
@@ -2079,7 +2079,7 @@ int DoCarryFlag(DSWActor* actor)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        vec3_t pos = { ap->pos.X, ap->pos.Y, SPRITEp_MID(ap) };
+        vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
         SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
     }
@@ -2239,10 +2239,10 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        vec3_t pos = { ap->pos.X, ap->pos.Y, SPRITEp_MID(ap) };
+        vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
         SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
-        sp->pos.Z = ap->pos.Z - DIV2(SPRITEp_SIZE_Z(ap));
+        sp->pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
     }
 
 
@@ -2325,7 +2325,7 @@ int DoFlag(DSWActor* actor)
             // attach weapon to sprite
             RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
-            u->sz = hsp->pos.Z - DIV2(SPRITEp_SIZE_Z(hsp));
+            u->sz = hsp->pos.Z - DIV2(GetSpriteSizeZ(hsp));
         }
     }
 
@@ -2346,7 +2346,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     nx = sp->pos.X;
     ny = sp->pos.Y;
-    nz = DIV2(SPRITEp_TOS(sp)+ SPRITEp_BOS(sp));
+    nz = DIV2(GetSpriteZOfTop(sp)+ GetSpriteZOfBottom(sp));
 
     switch (ShellNum)
     {

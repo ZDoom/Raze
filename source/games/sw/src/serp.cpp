@@ -745,7 +745,7 @@ int SetupSerp(DSWActor* actor)
     u->lo_step = Z(40);
 
     u->floor_dist = u->zclip - u->lo_step;
-    u->ceiling_dist = SPRITEp_SIZE_Z(sp) - u->zclip;
+    u->ceiling_dist = GetSpriteSizeZ(sp) - u->zclip;
 
     return 0;
 }

@@ -286,7 +286,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
 
     if ((tsp->yrepeat >> 2) > 4)
     {
-        yrepeat = (tsp->yrepeat >> 2) - (SPRITEp_SIZE_Y(tsp) / 64) * 2;
+        yrepeat = (tsp->yrepeat >> 2) - (GetSpriteSizeY(tsp) / 64) * 2;
         xrepeat = tSpr->xrepeat;
     }
     else
@@ -322,7 +322,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
         view_dist = 0;
 
     // make shadow smaller depending on height from ground
-    ground_dist = labs(loz - SPRITEp_BOS(tsp)) >> 12;
+    ground_dist = labs(loz - GetSpriteZOfBottom(tsp)) >> 12;
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
@@ -579,7 +579,7 @@ DSWActor* ConnectCopySprite(sprt const* tsp)
     if (FAF_ConnectCeiling(tsp->sector()))
     {
         newsector = tsp->sector();
-        testz = SPRITEp_TOS(tsp) - Z(10);
+        testz = GetSpriteZOfTop(tsp) - Z(10);
 
         if (testz < tsp->sector()->ceilingz)
             updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
@@ -593,7 +593,7 @@ DSWActor* ConnectCopySprite(sprt const* tsp)
     if (FAF_ConnectFloor(tsp->sector()))
     {
         newsector = tsp->sector();
-        testz = SPRITEp_BOS(tsp) + Z(10);
+        testz = GetSpriteZOfBottom(tsp) + Z(10);
 
         if (testz > tsp->sector()->floorz)
             updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
@@ -1153,7 +1153,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
             FAFcansee_test =
                 (FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
+                 FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), *tx, *ty, *tz + GetSpriteSizeZ(&pp->Actor()->s()), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 

@@ -337,7 +337,7 @@ int DoActorSectorDamage(DSWActor* actor)
                 }
             }
         }
-        else if (SPRITEp_BOS(&actor->spr) >= sectp->floorz)
+        else if (GetSpriteZOfBottom(&actor->spr) >= sectp->floorz)
         {
             if ((u->DamageTics -= synctics) < 0)
             {
@@ -355,7 +355,7 @@ int DoActorSectorDamage(DSWActor* actor)
     }
 
     // note that most squishing is done in vator.c
-    if (u->lo_sectp && u->hi_sectp && labs(u->loz - u->hiz) < (SPRITEp_SIZE_Z(actor) >> 1))
+    if (u->lo_sectp && u->hi_sectp && labs(u->loz - u->hiz) < (GetSpriteSizeZ(actor) >> 1))
     {
         u->Health = 0;
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))

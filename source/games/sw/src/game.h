@@ -234,74 +234,87 @@ inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty
 	dist = tx + ty - (tmin >> 1);
 }
 
-inline int SPRITEp_SIZE_X(const spritetypebase* sp)
+inline int GetSpriteSizeX(const spritetypebase* sp)
 {
 	return MulScale(tileWidth(sp->picnum), sp->xrepeat, 6);
 }
 
-inline int SPRITEp_SIZE_Y(const spritetypebase* sp)
+inline int GetSpriteSizeY(const spritetypebase* sp)
 {
 	return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
 }
 
-inline int SPRITEp_SIZE_Z(const spritetypebase* sp)
+inline int GetSpriteSizeZ(const spritetypebase* sp)
 {
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
 }
 
 
 // Given a z height and sprite return the correct y repeat value
-inline int SPRITEp_SIZE_Z_2_YREPEAT(const spritetype* sp, int zh)
+inline int GetRepeatFromHeight(const spritetype* sp, int zh)
 {
 	return zh / (4 * tileHeight(sp->picnum));
 }
 
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
-inline int SPRITEp_SIZE_TOS(const spritetype* sp)
+inline int GetSpriteSizeToTop(const spritetypebase* sp)
 {
-    return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
+    return (DIV2(GetSpriteSizeZ(sp)) + (tileTopOffset(sp->picnum) << 8));
 }
 
-inline int SPRITEp_SIZE_TOS(const tspritetype* sp)
+inline int GetSpriteSizeToBottom(const spritetypebase* sp)
 {
-    return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
-}
-
-inline int SPRITEp_SIZE_BOS(const spritetype* sp)
-{
-    return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
-}
-
-inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
-{
-    return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
+    return (DIV2(GetSpriteSizeZ(sp)) - (tileTopOffset(sp->picnum) << 8));
 }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
-#define SPRITEp_TOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
-                         ((sp)->pos.Z - SPRITEp_SIZE_TOS(sp)) :         \
-                         ((sp)->pos.Z - SPRITEp_SIZE_Z(sp)))
+inline int GetSpriteZOfTop(const spritetypebase* sp)
+{
+    return (TEST(sp->cstat, CSTAT_SPRITE_YCENTER) ?
+        sp->pos.Z - GetSpriteSizeToTop(sp) :
+        sp->pos.Z - GetSpriteSizeZ(sp));
+}
 
-#define SPRITEp_BOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
-                         ((sp)->pos.Z + SPRITEp_SIZE_BOS(sp)) :         \
-                         (sp)->pos.Z)
+inline int GetSpriteZOfBottom(const spritetypebase* sp)
+{
+    return (TEST(sp->cstat, CSTAT_SPRITE_YCENTER) ?
+        sp->pos.Z + GetSpriteSizeToBottom(sp) :
+        sp->pos.Z);
+}
 
 // mid and upper/lower sprite calculations
-#define SPRITEp_MID(sp) (DIV2(SPRITEp_TOS(sp) + SPRITEp_BOS(sp)))
-#define SPRITEp_UPPER(sp) (SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2))
-#define SPRITEp_LOWER(sp) (SPRITEp_BOS(sp) - (SPRITEp_SIZE_Z(sp) >> 2))
+inline int GetSpriteZOfMiddle(const spritetypebase* sp)
+{
+    return (GetSpriteZOfTop(sp) + GetSpriteZOfBottom(sp)) >> 1;
+}
 
-#define Z(value) ((int)(value) << 8)
-#define PIXZ(value) ((int)(value) >> 8)
+inline int GetSpriteUpperZ(const spritetypebase* sp)
+{
+    return (GetSpriteZOfTop(sp) + (GetSpriteSizeZ(sp) >> 2));
+}
 
-#define SQ(val) ((val) * (val))
+int GetSpriteLowerZ(const spritetypebase* sp)
+{
+    return (GetSpriteZOfBottom(sp) - (GetSpriteSizeZ(sp) >> 2));
+}
 
-#define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->pos.Y-sp->pos.Y) >= bsin(sp-ang)*(pp->pos.X-sp->pos.X))
-#define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->pos.Y - (sp)->pos.Y), (sp)->ang)) < 512)
-#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < 320)
+constexpr int Z(int value)
+{
+    return value << 8;
+}
 
-#define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->pos.Y - (sp)->pos.Y), (sp)->ang)) < (range))
+constexpr int PIXZ(int value)
+{
+    return value >> 8;
+}
+
+constexpr int SQ(int val)
+{
+    return val * val;
+}
+
+
 #define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range))
 #define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < (range))
 
@@ -332,32 +345,24 @@ inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 // new define more readable defines
 
 // Clip Sprite adjustment
-#define CS(sprite_bit) IntToFixed(sprite_bit)
+constexpr int CS(int sprite_bit)
+{
+    return (sprite_bit) << 16;
+}
 
-// for players to clip against walls
-#define CLIPMASK_PLAYER (CS(CSTAT_SPRITE_BLOCK) | CSTAT_WALL_BLOCK)
+enum EClip
+{
+    // for players to clip against walls
+    CLIPMASK_PLAYER = CS(CSTAT_SPRITE_BLOCK) | CSTAT_WALL_BLOCK,
 
-// for actors to clip against walls
-#define CLIPMASK_ACTOR                   \
-    (                                    \
-        CS(CSTAT_SPRITE_BLOCK) |          \
-        CSTAT_WALL_BLOCK |                   \
-        CSTAT_WALL_BLOCK_ACTOR               \
-    )
+    // for actors to clip against walls
+    CLIPMASK_ACTOR = CS(CSTAT_SPRITE_BLOCK) | CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_ACTOR,
 
-// for missiles to clip against actors
-#define CLIPMASK_MISSILE                                            \
-    (                                                               \
-        CS(CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE) |     \
-        CSTAT_WALL_BLOCK_HITSCAN                                        \
-    )
+    // for missiles to clip against actors
+    CLIPMASK_MISSILE = CS(CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK_MISSILE) | CSTAT_WALL_BLOCK_HITSCAN,
 
-#define CLIPMASK_WARP_HITSCAN            \
-    (                                    \
-        CS(CSTAT_SPRITE_BLOCK_HITSCAN) |     \
-        CSTAT_WALL_BLOCK_HITSCAN |           \
-        CSTAT_WALL_WARP_HITSCAN              \
-    )
+    CLIPMASK_WARP_HITSCAN = CS(CSTAT_SPRITE_BLOCK_HITSCAN) | CSTAT_WALL_BLOCK_HITSCAN | CSTAT_WALL_WARP_HITSCAN,
+};
 
 
 #define SIZ countof
@@ -2126,20 +2131,20 @@ BEGIN_SW_NS
 
 inline int ActorUpper(DSWActor* actor)
 {
-    return SPRITEp_UPPER(&actor->s());
+    return GetSpriteUpperZ(&actor->s());
 }
 
 inline int ActorLower(DSWActor* actor)
 {
-    return SPRITEp_LOWER(&actor->s());
+    return GetSpriteLowerZ(&actor->s());
 }
 
 inline int ActorMid(DSWActor* actor)
 {
-    return SPRITEp_MID(&actor->s());
+    return GetSpriteZOfMiddle(&actor->s());
 }
 
-inline int SPRITEp_SIZE_Z(DSWActor* sp)
+inline int GetSpriteSizeZ(DSWActor* sp)
 {
     return (tileHeight(sp->spr.picnum) * sp->spr.yrepeat) << 2;
 }

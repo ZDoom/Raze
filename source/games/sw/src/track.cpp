@@ -2220,7 +2220,7 @@ void CallbackSOsink(ANIMp ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - SPRITEp_SIZE_Z(sp) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - GetSpriteSizeZ(sp) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -3228,8 +3228,8 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         sp->ang = tpoint->ang;
 
-        z[0] = sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(5);
-        z[1] = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
+        z[0] = sp->pos.Z - GetSpriteSizeZ(sp) + Z(5);
+        z[1] = sp->pos.Z - DIV2(GetSpriteSizeZ(sp));
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
@@ -3452,7 +3452,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ sp->pos.X, sp->pos.Y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)) }, sp->sector(), sp->ang, near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp) - DIV2(GetSpriteSizeZ(sp)) }, sp->sector(), sp->ang, near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {
@@ -3481,7 +3481,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             //
 
             SET(sp->cstat, CSTAT_SPRITE_YCENTER);
-            bos_z = SPRITEp_BOS(sp);
+            bos_z = GetSpriteZOfBottom(sp);
             if (bos_z > u->loz)
             {
                 u->sy = (bos_z - sp->pos.Z);
@@ -3638,7 +3638,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (TEST(u->Flags, SPR_CLIMBING))
         {
-            if (SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2) < u->sz)
+            if (GetSpriteZOfTop(sp) + (GetSpriteSizeZ(sp) >> 2) < u->sz)
             {
                 RESET(u->Flags, SPR_CLIMBING);
 

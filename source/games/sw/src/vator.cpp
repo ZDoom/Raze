@@ -493,7 +493,7 @@ int DoVator(DSWActor* actor)
 
                 if (bsp->statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
+                    if (labs(sectp->ceilingz - sectp->floorz) < GetSpriteSizeZ(bsp))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
@@ -543,7 +543,7 @@ int DoVator(DSWActor* actor)
 
                 if (bsp->statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
+                    if (labs(sectp->ceilingz - sectp->floorz) < GetSpriteSizeZ(bsp))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);

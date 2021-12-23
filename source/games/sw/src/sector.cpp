@@ -1451,7 +1451,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(GetSpriteSizeZ(sp)), sp->sector()))
             return false;
     }
 
@@ -2301,7 +2301,7 @@ void PlayerOperateEnv(PLAYERp pp)
                 short nt_ndx;
                 auto psp = &pp->Actor()->s();
 
-                z[0] = psp->pos.Z - SPRITEp_SIZE_Z(psp) - Z(10);
+                z[0] = psp->pos.Z - GetSpriteSizeZ(psp) - Z(10);
                 z[1] = psp->pos.Z;
                 z[2] = DIV2(z[0] + z[1]);
 
@@ -2382,7 +2382,7 @@ void PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((SPRITEp_BOS(&pp->Actor()->s()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((GetSpriteZOfBottom(&pp->Actor()->s()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }

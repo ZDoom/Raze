@@ -105,9 +105,9 @@ bool ActorFlaming(DSWActor* actor)
         int size;
         SPRITEp fp = &u->flameActor->s();
 
-        size = SPRITEp_SIZE_Z(sp) - (SPRITEp_SIZE_Z(sp) >> 2);
+        size = GetSpriteSizeZ(sp) - (GetSpriteSizeZ(sp) >> 2);
 
-        if (SPRITEp_SIZE_Z(fp) > size)
+        if (GetSpriteSizeZ(fp) > size)
             return true;
     }
 
@@ -230,7 +230,7 @@ bool CanSeePlayer(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     // if actor can still see the player
-    int look_height = SPRITEp_TOS(sp);
+    int look_height = GetSpriteZOfTop(sp);
 
     if (u->targetActor && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpper(u->targetActor), u->targetActor->spr.sector()))
         return true;
@@ -248,7 +248,7 @@ int CanHitPlayer(DSWActor* actor)
     // if actor can still see the player
     int zhs, zhh;
 
-    zhs = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
+    zhs = sp->pos.Z - DIV2(GetSpriteSizeZ(sp));
 
 
     auto hp = &u->targetActor->s();
@@ -261,7 +261,7 @@ int CanHitPlayer(DSWActor* actor)
     yvect = bsin(ang);
 
     // get zvect
-    zhh = hp->pos.Z - DIV2(SPRITEp_SIZE_Z(hp));
+    zhh = hp->pos.Z - DIV2(GetSpriteSizeZ(hp));
     if (hp->pos.X - sp->pos.X != 0)
         zvect = xvect * ((zhh - zhs)/(hp->pos.X - sp->pos.X));
     else if (hp->pos.Y - sp->pos.Y != 0)
@@ -302,7 +302,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     int pnum;
     PLAYERp pp;
     // if actor can still see the player
-    int look_height = SPRITEp_TOS(sp);
+    int look_height = GetSpriteZOfTop(sp);
     bool found = false;
     int i;
 
@@ -380,7 +380,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
         auto psp = &pp->Actor()->s();
-        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, SPRITEp_UPPER(psp), psp->sector()))
+        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, GetSpriteUpperZ(psp), psp->sector()))
         {
             near_dist = dist;
             u->targetActor = pp->Actor();
@@ -407,7 +407,7 @@ TARGETACTOR:
             auto itSp = &itActor->s();
             DISTANCE(sp->pos.X, sp->pos.Y, itSp->pos.X, itSp->pos.Y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itSp->pos.X, itSp->pos.Y, SPRITEp_UPPER(itSp), itSp->sector()))
+            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itSp->pos.X, itSp->pos.Y, GetSpriteUpperZ(itSp), itSp->sector()))
             {
                 near_dist = dist;
                 u->targetActor = itActor;
@@ -464,8 +464,8 @@ int DoActorOperate(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return false;
 
-    z[0] = sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(5);
-    z[1] = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
+    z[0] = sp->pos.Z - GetSpriteSizeZ(sp) + Z(5);
+    z[1] = sp->pos.Z - DIV2(GetSpriteSizeZ(sp));
 
     for (i = 0; i < SIZ(z); i++)
     {
@@ -1010,7 +1010,7 @@ int FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    zdiff = ActorUpper(u->targetActor) - (sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(8));
+    zdiff = ActorUpper(u->targetActor) - (sp->pos.Z - GetSpriteSizeZ(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
     {
