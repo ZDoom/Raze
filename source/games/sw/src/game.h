@@ -2119,6 +2119,17 @@ END_SW_NS
 
 BEGIN_SW_NS
 
+// actual Z for TOS and BOS - handles both WYSIWYG and old style
+inline int ActorZOfTop(DSWActor* actor)
+{
+    return GetSpriteZOfTop(&actor->spr);
+}
+
+inline int ActorSizeZ(DSWActor* actor)
+{
+    return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;
+}
+
 inline int ActorUpperZ(DSWActor* actor)
 {
     return (GetSpriteZOfTop(&actor->spr) + (GetSpriteSizeZ(&actor->spr) >> 2));
