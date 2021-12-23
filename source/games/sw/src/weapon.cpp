@@ -5163,8 +5163,9 @@ int ActorHealth(DSWActor* actor, short amt)
 
 int SopDamage(SECTOR_OBJECTp sop, short amt)
 {
-    SPRITEp sp = &sop->sp_child->s();
-    USERp u = sop->sp_child->u();
+    auto actor = sop->sp_child;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     // does not have damage
     if (sop->max_damage == -9999)
@@ -5419,9 +5420,9 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 
 int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
-
+    auto actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     // Store off what player was struck by
     pp->HitBy = weapActor;
@@ -7155,25 +7156,24 @@ int DoDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
 
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
 
             if (actor == itActor)
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
             // !JIM! Put in a cansee so that you don't take damage through walls and such
             // For speed's sake, try limiting check only to radius weapons!
             if (wu->Radius > 200)
             {
-                if (!FAFcansee(sp->pos.X,sp->pos.Y, ActorUpperZ(actor), sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+                if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
                     continue;
             }
 
@@ -7224,7 +7224,6 @@ int DoFlamesDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
             switch (u->ID)
@@ -7238,7 +7237,7 @@ int DoFlamesDamageTest(DSWActor* actor)
                 continue;
             }
 
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
 
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
@@ -7246,7 +7245,7 @@ int DoFlamesDamageTest(DSWActor* actor)
             if (actor == itActor)
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
+            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
                 continue;
 
             if (TEST(wp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -7254,7 +7253,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             if (wu->Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),wp->pos.X,wp->pos.Y,GetSpriteZOfMiddle(wp),wp->sector()))
+                if (FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,GetSpriteZOfMiddle(wp),itActor->spr.sector(),wp->pos.X,wp->pos.Y,GetSpriteZOfMiddle(wp),wp->sector()))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -7380,15 +7379,14 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
 
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
 
-            if (sp == wp)
+            if (itActor == actor)
                 continue;
 
             if (StatDamageList[stat] == STAT_SO_SP_CHILD)
@@ -7397,17 +7395,17 @@ int DoExpDamageTest(DSWActor* actor)
             }
             else
             {
-                if ((unsigned)FindDistance3D(sp->pos.X - wp->pos.X, sp->pos.Y - wp->pos.Y, sp->pos.Z - wp->pos.Z) > wu->Radius + u->Radius)
+                if ((unsigned)FindDistance3D(itActor->spr.pos.X - wp->pos.X, itActor->spr.pos.Y - wp->pos.Y, itActor->spr.pos.Z - wp->pos.Z) > wu->Radius + u->Radius)
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
-                if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
+                if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
                     continue;
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, ActorUpperZ(actor), sp->sector()) &&
-                    !FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, ActorLowerZ(actor), sp->sector()))
+                if (!FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector()) &&
+                    !FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorLowerZ(actor), itActor->spr.sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -7428,21 +7426,20 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatBreakList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius)
                 continue;
 
-            dist = FindDistance3D(sp->pos.X - wp->pos.X, sp->pos.Y - wp->pos.Y, GetSpriteZOfMiddle(sp) - wp->pos.Z);
+            dist = FindDistance3D(itActor->spr.pos.X - wp->pos.X, itActor->spr.pos.Y - wp->pos.Y, ActorZOfMiddle(itActor) - wp->pos.Z);
             if ((unsigned)dist > wu->Radius)
                 continue;
 
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, GetSpriteZOfMiddle(sp), sp->sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
                 continue;
 
-            if (TEST(sp->extra, SPRX_BREAKABLE))
+            if (TEST(itActor->spr.extra, SPRX_BREAKABLE))
             {
                 HitBreakSprite(itActor, wu->ID);
                 break_count++;
@@ -7459,16 +7456,14 @@ int DoExpDamageTest(DSWActor* actor)
     SWStatIterator it(STAT_WALL_MOVE);
     while (auto itActor = it.Next())
     {
-        sp = &itActor->s();
-
-        DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius/4)
             continue;
 
-        if (TEST_BOOL1(sp))
+        if (TEST_BOOL1(&actor->spr))
             continue;
 
-        if (!CanSeeWallMove(wp, SP_TAG2(sp)))
+        if (!CanSeeWallMove(wp, SP_TAG2(&actor->spr)))
             continue;
 
         if (dist < found_dist)
@@ -7513,21 +7508,20 @@ int DoMineExpMine(DSWActor* actor)
     SWStatIterator it(STAT_MINE_STUCK);
     while (auto itActor = it.Next())
     {
-        sp = &itActor->s();
         u = itActor->u();
 
-        DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius + u->Radius)
             continue;
 
         if (itActor == actor)
             continue;
 
-        if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN))
+        if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN))
             continue;
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
-        zdist = abs(sp->pos.Z - wp->pos.Z)>>4;
+        zdist = abs(itActor->spr.pos.Z - wp->pos.Z)>>4;
         if (SpriteOverlap(actor, itActor) || (unsigned)zdist < wu->Radius + u->Radius)
         {
             DoDamage(itActor, actor);
@@ -8143,12 +8137,11 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
-    auto sp = &sActor->s();
     SPRITEp np;
     USERp nu;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sp->sector(),
-                            sp->pos.X, sp->pos.Y, GetSpriteZOfBottom(sp), sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->spr.sector(),
+                            sActor->spr.pos.X, sActor->spr.pos.Y, ActorZOfBottom(sActor), sActor->spr.ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -8844,30 +8837,29 @@ int DoMineRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
             if (actor == itActor)
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             if (u->ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
                 continue;
 
-            dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->pos.Y - sp->pos.Y, wp->pos.Z - sp->pos.Z);
+            dist = FindDistance3D(wp->pos.X - itActor->spr.pos.X, wp->pos.Y - itActor->spr.pos.Y, wp->pos.Z - itActor->spr.pos.Z);
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(sp->pos.X,sp->pos.Y,ActorUpperZ(actor),sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorUpperZ(actor),itActor->spr.sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
                 continue;
 
             return true;
@@ -11832,13 +11824,13 @@ void InitSpellRing(PLAYERp pp)
 
         sp = &actorNew->s();
 
-        sp->hitag = LUMINOUS; //Always full brightness
-        sp->xvel = 500;
+        actorNew->spr.hitag = LUMINOUS; //Always full brightness
+        actorNew->spr.xvel = 500;
         SetOwner(pp->Actor(), actorNew);
-        sp->shade = -40;
-        sp->xrepeat = 32;
-        sp->yrepeat = 32;
-        sp->zvel = 0;
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 32;
+        actorNew->spr.yrepeat = 32;
+        actorNew->spr.zvel = 0;
 
         u = actorNew->u();
 
@@ -11850,13 +11842,13 @@ void InitSpellRing(PLAYERp pp)
         u->floor_dist = Z(10);
 
         // put it out there
-        sp->pos.X += MulScale(u->Dist, bcos(sp->ang), 14);
-        sp->pos.Y += MulScale(u->Dist, bsin(sp->ang), 14);
-        sp->pos.Z = pp->pos.Z + Z(20) + ((u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9);
+        actorNew->spr.pos.X += MulScale(u->Dist, bcos(actorNew->spr.ang), 14);
+        actorNew->spr.pos.Y += MulScale(u->Dist, bsin(actorNew->spr.ang), 14);
+        actorNew->spr.pos.Z = pp->pos.Z + Z(20) + ((u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9);
 
-        sp->ang = NORM_ANGLE(sp->ang + 512);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
 
-        sp->backuppos();
+        actorNew->spr.backuppos();
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(sp))
             SET(u->Flags, SPR_UNDERWATER);
@@ -12364,19 +12356,18 @@ int InitSpellMirv(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector,
                             pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
-    sp = &actorNew->s();
     u = actorNew->u();
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
     SetOwner(pp->Actor(), actorNew);
-    sp->shade = -40;
-    sp->xrepeat = 72;
-    sp->yrepeat = 72;
-    sp->clipdist = 32 >> 2;
-    sp->zvel = -pp->horizon.horiz.asq16() >> 9;
-    SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.xrepeat = 72;
+    actorNew->spr.yrepeat = 72;
+    actorNew->spr.clipdist = 32 >> 2;
+    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(16);
@@ -12386,9 +12377,9 @@ int InitSpellMirv(PLAYERp pp)
     auto oclipdist = psp->clipdist;
     psp->clipdist = 0;
 
-    u->xchange = MOVEx(sp->xvel, sp->ang);
-    u->ychange = MOVEy(sp->xvel, sp->ang);
-    u->zchange = sp->zvel;
+    u->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    u->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    u->zchange = actorNew->spr.zvel;
 
     MissileSetPos(actorNew, DoMirv, 600);
     psp->clipdist = oclipdist;

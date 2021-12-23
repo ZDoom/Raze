@@ -2130,6 +2130,12 @@ inline int ActorZOfBottom(DSWActor* actor)
     return GetSpriteZOfBottom(&actor->spr);
 }
 
+inline int ActorZOfMiddle(DSWActor* actor)
+{
+    return (ActorZOfTop(actor) + ActorZOfBottom(actor)) >> 1;
+}
+
+
 inline int ActorSizeZ(DSWActor* actor)
 {
     return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;
