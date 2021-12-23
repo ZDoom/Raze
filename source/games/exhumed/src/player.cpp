@@ -224,9 +224,8 @@ void RestartPlayer(int nPlayer)
 
 	if (pActor)
 	{
-        auto nSpr = &pActor->s();
-        runlist_DoSubRunRec(nSpr->owner);
-		runlist_FreeRun(nSpr->lotag - 1);
+        runlist_DoSubRunRec(pActor->spr.owner);
+		runlist_FreeRun(pActor->spr.lotag - 1);
 
 		ChangeActorStat(pActor, 0);
 
@@ -239,57 +238,53 @@ void RestartPlayer(int nPlayer)
 
 		if (pDopSprite)
 		{
-            auto sp = &pDopSprite->s();
-			runlist_DoSubRunRec(sp->owner);
-			runlist_FreeRun(sp->lotag - 1);
+			runlist_DoSubRunRec(pDopSprite->spr.owner);
+			runlist_FreeRun(pDopSprite->spr.lotag - 1);
             DeleteActor(pDopSprite);
 		}
 	}
 
     pActor = GrabBody();
-	auto nSpr = &pActor->s();
 
 	ChangeActorSect(pActor, plr->sPlayerSave.pSector);
 	ChangeActorStat(pActor, 100);
 
-	auto pDActor = insertActor(nSpr->sector(), 100);
+	auto pDActor = insertActor(pActor->spr.sector(), 100);
 	plr->pDoppleSprite = pDActor;
 
 	if (nTotalPlayers > 1)
 	{
         DExhumedActor* nNStartSprite = nNetStartSprite[nCurStartSprite];
-		auto nstspr = &nNStartSprite->s();
 		nCurStartSprite++;
 
 		if (nCurStartSprite >= nNetStartSprites) {
 			nCurStartSprite = 0;
 		}
 
-		nSpr->pos.X = nstspr->pos.X;
-		nSpr->pos.Y = nstspr->pos.Y;
-		nSpr->pos.Z = nstspr->pos.Z;
-		ChangeActorSect(pActor, nstspr->sector());
-		plr->angle.ang = buildang(nstspr->ang&kAngleMask);
-		nSpr->ang = plr->angle.ang.asbuild();
+		pActor->spr.pos.X = nNStartSprite->spr.pos.X;
+		pActor->spr.pos.Y = nNStartSprite->spr.pos.Y;
+		pActor->spr.pos.Z = nNStartSprite->spr.pos.Z;
+		ChangeActorSect(pActor, nNStartSprite->spr.sector());
+		plr->angle.ang = buildang(nNStartSprite->spr.ang&kAngleMask);
+		pActor->spr.ang = plr->angle.ang.asbuild();
 
-		floorsprt = insertActor(nSpr->sector(), 0);
-		auto fspr = &floorsprt->s();
+		floorsprt = insertActor(pActor->spr.sector(), 0);
 
-		fspr->pos.X = nSpr->pos.X;
-		fspr->pos.Y = nSpr->pos.Y;
-		fspr->pos.Z = nSpr->pos.Z;
-		fspr->yrepeat = 64;
-		fspr->xrepeat = 64;
-		fspr->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		fspr->picnum = nPlayer + kTile3571;
+		floorsprt->spr.pos.X = pActor->spr.pos.X;
+		floorsprt->spr.pos.Y = pActor->spr.pos.Y;
+		floorsprt->spr.pos.Z = pActor->spr.pos.Z;
+		floorsprt->spr.yrepeat = 64;
+		floorsprt->spr.xrepeat = 64;
+		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
+		floorsprt->spr.picnum = nPlayer + kTile3571;
 	}
 	else
 	{
-		nSpr->pos.X = plr->sPlayerSave.x;
-		nSpr->pos.Y = plr->sPlayerSave.y;
-		nSpr->pos.Z = plr->sPlayerSave.pSector->floorz;
+		pActor->spr.pos.X = plr->sPlayerSave.x;
+		pActor->spr.pos.Y = plr->sPlayerSave.y;
+		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
-		nSpr->ang = plr->angle.ang.asbuild();
+		pActor->spr.ang = plr->angle.ang.asbuild();
 
 		floorsprt = nullptr;
 	}
@@ -299,40 +294,39 @@ void RestartPlayer(int nPlayer)
 
 	plr->pPlayerFloorSprite = floorsprt;
 
-	nSpr->cstat = CSTAT_SPRITE_BLOCK_ALL;
-	nSpr->shade = -12;
-	nSpr->clipdist = 58;
-	nSpr->pal = 0;
-	nSpr->xrepeat = 40;
-	nSpr->yrepeat = 40;
-	nSpr->xoffset = 0;
-	nSpr->yoffset = 0;
-	nSpr->picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
+	pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+	pActor->spr.shade = -12;
+	pActor->spr.clipdist = 58;
+	pActor->spr.pal = 0;
+	pActor->spr.xrepeat = 40;
+	pActor->spr.yrepeat = 40;
+	pActor->spr.xoffset = 0;
+	pActor->spr.yoffset = 0;
+	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
 	int nHeight = GetActorHeight(pActor);
-	nSpr->xvel = 0;
-	nSpr->yvel = 0;
-	nSpr->zvel = 0;
+	pActor->spr.xvel = 0;
+	pActor->spr.yvel = 0;
+	pActor->spr.zvel = 0;
 
 	nStandHeight = nHeight;
 
-	nSpr->hitag = 0;
-	nSpr->extra = -1;
-	nSpr->lotag = runlist_HeadRun() + 1;
+	pActor->spr.hitag = 0;
+	pActor->spr.extra = -1;
+	pActor->spr.lotag = runlist_HeadRun() + 1;
 
-    auto nDSpr = &pDActor->s();
-	nDSpr->pos.X = nSpr->pos.X;
-	nDSpr->pos.Y = nSpr->pos.Y;
-	nDSpr->pos.Z = nSpr->pos.Z;
-	nDSpr->xrepeat = nSpr->xrepeat;
-	nDSpr->yrepeat = nSpr->yrepeat;
-	nDSpr->xoffset = 0;
-	nDSpr->yoffset = 0;
-	nDSpr->shade = nSpr->shade;
-	nDSpr->ang = nSpr->ang;
-	nDSpr->cstat = nSpr->cstat;
+	pDActor->spr.pos.X = pActor->spr.pos.X;
+	pDActor->spr.pos.Y = pActor->spr.pos.Y;
+	pDActor->spr.pos.Z = pActor->spr.pos.Z;
+	pDActor->spr.xrepeat = pActor->spr.xrepeat;
+	pDActor->spr.yrepeat = pActor->spr.yrepeat;
+	pDActor->spr.xoffset = 0;
+	pDActor->spr.yoffset = 0;
+	pDActor->spr.shade = pActor->spr.shade;
+	pDActor->spr.ang = pActor->spr.ang;
+	pDActor->spr.cstat = pActor->spr.cstat;
 
-	nDSpr->lotag = runlist_HeadRun() + 1;
+	pDActor->spr.lotag = runlist_HeadRun() + 1;
 
 	plr->nAction = 0;
 	plr->nHealth = 800; // TODO - define
@@ -400,8 +394,8 @@ void RestartPlayer(int nPlayer)
 
 	plr->nTauntTimer = RandomSize(3) + 3;
 
-	nDSpr->owner = runlist_AddRunRec(nDSpr->lotag - 1, nPlayer, 0xA0000);
-	nSpr->owner = runlist_AddRunRec(nSpr->lotag - 1, nPlayer, 0xA0000);
+	pDActor->spr.owner = runlist_AddRunRec(pDActor->spr.lotag - 1, nPlayer, 0xA0000);
+	pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0xA0000);
 
 	if (plr->nRun < 0) {
 		plr->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);
@@ -465,15 +459,14 @@ void StartDeathSeq(int nPlayer, int nVal)
 
                 auto pGunActor = GrabBodyGunSprite();
                 ChangeActorSect(pGunActor, pSector);
-				auto pGunSprite = &pGunActor->s();
 
-                pGunSprite->pos.X = pActor->spr.pos.X;
-                pGunSprite->pos.Y = pActor->spr.pos.Y;
-                pGunSprite->pos.Z = pSector->floorz - 512;
+                pGunActor->spr.pos.X = pActor->spr.pos.X;
+                pGunActor->spr.pos.Y = pActor->spr.pos.Y;
+                pGunActor->spr.pos.Z = pSector->floorz - 512;
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
-                pGunSprite->picnum = nGunPicnum[nWeapon];
+                pGunActor->spr.picnum = nGunPicnum[nWeapon];
 
                 BuildItemAnim(pGunActor);
             }
@@ -642,7 +635,6 @@ void AIPlayer::Damage(RunListEvent* ev)
     int nPlayer = RunData[ev->nRun].nObjIndex;
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     int nAction = PlayerList[nPlayer].nAction;
-    auto pPlayerSprite = &pPlayerActor->s();
     DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     if (!nDamage) {
@@ -673,7 +665,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                 return;
             }
 
-            if (pPlayerSprite->sector()->Flag & kSectUnderwater)
+            if (pPlayerActor->spr.sector()->Flag & kSectUnderwater)
             {
                 if (nAction != 12)
                 {
@@ -752,7 +744,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    auto pPlayerSprite = &pPlayerActor->s();
 
     DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
@@ -765,8 +756,8 @@ void AIPlayer::Tick(RunListEvent* ev)
     PlayerList[nPlayer].horizon.resetadjustment();
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel;
 
-    pPlayerSprite->xvel = sPlayerInput[nPlayer].xVel >> 14;
-    pPlayerSprite->yvel = sPlayerInput[nPlayer].yVel >> 14;
+    pPlayerActor->spr.xvel = sPlayerInput[nPlayer].xVel >> 14;
+    pPlayerActor->spr.yvel = sPlayerInput[nPlayer].yVel >> 14;
 
     if (sPlayerInput[nPlayer].nItem > -1)
     {
@@ -776,8 +767,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     int var_EC = PlayerList[nPlayer].nSeqSize;
 
-    pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
-    pDopple->spr.picnum = pPlayerSprite->picnum;
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
+    pDopple->spr.picnum = pPlayerActor->spr.picnum;
 
     if (PlayerList[nPlayer].nTorch > 0)
     {
@@ -791,10 +782,10 @@ void AIPlayer::Tick(RunListEvent* ev)
             if (nPlayer != nLocalPlayer)
             {
                 nFlashDepth = 5;
-                AddFlash(pPlayerSprite->sector(),
-                    pPlayerSprite->pos.X,
-                    pPlayerSprite->pos.Y,
-                    pPlayerSprite->pos.Z, 0);
+                AddFlash(pPlayerActor->spr.sector(),
+                    pPlayerActor->spr.pos.X,
+                    pPlayerActor->spr.pos.Y,
+                    pPlayerActor->spr.pos.Z, 0);
             }
         }
     }
@@ -812,7 +803,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         PlayerList[nPlayer].nInvisible--;
         if (PlayerList[nPlayer].nInvisible == 0)
         {
-            pPlayerSprite->cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
+            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
             DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
@@ -852,29 +843,29 @@ void AIPlayer::Tick(RunListEvent* ev)
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
-    // pPlayerSprite->zvel is modified within Gravity()
-    int zVel = pPlayerSprite->zvel;
+    // pPlayerActor->spr.zvel is modified within Gravity()
+    int zVel = pPlayerActor->spr.zvel;
 
     Gravity(pPlayerActor);
 
-    if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
+    if (pPlayerActor->spr.zvel >= 6500 && zVel < 6500)
     {
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
 
     // loc_1A4E6
-    auto pSector = pPlayerSprite->sector();
+    auto pSector = pPlayerActor->spr.sector();
     int nSectFlag = PlayerList[nPlayer].pPlayerViewSect->Flag;
 
-    int playerX = pPlayerSprite->pos.X;
-    int playerY = pPlayerSprite->pos.Y;
+    int playerX = pPlayerActor->spr.pos.X;
+    int playerY = pPlayerActor->spr.pos.Y;
 
     int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-    int z = (pPlayerSprite->zvel * 4) >> 2;
+    int z = (pPlayerActor->spr.zvel * 4) >> 2;
 
-    if (pPlayerSprite->zvel > 8192)
-        pPlayerSprite->zvel = 8192;
+    if (pPlayerActor->spr.zvel > 8192)
+        pPlayerActor->spr.zvel = 8192;
 
     if (PlayerList[nPlayer].bIsMummified)
     {
@@ -882,55 +873,55 @@ void AIPlayer::Tick(RunListEvent* ev)
         y /= 2;
     }
 
-    int spr_x = pPlayerSprite->pos.X;
-    int spr_y = pPlayerSprite->pos.Y;
-    int spr_z = pPlayerSprite->pos.Z;
-    auto spr_sect = pPlayerSprite->sector();
+    int spr_x = pPlayerActor->spr.pos.X;
+    int spr_y = pPlayerActor->spr.pos.Y;
+    int spr_z = pPlayerActor->spr.pos.Z;
+    auto spr_sect = pPlayerActor->spr.sector();
 
     // TODO
     // nSectFlag & kSectUnderwater;
 
-    zVel = pPlayerSprite->zvel;
+    zVel = pPlayerActor->spr.zvel;
 
     Collision nMove;
     nMove.setNone();
     if (bSlipMode)
     {
-        pPlayerSprite->pos.X += (x >> 14);
-        pPlayerSprite->pos.Y += (y >> 14);
+        pPlayerActor->spr.pos.X += (x >> 14);
+        pPlayerActor->spr.pos.Y += (y >> 14);
 
-        vec3_t pos = { pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->pos.Z };
+        vec3_t pos = { pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z };
         SetActor(pPlayerActor, &pos);
 
-        pPlayerSprite->pos.Z = pPlayerSprite->sector()->floorz;
+        pPlayerActor->spr.pos.Z = pPlayerActor->spr.sector()->floorz;
     }
     else
     {
         nMove = movesprite(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
 
-        auto pPlayerSect = pPlayerSprite->sector();
+        auto pPlayerSect = pPlayerActor->spr.sector();
 
-        pushmove(&pPlayerSprite->pos, &pPlayerSect, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
-        if (pPlayerSect != pPlayerSprite->sector()) {
+        pushmove(&pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
+        if (pPlayerSect != pPlayerActor->spr.sector()) {
             ChangeActorSect(pPlayerActor, pPlayerSect);
         }
     }
 
     // loc_1A6E4
-    if (inside(pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->sector()) != 1)
+    if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.sector()) != 1)
     {
         ChangeActorSect(pPlayerActor, spr_sect);
 
-        pPlayerSprite->pos.X = spr_x;
-        pPlayerSprite->pos.Y = spr_y;
+        pPlayerActor->spr.pos.X = spr_x;
+        pPlayerActor->spr.pos.Y = spr_y;
 
-        if (zVel < pPlayerSprite->zvel) {
-            pPlayerSprite->zvel = zVel;
+        if (zVel < pPlayerActor->spr.zvel) {
+            pPlayerActor->spr.zvel = zVel;
         }
     }
 
     //			int _bTouchFloor = bTouchFloor;
-    int bUnderwater = pPlayerSprite->sector()->Flag & kSectUnderwater;
+    int bUnderwater = pPlayerActor->spr.sector()->Flag & kSectUnderwater;
 
     if (bUnderwater)
     {
@@ -939,22 +930,22 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // Trigger Ramses?
-    if ((pPlayerSprite->sector()->Flag & 0x8000) && bTouchFloor)
+    if ((pPlayerActor->spr.sector()->Flag & 0x8000) && bTouchFloor)
     {
         if (nTotalPlayers <= 1)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite) & kAngleMask;
             PlayerList[nPlayer].angle.settarget(ang, true);
-            pPlayerSprite->ang = ang;
+            pPlayerActor->spr.ang = ang;
 
             PlayerList[nPlayer].horizon.settarget(0, true);
 
             lPlayerXVel = 0;
             lPlayerYVel = 0;
 
-            pPlayerSprite->xvel = 0;
-            pPlayerSprite->yvel = 0;
-            pPlayerSprite->zvel = 0;
+            pPlayerActor->spr.xvel = 0;
+            pPlayerActor->spr.yvel = 0;
+            pPlayerActor->spr.zvel = 0;
 
             if (nFreeze < 1)
             {
@@ -998,18 +989,18 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (zVel >= 6500)
             {
-                pPlayerSprite->xvel >>= 2;
-                pPlayerSprite->yvel >>= 2;
+                pPlayerActor->spr.xvel >>= 2;
+                pPlayerActor->spr.yvel >>= 2;
 
                 runlist_DamageEnemy(pPlayerActor, nullptr, ((zVel - 6500) >> 7) + 10);
 
                 if (PlayerList[nPlayer].nHealth <= 0)
                 {
-                    pPlayerSprite->xvel = 0;
-                    pPlayerSprite->yvel = 0;
+                    pPlayerActor->spr.xvel = 0;
+                    pPlayerActor->spr.yvel = 0;
 
                     StopActorSound(pPlayerActor);
-                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->pos.Z, CHANF_NONE, 1); // CHECKME
+                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z, CHANF_NONE, 1); // CHECKME
                 }
                 else
                 {
@@ -1038,7 +1029,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             {
                 if ((sect->hitag == 45) && bTouchFloor)
                 {
-                    int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
+                    int nDiff = AngleDiff(nNormal, (pPlayerActor->spr.ang + 1024) & kAngleMask);
 
                     if (nDiff < 0) {
                         nDiff = -nDiff;
@@ -1065,9 +1056,9 @@ void AIPlayer::Tick(RunListEvent* ev)
                         }
                         else
                         {
-                            pPlayerSprite->pos.X = spr_x;
-                            pPlayerSprite->pos.Y = spr_y;
-                            pPlayerSprite->pos.Z = spr_z;
+                            pPlayerActor->spr.pos.X = spr_x;
+                            pPlayerActor->spr.pos.Y = spr_y;
+                            pPlayerActor->spr.pos.Z = spr_z;
 
                             ChangeActorSect(pPlayerActor, spr_sect);
                         }
@@ -1094,11 +1085,11 @@ void AIPlayer::Tick(RunListEvent* ev)
 sectdone:
     if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerSprite->pos.Z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerActor->spr.pos.Z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
-    playerX -= pPlayerSprite->pos.X;
-    playerY -= pPlayerSprite->pos.Y;
+    playerX -= pPlayerActor->spr.pos.X;
+    playerY -= pPlayerActor->spr.pos.Y;
 
     uint32_t sqrtNum = playerX * playerX + playerY * playerY;
 
@@ -1111,9 +1102,9 @@ sectdone:
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
     PlayerList[nPlayer].totalvel = ksqrt(sqrtNum);
 
-    auto pViewSect = pPlayerSprite->sector();
+    auto pViewSect = pPlayerActor->spr.sector();
 
-    int EyeZ = PlayerList[nPlayer].eyelevel + pPlayerSprite->pos.Z + nQuake[nPlayer];
+    int EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->spr.pos.Z + nQuake[nPlayer];
 
     while (1)
     {
@@ -1131,35 +1122,35 @@ sectdone:
     // Do underwater sector check
     if (bUnderwater)
     {
-        if (pViewSect != pPlayerSprite->sector())
+        if (pViewSect != pPlayerActor->spr.sector())
         {
             if (nMove.type == kHitWall)
             {
-                int var_C4 = pPlayerSprite->pos.X;
-                int var_D4 = pPlayerSprite->pos.Y;
-                int var_C8 = pPlayerSprite->pos.Z;
+                int var_C4 = pPlayerActor->spr.pos.X;
+                int var_D4 = pPlayerActor->spr.pos.Y;
+                int var_C8 = pPlayerActor->spr.pos.Z;
 
                 ChangeActorSect(pPlayerActor, pViewSect);
 
-                pPlayerSprite->pos.X = spr_x;
-                pPlayerSprite->pos.Y = spr_y;
+                pPlayerActor->spr.pos.X = spr_x;
+                pPlayerActor->spr.pos.Y = spr_y;
 
                 int var_FC = pViewSect->floorz + (-5120);
 
-                pPlayerSprite->pos.Z = var_FC;
+                pPlayerActor->spr.pos.Z = var_FC;
 
                 auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
-                    ChangeActorSect(pPlayerActor, pPlayerSprite->sector());
+                    ChangeActorSect(pPlayerActor, pPlayerActor->spr.sector());
 
-                    pPlayerSprite->pos.X = var_C4;
-                    pPlayerSprite->pos.Y = var_D4;
-                    pPlayerSprite->pos.Z = var_C8;
+                    pPlayerActor->spr.pos.X = var_C4;
+                    pPlayerActor->spr.pos.Y = var_D4;
+                    pPlayerActor->spr.pos.Z = var_C8;
                 }
                 else
                 {
-                    pPlayerSprite->pos.Z = var_FC - 256;
+                    pPlayerActor->spr.pos.Z = var_FC - 256;
                     D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
             }
@@ -1169,8 +1160,8 @@ sectdone:
     // loc_1ADAF
     PlayerList[nPlayer].pPlayerViewSect = pViewSect;
 
-    PlayerList[nPlayer].nPlayerDX = pPlayerSprite->pos.X - spr_x;
-    PlayerList[nPlayer].nPlayerDY = pPlayerSprite->pos.Y - spr_y;
+    PlayerList[nPlayer].nPlayerDX = pPlayerActor->spr.pos.X - spr_x;
+    PlayerList[nPlayer].nPlayerDY = pPlayerActor->spr.pos.Y - spr_y;
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
@@ -1250,9 +1241,9 @@ sectdone:
         }
         else
         {
-            auto pTmpSect = pPlayerSprite->sector();
+            auto pTmpSect = pPlayerActor->spr.sector();
 
-            if (PlayerList[nPlayer].totalvel > 25 && pPlayerSprite->pos.Z > pTmpSect->floorz)
+            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
             {
                 if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
                 {
@@ -1287,17 +1278,15 @@ sectdone:
         DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
-            auto pFloorSprite = &pFloorActor->s();
+            pFloorActor->spr.pos.X = pPlayerActor->spr.pos.X;
+            pFloorActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
 
-            pFloorSprite->pos.X = pPlayerSprite->pos.X;
-            pFloorSprite->pos.Y = pPlayerSprite->pos.Y;
-
-            if (pFloorSprite->sector() != pPlayerSprite->sector())
+            if (pFloorActor->spr.sector() != pPlayerActor->spr.sector())
             {
-                ChangeActorSect(pFloorActor, pPlayerSprite->sector());
+                ChangeActorSect(pFloorActor, pPlayerActor->spr.sector());
             }
 
-            pFloorSprite->pos.Z = pPlayerSprite->sector()->floorz;
+            pFloorActor->spr.pos.Z = pPlayerActor->spr.sector()->floorz;
         }
 
         int var_30 = 0;
@@ -1316,19 +1305,18 @@ sectdone:
         HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerSprite->pos, pPlayerSprite->sector(), pPlayerSprite->ang, near, 1024, 2);
+        neartag(pPlayerActor->spr.pos, pPlayerActor->spr.sector(), pPlayerActor->spr.ang, near, 1024, 2);
 
         DExhumedActor* pActorB;
-        feebtag(pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->pos.Z, pPlayerSprite->sector(), &pActorB, var_30, 768);
+        feebtag(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z, pPlayerActor->spr.sector(), &pActorB, var_30, 768);
 
         // Item pickup code
         if (pActorB != nullptr && pActorB->spr.statnum >= 900)
         {
-            auto pSpriteB = &pActorB->s();
             int var_8C = 16;
             int var_88 = 9;
 
-            int var_70 = pSpriteB->statnum - 900;
+            int var_70 = pActorB->spr.statnum - 900;
             int var_44 = 0;
 
             // item lotags start at 6 (1-5 reserved?) so 0-offset them
@@ -1377,7 +1365,7 @@ sectdone:
                 }
                 case 0: // Speed Loader
                 {
-                    if (AddAmmo(nPlayer, 1, pSpriteB->hitag))
+                    if (AddAmmo(nPlayer, 1, pActorB->spr.hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
@@ -1387,7 +1375,7 @@ sectdone:
                 }
                 case 1: // Fuel Canister
                 {
-                    if (AddAmmo(nPlayer, 3, pSpriteB->hitag))
+                    if (AddAmmo(nPlayer, 3, pActorB->spr.hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
@@ -1396,7 +1384,7 @@ sectdone:
                 }
                 case 2: // M - 60 Ammo Belt
                 {
-                    if (AddAmmo(nPlayer, 2, pSpriteB->hitag))
+                    if (AddAmmo(nPlayer, 2, pActorB->spr.hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         CheckClip(nPlayer);
@@ -1419,7 +1407,7 @@ sectdone:
 
                         if (var_70 == 55)
                         {
-                            pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                            pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                             DestroyItemAnim(pActorB);
 
                             // loc_1BA74: - repeated block, see in default case
@@ -1475,7 +1463,7 @@ sectdone:
 
                 case 6: // Berry Twig
                 {
-                    if (pSpriteB->hitag == 0) {
+                    if (pActorB->spr.hitag == 0) {
                         break;
                     }
 
@@ -1503,8 +1491,8 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSpriteB->hitag = 0;
-                            pSpriteB->picnum++;
+                            pActorB->spr.hitag = 0;
+                            pActorB->spr.picnum++;
 
                             ChangeActorStat(pActorB, 0);
 
@@ -1572,8 +1560,8 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSpriteB->hitag = 0;
-                            pSpriteB->picnum++;
+                            pActorB->spr.hitag = 0;
+                            pActorB->spr.picnum++;
 
                             ChangeActorStat(pActorB, 0);
 
@@ -1641,8 +1629,8 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSpriteB->hitag = 0;
-                            pSpriteB->picnum++;
+                            pActorB->spr.hitag = 0;
+                            pActorB->spr.picnum++;
 
                             ChangeActorStat(pActorB, 0);
 
@@ -1808,7 +1796,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1870,7 +1858,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1932,7 +1920,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1994,7 +1982,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2056,7 +2044,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2118,7 +2106,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2153,7 +2141,7 @@ sectdone:
 
                 case 32: // Raw Energy
                 {
-                    if (AddAmmo(nPlayer, 6, pSpriteB->hitag)) {
+                    if (AddAmmo(nPlayer, 6, pActorB->spr.hitag)) {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
                     }
@@ -2215,7 +2203,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->pos.Z, pPlayerSprite->sector(), pPlayerSprite->ang);
+                    SetSavePoint(nPlayer, pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z, pPlayerActor->spr.sector(), pPlayerActor->spr.ang);
                     break;
                 }
 
@@ -2237,22 +2225,22 @@ sectdone:
         // CORRECT ? // loc_1BAF9:
         if (bTouchFloor)
         {
-            if (pPlayerSprite->sector()->lotag > 0)
+            if (pPlayerActor->spr.sector()->lotag > 0)
             {
-                runlist_SignalRun(pPlayerSprite->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
+                runlist_SignalRun(pPlayerActor->spr.sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
             }
         }
 
-        if (pSector != pPlayerSprite->sector())
+        if (pSector != pPlayerActor->spr.sector())
         {
             if (pSector->lotag > 0)
             {
                 runlist_SignalRun(pSector->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
-            if (pPlayerSprite->sector()->lotag > 0)
+            if (pPlayerActor->spr.sector()->lotag > 0)
             {
-                runlist_SignalRun(pPlayerSprite->sector()->lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
+                runlist_SignalRun(pPlayerActor->spr.sector()->lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
             }
         }
 
@@ -2286,8 +2274,8 @@ sectdone:
 
             // loc_1BC57:
 
-            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sector so we can make this code a bit neater. Don't assume pPlayerSprite->sector == nSector here!!
-            if (nStandHeight > (pPlayerSprite->sector()->floorz - pPlayerSprite->sector()->ceilingz)) {
+            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
+            if (nStandHeight > (pPlayerActor->spr.sector()->floorz - pPlayerActor->spr.sector()->ceilingz)) {
                 var_48 = 1;
             }
 
@@ -2296,14 +2284,14 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerSprite->zvel = -2048;
+                    pPlayerActor->spr.zvel = -2048;
                     nActionB = 10;
                 }
                 else if (bTouchFloor)
                 {
                     if (nAction < 6 || nAction > 8)
                     {
-                        pPlayerSprite->zvel = -3584;
+                        pPlayerActor->spr.zvel = -3584;
                         nActionB = 3;
                     }
                 }
@@ -2314,7 +2302,7 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerSprite->zvel = 2048;
+                    pPlayerActor->spr.zvel = 2048;
                     nActionB = 10;
                 }
                 else
@@ -2483,9 +2471,9 @@ sectdone:
                 {
                     if (nAction != 20)
                     {
-                        pPlayerSprite->picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
-                        pPlayerSprite->cstat = 0;
-                        pPlayerSprite->pos.Z = pPlayerSprite->sector()->floorz;
+                        pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+                        pPlayerActor->spr.cstat = 0;
+                        pPlayerActor->spr.pos.Z = pPlayerActor->spr.sector()->floorz;
                     }
 
                     // will invalidate nPlayerSprite
@@ -2533,8 +2521,8 @@ sectdone:
         case 16:
             PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
-            if (pPlayerSprite->pos.Z < pPlayerSprite->sector()->floorz) {
-                pPlayerSprite->pos.Z += 256;
+            if (pPlayerActor->spr.pos.Z < pPlayerActor->spr.sector()->floorz) {
+                pPlayerActor->spr.pos.Z += 256;
             }
 
             if (!RandomSize(5))
@@ -2543,14 +2531,14 @@ sectdone:
                 sectortype* mouthSect;
                 WheresMyMouth(nPlayer, &pos, &mouthSect);
 
-                BuildAnim(nullptr, 71, 0, pos.X, pos.Y, pPlayerSprite->pos.Z + 3840, mouthSect, 75, 128);
+                BuildAnim(nullptr, 71, 0, pos.X, pos.Y, pPlayerActor->spr.pos.Z + 3840, mouthSect, 75, 128);
             }
             break;
         case 17:
             PlayerList[nPlayer].nAction = 18;
             break;
         case 19:
-            pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
             PlayerList[nPlayer].nAction = 20;
             break;
         }
@@ -2559,11 +2547,11 @@ sectdone:
     // loc_1C3B4:
     if (nPlayer == nLocalPlayer)
     {
-        initx = pPlayerSprite->pos.X;
-        inity = pPlayerSprite->pos.Y;
-        initz = pPlayerSprite->pos.Z;
-        initsectp = pPlayerSprite->sector();
-        inita = pPlayerSprite->ang;
+        initx = pPlayerActor->spr.pos.X;
+        inity = pPlayerActor->spr.pos.Y;
+        initz = pPlayerActor->spr.pos.Z;
+        initsectp = pPlayerActor->spr.sector();
+        inita = pPlayerActor->spr.ang;
     }
 
     if (!PlayerList[nPlayer].nHealth)
@@ -2593,7 +2581,7 @@ sectdone:
                 }
                 else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
                 {
-                    if (!(pPlayerSprite->sector()->Flag & kSectUnderwater))
+                    if (!(pPlayerActor->spr.sector()->Flag & kSectUnderwater))
                     {
                         SetNewWeapon(nPlayer, PlayerList[nPlayer].nDeathType + 8);
                     }
@@ -2605,12 +2593,12 @@ sectdone:
     }
 
     // loc_1C4E1
-    pDopple->spr.pos = pPlayerSprite->pos;
+    pDopple->spr.pos = pPlayerActor->spr.pos;
 
-    if (pPlayerSprite->sector()->pAbove != nullptr)
+    if (pPlayerActor->spr.sector()->pAbove != nullptr)
     {
-        pDopple->spr.ang = pPlayerSprite->ang;
-        ChangeActorSect(pDopple, pPlayerSprite->sector()->pAbove);
+        pDopple->spr.ang = pPlayerActor->spr.ang;
+        ChangeActorSect(pDopple, pPlayerActor->spr.sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
     else
