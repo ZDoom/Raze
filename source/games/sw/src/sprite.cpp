@@ -4480,7 +4480,7 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
     {
         spr = &itActor->s();
         cstat = spr->cstat;
-        if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_BLOCK) != (CSTAT_SPRITE_ALIGNMENT_FLOOR|CSTAT_SPRITE_BLOCK))
+        if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_BLOCK)) != (CSTAT_SPRITE_ALIGNMENT_FLOOR|CSTAT_SPRITE_BLOCK))
             continue;                   // Only check blocking floor sprites
 
         daz = spr->pos.Z;
