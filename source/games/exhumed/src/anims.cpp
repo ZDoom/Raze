@@ -52,11 +52,10 @@ void DestroyAnim(DExhumedActor* pActor)
 {
     if (pActor)
     {
-		auto pSprite = &pActor->s();
         StopActorSound(pActor);
         runlist_SubRunRec(pActor->nRun);
-        runlist_DoSubRunRec(pSprite->extra);
-        runlist_FreeRun(pSprite->lotag - 1);
+        runlist_DoSubRunRec(pActor->spr.extra);
+        runlist_FreeRun(pActor->spr.lotag - 1);
         DeleteActor(pActor);
     }
 }
@@ -66,44 +65,42 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     if (pActor == nullptr) {
         pActor = insertActor(pSector, 500);
     }
-	auto pSprite = &pActor->s();
-
-    pSprite->pos.X = x;
-    pSprite->pos.Y = y;
-    pSprite->pos.Z = z;
-    pSprite->cstat = 0;
+    pActor->spr.pos.X = x;
+    pActor->spr.pos.Y = y;
+    pActor->spr.pos.Z = z;
+    pActor->spr.cstat = 0;
 
     if (nFlag & 4)
     {
-        pSprite->pal = 4;
-        pSprite->shade = -64;
+        pActor->spr.pal = 4;
+        pActor->spr.shade = -64;
     }
     else
     {
-        pSprite->pal = 0;
-        pSprite->shade = -12;
+        pActor->spr.pal = 0;
+        pActor->spr.shade = -12;
     }
 
-    pSprite->clipdist = 10;
-    pSprite->xrepeat = nRepeat;
-    pSprite->yrepeat = nRepeat;
-    pSprite->picnum = 1;
-    pSprite->ang = 0;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->backuppos();
+    pActor->spr.clipdist = 10;
+    pActor->spr.xrepeat = nRepeat;
+    pActor->spr.yrepeat = nRepeat;
+    pActor->spr.picnum = 1;
+    pActor->spr.ang = 0;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.backuppos();
 
     // CHECKME - where is hitag set otherwise?
-    if (pSprite->statnum < 900) {
-        pSprite->hitag = -1;
+    if (pActor->spr.statnum < 900) {
+        pActor->spr.hitag = -1;
     }
 
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->owner = -1;
-    pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x100000);
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.owner = -1;
+    pActor->spr.extra = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x100000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x100000);
     pActor->nAction = nFlag;
@@ -114,7 +111,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     pActor->nPhase = ITEM_MAGIC;
 
     if (nFlag & 0x80) {
-        pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
+        pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
     }
 
     return pActor;
@@ -126,27 +123,25 @@ void AIAnim::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nIndex2 = pActor->nIndex2;
-    auto pSprite = &pActor->s();
-
     int nIndex = pActor->nIndex;
 
-    if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
+    if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
         seq_MoveSequence(pActor, nIndex2, nIndex);
     }
 
-    if (pSprite->statnum == kStatIgnited)
+    if (pActor->spr.statnum == kStatIgnited)
     {
         DExhumedActor* pIgniter = pActor->pTarget;
 
         if (pIgniter)
         {
             auto pSpriteB = &pIgniter->s(); 
-            pSprite->pos.X = pSpriteB->pos.X;
-            pSprite->pos.Y = pSpriteB->pos.Y;
-            pSprite->pos.Z = pSpriteB->pos.Z;
+            pActor->spr.pos.X = pSpriteB->pos.X;
+            pActor->spr.pos.Y = pSpriteB->pos.Y;
+            pActor->spr.pos.Z = pSpriteB->pos.Z;
 
-            if (pSpriteB->sector() != pSprite->sector())
+            if (pSpriteB->sector() != pActor->spr.sector())
             {
                 if (!pSpriteB->sector())
                 {
@@ -209,7 +204,7 @@ void AIAnim::Tick(RunListEvent* ev)
             pActor->nIndex = 0;
             pActor->nIndex2 = nMagicSeq;
             pActor->nAction |= 0x10;
-            pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
         else if (nIndex2 == nSavePointSeq)
         {
@@ -236,9 +231,7 @@ void AIAnim::Draw(RunListEvent* ev)
 
 void BuildExplosion(DExhumedActor* pActor)
 {
-    auto pSprite = &pActor->s();
- 
-    auto pSector = pSprite->sector();
+    auto pSector = pActor->spr.sector();
 
     int edx = 36;
 
@@ -246,22 +239,21 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pSprite->pos.Z == pSprite->sector()->floorz)
+    else if (pActor->spr.pos.Z == pActor->spr.sector()->floorz)
     {
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 {
-    auto pSprite = &pActor->s();
     int nRepeat, nSound;
 
-    if (pSprite->statnum != 200)
+    if (pActor->spr.statnum != 200)
     {
-        nRepeat = pSprite->xrepeat + (RandomWord() % pSprite->xrepeat);
+        nRepeat = pActor->spr.xrepeat + (RandomWord() % pActor->spr.xrepeat);
         nSound = kSound0;
     }
     else
@@ -285,11 +277,11 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
         nFlag = 0;
     }
 
-    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->pos.Y, pSector->floorz, pSector, nRepeat, nFlag);
+    auto pSpawned = BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pSector->floorz, pSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {
-        D3PlayFX(StaticSound[nSound] | 0xa00, pActor);
+        D3PlayFX(StaticSound[nSound] | 0xa00, pSpawned);
     }
 }
 END_PS_NS
