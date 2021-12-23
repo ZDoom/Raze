@@ -100,14 +100,14 @@ bool ActorFlaming(DSWActor* actor)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
-    if (u->flameActor != nullptr)
+    auto flame = u->flameActor;
+    if (flame != nullptr)
     {
         int size;
-        SPRITEp fp = &u->flameActor->s();
 
         size = GetSpriteSizeZ(sp) - (GetSpriteSizeZ(sp) >> 2);
 
-        if (GetSpriteSizeZ(fp) > size)
+        if (GetSpriteSizeZ(flame) > size)
             return true;
     }
 
@@ -251,28 +251,28 @@ int CanHitPlayer(DSWActor* actor)
     zhs = sp->pos.Z - DIV2(GetSpriteSizeZ(sp));
 
 
-    auto hp = &u->targetActor->s();
+    auto targ = u->targetActor;
 
     // get angle to target
-    ang = getangle(hp->pos.X - sp->pos.X, hp->pos.Y - sp->pos.Y);
+    ang = getangle(targ->spr.pos.X - sp->pos.X, targ->spr.pos.Y - sp->pos.Y);
 
     // get x,yvect
     xvect = bcos(ang);
     yvect = bsin(ang);
 
     // get zvect
-    zhh = hp->pos.Z - DIV2(GetSpriteSizeZ(hp));
-    if (hp->pos.X - sp->pos.X != 0)
-        zvect = xvect * ((zhh - zhs)/(hp->pos.X - sp->pos.X));
-    else if (hp->pos.Y - sp->pos.Y != 0)
-        zvect = yvect * ((zhh - zhs)/(hp->pos.Y - sp->pos.Y));
+    zhh = targ->spr.pos.Z - (GetSpriteSizeZ(targ) >> 1);
+    if (targ->spr.pos.X - sp->pos.X != 0)
+        zvect = xvect * ((zhh - zhs) / (targ->spr.pos.X - sp->pos.X));
+    else if (targ->spr.pos.Y - sp->pos.Y != 0)
+        zvect = yvect * ((zhh - zhs) / (targ->spr.pos.Y - sp->pos.Y));
     else
         return false;
 
     // so actors won't shoot straight up at you
     // need to be a bit of a distance away
     // before they have a valid shot
-//    if (labs(zvect / FindDistance2D(hp->x - sp->x, hp->y - sp->y)) > 200)
+//    if (labs(zvect / FindDistance2D(targ->spr.x - sp->x, targ->spr.y - sp->y)) > 200)
 //       return(false);
 
     FAFhitscan(sp->pos.X, sp->pos.Y, zhs, sp->sector(),
@@ -318,10 +318,10 @@ int DoActorPickClosePlayer(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            if (GetOwner(actor) == pp->Actor())
+            if (GetOwner(actor) == pp->actor)
                 continue;
 
-            u->targetActor = pp->Actor();
+            u->targetActor = pp->actor;
             break;
         }
     }
@@ -336,14 +336,14 @@ int DoActorPickClosePlayer(DSWActor* actor)
         // Zombies don't target their masters!
         if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         {
-            if (GetOwner(actor) == pp->Actor())
+            if (GetOwner(actor) == pp->actor)
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
                 continue;
 
             // if co-op don't hurt teammate
-            // if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == pp->Actor()->spr.spal)
+            // if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == pp->actor->spr.spal)
             //    continue;
         }
 
@@ -352,7 +352,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         if (dist < near_dist)
         {
             near_dist = dist;
-            u->targetActor = pp->Actor();
+            u->targetActor = pp->actor;
         }
     }
 
@@ -366,24 +366,20 @@ int DoActorPickClosePlayer(DSWActor* actor)
         // Zombies don't target their masters!
         if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         {
-            if (GetOwner(actor) == pp->Actor())
+            if (GetOwner(actor) == pp->actor)
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
                 continue;
-
-            // if co-op don't hurt teammate
-            //if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == pp->Actor()->spr.spal)
-            //    continue;
         }
 
         DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
-        auto psp = &pp->Actor()->s();
-        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, GetSpriteUpperZ(psp), psp->sector()))
+        auto plActor = pp->actor;
+        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpper(plActor), plActor->spr.sector()))
         {
             near_dist = dist;
-            u->targetActor = pp->Actor();
+            u->targetActor = pp->actor;
             found = true;
         }
     }
@@ -404,10 +400,9 @@ TARGETACTOR:
             if (TEST(itActor->u()->Flags, SPR_SUICIDE | SPR_DEAD))
                 continue;
 
-            auto itSp = &itActor->s();
-            DISTANCE(sp->pos.X, sp->pos.Y, itSp->pos.X, itSp->pos.Y, dist, a, b, c);
+            DISTANCE(sp->pos.X, sp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itSp->pos.X, itSp->pos.Y, GetSpriteUpperZ(itSp), itSp->sector()))
+            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpper(itActor), itActor->spr.sector()))
             {
                 near_dist = dist;
                 u->targetActor = itActor;
@@ -428,9 +423,9 @@ DSWActor* GetPlayerSpriteNum(DSWActor* actor)
     {
         pp = &Player[pnum];
 
-        if (pp->Actor() == u->targetActor)
+        if (pp->actor == u->targetActor)
         {
-            return pp->Actor();
+            return pp->actor;
         }
     }
     return nullptr;
