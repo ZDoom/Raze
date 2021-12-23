@@ -264,7 +264,6 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 {
 #if 0
     auto pSprite = pPlayer->actor;
-    XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
 
     int top, bottom;

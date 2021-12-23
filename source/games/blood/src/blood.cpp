@@ -701,8 +701,7 @@ DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
-	XSPRITE* pXSprite = self->pXSprite;
-	ACTION_RETURN_INT(pXSprite->health);
+	ACTION_RETURN_INT(self->actor->xspr.health);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)

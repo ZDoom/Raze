@@ -502,8 +502,7 @@ void packUseItem(PLAYER *pPlayer, int nPack)
         {
         case 0:
         {
-            XSPRITE *pXSprite = pPlayer->pXSprite;
-            unsigned int health = pXSprite->health>>4;
+            unsigned int health = pPlayer->actor->xspr.health>>4;
             if (health < 100)
             {
                 int heal = ClipHigh(100-health, pPlayer->packSlots[0].curAmount);
@@ -1370,7 +1369,6 @@ void ProcessInput(PLAYER *pPlayer)
     pPlayer->angle.resetadjustment();
 
     DBloodActor* actor = pPlayer->actor;
-    XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     InputPacket *pInput = &pPlayer->input;
 
@@ -1383,7 +1381,7 @@ void ProcessInput(PLAYER *pPlayer)
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
     WeaponProcess(pPlayer);
-    if (pXSprite->health == 0)
+    if (actor->xspr.health == 0)
     {
         bool bSeqStat = playerSeqPlaying(pPlayer, 16);
         DBloodActor* fragger = pPlayer->fragger;
@@ -1443,11 +1441,11 @@ void ProcessInput(PLAYER *pPlayer)
             actor->yvel -= MulScale(strafe, x, 30);
         }
     }
-    else if (pXSprite->height < 256)
+    else if (actor->xspr.height < 256)
     {
         int speed = 0x10000;
-        if (pXSprite->height > 0)
-            speed -= DivScale(pXSprite->height, 256, 16);
+        if (actor->xspr.height > 0)
+            speed -= DivScale(actor->xspr.height, 256, 16);
         int x = Cos(actor->spr.ang);
         int y = Sin(actor->spr.ang);
         if (pInput->fvel)
@@ -1457,7 +1455,7 @@ void ProcessInput(PLAYER *pPlayer)
                 forward = MulScale(pPosture->frontAccel, forward, 8);
             else
                 forward = MulScale(pPosture->backAccel, forward, 8);
-            if (pXSprite->height)
+            if (actor->xspr.height)
                 forward = MulScale(forward, speed, 16);
             actor->xvel += MulScale(forward, x, 30);
             actor->yvel += MulScale(forward, y, 30);
@@ -1466,7 +1464,7 @@ void ProcessInput(PLAYER *pPlayer)
         {
             int strafe = pInput->svel;
             strafe = MulScale(pPosture->sideAccel, strafe, 8);
-            if (pXSprite->height)
+            if (actor->xspr.height)
                 strafe = MulScale(strafe, speed, 16);
             actor->xvel += MulScale(strafe, y, 30);
             actor->yvel -= MulScale(strafe, x, 30);
@@ -1497,7 +1495,7 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && pXSprite->height == 0) {
+        if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && actor->xspr.height == 0) {
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
@@ -1573,9 +1571,9 @@ void ProcessInput(PLAYER *pPlayer)
         {
             auto act = result.actor();
             XSPRITE *pXSprite = &act->x();
-            int key = pXSprite->key;
-            if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
-                trTextOver(pXSprite->lockMsg);
+            int key = actor->xspr.key;
+            if (actor->xspr.locked && pPlayer == gMe && actor->xspr.lockMsg)
+                trTextOver(actor->xspr.lockMsg);
             if (!key || pPlayer->hasKey[key])
                 trTriggerSprite(act, kCmdSpritePush);
             else if (pPlayer == gMe)

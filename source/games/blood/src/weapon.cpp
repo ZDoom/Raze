@@ -840,7 +840,6 @@ void WeaponUpdateState(PLAYER *pPlayer)
 {
     static int lastWeapon = 0;
     static int lastState = 0;
-    XSPRITE *pXSprite = pPlayer->pXSprite;
     int va = pPlayer->curWeapon;
     int vb = pPlayer->weaponState;
     if (va != lastWeapon || vb != lastState)
@@ -1007,7 +1006,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             SetQAV(pPlayer, kQAVFLARIDLE);
         break;
     case kWeapVoodooDoll:
-        if (pXSprite->height < 256 && pPlayer->swayHeight != 0)
+        if (pPlayer->actor->xspr.height < 256 && pPlayer->swayHeight != 0)
             StartQAV(pPlayer, kQAVVDIDLE2);
         else
             SetQAV(pPlayer, kQAVVDIDLE1);
