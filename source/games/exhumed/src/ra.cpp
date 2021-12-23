@@ -74,11 +74,10 @@ void FreeRa(int nPlayer)
     int nRun = Ra[nPlayer].nRun;
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
-	auto pSprite = &pActor->s();
 
     runlist_SubRunRec(nRun);
-    runlist_DoSubRunRec(pSprite->owner);
-    runlist_FreeRun(pSprite->lotag - 1);
+    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_FreeRun(pActor->spr.lotag - 1);
 
     DeleteActor(pActor);
     Ra[nPlayer] = {};
@@ -90,20 +89,19 @@ void BuildRa(int nPlayer)
     auto pPlayerSprite = &pPlayerActor->s();
 
     auto pActor = insertActor(pPlayerSprite->sector(), 203);
-	auto pSprite = &pActor->s();
 
-    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->extra = -1;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->hitag = 0;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nPlayer, 0x210000);
-    pSprite->pal = 1;
-    pSprite->xrepeat = 64;
-    pSprite->yrepeat = 64;
-    pSprite->pos = pPlayerSprite->pos;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.extra = -1;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.hitag = 0;
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0x210000);
+    pActor->spr.pal = 1;
+    pActor->spr.xrepeat = 64;
+    pActor->spr.yrepeat = 64;
+    pActor->spr.pos = pPlayerSprite->pos;
 
 //	GrabTimeSlot(3);
 
@@ -128,7 +126,6 @@ void MoveRaToEnemy(int nPlayer)
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
     int nAction = Ra[nPlayer].nAction;
-	auto pSprite = &pActor->s();
 
     if (pTarget)
     {
@@ -146,7 +143,7 @@ void MoveRaToEnemy(int nPlayer)
         }
         else
         {
-            if (pSprite->sector() != pTargSprite->sector()) {
+            if (pActor->spr.sector() != pTargSprite->sector()) {
                 ChangeActorSect(pActor, pTargSprite->sector());
             }
         }
@@ -164,16 +161,16 @@ void MoveRaToEnemy(int nPlayer)
             return;
         }
 
-        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+        pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         pTarget = PlayerList[nPlayer].Actor();
     }
 	auto pTargSprite = &pTarget->s();
 
-    pSprite->pos.X = pTargSprite->pos.X;
-    pSprite->pos.Y = pTargSprite->pos.Y;
-    pSprite->pos.Z = pTargSprite->pos.Z - GetActorHeight(pTarget);
+    pActor->spr.pos.X = pTargSprite->pos.X;
+    pActor->spr.pos.Y = pTargSprite->pos.Y;
+    pActor->spr.pos.Z = pTargSprite->pos.Z - GetActorHeight(pTarget);
 
-    if (pSprite->sector() != pTargSprite->sector()) {
+    if (pActor->spr.sector() != pTargSprite->sector()) {
         ChangeActorSect(pActor, pTargSprite->sector());
     }
 }
@@ -186,12 +183,11 @@ void AIRa::Tick(RunListEvent* ev)
     int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
-    auto pSprite = &pActor->s();
 
     bool bVal = false;
 
     Ra[nPlayer].pTarget = sPlayerInput[nPlayer].pTarget;
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
+    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
     if (Ra[nPlayer].nAction)
     {
@@ -213,11 +209,11 @@ void AIRa::Tick(RunListEvent* ev)
 
         if (!Ra[nPlayer].nState || Ra[nPlayer].pTarget == nullptr)
         {
-            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+            pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
             Ra[nPlayer].nAction = 1;
             Ra[nPlayer].nFrame = 0;
         }
@@ -288,7 +284,7 @@ void AIRa::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+            pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
             Ra[nPlayer].nAction = 0;
             Ra[nPlayer].nFrame = 0;
             Ra[nPlayer].nState = 0;
