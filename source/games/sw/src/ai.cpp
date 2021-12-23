@@ -232,7 +232,7 @@ bool CanSeePlayer(DSWActor* actor)
     // if actor can still see the player
     int look_height = GetSpriteZOfTop(sp);
 
-    if (u->targetActor && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpper(u->targetActor), u->targetActor->spr.sector()))
+    if (u->targetActor && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpperZ(u->targetActor), u->targetActor->spr.sector()))
         return true;
     else
         return false;
@@ -376,7 +376,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
         auto plActor = pp->actor;
-        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpper(plActor), plActor->spr.sector()))
+        if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpperZ(plActor), plActor->spr.sector()))
         {
             near_dist = dist;
             u->targetActor = pp->actor;
@@ -402,7 +402,7 @@ TARGETACTOR:
 
             DISTANCE(sp->pos.X, sp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpper(itActor), itActor->spr.sector()))
+            if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->spr.sector()))
             {
                 near_dist = dist;
                 u->targetActor = itActor;
@@ -1005,7 +1005,7 @@ int FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    zdiff = ActorUpper(u->targetActor) - (sp->pos.Z - GetSpriteSizeZ(sp) + Z(8));
+    zdiff = ActorUpperZ(u->targetActor) - (sp->pos.Z - GetSpriteSizeZ(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
     {

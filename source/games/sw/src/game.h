@@ -289,16 +289,6 @@ inline int GetSpriteZOfMiddle(const spritetypebase* sp)
     return (GetSpriteZOfTop(sp) + GetSpriteZOfBottom(sp)) >> 1;
 }
 
-inline int GetSpriteUpperZ(const spritetypebase* sp)
-{
-    return (GetSpriteZOfTop(sp) + (GetSpriteSizeZ(sp) >> 2));
-}
-
-int GetSpriteLowerZ(const spritetypebase* sp)
-{
-    return (GetSpriteZOfBottom(sp) - (GetSpriteSizeZ(sp) >> 2));
-}
-
 constexpr int Z(int value)
 {
     return value << 8;
@@ -2129,14 +2119,14 @@ END_SW_NS
 
 BEGIN_SW_NS
 
-inline int ActorUpper(DSWActor* actor)
+inline int ActorUpperZ(DSWActor* actor)
 {
-    return GetSpriteUpperZ(&actor->s());
+    return (GetSpriteZOfTop(&actor->spr) + (GetSpriteSizeZ(&actor->spr) >> 2));
 }
 
-inline int ActorLower(DSWActor* actor)
+inline int ActorLowerZ(DSWActor* actor)
 {
-    return GetSpriteLowerZ(&actor->s());
+    return (GetSpriteZOfBottom(&actor->spr) - (GetSpriteSizeZ(&actor->spr) >> 2));
 }
 
 inline int ActorMid(DSWActor* actor)

@@ -357,7 +357,6 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about u->sz - this is the z mid point
 
-    //zdiff = (GetSpriteLowerZ(tsp) - Z(8)) - u->sz;
     zdiff = (GetSpriteZOfMiddle(tsp)) - u->sz;
 
     // check z diff of the player and the sprite

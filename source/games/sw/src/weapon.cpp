@@ -7173,7 +7173,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (wu->Radius > 200)
             {
-                if (!FAFcansee(sp->pos.X,sp->pos.Y, GetSpriteUpperZ(sp), sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+                if (!FAFcansee(sp->pos.X,sp->pos.Y, ActorUpperZ(actor), sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
                     continue;
             }
 
@@ -7406,8 +7406,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, GetSpriteUpperZ(sp), sp->sector()) &&
-                    !FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, GetSpriteLowerZ(sp), sp->sector()))
+                if (!FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, ActorUpperZ(actor), sp->sector()) &&
+                    !FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, ActorLowerZ(actor), sp->sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -8870,7 +8870,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteUpperZ(sp),sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+            if (!FAFcansee(sp->pos.X,sp->pos.Y,ActorUpperZ(actor),sp->sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
                 continue;
 
             return true;
@@ -12028,7 +12028,7 @@ int InitLavaThrow(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
     return 0;
 }
@@ -12338,7 +12338,7 @@ int InitEnemyNapalm(DSWActor* actor)
         dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
         if (dist != 0)
-            wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+            wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
         wu->xchange = MOVEx(wp->xvel, wp->ang);
         wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -12440,7 +12440,7 @@ int InitEnemyMirv(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
     return 0;
 }
 
@@ -12899,7 +12899,7 @@ int InitSumoNapalm(DSWActor* actor)
             dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
             if (dist != 0)
-                wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+                wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
             wu->xchange = MOVEx(wp->xvel, wp->ang);
             wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -13199,7 +13199,7 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
 
     if (dist != 0)
     {
-        zh = GetSpriteUpperZ(hp);
+        zh = ActorUpperZ(hitActor);
 
         xvect = bcos(*ang);
         yvect = bsin(*ang);
@@ -14950,7 +14950,7 @@ int InitSerpSpell(DSWActor* actor)
         // find the distance to the target (player)
         dist = Distance(np->pos.X, np->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
         if (dist != 0)
-            np->zvel = (np->xvel * (ActorUpper(u->targetActor) - np->pos.Z)) / dist;
+            np->zvel = (np->xvel * (ActorUpperZ(u->targetActor) - np->pos.Z)) / dist;
 
         np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
 
@@ -15062,7 +15062,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         // find the distance to the target (player)
         dist = Distance(np->pos.X, np->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
         if (dist != 0)
-            np->zvel = (np->xvel * (ActorUpper(u->targetActor) - np->pos.Z)) / dist;
+            np->zvel = (np->xvel * (ActorUpperZ(u->targetActor) - np->pos.Z)) / dist;
 
         np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
 
@@ -15148,7 +15148,7 @@ int InitEnemyRocket(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
     return 0;
 }
@@ -15237,7 +15237,7 @@ int InitEnemyRail(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
     return 0;
 }
@@ -15323,7 +15323,7 @@ int InitZillaRocket(DSWActor* actor)
         dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
         if (dist != 0)
-            wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+            wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
     }
 
     return 0;
@@ -15368,7 +15368,7 @@ int InitEnemyStar(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
     PlaySound(DIGI_STAR, actor, v3df_none);
     return 0;
@@ -15418,7 +15418,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     dist = Distance(wp->pos.X, wp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->pos.Z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - wp->pos.Z)) / dist;
 
     PlaySound(DIGI_STAR, actor, v3df_none);
 
@@ -15462,7 +15462,7 @@ int InitSkelSpell(DSWActor* actor)
     dist = Distance(nx, ny, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
 
     if (dist != 0)
-        wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - nz)) / dist;
+        wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - nz)) / dist;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -15523,7 +15523,7 @@ int InitCoolgFire(DSWActor* actor)
     if (dist != 0)
         // (velocity * difference between the target and the throwing star) /
         // distance
-        wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - nz)) / dist;
+        wp->zvel = (wp->xvel * (ActorUpperZ(u->targetActor) - nz)) / dist;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);

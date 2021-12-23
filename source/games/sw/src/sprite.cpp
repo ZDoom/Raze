@@ -3835,7 +3835,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->pos.Z = GetSpriteLowerZ(sp)+Z(10);
+        np->pos.Z = ActorLowerZ(actor) + Z(10);
         np->ang = sp->ang;
 
         // vel
@@ -6074,7 +6074,8 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    SPRITEp psp = &pp->Actor()->s();
+    auto plActor = pp->actor;
+    SPRITEp psp = &plActor->s();
     int look_height;
 
 
@@ -6099,7 +6100,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 
     // if actor can still see the player
     look_height = GetSpriteZOfTop(sp);
-    if (FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, GetSpriteUpperZ(psp), psp->sector()))
+    if (FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, ActorUpperZ(plActor), psp->sector()))
     {
         // Player is visible
         // adjust update range of this sprite
