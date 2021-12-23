@@ -390,9 +390,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
             if (loHit.type == kHitSprite)
             {
                 // Path A
-                auto pFloorSprite = &loHit.actor()->s();
+                auto pFloorActor = loHit.actor();
 
-                if (pActor->spr.statnum == 100 && pFloorSprite->statnum != 0 && pFloorSprite->statnum < 100)
+                if (pActor->spr.statnum == 100 && pFloorActor->spr.statnum != 0 && pFloorActor->spr.statnum < 100)
                 {
                     int nDamage = (z >> 9);
                     if (nDamage)
@@ -404,7 +404,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                 }
                 else
                 {
-                    if (pFloorSprite->statnum == 0 || pFloorSprite->statnum > 199)
+                    if (pFloorActor->spr.statnum == 0 || pFloorActor->spr.statnum > 199)
                     {
                         nRet.exbits |= kHitAux2;
                     }
@@ -662,10 +662,7 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     if (!a1 || !a2)
         return -1;
 
-    auto pSprite1 = &a1->s();
-    auto pSprite2 = &a2->s();
-
-    return GetMyAngle(pSprite2->pos.X - pSprite1->pos.X, pSprite2->pos.Y - pSprite1->pos.Y);
+    return GetMyAngle(a2->spr.pos.X - a1->spr.pos.X, a2->spr.pos.Y - a1->spr.pos.Y);
 }
 
 int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
@@ -673,12 +670,10 @@ int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
     if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
 
-    auto pSprite1 = &pActor1->s();
-    auto pSprite2 = &pActor2->s();
-    int x = pSprite2->pos.X - pSprite1->pos.X;
-    int y = pSprite2->pos.Y - pSprite1->pos.Y;
+    int x = pActor2->spr.pos.X - pActor1->spr.pos.X;
+    int y = pActor2->spr.pos.Y - pActor1->spr.pos.Y;
 
-    pSprite1->ang = GetMyAngle(x, y);
+    pActor1->spr.ang = GetMyAngle(x, y);
 
     uint32_t x2 = abs(x);
     uint32_t y2 = abs(y);
@@ -718,17 +713,16 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
             return nullptr;
 
         pPlayerActor = PlayerList[i].Actor();
-        auto pPlayerSprite = &pPlayerActor->s();
 
-        if ((pPlayerSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerSprite->cstat & CSTAT_SPRITE_INVISIBLE)))
+        if ((pPlayerActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
         {
-            int v9 = abs(pPlayerSprite->pos.X - x);
+            int v9 = abs(pPlayerActor->spr.pos.X - x);
 
             if (v9 < nDistance)
             {
-                int v10 = abs(pPlayerSprite->pos.Y - y);
+                int v10 = abs(pPlayerActor->spr.pos.Y - y);
 
-                if (v10 < nDistance && cansee(pPlayerSprite->pos.X, pPlayerSprite->pos.Y, pPlayerSprite->pos.Z - 7680, pPlayerSprite->sector(), x, y, z, pSector))
+                if (v10 < nDistance && cansee(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z - 7680, pPlayerActor->spr.sector(), x, y, z, pSector))
                 {
                     break;
                 }
@@ -770,13 +764,11 @@ void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
 
 int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx)
 {
-	auto pSprite1 = &pActor1->s();
-	auto pSprite2 = &pActor2->s();
-    int x = pSprite2->pos.X - pSprite1->pos.X;
-    int y = pSprite2->pos.Y - pSprite1->pos.Y;
+    int x = pActor2->spr.pos.X - pActor1->spr.pos.X;
+    int y = pActor2->spr.pos.Y - pActor1->spr.pos.Y;
 
-    int ebx = (pSprite2->pos.Z + ecx) - (pSprite1->pos.Z + nVal);
-    int edx = (pSprite2->pos.Z + ecx) - (pSprite1->pos.Z + nVal);
+    int ebx = (pActor2->spr.pos.Z + ecx) - (pActor1->spr.pos.Z + nVal);
+    int edx = (pActor2->spr.pos.Z + ecx) - (pActor1->spr.pos.Z + nVal);
 
     ebx >>= 4;
     edx >>= 8;
@@ -987,24 +979,23 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
-            auto sp = &pActor->s();
-            if (sp->statnum < 99)
+            if (pActor->spr.statnum < 99)
             {
-                sp->pos.X += xvect;
-                sp->pos.Y += yvect;
+                pActor->spr.pos.X += xvect;
+                pActor->spr.pos.Y += yvect;
             }
             else
             {
-                pos.Z = sp->pos.Z;
+                pos.Z = pActor->spr.pos.Z;
 
-                if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
+                if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
                 {
-                    pos.X = sp->pos.X;
-                    pos.Y = sp->pos.Y;
+                    pos.X = pActor->spr.pos.X;
+                    pos.Y = pActor->spr.pos.Y;
                     pSectorB = pSector;
 
                     Collision scratch;
-                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0, scratch);
+                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * pActor->spr.clipdist, 0, 0, CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -1167,14 +1158,12 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
     }
     else
     {
-		auto pSprite2 = &pActor2->s();
+        int nHeight = tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat * 2;
 
-        int nHeight = tileHeight(pSprite2->picnum) * pSprite2->yrepeat * 2;
+        int nMyAngle = GetMyAngle(pActor2->spr.pos.X - pActor->spr.pos.X, pActor2->spr.pos.Y - pActor->spr.pos.Y);
 
-        int nMyAngle = GetMyAngle(pSprite2->pos.X - pActor->spr.pos.X, pSprite2->pos.Y - pActor->spr.pos.Y);
-
-        uint32_t xDiff = abs(pSprite2->pos.X - pActor->spr.pos.X);
-        uint32_t yDiff = abs(pSprite2->pos.Y - pActor->spr.pos.Y);
+        uint32_t xDiff = abs(pActor2->spr.pos.X - pActor->spr.pos.X);
+        uint32_t yDiff = abs(pActor2->spr.pos.Y - pActor->spr.pos.Y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1186,7 +1175,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
         int nSqrt = ksqrt(sqrtNum);
 
-        int var_18 = GetMyAngle(nSqrt, ((pSprite2->pos.Z - nHeight) - pActor->spr.pos.Z) >> 8);
+        int var_18 = GetMyAngle(nSqrt, ((pActor2->spr.pos.Z - nHeight) - pActor->spr.pos.Z) >> 8);
 
         int nAngDelta = AngleDelta(pActor->spr.ang, nMyAngle, 1024);
         int nAngDelta2 = abs(nAngDelta);
@@ -1371,13 +1360,9 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     if (pActor == nullptr) {
         return nullptr;
     }
-    auto pSrcSpr = &pSrc->s();
+    pActor->spr.pos = pSrc->spr.pos;
 
-    pActor->spr.pos.X = pSrcSpr->pos.X;
-    pActor->spr.pos.Y = pSrcSpr->pos.Y;
-    pActor->spr.pos.Z = pSrcSpr->pos.Z;
-
-    ChangeActorSect(pActor, pSrcSpr->sector());
+    ChangeActorSect(pActor, pSrc->spr.sector());
 
     pActor->spr.cstat = CSTAT_SPRITE_YCENTER;
     pActor->spr.shade = -12;
