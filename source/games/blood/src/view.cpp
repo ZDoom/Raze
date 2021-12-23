@@ -164,7 +164,7 @@ int othercameradist = 1280;
 int othercameraclock;
 
 #if 0
-void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, sectortype** vsectnum, int nAng, fixed_t zm, int smoothratio) // currently unused
+void CalcOtherPosition(DBloodActor *actor, int *pX, int *pY, int *pZ, sectortype** vsectnum, int nAng, fixed_t zm, int smoothratio) // currently unused
 {
     int vX = MulScale(-Cos(nAng), 1280, 30);
     int vY = MulScale(-Sin(nAng), 1280, 30);
@@ -629,13 +629,12 @@ void viewDrawScreen(bool sceneonly)
         it.Reset(kStatProjectile);
         while (auto actor = it.Next())
         {
-            spritetype* pSprite = &actor->s();
-            switch (pSprite->type) {
+            switch (actor->spr.type) {
             case kMissileFlareRegular:
             case kMissileTeslaAlt:
             case kMissileFlareAlt:
             case kMissileTeslaRegular:
-                if (gotsector[pSprite->sectno()]) brightness += 256;
+                if (gotsector[actor->spr.sectno()]) brightness += 256;
                 break;
             }
         }
