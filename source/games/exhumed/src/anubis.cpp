@@ -45,42 +45,39 @@ static const actionSeq AnubisSeq[] = {
 
 void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, int nAngle, uint8_t bIsDrummer)
 {
-    spritetype* sp;
     if (ap == nullptr)
     {
         ap = insertActor(pSector, 101);
-        sp = &ap->s();
     }
     else
     {
         ChangeActorStat(ap, 101);
-        sp = &ap->s();
 
-        x = sp->pos.X;
-        y = sp->pos.Y;
-        z = sp->sector()->floorz;
-        nAngle = sp->ang;
+        x = ap->spr.pos.X;
+        y = ap->spr.pos.Y;
+        z = ap->spr.sector()->floorz;
+        nAngle = ap->spr.ang;
     }
 
-    sp->pos.X = x;
-    sp->pos.Y = y;
-    sp->pos.Z = z;
-    sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
-    sp->xoffset = 0;
-    sp->shade = -12;
-    sp->yoffset = 0;
-    sp->picnum = 1;
-    sp->pal = sp->sector()->ceilingpal;
-    sp->clipdist = 60;
-    sp->ang = nAngle;
-    sp->xrepeat = 40;
-    sp->yrepeat = 40;
-    sp->xvel = 0;
-    sp->yvel = 0;
-    sp->zvel = 0;
-    sp->hitag = 0;
-    sp->lotag = runlist_HeadRun() + 1;
-    sp->extra = -1;
+    ap->spr.pos.X = x;
+    ap->spr.pos.Y = y;
+    ap->spr.pos.Z = z;
+    ap->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+    ap->spr.xoffset = 0;
+    ap->spr.shade = -12;
+    ap->spr.yoffset = 0;
+    ap->spr.picnum = 1;
+    ap->spr.pal = ap->spr.sector()->ceilingpal;
+    ap->spr.clipdist = 60;
+    ap->spr.ang = nAngle;
+    ap->spr.xrepeat = 40;
+    ap->spr.yrepeat = 40;
+    ap->spr.xvel = 0;
+    ap->spr.yvel = 0;
+    ap->spr.zvel = 0;
+    ap->spr.hitag = 0;
+    ap->spr.lotag = runlist_HeadRun() + 1;
+    ap->spr.extra = -1;
 
 //	GrabTimeSlot(3);
 
@@ -105,7 +102,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     ap->pTarget = nullptr;
     ap->nCount = 0;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, ap, 0x90000);
+    ap->spr.owner = runlist_AddRunRec(ap->spr.lotag - 1, ap, 0x90000);
 
     runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
@@ -114,7 +111,6 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
 void AIAnubis::Tick(RunListEvent* ev)
 {
     auto ap = ev->pObjActor;
-    auto sp = &ap->s();
     int nAction = ap->nAction;
 
     bool bVal = false;
@@ -127,7 +123,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 
     seq_MoveSequence(ap, nSeq, ap->nFrame);
 
-    sp->picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
+    ap->spr.picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
 
     ap->nFrame++;
     if (ap->nFrame >= SeqSize[nSeq])
@@ -165,8 +161,8 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
 
-                sp->xvel = bcos(sp->ang, -2);
-                sp->yvel = bsin(sp->ang, -2);
+                ap->spr.xvel = bcos(ap->spr.ang, -2);
+                ap->spr.yvel = bsin(ap->spr.ang, -2);
             }
         }
         return;
@@ -177,9 +173,9 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(ap, pTarget);
 
-            int nAngle = sp->ang & 0xFFF8;
-            sp->xvel = bcos(nAngle, -2);
-            sp->yvel = bsin(nAngle, -2);
+            int nAngle = ap->spr.ang & 0xFFF8;
+            ap->spr.xvel = bcos(nAngle, -2);
+            ap->spr.yvel = bsin(nAngle, -2);
         }
 
         switch (move.type)
@@ -188,8 +184,8 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.pos.Y - sp->pos.Y);
-                int nAngDiff = AngleDiff(sp->ang, nAng);
+                int nAng = getangle(pTarget->spr.pos.X - ap->spr.pos.X, pTarget->spr.pos.Y - ap->spr.pos.Y);
+                int nAngDiff = AngleDiff(ap->spr.ang, nAng);
 
                 if (nAngDiff < 64)
                 {
@@ -203,9 +199,9 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            sp->ang = (sp->ang + 256) & kAngleMask;
-            sp->xvel = bcos(sp->ang, -2);
-            sp->yvel = bsin(sp->ang, -2);
+            ap->spr.ang = (ap->spr.ang + 256) & kAngleMask;
+            ap->spr.xvel = bcos(ap->spr.ang, -2);
+            ap->spr.yvel = bsin(ap->spr.ang, -2);
             break;
         }
 
@@ -221,12 +217,12 @@ void AIAnubis::Tick(RunListEvent* ev)
 
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(sp->pos.X, sp->pos.Y, sp->pos.Z - GetActorHeight(ap), sp->sector(),
+                    if (cansee(ap->spr.pos.X, ap->spr.pos.Y, ap->spr.pos.Z - GetActorHeight(ap), ap->spr.sector(),
                         pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
-                        sp->xvel = 0;
-                        sp->yvel = 0;
-                        sp->ang = GetMyAngle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.pos.Y - sp->pos.Y);
+                        ap->spr.xvel = 0;
+                        ap->spr.yvel = 0;
+                        ap->spr.ang = GetMyAngle(pTarget->spr.pos.X - ap->spr.pos.X, pTarget->spr.pos.Y - ap->spr.pos.Y);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -268,8 +264,8 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->nAction = 1;
 
-            sp->xvel = bcos(sp->ang, -2);
-            sp->yvel = bsin(sp->ang, -2);
+            ap->spr.xvel = bcos(ap->spr.ang, -2);
+            ap->spr.yvel = bsin(ap->spr.ang, -2);
             ap->nFrame = 0;
         }
         else
@@ -277,7 +273,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, -1, sp->ang, pTarget, 1);
+                BuildBullet(ap, 8, -1, ap->spr.ang, pTarget, 1);
             }
         }
 
@@ -286,8 +282,8 @@ void AIAnubis::Tick(RunListEvent* ev)
     case 4:
     case 5:
     {
-        sp->xvel = 0;
-        sp->yvel = 0;
+        ap->spr.xvel = 0;
+        ap->spr.yvel = 0;
 
         if (bVal)
         {
@@ -317,15 +313,15 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nAction = nAction + 2;
             ap->nFrame = 0;
 
-            sp->xvel = 0;
-            sp->yvel = 0;
+            ap->spr.xvel = 0;
+            ap->spr.yvel = 0;
         }
         return;
     }
     case 13:
     case 14:
     {
-        sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+        ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         return;
     }
 
@@ -343,8 +339,8 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nCount = 100;
             ap->pTarget = nullptr;
 
-            sp->xvel = 0;
-            sp->yvel = 0;
+            ap->spr.xvel = 0;
+            ap->spr.yvel = 0;
         }
     }
 }
@@ -372,7 +368,6 @@ void AIAnubis::Damage(RunListEvent* ev)
 {
     auto ap = ev->pObjActor;
     if (!ap) return;
-    auto sp = &ap->s();
     int nAction = ap->nAction;
     int nDamage = ev->nDamage;
 
@@ -402,11 +397,11 @@ void AIAnubis::Damage(RunListEvent* ev)
             {
                 if (nAction >= 6 && nAction <= 10)
                 {
-                    auto pDrumActor = insertActor(sp->sector(), kStatAnubisDrum);
+                    auto pDrumActor = insertActor(ap->spr.sector(), kStatAnubisDrum);
                     auto pDrumSprite = &pDrumActor->s();
 
-                    pDrumSprite->pos.X = sp->pos.X;
-                    pDrumSprite->pos.Y = sp->pos.Y;
+                    pDrumSprite->pos.X = ap->spr.pos.X;
+                    pDrumSprite->pos.Y = ap->spr.pos.Y;
                     pDrumSprite->pos.Z = pDrumSprite->sector()->floorz;
                     pDrumSprite->xrepeat = 40;
                     pDrumSprite->yrepeat = 40;
@@ -428,11 +423,11 @@ void AIAnubis::Damage(RunListEvent* ev)
         else
         {
             // he ded.
-            sp->xvel = 0;
-            sp->yvel = 0;
-            sp->zvel = 0;
-            sp->pos.Z = sp->sector()->floorz;
-            sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            ap->spr.xvel = 0;
+            ap->spr.yvel = 0;
+            ap->spr.zvel = 0;
+            ap->spr.pos.Z = ap->spr.sector()->floorz;
+            ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;
 
