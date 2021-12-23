@@ -870,11 +870,10 @@ void movefallers_r(void)
 
 static void movecrack(DDukeActor* actor)
 {
-	int* t = &actor->temp_data[0];
 	if (actor->spr.hitag > 0)
 	{
-		t[0] = actor->spr.cstat;
-		t[1] = actor->spr.ang;
+		actor->temp_data[0] = actor->spr.cstat;
+		actor->temp_data[1] = actor->spr.ang;
 		int j = fi.ifhitbyweapon(actor);
 		if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
@@ -889,8 +888,8 @@ static void movecrack(DDukeActor* actor)
 		}
 		else
 		{
-			actor->spr.cstat = ESpriteFlags::FromInt(t[0]);
-			actor->spr.ang = t[1];
+			actor->spr.cstat = ESpriteFlags::FromInt(actor->temp_data[0]);
+			actor->spr.ang = actor->temp_data[1];
 			actor->spr.extra = 0;
 		}
 	}
@@ -904,34 +903,33 @@ static void movecrack(DDukeActor* actor)
 
 static void movebolt(DDukeActor* actor)
 {
-	int* t = &actor->temp_data[0];
 	int x;
 	auto sectp = actor->spr.sector();
 
 	findplayer(actor, &x);
 	if (x > 20480) return;
 
-	if (t[3] == 0)
-		t[3] = sectp->floorshade;
+	if (actor->temp_data[3] == 0)
+		actor->temp_data[3] = sectp->floorshade;
 
 CLEAR_THE_BOLT:
-	if (t[2])
+	if (actor->temp_data[2])
 	{
-		t[2]--;
+		actor->temp_data[2]--;
 		sectp->floorshade = 20;
 		sectp->ceilingshade = 20;
 		return;
 	}
 	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
 	{
-		actor->spr.xrepeat = t[0];
-		actor->spr.yrepeat = t[1];
+		actor->spr.xrepeat = actor->temp_data[0];
+		actor->spr.yrepeat = actor->temp_data[1];
 	}
 	else if ((krand() & 8) == 0)
 	{
-		t[0] = actor->spr.xrepeat;
-		t[1] = actor->spr.yrepeat;
-		t[2] = global_random & 4;
+		actor->temp_data[0] = actor->spr.xrepeat;
+		actor->temp_data[1] = actor->spr.yrepeat;
+		actor->temp_data[2] = global_random & 4;
 		actor->spr.xrepeat = actor->spr.yrepeat = 0;
 		goto CLEAR_THE_BOLT;
 	}
@@ -2472,15 +2470,14 @@ void rr_specialstats()
 
 static void heavyhbomb(DDukeActor *actor)
 {
-	auto t = &actor->temp_data[0];
 	auto sectp = actor->spr.sector();
 	int x, l;
 	auto Owner = actor->GetOwner();
 
 	if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
 	{
-		t[2]--;
-		if (t[2] <= 0)
+		actor->temp_data[2]--;
+		if (actor->temp_data[2] <= 0)
 		{
 			S_PlayActorSound(TELEPORTER, actor);
 			spawn(actor, TRANSPORTERSTAR);
@@ -2494,13 +2491,13 @@ static void heavyhbomb(DDukeActor *actor)
 	if (x < 1220) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	else actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-	if (t[3] == 0)
+	if (actor->temp_data[3] == 0)
 	{
 		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{
-			t[3] = 1;
-			t[4] = 0;
+			actor->temp_data[3] = 1;
+			actor->temp_data[4] = 0;
 			l = 0;
 			actor->spr.xvel = 0;
 			goto DETONATEB;
@@ -2517,8 +2514,8 @@ static void heavyhbomb(DDukeActor *actor)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			else
 			{
-				t[3] = 1;
-				t[4] = 1;
+				actor->temp_data[3] = 1;
+				actor->temp_data[4] = 1;
 				l = 0;
 				goto DETONATEB;
 			}
@@ -2543,29 +2540,29 @@ static void heavyhbomb(DDukeActor *actor)
 	if (actor->spr.sector()->lotag == 1 && actor->spr.zvel == 0)
 	{
 		actor->spr.pos.Z += (32 << 8);
-		if (t[5] == 0)
+		if (actor->temp_data[5] == 0)
 		{
-			t[5] = 1;
+			actor->temp_data[5] = 1;
 			spawn(actor, WATERSPLASH2);
 			if (isRRRA() && actor->spr.picnum == MORTER)
 				actor->spr.xvel = 0;
 		}
 	}
-	else t[5] = 0;
+	else actor->temp_data[5] = 0;
 
-	if (t[3] == 0 && actor->spr.picnum == MORTER && (coll.type || x < 844))
+	if (actor->temp_data[3] == 0 && actor->spr.picnum == MORTER && (coll.type || x < 844))
 	{
-		t[3] = 1;
-		t[4] = 0;
+		actor->temp_data[3] = 1;
+		actor->temp_data[4] = 0;
 		l = 0;
 		actor->spr.xvel = 0;
 		goto DETONATEB;
 	}
 
-	if (t[3] == 0 && actor->spr.picnum == CHEERBOMB && (coll.type || x < 844))
+	if (actor->temp_data[3] == 0 && actor->spr.picnum == CHEERBOMB && (coll.type || x < 844))
 	{
-		t[3] = 1;
-		t[4] = 0;
+		actor->temp_data[3] = 1;
+		actor->temp_data[4] = 0;
 		l = 0;
 		actor->spr.xvel = 0;
 		goto DETONATEB;
@@ -2595,8 +2592,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if (actor->spr.picnum == CHEERBOMB)
 		{
-			t[3] = 1;
-			t[4] = 0;
+			actor->temp_data[3] = 1;
+			actor->temp_data[4] = 0;
 			l = 0;
 			actor->spr.xvel = 0;
 			goto DETONATEB;
@@ -2607,11 +2604,11 @@ static void heavyhbomb(DDukeActor *actor)
 
 DETONATEB:
 
-	if ((l >= 0 && ps[l].hbomb_on == 0) || t[3] == 1)
+	if ((l >= 0 && ps[l].hbomb_on == 0) || actor->temp_data[3] == 1)
 	{
-		t[4]++;
+		actor->temp_data[4]++;
 
-		if (t[4] == 2)
+		if (actor->temp_data[4] == 2)
 		{
 			x = actor->spr.extra;
 			int m = 0;
@@ -2642,7 +2639,7 @@ DETONATEB:
 			return;
 		}
 
-		if (t[4] > 20)
+		if (actor->temp_data[4] > 20)
 		{
 			deletesprite(actor);
 			return;
@@ -2654,7 +2651,7 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && actor->spr.xvel == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
 		if (cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), actor->spr.sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
@@ -2690,13 +2687,13 @@ DETONATEB:
 					}
 					else
 					{
-						t[2] = gs.respawnitemtime;
+						actor->temp_data[2] = gs.respawnitemtime;
 						spawn(actor, RESPAWNMARKERRED);
 						actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					}
 				}
 
-	if (t[0] < 8) t[0]++;
+	if (actor->temp_data[0] < 8) actor->temp_data[0]++;
 }
 
 //---------------------------------------------------------------------------
@@ -3111,10 +3108,10 @@ void moveexplosions_r(void)  // STATNUM 5
 		case BLOODSPLAT3:
 		case BLOODSPLAT4:
 
-			if (t[0] == 7 * 26) continue;
+			if (act->temp_data[0] == 7 * 26) continue;
 			act->spr.pos.Z += 16 + (krand() & 15);
-			t[0]++;
-			if ((t[0] % 9) == 0) act->spr.yrepeat++;
+			act->temp_data[0]++;
+			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
 			continue;
 
 
@@ -3124,8 +3121,8 @@ void moveexplosions_r(void)  // STATNUM 5
 
 		case MUD:
 
-			t[0]++;
-			if (t[0] == 1)
+			act->temp_data[0]++;
+			if (act->temp_data[0] == 1)
 			{
 				if (sectp->floorpicnum != 3073)
 				{
@@ -3135,12 +3132,12 @@ void moveexplosions_r(void)  // STATNUM 5
 				if (S_CheckSoundPlaying(22))
 					S_PlayActorSound(22, act);
 			}
-			if (t[0] == 3)
+			if (act->temp_data[0] == 3)
 			{
-				t[0] = 0;
-				t[1]++;
+				act->temp_data[0] = 0;
+				act->temp_data[1]++;
 			}
-			if (t[1] == 5)
+			if (act->temp_data[1] == 5)
 				deletesprite(act);
 			continue;
 
@@ -3303,25 +3300,23 @@ void moveexplosions_r(void)  // STATNUM 5
 
 void handle_se06_r(DDukeActor *actor)
 {
-	auto t = &actor->temp_data[0];
-
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
 	int k = sc->extra;
 
-	if (t[4] > 0)
+	if (actor->temp_data[4] > 0)
 	{
-		t[4]--;
-		if (t[4] >= (k - (k >> 3)))
+		actor->temp_data[4]--;
+		if (actor->temp_data[4] >= (k - (k >> 3)))
 			actor->spr.xvel -= (k >> 5);
-		if (t[4] > ((k >> 1) - 1) && t[4] < (k - (k >> 3)))
+		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
 			actor->spr.xvel = 0;
-		if (t[4] < (k >> 1))
+		if (actor->temp_data[4] < (k >> 1))
 			actor->spr.xvel += (k >> 5);
-		if (t[4] < ((k >> 1) - (k >> 3)))
+		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
 		{
-			t[4] = 0;
+			actor->temp_data[4] = 0;
 			actor->spr.xvel = k;
 			if ((!isRRRA() || lastlevel) && hulkspawn)
 			{
@@ -3395,10 +3390,10 @@ void handle_se06_r(DDukeActor *actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == t[0]))
+		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
 			act2->spr.xvel = actor->spr.xvel;
-			//						if( t[4] == 1 )
+			//						if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
@@ -3406,7 +3401,7 @@ void handle_se06_r(DDukeActor *actor)
 				if (act2->spr.extra) x = -x;
 				actor->spr.xvel += x;
 			}
-			act2->temp_data[4] = t[4];
+			act2->temp_data[4] = actor->temp_data[4];
 		}
 	}
 	handle_se14(actor, false, RPG, JIBS6);
@@ -3429,8 +3424,6 @@ void moveeffectors_r(void)   //STATNUM 3
 	{
 		auto sc = act->sector();
 		int st = act->spr.lotag;
-
-		auto t = &act->temp_data[0];
 
 		switch (st)
 		{
@@ -3552,7 +3545,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_25_PISTON: //PISTONS
-			if (t[4] == 0) break;
+			if (act->temp_data[4] == 0) break;
 			handle_se25(act, 4, isRRRA() ? 371 : -1, isRRRA() ? 167 : -1);
 			break;
 
@@ -3584,13 +3577,13 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 		case SE_36_PROJ_SHOOTER:
 
-			if (t[0])
+			if (act->temp_data[0])
 			{
-				if (t[0] == 1)
+				if (act->temp_data[0] == 1)
 					fi.shoot(act, sc->extra);
-				else if (t[0] == 26 * 5)
-					t[0] = 0;
-				t[0]++;
+				else if (act->temp_data[0] == 26 * 5)
+					act->temp_data[0] = 0;
+				act->temp_data[0]++;
 			}
 			break;
 
@@ -3643,7 +3636,6 @@ int adjustfall(DDukeActor *actor, int c)
 
 void move_r(DDukeActor *actor, int pnum, int xvel)
 {
-	auto t = actor->temp_data;
 	int l;
 	int goalang, angdif;
 	int daxvel;
@@ -3652,7 +3644,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a == -1) a = 0;
 
-	t[0]++;
+	actor->temp_data[0]++;
 
 	if (a & face_player)
 	{
@@ -3665,7 +3657,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	}
 
 	if (a & spin)
-		actor->spr.ang += bsin(t[0] << 3, -6);
+		actor->spr.ang += bsin(actor->temp_data[0] << 3, -6);
 
 	if (a & face_player_slow)
 	{
@@ -3701,51 +3693,51 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (actor->spr.picnum == CHEER)
 			{
-				if (t[0] < 16)
-					actor->spr.zvel -= bcos(t[0] << 4) / 40;
+				if (actor->temp_data[0] < 16)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 40;
 			}
 			else
 			{
-				if (t[0] < 16)
-					actor->spr.zvel -= bcos(t[0] << 4, -5);
+				if (actor->temp_data[0] < 16)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4, -5);
 			}
 		}
 		if (a & justjump1)
 		{
 			if (actor->spr.picnum == RABBIT)
 			{
-				if (t[0] < 8)
-					actor->spr.zvel -= bcos(t[0] << 4) / 30;
+				if (actor->temp_data[0] < 8)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 30;
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
-				if (t[0] < 8)
-					actor->spr.zvel -= bcos(t[0] << 4) / 35;
+				if (actor->temp_data[0] < 8)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 35;
 			}
 		}
 		if (a & justjump2)
 		{
 			if (actor->spr.picnum == RABBIT)
 			{
-				if (t[0] < 8)
-					actor->spr.zvel -= bcos(t[0] << 4) / 24;
+				if (actor->temp_data[0] < 8)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 24;
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
-				if (t[0] < 8)
-					actor->spr.zvel -= bcos(t[0] << 4) / 28;
+				if (actor->temp_data[0] < 8)
+					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 28;
 			}
 		}
 		if (a & windang)
 		{
-			if (t[0] < 8)
-				actor->spr.zvel -= bcos(t[0] << 4) / 24;
+			if (actor->temp_data[0] < 8)
+				actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 24;
 		}
 	}
 	else if ((a & jumptoplayer) == jumptoplayer)
 	{
-		if (t[0] < 16)
-			actor->spr.zvel -= bcos(t[0] << 4, -5);
+		if (actor->temp_data[0] < 16)
+			actor->spr.zvel -= bcos(actor->temp_data[0] << 4, -5);
 	}
 
 
@@ -3761,7 +3753,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		actor->spr.ang += angdif;
 	}
 
-	if (t[1] == 0 || a == 0)
+	if (actor->temp_data[1] == 0 || a == 0)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->spr.opos.X != actor->spr.pos.X) || (actor->spr.opos.Y != actor->spr.pos.Y))
 		{
@@ -3789,7 +3781,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		return;
 	}
 
-	auto moveptr = &ScriptCode[t[1]];
+	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	if (a & geth) actor->spr.xvel += (*moveptr - actor->spr.xvel) >> 1;
 	if (a & getv) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->spr.zvel) >> 1;
@@ -3878,12 +3870,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 				if (actor->spr.opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
-					if ((t[0] & 1) || ps[pnum].actorsqu == actor) return;
+					if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
 					else daxvel <<= 1;
 				}
 				else
 				{
-					if ((t[0] & 3) || ps[pnum].actorsqu == actor) return;
+					if ((actor->temp_data[0] & 3) || ps[pnum].actorsqu == actor) return;
 					else daxvel <<= 2;
 				}
 			}
