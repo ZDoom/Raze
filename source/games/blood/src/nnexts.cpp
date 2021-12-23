@@ -256,7 +256,6 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int nType, int a3, int a4)
 {
     DBloodActor* pDudeActor = nullptr;
-    auto pXSource = &sourceactor->x();
 
     if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
         return NULL;
@@ -299,20 +298,20 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
             pDudeActor->spr.pal = sourceactor->spr.pal;
 
         // inherit spawn sprite trigger settings, so designer can count monsters.
-        pXDude->txID = pXSource->txID;
-        pXDude->command = pXSource->command;
-        pXDude->triggerOn = pXSource->triggerOn;
-        pXDude->triggerOff = pXSource->triggerOff;
+        pXDude->txID = sourceactor->xspr.txID;
+        pXDude->command = sourceactor->xspr.command;
+        pXDude->triggerOn = sourceactor->xspr.triggerOn;
+        pXDude->triggerOff = sourceactor->xspr.triggerOff;
 
         // inherit drop items
-        pXDude->dropMsg = pXSource->dropMsg;
+        pXDude->dropMsg = sourceactor->xspr.dropMsg;
 
         // inherit dude flags
-        pXDude->dudeDeaf = pXSource->dudeDeaf;
-        pXDude->dudeGuard = pXSource->dudeGuard;
-        pXDude->dudeAmbush = pXSource->dudeAmbush;
-        pXDude->dudeFlag4 = pXSource->dudeFlag4;
-        pXDude->unused1 = pXSource->unused1;
+        pXDude->dudeDeaf = sourceactor->xspr.dudeDeaf;
+        pXDude->dudeGuard = sourceactor->xspr.dudeGuard;
+        pXDude->dudeAmbush = sourceactor->xspr.dudeAmbush;
+        pXDude->dudeFlag4 = sourceactor->xspr.dudeFlag4;
+        pXDude->unused1 = sourceactor->xspr.unused1;
 
     }
 
@@ -950,28 +949,27 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
     int maxRetries = 9;
     if (sourceactor->hasX())
     {
-        XSPRITE* pXSource = &sourceactor->x();
         while ((selected = randomGetDataValue(sourceactor, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
         if (selected > 0) 
         {
             spawned = actDropObject(sourceactor, selected);
             if (spawned) 
             {
-                pXSource->dropMsg = uint8_t(spawned->spr.type); // store dropped item type in dropMsg
+                sourceactor->xspr.dropMsg = uint8_t(spawned->spr.type); // store dropped item type in dropMsg
                 spawned->spr.pos.X = sourceactor->spr.pos.X;
                 spawned->spr.pos.Y = sourceactor->spr.pos.Y;
                 spawned->spr.pos.Z = sourceactor->spr.pos.Z;
 
-                if ((sourceactor->spr.flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0))) 
+                if ((sourceactor->spr.flags & kModernTypeFlag1) && (sourceactor->xspr.txID > 0 || (sourceactor->xspr.txID != 3 && sourceactor->xspr.lockMsg > 0))) 
                 {
                     spawned->addX();
                     XSPRITE* pXSprite2 = &spawned->x();
 
                     // inherit spawn sprite trigger settings, so designer can send command when item picked up.
-                    pXSprite2->txID = pXSource->txID;
-                    pXSprite2->command = pXSource->sysData1;
-                    pXSprite2->triggerOn = pXSource->triggerOn;
-                    pXSprite2->triggerOff = pXSource->triggerOff;
+                    pXSprite2->txID = sourceactor->xspr.txID;
+                    pXSprite2->command = sourceactor->xspr.sysData1;
+                    pXSprite2->triggerOn = sourceactor->xspr.triggerOn;
+                    pXSprite2->triggerOff = sourceactor->xspr.triggerOff;
 
                     pXSprite2->Pickup = true;
 
@@ -1919,14 +1917,13 @@ void aiSetGenIdleState(DBloodActor* actor)
 
 void windGenStopWindOnSectors(DBloodActor* sourceactor) 
 {
-    auto pXSource = &sourceactor->x();
-    if (pXSource->txID <= 0 && sourceactor->spr.sector()->hasX())
+    if (sourceactor->xspr.txID <= 0 && sourceactor->spr.sector()->hasX())
     {
         sourceactor->spr.sector()->xs().windVel = 0;
         return;
     }
 
-    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
+    for (int i = bucketHead[sourceactor->xspr.txID]; i < bucketHead[sourceactor->xspr.txID + 1]; i++) 
     {
         if (!rxBucket[i].isSector()) continue;
         auto pSector = rxBucket[i].sector();
@@ -1964,25 +1961,24 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
 
 void trPlayerCtrlStartScene(DBloodActor* sourceactor, PLAYER* pPlayer, bool force) 
 {
-    auto pXSource = &sourceactor->x();
     TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
 
     if (pCtrl->qavScene.initiator != nullptr && !force) return;
     
-    QAV* pQav = playerQavSceneLoad(pXSource->data2);
+    QAV* pQav = playerQavSceneLoad(sourceactor->xspr.data2);
     if (pQav != nullptr) 
     {
         // save current weapon
-        pXSource->dropMsg = pPlayer->curWeapon;
+        sourceactor->xspr.dropMsg = pPlayer->curWeapon;
 
         auto initiator = pCtrl->qavScene.initiator;
         if (initiator != nullptr && initiator != sourceactor && initiator->hasX())
-            pXSource->dropMsg = initiator->xspr.dropMsg;
+            sourceactor->xspr.dropMsg = initiator->xspr.dropMsg;
 
         if (initiator == nullptr)
             WeaponLower(pPlayer);
 
-        pXSource->sysData1 = ClipLow((pQav->duration * pXSource->waitTime) / 4, 0); // how many times animation should be played
+        sourceactor->xspr.sysData1 = ClipLow((pQav->duration * sourceactor->xspr.waitTime) / 4, 0); // how many times animation should be played
 
         pCtrl->qavScene.initiator = sourceactor;
         pCtrl->qavScene.qavResrc = pQav;
@@ -1990,9 +1986,9 @@ void trPlayerCtrlStartScene(DBloodActor* sourceactor, PLAYER* pPlayer, bool forc
 
         //pCtrl->qavScene.qavResrc->Preload();
 
-        pPlayer->sceneQav = pXSource->data2;
+        pPlayer->sceneQav = sourceactor->xspr.data2;
         pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;
-        pPlayer->qavCallback = (pXSource->data3 > 0) ? ClipRange(pXSource->data3 - 1, 0, 32) : -1;
+        pPlayer->qavCallback = (sourceactor->xspr.data3 > 0) ? ClipRange(sourceactor->xspr.data3 - 1, 0, 32) : -1;
         pPlayer->qavLoop = false;
         pPlayer->qavLastTick = I_GetTime(pCtrl->qavScene.qavResrc->ticrate);
         pPlayer->qavTimer = pCtrl->qavScene.qavResrc->duration;
@@ -2009,11 +2005,11 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 {
     TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
     auto initiator = pCtrl->qavScene.initiator;
-    XSPRITE* pXSource = nullptr;
+    XSPRITE* pXInitiator = nullptr;
     if (initiator->hasX())
     {
-        pXSource = &initiator->x();
-        pXSource->sysData1 = 0;
+        pXInitiator = &initiator->x();
+        pXInitiator->sysData1 = 0;
     }
 
     if (pCtrl->qavScene.initiator != nullptr) 
@@ -2025,7 +2021,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
         // restore weapon
         if (pPlayer->pXSprite->health > 0) 
         {
-            int oldWeapon = (pXSource && pXSource->dropMsg != 0) ? pXSource->dropMsg : 1;
+            int oldWeapon = (pXInitiator && pXInitiator->dropMsg != 0) ? pXInitiator->dropMsg : 1;
             pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
             WeaponRaise(pPlayer);
         }
@@ -2041,44 +2037,43 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 
 void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondition) 
 {
-    auto pXSource = &sourceactor->x();
     // save player's sprite index to let the tracking condition know it after savegame loading...
     sourceactor->prevmarker             = pPlayer->actor;
     
-    pPlayer->pXSprite->txID             = pXSource->txID;
+    pPlayer->pXSprite->txID             = sourceactor->xspr.txID;
     pPlayer->pXSprite->command          = kCmdToggle;
-    pPlayer->pXSprite->triggerOn        = pXSource->triggerOn;
-    pPlayer->pXSprite->triggerOff       = pXSource->triggerOff;
-    pPlayer->pXSprite->busyTime         = pXSource->busyTime;
-    pPlayer->pXSprite->waitTime         = pXSource->waitTime;
-    pPlayer->pXSprite->restState        = pXSource->restState;
+    pPlayer->pXSprite->triggerOn        = sourceactor->xspr.triggerOn;
+    pPlayer->pXSprite->triggerOff       = sourceactor->xspr.triggerOff;
+    pPlayer->pXSprite->busyTime         = sourceactor->xspr.busyTime;
+    pPlayer->pXSprite->waitTime         = sourceactor->xspr.waitTime;
+    pPlayer->pXSprite->restState        = sourceactor->xspr.restState;
 
-    pPlayer->pXSprite->Push             = pXSource->Push;
-    pPlayer->pXSprite->Impact           = pXSource->Impact;
-    pPlayer->pXSprite->Vector           = pXSource->Vector;
-    pPlayer->pXSprite->Touch            = pXSource->Touch;
-    pPlayer->pXSprite->Sight            = pXSource->Sight;
-    pPlayer->pXSprite->Proximity        = pXSource->Proximity;
+    pPlayer->pXSprite->Push             = sourceactor->xspr.Push;
+    pPlayer->pXSprite->Impact           = sourceactor->xspr.Impact;
+    pPlayer->pXSprite->Vector           = sourceactor->xspr.Vector;
+    pPlayer->pXSprite->Touch            = sourceactor->xspr.Touch;
+    pPlayer->pXSprite->Sight            = sourceactor->xspr.Sight;
+    pPlayer->pXSprite->Proximity        = sourceactor->xspr.Proximity;
 
-    pPlayer->pXSprite->Decoupled        = pXSource->Decoupled;
-    pPlayer->pXSprite->Interrutable     = pXSource->Interrutable;
-    pPlayer->pXSprite->DudeLockout      = pXSource->DudeLockout;
+    pPlayer->pXSprite->Decoupled        = sourceactor->xspr.Decoupled;
+    pPlayer->pXSprite->Interrutable     = sourceactor->xspr.Interrutable;
+    pPlayer->pXSprite->DudeLockout      = sourceactor->xspr.DudeLockout;
 
-    pPlayer->pXSprite->data1            = pXSource->data1;
-    pPlayer->pXSprite->data2            = pXSource->data2;
-    pPlayer->pXSprite->data3            = pXSource->data3;
-    pPlayer->pXSprite->data4            = pXSource->data4;
+    pPlayer->pXSprite->data1            = sourceactor->xspr.data1;
+    pPlayer->pXSprite->data2            = sourceactor->xspr.data2;
+    pPlayer->pXSprite->data3            = sourceactor->xspr.data3;
+    pPlayer->pXSprite->data4            = sourceactor->xspr.data4;
 
-    pPlayer->pXSprite->key              = pXSource->key;
-    pPlayer->pXSprite->dropMsg          = pXSource->dropMsg;
+    pPlayer->pXSprite->key              = sourceactor->xspr.key;
+    pPlayer->pXSprite->dropMsg          = sourceactor->xspr.dropMsg;
 
     // let's check if there is tracking condition expecting objects with this TX id
-    if (checkCondition && pXSource->txID >= kChannelUser) 
+    if (checkCondition && sourceactor->xspr.txID >= kChannelUser) 
     {
         for (int i = 0; i < gTrackingCondsCount; i++) 
         {
             TRCONDITION* pCond = &gCondition[i];
-            if (pCond->actor->xspr.rxID != pXSource->txID)
+            if (pCond->actor->xspr.rxID != sourceactor->xspr.txID)
                 continue;
                 
             // search for player control sprite and replace it with actual player sprite
@@ -2434,23 +2429,22 @@ void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd
 
 void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect, walltype* targWall, DBloodActor* targetactor) 
 {
-    auto pXSource = &sourceactor->x();
     switch (targType) 
     {
     // for sectors
     case OBJ_SECTOR:
         if (!targSect) return;
-        if (valueIsBetween(pXSource->data1, -1, 32767))
-            targSect->floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+            targSect->floorxpan_ = (float)ClipRange(sourceactor->xspr.data1, 0, 255);
 
-        if (valueIsBetween(pXSource->data2, -1, 32767))
-            targSect->floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+            targSect->floorypan_ = (float)ClipRange(sourceactor->xspr.data2, 0, 255);
 
-        if (valueIsBetween(pXSource->data3, -1, 32767))
-            targSect->ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+            targSect->ceilingxpan_ = (float)ClipRange(sourceactor->xspr.data3, 0, 255);
 
-        if (valueIsBetween(pXSource->data4, -1, 65535))
-            targSect->ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+            targSect->ceilingypan_ = (float)ClipRange(sourceactor->xspr.data4, 0, 255);
         break;
     // for sprites
     case OBJ_SPRITE: 
@@ -2459,11 +2453,11 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
         // resize by seq scaling
         if (sourceactor->spr.flags & kModernTypeFlag1) 
         {
-            if (valueIsBetween(pXSource->data1, -255, 32767))
+            if (valueIsBetween(sourceactor->xspr.data1, -255, 32767))
             {
-                int mulDiv = (valueIsBetween(pXSource->data2, 0, 257)) ? pXSource->data2 : 256;
-                if (pXSource->data1 > 0) targetactor->xspr.scale = mulDiv * ClipHigh(pXSource->data1, 25);
-                else if (pXSource->data1 < 0) targetactor->xspr.scale = mulDiv / ClipHigh(abs(pXSource->data1), 25);
+                int mulDiv = (valueIsBetween(sourceactor->xspr.data2, 0, 257)) ? sourceactor->xspr.data2 : 256;
+                if (sourceactor->xspr.data1 > 0) targetactor->xspr.scale = mulDiv * ClipHigh(sourceactor->xspr.data1, 25);
+                else if (sourceactor->xspr.data1 < 0) targetactor->xspr.scale = mulDiv / ClipHigh(abs(sourceactor->xspr.data1), 25);
                 else targetactor->xspr.scale = 0;
                 fit = true;
                 }
@@ -2472,15 +2466,15 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
         }
         else 
         {
-            if (valueIsBetween(pXSource->data1, -1, 32767)) 
+            if (valueIsBetween(sourceactor->xspr.data1, -1, 32767)) 
             {
-                targetactor->spr.xrepeat = ClipRange(pXSource->data1, 0, 255);
+                targetactor->spr.xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
                 fit = true;
             }
             
-            if (valueIsBetween(pXSource->data2, -1, 32767)) 
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767)) 
             {
-                targetactor->spr.yrepeat = ClipRange(pXSource->data2, 0, 255);
+                targetactor->spr.yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
                 fit = true;
             }
         }
@@ -2497,26 +2491,26 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 
         }
 
-        if (valueIsBetween(pXSource->data3, -1, 32767))
-            targetactor->spr.xoffset = ClipRange(pXSource->data3, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+            targetactor->spr.xoffset = ClipRange(sourceactor->xspr.data3, 0, 255);
 
-        if (valueIsBetween(pXSource->data4, -1, 65535))
-            targetactor->spr.yoffset = ClipRange(pXSource->data4, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+            targetactor->spr.yoffset = ClipRange(sourceactor->xspr.data4, 0, 255);
         break;
     }
     case OBJ_WALL:
         if (!targWall) return;
-        if (valueIsBetween(pXSource->data1, -1, 32767))
-            targWall->xrepeat = ClipRange(pXSource->data1, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+            targWall->xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
 
-        if (valueIsBetween(pXSource->data2, -1, 32767))
-            targWall->yrepeat = ClipRange(pXSource->data2, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+            targWall->yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
 
-        if (valueIsBetween(pXSource->data3, -1, 32767))
-            targWall->xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+            targWall->xpan_ = (float)ClipRange(sourceactor->xspr.data3, 0, 255);
 
-        if (valueIsBetween(pXSource->data4, -1, 65535))
-            targWall->ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+        if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+            targWall->ypan_ = (float)ClipRange(sourceactor->xspr.data4, 0, 255);
         break;
     }
 }
@@ -2529,8 +2523,6 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 
 void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* targetactor)
 {
-    auto pXSource = &sourceactor->x();
-
     switch (objType) 
     {
         case OBJ_WALL: 
@@ -2538,20 +2530,20 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             if (!pWall) return;
 
             // data3 = set wall hitag
-            if (valueIsBetween(pXSource->data3, -1, 32767)) 
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767)) 
             {
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->hitag |= pXSource->data3;
-                else pWall->hitag = pXSource->data3;
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->hitag |= sourceactor->xspr.data3;
+                else pWall->hitag = sourceactor->xspr.data3;
             }
 
             // data4 = set wall cstat
-            if (valueIsBetween(pXSource->data4, -1, 65535)) 
+            if (valueIsBetween(sourceactor->xspr.data4, -1, 65535)) 
             {
                 auto old = pWall->cstat;
 
                 // set new cstat
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(pXSource->data4); // relative
-                else pWall->cstat = EWallFlags::FromInt(pXSource->data4); // absolute
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(sourceactor->xspr.data4); // relative
+                else pWall->cstat = EWallFlags::FromInt(sourceactor->xspr.data4); // absolute
 
                 // and hanlde exceptions
                 pWall->cstat |= old & (CSTAT_WALL_BOTTOM_SWAP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_1WAY);
@@ -2579,13 +2571,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             int old = -1;
 
             // data3 = set sprite hitag
-            if (valueIsBetween(pXSource->data3, -1, 32767)) 
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767)) 
             {
                 old = targetactor->spr.flags;
 
                 // set new hitag
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.flags = sourceactor->spr.flags |= pXSource->data3; // relative
-                else targetactor->spr.flags = pXSource->data3;  // absolute
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.flags = sourceactor->spr.flags |= sourceactor->xspr.data3; // relative
+                else targetactor->spr.flags = sourceactor->xspr.data3;  // absolute
 
                 // and handle exceptions
                 if ((old & kHitagFree) && !(targetactor->spr.flags & kHitagFree)) targetactor->spr.flags |= kHitagFree;
@@ -2597,7 +2589,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             }
 
             // data2 = sprite physics settings
-            if (valueIsBetween(pXSource->data2, -1, 32767) || thing2debris) 
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767) || thing2debris) 
             {
                 switch (targetactor->spr.statnum) 
                 {
@@ -2629,7 +2621,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     {
                         // WTF is this?!?
                         char digits[6] = {};
-                        snprintf(digits, 6, "%d", pXSource->data2);
+                        snprintf(digits, 6, "%d", sourceactor->xspr.data2);
                         for (unsigned int i = 0; i < sizeof(digits); i++)
                             digits[i] = (digits[i] >= 48 && digits[i] <= 57) ? (digits[i] - 57) + 9 : 0;
 
@@ -2779,13 +2771,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             }
 
             // data4 = sprite cstat
-            if (valueIsBetween(pXSource->data4, -1, 65535)) 
+            if (valueIsBetween(sourceactor->xspr.data4, -1, 65535)) 
             {
                 auto old = targetactor->spr.cstat;
 
                 // set new cstat
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
-                else targetactor->spr.cstat = ESpriteFlags::FromInt(pXSource->data4 & 0xffff); // absolute
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(sourceactor->xspr.data4); // relative
+                else targetactor->spr.cstat = ESpriteFlags::FromInt(sourceactor->xspr.data4 & 0xffff); // absolute
 
                 // and handle exceptions
                 if ((old & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
@@ -2813,9 +2805,9 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             XSECTOR* pXSector = &pSector->xs();
 
             // data1 = sector underwater status and depth level
-            if (pXSource->data1 >= 0 && pXSource->data1 < 2) {
+            if (sourceactor->xspr.data1 >= 0 && sourceactor->xspr.data1 < 2) {
                 
-                pXSector->Underwater = (pXSource->data1) ? true : false;
+                pXSector->Underwater = (sourceactor->xspr.data1) ? true : false;
 
                 
                 XSPRITE* pXUpper = NULL;
@@ -2926,32 +2918,32 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     }
                 }
             }
-            else if (pXSource->data1 > 9) pXSector->Depth = 7;
-            else if (pXSource->data1 > 1) pXSector->Depth = pXSource->data1 - 2;
+            else if (sourceactor->xspr.data1 > 9) pXSector->Depth = 7;
+            else if (sourceactor->xspr.data1 > 1) pXSector->Depth = sourceactor->xspr.data1 - 2;
 
 
             // data2 = sector visibility
-            if (valueIsBetween(pXSource->data2, -1, 32767))
-                pSector->visibility = ClipRange(pXSource->data2, 0 , 234);
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+                pSector->visibility = ClipRange(sourceactor->xspr.data2, 0 , 234);
 
             // data3 = sector ceil cstat
-            if (valueIsBetween(pXSource->data3, -1, 32767)) {
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(pXSource->data3);
-                else pSector->ceilingstat = ESectorFlags::FromInt(pXSource->data3);
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767)) {
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(sourceactor->xspr.data3);
+                else pSector->ceilingstat = ESectorFlags::FromInt(sourceactor->xspr.data3);
             }
 
             // data4 = sector floor cstat
-            if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(pXSource->data4);
-                else pSector->floorstat = ESectorFlags::FromInt(pXSource->data4);
+            if (valueIsBetween(sourceactor->xspr.data4, -1, 65535)) {
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(sourceactor->xspr.data4);
+                else pSector->floorstat = ESectorFlags::FromInt(sourceactor->xspr.data4);
             }
         }
         break;
         // no TX id
         case -1:
             // data2 = global visibility
-            if (valueIsBetween(pXSource->data2, -1, 32767))
-                gVisibility = ClipRange(pXSource->data2, 0, 4096);
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+                gVisibility = ClipRange(sourceactor->xspr.data2, 0, 4096);
         break;
     }
 
@@ -2965,8 +2957,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    auto pXSource = &sourceactor->x();
-
     PLAYER* pPlayer = getPlayerById(actor->spr.type);
     XSECTOR* pXSector = (sourceactor->spr.sector()->hasX()) ? &sourceactor->spr.sector()->xs() : nullptr;
     bool isDude = (!pPlayer && actor->IsDudeActor());
@@ -3061,29 +3051,29 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
         }
     }
 
-    if (pXSource->data2 == 1) 
+    if (sourceactor->xspr.data2 == 1) 
     {
         if (pPlayer) 
         {
             pPlayer->angle.settarget(sourceactor->spr.ang);
             pPlayer->angle.lockinput();
         }
-        else if (isDude) pXSource->goalAng = actor->spr.ang = sourceactor->spr.ang;
+        else if (isDude) sourceactor->xspr.goalAng = actor->spr.ang = sourceactor->spr.ang;
         else actor->spr.ang = sourceactor->spr.ang;
     }
 
-    if (pXSource->data3 == 1)
+    if (sourceactor->xspr.data3 == 1)
         actor->xvel = actor->yvel = actor->zvel = 0;
 
     viewBackupSpriteLoc(actor);
 
-    if (pXSource->data4 > 0)
-        sfxPlay3DSound(sourceactor, pXSource->data4, -1, 0);
+    if (sourceactor->xspr.data4 > 0)
+        sfxPlay3DSound(sourceactor, sourceactor->xspr.data4, -1, 0);
 
     if (pPlayer) 
     {
         playerResetInertia(pPlayer);
-        if (pXSource->data2 == 1)
+        if (sourceactor->xspr.data2 == 1)
             pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
     }
 }
@@ -3097,9 +3087,8 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
     if (!actor) actor = sourceactor;
-    auto pXSource = &sourceactor->x();
 
-    int fxId = (pXSource->data3 <= 0) ? pXSource->data2 : pXSource->data2 + Random(pXSource->data3 + 1);
+    int fxId = (sourceactor->xspr.data3 <= 0) ? sourceactor->xspr.data2 : sourceactor->xspr.data2 + Random(sourceactor->xspr.data3 + 1);
 
 
     if (!actor->hasX()) return;
@@ -3121,7 +3110,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
         DBloodActor* pEffect = nullptr;
 
         // select where exactly effect should be spawned
-        switch (pXSource->data4) 
+        switch (sourceactor->xspr.data4) 
         {
             case 1:
                 pos = bottom;
@@ -3132,7 +3121,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
             case 3:
             case 4:
                 if (!actor->spr.insector()) pos = top;
-                else pos = (pXSource->data4 == 3) ? actor->spr.sector()->floorz : actor->spr.sector()->ceilingz;
+                else pos = (sourceactor->xspr.data4 == 3) ? actor->spr.sector()->floorz : actor->spr.sector()->ceilingz;
                 break;
             default:
                 pos = top;
@@ -3174,8 +3163,6 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector) 
 {
-    auto pXSource = &sourceactor->x();
-
     XSECTOR* pXSector = nullptr;
     
     if (pSector != nullptr) 
@@ -3195,14 +3182,14 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         pXSector->windAlways = 1;
     }
 
-    int windVel = ClipRange(pXSource->data2, 0, 32767);
-    if ((pXSource->data1 & 0x0001))
+    int windVel = ClipRange(sourceactor->xspr.data2, 0, 32767);
+    if ((sourceactor->xspr.data1 & 0x0001))
         windVel = nnExtRandom(0, windVel);
     
     // process vertical wind in nnExtProcessSuperSprites();
     if ((sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) 
     {
-        pXSource->sysData2 = windVel << 1;
+        sourceactor->xspr.sysData2 = windVel << 1;
         return;
     }
 
@@ -3211,32 +3198,32 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         pXSector->panAlways = pXSector->windAlways = 1;
 
     int ang = sourceactor->spr.ang;
-    if (pXSource->data4 <= 0) 
+    if (sourceactor->xspr.data4 <= 0) 
     {
-        if ((pXSource->data1 & 0x0002)) 
+        if ((sourceactor->xspr.data1 & 0x0002)) 
         {
             while (sourceactor->spr.ang == ang)
                 sourceactor->spr.ang = nnExtRandom(-kAng360, kAng360) & 2047;
         }
     }
-    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.ang += pXSource->data4;
-    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.ang -= pXSource->data4;
-    else if (pXSource->sysData1 == 0) 
+    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.ang += sourceactor->xspr.data4;
+    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.ang -= sourceactor->xspr.data4;
+    else if (sourceactor->xspr.sysData1 == 0) 
     {
-        if ((ang += pXSource->data4) >= kAng180) pXSource->sysData1 = 1;
+        if ((ang += sourceactor->xspr.data4) >= kAng180) sourceactor->xspr.sysData1 = 1;
         sourceactor->spr.ang = ClipHigh(ang, kAng180);
     }
     else 
     {
-        if ((ang -= pXSource->data4) <= -kAng180) pXSource->sysData1 = 0;
+        if ((ang -= sourceactor->xspr.data4) <= -kAng180) sourceactor->xspr.sysData1 = 0;
         sourceactor->spr.ang = ClipLow(ang, -kAng180);
     }
 
     pXSector->windAng = sourceactor->spr.ang;
 
-    if (pXSource->data3 > 0 && pXSource->data3 < 4) 
+    if (sourceactor->xspr.data3 > 0 && sourceactor->xspr.data3 < 4) 
     {
-        switch (pXSource->data3) 
+        switch (sourceactor->xspr.data3) 
         {
             case 1:
                 pXSector->panFloor = true;
@@ -3283,8 +3270,6 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 
 void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSect, DBloodActor* targetactor)
 {
-    auto pXSource = &sourceactor->x();
-
     sectortype* pSector = sourceactor->spr.sector();
 
     int top, bottom;
@@ -3326,7 +3311,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
             while (auto iactor = it.Next())
             {
                 if (iactor->spr.statnum != kStatDude) continue;
-                switch (pXSource->data1) 
+                switch (sourceactor->xspr.data1) 
                 {
                     case 667:
                     if (iactor->IsPlayerActor()) continue;
@@ -3361,21 +3346,20 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 
     int health = 0;
     auto pXSprite = &actor->x();
-    auto pXSource = &sourceactor->x();
 
     PLAYER* pPlayer = getPlayerById(actor->spr.type);
-    int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
+    int dmgType = (sourceactor->xspr.data2 >= kDmgFall) ? ClipHigh(sourceactor->xspr.data2, kDmgElectric) : -1;
     int dmg = pXSprite->health << 4; 
     int armor[3];
 
     bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
 
     if (godMode || pXSprite->locked) return;
-    else if (pXSource->data3) 
+    else if (sourceactor->xspr.data3) 
     {
-        if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(pXSource->data3 << 1, 65535);
-        else if (pXSprite->sysData2 > 0) dmg = (ClipHigh(pXSprite->sysData2 << 4, 65535) * pXSource->data3) / kPercFull;
-        else dmg = ((getDudeInfo(actor->spr.type)->startHealth << 4) * pXSource->data3) / kPercFull;
+        if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(sourceactor->xspr.data3 << 1, 65535);
+        else if (pXSprite->sysData2 > 0) dmg = (ClipHigh(pXSprite->sysData2 << 4, 65535) * sourceactor->xspr.data3) / kPercFull;
+        else dmg = ((getDudeInfo(actor->spr.type)->startHealth << 4) * sourceactor->xspr.data3) / kPercFull;
 
         health = pXSprite->health - dmg;
     }
@@ -3464,10 +3448,9 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 
 void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* iactor) 
 {
-    auto pXSource = &sourceactor->x();
-    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) 
+    if (sourceactor->xspr.data2 > 0 && !getSequence(sourceactor->xspr.data2)) 
     {
-        Printf(PRINT_HIGH, "Missing sequence #%d", pXSource->data2);
+        Printf(PRINT_HIGH, "Missing sequence #%d", sourceactor->xspr.data2);
         return;
     }
 
@@ -3475,52 +3458,52 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
     {
         case OBJ_SECTOR:
         {            
-            if (pXSource->data2 <= 0) 
+            if (sourceactor->xspr.data2 <= 0) 
             {
-                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
                     seqKill(SS_FLOOR, pSector);
-                if (pXSource->data3 == 3 || pXSource->data3 == 2)
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2)
                     seqKill(SS_CEILING, pSector);
             }
             else 
             {
-                if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, SS_FLOOR, pSector, -1);
-                if (pXSource->data3 == 3 || pXSource->data3 == 2)
-                    seqSpawn(pXSource->data2, SS_CEILING, pSector, -1);
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
+                    seqSpawn(sourceactor->xspr.data2, SS_FLOOR, pSector, -1);
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2)
+                    seqSpawn(sourceactor->xspr.data2, SS_CEILING, pSector, -1);
             }
             return;
         }
         case OBJ_WALL:
         {
-            if (pXSource->data2 <= 0)
+            if (sourceactor->xspr.data2 <= 0)
             {
-                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
                     seqKill(SS_WALL, pWall);
-                if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (pWall->cstat & CSTAT_WALL_MASKED))
+                if ((sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2) && (pWall->cstat & CSTAT_WALL_MASKED))
                     seqKill(SS_MASKED, pWall);
             }
             else
             {
-                if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, SS_WALL, pWall, -1);
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
+                    seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall, -1);
 
-                if (pXSource->data3 == 3 || pXSource->data3 == 2) {
+                if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2) {
 
                     if (!pWall->twoSided()) {
-                        if (pXSource->data3 == 3)
-                            seqSpawn(pXSource->data2, SS_WALL, pWall, -1);
+                        if (sourceactor->xspr.data3 == 3)
+                            seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall, -1);
 
                     }
                     else {
                         if (!(pWall->cstat & CSTAT_WALL_MASKED))
                             pWall->cstat |= CSTAT_WALL_MASKED;
 
-                        seqSpawn(pXSource->data2, SS_MASKED, pWall, -1);
+                        seqSpawn(sourceactor->xspr.data2, SS_MASKED, pWall, -1);
                     }
                 }
 
-                if (pXSource->data4 > 0)
+                if (sourceactor->xspr.data4 > 0)
                 {
                     int cx, cy, cz;
                     cx = (pWall->pos.X + pWall->point2Wall()->pos.X) >> 1;
@@ -3534,23 +3517,23 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                     floorZ = ClipHigh(floorZ, floorZ2);
                     cz = (ceilZ + floorZ) >> 1;
 
-                    sfxPlay3DSound(cx, cy, cz, pXSource->data4, pSector);
+                    sfxPlay3DSound(cx, cy, cz, sourceactor->xspr.data4, pSector);
                 }
             }
             return;
         }
         case OBJ_SPRITE:
         {
-            if (pXSource->data2 <= 0) seqKill(iactor);
+            if (sourceactor->xspr.data2 <= 0) seqKill(iactor);
             else if (iactor->spr.insector())
             {
-                if (pXSource->data3 > 0)
+                if (sourceactor->xspr.data3 > 0)
                 {
                     auto spawned = InsertSprite(iactor->spr.sector(), kStatDecoration);
                     int top, bottom; GetActorExtents(spawned, &top, &bottom);
                     spawned->spr.pos.X = iactor->spr.pos.X;
                     spawned->spr.pos.Y = iactor->spr.pos.Y;
-                    switch (pXSource->data3) 
+                    switch (sourceactor->xspr.data3) 
                     {                    
 					default:
                         spawned->spr.pos.Z = iactor->spr.pos.Z;
@@ -3567,7 +3550,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                     case 5:
                     case 6:
                         if (!iactor->spr.insector()) spawned->spr.pos.Z = top;
-                        else spawned->spr.pos.Z = (pXSource->data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
+                        else spawned->spr.pos.Z = (sourceactor->xspr.data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
                         break;
                     }
 
@@ -3575,7 +3558,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                     {
 
                         spawned->addX();
-                        seqSpawn(pXSource->data2, spawned, -1);
+                        seqSpawn(sourceactor->xspr.data2, spawned, -1);
                         if (sourceactor->spr.flags & kModernTypeFlag1) 
                         {
                             spawned->spr.pal = sourceactor->spr.pal;
@@ -3597,11 +3580,11 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                 }
                 else 
                 {
-                    seqSpawn(pXSource->data2, iactor, -1);
+                    seqSpawn(sourceactor->xspr.data2, iactor, -1);
                 }
 
-                if (pXSource->data4 > 0)
-                    sfxPlay3DSound(iactor, pXSource->data4, -1, 0);
+                if (sourceactor->xspr.data4 > 0)
+                    sfxPlay3DSound(iactor, sourceactor->xspr.data4, -1, 0);
             }
             return;
     }
@@ -4679,7 +4662,6 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
     if (!event.isActor()) return;
     auto sourceactor = event.getActor();
     if (!sourceactor || !sourceactor->hasX()) return;
-    XSPRITE* pXSource = &sourceactor->x();
 
     switch (destObjType) {
         case OBJ_SECTOR:
@@ -4705,19 +4687,19 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
                 switch (destactor->spr.type) 
                 {
                         case kModernRandomTX:
-                    useRandomTx(destactor, (COMMAND_ID)pXSource->command, false); // set random TX id
+                    useRandomTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false); // set random TX id
                             break;
                         case kModernSequentialTX:
                     if (destactor->spr.flags & kModernTypeFlag1) 
                     {
-                        seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)pXSource->command, true);
+                        seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)sourceactor->xspr.command, true);
                                 return;
                             }
-                    useSequentialTx(destactor, (COMMAND_ID)pXSource->command, false); // set next TX id
+                    useSequentialTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false); // set next TX id
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(sourceactor, pXSpr->txID, (COMMAND_ID)pXSource->command);
+                    modernTypeSendCommand(sourceactor, pXSpr->txID, (COMMAND_ID)sourceactor->xspr.command);
                     return;
             }
             break;
@@ -4764,7 +4746,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
-            if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
+            if (destObjType != OBJ_SECTOR || sourceactor->xspr.data2 < 0) break;
             useSectorWindGen(sourceactor, destSect);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
@@ -5918,17 +5900,16 @@ bool modernTypeOperateWall(walltype* pWall, const EVENT& event)
 //
 //---------------------------------------------------------------------------
 
-bool txIsRanged(DBloodActor* source) 
+bool txIsRanged(DBloodActor* sourceactor) 
 {
-    if (!source->hasX()) return false;
-    auto pXSource = &source->x();
-    if (pXSource->data1 > 0 && pXSource->data2 <= 0 && pXSource->data3 <= 0 && pXSource->data4 > 0) 
+    if (!sourceactor->hasX()) return false;
+    if (sourceactor->xspr.data1 > 0 && sourceactor->xspr.data2 <= 0 && sourceactor->xspr.data3 <= 0 && sourceactor->xspr.data4 > 0) 
     {
-        if (pXSource->data1 > pXSource->data4) 
+        if (sourceactor->xspr.data1 > sourceactor->xspr.data4) 
         {
             // data1 must be less than data4
-            int tmp = pXSource->data1; pXSource->data1 = pXSource->data4;
-            pXSource->data4 = tmp;
+            int tmp = sourceactor->xspr.data1; sourceactor->xspr.data1 = sourceactor->xspr.data4;
+            sourceactor->xspr.data4 = tmp;
         }
         return true;
     }
@@ -5941,30 +5922,29 @@ bool txIsRanged(DBloodActor* source)
 //
 //---------------------------------------------------------------------------
 
-void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bool modernSend) 
+void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cmd, bool modernSend) 
 {
-    bool ranged = txIsRanged(source);
-    auto pXSource = &source->x();
+    bool ranged = txIsRanged(sourceactor);
     if (ranged)
     {
-        for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) 
+        for (sourceactor->xspr.txID = sourceactor->xspr.data1; sourceactor->xspr.txID <= sourceactor->xspr.data4; sourceactor->xspr.txID++) 
         {
-            if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
-            else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(actor, pXSource->txID, cmd);
+            if (sourceactor->xspr.txID <= 0 || sourceactor->xspr.txID >= kChannelUserMax) continue;
+            else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd);
+            else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd);
         }
     } 
     else 
     {
         for (int i = 0; i <= 3; i++) 
         {
-            pXSource->txID = GetDataVal(source, i);
-            if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
-            else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(actor, pXSource->txID, cmd);
+            sourceactor->xspr.txID = GetDataVal(sourceactor, i);
+            if (sourceactor->xspr.txID <= 0 || sourceactor->xspr.txID >= kChannelUserMax) continue;
+            else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd);
+            else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd);
         }
     }
-    pXSource->txID = pXSource->sysData1 = 0;
+    sourceactor->xspr.txID = sourceactor->xspr.sysData1 = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -5975,14 +5955,13 @@ void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bo
 
 void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
 {
-    auto pXSource = &sourceactor->x();
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     
     if (txIsRanged(sourceactor)) 
     {
         while (maxRetries-- >= 0) 
         {
-            if ((tx = nnExtRandom(pXSource->data1, pXSource->data4)) != pXSource->txID)
+            if ((tx = nnExtRandom(sourceactor->xspr.data1, sourceactor->xspr.data4)) != sourceactor->xspr.txID)
                 break;
         }
     } 
@@ -5990,15 +5969,15 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
     {
         while (maxRetries-- >= 0) 
         {
-            if ((tx = randomGetDataValue(sourceactor, kRandomizeTX)) > 0 && tx != pXSource->txID)
+            if ((tx = randomGetDataValue(sourceactor, kRandomizeTX)) > 0 && tx != sourceactor->xspr.txID)
                 break;
         }
     }
 
-    pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
+    sourceactor->xspr.txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(sourceactor, pXSource->state ^ 1);
-        //evSendActor(sourceactor->spr.index, pXSource->txID, (COMMAND_ID)pXSource->command);
+        SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1);
+        //evSendActor(sourceactor->spr.index, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
 }
 
 //---------------------------------------------------------------------------
@@ -6009,22 +5988,20 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
 {
-    auto pXSource = &sourceactor->x();
-
     bool range = txIsRanged(sourceactor); int cnt = 3; int tx = 0;
 
     if (range) 
     {
         // make sure sysData is correct as we store current index of TX ID here.
-        if (pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data1;
-        else if (pXSource->sysData1 > pXSource->data4) pXSource->sysData1 = pXSource->data4;
+        if (sourceactor->xspr.sysData1 < sourceactor->xspr.data1) sourceactor->xspr.sysData1 = sourceactor->xspr.data1;
+        else if (sourceactor->xspr.sysData1 > sourceactor->xspr.data4) sourceactor->xspr.sysData1 = sourceactor->xspr.data4;
 
     }
     else 
     {
         // make sure sysData is correct as we store current index of data field here.
-        if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
-        else if (pXSource->sysData1 < 0) pXSource->sysData1 = 3;
+        if (sourceactor->xspr.sysData1 > 3) sourceactor->xspr.sysData1 = 0;
+        else if (sourceactor->xspr.sysData1 < 0) sourceactor->xspr.sysData1 = 3;
     }
 
     switch (cmd) 
@@ -6034,15 +6011,15 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
             {
                 while (cnt-- >= 0) // skip empty data fields
                 {
-                    if (pXSource->sysData1-- < 0) pXSource->sysData1 = 3;
-                    if ((tx = GetDataVal(sourceactor, pXSource->sysData1)) <= 0) continue;
+                    if (sourceactor->xspr.sysData1-- < 0) sourceactor->xspr.sysData1 = 3;
+                    if ((tx = GetDataVal(sourceactor, sourceactor->xspr.sysData1)) <= 0) continue;
                     else break;
                 }
             } 
             else 
             {
-                if (--pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data4;
-                tx = pXSource->sysData1;
+                if (--sourceactor->xspr.sysData1 < sourceactor->xspr.data1) sourceactor->xspr.sysData1 = sourceactor->xspr.data4;
+                tx = sourceactor->xspr.sysData1;
             }
             break;
 
@@ -6051,28 +6028,28 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
             {
                 while (cnt-- >= 0) // skip empty data fields
                 {
-                    if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
-                    if ((tx = GetDataVal(sourceactor, pXSource->sysData1++)) <= 0) continue;
+                    if (sourceactor->xspr.sysData1 > 3) sourceactor->xspr.sysData1 = 0;
+                    if ((tx = GetDataVal(sourceactor, sourceactor->xspr.sysData1++)) <= 0) continue;
                     else break;
                 }
             } 
             else 
             {
-                tx = pXSource->sysData1;
-                if (pXSource->sysData1 >= pXSource->data4) 
+                tx = sourceactor->xspr.sysData1;
+                if (sourceactor->xspr.sysData1 >= sourceactor->xspr.data4) 
                 {
-                    pXSource->sysData1 = pXSource->data1;
+                    sourceactor->xspr.sysData1 = sourceactor->xspr.data1;
                     break;
                 }
-                pXSource->sysData1++;
+                sourceactor->xspr.sysData1++;
             }
             break;
     }
 
-    pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
+    sourceactor->xspr.txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(sourceactor, pXSource->state ^ 1);
-        //evSendActor(sourceactor->spr.index, pXSource->txID, (COMMAND_ID)pXSource->command);
+        SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1);
+        //evSendActor(sourceactor->spr.index, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
 
 }
 
@@ -6084,8 +6061,6 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 int useCondition(DBloodActor* sourceactor, EVENT& event)
 {
-    auto pXSource = &sourceactor->x();
-
     bool srcIsCondition = false;
 
     auto const pActor = event.isActor() ? event.getActor() : nullptr;
@@ -6095,7 +6070,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
         srcIsCondition = (pActor->spr.type == kModernCondition || pActor->spr.type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects
-    if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
+    if (sourceactor->xspr.busyTime > 0 && event.funcID != kCallbackMax) return -1;
     else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
     {
         condPush(sourceactor, event.target);
@@ -6108,14 +6083,14 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
     }
     
-    int cond = pXSource->data1; 
+    int cond = sourceactor->xspr.data1; 
     bool ok = false; 
     bool RVRS = (sourceactor->spr.type == kModernConditionFalse);
-    bool RSET = (pXSource->command == kCmdNumberic + 36); 
-    bool PUSH = (pXSource->command == kCmdNumberic);
+    bool RSET = (sourceactor->xspr.command == kCmdNumberic + 36); 
+    bool PUSH = (sourceactor->xspr.command == kCmdNumberic);
     int comOp = sourceactor->spr.cstat; // comparison operator
 
-    if (pXSource->restState == 0) 
+    if (sourceactor->xspr.restState == 0) 
     {
         if (cond == 0) ok = true; // dummy
         else if (cond >= kCondGameBase && cond < kCondGameMax) ok = condCheckGame(sourceactor, event, comOp, PUSH);
@@ -6127,53 +6102,53 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
         else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(sourceactor, comOp, PUSH);
         else condError(sourceactor,"Unexpected condition id %d!", cond);
 
-        pXSource->state = (ok ^ RVRS);
+        sourceactor->xspr.state = (ok ^ RVRS);
         
-        if (pXSource->waitTime > 0 && pXSource->state > 0) 
+        if (sourceactor->xspr.waitTime > 0 && sourceactor->xspr.state > 0) 
         {
-            pXSource->restState = 1;
+            sourceactor->xspr.restState = 1;
             evKillActor(sourceactor);
-            evPostActor(sourceactor, (pXSource->waitTime * 120) / 10, kCmdRepeat);
+            evPostActor(sourceactor, (sourceactor->xspr.waitTime * 120) / 10, kCmdRepeat);
             return -1;
         }
     } 
     else if (event.cmd == kCmdRepeat) 
     {
-        pXSource->restState = 0;
+        sourceactor->xspr.restState = 0;
     }
     else 
     {
         return -1;
     }
 
-    if (pXSource->state) 
+    if (sourceactor->xspr.state) 
     {
-        pXSource->isTriggered = pXSource->triggerOnce;
+        sourceactor->xspr.isTriggered = sourceactor->xspr.triggerOnce;
         
         if (RSET)
             condRestore(sourceactor); // reset focus to the initial object
 
         // send command to rx bucket
-        if (pXSource->txID)
-            evSendActor(sourceactor, pXSource->txID, (COMMAND_ID)pXSource->command);
+        if (sourceactor->xspr.txID)
+            evSendActor(sourceactor, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
 
         if (sourceactor->spr.flags) {
         
             // send it for object currently in the focus
             if (sourceactor->spr.flags & kModernTypeFlag1)
             {
-                nnExtTriggerObject(event.target, pXSource->command);
+                nnExtTriggerObject(event.target, sourceactor->xspr.command);
             }
 
             // send it for initial object
             if ((sourceactor->spr.flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(sourceactor->spr.hitag & kModernTypeFlag1))) 
             {
                 auto co = condGet(sourceactor);
-                nnExtTriggerObject(co, pXSource->command);
+                nnExtTriggerObject(co, sourceactor->xspr.command);
             }
         }
     }
-    return pXSource->state;
+    return sourceactor->xspr.state;
 }
 
 //---------------------------------------------------------------------------
@@ -6184,15 +6159,13 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
 void useRandomItemGen(DBloodActor* actor) 
 {
-    XSPRITE* pXSource = &actor->x();
-
     // let's first search for previously dropped items and remove it
-    if (pXSource->dropMsg > 0) 
+    if (actor->xspr.dropMsg > 0) 
     {
         BloodStatIterator it(kStatItem);
         while (auto iactor = it.Next())
         {
-            if ((unsigned int)iactor->spr.type == pXSource->dropMsg && iactor->spr.pos.X == actor->spr.pos.X && iactor->spr.pos.Y == actor->spr.pos.Y && iactor->spr.pos.Z == actor->spr.pos.Z) 
+            if ((unsigned int)iactor->spr.type == actor->xspr.dropMsg && iactor->spr.pos.X == actor->spr.pos.X && iactor->spr.pos.Y == actor->spr.pos.Y && iactor->spr.pos.Z == actor->spr.pos.Z) 
             {
                 gFX.fxSpawnActor((FX_ID)29, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0);
                 iactor->spr.type = kSpriteDecoration;
@@ -6203,7 +6176,7 @@ void useRandomItemGen(DBloodActor* actor)
     }
 
     // then drop item
-    auto dropactor = randomDropPickupObject(actor, pXSource->dropMsg);
+    auto dropactor = randomDropPickupObject(actor, actor->xspr.dropMsg);
 
     if (dropactor != nullptr) 
     {
@@ -6236,11 +6209,9 @@ void useRandomItemGen(DBloodActor* actor)
 void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor) 
 {
     if (actor == nullptr) actor = sourceactor;
-    XSPRITE* pXSource = &sourceactor->x();
-
     int dx = 0, dy = 0, dz = 0;
 
-    if (pXSource->data1 < kMissileBase || pXSource->data1 >= kMissileMax)
+    if (sourceactor->xspr.data1 < kMissileBase || sourceactor->xspr.data1 >= kMissileMax)
         return;
 
     if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) 
@@ -6252,7 +6223,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
     {
         dx = bcos(actor->spr.ang);
         dy = bsin(actor->spr.ang);
-        dz = pXSource->data3 << 6; // add slope controlling
+        dz = sourceactor->xspr.data3 << 6; // add slope controlling
         if (dz > 0x10000) dz = 0x10000;
         else if (dz < -0x10000) dz = -0x10000;
     }
@@ -6295,17 +6266,17 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
         }
 
         // add velocity controlling
-        if (pXSource->data2 > 0) 
+        if (sourceactor->xspr.data2 > 0) 
         {
-            int velocity = pXSource->data2 << 12;
+            int velocity = sourceactor->xspr.data2 << 12;
             missileactor->xvel = MulScale(velocity, dx, 14);
             missileactor->yvel = MulScale(velocity, dy, 14);
             missileactor->zvel = MulScale(velocity, dz, 14);
         }
 
         // add bursting for missiles
-        if (missileactor->spr.type != kMissileFlareAlt && pXSource->data4 > 0)
-            evPostActor(missileactor, ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
+        if (missileactor->spr.type != kMissileFlareAlt && sourceactor->xspr.data4 > 0)
+            evPostActor(missileactor, ClipHigh(sourceactor->xspr.data4, 500), kCallbackMissileBurst);
     }
 
 }
@@ -6331,13 +6302,11 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, walltype* destWall, DBloodActor* objactor) 
 {
-    auto pXSource = &sourceactor->x();
-
     char buffer[7]; 
     int data = -65535; 
     short tmp = 0; 
     int dataIndex = 0;
-    snprintf(buffer, 7, "%d", abs(pXSource->data1)); 
+    snprintf(buffer, 7, "%d", abs(sourceactor->xspr.data1)); 
     int len = int(strlen(buffer));
     
     for (int i = 0; i < len; i++) 
@@ -6349,56 +6318,56 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
             continue;
         }
         
-        if (pXSource->data2 < pXSource->data3) 
+        if (sourceactor->xspr.data2 < sourceactor->xspr.data3) 
         {
-            data = ClipRange(data, pXSource->data2, pXSource->data3);
-            if ((data += pXSource->data4) >= pXSource->data3) 
+            data = ClipRange(data, sourceactor->xspr.data2, sourceactor->xspr.data3);
+            if ((data += sourceactor->xspr.data4) >= sourceactor->xspr.data3) 
             {
                 switch (sourceactor->spr.flags) 
                 {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
-                    if (data > pXSource->data3) data = pXSource->data3;
+                    if (data > sourceactor->xspr.data3) data = sourceactor->xspr.data3;
                     break;
                 case kModernTypeFlag2:
-                    if (data > pXSource->data3) data = pXSource->data3;
+                    if (data > sourceactor->xspr.data3) data = sourceactor->xspr.data3;
                     if (!incDecGoalValueIsReached(sourceactor)) break;
-                    tmp = pXSource->data3;
-                    pXSource->data3 = pXSource->data2;
-                    pXSource->data2 = tmp;
+                    tmp = sourceactor->xspr.data3;
+                    sourceactor->xspr.data3 = sourceactor->xspr.data2;
+                    sourceactor->xspr.data2 = tmp;
                     break;
                 case kModernTypeFlag3:
-                    if (data > pXSource->data3) data = pXSource->data2;
+                    if (data > sourceactor->xspr.data3) data = sourceactor->xspr.data2;
                     break;
                 }
             }
 
         }
-        else if (pXSource->data2 > pXSource->data3) 
+        else if (sourceactor->xspr.data2 > sourceactor->xspr.data3) 
         {
-            data = ClipRange(data, pXSource->data3, pXSource->data2);
-            if ((data -= pXSource->data4) <= pXSource->data3) 
+            data = ClipRange(data, sourceactor->xspr.data3, sourceactor->xspr.data2);
+            if ((data -= sourceactor->xspr.data4) <= sourceactor->xspr.data3) 
             {
                 switch (sourceactor->spr.flags) 
                 {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
-                    if (data < pXSource->data3) data = pXSource->data3;
+                    if (data < sourceactor->xspr.data3) data = sourceactor->xspr.data3;
                     break;
                 case kModernTypeFlag2:
-                    if (data < pXSource->data3) data = pXSource->data3;
+                    if (data < sourceactor->xspr.data3) data = sourceactor->xspr.data3;
                     if (!incDecGoalValueIsReached(sourceactor)) break;
-                    tmp = pXSource->data3;
-                    pXSource->data3 = pXSource->data2;
-                    pXSource->data2 = tmp;
+                    tmp = sourceactor->xspr.data3;
+                    sourceactor->xspr.data3 = sourceactor->xspr.data2;
+                    sourceactor->xspr.data2 = tmp;
                     break;
                 case kModernTypeFlag3:
-                    if (data < pXSource->data3) data = pXSource->data2;
+                    if (data < sourceactor->xspr.data3) data = sourceactor->xspr.data2;
                     break;
                 }
             }
         }
-        pXSource->sysData1 = data;
+        sourceactor->xspr.sysData1 = data;
         setDataValueOfObject(objType, destSect, destWall, objactor, dataIndex, data);
     }
 }
@@ -6437,17 +6406,15 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 
 void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, DBloodActor* objActor) 
 {
-    auto pXSource = &sourceactor->x();
-
     int slope, oslope;
     bool flag2 = (sourceactor->spr.flags & kModernTypeFlag2);
 
-    if (sourceactor->spr.flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
-    else slope = (32767 / kPercFull) * ClipRange(pXSource->data2, -kPercFull, kPercFull);
+    if (sourceactor->spr.flags & kModernTypeFlag1) slope = ClipRange(sourceactor->xspr.data2, -32767, 32767);
+    else slope = (32767 / kPercFull) * ClipRange(sourceactor->xspr.data2, -kPercFull, kPercFull);
 
     if (objType == OBJ_SECTOR) 
     {
-        switch (pXSource->data1)
+        switch (sourceactor->xspr.data1)
         {
             case 2:
             case 0:
@@ -6485,7 +6452,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 
             }
 
-                if (pXSource->data1 == 0) break;
+                if (sourceactor->xspr.data1 == 0) break;
                 [[fallthrough]];
             case 1:
 
@@ -6546,13 +6513,13 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
         if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_SLOPE) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
             objActor->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_SLOPE;
 
-        switch (pXSource->data4) 
+        switch (sourceactor->xspr.data4) 
         {
             case 1:
             case 2:
             case 3:
                 if (!objActor->spr.insector()) break;
-                switch (pXSource->data4) 
+                switch (sourceactor->xspr.data4) 
                 {
                     case 1: sprite2sectorSlope(objActor, objActor->spr.sector(), 0, flag2); break;
                     case 2: sprite2sectorSlope(objActor, objActor->spr.sector(), 1, flag2); break;
@@ -6577,30 +6544,28 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 
 void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* objActor)
 {
-    auto pXSource = &sourceactor->x();
-
     switch (objType) 
     {
         case OBJ_SECTOR:
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
+                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
             break;
         case OBJ_SPRITE:
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, pSector, pWall, objActor, 1, pXSource->data1);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
+                setDataValueOfObject(objType, pSector, pWall, objActor, 1, sourceactor->xspr.data1);
 
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
-                setDataValueOfObject(objType, pSector, pWall, objActor, 2, pXSource->data2);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data2 != -1 && sourceactor->xspr.data2 != 32767))
+                setDataValueOfObject(objType, pSector, pWall, objActor, 2, sourceactor->xspr.data2);
 
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
-                setDataValueOfObject(objType, pSector, pWall, objActor, 3, pXSource->data3);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data3 != -1 && sourceactor->xspr.data3 != 32767))
+                setDataValueOfObject(objType, pSector, pWall, objActor, 3, sourceactor->xspr.data3);
 
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || pXSource->data4 != 65535)
-                setDataValueOfObject(objType, pSector, pWall, objActor, 4, pXSource->data4);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || sourceactor->xspr.data4 != 65535)
+                setDataValueOfObject(objType, pSector, pWall, objActor, 4, sourceactor->xspr.data4);
             break;
         case OBJ_WALL:
-            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
+                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
             break;
     }
 }
@@ -6613,21 +6578,20 @@ void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, 
 
 void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector) 
 {
-    auto pXSource = &sourceactor->x();
     auto pXSector = &pSector->xs();
 
-    if (valueIsBetween(pXSource->data1, -1, 32767))
-        pXSector->wave = ClipHigh(pXSource->data1, 11);
+    if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+        pXSector->wave = ClipHigh(sourceactor->xspr.data1, 11);
 
     int oldAmplitude = pXSector->amplitude;
-    if (valueIsBetween(pXSource->data2, -128, 128))
-        pXSector->amplitude = uint8_t(pXSource->data2);
+    if (valueIsBetween(sourceactor->xspr.data2, -128, 128))
+        pXSector->amplitude = uint8_t(sourceactor->xspr.data2);
 
-    if (valueIsBetween(pXSource->data3, -1, 32767))
-        pXSector->freq = ClipHigh(pXSource->data3, 255);
+    if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+        pXSector->freq = ClipHigh(sourceactor->xspr.data3, 255);
 
-    if (valueIsBetween(pXSource->data4, -1, 65535))
-        pXSector->phase = ClipHigh(pXSource->data4, 255);
+    if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+        pXSector->phase = ClipHigh(sourceactor->xspr.data4, 255);
 
     if (sourceactor->spr.flags) 
     {
@@ -6675,7 +6639,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     }
     
     
-    auto pXSource = &sourceactor->x();
     XSPRITE* pXSprite = &actor->x();
 
     int receiveHp = 33 + Random(33);
@@ -6691,7 +6654,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             auto burnactor = actor->GetBurnSource();
             if (burnactor->hasX()) 
             {
-                if (pXSource->data2 == 1 && pXSprite->rxID == burnactor->xspr.rxID) 
+                if (sourceactor->xspr.data2 == 1 && pXSprite->rxID == burnactor->xspr.rxID) 
                 {
                     pXSprite->burnTime = 0;
                     
@@ -6712,14 +6675,14 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     if (playeractor != nullptr)
     {
         auto actLeech = leechIsDropped(actor);
-        if (pXSource->data4 == 3) 
+        if (sourceactor->xspr.data4 == 3) 
         {
             aiSetTarget(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
             aiSetGenIdleState(actor);
             if (actor->spr.type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
         }
-        else if (pXSource->data4 == 4) 
+        else if (sourceactor->xspr.data4 == 4) 
         {
             aiSetTarget(actor, playeractor->spr.pos.X, playeractor->spr.pos.Y, playeractor->spr.pos.Z);
             if (actor->spr.type == kDudeModernCustom && actLeech)
@@ -6743,7 +6706,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             aiSetTarget(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
         }
         // dude attack or attacked by target that does not fit by data id?
-        else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) 
+        else if (sourceactor->xspr.data1 != 666 && pXTarget->data1 != sourceactor->xspr.data1) 
         {
             if (aiFightDudeIsAffected(targetactor)) 
             {
@@ -6764,7 +6727,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 }
             }
         }
-        else if (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID) 
+        else if (sourceactor->xspr.data2 == 1 && pXSprite->rxID == pXTarget->rxID) 
         {
             auto mateactor = targetactor;
             XSPRITE* pXMate = pXTarget;
@@ -6821,7 +6784,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         // lets try to look for target that fits better by distance
         else if ((PlayClock & 256) != 0 && (targetactor == nullptr || aiFightGetTargetDist(actor, pDudeInfo, targetactor) >= mDist)) 
         {
-            auto newtargactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
+            auto newtargactor = aiFightGetTargetInRange(actor, 0, mDist, sourceactor->xspr.data1, sourceactor->xspr.data2);
             if (newtargactor != nullptr)
             {
                 // Make prev target not aim in dude
@@ -6838,7 +6801,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                     aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
+                if (sourceactor->xspr.data3 > 0 && newtargactor->GetTarget() != actor) 
                 {
                     aiSetTarget(newtargactor, actor);
                     if (!isActive(newtargactor))
@@ -6865,16 +6828,16 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             }
 
             // skip non-dudes and players
-            if (!newtargactor->IsDudeActor() || (newtargactor->IsPlayerActor() && pXSource->data4 > 0) || newtargactor->GetOwner() == actor) continue;
+            if (!newtargactor->IsDudeActor() || (newtargactor->IsPlayerActor() && sourceactor->xspr.data4 > 0) || newtargactor->GetOwner() == actor) continue;
             // avoid self aiming, those who dude can't see, and those who dude own
             else if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, newtargactor) || actor == newtargactor) continue;
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
-            else if (pXSource->data1 != 666 && pXSource->data1 != pXNewTarg->data1) continue;
+            else if (sourceactor->xspr.data1 != 666 && sourceactor->xspr.data1 != pXNewTarg->data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (pXSource->data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
+            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (sourceactor->xspr.data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
                 continue;
 
-            if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
+            if (sourceactor->xspr.data2 == 0 || (sourceactor->xspr.data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
             {
                 // Change target for dude
                 aiSetTarget(actor, newtargactor);
@@ -6882,13 +6845,13 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                     aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
+                if (sourceactor->xspr.data3 > 0 && newtargactor->GetTarget() != actor) 
                 {
                     aiSetTarget(newtargactor, actor);
                     if (playeractor == nullptr && !isActive(newtargactor))
                         aiActivateDude(newtargactor);
 
-                    if (pXSource->data3 == 2)
+                    if (sourceactor->xspr.data3 == 2)
                         aiFightAlarmDudesInSight(newtargactor, maxAlarmDudes);
                 }
                 return;
@@ -6898,7 +6861,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     }
 
     // got no target - let's ask mates if they have targets
-    if ((actor->GetTarget() == nullptr || playeractor != nullptr) && pXSource->data2 == 1 && (PlayClock & 64) != 0) 
+    if ((actor->GetTarget() == nullptr || playeractor != nullptr) && sourceactor->xspr.data2 == 1 && (PlayClock & 64) != 0) 
     {
         DBloodActor* pMateTargetActor = aiFightGetMateTargets(actor);
         if (pMateTargetActor != nullptr && pMateTargetActor->hasX()) 
@@ -6943,41 +6906,39 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
 void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSect, walltype* targWall, DBloodActor* objActor)
 {
-    auto pXSource = &sourceactor->x();
-    
     switch (objType) {
         case OBJ_SECTOR:
-            if (valueIsBetween(pXSource->data1, -1, 32767))
-                targSect->floorpicnum = pXSource->data1;
+            if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+                targSect->floorpicnum = sourceactor->xspr.data1;
 
-            if (valueIsBetween(pXSource->data2, -1, 32767))
-                targSect->ceilingpicnum = pXSource->data2;
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+                targSect->ceilingpicnum = sourceactor->xspr.data2;
 
-            if (valueIsBetween(pXSource->data3, -1, 32767))
-                targSect->floorpal = uint8_t(pXSource->data3);
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+                targSect->floorpal = uint8_t(sourceactor->xspr.data3);
 
-            if (valueIsBetween(pXSource->data4, -1, 65535))
-                targSect->ceilingpal = uint8_t(pXSource->data4);
+            if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+                targSect->ceilingpal = uint8_t(sourceactor->xspr.data4);
             break;
         case OBJ_SPRITE:
-            if (valueIsBetween(pXSource->data1, -1, 32767))
-                objActor->spr.picnum = pXSource->data1;
+            if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+                objActor->spr.picnum = sourceactor->xspr.data1;
 
-            if (pXSource->data2 >= 0) objActor->spr.shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
-            else if (pXSource->data2 < -1) objActor->spr.shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
+            if (sourceactor->xspr.data2 >= 0) objActor->spr.shade = (sourceactor->xspr.data2 > 127) ? 127 : sourceactor->xspr.data2;
+            else if (sourceactor->xspr.data2 < -1) objActor->spr.shade = (sourceactor->xspr.data2 < -127) ? -127 : sourceactor->xspr.data2;
 
-            if (valueIsBetween(pXSource->data3, -1, 32767))
-                objActor->spr.pal = uint8_t(pXSource->data3);
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+                objActor->spr.pal = uint8_t(sourceactor->xspr.data3);
             break;
         case OBJ_WALL:
-            if (valueIsBetween(pXSource->data1, -1, 32767))
-                targWall->picnum = pXSource->data1;
+            if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
+                targWall->picnum = sourceactor->xspr.data1;
 
-            if (valueIsBetween(pXSource->data2, -1, 32767))
-                targWall->overpicnum = pXSource->data2;
+            if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
+                targWall->overpicnum = sourceactor->xspr.data2;
 
-            if (valueIsBetween(pXSource->data3, -1, 32767))
-                targWall->pal = uint8_t(pXSource->data3);
+            if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+                targWall->pal = uint8_t(sourceactor->xspr.data3);
             break;
     }
 }
@@ -8466,19 +8427,18 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init) 
 {
-    XSPRITE* pXSource = &sourceactor->x();
     XSPRITE* pXDest = &destactor->x();
 
     // copy flags
     if (copy) 
     {
-        pXDest->dudeFlag4  = pXSource->dudeFlag4;
-        pXDest->dudeAmbush = pXSource->dudeAmbush;
-        pXDest->dudeGuard  = pXSource->dudeGuard;
-        pXDest->dudeDeaf   = pXSource->dudeDeaf;
-        pXDest->unused1    = pXSource->unused1;
+        pXDest->dudeFlag4  = sourceactor->xspr.dudeFlag4;
+        pXDest->dudeAmbush = sourceactor->xspr.dudeAmbush;
+        pXDest->dudeGuard  = sourceactor->xspr.dudeGuard;
+        pXDest->dudeDeaf   = sourceactor->xspr.dudeDeaf;
+        pXDest->unused1    = sourceactor->xspr.unused1;
 
-        if (pXSource->unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
+        if (sourceactor->xspr.unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
         else pXDest->unused1 &= ~kDudeFlagStealth;
     }
 
@@ -8899,13 +8859,12 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 
 void seqSpawnerOffSameTx(DBloodActor* actor) 
 {
-    auto pXSource = &actor->x();
     BloodSpriteIterator it;
     while (auto iactor = it.Next())
     {
         if (iactor->spr.type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
         XSPRITE* pXSprite = &iactor->x();
-        if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) 
+        if (pXSprite->txID == actor->xspr.txID && pXSprite->state == 1) 
         {
             evKillActor(iactor);
             pXSprite->state = 0;
