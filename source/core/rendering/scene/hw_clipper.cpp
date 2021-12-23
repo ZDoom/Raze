@@ -630,6 +630,7 @@ void Clipper::RemoveClipRange(int start, int end)
 			else if (node->start < start && node->end > end)
 			{
 				temp = NewRange(end, node->end, node->topclip, node->bottomclip);
+				node->end = start;
 				InsertRange(node, temp);
 				break;
 			}
