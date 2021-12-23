@@ -1177,6 +1177,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     {
                         if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = spr->pos.Z; 
                         else daz = spriteGetZOfSlope(spr, pos.X, pos.Y);
+                        daz2 = daz;
 
                         if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.Z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
                             continue;
