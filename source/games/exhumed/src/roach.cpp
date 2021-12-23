@@ -37,41 +37,38 @@ static actionSeq RoachSeq[] = {
 // TODO - make nType a bool?
 void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int angle)
 {
-    spritetype* pSprite;
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 105);
-        pSprite = &pActor->s();
     }
     else
     {
         ChangeActorStat(pActor, 105);
-        pSprite = &pActor->s();
-        x = pSprite->pos.X;
-        y = pSprite->pos.Y;
-        z = pSprite->sector()->floorz;
-        angle = pSprite->ang;
+        x = pActor->spr.pos.X;
+        y = pActor->spr.pos.Y;
+        z = pActor->spr.sector()->floorz;
+        angle = pActor->spr.ang;
     }
 
-    pSprite->pos.X = x;
-    pSprite->pos.Y = y;
-    pSprite->pos.Z = z;
-    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pSprite->shade = -12;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->picnum = 1;
-    pSprite->pal = pSprite->sector()->ceilingpal;
-    pSprite->clipdist = 60;
-    pSprite->ang = angle;
-    pSprite->xrepeat = 40;
-    pSprite->yrepeat = 40;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->hitag = 0;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->extra = -1;
+    pActor->spr.pos.X = x;
+    pActor->spr.pos.Y = y;
+    pActor->spr.pos.Z = z;
+    pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+    pActor->spr.shade = -12;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.picnum = 1;
+    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.clipdist = 60;
+    pActor->spr.ang = angle;
+    pActor->spr.xrepeat = 40;
+    pActor->spr.yrepeat = 40;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.hitag = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.extra = -1;
 
     //	GrabTimeSlot(3);
 
@@ -90,16 +87,16 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pActor->nHealth = 600;
 	pActor->nPhase = Counters[kCountRoach]++;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x1C0000);
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x1C0000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1C0000);
 
     nCreaturesTotal++;
 }
 
-void GoRoach(spritetype* pSprite)
+void GoRoach(DExhumedActor* pActor)
 {
-    pSprite->xvel = bcos(pSprite->ang, -1) - bcos(pSprite->ang, -3);
-    pSprite->yvel = bsin(pSprite->ang, -1) - bsin(pSprite->ang, -3);
+    pActor->spr.xvel = bcos(pActor->spr.ang, -1) - bcos(pActor->spr.ang, -3);
+    pActor->spr.yvel = bsin(pActor->spr.ang, -1) - bsin(pActor->spr.ang, -3);
 }
 
 void AIRoach::Draw(RunListEvent* ev)
@@ -126,7 +123,6 @@ void AIRoach::Damage(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-	auto pSprite = &pActor->s();
     int nAction = pActor->nAction;
 
     if (ev->nDamage)
@@ -138,10 +134,10 @@ void AIRoach::Damage(RunListEvent* ev)
         pActor->nHealth -= dmgAdjust(ev->nDamage);
         if (pActor->nHealth <= 0)
         {
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
-            pSprite->zvel = 0;
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
+            pActor->spr.zvel = 0;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
 
@@ -166,7 +162,7 @@ void AIRoach::Damage(RunListEvent* ev)
                 if (nAction == 0)
                 {
                     pActor->nAction = 2;
-                    GoRoach(pSprite);
+                    GoRoach(pActor);
                     pActor->nFrame = 0;
                 }
                 else
@@ -187,7 +183,6 @@ void AIRoach::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-	auto pSprite = &pActor->s();
     int nAction = pActor->nAction;
     bool bVal = false;
 
@@ -195,7 +190,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
     int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[pActor->nAction].a;
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
@@ -237,7 +232,7 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
                 pActor->pTarget = pTarget;
-                GoRoach(pSprite);
+                GoRoach(pActor);
             }
         }
 
@@ -255,7 +250,7 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
                 pActor->pTarget = pTarget;
-                GoRoach(pSprite);
+                GoRoach(pActor);
             }
         }
 
@@ -267,7 +262,7 @@ void AIRoach::Tick(RunListEvent* ev)
         if ((totalmoves & 0xF) == (pActor->nPhase & 0xF))
         {
             PlotCourseToSprite(pActor, pTarget);
-            GoRoach(pSprite);
+            GoRoach(pActor);
         }
 
         auto nMov = MoveCreatureWithCaution(pActor);
@@ -280,22 +275,22 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nIndex = RandomSize(2) + 1;
                 pActor->nAction = 3;
 
-                pSprite->xvel = 0;
-                pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
+                pActor->spr.xvel = 0;
+                pActor->spr.yvel = 0;
+                pActor->spr.ang = GetMyAngle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
 
                 pActor->nFrame = 0;
             }
             else
             {
-                pSprite->ang = (pSprite->ang + 256) & kAngleMask;
-                GoRoach(pSprite);
+                pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
+                GoRoach(pActor);
             }
         }
         else if (nMov.type == kHitWall)
         {
-            pSprite->ang = (pSprite->ang + 256) & kAngleMask;
-            GoRoach(pSprite);
+            pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
+            GoRoach(pActor);
         }
         else
         {
@@ -309,9 +304,9 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nIndex = RandomSize(2) + 1;
                 pActor->nAction = 3;
 
-                pSprite->xvel = 0;
-                pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
+                pActor->spr.xvel = 0;
+                pActor->spr.yvel = 0;
+                pActor->spr.ang = GetMyAngle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
 
                 pActor->nFrame = 0;
             }
@@ -323,8 +318,8 @@ void AIRoach::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nCount = 100;
             pActor->pTarget = nullptr;
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
         }
 
         return;
@@ -338,7 +333,7 @@ void AIRoach::Tick(RunListEvent* ev)
             if (pActor->nIndex <= 0)
             {
                 pActor->nAction = 2;
-                GoRoach(pSprite);
+                GoRoach(pActor);
                 pActor->nFrame = 0;
                 pActor->nCount = RandomSize(7);
             }
@@ -347,7 +342,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, -1, pSprite->ang, pTarget, 1);
+                BuildBullet(pActor, 13, -1, pActor->spr.ang, pTarget, 1);
             }
         }
 
@@ -369,7 +364,7 @@ void AIRoach::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pSprite->cstat = 0;
+            pActor->spr.cstat = 0;
             pActor->nAction = 6;
             pActor->nFrame = 0;
         }
