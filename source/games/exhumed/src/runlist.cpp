@@ -1588,28 +1588,27 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 
 int runlist_CheckRadialDamage(DExhumedActor* pActor)
 {
-	auto pSprite = &pActor->s();
     auto pRadialSpr = &pRadialActor->s();
 
     if (pActor == pRadialActor) {
         return 0;
     }
 
-    if (!(pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL)) {
+    if (!(pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)) {
         return 0;
     }
 
-    if (pSprite->statnum >= kMaxStatus || pRadialSpr->statnum >= kMaxStatus) {
+    if (pActor->spr.statnum >= kMaxStatus || pRadialSpr->statnum >= kMaxStatus) {
         return 0;
     }
 
-    if (pSprite->statnum != 100 && pActor == pRadialActor->pTarget) {
+    if (pActor->spr.statnum != 100 && pActor == pRadialActor->pTarget) {
         return 0;
     }
 
-    int x = (pSprite->pos.X - pRadialSpr->pos.X) >> 8;
-    int y = (pSprite->pos.Y - pRadialSpr->pos.Y) >> 8;
-    int z = (pSprite->pos.Z - pRadialSpr->pos.Z) >> 12;
+    int x = (pActor->spr.pos.X - pRadialSpr->pos.X) >> 8;
+    int y = (pActor->spr.pos.Y - pRadialSpr->pos.Y) >> 8;
+    int z = (pActor->spr.pos.Z - pRadialSpr->pos.Z) >> 12;
 
     if (abs(x) > nDamageRadius) {
         return 0;
@@ -1640,18 +1639,18 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
     if (nDist < nDamageRadius)
     {
-        auto nCStat = pSprite->cstat;
-        pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
+        auto nCStat = pActor->spr.cstat;
+        pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
-        if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
+        if (((kStatExplodeTarget - pActor->spr.statnum) <= 1) ||
             cansee(pRadialSpr->pos.X,
                 pRadialSpr->pos.Y,
                 pRadialSpr->pos.Z - 512,
                 pRadialSpr->sector(),
-                pSprite->pos.X,
-                pSprite->pos.Y,
-                pSprite->pos.Z - 8192,
-                pSprite->sector()))
+                pActor->spr.pos.X,
+                pActor->spr.pos.Y,
+                pActor->spr.pos.Z - 8192,
+                pActor->spr.sector()))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;
 
@@ -1662,17 +1661,17 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             {
                 int nAngle = GetMyAngle(x, y);
 
-                pSprite->xvel += (edi * bcos(nAngle)) >> 3;
-                pSprite->yvel += (edi * bsin(nAngle)) >> 3;
-                pSprite->zvel -= edi * 24;
+                pActor->spr.xvel += (edi * bcos(nAngle)) >> 3;
+                pActor->spr.yvel += (edi * bsin(nAngle)) >> 3;
+                pActor->spr.zvel -= edi * 24;
 
-                if (pSprite->zvel < -3584) {
-                    pSprite->zvel = -3584;
+                if (pActor->spr.zvel < -3584) {
+                    pActor->spr.zvel = -3584;
                 }
             }
         }
 
-        pSprite->cstat = nCStat;
+        pActor->spr.cstat = nCStat;
     }
 
     if (edi > 0x7FFF) {
@@ -1702,13 +1701,11 @@ void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius)
 
 void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDamage)
 {
-	auto pSprite = &pActor->s();
-
-    if (pSprite->statnum >= kMaxStatus) {
+	if (pActor->spr.statnum >= kMaxStatus) {
         return;
     }
 
-    int nRun = pSprite->owner;
+    int nRun = pActor->spr.owner;
     if (nRun <= -1) {
         return;
     }
