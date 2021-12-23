@@ -343,15 +343,14 @@ WEAPONTRACK gWeaponTrack[] = {
 
 void UpdateAimVector(PLAYER * pPlayer)
 {
-    spritetype *pSprite;
     assert(pPlayer != NULL);
-    spritetype *pPSprite = pPlayer->pSprite;
-    int x = pPSprite->pos.X;
-    int y = pPSprite->pos.Y;
+    auto plActor = pPlayer->actor;
+    int x = plActor->spr.pos.X;
+    int y = plActor->spr.pos.Y;
     int z = pPlayer->zWeapon;
     Aim aim;
-    aim.dx = bcos(pPSprite->ang);
-    aim.dy = bsin(pPSprite->ang);
+    aim.dx = bcos(plActor->spr.ang);
+    aim.dy = bsin(plActor->spr.ang);
     aim.dz = pPlayer->slope;
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
     DBloodActor* targetactor = nullptr;
@@ -363,18 +362,17 @@ void UpdateAimVector(PLAYER * pPlayer)
         BloodStatIterator it(kStatDude);
         while (auto actor = it.Next())
         {
-            pSprite = &actor->s();
-            if (pSprite == pPSprite)
+            if (plActor == actor)
                 continue;
-            if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
+            if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, actor))
                 continue;
-            if (pSprite->flags&32)
+            if (actor->spr.flags&32)
                 continue;
-            if (!(pSprite->flags&8))
+            if (!(actor->spr.flags&8))
                 continue;
-            int x2 = pSprite->pos.X;
-            int y2 = pSprite->pos.Y;
-            int z2 = pSprite->pos.Z;
+            int x2 = actor->spr.pos.X;
+            int y2 = actor->spr.pos.Y;
+            int z2 = actor->spr.pos.Z;
             int nDist = approxDist(x2-x, y2-y);
             if (nDist == 0 || nDist > 51200)
                 continue;
@@ -385,18 +383,18 @@ void UpdateAimVector(PLAYER * pPlayer)
                 y2 += (actor->yvel * t) >> 12;
                 z2 += (actor->zvel * t) >> 8;
             }
-            int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
-            int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
+            int lx = x + MulScale(Cos(plActor->spr.ang), nDist, 30);
+            int ly = y + MulScale(Sin(plActor->spr.ang), nDist, 30);
             int lz = z + MulScale(pPlayer->slope, nDist, 10);
             int zRange = MulScale(9460, nDist, 10);
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             if (lz-zRange>bottom || lz+zRange<top)
                 continue;
             int angle = getangle(x2-x,y2-y);
-            if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
+            if (abs(((angle-plActor->spr.ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
-            if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),x2,y2,z2,pSprite->sector()))
+            if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,plActor->spr.sector(),x2,y2,z2,actor->spr.sector()))
                 pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
             // Inlined?
             int dz = (lz-z2)>>8;
@@ -405,10 +403,10 @@ void UpdateAimVector(PLAYER * pPlayer)
             int nDist2 = ksqrt(dx*dx+dy*dy+dz*dz);
             if (nDist2 >= nClosest)
                 continue;
-            DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-            int center = (pSprite->yrepeat*pDudeInfo->aimHeight)<<2;
+            DUDEINFO *pDudeInfo = getDudeInfo(actor->spr.type);
+            int center = (actor->spr.yrepeat*pDudeInfo->aimHeight)<<2;
             int dzCenter = (z2-center)-z;
-            if (cansee(x, y, z, pPSprite->sector(), x2, y2, z2, pSprite->sector()))
+            if (cansee(x, y, z, plActor->spr.sector(), x2, y2, z2, actor->spr.sector()))
             {
                 nClosest = nDist2;
                 aim.dx = bcos(angle);
@@ -422,32 +420,31 @@ void UpdateAimVector(PLAYER * pPlayer)
             BloodStatIterator it(kStatThing);
             while (auto actor = it.Next())
             {
-                pSprite = &actor->s();
-                if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
+                if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, actor))
                     continue;
-                if (!(pSprite->flags&8))
+                if (!(actor->spr.flags&8))
                     continue;
-                int x2 = pSprite->pos.X;
-                int y2 = pSprite->pos.Y;
-                int z2 = pSprite->pos.Z;
+                int x2 = actor->spr.pos.X;
+                int y2 = actor->spr.pos.Y;
+                int z2 = actor->spr.pos.Z;
                 int dx = x2-x;
                 int dy = y2-y;
                 int dz = z2-z;
                 int nDist = approxDist(dx, dy);
                 if (nDist == 0 || nDist > 51200)
                     continue;
-                int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
-                int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
+                int lx = x + MulScale(Cos(plActor->spr.ang), nDist, 30);
+                int ly = y + MulScale(Sin(plActor->spr.ang), nDist, 30);
                 int lz = z + MulScale(pPlayer->slope, nDist, 10);
                 int zRange = MulScale(9460, nDist, 10);
                 int top, bottom;
-                GetSpriteExtents(pSprite, &top, &bottom);
+                GetActorExtents(actor, &top, &bottom);
                 if (lz-zRange>bottom || lz+zRange<top)
                     continue;
                 int angle = getangle(dx,dy);
-                if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
+                if (abs(((angle-plActor->spr.ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
-                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),pSprite->pos.X,pSprite->pos.Y,pSprite->pos.Z,pSprite->sector()))
+                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,plActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
                     pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
@@ -456,7 +453,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int nDist2 = ksqrt(dx2*dx2+dy2*dy2+dz2*dz2);
                 if (nDist2 >= nClosest)
                     continue;
-                if (cansee(x, y, z, pPSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector()))
+                if (cansee(x, y, z, plActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
                 {
                     nClosest = nDist2;
                     aim.dx = bcos(angle);
@@ -469,13 +466,13 @@ void UpdateAimVector(PLAYER * pPlayer)
     }
     Aim aim2;
     aim2 = aim;
-    RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -pPSprite->ang);
+    RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -plActor->spr.ang);
     aim2.dz -= pPlayer->slope;
     pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
     pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
     pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
     pPlayer->aim = pPlayer->relAim;
-    RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, pPSprite->ang);
+    RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, plActor->spr.ang);
     pPlayer->aim.dz += pPlayer->slope;
     pPlayer->aimTarget = targetactor;
 }
@@ -1406,7 +1403,7 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 
 void FireFlare(int nTrigger, PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     int offset = 0;
     switch (nTrigger)
     {
@@ -1426,7 +1423,7 @@ void FireFlare(int nTrigger, PLAYER *pPlayer)
 
 void AltFireFlare(int nTrigger, PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     int offset = 0;
     switch (nTrigger)
     {
@@ -1448,7 +1445,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
     nTrigger--;
     DBloodActor* actor = pPlayer->actor;
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     if (nTrigger == 4)
     {
         actDamageSprite(actor, actor, kDamageBullet, 1<<4);
@@ -1623,7 +1620,7 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
     if (nTrigger > 0 && nTrigger <= 6)
     {
         nTrigger--;
-        spritetype *pSprite = pPlayer->pSprite;
+        auto plActor = pPlayer->actor;
         TeslaMissile *pMissile = &teslaMissile[nTrigger];
         if (!checkAmmo2(pPlayer, 7, pMissile->ammouse))
         {
@@ -1646,7 +1643,7 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
 
 void AltFireTesla(int , PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     playerFireMissile(pPlayer, 0, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileTeslaAlt);
     UseAmmo(pPlayer, pPlayer->weaponAmmo, 35);
     sfxPlay3DSound(pPlayer->actor, 471, 2, 0);
@@ -1656,7 +1653,7 @@ void AltFireTesla(int , PLAYER *pPlayer)
 
 void FireNapalm(int nTrigger, PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     int offset = 0;
     switch (nTrigger)
     {
@@ -1675,7 +1672,7 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
 
 void FireNapalm2(int , PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     playerFireMissile(pPlayer, -120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
     playerFireMissile(pPlayer, 120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
     sfxPlay3DSound(pPlayer->actor, 480, 2, 0);

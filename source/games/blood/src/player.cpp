@@ -1386,7 +1386,7 @@ void ProcessInput(PLAYER *pPlayer)
             }
             else if (seqGetStatus(pPlayer->actor) < 0)
             {
-                if (pPlayer->pSprite)
+                if (pPlayer->actor)
                     pPlayer->actor->spr.type = kThingBloodChunks;
                 actPostSprite(pPlayer->actor, kStatThing);
                 seqSpawn(pPlayer->pDudeInfo->seqStartID+15, pPlayer->actor, -1);
