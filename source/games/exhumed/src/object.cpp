@@ -438,13 +438,12 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     ExhumedSpriteIterator it;
     while (auto actor = it.Next())
     {
-        auto spr = &actor->s();
-        if (spr->lotag == 0)
+        if (actor->spr.lotag == 0)
         {
-            if ((spr->cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE)) == (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
+            if ((actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE)) == (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
             {
-                int var_28 = spr->pos.X;
-                int ebx = spr->pos.Y;
+                int var_28 = actor->spr.pos.X;
+                int ebx = actor->spr.pos.Y;
 
                 if ((var_28 >= var_24) && (esi >= var_28) && (ebx >= ecx) && (ebx <= edi))
                 {
@@ -838,8 +837,7 @@ void AIElev::Tick(RunListEvent* ev)
                     SetQuake(pElevSpr, 30);
                 }
 
-                auto sp = &pElevSpr->s();
-                PlayFXAtXYZ(StaticSound[kSound26], sp->pos.X, sp->pos.Y, sp->pos.Z);
+                PlayFXAtXYZ(StaticSound[kSound26], pElevSpr->spr.pos.X, pElevSpr->spr.pos.Y, pElevSpr->spr.pos.Z);
             }
 
             if (var_18 & 0x4)
@@ -1360,32 +1358,30 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
     auto pSpark = insertActor(pActor->spr.sector(), 0);
 
-    auto spr = &pSpark->s();
-
-    spr->pos.X = pActor->spr.pos.X;
-    spr->pos.Y = pActor->spr.pos.Y;
-    spr->cstat = 0;
-    spr->shade = -127;
-    spr->pal = 1;
-    spr->xoffset = 0;
-    spr->yoffset = 0;
-    spr->xrepeat = 50;
-    spr->yrepeat = 50;
+    pSpark->spr.pos.X = pActor->spr.pos.X;
+    pSpark->spr.pos.Y = pActor->spr.pos.Y;
+    pSpark->spr.cstat = 0;
+    pSpark->spr.shade = -127;
+    pSpark->spr.pal = 1;
+    pSpark->spr.xoffset = 0;
+    pSpark->spr.yoffset = 0;
+    pSpark->spr.xrepeat = 50;
+    pSpark->spr.yrepeat = 50;
 
     if (nVal >= 2)
     {
-        spr->picnum = kEnergy2;
+        pSpark->spr.picnum = kEnergy2;
         nSmokeSparks++;
 
         if (nVal == 3)
         {
-            spr->xrepeat = 120;
-            spr->yrepeat = 120;
+            pSpark->spr.xrepeat = 120;
+            pSpark->spr.yrepeat = 120;
         }
         else
         {
-            spr->xrepeat = pActor->spr.xrepeat + 15;
-            spr->yrepeat = pActor->spr.xrepeat + 15;
+            pSpark->spr.xrepeat = pActor->spr.xrepeat + 15;
+            pSpark->spr.yrepeat = pActor->spr.xrepeat + 15;
         }
     }
     else
@@ -1394,30 +1390,30 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
         if (nVal)
         {
-            spr->xvel = bcos(nAngle, -5);
-            spr->yvel = bsin(nAngle, -5);
+            pSpark->spr.xvel = bcos(nAngle, -5);
+            pSpark->spr.yvel = bsin(nAngle, -5);
         }
         else
         {
-            spr->xvel = bcos(nAngle, -6);
-            spr->yvel = bsin(nAngle, -6);
+            pSpark->spr.xvel = bcos(nAngle, -6);
+            pSpark->spr.yvel = bsin(nAngle, -6);
         }
 
-        spr->zvel = -(RandomSize(4) << 7);
-        spr->picnum = kTile985 + nVal;
+        pSpark->spr.zvel = -(RandomSize(4) << 7);
+        pSpark->spr.picnum = kTile985 + nVal;
     }
 
-    spr->pos.Z = pActor->spr.pos.Z;
-    spr->lotag = runlist_HeadRun() + 1;
-    spr->clipdist = 1;
-    spr->hitag = 0;
-    spr->backuppos();
+    pSpark->spr.pos.Z = pActor->spr.pos.Z;
+    pSpark->spr.lotag = runlist_HeadRun() + 1;
+    pSpark->spr.clipdist = 1;
+    pSpark->spr.hitag = 0;
+    pSpark->spr.backuppos();
 
     //	GrabTimeSlot(3);
 
-    spr->extra = -1;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, pSpark, 0x260000);
-    spr->hitag = runlist_AddRunRec(NewRun, pSpark, 0x260000);
+    pSpark->spr.extra = -1;
+    pSpark->spr.owner = runlist_AddRunRec(pSpark->spr.lotag - 1, pSpark, 0x260000);
+    pSpark->spr.hitag = runlist_AddRunRec(NewRun, pSpark, 0x260000);
 
     return pSpark;
 }
@@ -1581,33 +1577,32 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     int yAvg = y / pSector->wallnum;
 
     auto pActor = insertActor(pSector, 406);
-    auto spr = &pActor->s();
 
-	spr->pos.X = xAvg;
-    spr->pos.Y = yAvg;
+	pActor->spr.pos.X = xAvg;
+    pActor->spr.pos.Y = yAvg;
 
     pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
 
     //	GrabTimeSlot(3);
 
-    spr->pos.Z = pSector->firstWall()->nextSector()->floorz;
+    pActor->spr.pos.Z = pSector->firstWall()->nextSector()->floorz;
 
     // CHECKME - name of this variable?
-    int nRepeat = (spr->pos.Z - pSector->floorz) >> 8;
+    int nRepeat = (pActor->spr.pos.Z - pSector->floorz) >> 8;
     if (nRepeat > 255) {
         nRepeat = 255;
     }
 
-    spr->xrepeat = nRepeat;
-    spr->cstat = CSTAT_SPRITE_INVISIBLE;
-    spr->xvel = 0;
-    spr->yvel = 0;
-    spr->zvel = 0;
-    spr->extra = -1;
-    spr->lotag = runlist_HeadRun() + 1;
-    spr->hitag = 0;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, pActor, 0x250000);
-    spr->backuppos();
+    pActor->spr.xrepeat = nRepeat;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.extra = -1;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.hitag = 0;
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x250000);
+    pActor->spr.backuppos();
 
     return pActor;
 }
@@ -1737,31 +1732,29 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    auto spr = &pActor->s();
 
     ev->nDamage >>= 2;
     if (ev->nDamage <= 0) {
         return;
     }
 
-    if (ev->nDamage < spr->xrepeat)
+    if (ev->nDamage < pActor->spr.xrepeat)
     {
-        spr->xrepeat -= ev->nDamage;
+        pActor->spr.xrepeat -= ev->nDamage;
 
         auto pActor2 = insertActor(lasthitsect, 0);
-        auto pSprite2 = &pActor2->s();
 
-        pSprite2->ang = ev->nParam;
-        pSprite2->pos.X = lasthitx;
-        pSprite2->pos.Y = lasthity;
-        pSprite2->pos.Z = lasthitz;
+        pActor2->spr.ang = ev->nParam;
+        pActor2->spr.pos.X = lasthitx;
+        pActor2->spr.pos.Y = lasthity;
+        pActor2->spr.pos.Z = lasthitz;
 
         BuildSpark(pActor2, 0); // shoot out blue orb when damaged
         DeleteActor(pActor2);
     }
     else
     {
-        spr->xrepeat = 0; // using xrepeat to store health
+        pActor->spr.xrepeat = 0; // using xrepeat to store health
         ExplodeEnergyBlock(pActor);
     }
 }
@@ -1770,9 +1763,8 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    auto spr = &pActor->s();
 
-    auto pSector =spr->sector();
+    auto pSector =pActor->spr.sector();
 
     if (pSector->extra == -1) {
         return;
@@ -1780,14 +1772,14 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 
     int nFloorZ = pSector->floorz;
 
-    pSector->floorz = spr->pos.Z;
-    spr->pos.Z -= 256;
+    pSector->floorz = pActor->spr.pos.Z;
+    pActor->spr.pos.Z -= 256;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
     pSector->floorz = nFloorZ;
-    spr->pos.Z += 256;
+    pActor->spr.pos.Z += 256;
 
     if (ev->nDamage <= 0) {
         return;
@@ -1800,23 +1792,21 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 
 DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 {
-    auto spr = &pActor->s();
-
     ChangeActorStat(pActor, ObjectStatnum[nOjectType]);
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
-    spr->cstat = (spr->cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
-    spr->xvel = 0;
-    spr->yvel = 0;
-    spr->zvel = 0;
-    spr->extra = -1;
-    spr->lotag = runlist_HeadRun() + 1;
-    spr->hitag = 0;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, pActor, 0x170000);
+    pActor->spr.cstat = (pActor->spr.cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.extra = -1;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.hitag = 0;
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x170000);
 
     //	GrabTimeSlot(3);
     pActor->nPhase = ObjectList.Push(pActor);
-    if (spr->statnum == kStatDestructibleSprite) {
+    if (pActor->spr.statnum == kStatDestructibleSprite) {
         pActor->nHealth = 4;
     }
     else {
@@ -1836,29 +1826,28 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
             pActor->nFrame = RandomSize(4) % (SeqSize[pActor->nIndex] - 1);
         }
 
-        auto  pActor2 = insertActor(spr->sector(), 0);
-        auto pSprite2 = &pActor2->s();
+        auto  pActor2 = insertActor(pActor->spr.sector(), 0);
         pActor->pTarget = pActor2;
         pActor->nIndex2 = -1;
 
-        pSprite2->cstat = CSTAT_SPRITE_INVISIBLE;
-        pSprite2->pos.X = spr->pos.X;
-        pSprite2->pos.Y = spr->pos.Y;
-        pSprite2->pos.Z = spr->pos.Z;
+        pActor2->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+        pActor2->spr.pos.X = pActor->spr.pos.X;
+        pActor2->spr.pos.Y = pActor->spr.pos.Y;
+        pActor2->spr.pos.Z = pActor->spr.pos.Z;
     }
     else
     {
         pActor->nFrame = 0;
         pActor->nIndex = -1;
 
-        if (spr->statnum == kStatDestructibleSprite) {
+        if (pActor->spr.statnum == kStatDestructibleSprite) {
             pActor->nIndex2 = -1;
         }
         else {
             pActor->nIndex2 = -nHitag;
         }
     }
-    spr->backuppos();
+    pActor->spr.backuppos();
 
     return pActor;
 }
@@ -1981,12 +1970,8 @@ void AIObject::Tick(RunListEvent* ev)
             StartRegenerate(pActor);
             pActor->nHealth = 120;
 
-            auto pTargSpr = &pActor->pTarget->s();
-            pActor->spr.pos.X = pTargSpr->pos.X;
-            pActor->spr.pos.Y = pTargSpr->pos.Y;
-            pActor->spr.pos.Z = pTargSpr->pos.Z;
-
-            ChangeActorSect(pActor, pTargSpr->sector());
+            pActor->spr.pos = pActor->pTarget->spr.pos;
+            ChangeActorSect(pActor, pActor->pTarget->spr.sector());
             return;
         }
     }
@@ -2560,11 +2545,10 @@ void PostProcess()
         ExhumedSpriteIterator it;
         while (auto act = it.Next())
         {
-            auto spr = &act->s();
-            if (spr->statnum < kMaxStatus && spr->picnum == kTile3603)
+            if (act->spr.statnum < kMaxStatus && act->spr.picnum == kTile3603)
             {
                 ChangeActorStat(act, 407);
-                spr->pal = 1;
+                act->spr.pal = 1;
             }
         }
     }
