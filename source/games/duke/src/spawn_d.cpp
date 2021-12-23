@@ -43,9 +43,7 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
-	auto t = act->temp_data;
 	auto sectp = act->spr.sector();
-
 
 	if (isWorldTour())
 	{
@@ -225,7 +223,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
-			t[1] = actj->spr.picnum;
+			act->temp_data[1] = actj->spr.picnum;
 		}
 		else act->spr.xrepeat = act->spr.yrepeat = 0;
 
@@ -548,8 +546,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case SPOTLITE:
-		t[0] = act->spr.pos.X;
-		t[1] = act->spr.pos.Y;
+		act->temp_data[0] = act->spr.pos.X;
+		act->temp_data[1] = act->spr.pos.Y;
 		break;
 	case BULLETHOLE:
 		act->spr.xrepeat = act->spr.yrepeat = 3;
@@ -724,7 +722,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 6);
 		break;
 	case TOUCHPLATE:
-		t[2] = sectp->floorz;
+		act->temp_data[2] = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
 			sectp->floorz = act->spr.pos.Z;
 		if (!isWorldTour())
@@ -764,8 +762,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIDEBOLT1 + 1:
 	case SIDEBOLT1 + 2:
 	case SIDEBOLT1 + 3:
-		t[0] = act->spr.xrepeat;
-		t[1] = act->spr.yrepeat;
+		act->temp_data[0] = act->spr.xrepeat;
+		act->temp_data[1] = act->spr.yrepeat;
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
