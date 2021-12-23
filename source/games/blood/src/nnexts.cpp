@@ -2457,7 +2457,6 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
     case OBJ_SPRITE: 
     {
         bool fit = false;
-        auto pTarget = &targetactor->s();
         // resize by seq scaling
         if (sourceactor->spr.flags & kModernTypeFlag1) 
         {
@@ -2476,18 +2475,18 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
         {
             if (valueIsBetween(pXSource->data1, -1, 32767)) 
             {
-                pTarget->xrepeat = ClipRange(pXSource->data1, 0, 255);
+                targetactor->spr.xrepeat = ClipRange(pXSource->data1, 0, 255);
                 fit = true;
             }
             
             if (valueIsBetween(pXSource->data2, -1, 32767)) 
             {
-                pTarget->yrepeat = ClipRange(pXSource->data2, 0, 255);
+                targetactor->spr.yrepeat = ClipRange(pXSource->data2, 0, 255);
                 fit = true;
             }
         }
 
-        if (fit && (pTarget->type == kDudeModernCustom || pTarget->type == kDudeModernCustomBurning))
+        if (fit && (targetactor->spr.type == kDudeModernCustom || targetactor->spr.type == kDudeModernCustomBurning))
         {
             // request properties update for custom dude
             
@@ -2500,10 +2499,10 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
         }
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            pTarget->xoffset = ClipRange(pXSource->data3, 0, 255);
+            targetactor->spr.xoffset = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            pTarget->yoffset = ClipRange(pXSource->data4, 0, 255);
+            targetactor->spr.yoffset = ClipRange(pXSource->data4, 0, 255);
         break;
     }
     case OBJ_WALL:
@@ -4229,11 +4228,10 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             if (!targ)
                 condError(aCond, "Dude #%d has no target!", objActor->GetIndex());
 
-            spritetype* pTrgt = &targ->s();
             DUDEINFO* pInfo = getDudeInfo(pSpr->type);
             int eyeAboveZ = pInfo->eyeHeight * pSpr->yrepeat << 2;
-            int dx = pTrgt->pos.X - pSpr->pos.X; 
-            int dy = pTrgt->pos.Y - pSpr->pos.Y;
+            int dx = targ->spr.pos.X - pSpr->pos.X; 
+            int dy = targ->spr.pos.Y - pSpr->pos.Y;
 
             switch (cond) 
             {
@@ -4242,7 +4240,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                     break;
                 case 3:
                 case 4:
-                    var = cansee(pSpr->pos.X, pSpr->pos.Y, pSpr->pos.Z, pSpr->sector(), pTrgt->pos.X, pTrgt->pos.Y, pTrgt->pos.Z - eyeAboveZ, pTrgt->sector());
+                    var = cansee(pSpr->pos.X, pSpr->pos.Y, pSpr->pos.Z, pSpr->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - eyeAboveZ, targ->spr.sector());
                 if (cond == 4 && var > 0) 
                 {
                         var = ((1024 + getangle(dx, dy) - pSpr->ang) & 2047) - 1024;
@@ -4365,7 +4363,6 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 
     auto objActor = eob.actor();
 
-    spritetype* pSpr = &objActor->s();
     XSPRITE* pXSpr = objActor->hasX()? &objActor->x() : nullptr;
     
     if (cond < (kCondRange >> 1)) 
@@ -4373,18 +4370,18 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
         switch (cond) 
         {
             default: break;
-            case 0: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
-            case 5: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
-            case 6: return ((pSpr->flags & kHitagRespawn) || pSpr->statnum == kStatRespawn);
-        case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
-            case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
+            case 0: return condCmp((objActor->spr.ang & 2047), arg1, arg2, cmpOp);
+            case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
+            case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
+        case 7: return condCmp(spriteGetSlope(&objActor->spr), arg1, arg2, cmpOp);
+            case 10: return condCmp(objActor->spr.clipdist, arg1, arg2, cmpOp);
             case 15:
             if (!objActor->GetOwner()) return false;
             else if (PUSH) condPush(aCond, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
-                if (!pSpr->insector()) return false;
-            else if (PUSH) condPush(aCond, pSpr->sector());
+                if (!objActor->spr.insector()) return false;
+            else if (PUSH) condPush(aCond, objActor->spr.sector());
                 return true;
             case 25:
             switch (arg1)
@@ -4397,7 +4394,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 break;
             case 30:
                 if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
-            else if (PUSH) condPush(aCond, pSpr->sector());
+            else if (PUSH) condPush(aCond, objActor->spr.sector());
                 return true;
         case 31:
             if (arg1 == -1)
@@ -4422,18 +4419,18 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                     case  2: arg1 = CLIPMASK1; break;
                 }
 
-                if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
+                if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
                     var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
             else if (objActor->IsDudeActor())
-                var = HitScan(objActor, pSpr->pos.Z, bcos(pSpr->ang), bsin(pSpr->ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
+                var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
             else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
             {
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
-                    var = HitScan(objActor, pSpr->pos.Z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
+                    var = HitScan(objActor, objActor->spr.pos.Z, Cos(objActor->spr.ang) >> 16, Sin(objActor->spr.ang) >> 16, var3, arg1, arg3 << 1);
             }
             else
             {
-                    var = HitScan(objActor, pSpr->pos.Z, bcos(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
+                    var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), 0, arg1, arg3 << 1);
                 }
 
             if (var >= 0)
@@ -4480,9 +4477,9 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
         {
             default: break;
             case 50: // compare hp (in %)
-                if (objActor->IsDudeActor()) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
-                else if (pSpr->type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
-                else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
+                if (objActor->IsDudeActor()) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(objActor->spr.type)->startHealth << 4;
+                else if (objActor->spr.type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
+                else if (objActor->spr.type >= kThingBase && objActor->spr.type < kThingMax) var = thingInfo[objActor->spr.type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if (objActor->hit.ceilhit.type != kHitSector) return false;
@@ -4693,25 +4690,24 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
         case OBJ_SPRITE:
         {
             if (!destactor) return;
-            auto pSpr = &destactor->s();
-            if (pSpr->flags & kHitagFree) return;
+            if (destactor->spr.flags & kHitagFree) return;
 
             // allow redirect events received from some modern types.
             // example: it allows to spawn FX effect if event was received from kModernEffectGen
             // on many TX channels instead of just one.
-            switch (pSpr->type) 
+            switch (destactor->spr.type) 
             {
                 case kModernRandomTX:
                 case kModernSequentialTX:
                 XSPRITE* pXSpr = &destactor->x();
                     if (pXSpr->command != kCmdLink || pXSpr->locked) break; // no redirect mode detected
-                switch (pSpr->type) 
+                switch (destactor->spr.type) 
                 {
                         case kModernRandomTX:
                     useRandomTx(destactor, (COMMAND_ID)pXSource->command, false); // set random TX id
                             break;
                         case kModernSequentialTX:
-                    if (pSpr->flags & kModernTypeFlag1) 
+                    if (destactor->spr.flags & kModernTypeFlag1) 
                     {
                         seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)pXSource->command, true);
                                 return;
@@ -4938,21 +4934,20 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
 
 bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBloodActor* targetactor) 
 {
-    auto pDude = &dudeactor->s();
     auto pTarget = &targetactor->s();
 
-    int dx = pTarget->pos.X - pDude->pos.X; int dy = pTarget->pos.Y - pDude->pos.Y;
+    int dx = targetactor->spr.pos.X - dudeactor->spr.pos.X; int dy = targetactor->spr.pos.Y - dudeactor->spr.pos.Y;
 
     // check target
     if (approxDist(dx, dy) < pDudeInfo->seeDist) 
     {
-        int eyeAboveZ = pDudeInfo->eyeHeight * pDude->yrepeat << 2;
+        int eyeAboveZ = pDudeInfo->eyeHeight * dudeactor->spr.yrepeat << 2;
 
         // is there a line of sight to the target?
-        if (cansee(pDude->pos.X, pDude->pos.Y, pDude->pos.Z, pDude->sector(), pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z - eyeAboveZ, pTarget->sector()))
+        if (cansee(dudeactor->spr.pos.X, dudeactor->spr.pos.Y, dudeactor->spr.pos.Z, dudeactor->spr.sector(), targetactor->spr.pos.X, targetactor->spr.pos.Y, targetactor->spr.pos.Z - eyeAboveZ, targetactor->spr.sector()))
         {
             /*int nAngle = getangle(dx, dy);
-            int losAngle = ((1024 + nAngle - pDude->ang) & 2047) - 1024;
+            int losAngle = ((1024 + nAngle - dudeactor->spr.ang) & 2047) - 1024;
 
             // is the target visible?
             if (abs(losAngle) < 2048) // 360 deg periphery here*/
@@ -6199,11 +6194,10 @@ void useRandomItemGen(DBloodActor* actor)
         BloodStatIterator it(kStatItem);
         while (auto iactor = it.Next())
         {
-            spritetype* pItem = &iactor->s();
-            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->pos.X == actor->spr.pos.X && pItem->pos.Y == actor->spr.pos.Y && pItem->pos.Z == actor->spr.pos.Z) 
+            if ((unsigned int)iactor->spr.type == pXSource->dropMsg && iactor->spr.pos.X == actor->spr.pos.X && iactor->spr.pos.Y == actor->spr.pos.Y && iactor->spr.pos.Z == actor->spr.pos.Z) 
             {
                 gFX.fxSpawnActor((FX_ID)29, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0);
-                pItem->type = kSpriteDecoration;
+                iactor->spr.type = kSpriteDecoration;
                 actPostSprite(iactor, kStatFree);
                 break;
             }
@@ -6473,9 +6467,8 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
                 BloodSectIterator it(pSect);
                 while (auto iactor = it.Next())
                 {
-                    auto spr = &iactor->s();
-                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getflorzofslopeptr(pSect, spr->pos.X, spr->pos.Y) - kSlopeDist <= spr->pos.Z)
+                    if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getflorzofslopeptr(pSect, iactor->spr.pos.X, iactor->spr.pos.Y) - kSlopeDist <= iactor->spr.pos.Z)
                     {
                         sprite2sectorSlope(iactor, pSect, 0, true);
 
@@ -6510,9 +6503,8 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
                 BloodSectIterator it(pSect);
                 while (auto iactor = it.Next())
                 {
-                    auto spr = &iactor->s();
-                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getceilzofslopeptr(pSect, spr->pos.X, spr->pos.Y) + kSlopeDist >= spr->pos.Z)
+                    if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getceilzofslopeptr(pSect, iactor->spr.pos.X, iactor->spr.pos.Y) + kSlopeDist >= iactor->spr.pos.Z)
                     {
                         sprite2sectorSlope(iactor, pSect, 1, true);
 
@@ -6538,16 +6530,15 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
         BloodSectIterator it(pSect);
         while (auto iactor = it.Next())
         {
-            auto spr = &iactor->s();
             auto xspr = &iactor->x();
             if (iactor->hasX() && xspr->physAttr > 0) 
             {
                 xspr->physAttr |= kPhysFalling;
                 iactor->zvel++;
             } 
-            else if ((spr->statnum == kStatThing || spr->statnum == kStatDude) && (spr->flags & kPhysGravity))
+            else if ((iactor->spr.statnum == kStatThing || iactor->spr.statnum == kStatDude) && (iactor->spr.flags & kPhysGravity))
             {
-                spr->flags |= kPhysFalling;
+                iactor->spr.flags |= kPhysFalling;
                 iactor->zvel++;
                 }
             }
@@ -6771,7 +6762,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 }
 
                 // force stop attack dude
-                aiSetTarget(targetactor, pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z);
+                aiSetTarget(targetactor, targetactor->spr.pos.X, targetactor->spr.pos.Y, targetactor->spr.pos.Z);
                 if (targetactor->GetBurnSource() == actor) 
                 {
                     pXTarget->burnTime = 0;
