@@ -97,8 +97,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
 void BuildSoul(DExhumedActor* pSet)
 {
-    auto pSetSprite = &pSet->s();
-    auto pActor = insertActor(pSetSprite->sector(), 0);
+    auto pActor = insertActor(pSet->spr.sector(), 0);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.shade = -127;
@@ -113,8 +112,8 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
-    pActor->spr.pos.X = pSetSprite->pos.X;
-    pActor->spr.pos.Y = pSetSprite->pos.Y;
+    pActor->spr.pos.X = pSet->spr.pos.X;
+    pActor->spr.pos.Y = pSet->spr.pos.Y;
 
     pActor->spr.pos.Z = (RandomSize(8) << 8) + 8192 + pActor->spr.sector()->ceilingz - GetActorHeight(pActor);
 
@@ -152,15 +151,14 @@ void AISoul::Tick(RunListEvent* ev)
     {
 		DExhumedActor* pSet = pActor->pTarget;
 		if (!pSet) return;
-        auto pSetSprite = &pSet->s();
 
         pActor->spr.cstat = 0;
         pActor->spr.yrepeat = 1;
         pActor->spr.xrepeat = 1;
-        pActor->spr.pos.X = pSetSprite->pos.X;
-        pActor->spr.pos.Y = pSetSprite->pos.Y;
-        pActor->spr.pos.Z = pSetSprite->pos.Z - (GetActorHeight(pSet) >> 1);
-        ChangeActorSect(pActor, pSetSprite->sector());
+        pActor->spr.pos.X = pSet->spr.pos.X;
+        pActor->spr.pos.Y = pSet->spr.pos.Y;
+        pActor->spr.pos.Z = pSet->spr.pos.Z - (GetActorHeight(pSet) >> 1);
+        ChangeActorSect(pActor, pSet->spr.sector());
         return;
     }
 }

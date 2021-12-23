@@ -129,8 +129,7 @@ void MoveRaToEnemy(int nPlayer)
 
     if (pTarget)
     {
-		auto pTargSprite = &pTarget->s();
-        if (!(pTargSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || pTargSprite->statnum == MAXSTATUS)
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || pTarget->spr.statnum == MAXSTATUS)
         {
             Ra[nPlayer].pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {
@@ -143,8 +142,8 @@ void MoveRaToEnemy(int nPlayer)
         }
         else
         {
-            if (pActor->spr.sector() != pTargSprite->sector()) {
-                ChangeActorSect(pActor, pTargSprite->sector());
+            if (pActor->spr.sector() != pTarget->spr.sector()) {
+                ChangeActorSect(pActor, pTarget->spr.sector());
             }
         }
     }
@@ -164,14 +163,13 @@ void MoveRaToEnemy(int nPlayer)
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         pTarget = PlayerList[nPlayer].Actor();
     }
-	auto pTargSprite = &pTarget->s();
+	
+    pActor->spr.pos.X = pTarget->spr.pos.X;
+    pActor->spr.pos.Y = pTarget->spr.pos.Y;
+    pActor->spr.pos.Z = pTarget->spr.pos.Z - GetActorHeight(pTarget);
 
-    pActor->spr.pos.X = pTargSprite->pos.X;
-    pActor->spr.pos.Y = pTargSprite->pos.Y;
-    pActor->spr.pos.Z = pTargSprite->pos.Z - GetActorHeight(pTarget);
-
-    if (pActor->spr.sector() != pTargSprite->sector()) {
-        ChangeActorSect(pActor, pTargSprite->sector());
+    if (pActor->spr.sector() != pTarget->spr.sector()) {
+        ChangeActorSect(pActor, pTarget->spr.sector());
     }
 }
 

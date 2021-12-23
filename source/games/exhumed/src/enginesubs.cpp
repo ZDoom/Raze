@@ -71,11 +71,10 @@ void precache()
 	ExhumedSpriteIterator it;
 	while (auto ac = it.Next())
     {
-		auto sp = &ac->s();
-        int j = sp->picnum;
-        markTileForPrecache(j, sp->pal);
+        int j = ac->spr.picnum;
+        markTileForPrecache(j, ac->spr.pal);
         if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sp->pal);
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, ac->spr.pal);
     }
     precacheMarkedTiles();
 }

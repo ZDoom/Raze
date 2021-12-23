@@ -372,14 +372,13 @@ void AIScorp::Tick(RunListEvent* ev)
         auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.ang);
         if (pSpiderActor)
         {
-			auto pSpiderSprite = &pSpiderActor->s();
-            pSpiderSprite->ang = RandomSize(11);
+            pSpiderActor->spr.ang = RandomSize(11);
 
             int nVel = RandomSize(5) + 1;
 
-            pSpiderSprite->xvel = bcos(pSpiderSprite->ang, -8) * nVel;
-            pSpiderSprite->yvel = bsin(pSpiderSprite->ang, -8) * nVel;
-            pSpiderSprite->zvel = (-(RandomSize(5) + 3)) << 8;
+            pSpiderActor->spr.xvel = bcos(pSpiderActor->spr.ang, -8) * nVel;
+            pSpiderActor->spr.yvel = bsin(pSpiderActor->spr.ang, -8) * nVel;
+            pSpiderActor->spr.zvel = (-(RandomSize(5) + 3)) << 8;
         }
 
         return;

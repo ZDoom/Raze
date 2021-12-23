@@ -65,10 +65,10 @@ int nTalkTime = 0;
 void InitSpiritHead()
 {
     nPixels = 0;
-    auto pSpiritSpr = &pSpiritSprite->s();
+    auto pSpiritSpr = pSpiritSprite;
 
-    nSpiritRepeatX = pSpiritSpr->xrepeat;
-    nSpiritRepeatY = pSpiritSpr->yrepeat;
+    nSpiritRepeatX = pSpiritSpr->spr.xrepeat;
+    nSpiritRepeatY = pSpiritSpr->spr.yrepeat;
 
     tileLoad(kTileRamsesNormal); // Ramses Normal Head
 
@@ -117,16 +117,16 @@ void InitSpiritHead()
     }
 
 
-    pSpiritSpr->yrepeat = 140;
-    pSpiritSpr->xrepeat = 140;
-    pSpiritSpr->picnum = kTileRamsesWorkTile;
+    pSpiritSpr->spr.yrepeat = 140;
+    pSpiritSpr->spr.xrepeat = 140;
+    pSpiritSpr->spr.picnum = kTileRamsesWorkTile;
 
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
 	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
 
-    pSpiritSpr->cstat &= ~CSTAT_SPRITE_BLOCK;
+    pSpiritSpr->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 
     nHeadTimeStart = PlayClock;
 
@@ -195,7 +195,7 @@ void CopyHeadToWorkTile(int nTile)
 void DoSpiritHead() 
 {
     static int dimSectCount = 0;
-    auto pSpiritSpr = &pSpiritSprite->s();
+    auto pSpiritSpr = pSpiritSprite;
 
     sPlayerInput[0].actions |= SB_CENTERVIEW;
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
@@ -295,11 +295,11 @@ void DoSpiritHead()
     case 1:
     case 2:
         UpdateSwirlies();
-        if (pSpiritSpr->shade > -127)
-            pSpiritSpr->shade--;
+        if (pSpiritSpr->spr.shade > -127)
+            pSpiritSpr->spr.shade--;
         if (--dimSectCount < 0) 
         {
-            DimSector(pSpiritSpr->sector());
+            DimSector(pSpiritSpr->spr.sector());
             dimSectCount = 5;
         }
 
@@ -379,17 +379,17 @@ void DoSpiritHead()
 
         if (nHeadStage == 1) 
         {
-            if (pSpiritSpr->xrepeat > nSpiritRepeatX) 
+            if (pSpiritSpr->spr.xrepeat > nSpiritRepeatX) 
             {
-                pSpiritSpr->xrepeat -= 2;
-                if (pSpiritSpr->xrepeat < nSpiritRepeatX)
-                    pSpiritSpr->xrepeat = (uint8_t)nSpiritRepeatX;
+                pSpiritSpr->spr.xrepeat -= 2;
+                if (pSpiritSpr->spr.xrepeat < nSpiritRepeatX)
+                    pSpiritSpr->spr.xrepeat = (uint8_t)nSpiritRepeatX;
             }
-            if (pSpiritSpr->yrepeat > nSpiritRepeatY) 
+            if (pSpiritSpr->spr.yrepeat > nSpiritRepeatY) 
             {
-                pSpiritSpr->yrepeat -= 2;
-                if (pSpiritSpr->yrepeat < nSpiritRepeatY)
-                    pSpiritSpr->yrepeat = (uint8_t)nSpiritRepeatY;
+                pSpiritSpr->spr.yrepeat -= 2;
+                if (pSpiritSpr->spr.yrepeat < nSpiritRepeatY)
+                    pSpiritSpr->spr.yrepeat = (uint8_t)nSpiritRepeatY;
             }
 
             int nCount = 0;
@@ -425,8 +425,8 @@ void DoSpiritHead()
 
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
-                AddGlow(pSpiritSpr->sector(), 20);
-                AddFlash(pSpiritSpr->sector(), pSpiritSpr->pos.X, pSpiritSpr->pos.Y, pSpiritSpr->pos.Z, 128);
+                AddGlow(pSpiritSpr->spr.sector(), 20);
+                AddFlash(pSpiritSpr->spr.sector(), pSpiritSpr->spr.pos.X, pSpiritSpr->spr.pos.Y, pSpiritSpr->spr.pos.Z, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
                 CopyHeadToWorkTile(kTileRamsesNormal);
