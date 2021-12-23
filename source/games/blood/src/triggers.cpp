@@ -212,19 +212,18 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
         {
             if (!pXSprite->stateTimer)
             {
-                spritetype *pTarget = &target->s();
-                if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && target->hasX())
+                if (target->spr.statnum == kStatDude && !(target->spr.flags&32) && target->hasX())
                 {
                     int top, bottom;
                     GetActorExtents(actor, &top, &bottom);
-                    int nType = pTarget->type-kDudeBase;
+                    int nType = target->spr.type-kDudeBase;
                     DUDEINFO *pDudeInfo = getDudeInfo(nType+kDudeBase);
                     int z1 = (top-actor->spr.pos.Z)-256;
-                    int x = pTarget->pos.X;
-                    int y = pTarget->pos.Y;
-                    int z = pTarget->pos.Z;
+                    int x = target->spr.pos.X;
+                    int y = target->spr.pos.Y;
+                    int z = target->spr.pos.Z;
                     int nDist = approxDist(x - actor->spr.pos.X, y - actor->spr.pos.Y);
-                    if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->spr.sector(), x, y, z, pTarget->sector()))
+                    if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->spr.sector(), x, y, z, target->spr.sector()))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
                         x += (target->xvel*t)>>12;
@@ -233,7 +232,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                         actor->spr.ang = getangle(x-actor->spr.pos.X, y-actor->spr.pos.Y);
                         int dx = bcos(actor->spr.ang);
                         int dy = bsin(actor->spr.ang);
-                        int tz = pTarget->pos.Z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
+                        int tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = DivScale(tz - top - 256, nDist, 10);
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                         int t2;
@@ -1375,10 +1374,9 @@ void OperateTeleport(sectortype* pSector)
     auto pXSector = &pSector->xs();
     auto destactor = pXSector->marker0;
     assert(destactor != nullptr);
-    spritetype *pDest = &destactor->s();
-    assert(pDest->statnum == kStatMarker);
-    assert(pDest->type == kMarkerWarpDest);
-    assert(pDest->insector());
+    assert(destactor->spr.statnum == kStatMarker);
+    assert(destactor->spr.type == kMarkerWarpDest);
+    assert(destactor->spr.insector());
     BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
@@ -1390,17 +1388,17 @@ void OperateTeleport(sectortype* pSector)
                 pPlayer = &gPlayer[actor->spr.type-kDudePlayer1];
             else
                 pPlayer = NULL;
-            if (bPlayer || !SectorContainsDudes(pDest->sector()))
+            if (bPlayer || !SectorContainsDudes(destactor->spr.sector()))
             {
                 if (!(gGameOptions.uNetGameFlags & 2))
                 {
-                    TeleFrag(pXSector->actordata, pDest->sector());
+                    TeleFrag(pXSector->actordata, destactor->spr.sector());
                 }
-                actor->spr.pos.X = pDest->pos.X;
-                actor->spr.pos.Y = pDest->pos.Y;
-                actor->spr.pos.Z += pDest->sector()->floorz - pSector->floorz;
-                actor->spr.ang = pDest->ang;
-                ChangeActorSect(actor, pDest->sector());
+                actor->spr.pos.X = destactor->spr.pos.X;
+                actor->spr.pos.Y = destactor->spr.pos.Y;
+                actor->spr.pos.Z += destactor->spr.sector()->floorz - pSector->floorz;
+                actor->spr.ang = destactor->spr.ang;
+                ChangeActorSect(actor, destactor->spr.sector());
                 sfxPlay3DSound(destactor, 201, -1, 0);
                 actor->xvel = actor->yvel = actor->zvel = 0;
                 actor->interpolated = false;
@@ -1948,9 +1946,8 @@ void trInit(TArray<DBloodActor*>& actors)
     for(auto actor : actors)
     {
         if (!actor->exists()) continue;
-        auto spr = &actor->s();
-        spr->inittype = spr->type;
-        actor->basePoint = spr->pos;
+        actor->spr.inittype = actor->spr.type;
+        actor->basePoint = actor->spr.pos;
     }
     for(auto& wal : wall)
     {
