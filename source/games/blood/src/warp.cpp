@@ -172,9 +172,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                 auto actor2 = barrier_cast<DBloodActor*>(sect.lowerLink);
                 if (actor2 && actor2->hasX())
                 {
-                    spritetype *pSprite2 = &actor2->s();
-                    XSPRITE *pXSprite2 = &actor2->x();
-                    if (pXSprite2->data1 == nLink)
+                    if (actor2->xspr.data1 == nLink)
                     {
                         actor->SetOwner(actor2);
                         actor2->SetOwner(actor);

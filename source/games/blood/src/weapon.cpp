@@ -1723,8 +1723,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
     auto missile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (missile)
     {
-        auto pMissile = &missile->s();
-        pMissile->cstat |= CSTAT_SPRITE_BLOOD_BIT1;
+        missile->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
         XSPRITE *pXSprite = &missile->x();
         pXSprite->Push = 1;
         pXSprite->Proximity = 1;
@@ -2654,12 +2653,11 @@ void WeaponProcess(PLAYER *pPlayer) {
 
 void teslaHit(DBloodActor *missileactor, int a2)
 {
-    auto pMissile = &missileactor->s();
-    int x = pMissile->pos.X;
-    int y = pMissile->pos.Y;
-    int z = pMissile->pos.Z;
+    int x = missileactor->spr.pos.X;
+    int y = missileactor->spr.pos.Y;
+    int z = missileactor->spr.pos.Z;
     int nDist = 300;
-    auto pSector = pMissile->sector();
+    auto pSector = missileactor->spr.sector();
     auto owneractor = missileactor->GetOwner();
     const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
@@ -2673,13 +2671,12 @@ void teslaHit(DBloodActor *missileactor, int a2)
     {
         if (hitactor != owneractor || v4)
         {
-            spritetype *pHitSprite = &hitactor->s();
-            if (pHitSprite->flags&32)
+            if (hitactor->spr.flags&32)
                 continue;
             if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, x, y, z, pSector, nDist))
             {
-                int dx = pMissile->pos.X - pHitSprite->pos.X;
-                int dy = pMissile->pos.Y - pHitSprite->pos.Y;
+                int dx = missileactor->spr.pos.X - hitactor->spr.pos.X;
+                int dy = missileactor->spr.pos.Y - hitactor->spr.pos.Y;
                 int nDamage = ClipLow((nDist-(ksqrt(dx*dx+dy*dy)>>4)+20)>>1, 10);
                 if (hitactor == owneractor)
                     nDamage /= 2;
@@ -2690,16 +2687,15 @@ void teslaHit(DBloodActor *missileactor, int a2)
     it.Reset(kStatThing);
     while (auto hitactor = it.Next())
     {
-        spritetype *pHitSprite = &hitactor->s();
-        if (pHitSprite->flags&32)
+        if (hitactor->spr.flags&32)
             continue;
         if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, x, y, z, pSector, nDist))
         {
             XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)
             {
-                int dx = pMissile->pos.X - pHitSprite->pos.X;
-                int dy = pMissile->pos.Y - pHitSprite->pos.Y;
+                int dx = missileactor->spr.pos.X - hitactor->spr.pos.X;
+                int dy = missileactor->spr.pos.Y - hitactor->spr.pos.Y;
                 int nDamage = ClipLow(nDist-(ksqrt(dx*dx+dy*dy)>>4)+20, 20);
                 actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage << 4);
             }
