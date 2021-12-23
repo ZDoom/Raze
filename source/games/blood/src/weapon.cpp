@@ -1453,8 +1453,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     }
     DBloodActor* targetactor = pPlayer->voodooTarget;
     if (!targetactor) return;
-    spritetype *pTarget = &targetactor->s();
-    if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
+    if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
         return;
     switch (nTrigger)
     {
@@ -1471,8 +1470,8 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         sfxPlay3DSound(actor, 460, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9<<4);
-        if (IsPlayerSprite(pTarget))
-            WeaponLower(&gPlayer[pTarget->type-kDudePlayer1]);
+        if (targetactor->IsPlayerActor())
+            WeaponLower(&gPlayer[targetactor->spr.type-kDudePlayer1]);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
     }
@@ -1489,9 +1488,9 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         sfxPlay3DSound(actor, 460, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11<<4);
-        if (IsPlayerSprite(pTarget))
+        if (targetactor->IsPlayerActor())
         {
-            PLAYER *pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+            PLAYER *pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
             pOtherPlayer->blindEffect = 128;
         }
         UseAmmo(pPlayer, 9, nDamage/4);
@@ -1515,10 +1514,9 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                 {
                     DBloodActor* targetactor = pPlayer->aimTargets[i];
                     if (!targetactor) continue;
-                    spritetype* pTarget = &targetactor->s();
-                    if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
+                    if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
                         continue;
-                    int nDist = approxDist(pTarget->pos.X - pPlayer->actor->spr.pos.X, pTarget->pos.Y - pPlayer->actor->spr.pos.Y);
+                    int nDist = approxDist(targetactor->spr.pos.X - pPlayer->actor->spr.pos.X, targetactor->spr.pos.Y - pPlayer->actor->spr.pos.Y);
                     if (nDist > 0 && nDist < 51200)
                     {
                         int vc = pPlayer->ammoCount[9] >> 3;
@@ -1527,9 +1525,9 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                         nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                         nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
 
-                        if (IsPlayerSprite(pTarget))
+                        if (targetactor->IsPlayerActor())
                         {
-                            PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+                            PLAYER* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
                             if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                                 powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                         }
@@ -1552,12 +1550,11 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             {
                 DBloodActor* targetactor = pPlayer->aimTargets[i];
                 if (!targetactor) continue;
-                spritetype* pTarget = &targetactor->s();
-                if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
+                if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
                     continue;
                 if (v4 > 0)
                     v4--;
-                int nDist = approxDist(pTarget->pos.X - pPlayer->actor->spr.pos.X, pTarget->pos.Y - pPlayer->actor->spr.pos.Y);
+                int nDist = approxDist(targetactor->spr.pos.X - pPlayer->actor->spr.pos.X, targetactor->spr.pos.Y - pPlayer->actor->spr.pos.Y);
                 if (nDist > 0 && nDist < 51200)
                 {
                     int vc = pPlayer->ammoCount[9] >> 3;
@@ -1566,9 +1563,9 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                     nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
                     UseAmmo(pPlayer, 9, nDamage);
-                    if (IsPlayerSprite(pTarget))
+                    if (targetactor->IsPlayerActor())
                     {
-                        PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+                        PLAYER* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
                         if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                             powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                     }

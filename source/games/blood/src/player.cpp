@@ -225,6 +225,28 @@ DAMAGEINFO damageInfo[7] = {
     { 0, 0, 0, 0, 0, 0, 0 }
 };
 
+inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target)
+{
+    if (pSourcePlayer == nullptr)
+        return false;
+    if (!target->IsPlayerActor())
+        return false;
+    if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
+    {
+        PLAYER* pTargetPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+        if (pSourcePlayer != pTargetPlayer)
+        {
+            if (gGameOptions.nGameType == 1)
+                return true;
+            if (gGameOptions.nGameType == 3 && (pSourcePlayer->teamId & 3) == (pTargetPlayer->teamId & 3))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+
 int powerupCheck(PLAYER *pPlayer, int nPowerUp)
 {
     assert(pPlayer != NULL);

@@ -206,35 +206,7 @@ extern int team_ticker[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 
-inline bool IsTargetTeammate(PLAYER *pSourcePlayer, spritetype *pTargetSprite)
-{
-    if (pSourcePlayer == NULL)
-        return false;
-    if (!IsPlayerSprite(pTargetSprite))
-        return false;
-    if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
-    {
-        PLAYER *pTargetPlayer = &gPlayer[pTargetSprite->type - kDudePlayer1];
-        if (pSourcePlayer != pTargetPlayer)
-        {
-            if (gGameOptions.nGameType == 1)
-                return true;
-            if (gGameOptions.nGameType == 3 && (pSourcePlayer->teamId & 3) == (pTargetPlayer->teamId & 3))
-                return true;
-        }
-    }
-
-    return false;
-}
-
-inline bool IsTargetTeammate(spritetype *pSourceSprite, spritetype *pTargetSprite)
-{
-    if (!IsPlayerSprite(pSourceSprite))
-        return false;
-    PLAYER *pSourcePlayer = &gPlayer[pSourceSprite->type - kDudePlayer1];
-    return IsTargetTeammate(pSourcePlayer, pTargetSprite);
-}
-
+bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target);
 int powerupCheck(PLAYER *pPlayer, int nPowerUp);
 bool powerupActivate(PLAYER *pPlayer, int nPowerUp);
 void powerupDeactivate(PLAYER *pPlayer, int nPowerUp);

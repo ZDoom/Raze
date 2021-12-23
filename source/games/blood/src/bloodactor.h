@@ -184,11 +184,6 @@ inline bool CheckSector(const BitArray& bits, DBloodActor* act)
 	return bits[act->spr.sectno()];
 }
 
-inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* pTarget)
-{
-	return IsTargetTeammate(pSourcePlayer, &pTarget->spr);
-}
-
 inline bool IsTargetTeammate(DBloodActor* pSource, DBloodActor* pTarget)
 {
 	if (!pSource->IsPlayerActor())
