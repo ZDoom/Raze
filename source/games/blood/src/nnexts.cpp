@@ -7716,14 +7716,13 @@ void aiPatrolSetMarker(DBloodActor* actor)
         {
             if (!nextactor->hasX()) continue;
 
-            auto pNext = &nextactor->s();
             auto pXNext = &nextactor->x();
 
-            if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(pNext->pos.X - actor->spr.pos.X, pNext->pos.Y - actor->spr.pos.Y)) > closest)
+            if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(nextactor->spr.pos.X - actor->spr.pos.X, nextactor->spr.pos.Y - actor->spr.pos.Y)) > closest)
                 continue;
 
             GetActorExtents(nextactor, &zt1, &zb1); 
-            if (cansee(pNext->pos.X, pNext->pos.Y, zt1, pNext->sector(), actor->spr.pos.X, actor->spr.pos.Y, zt2, actor->spr.sector()))
+            if (cansee(nextactor->spr.pos.X, nextactor->spr.pos.Y, zt1, nextactor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, zt2, actor->spr.sector()))
             {
                 closest = dist;
                 selected = nextactor;
@@ -7738,7 +7737,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
         // if reached marker is in radius of another marker with -3, but greater radius, use that marker
         // idea: for nodes only flag32 = specify if enemy must return back to node or allowed to select
         // another marker which belongs that node?
-        spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+        XSPRITE* pXPrev = NULL;
         DBloodActor* prevactor = nullptr;
 
         DBloodActor* firstFinePath = nullptr;
@@ -7749,7 +7748,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
         if (actor->prevmarker)
         {
             prevactor = actor->prevmarker;
-            pPrev = &prevactor->s();
             pXPrev = &prevactor->x();
         }
 
@@ -7986,7 +7984,6 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
     BloodStatIterator it(kStatDude);
     while (auto dudeactor = it.Next())
     {
-        auto pDude = &dudeactor->s();
         if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
@@ -7995,11 +7992,11 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
             continue;
 
         int eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) << 2;
-        int nDist = approxDist(pDude->pos.X - actor->spr.pos.X, pDude->pos.Y - actor->spr.pos.Y);
-        if (nDist >= kPatrolAlarmSeeDist || !cansee(actor->spr.pos.X, actor->spr.pos.Y, zt1, actor->spr.sector(), pDude->pos.X, pDude->pos.Y, pDude->pos.Z - eaz2, pDude->sector()))
+        int nDist = approxDist(dudeactor->spr.pos.X - actor->spr.pos.X, dudeactor->spr.pos.Y - actor->spr.pos.Y);
+        if (nDist >= kPatrolAlarmSeeDist || !cansee(actor->spr.pos.X, actor->spr.pos.Y, zt1, actor->spr.sector(), dudeactor->spr.pos.X, dudeactor->spr.pos.Y, dudeactor->spr.pos.Z - eaz2, dudeactor->spr.sector()))
         {
-            nDist = approxDist(pDude->pos.X - targetactor->spr.pos.X, pDude->pos.Y - targetactor->spr.pos.Y);
-            if (nDist >= kPatrolAlarmSeeDist || !cansee(targetactor->spr.pos.X, targetactor->spr.pos.Y, zt2, targetactor->spr.sector(), pDude->pos.X, pDude->pos.Y, pDude->pos.Z - eaz2, pDude->sector()))
+            nDist = approxDist(dudeactor->spr.pos.X - targetactor->spr.pos.X, dudeactor->spr.pos.Y - targetactor->spr.pos.Y);
+            if (nDist >= kPatrolAlarmSeeDist || !cansee(targetactor->spr.pos.X, targetactor->spr.pos.Y, zt2, targetactor->spr.sector(), dudeactor->spr.pos.X, dudeactor->spr.pos.Y, dudeactor->spr.pos.Z - eaz2, dudeactor->spr.sector()))
                 continue;
         }
 
@@ -8042,7 +8039,6 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
     BloodStatIterator it(kStatDude);
     while (auto dudeactor = it.Next())
     {
-        auto pDude = &dudeactor->s();
         if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
@@ -8050,15 +8046,15 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
         if (pXDude->health <= 0)
             continue;
 
-        int eaz1 = (getDudeInfo(pDude->type)->eyeHeight * pDude->yrepeat) << 2;
-        int x1 = pDude->pos.X, y1 = pDude->pos.Y, z1 = pDude->pos.Z - eaz1;
+        int eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.yrepeat) << 2;
+        int x1 = dudeactor->spr.pos.X, y1 = dudeactor->spr.pos.Y, z1 = dudeactor->spr.pos.Z - eaz1;
         
-        auto pSect1 = pDude->sector();
+        auto pSect1 = dudeactor->spr.sector();
 
         int nDist1 = approxDist(x1 - x2, y1 - y2);
         int nDist2 = approxDist(x1 - x3, y1 - y3);
-        //int hdist = (pXDude->dudeDeaf)  ? 0 : getDudeInfo(pDude->type)->hearDist / 4;
-        int sdist = (pXDude->dudeGuard) ? 0 : getDudeInfo(pDude->type)->seeDist / 2;
+        //int hdist = (pXDude->dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->hearDist / 4;
+        int sdist = (pXDude->dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->seeDist / 2;
 
         if (//(nDist1 < hdist || nDist2 < hdist) ||
             ((nDist1 < sdist && cansee(x1, y1, z1, pSect1, x2, y2, z2, pSect2)) || (nDist2 < sdist && cansee(x1, y1, z1, pSect1, x3, y3, z3, pSect3)))) {
@@ -8073,7 +8069,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 
             if (chain)
                 aiPatrolAlarmFull(dudeactor, targetactor, Chance(0x0010));
-            //Printf("Dude #%d alarms dude #%d", actor->GetIndex(), pDude->index);
+            //Printf("Dude #%d alarms dude #%d", actor->GetIndex(), dudeactor->spr.index);
         }
     }
 }
@@ -8123,18 +8119,16 @@ bool aiCanCrouch(DBloodActor* actor)
 
 bool readyForCrit(DBloodActor* hunter, DBloodActor* victim) 
 {
-    auto pHunter = &hunter->s();
-    auto pVictim = &victim->s();
-    if (!(pHunter->type >= kDudeBase && pHunter->type < kDudeMax) || !(pVictim->type >= kDudeBase && pVictim->type < kDudeMax))
+    if (!(hunter->spr.type >= kDudeBase && hunter->spr.type < kDudeMax) || !(victim->spr.type >= kDudeBase && victim->spr.type < kDudeMax))
         return false;
 
     int dx, dy;
-    dx = pVictim->pos.X - pHunter->pos.X;
-    dy = pVictim->pos.Y - pHunter->pos.Y;
+    dx = victim->spr.pos.X - hunter->spr.pos.X;
+    dy = victim->spr.pos.Y - hunter->spr.pos.Y;
     if (approxDist(dx, dy) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
         return false;
     
-    return (abs(((getangle(dx, dy) + 1024 - pVictim->ang) & 2047) - 1024) <= kAng45);
+    return (abs(((getangle(dx, dy) + 1024 - victim->spr.ang) & 2047) - 1024) <= kAng45);
 }
 
 //---------------------------------------------------------------------------
@@ -8349,32 +8343,31 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
             {
                 // search in stealth regions to modify spot chances
                 BloodStatIterator it(kStatModernStealthRegion);
-                while (auto iactor = it.Next())
+                while (auto steal = it.Next())
                 {
-                    if (!iactor->hasX())
+                    if (!steal->hasX())
                         continue;
 
-                    spritetype* pSteal = &iactor->s();
-                    XSPRITE* pXSteal = &iactor->x();
+                    XSPRITE* pXSteal = &steal->x();
                     if (pXSteal->locked) // ignore locked regions
                         continue;
 
-                    bool fixd = (pSteal->flags & kModernTypeFlag1); // fixed percent value
-                    bool both = (pSteal->flags & kModernTypeFlag4); // target AND dude must be in this region
-                    bool dude = (both || (pSteal->flags & kModernTypeFlag2)); // dude must be in this region
+                    bool fixd = (steal->spr.flags & kModernTypeFlag1); // fixed percent value
+                    bool both = (steal->spr.flags & kModernTypeFlag4); // target AND dude must be in this region
+                    bool dude = (both || (steal->spr.flags & kModernTypeFlag2)); // dude must be in this region
                     bool trgt = (both || !dude); // target must be in this region
-                    bool crouch = (pSteal->flags & kModernTypeFlag8); // target must crouch
-                    //bool floor = (pSteal->cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
+                    bool crouch = (steal->spr.flags & kModernTypeFlag8); // target must crouch
+                    //bool floor = (iactor->spr.cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
                     if (trgt) 
                     {
 
                         if (pXSteal->data1 > 0)
                         {
-                            if (approxDist(abs(pSteal->pos.X - plActor->spr.pos.X) >> 4, abs(pSteal->pos.Y - plActor->spr.pos.Y) >> 4) >= pXSteal->data1)
+                            if (approxDist(abs(steal->spr.pos.X - plActor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - plActor->spr.pos.Y) >> 4) >= pXSteal->data1)
                                 continue;
 
                         } 
-                        else if (plActor->spr.sector() != pSteal->sector())
+                        else if (plActor->spr.sector() != steal->spr.sector())
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
@@ -8385,11 +8378,11 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     {
                         if (pXSteal->data1 > 0)
                         {
-                            if (approxDist(abs(pSteal->pos.X - actor->spr.pos.X) >> 4, abs(pSteal->pos.Y - actor->spr.pos.Y) >> 4) >= pXSteal->data1)
+                            if (approxDist(abs(steal->spr.pos.X - actor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - actor->spr.pos.Y) >> 4) >= pXSteal->data1)
                                 continue;
 
                         } 
-                        else if (plActor->spr.sector() != pSteal->sector())
+                        else if (plActor->spr.sector() != steal->spr.sector())
                             continue;
                     }
 
@@ -8417,7 +8410,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
                     // trigger this region if target gonna be spot
                     if (pXSteal->txID && pXSprite->data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-                        trTriggerSprite(iactor, kCmdToggle);
+                        trTriggerSprite(steal, kCmdToggle);
                    
                     // continue search another stealth regions to affect chances
                 }
@@ -8950,26 +8943,25 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
     {
         auto burstactor = actSpawnSprite(actor, 5);
         if (!burstactor) break;
-        spritetype* pBurst = &burstactor->s();
 
-        pBurst->type = actor->spr.type;
-        pBurst->shade = actor->spr.shade;
-        pBurst->picnum = actor->spr.picnum;
+        burstactor->spr.type = actor->spr.type;
+        burstactor->spr.shade = actor->spr.shade;
+        burstactor->spr.picnum = actor->spr.picnum;
 
         
-        pBurst->cstat = actor->spr.cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) 
+        burstactor->spr.cstat = actor->spr.cstat;
+        if ((burstactor->spr.cstat & CSTAT_SPRITE_BLOCK)) 
         {
-            pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
+            burstactor->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
             evPostActor(burstactor, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
         }
 
-        pBurst->pal = actor->spr.pal;
-        pBurst->clipdist = actor->spr.clipdist / 4;
-        pBurst->flags = actor->spr.flags;
-        pBurst->xrepeat = actor->spr.xrepeat / 2;
-        pBurst->yrepeat = actor->spr.yrepeat / 2;
-        pBurst->ang = ((actor->spr.ang + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047);
+        burstactor->spr.pal = actor->spr.pal;
+        burstactor->spr.clipdist = actor->spr.clipdist / 4;
+        burstactor->spr.flags = actor->spr.flags;
+        burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
+        burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
+        burstactor->spr.ang = ((actor->spr.ang + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047);
         burstactor->SetOwner(actor);
 
         actBuildMissile(burstactor, actor);
