@@ -27,10 +27,8 @@ BEGIN_PS_NS
 
 void DestroyBubble(DExhumedActor* pActor)
 {
-	auto pSprite = &pActor->s();
-
-    runlist_DoSubRunRec(pSprite->lotag - 1); 
-    runlist_DoSubRunRec(pSprite->owner);
+    runlist_DoSubRunRec(pActor->spr.lotag - 1); 
+    runlist_DoSubRunRec(pActor->spr.owner);
     runlist_SubRunRec(pActor->nRun);
     DeleteActor(pActor);
 }
@@ -43,33 +41,32 @@ DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
     }
 
     auto pActor = insertActor(pSector, 402);
-	auto pSprite = &pActor->s();
 
-    pSprite->pos = pos;
-    pSprite->cstat = 0;
-    pSprite->shade = -32;
-    pSprite->pal = 0;
-    pSprite->clipdist = 5;
-    pSprite->xrepeat = 40;
-    pSprite->yrepeat = 40;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->picnum = 1;
-    pSprite->ang = inita;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = -1200;
-    pSprite->hitag = -1;
-    pSprite->extra = -1;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->backuppos();
+    pActor->spr.pos = pos;
+    pActor->spr.cstat = 0;
+    pActor->spr.shade = -32;
+    pActor->spr.pal = 0;
+    pActor->spr.clipdist = 5;
+    pActor->spr.xrepeat = 40;
+    pActor->spr.yrepeat = 40;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.picnum = 1;
+    pActor->spr.ang = inita;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = -1200;
+    pActor->spr.hitag = -1;
+    pActor->spr.extra = -1;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.backuppos();
 
 //	GrabTimeSlot(3);
 
     pActor->nFrame = 0;
     pActor->nIndex = SeqOffsets[kSeqBubble] + nSize;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x140000);
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
     return pActor;
@@ -81,7 +78,6 @@ void AIBubble::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nSeq = pActor->nIndex;
-    auto pSprite = &pActor->s();
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
@@ -91,16 +87,16 @@ void AIBubble::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    pSprite->pos.Z += pSprite->zvel;
+    pActor->spr.pos.Z += pActor->spr.zvel;
 
-    auto pSector = pSprite->sector();
+    auto pSector = pActor->spr.sector();
 
-    if (pSprite->pos.Z <= pSector->ceilingz)
+    if (pActor->spr.pos.Z <= pSector->ceilingz)
     {
         auto pSectAbove = pSector->pAbove;
 
-        if (pSprite->hitag > -1 && pSectAbove != nullptr) {
-            BuildAnim(nullptr, 70, 0, pSprite->pos.X, pSprite->pos.Y, pSectAbove->floorz, pSectAbove, 64, 0);
+        if (pActor->spr.hitag > -1 && pSectAbove != nullptr) {
+            BuildAnim(nullptr, 70, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pSectAbove->floorz, pSectAbove, 64, 0);
         }
 
         DestroyBubble(pActor);
@@ -128,8 +124,7 @@ void DoBubbleMachines()
         {
             pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
-			auto pSprite = &pActor->s();
-            BuildBubble(pSprite->pos, pSprite->sector());
+            BuildBubble(pActor->spr.pos, pActor->spr.sector());
         }
     }
 }
@@ -139,8 +134,7 @@ void BuildBubbleMachine(DExhumedActor* pActor)
     pActor->nFrame = 75;
     pActor->nCount = pActor->nFrame;
 
-	auto pSprite = &pActor->s();
-    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     ChangeActorStat(pActor, kStatBubbleMachine);
 }
 
