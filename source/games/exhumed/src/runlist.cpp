@@ -1588,8 +1588,6 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 
 int runlist_CheckRadialDamage(DExhumedActor* pActor)
 {
-    auto pRadialSpr = &pRadialActor->s();
-
     if (pActor == pRadialActor) {
         return 0;
     }
@@ -1598,7 +1596,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    if (pActor->spr.statnum >= kMaxStatus || pRadialSpr->statnum >= kMaxStatus) {
+    if (pActor->spr.statnum >= kMaxStatus || pRadialActor->spr.statnum >= kMaxStatus) {
         return 0;
     }
 
@@ -1606,9 +1604,9 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    int x = (pActor->spr.pos.X - pRadialSpr->pos.X) >> 8;
-    int y = (pActor->spr.pos.Y - pRadialSpr->pos.Y) >> 8;
-    int z = (pActor->spr.pos.Z - pRadialSpr->pos.Z) >> 12;
+    int x = (pActor->spr.pos.X - pRadialActor->spr.pos.X) >> 8;
+    int y = (pActor->spr.pos.Y - pRadialActor->spr.pos.Y) >> 8;
+    int z = (pActor->spr.pos.Z - pRadialActor->spr.pos.Z) >> 12;
 
     if (abs(x) > nDamageRadius) {
         return 0;
@@ -1643,10 +1641,10 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pActor->spr.statnum) <= 1) ||
-            cansee(pRadialSpr->pos.X,
-                pRadialSpr->pos.Y,
-                pRadialSpr->pos.Z - 512,
-                pRadialSpr->sector(),
+            cansee(pRadialActor->spr.pos.X,
+                pRadialActor->spr.pos.Y,
+                pRadialActor->spr.pos.Z - 512,
+                pRadialActor->spr.sector(),
                 pActor->spr.pos.X,
                 pActor->spr.pos.Y,
                 pActor->spr.pos.Z - 8192,

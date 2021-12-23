@@ -43,36 +43,35 @@ static actionSeq FishSeq[] = {
 void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
     auto pChunkActor = insertActor(pActor->spr.sector(), 99);
-	auto pSprite2 = &pChunkActor->s();
 
     pChunkActor->nCount = anim + 40;
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
-    pSprite2->pos.X = pActor->spr.pos.X;
-    pSprite2->pos.Y = pActor->spr.pos.Y;
-    pSprite2->pos.Z = pActor->spr.pos.Z;
-    pSprite2->cstat = 0;
-    pSprite2->shade = -12;
-    pSprite2->pal = 0;
-    pSprite2->xvel = (RandomSize(5) - 16) << 8;
-    pSprite2->yvel = (RandomSize(5) - 16) << 8;
-    pSprite2->xrepeat = 64;
-    pSprite2->yrepeat = 64;
-    pSprite2->xoffset = 0;
-    pSprite2->yoffset = 0;
-    pSprite2->zvel = (-(RandomByte() + 512)) * 2;
+    pChunkActor->spr.pos.X = pActor->spr.pos.X;
+    pChunkActor->spr.pos.Y = pActor->spr.pos.Y;
+    pChunkActor->spr.pos.Z = pActor->spr.pos.Z;
+    pChunkActor->spr.cstat = 0;
+    pChunkActor->spr.shade = -12;
+    pChunkActor->spr.pal = 0;
+    pChunkActor->spr.xvel = (RandomSize(5) - 16) << 8;
+    pChunkActor->spr.yvel = (RandomSize(5) - 16) << 8;
+    pChunkActor->spr.xrepeat = 64;
+    pChunkActor->spr.yrepeat = 64;
+    pChunkActor->spr.xoffset = 0;
+    pChunkActor->spr.yoffset = 0;
+    pChunkActor->spr.zvel = (-(RandomByte() + 512)) * 2;
 
     seq_GetSeqPicnum(kSeqFish, pChunkActor->nCount, 0);
 
-    pSprite2->picnum = anim;
-    pSprite2->lotag = runlist_HeadRun() + 1;
-    pSprite2->clipdist = 0;
+    pChunkActor->spr.picnum = anim;
+    pChunkActor->spr.lotag = runlist_HeadRun() + 1;
+    pChunkActor->spr.clipdist = 0;
 
 //	GrabTimeSlot(3);
 
-    pSprite2->extra = -1;
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, pChunkActor, 0x200000);
-    pSprite2->hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
+    pChunkActor->spr.extra = -1;
+    pChunkActor->spr.owner = runlist_AddRunRec(pChunkActor->spr.lotag - 1, pChunkActor, 0x200000);
+    pChunkActor->spr.hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
 void BuildBlood(int x, int y, int z, sectortype* pSector)
@@ -463,11 +462,11 @@ void AIFish::Tick(RunListEvent* ev)
             else if (coll.type == kHitSprite)
             {
 
-                auto pHitSpr = &coll.actor()->s();
-                if (pHitSpr->statnum == 100)
+                auto pHitAct = coll.actor();
+                if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->spr.ang = GetMyAngle(pHitSpr->pos.X - pActor->spr.pos.X, pHitSpr->pos.Y - pActor->spr.pos.Y);
+                    pActor->spr.ang = GetMyAngle(pHitAct->spr.pos.X - pActor->spr.pos.X, pHitAct->spr.pos.Y - pActor->spr.pos.Y);
 
                     if (nAction != 3)
                     {

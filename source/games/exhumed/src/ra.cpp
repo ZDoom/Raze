@@ -86,9 +86,8 @@ void FreeRa(int nPlayer)
 void BuildRa(int nPlayer)
 {
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    auto pPlayerSprite = &pPlayerActor->s();
 
-    auto pActor = insertActor(pPlayerSprite->sector(), 203);
+    auto pActor = insertActor(pPlayerActor->spr.sector(), 203);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xvel = 0;
@@ -101,7 +100,7 @@ void BuildRa(int nPlayer)
     pActor->spr.pal = 1;
     pActor->spr.xrepeat = 64;
     pActor->spr.yrepeat = 64;
-    pActor->spr.pos = pPlayerSprite->pos;
+    pActor->spr.pos = pPlayerActor->spr.pos;
 
 //	GrabTimeSlot(3);
 

@@ -137,8 +137,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
         DExhumedActor* pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
 		if (pActor2 != nullptr)
 		{
-			auto pSprite2 = &pActor2->s();
-            if (cansee(x, y, z2, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z, pSprite2->sector())) {
+            if (cansee(x, y, z2, pSector, pActor2->spr.pos.X, pActor2->spr.pos.Y, pActor2->spr.pos.Z, pActor2->spr.sector())) {
                 return pActor2;
             }
         }
@@ -151,10 +150,9 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     DExhumedActor* pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
     if (pActor2 != nullptr)
     {
-		auto pSprite2 = &pActor2->s();
-        if (nPlayerPic == pSprite2->picnum)
+        if (nPlayerPic == pActor2->spr.picnum)
         {
-            if (cansee(x, y, z, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z, pSprite2->sector())) {
+            if (cansee(x, y, z, pSector, pActor2->spr.pos.X, pActor2->spr.pos.Y, pActor2->spr.pos.Z, pActor2->spr.sector())) {
                 return pActor2;
             }
         }

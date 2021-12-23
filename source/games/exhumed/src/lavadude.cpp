@@ -40,31 +40,30 @@ static actionSeq LavadudeSeq[] = {
 DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pLimbActor = insertActor(pActor->spr.sector(), 118);
-	auto pLimbSprite = &pLimbActor->s();
 
-    pLimbSprite->pos.X = pActor->spr.pos.X;
-    pLimbSprite->pos.Y = pActor->spr.pos.Y;
-    pLimbSprite->pos.Z = pActor->spr.pos.Z - RandomLong() % ebx;
-    pLimbSprite->cstat = 0;
-    pLimbSprite->shade = -127;
-    pLimbSprite->pal = 1;
-    pLimbSprite->xvel = (RandomSize(5) - 16) << 8;
-    pLimbSprite->yvel = (RandomSize(5) - 16) << 8;
-    pLimbSprite->zvel = 2560 - (RandomSize(5) << 8);
-    pLimbSprite->xoffset = 0;
-    pLimbSprite->yoffset = 0;
-    pLimbSprite->xrepeat = 90;
-    pLimbSprite->yrepeat = 90;
-    pLimbSprite->picnum = (move & 3) % 3;
-    pLimbSprite->hitag = 0;
-    pLimbSprite->lotag = runlist_HeadRun() + 1;
-    pLimbSprite->clipdist = 0;
+    pLimbActor->spr.pos.X = pActor->spr.pos.X;
+    pLimbActor->spr.pos.Y = pActor->spr.pos.Y;
+    pLimbActor->spr.pos.Z = pActor->spr.pos.Z - RandomLong() % ebx;
+    pLimbActor->spr.cstat = 0;
+    pLimbActor->spr.shade = -127;
+    pLimbActor->spr.pal = 1;
+    pLimbActor->spr.xvel = (RandomSize(5) - 16) << 8;
+    pLimbActor->spr.yvel = (RandomSize(5) - 16) << 8;
+    pLimbActor->spr.zvel = 2560 - (RandomSize(5) << 8);
+    pLimbActor->spr.xoffset = 0;
+    pLimbActor->spr.yoffset = 0;
+    pLimbActor->spr.xrepeat = 90;
+    pLimbActor->spr.yrepeat = 90;
+    pLimbActor->spr.picnum = (move & 3) % 3;
+    pLimbActor->spr.hitag = 0;
+    pLimbActor->spr.lotag = runlist_HeadRun() + 1;
+    pLimbActor->spr.clipdist = 0;
 
 //	GrabTimeSlot(3);
 
-    pLimbSprite->extra = -1;
-    pLimbSprite->owner = runlist_AddRunRec(pLimbSprite->lotag - 1, pLimbActor, 0x160000);
-    pLimbSprite->hitag = runlist_AddRunRec(NewRun, pLimbActor, 0x160000);
+    pLimbActor->spr.extra = -1;
+    pLimbActor->spr.owner = runlist_AddRunRec(pLimbActor->spr.lotag - 1, pLimbActor, 0x160000);
+    pLimbActor->spr.hitag = runlist_AddRunRec(NewRun, pLimbActor, 0x160000);
 
     return pLimbActor;
 }

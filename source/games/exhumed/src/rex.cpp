@@ -336,9 +336,9 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nAction = 3;
                 pActor->nFrame = 0;
 
-                auto pSprite2 = &nMov.actor()->s();
+                auto pHitActor = nMov.actor();
 
-                if (pSprite2->statnum && pSprite2->statnum < 107)
+                if (pHitActor->spr.statnum && pHitActor->spr.statnum < 107)
                 {
                     int nAngle = pActor->spr.ang;
 
@@ -347,18 +347,18 @@ void AIRex::Tick(RunListEvent* ev)
                     int xVel = bcos(nAngle) * 15;
                     int yVel = bsin(nAngle) * 15;
 
-                    if (pSprite2->statnum == 100)
+                    if (pHitActor->spr.statnum == 100)
                     {
                         auto nPlayer = GetPlayerFromActor(nMov.actor());
                         PlayerList[nPlayer].nXDamage += (xVel << 4);
                         PlayerList[nPlayer].nYDamage += (yVel << 4);
-                        pSprite2->zvel = -3584;
+                        pHitActor->spr.zvel = -3584;
                     }
                     else
                     {
-                        pSprite2->xvel += (xVel >> 3);
-                        pSprite2->yvel += (yVel >> 3);
-                        pSprite2->zvel = -2880;
+                        pHitActor->spr.xvel += (xVel >> 3);
+                        pHitActor->spr.yvel += (yVel >> 3);
+                        pHitActor->spr.zvel = -2880;
                     }
                 }
 

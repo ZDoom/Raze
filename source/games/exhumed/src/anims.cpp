@@ -136,42 +136,41 @@ void AIAnim::Tick(RunListEvent* ev)
 
         if (pIgniter)
         {
-            auto pSpriteB = &pIgniter->s(); 
-            pActor->spr.pos.X = pSpriteB->pos.X;
-            pActor->spr.pos.Y = pSpriteB->pos.Y;
-            pActor->spr.pos.Z = pSpriteB->pos.Z;
+            pActor->spr.pos.X = pIgniter->spr.pos.X;
+            pActor->spr.pos.Y = pIgniter->spr.pos.Y;
+            pActor->spr.pos.Z = pIgniter->spr.pos.Z;
 
-            if (pSpriteB->sector() != pActor->spr.sector())
+            if (pIgniter->spr.sector() != pActor->spr.sector())
             {
-                if (!pSpriteB->sector())
+                if (!pIgniter->spr.sector())
                 {
                     DestroyAnim(pActor);
                     return;
                 }
                 else
                 {
-                    ChangeActorSect(pActor, pSpriteB->sector());
+                    ChangeActorSect(pActor, pIgniter->spr.sector());
                 }
             }
 
             if (!nIndex)
             {
-                if (pSpriteB->cstat != CSTAT_SPRITE_INVISIBLE)
+                if (pIgniter->spr.cstat != CSTAT_SPRITE_INVISIBLE)
                 {
-                    int hitag2 = pSpriteB->hitag;
-                    pSpriteB->hitag--;
+                    int hitag2 = pIgniter->spr.hitag;
+                    pIgniter->spr.hitag--;
 
                     if (hitag2 >= 15)
                     {
-                        runlist_DamageEnemy(pIgniter, nullptr, (pSpriteB->hitag - 14) * 2);
+                        runlist_DamageEnemy(pIgniter, nullptr, (pIgniter->spr.hitag - 14) * 2);
 
-                        if (pSpriteB->shade < 100)
+                        if (pIgniter->spr.shade < 100)
                         {
-                            pSpriteB->pal = 0;
-                            pSpriteB->shade++;
+                            pIgniter->spr.pal = 0;
+                            pIgniter->spr.shade++;
                         }
 
-                        if (!(pSpriteB->cstat & CSTAT_SPRITE_BLOCK_ALL)) // was 101 (decimal), GDX had 0x101 which appears to be correct.
+                        if (!(pIgniter->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)) // was 101 (decimal), GDX had 0x101 which appears to be correct.
                         {
 		                    DestroyAnim(pActor);
                             return;
@@ -179,13 +178,13 @@ void AIAnim::Tick(RunListEvent* ev)
                     }
                     else
                     {
-                        pSpriteB->hitag = 1;
+                        pIgniter->spr.hitag = 1;
 	                    DestroyAnim(pActor);
                     }
                 }
                 else
                 {
-                    pSpriteB->hitag = 1;
+                    pIgniter->spr.hitag = 1;
                     DestroyAnim(pActor);
                 }
             }

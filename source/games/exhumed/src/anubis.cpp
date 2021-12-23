@@ -384,9 +384,9 @@ void AIAnubis::Damage(RunListEvent* ev)
             if (ev->pOtherActor == nullptr) {
                 return;
             }
-            auto pTarget = &ev->pOtherActor->s();
+            auto statnum = ev->pOtherActor->spr.statnum;
 
-            if (pTarget->statnum == 100 || pTarget->statnum < 199)
+            if (statnum == 100 || statnum < 199)
             {
                 if (!RandomSize(5)) {
                     ap->pTarget = ev->pOtherActor;
@@ -398,14 +398,13 @@ void AIAnubis::Damage(RunListEvent* ev)
                 if (nAction >= 6 && nAction <= 10)
                 {
                     auto pDrumActor = insertActor(ap->spr.sector(), kStatAnubisDrum);
-                    auto pDrumSprite = &pDrumActor->s();
 
-                    pDrumSprite->pos.X = ap->spr.pos.X;
-                    pDrumSprite->pos.Y = ap->spr.pos.Y;
-                    pDrumSprite->pos.Z = pDrumSprite->sector()->floorz;
-                    pDrumSprite->xrepeat = 40;
-                    pDrumSprite->yrepeat = 40;
-                    pDrumSprite->shade = -64;
+                    pDrumActor->spr.pos.X = ap->spr.pos.X;
+                    pDrumActor->spr.pos.Y = ap->spr.pos.Y;
+                    pDrumActor->spr.pos.Z = pDrumActor->spr.sector()->floorz;
+                    pDrumActor->spr.xrepeat = 40;
+                    pDrumActor->spr.yrepeat = 40;
+                    pDrumActor->spr.shade = -64;
 
                     BuildObject(pDrumActor, 2, 0);
                 }

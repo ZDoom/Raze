@@ -99,17 +99,15 @@ void CheckMummyRevive(DExhumedActor* pActor)
             if (pOther->nAction != 5) {
                 continue;
             }
-            auto pSprite2 = &pOther->s();
-
-            int x = abs(pSprite2->pos.X - pActor->spr.pos.X) >> 8;
-            int y = abs(pSprite2->pos.Y - pActor->spr.pos.Y) >> 8;
+            int x = abs(pOther->spr.pos.X - pActor->spr.pos.X) >> 8;
+            int y = abs(pOther->spr.pos.Y - pActor->spr.pos.Y) >> 8;
 
             if (x <= 20 && y <= 20)
             {
                 if (cansee(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - 8192, pActor->spr.sector(),
-                          pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z - 8192, pSprite2->sector()))
+                          pOther->spr.pos.X, pOther->spr.pos.Y, pOther->spr.pos.Z - 8192, pOther->spr.sector()))
                 {
-                    pSprite2->cstat = 0;
+                    pOther->spr.cstat = 0;
                     pOther->nAction = 6;
                     pOther->nFrame = 0;
                 }

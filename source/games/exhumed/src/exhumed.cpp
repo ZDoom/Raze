@@ -207,9 +207,8 @@ void DoRedAlert(int nVal)
     {
         if (nVal)
         {
-			auto spri = &ac->s();
-            PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->pos.X, spri->pos.Y, spri->pos.Z);
-            AddFlash(spri->sector(), spri->pos.X, spri->pos.Y, spri->pos.Z, 192);
+            PlayFXAtXYZ(StaticSound[kSoundAlarm], ac->spr.pos.X, ac->spr.pos.Y, ac->spr.pos.Z);
+            AddFlash(ac->spr.sector(), ac->spr.pos.X, ac->spr.pos.Y, ac->spr.pos.Z, 192);
         }
     }
 }
