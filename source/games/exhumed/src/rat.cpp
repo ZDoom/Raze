@@ -67,47 +67,44 @@ void InitRats()
     nPlayerPic = seq_GetSeqPicnum(kSeqJoe, 120, 0);
 }
 
-void SetRatVel(spritetype* pSprite)
+void SetRatVel(DExhumedActor* pActor)
 {
-    pSprite->xvel = bcos(pSprite->ang, -2);
-    pSprite->yvel = bsin(pSprite->ang, -2);
+    pActor->spr.xvel = bcos(pActor->spr.ang, -2);
+    pActor->spr.yvel = bsin(pActor->spr.ang, -2);
 }
 
 void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
-    spritetype* pSprite;
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 108);
-        pSprite = &pActor->s();
     }
     else
     {
-        pSprite = &pActor->s();
-        x = pSprite->pos.X;
-        y = pSprite->pos.Y;
-        z = pSprite->pos.Z;
-        nAngle = pSprite->ang;
+        x = pActor->spr.pos.X;
+        y = pActor->spr.pos.Y;
+        z = pActor->spr.pos.Z;
+        nAngle = pActor->spr.ang;
 
         ChangeActorStat(pActor, 108);
     }
 
-    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pSprite->shade = -12;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->picnum = 1;
-    pSprite->pal = pSprite->sector()->ceilingpal;
-    pSprite->clipdist = 30;
-    pSprite->ang = nAngle;
-    pSprite->xrepeat = 50;
-    pSprite->yrepeat = 50;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->hitag = 0;
-    pSprite->extra = -1;
+    pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+    pActor->spr.shade = -12;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.picnum = 1;
+    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.clipdist = 30;
+    pActor->spr.ang = nAngle;
+    pActor->spr.xrepeat = 50;
+    pActor->spr.yrepeat = 50;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.hitag = 0;
+    pActor->spr.extra = -1;
 
     if (nAngle >= 0) {
         pActor->nAction = 2;
@@ -121,18 +118,17 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->nCount = RandomSize(5);
     pActor->nPhase = RandomSize(3);
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x240000);
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x240000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x240000);
 }
 
 DExhumedActor* FindFood(DExhumedActor* pActor)
 {
-    auto pSprite = &pActor->s();
-    auto pSector = pSprite->sector();
-    int x = pSprite->pos.X;
-    int y = pSprite->pos.Y;
-    int z = pSprite->pos.Z;
+    auto pSector = pActor->spr.sector();
+    int x = pActor->spr.pos.X;
+    int y = pActor->spr.pos.Y;
+    int z = pActor->spr.pos.Z;
 
     int z2 = (z + pSector->ceilingz) / 2;
 
@@ -180,13 +176,12 @@ void AIRat::Damage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    auto pSprite = &pActor->s();
 
     if (ev->nDamage)
     {
-        pSprite->cstat = 0;
-        pSprite->xvel = 0;
-        pSprite->yvel = 0;
+        pActor->spr.cstat = 0;
+        pActor->spr.xvel = 0;
+        pActor->spr.yvel = 0;
         pActor->nAction = 3;
         pActor->nFrame = 0;
     }
@@ -208,12 +203,11 @@ void AIRat::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    auto pSprite = &pActor->s();
 
     bool bVal = false;
 
     int nSeq = SeqOffsets[kSeqRat] + RatSeq[nAction].a;
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
@@ -240,8 +234,8 @@ void AIRat::Tick(RunListEvent* ev)
             return;
         }
 
-        int xVal = abs(pSprite->pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pSprite->pos.Y - pTarget->spr.pos.Y);
+        int xVal = abs(pActor->spr.pos.X - pTarget->spr.pos.X);
+        int yVal = abs(pActor->spr.pos.Y - pTarget->spr.pos.Y);
 
         if (xVal > 50 || yVal > 50)
         {
@@ -249,8 +243,8 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
             return;
         }
 
@@ -268,7 +262,7 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->pTarget = pFoodSprite;
 
             PlotCourseToSprite(pActor, pFoodSprite);
-            SetRatVel(pSprite);
+            SetRatVel(pActor);
 
             pActor->nAction = 1;
             pActor->nPhase = 900;
@@ -287,14 +281,14 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
         }
 
         MoveCreature(pActor);
 
-        int xVal = abs(pSprite->pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pSprite->pos.Y - pTarget->spr.pos.Y);
+        int xVal = abs(pActor->spr.pos.X - pTarget->spr.pos.X);
+        int yVal = abs(pActor->spr.pos.Y - pTarget->spr.pos.Y);
 
         if (xVal >= 50 || yVal >= 50)
         {
@@ -302,7 +296,7 @@ void AIRat::Tick(RunListEvent* ev)
             if (pActor->nCount < 0)
             {
                 PlotCourseToSprite(pActor, pTarget);
-                SetRatVel(pSprite);
+                SetRatVel(pActor);
 
                 pActor->nCount = 32;
             }
@@ -314,13 +308,13 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
         pActor->nPhase = RandomSize(3);
 
-        pSprite->xvel = 0;
-        pSprite->yvel = 0;
+        pActor->spr.xvel = 0;
+        pActor->spr.yvel = 0;
         return;
     }
     case 2:
     {
-        if (pSprite->xvel || pSprite->yvel || pSprite->zvel) {
+        if (pActor->spr.xvel || pActor->spr.yvel || pActor->spr.zvel) {
             MoveCreature(pActor);
         }
 
@@ -332,21 +326,21 @@ void AIRat::Tick(RunListEvent* ev)
             if (pActor->pTarget == nullptr)
             {
                 pActor->nCount = RandomSize(6);
-                if (pSprite->xvel || pSprite->yvel)
+                if (pActor->spr.xvel || pActor->spr.yvel)
                 {
-                    pSprite->xvel = 0;
-                    pSprite->yvel = 0;
+                    pActor->spr.xvel = 0;
+                    pActor->spr.yvel = 0;
                     return;
                 }
 
-                pSprite->ang = RandomSize(11);
-                SetRatVel(pSprite);
+                pActor->spr.ang = RandomSize(11);
+                SetRatVel(pActor);
                 return;
             }
             else
             {
                 PlotCourseToSprite(pActor, pActor->pTarget);
-                SetRatVel(pSprite);
+                SetRatVel(pActor);
                 pActor->nAction = 1;
                 pActor->nPhase = 900;
                 pActor->nFrame = 0;
@@ -360,11 +354,11 @@ void AIRat::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            runlist_DoSubRunRec(pSprite->owner);
-            runlist_FreeRun(pSprite->lotag - 1);
+            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->nRun);
 
-            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+            pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
             DeleteActor(pActor);
         }
         return;
