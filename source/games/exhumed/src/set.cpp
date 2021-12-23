@@ -41,41 +41,38 @@ static actionSeq SetSeq[] = {
 
 void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
 {
-	spritetype* pSprite;
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 120);
-        pSprite = &pActor->s();
     }
     else
     {
         ChangeActorStat(pActor, 120);
-		pSprite = &pActor->s();
-        x = pSprite->pos.X;
-        y = pSprite->pos.Y;
-        z = pSprite->sector()->floorz;
-        nAngle = pSprite->ang;
+        x = pActor->spr.pos.X;
+        y = pActor->spr.pos.Y;
+        z = pActor->spr.sector()->floorz;
+        nAngle = pActor->spr.ang;
     }
 
-    pSprite->pos.X = x;
-    pSprite->pos.Y = y;
-    pSprite->pos.Z = z;
-    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pSprite->shade = -12;
-    pSprite->clipdist = 110;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->xrepeat = 87;
-    pSprite->yrepeat = 96;
-    pSprite->pal = pSprite->sector()->ceilingpal;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->ang = nAngle;
-    pSprite->picnum = 1;
-    pSprite->hitag = 0;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->extra = -1;
+    pActor->spr.pos.X = x;
+    pActor->spr.pos.Y = y;
+    pActor->spr.pos.Z = z;
+    pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+    pActor->spr.shade = -12;
+    pActor->spr.clipdist = 110;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.xrepeat = 87;
+    pActor->spr.yrepeat = 96;
+    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.ang = nAngle;
+    pActor->spr.picnum = 1;
+    pActor->spr.hitag = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.extra = -1;
 
     //	GrabTimeSlot(3);
 
@@ -90,7 +87,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
     pActor->nChannel = nChannel;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x190000);
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x190000);
 
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x190000);
@@ -102,35 +99,34 @@ void BuildSoul(DExhumedActor* pSet)
 {
     auto pSetSprite = &pSet->s();
     auto pActor = insertActor(pSetSprite->sector(), 0);
-    auto pSprite = &pActor->s();
 
-    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->shade = -127;
-    pSprite->xrepeat = 1;
-    pSprite->yrepeat = 1;
-    pSprite->pal = 0;
-    pSprite->clipdist = 5;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    pSprite->ang = RandomSize(11);
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = (-256) - RandomSize(10);
-    pSprite->pos.X = pSetSprite->pos.X;
-    pSprite->pos.Y = pSetSprite->pos.Y;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.shade = -127;
+    pActor->spr.xrepeat = 1;
+    pActor->spr.yrepeat = 1;
+    pActor->spr.pal = 0;
+    pActor->spr.clipdist = 5;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
+    pActor->spr.ang = RandomSize(11);
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = (-256) - RandomSize(10);
+    pActor->spr.pos.X = pSetSprite->pos.X;
+    pActor->spr.pos.Y = pSetSprite->pos.Y;
 
-    pSprite->pos.Z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
+    pActor->spr.pos.Z = (RandomSize(8) << 8) + 8192 + pActor->spr.sector()->ceilingz - GetActorHeight(pActor);
 
-    //pSprite->hitag = nSet;
+    //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
 	pActor->nPhase = Counters[kCountSoul]++;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->extra = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.extra = 0;
 
     //	GrabTimeSlot(3);
 
-    pSprite->owner = runlist_AddRunRec(NewRun, pActor, 0x230000);
+    pActor->spr.owner = runlist_AddRunRec(NewRun, pActor, 0x230000);
 }
 
 void AISoul::Tick(RunListEvent* ev)
@@ -138,34 +134,32 @@ void AISoul::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    auto pSprite = &pActor->s();
-
     seq_MoveSequence(pActor, SeqOffsets[kSeqSet] + 75, 0);
 
-    if (pSprite->xrepeat < 32)
+    if (pActor->spr.xrepeat < 32)
     {
-        pSprite->xrepeat++;
-        pSprite->yrepeat++;
+        pActor->spr.xrepeat++;
+        pActor->spr.yrepeat++;
     }
 
-    pSprite->extra += (pActor->nPhase & 0x0F) + 5;
-    pSprite->extra &= kAngleMask;
+    pActor->spr.extra += (pActor->nPhase & 0x0F) + 5;
+    pActor->spr.extra &= kAngleMask;
 
-    int nVel = bcos(pSprite->extra, -7);
+    int nVel = bcos(pActor->spr.extra, -7);
 
-	auto coll = movesprite(pActor, bcos(pSprite->ang) * nVel, bsin(pSprite->ang) * nVel, pSprite->zvel, 5120, 0, CLIPMASK0);
+	auto coll = movesprite(pActor, bcos(pActor->spr.ang) * nVel, bsin(pActor->spr.ang) * nVel, pActor->spr.zvel, 5120, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
 		DExhumedActor* pSet = pActor->pTarget;
 		if (!pSet) return;
         auto pSetSprite = &pSet->s();
 
-        pSprite->cstat = 0;
-        pSprite->yrepeat = 1;
-        pSprite->xrepeat = 1;
-        pSprite->pos.X = pSetSprite->pos.X;
-        pSprite->pos.Y = pSetSprite->pos.Y;
-        pSprite->pos.Z = pSetSprite->pos.Z - (GetActorHeight(pSet) >> 1);
+        pActor->spr.cstat = 0;
+        pActor->spr.yrepeat = 1;
+        pActor->spr.xrepeat = 1;
+        pActor->spr.pos.X = pSetSprite->pos.X;
+        pActor->spr.pos.Y = pSetSprite->pos.Y;
+        pActor->spr.pos.Z = pSetSprite->pos.Z - (GetActorHeight(pSet) >> 1);
         ChangeActorSect(pActor, pSetSprite->sector());
         return;
     }
@@ -192,7 +186,6 @@ void AISet::Damage(RunListEvent* ev)
 	if (!pActor) return;
 
 	int nAction = pActor->nAction;
-    auto pSprite = &pActor->s();
 
     if (ev->nDamage && pActor->nHealth > 0)
     {
@@ -203,10 +196,10 @@ void AISet::Damage(RunListEvent* ev)
 
         if (pActor->nHealth <= 0)
         {
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
-            pSprite->zvel = 0;
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
+            pActor->spr.zvel = 0;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
 
@@ -242,14 +235,13 @@ void AISet::Tick(RunListEvent* ev)
 	if (!pActor) return;
 
 	int nAction = pActor->nAction;
-    auto pSprite = &pActor->s();
 
     bool bVal = false;
 
     Gravity(pActor);
 
     int nSeq = SeqOffsets[kSeqSet] + SetSeq[pActor->nAction].a;
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     if (nAction == 3)
@@ -282,11 +274,11 @@ void AISet::Tick(RunListEvent* ev)
 
     auto nMov = MoveCreature(pActor);
 
-	auto sect = pSprite->sector();
-    pushmove(&pSprite->pos, &sect, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
-    pSprite->setsector(sect);
+	auto sect = pActor->spr.sector();
+    pushmove(&pActor->spr.pos, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
+    pActor->spr.setsector(sect);
 
-    if (pSprite->zvel > 4000)
+    if (pActor->spr.zvel > 4000)
     {
         if (nMov.exbits & kHitAux2)
         {
@@ -314,8 +306,8 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
                 pActor->pTarget = pTarget;
 
-                pSprite->xvel = bcos(pSprite->ang, -1);
-                pSprite->yvel = bsin(pSprite->ang, -1);
+                pActor->spr.xvel = bcos(pActor->spr.ang, -1);
+                pActor->spr.yvel = bsin(pActor->spr.ang, -1);
             }
         }
 
@@ -345,8 +337,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nIndex = 0;
             pActor->nFrame = 0;
 
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
 
             pActor->pTarget = FindPlayer(pActor, 1000);
         }
@@ -376,8 +368,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nIndex = 0;
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
-                    pSprite->xvel = 0;
-                    pSprite->yvel = 0;
+                    pActor->spr.xvel = 0;
+                    pActor->spr.yvel = 0;
                     return;
                 }
                 case 1:
@@ -387,8 +379,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nAction = 6;
                     pActor->nFrame = 0;
                     pActor->nRun = 5;
-                    pSprite->xvel = 0;
-                    pSprite->yvel = 0;
+                    pActor->spr.xvel = 0;
+                    pActor->spr.yvel = 0;
                     return;
                 }
                 default:
@@ -407,14 +399,14 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-            int nAngle = pSprite->ang & 0xFFF8;
-            pSprite->xvel = bcos(nAngle, -1);
-            pSprite->yvel = bsin(nAngle, -1);
+            int nAngle = pActor->spr.ang & 0xFFF8;
+            pActor->spr.xvel = bcos(nAngle, -1);
+            pActor->spr.yvel = bsin(nAngle, -1);
 
             if (pActor->nIndex2)
             {
-                pSprite->xvel *= 2;
-                pSprite->yvel *= 2;
+                pActor->spr.xvel *= 2;
+                pActor->spr.yvel *= 2;
             }
 
             if (nMov.type == kHitWall)
@@ -423,31 +415,31 @@ void AISet::Tick(RunListEvent* ev)
 
                 if (pSector)
                 {
-                    if ((pSprite->pos.Z - pSector->floorz) < 55000)
+                    if ((pActor->spr.pos.Z - pSector->floorz) < 55000)
                     {
-                        if (pSprite->pos.Z > pSector->ceilingz)
+                        if (pActor->spr.pos.Z > pSector->ceilingz)
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;
                             pActor->nFrame = 0;
-                            pSprite->xvel = 0;
-                            pSprite->yvel = 0;
+                            pActor->spr.xvel = 0;
+                            pActor->spr.yvel = 0;
                             return;
                         }
                     }
                 }
 
-                pSprite->ang = (pSprite->ang + 256) & kAngleMask;
-                pSprite->xvel = bcos(pSprite->ang, -1);
-                pSprite->yvel = bsin(pSprite->ang, -1);
+                pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
+                pActor->spr.xvel = bcos(pActor->spr.ang, -1);
+                pActor->spr.yvel = bsin(pActor->spr.ang, -1);
                 break;
             }
             else if (nMov.type == kHitSprite)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
-                    if (AngleDiff(pSprite->ang, nAng) < 64)
+                    int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                    if (AngleDiff(pActor->spr.ang, nAng) < 64)
                     {
                         pActor->nAction = 4;
                         pActor->nFrame = 0;
@@ -459,8 +451,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nIndex = 1;
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
-                    pSprite->xvel = 0;
-                    pSprite->yvel = 0;
+                    pActor->spr.xvel = 0;
+                    pActor->spr.yvel = 0;
                     return;
                 }
             }
@@ -511,7 +503,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            auto pBullet = BuildBullet(pActor, 11, -1, pSprite->ang, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 11, -1, pActor->spr.ang, pTarget, 1);
             if (pBullet)
 				SetBulletEnemy(pBullet->nPhase, pTarget);
 
@@ -531,18 +523,18 @@ void AISet::Tick(RunListEvent* ev)
         {
             if (pActor->nIndex)
             {
-                pSprite->zvel = -10000;
+                pActor->spr.zvel = -10000;
             }
             else
             {
-                pSprite->zvel = -(PlotCourseToSprite(pActor, pTarget));
+                pActor->spr.zvel = -(PlotCourseToSprite(pActor, pTarget));
             }
 
             pActor->nAction = 8;
             pActor->nFrame = 0;
 
-            pSprite->xvel = bcos(pSprite->ang);
-            pSprite->yvel = bsin(pSprite->ang);
+            pActor->spr.xvel = bcos(pActor->spr.ang);
+            pActor->spr.yvel = bsin(pActor->spr.ang);
         }
         return;
     }
@@ -565,13 +557,13 @@ void AISet::Tick(RunListEvent* ev)
 
     case 9:
     {
-        pSprite->xvel >>= 1;
-        pSprite->yvel >>= 1;
+        pActor->spr.xvel >>= 1;
+        pActor->spr.yvel >>= 1;
 
         if (bVal)
         {
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
 
             PlotCourseToSprite(pActor, pTarget);
 
@@ -579,8 +571,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nRun = 5;
 
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
+            pActor->spr.xvel = 0;
+            pActor->spr.yvel = 0;
         }
         return;
     }
@@ -589,9 +581,9 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            pSprite->pos.Z -= GetActorHeight(pActor);
+            pActor->spr.pos.Z -= GetActorHeight(pActor);
             BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
-            pSprite->pos.Z += GetActorHeight(pActor);
+            pActor->spr.pos.Z += GetActorHeight(pActor);
         }
 
         if (bVal)
@@ -611,7 +603,7 @@ void AISet::Tick(RunListEvent* ev)
 
     case 11:
     {
-        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+        pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         return;
     }
     }
@@ -627,8 +619,8 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
                 pActor->nCount = 100;
                 pActor->pTarget = nullptr;
-                pSprite->xvel = 0;
-                pSprite->yvel = 0;
+                pActor->spr.xvel = 0;
+                pActor->spr.yvel = 0;
             }
         }
     }
