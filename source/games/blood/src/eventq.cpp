@@ -424,8 +424,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 				continue;
 			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &actor->x();
-				if (pXSprite->rxID == rxId)
+				if (actor->xspr.rxID == rxId)
 					trMessageSprite(actor, event);
 			}
 		}
@@ -441,8 +440,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 				continue;
 			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &actor->x();
-				if (pXSprite->rxID == rxId)
+				if (actor->xspr.rxID == rxId)
 					trMessageSprite(actor, event);
 			}
 		}

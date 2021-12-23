@@ -67,11 +67,10 @@ void warpInit(TArray<DBloodActor*>& actors)
     {
         if (!actor->exists()) continue;
             if (actor->hasX()) {
-                XSPRITE *pXSprite = &actor->x();
                 switch (actor->spr.type) {
                     case kMarkerSPStart:
-                        if (gGameOptions.nGameType < 2 && pXSprite->data1 >= 0 && pXSprite->data1 < kMaxPlayers) {
-                            ZONE *pZone = &gStartZone[pXSprite->data1];
+                        if (gGameOptions.nGameType < 2 && actor->xspr.data1 >= 0 && actor->xspr.data1 < kMaxPlayers) {
+                            ZONE *pZone = &gStartZone[actor->xspr.data1];
                             pZone->x = actor->spr.pos.X;
                             pZone->y = actor->spr.pos.Y;
                             pZone->z = actor->spr.pos.Z;
@@ -81,10 +80,10 @@ void warpInit(TArray<DBloodActor*>& actors)
                         DeleteSprite(actor);
                         break;
                     case kMarkerMPStart:
-                        if (pXSprite->data1 >= 0 && pXSprite->data2 < kMaxPlayers) {
+                        if (actor->xspr.data1 >= 0 && actor->xspr.data2 < kMaxPlayers) {
                             if (gGameOptions.nGameType >= 2) {
                                 // default if BB or teams without data2 specified
-                                ZONE* pZone = &gStartZone[pXSprite->data1];
+                                ZONE* pZone = &gStartZone[actor->xspr.data1];
                                 pZone->x = actor->spr.pos.X;
                                 pZone->y = actor->spr.pos.Y;
                                 pZone->z = actor->spr.pos.Z;
@@ -94,7 +93,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                                 #ifdef NOONE_EXTENSIONS
                                     // fill player spawn position according team of player in TEAMS mode.
                                     if (gModernMap && gGameOptions.nGameType == 3) {
-                                        if (pXSprite->data2 == 1) {
+                                        if (actor->xspr.data2 == 1) {
                                             pZone = &gStartZoneTeam1[team1];
                                             pZone->x = actor->spr.pos.X;
                                             pZone->y = actor->spr.pos.Y;
@@ -103,7 +102,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                                             pZone->ang = actor->spr.ang;
                                             team1++;
 
-                                        } else if (pXSprite->data2 == 2) {
+                                        } else if (actor->xspr.data2 == 2) {
                                             pZone = &gStartZoneTeam2[team2];
                                             pZone->x = actor->spr.pos.X;
                                             pZone->y = actor->spr.pos.Y;
@@ -165,8 +164,7 @@ void warpInit(TArray<DBloodActor*>& actors)
         auto actor = barrier_cast<DBloodActor*>(sect.upperLink);
         if (actor && actor->hasX())
         {
-            XSPRITE *pXSprite = &actor->x();
-            int nLink = pXSprite->data1;
+            int nLink = actor->xspr.data1;
             for(auto& sect: sector)
             {
                 auto actor2 = barrier_cast<DBloodActor*>(sect.lowerLink);

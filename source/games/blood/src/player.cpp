@@ -680,7 +680,6 @@ void playerStart(int nPlayer, int bNewLevel)
 
     auto actor = actSpawnSprite(pStartZone->sector, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     assert(actor->hasX());
-    XSPRITE *pXSprite = &actor->x();
     pPlayer->actor = actor;
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
     pPlayer->pDudeInfo = pDudeInfo;
@@ -698,7 +697,7 @@ void playerStart(int nPlayer, int bNewLevel)
     actor->spr.type = kDudePlayer1+nPlayer;
     actor->spr.clipdist = pDudeInfo->clipdist;
     actor->spr.flags = 15;
-    pXSprite->burnTime = 0;
+    actor->xspr.burnTime = 0;
     actor->SetBurnSource(nullptr);
     pPlayer->actor->xspr.health = pDudeInfo->startHealth<<4;
     pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -1175,9 +1174,8 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
     int customMsg = -1;
     #ifdef NOONE_EXTENSIONS
         if (gModernMap && actor->hasX()) { // allow custom INI message instead "Picked up"
-            XSPRITE* pXSprite = &actor->x();
-            if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0)
-                customMsg = pXSprite->lockMsg;
+            if (actor->xspr.txID != 3 && actor->xspr.lockMsg > 0)
+                customMsg = actor->xspr.lockMsg;
         }
     #endif
 

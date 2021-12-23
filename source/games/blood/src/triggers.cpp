@@ -50,26 +50,25 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
 
 bool SetSpriteState(DBloodActor* actor, int nState)
 {
-    auto pXSprite = &actor->x();
-    if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
+    if ((actor->xspr.busy & 0xffff) == 0 && actor->xspr.state == nState)
         return 0;
-    pXSprite->busy  = IntToFixed(nState);
-    pXSprite->state = nState;
+    actor->xspr.busy  = IntToFixed(nState);
+    actor->xspr.state = nState;
     evKillActor(actor);
     if ((actor->spr.flags & kHitagRespawn) != 0 && actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax)
     {
-        pXSprite->respawnPending = 3;
+        actor->xspr.respawnPending = 3;
         evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
         return 1;
     }
-    if (pXSprite->restState != nState && pXSprite->waitTime > 0)
-        evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
-    if (pXSprite->txID)
+    if (actor->xspr.restState != nState && actor->xspr.waitTime > 0)
+        evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
+    if (actor->xspr.txID)
     {
-        if (pXSprite->command != kCmdLink && pXSprite->triggerOn && pXSprite->state)
-            evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-        if (pXSprite->command != kCmdLink && pXSprite->triggerOff && !pXSprite->state)
-            evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+        if (actor->xspr.command != kCmdLink && actor->xspr.triggerOn && actor->xspr.state)
+            evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+        if (actor->xspr.command != kCmdLink && actor->xspr.triggerOff && !actor->xspr.state)
+            evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
     }
     return 1;
 }
@@ -181,18 +180,17 @@ unsigned int GetSourceBusy(EVENT& a1)
 
 void LifeLeechOperate(DBloodActor* actor, EVENT event)
 {
-    auto pXSprite = &actor->x();
     switch (event.cmd) {
     case kCmdSpritePush:
     {
-        int nPlayer = pXSprite->data4;
+        int nPlayer = actor->xspr.data4;
         if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
         {
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->actor->xspr.health > 0)
             {
                 evKillActor(actor);
-                pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+pXSprite->data3, gAmmoInfo[8].max);
+                pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+actor->xspr.data3, gAmmoInfo[8].max);
                 pPlayer->hasWeapon[9] = 1;
                 if (pPlayer->curWeapon != kWeapLifeLeech)
                 {
@@ -210,7 +208,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
         auto target = actor->GetTarget();
         if (target)
         {
-            if (!pXSprite->stateTimer)
+            if (!actor->xspr.stateTimer)
             {
                 if (target->spr.statnum == kStatDude && !(target->spr.flags&32) && target->hasX())
                 {
@@ -234,9 +232,9 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                         int dy = bsin(actor->spr.ang);
                         int tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = DivScale(tz - top - 256, nDist, 10);
-                        int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
+                        int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
                         int t2;
-                        if (!pXSprite->data3)
+                        if (!actor->xspr.data3)
                             t2 = 120 / 10;
                         else
                             t2 = (3*120) / 10;
@@ -244,9 +242,9 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                         if (missile)
                         {
                             missile->SetOwner(actor);
-                            pXSprite->stateTimer = 1;
+                            actor->xspr.stateTimer = 1;
                             evPostActor(actor, t2, kCallbackLeechStateTimer);
-                            pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
+                            actor->xspr.data3 = ClipLow(actor->xspr.data3-1, 0);
                             if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
                                 missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                         }
@@ -265,8 +263,6 @@ void ActivateGenerator(DBloodActor*);
 
 void OperateSprite(DBloodActor* actor, EVENT event)
 {
-    auto pXSprite = &actor->x();
-
     #ifdef NOONE_EXTENSIONS
     if (gModernMap && modernTypeOperateSprite(actor, event))
         return;
@@ -274,13 +270,13 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 
     switch (event.cmd) {
         case kCmdLock:
-            pXSprite->locked = 1;
+            actor->xspr.locked = 1;
             return;
         case kCmdUnlock:
-            pXSprite->locked = 0;
+            actor->xspr.locked = 0;
             return;
         case kCmdToggleLock:
-            pXSprite->locked = pXSprite->locked ^ 1;
+            actor->xspr.locked = actor->xspr.locked ^ 1;
             return;
     }
 
@@ -291,12 +287,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 SetSpriteState(actor, 0);
                 break;
             case kCmdSpriteProximity:
-                if (pXSprite->state) break;
+                if (actor->xspr.state) break;
                 [[fallthrough]];
             case kCmdOn:
             case kCmdSpritePush:
             case kCmdSpriteTouch:
-                if (!pXSprite->state) SetSpriteState(actor, 1);
+                if (!actor->xspr.state) SetSpriteState(actor, 1);
                 aiActivateDude(actor);
                 break;
         }
@@ -307,7 +303,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 
     switch (actor->spr.type) {
     case kTrapMachinegun:
-        if (pXSprite->health <= 0) break; 
+        if (actor->xspr.health <= 0) break; 
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
@@ -316,8 +312,8 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
                 seqSpawn(38, actor, nMGunOpenClient);
-                if (pXSprite->data1 > 0)
-                    pXSprite->data2 = pXSprite->data1;
+                if (actor->xspr.data1 > 0)
+                    actor->xspr.data2 = actor->xspr.data1;
                 break;
         }
         break;
@@ -336,17 +332,17 @@ void OperateSprite(DBloodActor* actor, EVENT event)
     case kTrapZapSwitchable:
         switch (event.cmd) {
             case kCmdOff:
-                pXSprite->state = 0;
+                actor->xspr.state = 0;
                 actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
                 actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
                 break;
             case kCmdOn:
-                pXSprite->state = 1;
+                actor->xspr.state = 1;
                 actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
                 actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
                 break;
             case kCmdToggle:
-                pXSprite->state ^= 1;
+                actor->xspr.state ^= 1;
                 actor->spr.cstat ^= CSTAT_SPRITE_INVISIBLE;
                 actor->spr.cstat ^= CSTAT_SPRITE_BLOCK;
                 break;
@@ -376,8 +372,8 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 seqSpawn(37, actor, -1);
                 break;
             default:
-                SetSpriteState(actor, pXSprite->state ^ 1);
-                if (pXSprite->state) seqSpawn(37, actor, -1);
+                SetSpriteState(actor, actor->xspr.state ^ 1);
+                if (actor->xspr.state) seqSpawn(37, actor, -1);
                 break;
         }
         break;
@@ -385,16 +381,16 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
-                sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
+                sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
-                sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
+                sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
                 break;
             default:
-                if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
-                if (pXSprite->state) sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
-                else sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
+                if (!SetSpriteState(actor, actor->xspr.state ^ 1)) break;
+                if (actor->xspr.state) sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
+                else sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
                 break;
         }
         break;
@@ -402,58 +398,58 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
-                sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
+                sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
-                sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
+                sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
                 break;
             default:
-                if (!SetSpriteState(actor, pXSprite->restState ^ 1)) break;
-                if (pXSprite->state) sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
-                else sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
+                if (!SetSpriteState(actor, actor->xspr.restState ^ 1)) break;
+                if (actor->xspr.state) sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
+                else sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
                 break;
         }
         break;
     case kSwitchCombo:
         switch (event.cmd) {
             case kCmdOff:
-                pXSprite->data1--;
-                if (pXSprite->data1 < 0)
-                    pXSprite->data1 += pXSprite->data3;
+                actor->xspr.data1--;
+                if (actor->xspr.data1 < 0)
+                    actor->xspr.data1 += actor->xspr.data3;
                 break;
             default:
-                pXSprite->data1++;
-                if (pXSprite->data1 >= pXSprite->data3)
-                    pXSprite->data1 -= pXSprite->data3;
+                actor->xspr.data1++;
+                if (actor->xspr.data1 >= actor->xspr.data3)
+                    actor->xspr.data1 -= actor->xspr.data3;
                 break;
         }
         
-        sfxPlay3DSound(actor, pXSprite->data4, -1, 0);
+        sfxPlay3DSound(actor, actor->xspr.data4, -1, 0);
         
-        if (pXSprite->command == kCmdLink && pXSprite->txID > 0)
-            evSendActor(actor, pXSprite->txID, kCmdLink);
+        if (actor->xspr.command == kCmdLink && actor->xspr.txID > 0)
+            evSendActor(actor, actor->xspr.txID, kCmdLink);
 
-        if (pXSprite->data1 == pXSprite->data2) 
+        if (actor->xspr.data1 == actor->xspr.data2) 
             SetSpriteState(actor, 1);
         else 
             SetSpriteState(actor, 0);
 
         break;
     case kMarkerDudeSpawn:
-        if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) 
+        if (gGameOptions.nMonsterSettings && actor->xspr.data1 >= kDudeBase && actor->xspr.data1 < kDudeMax) 
         {
-            auto spawned = actSpawnDude(actor, pXSprite->data1, -1, 0);
+            auto spawned = actSpawnDude(actor, actor->xspr.data1, -1, 0);
             if (spawned) {
                 XSPRITE *pXSpawn = &spawned->x();
                 gKillMgr.AddNewKill(1);
-                switch (pXSprite->data1) {
+                switch (actor->xspr.data1) {
                     case kDudeBurningInnocent:
                     case kDudeBurningCultist:
                     case kDudeBurningZombieButcher:
                     case kDudeBurningTinyCaleb:
                     case kDudeBurningBeast: {
-                        pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
+                        pXSpawn->health = getDudeInfo(actor->xspr.data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         spawned->SetTarget(nullptr);
                         aiActivateDude(spawned);
@@ -466,8 +462,8 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         }
         break;
     case kMarkerEarthQuake:
-        pXSprite->triggerOn = 0;
-        pXSprite->isTriggered = 1;
+        actor->xspr.triggerOn = 0;
+        actor->xspr.isTriggered = 1;
         SetSpriteState(actor, 1);
         for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
             auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
@@ -475,7 +471,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             int dy = (vec.Y)>>4;
             int dz = (vec.Z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
-            gPlayer[p].quakeEffect = DivScale(pXSprite->data1, nDist, 16);
+            gPlayer[p].quakeEffect = DivScale(actor->xspr.data1, nDist, 16);
         }
         break;
     case kThingTNTBarrel:
@@ -510,14 +506,14 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         if (actor->spr.statnum != kStatRespawn) {
             switch (event.cmd) {
                 case kCmdSpriteProximity:
-                    if (pXSprite->state) break;
+                    if (actor->xspr.state) break;
                     sfxPlay3DSound(actor, 452, 0, 0);
                     evPostActor(actor, 30, kCmdOff);
-                    pXSprite->state = 1;
+                    actor->xspr.state = 1;
                     [[fallthrough]];
                 case kCmdOn:
                     sfxPlay3DSound(actor, 451, 0, 0);
-                    pXSprite->Proximity = 1;
+                    actor->xspr.Proximity = 1;
                     break;
                 default:
                     actExplodeSprite(actor);
@@ -543,14 +539,14 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
             case kCmdRepeat:
                 if (actor->spr.type != kGenTrigger) ActivateGenerator(actor);
-                if (pXSprite->txID) evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                if (pXSprite->busyTime > 0) {
-                    int nRand = Random2(pXSprite->data1);
-                    evPostActor(actor, 120*(nRand+pXSprite->busyTime) / 10, kCmdRepeat);
+                if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+                if (actor->xspr.busyTime > 0) {
+                    int nRand = Random2(actor->xspr.data1);
+                    evPostActor(actor, 120*(nRand+actor->xspr.busyTime) / 10, kCmdRepeat);
                 }
                 break;
             default:
-                if (!pXSprite->state) {
+                if (!actor->xspr.state) {
                     SetSpriteState(actor, 1);
                     evPostActor(actor, 0, kCmdRepeat);
                 }
@@ -564,7 +560,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
             gMe->restTime = 0;
         }
-        sndStartSample(pXSprite->data1, -1, 1, 0, CHANF_FORCE);
+        sndStartSample(actor->xspr.data1, -1, 1, 0, CHANF_FORCE);
         break;
     case kThingObjectGib:
     case kThingObjectExplode:
@@ -581,7 +577,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 actActivateGibObject(actor);
                 break;
             default:
-                if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
+                if (!SetSpriteState(actor, actor->xspr.state ^ 1)) break;
                 actActivateGibObject(actor);
                 break;
         }
@@ -595,7 +591,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 SetSpriteState(actor, 1);
                 break;
             default:
-                SetSpriteState(actor, pXSprite->state ^ 1);
+                SetSpriteState(actor, actor->xspr.state ^ 1);
                 break;
         }
         break;
@@ -703,16 +699,15 @@ void SectorStartSound(sectortype* pSector, int nState)
     {
         if (actor->spr.statnum == kStatDecoration && actor->spr.type == kSoundSector && actor->hasX())
         {
-            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
-                if (pXSprite->data3)
-                    sfxPlay3DSound(actor, pXSprite->data3, 0, 0);
+                if (actor->xspr.data3)
+                    sfxPlay3DSound(actor, actor->xspr.data3, 0, 0);
             }
             else
             {
-                if (pXSprite->data1)
-                    sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
+                if (actor->xspr.data1)
+                    sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
             }
         }
     }
@@ -725,16 +720,15 @@ void SectorEndSound(sectortype* pSector, int nState)
     {
         if (actor->spr.statnum == kStatDecoration && actor->spr.type == kSoundSector && actor->hasX())
         {
-            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
-                if (pXSprite->data2)
-                    sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
+                if (actor->xspr.data2)
+                    sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
             }
             else
             {
-                if (pXSprite->data4)
-                    sfxPlay3DSound(actor, pXSprite->data4, 0, 0);
+                if (actor->xspr.data4)
+                    sfxPlay3DSound(actor, actor->xspr.data4, 0, 0);
             }
         }
     }
@@ -1101,14 +1095,13 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
     if (actor && a2 > pXSector->busy)
     {
         assert(actor->hasX());
-        XSPRITE *pXSprite = &actor->x();
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
         {
             if (pXSector->interruptable)
             {
                 if (pXSector->Crush)
                 {
-                    if (pXSprite->health <= 0)
+                    if (actor->xspr.health <= 0)
                         return 2;
                     int nDamage;
                     if (pXSector->data == 0)
@@ -1119,7 +1112,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
                 }
                 a2 = ClipRange(a2-(vbp/2)*4, 0, 65536);
             }
-            else if (pXSector->Crush && pXSprite->health > 0)
+            else if (pXSector->Crush && actor->xspr.health > 0)
             {
                 int nDamage;
                 if (pXSector->data == 0)
@@ -1134,14 +1127,13 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
     else if (actor && a2 < pXSector->busy)
     {
         assert(actor->hasX());
-        XSPRITE* pXSprite = &actor->x();
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
         {
             if (pXSector->interruptable)
             {
                 if (pXSector->Crush)
                 {
-                    if (pXSprite->health <= 0)
+                    if (actor->xspr.health <= 0)
                         return 2;
                     int nDamage;
                     if (pXSector->data == 0)
@@ -1152,7 +1144,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
                 }
                 a2 = ClipRange(a2+(vbp/2)*4, 0, 65536);
             }
-            else if (pXSector->Crush && pXSprite->health > 0)
+            else if (pXSector->Crush && actor->xspr.health > 0)
             {
                 int nDamage;
                 if (pXSector->data == 0)
@@ -1417,7 +1409,6 @@ void OperateTeleport(sectortype* pSector)
 void OperatePath(sectortype* pSector, EVENT event)
 {
     DBloodActor* actor;
-    XSPRITE *pXSprite;
     assert(pSector);
     auto pXSector = &pSector->xs();
     if (!pXSector->marker0) return;
@@ -1430,8 +1421,7 @@ void OperatePath(sectortype* pSector, EVENT event)
     {
         if (actor->spr.type == kMarkerPath)
         {
-            pXSprite = &actor->x();
-            if (pXSprite->data1 == nId)
+            if (actor->xspr.data1 == nId)
                 break;
         }
     }
@@ -1564,7 +1554,6 @@ void OperateSector(sectortype* pSector, EVENT event)
 void InitPath(sectortype* pSector, XSECTOR *pXSector)
 {
     DBloodActor* actor = nullptr;
-    XSPRITE *pXSprite;
     assert(pSector);
     int nId = pXSector->data;
 
@@ -1573,8 +1562,7 @@ void InitPath(sectortype* pSector, XSECTOR *pXSector)
     {
         if (actor->spr.type == kMarkerPath && actor->hasX())
         {
-            pXSprite = &actor->x();
-            if (pXSprite->data1 == nId)
+            if (actor->xspr.data1 == nId)
                 break;
         }
     }
@@ -1621,7 +1609,6 @@ void LinkSector(sectortype* pSector, EVENT event)
 
 void LinkSprite(DBloodActor* actor, EVENT event) 
 {
-    auto pXSprite = &actor->x();
     int nBusy = GetSourceBusy(event);
 
     switch (actor->spr.type)  {
@@ -1631,8 +1618,8 @@ void LinkSprite(DBloodActor* actor, EVENT event)
             {
                 auto actor2 = event.getActor();
 
-                pXSprite->data1 = actor2 && actor2->hasX()? actor2->xspr.data1 : 0;
-                if (pXSprite->data1 == pXSprite->data2)
+                actor->xspr.data1 = actor2 && actor2->hasX()? actor2->xspr.data1 : 0;
+                if (actor->xspr.data1 == actor->xspr.data2)
                     SetSpriteState(actor, 1);
                 else
                     SetSpriteState(actor, 0);
@@ -1641,8 +1628,8 @@ void LinkSprite(DBloodActor* actor, EVENT event)
         break;
         default:
         {
-            pXSprite->busy = nBusy;
-            if ((pXSprite->busy & 0xffff) == 0)
+            actor->xspr.busy = nBusy;
+            if ((actor->xspr.busy & 0xffff) == 0)
                 SetSpriteState(actor, FixedToInt(nBusy));
         }
         break;
@@ -1700,15 +1687,13 @@ void trTriggerWall(walltype* pWall, int command)
 
 void trTriggerSprite(DBloodActor* actor, int command) 
 {
-    auto pXSprite = &actor->x();
-
-    if (!pXSprite->locked && !pXSprite->isTriggered) {
+    if (!actor->xspr.locked && !actor->xspr.isTriggered) {
         
-        if (pXSprite->triggerOnce)
-            pXSprite->isTriggered = 1;
+        if (actor->xspr.triggerOnce)
+            actor->xspr.isTriggered = 1;
 
-        if (pXSprite->Decoupled && pXSprite->txID > 0)
-           evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+        if (actor->xspr.Decoupled && actor->xspr.txID > 0)
+           evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
         
         else {
             EVENT event;
@@ -1767,10 +1752,9 @@ void trMessageWall(walltype* pWall, EVENT& event)
 
 void trMessageSprite(DBloodActor* actor, EVENT event) 
 {
-    auto pXSprite = &actor->x();
     if (actor->spr.statnum != kStatFree) {
 
-        if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) 
+        if (!actor->xspr.locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) 
         {
             switch (event.cmd) 
             {
@@ -2036,31 +2020,30 @@ void trInit(TArray<DBloodActor*>& actors)
     {
         if (actor->spr.statnum < kStatFree && actor->hasX())
         {
-            auto pXSprite = &actor->x();
-            if (pXSprite->state)
-                pXSprite->busy = 65536;
+            if (actor->xspr.state)
+                actor->xspr.busy = 65536;
             switch (actor->spr.type) {
             case kSwitchPadlock:
-                pXSprite->triggerOnce = 1;
+                actor->xspr.triggerOnce = 1;
                 break;
             #ifdef NOONE_EXTENSIONS
             case kModernRandom:
             case kModernRandom2:
 
-                if (!gModernMap || pXSprite->state == pXSprite->restState) break;
-                evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
-                if (pXSprite->waitTime > 0)
-                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                if (!gModernMap || actor->xspr.state == actor->xspr.restState) break;
+                evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat);
+                if (actor->xspr.waitTime > 0)
+                    evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
                 break;
             case kModernSeqSpawner:
             case kModernObjDataAccumulator:
             case kModernDudeTargetChanger:
             case kModernEffectSpawner:
             case kModernWindGenerator:
-                if (pXSprite->state == pXSprite->restState) break;
+                if (actor->xspr.state == actor->xspr.restState) break;
                 evPostActor(actor, 0, kCmdRepeat);
-                if (pXSprite->waitTime > 0)
-                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                if (actor->xspr.waitTime > 0)
+                    evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
                 break;
             #endif
             case kGenTrigger:
@@ -2075,15 +2058,15 @@ void trInit(TArray<DBloodActor*>& actors)
                 InitGenerator(actor);
                 break;
             case kThingArmedProxBomb:
-                pXSprite->Proximity = 1;
+                actor->xspr.Proximity = 1;
                 break;
             case kThingFallingRock:
-                if (pXSprite->state) actor->spr.flags |= 7;
+                if (actor->xspr.state) actor->spr.flags |= 7;
                 else actor->spr.flags &= ~7;
                 break;
             }
-            if (pXSprite->Vector) actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-            if (pXSprite->Push) actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
+            if (actor->xspr.Vector) actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+            if (actor->xspr.Push) actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
         }
     }
     
@@ -2112,21 +2095,19 @@ void trTextOver(int nId)
 void InitGenerator(DBloodActor* actor)
 {
     assert(actor->hasX());
-    XSPRITE *pXSprite = &actor->x();
     switch (actor->spr.type) {
         case kGenTrigger:
             actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
             actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
             break;
     }
-    if (pXSprite->state != pXSprite->restState && pXSprite->busyTime > 0)
-        evPostActor(actor, (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
+    if (actor->xspr.state != actor->xspr.restState && actor->xspr.busyTime > 0)
+        evPostActor(actor, (120*(actor->xspr.busyTime+Random2(actor->xspr.data1)))/10, kCmdRepeat);
 }
 
 void ActivateGenerator(DBloodActor* actor)
 {
     assert(actor->hasX());
-    XSPRITE *pXSprite = &actor->x();
     switch (actor->spr.type) {
         case kGenDripWater:
         case kGenDripBlood: {
@@ -2136,10 +2117,10 @@ void ActivateGenerator(DBloodActor* actor)
             break;
         }
         case kGenSound:
-            sfxPlay3DSound(actor, pXSprite->data2, -1, 0);
+            sfxPlay3DSound(actor, actor->xspr.data2, -1, 0);
             break;
         case kGenMissileFireball:
-            switch (pXSprite->data2) {
+            switch (actor->xspr.data2) {
                 case 0:
                     FireballTrapSeqCallback(3, actor);
                     break;
@@ -2174,13 +2155,12 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
 
 void MGunFireSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
-    if (pXSprite->data2 > 0 || pXSprite->data1 == 0)
+    if (actor->xspr.data2 > 0 || actor->xspr.data1 == 0)
     {
-        if (pXSprite->data2 > 0)
+        if (actor->xspr.data2 > 0)
         {
-            pXSprite->data2--;
-            if (pXSprite->data2 == 0)
+            actor->xspr.data2--;
+            if (actor->xspr.data2 == 0)
                 evPostActor(actor, 1, kCmdOff);
         }
         int dx = bcos(actor->spr.ang)+Random2(1000);
