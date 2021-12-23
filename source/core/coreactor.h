@@ -41,7 +41,7 @@ public:
 
 	bool exists() const
 	{
-		return (unsigned)s().statnum < MAXSTATUS;
+		return (unsigned)spr.statnum < MAXSTATUS;
 	}
 
 	const spritetype& s() const
@@ -57,17 +57,17 @@ public:
 	int GetIndex() const
 	{ 
 		// This is only identical with the sprite index for items spawned at map start.
-		return s().time; 
+		return spr.time; 
 	}	
 
 	sectortype* sector() const
 	{
-		return s().sector();
+		return spr.sector();
 	}
 
 	bool insector() const
 	{
-		return s().insector();
+		return spr.insector();
 	}
 
 };
