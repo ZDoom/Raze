@@ -91,7 +91,7 @@ void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, doubl
 {
 	double look_anghalf = gView->angle.look_anghalf(smoothratio);
 
-	DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
+	DrawCrosshair(kCrosshairTile, gView->actor->xspr.health >> 4, -look_anghalf, 0, 2);
 
 	if (gViewPos == 0)
 	{
@@ -127,7 +127,7 @@ void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, doubl
 
 		#ifdef NOONE_EXTENSIONS
 		if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
-			else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette);
+			else if (gView->actor->xspr.health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette);
 		else {
 			gView->sceneQav = gView->weaponQav = kQAVNone;
 			gView->qavTimer = gView->weaponTimer = gView->curWeapon = 0;
@@ -136,9 +136,9 @@ void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, doubl
 			WeaponDraw(gView, nShade, cX, cY, nPalette);
 		#endif
 	}
-	if (gViewPos == 0 && gView->pXSprite->burnTime > 60)
+	if (gViewPos == 0 && gView->actor->xspr.burnTime > 60)
 	{
-		viewBurnTime(gView->pXSprite->burnTime);
+		viewBurnTime(gView->actor->xspr.burnTime);
 	}
 	if (packItemActive(gView, 1))
 	{

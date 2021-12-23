@@ -189,7 +189,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
         if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
         {
             PLAYER *pPlayer = &gPlayer[nPlayer];
-            if (pPlayer->pXSprite->health > 0)
+            if (pPlayer->actor->xspr.health > 0)
             {
                 evKillActor(actor);
                 pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+pXSprite->data3, gAmmoInfo[8].max);
@@ -560,7 +560,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
     case kSoundPlayer:
         if (gGameOptions.nGameType == 0)
         {
-            if (gMe->pXSprite->health <= 0)
+            if (gMe->actor->xspr.health <= 0)
                 break;
             gMe->restTime = 0;
         }

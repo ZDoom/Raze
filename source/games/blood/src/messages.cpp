@@ -278,7 +278,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
         return nullptr;
 
-    if (gamestate != GS_LEVEL || gMe->pXSprite->health == 0) // must be alive and in a level to cheat.
+    if (gamestate != GS_LEVEL || gMe->actor->xspr.health == 0) // must be alive and in a level to cheat.
         return nullptr;
 
     bPlayerCheated = true;
@@ -308,7 +308,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
     case kCheatMcGee:
     {
-        if (!gMe->pXSprite->burnTime)
+        if (!gMe->actor->xspr.burnTime)
             evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->actor, gMe->actor, 2400);
         return GStrings("TXTB_FIRED");
@@ -321,7 +321,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     {
         actHealDude(gMe->actor, 200, 200);
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
-        if (!gMe->pXSprite->burnTime)
+        if (!gMe->actor->xspr.burnTime)
             evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->actor, gMe->actor, 2400);
         return GStrings("TXTB_RETARD");
@@ -397,7 +397,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetKeys(false);
         SetWooMode(true);
         powerupActivate(gMe, kPwUpDeliriumShroom);
-        gMe->pXSprite->health = 16;
+        gMe->actor->xspr.health = 16;
         gMe->hasWeapon[1] = 1;
         gMe->curWeapon = kWeapNone;
         gMe->nextWeapon = kWeapPitchFork;
@@ -488,7 +488,7 @@ static void cmd_Give(int player, uint8_t **stream, bool skip)
     int type = ReadByte(stream);
     if (skip) return;
 
-    if (numplayers != 1 || gamestate != GS_LEVEL || gMe->pXSprite->health == 0)
+    if (numplayers != 1 || gamestate != GS_LEVEL || gMe->actor->xspr.health == 0)
     {
         Printf("give: Cannot give while dead or not in a single-player game.\n");
         return;

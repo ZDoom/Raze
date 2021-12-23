@@ -65,7 +65,7 @@ void viewInitializePrediction(void)
 	predict.xvel = gMe->actor->xvel;
 	predict.yvel = gMe->actor->yvel;
 	predict.zvel = gMe->actor->zvel;
-	predict.floordist = gMe->pXSprite->height;
+	predict.floordist = gMe->actor->xspr.height;
 	predict.at48 = gMe->posture;
 	predict.spin = gMe->angle.spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);

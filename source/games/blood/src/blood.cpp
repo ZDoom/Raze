@@ -297,8 +297,8 @@ void StartLevel(MapRecord* level, bool newgame)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			PLAYER* pPlayer = &gPlayer[i];
-			pPlayer->pXSprite->health &= 0xf000;
-			pPlayer->pXSprite->health |= gHealthTemp[i];
+			pPlayer->actor->xspr.health &= 0xf000;
+			pPlayer->actor->xspr.health |= gHealthTemp[i];
 			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
 			pPlayer->curWeapon = gPlayerTemp[i].curWeapon;
 			pPlayer->weaponState = gPlayerTemp[i].weaponState;

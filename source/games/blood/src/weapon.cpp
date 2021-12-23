@@ -173,7 +173,7 @@ static bool BannedUnderwater(int nWeapon)
     return nWeapon == kWeapSpraycan || nWeapon == kWeapDynamite;
 }
 
-static bool CheckWeaponAmmo(const PLAYER *pPlayer, int weapon, int ammotype, int count)
+static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -181,12 +181,12 @@ static bool CheckWeaponAmmo(const PLAYER *pPlayer, int weapon, int ammotype, int
         return 1;
     if (weapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (weapon == kWeapLifeLeech && pPlayer->pXSprite->health > 0)
+    if (weapon == kWeapLifeLeech && pPlayer->actor->xspr.health > 0)
         return 1;
     return pPlayer->ammoCount[ammotype] >= count;
 }
 
-static bool CheckAmmo(const PLAYER *pPlayer, int ammotype, int count)
+static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -194,7 +194,7 @@ static bool CheckAmmo(const PLAYER *pPlayer, int ammotype, int count)
         return 1;
     if (pPlayer->curWeapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (pPlayer->curWeapon == kWeapLifeLeech && pPlayer->pXSprite->health >= unsigned(count<<4))
+    if (pPlayer->curWeapon == kWeapLifeLeech && pPlayer->actor->xspr.health >= unsigned(count<<4))
         return 1;
     return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -1731,7 +1731,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];
-            if (nAmmo < 25 && pPlayer->missile->xspr.health > unsigned((25-nAmmo)<<4))
+            if (nAmmo < 25 && pPlayer->actor->xspr.health > unsigned((25-nAmmo)<<4))
             {
                 actDamageSprite(actor, actor, kDamageSpirit, ((25-nAmmo)<<4));
                 nAmmo = 25;
@@ -1784,7 +1784,7 @@ int WeaponUpgrade(PLAYER *pPlayer, int newWeapon)
 int OrderNext[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 1 };
 int OrderPrev[] = { 12, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 };
 
-static int WeaponFindNext(const PLAYER *pPlayer, int *a2, int bDir)
+static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
 {
     int weapon = pPlayer->curWeapon;
     do
@@ -1817,7 +1817,7 @@ static int WeaponFindNext(const PLAYER *pPlayer, int *a2, int bDir)
     return weapon;
 }
 
-static int WeaponFindLoaded(const PLAYER *pPlayer, int *a2)
+static int WeaponFindLoaded(PLAYER *pPlayer, int *a2)
 {
     int v4 = 1;
     int v14 = 0;
@@ -2030,14 +2030,14 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
     
     #ifdef NOONE_EXTENSIONS
-    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->pXSprite->health > 0) {
+    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->actor->xspr.health > 0) {
         playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
         UpdateAimVector(pPlayer);
         return;
     }
     #endif
 
-    if (pPlayer->pXSprite->health == 0)
+    if (pPlayer->actor->xspr.health == 0)
     {
         pPlayer->qavLoop = 0;
         sfxKill3DSound(pPlayer->actor, 1, -1);
@@ -2069,7 +2069,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
     const int prevNewWeaponVal = pPlayer->input.getNewWeapon(); // used to fix scroll issue for banned weapons
     if ((bShoot || bShoot2 || prevNewWeaponVal) && pPlayer->weaponQav == qavGetCorrectID(kQAVVDIDLE2)) pPlayer->weaponTimer = 0;
-    if (pPlayer->qavLoop && pPlayer->pXSprite->health > 0)
+    if (pPlayer->qavLoop && pPlayer->actor->xspr.health > 0)
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
         {
@@ -2110,7 +2110,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->weaponTimer > 0)
         return;
-    if (pPlayer->pXSprite->health == 0 || pPlayer->curWeapon == kWeapNone)
+    if (pPlayer->actor->xspr.health == 0 || pPlayer->curWeapon == kWeapNone)
         pPlayer->weaponQav = kQAVNone;
     switch (pPlayer->curWeapon)
     {
@@ -2295,7 +2295,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
         }
-        if (pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
+        if (pPlayer->actor->xspr.health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
         {
             pPlayer->newWeapon = kWeapNone;
             return;
@@ -2631,7 +2631,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             }
             return;
         case kWeapLifeLeech:
-            if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->pXSprite->health < (25 << 4))
+            if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->actor->xspr.health < (25 << 4))
             {
                 sfxPlay3DSound(pPlayer->actor, 494, 2, 0);
                 StartQAV(pPlayer, kQAVSTAFIRE4, nClientFireLifeLeech);

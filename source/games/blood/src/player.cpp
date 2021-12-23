@@ -681,7 +681,6 @@ void playerStart(int nPlayer, int bNewLevel)
     auto actor = actSpawnSprite(pStartZone->sector, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
-    pPlayer->pXSprite = pXSprite;
     pPlayer->actor = actor;
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
     pPlayer->pDudeInfo = pDudeInfo;
@@ -701,7 +700,7 @@ void playerStart(int nPlayer, int bNewLevel)
     actor->spr.flags = 15;
     pXSprite->burnTime = 0;
     actor->SetBurnSource(nullptr);
-    pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
+    pPlayer->actor->xspr.health = pDudeInfo->startHealth<<4;
     pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
     pPlayer->bloodlust = 0;
     pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
@@ -792,7 +791,7 @@ void playerStart(int nPlayer, int bNewLevel)
     if (IsUnderwaterSector(actor->spr.sector()))
     {
         pPlayer->posture = 1;
-        pPlayer->pXSprite->medium = kMediumWater;
+        pPlayer->actor->xspr.medium = kMediumWater;
     }
 }
 
@@ -1348,9 +1347,8 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
     auto plActor = pPlayer->actor;
-    auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = pPlayer->actor->hit.florhit.type;
-    bool const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
+    bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(plActor->spr.pos.vec2, buildang(plActor->spr.ang), va, plActor->spr.sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->spr.sector(), scaleAdjust);
 }
 
@@ -2180,10 +2178,9 @@ void PlayerSurvive(int, DBloodActor* actor)
 
 void PlayerKneelsOver(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
     {
-        if (gPlayer[p].pXSprite == pXSprite)
+        if (gPlayer[p].actor == actor)
         {
             PLAYER *pPlayer = &gPlayer[p];
             playerDamageSprite(pPlayer->fragger, pPlayer, kDamageSpirit, 500<<4);
@@ -2375,7 +2372,6 @@ void SerializePlayers(FSerializer& arc)
     {
         for (int i = 0; i < gNetPlayers; i++) 
         {
-            gPlayer[i].pXSprite = &gPlayer[i].actor->x();
             gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].actor->spr.type - kDudeBase];
 
 #ifdef NOONE_EXTENSIONS

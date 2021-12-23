@@ -1183,10 +1183,10 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a >= 0; a = connectpoint2[a])
                 {
                     PLAYER* pPlayer = &gPlayer[a];
-                    if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
+                    if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->actor->xspr.health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
+                    if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
                     {
                         trTriggerSprite(pProx, kCmdSpriteProximity);
                         break;
@@ -1226,7 +1226,7 @@ void nnExtProcessSuperSprites()
             for (int a = connecthead; a >= 0; a = connectpoint2[a])
             {
                 PLAYER* pPlayer = &gPlayer[a];
-                if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
+                if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->actor->xspr.health <= 0)
                     continue;
 
                 auto plActor = pPlayer->actor;
@@ -2017,7 +2017,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
         pPlayer->sceneQav = -1;
 
         // restore weapon
-        if (pPlayer->pXSprite->health > 0) 
+        if (pPlayer->actor->xspr.health > 0) 
         {
             int oldWeapon = (pXInitiator && pXInitiator->dropMsg != 0) ? pXInitiator->dropMsg : 1;
             pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
@@ -2036,34 +2036,35 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondition) 
 {
     // save player's sprite index to let the tracking condition know it after savegame loading...
-    sourceactor->prevmarker             = pPlayer->actor;
+    auto actor = pPlayer->actor;
+    sourceactor->prevmarker             = actor;
     
-    pPlayer->pXSprite->txID             = sourceactor->xspr.txID;
-    pPlayer->pXSprite->command          = kCmdToggle;
-    pPlayer->pXSprite->triggerOn        = sourceactor->xspr.triggerOn;
-    pPlayer->pXSprite->triggerOff       = sourceactor->xspr.triggerOff;
-    pPlayer->pXSprite->busyTime         = sourceactor->xspr.busyTime;
-    pPlayer->pXSprite->waitTime         = sourceactor->xspr.waitTime;
-    pPlayer->pXSprite->restState        = sourceactor->xspr.restState;
+    actor->xspr.txID             = sourceactor->xspr.txID;
+    actor->xspr.command          = kCmdToggle;
+    actor->xspr.triggerOn        = sourceactor->xspr.triggerOn;
+    actor->xspr.triggerOff       = sourceactor->xspr.triggerOff;
+    actor->xspr.busyTime         = sourceactor->xspr.busyTime;
+    actor->xspr.waitTime         = sourceactor->xspr.waitTime;
+    actor->xspr.restState        = sourceactor->xspr.restState;
 
-    pPlayer->pXSprite->Push             = sourceactor->xspr.Push;
-    pPlayer->pXSprite->Impact           = sourceactor->xspr.Impact;
-    pPlayer->pXSprite->Vector           = sourceactor->xspr.Vector;
-    pPlayer->pXSprite->Touch            = sourceactor->xspr.Touch;
-    pPlayer->pXSprite->Sight            = sourceactor->xspr.Sight;
-    pPlayer->pXSprite->Proximity        = sourceactor->xspr.Proximity;
+    actor->xspr.Push             = sourceactor->xspr.Push;
+    actor->xspr.Impact           = sourceactor->xspr.Impact;
+    actor->xspr.Vector           = sourceactor->xspr.Vector;
+    actor->xspr.Touch            = sourceactor->xspr.Touch;
+    actor->xspr.Sight            = sourceactor->xspr.Sight;
+    actor->xspr.Proximity        = sourceactor->xspr.Proximity;
 
-    pPlayer->pXSprite->Decoupled        = sourceactor->xspr.Decoupled;
-    pPlayer->pXSprite->Interrutable     = sourceactor->xspr.Interrutable;
-    pPlayer->pXSprite->DudeLockout      = sourceactor->xspr.DudeLockout;
+    actor->xspr.Decoupled        = sourceactor->xspr.Decoupled;
+    actor->xspr.Interrutable     = sourceactor->xspr.Interrutable;
+    actor->xspr.DudeLockout      = sourceactor->xspr.DudeLockout;
 
-    pPlayer->pXSprite->data1            = sourceactor->xspr.data1;
-    pPlayer->pXSprite->data2            = sourceactor->xspr.data2;
-    pPlayer->pXSprite->data3            = sourceactor->xspr.data3;
-    pPlayer->pXSprite->data4            = sourceactor->xspr.data4;
+    actor->xspr.data1            = sourceactor->xspr.data1;
+    actor->xspr.data2            = sourceactor->xspr.data2;
+    actor->xspr.data3            = sourceactor->xspr.data3;
+    actor->xspr.data4            = sourceactor->xspr.data4;
 
-    pPlayer->pXSprite->key              = sourceactor->xspr.key;
-    pPlayer->pXSprite->dropMsg          = sourceactor->xspr.dropMsg;
+    actor->xspr.key              = sourceactor->xspr.key;
+    actor->xspr.dropMsg          = sourceactor->xspr.dropMsg;
 
     // let's check if there is tracking condition expecting objects with this TX id
     if (checkCondition && sourceactor->xspr.txID >= kChannelUser) 
@@ -2079,7 +2080,7 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
             {
                 if (!pCond->obj[k].obj.isActor() || pCond->obj[k].obj.actor() != sourceactor) continue;
                 pCond->obj[k].obj = EventObject(pPlayer->actor);
-                pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
+                pCond->obj[k].cmd = (uint8_t)pPlayer->actor->xspr.command;
                 break;
             }
         }
@@ -2899,7 +2900,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                             pPlayer->nWaterPal = waterPal;
                             pPlayer->posture = kPostureSwim;
-                            pPlayer->pXSprite->burnTime = 0;
+                            pPlayer->actor->xspr.burnTime = 0;
                         }
 
                     }
@@ -3013,7 +3014,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
                 pPlayer->nWaterPal = waterPal;
                 pPlayer->posture = kPostureSwim;
-                pPlayer->pXSprite->burnTime = 0;
+                pPlayer->actor->xspr.burnTime = 0;
             }
         } 
         else 
@@ -5723,7 +5724,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
             /// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
             if ((cmd -= kCmdNumberic) < 0) return true;
-            else if (pPlayer->pXSprite->health <= 0) 
+            else if (pPlayer->actor->xspr.health <= 0) 
             {
                         
                 switch (cmd) {
@@ -7081,14 +7082,14 @@ void playerQavSceneReset(PLAYER* pPlayer)
 
 bool playerSizeShrink(PLAYER* pPlayer, int divider) 
 {
-    pPlayer->pXSprite->scale = 256 / divider;
+    pPlayer->actor->xspr.scale = 256 / divider;
     playerSetRace(pPlayer, kModeHumanShrink);
     return true;
 }
 
 bool playerSizeGrow(PLAYER* pPlayer, int multiplier) 
 {
-    pPlayer->pXSprite->scale = 256 * multiplier;
+    pPlayer->actor->xspr.scale = 256 * multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
     return true;
 }
@@ -7096,7 +7097,7 @@ bool playerSizeGrow(PLAYER* pPlayer, int multiplier)
 bool playerSizeReset(PLAYER* pPlayer) 
 {
     playerSetRace(pPlayer, kModeHuman);
-    pPlayer->pXSprite->scale = 0;
+    pPlayer->actor->xspr.scale = 0;
     return true;
 }
 

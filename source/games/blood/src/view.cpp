@@ -404,7 +404,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
     
     pSector = gView->actor->spr.sector();
 #if 0
-    if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
+    if (numplayers > 1 && gView == gMe && gPrediction && gMe->actor->xspr.health > 0)
     {
         nSectnum = predict. sectnum;
         cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate);
@@ -573,8 +573,8 @@ void viewDrawScreen(bool sceneonly)
         else if (gView->isUnderwater) {
             if (gView->nWaterPal) basepal = gView->nWaterPal;
             else {
-                if (gView->pXSprite->medium == kMediumWater) basepal = 1;
-                else if (gView->pXSprite->medium == kMediumGoo) basepal = 3;
+                if (gView->actor->xspr.medium == kMediumWater) basepal = 1;
+                else if (gView->actor->xspr.medium == kMediumGoo) basepal = 3;
                 else basepal = 2;
             }
         }
