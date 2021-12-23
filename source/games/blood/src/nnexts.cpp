@@ -7612,7 +7612,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
         // if reached marker is in radius of another marker with -3, but greater radius, use that marker
         // idea: for nodes only flag32 = specify if enemy must return back to node or allowed to select
         // another marker which belongs that node?
-        XSPRITE* pXPrev = NULL;
         DBloodActor* prevactor = nullptr;
 
         DBloodActor* firstFinePath = nullptr;
@@ -7622,7 +7621,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
         if (actor->prevmarker)
         {
             prevactor = actor->prevmarker;
-            pXPrev = &prevactor->x();
         }
 
         bool node = markerIsNode(targetactor, false);
@@ -7637,12 +7635,11 @@ void aiPatrolSetMarker(DBloodActor* actor)
             if (nextactor == targetactor || !nextactor->hasX()) continue;
             else if (actor->xspr.targetX >= 0 && nextactor == prevactor && node) 
             {
-                if (targetactor->xspr.data2 == pXPrev->data1)
+                if (targetactor->xspr.data2 == prevactor->xspr.data1)
                     continue;
             }
 
-            auto pXNext = &nextactor->x();
-            if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != next) || (!back && pXNext->data1 != next))
+            if ((nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout) || (back && nextactor->xspr.data2 != next) || (!back && nextactor->xspr.data1 != next))
                 continue;
             
             if (firstFinePath == nullptr) firstFinePath = nextactor;
@@ -7779,7 +7776,6 @@ void aiPatrolMove(DBloodActor* actor)
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
 
-    XSPRITE* pXTarget   = &targetactor->x();
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
@@ -7805,7 +7801,7 @@ void aiPatrolMove(DBloodActor* actor)
     int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
     actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
     
-    if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(actor))) 
+    if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor))) 
     {
        actor->xvel = 0;
        actor->yvel = 0;
@@ -7821,7 +7817,7 @@ void aiPatrolMove(DBloodActor* actor)
     }
     else 
     {
-        int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, pXTarget->busyTime);
+        int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
         actor->xvel += MulScale(frontSpeed, Cos(actor->spr.ang), 30);
         actor->yvel += MulScale(frontSpeed, Sin(actor->spr.ang), 30);
     }
@@ -7855,8 +7851,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
         if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        auto pXDude = &dudeactor->x();
-        if (pXDude->health <= 0)
+        if (dudeactor->xspr.health <= 0)
             continue;
 
         int eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) << 2;
@@ -7868,7 +7863,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
                 continue;
         }
 
-        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+        if (aiInPatrolState(dudeactor->xspr.aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
         if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
             continue;
 
@@ -7908,8 +7903,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
         if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        auto pXDude = &dudeactor->x();
-        if (pXDude->health <= 0)
+        if (dudeactor->xspr.health <= 0)
             continue;
 
         int eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.yrepeat) << 2;
@@ -7919,13 +7913,13 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 
         int nDist1 = approxDist(x1 - x2, y1 - y2);
         int nDist2 = approxDist(x1 - x3, y1 - y3);
-        //int hdist = (pXDude->dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->hearDist / 4;
-        int sdist = (pXDude->dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->seeDist / 2;
+        //int hdist = (dudeactor->xspr.dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->hearDist / 4;
+        int sdist = (dudeactor->xspr.dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->seeDist / 2;
 
         if (//(nDist1 < hdist || nDist2 < hdist) ||
             ((nDist1 < sdist && cansee(x1, y1, z1, pSect1, x2, y2, z2, pSect2)) || (nDist2 < sdist && cansee(x1, y1, z1, pSect1, x3, y3, z3, pSect3)))) {
 
-            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+            if (aiInPatrolState(dudeactor->xspr.aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
             if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
                 continue;
 
@@ -8030,8 +8024,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
         if (!pPlayer->actor->hasX()) continue;
 
         auto plActor = pPlayer->actor;
-        XSPRITE* pXSpr = &pPlayer->actor->x();
-        if (pXSpr->health <= 0)
+        if (plActor->xspr.health <= 0)
             continue;
 
         newtarget = nullptr;
@@ -8212,8 +8205,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     if (!steal->hasX())
                         continue;
 
-                    XSPRITE* pXSteal = &steal->x();
-                    if (pXSteal->locked) // ignore locked regions
+                    if (steal->xspr.locked) // ignore locked regions
                         continue;
 
                     bool fixd = (steal->spr.flags & kModernTypeFlag1); // fixed percent value
@@ -8225,9 +8217,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     if (trgt) 
                     {
 
-                        if (pXSteal->data1 > 0)
+                        if (steal->xspr.data1 > 0)
                         {
-                            if (approxDist(abs(steal->spr.pos.X - plActor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - plActor->spr.pos.Y) >> 4) >= pXSteal->data1)
+                            if (approxDist(abs(steal->spr.pos.X - plActor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - plActor->spr.pos.Y) >> 4) >= steal->xspr.data1)
                                 continue;
 
                         } 
@@ -8240,9 +8232,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
                     if (dude) 
                     {
-                        if (pXSteal->data1 > 0)
+                        if (steal->xspr.data1 > 0)
                         {
-                            if (approxDist(abs(steal->spr.pos.X - actor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - actor->spr.pos.Y) >> 4) >= pXSteal->data1)
+                            if (approxDist(abs(steal->spr.pos.X - actor->spr.pos.X) >> 4, abs(steal->spr.pos.Y - actor->spr.pos.Y) >> 4) >= steal->xspr.data1)
                                 continue;
 
                         } 
@@ -8253,9 +8245,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     if (itCanHear) 
                     {
                         if (fixd)
-                            hearChance = ClipLow(hearChance, pXSteal->data2);
+                            hearChance = ClipLow(hearChance, steal->xspr.data2);
 
-                        mod = (hearChance * pXSteal->data2) / kPercFull;
+                        mod = (hearChance * steal->xspr.data2) / kPercFull;
                         if (fixd)  hearChance = mod; else hearChance += mod;
 
                         hearChance = ClipRange(hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
@@ -8264,16 +8256,16 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     if (itCanSee) 
                     {
                         if (fixd)
-                            seeChance = ClipLow(seeChance, pXSteal->data3);
+                            seeChance = ClipLow(seeChance, steal->xspr.data3);
 
-                        mod = (seeChance * pXSteal->data3) / kPercFull;
+                        mod = (seeChance * steal->xspr.data3) / kPercFull;
                         if (fixd) seeChance = mod; else seeChance += mod;
 
                         seeChance = ClipRange(seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                     }
 
                     // trigger this region if target gonna be spot
-                    if (pXSteal->txID && actor->xspr.data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
+                    if (steal->xspr.txID && actor->xspr.data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
                         trTriggerSprite(steal, kCmdToggle);
                    
                     // continue search another stealth regions to affect chances
@@ -8330,41 +8322,39 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init) 
 {
-    XSPRITE* pXDest = &destactor->x();
-
     // copy flags
     if (copy) 
     {
-        pXDest->dudeFlag4  = sourceactor->xspr.dudeFlag4;
-        pXDest->dudeAmbush = sourceactor->xspr.dudeAmbush;
-        pXDest->dudeGuard  = sourceactor->xspr.dudeGuard;
-        pXDest->dudeDeaf   = sourceactor->xspr.dudeDeaf;
-        pXDest->unused1    = sourceactor->xspr.unused1;
+        destactor->xspr.dudeFlag4  = sourceactor->xspr.dudeFlag4;
+        destactor->xspr.dudeAmbush = sourceactor->xspr.dudeAmbush;
+        destactor->xspr.dudeGuard  = sourceactor->xspr.dudeGuard;
+        destactor->xspr.dudeDeaf   = sourceactor->xspr.dudeDeaf;
+        destactor->xspr.unused1    = sourceactor->xspr.unused1;
 
-        if (sourceactor->xspr.unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
-        else pXDest->unused1 &= ~kDudeFlagStealth;
+        if (sourceactor->xspr.unused1 & kDudeFlagStealth) destactor->xspr.unused1 |= kDudeFlagStealth;
+        else destactor->xspr.unused1 &= ~kDudeFlagStealth;
     }
 
     // do init
     if (init) 
     {
-        if (!pXDest->dudeFlag4) 
+        if (!destactor->xspr.dudeFlag4) 
         {
-            if (aiInPatrolState(pXDest->aiState))
+            if (aiInPatrolState(destactor->xspr.aiState))
                 aiPatrolStop(destactor, nullptr);
         }
         else 
         {
-            if (aiInPatrolState(pXDest->aiState))
+            if (aiInPatrolState(destactor->xspr.aiState))
                 return;
             
             destactor->SetTarget(nullptr);
-            pXDest->stateTimer = 0;
+            destactor->xspr.stateTimer = 0;
             
             aiPatrolSetMarker(destactor);
             if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
             else aiPatrolState(destactor, kAiStatePatrolWaitL);
-            pXDest->data3 = 0; // reset the spot progress
+            destactor->xspr.data3 = 0; // reset the spot progress
         }
     }
 }
@@ -8408,16 +8398,15 @@ void aiPatrolThink(DBloodActor* actor)
         return;
     }
     
-    XSPRITE* pXMarker = &markeractor->x();
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->spr.type - kDudeBase];
-    bool isFinal = ((!actor->xspr.unused2 && pXMarker->data2 == -1) || (actor->xspr.unused2 && pXMarker->data1 == -1));
+    bool isFinal = ((!actor->xspr.unused2 && markeractor->xspr.data2 == -1) || (actor->xspr.unused2 && markeractor->xspr.data1 == -1));
     bool reached = false;
     
     if (aiPatrolWaiting(actor->xspr.aiState)) 
     {
         //viewSetSystemMessage("WAIT %d / %d", actor->xspr.targetY, actor->xspr.stateTimer);
         
-        if (actor->xspr.stateTimer > 0 || pXMarker->data1 == pXMarker->data2) 
+        if (actor->xspr.stateTimer > 0 || markeractor->xspr.data1 == markeractor->xspr.data2) 
         {
             if (pExtra->flying)
                 actor->zvel = Random2(0x8000);
@@ -8442,16 +8431,16 @@ void aiPatrolThink(DBloodActor* actor)
         }
 
         // trigger at departure
-        if (pXMarker->triggerOff) 
+        if (markeractor->xspr.triggerOff) 
         {
             // send command
-            if (pXMarker->txID) 
+            if (markeractor->xspr.txID) 
             {
-                evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
 
                 // copy dude flags for current dude
             }
-            else if (pXMarker->command == kCmdDudeFlagsSet) 
+            else if (markeractor->xspr.command == kCmdDudeFlagsSet) 
             {
                 aiPatrolFlagsMgr(markeractor, actor, true, true);
                 if (!actor->xspr.dudeFlag4) // this dude is not in patrol anymore
@@ -8489,7 +8478,7 @@ void aiPatrolThink(DBloodActor* actor)
     }
     else if ((reached = aiPatrolMarkerReached(actor)) == true) 
     {
-        pXMarker->isTriggered = pXMarker->triggerOnce; // can't select this marker for path anymore if true
+        markeractor->xspr.isTriggered = markeractor->xspr.triggerOnce; // can't select this marker for path anymore if true
 
         if (markeractor->spr.flags > 0) 
         {
@@ -8498,7 +8487,7 @@ void aiPatrolThink(DBloodActor* actor)
             else if ((markeractor->spr.flags & kModernTypeFlag1) && aiCanCrouch(actor)) crouch = true;
         }
 
-        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) 
+        if (markeractor->xspr.waitTime > 0 || markeractor->xspr.data1 == markeractor->xspr.data2) 
         {
             // take marker's angle
             if (!(markeractor->spr.flags & kModernTypeFlag4)) 
@@ -8512,14 +8501,14 @@ void aiPatrolThink(DBloodActor* actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
             // trigger at arrival
-            if (pXMarker->triggerOn) 
+            if (markeractor->xspr.triggerOn) 
             {
                 // send command
-                if (pXMarker->txID) 
+                if (markeractor->xspr.txID) 
                 {
-                    evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                    evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
                 } 
-                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                else if (markeractor->xspr.command == kCmdDudeFlagsSet) 
                 {
                 // copy dude flags for current dude
                     aiPatrolFlagsMgr(markeractor, actor, true, true);
@@ -8532,8 +8521,8 @@ void aiPatrolThink(DBloodActor* actor)
             else if (crouch) aiPatrolState(actor, kAiStatePatrolWaitC);
             else aiPatrolState(actor, kAiStatePatrolWaitL);
 
-            if (pXMarker->waitTime)
-                actor->xspr.stateTimer = (pXMarker->waitTime * 120) / 10;
+            if (markeractor->xspr.waitTime)
+                actor->xspr.stateTimer = (markeractor->xspr.waitTime * 120) / 10;
 
             if (markeractor->spr.flags & kModernTypeFlag16)
                 actor->xspr.unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
@@ -8545,21 +8534,21 @@ void aiPatrolThink(DBloodActor* actor)
             if (markeractor->GetOwner() == actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
-            if (pXMarker->triggerOn || pXMarker->triggerOff) 
+            if (markeractor->xspr.triggerOn || markeractor->xspr.triggerOff) 
             {
-                if (pXMarker->txID) 
+                if (markeractor->xspr.txID) 
                 {
                     // send command at arrival
-                    if (pXMarker->triggerOn)
-                        evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                    if (markeractor->xspr.triggerOn)
+                        evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
 
                     // send command at departure
-                    if (pXMarker->triggerOff)
-                        evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                    if (markeractor->xspr.triggerOff)
+                        evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
 
                 // copy dude flags for current dude
                 }
-                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                else if (markeractor->xspr.command == kCmdDudeFlagsSet) 
                 {
                     aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!actor->xspr.dudeFlag4) // this dude is not in patrol anymore
