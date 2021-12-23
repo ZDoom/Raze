@@ -364,10 +364,9 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
         int dz2 = z-ceilZ;
         auto gibactor = actSpawnThing(pSector, x, y, z, pGThing->type);
         if (!gibactor) return;
-        spritetype *pGib = &gibactor->s();
-        assert(pGib != NULL);
+
         if (pGThing->Kills > -1)
-            pGib->picnum = pGThing->Kills;
+            gibactor->spr.picnum = pGThing->Kills;
         if (pVel)
         {
             gibactor->xvel = pVel->vx+Random2(pGThing->atc);
