@@ -111,15 +111,17 @@ bool Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 				if (prev->next && prev->end >= prev->next->start && prev->next->topclip <= prev->next->bottomclip)
 				{
 					prev->end = prev->next->end;
-					Free(prev->next);
+					RemoveRange(prev->next);
 					return true;
 				}
+				ValidateList();
 				return false;
 			}
 			else if (prev->next && node->end >= prev->next->start && prev->next->topclip <= prev->next->bottomclip)
 			{
 				prev->next->start = node->start;
 				Free(node);
+				ValidateList();
 				return false;
 			}
 		}
@@ -637,6 +639,7 @@ void Clipper::RemoveClipRange(int start, int end)
 			node = node->next;
 		}
 	}
+	ValidateList();
 }
 
 
