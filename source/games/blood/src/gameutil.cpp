@@ -404,32 +404,32 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     {
         if (nRange && approxDist(gHitInfo.hitpos.X - actor->spr.pos.X, gHitInfo.hitpos.Y - actor->spr.pos.Y) > nRange)
             return -1;
-        if (gHitInfo.actor() != nullptr)
+        auto other = gHitInfo.actor();
+        if (other != nullptr)
         {
-            spritetype *pOther = &gHitInfo.actor()->s();
-            if ((pOther->flags & 8) && !(ac & 1))
+            if ((other->spr.flags & 8) && !(ac & 1))
                 return 3;
-            if ((pOther->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0)
+            if ((other->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0)
                 return 3;
-            int nPicnum = pOther->picnum;
+            int nPicnum = other->spr.picnum;
             if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
                 return 3;
-            int height = (tileHeight(nPicnum)*pOther->yrepeat)<<2;
-            int otherZ = pOther->pos.Z;
-            if (pOther->cstat & CSTAT_SPRITE_YCENTER)
+            int height = (tileHeight(nPicnum)*other->spr.yrepeat)<<2;
+            int otherZ = other->spr.pos.Z;
+            if (other->spr.cstat & CSTAT_SPRITE_YCENTER)
                 otherZ += height / 2;
             int nOffset = tileTopOffset(nPicnum);
             if (nOffset)
-                otherZ -= (nOffset*pOther->yrepeat)<<2;
+                otherZ -= (nOffset*other->spr.yrepeat)<<2;
             assert(height > 0);
             int height2 = scale(otherZ-gHitInfo.hitpos.Z, tileHeight(nPicnum), height);
-            if (!(pOther->cstat & CSTAT_SPRITE_YFLIP))
+            if (!(other->spr.cstat & CSTAT_SPRITE_YFLIP))
                 height2 = tileHeight(nPicnum)-height2;
             if (height2 >= 0 && height2 < tileHeight(nPicnum))
             {
-                int width = (tileWidth(nPicnum)*pOther->xrepeat)>>2;
+                int width = (tileWidth(nPicnum)*other->spr.xrepeat)>>2;
                 width = (width*3)/4;
-                int check1 = ((y1 - pOther->pos.Y)*dx - (x1 - pOther->pos.X)*dy) / ksqrt(dx*dx+dy*dy);
+                int check1 = ((y1 - other->spr.pos.Y)*dx - (x1 - other->spr.pos.X)*dy) / ksqrt(dx*dx+dy*dy);
                 assert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
                 int nOffset = tileLeftOffset(nPicnum);
@@ -441,12 +441,12 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                         return 3;
                 }
             }
-            auto bakCstat = pOther->cstat;
-            pOther->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
+            auto bakCstat = other->spr.cstat;
+            other->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
             gHitInfo.clearObj();
             pos = gHitInfo.hitpos; // must make a copy!
-            hitscan(pos, pOther->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
-            pOther->cstat = bakCstat;
+            hitscan(pos, other->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+            other->spr.cstat = bakCstat;
             continue;
         }
         if (gHitInfo.hitWall != nullptr)
