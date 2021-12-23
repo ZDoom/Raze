@@ -319,7 +319,6 @@ void MoveWeapons(int nPlayer)
         nTemperature[nPlayer] = 0;
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-	auto pPlayerSprite = &pPlayerActor->s();
     int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     if (nWeapon < -1)
@@ -614,10 +613,10 @@ loc_flag:
         {
             BuildFlash(nPlayer, 512);
             AddFlash(
-                pPlayerSprite->sector(),
-                pPlayerSprite->pos.X,
-                pPlayerSprite->pos.Y,
-                pPlayerSprite->pos.Z,
+                pPlayerActor->spr.sector(),
+                pPlayerActor->spr.pos.X,
+                pPlayerActor->spr.pos.Y,
+                pPlayerActor->spr.pos.Z,
                 0);
         }
 
@@ -648,13 +647,13 @@ loc_flag:
             }
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            int nAngle = pPlayerSprite->ang;
-            int theX = pPlayerSprite->pos.X;
-            int theY = pPlayerSprite->pos.Y;
-            int theZ = pPlayerSprite->pos.Z;
+            int nAngle = pPlayerActor->spr.ang;
+            int theX = pPlayerActor->spr.pos.X;
+            int theY = pPlayerActor->spr.pos.Y;
+            int theZ = pPlayerActor->spr.pos.Z;
 
-            int ebp = bcos(nAngle) * (pPlayerSprite->clipdist << 3);
-            int ebx = bsin(nAngle) * (pPlayerSprite->clipdist << 3);
+            int ebp = bcos(nAngle) * (pPlayerActor->spr.clipdist << 3);
+            int ebx = bsin(nAngle) * (pPlayerActor->spr.clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
             {
@@ -688,7 +687,7 @@ loc_flag:
                 }
             }
 
-            auto pSectorB = pPlayerSprite->sector();
+            auto pSectorB = pPlayerActor->spr.sector();
 
             switch (nWeapon)
             {
@@ -728,25 +727,24 @@ loc_flag:
                             else if (cRange.type == kHitSprite)
                             {
                                 auto pActor2 = cRange.actor();
-                                auto pSprite2 = &pActor2->s();
 
-                                if (pSprite2->cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
+                                if (pActor2->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
                                 {
                                     var_28 += 2;
                                 }
-                                else if (pSprite2->statnum > 90 && pSprite2->statnum <= 199)
+                                else if (pActor2->spr.statnum > 90 && pActor2->spr.statnum <= 199)
                                 {
                                     runlist_DamageEnemy(pActor2, pPlayerActor, nDamage);
 
-                                    if (pSprite2->statnum < 102) {
+                                    if (pActor2->spr.statnum < 102) {
                                         var_28++;
                                     }
-                                    else if (pSprite2->statnum == 102)
+                                    else if (pActor2->spr.statnum == 102)
                                     {
                                         // loc_27370:
                                         BuildAnim(nullptr, 12, 0, theX, theY, theZ, pSectorB, 30, 0);
                                     }
-                                    else if (pSprite2->statnum == kStatExplodeTrigger) {
+                                    else if (pActor2->spr.statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
                                     }
                                     else {
@@ -809,10 +807,9 @@ loc_flag:
                     {
                         DExhumedActor* t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
-                        auto pTargetSprite = &t->s();
-						assert(pTargetSprite->sector());
-                        int angletotarget = bvectangbam(pTargetSprite->pos.X - pPlayerSprite->pos.X, pTargetSprite->pos.Y - pPlayerSprite->pos.Y).asbuild();
-                        int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
+						assert(t->spr.sector());
+                        int angletotarget = bvectangbam(t->spr.pos.X - pPlayerActor->spr.pos.X, t->spr.pos.Y - pPlayerActor->spr.pos.Y).asbuild();
+                        int anglediff = (pPlayerActor->spr.ang - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {
                             target = t;
@@ -833,8 +830,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    PlayerList[nPlayer].nXDamage -= bcos(pPlayerSprite->ang, 9);
-                    PlayerList[nPlayer].nYDamage -= bsin(pPlayerSprite->ang, 9);
+                    PlayerList[nPlayer].nXDamage -= bcos(pPlayerActor->spr.ang, 9);
+                    PlayerList[nPlayer].nYDamage -= bsin(pPlayerActor->spr.ang, 9);
                     break;
                 }
                 case kWeaponRing:
