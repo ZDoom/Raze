@@ -61,8 +61,8 @@ void viewBackupView(int nPlayer)
     PLAYER *pPlayer = &gPlayer[nPlayer];
     VIEW *pView = &gPrevView[nPlayer];
     pView->angle = pPlayer->angle.ang;
-    pView->x = pPlayer->pSprite->pos.X;
-    pView->y = pPlayer->pSprite->pos.Y;
+    pView->x = pPlayer->actor->spr.pos.X;
+    pView->y = pPlayer->actor->spr.pos.Y;
     pView->viewz = pPlayer->zView;
     pView->weaponZ = pPlayer->zWeapon-pPlayer->zView-0xc00;
     pView->horiz = pPlayer->horizon.horiz;
@@ -82,9 +82,9 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
 {
     PLAYER *pPlayer = &gPlayer[nPlayer];
     VIEW *pView = &gPrevView[nPlayer];
-    pView->x += pPlayer->pSprite->pos.X-oldpos->X;
-    pView->y += pPlayer->pSprite->pos.Y-oldpos->Y;
-    pView->viewz += pPlayer->pSprite->pos.Z-oldpos->Z;
+    pView->x += pPlayer->actor->spr.pos.X-oldpos->X;
+    pView->y += pPlayer->actor->spr.pos.Y-oldpos->Y;
+    pView->viewz += pPlayer->actor->spr.pos.Z-oldpos->Z;
 }
 
 void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, bool shadow)
@@ -402,7 +402,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 {
     int bobWidth, bobHeight;
     
-    pSector = gView->pSprite->sector();
+    pSector = gView->actor->spr.sector();
 #if 0
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
@@ -433,8 +433,8 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 #endif
     {
         VIEW* pView = &gPrevView[gViewIndex];
-        cX = interpolatedvalue(pView->x, gView->pSprite->pos.X, gInterpolate);
-        cY = interpolatedvalue(pView->y, gView->pSprite->pos.Y, gInterpolate);
+        cX = interpolatedvalue(pView->x, gView->actor->spr.pos.X, gInterpolate);
+        cY = interpolatedvalue(pView->y, gView->actor->spr.pos.Y, gInterpolate);
         cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
         zDelta = interpolatedvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
         bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
@@ -502,11 +502,11 @@ void renderCrystalBall()
     }
     //renderSetTarget(4079, 128, 128);
     renderSetAspect(65536, 78643);
-    int vd8 = pOther->pSprite->x;
-    int vd4 = pOther->pSprite->y;
+    int vd8 = pOther->actor->spr.x;
+    int vd4 = pOther->actor->spr.y;
     int vd0 = pOther->zView;
-    int vcc = pOther->pSprite-> sectnum;
-    int v50 = pOther->pSprite->ang;
+    int vcc = pOther->actor->spr. sectnum;
+    int v50 = pOther->actor->spr.ang;
     int v54 = 0;
     if (pOther->flickerEffect)
     {
@@ -669,10 +669,10 @@ void viewDrawScreen(bool sceneonly)
         if (testnewrenderer)
         {
             fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
-            auto bakCstat = gView->pSprite->cstat;
-            gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
+            auto bakCstat = gView->actor->spr.cstat;
+            gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
             render_drawrooms(gView->actor, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
-            gView->pSprite->cstat = bakCstat;
+            gView->actor->spr.cstat = bakCstat;
         }
         else
         {
@@ -681,7 +681,7 @@ void viewDrawScreen(bool sceneonly)
         }
         bDeliriumOld = bDelirium && gDeliriumBlur;
 
-        int nClipDist = gView->pSprite->clipdist << 2;
+        int nClipDist = gView->actor->spr.clipdist << 2;
         int vec, vf4;
         Collision c1, c2;
         GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
@@ -715,7 +715,7 @@ void viewDrawScreen(bool sceneonly)
     }
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;
-    PLAYER *pPSprite = &gPlayer[gMe->pSprite->type-kDudePlayer1];
+    PLAYER *pPSprite = &gPlayer[gMe->actor->spr.type-kDudePlayer1];
     if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
     {
         gChoke.animateChoke(160, zn, (int)gInterpolate);
@@ -749,7 +749,7 @@ FString GameInterface::GetCoordString()
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->pos.X, gMe->pSprite->pos.Y, gMe->pSprite->pos.Z, gMe->pSprite->ang * BAngToDegree);
+        gMe->actor->spr.pos.X, gMe->actor->spr.pos.Y, gMe->actor->spr.pos.Z, gMe->actor->spr.ang * BAngToDegree);
 
     return out;
 }

@@ -261,7 +261,7 @@ bool powerupActivate(PLAYER *pPlayer, int nPowerUp)
             else if (isShrinked(pPlayer->actor)) playerDeactivateShrooms(pPlayer);
             else {
                 playerSizeGrow(pPlayer, 2);
-                if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
+                if (powerupCheck(&gPlayer[pPlayer->actor->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0) {
                     powerupDeactivate(pPlayer, kPwUpShadowCloak);
                     pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
@@ -577,7 +577,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->lifeMode = nLifeMode;
     
     // By NoOne: don't forget to change clipdist for grow and shrink modes
-    pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
+    pPlayer->actor->spr.clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
         pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
@@ -591,15 +591,15 @@ void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 void playerResetInertia(PLAYER *pPlayer)
 {
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-    pPlayer->zView = pPlayer->pSprite->pos.Z-pPosture->eyeAboveZ;
-    pPlayer->zWeapon = pPlayer->pSprite->pos.Z-pPosture->weaponAboveZ;
+    pPlayer->zView = pPlayer->actor->spr.pos.Z-pPosture->eyeAboveZ;
+    pPlayer->zWeapon = pPlayer->actor->spr.pos.Z-pPosture->weaponAboveZ;
     viewBackupView(pPlayer->nPlayer);
 }
 
 void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 {
-    pPlayer->zView += pPlayer->pSprite->pos.Z-oldpos->Z;
-    pPlayer->zWeapon += pPlayer->pSprite->pos.Z-oldpos->Z;
+    pPlayer->zView += pPlayer->actor->spr.pos.Z-oldpos->Z;
+    pPlayer->zWeapon += pPlayer->actor->spr.pos.Z-oldpos->Z;
     viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
 }
 
@@ -1318,7 +1318,7 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
-    pPlayer->pSprite->ang = pPlayer->angle.ang.asbuild();
+    pPlayer->actor->spr.ang = pPlayer->angle.ang.asbuild();
 }
 
 //---------------------------------------------------------------------------
@@ -1387,7 +1387,7 @@ void ProcessInput(PLAYER *pPlayer)
             else if (seqGetStatus(pPlayer->actor) < 0)
             {
                 if (pPlayer->pSprite)
-                    pPlayer->pSprite->type = kThingBloodChunks;
+                    pPlayer->actor->spr.type = kThingBloodChunks;
                 actPostSprite(pPlayer->actor, kStatThing);
                 seqSpawn(pPlayer->pDudeInfo->seqStartID+15, pPlayer->actor, -1);
                 playerReset(pPlayer);
@@ -1572,12 +1572,12 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
             DBloodActor* pactor = pPlayer->actor;
-            auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
+            auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->spr.clipdist<<1, 0);
             if (spawned)
             {
-                spawned->spr.ang = (pPlayer->pSprite->ang + 1024) & 2047;
-                int x = bcos(pPlayer->pSprite->ang);
-                int y = bsin(pPlayer->pSprite->ang);
+                spawned->spr.ang = (pPlayer->actor->spr.ang + 1024) & 2047;
+                int x = bcos(pPlayer->actor->spr.ang);
+                int y = bsin(pPlayer->actor->spr.ang);
                 spawned->xvel = pPlayer->actor->xvel + MulScale(0x155555, x, 14);
                 spawned->yvel = pPlayer->actor->yvel + MulScale(0x155555, y, 14);
                 spawned->zvel = pPlayer->actor->zvel;
@@ -1682,14 +1682,14 @@ void playerProcess(PLAYER *pPlayer)
     ProcessInput(pPlayer);
     int nSpeed = approxDist(actor->xvel, actor->yvel);
     pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel, 0x7000);
-    int dz = pPlayer->pSprite->pos.Z-pPosture->eyeAboveZ-pPlayer->zView;
+    int dz = pPlayer->actor->spr.pos.Z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
     pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->zvel, 0x5000);
-    dz = pPlayer->pSprite->pos.Z-pPosture->weaponAboveZ-pPlayer->zWeapon;
+    dz = pPlayer->actor->spr.pos.Z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
     else
@@ -1778,13 +1778,13 @@ void playerProcess(PLAYER *pPlayer)
 
 DBloodActor* playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->pos.Z, a3, a4, a5, a6);
+    return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->actor->spr.pos.Z, a3, a4, a5, a6);
 }
 
 DBloodActor* playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->pos.Z, pPlayer->slope+a3, thingType, a5);
+    return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->actor->spr.pos.Z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -1793,9 +1793,9 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     assert(pVictim != NULL);
     
     char buffer[128] = "";
-    int nKiller = pKiller->pSprite->type-kDudePlayer1;
+    int nKiller = pKiller->actor->spr.type-kDudePlayer1;
     assert(nKiller >= 0 && nKiller < kMaxPlayers);
-    int nVictim = pVictim->pSprite->type-kDudePlayer1;
+    int nVictim = pVictim->actor->spr.type-kDudePlayer1;
     assert(nVictim >= 0 && nVictim < kMaxPlayers);
     if (nKiller == nVictim)
     {
@@ -1949,7 +1949,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             case kDamageExplode:
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);
                 GibSprite(pActor, GIBTYPE_15, NULL, NULL);
-                pPlayer->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                pPlayer->actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
                 nDeathSeqID = 17;
                 break;
             default:
@@ -2009,7 +2009,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             sfxPlay3DSound(pPlayer->actor, 717, 0, 0);
             GibSprite(pActor, GIBTYPE_7, NULL, NULL);
             GibSprite(pActor, GIBTYPE_15, NULL, NULL);
-            pPlayer->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayer->actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
             nDeathSeqID = 2;
             break;
         case kDamageBurn:
@@ -2099,7 +2099,7 @@ void voodooTarget(PLAYER *pPlayer)
 {
     DBloodActor* actor = pPlayer->actor;
     int v4 = pPlayer->aim.dz;
-    int dz = pPlayer->zWeapon-pPlayer->pSprite->pos.Z;
+    int dz = pPlayer->zWeapon-pPlayer->actor->spr.pos.Z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
     {
         pPlayer->voodooTargets = 0;

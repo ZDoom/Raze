@@ -481,14 +481,14 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         auto& nVoxel = voxelIndex[nTile];
         if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
         {
-            pNSprite->ang = (gView->pSprite->ang + 512) & 2047; // always face viewer
+            pNSprite->ang = (gView->actor->spr.ang + 512) & 2047; // always face viewer
             pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
             pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
             pNSprite->picnum = nVoxel;
             if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
             {
-                pNSprite->pos.X += MulScale(128, Cos(gView->pSprite->ang), 30);
-                pNSprite->pos.Y += MulScale(128, Sin(gView->pSprite->ang), 30);
+                pNSprite->pos.X += MulScale(128, Cos(gView->actor->spr.ang), 30);
+                pNSprite->pos.Y += MulScale(128, Sin(gView->actor->spr.ang), 30);
             }
             if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
                 pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
@@ -858,7 +858,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                         POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
                         pNTSprite->pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
                         pNTSprite->pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
-                        pNTSprite->pos.Z = pPlayer->pSprite->pos.Z-pPosture->xOffset;
+                        pNTSprite->pos.Z = pPlayer->actor->spr.pos.Z-pPosture->xOffset;
                     }
                 }
                 

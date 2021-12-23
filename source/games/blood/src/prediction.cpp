@@ -57,11 +57,11 @@ void viewInitializePrediction(void)
 	predict.at70 = gMe->isRunning;
 	predict.at72 = gMe->isUnderwater;
     predict.at71 = !!(gMe->input.actions & SB_JUMP);
-	predict.x = gMe->pSprite->x;
-	predict.y = gMe->pSprite->y;
-	predict.z = gMe->pSprite->z;
-	predict.sector = gMe->pSprite->sector;
-	predict.at73 = gMe->pSprite->flags;
+	predict.x = gMe->actor->spr.x;
+	predict.y = gMe->actor->spr.y;
+	predict.z = gMe->actor->spr.z;
+	predict.sector = gMe->actor->spr.sector;
+	predict.at73 = gMe->actor->spr.flags;
 	predict.xvel = gMe->actor->xvel;
 	predict.yvel = gMe->actor->yvel;
 	predict.zvel = gMe->actor->zvel;
@@ -90,11 +90,11 @@ void viewInitializePrediction(void)
 void viewUpdatePrediction(InputPacket *pInput)
 {
     predictOld = predict;
-	auto bakCstat = gMe->pSprite->cstat;
-    gMe->pSprite->cstat = 0;
+	auto bakCstat = gMe->actor->spr.cstat;
+    gMe->actor->spr.cstat = 0;
     fakePlayerProcess(gMe, pInput);
     fakeActProcessSprites();
-    gMe->pSprite->cstat = bakCstat;
+    gMe->actor->spr.cstat = bakCstat;
     //predictFifo[gPredictTail&255] = predict;
     //gPredictTail++;
 }
