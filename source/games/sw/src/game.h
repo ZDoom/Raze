@@ -249,11 +249,6 @@ inline int SPRITEp_SIZE_Z(const spritetypebase* sp)
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
 }
 
-inline int SPRITEp_SIZE_Z(DSWActor* sp)
-{
-    return (tileHeight(sp->spr.picnum) * sp->spr.yrepeat) << 2;
-}
-
 
 // Given a z height and sprite return the correct y repeat value
 inline int SPRITEp_SIZE_Z_2_YREPEAT(const spritetype* sp, int zh)
@@ -2142,6 +2137,11 @@ inline int ActorLower(DSWActor* actor)
 inline int ActorMid(DSWActor* actor)
 {
     return SPRITEp_MID(&actor->s());
+}
+
+inline int SPRITEp_SIZE_Z(DSWActor* sp)
+{
+    return (tileHeight(sp->spr.picnum) * sp->spr.yrepeat) << 2;
 }
 
 inline int Facing(DSWActor* actor1, DSWActor* actor2)
