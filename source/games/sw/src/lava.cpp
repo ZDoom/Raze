@@ -453,11 +453,10 @@ ACTOR_ACTION_SET LavaActionSet =
 
 int SetupLava(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -475,11 +474,11 @@ int SetupLava(DSWActor* actor)
     u->Rot = sg_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
-    sp->xrepeat = sp->yrepeat = 110;
-    sp->clipdist = (512) >> 2;
+    actor->spr.xrepeat = actor->spr.yrepeat = 110;
+    actor->spr.clipdist = (512) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    u->loz = sp->pos.Z;
+    u->loz = actor->spr.pos.Z;
 
     return 0;
 }

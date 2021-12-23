@@ -1507,7 +1507,8 @@ int PlayerInitFlashBomb(PLAYERp pp)
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    SPRITEp sp = &pp->Actor()->s(), hp;
+    auto actor = pp->actor;
+    SPRITEp sp = &actor->s(), hp;
     USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
@@ -2022,7 +2023,6 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
 {
     SPRITEp wp = &actor->s();
 
-    SPRITEp sp;
     unsigned int stat;
     int dist, tx, ty;
     int tmin;
@@ -2032,26 +2032,23 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
-
-
-            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
             if (actor == itActor)
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
                 continue;
 
-            dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->pos.Y - sp->pos.Y, wp->pos.Z - sp->pos.Z);
+            dist = FindDistance3D(wp->pos.X - itActor->spr.pos.X, wp->pos.Y - itActor->spr.pos.Y, wp->pos.Z - itActor->spr.pos.Z);
             if (dist > range)
                 continue;
 

@@ -2022,7 +2022,8 @@ bool NearThings(PLAYERp pp)
     // This can work with any sprite!
     if (near.actor() != nullptr)
     {
-        SPRITEp sp = &near.actor()->s();
+        auto actor = near.actor();
+        SPRITEp sp = &actor->s();
 
         // Go through list of cases
         if (sp->hitag == PLAYER_SOUNDEVENT_TAG)
@@ -2206,15 +2207,15 @@ void BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist
 
 int DoPlayerGrabStar(PLAYERp pp)
 {
-    SPRITEp sp = nullptr;
     int i;
 
     // MUST check exact z's of each star or it will never work
     for (i = 0; i < MAX_STAR_QUEUE; i++)
     {
-        if (StarQueue[i] != nullptr)
+        auto actor = StarQueue[i];
+        if (actor != nullptr)
         {
-            sp = &StarQueue[i]->s();
+            auto sp = &actor->s();
 
             if (FindDistance3D(sp->pos.X - pp->pos.X, sp->pos.Y - pp->pos.Y, sp->pos.Z - pp->pos.Z + Z(12)) < 500)
             {

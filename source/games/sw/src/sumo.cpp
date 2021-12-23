@@ -811,10 +811,9 @@ void BossHealthMeter(void)
         SWStatIterator it(STAT_ENEMY);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
             u = itActor->u();
 
-            if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && sp->pal != 16)
+            if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && itActor->spr.pal != 16)
             {
                 if (u->ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
                     BossSpriteNum[0] = itActor;
@@ -833,10 +832,11 @@ void BossHealthMeter(void)
     // Only show the meter when you can see the boss
     for (int i=0; i<3; i++)
     {
-        if (BossSpriteNum[i] != nullptr && !bosswasseen[i])
+        auto actor = BossSpriteNum[i];
+        if (actor != nullptr && !bosswasseen[i])
         {
-            sp = &BossSpriteNum[i]->s();
-            u = BossSpriteNum[i]->u();
+            sp = &actor->s();
+            u = actor->u();
 
             if (cansee(sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp), sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
             {
@@ -871,16 +871,12 @@ void BossHealthMeter(void)
 
     for (int i=0; i<3; i++)
     {
-
-        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] == nullptr))
-            continue;
-        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] == nullptr))
-            continue;
-        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] == nullptr))
+        auto actor = BossSpriteNum[i];
+        if ((!bosswasseen[i] || actor == nullptr))
             continue;
 
-        sp = &BossSpriteNum[i]->s();
-        u = BossSpriteNum[i]->u();
+        sp = &actor->s();
+        u = actor->u();
 
         if (u->ID == SERP_RUN_R0 && bosswasseen[0])
         {

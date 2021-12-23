@@ -62,8 +62,7 @@ void PreCacheOverride(void)
 	SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
 	while (auto actor = it.Next())
 	{
-		auto sp = &actor->s();
-		int j = SP_TAG2(sp);
+		int j = SP_TAG2(&actor->spr);
 		if(j >= 0 && j <= MAXTILES)
 			markTileForPrecache(j, 0);
 	}
