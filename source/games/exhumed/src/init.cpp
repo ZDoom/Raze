@@ -261,7 +261,6 @@ void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
 
 void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
 {
-	auto pSprite = &pActor->s();
     int nChannel = runlist_AllocChannel(nHitag % 1000);
 
     int nSpeed = nLotag / 1000;
@@ -333,33 +332,33 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         case 58:
         case 60:
         {
-            pSprite->hitag = nVal;
+            pActor->spr.hitag = nVal;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
         case 12: // berry twig
         {
-            pSprite->hitag = 40;
+            pActor->spr.hitag = 40;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
         case 13: // blood bowl
         {
-            pSprite->hitag = 160;
+            pActor->spr.hitag = 160;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
         case 14: // venom bowl
         {
-            pSprite->hitag = -200;
+            pActor->spr.hitag = -200;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -380,18 +379,18 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             else
             {
-                pSprite->hitag = nVal;
+                pActor->spr.hitag = nVal;
                 ChangeActorStat(pActor, nLotag + 900);
-                pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+                pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                 BuildItemAnim(pActor);
                 return;
             }
         }
         case 27:
         {
-            pSprite->hitag = 1;
+            pActor->spr.hitag = 1;
             ChangeActorStat(pActor, 9 + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -400,9 +399,9 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             nVal++;
             nVal--; // CHECKME ??
-            pSprite->hitag = nVal;
+            pActor->spr.hitag = nVal;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -421,12 +420,12 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             case 999:
             {
-                AddFlicker(pSprite->sector(), nSpeed);
+                AddFlicker(pActor->spr.sector(), nSpeed);
                 break;
             }
             case 998:
             {
-                AddGlow(pSprite->sector(), nSpeed);
+                AddGlow(pActor->spr.sector(), nSpeed);
                 break;
             }
             case 118: // Anubis with drum
@@ -571,7 +570,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 99: // underwater type 2
             {
-                auto pSector =pSprite->sector();
+                auto pSector =pActor->spr.sector();
                 pSector->pAbove = &sector[nHitag];
                 pSector->Flag |= kSectUnderwater;
 
@@ -580,7 +579,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 98:
             {
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 pSector->pBelow = &sector[nHitag];
                 SnapSectors(pSector, pSector->pBelow, 1);
 
@@ -589,7 +588,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 97:
             {
-                AddSectorBob(pSprite->sector(), nHitag, 1);
+                AddSectorBob(pActor->spr.sector(), nHitag, 1);
 
                 DeleteActor(pActor);
                 return;
@@ -601,7 +600,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     nDamage = 1;
                 }
 
-                auto pSector =pSprite->sector();
+                auto pSector =pActor->spr.sector();
 
                 pSector->Damage = nDamage;
                 pSector->Flag |= kSectLava;
@@ -611,14 +610,14 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 95:
             {
-                AddSectorBob(pSprite->sector(), nHitag, 0);
+                AddSectorBob(pActor->spr.sector(), nHitag, 0);
 
                 DeleteActor(pActor);
                 return;
             }
             case 94: // water
             {
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 pSector->Depth = nHitag << 8;
 
                 DeleteActor(pActor);
@@ -637,23 +636,23 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case 79:
             case 89:
             {
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 pSector->Speed = nSpeed;
-                pSector->Flag |= pSprite->ang;
+                pSector->Flag |= pActor->spr.ang;
 
                 DeleteActor(pActor);
                 return;
             }
             case 88:
             {
-                AddFlow(pSprite->sector(), nSpeed, 0, pSprite->ang);
+                AddFlow(pActor->spr.sector(), nSpeed, 0, pActor->spr.ang);
 
                 DeleteActor(pActor);
                 return;
             }
             case 80: // underwater
             {
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 pSector->Flag |= kSectUnderwater;
 
                 DeleteActor(pActor);
@@ -661,9 +660,9 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 78:
             {
-                AddFlow(pSprite->sector(), nSpeed, 1, pSprite->ang);
+                AddFlow(pActor->spr.sector(), nSpeed, 1, pActor->spr.ang);
 
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 pSector->Flag |= 0x8000;
 
                 DeleteActor(pActor);
@@ -701,13 +700,13 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case 63:
             {
                 ChangeActorStat(pActor, 405);
-                pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+                pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                 return;
             }
             case 62:
             {
                 nNetStartSprite[nNetStartSprites] = pActor;
-                pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+                pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
                 nNetStartSprites++;
                 return;
@@ -715,7 +714,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case kTagRamses: // Ramses head
             {
                 pSpiritSprite = pActor;
-                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
                 return;
             }
             default: // TODO - checkme!
@@ -759,12 +758,11 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
     if (nNetPlayerCount)
     {
         auto pActor = insertActor(initsectp, 0);
-		auto pSprite = &pActor->s();
 
-        pSprite->pos.X = initx;
-        pSprite->pos.Y = inity;
-        pSprite->pos.Z = initz;
-        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+        pActor->spr.pos.X = initx;
+        pActor->spr.pos.Y = inity;
+        pActor->spr.pos.Z = initz;
+        pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
     }

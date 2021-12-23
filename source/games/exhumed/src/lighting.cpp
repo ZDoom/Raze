@@ -357,28 +357,27 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
-			auto pSprite = &pActor->s();
-            if (pSprite->pal < 4)
+            if (pActor->spr.pal < 4)
             {
                 int nFlash3 = GrabFlash();
                 if (nFlash3 >= 0)
                 {
                     sFlash[nFlash3].nType = var_20 | 4;
-                    sFlash[nFlash3].shade = pSprite->shade;
+                    sFlash[nFlash3].shade = pActor->spr.shade;
                     sFlash[nFlash3].pActor = pActor;
 
-                    pSprite->pal += 7;
+                    pActor->spr.pal += 7;
 
                     int eax = -255;
 
                     if (!var_18)
                     {
-                        int xDiff = x - pSprite->pos.X;
+                        int xDiff = x - pActor->spr.pos.X;
                         if (xDiff < 0) {
                             xDiff = -xDiff;
                         }
 
-                        int yDiff = y - pSprite->pos.Y;
+                        int yDiff = y - pActor->spr.pos.Y;
                         if (yDiff < 0) {
                             yDiff = -yDiff;
                         }
@@ -388,12 +387,12 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     if (eax < 0)
                     {
-                        int shade = pSprite->shade + eax;
+                        int shade = pActor->spr.shade + eax;
                         if (shade < -127) {
                             shade = -127;
                         }
 
-                        pSprite->shade = (int8_t)shade;
+                        pActor->spr.shade = (int8_t)shade;
                     }
                 }
             }
