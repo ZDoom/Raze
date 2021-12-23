@@ -103,7 +103,6 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
     for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
         auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
-        spritetype *pSprite = &pActor->s();
 
         if (pTSprite->sector() != nullptr)
         {
@@ -123,16 +122,16 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
             pTSprite->pos.Z -= nTileY;
         }
 
-        if (pSprite->statnum > 0)
+        if (pActor->spr.statnum > 0)
         {
             RunListEvent ev{};
             ev.pTSprite = pTSprite;
-            runlist_SignalRun(pSprite->lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
+            runlist_SignalRun(pActor->spr.lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
 
-            if ((pSprite->statnum < 150) && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
+            if ((pActor->spr.statnum < 150) && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
             {
-                int xval = pSprite->pos.X - x;
-                int yval = pSprite->pos.Y - y;
+                int xval = pActor->spr.pos.X - x;
+                int yval = pActor->spr.pos.Y - y;
 
                 int vcos = bcos(nAngle);
                 int vsin = bsin(nAngle);
@@ -218,13 +217,12 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nSnakeCam >= 0 && !sceneonly)
     {
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];
-		auto pSprite = &pActor->s();
 
-        playerX = pSprite->pos.X;
-        playerY = pSprite->pos.Y;
-        playerZ = pSprite->pos.Z;
-        pSector = pSprite->sector();
-        nAngle = buildang(pSprite->ang);
+        playerX = pActor->spr.pos.X;
+        playerY = pActor->spr.pos.Y;
+        playerZ = pActor->spr.pos.Z;
+        pSector = pActor->spr.sector();
+        nAngle = buildang(pActor->spr.ang);
         rotscrnang = buildang(0);
 
         SetGreenPal();

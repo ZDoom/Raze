@@ -128,14 +128,13 @@ void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, 
             ExhumedSectIterator it(pSector);
             while (auto pActor = it.Next())
             {
-                auto pSprite = &pActor->s();
-                int nStat = pSprite->statnum;
+                int nStat = pActor->spr.statnum;
 
-                if (nStat >= 900 && !(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
+                if (nStat >= 900 && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 {
-                    uint32_t xDiff = abs(pSprite->pos.X - x);
-                    uint32_t yDiff = abs(pSprite->pos.Y - y);
-                    int zDiff = pSprite->pos.Z - z;
+                    uint32_t xDiff = abs(pActor->spr.pos.X - x);
+                    uint32_t yDiff = abs(pActor->spr.pos.Y - y);
+                    int zDiff = pActor->spr.pos.Z - z;
 
                     if (zDiff < 5120 && zDiff > -25600)
                     {
@@ -212,8 +211,7 @@ void InitPlayerInventory(int nPlayer)
 
 int GetPlayerFromActor(DExhumedActor* pActor)
 {
-	auto pSprite = &pActor->s();
-    return RunData[pSprite->owner].nObjIndex;
+    return RunData[pActor->spr.owner].nObjIndex;
 }
 
 void RestartPlayer(int nPlayer)
@@ -440,10 +438,9 @@ void StartDeathSeq(int nPlayer, int nVal)
     FreeRa(nPlayer);
 
     auto pActor = PlayerList[nPlayer].Actor();
-	auto pSprite = &pActor->s();
     PlayerList[nPlayer].nHealth = 0;
 
-    int nLotag = pSprite->sector()->lotag;
+    int nLotag = pActor->spr.sector()->lotag;
 
     if (nLotag > 0) {
         runlist_SignalRun(nLotag - 1, nPlayer, &ExhumedAI::EnterSector);
@@ -461,7 +458,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
-                auto pSector = pSprite->sector();
+                auto pSector = pActor->spr.sector();
                 if (pSector->pBelow != nullptr) {
                     pSector = pSector->pBelow;
                 }
@@ -470,8 +467,8 @@ void StartDeathSeq(int nPlayer, int nVal)
                 ChangeActorSect(pGunActor, pSector);
 				auto pGunSprite = &pGunActor->s();
 
-                pGunSprite->pos.X = pSprite->pos.X;
-                pGunSprite->pos.Y = pSprite->pos.Y;
+                pGunSprite->pos.X = pActor->spr.pos.X;
+                pGunSprite->pos.Y = pActor->spr.pos.Y;
                 pGunSprite->pos.Z = pSector->floorz - 512;
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
@@ -490,11 +487,11 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
-    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 
     SetNewWeaponImmediate(nPlayer, -2);
 
-    if (pSprite->sector()->Damage <= 0)
+    if (pActor->spr.sector()->Damage <= 0)
     {
         PlayerList[nPlayer].nDeathType = nVal;
     }
@@ -505,7 +502,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     nVal *= 2;
 
-    if (nVal || !(pSprite->sector()->Flag & kSectUnderwater))
+    if (nVal || !(pActor->spr.sector()->Flag & kSectUnderwater))
     {
         PlayerList[nPlayer].nAction = nVal + 17;
     }
@@ -515,7 +512,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     PlayerList[nPlayer].nSeqSize = 0;
 
-    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
     if (nTotalPlayers == 1)
     {
@@ -563,10 +560,9 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
     DExhumedActor* pActor = PlayerList[nPlayer].pActor;
-	auto pSprite = &pActor->s();
 
-    pSprite->yvel = 0;
-    pSprite->xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.xvel = 0;
 
     PlayerList[nPlayer].bIsMummified = bIsMummified;
 
