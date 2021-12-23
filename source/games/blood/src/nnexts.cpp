@@ -785,9 +785,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
     BloodStatIterator it2(kStatModernCondition);
     while (auto iactor = it2.Next())
     {
-        XSPRITE* pXSprite = &iactor->x();
-
-        if (pXSprite->busyTime <= 0 || pXSprite->isTriggered) continue;
+        if (iactor->xspr.busyTime <= 0 || iactor->xspr.isTriggered) continue;
         else if (gTrackingCondsCount >= kMaxTrackingConditions)
             I_Error("\nMax (%d) tracking conditions reached!", kMaxTrackingConditions);
             
@@ -796,7 +794,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
         for (auto iactor2 : actors)
         {
-            if (!iactor->exists() || !iactor2->hasX() || iactor2->xspr.txID != pXSprite->rxID || iactor2 == iactor)
+            if (!iactor->exists() || !iactor2->hasX() || iactor2->xspr.txID != iactor->xspr.rxID || iactor2 == iactor)
                 continue;
 
             XSPRITE* pXSpr = &iactor2->x();
@@ -819,7 +817,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
         for (auto& sect: sector)
         {
-            if (!sect.hasX() || sect.xs().txID != pXSprite->rxID) continue;
+            if (!sect.hasX() || sect.xs().txID != iactor->xspr.rxID) continue;
             else if (count >= kMaxTracedObjects)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
@@ -829,7 +827,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
         for(auto& wal : wall)
         {
-            if (!wal.hasX() || wal.xw().txID != pXSprite->rxID)
+            if (!wal.hasX() || wal.xw().txID != iactor->xspr.rxID)
                 continue;
 
             switch (wal.type) {
@@ -845,8 +843,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
             pCond->obj[count++].cmd = wal.xw().command;
         }
 
-        if (pXSprite->data1 > kCondGameMax && count == 0)
-            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), pXSprite->rxID);
+        if (iactor->xspr.data1 > kCondGameMax && count == 0)
+            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), iactor->xspr.rxID);
 
         pCond->length = count;
         pCond->actor = iactor;
@@ -2566,7 +2564,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
         break;
         case OBJ_SPRITE: 
         {
-            XSPRITE* pXSprite = &targetactor->x();
             bool thing2debris = false;
             int old = -1;
 
@@ -2600,7 +2597,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     break;
                 default:
                     // store physics attributes in xsprite to avoid setting hitag for modern types!
-                    int flags = (pXSprite->physAttr != 0) ? pXSprite->physAttr : 0;
+                    int flags = (targetactor->xspr.physAttr != 0) ? targetactor->xspr.physAttr : 0;
                     int oldFlags = flags;
 
                     if (thing2debris) 
@@ -2614,7 +2611,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                         targetactor->spr.flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
                         targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
-                        pXSprite->restState = pXSprite->state;
+                        targetactor->xspr.restState = targetactor->xspr.state;
 
                     } 
                     else
@@ -2730,7 +2727,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                         if (nIndex != -1) 
                         {
-                            pXSprite->physAttr = flags; // just update physics attributes
+                            targetactor->xspr.physAttr = flags; // just update physics attributes
                         } 
                         else if ((nIndex = debrisGetFreeIndex()) < 0) 
                         {
@@ -2738,16 +2735,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                         } 
                         else 
                         {
-                            pXSprite->physAttr = flags; // update physics attributes
+                            targetactor->xspr.physAttr = flags; // update physics attributes
 
                             // allow things to became debris, so they use different physics...
                             if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
                             // set random goal ang for swimming so they start turning
                             if ((flags & kPhysDebrisSwim) && !targetactor->xvel && !targetactor->yvel && !targetactor->zvel)
-                                pXSprite->goalAng = (targetactor->spr.ang + Random3(kAng45)) & 2047;
+                                targetactor->xspr.goalAng = (targetactor->spr.ang + Random3(kAng45)) & 2047;
                             
-                            if (pXSprite->physAttr & kPhysDebrisVector)
+                            if (targetactor->xspr.physAttr & kPhysDebrisVector)
                                 targetactor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
                             gPhysSpritesList[nIndex] = targetactor;
@@ -2761,7 +2758,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     else if (nIndex != -1) 
                     {
 
-                        pXSprite->physAttr = flags;
+                        targetactor->xspr.physAttr = flags;
                         targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         if (targetactor->spr.lotag >= kThingBase && targetactor->spr.lotag < kThingMax)
                             ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
@@ -6967,12 +6964,11 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
     auto initiator = pQavScene->initiator;
     if (initiator->hasX())
     {
-        XSPRITE* pXSprite = &initiator->x();
-        if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) 
+        if (initiator->xspr.waitTime > 0 && --initiator->xspr.sysData1 <= 0) 
         {
-            if (pXSprite->txID >= kChannelUser) 
+            if (initiator->xspr.txID >= kChannelUser) 
             {
-                for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+                for (int i = bucketHead[initiator->xspr.txID]; i < bucketHead[initiator->xspr.txID + 1]; i++) 
                 {
                     if (rxBucket[i].isActor()) 
                     {
@@ -6982,13 +6978,13 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                         auto pXSpr = &rxactor->x();
                         if (rxactor->spr.type == kModernPlayerControl && pXSpr->command == 67) 
                         {
-                            if (pXSpr->data2 == pXSprite->data2 || pXSpr->locked) continue;
+                            if (pXSpr->data2 == initiator->xspr.data2 || pXSpr->locked) continue;
                             else trPlayerCtrlStartScene(rxactor, pPlayer, true);
                             return;
                         }
 
                     }
-                    nnExtTriggerObject(rxBucket[i], pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i], initiator->xspr.command);
 
                 }
             }
@@ -7293,11 +7289,10 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
     {
         case OBJ_SPRITE: 
         {
-            XSPRITE* pXSprite = &objActor->x();
             int type = objActor->spr.type;
 
             // exceptions
-            if (objActor->IsDudeActor() && pXSprite->health <= 0) return true;
+            if (objActor->IsDudeActor() && objActor->xspr.health <= 0) return true;
             switch (type)
             {
                 case kThingBloodBits:
@@ -7310,11 +7305,11 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
             switch (dataIndex) 
             {
                 case 1:
-                    pXSprite->data1 = value;
+                    objActor->xspr.data1 = value;
                     switch (type) 
                     {
                         case kSwitchCombo:
-                            if (value == pXSprite->data2) SetSpriteState(objActor, 1);
+                            if (value == objActor->xspr.data2) SetSpriteState(objActor, 1);
                             else SetSpriteState(objActor, 0);
                             break;
                         case kDudeModernCustom:
@@ -7326,7 +7321,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
                     }
                     return true;
                 case 2:
-                    pXSprite->data2 = value;
+                    objActor->xspr.data2 = value;
                     switch (type) 
                     {
                         case kDudeModernCustom:
@@ -7341,17 +7336,17 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
                     }
                     return true;
                 case 3:
-                    pXSprite->data3 = value;
+                    objActor->xspr.data3 = value;
                     switch (type)
                     {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            pXSprite->sysData1 = value;
+                            objActor->xspr.sysData1 = value;
                             break;
                     }
                     return true;
                 case 4:
-                    pXSprite->data4 = value;
+                    objActor->xspr.data4 = value;
                     return true;
                 default:
                     return false;
@@ -8863,11 +8858,10 @@ void seqSpawnerOffSameTx(DBloodActor* actor)
     while (auto iactor = it.Next())
     {
         if (iactor->spr.type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
-        XSPRITE* pXSprite = &iactor->x();
-        if (pXSprite->txID == actor->xspr.txID && pXSprite->state == 1) 
+        if (iactor->xspr.txID == actor->xspr.txID && iactor->xspr.state == 1) 
         {
             evKillActor(iactor);
-            pXSprite->state = 0;
+            iactor->xspr.state = 0;
         }
     }
 }
