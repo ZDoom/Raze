@@ -282,7 +282,7 @@ int DoSkullBeginDeath(DSWActor* actor)
     // Decrease for Serp God
     auto own = GetOwner(actor);
     if (own != nullptr && own->hasU())
-        own->u()->Counter--;
+        own->user.Counter--;
 
     // starts the explosion that does the actual damage
 

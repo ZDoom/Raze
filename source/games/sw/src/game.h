@@ -2192,7 +2192,7 @@ struct ANIMstruct
 			return animactor->spr.pos.Z;
 		case ANIM_Userz:
             if (animactor == nullptr) return scratch;
-            return animactor->u()->sz;
+            return animactor->user.sz;
 		case ANIM_SUdepth:
 			return sector[animindex].depth_fixed;
 		default:

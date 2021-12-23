@@ -4609,8 +4609,8 @@ int DoFireballFlames(DSWActor* actor)
             {
                 if (u->attachActor != nullptr)
                 {
-                    u->attachActor->u()->flameActor = nullptr;
-                    u->attachActor->u()->Flags2 &= ~SPR2_FLAMEDIE;
+                    u->attachActor->user.flameActor = nullptr;
+                    u->attachActor->user.Flags2 &= ~SPR2_FLAMEDIE;
                 }
                 KillActor(actor);
                 return 0;
@@ -4683,8 +4683,8 @@ int DoBreakFlames(DSWActor* actor)
             {
                 if (u->attachActor != nullptr)
                 {
-                    u->attachActor->u()->flameActor = nullptr;
-                    u->attachActor->u()->Flags2 &= ~SPR2_FLAMEDIE;
+                    u->attachActor->user.flameActor = nullptr;
+                    u->attachActor->user.Flags2 &= ~SPR2_FLAMEDIE;
                 }
                 KillActor(actor);
                 return 0;
@@ -5009,7 +5009,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     auto own = GetOwner(weapActor);
                     if (own && own->hasU())
                     {
-                        pp = own->u()->PlayerP;
+                        pp = own->user.PlayerP;
                         if (pp)
                         {
                             choosesnd=STD_RANDOM_RANGE(MAX_TAUNTAI<<8)>>8;
@@ -5273,7 +5273,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
     auto own = GetOwner(weapActor);
     if (own && own->hasU())
     {
-        if (own->u()->PlayerP && GetOwner(actor) != own)
+        if (own->user.PlayerP && GetOwner(actor) != own)
         {
             u->targetActor = own;
         }
@@ -5286,7 +5286,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
         // attempt to see if it was killed
         ASSERT(goal->spr.insector());
         if (goal->hasU())
-            RESET(goal->u()->Flags, SPR_TARGETED);
+            RESET(goal->user.Flags, SPR_TARGETED);
     }
 
     return 0;
@@ -5519,7 +5519,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
-        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP == pp)
+        if (weapOwner && weapOwner->hasU() && weapOwner->user.PlayerP == pp)
             return true;
 
         // if weapon IS the player no damage
@@ -5527,7 +5527,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return false;
 
         // if the weapons Owner is a player
-        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP)
+        if (weapOwner && weapOwner->hasU() && weapOwner->user.PlayerP)
             return false;
     }
     else if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.TeamPlay)
@@ -5541,7 +5541,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
-        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP == pp)
+        if (weapOwner && weapOwner->hasU() && weapOwner->user.PlayerP == pp)
             return true;
 
         if (wu->PlayerP)
@@ -5552,10 +5552,10 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         }
 
         // if the weapons Owner is a player
-        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP)
+        if (weapOwner && weapOwner->hasU() && weapOwner->user.PlayerP)
         {
             // if both on the same team then no damage
-            if (weapOwner->u()->spal == u->spal)
+            if (weapOwner->user.spal == u->spal)
                 return false;
         }
     }
@@ -5591,7 +5591,7 @@ bool OwnerIs(DSWActor* actor, int pic)
 {
     auto Own = GetOwner(actor);
     if (Own == nullptr || !Own->hasU()) return false;
-    return Own->u()->ID == pic;
+    return Own->user.ID == pic;
 }
 
 
@@ -6350,7 +6350,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // this is special code to prevent the Zombie from taking out the Bosses to quick
             // if rail gun weapon Owner is not player
             auto own = GetOwner(weapActor);
-            if (own && own->hasU() && !own->u()->PlayerP)
+            if (own && own->hasU() && !own->user.PlayerP)
             {
                 // if actor is a boss
                 if (u->ID == ZILLA_RUN_R0 || u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0)
@@ -6861,7 +6861,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         auto own = GetOwner(weapActor);
         if (own && own->hasU()) // For SerpGod Ring
-            own->u()->Counter--;
+            own->user.Counter--;
         SpawnFireballFlames(weapActor, actor);
         SetSuicide(weapActor);
         break;
@@ -8308,7 +8308,7 @@ int DoCoolgFire(DSWActor* actor)
             PlaySound(DIGI_CGMAGICHIT, actor, v3df_follow);
             ChangeState(actor, s_CoolgFireDone);
             auto own = GetOwner(actor);
-            if (own && own->hasU() && own->u()->ID != RIPPER_RUN_R0)  // JBF: added range check
+            if (own && own->hasU() && own->user.ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(actor); // Just a red magic circle flash
             return true;
         }
@@ -8826,7 +8826,7 @@ int DoVulcanBoulder(DSWActor* actor)
 bool OwnerIsPlayer(DSWActor* actor)
 {
     auto own = GetOwner(actor);
-    return (own && own->hasU() && own->u()->PlayerP != nullptr);
+    return (own && own->hasU() && own->user.PlayerP != nullptr);
 }
 
 int DoMineRangeTest(DSWActor* actor, int range)
@@ -10504,7 +10504,7 @@ void SpawnNuclearExp(DSWActor* actor)
     auto own = GetOwner(actor);
     if (own && own->hasU())
     {
-        pp = own->u()->PlayerP;
+        pp = own->user.PlayerP;
         rnd_rng = RandomRange(1000);
 
         if (rnd_rng > 990)
@@ -10819,9 +10819,9 @@ void SpawnGrenadeExp(DSWActor* actor)
     if (RandomRange(1000) > 990)
     {
         auto own = GetOwner(actor);
-        if (own != nullptr && own->hasU() && own->u()->PlayerP)
+        if (own != nullptr && own->hasU() && own->user.PlayerP)
         {
-            PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan, own->u()->PlayerP);
+            PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan, own->user.PlayerP);
         }
     }
 
@@ -11723,7 +11723,7 @@ int DoRing(DSWActor* actor)
     SPRITEp sp = &actor->s();
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
-    PLAYERp pp = own->u()->PlayerP;;
+    PLAYERp pp = own->user.PlayerP;;
     SPRITEp so = &own->s();
     int cz,fz;
 
@@ -11763,7 +11763,7 @@ int DoRing(DSWActor* actor)
         if (u->Dist <= RING_INNER_DIST)
         {
             if (!pp)
-                own->u()->Counter--;
+                own->user.Counter--;
             KillActor(actor);
             return 0;
         }
@@ -11876,7 +11876,7 @@ int DoSerpRing(DSWActor* actor)
     auto own = GetOwner(actor);
     // if Owner does not exist or he's dead on the floor
     // kill off all of his skull children
-    if (own == nullptr || own->u()->RotNum < 5)
+    if (own == nullptr || own->user.RotNum < 5)
     {
         UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
@@ -12499,7 +12499,7 @@ int InitSwordAttack(PLAYERp pp)
 
             sp = &itActor->s();
 
-            if (itActor->u()->PlayerP == pp)
+            if (itActor->user.PlayerP == pp)
                 break;
 
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -12676,7 +12676,7 @@ int InitFistAttack(PLAYERp pp)
         {
             sp = &itActor->s();
 
-            if (itActor->u()->PlayerP == pp)
+            if (itActor->user.PlayerP == pp)
                 break;
 
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -14887,7 +14887,7 @@ int InitGoroChop(DSWActor* actor)
 
 int InitHornetSting(DSWActor* actor)
 {
-    DoDamage(actor->u()->coll.actor(), actor);
+    DoDamage(actor->user.coll.actor(), actor);
     InitActorReposition(actor);
     return 0;
 }
@@ -15990,9 +15990,9 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         // spawn a red splotch
         // !FRANK! this if was incorrect - its not who is HIT, its who is SHOOTING
         //if(!hu->PlayerP)
-        if (actor->u()->PlayerP)
+        if (actor->user.PlayerP)
             id = UZI_SMOKE;
-        else if (TEST(actor->u()->Flags, SPR_SO_ATTACHED))
+        else if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
             id = UZI_SMOKE;
         else // Spawn NPC uzi with less damage
             id = UZI_SMOKE+2;
@@ -16769,7 +16769,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
-            SET(spark->u()->Flags2, SPR2_SO_MISSILE);
+            SET(spark->user.Flags2, SPR2_SO_MISSILE);
             if (MissileHitMatch(spark, -1, hit.actor()))
                 return 0;
             return 0;

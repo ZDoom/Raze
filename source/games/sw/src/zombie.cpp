@@ -786,7 +786,7 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     nu = actorNew->u();
     np->setsector(pp->cursector);
     SetOwner(actorNew, ownerActor);
-    np->pal = nu->spal = ownerActor->u()->spal;
+    np->pal = nu->spal = ownerActor->user.spal;
     np->ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     np->shade = -10;
@@ -838,7 +838,7 @@ void SpawnZombie2(DSWActor* actor)
     nu = actorNew->u();
     nu->Counter3 = 0;
     SetOwner(ownerActor, actorNew);
-    np->pal = nu->spal = ownerActor->u()->spal;
+    np->pal = nu->spal = ownerActor->user.spal;
     np->ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     np->shade = -10;

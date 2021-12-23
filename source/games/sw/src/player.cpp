@@ -1059,10 +1059,10 @@ void DoPlayerSpriteThrow(PLAYERp pp)
 {
     if (!TEST(pp->Flags, PF_DIVING|PF_FLYING|PF_CRAWLING))
     {
-        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->Actor()->u()->Rot != sg_PlayerNinjaSword)
+        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->Actor()->user.Rot != sg_PlayerNinjaSword)
             NewStateGroup(pp->Actor(), sg_PlayerNinjaSword);
         else
-            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->Actor()->u()->Rot != sg_PlayerNinjaPunch)
+            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->Actor()->user.Rot != sg_PlayerNinjaPunch)
             NewStateGroup(pp->Actor(), sg_PlayerNinjaPunch);
         //else
         //    NewStateGroup(pp->Actor(), sg_PlayerNinjaThrow);
@@ -1396,7 +1396,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         //DoPlayerStand(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
 
-        NewStateGroup(ppActor, ppActor->u()->ActorActionSet->Stand);
+        NewStateGroup(ppActor, ppActor->user.ActorActionSet->Stand);
 
         UpdatePlayerSprite(pp);
         DoSpawnTeleporterEffect(ppActor);
@@ -1410,7 +1410,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
                 // if someone already standing there
                 if (npp->cursector == pp->cursector)
                 {
-                    PlayerUpdateHealth(npp, -npp->Actor()->u()->Health);  // Make sure he dies!
+                    PlayerUpdateHealth(npp, -npp->Actor()->user.Health);  // Make sure he dies!
                     // telefraged by teleporting player
                     PlayerCheckDeath(npp, pp->Actor());
                 }
@@ -1897,7 +1897,7 @@ void DoPlayerZrange(PLAYERp pp)
 
         // prevent player from standing on Zombies
         auto fsp = &floorColl.actor()->s();
-        if (fsp->statnum == STAT_ENEMY && floorColl.actor()->u()->ID == ZOMBIE_RUN_R0)
+        if (fsp->statnum == STAT_ENEMY && floorColl.actor()->user.ID == ZOMBIE_RUN_R0)
         {
             pp->lo_sectp = fsp->sector();
             pp->loz = fsp->pos.Z;
@@ -3180,7 +3180,7 @@ void DoPlayerBeginClimb(PLAYERp pp)
 
     //DamageData[u->WeaponNum].Init(pp);
 
-    //NewStateGroup(pp->Actor(), pp->Actor()->u()->ActorActionSet->Climb);
+    //NewStateGroup(pp->Actor(), pp->Actor()->user.ActorActionSet->Climb);
     NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
 }
 
@@ -4975,7 +4975,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
         if (pp->InventoryAmount[INVENTORY_REPAIR_KIT])
         {
             UseInventoryRepairKit(pp);
-            sop->max_damage = sop->sp_child->u()->MaxHealth;
+            sop->max_damage = sop->sp_child->user.MaxHealth;
             VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }
@@ -5061,7 +5061,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         if (pp->InventoryAmount[INVENTORY_REPAIR_KIT])
         {
             UseInventoryRepairKit(pp);
-            sop->max_damage = sop->sp_child->u()->MaxHealth;
+            sop->max_damage = sop->sp_child->user.MaxHealth;
             VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }
@@ -5558,7 +5558,7 @@ void DoPlayerBeginDie(PLAYERp pp)
                     if (gNet.TeamPlay)
                     {
                         // playing team play
-                        if (pp->Actor()->u()->spal == ku->spal)
+                        if (pp->Actor()->user.spal == ku->spal)
                         {
                             // Killed your team member
                             PlayerUpdateKills(pp, -1);
@@ -6619,7 +6619,7 @@ void PlayerGlobal(PLAYERp pp)
                 {
                     ////DSPRINTF(ds,"Squish diff %d, min %d, cz %d, fz %d, lo %d, hi %d",labs(pp->loz - pp->hiz)>>8,min_height>>8, pp->ceiling_dist>>8, pp->floor_dist>>8,pp->lo_sectp-sector,pp->hi_sectp-sector);
                     //MONO_PRINT(ds);
-                    PlayerUpdateHealth(pp, -pp->Actor()->u()->Health);  // Make sure he dies!
+                    PlayerUpdateHealth(pp, -pp->Actor()->user.Health);  // Make sure he dies!
                     PlayerCheckDeath(pp, nullptr);
 
                     if (TEST(pp->Flags, PF_DEAD))

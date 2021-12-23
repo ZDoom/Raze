@@ -72,7 +72,7 @@ void InitNetPlayerOptions(void)
     {
         auto psp = &pp->Actor()->s();
         psp->pal = PALETTE_PLAYER0 + pp->TeamColor;
-        pp->Actor()->u()->spal = psp->pal;
+        pp->Actor()->user.spal = psp->pal;
     }
 }
 

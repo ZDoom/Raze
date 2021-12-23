@@ -394,7 +394,7 @@ void PlayerUpdateKills(PLAYERp pp, short value)
             opp = Player + pnum;
 
             // for everyone on the same team
-            if (opp != pp && opp->Actor()->u()->spal == pp->Actor()->u()->spal)
+            if (opp != pp && opp->Actor()->user.spal == pp->Actor()->user.spal)
             {
                 opp->Kills += value;
                 if (opp->Kills > 999)

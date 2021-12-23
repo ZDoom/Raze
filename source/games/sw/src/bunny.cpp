@@ -1016,8 +1016,8 @@ int DoBunnyQuickJump(DSWActor* actor)
 
                 DoActorPickClosePlayer(actor);
 
-                if (u->targetActor->u()->PlayerP)
-                    pp = u->targetActor->u()->PlayerP;
+                if (u->targetActor->user.PlayerP)
+                    pp = u->targetActor->user.PlayerP;
 
                 if (tu->spal != PALETTE_PLAYER0)
                 {

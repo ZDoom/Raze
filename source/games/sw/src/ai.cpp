@@ -380,7 +380,7 @@ TARGETACTOR:
             if (itActor == actor || !itActor->hasU())
                 continue;
 
-            if (TEST(itActor->u()->Flags, SPR_SUICIDE | SPR_DEAD))
+            if (TEST(itActor->user.Flags, SPR_SUICIDE | SPR_DEAD))
                 continue;
 
             DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
@@ -543,7 +543,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         auto pActor = GetPlayerSpriteNum(actor);
         // check for short range attack possibility
         if ((dist < CloseRangeDist(actor, actor->user.targetActor) && ICanSee) ||
-            (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
+            (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
         {
             if ((actor->user.ID == COOLG_RUN_R0 && TEST(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 action = ChooseAction(actor->user.Personality->Evasive);
@@ -675,14 +675,14 @@ int DoActorDecide(DSWActor* actor)
         return 0;
 
     // zombie is attacking a player
-    if (actor_action == InitActorAttack && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->u()->PlayerP)
+    if (actor_action == InitActorAttack && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->user.PlayerP)
     {
         // Don't let zombies shoot at master
         if (GetOwner(actor) == actor->user.targetActor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(actor->user.targetActor->u()->PlayerP, actor))
+        if (!PlayerTakeDamage(actor->user.targetActor->user.PlayerP, actor))
             return 0;
     }
 
@@ -1093,14 +1093,14 @@ int InitActorRunToward(DSWActor* actor)
 int InitActorAttack(DSWActor* actor)
 {
     // zombie is attacking a player
-    if (actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->hasU() && actor->user.targetActor->u()->PlayerP)
+    if (actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->hasU() && actor->user.targetActor->user.PlayerP)
     {
         // Don't let zombies shoot at master
         if (GetOwner(actor) == actor->user.targetActor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(actor->user.targetActor->u()->PlayerP, actor))
+        if (!PlayerTakeDamage(actor->user.targetActor->user.PlayerP, actor))
             return 0;
     }
 
@@ -1110,7 +1110,7 @@ int InitActorAttack(DSWActor* actor)
         return 0;
     }
 
-    if (actor->user.targetActor->hasU() && actor->user.targetActor->u()->Health <= 0)
+    if (actor->user.targetActor->hasU() && actor->user.targetActor->user.Health <= 0)
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1125,8 +1125,8 @@ int InitActorAttack(DSWActor* actor)
 
     // if the guy you are after is dead, look for another and
     // reposition
-    if (actor->user.targetActor->hasU() && actor->user.targetActor->u()->PlayerP &&
-        TEST(actor->user.targetActor->u()->PlayerP->Flags, PF_DEAD))
+    if (actor->user.targetActor->hasU() && actor->user.targetActor->user.PlayerP &&
+        TEST(actor->user.targetActor->user.PlayerP->Flags, PF_DEAD))
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1142,7 +1142,7 @@ int InitActorAttack(DSWActor* actor)
     actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y));
 
     // If it's your own kind, lay off!
-    if (actor->user.ID == actor->user.targetActor->u()->ID && !actor->user.targetActor->u()->PlayerP)
+    if (actor->user.ID == actor->user.targetActor->user.ID && !actor->user.targetActor->user.PlayerP)
     {
         InitActorRunAway(actor);
         return 0;
@@ -1184,7 +1184,7 @@ int DoActorAttack(DSWActor* actor)
 
     auto pActor = GetPlayerSpriteNum(actor);
     if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||
-        (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST))      // JBF: added null check
+        (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(actor->user.ActorActionSet->CloseAttackPercent);
 

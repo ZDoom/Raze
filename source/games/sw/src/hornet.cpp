@@ -560,9 +560,9 @@ int DoCheckSwarm(DSWActor* actor)
     // Who's the closest meat!?
     DoActorPickClosePlayer(actor);
 
-    if (u->targetActor->u()->PlayerP)
+    if (u->targetActor->user.PlayerP)
     {
-        pp = u->targetActor->u()->PlayerP;
+        pp = u->targetActor->user.PlayerP;
         DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
     }
     else
