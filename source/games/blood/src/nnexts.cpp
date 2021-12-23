@@ -253,11 +253,10 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 //
 //---------------------------------------------------------------------------
 
-static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, int nType, int a3, int a4)
+static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int nType, int a3, int a4)
 {
     DBloodActor* pDudeActor = nullptr;
-    auto pSource = &sourceActor->s();
-    auto pXSource = &sourceActor->x();
+    auto pXSource = &sourceactor->x();
     auto pOrigin = &origin->s();
 
     if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
@@ -295,11 +294,11 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
         seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor, -1);
 
     // add a way to inherit some values of spawner by dude.
-    if (pSource->flags & kModernTypeFlag1) {
+    if (sourceactor->spr.flags & kModernTypeFlag1) {
 
         //inherit pal?
         if (pDude->pal <= 0)
-            pDude->pal = pSource->pal;
+            pDude->pal = sourceactor->spr.pal;
 
         // inherit spawn sprite trigger settings, so designer can count monsters.
         pXDude->txID = pXSource->txID;
@@ -329,7 +328,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
         pDudeActor->SetTarget(nullptr);
     }
 
-    if ((burning || (pSource->flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
+    if ((burning || (sourceactor->spr.flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
         aiActivateDude(pDudeActor);
 
     return pDudeActor;
@@ -954,7 +953,6 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
     int maxRetries = 9;
     if (sourceactor->hasX())
     {
-        auto pSource = &sourceactor->s();
         XSPRITE* pXSource = &sourceactor->x();
         while ((selected = randomGetDataValue(sourceactor, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
         if (selected > 0) 
@@ -965,11 +963,11 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
                 auto pSprite2 = &spawned->s();
 
                 pXSource->dropMsg = uint8_t(pSprite2->type); // store dropped item type in dropMsg
-                pSprite2->pos.X = pSource->pos.X;
-                pSprite2->pos.Y = pSource->pos.Y;
-                pSprite2->pos.Z = pSource->pos.Z;
+                pSprite2->pos.X = sourceactor->spr.pos.X;
+                pSprite2->pos.Y = sourceactor->spr.pos.Y;
+                pSprite2->pos.Z = sourceactor->spr.pos.Z;
 
-                if ((pSource->flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0))) 
+                if ((sourceactor->spr.flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0))) 
                 {
                     spawned->addX();
                     XSPRITE* pXSprite2 = &spawned->x();
@@ -1932,11 +1930,10 @@ void aiSetGenIdleState(DBloodActor* actor)
 
 void windGenStopWindOnSectors(DBloodActor* sourceactor) 
 {
-    spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
-    if (pXSource->txID <= 0 && pSource->sector()->hasX())
+    if (pXSource->txID <= 0 && sourceactor->spr.sector()->hasX())
     {
-        pSource->sector()->xs().windVel = 0;
+        sourceactor->spr.sector()->xs().windVel = 0;
         return;
     }
 
@@ -1947,7 +1944,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
         XSECTOR* pXSector = &pSector->xs();
 
         if ((pXSector->state == 1 && !pXSector->windAlways)
-            || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) 
+            || ((sourceactor->spr.flags & kModernTypeFlag1) && !(sourceactor->spr.flags & kModernTypeFlag2))) 
         {
                 pXSector->windVel = 0;
         }
@@ -1964,7 +1961,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
             auto pSector = rxBucket[i].sector();
             XSECTOR* pXSector = &pSector->xs();
 
-            if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
+            if ((pXSector->state == 1 && !pXSector->windAlways) || (sourceactor->spr.flags & kModernTypeFlag2))
                 pXSector->windVel = 0;
         }
     }
@@ -2545,7 +2542,6 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* targetactor)
 {
     auto pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
@@ -2556,7 +2552,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data3 = set wall hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
             {
-                if ((pSource->flags & kModernTypeFlag1)) pWall->hitag |= pXSource->data3;
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->hitag |= pXSource->data3;
                 else pWall->hitag = pXSource->data3;
             }
 
@@ -2566,7 +2562,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 auto old = pWall->cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(pXSource->data4); // relative
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(pXSource->data4); // relative
                 else pWall->cstat = EWallFlags::FromInt(pXSource->data4); // absolute
 
                 // and hanlde exceptions
@@ -2600,7 +2596,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 old = targetactor->spr.flags;
 
                 // set new hitag
-                if ((pSource->flags & kModernTypeFlag1)) targetactor->spr.flags = pSource->flags |= pXSource->data3; // relative
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.flags = sourceactor->spr.flags |= pXSource->data3; // relative
                 else targetactor->spr.flags = pXSource->data3;  // absolute
 
                 // and handle exceptions
@@ -2800,7 +2796,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 auto old = targetactor->spr.cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
                 else targetactor->spr.cstat = ESpriteFlags::FromInt(pXSource->data4 & 0xffff); // absolute
 
                 // and handle exceptions
@@ -2951,13 +2947,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
             // data3 = sector ceil cstat
             if (valueIsBetween(pXSource->data3, -1, 32767)) {
-                if ((pSource->flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(pXSource->data3);
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(pXSource->data3);
                 else pSector->ceilingstat = ESectorFlags::FromInt(pXSource->data3);
             }
 
             // data4 = sector floor cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                if ((pSource->flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(pXSource->data4);
+                if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(pXSource->data4);
                 else pSector->floorstat = ESectorFlags::FromInt(pXSource->data4);
             }
         }
@@ -2980,25 +2976,24 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
     PLAYER* pPlayer = getPlayerById(actor->spr.type);
-    XSECTOR* pXSector = (pSource->sector()->hasX()) ? &pSource->sector()->xs() : nullptr;
+    XSECTOR* pXSector = (sourceactor->spr.sector()->hasX()) ? &sourceactor->spr.sector()->xs() : nullptr;
     bool isDude = (!pPlayer && actor->IsDudeActor());
 
-    if (actor->spr.sector() != pSource->sector())
-        ChangeActorSect(actor, pSource->sector());
+    if (actor->spr.sector() != sourceactor->spr.sector())
+        ChangeActorSect(actor, sourceactor->spr.sector());
 
-    actor->spr.pos.X = pSource->pos.X; actor->spr.pos.Y = pSource->pos.Y;
+    actor->spr.pos.X = sourceactor->spr.pos.X; actor->spr.pos.Y = sourceactor->spr.pos.Y;
     int zTop, zBot; 
     GetActorExtents(sourceactor, &zTop, &zBot);
     actor->spr.pos.Z = zBot;
 
     clampSprite(actor, 0x01);
 
-    if (pSource->flags & kModernTypeFlag1) // force telefrag
-        TeleFrag(actor, pSource->sector());
+    if (sourceactor->spr.flags & kModernTypeFlag1) // force telefrag
+        TeleFrag(actor, sourceactor->spr.sector());
 
     if (actor->spr.flags & kPhysGravity)
         actor->spr.flags |= kPhysFalling;
@@ -3007,11 +3002,11 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     {
 
         if (pXSector->Enter && (pPlayer || (isDude && !pXSector->dudeLockout)))
-            trTriggerSector(pSource->sector(), kCmdSectorEnter);
+            trTriggerSector(sourceactor->spr.sector(), kCmdSectorEnter);
 
         if (pXSector->Underwater) 
         {
-            auto aLink = barrier_cast<DBloodActor*>(pSource->sector()->lowerLink);
+            auto aLink = barrier_cast<DBloodActor*>(sourceactor->spr.sector()->lowerLink);
             spritetype* pLink = nullptr;
             if (aLink) 
             {
@@ -3078,11 +3073,11 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     {
         if (pPlayer) 
         {
-            pPlayer->angle.settarget(pSource->ang);
+            pPlayer->angle.settarget(sourceactor->spr.ang);
             pPlayer->angle.lockinput();
         }
-        else if (isDude) pXSource->goalAng = actor->spr.ang = pSource->ang;
-        else actor->spr.ang = pSource->ang;
+        else if (isDude) pXSource->goalAng = actor->spr.ang = sourceactor->spr.ang;
+        else actor->spr.ang = sourceactor->spr.ang;
     }
 
     if (pXSource->data3 == 1)
@@ -3110,7 +3105,6 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
     if (!actor) actor = sourceactor;
-    auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
     int fxId = (pXSource->data3 <= 0) ? pXSource->data2 : pXSource->data2 + Random(pXSource->data3 + 1);
@@ -3158,19 +3152,19 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
             auto pEffectSpr = &pEffect->s();
             pEffect->SetOwner(sourceactor);
 
-            if (pSource->flags & kModernTypeFlag1) 
+            if (sourceactor->spr.flags & kModernTypeFlag1) 
             {
-                pEffectSpr->pal = pSource->pal;
-                pEffectSpr->xoffset = pSource->xoffset;
-                pEffectSpr->yoffset = pSource->yoffset;
-                pEffectSpr->xrepeat = pSource->xrepeat;
-                pEffectSpr->yrepeat = pSource->yrepeat;
-                pEffectSpr->shade = pSource->shade;
+                pEffectSpr->pal = sourceactor->spr.pal;
+                pEffectSpr->xoffset = sourceactor->spr.xoffset;
+                pEffectSpr->yoffset = sourceactor->spr.yoffset;
+                pEffectSpr->xrepeat = sourceactor->spr.xrepeat;
+                pEffectSpr->yrepeat = sourceactor->spr.yrepeat;
+                pEffectSpr->shade = sourceactor->spr.shade;
             }
 
-            if (pSource->flags & kModernTypeFlag2) 
+            if (sourceactor->spr.flags & kModernTypeFlag2) 
             {
-                pEffectSpr->cstat = pSource->cstat;
+                pEffectSpr->cstat = sourceactor->spr.cstat;
                 if (pEffectSpr->cstat & CSTAT_SPRITE_INVISIBLE)
                     pEffectSpr->cstat &= ~CSTAT_SPRITE_INVISIBLE;
             }
@@ -3189,7 +3183,6 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector) 
 {
-    auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
     XSECTOR* pXSector = nullptr;
@@ -3198,14 +3191,14 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
     {
         pXSector = &pSector->xs();
     }
-    else if (pSource->sector()->hasX())
+    else if (sourceactor->spr.sector()->hasX())
     {
-        pSector = pSource->sector();
+        pSector = sourceactor->spr.sector();
         pXSector = &pSector->xs();
     }
     else 
     {
-        pSector = pSource->sector();
+        pSector = sourceactor->spr.sector();
         pSector->allocX();
         pXSector = &pSector->xs();
         pXSector->windAlways = 1;
@@ -3216,39 +3209,39 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         windVel = nnExtRandom(0, windVel);
     
     // process vertical wind in nnExtProcessSuperSprites();
-    if ((pSource->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) 
+    if ((sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) 
     {
         pXSource->sysData2 = windVel << 1;
         return;
     }
 
     pXSector->windVel = windVel;
-    if ((pSource->flags & kModernTypeFlag1))
+    if ((sourceactor->spr.flags & kModernTypeFlag1))
         pXSector->panAlways = pXSector->windAlways = 1;
 
-    int ang = pSource->ang;
+    int ang = sourceactor->spr.ang;
     if (pXSource->data4 <= 0) 
     {
         if ((pXSource->data1 & 0x0002)) 
         {
-            while (pSource->ang == ang)
-                pSource->ang = nnExtRandom(-kAng360, kAng360) & 2047;
+            while (sourceactor->spr.ang == ang)
+                sourceactor->spr.ang = nnExtRandom(-kAng360, kAng360) & 2047;
         }
     }
-    else if (pSource->cstat & CSTAT_SPRITE_MOVE_FORWARD) pSource->ang += pXSource->data4;
-    else if (pSource->cstat & CSTAT_SPRITE_MOVE_REVERSE) pSource->ang -= pXSource->data4;
+    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.ang += pXSource->data4;
+    else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.ang -= pXSource->data4;
     else if (pXSource->sysData1 == 0) 
     {
         if ((ang += pXSource->data4) >= kAng180) pXSource->sysData1 = 1;
-        pSource->ang = ClipHigh(ang, kAng180);
+        sourceactor->spr.ang = ClipHigh(ang, kAng180);
     }
     else 
     {
         if ((ang -= pXSource->data4) <= -kAng180) pXSource->sysData1 = 0;
-        pSource->ang = ClipLow(ang, -kAng180);
+        sourceactor->spr.ang = ClipLow(ang, -kAng180);
     }
 
-    pXSector->windAng = pSource->ang;
+    pXSector->windAng = sourceactor->spr.ang;
 
     if (pXSource->data3 > 0 && pXSource->data3 < 4) 
     {
@@ -3299,10 +3292,9 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 
 void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSect, DBloodActor* targetactor)
 {
-    auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
-    sectortype* pSector = pSource->sector();
+    sectortype* pSector = sourceactor->spr.sector();
 
     int top, bottom;
     bool floor, ceil, wall, enter;
@@ -3317,7 +3309,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
             GetActorExtents(sourceactor, &top, &bottom);
             floor = (bottom >= pSector->floorz);    
             ceil = (top <= pSector->ceilingz);
-            wall = (pSource->cstat & CSTAT_SPRITE_ALIGNMENT_WALL);        
+            wall = (sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL);        
             enter = (!floor && !ceil && !wall);
             BloodSectIterator it(targSect);
             while (auto iactor = it.Next())
@@ -3372,7 +3364,6 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
 
 void damageSprites(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    spritetype* pSource = &sourceactor->s();
     if (!actor->IsDudeActor() || !actor->hasX() || actor->xspr.health <= 0 || sourceactor->xspr.data3 < 0)
         return;
     
@@ -3391,7 +3382,7 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
     if (godMode || pXSprite->locked) return;
     else if (pXSource->data3) 
     {
-        if (pSource->flags & kModernTypeFlag1) dmg = ClipHigh(pXSource->data3 << 1, 65535);
+        if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(pXSource->data3 << 1, 65535);
         else if (pXSprite->sysData2 > 0) dmg = (ClipHigh(pXSprite->sysData2 << 4, 65535) * pXSource->data3) / kPercFull;
         else dmg = ((getDudeInfo(actor->spr.type)->startHealth << 4) * pXSource->data3) / kPercFull;
 
@@ -3431,11 +3422,11 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 
     if (pXSprite->health > 0) 
     {
-        if (!(pSource->flags & kModernTypeFlag8))
+        if (!(sourceactor->spr.flags & kModernTypeFlag8))
             pXSprite->health = health;
         
-        bool showEffects = !(pSource->flags & kModernTypeFlag2); // show it by default
-        bool forceRecoil =  (pSource->flags & kModernTypeFlag4);
+        bool showEffects = !(sourceactor->spr.flags & kModernTypeFlag2); // show it by default
+        bool forceRecoil =  (sourceactor->spr.flags & kModernTypeFlag4);
         
         if (showEffects) 
         {
@@ -3488,8 +3479,6 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
         Printf(PRINT_HIGH, "Missing sequence #%d", pXSource->data2);
         return;
     }
-
-    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
@@ -3597,19 +3586,19 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
                         spawned->addX();
                         seqSpawn(pXSource->data2, spawned, -1);
-                        if (pSource->flags & kModernTypeFlag1) 
+                        if (sourceactor->spr.flags & kModernTypeFlag1) 
                         {
-                            pSpawned->pal = pSource->pal;
-                            pSpawned->shade = pSource->shade;
-                            pSpawned->xrepeat = pSource->xrepeat;
-                            pSpawned->yrepeat = pSource->yrepeat;
-                            pSpawned->xoffset = pSource->xoffset;
-                            pSpawned->yoffset = pSource->yoffset;
+                            pSpawned->pal = sourceactor->spr.pal;
+                            pSpawned->shade = sourceactor->spr.shade;
+                            pSpawned->xrepeat = sourceactor->spr.xrepeat;
+                            pSpawned->yrepeat = sourceactor->spr.yrepeat;
+                            pSpawned->xoffset = sourceactor->spr.xoffset;
+                            pSpawned->yoffset = sourceactor->spr.yoffset;
                         }
 
-                        if (pSource->flags & kModernTypeFlag2) 
+                        if (sourceactor->spr.flags & kModernTypeFlag2) 
                         {
-                            pSpawned->cstat |= pSource->cstat;
+                            pSpawned->cstat |= sourceactor->spr.cstat;
                         }
 
                         // should be: the more is seqs, the shorter is timer
@@ -4701,10 +4690,9 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
 void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall, DBloodActor* destactor, EVENT& event) 
 {
     if (!event.isActor()) return;
-    auto pActor = event.getActor();
-    if (!pActor || !pActor->hasX()) return;
-    spritetype* pSource = &pActor->s();
-    XSPRITE* pXSource = &pActor->x();
+    auto sourceactor = event.getActor();
+    if (!sourceactor || !sourceactor->hasX()) return;
+    XSPRITE* pXSource = &sourceactor->x();
 
     switch (destObjType) {
         case OBJ_SECTOR:
@@ -4736,14 +4724,14 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
                         case kModernSequentialTX:
                     if (pSpr->flags & kModernTypeFlag1) 
                     {
-                        seqTxSendCmdAll(destactor, pActor, (COMMAND_ID)pXSource->command, true);
+                        seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)pXSource->command, true);
                                 return;
                             }
                     useSequentialTx(destactor, (COMMAND_ID)pXSource->command, false); // set next TX id
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(pActor, pXSpr->txID, (COMMAND_ID)pXSource->command);
+                    modernTypeSendCommand(sourceactor, pXSpr->txID, (COMMAND_ID)pXSource->command);
                     return;
             }
             break;
@@ -4752,12 +4740,12 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             return;
     }
 
-    switch (pSource->type) 
+    switch (sourceactor->spr.type) 
     {
         // allows teleport any sprite from any location to the source destination
         case kMarkerWarpDest:
             if (destObjType != OBJ_SPRITE) break;
-            useTeleportTarget(pActor, destactor);
+            useTeleportTarget(sourceactor, destactor);
             break;
         // changes slope of sprite or sector
         case kModernSlopeChanger:
@@ -4765,7 +4753,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSlopeChanger(pActor, destObjType, destSect, destactor);
+                    useSlopeChanger(sourceactor, destObjType, destSect, destactor);
                     break;
             }
             break;
@@ -4775,73 +4763,73 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSpriteDamager(pActor, destObjType, destSect, destactor);
+                    useSpriteDamager(sourceactor, destObjType, destSect, destactor);
             break;
             }
             break;
         // can spawn any effect passed in data2 on it's or txID sprite
         case kModernEffectSpawner:
             if (destObjType != OBJ_SPRITE) break;
-            useEffectGen(pActor, destactor);
+            useEffectGen(sourceactor, destactor);
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
-            useSeqSpawnerGen(pActor, destObjType, destSect, destWall, destactor);
+            useSeqSpawnerGen(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
             if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
-            useSectorWindGen(pActor, destSect);
+            useSectorWindGen(sourceactor, destSect);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
-            useObjResizer(pActor, destObjType, destSect, destWall, destactor);
+            useObjResizer(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
-            useIncDecGen(pActor, destObjType, destSect, destWall, destactor);
+            useIncDecGen(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
-            useDataChanger(pActor, destObjType, destSect, destWall, destactor);
+            useDataChanger(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLightChanger(pActor, destSect);
+            useSectorLightChanger(sourceactor, destSect);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
             if (destObjType != OBJ_SPRITE) break;
-            useTargetChanger(pActor, destactor);
+            useTargetChanger(sourceactor, destactor);
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(pActor, destObjType, destSect, destWall, destactor);
+            usePictureChanger(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
-            usePropertiesChanger(pActor, destObjType, destSect, destWall, destactor);
+            usePropertiesChanger(sourceactor, destObjType, destSect, destWall, destactor);
             break;
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(pActor, destactor);
+            useSoundGen(sourceactor, destactor);
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
             if (destObjType != OBJ_SPRITE) break;
-            useUniMissileGen(pActor, destactor);
+            useUniMissileGen(sourceactor, destactor);
             break;
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(pActor, destactor);
+            useDudeSpawn(sourceactor, destactor);
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useCustomDudeSpawn(pActor, destactor);
+            useCustomDudeSpawn(sourceactor, destactor);
             break;
     }
 }
@@ -6028,7 +6016,7 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
         SetSpriteState(sourceactor, pXSource->state ^ 1);
-        //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
+        //evSendActor(sourceactor->spr.index, pXSource->txID, (COMMAND_ID)pXSource->command);
 }
 
 //---------------------------------------------------------------------------
@@ -6102,7 +6090,7 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
         SetSpriteState(sourceactor, pXSource->state ^ 1);
-        //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
+        //evSendActor(sourceactor->spr.index, pXSource->txID, (COMMAND_ID)pXSource->command);
 
 }
 
@@ -6114,7 +6102,6 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 int useCondition(DBloodActor* sourceactor, EVENT& event)
 {
-    spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
     bool srcIsCondition = false;
@@ -6141,10 +6128,10 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
     
     int cond = pXSource->data1; 
     bool ok = false; 
-    bool RVRS = (pSource->type == kModernConditionFalse);
+    bool RVRS = (sourceactor->spr.type == kModernConditionFalse);
     bool RSET = (pXSource->command == kCmdNumberic + 36); 
     bool PUSH = (pXSource->command == kCmdNumberic);
-    int comOp = pSource->cstat; // comparison operator
+    int comOp = sourceactor->spr.cstat; // comparison operator
 
     if (pXSource->restState == 0) 
     {
@@ -6188,16 +6175,16 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
         if (pXSource->txID)
             evSendActor(sourceactor, pXSource->txID, (COMMAND_ID)pXSource->command);
 
-        if (pSource->flags) {
+        if (sourceactor->spr.flags) {
         
             // send it for object currently in the focus
-            if (pSource->flags & kModernTypeFlag1)
+            if (sourceactor->spr.flags & kModernTypeFlag1)
             {
                 nnExtTriggerObject(event.target, pXSource->command);
             }
 
             // send it for initial object
-            if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) 
+            if ((sourceactor->spr.flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(sourceactor->spr.hitag & kModernTypeFlag1))) 
             {
                 auto co = condGet(sourceactor);
                 nnExtTriggerObject(co, pXSource->command);
@@ -6215,7 +6202,6 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
 void useRandomItemGen(DBloodActor* actor) 
 {
-    spritetype* pSource = &actor->s(); 
     XSPRITE* pXSource = &actor->x();
 
     // let's first search for previously dropped items and remove it
@@ -6225,9 +6211,9 @@ void useRandomItemGen(DBloodActor* actor)
         while (auto iactor = it.Next())
         {
             spritetype* pItem = &iactor->s();
-            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->pos.X == pSource->pos.X && pItem->pos.Y == pSource->pos.Y && pItem->pos.Z == pSource->pos.Z) 
+            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->pos.X == actor->spr.pos.X && pItem->pos.Y == actor->spr.pos.Y && pItem->pos.Z == actor->spr.pos.Z) 
             {
-                gFX.fxSpawnActor((FX_ID)29, pSource->sector(), pSource->pos.X, pSource->pos.Y, pSource->pos.Z, 0);
+                gFX.fxSpawnActor((FX_ID)29, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0);
                 pItem->type = kSpriteDecoration;
                 actPostSprite(iactor, kStatFree);
                 break;
@@ -6250,7 +6236,7 @@ void useRandomItemGen(DBloodActor* actor)
             if (nIndex >= 0)
             {
                 dropactor->xspr.physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
-                pSource->cstat &= ~CSTAT_SPRITE_BLOCK;
+                actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 
                 gPhysSpritesList[nIndex] = dropactor;
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
@@ -6270,7 +6256,6 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
     if (actor == nullptr) actor = sourceactor;
     XSPRITE* pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
 
     int dx = 0, dy = 0, dz = 0;
 
@@ -6296,7 +6281,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
     {
         auto pMissile = &missileactor->s();
         int from; // inherit some properties of the generator
-        if ((from = (pSource->flags & kModernTypeFlag3)) > 0) 
+        if ((from = (sourceactor->spr.flags & kModernTypeFlag3)) > 0) 
         {
             int canInherit = 0xF;
             if (missileactor->hasX() && seqGetStatus(missileactor) >= 0) 
@@ -6316,16 +6301,16 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
             if (canInherit != 0) 
             {
                 if (canInherit & 0x2)
-                    pMissile->xrepeat = (from == kModernTypeFlag1) ? pSource->xrepeat : actor->spr.xrepeat;
+                    pMissile->xrepeat = (from == kModernTypeFlag1) ? sourceactor->spr.xrepeat : actor->spr.xrepeat;
                 
                 if (canInherit & 0x1)
-                    pMissile->yrepeat = (from == kModernTypeFlag1) ? pSource->yrepeat : actor->spr.yrepeat;
+                    pMissile->yrepeat = (from == kModernTypeFlag1) ? sourceactor->spr.yrepeat : actor->spr.yrepeat;
 
                 if (canInherit & 0x4)
-                    pMissile->pal = (from == kModernTypeFlag1) ? pSource->pal : actor->spr.pal;
+                    pMissile->pal = (from == kModernTypeFlag1) ? sourceactor->spr.pal : actor->spr.pal;
                 
                 if (canInherit & 0x8)
-                    pMissile->shade = (from == kModernTypeFlag1) ? pSource->shade : actor->spr.shade;
+                    pMissile->shade = (from == kModernTypeFlag1) ? sourceactor->spr.shade : actor->spr.shade;
             }
         }
 
@@ -6367,7 +6352,6 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, walltype* destWall, DBloodActor* objactor) 
 {
     auto pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
 
     char buffer[7]; 
     int data = -65535; 
@@ -6390,7 +6374,7 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
             data = ClipRange(data, pXSource->data2, pXSource->data3);
             if ((data += pXSource->data4) >= pXSource->data3) 
             {
-                switch (pSource->flags) 
+                switch (sourceactor->spr.flags) 
                 {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
@@ -6415,7 +6399,7 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
             data = ClipRange(data, pXSource->data3, pXSource->data2);
             if ((data -= pXSource->data4) <= pXSource->data3) 
             {
-                switch (pSource->flags) 
+                switch (sourceactor->spr.flags) 
                 {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
@@ -6474,12 +6458,11 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, DBloodActor* objActor) 
 {
     auto pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
 
     int slope, oslope;
-    bool flag2 = (pSource->flags & kModernTypeFlag2);
+    bool flag2 = (sourceactor->spr.flags & kModernTypeFlag2);
 
-    if (pSource->flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
+    if (sourceactor->spr.flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
     else slope = (32767 / kPercFull) * ClipRange(pXSource->data2, -kPercFull, kPercFull);
 
     if (objType == OBJ_SECTOR) 
@@ -6619,29 +6602,28 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* objActor)
 {
     auto pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
         case OBJ_SECTOR:
-            if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
                 setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
             break;
         case OBJ_SPRITE:
-            if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
                 setDataValueOfObject(objType, pSector, pWall, objActor, 1, pXSource->data1);
 
-            if ((pSource->flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
                 setDataValueOfObject(objType, pSector, pWall, objActor, 2, pXSource->data2);
 
-            if ((pSource->flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
                 setDataValueOfObject(objType, pSector, pWall, objActor, 3, pXSource->data3);
 
-            if ((pSource->flags & kModernTypeFlag1) || pXSource->data4 != 65535)
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || pXSource->data4 != 65535)
                 setDataValueOfObject(objType, pSector, pWall, objActor, 4, pXSource->data4);
             break;
         case OBJ_WALL:
-            if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+            if ((sourceactor->spr.flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
                 setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
             break;
     }
@@ -6656,7 +6638,6 @@ void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, 
 void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector) 
 {
     auto pXSource = &sourceactor->x();
-    spritetype* pSource = &sourceactor->s();
     auto pXSector = &pSector->xs();
 
     if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -6672,14 +6653,14 @@ void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
     if (valueIsBetween(pXSource->data4, -1, 65535))
         pXSector->phase = ClipHigh(pXSource->data4, 255);
 
-    if (pSource->flags) 
+    if (sourceactor->spr.flags) 
     {
-        if (pSource->flags != kModernTypeFlag1) 
+        if (sourceactor->spr.flags != kModernTypeFlag1) 
         {
-            pXSector->shadeAlways   = (pSource->flags & 0x0001) ? true : false;
-            pXSector->shadeFloor    = (pSource->flags & 0x0002) ? true : false;
-            pXSector->shadeCeiling  = (pSource->flags & 0x0004) ? true : false;
-            pXSector->shadeWalls    = (pSource->flags & 0x0008) ? true : false;
+            pXSector->shadeAlways   = (sourceactor->spr.flags & 0x0001) ? true : false;
+            pXSector->shadeFloor    = (sourceactor->spr.flags & 0x0002) ? true : false;
+            pXSector->shadeCeiling  = (sourceactor->spr.flags & 0x0004) ? true : false;
+            pXSector->shadeWalls    = (sourceactor->spr.flags & 0x0008) ? true : false;
         }
         else 
         {
