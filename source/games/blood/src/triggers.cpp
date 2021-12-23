@@ -441,7 +441,6 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         {
             auto spawned = actSpawnDude(actor, actor->xspr.data1, -1, 0);
             if (spawned) {
-                XSPRITE *pXSpawn = &spawned->x();
                 gKillMgr.AddNewKill(1);
                 switch (actor->xspr.data1) {
                     case kDudeBurningInnocent:
@@ -449,8 +448,8 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                     case kDudeBurningZombieButcher:
                     case kDudeBurningTinyCaleb:
                     case kDudeBurningBeast: {
-                        pXSpawn->health = getDudeInfo(actor->xspr.data1)->startHealth << 4;
-                        pXSpawn->burnTime = 10;
+                        spawned->xspr.health = getDudeInfo(actor->xspr.data1)->startHealth << 4;
+                        spawned->xspr.burnTime = 10;
                         spawned->SetTarget(nullptr);
                         aiActivateDude(spawned);
                         break;
@@ -1283,22 +1282,19 @@ int PathBusy(sectortype* pSector, unsigned int a2)
     auto marker1 = pXSector->marker1;
     if (!basepath || !marker0 || !marker1) return 0;
 
-    XSPRITE *pXSprite1 = &pXSector->marker0->x();
-    XSPRITE *pXSprite2 = &pXSector->marker1->x();
-
-    int nWave = pXSprite1->wave;
+    int nWave = marker0->xspr.wave;
     TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos.X, basepath->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, 1);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
     {
-        evPostSector(pSector, (120*pXSprite2->waitTime)/10, kCmdOn);
+        evPostSector(pSector, (120*marker1->xspr.waitTime)/10, kCmdOn);
         pXSector->state = 0;
         pXSector->busy = 0;
-        if (pXSprite1->data4)
-            PathSound(pSector, pXSprite1->data4);
+        if (marker0->xspr.data4)
+            PathSound(pSector, marker0->xspr.data4);
         pXSector->marker0 = marker1;
-        pXSector->data = pXSprite2->data1;
+        pXSector->data = marker1->xspr.data1;
         return 3;
     }
     return 0;
@@ -1413,8 +1409,8 @@ void OperatePath(sectortype* pSector, EVENT event)
     auto pXSector = &pSector->xs();
     if (!pXSector->marker0) return;
     auto marker0 = pXSector->marker0;
-    XSPRITE *pXSprite2 = &pXSector->marker0->x();
-    int nId = pXSprite2->data2;
+    auto marker1 = pXSector->marker1;
+    int nId = marker1->xspr.data2;
     
     BloodStatIterator it(kStatPathMarker);
     while ((actor = it.Next()))
@@ -1428,7 +1424,7 @@ void OperatePath(sectortype* pSector, EVENT event)
 
     // trigger marker after it gets reached
     #ifdef NOONE_EXTENSIONS
-        if (gModernMap && pXSprite2->state != 1)
+        if (gModernMap && marker1->xspr.state != 1)
             trTriggerSprite(pXSector->marker0, kCmdOn);
     #endif
 
@@ -1446,8 +1442,8 @@ void OperatePath(sectortype* pSector, EVENT event)
         case kCmdOn:
             pXSector->state = 0;
             pXSector->busy = 0;
-            AddBusy(pSector, BUSYID_7, 65536/ClipLow((120*pXSprite2->busyTime)/10,1));
-            if (pXSprite2->data3) PathSound(pSector, pXSprite2->data3);
+            AddBusy(pSector, BUSYID_7, 65536/ClipLow((120*marker1->xspr.busyTime)/10,1));
+            if (marker1->xspr.data3) PathSound(pSector, marker1->xspr.data3);
             break;
     }
 }

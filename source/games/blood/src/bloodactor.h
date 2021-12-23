@@ -66,8 +66,6 @@ public:
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 
-	XSPRITE& x() { return xspr; }	// calling this does not validate the xsprite!
-
 	void SetOwner(DBloodActor* own)
 	{
 		ownerActor = own;
@@ -80,12 +78,12 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target = own;
+		xspr.target = own;
 	}
 
 	DBloodActor* GetTarget()
 	{
-		return x().target;
+		return xspr.target;
 	}
 
 	bool ValidateTarget(const char* func)
@@ -100,12 +98,12 @@ public:
 
 	void SetBurnSource(DBloodActor* own)
 	{
-		x().burnSource = own;
+		xspr.burnSource = own;
 	}
 
 	DBloodActor* GetBurnSource()
 	{
-		return x().burnSource;
+		return xspr.burnSource;
 	}
 
 	void SetSpecialOwner() // nnext hackery
@@ -149,7 +147,7 @@ public:
 		if (!hasX())
 			return false;
 
-		switch (x().aiState->stateType) 
+		switch (xspr.aiState->stateType) 
 		{
 		case kAiStateIdle:
 		case kAiStateGenIdle:

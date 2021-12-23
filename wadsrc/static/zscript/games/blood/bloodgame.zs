@@ -53,8 +53,6 @@ struct BloodPlayer native
 {
 	native int GetHealth(); // health is stored in the XSPRITE which cannot be safely exported to scripting at the moment due to pending refactoring.
 	native int powerupCheck(int pwup);
-	//spritetype*     pSprite;
-	//XSPRITE*        pXSprite;
 	//DUDEINFO*       pDudeInfo;
 	//PlayerHorizon   horizon;
 	//PlayerAngle     angle;

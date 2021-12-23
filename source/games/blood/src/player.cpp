@@ -766,8 +766,7 @@ void playerStart(int nPlayer, int bNewLevel)
         BloodStatIterator it(kStatModernPlayerLinker);
         while (auto iactor = it.Next())
         {
-            XSPRITE* pXCtrl = &iactor->x();
-            if (pXCtrl->data1 == pPlayer->nPlayer + 1) 
+            if (iactor->xspr.data1 == pPlayer->nPlayer + 1) 
             {
                 DBloodActor* SpriteOld = iactor->prevmarker;
                 trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr)); // this modifies iactor's prevmarker field!
@@ -918,10 +917,9 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
         case kItemFlagABase:
         case kItemFlagBBase: {
             if (gGameOptions.nGameType != 3 || !itemactor->hasX()) return 0;
-            XSPRITE * pXItem = &itemactor->x();
             if (itemactor->spr.type == kItemFlagABase) {
                 if (pPlayer->teamId == 1) {
-                    if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
+                    if ((pPlayer->hasFlag & 1) == 0 && itemactor->xspr.state) {
                         pPlayer->hasFlag |= 1;
                         pPlayer->ctfFlagState[0] = itemactor;
                         trTriggerSprite(itemactor, kCmdOff);
@@ -933,7 +931,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
 
                 if (pPlayer->teamId == 0) {
 
-                    if ((pPlayer->hasFlag & 1) != 0 && !pXItem->state) {
+                    if ((pPlayer->hasFlag & 1) != 0 && !itemactor->xspr.state) {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->ctfFlagState[0] = nullptr;
                         trTriggerSprite(itemactor, kCmdOn);
@@ -942,7 +940,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                         viewSetMessage(buffer);
                     }
 
-                    if ((pPlayer->hasFlag & 2) != 0 && pXItem->state) {
+                    if ((pPlayer->hasFlag & 2) != 0 && itemactor->xspr.state) {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->ctfFlagState[1] = nullptr;
                         team_score[pPlayer->teamId] += 10;
@@ -958,7 +956,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             else if (itemactor->spr.type == kItemFlagBBase) {
 
                 if (pPlayer->teamId == 0) {
-                    if ((pPlayer->hasFlag & 2) == 0 && pXItem->state) {
+                    if ((pPlayer->hasFlag & 2) == 0 && itemactor->xspr.state) {
                         pPlayer->hasFlag |= 2;
                         pPlayer->ctfFlagState[1] = itemactor;
                         trTriggerSprite(itemactor, kCmdOff);
@@ -969,7 +967,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                 }
 
                 if (pPlayer->teamId == 1) {
-                    if ((pPlayer->hasFlag & 2) != 0 && !pXItem->state)
+                    if ((pPlayer->hasFlag & 2) != 0 && !itemactor->xspr.state)
                     {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->ctfFlagState[1] = nullptr;
@@ -978,7 +976,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
-                    if ((pPlayer->hasFlag & 1) != 0 && pXItem->state)
+                    if ((pPlayer->hasFlag & 1) != 0 && itemactor->xspr.state)
                     {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->ctfFlagState[0] = nullptr;
