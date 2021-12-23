@@ -1267,18 +1267,17 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
             auto hitactor = gHitInfo.actor();
             if (!hitactor || !hitactor->hasX()) return -1;
             out->hitActor = hitactor;
-            XSPRITE* pXSprite = &hitactor->x();
             if (hitactor->spr.statnum == kStatThing)
             {
                 if (hitactor->spr.type == kThingDroppedLifeLeech)
                 {
                     if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, hitactor))
                         return -1;
-                    pXSprite->data4 = pPlayer->nPlayer;
-                    pXSprite->isTriggered = 0;
+                    hitactor->xspr.data4 = pPlayer->nPlayer;
+                    hitactor->xspr.isTriggered = 0;
                 }
             }
-            if (pXSprite->Push)
+            if (hitactor->xspr.Push)
                 return 3;
             if (hitactor->spr.statnum == kStatDude)
             {
@@ -1290,7 +1289,7 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
                     hitactor->yvel += MulScale(y, t2, 16);
                     hitactor->zvel += MulScale(z, t2, 16);
                 }
-                if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
+                if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
                     trTriggerSprite(hitactor, kCmdSpritePush);
             }
             break;
@@ -1570,7 +1569,6 @@ void ProcessInput(PLAYER *pPlayer)
         case 3:
         {
             auto act = result.actor();
-            XSPRITE *pXSprite = &act->x();
             int key = actor->xspr.key;
             if (actor->xspr.locked && pPlayer == gMe && actor->xspr.lockMsg)
                 trTextOver(actor->xspr.lockMsg);
@@ -1671,7 +1669,6 @@ void ProcessInput(PLAYER *pPlayer)
 void playerProcess(PLAYER *pPlayer)
 {
     DBloodActor* actor = pPlayer->actor;
-    XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     powerupProcess(pPlayer);
     int top, bottom;
@@ -1724,7 +1721,7 @@ void playerProcess(PLAYER *pPlayer)
     }
     else
     {
-        if (pXSprite->height < 256)
+        if (actor->xspr.height < 256)
         {
             bool running = pPlayer->isRunning && !cl_bloodvanillabobbing;
             pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
@@ -1752,9 +1749,9 @@ void playerProcess(PLAYER *pPlayer)
     pPlayer->painEffect = ClipLow(pPlayer->painEffect-4, 0);
     pPlayer->blindEffect = ClipLow(pPlayer->blindEffect-4, 0);
     pPlayer->pickupEffect = ClipLow(pPlayer->pickupEffect-4, 0);
-    if (pPlayer == gMe && gMe->pXSprite->health == 0)
+    if (pPlayer == gMe && gMe->actor->xspr.health == 0)
         pPlayer->hand = 0;
-    if (!pXSprite->health)
+    if (!actor->xspr.health)
         return;
     pPlayer->isUnderwater = 0;
     if (pPlayer->posture == 1)
@@ -1945,13 +1942,12 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
     pPlayer->painEffect = ClipHigh(pPlayer->painEffect+(nDamage>>3), 600);
 
-    XSPRITE *pXSprite = pPlayer->pXSprite;
     DBloodActor* pActor = pPlayer->actor;
     DUDEINFO *pDudeInfo = getDudeInfo(pActor->spr.type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
     bool va = playerSeqPlaying(pPlayer, 16);
-    if (!pXSprite->health)
+    if (!pActor->xspr.health)
     {
         if (va)
         {
@@ -1985,15 +1981,15 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     }
     else
     {
-        int nHealth = pXSprite->health-nDamage;
-        pXSprite->health = ClipLow(nHealth, 0);
-        if (pXSprite->health > 0 && pXSprite->health < 16)
+        int nHealth = pActor->xspr.health-nDamage;
+        pActor->xspr.health = ClipLow(nHealth, 0);
+        if (pActor->xspr.health > 0 && pActor->xspr.health < 16)
         {
             nDamageType = kDamageBullet;
-            pXSprite->health = 0;
+            pActor->xspr.health = 0;
             nHealth = -25;
         }
-        if (pXSprite->health > 0)
+        if (pActor->xspr.health > 0)
         {
             DAMAGEINFO *pDamageInfo = &damageInfo[nDamageType];
             int nSound;
@@ -2001,7 +1997,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nSound = pDamageInfo->Kills[0];
             else
                 nSound = pDamageInfo->Kills[Random(3)];
-            if (nDamageType == kDamageDrown && pXSprite->medium == kMediumWater && !pPlayer->hand)
+            if (nDamageType == kDamageDrown && pActor->xspr.medium == kMediumWater && !pPlayer->hand)
                 nSound = 714;
             sfxPlay3DSound(pPlayer->actor, nSound, 0, 6);
             return nDamage;
@@ -2071,21 +2067,21 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
         #ifdef NOONE_EXTENSIONS
         // allow drop items and keys in multiplayer
-        if (gModernMap && gGameOptions.nGameType != 0 && pPlayer->pXSprite->health <= 0) {
+        if (gModernMap && gGameOptions.nGameType != 0 && pPlayer->actor->xspr.health <= 0) {
             
             DBloodActor* pItem = nullptr;
-            if (pPlayer->pXSprite->dropMsg && (pItem = actDropItem(pActor, pPlayer->pXSprite->dropMsg)) != NULL)
+            if (pPlayer->actor->xspr.dropMsg && (pItem = actDropItem(pActor, pPlayer->actor->xspr.dropMsg)) != NULL)
                 evPostActor(pItem, 500, kCallbackRemove);
 
-            if (pPlayer->pXSprite->key) {
+            if (pPlayer->actor->xspr.key) {
                 
                 int i; // if all players have this key, don't drop it
                 for (i = connecthead; i >= 0; i = connectpoint2[i]) {
-                    if (!gPlayer[i].hasKey[pPlayer->pXSprite->key])
+                    if (!gPlayer[i].hasKey[pPlayer->actor->xspr.key])
                         break;
                 }
                 
-                if (i == 0 && (pItem = actDropKey(pActor, (pPlayer->pXSprite->key + kItemKeyBase) - 1)) != NULL)
+                if (i == 0 && (pItem = actDropKey(pActor, (pPlayer->actor->xspr.key + kItemKeyBase) - 1)) != NULL)
                     evPostActor(pItem, 500, kCallbackRemove);
 
             }

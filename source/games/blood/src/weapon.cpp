@@ -1682,9 +1682,8 @@ void AltFireNapalm(int , PLAYER *pPlayer)
     auto missile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
     if (missile)
     {
-        XSPRITE *pXSprite = &missile->x();
-        pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
-        UseAmmo(pPlayer, 4, pXSprite->data4);
+        missile->xspr.data4 = ClipHigh(pPlayer->ammoCount[4], 12);
+        UseAmmo(pPlayer, 4, missile->xspr.data4);
         seqSpawn(22, missile, -1);
         actBurnSprite(pPlayer->actor, missile, 600);
         evPostActor(missile, 0, kCallbackFXFlameLick);
@@ -1723,27 +1722,26 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
     if (missile)
     {
         missile->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
-        XSPRITE *pXSprite = &missile->x();
-        pXSprite->Push = 1;
-        pXSprite->Proximity = 1;
-        pXSprite->DudeLockout = 1;
-        pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
-        pXSprite->stateTimer = 1;
+        missile->xspr.Push = 1;
+        missile->xspr.Proximity = 1;
+        missile->xspr.DudeLockout = 1;
+        missile->xspr.data4 = ClipHigh(pPlayer->ammoCount[4], 12);
+        missile->xspr.stateTimer = 1;
         evPostActor(missile, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];
-            if (nAmmo < 25 && pPlayer->pXSprite->health > unsigned((25-nAmmo)<<4))
+            if (nAmmo < 25 && pPlayer->missile->xspr.health > unsigned((25-nAmmo)<<4))
             {
                 actDamageSprite(actor, actor, kDamageSpirit, ((25-nAmmo)<<4));
                 nAmmo = 25;
             }
-            pXSprite->data3 = nAmmo;
+            missile->xspr.data3 = nAmmo;
             UseAmmo(pPlayer, 8, nAmmo);
         }
         else
         {
-            pXSprite->data3 = pPlayer->ammoCount[8];
+            missile->xspr.data3 = pPlayer->ammoCount[8];
             pPlayer->ammoCount[8] = 0;
         }
         pPlayer->hasWeapon[9] = 0;
@@ -2690,8 +2688,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
             continue;
         if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, x, y, z, pSector, nDist))
         {
-            XSPRITE *pXSprite = &hitactor->x();
-            if (!pXSprite->locked)
+            if (!hitactor->xspr.locked)
             {
                 int dx = missileactor->spr.pos.X - hitactor->spr.pos.X;
                 int dy = missileactor->spr.pos.Y - hitactor->spr.pos.Y;
