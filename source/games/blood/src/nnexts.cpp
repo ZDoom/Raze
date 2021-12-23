@@ -1272,7 +1272,6 @@ void nnExtProcessSuperSprites()
         {
             DBloodActor* debrisactor = gPhysSpritesList[i];
             if (debrisactor == nullptr || !debrisactor->hasX()) continue;
-            auto const pDebris = &debrisactor->s();
 
             if (debrisactor->spr.statnum == kStatFree || (debrisactor->spr.flags & kHitagFree) != 0)
             {
@@ -2819,38 +2818,40 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 pXSector->Underwater = (pXSource->data1) ? true : false;
 
                 
-                spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
+                XSPRITE* pXUpper = NULL;
                     
                 auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);
-                spritetype* pLower = nullptr;
+                DBloodActor* aUpper = nullptr;
                 XSPRITE* pXLower = nullptr;
                 if (aLower)
                 {
-                    pLower = &aLower->s();
                     pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
                     for (auto& sec: sector)
                     {
-                        auto aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
-                        if (aUpper == nullptr || aUpper->xspr.data1 != pXLower->data1) continue;
-                        pUpper = &aUpper->s();
+                        aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
+                        if (aUpper == nullptr || aUpper->xspr.data1 != pXLower->data1)
+                        {
+                            aUpper = nullptr;
+                            continue;
+                        }
                         pXUpper = &aUpper->x();
                         break;
                     }
                 }
                 
                 // treat sectors that have links, so warp can detect underwater status properly
-                if (pLower) 
+                if (aLower) 
                 {
                     if (pXSector->Underwater) 
                     {
-                        switch (pLower->type) 
+                        switch (aLower->spr.type) 
                         {
                             case kMarkerLowStack:
                             case kMarkerLowLink:
-                                pXLower->sysData1 = pLower->type;
-                                pLower->type = kMarkerLowWater;
+                                pXLower->sysData1 = aLower->spr.type;
+                                aLower->spr.type = kMarkerLowWater;
                                 break;
                             default:
                                 if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) pXLower->sysData1 = kMarkerLowLink;
@@ -2858,21 +2859,21 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                                 break;
                         }
                     }
-                    else if (pXLower->sysData1 > 0) pLower->type = pXLower->sysData1;
-                    else if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) pLower->type = kMarkerLowLink;
-                    else pLower->type = kMarkerLowStack;
+                    else if (pXLower->sysData1 > 0) aLower->spr.type = pXLower->sysData1;
+                    else if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) aLower->spr.type = kMarkerLowLink;
+                    else aLower->spr.type = kMarkerLowStack;
                 }
 
-                if (pUpper) 
+                if (aUpper) 
                 {
                     if (pXSector->Underwater) 
                     {
-                        switch (pUpper->type) 
+                        switch (aUpper->spr.type) 
                         {
                             case kMarkerUpStack:
                             case kMarkerUpLink:
-                                pXUpper->sysData1 = pUpper->type;
-                                pUpper->type = kMarkerUpWater;
+                                pXUpper->sysData1 = aUpper->spr.type;
+                                aUpper->spr.type = kMarkerUpWater;
                                 break;
                             default:
                                 if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) pXUpper->sysData1 = kMarkerUpLink;
@@ -2880,9 +2881,9 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                                 break;
                         }
                     }
-                    else if (pXUpper->sysData1 > 0) pUpper->type = pXUpper->sysData1;
-                    else if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) pUpper->type = kMarkerUpLink;
-                    else pUpper->type = kMarkerUpStack;
+                    else if (pXUpper->sysData1 > 0) aUpper->spr.type = pXUpper->sysData1;
+                    else if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) aUpper->spr.type = kMarkerUpLink;
+                    else aUpper->spr.type = kMarkerUpStack;
                 }
 
                 // search for dudes in this sector and change their underwater status
@@ -2895,16 +2896,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     PLAYER* pPlayer = getPlayerById(iactor->spr.type);
                     if (pXSector->Underwater) 
                     {
-                        if (pLower)
-                            iactor->xspr.medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                        if (aLower)
+                            iactor->xspr.medium = (aLower->spr.type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
                         if (pPlayer) 
                         {
                             int waterPal = kMediumWater;
-                            if (pLower) 
+                            if (aLower) 
                             {
                                 if (pXLower->data2 > 0) waterPal = pXLower->data2;
-                                else if (pLower->type == kMarkerUpGoo) waterPal = kMediumGoo;
+                                else if (aLower->spr.type == kMarkerUpGoo) waterPal = kMediumGoo;
                             }
 
                             pPlayer->nWaterPal = waterPal;
@@ -2994,30 +2995,33 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSector->Underwater) 
         {
+            DBloodActor* aUpper = nullptr;
             auto aLink = barrier_cast<DBloodActor*>(sourceactor->spr.sector()->lowerLink);
-            spritetype* pLink = nullptr;
             if (aLink) 
             {
                 // must be sure we found exact same upper link
                 for(auto& sec: sector)
                 {
-                    auto aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
-                    if (aUpper == nullptr || aUpper->xspr.data1 != aLink->xspr.data1) continue;
-                    pLink = &aLink->s();
+                    aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
+                    if (aUpper == nullptr || aUpper->xspr.data1 != aLink->xspr.data1)
+                    {
+                        aUpper = nullptr;
+                        continue;
+                    }
                     break;
                 }
             }
 
-            if (pLink)
-                actor->xspr.medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+            if (aUpper)
+                actor->xspr.medium = (aLink->spr.type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
             if (pPlayer) 
             {
                 int waterPal = kMediumWater;
-                if (pLink) 
+                if (aUpper) 
                 {
                     if (aLink->xspr.data2 > 0) waterPal = aLink->xspr.data2;
-                    else if (pLink->type == kMarkerUpGoo) waterPal = kMediumGoo;
+                    else if (aLink->spr.type == kMarkerUpGoo) waterPal = kMediumGoo;
                 }
 
                 pPlayer->nWaterPal = waterPal;
@@ -7921,14 +7925,13 @@ void aiPatrolMove(DBloodActor* actor)
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
 
-    spritetype* pTarget = &targetactor->s();
     XSPRITE* pXTarget   = &targetactor->x();
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
-    int dx = (pTarget->pos.X - actor->spr.pos.X);
-    int dy = (pTarget->pos.Y - actor->spr.pos.Y);
-    int dz = (pTarget->pos.Z - (actor->spr.pos.Z - pDudeInfo->eyeHeight)) * 6;
+    int dx = (targetactor->spr.pos.X - actor->spr.pos.X);
+    int dy = (targetactor->spr.pos.Y - actor->spr.pos.Y);
+    int dz = (targetactor->spr.pos.Z - (actor->spr.pos.Z - pDudeInfo->eyeHeight)) * 6;
     int vel = (pXSprite->unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
     int goalAng = 341;
 
@@ -7972,7 +7975,6 @@ void aiPatrolMove(DBloodActor* actor)
     vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
     actor->xvel = ClipRange(actor->xvel, -vel, vel);
     actor->yvel = ClipRange(actor->yvel, -vel, vel);
-    return;
 }
 
 //---------------------------------------------------------------------------
@@ -7987,7 +7989,6 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
         return;
 
     XSPRITE* pXSprite = &actor->x();
-    spritetype* pTarget = &targetactor->s();
 
     if (pXSprite->health <= 0)
         return;
@@ -8007,12 +8008,12 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
         if (pXDude->health <= 0)
             continue;
 
-        int eaz2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
+        int eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) << 2;
         int nDist = approxDist(pDude->pos.X - actor->spr.pos.X, pDude->pos.Y - actor->spr.pos.Y);
         if (nDist >= kPatrolAlarmSeeDist || !cansee(actor->spr.pos.X, actor->spr.pos.Y, zt1, actor->spr.sector(), pDude->pos.X, pDude->pos.Y, pDude->pos.Z - eaz2, pDude->sector()))
         {
-            nDist = approxDist(pDude->pos.X - pTarget->pos.X, pDude->pos.Y - pTarget->pos.Y);
-            if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->pos.X, pTarget->pos.Y, zt2, pTarget->sector(), pDude->pos.X, pDude->pos.Y, pDude->pos.Z - eaz2, pDude->sector()))
+            nDist = approxDist(pDude->pos.X - targetactor->spr.pos.X, pDude->pos.Y - targetactor->spr.pos.Y);
+            if (nDist >= kPatrolAlarmSeeDist || !cansee(targetactor->spr.pos.X, targetactor->spr.pos.Y, zt2, targetactor->spr.sector(), pDude->pos.X, pDude->pos.Y, pDude->pos.Z - eaz2, pDude->sector()))
                 continue;
         }
 
@@ -8037,7 +8038,6 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
         return;
 
     XSPRITE* pXSprite = &actor->x();
-    spritetype* pTarget = &targetactor->s();
 
     if (pXSprite->health <= 0)
         return;
@@ -8049,9 +8049,9 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
     
     int tzt, tzb; 
     GetActorExtents(targetactor, &tzt, &tzb);
-    int x3 = pTarget->pos.X, y3 = pTarget->pos.Y, z3 = tzt;
+    int x3 = targetactor->spr.pos.X, y3 = targetactor->spr.pos.Y, z3 = tzt;
     
-    auto pSect3 = pTarget->sector();
+    auto pSect3 = targetactor->spr.sector();
 
     BloodStatIterator it(kStatDude);
     while (auto dudeactor = it.Next())
