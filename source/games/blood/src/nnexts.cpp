@@ -1987,11 +1987,9 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 {
     TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
     auto initiator = pCtrl->qavScene.initiator;
-    XSPRITE* pXInitiator = nullptr;
     if (initiator->hasX())
     {
-        pXInitiator = &initiator->x();
-        pXInitiator->sysData1 = 0;
+        initiator->xspr.sysData1 = 0;
     }
 
     if (pCtrl->qavScene.initiator != nullptr) 
@@ -2003,7 +2001,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
         // restore weapon
         if (pPlayer->actor->xspr.health > 0) 
         {
-            int oldWeapon = (pXInitiator && pXInitiator->dropMsg != 0) ? pXInitiator->dropMsg : 1;
+            int oldWeapon = (initiator->hasX() && initiator->xspr.dropMsg != 0) ? initiator->xspr.dropMsg : 1;
             pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
             WeaponRaise(pPlayer);
         }
@@ -2792,25 +2790,19 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 pXSector->Underwater = (sourceactor->xspr.data1) ? true : false;
 
                 
-                XSPRITE* pXUpper = NULL;
-                    
                 auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);
                 DBloodActor* aUpper = nullptr;
-                XSPRITE* pXLower = nullptr;
                 if (aLower)
                 {
-                    pXLower = &aLower->x();
-
                     // must be sure we found exact same upper link
                     for (auto& sec: sector)
                     {
                         aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
-                        if (aUpper == nullptr || aUpper->xspr.data1 != pXLower->data1)
+                        if (aUpper == nullptr || aUpper->xspr.data1 != aLower->xspr.data1)
                         {
                             aUpper = nullptr;
                             continue;
                         }
-                        pXUpper = &aUpper->x();
                         break;
                     }
                 }
@@ -2824,16 +2816,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                         {
                             case kMarkerLowStack:
                             case kMarkerLowLink:
-                                pXLower->sysData1 = aLower->spr.type;
+                                aLower->xspr.sysData1 = aLower->spr.type;
                                 aLower->spr.type = kMarkerLowWater;
                                 break;
                             default:
-                                if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) pXLower->sysData1 = kMarkerLowLink;
-                                else pXLower->sysData1 = kMarkerLowStack;
+                                if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) aLower->xspr.sysData1 = kMarkerLowLink;
+                                else aLower->xspr.sysData1 = kMarkerLowStack;
                                 break;
                         }
                     }
-                    else if (pXLower->sysData1 > 0) aLower->spr.type = pXLower->sysData1;
+                    else if (aLower->xspr.sysData1 > 0) aLower->spr.type = aLower->xspr.sysData1;
                     else if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) aLower->spr.type = kMarkerLowLink;
                     else aLower->spr.type = kMarkerLowStack;
                 }
@@ -2846,16 +2838,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                         {
                             case kMarkerUpStack:
                             case kMarkerUpLink:
-                                pXUpper->sysData1 = aUpper->spr.type;
+                                aUpper->xspr.sysData1 = aUpper->spr.type;
                                 aUpper->spr.type = kMarkerUpWater;
                                 break;
                             default:
-                                if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) pXUpper->sysData1 = kMarkerUpLink;
-                                else pXUpper->sysData1 = kMarkerUpStack;
+                                if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) aUpper->xspr.sysData1 = kMarkerUpLink;
+                                else aUpper->xspr.sysData1 = kMarkerUpStack;
                                 break;
                         }
                     }
-                    else if (pXUpper->sysData1 > 0) aUpper->spr.type = pXUpper->sysData1;
+                    else if (aUpper->xspr.sysData1 > 0) aUpper->spr.type = aUpper->xspr.sysData1;
                     else if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) aUpper->spr.type = kMarkerUpLink;
                     else aUpper->spr.type = kMarkerUpStack;
                 }
@@ -2878,7 +2870,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                             int waterPal = kMediumWater;
                             if (aLower) 
                             {
-                                if (pXLower->data2 > 0) waterPal = pXLower->data2;
+                                if (aLower->xspr.data2 > 0) waterPal = aLower->xspr.data2;
                                 else if (aLower->spr.type == kMarkerUpGoo) waterPal = kMediumGoo;
                             }
 
@@ -3015,19 +3007,18 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
     if (actor->spr.statnum == kStatDude && actor->IsDudeActor() && !actor->IsPlayerActor()) 
     {
-        XSPRITE* pXDude = &actor->x();
-        int x = pXDude->targetX;
-        int y = pXDude->targetY; 
-        int z = pXDude->targetZ;
+        int x = actor->xspr.targetX;
+        int y = actor->xspr.targetY; 
+        int z = actor->xspr.targetZ;
         auto target = actor->GetTarget();
         
         aiInitSprite(actor);
 
         if (target != nullptr) 
         {
-            pXDude->targetX = x; 
-            pXDude->targetY = y; 
-            pXDude->targetZ = z;
+            actor->xspr.targetX = x; 
+            actor->xspr.targetY = y; 
+            actor->xspr.targetZ = z;
             actor->SetTarget(target);
             aiActivateDude(actor);
         }
@@ -3844,22 +3835,21 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                     if (!objActor->hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    XSPRITE* pXObj = &objActor->x();
                     switch (cond) 
                     {
                         case 41: case 42:
                         case 43: case 44:
                             return condCmp(getDataFieldOfObject(eob, 1 + cond - 41), arg1, arg2, cmpOp);
-                        case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
-                        case 51: return condCmp(pXObj->txID, arg1, arg2, cmpOp);
-                        case 52: return pXObj->locked;
-                        case 53: return pXObj->triggerOn;
-                        case 54: return pXObj->triggerOff;
-                        case 55: return pXObj->triggerOnce;
-                        case 56: return pXObj->isTriggered;
-                        case 57: return pXObj->state;
-                        case 58: return condCmp((kPercFull * pXObj->busy) / 65536, arg1, arg2, cmpOp);
-                        case 59: return pXObj->DudeLockout;
+                        case 50: return condCmp(objActor->xspr.rxID, arg1, arg2, cmpOp);
+                        case 51: return condCmp(objActor->xspr.txID, arg1, arg2, cmpOp);
+                        case 52: return objActor->xspr.locked;
+                        case 53: return objActor->xspr.triggerOn;
+                        case 54: return objActor->xspr.triggerOff;
+                        case 55: return objActor->xspr.triggerOnce;
+                        case 56: return objActor->xspr.isTriggered;
+                        case 57: return objActor->xspr.state;
+                        case 58: return condCmp((kPercFull * objActor->xspr.busy) / 65536, arg1, arg2, cmpOp);
+                        case 59: return objActor->xspr.DudeLockout;
                         case 70: return condCmp(seqGetID(objActor), arg1, arg2, cmpOp);
                         case 71: return condCmp(seqGetStatus(objActor), arg1, arg2, cmpOp);
                     }
@@ -4160,7 +4150,6 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
     if (!objActor->IsDudeActor() || objActor->IsPlayerActor())
         condError(aCond, "Object #%d is not an enemy!", objActor->GetIndex());
 
-    XSPRITE* pXSpr = &objActor->x();
     auto targ = objActor->GetTarget();
     switch (cond)
     {
@@ -4205,14 +4194,14 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             return true;
 
         }
-        case 5: return pXSpr->dudeFlag4;
-        case 6: return pXSpr->dudeDeaf;
-        case 7: return pXSpr->dudeGuard;
-        case 8: return pXSpr->dudeAmbush;
-        case 9: return (pXSpr->unused1 & kDudeFlagStealth);
+        case 5: return objActor->xspr.dudeFlag4;
+        case 6: return objActor->xspr.dudeDeaf;
+        case 7: return objActor->xspr.dudeGuard;
+        case 8: return objActor->xspr.dudeAmbush;
+        case 9: return (objActor->xspr.unused1 & kDudeFlagStealth);
         case 10: // check if the marker is busy with another dude
         case 11: // check if the marker is reached
-                if (!pXSpr->dudeFlag4 || !targ || targ->spr.type != kMarkerPath) return false;
+                if (!objActor->xspr.dudeFlag4 || !targ || targ->spr.type != kMarkerPath) return false;
             switch (cond) {
                 case 10:
                 {
@@ -4228,13 +4217,13 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             }
             return true;
         case 12: // compare spot progress value in %
-            if (!pXSpr->dudeFlag4 || !targ || targ->spr.type != kMarkerPath) var = 0;
-            else if (!(pXSpr->unused1 & kDudeFlagStealth) || pXSpr->data3 < 0 || pXSpr->data3 > kMaxPatrolSpotValue) var = 0;
-            else var = (kPercFull * pXSpr->data3) / kMaxPatrolSpotValue;
+            if (!objActor->xspr.dudeFlag4 || !targ || targ->spr.type != kMarkerPath) var = 0;
+            else if (!(objActor->xspr.unused1 & kDudeFlagStealth) || objActor->xspr.data3 < 0 || objActor->xspr.data3 > kMaxPatrolSpotValue) var = 0;
+            else var = (kPercFull * objActor->xspr.data3) / kMaxPatrolSpotValue;
             return condCmp(var, arg1, arg2, cmpOp);
         case 15: return getDudeInfo(objActor->spr.type)->lockOut; // dude allowed to interact with objects?
-        case 16: return condCmp(pXSpr->aiState->stateType, arg1, arg2, cmpOp);
-        case 17: return condCmp(pXSpr->stateTimer, arg1, arg2, cmpOp);
+        case 16: return condCmp(objActor->xspr.aiState->stateType, arg1, arg2, cmpOp);
+        case 17: return condCmp(objActor->xspr.stateTimer, arg1, arg2, cmpOp);
         case 20: // kDudeModernCustom conditions
         case 21:
         case 22:
@@ -4312,8 +4301,6 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 
     auto objActor = eob.actor();
 
-    XSPRITE* pXSpr = objActor->hasX()? &objActor->x() : nullptr;
-    
     if (cond < (kCondRange >> 1)) 
     {
         switch (cond) 
@@ -4411,8 +4398,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 
                 if (iactor->IsDudeActor() && iactor->hasX())
                 {
-                    XSPRITE* pXDude = &iactor->x();
-                    if (pXDude->health <= 0 || iactor->GetTarget() != objActor) continue;
+                    if (iactor->xspr.health <= 0 || iactor->GetTarget() != objActor) continue;
                     else if (PUSH) condPush(aCond, iactor);
                         return true;
                     }
@@ -4420,16 +4406,16 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 return false;
         }
     } 
-    else if (pXSpr) 
+    else if (objActor->hasX()) 
     {
         switch (cond) 
         {
             default: break;
             case 50: // compare hp (in %)
-                if (objActor->IsDudeActor()) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(objActor->spr.type)->startHealth << 4;
+                if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor->spr.type)->startHealth << 4;
                 else if (objActor->spr.type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
                 else if (objActor->spr.type >= kThingBase && objActor->spr.type < kThingMax) var = thingInfo[objActor->spr.type - kThingBase].startHealth << 4;
-                return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
+                return condCmp((kPercFull * objActor->xspr.health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if (objActor->hit.ceilhit.type != kHitSector) return false;
                 else if (PUSH) condPush(aCond, objActor->hit.ceilhit.hitSector);
@@ -4493,7 +4479,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 
             case 65: // compare burn time (in %)
                 var = (objActor->IsDudeActor()) ? 2400 : 1200;
-                if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
+                if (!condCmp((kPercFull * objActor->xspr.burnTime) / var, arg1, arg2, cmpOp)) return false;
                 else if (PUSH && objActor->GetBurnSource()) condPush(aCond, objActor->GetBurnSource());
                 return true;
 
@@ -4645,8 +4631,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             {
                 case kModernRandomTX:
                 case kModernSequentialTX:
-                XSPRITE* pXSpr = &destactor->x();
-                    if (pXSpr->command != kCmdLink || pXSpr->locked) break; // no redirect mode detected
+                if (destactor->xspr.command != kCmdLink || destactor->xspr.locked) break; // no redirect mode detected
                 switch (destactor->spr.type) 
                 {
                         case kModernRandomTX:
@@ -4661,8 +4646,8 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
                     useSequentialTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false); // set next TX id
                             break;
                     }
-                    if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(sourceactor, pXSpr->txID, (COMMAND_ID)sourceactor->xspr.command);
+                    if (destactor->xspr.txID <= 0 || destactor->xspr.txID >= kChannelUserMax) return;
+                    modernTypeSendCommand(sourceactor, destactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
                     return;
             }
             break;
