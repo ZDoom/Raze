@@ -210,7 +210,7 @@ void AIRa::Tick(RunListEvent* ev)
         }
         else
         {
-            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
             Ra[nPlayer].nAction = 1;
             Ra[nPlayer].nFrame = 0;
         }

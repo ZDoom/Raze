@@ -480,7 +480,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
-    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+    pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
     SetNewWeaponImmediate(nPlayer, -2);
 
@@ -803,11 +803,11 @@ void AIPlayer::Tick(RunListEvent* ev)
         PlayerList[nPlayer].nInvisible--;
         if (PlayerList[nPlayer].nInvisible == 0)
         {
-            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
+            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
             DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
-                pFloorSprite->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
+                pFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
             }
         }
         else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)

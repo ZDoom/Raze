@@ -307,7 +307,7 @@ void AILion::Tick(RunListEvent* ev)
                 if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pActor->nAction = 9;
-                    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+                    pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
                     pActor->spr.xvel = 0;
                     pActor->spr.yvel = 0;
                 }

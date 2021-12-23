@@ -67,7 +67,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
         nAngle = pPlayerActor->spr.ang;
     }
 
-    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+    pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
     pActor->spr.ang = nAngle;
 
     if (push1 >= -3000)
