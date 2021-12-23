@@ -459,15 +459,14 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     if (pAct == nullptr)
     {
         pAct = insertActor(pSector, 401);
-        auto pSprite = &pAct->s();
 
-        pSprite->pos.X = (var_24 + esi) / 2;
-        pSprite->pos.Y = (ecx + edi) / 2;
-        pSprite->pos.Z = pSector->floorz;
-        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-        pSprite->owner = -1;
-        pSprite->lotag = 0;
-        pSprite->hitag = 0;
+        pAct->spr.pos.X = (var_24 + esi) / 2;
+        pAct->spr.pos.Y = (ecx + edi) / 2;
+        pAct->spr.pos.Z = pSector->floorz;
+        pAct->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+        pAct->spr.owner = -1;
+        pAct->spr.lotag = 0;
+        pAct->spr.hitag = 0;
     }
 
     return pAct;

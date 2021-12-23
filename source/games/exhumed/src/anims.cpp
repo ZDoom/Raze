@@ -254,9 +254,9 @@ void BuildExplosion(DExhumedActor* pActor)
     BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->xrepeat, 4);
 }
 
-void BuildSplash(DExhumedActor* actor, sectortype* pSector)
+void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 {
-    auto pSprite = &actor->s();
+    auto pSprite = &pActor->s();
     int nRepeat, nSound;
 
     if (pSprite->statnum != 200)

@@ -573,9 +573,9 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     return nRet;
 }
 
-void Gravity(DExhumedActor* actor)
+void Gravity(DExhumedActor* pActor)
 {
-    auto pSprite = &actor->s();
+    auto pSprite = &pActor->s();
 
     if (pSprite->sector()->Flag & kSectUnderwater)
     {
@@ -1389,19 +1389,19 @@ DExhumedActor* GrabChunkSprite()
 
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 {
-    auto actor = GrabChunkSprite();
+    auto pActor = GrabChunkSprite();
 
-    if (actor == nullptr) {
+    if (pActor == nullptr) {
         return nullptr;
     }
-	auto pSprite = &actor->s();
+	auto pSprite = &pActor->s();
     auto pSrcSpr = &pSrc->s();
 
     pSprite->pos.X = pSrcSpr->pos.X;
     pSprite->pos.Y = pSrcSpr->pos.Y;
     pSprite->pos.Z = pSrcSpr->pos.Z;
 
-    ChangeActorSect(actor, pSrcSpr->sector());
+    ChangeActorSect(pActor, pSrcSpr->sector());
 
     pSprite->cstat = CSTAT_SPRITE_YCENTER;
     pSprite->shade = -12;
@@ -1429,10 +1429,10 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 //	GrabTimeSlot(3);
 
     pSprite->extra = -1;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, actor, 0xD0000);
-    pSprite->hitag = runlist_AddRunRec(NewRun, actor, 0xD0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0xD0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, pActor, 0xD0000);
 
-    return actor;
+    return pActor;
 }
 
 void AICreatureChunk::Tick(RunListEvent* ev)

@@ -394,12 +394,12 @@ int DestroyTailPart()
 
 void BuildTail()
 {
-    auto pSprite = &QueenHead.pActor->s();
+    auto head = QueenHead.pActor;
 
-    int x = pSprite->pos.X;
-    int y = pSprite->pos.X;
-    int z = pSprite->pos.X;
-    auto pSector =pSprite->sector();
+    int x = head->spr.pos.X;
+    int y = head->spr.pos.X;
+    int z = head->spr.pos.X;
+    auto pSector =head->spr.sector();
 
     int i;
 
@@ -1053,10 +1053,9 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
 void AIQueenHead::RadialDamage(RunListEvent* ev)
 {
-    auto pSprite = &QueenHead.pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
+    if (pRadial->statnum != 121 && (QueenHead.pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(QueenHead.pActor);
         if (ev->nDamage) Damage(ev);

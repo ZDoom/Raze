@@ -714,7 +714,6 @@ void UpdateCreepySounds()
 {
     if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
-    spritetype* pSprite = &PlayerList[nLocalPlayer].pActor->spr;
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
@@ -730,7 +729,7 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
                     vax = -vax;
 
-                vec3_t sp = { pSprite->pos.X + vdx, pSprite->pos.Y + vax, pSprite->pos.Z };
+                auto sp = PlayerList[nLocalPlayer].pActor->spr.pos + vec3_t({ vdx, vax, 0 });
                 creepy = GetSoundPos(&sp);
 
                 if ((vsi & 0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((vsi & 0x1ff) + 1))

@@ -83,7 +83,7 @@ extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
 
-template<typename T> void GetSpriteExtents(T const * const pSprite, int *top, int *bottom)
+void GetSpriteExtents(spritetypebase const * const pSprite, int *top, int *bottom)
 {
     *top = *bottom = pSprite->pos.Z;
     if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)

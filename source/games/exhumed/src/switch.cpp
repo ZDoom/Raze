@@ -442,8 +442,8 @@ void AISWPressSector::Use(RunListEvent* ev)
     {
         if (SwitchData[nSwitch].nKeyMask)
         {
-            auto pSprite = &PlayerList[nPlayer].Actor()->s();
-            PlayFXAtXYZ(StaticSound[nSwitchSound], pSprite->pos.X, pSprite->pos.Y, 0, CHANF_LISTENERZ);
+            auto& pos = PlayerList[nPlayer].Actor()->spr.pos;
+            PlayFXAtXYZ(StaticSound[nSwitchSound], pos.X, pos.Y, 0, CHANF_LISTENERZ);
 
             StatusMessage(300, "YOU NEED THE KEY FOR THIS DOOR");
         }

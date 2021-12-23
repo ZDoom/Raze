@@ -86,10 +86,9 @@ void DestroySnake(int nSnake)
     {
         DExhumedActor* pSnake = SnakeList[nSnake].pSprites[i];
         if (!pSnake) continue;
-        auto pSprite = &pSnake->s();
 
-        runlist_DoSubRunRec(pSprite->lotag - 1);
-        runlist_DoSubRunRec(pSprite->owner);
+        runlist_DoSubRunRec(pSnake->spr.lotag - 1);
+        runlist_DoSubRunRec(pSnake->spr.owner);
 
         DeleteActor(pSnake);
     }

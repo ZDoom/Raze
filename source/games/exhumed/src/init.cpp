@@ -736,18 +736,16 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
 
     for(auto& ac : actors)
     {
-		auto pSprite = &ac->s();
-
-        int nStatus = pSprite->statnum;
+        int nStatus = ac->spr.statnum;
         if (!nStatus)
         {
-            int lotag = pSprite->lotag;
-            int hitag = pSprite->hitag;
+            int lotag = ac->spr.lotag;
+            int hitag = ac->spr.hitag;
 
             if ((nStatus < kMaxStatus) && lotag)
             {
-                pSprite->lotag = 0;
-                pSprite->hitag = 0;
+                ac->spr.lotag = 0;
+                ac->spr.hitag = 0;
 
                 ProcessSpriteTag(ac, lotag, hitag);
             }

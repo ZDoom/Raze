@@ -58,15 +58,15 @@ void DrawMap(double const smoothratio)
     }
 }
 
-template<typename T> void GetSpriteExtents(T const* const pSprite, int* top, int* bottom)
+void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
 {
-    *top = *bottom = pSprite->pos.Z;
-    if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
+    *top = *bottom = actor->spr.pos.Z;
+    if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
-        int height = tileHeight(pSprite->picnum);
-        int center = height / 2 + tileTopOffset(pSprite->picnum);
-        *top -= (pSprite->yrepeat << 2) * center;
-        *bottom += (pSprite->yrepeat << 2) * (height - center);
+        int height = tileHeight(actor->spr.picnum);
+        int center = height / 2 + tileTopOffset(actor->spr.picnum);
+        *top -= (actor->spr.yrepeat << 2) * center;
+        *bottom += (actor->spr.yrepeat << 2) * (height - center);
     }
 }
 
@@ -75,7 +75,6 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
 		auto pPlayerActor = PlayerList[i].Actor();
-        spritetype* pSprite = &pPlayerActor->s();
 
         int xvect = -bsin(a) * z;
         int yvect = -bcos(a) * z;
@@ -88,20 +87,20 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 
         if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
         {
-            int nTile = pSprite->picnum;
+            int nTile = pPlayerActor->spr.picnum;
             int ceilZ, floorZ;
             Collision ceilHit, floorHit;
-            getzrange(pSprite->pos, pSprite->sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
+            getzrange(pPlayerActor->spr.pos, pPlayerActor->spr.sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pPlayerActor->spr.clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
-            GetSpriteExtents(pSprite, &nTop, &nBottom);
-            int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;
+            GetActorExtents(pPlayerActor, &nTop, &nBottom);
+            int nScale = (pPlayerActor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;
             nScale = clamp(nScale, 8000, 65536 << 1);
             // Players on automap
             double x = xdim / 2. + x1 / double(1 << 12);
             double y = ydim / 2. + y1 / double(1 << 12);
             // This very likely needs fixing later
             DrawTexture(twod, tileGetTexture(nTile /*+ ((PlayClock >> 4) & 3)*/, true), xx, yy, DTA_ClipLeft, windowxy1.X, DTA_ClipTop, windowxy1.Y, DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
-                DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (pSprite->cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
+                DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (pPlayerActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
             break;
         }
     }
