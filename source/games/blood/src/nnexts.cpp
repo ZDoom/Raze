@@ -1243,9 +1243,9 @@ void nnExtProcessSuperSprites()
                 if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                     continue;
 
-                spritetype* pPlaySprite = pPlayer->pSprite;
-                GetSpriteExtents(pPlaySprite, &ztop2, &zbot2);
-                if (cansee(x, y, z, pSightSect, pPlaySprite->pos.X, pPlaySprite->pos.Y, ztop2, pPlaySprite->sector()))
+                auto plActor = pPlayer->actor;
+                GetActorExtents(plActor, &ztop2, &zbot2);
+                if (cansee(x, y, z, pSightSect, plActor->spr.pos.X, plActor->spr.pos.Y, ztop2, plActor->spr.sector()))
                 {
                     if (pXSightSpr->Sight)
                     {
@@ -8205,14 +8205,14 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
         pPlayer = &gPlayer[i];
         if (!pPlayer->actor->hasX()) continue;
 
-        spritetype* pSpr = pPlayer->pSprite;
+        auto plActor = pPlayer->actor;
         XSPRITE* pXSpr = &pPlayer->actor->x();
         if (pXSpr->health <= 0)
             continue;
 
         newtarget = nullptr;
         seeChance = hearChance = 0x0000;
-        x = pSpr->pos.X, y = pSpr->pos.Y, z = pSpr->pos.Z, dx = x - actor->spr.pos.X, dy = y - actor->spr.pos.Y; nDist = approxDist(dx, dy);
+        x = plActor->spr.pos.X, y = plActor->spr.pos.Y, z = plActor->spr.pos.Z, dx = x - actor->spr.pos.X, dy = y - actor->spr.pos.Y; nDist = approxDist(dx, dy);
         seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
         hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
 
@@ -8223,7 +8223,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
         {
             eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
             if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor, &z, &j); //use ztop of the target sprite
-            if (!cansee(x, y, z, pSpr->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - eyeAboveZ, actor->spr.sector()))
+            if (!cansee(x, y, z, plActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - eyeAboveZ, actor->spr.sector()))
                 continue;
         }
         else 
@@ -8399,17 +8399,16 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     bool trgt = (both || !dude); // target must be in this region
                     bool crouch = (pSteal->flags & kModernTypeFlag8); // target must crouch
                     //bool floor = (pSteal->cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
-
                     if (trgt) 
                     {
 
                         if (pXSteal->data1 > 0)
                         {
-                            if (approxDist(abs(pSteal->pos.X - pSpr->pos.X) >> 4, abs(pSteal->pos.Y - pSpr->pos.Y) >> 4) >= pXSteal->data1)
+                            if (approxDist(abs(pSteal->pos.X - plActor->spr.pos.X) >> 4, abs(pSteal->pos.Y - plActor->spr.pos.Y) >> 4) >= pXSteal->data1)
                                 continue;
 
                         } 
-                        else if (pSpr->sector() != pSteal->sector())
+                        else if (plActor->spr.sector() != pSteal->sector())
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
@@ -8424,7 +8423,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                                 continue;
 
                         } 
-                        else if (pSpr->sector() != pSteal->sector())
+                        else if (plActor->spr.sector() != pSteal->sector())
                             continue;
                     }
 

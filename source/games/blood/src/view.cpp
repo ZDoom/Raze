@@ -716,7 +716,7 @@ void viewDrawScreen(bool sceneonly)
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;
     PLAYER *pPSprite = &gPlayer[gMe->actor->spr.type-kDudePlayer1];
-    if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
+    if (gMe->actor->IsPlayerActor() && pPSprite->hand == 1)
     {
         gChoke.animateChoke(160, zn, (int)gInterpolate);
     }
@@ -760,7 +760,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         PLAYER* pPlayer = &gPlayer[i];
-        spritetype* pSprite = pPlayer->pSprite;
+        auto actor = pPlayer->actor;
 
         int xvect = -bsin(a) * z;
         int yvect = -bcos(a) * z;
@@ -773,20 +773,20 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 
         if (i == gView->nPlayer || gGameOptions.nGameType == 1)
         {
-            int nTile = pSprite->picnum;
+            int nTile = actor->spr.picnum;
             int ceilZ, floorZ;
             Collision ceilHit, floorHit;
-            GetZRange(gView->actor, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+            GetZRange(gView->actor, &ceilZ, &ceilHit, &floorZ, &floorHit, (actor->spr.clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
             int nTop, nBottom;
-            GetSpriteExtents(pSprite, &nTop, &nBottom);
-            int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;
+            GetActorExtents(actor, &nTop, &nBottom);
+            int nScale = (actor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;
             nScale = ClipRange(nScale, 8000, 65536 << 1);
             // Players on automap
             double x = xdim / 2. + x1 / double(1 << 12);
             double y = ydim / 2. + y1 / double(1 << 12);
             // This very likely needs fixing later
             DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, windowxy1.X, DTA_ClipTop, windowxy1.Y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
-                DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (pSprite->cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
+                DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
         }
     }
     return true;

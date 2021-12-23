@@ -865,10 +865,10 @@ bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
 
 bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
 {
-    spritetype *pSprite = pPlayer->pSprite;
     char buffer[80];
 	int pickupSnd = 775;
 	int nType = itemactor->spr.type - kItemBase;
+    auto plActor = pPlayer->actor;
 
     switch (itemactor->spr.type) {
         case kItemShadowCloak:
@@ -1087,7 +1087,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             return 1;
     }
     
-    sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pickupSnd, pSprite->sector());
+    sfxPlay3DSound(plActor->spr.pos.X, plActor->spr.pos.Y, plActor->spr.pos.Z, pickupSnd, plActor->spr.sector());
     return 1;
 }
 
@@ -1194,11 +1194,11 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
 
 void CheckPickUp(PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
-    int x = pSprite->pos.X;
-    int y = pSprite->pos.Y;
-    int z = pSprite->pos.Z;
-    auto pSector = pSprite->sector();
+    auto plActor = pPlayer->actor;
+    int x = plActor->spr.pos.X;
+    int y = plActor->spr.pos.Y;
+    int z = plActor->spr.pos.Z;
+    auto pSector = plActor->spr.sector();
     BloodStatIterator it(kStatItem);
     while (auto itemactor = it.Next())
     {
@@ -1211,7 +1211,7 @@ void CheckPickUp(PLAYER *pPlayer)
         if (dy > 48)
             continue;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(plActor, &top, &bottom);
         int vb = 0;
         if (itemactor->spr.pos.Z < top)
             vb = (top-itemactor->spr.pos.Z)>>8;
@@ -1231,13 +1231,13 @@ void CheckPickUp(PLAYER *pPlayer)
 
 int ActionScan(PLAYER *pPlayer, HitInfo* out)
 {
+    auto plActor = pPlayer->actor;
     *out = {};
-    spritetype *pSprite = pPlayer->pSprite;
-    int x = bcos(pSprite->ang);
-    int y = bsin(pSprite->ang);
+    int x = bcos(plActor->spr.ang);
+    int y = bsin(plActor->spr.ang);
     int z = pPlayer->slope;
     int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
-    int hitDist = approxDist(pSprite->pos.X-gHitInfo.hitpos.X, pSprite->pos.Y-gHitInfo.hitpos.Y)>>4;
+    int hitDist = approxDist(plActor->spr.pos.X-gHitInfo.hitpos.X, plActor->spr.pos.Y-gHitInfo.hitpos.Y)>>4;
     if (hitDist < 64)
     {
         switch (hit)
@@ -1247,7 +1247,6 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
             auto hitactor = gHitInfo.actor();
             if (!hitactor || !hitactor->hasX()) return -1;
             out->hitActor = hitactor;
-            spritetype* pSprite = &hitactor->s();
             XSPRITE* pXSprite = &hitactor->x();
             if (hitactor->spr.statnum == kStatThing)
             {
@@ -1304,8 +1303,8 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
         }
         }
     }
-    out->hitSector = pSprite->sector();
-    if (pSprite->sector()->hasX() && pSprite->sector()->xs().Push)
+    out->hitSector = plActor->spr.sector();
+    if (plActor->spr.sector()->hasX() && plActor->spr.sector()->xs().Push)
         return 6;
     return -1;
 }
@@ -1329,11 +1328,11 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 
 void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
-    auto* const pSprite = pPlayer->pSprite;
+    auto plActor = pPlayer->actor;
     auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = pPlayer->actor->hit.florhit.type;
     bool const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-    pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, pSprite->sector()->floorstat & CSTAT_SECTOR_SLOPE, pSprite->sector(), scaleAdjust);
+    pPlayer->horizon.calcviewpitch(plActor->spr.pos.vec2, buildang(plActor->spr.ang), va, plActor->spr.sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->spr.sector(), scaleAdjust);
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1350,7 +1349,6 @@ void ProcessInput(PLAYER *pPlayer)
     pPlayer->angle.resetadjustment();
 
     DBloodActor* actor = pPlayer->actor;
-    spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     InputPacket *pInput = &pPlayer->input;
@@ -1370,7 +1368,7 @@ void ProcessInput(PLAYER *pPlayer)
         DBloodActor* fragger = pPlayer->fragger;
         if (fragger)
         {
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->spr.pos.X - pSprite->pos.X, fragger->spr.pos.Y - pSprite->pos.Y)));
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->spr.pos.X - actor->spr.pos.X, fragger->spr.pos.Y - actor->spr.pos.Y)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1404,8 +1402,8 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pPlayer->posture == 1)
     {
-        int x = Cos(pSprite->ang);
-        int y = Sin(pSprite->ang);
+        int x = Cos(actor->spr.ang);
+        int y = Sin(actor->spr.ang);
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -1429,8 +1427,8 @@ void ProcessInput(PLAYER *pPlayer)
         int speed = 0x10000;
         if (pXSprite->height > 0)
             speed -= DivScale(pXSprite->height, 256, 16);
-        int x = Cos(pSprite->ang);
-        int y = Sin(pSprite->ang);
+        int x = Cos(actor->spr.ang);
+        int y = Sin(actor->spr.ang);
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -1654,25 +1652,24 @@ void ProcessInput(PLAYER *pPlayer)
 void playerProcess(PLAYER *pPlayer)
 {
     DBloodActor* actor = pPlayer->actor;
-    spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     powerupProcess(pPlayer);
     int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
-    int dzb = (bottom-pSprite->pos.Z)/4;
-    int dzt = (pSprite->pos.Z-top)/4;
-    int dw = pSprite->clipdist<<2;
+    GetActorExtents(actor, &top, &bottom);
+    int dzb = (bottom-actor->spr.pos.Z)/4;
+    int dzt = (actor->spr.pos.Z-top)/4;
+    int dw = actor->spr.clipdist<<2;
     if (!gNoClip)
     {
-        auto pSector = pSprite->sector();
-        if (pushmove(&pSprite->pos, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
+        auto pSector = actor->spr.sector();
+        if (pushmove(&actor->spr.pos, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
             actDamageSprite(actor, actor, kDamageFall, 500<<4);
-        if (pSprite->sector() != pSector)
+        if (actor->spr.sector() != pSector)
         {
             if (pSector == nullptr)
             {
-                pSector = pSprite->sector();
+                pSector = actor->spr.sector();
                 actDamageSprite(actor, actor, kDamageFall, 500<<4);
             }
             else
@@ -1744,10 +1741,10 @@ void playerProcess(PLAYER *pPlayer)
     if (pPlayer->posture == 1)
     {
         pPlayer->isUnderwater = 1;
-        auto link = pSprite->sector()->lowerLink;
+        auto link = actor->spr.sector()->lowerLink;
         if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
         {
-            if (getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y) > pPlayer->zView)
+            if (getceilzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y) > pPlayer->zView)
                 pPlayer->isUnderwater = 0;
         }
     }
@@ -1929,10 +1926,9 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
     pPlayer->painEffect = ClipHigh(pPlayer->painEffect+(nDamage>>3), 600);
 
-    spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     DBloodActor* pActor = pPlayer->actor;
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    DUDEINFO *pDudeInfo = getDudeInfo(pActor->spr.type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
     bool va = playerSeqPlaying(pPlayer, 16);
@@ -1955,8 +1951,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             default:
             {
                 int top, bottom;
-                GetSpriteExtents(pSprite, &top, &bottom);
-                CGibPosition gibPos(pSprite->pos.X, pSprite->pos.Y, top);
+                GetActorExtents(pActor, &top, &bottom);
+                CGibPosition gibPos(pActor->spr.pos.X, pActor->spr.pos.Y, top);
                 CGibVelocity gibVel(pActor->xvel >> 1, pActor->yvel >> 1, -0xccccc);
                 GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);
@@ -2043,9 +2039,9 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     if (nDeathSeqID != 16)
     {
         powerupClear(pPlayer);
-        if (pSprite->sector()->hasX() && pSprite->sector()->xs().Exit)
-            trTriggerSector(pSprite->sector(), kCmdSectorExit);
-        pSprite->flags |= 7;
+        if (pActor->spr.sector()->hasX() && pActor->spr.sector()->xs().Exit)
+            trTriggerSector(pActor->spr.sector(), kCmdSectorExit);
+        pActor->spr.flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
             if (gPlayer[p].fragger == pPlayer->actor && gPlayer[p].deathTime > 0)
@@ -2134,7 +2130,6 @@ void playerLandingSound(PLAYER *pPlayer)
         604,
         603
     };
-    spritetype *pSprite = pPlayer->pSprite;
     SPRITEHIT* pHit = &pPlayer->actor->hit;
     if (pHit->florhit.type != kHitNone)
     {

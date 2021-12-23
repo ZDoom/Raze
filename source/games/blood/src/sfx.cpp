@@ -75,7 +75,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
     {
         FVector3 camera;
         
-        if (gMe && gMe->pSprite) camera = GetSoundPos(&gMe->actor->spr.pos);
+        if (gMe && gMe->actor) camera = GetSoundPos(&gMe->actor->spr.pos);
         else camera = { 0, 0, 0 }; // don't crash if there is no player.
 
         if (vel) vel->Zero();
@@ -111,7 +111,7 @@ void GameInterface::UpdateSounds()
 {
     SoundListener listener;
 
-    if (gMe->pSprite)
+    if (gMe->actor)
     {
         listener.angle = -gMe->actor->spr.ang * float(BAngRadian); // Build uses a period of 2048.
         listener.velocity.Zero();
