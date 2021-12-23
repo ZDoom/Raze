@@ -179,7 +179,7 @@ int DoActorNoise(ANIMATORp Action, DSWActor* actor)
     }
     else if (Action == InitActorAlertNoise)
     {
-        if (u && !u->DidAlert) // This only allowed once
+        if (actor->hasU() && !u->DidAlert) // This only allowed once
             PlaySpriteSound(actor, attr_alert, v3df_follow);
     }
     else if (Action == InitActorAttackNoise)
@@ -672,19 +672,8 @@ int InitActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    // NOTE: It is possible to overflow the stack with too many calls to this
-    // routine
-    // Should use:
-    // u->ActorActionFunc = DoActorDecide;
-    // Instead of calling this function direcly
-
-    // MONO_PRINT(strcpy(ds,"Init Actor Stay Put"));
-
     u->ActorActionFunc = DoActorDecide;
-
-    DoActorDecide(actor);
-
-    return 0;
+    return DoActorDecide(actor);
 }
 
 int DoActorDecide(DSWActor* actor)
@@ -894,10 +883,8 @@ int DoActorMoveCloser(DSWActor* actor)
     ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     // if cannot move the sprite
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0))
     {
-        //DebugMoveHit(actor);
-
         if (ActorMoveHitReact(actor))
             return 0;
 
@@ -907,21 +894,6 @@ int DoActorMoveCloser(DSWActor* actor)
 
     // Do a noise if ok
     DoActorNoise(ChooseAction(u->Personality->Broadcast), actor);
-
-#if 0
-    // evasion if targeted
-    if (TEST(u->Flags, SPR_TARGETED))
-    {
-        ANIMATORp action;
-
-        action = ChooseAction(u->Personality->Evasive);
-        if (action)
-        {
-            (*action)(actor);
-            return 0;
-        }
-    }
-#endif
 
     // after moving a ways check to see if player is still in sight
     if (u->DistCheck > 550)
@@ -997,7 +969,7 @@ int FindTrackToPlayer(DSWActor* actor)
 
     zdiff = ActorUpperZ(u->targetActor) - (actor->spr.pos.Z - ActorSizeZ(actor) + Z(8));
 
-    if (labs(zdiff) <= Z(20))
+    if (abs(zdiff) <= Z(20))
     {
         type = PlayerOnLevel;
         size = SIZ(PlayerOnLevel);
@@ -1120,8 +1092,6 @@ int InitActorRunAway(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    //MONO_PRINT("Init Actor RunAway\n");
-
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(actor, u->ActorActionSet->Run);
 
@@ -1132,14 +1102,11 @@ int InitActorRunAway(DSWActor* actor)
         actor->spr.ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - actor->spr.pos.X, (Track[u->track].TrackPoint + u->point)->y - actor->spr.pos.Y));
         DoActorSetSpeed(actor, FAST_SPEED);
         SET(u->Flags, SPR_RUN_AWAY);
-        //MONO_PRINT("Actor running away on track\n");
     }
     else
     {
         SET(u->Flags, SPR_RUN_AWAY);
         InitActorReposition(actor);
-        ////DSPRINTF(ds, "Actor RunAway\n");
-        //MONO_PRINT(ds);
     }
 
     return 0;
@@ -1148,8 +1115,6 @@ int InitActorRunAway(DSWActor* actor)
 int InitActorRunToward(DSWActor* actor)
 {
     USER* u = actor->u();
-
-    //MONO_PRINT("InitActorRunToward\n");
 
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(actor, u->ActorActionSet->Run);
@@ -1291,8 +1256,7 @@ int InitActorEvade(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    // Evade is same thing as run away except when you get to the end of the
-    // track
+    // Evade is same thing as run away except when you get to the end of the track
     // you stop and take up the fight again.
 
     u->ActorActionFunc = DoActorDecide;
