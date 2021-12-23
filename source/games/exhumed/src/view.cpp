@@ -297,10 +297,10 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (bCamera)
         {
             viewz -= 2560;
-            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &pSector, nAngle, pan, smoothRatio))
+            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio))
             {
                 viewz += 2560;
-                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &pSector, nAngle, pan, smoothRatio);
+                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio);
             }
         }
     }

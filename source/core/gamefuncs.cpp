@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int cameradist, cameraclock;
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psect, binangle ang, fixedhoriz horiz, double const smoothratio)
+bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** psect, binangle ang, fixedhoriz horiz, double const smoothratio)
 {
 	HitInfoBase hitinfo;
 	binangle daang;
@@ -45,11 +45,11 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 	int ny = gi->chaseCamY(ang);
 	int nz = gi->chaseCamZ(horiz);
 
-	auto bakcstat = pspr->cstat;
-	pspr->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	auto bakcstat = act->spr.cstat;
+	act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	updatesectorz(*px, *py, *pz, psect);
 	hitscan({ *px, *py, *pz }, *psect, { nx, ny, nz }, hitinfo, CLIPMASK1);
-	pspr->cstat = bakcstat;
+	act->spr.cstat = bakcstat;
 
 	int hx = hitinfo.hitpos.X - *px;
 	int hy = hitinfo.hitpos.Y - *py;
@@ -94,14 +94,14 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 			{
 				bakcstat = hit->spr.cstat;
 				hit->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-				calcChaseCamPos(px, py, pz, pspr, psect, ang, horiz, smoothratio);
+				calcChaseCamPos(px, py, pz, act, psect, ang, horiz, smoothratio);
 				hit->spr.cstat = bakcstat;
 				return false;
 			}
 			else
 			{
 				// same as wall calculation.
-				daang = buildang(pspr->ang - 512);
+				daang = buildang(act->spr.ang - 512);
 				newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 				if (abs(nx) > abs(ny))

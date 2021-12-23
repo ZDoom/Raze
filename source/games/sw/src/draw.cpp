@@ -1520,10 +1520,10 @@ void drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsect, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, pp->Actor(), &tsect, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsect, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, pp->Actor(), &tsect, tang, thoriz, smoothratio);
         }
     }
     else

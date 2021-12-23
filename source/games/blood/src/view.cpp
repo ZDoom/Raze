@@ -381,7 +381,7 @@ int gLastPal = 0;
 
 int32_t g_frameRate;
 
-static void DrawMap(spritetype* pSprite)
+static void DrawMap(DBloodActor* view)
 {
     int tm = 0;
     if (windowxy1.X > 0)
@@ -390,8 +390,8 @@ static void DrawMap(spritetype* pSprite)
         tm = 1;
     }
     VIEW* pView = &gPrevView[gViewIndex];
-    int x = interpolatedvalue(pView->x, pSprite->pos.X, gInterpolate);
-    int y = interpolatedvalue(pView->y, pSprite->pos.Y, gInterpolate);
+    int x = interpolatedvalue(pView->x, view->spr.pos.X, gInterpolate);
+    int y = interpolatedvalue(pView->y, view->spr.pos.Y, gInterpolate);
     int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
     DrawOverheadMap(x, y, ang, gInterpolate);
     if (tm)
@@ -475,7 +475,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
     }
     else
     {
-        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, &gView->actor->spr, &pSector, cA, cH, gInterpolate);
+        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, cA, cH, gInterpolate);
     }
     CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
 }
@@ -711,7 +711,7 @@ void viewDrawScreen(bool sceneonly)
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
     {
-        DrawMap (&gView->actor->spr);
+        DrawMap (gView->actor);
     }
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;

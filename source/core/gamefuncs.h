@@ -116,7 +116,7 @@ extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
+bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
 
@@ -197,21 +197,6 @@ inline DVector2 WallEnd(const walltype* wallnum)
 inline DVector2 WallDelta(const walltype* wallnum)
 {
     return WallEnd(wallnum) - WallStart(wallnum);
-}
-
-inline double SpriteX(spritetype* spr)
-{
-    return spr->pos.X * (1 / 16.);
-}
-
-inline double SpriteY(spritetype* spr)
-{
-    return spr->pos.Y * (1 / -16.);
-}
-
-inline DVector2 SpritePos(spritetype* spr)
-{
-    return { SpriteX(spr), SpriteY(spr) };
 }
 
 inline double PointOnLineSide(double x, double y, double linex, double liney, double deltax, double deltay)
