@@ -39,14 +39,12 @@ static actionSeq LavadudeSeq[] = {
 
 DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
-    auto pSprite = &pActor->s();
-
-    auto pLimbActor = insertActor(pSprite->sector(), 118);
+    auto pLimbActor = insertActor(pActor->spr.sector(), 118);
 	auto pLimbSprite = &pLimbActor->s();
 
-    pLimbSprite->pos.X = pSprite->pos.X;
-    pLimbSprite->pos.Y = pSprite->pos.Y;
-    pLimbSprite->pos.Z = pSprite->pos.Z - RandomLong() % ebx;
+    pLimbSprite->pos.X = pActor->spr.pos.X;
+    pLimbSprite->pos.Y = pActor->spr.pos.Y;
+    pLimbSprite->pos.Z = pActor->spr.pos.Z - RandomLong() % ebx;
     pLimbSprite->cstat = 0;
     pLimbSprite->shade = -127;
     pLimbSprite->pal = 1;
@@ -75,21 +73,20 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    auto pSprite = &pActor->s();
 
-    pSprite->shade += 3;
+    pActor->spr.shade += 3;
 
-    auto coll = movesprite(pActor, pSprite->xvel << 12, pSprite->yvel << 12, pSprite->zvel, 2560, -2560, CLIPMASK1);
+    auto coll = movesprite(pActor, pActor->spr.xvel << 12, pActor->spr.yvel << 12, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
 
-    if (coll.type || pSprite->shade > 100)
+    if (coll.type || pActor->spr.shade > 100)
     {
-        pSprite->xvel = 0;
-        pSprite->yvel = 0;
-        pSprite->zvel = 0;
+        pActor->spr.xvel = 0;
+        pActor->spr.yvel = 0;
+        pActor->spr.zvel = 0;
 
-        runlist_DoSubRunRec(pSprite->owner);
-        runlist_FreeRun(pSprite->lotag - 1);
-        runlist_SubRunRec(pSprite->hitag);
+        runlist_DoSubRunRec(pActor->spr.owner);
+        runlist_FreeRun(pActor->spr.lotag - 1);
+        runlist_SubRunRec(pActor->spr.hitag);
 
         DeleteActor(pActor);
     }
@@ -105,45 +102,42 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 
 void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, int nAngle, int nChannel)
 {
-    spritetype* pSprite;
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 118);
-        pSprite = &pActor->s();
     }
     else
     {
-        pSprite = &pActor->s();
-        pSector = pSprite->sector();
-        nAngle = pSprite->ang;
-        x = pSprite->pos.X;
-        y = pSprite->pos.Y;
+        pSector = pActor->spr.sector();
+        nAngle = pActor->spr.ang;
+        x = pActor->spr.pos.X;
+        y = pActor->spr.pos.Y;
 
         ChangeActorStat(pActor, 118);
     }
 
-    pSprite->pos.X = x;
-    pSprite->pos.Y = y;
-    pSprite->pos.Z = pSector->floorz;
-    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->xrepeat = 200;
-    pSprite->yrepeat = 200;
-    pSprite->shade = -12;
-    pSprite->pal = 0;
-    pSprite->clipdist = 127;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->ang = nAngle;
-    pSprite->hitag = 0;
-    pSprite->lotag = runlist_HeadRun() + 1;
+    pActor->spr.pos.X = x;
+    pActor->spr.pos.Y = y;
+    pActor->spr.pos.Z = pSector->floorz;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.xrepeat = 200;
+    pActor->spr.yrepeat = 200;
+    pActor->spr.shade = -12;
+    pActor->spr.pal = 0;
+    pActor->spr.clipdist = 127;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.ang = nAngle;
+    pActor->spr.hitag = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
 
 //	GrabTimeSlot(3);
 
-    pSprite->extra = -1;
+    pActor->spr.extra = -1;
 
     pActor->nAction = 0;
     pActor->nHealth = 4000;
@@ -152,7 +146,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     pActor->nFrame = 0;
     pActor->nPhase = Counters[kCountLava]++;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x150000);
+    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x150000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x150000);
 
     nCreaturesTotal++;
@@ -177,7 +171,6 @@ void AILavaDude::Damage(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    auto pSprite = &pActor->s();
 
     if (!ev->nDamage) 
     {
@@ -194,7 +187,7 @@ void AILavaDude::Damage(RunListEvent* ev)
 
         nCreaturesKilled++;
 
-        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+        pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
     }
     else
     {
@@ -214,7 +207,7 @@ void AILavaDude::Damage(RunListEvent* ev)
             {
                 pActor->nAction = 4;
                 pActor->nFrame = 0;
-                pSprite->cstat = 0;
+                pActor->spr.cstat = 0;
             }
         }
 
@@ -230,9 +223,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     int nAction = pActor->nAction;
     int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
-    auto pSprite = &pActor->s();
-
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     int var_38 = pActor->nFrame;
 
     int nFlag = FrameFlag[SeqBase[nSeq] + var_38];
@@ -279,36 +270,36 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pSprite->xvel = bcos(pSprite->ang);
-            pSprite->yvel = bsin(pSprite->ang);
+            pActor->spr.xvel = bcos(pActor->spr.ang);
+            pActor->spr.yvel = bsin(pActor->spr.ang);
 
             if (pTarget && !RandomSize(1))
             {
                 pActor->pTarget = pTarget;
                 pActor->nAction = 2;
-                pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
+                pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
                 pActor->nFrame = 0;
                 break;
             }
         }
 
-        int x = pSprite->pos.X;
-        int y = pSprite->pos.Y;
-        int z = pSprite->pos.Z;
-        auto pSector =pSprite->sector();
+        int x = pActor->spr.pos.X;
+        int y = pActor->spr.pos.Y;
+        int z = pActor->spr.pos.Z;
+        auto pSector =pActor->spr.sector();
 
-        auto coll = movesprite(pActor, pSprite->xvel << 8, pSprite->yvel << 8, 0, 0, 0, CLIPMASK0);
+        auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, 0, 0, 0, CLIPMASK0);
 
-        if (pSector != pSprite->sector())
+        if (pSector != pActor->spr.sector())
         {
             ChangeActorSect(pActor, pSector);
-            pSprite->pos.X = x;
-            pSprite->pos.Y = y;
-            pSprite->pos.Z = z;
+            pActor->spr.pos.X = x;
+            pActor->spr.pos.Y = y;
+            pActor->spr.pos.Z = z;
 
-            pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-            pSprite->xvel = bcos(pSprite->ang);
-            pSprite->yvel = bsin(pSprite->ang);
+            pActor->spr.ang = (pActor->spr.ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->spr.xvel = bcos(pActor->spr.ang);
+            pActor->spr.yvel = bsin(pActor->spr.ang);
             break;
         }
 
@@ -318,21 +309,21 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (coll.type == kHitWall)
         {
-            pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-            pSprite->xvel = bcos(pSprite->ang);
-            pSprite->yvel = bsin(pSprite->ang);
+            pActor->spr.ang = (pActor->spr.ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->spr.xvel = bcos(pActor->spr.ang);
+            pActor->spr.yvel = bsin(pActor->spr.ang);
             break;
         }
         else if (coll.type == kHitSprite)
         {
             if (coll.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
-                if (AngleDiff(pSprite->ang, nAng) < 64)
+                int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                if (AngleDiff(pActor->spr.ang, nAng) < 64)
                 {
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
-                    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
+                    pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
                     break;
                 }
             }
@@ -356,7 +347,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pSprite->cstat |= CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
         }
 
         break;
@@ -369,7 +360,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             int nHeight = GetActorHeight(pActor);
             GetUpAngle(pActor, -64000, pTarget, (-(nHeight >> 1)));
 
-            BuildBullet(pActor, 10, -1, pSprite->ang, pTarget, 1);
+            BuildBullet(pActor, 10, -1, pActor->spr.ang, pTarget, 1);
         }
         else if (var_1C)
         {
@@ -386,7 +377,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (var_1C)
         {
             pActor->nAction = 7;
-            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+            pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         }
 
         break;
@@ -423,8 +414,8 @@ void AILavaDude::Tick(RunListEvent* ev)
                 ecx++;
             } while (ecx < 30);
 
-            runlist_DoSubRunRec(pSprite->owner);
-            runlist_FreeRun(pSprite->lotag - 1);
+            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->nRun);
             DeleteActor(pActor);
         }
@@ -448,14 +439,14 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
-            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
+            pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         }
         break;
     }
     }
 
     // loc_31521:
-    pSprite->pal = 1;
+    pActor->spr.pal = 1;
 }
 
 END_PS_NS
