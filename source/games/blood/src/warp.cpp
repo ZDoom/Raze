@@ -193,56 +193,52 @@ int CheckLink(DBloodActor *actor)
     auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);
     if (aUpper)
     {
-        spritetype* pUpper = &aUpper->s();
         int z;
-        if (pUpper->type == kMarkerUpLink)
-            z = pUpper->pos.Z;
+        if (aUpper->spr.type == kMarkerUpLink)
+            z = aUpper->spr.pos.Z;
         else
             z = getflorzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y);
         if (z <= actor->spr.pos.Z)
         {
             aLower = aUpper->GetOwner();
             assert(aLower);
-            spritetype *pLower = &aLower->s();
-            assert(pLower->insector());
-            ChangeActorSect(actor, pLower->sector());
-            actor->spr.pos.X += pLower->pos.X - pUpper->pos.X;
-            actor->spr.pos.Y += pLower->pos.Y - pUpper->pos.Y;
+            assert(aLower->spr.insector());
+            ChangeActorSect(actor, aLower->spr.sector());
+            actor->spr.pos.X += aLower->spr.pos.X - aUpper->spr.pos.X;
+            actor->spr.pos.Y += aLower->spr.pos.Y - aUpper->spr.pos.Y;
             int z2;
-            if (pLower->type == kMarkerLowLink)
-                z2 = pLower->pos.Z;
+            if (aLower->spr.type == kMarkerLowLink)
+                z2 = aLower->spr.pos.Z;
             else
                 z2 = getceilzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y);
             actor->spr.pos.Z += z2-z;
             actor->interpolated = false;
-            return pUpper->type;
+            return aUpper->spr.type;
         }
     }
     if (aLower)
     {
-        spritetype *pLower = &aLower->s();
         int z;
-        if (pLower->type == kMarkerLowLink)
-            z = pLower->pos.Z;
+        if (aLower->spr.type == kMarkerLowLink)
+            z = aLower->spr.pos.Z;
         else
             z = getceilzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y);
         if (z >= actor->spr.pos.Z)
         {
             aUpper = aLower->GetOwner();
             assert(aUpper);
-            spritetype *pUpper = &aUpper->s();
-            assert(pUpper->insector());
-            ChangeActorSect(actor, pUpper->sector());
-            actor->spr.pos.X += pUpper->pos.X - pLower->pos.X;
-            actor->spr.pos.Y += pUpper->pos.Y - pLower->pos.Y;
+            assert(aUpper->spr.insector());
+            ChangeActorSect(actor, aUpper->spr.sector());
+            actor->spr.pos.X += aUpper->spr.pos.X - aLower->spr.pos.X;
+            actor->spr.pos.Y += aUpper->spr.pos.Y - aLower->spr.pos.Y;
             int z2;
-            if (pUpper->type == kMarkerUpLink)
-                z2 = pUpper->pos.Z;
+            if (aUpper->spr.type == kMarkerUpLink)
+                z2 = aUpper->spr.pos.Z;
             else
                 z2 = getflorzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y);
             actor->spr.pos.Z += z2-z;
             actor->interpolated = false;
-            return pLower->type;
+            return aLower->spr.type;
         }
     }
     return 0;
@@ -250,58 +246,53 @@ int CheckLink(DBloodActor *actor)
 
 int CheckLink(int *x, int *y, int *z, sectortype** pSector)
 {
-    auto upper = barrier_cast<DBloodActor*>((*pSector)->upperLink);
-    auto lower = barrier_cast<DBloodActor*>((*pSector)->lowerLink);
-    if (upper)
+    auto aUpper = barrier_cast<DBloodActor*>((*pSector)->upperLink);
+    auto aLower = barrier_cast<DBloodActor*>((*pSector)->lowerLink);
+    if (aUpper)
     {
-        spritetype *pUpper = &upper->s();
         int z1;
-        if (pUpper->type == kMarkerUpLink)
-            z1 = pUpper->pos.Z;
+        if (aUpper->spr.type == kMarkerUpLink)
+            z1 = aUpper->spr.pos.Z;
         else
             z1 = getflorzofslopeptr(*pSector, *x, *y);
         if (z1 <= *z)
         {
-            lower = upper->GetOwner();
-            assert(lower);
-            spritetype *pLower = &lower->s();
-            assert(pLower->insector());
-            *pSector = pLower->sector();
-            *x += pLower->pos.X - pUpper->pos.X;
-            *y += pLower->pos.Y - pUpper->pos.Y;
+            aLower = aUpper->GetOwner();
+            assert(aLower);
+            assert(aLower->spr.insector());
+            *pSector = aLower->spr.sector();
+            *x += aLower->spr.pos.X - aUpper->spr.pos.X;
+            *y += aLower->spr.pos.Y - aUpper->spr.pos.Y;
             int z2;
-            if (pUpper->type == kMarkerLowLink)
-                z2 = pLower->pos.Z;
+            if (aUpper->spr.type == kMarkerLowLink)
+                z2 = aLower->spr.pos.Z;
             else
                 z2 = getceilzofslopeptr(*pSector, *x, *y);
             *z += z2-z1;
-            return pUpper->type;
+            return aUpper->spr.type;
         }
     }
-    if (lower)
+    if (aLower)
     {
-        spritetype *pLower = &lower->s();
         int z1;
-        if (pLower->type == kMarkerLowLink)
-            z1 = pLower->pos.Z;
+        if (aLower->spr.type == kMarkerLowLink)
+            z1 = aLower->spr.pos.Z;
         else
             z1 = getceilzofslopeptr(*pSector, *x, *y);
         if (z1 >= *z)
         {
-            upper = lower->GetOwner();
-            assert(upper);
-            spritetype *pUpper = &upper->s();
-			assert(pUpper);
-            *pSector = pUpper->sector();
-            *x += pUpper->pos.X - pLower->pos.X;
-            *y += pUpper->pos.Y - pLower->pos.Y;
+            aUpper = aLower->GetOwner();
+            assert(aUpper);
+            *pSector = aUpper->spr.sector();
+            *x += aUpper->spr.pos.X - aLower->spr.pos.X;
+            *y += aUpper->spr.pos.Y - aLower->spr.pos.Y;
             int z2;
-            if (pLower->type == kMarkerUpLink)
-                z2 = pUpper->pos.Z;
+            if (aLower->spr.type == kMarkerUpLink)
+                z2 = aUpper->spr.pos.Z;
             else
                 z2 = getflorzofslopeptr(*pSector, *x, *y);
             *z += z2-z1;
-            return pLower->type;
+            return aLower->spr.type;
         }
     }
     return 0;
