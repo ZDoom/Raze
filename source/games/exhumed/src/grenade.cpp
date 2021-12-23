@@ -103,31 +103,30 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 void BuildGrenade(int nPlayer)
 {
     auto pActor = insertActor(PlayerList[nPlayer].pPlayerViewSect, 201);
-	auto pSprite = &pActor->s();
 
 	auto pPlayerSprite = &PlayerList[nPlayer].Actor()->s();
 
-    pSprite->pos.X = pPlayerSprite->pos.X;
-    pSprite->pos.Y = pPlayerSprite->pos.Y;
-    pSprite->pos.Z = pPlayerSprite->pos.Z - 3840;
-    pSprite->shade = -64;
-    pSprite->xrepeat = 20;
-    pSprite->yrepeat = 20;
-    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->picnum = 1;
-    pSprite->pal = 0;
-    pSprite->clipdist = 30;
-    pSprite->xoffset = 0;
-    pSprite->yoffset = 0;
-    pSprite->ang = pPlayerSprite->ang;
-    pSprite->owner = nPlayer;
-    pSprite->xvel = 0;
-    pSprite->yvel = 0;
-    pSprite->zvel = 0;
-    pSprite->hitag = 0;
-    pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->extra = -1;
-    pSprite->backuppos();
+    pActor->spr.pos.X = pPlayerSprite->pos.X;
+    pActor->spr.pos.Y = pPlayerSprite->pos.Y;
+    pActor->spr.pos.Z = pPlayerSprite->pos.Z - 3840;
+    pActor->spr.shade = -64;
+    pActor->spr.xrepeat = 20;
+    pActor->spr.yrepeat = 20;
+    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    pActor->spr.picnum = 1;
+    pActor->spr.pal = 0;
+    pActor->spr.clipdist = 30;
+    pActor->spr.xoffset = 0;
+    pActor->spr.yoffset = 0;
+    pActor->spr.ang = pPlayerSprite->ang;
+    pActor->spr.owner = nPlayer;
+    pActor->spr.xvel = 0;
+    pActor->spr.yvel = 0;
+    pActor->spr.zvel = 0;
+    pActor->spr.hitag = 0;
+    pActor->spr.lotag = runlist_HeadRun() + 1;
+    pActor->spr.extra = -1;
+    pActor->spr.backuppos();
 
 //	GrabTimeSlot(3);
 
@@ -137,7 +136,7 @@ void BuildGrenade(int nPlayer)
     pActor->nTurn = -1;
     pActor->nIndex = 0;
     pActor->nFrame = 0;
-    pActor->nPhase = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x0F0000);
+    pActor->nPhase = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x0F0000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x0F0000);
 
     PlayerList[nPlayer].pPlayerGrenade = pActor;
