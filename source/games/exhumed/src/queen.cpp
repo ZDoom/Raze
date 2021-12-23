@@ -299,15 +299,14 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
     }
     else
     {
-        spritetype* pSprite2 = &pActor2->s();
-        int nTileY = (tileHeight(pSprite2->picnum) * pSprite2->yrepeat) * 2;
+        int nTileY = (tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat) * 2;
 
-        int nMyAngle = GetMyAngle(pSprite2->pos.X - pActor->spr.pos.X, pSprite2->pos.Y - pActor->spr.pos.Y);
+        int nMyAngle = GetMyAngle(pActor2->spr.pos.X - pActor->spr.pos.X, pActor2->spr.pos.Y - pActor->spr.pos.Y);
 
-        int edx = ((pSprite2->pos.Z - nTileY) - pActor->spr.pos.Z) >> 8;
+        int edx = ((pActor2->spr.pos.Z - nTileY) - pActor->spr.pos.Z) >> 8;
 
-        uint32_t xDiff = abs(pSprite2->pos.X - pActor->spr.pos.X);
-        uint32_t yDiff = abs(pSprite2->pos.Y - pActor->spr.pos.Y);
+        uint32_t xDiff = abs(pActor2->spr.pos.X - pActor->spr.pos.X);
+        uint32_t yDiff = abs(pActor2->spr.pos.Y - pActor->spr.pos.Y);
 
         uint32_t sqrtVal = xDiff * xDiff + yDiff * yDiff;
 
@@ -403,25 +402,24 @@ void BuildTail()
     for (i = 0; i < kMaxTails; i++)
     {
         auto pTailActor = insertActor(pSector, 121);
-        auto pTailSprite = &pTailActor->s();
         tailspr[i] = pTailActor;
 
-        pTailSprite->lotag = runlist_HeadRun() + 1;
-        pTailSprite->owner = runlist_AddRunRec(pTailSprite->lotag - 1, (i + 1), 0x1B0000);
-        pTailSprite->shade = -12;
-        pTailSprite->pos.X = x;
-        pTailSprite->pos.Y = y;
-        pTailSprite->hitag = 0;
-        pTailSprite->cstat = 0;
-        pTailSprite->clipdist = 100;
-        pTailSprite->xrepeat = 80;
-        pTailSprite->yrepeat = 80;
-        pTailSprite->picnum = 1;
-        pTailSprite->pal = pTailSprite->sector()->ceilingpal;
-        pTailSprite->xoffset = 0;
-        pTailSprite->yoffset = 0;
-        pTailSprite->pos.Z = z;
-        pTailSprite->extra = -1;
+        pTailActor->spr.lotag = runlist_HeadRun() + 1;
+        pTailActor->spr.owner = runlist_AddRunRec(pTailActor->spr.lotag - 1, (i + 1), 0x1B0000);
+        pTailActor->spr.shade = -12;
+        pTailActor->spr.pos.X = x;
+        pTailActor->spr.pos.Y = y;
+        pTailActor->spr.hitag = 0;
+        pTailActor->spr.cstat = 0;
+        pTailActor->spr.clipdist = 100;
+        pTailActor->spr.xrepeat = 80;
+        pTailActor->spr.yrepeat = 80;
+        pTailActor->spr.picnum = 1;
+        pTailActor->spr.pal = pTailActor->spr.sector()->ceilingpal;
+        pTailActor->spr.xoffset = 0;
+        pTailActor->spr.yoffset = 0;
+        pTailActor->spr.pos.Z = z;
+        pTailActor->spr.extra = -1;
     }
 
     for (i = 0; i < 24 + 1; i++)
@@ -454,42 +452,41 @@ void BuildQueenEgg(int nQueen, int nVal)
     int nAngle = pActor->spr.ang;
 
     auto pActor2 = insertActor(pSector, 121);
-    auto pSprite2 = &pActor2->s();
 
-    pSprite2->pos.X = x;
-    pSprite2->pos.Y = y;
-    pSprite2->pos.Z = nFloorZ;
-    pSprite2->pal = 0;
-    pSprite2->clipdist = 50;
-    pSprite2->xoffset = 0;
-    pSprite2->yoffset = 0;
-    pSprite2->shade = -12;
-    pSprite2->picnum = 1;
-    pSprite2->ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
-    pSprite2->backuppos();
+    pActor2->spr.pos.X = x;
+    pActor2->spr.pos.Y = y;
+    pActor2->spr.pos.Z = nFloorZ;
+    pActor2->spr.pal = 0;
+    pActor2->spr.clipdist = 50;
+    pActor2->spr.xoffset = 0;
+    pActor2->spr.yoffset = 0;
+    pActor2->spr.shade = -12;
+    pActor2->spr.picnum = 1;
+    pActor2->spr.ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
+    pActor2->spr.backuppos();
 
     if (!nVal)
     {
-        pSprite2->xrepeat = 30;
-        pSprite2->yrepeat = 30;
-        pSprite2->xvel = bcos(pSprite2->ang);
-        pSprite2->yvel = bsin(pSprite2->ang);
-        pSprite2->zvel = -6000;
-        pSprite2->cstat = 0;
+        pActor2->spr.xrepeat = 30;
+        pActor2->spr.yrepeat = 30;
+        pActor2->spr.xvel = bcos(pActor2->spr.ang);
+        pActor2->spr.yvel = bsin(pActor2->spr.ang);
+        pActor2->spr.zvel = -6000;
+        pActor2->spr.cstat = 0;
     }
     else
     {
-        pSprite2->xrepeat = 60;
-        pSprite2->yrepeat = 60;
-        pSprite2->xvel = 0;
-        pSprite2->yvel = 0;
-        pSprite2->zvel = -2000;
-        pSprite2->cstat = CSTAT_SPRITE_BLOCK_ALL;
+        pActor2->spr.xrepeat = 60;
+        pActor2->spr.yrepeat = 60;
+        pActor2->spr.xvel = 0;
+        pActor2->spr.yvel = 0;
+        pActor2->spr.zvel = -2000;
+        pActor2->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
 
-    pSprite2->lotag = runlist_HeadRun() + 1;
-    pSprite2->extra = -1;
-    pSprite2->hitag = 0;
+    pActor2->spr.lotag = runlist_HeadRun() + 1;
+    pActor2->spr.extra = -1;
+    pActor2->spr.hitag = 0;
 
     GrabTimeSlot(3);
 
@@ -506,7 +503,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     QueenEgg[nEgg].nAction = nVal;
 
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nEgg, 0x1D0000);
+    pActor2->spr.owner = runlist_AddRunRec(pActor2->spr.lotag - 1, nEgg, 0x1D0000);
     QueenEgg[nEgg].nRun = runlist_AddRunRec(NewRun, nEgg, 0x1D0000);
 }
 
@@ -673,9 +670,8 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
     Egg* pEgg = &QueenEgg[nEgg];
     DExhumedActor* pActor = pEgg->pActor;
     if (!pActor) return;
-    auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
+    if (ev->pRadialActor->spr.statnum != 121 && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         int nDamage = runlist_CheckRadialDamage(pActor);
 
@@ -716,29 +712,28 @@ void BuildQueenHead(int nQueen)
     int z = pSector->floorz;
 
     auto pActor2 = insertActor(pSector, 121);
-    auto pSprite2 = &pActor2->s();
 
-    pSprite2->pos.X = x;
-    pSprite2->pos.Y = y;
-    pSprite2->pos.Z = z;
-    pSprite2->clipdist = 70;
-    pSprite2->xrepeat = 80;
-    pSprite2->yrepeat = 80;
-    pSprite2->cstat = 0;
-    pSprite2->picnum = 1;
-    pSprite2->shade = -12;
-    pSprite2->pal = 0;
-    pSprite2->xoffset = 0;
-    pSprite2->yoffset = 0;
-    pSprite2->ang = nAngle;
+    pActor2->spr.pos.X = x;
+    pActor2->spr.pos.Y = y;
+    pActor2->spr.pos.Z = z;
+    pActor2->spr.clipdist = 70;
+    pActor2->spr.xrepeat = 80;
+    pActor2->spr.yrepeat = 80;
+    pActor2->spr.cstat = 0;
+    pActor2->spr.picnum = 1;
+    pActor2->spr.shade = -12;
+    pActor2->spr.pal = 0;
+    pActor2->spr.xoffset = 0;
+    pActor2->spr.yoffset = 0;
+    pActor2->spr.ang = nAngle;
 
     nVelShift = 2;
     SetHeadVel(pActor2);
 
-    pSprite2->zvel = -8192;
-    pSprite2->lotag = runlist_HeadRun() + 1;
-    pSprite2->hitag = 0;
-    pSprite2->extra = -1;
+    pActor2->spr.zvel = -8192;
+    pActor2->spr.lotag = runlist_HeadRun() + 1;
+    pActor2->spr.hitag = 0;
+    pActor2->spr.extra = -1;
 
     GrabTimeSlot(3);
 
@@ -750,7 +745,7 @@ void BuildQueenHead(int nQueen)
     QueenHead.nIndex = 0;
     QueenHead.nChannel = QueenList[nQueen].nChannel;
 
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, 0, 0x1B0000);
+    pActor2->spr.owner = runlist_AddRunRec(pActor2->spr.lotag - 1, 0, 0x1B0000);
 
     QueenHead.nRun = runlist_AddRunRec(NewRun, 0, 0x1B0000);
     QueenHead.nIndex2 = 0;
@@ -949,17 +944,16 @@ void AIQueenHead::Tick(RunListEvent* ev)
             DExhumedActor* pTActor = tailspr[i];
             if (pTActor)
             {
-                auto pTSprite = &pTActor->s();
-                if (headSect != pTSprite->sector())
+                if (headSect != pTActor->spr.sector())
                 {
                     assert(headSect);
                     ChangeActorSect(pTActor, headSect);
                 }
 
-                pTSprite->pos.X = MoveQX[nHd];
-                pTSprite->pos.Y = MoveQY[nHd];
-                pTSprite->pos.Z = MoveQZ[nHd];
-                pTSprite->ang = MoveQA[nHd];
+                pTActor->spr.pos.X = MoveQX[nHd];
+                pTActor->spr.pos.Y = MoveQY[nHd];
+                pTActor->spr.pos.Z = MoveQZ[nHd];
+                pTActor->spr.ang = MoveQA[nHd];
             }
         }
 
@@ -1045,9 +1039,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
 void AIQueenHead::RadialDamage(RunListEvent* ev)
 {
-    auto pRadial = &ev->pRadialActor->s();
-
-    if (pRadial->statnum != 121 && (QueenHead.pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
+    if (ev->pRadialActor->spr.statnum != 121 && (QueenHead.pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(QueenHead.pActor);
         if (ev->nDamage) Damage(ev);
@@ -1447,9 +1439,8 @@ void AIQueen::RadialDamage(RunListEvent* ev)
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     DExhumedActor* pActor = QueenList[nQueen].pActor;
     if (!pActor) return;
-    auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
+    if (ev->pRadialActor->spr.statnum != 121 && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(pActor);
         if (ev->nDamage) Damage(ev);
