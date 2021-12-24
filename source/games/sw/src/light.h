@@ -45,10 +45,9 @@ inline int8_t LIGHT_MaxDark(spritetype* sp) { return int8_t(SP_TAG6(sp)); }
 #define LIGHT_Dir(sp)           (!!(TEST((sp)->extra, SPRX_BOOL10)))
 #define LIGHT_DirChange(sp)     (FLIP((sp)->extra, SPRX_BOOL10))
 
-#define LIGHT_Shade(sp)         ((sp)->shade)
-#define LIGHT_FloorShade(sp)    ((sp)->xoffset)
-#define LIGHT_CeilingShade(sp)  ((sp)->yoffset)
-#define LIGHT_Tics(sp)          ((sp)->pos.Z)
+int8_t& LIGHT_FloorShade(DSWActor* a) { return a->spr.xoffset; }
+int8_t& LIGHT_CeilingShade(DSWActor* a) { return a->spr.yoffset; }
+int& LIGHT_Tics(DSWActor* a) { return a->spr.pos.Z; }
 
 inline int LIGHT_DiffuseNum(DSWActor* sp) { return SP_TAG3(sp); }
 #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))

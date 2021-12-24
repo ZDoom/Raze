@@ -48,14 +48,14 @@ void SectorLightShade(DSWActor* actor, short intensity)
     {
         if (!TEST_BOOL6(sp))
             sp->sector()->floorpal = sp->pal;
-        sp->sector()->floorshade = LIGHT_FloorShade(sp) + intensity;     // floor change
+        sp->sector()->floorshade = LIGHT_FloorShade(actor) + intensity;     // floor change
     }
 
     if (!TEST_BOOL3(sp))
     {
         if (!TEST_BOOL6(sp))
             sp->sector()->ceilingpal = sp->pal;
-        sp->sector()->ceilingshade = LIGHT_CeilingShade(sp) + intensity;   // ceiling change
+        sp->sector()->ceilingshade = LIGHT_CeilingShade(actor) + intensity;   // ceiling change
     }
 
     // change wall
@@ -285,10 +285,10 @@ void DoLighting(void)
 
         case LIGHT_FLICKER:
 
-            LIGHT_Tics(sp) += synctics;
-            while (LIGHT_Tics(sp) >= LIGHT_MaxTics(sp))
+            LIGHT_Tics(itActor) += synctics;
+            while (LIGHT_Tics(itActor) >= LIGHT_MaxTics(sp))
             {
-                LIGHT_Tics(sp) -= LIGHT_MaxTics(sp);
+                LIGHT_Tics(itActor) -= LIGHT_MaxTics(sp);
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
@@ -312,11 +312,11 @@ void DoLighting(void)
 
         case LIGHT_FADE:
 
-            LIGHT_Tics(sp) += synctics;
+            LIGHT_Tics(itActor) += synctics;
 
-            while (LIGHT_Tics(sp) >= LIGHT_MaxTics(sp))
+            while (LIGHT_Tics(itActor) >= LIGHT_MaxTics(sp))
             {
-                LIGHT_Tics(sp) -= LIGHT_MaxTics(sp);
+                LIGHT_Tics(itActor) -= LIGHT_MaxTics(sp);
 
                 if (LIGHT_Dir(sp) == 1)
                 {
@@ -339,11 +339,11 @@ void DoLighting(void)
 
         case LIGHT_FADE_TO_ON_OFF:
 
-            LIGHT_Tics(sp) += synctics;
+            LIGHT_Tics(itActor) += synctics;
 
-            while (LIGHT_Tics(sp) >= LIGHT_MaxTics(sp))
+            while (LIGHT_Tics(itActor) >= LIGHT_MaxTics(sp))
             {
-                LIGHT_Tics(sp) -= LIGHT_MaxTics(sp);
+                LIGHT_Tics(itActor) -= LIGHT_MaxTics(sp);
 
                 if (LIGHT_Dir(sp) == 1)
                 {
@@ -376,11 +376,11 @@ void DoLighting(void)
 
         case LIGHT_FLICKER_ON:
 
-            LIGHT_Tics(sp) += synctics;
+            LIGHT_Tics(itActor) += synctics;
 
-            while (LIGHT_Tics(sp) >= LIGHT_MaxTics(sp))
+            while (LIGHT_Tics(itActor) >= LIGHT_MaxTics(sp))
             {
-                LIGHT_Tics(sp) -= LIGHT_MaxTics(sp);
+                LIGHT_Tics(itActor) -= LIGHT_MaxTics(sp);
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {

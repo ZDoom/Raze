@@ -611,7 +611,6 @@ void SetAttach(DSWActor* ownr, DSWActor* child)
 
 void KillActor(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     int i;
     unsigned stat;
@@ -619,7 +618,7 @@ void KillActor(DSWActor* actor)
 
     ASSERT(!Prediction);
 
-    ASSERT(sp->statnum < MAXSTATUS);
+    ASSERT(actor->spr.statnum < MAXSTATUS);
 
     //////////////////////////////////////////////
     //    Check sounds list to kill attached sounds
@@ -690,7 +689,7 @@ void KillActor(DSWActor* actor)
         }
 
         // if on a track and died reset the track to non-occupied
-        if (sp->statnum == STAT_ENEMY)
+        if (actor->spr.statnum == STAT_ENEMY)
         {
             if (u->track != -1)
             {
@@ -701,7 +700,7 @@ void KillActor(DSWActor* actor)
 
         // if missile is heading for the sprite, the missile need to know
         // that it is already dead
-        if (TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             USERp mu;
             static int8_t MissileStats[] = {STAT_MISSILE, STAT_MISSILE_SKIP4};
@@ -723,7 +722,7 @@ void KillActor(DSWActor* actor)
 
         // much faster
         if (TEST(u->Flags2, SPR2_CHILDREN))
-        //if (TEST(sp->extra, SPRX_CHILDREN))
+        //if (TEST(actor->spr.extra, SPRX_CHILDREN))
         {
             // check for children and alert them that the Owner is dead
             // don't bother th check if you've never had children
@@ -746,7 +745,7 @@ void KillActor(DSWActor* actor)
             }
         }
 
-        if (sp->statnum == STAT_ENEMY)
+        if (actor->spr.statnum == STAT_ENEMY)
         {
             SWStatIterator it(STAT_ENEMY);
             while (auto itActor = it.Next())
@@ -766,7 +765,7 @@ void KillActor(DSWActor* actor)
     }
 
     // shred your garbage
-    sp->clear();
+    actor->spr.clear();
     actor->Destroy();
 }
 
@@ -830,8 +829,6 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
 
 USERp SpawnUser(DSWActor* actor, short id, STATEp state)
 {
-    SPRITEp sp = &actor->s();
-
     USERp u;
 
     ASSERT(!Prediction);
@@ -845,7 +842,7 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     // be careful State can be nullptr
     u->State = u->StateStart = state;
 
-    change_actor_stat(actor, sp->statnum);
+    change_actor_stat(actor, actor->spr.statnum);
 
     u->ID = id;
     u->Health = 100;
@@ -862,8 +859,8 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     u->motion_blur_num = 0;
     u->motion_blur_dist = 256;
 
-    sp->backuppos();
-    u->oz = sp->opos.Z;
+    actor->spr.backuppos();
+    u->oz = actor->spr.opos.Z;
 
     u->active_range = MIN_ACTIVE_RANGE;
 
@@ -876,19 +873,18 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    u->loz = sp->sector()->floorz;
-    u->hiz = sp->sector()->ceilingz;
+    u->loz = actor->spr.sector()->floorz;
+    u->hiz = actor->spr.sector()->ceilingz;
     u->lowActor = nullptr;
     u->highActor = nullptr;
-    u->lo_sectp = sp->sector();
-    u->hi_sectp = sp->sector();
+    u->lo_sectp = actor->spr.sector();
+    u->hi_sectp = actor->spr.sector();
 
     return u;
 }
 
 DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, int y, int z, int init_ang, int vel)
 {
-    SPRITEp sp;
     USERp u;
 
     if (sect == nullptr)
@@ -929,26 +925,25 @@ void PicAnimOff(short picnum)
     RESET(picanm[picnum].sf, PICANM_ANIMTYPE_MASK);
 }
 
-bool IconSpawn(SPRITEp sp)
+bool IconSpawn(DSWActor* actor)
 {
     // if multi item and not a modem game
-    if (TEST(sp->extra, SPRX_MULTI_ITEM))
+    if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
     {
         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
             return false;
     }
-    sp->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR);
     return true;
 }
 
 bool ActorTestSpawn(DSWActor* actor)
 {
-    auto sp = &actor->s();
-    if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
+    if (actor->spr.statnum == STAT_DEFAULT && actor->spr.lotag == TAG_SPAWN_ACTOR)
     {
-        auto actorNew = insertActor(sp->sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         int t = actorNew->spr.time;  // must be preserved!
-        actorNew->spr = *sp;
+        actorNew->spr = actor->spr;
         actorNew->spr.time = t;
         change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -956,22 +951,22 @@ bool ActorTestSpawn(DSWActor* actor)
     }
 
     // Countermeasure for mods that leave the lower skills unpopulated.
-    int spawnskill = TEST(sp->extra, SPRX_SKILL);
+    int spawnskill = TEST(actor->spr.extra, SPRX_SKILL);
     if (MinEnemySkill > 0 && spawnskill == MinEnemySkill) spawnskill = 0;
 
     // Skill ranges from -1 (No Monsters) to 3.
     if (spawnskill > Skill)
     {
         // JBF: hack to fix Wanton Destruction's missing Sumos, Serpents, and Zilla on Skill < 2
-        if (((sp->picnum == SERP_RUN_R0 || sp->picnum == SUMO_RUN_R0) && sp->lotag > 0 &&
-             sp->lotag != TAG_SPAWN_ACTOR && sp->extra > 0) || sp->picnum == ZILLA_RUN_R0)
+        if (((actor->spr.picnum == SERP_RUN_R0 || actor->spr.picnum == SUMO_RUN_R0) && actor->spr.lotag > 0 &&
+             actor->spr.lotag != TAG_SPAWN_ACTOR && actor->spr.extra > 0) || actor->spr.picnum == ZILLA_RUN_R0)
         {
             const char *c;
 
             // NOTE: Wanton's $boat.map has two sumos, neither of which actually activate
             // anything but are spawned in, and one of them has a skill level 2 mask. This
             // hack however forces both sumos to appear on the easy levels. Bummer.
-            switch (sp->picnum)
+            switch (actor->spr.picnum)
             {
             case SERP_RUN_R0: c = "serpent"; break;
             case SUMO_RUN_R0: c = "sumo"; break;
@@ -979,19 +974,19 @@ bool ActorTestSpawn(DSWActor* actor)
             default: c = "?"; break;
             }
             Printf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
-                        "activates something\n", c, sp->pos.X, sp->pos.Y, sp->pos.Z);
+                        "activates something\n", c, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
             return true;
         }
         //always spawn girls in addons
-        if ((sp->picnum == TOILETGIRL_R0 ||
-            sp->picnum == WASHGIRL_R0 ||
-            sp->picnum == MECHANICGIRL_R0 ||
-            sp->picnum == CARGIRL_R0 ||
-            sp->picnum == PRUNEGIRL_R0 ||
-            sp->picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return true;
+        if ((actor->spr.picnum == TOILETGIRL_R0 ||
+            actor->spr.picnum == WASHGIRL_R0 ||
+            actor->spr.picnum == MECHANICGIRL_R0 ||
+            actor->spr.picnum == CARGIRL_R0 ||
+            actor->spr.picnum == PRUNEGIRL_R0 ||
+            actor->spr.picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return true;
 
         // spawn Bouncing Betty (mine) in TD map 09 Warehouse 
-        if (sp->picnum == 817 && (currentLevel->flags & LEVEL_SW_SPAWNMINES))
+        if (actor->spr.picnum == 817 && (currentLevel->flags & LEVEL_SW_SPAWNMINES))
             return true;
 
         return false;
@@ -1007,9 +1002,7 @@ int EnemyCheckSkill()
     int maxskill = INT_MAX;
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
-        switch (sp->picnum)
+        switch (actor->spr.picnum)
         {
         case COOLIE_RUN_R0:
         case NINJA_RUN_R0:
@@ -1030,7 +1023,7 @@ int EnemyCheckSkill()
         case BETTY_R0:
         case GIRLNINJA_RUN_R0:
         {
-            int myskill = sp->extra & SPRX_SKILL;
+            int myskill = actor->spr.extra & SPRX_SKILL;
             if (myskill < maxskill) maxskill = myskill;
         }
         }
@@ -1412,12 +1405,11 @@ bool ActorSpawn(DSWActor* actor)
 void IconDefault(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
-    //if (sp->statnum == STAT_ITEM)
+    //if (actor->spr.statnum == STAT_ITEM)
     change_actor_stat(actor, STAT_ITEM);
 
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Radius = 650;
 
     DoActorZrange(actor);
@@ -1433,7 +1425,7 @@ void PreMapCombineFloors(void)
 
     typedef struct
     {
-        SPRITEp offset;
+        DSWActor* offset;
     } BOUND_LIST;
 
     BOUND_LIST BoundList[MAX_FLOORS];
@@ -1444,15 +1436,14 @@ void PreMapCombineFloors(void)
     while (auto actor = it.Next())
     {
         USERp u = actor->u();
-        SPRITEp sp = &actor->s();
 
-        if (sp->picnum != ST1)
+        if (actor->spr.picnum != ST1)
             continue;
 
-        if (sp->hitag == BOUND_FLOOR_OFFSET || sp->hitag == BOUND_FLOOR_BASE_OFFSET)
+        if (actor->spr.hitag == BOUND_FLOOR_OFFSET || actor->spr.hitag == BOUND_FLOOR_BASE_OFFSET)
         {
-            ASSERT(sp->lotag < MAX_FLOORS);
-            BoundList[sp->lotag].offset = sp;
+            ASSERT(actor->spr.lotag < MAX_FLOORS);
+            BoundList[actor->spr.lotag].offset = actor;
             change_actor_stat(actor, STAT_FAF);
         }
     }
@@ -1463,16 +1454,16 @@ void PreMapCombineFloors(void)
         if (!BoundList[i].offset)
             continue;
 
-        if (BoundList[i].offset->hitag == BOUND_FLOOR_BASE_OFFSET)
+        if (BoundList[i].offset->spr.hitag == BOUND_FLOOR_BASE_OFFSET)
         {
             base_offset = i;
             continue;
         }
 
-        dx = BoundList[base_offset].offset->pos.X - BoundList[i].offset->pos.X;
-        dy = BoundList[base_offset].offset->pos.Y - BoundList[i].offset->pos.Y;
+        dx = BoundList[base_offset].offset->spr.pos.X - BoundList[i].offset->spr.pos.X;
+        dy = BoundList[base_offset].offset->spr.pos.Y - BoundList[i].offset->spr.pos.Y;
 
-        BFSSectorSearch search(BoundList[i].offset->sector());
+        BFSSectorSearch search(BoundList[i].offset->spr.sector());
         while (auto dasect = search.GetNext())
         {
             SWSectIterator it2(dasect);
@@ -1595,24 +1586,23 @@ void SpriteSetup(void)
     while (auto actor = it.Next())
     {
         USERp u = actor->u();
-        SPRITEp sp = &actor->s();
 
         // not used yetv
-        getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &cz, &fz);
-        if (sp->pos.Z > DIV2(cz + fz))
+        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
+        if (actor->spr.pos.Z > DIV2(cz + fz))
         {
             // closer to a floor
-            SET(sp->cstat, CSTAT_SPRITE_CLOSE_FLOOR);
+            SET(actor->spr.cstat, CSTAT_SPRITE_CLOSE_FLOOR);
         }
 
         // CSTAT_SPIN is insupported - get rid of it
-        if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB)
-            RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
+        if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB)
+            RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
 
         // if BLOCK is set set BLOCK_HITSCAN
         // Hope this doesn't screw up anything
-        if (TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
-            SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+        if (TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
 
         ////////////////////////////////////////////
         //
@@ -1622,9 +1612,9 @@ void SpriteSetup(void)
 
         // USER SETUP - TAGGED BY USER
         // Non ST1 sprites that are tagged like them
-        if (TEST_BOOL1(sp) && sp->picnum != ST1)
+        if (TEST_BOOL1(actor) && actor->spr.picnum != ST1)
         {
-            RESET(sp->extra,
+            RESET(actor->spr.extra,
                   SPRX_BOOL4|
                   SPRX_BOOL5|
                   SPRX_BOOL6|
@@ -1633,14 +1623,14 @@ void SpriteSetup(void)
                   SPRX_BOOL9|
                   SPRX_BOOL10);
 
-            switch (sp->hitag)
+            switch (actor->spr.hitag)
             {
             case BREAKABLE:
                 // need something that tells missiles to hit them
                 // but allows actors to move through them
-                sp->clipdist = GetSpriteSizeX(sp);
-                SET(sp->extra, SPRX_BREAKABLE);
-                SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
+                actor->spr.clipdist = ActorSizeX(actor);
+                SET(actor->spr.extra, SPRX_BREAKABLE);
+                SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
                 break;
             }
         }
@@ -1650,10 +1640,10 @@ void SpriteSetup(void)
             SetupSpriteForBreak(actor);
         }
 
-        if (sp->lotag == TAG_SPRITE_HIT_MATCH)
+        if (actor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // if multi item and not a modem game
-            if (TEST(sp->extra, SPRX_MULTI_ITEM))
+            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
@@ -1664,38 +1654,38 @@ void SpriteSetup(void)
 
 
             // crack sprite
-            if (sp->picnum == 80)
+            if (actor->spr.picnum == 80)
             {
-                RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-                SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
+                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
             }
             else
             {
-                RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-                SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
-                SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);;
+                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
+                SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);;
             }
 
-            if (TEST(SP_TAG8(sp), BIT(0)))
-                SET(sp->cstat, CSTAT_SPRITE_INVISIBLE); ;
+            if (TEST(SP_TAG8(actor), BIT(0)))
+                SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); ;
 
-            if (TEST(SP_TAG8(sp), BIT(1)))
-                RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            if (TEST(SP_TAG8(actor), BIT(1)))
+                RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
             change_actor_stat(actor, STAT_SPRITE_HIT_MATCH);
             continue;
         }
 
-        if (sp->picnum >= TRACK_SPRITE &&
-            sp->picnum <= TRACK_SPRITE + MAX_TRACKS)
+        if (actor->spr.picnum >= TRACK_SPRITE &&
+            actor->spr.picnum <= TRACK_SPRITE + MAX_TRACKS)
         {
             short track_num;
 
             // skip this sprite, just for numbering walls/sectors
-            if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 continue;
 
-            track_num = sp->picnum - TRACK_SPRITE + 0;
+            track_num = actor->spr.picnum - TRACK_SPRITE + 0;
 
             change_actor_stat(actor, STAT_TRACK + track_num);
 
@@ -1705,7 +1695,7 @@ void SpriteSetup(void)
         if (ActorSpawn(actor))
             continue;
 
-        switch (sp->picnum)
+        switch (actor->spr.picnum)
         {
         case ST_QUICK_JUMP:
             change_actor_stat(actor, STAT_QUICK_JUMP);
@@ -1734,18 +1724,18 @@ void SpriteSetup(void)
 
         case ST1:
         {
-            sectortype* sectp = sp->sector();
+            sectortype* sectp = actor->spr.sector();
             short tag;
             short bit;
 
             // get rid of defaults
-            if (SP_TAG3(sp) == 32)
-                SP_TAG3(sp) = 0;
+            if (SP_TAG3(actor) == 32)
+                SP_TAG3(actor) = 0;
 
-            tag = sp->hitag;
+            tag = actor->spr.hitag;
 
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
             // for bounding sector objects
             if ((tag >= 500 && tag < 600) || tag == SECT_SO_CENTER)
@@ -1760,12 +1750,12 @@ void SpriteSetup(void)
             {
                 bit = 1 << (tag);
 
-                SET(sp->sector()->extra, bit);
+                SET(actor->spr.sector()->extra, bit);
 
                 if (TEST(bit, SECTFX_SINK))
                 {
                     sectp->u_defined = true;
-                    sectp->depth_fixed = IntToFixed(sp->lotag);
+                    sectp->depth_fixed = IntToFixed(actor->spr.lotag);
                     KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_OPERATIONAL))
@@ -1775,8 +1765,8 @@ void SpriteSetup(void)
                 else if (TEST(bit, SECTFX_CURRENT))
                 {
                     sectp->u_defined = true;
-                    sectp->speed = sp->lotag;
-                    sectp->ang = sp->ang;
+                    sectp->speed = actor->spr.lotag;
+                    sectp->ang = actor->spr.ang;
                     KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_NO_RIDE))
@@ -1786,20 +1776,20 @@ void SpriteSetup(void)
                 else if (TEST(bit, SECTFX_DIVE_AREA))
                 {
                     sectp->u_defined = true;
-                    sectp->number = sp->lotag;
+                    sectp->number = actor->spr.lotag;
                     change_actor_stat(actor, STAT_DIVE_AREA);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER))
                 {
                     sectp->u_defined = true;
-                    sectp->number = sp->lotag;
+                    sectp->number = actor->spr.lotag;
                     change_actor_stat(actor, STAT_UNDERWATER);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER2))
                 {
                     sectp->u_defined = true;
-                    sectp->number = sp->lotag;
-                    if (sp->clipdist == 1)
+                    sectp->number = actor->spr.lotag;
+                    if (actor->spr.clipdist == 1)
                         SET(sectp->flags, SECTFU_CANT_SURFACE);
                     change_actor_stat(actor, STAT_UNDERWATER2);
                 }
@@ -1810,16 +1800,16 @@ void SpriteSetup(void)
                 {
 #if 0
                 case MULTI_PLAYER_START:
-                    change_actor_stat(actor, STAT_MULTI_START + sp->lotag);
+                    change_actor_stat(actor, STAT_MULTI_START + actor->spr.lotag);
                     break;
                 case MULTI_COOPERATIVE_START:
-                    change_actor_stat(actor, STAT_CO_OP_START + sp->lotag);
+                    change_actor_stat(actor, STAT_CO_OP_START + actor->spr.lotag);
                     break;
 #endif
 
                 case SECT_MATCH:
                     sectp->u_defined = true;
-                    sectp->number = sp->lotag;
+                    sectp->number = actor->spr.lotag;
 
                     KillActor(actor);
                     break;
@@ -1834,9 +1824,9 @@ void SpriteSetup(void)
                 case SECT_DAMAGE:
                 {
                     sectp->u_defined = true;
-                    if (TEST_BOOL1(sp))
+                    if (TEST_BOOL1(actor))
                         SET(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR);
-                    sectp->damage = sp->lotag;
+                    sectp->damage = actor->spr.lotag;
                     KillActor(actor);
                     break;
                 }
@@ -1844,9 +1834,9 @@ void SpriteSetup(void)
                 case PARALLAX_LEVEL:
                 {
                     parallaxyscale_override = 8192;
-                    pskybits_override = sp->lotag;
-                    if (SP_TAG4(sp) > 2048)
-                        parallaxyscale_override = SP_TAG4(sp);
+                    pskybits_override = actor->spr.lotag;
+                    if (SP_TAG4(actor) > 2048)
+                        parallaxyscale_override = SP_TAG4(actor);
                     KillActor(actor);
                     break;
                 }
@@ -1867,13 +1857,13 @@ void SpriteSetup(void)
                 case SECT_FLOOR_PAN:
                 {
                     // if moves with SO
-                    if (TEST_BOOL1(sp))
-                        sp->xvel = 0;
+                    if (TEST_BOOL1(actor))
+                        actor->spr.xvel = 0;
                     else
-                        sp->xvel = sp->lotag;
+                        actor->spr.xvel = actor->spr.lotag;
 
-                    StartInterpolation(sp->sector(), Interp_Sect_FloorPanX);
-                    StartInterpolation(sp->sector(), Interp_Sect_FloorPanY);
+                    StartInterpolation(actor->spr.sector(), Interp_Sect_FloorPanX);
+                    StartInterpolation(actor->spr.sector(), Interp_Sect_FloorPanY);
                     change_actor_stat(actor, STAT_FLOOR_PAN);
                     break;
                 }
@@ -1881,23 +1871,23 @@ void SpriteSetup(void)
                 case SECT_CEILING_PAN:
                 {
                     // if moves with SO
-                    if (TEST_BOOL1(sp))
-                        sp->xvel = 0;
+                    if (TEST_BOOL1(actor))
+                        actor->spr.xvel = 0;
                     else
-                        sp->xvel = sp->lotag;
-                    StartInterpolation(sp->sector(), Interp_Sect_CeilingPanX);
-                    StartInterpolation(sp->sector(), Interp_Sect_CeilingPanY);
+                        actor->spr.xvel = actor->spr.lotag;
+                    StartInterpolation(actor->spr.sector(), Interp_Sect_CeilingPanX);
+                    StartInterpolation(actor->spr.sector(), Interp_Sect_CeilingPanY);
                     change_actor_stat(actor, STAT_CEILING_PAN);
                     break;
                 }
 
                 case SECT_WALL_PAN_SPEED:
                 {
-                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->pos.Z - Z(8) };
+                    vec3_t hit_pos = { actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(8) };
                     HitInfo hit{};
 
-                    hitscan(hit_pos, sp->sector(),    // Start position
-                        { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);
+                    hitscan(hit_pos, actor->spr.sector(),    // Start position
+                        { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK_MISSILE);
 
                     if (hit.hitWall == nullptr)
                     {
@@ -1907,11 +1897,11 @@ void SpriteSetup(void)
 
                     actor->tempwall = hit.hitWall;
                     // if moves with SO
-                    if (TEST_BOOL1(sp))
-                        sp->xvel = 0;
+                    if (TEST_BOOL1(actor))
+                        actor->spr.xvel = 0;
                     else
-                        sp->xvel = sp->lotag;
-                    sp->ang = SP_TAG6(sp);
+                        actor->spr.xvel = actor->spr.lotag;
+                    actor->spr.ang = SP_TAG6(actor);
                     // attach to the sector that contains the wall
                     ChangeActorSect(actor, hit.hitSector);
                     StartInterpolation(hit.hitWall, Interp_Wall_PanX);
@@ -1922,11 +1912,11 @@ void SpriteSetup(void)
 
                 case WALL_DONT_STICK:
                 {
-                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->pos.Z - Z(8) };
+                    vec3_t hit_pos = { actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(8) };
                     HitInfo hit{};
 
-                    hitscan(hit_pos, sp->sector(),    // Start position
-                        { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);
+                    hitscan(hit_pos, actor->spr.sector(),    // Start position
+                        { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK_MISSILE);
 
                     if (hit.hitWall == nullptr)
                     {
@@ -1941,7 +1931,7 @@ void SpriteSetup(void)
 
                 case TRIGGER_SECTOR:
                 {
-                    SET(sp->sector()->extra, SECTFX_TRIGGER);
+                    SET(actor->spr.sector()->extra, SECTFX_TRIGGER);
                     change_actor_stat(actor, STAT_TRIGGER);
                     break;
                 }
@@ -1954,7 +1944,7 @@ void SpriteSetup(void)
 
                 case SPAWN_ITEMS:
                 {
-                    if (TEST(sp->extra, SPRX_MULTI_ITEM))
+                    if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
                     {
                         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                         {
@@ -1971,24 +1961,24 @@ void SpriteSetup(void)
                 case CEILING_FLOOR_PIC_OVERRIDE:
                 {
                     // block hitscans depending on translucency
-                    if (SP_TAG7(sp) == 0 || SP_TAG7(sp) == 1)
+                    if (SP_TAG7(actor) == 0 || SP_TAG7(actor) == 1)
                     {
-                        if (SP_TAG3(sp) == 0)
-                            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                        if (SP_TAG3(actor) == 0)
+                            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sp->sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
-                    else if (TEST_BOOL1(sp))
+                    else if (TEST_BOOL1(actor))
                     {
-                        if (SP_TAG3(sp) == 0)
-                            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                        if (SP_TAG3(actor) == 0)
+                            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sp->sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
 
                     // copy tag 7 to tag 6 and pre-shift it
-                    SP_TAG6(sp) = SP_TAG7(sp);
-                    SP_TAG6(sp) <<= 7;
+                    SP_TAG6(actor) = SP_TAG7(actor);
+                    SP_TAG6(actor) <<= 7;
                     change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
                     break;
                 }
@@ -1996,7 +1986,7 @@ void SpriteSetup(void)
                 case QUAKE_SPOT:
                 {
                     change_actor_stat(actor, STAT_QUAKE_SPOT);
-                    SET_SP_TAG13(actor, ((SP_TAG6(sp)*10L) * 120L));
+                    SET_SP_TAG13(actor, ((SP_TAG6(actor)*10L) * 120L));
                     break;
                 }
 
@@ -2015,7 +2005,7 @@ void SpriteSetup(void)
 
                     ASSERT(u != nullptr);
                     u->RotNum = 0;
-                    u->WaitTics = sp->lotag * 120;
+                    u->WaitTics = actor->spr.lotag * 120;
 
                     u->ActorActionFunc = DoGenerateSewerDebris;
 
@@ -2036,20 +2026,20 @@ void SpriteSetup(void)
                         SET(sectp->flags, SECTFU_VATOR_BOTH);
                     }
                     SET(sectp->extra, SECTFX_VATOR);
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
-                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, true, true);
+                    SET(actor->spr.sector()->extra, SECTFX_DYNAMIC_AREA);
 
                     // don't step on toes of other sector settings
                     if (sectp->lotag == 0 && sectp->hitag == 0)
                         sectp->lotag = TAG_VATOR;
 
-                    type = SP_TAG3(sp);
-                    speed = SP_TAG4(sp);
-                    vel = SP_TAG5(sp);
-                    time = SP_TAG9(sp);
-                    start_on = !!TEST_BOOL1(sp);
+                    type = SP_TAG3(actor);
+                    speed = SP_TAG4(actor);
+                    vel = SP_TAG5(actor);
+                    time = SP_TAG9(actor);
+                    start_on = !!TEST_BOOL1(actor);
                     floor_vator = true;
-                    if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
+                    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
                     u->jump_speed = u->vel_tgt = speed;
@@ -2082,43 +2072,43 @@ void SpriteSetup(void)
                     {
                         // start off
                         u->sz = sectp->floorz;
-                        u->z_tgt = sp->pos.Z;
+                        u->z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = sp->pos.Z - sectp->floorz;
+                            amt = actor->spr.pos.Z - sectp->floorz;
 
                             // start in the on position
-                            //sectp->floorz = sp->z;
+                            //sectp->floorz = actor->spr.z;
                             sectp->floorz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sector(), amt, false); // floor
+                            MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
                         }
 
                         // set orig z
-                        u->oz = sp->opos.Z = sectp->floorz;
+                        u->oz = actor->spr.opos.Z = sectp->floorz;
                     }
                     else
                     {
                         // start off
                         u->sz = sectp->ceilingz;
-                        u->z_tgt = sp->pos.Z;
+                        u->z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = sp->pos.Z - sectp->ceilingz;
+                            amt = actor->spr.pos.Z - sectp->ceilingz;
 
                             // starting in the on position
-                            //sectp->ceilingz = sp->z;
+                            //sectp->ceilingz = actor->spr.z;
                             sectp->ceilingz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sector(), amt, true); // ceiling
+                            MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
                         }
 
                         // set orig z
-                        u->oz = sp->opos.Z = sectp->ceilingz;
+                        u->oz = actor->spr.opos.Z = sectp->ceilingz;
                     }
 
 
@@ -2138,30 +2128,30 @@ void SpriteSetup(void)
                     short wallcount,startwall,endwall,w;
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, true, true);
 
                     // need something for this
                     sectp->lotag = TAG_ROTATOR;
-                    sectp->hitag = sp->lotag;
+                    sectp->hitag = actor->spr.lotag;
 
-                    type = SP_TAG3(sp);
-                    time = SP_TAG9(sp);
+                    type = SP_TAG3(actor);
+                    time = SP_TAG9(actor);
 
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
                     u->rotator.Alloc();
-                    u->rotator->open_dest = SP_TAG5(sp);
-                    u->rotator->speed = SP_TAG7(sp);
-                    u->rotator->vel = SP_TAG8(sp);
+                    u->rotator->open_dest = SP_TAG5(actor);
+                    u->rotator->speed = SP_TAG7(actor);
+                    u->rotator->vel = SP_TAG8(actor);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->SetNumWalls(sp->sector()->wallnum);
+                    u->rotator->SetNumWalls(actor->spr.sector()->wallnum);
 
                     u->rotator->orig_speed = u->rotator->speed;
 
                     wallcount = 0;
-                    for(auto& wal : wallsofsector(sp->sector()))
+                    for(auto& wal : wallsofsector(actor->spr.sector()))
                     {
                         u->rotator->origX[wallcount] = wal.pos.X;
                         u->rotator->origY[wallcount] = wal.pos.Y;
@@ -2192,22 +2182,22 @@ void SpriteSetup(void)
 
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, true, true);
 
                     // need something for this
                     sectp->lotag = TAG_SLIDOR;
-                    sectp->hitag = sp->lotag;
+                    sectp->hitag = actor->spr.lotag;
 
-                    type = SP_TAG3(sp);
-                    time = SP_TAG9(sp);
+                    type = SP_TAG3(actor);
+                    time = SP_TAG9(actor);
 
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
                     u->rotator.Alloc();
-                    u->rotator->open_dest = SP_TAG5(sp);
-                    u->rotator->speed = SP_TAG7(sp);
-                    u->rotator->vel = SP_TAG8(sp);
+                    u->rotator->open_dest = SP_TAG5(actor);
+                    u->rotator->speed = SP_TAG7(actor);
+                    u->rotator->vel = SP_TAG8(actor);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
                     u->rotator->ClearWalls();
@@ -2228,7 +2218,7 @@ void SpriteSetup(void)
                     }
 
 
-                    if (TEST_BOOL5(sp))
+                    if (TEST_BOOL5(actor))
                     {
                         DoSlidorInstantClose(actor);
                     }
@@ -2244,16 +2234,16 @@ void SpriteSetup(void)
                     Collision trash;
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
-                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, false, true);
+                    SET(actor->spr.sector()->extra, SECTFX_DYNAMIC_AREA);
 
-                    type = SP_TAG3(sp);
-                    speed = SP_TAG4(sp);
-                    vel = SP_TAG5(sp);
-                    time = SP_TAG9(sp);
-                    start_on = !!TEST_BOOL1(sp);
+                    type = SP_TAG3(actor);
+                    speed = SP_TAG4(actor);
+                    vel = SP_TAG5(actor);
+                    time = SP_TAG9(actor);
+                    start_on = !!TEST_BOOL1(actor);
                     floor_vator = true;
-                    if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
+                    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
                     u->jump_speed = u->vel_tgt = speed;
@@ -2282,7 +2272,7 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    getzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), &ceilingz, &trash, &floorz, &trash);
+                    getzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), &ceilingz, &trash, &floorz, &trash);
 
                     if (floor_vator)
                     {
@@ -2290,17 +2280,17 @@ void SpriteSetup(void)
 
                         // start off
                         u->sz = u->zclip;
-                        u->z_tgt = sp->pos.Z;
+                        u->z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // start in the on position
-                            u->zclip = sp->pos.Z;
+                            u->zclip = actor->spr.pos.Z;
                             u->z_tgt = u->sz;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        u->oz = sp->opos.Z = u->zclip;
+                        u->oz = actor->spr.opos.Z = u->zclip;
                     }
                     else
                     {
@@ -2308,17 +2298,17 @@ void SpriteSetup(void)
 
                         // start off
                         u->sz = u->zclip;
-                        u->z_tgt = sp->pos.Z;
+                        u->z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
-                            u->zclip = sp->pos.Z;
+                            u->zclip = actor->spr.pos.Z;
                             u->z_tgt = u->sz;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        u->oz = sp->opos.Z = u->zclip;
+                        u->oz = actor->spr.opos.Z = u->zclip;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
@@ -2330,20 +2320,20 @@ void SpriteSetup(void)
                     int wallcount = 0;
                     int8_t* wall_shade;
 
-                    LIGHT_Tics(sp) = 0;
+                    LIGHT_Tics(actor) = 0;
 
-                    if (LIGHT_ShadeInc(sp) == 0)
-                        LIGHT_ShadeInc(sp) = 1;
+                    if (LIGHT_ShadeInc(actor) == 0)
+                        LIGHT_ShadeInc(actor) = 1;
 
                     // save off original floor and ceil shades
-                    LIGHT_FloorShade(sp) = sp->sector()->floorshade;
-                    LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
+                    LIGHT_FloorShade(actor) = actor->spr.sector()->floorshade;
+                    LIGHT_CeilingShade(actor) = actor->spr.sector()->ceilingshade;
 
                     // count walls of sector
-                    for(auto& wal : wallsofsector(sp->sector()))
+                    for(auto& wal : wallsofsector(actor->spr.sector()))
                     {
                         wallcount++;
-                        if (TEST_BOOL5(sp))
+                        if (TEST_BOOL5(actor))
                         {
                             if (wal.twoSided())
                                 wallcount++;
@@ -2356,11 +2346,11 @@ void SpriteSetup(void)
                     wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
-                    for(auto& wal : wallsofsector(sp->sector()))
+                    for(auto& wal : wallsofsector(actor->spr.sector()))
                     {
                         wall_shade[wallcount] =  wal.shade;
                         wallcount++;
-                        if (TEST_BOOL5(sp))
+                        if (TEST_BOOL5(actor))
                         {
                             if (wal.twoSided())
                             {
@@ -2370,7 +2360,7 @@ void SpriteSetup(void)
                         }
                     }
 
-                    u->spal = sp->pal;
+                    u->spal = actor->spr.pal;
 
                     // DON'T USE COVER function
                     change_actor_stat(actor, STAT_LIGHTING, true);
@@ -2382,17 +2372,17 @@ void SpriteSetup(void)
                     int wallcount = 0;
                     int8_t* wall_shade;
 
-                    LIGHT_Tics(sp) = 0;
+                    LIGHT_Tics(actor) = 0;
 
                     // save off original floor and ceil shades
-                    LIGHT_FloorShade(sp) = sp->sector()->floorshade;
-                    LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
+                    LIGHT_FloorShade(actor) = actor->spr.sector()->floorshade;
+                    LIGHT_CeilingShade(actor) = actor->spr.sector()->ceilingshade;
 
                     // count walls of sector
-                    for (auto& wal : wallsofsector(sp->sector()))
+                    for (auto& wal : wallsofsector(actor->spr.sector()))
                     {
                         wallcount++;
-                        if (TEST_BOOL5(sp))
+                        if (TEST_BOOL5(actor))
                         {
                             if (wal.twoSided())
                                 wallcount++;
@@ -2407,11 +2397,11 @@ void SpriteSetup(void)
                     wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
-                    for (auto& wal : wallsofsector(sp->sector()))
+                    for (auto& wal : wallsofsector(actor->spr.sector()))
                     {
                         wall_shade[wallcount] = wal.shade;
                         wallcount++;
-                        if (TEST_BOOL5(sp))
+                        if (TEST_BOOL5(actor))
                         {
                             if (wal.twoSided())
                             {
@@ -2443,7 +2433,7 @@ void SpriteSetup(void)
                     break;
 
                 case DEMO_CAMERA:
-                    sp->yvel = sp->zvel = 100; //attempt horiz control
+                    actor->spr.yvel = actor->spr.zvel = 100; //attempt horiz control
                     change_actor_stat(actor, STAT_DEMO_CAMERA);
                     break;
 
@@ -2456,17 +2446,17 @@ void SpriteSetup(void)
                     u->ActorActionFunc = DoLavaErupt;
 
                     // interval between erupts
-                    if (SP_TAG10(sp) == 0)
-                        SP_TAG10(sp) = 20;
+                    if (SP_TAG10(actor) == 0)
+                        SP_TAG10(actor) = 20;
 
                     // interval in seconds
-                    u->WaitTics = RandomRange(SP_TAG10(sp)) * 120;
+                    u->WaitTics = RandomRange(SP_TAG10(actor)) * 120;
 
                     // time to erupt
-                    if (SP_TAG9(sp) == 0)
-                        SP_TAG9(sp) = 10;
+                    if (SP_TAG9(actor) == 0)
+                        SP_TAG9(actor) = 10;
 
-                    sp->pos.Z += Z(30);
+                    actor->spr.pos.Z += Z(30);
 
                     break;
                 }
@@ -2474,21 +2464,21 @@ void SpriteSetup(void)
 
                 case SECT_EXPLODING_CEIL_FLOOR:
                 {
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, false, true);
 
                     if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
                     {
-                        SP_TAG5(sp) = sectp->floorheinum;
+                        SP_TAG5(actor) = sectp->floorheinum;
                         sectp->setfloorslope(0);
                     }
 
                     if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SLOPE))
                     {
-                        SP_TAG6(sp) = sectp->ceilingheinum;
+                        SP_TAG6(actor) = sectp->ceilingheinum;
                         sectp->setceilingslope(0);
                     }
 
-                    SP_TAG4(sp) = abs(sectp->ceilingz - sectp->floorz)>>8;
+                    SP_TAG4(actor) = abs(sectp->ceilingz - sectp->floorz)>>8;
 
                     sectp->ceilingz = sectp->floorz;
 
@@ -2502,7 +2492,7 @@ void SpriteSetup(void)
 
                 case SECT_COPY_DEST:
                 {
-                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
+                    SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, false, true);
                     change_actor_stat(actor, STAT_COPY_DEST);
                     break;
                 }
@@ -2521,16 +2511,16 @@ void SpriteSetup(void)
                     change_actor_stat(actor, STAT_CLIMB_MARKER);
 
                     // make a QUICK_LADDER sprite automatically
-                    auto actorNew = insertActor(sp->sector(), STAT_QUICK_LADDER);
+                    auto actorNew = insertActor(actor->spr.sector(), STAT_QUICK_LADDER);
 
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
-                    actorNew->spr.pos = sp->pos;
-                    actorNew->spr.ang = NORM_ANGLE(sp->ang + 1024);
-                    actorNew->spr.picnum = sp->picnum;
+                    actorNew->spr.pos = actor->spr.pos;
+                    actorNew->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
+                    actorNew->spr.picnum = actor->spr.picnum;
 
-                    actorNew->spr.pos.X += MOVEx(256+128, sp->ang);
-                    actorNew->spr.pos.Y += MOVEy(256+128, sp->ang);
+                    actorNew->spr.pos.X += MOVEx(256+128, actor->spr.ang);
+                    actorNew->spr.pos.Y += MOVEy(256+128, actor->spr.ang);
 
                     break;
                 }
@@ -2589,7 +2579,7 @@ void SpriteSetup(void)
                 }
 
                 case SOUND_SPOT:
-                    SET_SP_TAG13(actor, SP_TAG4(sp));
+                    SET_SP_TAG13(actor, SP_TAG4(actor));
                     change_actor_stat(actor, STAT_SOUND_SPOT);
                     break;
 
@@ -2601,8 +2591,8 @@ void SpriteSetup(void)
                     if (!actor->hasU())
                         u = SpawnUser(actor, ST1, nullptr);
 
-                    if (sp->xrepeat == 64 && sp->yrepeat == 64)
-                        sp->xrepeat = sp->yrepeat = 0;
+                    if (actor->spr.xrepeat == 64 && actor->spr.yrepeat == 64) // clear default xrepeat.
+                        actor->spr.xrepeat = actor->spr.yrepeat = 0;
 
                     change_actor_stat(actor, STAT_SPAWN_SPOT);
                     break;
@@ -2615,9 +2605,9 @@ void SpriteSetup(void)
                     while (auto itActor = it2.Next())
                     {
                         auto ispr = &itActor->s();
-                        if (ispr->hitag == sp->hitag && ispr->lotag == sp->lotag)
+                        if (ispr->hitag == actor->spr.hitag && ispr->lotag == actor->spr.lotag)
                         {
-                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->pos.X, sp->pos.Y, ispr->pos.X, ispr->pos.Y);
+                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", actor->spr.pos.X, actor->spr.pos.Y, ispr->pos.X, ispr->pos.Y);
                         }
                     }
                     change_actor_stat(actor, STAT_FAF);
@@ -2637,40 +2627,40 @@ void SpriteSetup(void)
 
                 case PLAX_GLOB_Z_ADJUST:
                 {
-                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
+                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
                     PlaxCeilGlobZadjust = SP_TAG2(actor);
-                    PlaxFloorGlobZadjust = SP_TAG3(sp);
+                    PlaxFloorGlobZadjust = SP_TAG3(actor);
                     KillActor(actor);
                     break;
                 }
 
                 case CEILING_Z_ADJUST:
                 {
-                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
+                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
                 case FLOOR_Z_ADJUST:
                 {
-                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
+                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
                 case WARP_TELEPORTER:
                 {
-                    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
+                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
 
                     // if just a destination teleporter
                     // don't set up flags
-                    if (SP_TAG10(sp) == 1)
+                    if (SP_TAG10(actor) == 1)
                         break;
 
                     // move the the next wall
-                    auto start_wall = sp->sector()->firstWall();
+                    auto start_wall = actor->spr.sector()->firstWall();
                     auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits
@@ -2692,20 +2682,20 @@ void SpriteSetup(void)
                 case WARP_CEILING_PLANE:
                 case WARP_FLOOR_PLANE:
                 {
-                    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
+                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
                     break;
                 }
 
                 case WARP_COPY_SPRITE1:
-                    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
+                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
                     break;
                 case WARP_COPY_SPRITE2:
-                    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
+                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
                     break;
 
@@ -2730,7 +2720,7 @@ void SpriteSetup(void)
                 case SECT_LOCK_DOOR:
                 {
                     sectp->u_defined = true;
-                    sectp->number = sp->lotag;
+                    sectp->number = actor->spr.lotag;
                     sectp->stag = SECT_LOCK_DOOR;
                     KillActor(actor);
                     break;
@@ -2740,7 +2730,7 @@ void SpriteSetup(void)
                 {
                     sectp->u_defined = true;
                     SET(sectp->flags, SECTFU_SO_SINK_DEST);
-                    sectp->number = sp->lotag;  // acually the offset Z
+                    sectp->number = actor->spr.lotag;  // acually the offset Z
                     // value
                     KillActor(actor);
                     break;
@@ -2775,7 +2765,7 @@ void SpriteSetup(void)
                 {
                     sectp->u_defined = true;
                     sectp->stag = SECT_SO_FORM_WHIRLPOOL;
-                    sectp->height = sp->lotag;
+                    sectp->height = actor->spr.lotag;
                     KillActor(actor);
                     break;
                 }
@@ -2783,7 +2773,7 @@ void SpriteSetup(void)
                 case SECT_ACTOR_BLOCK:
                 {
                     // move the the next wall
-                    auto start_wall = sp->sector()->firstWall();
+                    auto start_wall = actor->spr.sector()->firstWall();
                     auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits
@@ -2851,20 +2841,20 @@ KeyMain:
                 u = SpawnUser(actor, 0, nullptr);
 
                 ASSERT(u != nullptr);
-                sp->picnum = u->ID = sp->picnum;
+                actor->spr.picnum = u->ID = actor->spr.picnum;
 
-                u->spal = sp->pal; // Set the palette from build
+                u->spal = actor->spr.pal; // Set the palette from build
 
-                //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+                //SET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
                 ChangeState(actor, s_Key[num]);
 
-                RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
-                RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
+                RESET(picanm[actor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
+                RESET(picanm[actor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_actor_stat(actor, STAT_ITEM);
-                RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
+                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
                 u->Radius = 500;
-                sp->hitag = LUMINOUS; //Set so keys over ride colored lighting
+                actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
 
                 DoActorZrange(actor);
             }
@@ -2878,7 +2868,7 @@ KeyMain:
         case 1852:
         case 2470:
 
-            if (TEST(sp->extra, SPRX_MULTI_ITEM))
+            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
                     KillActor(actor);
@@ -2893,12 +2883,12 @@ KeyMain:
              *
              * u->State = u->StateStart = &s_FireFly[0]; u->RotNum = 0;
              *
-             * sp->ang = 0; sp->xvel = 4;
+             * actor->spr.ang = 0; actor->spr.xvel = 4;
              *
-             * if (labs(sp->z - sp->sector()->floorz) < Z(32)) sp->z =
-             * sp->sector()->floorz - Z(32);
+             * if (labs(actor->spr.z - actor->spr.sector()->floorz) < Z(32)) actor->spr.z =
+             * actor->spr.sector()->floorz - Z(32);
              *
-             * u->sz = sp->z;
+             * u->sz = actor->spr.z;
              *
              * change_actor_stat(actor, STAT_MISC);
              */
@@ -2907,7 +2897,7 @@ KeyMain:
 
         case ICON_REPAIR_KIT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2920,7 +2910,7 @@ KeyMain:
 
         case ICON_STAR:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2933,7 +2923,7 @@ KeyMain:
 
         case ICON_LG_MINE:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2946,7 +2936,7 @@ KeyMain:
 
         case ICON_MICRO_GUN:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2961,7 +2951,7 @@ KeyMain:
 
 NUKE_REPLACEMENT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2974,7 +2964,7 @@ NUKE_REPLACEMENT:
 
         case ICON_UZI:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2986,7 +2976,7 @@ NUKE_REPLACEMENT:
 
         case ICON_UZIFLOOR:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -2998,7 +2988,7 @@ NUKE_REPLACEMENT:
 
         case ICON_LG_UZI_AMMO:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3010,7 +3000,7 @@ NUKE_REPLACEMENT:
 
         case ICON_GRENADE_LAUNCHER:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3023,7 +3013,7 @@ NUKE_REPLACEMENT:
 
         case ICON_LG_GRENADE:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3035,7 +3025,7 @@ NUKE_REPLACEMENT:
 
         case ICON_RAIL_GUN:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3047,7 +3037,7 @@ NUKE_REPLACEMENT:
 
         case ICON_RAIL_AMMO:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3060,7 +3050,7 @@ NUKE_REPLACEMENT:
 
         case ICON_ROCKET:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3072,7 +3062,7 @@ NUKE_REPLACEMENT:
 
         case ICON_LG_ROCKET:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3084,7 +3074,7 @@ NUKE_REPLACEMENT:
 
         case ICON_SHOTGUN:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3099,7 +3089,7 @@ NUKE_REPLACEMENT:
 
         case ICON_LG_SHOTSHELL:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3111,7 +3101,7 @@ NUKE_REPLACEMENT:
 
         case ICON_AUTORIOT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3124,7 +3114,7 @@ NUKE_REPLACEMENT:
 
         case ICON_GUARD_HEAD:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3136,7 +3126,7 @@ NUKE_REPLACEMENT:
 
         case ICON_FIREBALL_LG_AMMO:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3148,7 +3138,7 @@ NUKE_REPLACEMENT:
 
         case ICON_HEART:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3160,7 +3150,7 @@ NUKE_REPLACEMENT:
 
         case ICON_HEART_LG_AMMO:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3173,7 +3163,7 @@ NUKE_REPLACEMENT:
 #if 0
         case ICON_ELECTRO:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3186,7 +3176,7 @@ NUKE_REPLACEMENT:
 
         case ICON_SPELL:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3195,28 +3185,28 @@ NUKE_REPLACEMENT:
             u = SpawnUser(actor, ICON_SPELL, s_IconSpell);
             IconDefault(actor);
 
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 
         case ICON_ARMOR:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
             }
 
             u = SpawnUser(actor, ICON_ARMOR, s_IconArmor);
-            if (sp->pal != PALETTE_PLAYER3)
-                sp->pal = u->spal = PALETTE_PLAYER1;
+            if (actor->spr.pal != PALETTE_PLAYER3)
+                actor->spr.pal = u->spal = PALETTE_PLAYER1;
             else
-                sp->pal = u->spal = PALETTE_PLAYER3;
+                actor->spr.pal = u->spal = PALETTE_PLAYER3;
             IconDefault(actor);
             break;
 
         case ICON_MEDKIT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3228,7 +3218,7 @@ NUKE_REPLACEMENT:
 
         case ICON_SM_MEDKIT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3240,7 +3230,7 @@ NUKE_REPLACEMENT:
 
         case ICON_CHEMBOMB:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3252,7 +3242,7 @@ NUKE_REPLACEMENT:
 
         case ICON_FLASHBOMB:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3273,7 +3263,7 @@ NUKE_REPLACEMENT:
                 }
             }
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3286,7 +3276,7 @@ NUKE_REPLACEMENT:
 
         case ICON_CALTROPS:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3298,7 +3288,7 @@ NUKE_REPLACEMENT:
 
         case ICON_BOOSTER:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3310,7 +3300,7 @@ NUKE_REPLACEMENT:
 
         case ICON_HEAT_CARD:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3323,7 +3313,7 @@ NUKE_REPLACEMENT:
 #if 0
         case ICON_ENVIRON_SUIT:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3331,13 +3321,13 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_ENVIRON_SUIT, s_IconEnvironSuit);
             IconDefault(actor);
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 #endif
 
         case ICON_CLOAK:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3345,12 +3335,12 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_CLOAK, s_IconCloak);
             IconDefault(actor);
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 
         case ICON_FLY:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3358,12 +3348,12 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_FLY, s_IconFly);
             IconDefault(actor);
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 
         case ICON_NIGHT_VISION:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
@@ -3371,23 +3361,23 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_NIGHT_VISION, s_IconNightVision);
             IconDefault(actor);
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 
         case ICON_FLAG:
 
-            if (!IconSpawn(sp))
+            if (!IconSpawn(actor))
             {
                 KillActor(actor);
                 break;
             }
 
             u = SpawnUser(actor, ICON_FLAG, s_IconFlag);
-            u->spal = sp->pal;
-            sp->sector()->hitag = 9000;       // Put flag's color in sect containing it
-            sp->sector()->lotag = u->spal;
+            u->spal = actor->spr.pal;
+            actor->spr.sector()->hitag = 9000;       // Put flag's color in sect containing it
+            actor->spr.sector()->lotag = u->spal;
             IconDefault(actor);
-            PicAnimOff(sp->picnum);
+            PicAnimOff(actor->spr.picnum);
             break;
 
 #if 0
@@ -3402,17 +3392,17 @@ NUKE_REPLACEMENT:
         case 3143:
         case 3157:
         {
-            u = SpawnUser(actor, sp->picnum, nullptr);
+            u = SpawnUser(actor, actor->spr.picnum, nullptr);
 
             change_actor_stat(actor, STAT_STATIC_FIRE);
 
             u->ID = FIREBALL_FLAMES;
             u->Radius = 200;
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
 
-            sp->hitag = LUMINOUS; //Always full brightness
-            sp->shade = -40;
+            actor->spr.hitag = LUMINOUS; //Always full brightness
+            actor->spr.shade = -40;
 
             break;
         }
@@ -3423,13 +3413,13 @@ NUKE_REPLACEMENT:
         case BLADE3:
         case 5011:
         {
-            u = SpawnUser(actor, sp->picnum, nullptr);
+            u = SpawnUser(actor, actor->spr.picnum, nullptr);
 
             change_actor_stat(actor, STAT_DEFAULT);
 
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-            SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(sp->extra, SPRX_BLADE);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+            SET(actor->spr.extra, SPRX_BLADE);
 
             break;
         }
@@ -3441,14 +3431,14 @@ NUKE_REPLACEMENT:
         case BREAK_BOTTLE2:
         case BREAK_MUSHROOM:
 
-            //if (TEST(sp->extra, SPRX_BREAKABLE))
+            //if (TEST(actor->spr.extra, SPRX_BREAKABLE))
             //    break;
 
-            u = SpawnUser(actor, sp->picnum, nullptr);
+            u = SpawnUser(actor, actor->spr.picnum, nullptr);
 
-            sp->clipdist = GetSpriteSizeX(sp);
-            SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
-            SET(sp->extra, SPRX_BREAKABLE);
+            actor->spr.clipdist = ActorSizeX(actor);
+            SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+            SET(actor->spr.extra, SPRX_BREAKABLE);
             break;
 
         // switches
@@ -3486,7 +3476,7 @@ NUKE_REPLACEMENT:
         case 553:
         case 554:
         {
-            if (TEST(sp->extra, SPRX_MULTI_ITEM))
+            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
@@ -3496,7 +3486,7 @@ NUKE_REPLACEMENT:
             }
 
 
-            SET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             break;
         }
 
