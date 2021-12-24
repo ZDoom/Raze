@@ -17475,23 +17475,22 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
 {
     int i;
     auto sectu = *psectu;
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     int sx, sy;
+    DSWActor* overActor = nullptr;
+    DSWActor* underActor = nullptr;
 
     // 0 not valid for water match tags
-    if (sectu->number == 0)
+    if (!sectu->hasU() || sectu->number == 0)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (auto itActor = it.Next())
+    while (overActor = it.Next())
     {
-        over_sp = &itActor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() && sectu->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            overActor->spr.sector()->hasU() &&
+            overActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17503,13 +17502,11 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (auto itActor = it.Next())
+    while (underActor = it.Next())
     {
-        under_sp = &itActor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            underActor->spr.sector()->hasU() &&
+            underActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17519,15 +17516,15 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
     ASSERT(Found);
 
     // get the offset from the sprite
-    sx = over_sp->pos.X - *x;
-    sy = over_sp->pos.Y - *y;
+    sx = overActor->spr.pos.X - *x;
+    sy = overActor->spr.pos.Y - *y;
 
     // update to the new x y position
-    *x = under_sp->pos.X - sx;
-    *y = under_sp->pos.Y - sy;
+    *x = underActor->spr.pos.X - sx;
+    *y = underActor->spr.pos.Y - sy;
 
-    auto over = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over = overActor->spr.sector();
+    auto under = underActor->spr.sector();
 
     if (GetOverlapSector(*x, *y, &over, &under) == 2)
     {
@@ -17538,7 +17535,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
         *psectu = under;
     }
 
-    *z = under_sp->sector()->ceilingz + Z(1);
+    *z = underActor->spr.sector()->ceilingz + Z(1);
 
     return true;
 }
@@ -17548,23 +17545,21 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
     int i;
     auto sectu = *psectu;
     int sx, sy;
-
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
+    DSWActor* overActor = nullptr;
+    DSWActor* underActor = nullptr;
     bool Found = false;
 
     // 0 not valid for water match tags
-    if (sectu->number == 0)
+    if (!sectu->hasU() || sectu->number == 0)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (auto itActor = it.Next())
+    while (underActor = it.Next())
     {
-        under_sp = &itActor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() && sectu->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            underActor->spr.sector()->hasU() &&
+            underActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17576,13 +17571,11 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (auto itActor = it.Next())
+    while (overActor = it.Next())
     {
-        over_sp = &itActor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            overActor->spr.sector()->hasU() &&
+            overActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17592,22 +17585,22 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
     ASSERT(Found);
 
     // get the offset from the under sprite
-    sx = under_sp->pos.X - *x;
-    sy = under_sp->pos.Y - *y;
+    sx = underActor->spr.pos.X - *x;
+    sy = underActor->spr.pos.Y - *y;
 
     // update to the new x y position
-    *x = over_sp->pos.X - sx;
-    *y = over_sp->pos.Y - sy;
+    *x = overActor->spr.pos.X - sx;
+    *y = overActor->spr.pos.Y - sy;
 
-    auto over = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over = overActor->spr.sector();
+    auto under = underActor->spr.sector();
 
     if (GetOverlapSector(*x, *y, &over, &under))
     {
         *psectu = over;
     }
 
-    *z = over_sp->sector()->floorz - Z(2);
+    *z = overActor->spr.sector()->floorz - Z(2);
 
     return true;
 }
@@ -17618,23 +17611,22 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     USERp u = actor->u();
     int i;
     auto sectu = actor->spr.sector();
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     int sx, sy;
+    DSWActor* overActor = nullptr;
+    DSWActor* underActor = nullptr;
 
     // 0 not valid for water match tags
-    if (sectu->number == 0)
+    if (!sectu->hasU() || sectu->number == 0)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (auto itActor = it.Next())
+    while (overActor = it.Next())
     {
-        over_sp = &itActor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            overActor->spr.sector()->hasU() &&
+            overActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17646,13 +17638,11 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (auto itActor = it.Next())
+    while (underActor = it.Next())
     {
-        under_sp = &itActor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            underActor->spr.sector()->hasU() &&
+            underActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17662,15 +17652,15 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     ASSERT(Found);
 
     // get the offset from the sprite
-    sx = over_sp->pos.X - actor->spr.pos.X;
-    sy = over_sp->pos.Y - actor->spr.pos.Y;
+    sx = overActor->spr.pos.X - actor->spr.pos.X;
+    sy = overActor->spr.pos.Y - actor->spr.pos.Y;
 
     // update to the new x y position
-    actor->spr.pos.X = under_sp->pos.X - sx;
-    actor->spr.pos.Y = under_sp->pos.Y - sy;
+    actor->spr.pos.X = underActor->spr.pos.X - sx;
+    actor->spr.pos.Y = underActor->spr.pos.Y - sy;
 
-    auto over = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over = overActor->spr.sector();
+    auto under = underActor->spr.sector();
 
     if (GetOverlapSector(actor->spr.pos.X, actor->spr.pos.Y, &over, &under) == 2)
     {
@@ -17681,7 +17671,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->spr.pos.Z = under_sp->sector()->ceilingz + u->ceiling_dist+Z(1);
+    actor->spr.pos.Z = underActor->spr.sector()->ceilingz + u->ceiling_dist+Z(1);
 
     actor->spr.backuppos();
 
@@ -17693,23 +17683,21 @@ bool SpriteWarpToSurface(DSWActor* actor)
     USERp u = actor->u();
     auto sectu = actor->spr.sector();
     int sx, sy;
-
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
+    DSWActor* overActor = nullptr;
+    DSWActor* underActor = nullptr;
     bool Found = false;
 
     // 0 not valid for water match tags
-    if (sectu->number == 0)
+    if (!sectu->hasU() || sectu->number == 0)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (auto itActor = it.Next())
+    while (underActor = it.Next())
     {
-        under_sp = &itActor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            underActor->spr.sector()->hasU() &&
+            underActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17718,20 +17706,18 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
     ASSERT(Found);
 
-    if (under_sp->lotag == 0)
+    if (underActor->spr.lotag == 0)
         return false;
 
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (auto itActor = it.Next())
+    while (overActor = it.Next())
     {
-        over_sp = &itActor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            overActor->spr.sector()->hasU() &&
+            overActor->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17741,22 +17727,22 @@ bool SpriteWarpToSurface(DSWActor* actor)
     ASSERT(Found);
 
     // get the offset from the under sprite
-    sx = under_sp->pos.X - actor->spr.pos.X;
-    sy = under_sp->pos.Y - actor->spr.pos.Y;
+    sx = underActor->spr.pos.X - actor->spr.pos.X;
+    sy = underActor->spr.pos.Y - actor->spr.pos.Y;
 
     // update to the new x y position
-    actor->spr.pos.X = over_sp->pos.X - sx;
-    actor->spr.pos.Y = over_sp->pos.Y - sy;
+    actor->spr.pos.X = overActor->spr.pos.X - sx;
+    actor->spr.pos.Y = overActor->spr.pos.Y - sy;
 
-    auto over = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over = overActor->spr.sector();
+    auto under = underActor->spr.sector();
 
     if (GetOverlapSector(actor->spr.pos.X, actor->spr.pos.Y, &over, &under))
     {
         ChangeActorSect(actor, over);
     }
 
-    actor->spr.pos.Z = over_sp->sector()->floorz - Z(2);
+    actor->spr.pos.Z = overActor->spr.sector()->floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);
