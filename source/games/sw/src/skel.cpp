@@ -506,7 +506,7 @@ int SetupSkel(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -526,7 +526,7 @@ int SetupSkel(DSWActor* actor)
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
     // 256 is default
-    //sp->clipdist = 256 >> 2;
+    //actor->spr.clipdist = 256 >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
@@ -537,7 +537,7 @@ int DoSkelInitTeleport(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     PlaySpriteSound(actor,attr_extra3,v3df_follow);
 
@@ -550,27 +550,27 @@ int DoSkelTeleport(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int x,y;
 
-    x = sp->pos.X;
-    y = sp->pos.Y;
+    x = actor->spr.pos.X;
+    y = actor->spr.pos.Y;
 
     while (true)
     {
-        sp->pos.X = x;
-        sp->pos.Y = y;
+        actor->spr.pos.X = x;
+        actor->spr.pos.Y = y;
 
         if (RANDOM_P2(1024) < 512)
-            sp->pos.X += 512 + RANDOM_P2(1024);
+            actor->spr.pos.X += 512 + RANDOM_P2(1024);
         else
-            sp->pos.X -= 512 + RANDOM_P2(1024);
+            actor->spr.pos.X -= 512 + RANDOM_P2(1024);
 
         if (RANDOM_P2(1024) < 512)
-            sp->pos.Y += 512 + RANDOM_P2(1024);
+            actor->spr.pos.Y += 512 + RANDOM_P2(1024);
         else
-            sp->pos.Y -= 512 + RANDOM_P2(1024);
+            actor->spr.pos.Y -= 512 + RANDOM_P2(1024);
 
-        SetActorZ(actor, &sp->pos);
+        SetActorZ(actor, &actor->spr.pos);
 
-        if (sp->insector())
+        if (actor->spr.insector())
             break;
     }
 
@@ -582,7 +582,7 @@ int DoSkelTermTeleport(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return 0;
 }
