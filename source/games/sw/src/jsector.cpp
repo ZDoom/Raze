@@ -435,7 +435,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 void
 JS_ProcessEchoSpot()
 {
-    SPRITEp tp;
     int j,dist;
     PLAYERp pp = Player+screenpeek;
     int16_t reverb;
@@ -447,14 +446,12 @@ JS_ProcessEchoSpot()
     {
         dist = 0x7fffffff;
 
-        tp = &actor->s();
-
-        j = abs(tp->pos.X - pp->pos.X);
-        j += abs(tp->pos.Y - pp->pos.Y);
+        j = abs(actor->spr.pos.X - pp->pos.X);
+        j += abs(actor->spr.pos.Y - pp->pos.Y);
         if (j < dist)
             dist = j;
 
-        if (dist <= SP_TAG4(tp)) // tag4 = ang
+        if (dist <= SP_TAG4(actor)) // tag4 = ang
         {
             reverb = SP_TAG2(actor);
             if (reverb > 200) reverb = 200;
@@ -527,12 +524,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 }
                 else
                 {
-                    SPRITEp tp;
+                    DSWActor* camactor = mirror[cnt].camspriteActor;
 
-                    tp = &mirror[cnt].camspriteActor->s();
-
-                    j = abs(tp->pos.X - tx);
-                    j += abs(tp->pos.Y - ty);
+                    j = abs(camactor->spr.pos.X - tx);
+                    j += abs(camactor->spr.pos.Y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -925,8 +920,6 @@ void UnlockKeyLock(short key_num, DSWActor* hitActor)
     SWStatIterator it(STAT_DEFAULT);
     while (auto itActor = it.Next())
     {
-        auto sp = &itActor->s();
-
         switch (itActor->spr.picnum)
         {
         case SKEL_LOCKED:
