@@ -297,13 +297,11 @@ int DoWallBloodDrip(DSWActor* actor)
 void SpawnMidSplash(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     actorNew->spr.shade = -12;
@@ -327,13 +325,11 @@ void SpawnMidSplash(DSWActor* actor)
 void SpawnFloorSplash(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     actorNew->spr.shade = -12;
@@ -540,7 +536,6 @@ int DoBloodSpray(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
-        auto np = &actorNew->s();
         auto nu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -752,7 +747,6 @@ int DoPhosphorus(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
-        auto np = &actorNew->s();
         auto nu = actorNew->u();
 
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
@@ -980,7 +974,6 @@ int DoChemBomb(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
-        auto np = &actorNew->s();
         auto nu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -1219,7 +1212,6 @@ int SpawnRadiationCloud(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
-    auto np = &actorNew->s();
     nu = actorNew->u();
 
     SetOwner(GetOwner(actor), actorNew);
@@ -1668,7 +1660,6 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    auto np = &actorNew->s();
     auto nu = actorNew->u();
 
     if (u->flameActor != nullptr)
@@ -1679,7 +1670,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (u->flameActor != nullptr)
     {
-        nu->Counter = GetRepeatFromHeight(np, ActorSizeZ(actor) >> 1) * 4;
+        nu->Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(actor) >> 1) * 4;
     }
     else
         nu->Counter = 0;                // max flame size

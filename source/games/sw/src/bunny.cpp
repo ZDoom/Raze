@@ -1138,7 +1138,6 @@ void BunnyHatch(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    SPRITEp np;
     USERp nu;
     const int MAX_BUNNYS = 1;
     int16_t rip_ang[MAX_BUNNYS];
@@ -1148,11 +1147,8 @@ void BunnyHatch(DSWActor* actor)
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
         auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
-        np = &actorNew->s();
         actorNew->spr.clear();
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = actor->spr.pos.Z;
+        actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
         actorNew->spr.ang = rip_ang[i];
@@ -1209,7 +1205,6 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 {
 
     auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
-    auto np = &actorNew->s();
     actorNew->spr.clear();
     actorNew->spr.pos.X = actor->spr.pos.X;
     actorNew->spr.pos.Y = actor->spr.pos.Y;

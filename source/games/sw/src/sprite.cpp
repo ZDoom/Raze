@@ -2537,13 +2537,10 @@ void SpriteSetup(void)
 
                     // make a QUICK_LADDER sprite automatically
                     auto actorNew = insertActor(sp->sector(), STAT_QUICK_LADDER);
-                    auto np = &actorNew->s();
 
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
-                    actorNew->spr.pos.X = sp->pos.X;
-                    actorNew->spr.pos.Y = sp->pos.Y;
-                    actorNew->spr.pos.Z = sp->pos.Z;
+                    actorNew->spr.pos = sp->pos;
                     actorNew->spr.ang = NORM_ANGLE(sp->ang + 1024);
                     actorNew->spr.picnum = sp->picnum;
 
@@ -3572,7 +3569,6 @@ int ActorCoughItem(DSWActor* actor)
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
     short choose;
-    SPRITEp np;
     DSWActor* actorNew = nullptr;
 
 
@@ -3581,7 +3577,6 @@ int ActorCoughItem(DSWActor* actor)
     case SAILORGIRL_R0:
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-        np = &actorNew->s();
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
@@ -3591,9 +3586,9 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
 
         // vel
-        SP_TAG7(np) = 1;
+        SP_TAG7(actorNew) = 1;
         // zvel
-        SP_TAG8(np) = 40;
+        SP_TAG8(actorNew) = 40;
 
         choose = RANDOM_P2(1024);
 
@@ -3613,7 +3608,7 @@ int ActorCoughItem(DSWActor* actor)
         // match
         SP_TAG2(actorNew) = -1;
         // kill
-        RESET_BOOL1(np);
+        RESET_BOOL1(actorNew);
         SpawnItemsMatch(-1);
         break;
 
@@ -3623,7 +3618,6 @@ int ActorCoughItem(DSWActor* actor)
 
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-        np = &actorNew->s();
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
@@ -3633,16 +3627,16 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
 
         // vel
-        SP_TAG7(np) = 1;
+        SP_TAG7(actorNew) = 1;
         // zvel
-        SP_TAG8(np) = 40;
+        SP_TAG8(actorNew) = 40;
 
         SP_TAG3(actorNew) = 69; // Match number
 
         // match
         SP_TAG2(actorNew) = -1;
         // kill
-        RESET_BOOL1(np);
+        RESET_BOOL1(actorNew);
         SpawnItemsMatch(-1);
         break;
 
@@ -3652,7 +3646,6 @@ int ActorCoughItem(DSWActor* actor)
 
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-        np = &actorNew->s();
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
@@ -3662,16 +3655,16 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
 
         // vel
-        SP_TAG7(np) = 1;
+        SP_TAG7(actorNew) = 1;
         // zvel
-        SP_TAG8(np) = 40;
+        SP_TAG8(actorNew) = 40;
 
         SP_TAG3(actorNew) = 70; // Match number
 
         // match
         SP_TAG2(actorNew) = -1;
         // kill
-        RESET_BOOL1(np);
+        RESET_BOOL1(actorNew);
         SpawnItemsMatch(-1);
         break;
 
@@ -3684,7 +3677,6 @@ int ActorCoughItem(DSWActor* actor)
 
             ASSERT(sp->insector());
             actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-            np = &actorNew->s();
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
             actorNew->spr.pos.X = sp->pos.X;
@@ -3694,9 +3686,9 @@ int ActorCoughItem(DSWActor* actor)
             actorNew->spr.extra = 0;
 
             // vel
-            SP_TAG7(np) = 1;
+            SP_TAG7(actorNew) = 1;
             // zvel
-            SP_TAG8(np) = 40;
+            SP_TAG8(actorNew) = 40;
 
             switch (u->WeaponNum)
             {
@@ -3737,7 +3729,7 @@ int ActorCoughItem(DSWActor* actor)
             // match
             SP_TAG2(actorNew) = -1;
             // kill
-            RESET_BOOL1(np);
+            RESET_BOOL1(actorNew);
             SpawnItemsMatch(-1);
             break;
         }
@@ -3747,7 +3739,6 @@ int ActorCoughItem(DSWActor* actor)
 
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-        np = &actorNew->s();
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
@@ -3757,9 +3748,9 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
 
         // vel
-        SP_TAG7(np) = 1;
+        SP_TAG7(actorNew) = 1;
         // zvel
-        SP_TAG8(np) = 40;
+        SP_TAG8(actorNew) = 40;
 
         if (u->spal == PAL_XLAT_LT_TAN)
         {
@@ -3795,7 +3786,7 @@ int ActorCoughItem(DSWActor* actor)
         // match
         SP_TAG2(actorNew) = -1;
         // kill
-        RESET_BOOL1(np);
+        RESET_BOOL1(actorNew);
         SpawnItemsMatch(-1);
         break;
 
@@ -3806,7 +3797,6 @@ int ActorCoughItem(DSWActor* actor)
 
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
-        np = &actorNew->s();
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
@@ -3815,9 +3805,9 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.ang = sp->ang;
 
         // vel
-        SP_TAG7(np) = 10;
+        SP_TAG7(actorNew) = 10;
         // zvel
-        SP_TAG8(np) = 10;
+        SP_TAG8(actorNew) = 10;
 
         if (u->ID == PACHINKO1)
         {
@@ -3851,7 +3841,7 @@ int ActorCoughItem(DSWActor* actor)
         // match
         SP_TAG2(actorNew) = -1;
         // kill
-        RESET_BOOL1(np);
+        RESET_BOOL1(actorNew);
         SpawnItemsMatch(-1);
         break;
     }
@@ -4909,7 +4899,6 @@ int KillGet(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     USERp nu;
-    SPRITEp np;
 
     switch (gNet.MultiGameType)
     {
@@ -4936,7 +4925,6 @@ int KillGet(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
@@ -4953,7 +4941,6 @@ int KillGetAmmo(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     USERp nu;
-    SPRITEp np;
 
     switch (gNet.MultiGameType)
     {
@@ -4988,7 +4975,6 @@ int KillGetAmmo(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
@@ -5005,7 +4991,6 @@ int KillGetWeapon(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     USERp nu;
-    SPRITEp np;
 
     switch (gNet.MultiGameType)
     {
@@ -5048,7 +5033,6 @@ int KillGetWeapon(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
@@ -5154,9 +5138,7 @@ int DoGet(DSWActor* actor)
 
     // For flag stuff
     USERp nu;
-    SPRITEp np;
-
-
+    
     // Invisiblility is only used for DeathMatch type games
     // Sprites stays invisible for a period of time and is un-gettable
     // then "Re-Spawns" by becomming visible.  Its never actually killed.
@@ -5998,7 +5980,6 @@ KeyMain:
                 actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sector(),
                                   sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
-            np = &actorNew->s();
             nu = actorNew->u();
             actorNew->spr.shade = -20;
 

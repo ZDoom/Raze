@@ -3949,7 +3949,6 @@ int DoShrapDamage(DSWActor* actor)
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z)
 {
     auto u = actor->u();
-    SPRITEp np;
     USERp nu;
     int i;
 
@@ -4119,7 +4118,6 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
         {
             auto actorNew = SpawnActor(STAT_SKIP4, p->id, p->state, actor->spr.sector(),
                               hit_x, hit_y, hit_z, hit_ang, 0);
-            np = &actorNew->s();
             nu = actorNew->u();
 
             switch (nu->ID)
@@ -8100,13 +8098,11 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->spr.sector(),
                             sActor->spr.pos.X, sActor->spr.pos.Y, ActorZOfBottom(sActor), sActor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     actorNew->spr.shade = -40;
@@ -8595,13 +8591,11 @@ int DoGrenade(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!TEST(u->Flags, SPR_BOUNCE|SPR_UNDERWATER))
     {
-        SPRITEp np;
         USERp nu;
 
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -9370,7 +9364,6 @@ int DoTracerStart(DSWActor* actor)
 int DoLaser(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
     short spawn_count = 0;
 
@@ -9397,7 +9390,6 @@ int DoLaser(DSWActor* actor)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_LaserPuff, actor->spr.sector(),
                               actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-            np = &actorNew->s();
             nu = actorNew->u();
 
             actorNew->spr.shade = -40;
@@ -9439,7 +9431,6 @@ int DoLaserStart(DSWActor* actor)
 int DoRail(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
     short spawn_count = 0;
 
@@ -9493,7 +9484,6 @@ int DoRail(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->spr.sector(),
                               actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 20);
 
-            np = &actorNew->s();
             nu = actorNew->u();
 
             actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
@@ -9595,14 +9585,11 @@ int DoRocket(DSWActor* actor)
 
     if (!u->Counter)
     {
-        SPRITEp np;
         USERp nu;
-        
 
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           pos.X, pos.Y, pos.Z, actor->spr.ang, 100);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -9701,13 +9688,11 @@ int DoMicro(DSWActor* actor)
 
     if (!u->Counter)
     {
-        SPRITEp np;
         USERp nu;
 
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         SetOwner(GetOwner(actor), actorNew);
@@ -10061,7 +10046,6 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    auto np = &actorNew->s();
     auto nu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -10077,11 +10061,11 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         if (TEST(ep->extra, SPRX_BURNABLE))
         {
             int sizez = GetSpriteSizeZ(ep) + (GetSpriteSizeZ(ep) >> 2);
-            nu->Counter = GetRepeatFromHeight(np, sizez);
+            nu->Counter = GetRepeatFromHeight(actorNew, sizez);
         }
         else
         {
-            nu->Counter = GetRepeatFromHeight(np, GetSpriteSizeZ(ep)>>1);
+            nu->Counter = GetRepeatFromHeight(actorNew, GetSpriteSizeZ(ep)>>1);
         }
     }
     else
@@ -10124,11 +10108,9 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 int SpawnBreakFlames(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    np = &actorNew->s();
     nu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -10161,12 +10143,10 @@ int SpawnBreakFlames(DSWActor* actor)
 void SpawnBreakStaticFlames(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    np = &actorNew->s();
     nu = actorNew->u();
 
     if (RandomRange(1000) > 500)
@@ -11417,7 +11397,6 @@ int DoMirvMissile(DSWActor* actor)
 int DoMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11445,7 +11424,6 @@ int DoMirv(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->spr.sector(),
                               actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, NORM_ANGLE(actor->spr.ang + angs[i]), 800);
 
-            np = &actorNew->s();
             nu = actorNew->u();
 
             nu->RotNum = 5;
@@ -11964,7 +11942,6 @@ void InitVulcanBoulder(DSWActor* actor)
 int InitSerpRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
     short ang, ang_diff, ang_start, missiles;
     short max_missiles;
@@ -11988,7 +11965,6 @@ int InitSerpRing(DSWActor* actor)
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
         auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, ang, 0);
-        np = &actorNew->s();
         nu = actorNew->u();
 
         actorNew->spr.xvel = 500;
@@ -12767,7 +12743,6 @@ int InitSumoNapalm(DSWActor* actor)
 
 int InitSumoSkull(DSWActor* actor)
 {
-    SPRITEp np;
     USERp u = actor->u(), nu;
 
     extern STATE s_SkullExplode[];
@@ -12780,7 +12755,6 @@ int InitSumoSkull(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     actorNew->spr.xvel = 500;
@@ -14744,7 +14718,6 @@ int InitSerpSpell(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 1500);
 
-        auto np = &actorNew->s();
         nu = actorNew->u();
 
         actorNew->spr.pos.Z = ActorZOfTop(actor);
@@ -14829,7 +14802,6 @@ int SpawnDemonFist(DSWActor* actor)
 int InitSerpMonstSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
     int dist;
     short i;
@@ -14853,7 +14825,6 @@ int InitSerpMonstSpell(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 500);
 
-        np = &actorNew->s();
         nu = actorNew->u();
 
         nu->spal = actorNew->spr.pal = 25; // Bright Red
@@ -18121,7 +18092,6 @@ int DoWaterSmoke(DSWActor* actor)
 int SpawnVehicleSmoke(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     if (MoveSkip2 != 0)
@@ -18130,7 +18100,6 @@ int SpawnVehicleSmoke(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_VehicleSmoke, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     nu->WaitTics = 1*120;
@@ -18157,13 +18126,11 @@ int SpawnVehicleSmoke(DSWActor* actor)
 int SpawnSmokePuff(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_WaterSmoke, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
-    np = &actorNew->s();
     nu = actorNew->u();
 
     nu->WaitTics = 1*120;

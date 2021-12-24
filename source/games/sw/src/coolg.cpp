@@ -546,13 +546,11 @@ int NewCoolg(DSWActor* actor)
 {
     USERp u = actor->u();
     USERp nu;
-    SPRITEp np;
     ANIMATOR DoActorDecide;
 
     auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 50);
 
     nu = actorNew->u();
-    np = &actorNew->s();
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
     nu->StateEnd = s_CoolgDie;

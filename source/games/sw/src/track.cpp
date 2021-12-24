@@ -311,11 +311,9 @@ void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
 
 DSWActor* TrackClonePoint(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), np;
+    SPRITEp sp = &actor->s();
 
     auto actorNew = insertActor(sp->sector(), sp->statnum);
-
-    np = &actorNew->s();
 
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;

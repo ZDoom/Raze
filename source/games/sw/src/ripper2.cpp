@@ -1215,7 +1215,6 @@ int DoRipper2StandHeart(DSWActor* actor)
 
 void Ripper2Hatch(DSWActor* actor)
 {
-    SPRITEp np;
     USERp nu;
 
 	const int MAX_RIPPER2S = 1;
@@ -1227,13 +1226,10 @@ void Ripper2Hatch(DSWActor* actor)
     for (int i = 0; i < MAX_RIPPER2S; i++)
     {
         auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
-        np = &actorNew->s();
         actorNew->spr.clear();
         ClearOwner(actorNew);
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = actor->spr.pos.Z;
-        //actorNew->spr.xrepeat = actorNew->spr.yrepeat = 36;
+        actorNew->spr.pos = actor->spr.pos;
+
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
         actorNew->spr.ang = rip_ang[i];
         actorNew->spr.pal = 0;
