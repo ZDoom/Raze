@@ -884,7 +884,6 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
 
 int SetupRipper2(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -935,7 +934,6 @@ int SetupRipper2(DSWActor* actor)
 int InitRipper2Hang(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int dist;
 
     HitInfo hit{};
@@ -947,7 +945,7 @@ int InitRipper2Hang(DSWActor* actor)
     {
         tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector(),  // Start position
+        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -1009,7 +1007,6 @@ int DoRipper2Hang(DSWActor* actor)
 int DoRipper2MoveHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -1078,7 +1075,6 @@ int DoRipper2HangJF(DSWActor* actor)
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp psp = &u->targetActor->s();
     short tang;
 
@@ -1191,7 +1187,6 @@ int DoRipper2Pain(DSWActor* actor)
 
 int DoRipper2RipHeart(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     SPRITEp tsp = &u->targetActor->s();
@@ -1207,7 +1202,6 @@ int DoRipper2RipHeart(DSWActor* actor)
 int DoRipper2StandHeart(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     NullRipper2(actor);
 
@@ -1221,8 +1215,6 @@ int DoRipper2StandHeart(DSWActor* actor)
 
 void Ripper2Hatch(DSWActor* actor)
 {
-    SPRITEp wp = &actor->s();
-
     SPRITEp np;
     USERp nu;
 
@@ -1234,13 +1226,13 @@ void Ripper2Hatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_RIPPER2S; i++)
     {
-        auto actorNew = insertActor(wp->sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         np = &actorNew->s();
         np->clear();
         ClearOwner(actorNew);
-        np->pos.X = wp->pos.X;
-        np->pos.Y = wp->pos.Y;
-        np->pos.Z = wp->pos.Z;
+        np->pos.X = actor->spr.pos.X;
+        np->pos.Y = actor->spr.pos.Y;
+        np->pos.Z = actor->spr.pos.Z;
         //np->xrepeat = np->yrepeat = 36;
         np->xrepeat = np->yrepeat = 64;
         np->ang = rip_ang[i];
@@ -1272,7 +1264,6 @@ void Ripper2Hatch(DSWActor* actor)
 int DoRipper2Move(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     
     if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
@@ -1326,10 +1317,7 @@ int InitRipper2Charge(DSWActor* actor)
 
 int ChestRipper2(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
     PlaySound(DIGI_RIPPER2CHEST, actor, v3df_follow);
-
     return 0;
 }
 

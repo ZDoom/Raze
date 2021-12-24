@@ -502,7 +502,6 @@ ACTOR_ACTION_SET SkelActionSet =
 
 int SetupSkel(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -534,20 +533,14 @@ int SetupSkel(DSWActor* actor)
 
 int DoSkelInitTeleport(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
     PlaySpriteSound(actor,attr_extra3,v3df_follow);
-
     return 0;
 }
 
 int DoSkelTeleport(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int x,y;
 
     x = actor->spr.pos.X;
@@ -579,11 +572,7 @@ int DoSkelTeleport(DSWActor* actor)
 
 int DoSkelTermTeleport(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
     return 0;
 }
 

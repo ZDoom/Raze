@@ -695,7 +695,6 @@ ACTOR_ACTION_SET SerpActionSet =
 
 int SetupSerp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -745,7 +744,7 @@ int SetupSerp(DSWActor* actor)
     u->lo_step = Z(40);
 
     u->floor_dist = u->zclip - u->lo_step;
-    u->ceiling_dist = GetSpriteSizeZ(sp) - u->zclip;
+    u->ceiling_dist = ActorSizeZ(actor) - u->zclip;
 
     return 0;
 }
@@ -766,7 +765,6 @@ int NullSerp(DSWActor* actor)
 int DoSerpMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -807,9 +805,6 @@ int DoSerpMove(DSWActor* actor)
 
 int DoDeathSpecial(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     DoMatchEverything(nullptr, actor->spr.lotag, ON);
 
     if (!SW_SHAREWARE)

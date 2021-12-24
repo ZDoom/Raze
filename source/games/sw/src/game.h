@@ -2204,6 +2204,17 @@ inline int ActorLowerZ(DSWActor* actor)
     return (GetSpriteZOfBottom(&actor->spr) - (GetSpriteSizeZ(&actor->spr) >> 2));
 }
 
+// Z size of top (TOS) and bottom (BOS) part of sprite
+inline int ActorSizeToTop(DSWActor* a)
+{
+    return ((ActorSizeZ(a)) + (tileTopOffset(a->spr.picnum) << 8)) >> 1;
+}
+
+inline int ActorSizeToBottom(DSWActor* a)
+{
+    return ((ActorSizeZ(a)) - (tileTopOffset(a->spr.picnum) << 8)) >> 1;
+}
+
 inline int ActorMid(DSWActor* actor)
 {
     return GetSpriteZOfMiddle(&actor->s());

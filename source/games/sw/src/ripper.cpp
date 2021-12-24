@@ -816,7 +816,6 @@ ACTOR_ACTION_SET RipperBrownActionSet =
 
 int SetupRipper(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -899,7 +898,6 @@ int PickJumpSpeed(DSWActor* actor, int pix_height)
 
 int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     int zh;
 
@@ -908,7 +906,7 @@ int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
     u->jump_speed = max_speed;
     u->jump_grav = 8;
 
-    zh = GetSpriteZOfTop(sp);
+    zh = ActorZOfTop(actor);
 
     while (true)
     {
@@ -932,7 +930,6 @@ int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 int InitRipperHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int dist;
 
     HitInfo hit{};
@@ -944,7 +941,7 @@ int InitRipperHang(DSWActor* actor)
     {
         tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector(),  // Start position
+        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -1005,7 +1002,6 @@ int DoRipperHang(DSWActor* actor)
 int DoRipperMoveHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -1064,7 +1060,6 @@ int DoRipperHangJF(DSWActor* actor)
 int DoRipperBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp psp = &u->targetActor->s();
     short tang;
 
@@ -1177,7 +1172,6 @@ int DoRipperPain(DSWActor* actor)
 int DoRipperRipHeart(DSWActor* actor)
 // CTW MODIFICATION END
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     SPRITEp tsp = &u->targetActor->s();
@@ -1204,25 +1198,22 @@ int DoRipperStandHeart(DSWActor* actor)
 
 void RipperHatch(DSWActor* actor)
 {
-    SPRITEp wp = &actor->s();
-
     SPRITEp np;
     USERp nu;
 	const int MAX_RIPPERS = 1;
     short rip_ang[MAX_RIPPERS];
 
     rip_ang[0] = RANDOM_P2(2048);
-    // rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
 
     for (int i = 0; i < MAX_RIPPERS; i++)
     {
-        auto actorNew = insertActor(wp->sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         np = &actorNew->s();
 		np->clear();
         ClearOwner(actorNew);
-        np->pos.X = wp->pos.X;
-        np->pos.Y = wp->pos.Y;
-        np->pos.Z = wp->pos.Z;
+        np->pos.X = actor->spr.pos.X;
+        np->pos.Y = actor->spr.pos.Y;
+        np->pos.Z = actor->spr.pos.Z;
         np->xrepeat = np->yrepeat = 64;
         np->ang = rip_ang[i];
         np->pal = 0;
