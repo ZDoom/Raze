@@ -403,13 +403,12 @@ int DoBloodSpray(DSWActor* actor)
         {
             short wall_ang;
             auto hitActor = u->coll.actor();
-            SPRITEp hsp = &hitActor->s();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hsp->ang);
+                QueueWallBlood(actor, hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -417,7 +416,7 @@ int DoBloodSpray(DSWActor* actor)
             {
                 u->xchange = u->ychange = 0;
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hsp->ang);
+                QueueWallBlood(actor, hitActor->spr.ang);
                 KillActor(actor);
                 return true;
             }
@@ -598,26 +597,23 @@ int DoPhosphorus(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            SPRITEp hsp;
             USERp hu;
 
-
             auto hitActor = u->coll.actor();
-            hsp = &hitActor->s();
             hu = hitActor->u();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
             {
-                if (TEST(hsp->extra, SPRX_BURNABLE))
+                if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(hitActor, hsp->picnum, nullptr);
+                        hu = SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
                     SpawnFireballExp(actor);
                     if (hu)
                         SpawnFireballFlames(actor, hitActor);
@@ -1047,11 +1043,10 @@ int DoCaltrops(DSWActor* actor)
             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
 
             auto hitActor = u->coll.actor();
-            auto hsp = &hitActor->s();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 10000);
             }
@@ -1326,14 +1321,14 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    auto psp = &pp->Actor()->s();
-    oclipdist = psp->clipdist;
-    psp->clipdist = 0;
+    DSWActor* plActor = pp->actor;
+    oclipdist = plActor->spr.clipdist;
+    plActor->spr.clipdist = 0;
     actorNew->spr.clipdist = 0;
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
-    psp->clipdist = uint8_t(oclipdist);
+    plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
@@ -1486,20 +1481,19 @@ int PlayerInitFlashBomb(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            auto hp = &itActor->s();
             hu = itActor->u();
 
             if (itActor == pp->Actor())
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
             if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
@@ -1542,7 +1536,6 @@ int InitFlashBomb(DSWActor* actor)
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    SPRITEp hp;
     USERp hu;
     PLAYERp pp = Player + screenpeek;
 
@@ -1553,17 +1546,16 @@ int InitFlashBomb(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
             hu = itActor->u();
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
             if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1729,14 +1721,14 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     spawnedActor->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    auto psp = &pp->Actor()->s();
-    oclipdist = psp->clipdist;
-    psp->clipdist = 0;
+    DSWActor* plActor = pp->actor;
+    oclipdist = plActor->spr.clipdist;
+    plActor->spr.clipdist = 0;
     spawnedActor->spr.clipdist = 0;
 
     MissileSetPos(spawnedActor, DoCaltrops, 1000);
 
-    psp->clipdist = uint8_t(oclipdist);
+    plActor->spr.clipdist = uint8_t(oclipdist);
     spawnedActor->spr.clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(spawnedActor->spr.xvel, spawnedActor->spr.ang);
@@ -2008,7 +2000,6 @@ int DoCarryFlag(DSWActor* actor)
     const int FLAG_DETONATE_STATE = 99;
     DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
-    SPRITEp fp = &fown->s();
     USERp fu = fown->u();
 
     DSWActor* attached = u->attachActor;
@@ -2044,34 +2035,33 @@ int DoCarryFlag(DSWActor* actor)
         // not already in detonate state
         if (u->Counter2 < FLAG_DETONATE_STATE)
         {
-            SPRITEp ap = &u->attachActor->s();
-            USERp au = u->attachActor->u();
+            USERp au = attached->u();
 
-            if (!au || au->Health <= 0)
+            if (!attached->hasU() || au->Health <= 0)
             {
                 u->Counter2 = FLAG_DETONATE_STATE;
                 u->WaitTics = SEC(1) / 2;
             }
             // if in score box, score.
-            if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
-                && ap->pal != actor->spr.pal)
+            if (attached->spr.sector()->hitag == 9000 && attached->spr.sector()->lotag == attached->spr.pal
+                && attached->spr.pal != actor->spr.pal)
             {
                 if (fown != nullptr)
                 {
-                    if (fp->lotag)      // Trigger everything if there is a lotag
-                        DoMatchEverything(nullptr, fp->lotag, ON);
+                    if (fown->spr.lotag)      // Trigger everything if there is a lotag
+                        DoMatchEverything(nullptr, fown->spr.lotag, ON);
                 }
-                if (!TEST_BOOL1(fp))
+                if (!TEST_BOOL1(fown))
                 {
                     PlaySound(DIGI_BIGITEM, u->attachActor, v3df_none);
-                    DoFlagScore(ap->pal);
-                    if (SP_TAG5(fp) > 0)
+                    DoFlagScore(attached->spr.pal);
+                    if (SP_TAG5(fown) > 0)
                     {
                         fu->filler++;
-                        if (fu->filler >= SP_TAG5(fp))
+                        if (fu->filler >= SP_TAG5(fown))
                         {
                             fu->filler = 0;
-                            DoMatchEverything(nullptr, SP_TAG6(fp), ON);
+                            DoMatchEverything(nullptr, SP_TAG6(fown), ON);
                         }
                     }
                 }
@@ -2163,7 +2153,6 @@ int DoCarryFlagNoDet(DSWActor* actor)
     USERp au = attached->u();
     DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
-    SPRITEp fp = &fown->s();
     USERp fu = fown->u();
 
 
@@ -2193,21 +2182,21 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         if (u->flagOwnerActor != nullptr)
         {
-            if (fp->lotag)              // Trigger everything if there is a lotag
-                DoMatchEverything(nullptr, fp->lotag, ON);
+            if (fown->spr.lotag)              // Trigger everything if there is a lotag
+                DoMatchEverything(nullptr, fown->spr.lotag, ON);
             fu->WaitTics = 0;           // Tell it to respawn
         }
-        if (!TEST_BOOL1(fp))
+        if (!TEST_BOOL1(fown))
         {
             PlaySound(DIGI_BIGITEM, u->attachActor, v3df_none);
             DoFlagScore(attached->spr.pal);
-            if (SP_TAG5(fp) > 0)
+            if (SP_TAG5(fown) > 0)
             {
                 fu->filler++;
-                if (fu->filler >= SP_TAG5(fp))
+                if (fu->filler >= SP_TAG5(fown))
                 {
                     fu->filler = 0;
-                    DoMatchEverything(nullptr, SP_TAG6(fp), ON);
+                    DoMatchEverything(nullptr, SP_TAG6(fown), ON);
                 }
             }
         }
@@ -2246,17 +2235,15 @@ int DoFlag(DSWActor* actor)
 
     if (hitActor)
     {
-        SPRITEp hsp = &hitActor->s();
-
         SetCarryFlag(actor);
 
         // check to see if sprite is player or enemy
-        if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
-            u->sz = hsp->pos.Z - DIV2(GetSpriteSizeZ(hsp));
+            u->sz = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1);
         }
     }
 
