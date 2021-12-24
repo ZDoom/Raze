@@ -149,54 +149,53 @@ void JS_SpriteSetup(void)
     USERp u;
 
     SWStatIterator it(STAT_DEFAULT);
-    while (auto actor = it.Next())
+    while (auto itActor = it.Next())
     {
-        short tag;
+        int tag;
 
-        sp = &actor->s();
-        tag = sp->hitag;
+        tag = itActor->spr.hitag;
 
         // Non static camera. Camera sprite will be drawn!
-        if (tag == MIRROR_CAM && sp->picnum != ST1)
+        if (tag == MIRROR_CAM && itActor->spr.picnum != ST1)
         {
             // Just change it to static, sprite has all the info I need
-            change_actor_stat(actor, STAT_SPAWN_SPOT);
+            change_actor_stat(itActor, STAT_SPAWN_SPOT);
         }
 
-        switch (sp->picnum)
+        switch (itActor->spr.picnum)
         {
         case ST1:
             if (tag == MIRROR_CAM)
             {
                 // Just change it to static, sprite has all the info I need
                 // ST1 cameras won't move with SOBJ's!
-                change_actor_stat(actor, STAT_ST1);
+                change_actor_stat(itActor, STAT_ST1);
             }
             else if (tag == MIRROR_SPAWNSPOT)
             {
                 // Just change it to static, sprite has all the info I need
-                change_actor_stat(actor, STAT_ST1);
+                change_actor_stat(itActor, STAT_ST1);
             }
             else if (tag == AMBIENT_SOUND)
             {
-                change_actor_stat(actor, STAT_AMBIENT);
+                change_actor_stat(itActor, STAT_AMBIENT);
             }
             else if (tag == TAG_ECHO_SOUND)
             {
-                change_actor_stat(actor, STAT_ECHO);
+                change_actor_stat(itActor, STAT_ECHO);
             }
             else if (tag == TAG_DRIPGEN)
             {
-                u = SpawnUser(actor, 0, nullptr);
+                u = SpawnUser(itActor, 0, nullptr);
 
                 ASSERT(u != nullptr);
                 u->RotNum = 0;
-                u->WaitTics = sp->lotag * 120;
+                u->WaitTics = itActor->spr.lotag * 120;
 
                 u->ActorActionFunc = GenerateDrips;
 
-                change_actor_stat(actor, STAT_NO_STATE);
-                SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+                change_actor_stat(itActor, STAT_NO_STATE);
+                SET(itActor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
             }
             break;
         // Sprites in editart that should play ambient sounds
@@ -211,14 +210,14 @@ void JS_SpriteSetup(void)
         case 2720:
         case 3143:
         case 3157:
-            PlaySound(DIGI_FIRE1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_FIRE1, itActor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 795:
         case 880:
-            PlaySound(DIGI_WATERFLOW1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_WATERFLOW1, itActor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 460:  // Wind Chimes
-            InitAmbient(79, actor);
+            InitAmbient(79, itActor);
             break;
 
         }
@@ -312,13 +311,12 @@ void JS_InitMirrors(void)
                     SWStatIterator it(STAT_ST1);
                     while (auto itActor = it.Next())
                     {
-                        sp = &itActor->s();
                         // if correct type and matches
-                        if (sp->hitag == MIRROR_CAM && sp->lotag == wal.hitag)
+                        if (itActor->spr.hitag == MIRROR_CAM && itActor->spr.lotag == wal.hitag)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(sp) = sp->ang;      // Set current angle to
+                            SP_TAG5(itActor) = itActor->spr.ang;      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
                         }
@@ -327,14 +325,12 @@ void JS_InitMirrors(void)
                     it.Reset(STAT_SPAWN_SPOT);
                     while (auto itActor = it.Next())
                     {
-                        sp = &itActor->s();
-
                         // if correct type and matches
-                        if (sp->hitag == MIRROR_CAM && sp->lotag == wal.hitag)
+                        if (itActor->spr.hitag == MIRROR_CAM && itActor->spr.lotag == wal.hitag)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(sp) = sp->ang;      // Set current angle to
+                            SP_TAG5(itActor) = itActor->spr.ang;      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
                         }
@@ -350,16 +346,15 @@ void JS_InitMirrors(void)
                     mirror[mirrorcnt].ismagic = true;
 
                     Found_Cam = false;
-                    if (TEST_BOOL1(&mirror[mirrorcnt].cameraActor->s()))
+                    if (TEST_BOOL1(mirror[mirrorcnt].cameraActor))
                     {
                         it.Reset(STAT_DEFAULT);
                         while (auto itActor = it.Next())
                         {
-                            sp = &itActor->s();
-                            if (sp->picnum >= CAMSPRITE && sp->picnum < CAMSPRITE + 8 &&
-                                sp->hitag == wal.hitag)
+                            if (itActor->spr.picnum >= CAMSPRITE && itActor->spr.picnum < CAMSPRITE + 8 &&
+                                itActor->spr.hitag == wal.hitag)
                             {
-                                mirror[mirrorcnt].campic = sp->picnum;
+                                mirror[mirrorcnt].campic = itActor->spr.picnum;
                                 mirror[mirrorcnt].camspriteActor = itActor;
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
@@ -374,7 +369,7 @@ void JS_InitMirrors(void)
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
                             Printf("Map Coordinates: x = %d, y = %d\n", wal.pos.X, wal.pos.Y);
-                            RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
+                            RESET_BOOL1(mirror[mirrorcnt].cameraActor);
                         }
                     }
 
@@ -543,13 +538,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 }
 
 
-                SPRITEp sp = nullptr;
                 short w;
                 int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
-
-                ASSERT(mirror[cnt].cameraActor != nullptr);
-                sp = &mirror[cnt].cameraActor->s();
+                DSWActor *camactor = mirror[cnt].cameraActor;
+                assert(camactor);
 
                 // Calculate the angle of the mirror wall
                 auto wal = mirror[cnt].mirrorWall;
@@ -563,26 +556,26 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 tdy = abs(midy - ty);
 
                 if (midx >= tx)
-                    dx = sp->pos.X - tdx;
+                    dx = camactor->spr.pos.X - tdx;
                 else
-                    dx = sp->pos.X + tdx;
+                    dx = camactor->spr.pos.X + tdx;
 
                 if (midy >= ty)
-                    dy = sp->pos.Y - tdy;
+                    dy = camactor->spr.pos.Y - tdy;
                 else
-                    dy = sp->pos.Y + tdy;
+                    dy = camactor->spr.pos.Y + tdy;
 
-                tdz = abs(tz - sp->pos.Z);
-                if (tz >= sp->pos.Z)
-                    dz = sp->pos.Z + tdz;
+                tdz = abs(tz - camactor->spr.pos.Z);
+                if (tz >= camactor->spr.pos.Z)
+                    dz = camactor->spr.pos.Z + tdz;
                 else
-                    dz = sp->pos.Z - tdz;
+                    dz = camactor->spr.pos.Z - tdz;
 
 
                 // Is it a TV cam or a teleporter that shows destination?
                 // true = It's a TV cam
                 mirror[cnt].mstate = m_normal;
-                if (TEST_BOOL1(sp))
+                if (TEST_BOOL1(camactor))
                     mirror[cnt].mstate = m_viewon;
 
                 // Show teleport destination
@@ -600,44 +593,44 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     }
 
                     // BOOL2 = Oscilate camera
-                    if (TEST_BOOL2(sp) && MoveSkip2 == 0)
+                    if (TEST_BOOL2(camactor) && MoveSkip2 == 0)
                     {
-                        if (TEST_BOOL3(sp)) // If true add increment to
+                        if (TEST_BOOL3(camactor)) // If true add increment to
                         // angle else subtract
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
+                            SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
+                            if (abs(getincangle(camactor->spr.ang, SP_TAG5(camactor))) >= SP_TAG6(camactor))
                             {
-                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
-                                RESET_BOOL3(sp);    // Reverse turn
+                                SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
+                                RESET_BOOL3(camactor);    // Reverse turn
                                 // direction.
                             }
                         }
                         else
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
+                            SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
+                            if (abs(getincangle(camactor->spr.ang, SP_TAG5(camactor))) >= SP_TAG6(camactor))
                             {
-                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
-                                SET_BOOL3(sp);      // Reverse turn
+                                SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
+                                SET_BOOL3(camactor);      // Reverse turn
                                 // direction.
                             }
                         }
                     }
-                    else if (!TEST_BOOL2(sp))
+                    else if (!TEST_BOOL2(camactor))
                     {
-                        SP_TAG5(sp) = sp->ang;      // Copy sprite angle to
+                        SP_TAG5(camactor) = camactor->spr.ang;      // Copy sprite angle to
                         // tag5
                     }
 
                     // Set the horizon value.
-                    auto camhoriz = q16horiz(clamp(IntToFixed(SP_TAG7(sp) - 100), gi->playerHorizMin(), gi->playerHorizMax()));
+                    auto camhoriz = q16horiz(clamp(IntToFixed(SP_TAG7(camactor) - 100), gi->playerHorizMin(), gi->playerHorizMax()));
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
@@ -653,13 +646,13 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                         {
                             PLAYERp cp = Player + camplayerview;
 
-                            if (TEST_BOOL11(sp) && numplayers > 1)
+                            if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
                                 drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
-                                drawroomstotile(sp->pos.X, sp->pos.Y, sp->pos.Z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(camactor->spr.pos.X, camactor->spr.pos.Y, camactor->spr.pos.Z, buildang(SP_TAG5(camactor)), camhoriz, camactor->spr.sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }
@@ -934,31 +927,31 @@ void UnlockKeyLock(short key_num, DSWActor* hitActor)
     {
         auto sp = &itActor->s();
 
-        switch (sp->picnum)
+        switch (itActor->spr.picnum)
         {
         case SKEL_LOCKED:
-            if (sp->pal == color)
+            if (itActor->spr.pal == color)
             {
                 PlaySound(DIGI_UNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 if (itActor == hitActor)
-                    sp->picnum = SKEL_UNLOCKED;
+                    itActor->spr.picnum = SKEL_UNLOCKED;
             }
             break;
         case RAMCARD_LOCKED:
-            if (sp->pal == color)
+            if (itActor->spr.pal == color)
             {
                 PlaySound(DIGI_CARDUNLOCK, itActor, v3df_doppler | v3df_dontpan);
-                sp->picnum = RAMCARD_UNLOCKED;
+                itActor->spr.picnum = RAMCARD_UNLOCKED;
             }
             break;
         case CARD_LOCKED:
-            if (sp->pal == color)
+            if (itActor->spr.pal == color)
             {
                 PlaySound(DIGI_RAMUNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 if (itActor == hitActor)
-                    sp->picnum = CARD_UNLOCKED;
+                    itActor->spr.picnum = CARD_UNLOCKED;
                 else
-                    sp->picnum = CARD_UNLOCKED+1;
+                    itActor->spr.picnum = CARD_UNLOCKED+1;
             }
             break;
         }
