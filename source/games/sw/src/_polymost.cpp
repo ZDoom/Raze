@@ -9,8 +9,6 @@ int ViewSectorInScene(sectortype* cursect, int level)
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
         if (actor->spr.hitag == level)
         {
             if (cursect == actor->spr.sector())
@@ -96,22 +94,21 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-        if (SP_TAG3(sp) == 0)
+        if (SP_TAG3(actor) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(sp) = actor->spr.sector()->ceilingpicnum;
+            SP_TAG5(actor) = actor->spr.sector()->ceilingpicnum;
             actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
-            SP_TAG4(sp) = actor->spr.sector()->ceilingstat;
-            SET(actor->spr.sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
+            SP_TAG4(actor) = actor->spr.sector()->ceilingstat;
+            SET(actor->spr.sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(actor)));
             RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
-        else if (SP_TAG3(sp) == 1)
+        else if (SP_TAG3(actor) == 1)
         {
-            SP_TAG5(sp) = actor->spr.sector()->floorpicnum;
+            SP_TAG5(actor) = actor->spr.sector()->floorpicnum;
             actor->spr.sector()->floorpicnum = SP_TAG2(actor);
-            SP_TAG4(sp) = actor->spr.sector()->floorstat;
-            SET(actor->spr.sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(sp)));
+            SP_TAG4(actor) = actor->spr.sector()->floorstat;
+            SET(actor->spr.sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(actor)));
             RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
@@ -128,17 +125,17 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             gotpic.Set(FAF_MIRROR_PIC);
         }
 
-        if (SP_TAG3(sp) == 0)
+        if (SP_TAG3(actor) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            actor->spr.sector()->ceilingpicnum = SP_TAG5(sp);
-            actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(sp));
+            actor->spr.sector()->ceilingpicnum = SP_TAG5(actor);
+            actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
             RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
-        else if (SP_TAG3(sp) == 1)
+        else if (SP_TAG3(actor) == 1)
         {
-            actor->spr.sector()->floorpicnum = SP_TAG5(sp);
-            actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));
+            actor->spr.sector()->floorpicnum = SP_TAG5(actor);
+            actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
             RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
@@ -269,7 +266,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     // Is it a TV cam or a teleporter that shows destination?
                     // true = It's a TV cam
                     mirror[cnt].mstate = m_normal;
-                    if (TEST_BOOL1(sp))
+                    if (TEST_BOOL1(actor))
                         mirror[cnt].mstate = m_viewon;
 
                     // Show teleport destination
