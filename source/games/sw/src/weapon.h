@@ -32,8 +32,16 @@ BEGIN_SW_NS
 #define NEW_ELECTRO 1
 #define HORIZ_MULT 128L
 
-#define ANG2PLAYER(pp,sp) (getangle((pp)->pos.X - (sp)->pos.X, (pp)->pos.Y - (sp)->pos.Y))
-#define ANG2SPRITE(sp,op) (getangle((sp)->pos.X - (op)->pos.X, (sp)->pos.Y - (op)->pos.Y))
+inline int AngToSprite(DSWActor* actor, DSWActor* other)
+{
+    return (getangle(actor->spr.pos.X - other->spr.pos.X, actor->spr.pos.Y - other->spr.pos.Y));
+}
+
+inline int AngToPlayer(PLAYERp player, DSWActor* other)
+{
+    return (getangle(player->pos.X - other->spr.pos.X, player->pos.Y - other->spr.pos.Y));
+}
+
 
 #define MAX_HOLE_QUEUE 64
 #define MAX_STAR_QUEUE 32
