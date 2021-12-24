@@ -33,23 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-/* #define LIGHT_Match(sp)         (SP_TAG2((sp)))                      */
-/* #define LIGHT_Type(sp)          (SP_TAG3((sp)))                      */
-/* #define LIGHT_MaxTics(sp)       (SP_TAG4((sp)))                      */
-/* #define LIGHT_MaxBright(sp)     (SP_TAG5((sp)))                      */
-/* #define LIGHT_MaxDark(sp)       (SP_TAG6((sp)))                      */
-/* #define LIGHT_ShadeInc(sp)      (SP_TAG7((sp)))                      */
-/*                                                                      */
-/* #define LIGHT_Dir(sp)           (!!(TEST((sp)->extra, SPRX_BOOL10))) */
-/* #define LIGHT_DirChange(sp)     (FLIP((sp)->extra, SPRX_BOOL10))     */
-/*                                                                      */
-/* #define LIGHT_Shade(sp)         ((sp)->shade)                        */
-/* #define LIGHT_FloorShade(sp)    ((sp)->xoffset)                      */
-/* #define LIGHT_CeilingShade(sp)  ((sp)->yoffset)                      */
-/* #define LIGHT_Tics(sp)          ((sp)->pos.Z)                            */
-/*                                                                      */
-/* #define LIGHT_DiffuseNum(sp) (SP_TAG3((sp)))                         */
-/* #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))                        */
 
 void SectorLightShade(DSWActor* actor, short intensity)
 {
@@ -123,7 +106,7 @@ void DiffuseLighting(DSWActor* actor)
         dsp = &itActor->s();
 
         // make sure matchs match
-        if (LIGHT_Match(dsp) != LIGHT_Match(sp))
+        if (LIGHT_Match(itActor) != LIGHT_Match(actor))
             continue;
 
         shade = sp->shade + ((LIGHT_DiffuseNum(dsp) + 1) * LIGHT_DiffuseMult(dsp));
@@ -150,7 +133,7 @@ void DoLightingMatch(short match, short state)
         auto u = itActor->u();
         sp = &itActor->s();
 
-        if (LIGHT_Match(sp) != match)
+        if (LIGHT_Match(itActor) != match)
             continue;
 
         switch (LIGHT_Type(sp))
@@ -276,7 +259,7 @@ void InitLighting(void)
 
         if (!TEST_BOOL9(sp))
         {
-            DoLightingMatch(LIGHT_Match(sp), !!TEST_BOOL1(sp));
+            DoLightingMatch(LIGHT_Match(actor), !!TEST_BOOL1(sp));
         }
     }
 }

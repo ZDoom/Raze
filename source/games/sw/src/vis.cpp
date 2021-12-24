@@ -39,7 +39,7 @@ BEGIN_SW_NS
 
 extern short NormalVisibility;  // player.c
 
-#define VIS_VisCur(sp) (SP_TAG2(sp))
+inline int16_t& VIS_VisCur(DSWActor* actor) { return SP_TAG2(actor); }
 #define VIS_VisDir(sp) (SP_TAG3(sp))
 #define VIS_VisGoal(sp) (SP_TAG4(sp))
 
@@ -55,23 +55,23 @@ void ProcessVisOn(void)
         if (VIS_VisDir(sp))
         {
             // get brighter
-            VIS_VisCur(sp) >>= 1;
-            //VIS_VisCur(sp) -= 16;
-            if (VIS_VisCur(sp) <= VIS_VisGoal(sp))
+            VIS_VisCur(actor) >>= 1;
+            //VIS_VisCur(actor) -= 16;
+            if (VIS_VisCur(actor) <= VIS_VisGoal(sp))
             {
-                VIS_VisCur(sp) = VIS_VisGoal(sp);
+                VIS_VisCur(actor) = VIS_VisGoal(sp);
                 VIS_VisDir(sp) ^= 1;
             }
         }
         else
         {
             // get darker
-            VIS_VisCur(sp) <<= 1;
-            VIS_VisCur(sp) += 1;
-            //VIS_VisCur(sp) += 16;
-            if (VIS_VisCur(sp) >= NormalVisibility)
+            VIS_VisCur(actor) <<= 1;
+            VIS_VisCur(actor) += 1;
+            //VIS_VisCur(actor) += 16;
+            if (VIS_VisCur(actor) >= NormalVisibility)
             {
-                VIS_VisCur(sp) = NormalVisibility;
+                VIS_VisCur(actor) = NormalVisibility;
                 auto own = GetOwner(actor);
                 if (own != nullptr)
                 {
@@ -119,8 +119,8 @@ void VisViewChange(PLAYERp pp, int *vis)
         // save off the brightest vis that you can see
         if (FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, x, y, z, sectp))
         {
-            if (VIS_VisCur(sp) < BrightestVis)
-                BrightestVis = VIS_VisCur(sp);
+            if (VIS_VisCur(actor) < BrightestVis)
+                BrightestVis = VIS_VisCur(actor);
         }
     }
 
@@ -129,7 +129,7 @@ void VisViewChange(PLAYERp pp, int *vis)
 
 void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int amt)
 {
-    SPRITEp sp;
+    DSWActor* actorNew = nullptr;
     if (parentActor != nullptr)
     {
         auto psp = &parentActor->s();
@@ -151,17 +151,16 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
             }
         }
 
-        auto actorNew = insertActor(psp->sector(), STAT_VIS_ON);
-        sp = &actorNew->s();
+        actorNew = insertActor(psp->sector(), STAT_VIS_ON);
         SetOwner(parentActor, actorNew);
 
 
         ASSERT(parentActor->hasU());
         SET(pu->Flags2, SPR2_CHILDREN);
 
-        sp->pos.X = psp->pos.X;
-        sp->pos.Y = psp->pos.Y;
-        sp->pos.Z = psp->pos.Z;
+        actorNew->spr.pos.X = psp->pos.X;
+        actorNew->spr.pos.Y = psp->pos.Y;
+        actorNew->spr.pos.Z = psp->pos.Z;
 
         SET(pu->Flags2, SPR2_VIS_SHADING);
     }
@@ -170,20 +169,19 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         if (sect->floorpal == PALETTE_FOG)
             return;
 
-        auto actorNew = insertActor(sect, STAT_VIS_ON);
-        sp = &actorNew->s();
+        actorNew = insertActor(sect, STAT_VIS_ON);
 
-        sp->pos.X = x;
-        sp->pos.Y = y;
-        sp->pos.Z = z - Z(20);
+        actorNew->spr.pos.X = x;
+        actorNew->spr.pos.Y = y;
+        actorNew->spr.pos.Z = z - Z(20);
     }
 
-    sp->cstat = 0;
-    sp->extra = 0;
+    actorNew->spr.cstat = 0;
+    actorNew->spr.extra = 0;
 
-    VIS_VisDir(sp) = 1;
-    VIS_VisCur(sp) = NormalVisibility;
-    VIS_VisGoal(sp) = amt;
+    VIS_VisDir(&actorNew->spr) = 1;
+    VIS_VisCur(actorNew) = NormalVisibility;
+    VIS_VisGoal(&actorNew->spr) = amt;
 }
 
 END_SW_NS

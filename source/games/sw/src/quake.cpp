@@ -37,7 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define QUAKE_Match(sp) (SP_TAG2(sp))
+inline int16_t& QUAKE_Match(DSWActor* actor) { return SP_TAG2(actor); }
 #define QUAKE_Zamt(sp) (SP_TAG3(sp))
 #define QUAKE_Radius(sp) (SP_TAG4(sp))
 #define QUAKE_Duration(sp) (SP_TAG5(sp))
@@ -77,7 +77,7 @@ void DoQuakeMatch(short match)
     {
         auto sp = &actor->s();
 
-        if (QUAKE_Match(sp) == match)
+        if (QUAKE_Match(actor) == match)
         {
             if ((int16_t)QUAKE_WaitTics(sp) > 0)
             {
@@ -246,7 +246,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
     sp->cstat = 0;
     sp->extra = 0;
 
-    QUAKE_Match(sp) = -1;
+    QUAKE_Match(actorNew) = -1;
     QUAKE_Zamt(sp) = uint8_t(amt);
     QUAKE_Radius(sp) = radius/8;
     QUAKE_Duration(sp) = tics;

@@ -170,7 +170,7 @@ bool CanSeeWallMove(SPRITEp wp, short match)
     {
         sp = &actor->s();
 
-        if (SP_TAG2(sp) == match)
+        if (SP_TAG2(actor) == match)
         {
             found = true;
 
@@ -192,7 +192,7 @@ int DoWallMoveMatch(short match)
     SWStatIterator it(STAT_WALL_MOVE);
     while (auto actor = it.Next())
     {
-        if (SP_TAG2(&actor->s()) == match)
+        if (SP_TAG2(actor) == match)
         {
             found = true;
             DoWallMove(actor);

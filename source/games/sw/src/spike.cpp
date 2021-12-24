@@ -104,35 +104,34 @@ void SetSpikeActive(DSWActor* actor)
     InterpSectorSprites(sp->sector(), true);
 
     // play activate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
     SET(u->Flags, SPR_ACTIVE);
     u->Tics = 0;
 
     // moving to the ON position
     if (u->z_tgt == sp->pos.Z)
-        VatorSwitch(SP_TAG2(sp), ON);
+        VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
     if (u->z_tgt == u->sz)
-        VatorSwitch(SP_TAG2(sp), OFF);
+        VatorSwitch(SP_TAG2(actor), false);
 }
 
 void SetSpikeInactive(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
-    SECTORp sectp = sp->sector();
+    SECTORp sectp = actor->spr.sector();
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StopInterpolation(sp->sector(), Interp_Sect_Ceilingheinum);
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+        StopInterpolation(sectp, Interp_Sect_Ceilingheinum);
     else
-        StopInterpolation(sp->sector(), Interp_Sect_Floorheinum);
+        StopInterpolation(sectp, Interp_Sect_Floorheinum);
 
-    InterpSectorSprites(sp->sector(), false);
+    InterpSectorSprites(sectp, false);
 
     // play activate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
     RESET(u->Flags, SPR_ACTIVE);
 }
@@ -150,7 +149,7 @@ void DoSpikeOperate(sectortype* sect)
 
         if (fsp->statnum == STAT_SPIKE && SP_TAG1(actor) == SECT_SPIKE && SP_TAG3(fsp) == 0)
         {
-            match = SP_TAG2(fsp);
+            match = SP_TAG2(actor);
             if (match > 0)
             {
                 if (!TestSpikeMatchActive(match))
@@ -168,24 +167,16 @@ void DoSpikeOperate(sectortype* sect)
 // returns first spike found
 void DoSpikeMatch(short match)
 {
-    USERp fu;
-    SPRITEp fsp;
-
     SWStatIterator it(STAT_SPIKE);
     while (auto actor = it.Next())
     {
-        fsp = &actor->s();
-
-        if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
-            if (TEST(fu->Flags, SPR_ACTIVE))
+            if (actor->user.Flags & SPR_ACTIVE)
             {
                 ReverseSpike(actor);
                 continue;
             }
-
             SetSpikeActive(actor);
         }
     }
@@ -202,7 +193,7 @@ bool TestSpikeMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
@@ -334,7 +325,7 @@ int DoSpike(DSWActor* actor)
         // in the OFF position
         if (u->z_tgt == u->sz)
         {
-            short match = SP_TAG2(sp);
+            short match = SP_TAG2(actor);
 
             // change target
             u->jump_speed = u->vel_tgt;

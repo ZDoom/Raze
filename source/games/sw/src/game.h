@@ -2102,8 +2102,8 @@ END_SW_NS
 BEGIN_SW_NS
 
 // Defines for reading in ST1 sprite tagging
-inline int SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
-#define SP_TAG2(sp) ((sp)->lotag)
+inline int16_t SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
+inline int16_t& SP_TAG2(DSWActor* actor) { return actor->spr.lotag; }
 #define SP_TAG3(sp) ((sp)->clipdist)
 #define SP_TAG4(sp) ((sp)->ang)
 #define SP_TAG5(sp) ((sp)->xvel)

@@ -461,7 +461,7 @@ JS_ProcessEchoSpot()
 
         if (dist <= SP_TAG4(tp)) // tag4 = ang
         {
-            reverb = SP_TAG2(tp);
+            reverb = SP_TAG2(actor);
             if (reverb > 200) reverb = 200;
             if (reverb < 100) reverb = 100;
 

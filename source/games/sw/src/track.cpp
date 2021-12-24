@@ -1119,10 +1119,10 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 case SO_SCALE_POINT_INFO:
 
                     memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));
-                    sop->scale_point_base_speed = SP_TAG2(sp);
+                    sop->scale_point_base_speed = SP_TAG2(actor);
                     for (j = 0; j < (int)SIZ(sop->scale_point_speed); j++)
                     {
-                        sop->scale_point_speed[j] = SP_TAG2(sp);
+                        sop->scale_point_speed[j] = SP_TAG2(actor);
                     }
 
                     if (SP_TAG4(sp))
@@ -1137,7 +1137,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_SCALE_INFO:
                     SET(sop->flags, SOBJ_DYNAMIC);
-                    sop->scale_speed = SP_TAG2(sp);
+                    sop->scale_speed = SP_TAG2(actor);
                     sop->scale_dist_min = -SP_TAG5(sp);
                     sop->scale_dist_max = SP_TAG6(sp);
 
@@ -1222,7 +1222,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_MAX_DAMAGE:
-                    u->MaxHealth = SP_TAG2(sp);
+                    u->MaxHealth = SP_TAG2(actor);
                     if (SP_TAG5(sp) != 0)
                         sop->max_damage = SP_TAG5(sp);
                     else
@@ -1241,7 +1241,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_DRIVABLE_ATTRIB:
 
-                    sop->drive_angspeed = SP_TAG2(sp);
+                    sop->drive_angspeed = SP_TAG2(actor);
                     sop->drive_angspeed <<= 5;
                     sop->drive_angslide = SP_TAG3(sp);
                     if (sop->drive_angslide <= 0 || sop->drive_angslide == 32)

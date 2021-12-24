@@ -109,18 +109,18 @@ void SetVatorActive(DSWActor* actor)
     InterpSectorSprites(sp->sector(), true);
 
     // play activate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
     SET(u->Flags, SPR_ACTIVE);
     u->Tics = 0;
 
     // moving to the ON position
     if (u->z_tgt == sp->pos.Z)
-        VatorSwitch(SP_TAG2(sp), ON);
+        VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
     if (u->z_tgt == u->sz)
-        VatorSwitch(SP_TAG2(sp), OFF);
+        VatorSwitch(SP_TAG2(actor), false);
 }
 
 void SetVatorInactive(DSWActor* actor)
@@ -137,7 +137,7 @@ void SetVatorInactive(DSWActor* actor)
     InterpSectorSprites(sp->sector(), false);
 
     // play inactivate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
     RESET(u->Flags, SPR_ACTIVE);
 }
@@ -165,7 +165,7 @@ void DoVatorOperate(PLAYERp pp, sectortype* sect)
                 continue;
             }
 
-            match = SP_TAG2(fsp);
+            match = SP_TAG2(actor);
             if (match > 0)
             {
                 if (!TestVatorMatchActive(match))
@@ -203,7 +203,7 @@ void DoVatorMatch(PLAYERp pp, short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
@@ -252,7 +252,7 @@ bool TestVatorMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
@@ -439,7 +439,7 @@ int DoVator(DSWActor* actor)
         // in the OFF position
         if (u->z_tgt == u->sz)
         {
-            short match = SP_TAG2(sp);
+            short match = SP_TAG2(actor);
 
             // change target
             u->jump_speed = u->vel_tgt;

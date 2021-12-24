@@ -99,27 +99,26 @@ void SetSlidorActive(DSWActor* actor)
     DoSlidorInterp(actor, StartInterpolation);
 
     // play activate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
     SET(u->Flags, SPR_ACTIVE);
     u->Tics = 0;
 
     // moving to the OFF position
     if (r->tgt == 0)
-        VatorSwitch(SP_TAG2(sp), OFF);
+        VatorSwitch(SP_TAG2(actor), false);
     else
-        VatorSwitch(SP_TAG2(sp), ON);
+        VatorSwitch(SP_TAG2(actor), true);
 }
 
 void SetSlidorInactive(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     DoSlidorInterp(actor, StopInterpolation);
 
     // play inactivate sound
-    DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
+    DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
     RESET(u->Flags, SPR_ACTIVE);
 }
@@ -151,7 +150,7 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
@@ -205,7 +204,7 @@ bool TestSlidorMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
@@ -492,7 +491,7 @@ int DoSlidor(DSWActor* actor)
         // If ang is CLOSED then
         if (r->pos == 0)
         {
-            short match = SP_TAG2(sp);
+            short match = SP_TAG2(actor);
 
             // new tgt is OPEN (open)
             r->speed = r->orig_speed;

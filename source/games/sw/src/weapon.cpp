@@ -2806,8 +2806,8 @@ int DoLavaErupt(DSWActor* actor)
         // Counter controls the volume of lava erupting
         // starts out slow and increases to a max
         u->Counter += synctics;
-        if (u->Counter > SP_TAG2(sp))
-            u->Counter = SP_TAG2(sp);
+        if (u->Counter > SP_TAG2(actor))
+            u->Counter = SP_TAG2(actor);
 
         if ((RANDOM_P2(1024<<6)>>6) < u->Counter)
         {
@@ -7463,7 +7463,7 @@ int DoExpDamageTest(DSWActor* actor)
         if (TEST_BOOL1(&actor->spr))
             continue;
 
-        if (!CanSeeWallMove(wp, SP_TAG2(&actor->spr)))
+        if (!CanSeeWallMove(wp, SP_TAG2(actor)))
             continue;
 
         if (dist < found_dist)
@@ -7475,17 +7475,16 @@ int DoExpDamageTest(DSWActor* actor)
 
     if (found_act)
     {
-        auto found_sp = &found_act->s();
-        if (SP_TAG2(found_sp) == 0)
+        if (SP_TAG2(found_act) == 0)
         {
             // just do one
             DoWallMove(found_act);
         }
         else
         {
-            if (DoWallMoveMatch(SP_TAG2(found_sp)))
+            if (DoWallMoveMatch(SP_TAG2(found_act)))
             {
-                DoSpawnSpotsForDamage(SP_TAG2(found_sp));
+                DoSpawnSpotsForDamage(SP_TAG2(found_act));
             }
         }
     }
@@ -16798,12 +16797,12 @@ int InitSobjGun(PLAYERp pp)
         if (sp->statnum == STAT_SO_SHOOT_POINT)
         {
             // match when firing
-            if (SP_TAG2(sp))
+            if (SP_TAG2(actor))
             {
-                DoMatchEverything(pp, SP_TAG2(sp), -1);
+                DoMatchEverything(pp, SP_TAG2(actor), -1);
                 if (TEST_BOOL1(sp))
                 {
-                    SP_TAG2(sp) = 0;
+                    SP_TAG2(actor) = 0;
                 }
             }
 

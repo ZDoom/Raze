@@ -536,8 +536,7 @@ DSWActor* FindBreakSpriteMatch(int match)
     SWStatIterator it(STAT_BREAKABLE);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-        if (SP_TAG2(sp) == match && actor->spr.picnum == ST1)
+        if (SP_TAG2(actor) == match && actor->spr.picnum == ST1)
         {
             return actor;
         }

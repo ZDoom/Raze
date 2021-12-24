@@ -125,7 +125,7 @@ void CopySectorMatch(int match)
         {
             src_sp = &sActor->s();
 
-            if (SP_TAG2(src_sp) == SP_TAG2(dest_sp) &&
+            if (SP_TAG2(sActor) == SP_TAG2(dActor) &&
                 SP_TAG3(src_sp) == SP_TAG3(dest_sp))
             {
                 ssectp = src_sp->sector();

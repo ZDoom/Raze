@@ -142,7 +142,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
         if (SP_TAG5(sp))
         {
             short ndx = 0;
-            match_rand[ndx++] = SP_TAG2(sp);
+            match_rand[ndx++] = SP_TAG2(sp_from);
             match_rand[ndx++] = SP_TAG5(sp);
             if (SP_TAG6(sp))
                 match_rand[ndx++] = SP_TAG6(sp);

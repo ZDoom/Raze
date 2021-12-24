@@ -1842,7 +1842,7 @@ void SpriteSetup(void)
                 case SLIDE_SECTOR:
                     sectp->u_defined = true;
                     SET(sectp->flags, SECTFU_SLIDE_SECTOR);
-                    sectp->speed = SP_TAG2(sp);
+                    sectp->speed = SP_TAG2(actor);
                     KillActor(actor);
                     break;
 
@@ -2659,7 +2659,7 @@ void SpriteSetup(void)
                 case PLAX_GLOB_Z_ADJUST:
                 {
                     SET(sp->sector()->extra, SECTFX_Z_ADJUST);
-                    PlaxCeilGlobZadjust = SP_TAG2(sp);
+                    PlaxCeilGlobZadjust = SP_TAG2(actor);
                     PlaxFloorGlobZadjust = SP_TAG3(sp);
                     KillActor(actor);
                     break;
@@ -3614,7 +3614,7 @@ int ActorCoughItem(DSWActor* actor)
             SP_TAG3(np) = 68; // Match number
 
         // match
-        SP_TAG2(np) = -1;
+        SP_TAG2(actorNew) = -1;
         // kill
         RESET_BOOL1(np);
         SpawnItemsMatch(-1);
@@ -3643,7 +3643,7 @@ int ActorCoughItem(DSWActor* actor)
         SP_TAG3(np) = 69; // Match number
 
         // match
-        SP_TAG2(np) = -1;
+        SP_TAG2(actorNew) = -1;
         // kill
         RESET_BOOL1(np);
         SpawnItemsMatch(-1);
@@ -3672,7 +3672,7 @@ int ActorCoughItem(DSWActor* actor)
         SP_TAG3(np) = 70; // Match number
 
         // match
-        SP_TAG2(np) = -1;
+        SP_TAG2(actorNew) = -1;
         // kill
         RESET_BOOL1(np);
         SpawnItemsMatch(-1);
@@ -3738,7 +3738,7 @@ int ActorCoughItem(DSWActor* actor)
             }
 
             // match
-            SP_TAG2(np) = -1;
+            SP_TAG2(actorNew) = -1;
             // kill
             RESET_BOOL1(np);
             SpawnItemsMatch(-1);
@@ -3796,7 +3796,7 @@ int ActorCoughItem(DSWActor* actor)
         }
 
         // match
-        SP_TAG2(np) = -1;
+        SP_TAG2(actorNew) = -1;
         // kill
         RESET_BOOL1(np);
         SpawnItemsMatch(-1);
@@ -3852,7 +3852,7 @@ int ActorCoughItem(DSWActor* actor)
         }
 
         // match
-        SP_TAG2(np) = -1;
+        SP_TAG2(actorNew) = -1;
         // kill
         RESET_BOOL1(np);
         SpawnItemsMatch(-1);
@@ -3872,7 +3872,7 @@ int SpawnItemsMatch(short match)
     {
         sip = &itActor->s();
 
-        if (SP_TAG2(sip) != match)
+        if (SP_TAG2(itActor) != match)
             continue;
 
         switch (SP_TAG3(sip))

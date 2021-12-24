@@ -1013,7 +1013,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
     {
         sp = &actor->s();
 
-        if (SP_TAG2(sp) == match && !TEST_BOOL6(sp))
+        if (SP_TAG2(actor) == match && !TEST_BOOL6(sp))
         {
             short snd[3];
 
@@ -1084,7 +1084,7 @@ void DoSoundSpotStopSound(short match)
         auto sp = &actor->s();
 
         // found match and is a follow type
-        if (SP_TAG2(sp) == match && TEST_BOOL2(sp))
+        if (SP_TAG2(actor) == match && TEST_BOOL2(sp))
         {
             DeleteNoSoundOwner(actor);
         }
@@ -1100,7 +1100,7 @@ void DoStopSoundSpotMatch(short match)
     {
         sp = &actor->s();
 
-        if (SP_TAG2(sp) == match)
+        if (SP_TAG2(actor) == match)
         {
             DoSoundSpotStopSound(SP_TAG5(sp));
         }
@@ -1308,7 +1308,7 @@ void DoChangorMatch(short match)
         auto sp = &actor->s();
         auto sectp = sp->sector();
 
-        if (SP_TAG2(sp) != match)
+        if (SP_TAG2(actor) != match)
             continue;
 
         if (TEST_BOOL1(sp))

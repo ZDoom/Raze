@@ -35,7 +35,7 @@ void DoLighting(void);
 
 // Descriptive Light variables mapped from other variables
 
-#define LIGHT_Match(sp)         (SP_TAG2((sp)))
+inline int LIGHT_Match(DSWActor* sp) { return SP_TAG2(sp); }
 #define LIGHT_Type(sp)          (SP_TAG3((sp)))
 #define LIGHT_MaxTics(sp)       (SP_TAG4((sp)))
 inline int8_t LIGHT_MaxBright(spritetype* sp) { return int8_t(SP_TAG5(sp)); }
