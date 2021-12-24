@@ -501,7 +501,6 @@ int DoCoolgMatchPlayerZ(DSWActor* actor);
 
 void CoolgCommon(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     actor->spr.clipdist = (200) >> 2;
@@ -518,7 +517,6 @@ void CoolgCommon(DSWActor* actor)
 
 int SetupCoolg(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -547,7 +545,6 @@ int SetupCoolg(DSWActor* actor)
 int NewCoolg(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp nu;
     SPRITEp np;
     ANIMATOR DoActorDecide;
@@ -616,7 +613,6 @@ int NullCoolg(DSWActor* actor)
 
 int DoCoolgMatchPlayerZ(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USER* u = actor->u();
     int zdiff,zdist;
     int loz,hiz;
@@ -696,7 +692,6 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 int InitCoolgCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoCoolgCircle;
 
@@ -728,7 +723,6 @@ int InitCoolgCircle(DSWActor* actor)
 int DoCoolgCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx,ny,bound;
 
 
@@ -770,9 +764,7 @@ int DoCoolgCircle(DSWActor* actor)
 int DoCoolgDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
-
 
     RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
     RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
@@ -816,7 +808,6 @@ int DoCoolgDeath(DSWActor* actor)
 int DoCoolgMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if ((u->ShellNum -= ACTORMOVETICS) <= 0)
     {

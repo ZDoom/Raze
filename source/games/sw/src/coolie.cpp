@@ -373,7 +373,6 @@ ACTOR_ACTION_SET CoolieActionSet =
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     unsigned int wpn;
     int wpn_cnt;
     int depth = 0;
@@ -413,7 +412,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     u->lo_step = Z(32);
 
     u->floor_dist = u->zclip - u->lo_step;
-    u->ceiling_dist = GetSpriteSizeZ(sp) - u->zclip;
+    u->ceiling_dist = ActorSizeZ(actor) - u->zclip;
 
     u->Radius = 400;
 
@@ -486,7 +485,6 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
 int SetupCoolie(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -569,7 +567,6 @@ int NullCoolie(DSWActor* actor)
 int DoCoolieMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -598,8 +595,6 @@ int DoCoolieMove(DSWActor* actor)
 
 int InitCoolieCharge(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
     if (RANDOM_P2(1024) > 950)
         PlaySound(DIGI_COOLIESCREAM, actor, v3df_follow);
 

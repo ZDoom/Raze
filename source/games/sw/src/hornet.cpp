@@ -289,7 +289,6 @@ int DoHornetMatchPlayerZ(DSWActor* actor);
 
 int SetupHornet(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -347,7 +346,6 @@ enum { HORNET_BOB_AMT = (Z(16)) };
 
 int DoHornetMatchPlayerZ(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
@@ -420,7 +418,6 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 int InitHornetCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoHornetCircle;
 
@@ -452,7 +449,6 @@ int InitHornetCircle(DSWActor* actor)
 int DoHornetCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx,ny,bound;
 
     actor->spr.ang = NORM_ANGLE(actor->spr.ang + u->Counter2);
@@ -504,7 +500,6 @@ int DoHornetCircle(DSWActor* actor)
 int DoHornetDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
@@ -548,7 +543,7 @@ int DoHornetDeath(DSWActor* actor)
 int DoCheckSwarm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), tsp;
+    SPRITEp tsp;
     USERp tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
@@ -594,7 +589,6 @@ int DoCheckSwarm(DSWActor* actor)
 int DoHornetMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2

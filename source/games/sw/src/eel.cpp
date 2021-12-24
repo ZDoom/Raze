@@ -359,7 +359,6 @@ int DoEelMatchPlayerZ(DSWActor* actor);
 
 void EelCommon(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     actor->spr.clipdist = (100) >> 2;
@@ -376,7 +375,6 @@ void EelCommon(DSWActor* actor)
 
 int SetupEel(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -427,7 +425,6 @@ int NullEel(DSWActor* actor)
 int DoEelMatchPlayerZ(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
     int loz,hiz;
@@ -527,7 +524,6 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 int DoEelDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
     {

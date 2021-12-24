@@ -712,7 +712,6 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
 
 int SetupGirlNinja(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -786,7 +785,6 @@ int DoGirlNinjaMove(DSWActor* actor)
 int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -840,7 +838,6 @@ int DoGirlNinjaPain(DSWActor* actor)
 int DoGirlNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (u->spal == PALETTE_PLAYER5)
     {

@@ -483,7 +483,6 @@ ACTOR_ACTION_SET GoroActionSet =
 
 int SetupGoro(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
