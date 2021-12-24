@@ -11539,7 +11539,6 @@ int DoRing(DSWActor* actor)
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
     PLAYERp pp = own->user.PlayerP;;
-    SPRITEp so = &own->s();
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -11554,12 +11553,12 @@ int DoRing(DSWActor* actor)
     }
 
     // move the center with the player
-    actor->spr.pos.X = so->pos.X;
-    actor->spr.pos.Y = so->pos.Y;
+    actor->spr.pos.X = own->spr.pos.X;
+    actor->spr.pos.Y = own->spr.pos.Y;
     if (pp)
         actor->spr.pos.Z = pp->pos.Z + Z(20);
     else
-        actor->spr.pos.Z = GetSpriteZOfMiddle(so) + Z(30);
+        actor->spr.pos.Z = ActorZOfMiddle(own) + Z(30);
 
     // go out until its time to come back in
     if (u->Counter2 == false)
@@ -12492,7 +12491,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, GetSpriteZOfMiddle(psp), psp->sector()))
+                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, ActorZOfMiddle(plActor), psp->sector()))
                         DoDamage(itActor, plActor);
                     if (face == 190)
                     {
@@ -12775,21 +12774,19 @@ int InitSumoStompAttack(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            tsp = &itActor->s();
-
             if (itActor != u->targetActor)
                 break;
 
-            if (!TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, tsp->pos.X, tsp->pos.Y);
+            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
 
             reach = 16384;
 
             if (dist < CloseRangeDist(itActor, actor, reach))
             {
-                if (FAFcansee(tsp->pos.X,tsp->pos.Y,GetSpriteZOfMiddle(tsp),tsp->sector(),actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector()))
+                if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
                     DoDamage(itActor, actor);
             }
         }

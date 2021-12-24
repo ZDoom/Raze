@@ -3581,7 +3581,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
         actorNew->spr.pos.Y = sp->pos.Y;
-        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3622,7 +3622,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
         actorNew->spr.pos.Y = sp->pos.Y;
-        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3650,7 +3650,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
         actorNew->spr.pos.Y = sp->pos.Y;
-        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3681,7 +3681,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew->spr.extra = 0;
             actorNew->spr.pos.X = sp->pos.X;
             actorNew->spr.pos.Y = sp->pos.Y;
-            actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+            actorNew->spr.pos.Z = ActorZOfMiddle(actor);
             actorNew->spr.ang = 0;
             actorNew->spr.extra = 0;
 
@@ -3743,7 +3743,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.extra = 0;
         actorNew->spr.pos.X = sp->pos.X;
         actorNew->spr.pos.Y = sp->pos.Y;
-        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -5988,7 +5988,7 @@ KeyMain:
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
-            nu->sz = GetSpriteZOfMiddle(&pp->Actor()->s());  // Set mid way up who it hit
+            nu->sz = ActorZOfMiddle(pp->Actor());  // Set mid way up who it hit
             nu->spal = actorNew->spr.pal = sp->pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag

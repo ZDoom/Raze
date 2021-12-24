@@ -2011,15 +2011,14 @@ int DoCarryFlag(DSWActor* actor)
     SPRITEp fp = &fown->s();
     USERp fu = fown->u();
 
+    DSWActor* attached = u->attachActor;
 
     // if no Owner then die
-    if (u->attachActor != nullptr)
+    if (attached != nullptr)
     {
-        SPRITEp ap = &u->attachActor->s();
-
-        vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
+        vec3_t pos = { attached->spr.pos.X, attached->spr.pos.Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.ang = NORM_ANGLE(ap->ang + 1536);
+        actor->spr.ang = NORM_ANGLE(attached->spr.ang + 1536);
     }
 
     // not activated yet
@@ -2160,8 +2159,8 @@ int DoCarryFlagNoDet(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    SPRITEp ap = &u->attachActor->s();
-    USERp au = u->attachActor->u();
+    DSWActor* attached = u->attachActor;
+    USERp au = attached->u();
     DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
     SPRITEp fp = &fown->s();
@@ -2172,12 +2171,12 @@ int DoCarryFlagNoDet(DSWActor* actor)
         fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
 
     // if no Owner then die
-    if (ap != nullptr)
+    if (attached != nullptr)
     {
-        vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
+        vec3_t pos = { attached->spr.pos.X, attached->spr.pos.Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.ang = NORM_ANGLE(ap->ang + 1536);
-        actor->spr.pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
+        actor->spr.ang = NORM_ANGLE(attached->spr.ang + 1536);
+        actor->spr.pos.Z = attached->spr.pos.Z - (ActorSizeZ(attached) >> 1);
     }
 
     if (!au || au->Health <= 0)

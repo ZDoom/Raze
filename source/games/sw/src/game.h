@@ -266,11 +266,6 @@ inline int GetSpriteZOfBottom(const spritetypebase* sp)
 }
 
 // mid and upper/lower sprite calculations
-inline int GetSpriteZOfMiddle(const spritetypebase* sp)
-{
-    return (GetSpriteZOfTop(sp) + GetSpriteZOfBottom(sp)) >> 1;
-}
-
 constexpr int Z(int value)
 {
     return value << 8;
@@ -2181,7 +2176,6 @@ inline int ActorZOfMiddle(DSWActor* actor)
     return (ActorZOfTop(actor) + ActorZOfBottom(actor)) >> 1;
 }
 
-
 inline int ActorSizeZ(DSWActor* actor)
 {
     return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;
@@ -2206,11 +2200,6 @@ inline int ActorSizeToTop(DSWActor* a)
 inline int ActorSizeToBottom(DSWActor* a)
 {
     return ((ActorSizeZ(a)) - (tileTopOffset(a->spr.picnum) << 8)) >> 1;
-}
-
-inline int ActorMid(DSWActor* actor)
-{
-    return GetSpriteZOfMiddle(&actor->s());
 }
 
 inline int ActorSizeX(DSWActor* sp)

@@ -347,7 +347,6 @@ enum { HORNET_BOB_AMT = (Z(16)) };
 int DoHornetMatchPlayerZ(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
     int loz,hiz;
     
@@ -355,7 +354,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about u->sz - this is the z mid point
 
-    zdiff = (GetSpriteZOfMiddle(tsp)) - u->sz;
+    zdiff = (ActorZOfMiddle(u->targetActor)) - u->sz;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(200)); // put a random amount
