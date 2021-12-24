@@ -1949,7 +1949,7 @@ void CopySectorMatch(int match);  // copysect.c
 
 int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(DSWActor* sp); // wallmove.c
-bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
+bool CanSeeWallMove(DSWActor* wp,int match);    // wallmove.c
 
 void DoSpikeOperate(sectortype* sect); // spike.c
 void SetSpikeActive(DSWActor*);   // spike.c

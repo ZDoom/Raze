@@ -7105,7 +7105,6 @@ const char *DeathString(DSWActor* actor)
 int DoDamageTest(DSWActor* actor)
 {
     auto wu = actor->u();
-    SPRITEp wp = &actor->s();
 
     USERp u;
     int i;
@@ -7121,7 +7120,7 @@ int DoDamageTest(DSWActor* actor)
             u = itActor->u();
 
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
 
@@ -7135,7 +7134,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (wu->Radius > 200)
             {
-                if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+                if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
                     continue;
             }
 
@@ -7171,7 +7170,6 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
 
 int DoFlamesDamageTest(DSWActor* actor)
 {
-    SPRITEp wp = &actor->s();
     USERp wu = actor->u();
 
     USERp u;
@@ -7198,7 +7196,7 @@ int DoFlamesDamageTest(DSWActor* actor)
                 continue;
             }
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
@@ -7209,12 +7207,12 @@ int DoFlamesDamageTest(DSWActor* actor)
             if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
                 continue;
 
-            if (TEST(wp->cstat, CSTAT_SPRITE_INVISIBLE))
+            if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 continue;
 
             if (wu->Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,GetSpriteZOfMiddle(wp),itActor->spr.sector(),wp->pos.X,wp->pos.Y,GetSpriteZOfMiddle(wp),wp->sector()))
+                if (FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorZOfMiddle(actor),itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector()))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -7310,7 +7308,6 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
 int DoExpDamageTest(DSWActor* actor)
 {
     auto wu = actor->u();
-    SPRITEp wp = &actor->s();
 
     USERp u;
     short i, stat;
@@ -7331,7 +7328,7 @@ int DoExpDamageTest(DSWActor* actor)
 
     max_stat = SIZ(StatDamageList);
     // don't check for mines if the weapon is a mine
-    if (wp->statnum == STAT_MINE_STUCK)
+    if (actor->spr.statnum == STAT_MINE_STUCK)
         max_stat--;
 
     for (stat = 0; stat < max_stat; stat++)
@@ -7341,7 +7338,7 @@ int DoExpDamageTest(DSWActor* actor)
         {
             u = itActor->u();
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
@@ -7355,7 +7352,7 @@ int DoExpDamageTest(DSWActor* actor)
             }
             else
             {
-                if ((unsigned)FindDistance3D(itActor->spr.pos.X - wp->pos.X, itActor->spr.pos.Y - wp->pos.Y, itActor->spr.pos.Z - wp->pos.Z) > wu->Radius + u->Radius)
+                if ((unsigned)FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, itActor->spr.pos.Z - actor->spr.pos.Z) > wu->Radius + u->Radius)
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
@@ -7364,8 +7361,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector()) &&
-                    !FAFcansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorLowerZ(actor), itActor->spr.sector()))
+                if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector()) &&
+                    !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorLowerZ(actor), itActor->spr.sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -7376,7 +7373,7 @@ int DoExpDamageTest(DSWActor* actor)
     if (wu->ID == MUSHROOM_CLOUD) return 0;   // Central Nuke doesn't break stuff
     // Only secondaries do that
 
-    TraverseBreakableWalls(wp->sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->ang, wu->Radius);
+    TraverseBreakableWalls(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, wu->Radius);
 
     break_count = 0;
     max_stat = SIZ(StatBreakList);
@@ -7388,15 +7385,15 @@ int DoExpDamageTest(DSWActor* actor)
         {
             u = itActor->u();
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius)
                 continue;
 
-            dist = FindDistance3D(itActor->spr.pos.X - wp->pos.X, itActor->spr.pos.Y - wp->pos.Y, ActorZOfMiddle(itActor) - wp->pos.Z);
+            dist = FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, ActorZOfMiddle(itActor) - actor->spr.pos.Z);
             if ((unsigned)dist > wu->Radius)
                 continue;
 
-            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
                 continue;
 
             if (TEST(itActor->spr.extra, SPRX_BREAKABLE))
@@ -7416,14 +7413,14 @@ int DoExpDamageTest(DSWActor* actor)
     SWStatIterator it(STAT_WALL_MOVE);
     while (auto itActor = it.Next())
     {
-        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius/4)
             continue;
 
-        if (TEST_BOOL1(&actor->spr))
+        if (TEST_BOOL1(actor))
             continue;
 
-        if (!CanSeeWallMove(wp, SP_TAG2(actor)))
+        if (!CanSeeWallMove(actor, SP_TAG2(actor)))
             continue;
 
         if (dist < found_dist)
@@ -7455,7 +7452,6 @@ int DoExpDamageTest(DSWActor* actor)
 int DoMineExpMine(DSWActor* actor)
 {
     auto wu = actor->u();
-    SPRITEp wp = &actor->s();
 
     USERp u;
     int i;
@@ -7468,7 +7464,7 @@ int DoMineExpMine(DSWActor* actor)
     {
         u = itActor->u();
 
-        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius + u->Radius)
             continue;
 
@@ -7479,7 +7475,7 @@ int DoMineExpMine(DSWActor* actor)
             continue;
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
-        zdist = abs(itActor->spr.pos.Z - wp->pos.Z)>>4;
+        zdist = abs(itActor->spr.pos.Z - actor->spr.pos.Z)>>4;
         if (SpriteOverlap(actor, itActor) || (unsigned)zdist < wu->Radius + u->Radius)
         {
             DoDamage(itActor, actor);
@@ -8762,8 +8758,6 @@ bool OwnerIsPlayer(DSWActor* actor)
 
 int DoMineRangeTest(DSWActor* actor, int range)
 {
-    SPRITEp wp = &actor->s();
-
     USERp u;
     unsigned stat;
     int dist, tx, ty;
@@ -8779,7 +8773,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
         {
             u = itActor->u();
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
@@ -8795,11 +8789,11 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (u->ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
                 continue;
 
-            dist = FindDistance3D(wp->pos.X - itActor->spr.pos.X, wp->pos.Y - itActor->spr.pos.Y, wp->pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorUpperZ(actor),itActor->spr.sector(),wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorUpperZ(actor),itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
                 continue;
 
             return true;

@@ -159,7 +159,7 @@ int DoWallMove(DSWActor* actor)
     return found;
 }
 
-bool CanSeeWallMove(SPRITEp wp, short match)
+bool CanSeeWallMove(DSWActor* caller, int match)
 {
     int i;
     bool found = false;
@@ -174,7 +174,7 @@ bool CanSeeWallMove(SPRITEp wp, short match)
         {
             found = true;
 
-            if (cansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector()))
+            if (cansee(caller->spr.pos.X, caller->spr.pos.Y, caller->spr.pos.Z, caller->spr.sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector()))
             {
                 return true;
             }
