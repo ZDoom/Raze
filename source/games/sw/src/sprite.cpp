@@ -898,36 +898,21 @@ DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, in
 
     auto spawnedActor = insertActor(sect, stat);
 
-    sp = &spawnedActor->s();
-
-    sp->pal = 0;
-    sp->pos.X = x;
-    sp->pos.Y = y;
-    sp->pos.Z = z;
-    sp->cstat = 0;
+    spawnedActor->spr.pos = { x, y, z };
 
     u = SpawnUser(spawnedActor, id, state);
 
     // be careful State can be nullptr
     if (u->State)
     {
-        sp->picnum = u->State->Pic;
-        PicAnimOff(sp->picnum);
+        spawnedActor->spr.picnum = u->State->Pic;
+        PicAnimOff(spawnedActor->spr.picnum);
     }
 
-    sp->shade = 0;
-    sp->xrepeat = 64;
-    sp->yrepeat = 64;
-    sp->ang = NORM_ANGLE(init_ang);
-
-    sp->xvel = vel;
-    sp->zvel = 0;
-    sp->lotag = 0L;
-    sp->hitag = 0L;
-    sp->extra = 0;
-    sp->xoffset = 0;
-    sp->yoffset = 0;
-    sp->clipdist = 0;
+    spawnedActor->spr.xrepeat = 64;
+    spawnedActor->spr.yrepeat = 64;
+    spawnedActor->spr.ang = NORM_ANGLE(init_ang);
+    spawnedActor->spr.xvel = vel;
 
     return spawnedActor;
 }
@@ -3866,20 +3851,17 @@ int SpawnItemsMatch(short match)
         {
         case 90:
             spawnedActor = BunnyHatch2(itActor);
-            sp = &spawnedActor->s();
-            spawnedActor->user.spal = sp->pal = PALETTE_PLAYER8; // Boy
-            sp->ang = sip->ang;
+            spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER8; // Boy
+            spawnedActor->spr.ang = sip->ang;
             break;
         case 91:
             spawnedActor = BunnyHatch2(itActor);
-            sp = &spawnedActor->s();
-            spawnedActor->user.spal = sp->pal = PALETTE_PLAYER0; // Girl
-            sp->ang = sip->ang;
+            spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER0; // Girl
+            spawnedActor->spr.ang = sip->ang;
             break;
         case 92:
             spawnedActor = BunnyHatch2(itActor);
-            sp = &spawnedActor->s();
-            sp->ang = sip->ang;
+            spawnedActor->spr.ang = sip->ang;
              break;
 
         case 40:
@@ -4065,17 +4047,16 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
-            sp = &spawnedActor->s();
             u = spawnedActor->u();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
 
-            if (sp->pal != PALETTE_PLAYER3)
-                sp->pal = u->spal = PALETTE_PLAYER1;
+            if (spawnedActor->spr.pal != PALETTE_PLAYER3)
+                spawnedActor->spr.pal = u->spal = PALETTE_PLAYER1;
             else
-                sp->pal = u->spal = PALETTE_PLAYER3;
+                spawnedActor->spr.pal = u->spal = PALETTE_PLAYER3;
             break;
         }
 
@@ -4265,7 +4246,7 @@ int SpawnItemsMatch(short match)
             short num;
             USERp u;
 
-            uint8_t KeyPal[] =
+            static const uint8_t KeyPal[] =
             {
                 PALETTE_PLAYER9,
                 PALETTE_PLAYER7,
@@ -4291,21 +4272,19 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             u = spawnedActor->u();
-            sp = &spawnedActor->s();
 
             ASSERT(u != nullptr);
-            sp->picnum = u->ID = s_Key[num]->Pic;
+            spawnedActor->spr.picnum = u->ID = s_Key[num]->Pic;
 
 
             // need to set the palette here - suggest table lookup
-            u->spal = sp->pal = KeyPal[num];
-            //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+            u->spal = spawnedActor->spr.pal = KeyPal[num];
 
 
             ChangeState(spawnedActor, s_Key[num]);
 
-            RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
-            RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
+            RESET(picanm[spawnedActor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
+            RESET(picanm[spawnedActor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
 
             SetupItemForJump(itActor, spawnedActor);
 
