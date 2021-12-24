@@ -112,23 +112,19 @@ void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool s
 
 void WallSetupDontMove(void)
 {
-    SPRITEp spu, spl;
     WALLp wallp;
 
     SWStatIterator it(STAT_WALL_DONT_MOVE_UPPER);
     while (auto iActor = it.Next())
     {
-        spu = &iActor->s();
         SWStatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
         while (auto jActor = it1.Next())
         {
-            spl = &jActor->s();
-
-            if (spu->lotag == spl->lotag)
+            if (iActor->spr.lotag == jActor->spr.lotag)
             {
                 for(auto& wal : wall)
                 {
-                    if (wal.pos.X < spl->pos.X && wal.pos.X > spu->pos.X && wal.pos.Y < spl->pos.Y && wal.pos.Y > spu->pos.Y)
+                    if (wal.pos.X < jActor->spr.pos.X && wal.pos.X > iActor->spr.pos.X && wal.pos.Y < jActor->spr.pos.Y && wal.pos.Y > iActor->spr.pos.Y)
                     {
                         SET(wal.extra, WALLFX_DONT_MOVE);
                     }
@@ -834,8 +830,6 @@ int AnimateSwitch(DSWActor* actor, int tgt_value)
 void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 {
     USERp u = actor->u();
-    SPRITEp exp;
-    USERp eu;
     int x,y,z;
 
     RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
@@ -856,15 +850,13 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
     getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
 
     // spawn explosion
-    auto explosion = SpawnSectorExp(actor);
-    if (!explosion) return;
-    exp = &explosion->s();
-    eu = explosion->u();
+    auto exp = SpawnSectorExp(actor);
+    if (!exp) return;
 
-    exp->xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
-    exp->yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
-    eu->xchange = MOVEx(92, exp->ang);
-    eu->ychange = MOVEy(92, exp->ang);
+    exp->spr.xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
+    exp->spr.yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
+    exp->user.xchange = MOVEx(92, exp->spr.ang);
+    exp->user.ychange = MOVEy(92, exp->spr.ang);
 }
 
 
@@ -1148,7 +1140,6 @@ void KillMatchingCrackSprites(short match)
 
 void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    SPRITEp wp = &wActor->s();
     USERp wu = wActor->u();
     int dist;
     int radius;
@@ -1157,7 +1148,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
     while (auto actor = it.Next())
     {
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wp->pos.X - actor->spr.pos.X, wp->pos.Y - actor->spr.pos.Y, wp->pos.Z - actor->spr.pos.Z);
+        dist = FindDistance3D(wActor->spr.pos.X - actor->spr.pos.X, wActor->spr.pos.Y - actor->spr.pos.Y, wActor->spr.pos.Z - actor->spr.pos.Z);
 
         if (actor->spr.clipdist == 0)
             continue;
@@ -1167,7 +1158,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wu->Radius/2) + radius)
             continue;
 
-        if (!FAFcansee(wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
+        if (!FAFcansee(wActor->spr.pos.X,wActor->spr.pos.Y,wActor->spr.pos.Z,wActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
             continue;
 
 

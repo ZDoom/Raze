@@ -611,8 +611,7 @@ void TrackSetup(void)
             int i;
             it.Reset(STAT_TRACK + ndx);
             auto itActor = it.Next();
-            auto const sp = &itActor->s();
-            Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, sp->pos.X, sp->pos.Y);
+            Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, itActor->spr.pos.X, itActor->spr.pos.Y);
             it.Reset(STAT_TRACK + ndx);
             while (auto actor = it.Next())
             {
@@ -970,17 +969,15 @@ cont:
     // between the zmid and the sp->z
     if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
     {
-        SPRITEp sp;
         int zmid = -9999999;
 
         // choose the lowest sprite for the zmid
         for (i = 0; sop->so_actors[i] != nullptr; i++)
         {
-            sp = &sop->so_actors[i]->s();
-			u = sop->so_actors[i]->u();
+            auto actor = sop->so_actors[i];
 
-            if (sp->pos.Z > zmid)
-                zmid = sp->pos.Z;
+            if (actor->spr.pos.Z > zmid)
+                zmid = actor->spr.pos.Z;
         }
 
         ASSERT(zmid != -9999999);
@@ -989,12 +986,9 @@ cont:
 
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{
-			sp = &sop->so_actors[i]->s();
-			u = sop->so_actors[i]->u();
-
-            u->sz = sop->zmid - sp->pos.Z;
+            auto actor = sop->so_actors[i];
+            actor->user.sz = sop->zmid - actor->spr.pos.Z;
         }
-
     }
 }
 

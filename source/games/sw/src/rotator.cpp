@@ -256,7 +256,7 @@ int DoRotator(DSWActor* actor)
     USERp u = actor->u();
     ROTATORp r;
     short ndx,w,startwall,endwall;
-    SPRITEp pivot = nullptr;
+    DSWActor* pivot = nullptr;
     vec2_t nxy;
     int dist,closest;
     bool kill = false;
@@ -337,14 +337,13 @@ int DoRotator(DSWActor* actor)
     SWStatIterator it(STAT_ROTATOR_PIVOT);
     while (auto itActor = it.Next())
     {
-        auto itsp = &itActor->s();
-        if (itsp->lotag == actor->spr.lotag)
+        if (itActor->spr.lotag == actor->spr.lotag)
         {
-            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itsp->pos.X, itsp->pos.Y);
+            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
             if (dist < closest)
             {
                 closest = dist;
-                pivot = itsp;
+                pivot = itActor;
             }
         }
     }
@@ -357,7 +356,7 @@ int DoRotator(DSWActor* actor)
     for(auto& wal : wallsofsector(actor->spr.sector()))
     {
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
-        rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
+        rotatepoint(pivot->spr.pos.vec2, orig, r->pos, &nxy);
 
         dragpoint(&wal, nxy.X, nxy.Y);
         ndx++;

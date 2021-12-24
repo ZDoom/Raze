@@ -289,8 +289,7 @@ void StartAmbientSound(void)
     SWStatIterator it(STAT_AMBIENT);
     while (auto actor = it.Next())
     {
-        SPRITEp sp = &actor->s();
-        InitAmbient(sp->lotag, actor);
+        InitAmbient(actor->spr.lotag, actor);
     }
 }
 
@@ -599,9 +598,9 @@ void GameInterface::UpdateSounds(void)
     binangle tang;
     if (pp->sop_remote)
     {
-        auto rsp = &pp->remoteActor->s();
+        DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            tang = buildang(rsp->ang);
+            tang = buildang(rsp->spr.ang);
         else
             tang = bvectangbam(pp->sop_remote->xmid - pp->pos.X, pp->sop_remote->ymid - pp->pos.Y);
     }
@@ -744,8 +743,7 @@ void DeleteNoSoundOwner(DSWActor* actor)
 
 void DeleteNoFollowSoundOwner(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-    soundEngine->StopSound(SOURCE_Actor, sp, -1); // all non-follow sounds are SOURCE_Unattached
+    soundEngine->StopSound(SOURCE_Actor, actor, -1); // all non-follow sounds are SOURCE_Unattached
 }
 
 //==========================================================================
