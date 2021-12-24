@@ -207,7 +207,6 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
 {
     // USES TSPRITE !!!!!
     USERp u = static_cast<DSWActor*>(tspr->ownerActor)->u();
-    SPRITEp hsp;
     Collision ceilhit, florhit;
     int hiz, loz = u->loz;
     ESpriteFlags save_cstat, bak_cstat;
@@ -228,9 +227,9 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
     {
     case kHitSprite:
     {
-        hsp = &florhit.actor()->s();
+        auto hitactor = florhit.actor();
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (TEST(hitactor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             return loz;
@@ -239,10 +238,10 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
         {
             // reset the blocking bit of what you hit and try again -
             // recursive
-            bak_cstat = hsp->cstat;
-            RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            bak_cstat = hitactor->spr.cstat;
+            RESET(hitactor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             loz = DoShadowFindGroundPoint(tspr);
-            hsp->cstat = bak_cstat;
+            hitactor->spr.cstat = bak_cstat;
         }
         break;
     }
@@ -1001,16 +1000,16 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
         }
         else
         {
-            SPRITEp hsp = &hit.actor()->s();
+            auto hitactor = hit.actor();
 
             // if you hit a sprite that's not a wall sprite - try again
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (!TEST(hitactor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                auto flag_backup = hsp->cstat;
-                RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                auto flag_backup = hitactor->spr.cstat;
+                RESET(hitactor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
                 CircleCamera(nx, ny, nz, vsect, nang, q16horiz);
-                hsp->cstat = flag_backup;
+                hitactor->spr.cstat = flag_backup;
                 return;
             }
         }
@@ -1123,7 +1122,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
             FAFcansee_test =
                 (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), *tx, *ty, *tz + GetSpriteSizeZ(&pp->Actor()->s()), pp->cursector));
+                 FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), *tx, *ty, *tz + ActorSizeZ(pp->actor), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1471,9 +1470,9 @@ void drawscreen(PLAYERp pp, double smoothratio)
 
     if (pp->sop_remote)
     {
-        auto rsp = &pp->remoteActor->s();
-        if (TEST_BOOL1(rsp))
-            tang = buildang(rsp->ang);
+        DSWActor* ractor = pp->remoteActor;
+        if (TEST_BOOL1(ractor))
+            tang = buildang(ractor->spr.ang);
         else
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
@@ -1628,7 +1627,6 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
     int xvect, yvect;
     walltype* wal, * wal2;
-    spritetype* spr;
     short p;
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
@@ -1645,39 +1643,38 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
         SWSectIterator it(i);
         while (auto actor = it.Next())
         {
-            spr = &actor->s();
             for (p = connecthead; p >= 0; p = connectpoint2[p])
             {
                 if (Player[p].Actor() == actor)
                 {
-                    if (spr->xvel > 16)
+                    if (actor->spr.xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
                     sprisplayer = true;
 
                     goto SHOWSPRITE;
                 }
             }
-            if (gFullMap || (spr->cstat2 & CSTAT2_SPRITE_MAPPED))
+            if (gFullMap || (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
             {
             SHOWSPRITE:
 
                 PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                if ((spr->cstat & CSTAT_SPRITE_BLOCK) > 0)
+                if ((actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0)
                     col = GPalette.BaseColors[248];
                 if (actor == peekActor)
                     col = GPalette.BaseColors[31];
 
-                sprx = spr->pos.X;
-                spry = spr->pos.Y;
+                sprx = actor->spr.pos.X;
+                spry = actor->spr.pos.Y;
 
-                k = spr->statnum;
+                k = actor->spr.statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
                 {
-                    sprx = spr->interpolatedx(smoothratio);
-                    spry = spr->interpolatedy(smoothratio);
+                    sprx = actor->spr.interpolatedx(smoothratio);
+                    spry = actor->spr.interpolatedy(smoothratio);
                 }
 
-                switch (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+                switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case 0:  // Regular sprite
                     if (Player[p].Actor() == actor)
@@ -1691,10 +1688,10 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? spr->ang : spr->interpolatedang(smoothratio)) - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->spr.ang : actor->spr.interpolatedang(smoothratio)) - cang) & 2047;
 
                             // Special case tiles
-                            if (spr->picnum == 3123) break;
+                            if (actor->spr.picnum == 3123) break;
 
                             int spnum = -1;
                             if (sprisplayer)
@@ -1702,14 +1699,14 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                                 if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].Actor())
                                     spnum = 1196 + pspr_ndx[myconnectindex];
                             }
-                            else spnum = spr->picnum;
+                            else spnum = actor->spr.picnum;
 
-                            double sc = czoom * (spr->yrepeat) / 32768.;
+                            double sc = czoom * (actor->spr.yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
-                                    DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
-                                    DTA_Alpha, (spr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
+                                    DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),
+                                    DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
                             }
                         }
                     }
@@ -1717,12 +1714,12 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 case 16: // Rotated sprite
                     x1 = sprx;
                     y1 = spry;
-                    tilenum = spr->picnum;
-                    xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
-                    if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0)
+                    tilenum = actor->spr.picnum;
+                    xoff = (int)tileLeftOffset(tilenum) + (int)actor->spr.xoffset;
+                    if ((actor->spr.cstat & CSTAT_SPRITE_XFLIP) > 0)
                         xoff = -xoff;
-                    k = spr->ang;
-                    l = spr->xrepeat;
+                    k = actor->spr.ang;
+                    l = actor->spr.xrepeat;
                     dax = bsin(k) * l;
                     day = -bcos(k) * l;
                     l = tileWidth(tilenum);
@@ -1749,21 +1746,21 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 case 32:    // Floor sprite
                     if (automapMode == am_overlay)
                     {
-                        tilenum = spr->picnum;
-                        xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
-                        yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
-                        if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0)
+                        tilenum = actor->spr.picnum;
+                        xoff = (int)tileLeftOffset(tilenum) + (int)actor->spr.xoffset;
+                        yoff = (int)tileTopOffset(tilenum) + (int)actor->spr.yoffset;
+                        if ((actor->spr.cstat & CSTAT_SPRITE_XFLIP) > 0)
                             xoff = -xoff;
-                        if ((spr->cstat & CSTAT_SPRITE_YFLIP) > 0)
+                        if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
-                        k = spr->ang;
+                        k = actor->spr.ang;
                         cosang = bcos(k);
                         sinang = bsin(k);
                         xspan = tileWidth(tilenum);
-                        xrepeat = spr->xrepeat;
+                        xrepeat = actor->spr.xrepeat;
                         yspan = tileHeight(tilenum);
-                        yrepeat = spr->yrepeat;
+                        yrepeat = actor->spr.yrepeat;
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;
                         day = ((yspan >> 1) + yoff) * yrepeat;
