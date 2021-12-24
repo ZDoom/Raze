@@ -11450,7 +11450,6 @@ int DoMirv(DSWActor* actor)
 
 bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
 {
-    SPRITEp wp = &actor->s();
     USERp wu = actor->u();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
@@ -11460,18 +11459,18 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     oldxc = wu->xchange;
     oldyc = wu->ychange;
     oldzc = wu->zchange;
-    oldvel = wp->xvel;
-    oldzvel = wp->zvel;
+    oldvel = actor->spr.xvel;
+    oldzvel = actor->spr.zvel;
 
     // make missile move in smaller increments
-    wp->xvel = short((dist * 6) / MISSILEMOVETICS);
-    //wp->zvel = (wp->zvel*4) / MISSILEMOVETICS;
-    wp->zvel = short((wp->zvel*6) / MISSILEMOVETICS);
+    actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
+    //actor->spr.zvel = (actor->spr.zvel*4) / MISSILEMOVETICS;
+    actor->spr.zvel = short((actor->spr.zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel;
+    wu->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+    wu->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
+    wu->zchange = actor->spr.zvel;
 
     SET(wu->Flags, SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
@@ -11482,18 +11481,17 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     wu->xchange = oldxc;
     wu->ychange = oldyc;
     wu->zchange = oldzc;
-    wp->xvel = oldvel;
-    wp->zvel = oldzvel;
+    actor->spr.xvel = oldvel;
+    actor->spr.zvel = oldzvel;
 
     // update for interpolation
-    wp->backuppos();
+    actor->spr.backuppos();
 
     return retval;
 }
 
 bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
 {
-    SPRITEp wp = &actor->s();
     USERp wu = actor->u();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
@@ -11503,17 +11501,17 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     oldxc = wu->xchange;
     oldyc = wu->ychange;
     oldzc = wu->zchange;
-    oldvel = wp->xvel;
-    oldzvel = wp->zvel;
+    oldvel = actor->spr.xvel;
+    oldzvel = actor->spr.zvel;
 
     // make missile move in smaller increments
-    wp->xvel = short((dist * 6) / MISSILEMOVETICS);
-    //wp->zvel = (wp->zvel*4) / MISSILEMOVETICS;
+    actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
+    //actor->spr.zvel = (actor->spr.zvel*4) / MISSILEMOVETICS;
     zvel = short((zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
+    wu->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+    wu->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
     wu->zchange = zvel;
 
     SET(wu->Flags, SPR_SET_POS_DONT_KILL);
@@ -11525,11 +11523,11 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     wu->xchange = oldxc;
     wu->ychange = oldyc;
     wu->zchange = oldzc;
-    wp->xvel = oldvel;
-    wp->zvel = oldzvel;
+    actor->spr.xvel = oldvel;
+    actor->spr.zvel = oldzvel;
 
     // update for interpolation
-    wp->backuppos();
+    actor->spr.backuppos();
 
     return retval;
 }
@@ -12669,19 +12667,19 @@ int InitSumoNapalm(DSWActor* actor)
     {
         for (size_t i = 0; i < countof(mp); i++)
         {
-            auto wActor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->spr.sector(),
+            auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->spr.sector(),
                 actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor), ang, NAPALM_VELOCITY);
 
-            wp = &wActor->s();
-            wu = wActor->u();
+            wp = &actorNew->s();
+            wu = actorNew->u();
 
             wp->hitag = LUMINOUS; //Always full brightness
             if (i == 0) // Only attach sound to first projectile
             {
-                PlaySound(DIGI_NAPWIZ, wActor, v3df_follow);
+                PlaySound(DIGI_NAPWIZ, actorNew, v3df_follow);
             }
 
-            SetOwner(actor, wActor);
+            SetOwner(actor, actorNew);
             wp->shade = -40;
             wp->xrepeat = 32;
             wp->yrepeat = 32;
@@ -12700,7 +12698,7 @@ int InitSumoNapalm(DSWActor* actor)
             if (mp[i].dist_over != 0)
             {
                 wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-                HelpMissileLateral(wActor, mp[i].dist_over);
+                HelpMissileLateral(actorNew, mp[i].dist_over);
                 wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
             }
 
@@ -12714,7 +12712,7 @@ int InitSumoNapalm(DSWActor* actor)
             wu->ychange = MOVEy(wp->xvel, wp->ang);
             wu->zchange = wp->zvel;
 
-            MissileSetPos(wActor, DoNapalm, mp[i].dist_out);
+            MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
 
             actor->spr.clipdist = oclipdist;
 
@@ -12858,7 +12856,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 {
     USERp u = actor->u();
     USERp wu = mislActor->u();
-    SPRITEp wp = &mislActor->s();
     int dist;
     int zh;
 
@@ -12880,15 +12877,15 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
-        wp->ang = NORM_ANGLE(getangle(hp->pos.X - wp->pos.X, hp->pos.Y - wp->pos.Y));
-        dist = FindDistance2D(wp->pos.X - hp->pos.X, wp->pos.Y - hp->pos.Y);
+        mislActor->spr.ang = NORM_ANGLE(getangle(hp->pos.X - mislActor->spr.pos.X, hp->pos.Y - mislActor->spr.pos.Y));
+        dist = FindDistance2D(mislActor->spr.pos.X - hp->pos.X, mislActor->spr.pos.Y - hp->pos.Y);
 
         if (dist != 0)
         {
             int tos, diff, siz;
 
             tos = GetSpriteZOfTop(hp);
-            diff = wp->pos.Z - tos;
+            diff = mislActor->spr.pos.Z - tos;
             siz = GetSpriteSizeZ(hp);
 
             // hit_sprite is below
@@ -12901,7 +12898,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
             else
                 zh = tos + (siz >> 2);
 
-            wp->zvel = (wp->xvel * (zh - wp->pos.Z)) / dist;
+            mislActor->spr.zvel = (mislActor->spr.xvel * (zh - mislActor->spr.pos.Z)) / dist;
         }
         return 0;
     }
@@ -12914,7 +12911,6 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
     USERp u = actor->u();
 
     USERp wu = missileActor->u();
-    SPRITEp wp = &missileActor->s();
     int dist;
     int zh;
 
@@ -12923,7 +12919,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 #if 0
     //formula for leading a player
     dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, hp->pos.X, hp->pos.Y);
-    time_to_target = dist/wp->xvel;
+    time_to_target = dist/missileActor->spr.xvel;
     lead_dist = time_to_target*hp->vel;
 #endif
 
@@ -12945,16 +12941,16 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
-        wp->ang = NORM_ANGLE(getangle(hp->pos.X - wp->pos.X, hp->pos.Y - wp->pos.Y));
-        //dist = FindDistance2D(wp->pos.X, wp->pos.Y, hp->pos.X, hp->pos.Y);
-        dist = FindDistance2D(wp->pos.X - hp->pos.X, wp->pos.Y - hp->pos.Y);
+        missileActor->spr.ang = NORM_ANGLE(getangle(hp->pos.X - missileActor->spr.pos.X, hp->pos.Y - missileActor->spr.pos.Y));
+        //dist = FindDistance2D(missileActor->spr.pos.X, missileActor->spr.pos.Y, hp->pos.X, hp->pos.Y);
+        dist = FindDistance2D(missileActor->spr.pos.X - hp->pos.X, missileActor->spr.pos.Y - hp->pos.Y);
 
         if (dist != 0)
         {
             int tos, diff, siz;
 
             tos = GetSpriteZOfTop(hp);
-            diff = wp->pos.Z - tos;
+            diff = missileActor->spr.pos.Z - tos;
             siz = GetSpriteSizeZ(hp);
 
             // hit_sprite is below
@@ -12967,7 +12963,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
                 else
                     zh = tos + (siz >> 2);
 
-            *zvel = (wp->xvel * (zh - wp->pos.Z)) / dist;
+            *zvel = (missileActor->spr.xvel * (zh - missileActor->spr.pos.Z)) / dist;
         }
         return 0;
     }
@@ -18270,8 +18266,6 @@ void QueueReset(void)
 
 bool TestDontStick(DSWActor* actor, walltype* hit_wall)
 {
-    WALLp wp;
-
     if (hit_wall == nullptr)
     {
         ASSERT(actor != nullptr);
@@ -18280,13 +18274,12 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
         hit_wall = u->coll.hitWall;
     }
 
-    wp = hit_wall;
 
-    if (TEST(wp->extra, WALLFX_DONT_STICK))
+    if (TEST(hit_wall->extra, WALLFX_DONT_STICK))
         return true;
 
     // if blocking red wallo
-    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && wp->twoSided())
+    if (TEST(hit_wall->cstat, CSTAT_WALL_BLOCK) && hit_wall->twoSided())
         return true;
 
     return false;

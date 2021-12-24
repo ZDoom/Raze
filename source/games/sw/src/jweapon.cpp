@@ -1699,10 +1699,8 @@ int PlayerInitCaltrops(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     short oclipdist;
-
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
@@ -1716,49 +1714,48 @@ int PlayerInitCaltrops(PLAYERp pp)
     auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
-    wp = &spawnedActor->s();
     wu = spawnedActor->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        wp->xvel -= (wp->xvel >> 2);
+        spawnedActor->spr.xvel -= (spawnedActor->spr.xvel >> 2);
     }
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->Actor(), spawnedActor);
-    wp->yrepeat = 64;
-    wp->xrepeat = 64;
-    wp->shade = -15;
+    spawnedActor->spr.yrepeat = 64;
+    spawnedActor->spr.xrepeat = 64;
+    spawnedActor->spr.shade = -15;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
-//      SET(wp->cstat, CSTAT_SPRITE_BLOCK);
+//      SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(spawnedActor))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // They go out at different angles
-//        wp->ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
+//        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
 
-    wp->zvel = -pp->horizon.horiz.asq16() >> 9;
+    spawnedActor->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
     auto psp = &pp->Actor()->s();
     oclipdist = psp->clipdist;
     psp->clipdist = 0;
-    wp->clipdist = 0;
+    spawnedActor->spr.clipdist = 0;
 
     MissileSetPos(spawnedActor, DoCaltrops, 1000);
 
     psp->clipdist = uint8_t(oclipdist);
-    wp->clipdist = 80L >> 2;
+    spawnedActor->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel >> 1;
+    wu->xchange = MOVEx(spawnedActor->spr.xvel, spawnedActor->spr.ang);
+    wu->ychange = MOVEy(spawnedActor->spr.xvel, spawnedActor->spr.ang);
+    wu->zchange = spawnedActor->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
     wu->xchange += pp->xvect >> 14;
@@ -1772,9 +1769,7 @@ int InitCaltrops(DSWActor* actor)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
-
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
@@ -1787,30 +1782,29 @@ int InitCaltrops(DSWActor* actor)
     auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
 
-    wp = &spawnedActor->s();
     wu = spawnedActor->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, spawnedActor);
-    wp->yrepeat = 64;
-    wp->xrepeat = 64;
-    wp->shade = -15;
+    spawnedActor->spr.yrepeat = 64;
+    spawnedActor->spr.xrepeat = 64;
+    spawnedActor->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    wp->clipdist = actor->spr.clipdist;
+    spawnedActor->spr.clipdist = actor->spr.clipdist;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
+    spawnedActor->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    // wp->clipdist = 80L>>2;
+    // spawnedActor->spr.clipdist = 80L>>2;
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel >> 1;
+    wu->xchange = MOVEx(spawnedActor->spr.xvel, spawnedActor->spr.ang);
+    wu->ychange = MOVEy(spawnedActor->spr.xvel, spawnedActor->spr.ang);
+    wu->zchange = spawnedActor->spr.zvel >> 1;
 
     SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
     return 0;
@@ -1989,8 +1983,6 @@ void DoFlagScore(int16_t pal)
 
 DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
 {
-    SPRITEp wp = &actor->s();
-
     unsigned int stat;
     int dist, tx, ty;
     int tmin;
@@ -2000,7 +1992,7 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
@@ -2013,10 +2005,10 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector()))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
                 continue;
 
-            dist = FindDistance3D(wp->pos.X - itActor->spr.pos.X, wp->pos.Y - itActor->spr.pos.Y, wp->pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
             if (dist > range)
                 continue;
 
