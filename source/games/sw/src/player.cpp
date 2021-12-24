@@ -1390,8 +1390,8 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         DoPlayerResetMovement(pp);
 
         u->WaitTics = 30;
-        //sp->shade =
-        //SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+        //ppActor->spr.shade =
+        //SET(ppActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         DoPlayerBeginRun(pp);
         //DoPlayerStand(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
@@ -1420,7 +1420,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         break;
     }
 
-    sp->backuppos();
+    ppActor->spr.backuppos();
 }
 
 void DoPlayerSetWadeDepth(PLAYERp pp)
@@ -1685,18 +1685,17 @@ void DoPlayerRecoil(PLAYERp pp)
 // for wading
 void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob_speed)
 {
-    SPRITEp sp = &pp->Actor()->s();
 
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
 
     pp->bob_amt = MulScale(bob_amt, bsin(pp->bob_ndx), 14);
 
-    sp->pos.Z = (pp->pos.Z + player_height) + pp->bob_amt;
+    pp->actor->spr.pos.Z = (pp->pos.Z + player_height) + pp->bob_amt;
 }
 
 void UpdatePlayerUnderSprite(PLAYERp pp)
 {
-    auto actor = pp->actor;
+    DSWActor* actor = pp->actor;
     SPRITEp over_sp = &actor->s();
     USERp over_u = actor->u();
 
@@ -1739,8 +1738,9 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
         }
     }
 
-    sp = &pp->PlayerUnderActor->s();
-    u = pp->PlayerUnderActor->u();
+    actor = pp->PlayerUnderActor;
+    sp = &actor->s();
+    u = actor->u();
 
     sp->pos = actor->spr.pos;
     ChangeActorSect(pp->PlayerUnderActor, actor->spr.sector());
@@ -1764,8 +1764,9 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 
 void UpdatePlayerSprite(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    if (!sp) return;
+    DSWActor* actor = pp->actor;
+    if (!actor) return;
+    SPRITEp sp = &actor->s();
 
     // Update sprite representation of player
 
@@ -1858,11 +1859,13 @@ void DoPlayerZrange(PLAYERp pp)
 {
     Collision ceilhit, florhit;
 
-    if (!pp->Actor()) return;
+    DSWActor* actor = pp->actor;
+    if (!actor) return;
+    SPRITEp sp = &actor->s();
+
     // Don't let you fall if you're just slightly over a cliff
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
-    auto sp = &pp->Actor()->s();
     auto bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
@@ -1910,8 +1913,10 @@ void DoPlayerZrange(PLAYERp pp)
 
 void DoPlayerSlide(PLAYERp pp)
 {
-    auto sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+
+    USERp u = actor->u();
     int push_ret;
 
     if ((pp->slide_xvect|pp->slide_yvect) == 0)
@@ -2005,8 +2010,9 @@ void PlayerSectorBound(PLAYERp pp, int amt)
 
 void DoPlayerMove(PLAYERp pp)
 {
-    auto sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    auto sp = &actor->s();
+    USERp u = actor->u();
     int friction;
     int push_ret = 0;
 
@@ -3164,8 +3170,8 @@ void DoPlayerFall(PLAYERp pp)
 
 void DoPlayerBeginClimb(PLAYERp pp)
 {
-//    USERp u = pp->Actor()->u();
-    SPRITEp sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
 
     RESET(pp->Flags, PF_JUMPING|PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
@@ -3185,10 +3191,11 @@ void DoPlayerBeginClimb(PLAYERp pp)
 
 void DoPlayerClimb(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int climb_amt;
     int i;
-    SPRITEp sp = &pp->Actor()->s();
     int climbvel;
     int dot;
     bool LadderUpdate = false;
@@ -4224,8 +4231,9 @@ void DoPlayerDivePalette(PLAYERp pp)
 
 void DoPlayerBeginDive(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (Prediction)
         return;
@@ -4272,8 +4280,9 @@ void DoPlayerBeginDive(PLAYERp pp)
 
 void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (Prediction)
         return;
@@ -4344,7 +4353,8 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
 
 void DoPlayerStopDive(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
 
     if (Prediction)
         return;
@@ -5491,8 +5501,9 @@ void DoPlayerBeginDie(PLAYERp pp)
     short bak;
     int choosesnd = 0;
 
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
     {
@@ -5803,9 +5814,9 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
-    auto ppActor = pp->Actor();
-    SPRITEp sp = &ppActor->s();
-    USERp u = ppActor->u();
+    auto actor = pp->Actor();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -5819,14 +5830,14 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             // If he's not on the floor, then gib like a mo-fo!
-            InitBloodSpray(ppActor,true,-1);
-            InitBloodSpray(ppActor,true,-1);
-            InitBloodSpray(ppActor,true,-1);
+            InitBloodSpray(actor,true,-1);
+            InitBloodSpray(actor,true,-1);
+            InitBloodSpray(actor,true,-1);
         }
 
         PlayerSpawnPosition(pp);
 
-        NewStateGroup(ppActor, u->ActorActionSet->Stand);
+        NewStateGroup(actor, u->ActorActionSet->Stand);
         sp->picnum = u->State->Pic;
         sp->picnum = u->State->Pic;
         sp->xrepeat = sp->yrepeat = PLAYER_NINJA_XREPEAT;
@@ -5836,7 +5847,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->pos.Z = pp->pos.Z+PLAYER_HEIGHT;
         sp->ang = pp->angle.ang.asbuild();
 
-        DoSpawnTeleporterEffect(ppActor);
+        DoSpawnTeleporterEffect(actor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerZrange(pp);
@@ -5900,8 +5911,10 @@ void DoPlayerHeadDebris(PLAYERp pp)
 
 SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s(), hp;
-    USERp u = pp->Actor()->u(), hu;
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+    SPRITEp hp;
     unsigned stat;
     int dist;
     int a,b,c;
@@ -5912,7 +5925,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         while (auto itActor = it.Next())
         {
             hp = &itActor->s();
-            hu = itActor->u();
+            auto hu = itActor->u();
 
             if (itActor == pp->Actor())
                 break;
@@ -5962,8 +5975,9 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 
 void DoPlayerDeathMoveHead(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int dax,day;
 
     dax = MOVEx(u->slide_vel, u->slide_ang);
@@ -6066,7 +6080,8 @@ void DoPlayerDeathFlip(PLAYERp pp)
 
 void DoPlayerDeathDrown(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
 
     if (Prediction)
         return;
@@ -6105,8 +6120,9 @@ void DoPlayerDeathDrown(PLAYERp pp)
 
 void DoPlayerDeathBounce(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (Prediction)
         return;
@@ -6135,8 +6151,9 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
 void DoPlayerDeathCrumble(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (Prediction)
         return;
@@ -6188,8 +6205,9 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 
 void DoPlayerDeathExplode(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (Prediction)
         return;
@@ -6886,8 +6904,6 @@ int SearchSpawnPosition(PLAYERp pp)
         if (spawn_sprite == nullptr)
             return 0;
 
-        sp = &spawn_sprite->s();
-
         blocked = false;
 
         // check to see if anyone else is blocking this spot
@@ -6897,7 +6913,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(sp->pos.X - opp->pos.X, sp->pos.Y - opp->pos.Y, sp->pos.Z - opp->pos.Z) < 1000)
+                if (FindDistance3D(spawn_sprite->spr.pos.X - opp->pos.X, spawn_sprite->spr.pos.Y - opp->pos.Y, spawn_sprite->spr.pos.Z - opp->pos.Z) < 1000)
                 {
                     blocked = true;
                     break;
@@ -6976,14 +6992,9 @@ void PlayerSpawnPosition(PLAYERp pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    sp = &spawn_sprite->s();
-
-
-    pp->pos.X = pp->opos.X = sp->pos.X;
-    pp->pos.Y = pp->opos.Y = sp->pos.Y;
-    pp->pos.Z = pp->opos.Z = sp->pos.Z;
-    pp->angle.ang = pp->angle.oang = buildang(sp->ang);
-    pp->setcursector(sp->sector());
+    pp->pos = pp->opos = spawn_sprite->spr.pos;
+    pp->angle.ang = pp->angle.oang = buildang(spawn_sprite->spr.ang);
+    pp->setcursector(spawn_sprite->spr.sector());
 
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     // if too close to the floor - stand up
