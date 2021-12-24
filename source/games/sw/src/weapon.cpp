@@ -14315,7 +14315,6 @@ int InitRipperSlash(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp hu;
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14327,16 +14326,15 @@ int InitRipperSlash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
             hu = itActor->u();
 
             if (itActor == actor)
                 break;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y, actor->spr.pos.Z - hp->pos.Z) > hu->Radius + u->Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > hu->Radius + u->Radius)
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14351,7 +14349,6 @@ int InitRipperSlash(DSWActor* actor)
 int InitBunnySlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14363,12 +14360,10 @@ int InitBunnySlash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14384,7 +14379,6 @@ int InitBunnySlash(DSWActor* actor)
 int InitSerpSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14396,12 +14390,10 @@ int InitSerpSlash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,150))
             {
@@ -14451,7 +14443,6 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 int DoBladeDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14461,20 +14452,18 @@ int DoBladeDamage(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist > 2000)
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y, actor->spr.pos.Z - hp->pos.Z);
+            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
 
             if (dist > 2000)
                 continue;
@@ -14492,7 +14481,6 @@ int DoBladeDamage(DSWActor* actor)
 int DoStaticFlamesDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14502,20 +14490,18 @@ int DoStaticFlamesDamage(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist > 2000)
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y, actor->spr.pos.Z - hp->pos.Z);
+            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
 
             if (dist > 2000)
                 continue;
@@ -14524,7 +14510,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 DoDamage(itActor, actor);
             else if (u->Radius > 200)
             {
-                if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),hp->pos.X,hp->pos.Y,GetSpriteZOfMiddle(hp),hp->sector()))
+                if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),itActor->spr.pos.X,itActor->spr.pos.Y,ActorZOfMiddle(itActor),itActor->spr.sector()))
                     DoDamage(itActor, actor);
             }
         }
@@ -14536,7 +14522,6 @@ int DoStaticFlamesDamage(DSWActor* actor)
 int InitCoolgBash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14548,16 +14533,14 @@ int InitCoolgBash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
             // don't set off mine
-            if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14572,7 +14555,6 @@ int InitCoolgBash(DSWActor* actor)
 int InitSkelSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14584,12 +14566,10 @@ int InitSkelSlash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14604,7 +14584,6 @@ int InitSkelSlash(DSWActor* actor)
 int InitGoroChop(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14616,12 +14595,10 @@ int InitGoroChop(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
-
             if (itActor == actor)
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,150))
             {
@@ -15360,7 +15337,6 @@ int InitEelFire(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp hu;
-    SPRITEp hp;
     unsigned stat;
     int dist, a, b, c;
 
@@ -15369,7 +15345,6 @@ int InitEelFire(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
             hu = itActor->u();
 
             if (itActor == actor)
@@ -15378,10 +15353,10 @@ int InitEelFire(DSWActor* actor)
             if (itActor != u->targetActor)
                 continue;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y, actor->spr.pos.Z - hp->pos.Z) > hu->Radius + u->Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > hu->Radius + u->Radius)
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
