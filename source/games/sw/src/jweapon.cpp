@@ -306,15 +306,15 @@ void SpawnMidSplash(DSWActor* actor)
     np = &actorNew->s();
     nu = actorNew->u();
 
-    np->shade = -12;
-    np->xrepeat = 70-RandomRange(20);
-    np->yrepeat = 70-RandomRange(20);
-    np->opos = actor->spr.opos;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -12;
+    actorNew->spr.xrepeat = 70-RandomRange(20);
+    actorNew->spr.yrepeat = 70-RandomRange(20);
+    actorNew->spr.opos = actor->spr.opos;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_XFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
 
     nu->xchange = 0;
     nu->ychange = 0;
@@ -336,15 +336,15 @@ void SpawnFloorSplash(DSWActor* actor)
     np = &actorNew->s();
     nu = actorNew->u();
 
-    np->shade = -12;
-    np->xrepeat = 70-RandomRange(20);
-    np->yrepeat = 70-RandomRange(20);
-    np->opos = actor->spr.opos;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -12;
+    actorNew->spr.xrepeat = 70-RandomRange(20);
+    actorNew->spr.yrepeat = 70-RandomRange(20);
+    actorNew->spr.opos = actor->spr.opos;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_XFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
 
     nu->xchange = 0;
     nu->ychange = 0;
@@ -544,17 +544,17 @@ int DoBloodSpray(DSWActor* actor)
         auto nu = actorNew->u();
 
         SetOwner(actor, actorNew);
-        np->shade = -12;
-        np->xrepeat = 40-RandomRange(30);
-        np->yrepeat = 40-RandomRange(30);
-        np->opos = actor->spr.opos;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.shade = -12;
+        actorNew->spr.xrepeat = 40-RandomRange(30);
+        actorNew->spr.yrepeat = 40-RandomRange(30);
+        actorNew->spr.opos = actor->spr.opos;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if (RANDOM_P2(1024) < 512)
-            SET(np->cstat, CSTAT_SPRITE_XFLIP);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
         if (RANDOM_P2(1024) < 512)
-            SET(np->cstat, CSTAT_SPRITE_YFLIP);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
@@ -755,25 +755,25 @@ int DoPhosphorus(DSWActor* actor)
         auto np = &actorNew->s();
         auto nu = actorNew->u();
 
-        np->hitag = LUMINOUS;           // Always full brightness
+        actorNew->spr.hitag = LUMINOUS;           // Always full brightness
         SetOwner(actor, actorNew);
-        np->shade = -40;
-        np->xrepeat = 12 + RandomRange(10);
-        np->yrepeat = 12 + RandomRange(10);
-        np->opos = actor->spr.opos;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 12 + RandomRange(10);
+        actorNew->spr.yrepeat = 12 + RandomRange(10);
+        actorNew->spr.opos = actor->spr.opos;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if (RANDOM_P2(1024) < 512)
-            SET(np->cstat, CSTAT_SPRITE_XFLIP);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
         if (RANDOM_P2(1024) < 512)
-            SET(np->cstat, CSTAT_SPRITE_YFLIP);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        nu->spal = np->pal = PALETTE_PLAYER3;   // RED
+        nu->spal = actorNew->spr.pal = PALETTE_PLAYER3;   // RED
 
         ScaleSpriteVector(actorNew, 20000);
 
@@ -984,20 +984,20 @@ int DoChemBomb(DSWActor* actor)
         auto nu = actorNew->u();
 
         SetOwner(actor, actorNew);
-        np->shade = -40;
-        np->xrepeat = 40;
-        np->yrepeat = 40;
-        np->opos = actor->spr.opos;
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 40;
+        actorNew->spr.yrepeat = 40;
+        actorNew->spr.opos = actor->spr.opos;
         // !Frank - dont do translucent
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        // SET(np->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        // SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        nu->spal = np->pal = PALETTE_PLAYER6;
+        nu->spal = actorNew->spr.pal = PALETTE_PLAYER6;
 
         ScaleSpriteVector(actorNew, 20000);
 
@@ -1224,23 +1224,23 @@ int SpawnRadiationCloud(DSWActor* actor)
 
     SetOwner(GetOwner(actor), actorNew);
     nu->WaitTics = 1 * 120;
-    np->shade = -40;
-    np->xrepeat = 32;
-    np->yrepeat = 32;
-    np->clipdist = actor->spr.clipdist;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    nu->spal = np->pal = PALETTE_PLAYER6;
+    actorNew->spr.shade = -40;
+    actorNew->spr.xrepeat = 32;
+    actorNew->spr.yrepeat = 32;
+    actorNew->spr.clipdist = actor->spr.clipdist;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    nu->spal = actorNew->spr.pal = PALETTE_PLAYER6;
     // Won't take floor palettes
-    np->hitag = SECTFU_DONT_COPY_PALETTE;
+    actorNew->spr.hitag = SECTFU_DONT_COPY_PALETTE;
 
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_XFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
     //if (RANDOM_P2(1024) < 512)
-    //SET(np->cstat, CSTAT_SPRITE_YFLIP);
+    //SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
-    np->ang = RANDOM_P2(2048);
-    np->xvel = RANDOM_P2(32);
+    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.xvel = RANDOM_P2(32);
 
     nu->Counter = 0;
     nu->Counter2 = 0;
@@ -1248,15 +1248,15 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121)
     {
         nu->Radius = 2000;
-        nu->xchange = (MOVEx(np->xvel>>2, np->ang));
-        nu->ychange = (MOVEy(np->xvel>>2, np->ang));
-        np->zvel = Z(1) + RANDOM_P2(Z(2));
+        nu->xchange = (MOVEx(actorNew->spr.xvel>>2, actorNew->spr.ang));
+        nu->ychange = (MOVEy(actorNew->spr.xvel>>2, actorNew->spr.ang));
+        actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
     }
     else
     {
-        nu->xchange = MOVEx(np->xvel, np->ang);
-        nu->ychange = MOVEy(np->xvel, np->ang);
-        np->zvel = Z(4) + RANDOM_P2(Z(4));
+        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
         nu->Radius = 4000;
     }
 
@@ -1674,8 +1674,8 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     if (u->flameActor != nullptr)
         u->flameActor = actorNew;
 
-    np->xrepeat = 16;
-    np->yrepeat = 16;
+    actorNew->spr.xrepeat = 16;
+    actorNew->spr.yrepeat = 16;
 
     if (u->flameActor != nullptr)
     {
@@ -1684,9 +1684,9 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     else
         nu->Counter = 0;                // max flame size
 
-    np->shade = -40;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     nu->Radius = 200;
 
