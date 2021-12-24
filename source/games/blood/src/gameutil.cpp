@@ -569,13 +569,13 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
             XSECTOR *pXSector = &pSector->xs();
             *floorZ += pXSector->Depth << 10;
         }
-        auto actor = barrier_cast<DBloodActor*>(pSector->upperLink);
-        if (actor)
+        auto linkActor = barrier_cast<DBloodActor*>(pSector->upperLink);
+        if (linkActor)
         {
-            auto link = actor->GetOwner();
-            vec3_t lpos = actor->spr.pos + link->spr.pos - actor->spr.pos;
-            getzrange(lpos, link->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-            *floorZ -= link->spr.pos.Z - actor->spr.pos.Z;
+            auto linkOwner = linkActor->GetOwner();
+            vec3_t lpos = actor->spr.pos + linkOwner->spr.pos - linkActor->spr.pos;
+            getzrange(lpos, linkOwner->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
+            *floorZ -= linkOwner->spr.pos.Z - linkActor->spr.pos.Z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -583,13 +583,13 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         auto pSector = ceilColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & CSTAT_SECTOR_SKY))
             *ceilZ = 0x80000000;
-        auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
-        if (actor)
+        auto linkActor = barrier_cast<DBloodActor*>(pSector->lowerLink);
+        if (linkActor)
         {
-            auto link = actor->GetOwner();
-            vec3_t lpos = actor->spr.pos + link->spr.pos - actor->spr.pos;
-            getzrange(lpos, link->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-            *ceilZ -= link->spr.pos.Z - actor->spr.pos.Z;
+            auto linkOwner = linkActor->GetOwner();
+            vec3_t lpos = actor->spr.pos + linkOwner->spr.pos - linkActor->spr.pos;
+            getzrange(lpos, linkOwner->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
+            *ceilZ -= linkOwner->spr.pos.Z - linkActor->spr.pos.Z;
         }
     }
     actor->spr.cstat = bakCstat;
