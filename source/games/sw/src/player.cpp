@@ -4535,18 +4535,15 @@ void DoPlayerDive(PLAYERp pp)
     if ((!Prediction && pp->z_speed && ((RANDOM_P2(1024<<5)>>5) < 64)) ||
         (PLAYER_MOVING(pp) && (RANDOM_P2(1024<<5)>>5) < 64))
     {
-        SPRITEp bp;
         int nx,ny;
 
         PlaySound(DIGI_BUBBLES, pp, v3df_none);
         auto bubble = SpawnBubble(pp->Actor());
         if (bubble != nullptr)
         {
-            bp = &bubble->s();
-
             // back it up a bit to get it out of your face
-            nx = MOVEx((128+64), NORM_ANGLE(bp->ang + 1024));
-            ny = MOVEy((128+64), NORM_ANGLE(bp->ang + 1024));
+            nx = MOVEx((128+64), NORM_ANGLE(bubble->spr.ang + 1024));
+            ny = MOVEy((128+64), NORM_ANGLE(bubble->spr.ang + 1024));
 
             move_sprite(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 0, synctics);
         }
@@ -5116,9 +5113,9 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
     pp->setcursector(sect);
     pp->lastcursector = pp->cursector;
 
-    auto rsp = &pp->remoteActor->s();
-    pp->pos.X = rsp->pos.X;
-    pp->pos.Y = rsp->pos.Y;
+    auto rsp = pp->remoteActor;
+    pp->pos.X = rsp->spr.pos.X;
+    pp->pos.Y = rsp->spr.pos.Y;
     pp->pos.Z = sect->floorz - PLAYER_HEIGHT;
 
     pp->xvect = pp->yvect = pp->oxvect = pp->oyvect = pp->slide_xvect = pp->slide_yvect = 0;
@@ -5146,9 +5143,9 @@ void DoPlayerStopOperate(PLAYERp pp)
 
     if (pp->sop_remote)
     {
-        auto rsp = &pp->remoteActor->s();
+        DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->angle.ang = pp->angle.oang = buildang(rsp->ang);
+            pp->angle.ang = pp->angle.oang = buildang(rsp->spr.ang);
         else
             pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->xmid - pp->pos.X, pp->sop_remote->ymid - pp->pos.Y);
     }
@@ -5744,13 +5741,12 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     }
 
     // follow what killed you if its available
-    if (pp->KillerActor != nullptr)
+    DSWActor* killer = pp->KillerActor;
+    if (killer)
     {
-        SPRITEp kp = &pp->KillerActor->s();
-
-        if (FAFcansee(kp->pos.X, kp->pos.Y, GetSpriteZOfTop(kp), kp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+        if (FAFcansee(killer->spr.pos.X, killer->spr.pos.Y, ActorZOfTop(killer), killer->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->pos.X - pp->pos.X, kp->pos.Y - pp->pos.Y)) >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(killer->spr.pos.X - pp->pos.X, killer->spr.pos.Y - pp->pos.Y)) >> 4);
         }
     }
 }
@@ -5851,7 +5847,7 @@ void DoPlayerHeadDebris(PLAYERp pp)
     }
 }
 
-SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
+void DoPlayerDeathCheckKick(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
@@ -5865,32 +5861,30 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
             auto hu = itActor->u();
 
             if (itActor == pp->Actor())
                 break;
 
             // don't set off mine
-            if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (unsigned(dist) < hu->Radius + 100)
             {
                 pp->KillerActor = itActor;
 
-                u->slide_ang = getangle(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y);
+                u->slide_ang = getangle(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y);
                 u->slide_ang = NORM_ANGLE(u->slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
-                u->slide_vel = hp->xvel<<1;
+                u->slide_vel = itActor->spr.xvel<<1;
                 RESET(u->Flags,SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
                 SET(pp->Flags, PF_JUMPING);
                 SpawnShrap(pp->Actor(), nullptr);
-                return hp;
             }
         }
     }
@@ -5907,10 +5901,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         SET(pp->Flags, PF_JUMPING);
         SpawnShrap(pp->Actor(), nullptr);
-        return nullptr;
     }
-
-    return nullptr;
 }
 
 
@@ -5930,18 +5921,14 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         case kHitSprite:
         {
             short wall_ang, dang;
-            SPRITEp hsp;
 
-            //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
+            auto hitActor = u->coll.actor();
 
-            auto hit_sprite = u->coll.actor();
-            hsp = &hit_sprite->s();
-
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (!TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 break;
 
 
-            wall_ang = NORM_ANGLE(hsp->ang);
+            wall_ang = NORM_ANGLE(hitActor->spr.ang);
             dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
