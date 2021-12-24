@@ -1508,13 +1508,13 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (j == 0) continue;
                 if ((cstat & 64) != 0)
                     if ((j < 0) == ((cstat & 8) == 0)) continue;
-                int32_t i = ((spr->pos.Z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->pos.Y, -day, sv->X - spr->pos.X, 15);
-                if ((i ^ j) < 0 || (abs(i) >> 1) >= abs(j)) continue;
+                int32_t dist2 = ((spr->pos.Z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->pos.Y, -day, sv->X - spr->pos.X, 15);
+                if ((dist2 ^ j) < 0 || (abs(dist2) >> 1) >= abs(j)) continue;
 
-                i = DivScale(i, j, 30);
-                intx = sv->X + MulScale(vx, i, 30);
-                inty = sv->Y + MulScale(vy, i, 30);
-                intz = sv->Z + MulScale(vz, i, 30);
+                dist2 = DivScale(dist2, j, 30);
+                intx = sv->X + MulScale(vx, dist2, 30);
+                inty = sv->Y + MulScale(vy, dist2, 30);
+                intz = sv->Z + MulScale(vz, dist2, 30);
 
                 if (abs(intx - sv->X) + abs(inty - sv->Y) > abs((hitinfo.hitpos.X) - sv->X) + abs((hitinfo.hitpos.Y) - sv->Y))
                     continue;

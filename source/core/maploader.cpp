@@ -534,7 +534,6 @@ void loadMapBackup(const char* filename)
 // Sets the sector reference for each wall. We need this for the triangulation cache.
 void setWallSectors()
 {
-	int i = 0;
 	for (auto& wal : wall)
 	{
 		wal.sector = -1;
@@ -587,6 +586,7 @@ void setWallSectors()
 		}
 	}
 
+	int i = 0;
 	for(auto& sect: sector)
 	{
 		sect.dirty = EDirty::AllDirty;
@@ -617,7 +617,7 @@ void setWallSectors()
 		{
 			if (wal.nextsector != wal.nextWall()->sector)
 			{
-				DPrintf(DMSG_ERROR, "Bad 'nextsector' reference %d on wall %d\n", wal.nextsector, i);
+				DPrintf(DMSG_ERROR, "Bad 'nextsector' reference %d on wall %d\n", wal.nextsector, wall.IndexOf(&wal));
 				wal.nextsector = wal.nextWall()->sector;
 			}
 		}

@@ -585,10 +585,10 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		PalEntry light = shadeToLight(sector[i].floorshade);
 		gotpic.Set(picnum);
 
-		for (auto sect : sectionsPerSector[i])
+		for (auto section : sectionsPerSector[i])
 		{
 			TArray<int>* indices;
-			auto mesh = sectionGeometry.get(sect, 0, { 0.f, 0.f }, &indices);
+			auto mesh = sectionGeometry.get(section, 0, { 0.f, 0.f }, &indices);
 			vertices.Resize(mesh->vertices.Size());
 			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{

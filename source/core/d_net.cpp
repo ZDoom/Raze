@@ -717,7 +717,7 @@ void PlayerIsGone (int netnode, int netconsole)
 	if (netconsole == Net_Arbitrator)
 	{
 		// Pick a new network arbitrator
-		for (int i = 0; i < MAXPLAYERS; i++)
+		for (int pl = 0; pl < MAXPLAYERS; pl++)
 		{
 #if 0
 			if (i != netconsole && playeringame[i] && players[i].Bot == NULL)
@@ -1010,18 +1010,18 @@ void NetUpdate (void)
 			if (maketic % ticdup != 0)
 			{
 				int mod = maketic - maketic % ticdup;
-				int j;
+				int tic;
 
 				// Update the buttons for all tics in this ticdup set as soon as
 				// possible so that the prediction shows jumping as correctly as
 				// possible. (If you press +jump in the middle of a ticdup set,
 				// the jump will actually begin at the beginning of the set, not
 				// in the middle.)
-				for (j = maketic-2; j >= mod; --j)
+				for (tic = maketic-2; tic >= mod; --tic)
 				{
-					localcmds[j % LOCALCMDTICS].ucmd.actions |=
-						localcmds[(j + 1) % LOCALCMDTICS].ucmd.actions;
-					localcmds[j % LOCALCMDTICS].ucmd.setNewWeapon(localcmds[(j + 1) % LOCALCMDTICS].ucmd.getNewWeapon());
+					localcmds[tic % LOCALCMDTICS].ucmd.actions |=
+						localcmds[(tic + 1) % LOCALCMDTICS].ucmd.actions;
+					localcmds[tic % LOCALCMDTICS].ucmd.setNewWeapon(localcmds[(tic + 1) % LOCALCMDTICS].ucmd.getNewWeapon());
 				}
 			}
 			else
@@ -1031,16 +1031,16 @@ void NetUpdate (void)
 				// need to update them in all the localcmds slots that
 				// are dupped so that prediction works properly.
 				int mod = maketic - ticdup;
-				int modp, j;
+				int modp, tic;
 
 				int svel = 0;
 				int fvel = 0;
 				float avel = 0;
 				float horz = 0;
 
-				for (j = 0; j < ticdup; ++j)
+				for (tic = 0; tic < ticdup; ++tic)
 				{
-					modp = (mod + j) % LOCALCMDTICS;
+					modp = (mod + tic) % LOCALCMDTICS;
 					svel += localcmds[modp].ucmd.svel;
 					fvel += localcmds[modp].ucmd.fvel;
 					avel += localcmds[modp].ucmd.avel;
@@ -1052,9 +1052,9 @@ void NetUpdate (void)
 				avel /= ticdup;
 				horz /= ticdup;
 
-				for (j = 0; j < ticdup; ++j)
+				for (tic = 0; tic < ticdup; ++tic)
 				{
-					modp = (mod + j) % LOCALCMDTICS;
+					modp = (mod + tic) % LOCALCMDTICS;
 					localcmds[modp].ucmd.svel = svel;
 					localcmds[modp].ucmd.fvel = fvel;
 					localcmds[modp].ucmd.avel = avel;

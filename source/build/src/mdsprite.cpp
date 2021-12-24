@@ -1264,14 +1264,14 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // PLAG: Cleaner model rotation code
     if (ownerActor->sprext.pitch || ownerActor->sprext.roll)
     {
-        float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.X+m1.X));
+        float factor = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.X+m1.X));
         memset(&a0, 0, sizeof(a0));
 
         if (ownerActor->sprext.pivot_offset.X)
-            a0.X = (float) ownerActor->sprext.pivot_offset.X * f;
+            a0.X = (float) ownerActor->sprext.pivot_offset.X * factor;
 
         if (ownerActor->sprext.pivot_offset.Y)  // Compare with SCREEN_FACTORS above
-            a0.Y = (float) ownerActor->sprext.pivot_offset.Y * f;
+            a0.Y = (float) ownerActor->sprext.pivot_offset.Y * factor;
 
         if ((ownerActor->sprext.pivot_offset.Z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.Z = (float)ownerActor->sprext.pivot_offset.Z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
@@ -1339,7 +1339,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
-        for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
+        for (int mm = 0; mm < 15; mm++) mat[mm] *= 1024.f;
         GLInterface.SetMatrix(Matrix_Model, mat);
         // PLAG: End
 
@@ -1367,7 +1367,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                     FVector3 const vlt[3] = { vertlist[s->tris[i].i[0]], vertlist[s->tris[i].i[1]], vertlist[s->tris[i].i[2]] };
 
                     // Matrix multiplication - ugly but clear
-                    FVector3 const fp[3] = { { (vlt[0].X * mat[0]) + (vlt[0].Y * mat[4]) + (vlt[0].Z * mat[8]) + mat[12],
+                    FVector3 const fpmat[3] = { { (vlt[0].X * mat[0]) + (vlt[0].Y * mat[4]) + (vlt[0].Z * mat[8]) + mat[12],
                                               (vlt[0].X * mat[1]) + (vlt[0].Y * mat[5]) + (vlt[0].Z * mat[9]) + mat[13],
                                               (vlt[0].X * mat[2]) + (vlt[0].Y * mat[6]) + (vlt[0].Z * mat[10]) + mat[14] },
 
@@ -1379,13 +1379,13 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                                               (vlt[2].X * mat[1]) + (vlt[2].Y * mat[5]) + (vlt[2].Z * mat[9]) + mat[13],
                                               (vlt[2].X * mat[2]) + (vlt[2].Y * mat[6]) + (vlt[2].Z * mat[10]) + mat[14] } };
 
-                    f = (fp[0].X * fp[0].X) + (fp[0].Y * fp[0].Y) + (fp[0].Z * fp[0].Z);
-                    g = (fp[1].X * fp[1].X) + (fp[1].Y * fp[1].Y) + (fp[1].Z * fp[1].Z);
+                    f = (fpmat[0].X * fpmat[0].X) + (fpmat[0].Y * fpmat[0].Y) + (fpmat[0].Z * fpmat[0].Z);
+                    g = (fpmat[1].X * fpmat[1].X) + (fpmat[1].Y * fpmat[1].Y) + (fpmat[1].Z * fpmat[1].Z);
 
                     if (f > g)
                         f = g;
 
-                    g = (fp[2].X * fp[2].X) + (fp[2].Y * fp[2].Y) + (fp[2].Z * fp[2].Z);
+                    g = (fpmat[2].X * fpmat[2].X) + (fpmat[2].Y * fpmat[2].Y) + (fpmat[2].Z * fpmat[2].Z);
 
                     if (f > g)
                         f = g;

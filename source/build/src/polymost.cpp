@@ -734,16 +734,16 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         float const d[2] = { ((dm0.Y - dm1.Y) * dx) - ((dm0.X - dm1.X) * cv[0]),
                              ((dm0.Y - dm1.Y) * dx) - ((dm0.X - dm1.X) * cv[1]) };
 
-        float const n[2] = { ((dm0.Y - cy[0]) * dx) - ((dm0.X - n0.X) * cv[0]),
+        float const nn[2] = { ((dm0.Y - cy[0]) * dx) - ((dm0.X - n0.X) * cv[0]),
                              ((dm0.Y - cy[1]) * dx) - ((dm0.X - n0.X) * cv[1]) };
 
-        float const fnx[2] = { dm0.X + ((n[0] / d[0]) * (dm1.X - dm0.X)),
-                               dm0.X + ((n[1] / d[1]) * (dm1.X - dm0.X)) };
+        float const fnx[2] = { dm0.X + ((nn[0] / d[0]) * (dm1.X - dm0.X)),
+                               dm0.X + ((nn[1] / d[1]) * (dm1.X - dm0.X)) };
 
-        if ((fabsf(d[0]) > fabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.X) && (fnx[0] < n1.X))
+        if ((fabsf(d[0]) > fabsf(nn[0])) && (d[0] * nn[0] >= 0.f) && (fnx[0] > n0.X) && (fnx[0] < n1.X))
             spx[scnt] = fnx[0], spt[scnt++] = 0;
 
-        if ((fabsf(d[1]) > fabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.X) && (fnx[1] < n1.X))
+        if ((fabsf(d[1]) > fabsf(nn[1])) && (d[1] * nn[1] >= 0.f) && (fnx[1] > n0.X) && (fnx[1] < n1.X))
             spx[scnt] = fnx[1], spt[scnt++] = 1;
 
         //Nice hack to avoid full sort later :)
@@ -1145,10 +1145,10 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
         if (globalorientation&64) //Hack for relative alignment on slopes
         {
-            float r = global_cf_heinum * (1.0f / 4096.f);
-            r = sqrtf(r*r+1);
-            if (!(globalorientation&4)) { xtex.v *= r; ytex.v *= r; otex.v *= r; }
-            else { xtex.u *= r; ytex.u *= r; otex.u *= r; }
+            float dist = global_cf_heinum * (1.0f / 4096.f);
+            dist = sqrtf(dist*dist+1);
+            if (!(globalorientation&4)) { xtex.v *= dist; ytex.v *= dist; otex.v *= dist; }
+            else { xtex.u *= dist; ytex.u *= dist; otex.u *= dist; }
         }
     }
 
@@ -1373,8 +1373,8 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
 
         for (int i = 0; i < 3; i++)
         {
-            FVector2 const o = { fxy[i].X-ghalfx, fxy[i].Y-ghalfy };
-            FVector3 const o2 = { o.X, o.Y, ghalfx / gvrcorrection };
+            FVector2 const o1 = { fxy[i].X-ghalfx, fxy[i].Y-ghalfy };
+            FVector3 const o2 = { o1.X, o1.Y, ghalfx / gvrcorrection };
 
             //Up/down rotation (backwards)
             vec3d_t v = { o2.X, o2.Y * gchang + o2.Z * gshang, o2.Z * gchang - o2.Y * gshang };
@@ -1440,10 +1440,10 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         // Transform back to polymost coordinates
         for (int i = 0; i < n3; i++)
         {
-            FVector3 const o = { cxy2[i].X-ghalfx, cxy2[i].Y-ghalfy, ghalfx / gvrcorrection };
+            FVector3 const o1 = { cxy2[i].X-ghalfx, cxy2[i].Y-ghalfy, ghalfx / gvrcorrection };
 
             //Up/down rotation
-            vec3d_t v = { o.X, o.Y * gchang + o.Z * gshang, o.Z * gchang - o.Y * gshang };
+            vec3d_t v = { o1.X, o1.Y * gchang + o1.Z * gshang, o1.Z * gchang - o1.Y * gshang };
             float const r = (ghalfx / gvrcorrection) / v.z;
             cxy[i].X = v.x * r + ghalfx;
             cxy[i].Y = v.y * r + ghalfy;
@@ -1582,8 +1582,8 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if (!(globalorientation&1))
         {
-            int32_t fz = getflorzofslopeptr(sec, globalposx, globalposy);
-            if (globalposz <= fz)
+            int32_t fslopez = getflorzofslopeptr(sec, globalposx, globalposy);
+            if (globalposz <= fslopez)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum, true);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat & CSTAT_SECTOR_SKY)))
@@ -1635,8 +1635,8 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if (!(globalorientation&1))
         {
-            int32_t cz = getceilzofslopeptr(sec, globalposx, globalposy);
-            if (globalposz >= cz)
+            int32_t cslopez = getceilzofslopeptr(sec, globalposx, globalposy);
+            if (globalposz >= cslopez)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum, false);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat & CSTAT_SECTOR_SKY)))
@@ -1981,20 +1981,20 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (intptr_t z=onumscans; z<numscans; z++)
+        for (intptr_t scan=onumscans; scan<numscans; scan++)
         {
-            if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > nexttowardf(dxb1[bunchp2[z]], dxb2[z])))
+            if ((wall[thewall[scan]].point2 != thewall[bunchp2[scan]]) || (dxb2[scan] > nexttowardf(dxb1[bunchp2[scan]], dxb2[scan])))
             {
-                bunchfirst[numbunches++] = bunchp2[z];
-                bunchp2[z] = -1;
+                bunchfirst[numbunches++] = bunchp2[scan];
+                bunchp2[scan] = -1;
             }
         }
 
-        for (intptr_t z=bunchfrst; z<numbunches; z++)
+        for (intptr_t bunch=bunchfrst; bunch<numbunches; bunch++)
         {
             int zz;
-            for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]) { }
-            bunchlast[z] = zz;
+            for (zz=bunchfirst[bunch]; bunchp2[zz]>=0; zz=bunchp2[zz]) { }
+            bunchlast[bunch] = zz;
         }
     }
     while (sectorbordercnt > 0);
@@ -2082,12 +2082,12 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
     xbt = py[0];
     xbb = py[0];
 
-    for (intptr_t i=n-1; i>=1; i--)
+    for (intptr_t ii = n - 1; ii >= 1; ii--)
     {
-        if (xbl > px[i]) xbl = px[i];
-        if (xbr < px[i]) xbr = px[i];
-        if (xbt > py[i]) xbt = py[i];
-        if (xbb < py[i]) xbb = py[i];
+        if (xbl > px[ii]) xbl = px[ii];
+        if (xbr < px[ii]) xbr = px[ii];
+        if (xbt > py[ii]) xbt = py[ii];
+        if (xbb < py[ii]) xbb = py[ii];
     }
 
     gtag = vcnt;
@@ -3559,14 +3559,13 @@ void renderDrawMasks(void)
 
     if (pm_spritesortcnt < numSprites)
     {
-        i = pm_spritesortcnt;
-        for (intptr_t i = pm_spritesortcnt; i < numSprites;)
+        for (intptr_t spr = pm_spritesortcnt; spr < numSprites;)
         {
-            int32_t py = spritesxyz[i].Y;
-            int32_t pcstat = tspriteptr[i]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
-            int32_t pangle = tspriteptr[i]->ang;
-            int j = i + 1;
-            if (!spriteIsModelOrVoxel(tspriteptr[i]))
+            int32_t py = spritesxyz[spr].Y;
+            int32_t pcstat = tspriteptr[spr]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
+            int32_t pangle = tspriteptr[spr]->ang;
+            int j = spr + 1;
+            if (!spriteIsModelOrVoxel(tspriteptr[spr]))
             {
                 while (j < numSprites && py == spritesxyz[j].Y && pcstat == (tspriteptr[j]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
                     && !spriteIsModelOrVoxel(tspriteptr[j]))
@@ -3574,17 +3573,17 @@ void renderDrawMasks(void)
                     j++;
                 }
             }
-            if (j - i == 1)
+            if (j - spr == 1)
             {
-                debugmask_add(i | 32768, tspriteptr[i]->owner);
-                Polymost::polymost_drawsprite(i);
-                tspriteptr[i] = NULL;
+                debugmask_add(spr | 32768, tspriteptr[spr]->owner);
+                Polymost::polymost_drawsprite(spr);
+                tspriteptr[spr] = NULL;
             }
             else
             {
                 GLInterface.SetDepthMask(false);
 
-                for (intptr_t k = j - 1; k >= i; k--)
+                for (intptr_t k = j - 1; k >= spr; k--)
                 {
                     debugmask_add(k | 32768, tspriteptr[k]->owner);
                     Polymost::polymost_drawsprite(k);
@@ -3594,7 +3593,7 @@ void renderDrawMasks(void)
 
                 GLInterface.SetColorMask(false);
 
-                for (intptr_t k = j - 1; k >= i; k--)
+                for (intptr_t k = j - 1; k >= spr; k--)
                 {
                     Polymost::polymost_drawsprite(k);
                     tspriteptr[k] = NULL;
@@ -3603,7 +3602,7 @@ void renderDrawMasks(void)
                 GLInterface.SetColorMask(true);
 
             }
-            i = j;
+            spr = j;
         }
     }
 
@@ -3908,9 +3907,9 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     // Adjust to backend coordinate system being used by the vertex buffer.
     for (int i = 4; i < 8; i++)
     {
-        float f = mat[i];
+        float val = mat[i];
         mat[i] = -mat[i + 4];
-        mat[i + 4] = -f;
+        mat[i + 4] = -val;
     }
 
     GLInterface.SetMatrix(Matrix_Model, mat);
