@@ -3519,7 +3519,6 @@ bool ItemSpotClear(DSWActor* actor, short statnum, short id)
 void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     auto sip = &spawner->s();
 
     // setup item for jumping
@@ -3530,18 +3529,17 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         u->floor_dist = Z(0);
         u->Counter = 0;
 
-        sp->xvel = (int)SP_TAG7(sip)<<2;
-        sp->zvel = -(((int)SP_TAG8(sip))<<5);
+        actor->spr.xvel = (int)SP_TAG7(sip)<<2;
+        actor->spr.zvel = -(((int)SP_TAG8(sip))<<5);
 
-        u->xchange = MOVEx(sp->xvel, sp->ang);
-        u->ychange = MOVEy(sp->xvel, sp->ang);
-        u->zchange = sp->zvel;
+        u->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+        u->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
+        u->zchange = actor->spr.zvel;
     }
 }
 
 int ActorCoughItem(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     short choose;
     DSWActor* actorNew = nullptr;
@@ -3550,12 +3548,12 @@ int ActorCoughItem(DSWActor* actor)
     switch (u->ID)
     {
     case SAILORGIRL_R0:
-        ASSERT(sp->insector());
-        actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+        ASSERT(actor->spr.insector());
+        actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = sp->pos.X;
-        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
         actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
@@ -3591,12 +3589,12 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(sp->insector());
-        actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+        ASSERT(actor->spr.insector());
+        actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = sp->pos.X;
-        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
         actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
@@ -3619,12 +3617,12 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(sp->insector());
-        actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+        ASSERT(actor->spr.insector());
+        actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = sp->pos.X;
-        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
         actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
@@ -3650,12 +3648,12 @@ int ActorCoughItem(DSWActor* actor)
             if (RANDOM_P2(1024) > 200)
                 return 0;
 
-            ASSERT(sp->insector());
-            actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+            ASSERT(actor->spr.insector());
+            actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
-            actorNew->spr.pos.X = sp->pos.X;
-            actorNew->spr.pos.Y = sp->pos.Y;
+            actorNew->spr.pos.X = actor->spr.pos.X;
+            actorNew->spr.pos.Y = actor->spr.pos.Y;
             actorNew->spr.pos.Z = ActorZOfMiddle(actor);
             actorNew->spr.ang = 0;
             actorNew->spr.extra = 0;
@@ -3712,12 +3710,12 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 512)
             return 0;
 
-        ASSERT(sp->insector());
-        actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+        ASSERT(actor->spr.insector());
+        actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = sp->pos.X;
-        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
         actorNew->spr.pos.Z = ActorZOfMiddle(actor);
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
@@ -3770,14 +3768,14 @@ int ActorCoughItem(DSWActor* actor)
     case PACHINKO3:
     case PACHINKO4:
 
-        ASSERT(sp->insector());
-        actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
+        ASSERT(actor->spr.insector());
+        actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = sp->pos.X;
-        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
         actorNew->spr.pos.Z = ActorLowerZ(actor) + Z(10);
-        actorNew->spr.ang = sp->ang;
+        actorNew->spr.ang = actor->spr.ang;
 
         // vel
         SP_TAG7(actorNew) = 10;
@@ -3827,7 +3825,7 @@ int ActorCoughItem(DSWActor* actor)
 int SpawnItemsMatch(short match)
 {
     DSWActor* spawnedActor = nullptr;
-    SPRITEp sp,sip;
+    SPRITEp sip;
 
     SWStatIterator it(STAT_SPAWN_ITEMS);
     while (auto itActor = it.Next())
@@ -4514,15 +4512,15 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
 void DoActorZrange(DSWActor* actor)
 {
     USERp u = actor->u(), wu;
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     Collision ceilhit, florhit;
 
-    auto save_cstat = sp->cstat & CSTAT_SPRITE_BLOCK;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-    vec3_t pos = sp->pos;
-    pos.Z -= DIV2(GetSpriteSizeZ(sp));
-    FAFgetzrange(pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
-    sp->cstat |= save_cstat;
+    auto save_cstat = actor->spr.cstat & CSTAT_SPRITE_BLOCK;
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    vec3_t pos = actor->spr.pos;
+    pos.Z -= (ActorSizeZ(actor) >> 1);
+    FAFgetzrange(pos, actor->spr.sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    actor->spr.cstat |= save_cstat;
 
     u->lo_sectp = u->hi_sectp = nullptr;
     u->highActor = nullptr;
@@ -4595,15 +4593,14 @@ int DoActorGlobZ(DSWActor* actor)
 
 bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, short min_height)
 {
-    SPRITEp sp = &actor->s();
     int hiz, loz;
     Collision ceilhit, florhit;
 
     // look only at the center point for a floor sprite
-    auto save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrangepoint(x, y, z - DIV2(GetSpriteSizeZ(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
-    SET(sp->cstat, save_cstat);
+    auto save_cstat = TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    FAFgetzrangepoint(x, y, z - (ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
+    SET(actor->spr.cstat, save_cstat);
 
     if (florhit.type < 0 || ceilhit.type < 0)
     {
@@ -4646,20 +4643,19 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
 // Primarily used in ai.c for now - need to get rid of
 bool DropAhead(DSWActor* actor, int  min_height)
 {
-    SPRITEp sp = &actor->s();
     int dax, day;
 
-    // dax = sp->x + MOVEx(128, sp->ang);
-    // day = sp->y + MOVEy(128, sp->ang);
+    // dax = actor->spr.x + MOVEx(128, actor->spr.ang);
+    // day = actor->spr.y + MOVEy(128, actor->spr.ang);
 
-    dax = sp->pos.X + MOVEx(256, sp->ang);
-    day = sp->pos.Y + MOVEy(256, sp->ang);
+    dax = actor->spr.pos.X + MOVEx(256, actor->spr.ang);
+    day = actor->spr.pos.Y + MOVEy(256, actor->spr.ang);
 
-    auto newsector = sp->sector();
+    auto newsector = actor->spr.sector();
     updatesector(dax, day, &newsector);
 
     // look straight down for a drop
-    if (ActorDrop(actor, dax, day, sp->pos.Z, newsector, min_height))
+    if (ActorDrop(actor, dax, day, actor->spr.pos.Z, newsector, min_height))
         return true;
 
     return false;
@@ -4678,7 +4674,6 @@ bool DropAhead(DSWActor* actor, int  min_height)
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     int x, y, z, loz, hiz;
     DSWActor* highActor;
@@ -4692,36 +4687,36 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        sp->pos.Z = u->sz;
+        actor->spr.pos.Z = u->sz;
     }
 
     // save off x,y values
-    x = sp->pos.X;
-    y = sp->pos.Y;
-    z = sp->pos.Z;
+    x = actor->spr.pos.X;
+    y = actor->spr.pos.Y;
+    z = actor->spr.pos.Z;
     loz = u->loz;
     hiz = u->hiz;
     lowActor = u->lowActor;
     highActor = u->highActor;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
-    auto sect = sp->sector();
+    auto sect = actor->spr.sector();
 
     u->coll = move_sprite(actor, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
 
-    ASSERT(sp->insector());
+    ASSERT(actor->spr.insector());
 
     // try and determine whether you moved > lo_step in the z direction
     if (!TEST(u->Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING))
     {
-        if (labs(sp->pos.Z - globloz) > u->lo_step)
+        if (labs(actor->spr.pos.Z - globloz) > u->lo_step)
         {
             // cancel move
-            sp->pos.X = x;
-            sp->pos.Y = y;
-            sp->pos.Z = z;
-            //sp->z = u->loz;             // place on ground in case you are in the air
+            actor->spr.pos.X = x;
+            actor->spr.pos.Y = y;
+            actor->spr.pos.Z = z;
+            //actor->spr.z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
             u->lowActor = lowActor;
@@ -4733,13 +4728,13 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(actor, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), u->lo_step))
+        if (ActorDrop(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), u->lo_step))
         {
             // cancel move
-            sp->pos.X = x;
-            sp->pos.Y = y;
-            sp->pos.Z = z;
-            //sp->z = u->loz;             // place on ground in case you are in the air
+            actor->spr.pos.X = x;
+            actor->spr.pos.Y = y;
+            actor->spr.pos.Z = z;
+            //actor->spr.z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
             u->lowActor = lowActor;
@@ -4757,7 +4752,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     if (u->coll.type == kHitNone)
     {
         // Keep track of how far sprite has moved
-        dist = Distance(x, y, sp->pos.X, sp->pos.Y);
+        dist = Distance(x, y, actor->spr.pos.X, actor->spr.pos.Y);
         u->TargetDist -= dist;
         u->Dist += dist;
         u->DistCheck += dist;
@@ -4779,37 +4774,36 @@ int DoStayOnFloor(DSWActor* actor)
 int DoGrating(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int dir;
     const int GRATE_FACTOR = 3;
 
     // reduce to 0 to 3 value
-    dir = sp->ang >> 9;
+    dir = actor->spr.ang >> 9;
 
     if ((dir & 1) == 0)
     {
         if (dir == 0)
-            sp->pos.X += 2 * GRATE_FACTOR;
+            actor->spr.pos.X += 2 * GRATE_FACTOR;
         else
-            sp->pos.X -= 2 * GRATE_FACTOR;
+            actor->spr.pos.X -= 2 * GRATE_FACTOR;
     }
     else
     {
         if (dir == 1)
-            sp->pos.Y += 2 * GRATE_FACTOR;
+            actor->spr.pos.Y += 2 * GRATE_FACTOR;
         else
-            sp->pos.Y -= 2 * GRATE_FACTOR;
+            actor->spr.pos.Y -= 2 * GRATE_FACTOR;
     }
 
-    sp->hitag -= GRATE_FACTOR;
+    actor->spr.hitag -= GRATE_FACTOR;
 
-    if (sp->hitag <= 0)
+    if (actor->spr.hitag <= 0)
     {
         change_actor_stat(actor, STAT_DEFAULT);
         actor->clearUser();
     }
 
-    SetActorZ(actor, &sp->pos);
+    SetActorZ(actor, &actor->spr.pos);
 
     return 0;
 }
@@ -4819,9 +4813,8 @@ int DoGrating(DSWActor* actor)
 int DoKey(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
-    sp->ang = NORM_ANGLE(sp->ang + (14 * ACTORMOVETICS));
+    actor->spr.ang = NORM_ANGLE(actor->spr.ang + (14 * ACTORMOVETICS));
 
     DoGet(actor);
     return 0;
@@ -4865,7 +4858,6 @@ int DoCoin(DSWActor* actor)
 int KillGet(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     USERp nu;
 
@@ -4885,14 +4877,14 @@ int KillGet(DSWActor* actor)
         }
 
         u->WaitTics = 30*120;
-        SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
-        if (!gNet.SpawnMarkers || sp->hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
+        if (!gNet.SpawnMarkers || actor->spr.hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         nu = actorNew->u();
 
@@ -4907,7 +4899,6 @@ int KillGet(DSWActor* actor)
 int KillGetAmmo(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     USERp nu;
 
@@ -4935,14 +4926,14 @@ int KillGetAmmo(DSWActor* actor)
         }
 
         u->WaitTics = 30*120;
-        SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
         if (!gNet.SpawnMarkers)
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         nu = actorNew->u();
 
@@ -4957,7 +4948,6 @@ int KillGetAmmo(DSWActor* actor)
 int KillGetWeapon(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     USERp nu;
 
@@ -4993,14 +4983,14 @@ int KillGetWeapon(DSWActor* actor)
             break;
 
         u->WaitTics = 30*120;
-        SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
         if (!gNet.SpawnMarkers)
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         nu = actorNew->u();
 
@@ -5012,14 +5002,14 @@ int KillGetWeapon(DSWActor* actor)
     return 0;
 }
 
-int DoSpawnItemTeleporterEffect(SPRITEp sp)
+int DoSpawnItemTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
     SPRITEp ep;
 
-    auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         sp->pos.X, sp->pos.Y, sp->pos.Z - Z(12),
-                         sp->ang, 0);
+    auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
+                         actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(12),
+                         actor->spr.ang, 0);
 
     ep = &effect->s();
 
@@ -5099,7 +5089,6 @@ int DoGet(DSWActor* actor)
 {
     USER* u = actor->u();
 	USERp pu;
-    SPRITEp sp = &actor->s();
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
@@ -5111,24 +5100,24 @@ int DoGet(DSWActor* actor)
     // Invisiblility is only used for DeathMatch type games
     // Sprites stays invisible for a period of time and is un-gettable
     // then "Re-Spawns" by becomming visible.  Its never actually killed.
-    if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
     {
         u->WaitTics -= ACTORMOVETICS * 2;
         if (u->WaitTics <= 0)
         {
             PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
-            DoSpawnItemTeleporterEffect(sp);
-            RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            DoSpawnItemTeleporterEffect(actor);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
         }
 
         return 0;
     }
 
-    if (sp->xvel)
+    if (actor->spr.xvel)
     {
         if (!DoItemFly(actor))
         {
-            sp->xvel = 0;
+            actor->spr.xvel = 0;
             change_actor_stat(actor, STAT_ITEM);
         }
     }
@@ -5141,7 +5130,7 @@ int DoGet(DSWActor* actor)
         if (TEST(pp->Flags, PF_DEAD))
             continue;
 
-        DISTANCE(pp->pos.X, pp->pos.Y, sp->pos.X, sp->pos.Y, dist, a,b,c);
+        DISTANCE(pp->pos.X, pp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a,b,c);
         if ((unsigned)dist > (pu->Radius + u->Radius))
         {
             continue;
@@ -5152,11 +5141,11 @@ int DoGet(DSWActor* actor)
             continue;
         }
 
-        auto cstat_bak = sp->cstat;
-        SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(),
+        auto cstat_bak = actor->spr.cstat;
+        SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        can_see = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(),
                             pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector);
-        sp->cstat = cstat_bak;
+        actor->spr.cstat = cstat_bak;
 
         if (!can_see)
         {
@@ -5937,17 +5926,17 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (sp->pal == pp->Actor()->spr.pal) break; // Can't pick up your own flag!
+            if (actor->spr.pal == pp->Actor()->spr.pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
             DSWActor* actorNew;
-            if (sp->hitag == TAG_NORESPAWN_FLAG)
-                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sector(),
-                                  sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
+            if (actor->spr.hitag == TAG_NORESPAWN_FLAG)
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, actor->spr.sector(),
+                                  actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
             else
-                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sector(),
-                                  sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, actor->spr.sector(),
+                                  actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
             nu = actorNew->u();
             actorNew->spr.shade = -20;
@@ -5958,7 +5947,7 @@ KeyMain:
             SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
             nu->sz = ActorZOfMiddle(pp->Actor());  // Set mid way up who it hit
-            nu->spal = actorNew->spr.pal = sp->pal;   // Set the palette of the flag
+            nu->spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
             nu->flagOwnerActor = actor;       // Tell carried flag who owns it
@@ -5999,7 +5988,6 @@ void ProcessActiveVars(DSWActor* actor)
 void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     DSWActor* plActor = pp->actor;
     SPRITEp psp = &plActor->s();
     int look_height;
@@ -6025,8 +6013,8 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
     //
 
     // if actor can still see the player
-    look_height = GetSpriteZOfTop(sp);
-    if (FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, ActorUpperZ(plActor), psp->sector()))
+    look_height = ActorZOfTop(actor);
+    if (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), psp->pos.X, psp->pos.Y, ActorUpperZ(plActor), psp->sector()))
     {
         // Player is visible
         // adjust update range of this sprite
@@ -6051,7 +6039,6 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 int  StateControl(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     short StateTics;
 
     if (!u->State)
@@ -6061,7 +6048,7 @@ int  StateControl(DSWActor* actor)
         return 0;
     }
 
-    if (sp->statnum >= STAT_SKIP4_START && sp->statnum <= STAT_SKIP4_END)
+    if (actor->spr.statnum >= STAT_SKIP4_START && actor->spr.statnum <= STAT_SKIP4_END)
         u->Tics += ACTORMOVETICS * 2;
     else
         u->Tics += ACTORMOVETICS;
@@ -6124,9 +6111,9 @@ int  StateControl(DSWActor* actor)
         else
         {
             if (u->RotNum > 1)
-                sp->picnum = u->Rot[0]->Pic;
+                actor->spr.picnum = u->Rot[0]->Pic;
             else
-                sp->picnum = u->State->Pic;
+                actor->spr.picnum = u->State->Pic;
         }
 
         // Call the correct animator
@@ -6142,7 +6129,6 @@ int  StateControl(DSWActor* actor)
 void SpriteControl(void)
 {
     int32_t stat;
-    SPRITEp sp;
     USERp u;
     short pnum, CloseToPlayer;
     PLAYERp pp;
@@ -6177,7 +6163,6 @@ void SpriteControl(void)
             if (!actor->hasU()) continue;
 
             u = actor->u();
-            sp = &actor->s();
 
             CloseToPlayer = false;
 
@@ -6188,7 +6173,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->pos.X, pp->pos.Y, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
+                DISTANCE(pp->pos.X, pp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
                 AdjustActiveRange(pp, actor, dist);
 
@@ -6467,9 +6452,8 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
-    sp->backuppos();
-    u->oz = sp->opos.Z;
+    actor->spr.backuppos();
+    u->oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
@@ -6477,16 +6461,14 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
-    sp->backuppos();
-    u->oz = sp->opos.Z;
+    actor->spr.backuppos();
+    u->oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }
 
 void MissileWarpType(DSWActor* actor, DSWActor* act_warp)
 {
-    auto sp_warp = &act_warp->s();
     switch (SP_TAG1(act_warp))
     {
     case WARP_CEILING_PLANE:
@@ -6494,13 +6476,13 @@ void MissileWarpType(DSWActor* actor, DSWActor* act_warp)
         return;
     }
 
-    switch (SP_TAG3(sp_warp))
+    switch (SP_TAG3(act_warp))
     {
     case 1:
         break;
     default:
         PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
-        DoSpawnItemTeleporterEffect(&actor->s());
+        DoSpawnItemTeleporterEffect(actor);
         break;
     }
 }
@@ -6539,17 +6521,16 @@ int MissileWaterAdjust(DSWActor* actor)
 int MissileZrange(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
-    auto tempshort = sp->cstat;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
+    auto tempshort = actor->spr.cstat;
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z - 1, sp->sector(),
+    FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - 1, actor->spr.sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
-    sp->cstat = tempshort;
+    actor->spr.cstat = tempshort;
 
     DoActorGlobZ(actor);
     return 0;
@@ -6559,20 +6540,19 @@ int MissileZrange(DSWActor* actor)
 Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     Collision retval{};
     int zh;
 
     ASSERT(actor->hasU());
 
-    vec3_t clippos = sp->pos;
+    vec3_t clippos = actor->spr.pos;
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    auto dasect = sp->sector();
+    auto dasect = actor->spr.sector();
     auto lastsect = dasect;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_YCENTER))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YCENTER))
     {
         zh = 0;
     }
@@ -6585,8 +6565,8 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     clipmove(clippos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-    sp->pos.vec2 = clippos.vec2;
+                      (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
+    actor->spr.pos.vec2 = clippos.vec2;
 
     if (dasect == nullptr)
     {
@@ -6595,18 +6575,18 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         return retval;
     }
 
-    if ((dasect != sp->sector()) && (dasect != nullptr))
+    if ((dasect != actor->spr.sector()) && (dasect != nullptr))
         ChangeActorSect(actor, dasect);
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
-    auto tempshort = sp->cstat;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
+    auto tempshort = actor->spr.cstat;
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z - 1, sp->sector(),
+    FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - 1, actor->spr.sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
-    sp->cstat = tempshort;
+    actor->spr.cstat = tempshort;
 
     DoActorGlobZ(actor);
 
@@ -6614,7 +6594,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // missiles don't need the water to be down
     MissileWaterAdjust(actor);
 
-    clippos.Z = sp->pos.Z + ((zchange * numtics) >> 3);
+    clippos.Z = actor->spr.pos.Z + ((zchange * numtics) >> 3);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
@@ -6623,37 +6603,37 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (clippos.Z - zh <= u->hiz + ceildist)
     {
         // normal code
-        sp->pos.Z = u->hiz + zh + ceildist;
+        actor->spr.pos.Z = u->hiz + zh + ceildist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else if (clippos.Z - zh > u->loz - flordist)
     {
-        sp->pos.Z = u->loz + zh - flordist;
+        actor->spr.pos.Z = u->loz + zh - flordist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else
     {
-        sp->pos.Z = clippos.Z;
+        actor->spr.pos.Z = clippos.Z;
     }
 
-    if (FAF_ConnectArea(sp->sector()))
-        SetActorZ(actor, &sp->pos);
+    if (FAF_ConnectArea(actor->spr.sector()))
+        SetActorZ(actor, &actor->spr.pos);
 
-    if (TEST(sp->sector()->extra, SECTFX_WARP_SECTOR))
+    if (TEST(actor->spr.sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
+        if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
         {
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
-        if (sp->sector() != lastsect)
+        if (actor->spr.sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
+            if ((sp_warp = Warp(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
             {
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
@@ -6661,17 +6641,17 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY))
+    if (retval.type != kHitNone && TEST(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY))
     {
-        if (sp->pos.Z < sp->sector()->ceilingz)
+        if (actor->spr.pos.Z < actor->spr.sector()->ceilingz)
         {
             retval.setVoid();
         }
     }
 
-    if (retval.type != kHitNone && TEST(sp->sector()->floorstat, CSTAT_SECTOR_SKY))
+    if (retval.type != kHitNone && TEST(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY))
     {
-        if (sp->pos.Z > sp->sector()->floorz)
+        if (actor->spr.pos.Z > actor->spr.sector()->floorz)
         {
             retval.setVoid();
         }
@@ -6684,7 +6664,6 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     int daz;
     Collision retval{};
     int ox,oy;
@@ -6693,25 +6672,25 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    auto dasect = sp->sector();
+    auto dasect = actor->spr.sector();
     auto lastsect = dasect;
 
-    vec3_t opos = sp->pos;
-    daz = sp->pos.Z;
+    vec3_t opos = actor->spr.pos;
+    daz = actor->spr.pos.Z;
 
     // climbing a wall
     if (u->z_tgt)
     {
-        if (labs(u->z_tgt - sp->pos.Z) > Z(40))
+        if (labs(u->z_tgt - actor->spr.pos.Z) > Z(40))
         {
-            if (u->z_tgt > sp->pos.Z)
+            if (u->z_tgt > actor->spr.pos.Z)
             {
-                sp->pos.Z += Z(30);
+                actor->spr.pos.Z += Z(30);
                 return retval;
             }
             else
             {
-                sp->pos.Z -= Z(30);
+                actor->spr.pos.Z -= Z(30);
                 return retval;
             }
         }
@@ -6719,22 +6698,22 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
             u->z_tgt = 0;
     }
 
-    sp->pos.X += xchange/2;
-    sp->pos.Y += ychange/2;
+    actor->spr.pos.X += xchange/2;
+    actor->spr.pos.Y += ychange/2;
 
-    updatesector(sp->pos.X, sp->pos.Y, &dasect);
+    updatesector(actor->spr.pos.X, actor->spr.pos.Y, &dasect);
 
     if (dasect == nullptr)
     {
         // back up and try again
-        dasect = sp->sector();
+        dasect = actor->spr.sector();
         lastsect = dasect;
-        opos = sp->pos;
+        opos = actor->spr.pos;
         opos.Z = daz;
         clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-        sp->pos.vec2 = opos.vec2;
+                          (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
+        actor->spr.pos.vec2 = opos.vec2;
     }
 
     if (dasect == nullptr)
@@ -6752,20 +6731,20 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
 
     u->z_tgt = 0;
-    if ((dasect != sp->sector()) && (dasect != nullptr))
+    if ((dasect != actor->spr.sector()) && (dasect != nullptr))
     {
         int new_loz,new_hiz;
-        getzsofslopeptr(dasect, sp->pos.X, sp->pos.Y, &new_hiz, &new_loz);
+        getzsofslopeptr(dasect, actor->spr.pos.X, actor->spr.pos.Y, &new_hiz, &new_loz);
 
-        sp->pos.Z = new_loz;
+        actor->spr.pos.Z = new_loz;
         ChangeActorSect(actor, dasect);
     }
 
-    getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &u->hiz, &u->loz);
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
 
-    u->hi_sectp = u->lo_sectp = sp->sector();
+    u->hi_sectp = u->lo_sectp = actor->spr.sector();
     u->highActor = nullptr; u->lowActor = nullptr;
-    sp->pos.Z = u->loz - Z(8);
+    actor->spr.pos.Z = u->loz - Z(8);
 
     if (labs(u->hiz - u->loz) < Z(12))
     {
@@ -6774,19 +6753,19 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         return retval;
     }
 
-    if (TEST(sp->sector()->extra, SECTFX_WARP_SECTOR))
+    if (TEST(actor->spr.sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
+        if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
         {
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
-        if (sp->sector() != lastsect)
+        if (actor->spr.sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
+            if ((sp_warp = Warp(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
             {
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
