@@ -37,51 +37,50 @@ BEGIN_SW_NS
 void SectorLightShade(DSWActor* actor, short intensity)
 {
 	auto u = actor->hasU()? actor->u() : nullptr;
-    auto sp = &actor->s();
     int8_t* wall_shade;
     short base_shade;
 
-    if (TEST_BOOL8(sp))
+    if (TEST_BOOL8(actor))
         intensity = -intensity;
 
-    if (!TEST_BOOL2(sp))
+    if (!TEST_BOOL2(actor))
     {
-        if (!TEST_BOOL6(sp))
-            sp->sector()->floorpal = sp->pal;
-        sp->sector()->floorshade = LIGHT_FloorShade(actor) + intensity;     // floor change
+        if (!TEST_BOOL6(actor))
+            actor->spr.sector()->floorpal = actor->spr.pal;
+        actor->spr.sector()->floorshade = LIGHT_FloorShade(actor) + intensity;     // floor change
     }
 
-    if (!TEST_BOOL3(sp))
+    if (!TEST_BOOL3(actor))
     {
-        if (!TEST_BOOL6(sp))
-            sp->sector()->ceilingpal = sp->pal;
-        sp->sector()->ceilingshade = LIGHT_CeilingShade(actor) + intensity;   // ceiling change
+        if (!TEST_BOOL6(actor))
+            actor->spr.sector()->ceilingpal = actor->spr.pal;
+        actor->spr.sector()->ceilingshade = LIGHT_CeilingShade(actor) + intensity;   // ceiling change
     }
 
     // change wall
-    if (!TEST_BOOL4(sp))
+    if (!TEST_BOOL4(actor))
     {
         ASSERT(u && u->WallShade.Data());
         wall_shade = u->WallShade.Data();
         int wallcount = 0;
 
-        for(auto &wal : wallsofsector(sp->sector()))
+        for(auto &wal : wallsofsector(actor->spr.sector()))
         {
             base_shade = wall_shade[wallcount];
             wal.shade = base_shade + intensity;
-            if (!TEST_BOOL6(sp))
-                wal.pal = sp->pal;
+            if (!TEST_BOOL6(actor))
+                wal.pal = actor->spr.pal;
             wallcount++;
 
-            if (TEST(sp->extra, SPRX_BOOL5))
+            if (TEST(actor->spr.extra, SPRX_BOOL5))
             {
                 if (wal.twoSided())
                 {
                     auto nextWall = wal.nextWall();
                     base_shade = wall_shade[wallcount];
                     nextWall->shade = base_shade + intensity;
-                    if (!TEST_BOOL6(sp))
-                        nextWall->pal = sp->pal;
+                    if (!TEST_BOOL6(actor))
+                        nextWall->pal = actor->spr.pal;
                     wallcount++;
                 }
             }
@@ -92,7 +91,6 @@ void SectorLightShade(DSWActor* actor, short intensity)
 
 void DiffuseLighting(DSWActor* actor)
 {
-    auto sp = &actor->s();
     int i;
     short count;
     short shade;
@@ -107,13 +105,13 @@ void DiffuseLighting(DSWActor* actor)
         if (LIGHT_Match(itActor) != LIGHT_Match(actor))
             continue;
 
-        shade = sp->shade + ((LIGHT_DiffuseNum(itActor) + 1) * LIGHT_DiffuseMult(itActor));
+        shade = actor->spr.shade + ((LIGHT_DiffuseNum(itActor) + 1) * LIGHT_DiffuseMult(itActor));
 
         if (shade > LIGHT_MaxDark(actor))
             shade = LIGHT_MaxDark(actor);
 
         if (!TEST_BOOL6(itActor))
-            itActor->spr.pal = sp->pal;
+            itActor->spr.pal = actor->spr.pal;
 
         SectorLightShade(itActor, shade);
 
@@ -257,16 +255,13 @@ void InitLighting(void)
 
 void DoLighting(void)
 {
-    SPRITEp sp;
-
     SWStatIterator it(STAT_LIGHTING);
     while (auto itActor = it.Next())
     {
         auto u = itActor->u();
-        sp = &itActor->s();
 
         // on/off test
-        if (TEST_BOOL1(sp) == OFF)
+        if (TEST_BOOL1(itActor) == OFF)
             continue;
 
         switch (LIGHT_Type(itActor))
@@ -283,19 +278,19 @@ void DoLighting(void)
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
-                    sp->shade = -LIGHT_MaxBright(itActor) + RandomRange(LIGHT_MaxBright(itActor) + LIGHT_MaxDark(itActor));
-                    SectorLightShade(itActor, sp->shade);
+                    itActor->spr.shade = -LIGHT_MaxBright(itActor) + RandomRange(LIGHT_MaxBright(itActor) + LIGHT_MaxDark(itActor));
+                    SectorLightShade(itActor, itActor->spr.shade);
                     DiffuseLighting(itActor);
                 }
                 else
                 {
                     // turn off lighting - even colored lighting
-                    auto spal = sp->pal;
-                    sp->pal = 0;
-                    sp->shade = LIGHT_MaxDark(itActor);
-                    SectorLightShade(itActor, sp->shade);
+                    auto spal = itActor->spr.pal;
+                    itActor->spr.pal = 0;
+                    itActor->spr.shade = LIGHT_MaxDark(itActor);
+                    SectorLightShade(itActor, itActor->spr.shade);
                     DiffuseLighting(itActor);
-                    sp->pal = spal;
+                    itActor->spr.pal = spal;
                 }
             }
 
@@ -311,18 +306,18 @@ void DoLighting(void)
 
                 if (LIGHT_Dir(itActor) == 1)
                 {
-                    sp->shade += LIGHT_ShadeInc(itActor);
-                    if (sp->shade >= LIGHT_MaxDark(itActor))
+                    itActor->spr.shade += LIGHT_ShadeInc(itActor);
+                    if (itActor->spr.shade >= LIGHT_MaxDark(itActor))
                         LIGHT_DirChange(itActor);
                 }
                 else
                 {
-                    sp->shade -= LIGHT_ShadeInc(itActor);
-                    if (sp->shade <= -LIGHT_MaxBright(itActor))
+                    itActor->spr.shade -= LIGHT_ShadeInc(itActor);
+                    if (itActor->spr.shade <= -LIGHT_MaxBright(itActor))
                         LIGHT_DirChange(itActor);
                 }
 
-                SectorLightShade(itActor, sp->shade);
+                SectorLightShade(itActor, itActor->spr.shade);
                 DiffuseLighting(itActor);
             }
 
@@ -338,10 +333,10 @@ void DoLighting(void)
 
                 if (LIGHT_Dir(itActor) == 1)
                 {
-                    sp->shade += LIGHT_ShadeInc(itActor);
-                    if (sp->shade >= LIGHT_MaxDark(itActor))
+                    itActor->spr.shade += LIGHT_ShadeInc(itActor);
+                    if (itActor->spr.shade >= LIGHT_MaxDark(itActor))
                     {
-                        sp->pal = 0; // off
+                        itActor->spr.pal = 0; // off
                         LIGHT_DirChange(itActor);
                         // stop it until switch is hit
                         RESET_BOOL1(itActor);
@@ -349,9 +344,9 @@ void DoLighting(void)
                 }
                 else
                 {
-                    sp->shade -= LIGHT_ShadeInc(itActor);
-                    sp->pal = u->spal; // on
-                    if (sp->shade <= -LIGHT_MaxBright(itActor))
+                    itActor->spr.shade -= LIGHT_ShadeInc(itActor);
+                    itActor->spr.pal = u->spal; // on
+                    if (itActor->spr.shade <= -LIGHT_MaxBright(itActor))
                     {
                         LIGHT_DirChange(itActor);
                         // stop it until switch is hit
@@ -359,7 +354,7 @@ void DoLighting(void)
                     }
                 }
 
-                SectorLightShade(itActor, sp->shade);
+                SectorLightShade(itActor, itActor->spr.shade);
                 DiffuseLighting(itActor);
             }
 
@@ -375,26 +370,26 @@ void DoLighting(void)
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
-                    sp->shade = -LIGHT_MaxBright(itActor) + RandomRange(LIGHT_MaxBright(itActor) + LIGHT_MaxDark(itActor));
-                    SectorLightShade(itActor, sp->shade);
+                    itActor->spr.shade = -LIGHT_MaxBright(itActor) + RandomRange(LIGHT_MaxBright(itActor) + LIGHT_MaxDark(itActor));
+                    SectorLightShade(itActor, itActor->spr.shade);
                     DiffuseLighting(itActor);
                 }
                 else
                 {
                     // turn off lighting - even colored lighting
-                    auto spal = sp->pal;
-                    sp->pal = 0;
-                    sp->shade = LIGHT_MaxDark(itActor);
-                    SectorLightShade(itActor, sp->shade);
+                    auto spal = itActor->spr.pal;
+                    itActor->spr.pal = 0;
+                    itActor->spr.shade = LIGHT_MaxDark(itActor);
+                    SectorLightShade(itActor, itActor->spr.shade);
                     DiffuseLighting(itActor);
-                    sp->pal = spal;
+                    itActor->spr.pal = spal;
                 }
 
                 if ((RANDOM_P2(128 << 8) >> 8) < 8)
                 {
                     // set to full brightness
-                    sp->shade = -LIGHT_MaxBright(itActor);
-                    SectorLightShade(itActor, sp->shade);
+                    itActor->spr.shade = -LIGHT_MaxBright(itActor);
+                    SectorLightShade(itActor, itActor->spr.shade);
                     DiffuseLighting(itActor);
                     // turn it off until a swith happens
                     RESET_BOOL1(itActor);
