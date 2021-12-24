@@ -235,20 +235,17 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 {
 
     auto actorNew = insertActor(sect, STAT_QUAKE_ON);
-    auto sp = &actorNew->s();
 
-    sp->pos.X = x;
-    sp->pos.Y = y;
-    sp->pos.Z = z;
-    sp->cstat = 0;
-    sp->extra = 0;
+    actorNew->spr.pos = { x, y, z };
+    actorNew->spr.cstat = 0;
+    actorNew->spr.extra = 0;
 
     QUAKE_Match(actorNew) = -1;
     QUAKE_Zamt(actorNew) = uint8_t(amt);
-    QUAKE_Radius(sp) = radius/8;
-    QUAKE_Duration(sp) = tics;
-    QUAKE_AngAmt(sp) = 8;
-    QUAKE_PosAmt(sp) = 0;
+    QUAKE_Radius(actorNew) = radius/8;
+    QUAKE_Duration(actorNew) = tics;
+    QUAKE_AngAmt(actorNew) = 8;
+    QUAKE_PosAmt(actorNew) = 0;
 
     PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
 }
