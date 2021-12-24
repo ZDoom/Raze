@@ -1149,25 +1149,25 @@ void BunnyHatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         np = &actorNew->s();
-        np->clear();
-        np->pos.X = actor->spr.pos.X;
-        np->pos.Y = actor->spr.pos.Y;
-        np->pos.Z = actor->spr.pos.Z;
-        np->xrepeat = 30;  // Baby size
-        np->yrepeat = 24;
-        np->ang = rip_ang[i];
-        np->pal = 0;
+        actorNew->spr.clear();
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
+        actorNew->spr.pos.Z = actor->spr.pos.Z;
+        actorNew->spr.xrepeat = 30;  // Baby size
+        actorNew->spr.yrepeat = 24;
+        actorNew->spr.ang = rip_ang[i];
+        actorNew->spr.pal = 0;
         SetupBunny(actorNew);
         nu = actorNew->u();
-        np->shade = actor->spr.shade;
+        actorNew->spr.shade = actor->spr.shade;
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
         if (RandomRange(1000) > 500) // Boy or Girl?
-            nu->spal = np->pal = PALETTE_PLAYER0; // Girl
+            nu->spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
         else
         {
-            nu->spal = np->pal = PALETTE_PLAYER8; // Boy
+            nu->spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
             // Oops, mommy died giving birth to a boy
             if (RandomRange(1000) > 500)
             {
@@ -1210,28 +1210,28 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 
     auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
     auto np = &actorNew->s();
-    np->clear();
-    np->pos.X = actor->spr.pos.X;
-    np->pos.Y = actor->spr.pos.Y;
-    np->pos.Z = actor->spr.pos.Z;
-    np->xrepeat = 30;  // Baby size
-    np->yrepeat = 24;
-    np->ang = RANDOM_P2(2048);
-    np->pal = 0;
+    actorNew->spr.clear();
+    actorNew->spr.pos.X = actor->spr.pos.X;
+    actorNew->spr.pos.Y = actor->spr.pos.Y;
+    actorNew->spr.pos.Z = actor->spr.pos.Z;
+    actorNew->spr.xrepeat = 30;  // Baby size
+    actorNew->spr.yrepeat = 24;
+    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.pal = 0;
     SetupBunny(actorNew);
     auto nu = actorNew->u();
-    np->shade = actor->spr.shade;
+    actorNew->spr.shade = actor->spr.shade;
 
     // make immediately active
     SET(nu->Flags, SPR_ACTIVE);
     if (RandomRange(1000) > 500) // Boy or Girl?
     {
-        nu->spal = np->pal = PALETTE_PLAYER0; // Girl
+        nu->spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
         nu->Flag1 = SEC(5);
     }
     else
     {
-        nu->spal = np->pal = PALETTE_PLAYER8; // Boy
+        nu->spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
         nu->Flag1 = 0;
     }
 
@@ -1243,11 +1243,11 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     if (TEST_BOOL3(actor))
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
-        np->xrepeat = np->yrepeat = 64;
-        np->xvel = 150 + RandomRange(1000);
+        actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
+        actorNew->spr.xvel = 150 + RandomRange(1000);
         nu->Health = 1; // Easy to pop. Like shootn' skeet.
-        np->ang -= RandomRange(128);
-        np->ang += RandomRange(128);
+        actorNew->spr.ang -= RandomRange(128);
+        actorNew->spr.ang += RandomRange(128);
     }
     else
         PickJumpMaxSpeed(actorNew, -600);
