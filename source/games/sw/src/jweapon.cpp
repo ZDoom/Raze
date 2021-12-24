@@ -1306,28 +1306,28 @@ int PlayerInitChemBomb(PLAYERp pp)
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        wp->xvel -= (wp->xvel >> 2);
+        actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
 
 //    wu->RotNum = 5;
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->Actor(), actorNew);
-    wp->yrepeat = 32;
-    wp->xrepeat = 32;
-    wp->shade = -15;
+    actorNew->spr.yrepeat = 32;
+    actorNew->spr.xrepeat = 32;
+    actorNew->spr.shade = -15;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER);
-    SET(wp->cstat, CSTAT_SPRITE_BLOCK);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = -pp->horizon.horiz.asq16() >> 9;
+    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
     // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d", pp->horizon.horiz.asbuild(), pp->horizon.horizoff.asbuild(),
     // pp->horizon.horizoff.asbuild() + pp->horizon.horiz.asbuild());
@@ -1336,20 +1336,20 @@ int PlayerInitChemBomb(PLAYERp pp)
     auto psp = &pp->Actor()->s();
     oclipdist = psp->clipdist;
     psp->clipdist = 0;
-    wp->clipdist = 0;
+    actorNew->spr.clipdist = 0;
 
-//    wp->ang = NORM_ANGLE(wp->ang - 512);
+//    actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 //    HelpMissileLateral(actorNew, 800);
-//    wp->ang = NORM_ANGLE(wp->ang + 512);
+//    actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
     psp->clipdist = uint8_t(oclipdist);
-    wp->clipdist = 80L >> 2;
+    actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel >> 1;
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
     wu->xchange += pp->xvect >> 14;
@@ -1385,24 +1385,24 @@ int InitSpriteChemBomb(DSWActor* actor)
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
-    wp->yrepeat = 32;
-    wp->xrepeat = 32;
-    wp->shade = -15;
+    actorNew->spr.yrepeat = 32;
+    actorNew->spr.xrepeat = 32;
+    actorNew->spr.shade = -15;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER);
-    SET(wp->cstat, CSTAT_SPRITE_BLOCK);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    wp->clipdist = 80L >> 2;
+    actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel >> 1;
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = actorNew->spr.zvel >> 1;
 
     // Smoke will come out for this many seconds
     wu->WaitTics = CHEMTICS;
@@ -1437,37 +1437,37 @@ int InitChemBomb(DSWActor* actor)
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(GetOwner(actor), actorNew);
-    wp->yrepeat = 32;
-    wp->xrepeat = 32;
-    wp->shade = -15;
+    actorNew->spr.yrepeat = 32;
+    actorNew->spr.xrepeat = 32;
+    actorNew->spr.shade = -15;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
     // invis.
-    RESET(wp->cstat, CSTAT_SPRITE_BLOCK);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
-    wp->clipdist = 0;
+    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->spr.clipdist = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121 || u->ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
         wu->xchange = 0;
         wu->ychange = 0;
         wu->zchange = 0;
-        wp->xvel = wp->yvel = wp->zvel = 0;
+        actorNew->spr.xvel = actorNew->spr.yvel = actorNew->spr.zvel = 0;
         // Smoke will come out for this many seconds
         wu->WaitTics = 40*120;
     }
     else
     {
-        wu->xchange = MOVEx(wp->xvel, wp->ang);
-        wu->ychange = MOVEy(wp->xvel, wp->ang);
-        wu->zchange = wp->zvel >> 1;
+        wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        wu->zchange = actorNew->spr.zvel >> 1;
         // Smoke will come out for this many seconds
         wu->WaitTics = 3*120;
     }
@@ -1835,32 +1835,32 @@ int InitPhosphorus(DSWActor* actor)
     wp = &actorNew->s();
     wu = actorNew->u();
 
-    wp->hitag = LUMINOUS;               // Always full brightness
+    actorNew->spr.hitag = LUMINOUS;               // Always full brightness
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
     // !Frank - don't do translucent
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER);
-    // SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
-    wp->shade = -128;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    // SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
+    actorNew->spr.shade = -128;
 
-    wp->yrepeat = 64;
-    wp->xrepeat = 64;
-    wp->shade = -15;
+    actorNew->spr.yrepeat = 64;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     if (actor->spr.clipdist > 0)
-        wp->clipdist = actor->spr.clipdist-1;
+        actorNew->spr.clipdist = actor->spr.clipdist-1;
     else
-        wp->clipdist = actor->spr.clipdist;
+        actorNew->spr.clipdist = actor->spr.clipdist;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 600;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = (wp->zvel >> 1);
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = (actorNew->spr.zvel >> 1);
 
     return 0;
 }
@@ -1919,27 +1919,27 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         SET(wu->Flags, SPR_XFLIP_TOGGLE);
         if (dogib)
-            SET(wp->cstat, CSTAT_SPRITE_YCENTER);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
         else
-            SET(wp->cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
-        wp->shade = -12;
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
+        actorNew->spr.shade = -12;
 
         SetOwner(actor, actorNew);
-        wp->yrepeat = 64-RandomRange(35);
-        wp->xrepeat = 64-RandomRange(35);
-        wp->shade = -15;
-        wp->clipdist = actor->spr.clipdist;
+        actorNew->spr.yrepeat = 64-RandomRange(35);
+        actorNew->spr.xrepeat = 64-RandomRange(35);
+        actorNew->spr.shade = -15;
+        actorNew->spr.clipdist = actor->spr.clipdist;
         wu->WeaponNum = u->WeaponNum;
         wu->Radius = 600;
         wu->ceiling_dist = Z(3);
         wu->floor_dist = Z(3);
         wu->Counter = 0;
 
-        wp->zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
+        actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
-        wu->xchange = MOVEx(wp->xvel, wp->ang);
-        wu->ychange = MOVEy(wp->xvel, wp->ang);
-        wu->zchange = wp->zvel >> 1;
+        wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        wu->zchange = actorNew->spr.zvel >> 1;
 
         if (!GlobalSkipZrange)
             DoActorZrange(actorNew);
@@ -2319,69 +2319,69 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     wp = &actorNew->s();
     wu = actorNew->u();
 
-    wp->zvel = -(velocity);
+    actorNew->spr.zvel = -(velocity);
 
     if (u->PlayerP)
     {
-        wp->pos.Z += xs_CRoundToInt(-MulScaleF(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3., 16));
+        actorNew->spr.pos.Z += xs_CRoundToInt(-MulScaleF(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3., 16));
     }
 
     switch (wu->ID)
     {
     case UZI_SHELL:
-        wp->pos.Z -= Z(13);
+        actorNew->spr.pos.Z -= Z(13);
 
         if (ShellNum == -3)
         {
-            wp->ang = actor->spr.ang;
+            actorNew->spr.ang = actor->spr.ang;
             HelpMissileLateral(actorNew,2500);
-            wp->ang = NORM_ANGLE(wp->ang-512);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-512);
             HelpMissileLateral(actorNew,1000); // Was 1500
-            wp->ang = NORM_ANGLE(wp->ang+712);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+712);
         }
         else
         {
-            wp->ang = actor->spr.ang;
+            actorNew->spr.ang = actor->spr.ang;
             HelpMissileLateral(actorNew,2500);
-            wp->ang = NORM_ANGLE(wp->ang+512);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);
             HelpMissileLateral(actorNew,1500);
-            wp->ang = NORM_ANGLE(wp->ang-128);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128);
         }
-        wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
-        wp->ang = NORM_ANGLE(wp->ang);
+        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number
         wu->ShellNum = ShellCount;
-        wp->yrepeat = wp->xrepeat = 13;
+        actorNew->spr.yrepeat = actorNew->spr.xrepeat = 13;
         break;
     case SHOT_SHELL:
-        wp->pos.Z -= Z(13);
-        wp->ang = actor->spr.ang;
+        actorNew->spr.pos.Z -= Z(13);
+        actorNew->spr.ang = actor->spr.ang;
         HelpMissileLateral(actorNew,2500);
-        wp->ang = NORM_ANGLE(wp->ang+512);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);
         HelpMissileLateral(actorNew,1300);
-        wp->ang = NORM_ANGLE(wp->ang-128-64);
-        wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
-        wp->ang = NORM_ANGLE(wp->ang);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128-64);
+        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number
         wu->ShellNum = ShellCount;
-        wp->yrepeat = wp->xrepeat = 18;
+        actorNew->spr.yrepeat = actorNew->spr.xrepeat = 18;
         break;
     }
 
     SetOwner(actor, actorNew);
-    wp->shade = -15;
+    actorNew->spr.shade = -15;
     wu->ceiling_dist = Z(1);
     wu->floor_dist = Z(1);
     wu->Counter = 0;
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(wp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(wu->Flags, SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel;
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = actorNew->spr.zvel;
     //if (TEST(u->PlayerP->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
     //    SET(wu->Flags, SPR_UNDERWATER);
     wu->jump_speed = 200;
