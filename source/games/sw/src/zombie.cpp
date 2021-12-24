@@ -783,14 +783,14 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
     np = &actorNew->s();
     nu = actorNew->u();
-    np->setsector(pp->cursector);
+    actorNew->spr.setsector(pp->cursector);
     SetOwner(actorNew, ownerActor);
-    np->pal = nu->spal = ownerActor->user.spal;
-    np->ang = RANDOM_P2(2048);
+    actorNew->spr.pal = nu->spal = ownerActor->user.spal;
+    actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
-    np->shade = -10;
+    actorNew->spr.shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 
@@ -836,12 +836,12 @@ void SpawnZombie2(DSWActor* actor)
     nu = actorNew->u();
     nu->Counter3 = 0;
     SetOwner(ownerActor, actorNew);
-    np->pal = nu->spal = ownerActor->user.spal;
-    np->ang = RANDOM_P2(2048);
+    actorNew->spr.pal = nu->spal = ownerActor->user.spal;
+    actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
-    np->shade = -10;
+    actorNew->spr.shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 

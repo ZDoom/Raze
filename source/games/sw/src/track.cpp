@@ -317,14 +317,14 @@ DSWActor* TrackClonePoint(DSWActor* actor)
 
     np = &actorNew->s();
 
-    np->cstat = 0;
-    np->extra = 0;
-    np->pos.X = sp->pos.X;
-    np->pos.Y = sp->pos.Y;
-    np->pos.Z = sp->pos.Z;
-    np->ang = sp->ang;
-    np->lotag = sp->lotag;
-    np->hitag = sp->hitag;
+    actorNew->spr.cstat = 0;
+    actorNew->spr.extra = 0;
+    actorNew->spr.pos.X = sp->pos.X;
+    actorNew->spr.pos.Y = sp->pos.Y;
+    actorNew->spr.pos.Z = sp->pos.Z;
+    actorNew->spr.ang = sp->ang;
+    actorNew->spr.lotag = sp->lotag;
+    actorNew->spr.hitag = sp->hitag;
 
     return actorNew;
 }

@@ -1228,16 +1228,16 @@ void Ripper2Hatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         np = &actorNew->s();
-        np->clear();
+        actorNew->spr.clear();
         ClearOwner(actorNew);
-        np->pos.X = actor->spr.pos.X;
-        np->pos.Y = actor->spr.pos.Y;
-        np->pos.Z = actor->spr.pos.Z;
-        //np->xrepeat = np->yrepeat = 36;
-        np->xrepeat = np->yrepeat = 64;
-        np->ang = rip_ang[i];
-        np->pal = 0;
-        np->shade = -10;
+        actorNew->spr.pos.X = actor->spr.pos.X;
+        actorNew->spr.pos.Y = actor->spr.pos.Y;
+        actorNew->spr.pos.Z = actor->spr.pos.Z;
+        //actorNew->spr.xrepeat = actorNew->spr.yrepeat = 36;
+        actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
+        actorNew->spr.ang = rip_ang[i];
+        actorNew->spr.pal = 0;
+        actorNew->spr.shade = -10;
         SetupRipper2(actorNew);
         nu = actorNew->u();
 
