@@ -724,7 +724,6 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
 
 int SetupBunny(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -839,7 +838,6 @@ int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp psp = &u->targetActor->s();
     int tang;
 
@@ -875,7 +873,6 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 int DoBunnyMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -906,11 +903,10 @@ int DoBunnyMoveJump(DSWActor* actor)
 void DoPickCloseBunny(DSWActor* actor)
 {
     auto u = actor->u();
-    SPRITEp sp = &actor->s();
     int dist, near_dist = 1000, a,b,c;
 
     // if actor can still see the player
-    int look_height = GetSpriteZOfTop(sp);
+    int look_height = ActorZOfTop(actor);
     bool ICanSee = false;
 
     SWStatIterator it(STAT_ENEMY);
@@ -919,7 +915,7 @@ void DoPickCloseBunny(DSWActor* actor)
         auto tsp = &itActor->s();
         auto tu = itActor->u();
 
-        if (sp == tsp) continue;
+        if (actor == itActor) continue;
 
         if (tu->ID != BUNNY_RUN_R0) continue;
 
@@ -943,7 +939,6 @@ void DoPickCloseBunny(DSWActor* actor)
 int DoBunnyQuickJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (u->spal != PALETTE_PLAYER8) return false;
 
@@ -1032,7 +1027,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfTop(sp),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1047,7 +1042,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfTop(sp),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1113,8 +1108,6 @@ int DoBunnyPain(DSWActor* actor)
 int DoBunnyRipHeart(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     SPRITEp tsp = &u->targetActor->s();
 
     NewStateGroup(actor, sg_BunnyHeart);
@@ -1143,7 +1136,6 @@ int DoBunnyStandKill(DSWActor* actor)
 
 void BunnyHatch(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     SPRITEp np;
@@ -1215,22 +1207,20 @@ void BunnyHatch(DSWActor* actor)
 
 DSWActor* BunnyHatch2(DSWActor* actor)
 {
-    SPRITEp wp = &actor->s();
 
-
-    auto actorNew = insertActor(wp->sector(), STAT_DEFAULT);
+    auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
     auto np = &actorNew->s();
     np->clear();
-    np->pos.X = wp->pos.X;
-    np->pos.Y = wp->pos.Y;
-    np->pos.Z = wp->pos.Z;
+    np->pos.X = actor->spr.pos.X;
+    np->pos.Y = actor->spr.pos.Y;
+    np->pos.Z = actor->spr.pos.Z;
     np->xrepeat = 30;  // Baby size
     np->yrepeat = 24;
     np->ang = RANDOM_P2(2048);
     np->pal = 0;
     SetupBunny(actorNew);
     auto nu = actorNew->u();
-    np->shade = wp->shade;
+    np->shade = actor->spr.shade;
 
     // make immediately active
     SET(nu->Flags, SPR_ACTIVE);
@@ -1250,7 +1240,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     NewStateGroup(actorNew, nu->ActorActionSet->Jump);
     nu->ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
-    if (TEST_BOOL3(wp))
+    if (TEST_BOOL3(actor))
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         np->xrepeat = np->yrepeat = 64;
@@ -1281,7 +1271,6 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 int DoBunnyMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    auto sp = &actor->s();
 
     // Parental lock crap
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
@@ -1361,8 +1350,6 @@ int BunnySpew(DSWActor* actor)
 int DoBunnyEat(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1412,7 +1399,6 @@ int DoBunnyEat(DSWActor* actor)
 int DoBunnyScrew(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1460,7 +1446,6 @@ int DoBunnyScrew(DSWActor* actor)
 int DoBunnyGrowUp(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (actor->spr.pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 
