@@ -5420,7 +5420,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 
 int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
 {
-    auto actor = pp->actor;
+    DSWActor* actor = pp->actor;
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 

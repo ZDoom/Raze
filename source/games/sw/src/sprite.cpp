@@ -6050,7 +6050,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    auto plActor = pp->actor;
+    DSWActor* plActor = pp->actor;
     SPRITEp psp = &plActor->s();
     int look_height;
 

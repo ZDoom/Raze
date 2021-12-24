@@ -358,7 +358,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
 
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
-        auto plActor = pp->actor;
+        DSWActor* plActor = pp->actor;
         if (dist < near_dist && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpperZ(plActor), plActor->spr.sector()))
         {
             near_dist = dist;

@@ -1495,7 +1495,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    auto actor = pp->actor;
+    DSWActor* actor = pp->actor;
     USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
