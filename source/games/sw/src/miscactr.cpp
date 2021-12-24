@@ -116,7 +116,7 @@ int  SetupToiletGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -136,10 +136,10 @@ int  SetupToiletGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 38;
-    sp->yrepeat = 32;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = TOILETGIRL_R0;
+    actor->spr.xrepeat = 38;
+    actor->spr.yrepeat = 32;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = TOILETGIRL_R0;
     u->FlagOwner = 0;
     u->ID = TOILETGIRL_R0;
 
@@ -155,7 +155,7 @@ int DoToiletGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner != 1)
     {
@@ -198,7 +198,7 @@ int DoToiletGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -210,7 +210,7 @@ int NullToiletGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -352,7 +352,7 @@ int SetupWashGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -371,10 +371,10 @@ int SetupWashGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 28;
-    sp->yrepeat = 24;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = WASHGIRL_R0;
+    actor->spr.xrepeat = 28;
+    actor->spr.yrepeat = 24;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = WASHGIRL_R0;
     u->FlagOwner = 0;
     u->ID = WASHGIRL_R0;
 
@@ -390,7 +390,7 @@ int DoWashGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
@@ -442,7 +442,7 @@ int DoWashGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -454,7 +454,7 @@ int NullWashGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -559,7 +559,7 @@ int SetupTrashCan(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -579,13 +579,13 @@ int SetupTrashCan(DSWActor* actor)
     u->RotNum = 0;
 
 
-    sp->xrepeat = 46;
-    sp->yrepeat = 42;
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xrepeat = 46;
+    actor->spr.yrepeat = 42;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
     u->ID = TRASHCAN;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -604,7 +604,7 @@ int DoTrashCan(DSWActor* actor)
         KeepActorOnFloor(actor);
     }
 
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -664,7 +664,7 @@ int SetupPachinkoLight(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -684,13 +684,13 @@ int SetupPachinkoLight(DSWActor* actor)
     u->RotNum = 0;
     u->ID = PACHINKOLIGHT_R0;
 
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = TAG_PACHINKOLIGHT;
-    sp->shade = -2;
-    u->spal = sp->pal;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = TAG_PACHINKOLIGHT;
+    actor->spr.shade = -2;
+    u->spal = actor->spr.pal;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -702,7 +702,7 @@ int PachinkoLightOperate(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        sp->shade = -2;
+        actor->spr.shade = -2;
         ChangeState(actor,s_PachinkoLightStand);
     }
     return 0;
@@ -764,7 +764,7 @@ int SetupPachinko1(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -784,11 +784,11 @@ int SetupPachinko1(DSWActor* actor)
     u->RotNum = 0;
     u->ID = PACHINKO1;
 
-    sp->yvel = sp->zvel = 0;
-    sp->lotag = PACHINKO1;
+    actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = PACHINKO1;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -813,9 +813,9 @@ int PachinkoCheckWin(DSWActor* actor)
         USERp tu;
 
         // Do a possible combo switch
-        if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
+        if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, actor->spr.hitag))
         {
-            DoMatchEverything(Player+myconnectindex, sp->hitag, ON);
+            DoMatchEverything(Player+myconnectindex, actor->spr.hitag, ON);
         }
 
         ActorCoughItem(actor); // I WON! I WON!
@@ -934,7 +934,7 @@ int SetupPachinko2(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -954,11 +954,11 @@ int SetupPachinko2(DSWActor* actor)
     u->RotNum = 0;
     u->ID = PACHINKO2;
 
-    sp->yvel = sp->zvel = 0;
-    sp->lotag = PACHINKO2;
+    actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = PACHINKO2;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -1017,7 +1017,7 @@ int SetupPachinko3(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1037,11 +1037,11 @@ int SetupPachinko3(DSWActor* actor)
     u->RotNum = 0;
     u->ID = PACHINKO3;
 
-    sp->yvel = sp->zvel = 0;
-    sp->lotag = PACHINKO3;
+    actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = PACHINKO3;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -1101,7 +1101,7 @@ int SetupPachinko4(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1121,11 +1121,11 @@ int SetupPachinko4(DSWActor* actor)
     u->RotNum = 0;
     u->ID = PACHINKO4;
 
-    sp->yvel = sp->zvel = 0;
-    sp->lotag = PACHINKO4;
+    actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = PACHINKO4;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    RESET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -1213,7 +1213,7 @@ int SetupCarGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1233,15 +1233,15 @@ int SetupCarGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 29;
-    sp->yrepeat = 25;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = CARGIRL_R0;
+    actor->spr.xrepeat = 29;
+    actor->spr.yrepeat = 25;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = CARGIRL_R0;
     u->FlagOwner = 0;
     u->ID = CARGIRL_R0;
 
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
-    SET(sp->cstat, CSTAT_SPRITE_XFLIP);
+    SET(actor->spr.cstat, CSTAT_SPRITE_XFLIP);
 
     return 0;
 }
@@ -1253,7 +1253,7 @@ int DoCarGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1287,7 +1287,7 @@ int DoCarGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -1299,7 +1299,7 @@ int NullCarGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1428,7 +1428,7 @@ int SetupMechanicGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1448,10 +1448,10 @@ int SetupMechanicGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 27;
-    sp->yrepeat = 26;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = MECHANICGIRL_R0;
+    actor->spr.xrepeat = 27;
+    actor->spr.yrepeat = 26;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = MECHANICGIRL_R0;
     u->FlagOwner = 0;
     u->ID = MECHANICGIRL_R0;
 
@@ -1467,7 +1467,7 @@ int DoMechanicGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1501,7 +1501,7 @@ int DoMechanicGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -1513,7 +1513,7 @@ int NullMechanicGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1643,7 +1643,7 @@ int SetupSailorGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1663,10 +1663,10 @@ int SetupSailorGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 28;
-    sp->yrepeat = 26;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = SAILORGIRL_R0;
+    actor->spr.xrepeat = 28;
+    actor->spr.yrepeat = 26;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = SAILORGIRL_R0;
     u->FlagOwner = 0;
     u->ID = SAILORGIRL_R0;
 
@@ -1683,7 +1683,7 @@ int DoSailorGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1721,7 +1721,7 @@ int DoSailorGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -1734,7 +1734,7 @@ int NullSailorGirl(DSWActor* actor)
     static short alreadythrew = 0;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1851,7 +1851,7 @@ int SetupPruneGirl(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -1871,10 +1871,10 @@ int SetupPruneGirl(DSWActor* actor)
     u->Rot = 0;
     u->RotNum = 0;
 
-    sp->xrepeat = 33;
-    sp->yrepeat = 28;
-    sp->xvel = sp->yvel = sp->zvel = 0;
-    sp->lotag = PRUNEGIRL_R0;
+    actor->spr.xrepeat = 33;
+    actor->spr.yrepeat = 28;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
+    actor->spr.lotag = PRUNEGIRL_R0;
     u->FlagOwner = 0;
     u->ID = PRUNEGIRL_R0;
 
@@ -1890,7 +1890,7 @@ int DoPruneGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1940,7 +1940,7 @@ int DoPruneGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    sp->xvel = sp->yvel = sp->zvel = 0;
+    actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
 
     return 0;
 }
@@ -1952,7 +1952,7 @@ int NullPruneGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
