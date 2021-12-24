@@ -751,7 +751,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     BoundActor = FindBoundSprite(SECT_SO_CENTER);
     if (BoundActor)
     {
-        auto BoundSprite = &BoundActor->s();
+        BoundSprite = &BoundActor->s();
         sop->xmid = BoundSprite->pos.X;
         sop->ymid = BoundSprite->pos.Y;
         sop->zmid = BoundSprite->pos.Z;
@@ -863,7 +863,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         while (auto itActor = it.Next())
         {
             SPRITEp sp = &itActor->s();
-            USERp u;
 
             if (sp->pos.X > xlow && sp->pos.X < xhigh && sp->pos.Y > ylow && sp->pos.Y < yhigh)
             {
@@ -974,7 +973,6 @@ cont:
     if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
     {
         SPRITEp sp;
-        USERp u;
         int zmid = -9999999;
 
         // choose the lowest sprite for the zmid
@@ -1005,7 +1003,6 @@ cont:
 
 void SetupSectorObject(sectortype* sectp, short tag)
 {
-    SPRITEp sp;
     SECTOR_OBJECTp sop;
     int object_num;
     short j;
@@ -1163,7 +1160,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 case SPAWN_SPOT:
                     if (sp->clipdist == 3)
                     {
-                        USERp u;
                         change_actor_stat(actor, STAT_NO_STATE);
                         u = SpawnUser(actor, 0, nullptr);
                         u->ActorActionFunc = nullptr;
@@ -1385,9 +1381,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
         if (sop->max_damage <= 0)
             VehicleSetSmoke(sop, SpawnVehicleSmoke);
-
-        // find radius
-        //u->Radius = sop->
 
         break;
     }
@@ -2593,7 +2586,6 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
         if (TEST(sop->flags, SOBJ_ZDIFF_MODE))
         {
-            int dist;
             short i;
 
             // set dx,dy,dz up for finding the z magnitude
@@ -2713,8 +2705,6 @@ void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 {
     SECTORp *sectp;
-    SPRITEp sp;
-    USERp u;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
@@ -3593,8 +3583,6 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (TEST(u->Flags, SPR_ZDIFF_MODE))
         {
-            int dist;
-
             // set dx,dy,dz up for finding the z magnitude
             dx = tpoint->x;
             dy = tpoint->y;

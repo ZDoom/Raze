@@ -2526,7 +2526,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SWSectIterator it(*sectp);
+        it.Reset(*sectp);
         while (auto actor = it.Next())
         {
             sp = &actor->s();
@@ -3381,7 +3381,6 @@ void DoPlayerClimb(PLAYERp pp)
 
     if (LadderUpdate)
     {
-        SPRITEp lsp;
         int nx,ny;
         HitInfo near;
 
@@ -3698,16 +3697,16 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
 
 
     SWStatIterator it(stat);
-    while (auto actor = it.Next())
+    while (auto itActor = it.Next())
     {
-        auto fp = &actor->s();
+        auto fp = &itActor->s();
 
         dist = Distance(sp->pos.X, sp->pos.Y, fp->pos.X, fp->pos.Y);
 
         if (dist < near_dist)
         {
             near_dist = dist;
-            near_fp = actor;
+            near_fp = itActor;
         }
     }
 
@@ -7040,7 +7039,7 @@ void InitMultiPlayerInfo(void)
         if (gNet.MultiGameType != MULTI_GAME_NONE)
         {
             // if start position is physically set then don't spawn a new one
-            SWStatIterator it(MultiStatList[stat]);
+            it.Reset(MultiStatList[stat]);
             if (it.Next())
                 continue;
         }

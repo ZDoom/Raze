@@ -57,7 +57,6 @@ void SectorLightShade(DSWActor* actor, short intensity)
     auto sp = &actor->s();
     int8_t* wall_shade;
     short base_shade;
-    short wallcount;
 
     if (TEST_BOOL8(sp))
         intensity = -intensity;

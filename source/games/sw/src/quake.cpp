@@ -183,7 +183,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     SWStatIterator it(STAT_QUAKE_ON);
 	while (auto actor = it.Next())
 	{
-		auto sp = &actor->s();
+		sp = &actor->s();
 
         dist = FindDistance3D(pp->pos.X - sp->pos.X, pp->pos.Y - sp->pos.Y, pp->pos.Z - sp->pos.Z);
 

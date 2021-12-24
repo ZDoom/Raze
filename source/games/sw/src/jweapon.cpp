@@ -2235,16 +2235,13 @@ int DoCarryFlagNoDet(DSWActor* actor)
         fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
 
     // if no Owner then die
-    if (u->attachActor != nullptr)
+    if (ap != nullptr)
     {
-        SPRITEp ap = &u->attachActor->s();
-
         vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
         SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
         sp->pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
     }
-
 
     if (!au || au->Health <= 0)
     {

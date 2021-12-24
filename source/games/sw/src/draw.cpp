@@ -614,7 +614,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     int smr4, smr2;
     USERp tu;
     static int ang = 0;
-    PLAYERp pp = Player + screenpeek;
+    PLAYERp pp = nullptr;
     int newshade=0;
 
     const int DART_PIC = 2526;
@@ -790,7 +790,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             // sw if its your playersprite
             if (Player[screenpeek].Actor() == tActor)
             {
-                PLAYERp pp = Player + screenpeek;
+                pp = Player + screenpeek;
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
                     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
@@ -822,7 +822,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             }
             else // Otherwise just interpolate the player sprite
             {
-                PLAYERp pp = tu->PlayerP;
+                pp = tu->PlayerP;
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->pos.X - pp->opos.X, sr, 16);
                 tsp->pos.Y -= MulScale(pp->pos.Y - pp->opos.Y, sr, 16);
@@ -1663,7 +1663,7 @@ bool GameInterface::GenerateSavePic()
 
 bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
-    int i, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
     int xvect, yvect;

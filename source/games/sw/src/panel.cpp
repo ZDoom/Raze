@@ -922,7 +922,7 @@ void RetractCurWpn(PLAYERp pp)
         {
             // check for any outstanding siblings that need to go away also
             auto list = pp->GetPanelSpriteList();
-            for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
+            for (cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
             {
                 if (cur->sibling && cur->sibling == pp->CurWpn)
                 {
@@ -6231,7 +6231,7 @@ void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
 
     // search for first pri in list thats less than the new pri
     auto list = pp->GetPanelSpriteList();
-    for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
+    for (cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
     {
         // if the next pointer is the end of the list, insert it
         if ((LIST) cur->Next == (LIST) &pp->PanelSpriteList)

@@ -709,11 +709,11 @@ void KillActor(DSWActor* actor)
             for (stat = 0; stat < SIZ(MissileStats); stat++)
             {
                 SWStatIterator it(MissileStats[stat]);
-                while (auto actor = it.Next())
+                while (auto itActor = it.Next())
                 {
-                    if (!actor->hasU()) continue;
-                    mu = actor->u();
-                    if (mu->WpnGoalActor == actor)
+                    if (!itActor->hasU()) continue;
+                    mu = itActor->u();
+                    if (mu->WpnGoalActor == itActor)
                     {
                         mu->WpnGoalActor = nullptr;
                     }
@@ -768,19 +768,6 @@ void KillActor(DSWActor* actor)
     // shred your garbage
     sp->clear();
     actor->Destroy();
-
-    // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
-    SWSpriteIterator it;
-    while (auto actor = it.Next())
-    {
-        if (actor->hasU())
-        {
-            auto u = actor->u();
-            if (u->highActor == actor) u->highActor = nullptr;
-            if (u->lowActor == actor) u->lowActor = nullptr;
-            if (u->targetActor == actor) u->targetActor = nullptr;
-        }
-    }
 }
 
 void ChangeState(DSWActor* actor, STATEp statep)
@@ -1454,7 +1441,6 @@ void IconDefault(DSWActor* actor)
 void PreMapCombineFloors(void)
 {
     const int MAX_FLOORS = 32;
-    SPRITEp sp;
     int i, j, k;
     int base_offset;
     int dx, dy;
@@ -1504,8 +1490,8 @@ void PreMapCombineFloors(void)
         BFSSectorSearch search(BoundList[i].offset->sector());
         while (auto dasect = search.GetNext())
         {
-            SWSectIterator it(dasect);
-            while (auto jActor = it.Next())
+            SWSectIterator it2(dasect);
+            while (auto jActor = it2.Next())
             {
                 jActor->spr.pos.X += dx;
                 jActor->spr.pos.Y += dy;
@@ -2056,7 +2042,6 @@ void SpriteSetup(void)
 
                 case SECT_VATOR:
                 {
-                    SECTORp sectp = sp->sector();
                     short speed,vel,time,type,start_on,floor_vator;
                     u = SpawnUser(actor, 0, nullptr);
 
@@ -2165,7 +2150,6 @@ void SpriteSetup(void)
 
                 case SECT_ROTATOR:
                 {
-					SECTORp sectp = sp->sector();
                     short time,type;
                     short wallcount,startwall,endwall,w;
                     u = SpawnUser(actor, 0, nullptr);
@@ -2220,7 +2204,6 @@ void SpriteSetup(void)
 
                 case SECT_SLIDOR:
                 {
-                    SECTORp sectp = sp->sector();
                     short time,type;
 
                     u = SpawnUser(actor, 0, nullptr);
@@ -2362,7 +2345,6 @@ void SpriteSetup(void)
                 {
                     int wallcount = 0;
                     int8_t* wall_shade;
-                    USERp u;
 
                     LIGHT_Tics(sp) = 0;
 
@@ -2415,7 +2397,6 @@ void SpriteSetup(void)
                 {
                     int wallcount = 0;
                     int8_t* wall_shade;
-                    USERp u;
 
                     LIGHT_Tics(sp) = 0;
 
@@ -2509,8 +2490,6 @@ void SpriteSetup(void)
 
                 case SECT_EXPLODING_CEIL_FLOOR:
                 {
-                    SECTORp sectp = sp->sector();
-
                     SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
 
                     if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
@@ -2653,8 +2632,8 @@ void SpriteSetup(void)
                 case VIEW_THRU_FLOOR:
                 {
                     // make sure there is only one set per level of these
-                    SWStatIterator it(STAT_FAF);
-                    while (auto itActor = it.Next())
+                    SWStatIterator it2(STAT_FAF);
+                    while (auto itActor = it2.Next())
                     {
                         auto ispr = &itActor->s();
                         if (ispr->hitag == sp->hitag && ispr->lotag == sp->lotag)
@@ -6303,7 +6282,7 @@ void SpriteControl(void)
     it.Reset(STAT_NO_STATE);
     while (auto actor = it.Next())
     {
-        auto u = actor->u();
+        u = actor->u();
         if (u && u->ActorActionFunc)
             u->ActorActionFunc(actor);
     }

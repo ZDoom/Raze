@@ -352,7 +352,7 @@ void JS_InitMirrors(void)
                     Found_Cam = false;
                     if (TEST_BOOL1(&mirror[mirrorcnt].cameraActor->s()))
                     {
-                        SWStatIterator it(STAT_DEFAULT);
+                        it.Reset(STAT_DEFAULT);
                         while (auto itActor = it.Next())
                         {
                             sp = &itActor->s();

@@ -8008,8 +8008,6 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
             }
             else
             {
-                DSWActor* hitActor;
-
                 if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
                 {
                     USERp hu = hitActor->u();
@@ -8172,7 +8170,6 @@ int DoPlasmaFountain(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
     SPRITEp ap;
-    short bak_cstat;
 
     // if no Owner then die
     if (u->attachActor == nullptr)
@@ -16123,7 +16120,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 int InitUzi(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SPRITEp wp, hsp;
+    SPRITEp wp;
     USERp wu;
     short daang;
     HitInfo hit{};

@@ -65,7 +65,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
     }
     else
     {
-        int match = ViewSectorInScene(tsect, VIEW_LEVEL2);
+        match = ViewSectorInScene(tsect, VIEW_LEVEL2);
         if (match != -1)
         {
             FindFloorView(match, &tx, &ty, tz, &tsect);

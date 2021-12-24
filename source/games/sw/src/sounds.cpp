@@ -554,7 +554,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Ambient)
         {
             auto sp = ((AmbientSound*)source)->sp;
-            vec3_t* vpos = &sp->pos;
+            vpos = &sp->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             // Can the ambient sound see the player?  If not, tone it down some.

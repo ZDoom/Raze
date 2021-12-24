@@ -1273,7 +1273,7 @@ void DoDeleteSpriteMatch(short match)
 
         for (stat = 0; stat < SIZ(StatList); stat++)
         {
-            SWStatIterator it(StatList[stat]);
+            it.Reset(StatList[stat]);
             while (auto actor = it.Next())
             {
                 auto sp = &actor->s();
@@ -1302,14 +1302,11 @@ void DoDeleteSpriteMatch(short match)
 
 void DoChangorMatch(short match)
 {
-    SPRITEp sp;
-    SECTORp sectp;
-
     SWStatIterator it(STAT_CHANGOR);
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        sectp = sp->sector();
+        auto sectp = sp->sector();
 
         if (SP_TAG2(sp) != match)
             continue;
@@ -1682,8 +1679,6 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
     case TAG_SPRITE_GRATING:
     {
-        USERp u;
-
         change_actor_stat(actor, STAT_NO_STATE);
 
         u = SpawnUser(actor, 0, nullptr);
@@ -2296,16 +2291,13 @@ void PlayerOperateEnv(PLAYERp pp)
             if (!found)
             {
                 int z[3];
-                unsigned i;
-                NEAR_TAG_INFO nti[16];
-                short nt_ndx;
                 auto psp = &pp->Actor()->s();
 
                 z[0] = psp->pos.Z - GetSpriteSizeZ(psp) - Z(10);
                 z[1] = psp->pos.Z;
                 z[2] = DIV2(z[0] + z[1]);
 
-                for (i = 0; i < SIZ(z); i++)
+                for (unsigned i = 0; i < SIZ(z); i++)
                 {
                     BuildNearTagList(nti, sizeof(nti), pp, z[i], 1024 + 768L, NTAG_SEARCH_LO_HI, 8);
 
