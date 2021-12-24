@@ -699,7 +699,7 @@ int SetupSerp(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -722,22 +722,22 @@ int SetupSerp(DSWActor* actor)
     EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
 
     // Mini-Boss Serp
-    if (sp->pal == 16)
+    if (actor->spr.pal == 16)
     {
         u->Health = 1000;
-        sp->yrepeat = 74;
-        sp->xrepeat = 74;
+        actor->spr.yrepeat = 74;
+        actor->spr.xrepeat = 74;
     }
     else
     {
-        sp->yrepeat = 100;
-        sp->xrepeat = 128;
+        actor->spr.yrepeat = 100;
+        actor->spr.xrepeat = 128;
     }
 
-    sp->clipdist = (512) >> 2;
+    actor->spr.clipdist = (512) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    u->loz = sp->pos.Z;
+    u->loz = actor->spr.pos.Z;
 
     // amount to move up for clipmove
     u->zclip = Z(80);
@@ -777,7 +777,7 @@ int DoSerpMove(DSWActor* actor)
         (*u->ActorActionFunc)(actor);
 
     // serp ring
-    if (sp->pal != 16)
+    if (actor->spr.pal != 16)
     {
         switch (u->Counter2)
         {
@@ -810,7 +810,7 @@ int DoDeathSpecial(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    DoMatchEverything(nullptr, sp->lotag, ON);
+    DoMatchEverything(nullptr, actor->spr.lotag, ON);
 
     if (!SW_SHAREWARE)
     {
