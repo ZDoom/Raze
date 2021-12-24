@@ -39,34 +39,31 @@ BEGIN_SW_NS
 
 inline int16_t& QUAKE_Match(DSWActor* actor) { return SP_TAG2(actor); }
 inline uint8_t& QUAKE_Zamt(DSWActor* actor) { return SP_TAG3(actor); }
-#define QUAKE_Radius(sp) (SP_TAG4(sp))
-#define QUAKE_Duration(sp) (SP_TAG5(sp))
-#define QUAKE_WaitSecs(sp) (SP_TAG6(sp))
-#define QUAKE_AngAmt(sp) (SP_TAG7(sp))
-#define QUAKE_PosAmt(sp) (SP_TAG8(sp))
-#define QUAKE_RandomTest(sp) (SP_TAG9(sp))
-#define QUAKE_WaitTics(sp) (SP_TAG13(sp))
+#define QUAKE_Radius(actor) (SP_TAG4(actor))
+#define QUAKE_Duration(actor) (SP_TAG5(actor))
+#define QUAKE_WaitSecs(actor) (SP_TAG6(actor))
+#define QUAKE_AngAmt(actor) (SP_TAG7(actor))
+#define QUAKE_PosAmt(actor) (SP_TAG8(actor))
+#define QUAKE_RandomTest(actor) (SP_TAG9(actor))
+#define QUAKE_WaitTics(actor) (SP_TAG13(actor))
 
-#define QUAKE_TestDontTaper(sp) (TEST_BOOL1(sp))
-#define QUAKE_KillAfterQuake(sp) (TEST_BOOL2(sp))
+#define QUAKE_TestDontTaper(actor) (TEST_BOOL1(actor))
+#define QUAKE_KillAfterQuake(actor) (TEST_BOOL2(actor))
 // only for timed quakes
-#define QUAKE_WaitForTrigger(sp) (TEST_BOOL3(sp))
+#define QUAKE_WaitForTrigger(actor) (TEST_BOOL3(actor))
 
-void CopyQuakeSpotToOn(SPRITEp sp)
+void CopyQuakeSpotToOn(DSWActor* actor)
 {
-    auto actorNew = insertActor(sp->sector(), STAT_QUAKE_SPOT);
-    auto np = &actorNew->s();
+    auto actorNew = insertActor(actor->spr.sector(), STAT_QUAKE_SPOT);
 
-    memcpy(np, sp, sizeof(SPRITE));
-
-    np->setsector(sp->sector());
-
-    np->cstat = 0;
-    np->extra = 0;
+    actorNew->spr = actor->spr;
+    actorNew->spr.setsector(actor->spr.sector());
+    actorNew->spr.cstat = 0;
+    actorNew->spr.extra = 0;
 
     change_actor_stat(actorNew, STAT_QUAKE_ON);
 
-    QUAKE_Duration(np) *= 120;
+    QUAKE_Duration(actorNew) *= 120;
 }
 
 
@@ -75,19 +72,17 @@ void DoQuakeMatch(short match)
     SWStatIterator it(STAT_QUAKE_SPOT);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
         if (QUAKE_Match(actor) == match)
         {
-            if ((int16_t)QUAKE_WaitTics(sp) > 0)
+            if ((int16_t)QUAKE_WaitTics(actor) > 0)
             {
                 // its not waiting any more
-                RESET_BOOL3(sp);
+                RESET_BOOL3(actor);
             }
             else
             {
-                CopyQuakeSpotToOn(sp);
-                if (QUAKE_KillAfterQuake(sp))
+                CopyQuakeSpotToOn(actor);
+                if (QUAKE_KillAfterQuake(actor))
                 {
                     KillActor(actor);
                     continue;
@@ -103,11 +98,9 @@ void ProcessQuakeOn(void)
     SWStatIterator it(STAT_QUAKE_ON);
 	while (auto actor = it.Next())
 	{
-		auto sp = &actor->s();
-
         // get rid of quake when timer runs out
-        QUAKE_Duration(sp) -= synctics*4;
-        if (QUAKE_Duration(sp) < 0)
+        QUAKE_Duration(actor) -= synctics*4;
+        if (QUAKE_Duration(actor) < 0)
         {
             KillActor(actor);
             continue;
@@ -123,32 +116,30 @@ void ProcessQuakeSpot(void)
     SWStatIterator it(STAT_QUAKE_SPOT);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
         // not a timed quake
-        if (!QUAKE_WaitSecs(sp))
+        if (!QUAKE_WaitSecs(actor))
             continue;
 
         // don't process unless triggered
-        if (QUAKE_WaitForTrigger(sp))
+        if (QUAKE_WaitForTrigger(actor))
             continue;
 
         // spawn a quake if time is up
-        SET_SP_TAG13(sp, (QUAKE_WaitTics(sp)-4*synctics));
-        if ((int16_t)QUAKE_WaitTics(sp) < 0)
+        SET_SP_TAG13(actor, (QUAKE_WaitTics(actor)-4*synctics));
+        if ((int16_t)QUAKE_WaitTics(actor) < 0)
         {
             // reset timer - add in Duration of quake
-            SET_SP_TAG13(sp, (((QUAKE_WaitSecs(sp)*10) + QUAKE_Duration(sp)) * 120));
+            SET_SP_TAG13(actor, (((QUAKE_WaitSecs(actor)*10) + QUAKE_Duration(actor)) * 120));
 
             // spawn a quake if condition is met
-            rand_test = QUAKE_RandomTest(sp);
+            rand_test = QUAKE_RandomTest(actor);
             // wrong - all quakes need to happen at the same time on all computerssg
             //if (!rand_test || (rand_test && STD_RANDOM_RANGE(128) < rand_test))
             if (!rand_test || (rand_test && RandomRange(128) < rand_test))
             {
-                CopyQuakeSpotToOn(sp);
+                CopyQuakeSpotToOn(actor);
                 // kill quake spot if needed
-                if (QUAKE_KillAfterQuake(sp))
+                if (QUAKE_KillAfterQuake(actor))
                 {
                     DeleteNoSoundOwner(actor);
                     KillActor(actor);
@@ -258,49 +249,37 @@ bool SetQuake(PLAYERp pp, short tics, short amt)
 
 int SetExpQuake(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  40, 4, 20000); // !JIM! was 8, 40000
+    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
 int SetGunQuake(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  40, 8, 40000);
-
+    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 8, 40000);
     return 0;
 }
 
 int SetPlayerQuake(PLAYERp pp)
 {
     SpawnQuake(pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z,  40, 8, 40000);
-
     return 0;
 }
 
 int SetNuclearQuake(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, 400, 8, 64000);
+    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 400, 8, 64000);
     return 0;
 }
 
 int SetSumoQuake(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  120, 4, 20000);
+    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  120, 4, 20000);
     return 0;
 }
 
 int SetSumoFartQuake(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  60, 4, 4000);
+    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  60, 4, 4000);
     return 0;
 }
 

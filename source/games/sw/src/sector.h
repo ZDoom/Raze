@@ -71,7 +71,7 @@ void DoMatchEverything(PLAYERp pp, short match, short state);
 bool ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);
-short AnimateSwitch(DSWActor* actor, int tgt_value);
+int AnimateSwitch(DSWActor* actor, int tgt_value);
 void ShootableSwitch(DSWActor*);
 bool TestKillSectorObject(SECTOR_OBJECTp sop);
 void WeaponExplodeSectorInRange(DSWActor*);

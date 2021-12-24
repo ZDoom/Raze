@@ -757,7 +757,7 @@ enum
     SWITCH_SKULL = 553,
 };
 
-short AnimateSwitch(DSWActor* actor, int tgt_value)
+int AnimateSwitch(DSWActor* actor, int tgt_value)
 {
     // if the value is not ON or OFF
     // then it is a straight toggle

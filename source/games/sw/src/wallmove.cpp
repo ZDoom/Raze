@@ -88,7 +88,7 @@ int DoWallMove(DSWActor* actor)
 
     auto sp = &actor->s();
 
-    dist = SP_TAG13(sp);
+    dist = SP_TAG13(actor);
     ang = SP_TAG4(sp);
     picnum1 = SP_TAG5(sp);
     picnum2 = SP_TAG6(sp);

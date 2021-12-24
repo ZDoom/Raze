@@ -2011,7 +2011,7 @@ void SpriteSetup(void)
                 case QUAKE_SPOT:
                 {
                     change_actor_stat(actor, STAT_QUAKE_SPOT);
-                    SET_SP_TAG13(sp, ((SP_TAG6(sp)*10L) * 120L));
+                    SET_SP_TAG13(actor, ((SP_TAG6(sp)*10L) * 120L));
                     break;
                 }
 
@@ -2607,7 +2607,7 @@ void SpriteSetup(void)
                 }
 
                 case SOUND_SPOT:
-                    SET_SP_TAG13(sp, SP_TAG4(sp));
+                    SET_SP_TAG13(actor, SP_TAG4(sp));
                     change_actor_stat(actor, STAT_SOUND_SPOT);
                     break;
 
