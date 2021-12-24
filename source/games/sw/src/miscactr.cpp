@@ -815,14 +815,13 @@ int PachinkoCheckWin(DSWActor* actor)
         SWStatIterator it(STAT_ENEMY);
         while (auto itActor = it.Next())
         {
-            tsp = &itActor->s();
             tu = itActor->u();
 
-            if (tsp->lotag == TAG_PACHINKOLIGHT)
+            if (itActor->spr.lotag == TAG_PACHINKOLIGHT)
             {
-                if (tsp->hitag == SP_TAG5(actor))
+                if (itActor->spr.hitag == SP_TAG5(actor))
                 {
-                    tsp->shade = -90; // Full brightness
+                    itActor->spr.shade = -90; // Full brightness
                     tu->WaitTics = SEC(3); // Flash
                     ChangeState(itActor,s_PachinkoLightOperate);
                 }

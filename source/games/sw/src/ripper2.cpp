@@ -1075,10 +1075,10 @@ int DoRipper2HangJF(DSWActor* actor)
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp psp = &u->targetActor->s();
+    DSWActor* target = u->targetActor;
     short tang;
 
-    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
+    tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
 
     // Always jump at player if mad.
 	
@@ -1144,11 +1144,10 @@ int DoRipper2QuickJump(DSWActor* actor)
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
 
-    if (u->lowActor)
+    DSWActor* low = u->targetActor;
+    if (low)
     {
-        SPRITEp tsp = &u->lowActor->s();
-
-        if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(low->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             NewStateGroup(actor, sg_Ripper2JumpAttack);
             // move past the first state
@@ -1189,13 +1188,12 @@ int DoRipper2RipHeart(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    SPRITEp tsp = &u->targetActor->s();
-
+    DSWActor* target = u->targetActor;
     NewStateGroup(actor, sg_Ripper2Heart);
     u->WaitTics = 6 * 120;
 
     // player face ripper2
-    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
+    target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
     return 0;
 }
 

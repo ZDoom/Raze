@@ -2420,8 +2420,8 @@ void InitPlayerSprite(PLAYERp pp)
 
 void SpawnPlayerUnderSprite(PLAYERp pp)
 {
-    SPRITEp psp = &pp->Actor()->s();
-     USERp pu = pp->Actor()->u(), u;
+    DSWActor* plActor = pp->actor;
+    USERp pu = plActor->u(), u;
 
     SPRITEp sp;
     int pnum = int(pp - Player);
@@ -2446,13 +2446,10 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
 
     u->ActorActionSet = pu->ActorActionSet;
 
-    actor->spr.picnum = psp->picnum;
-    actor->spr.clipdist = psp->clipdist;
-    actor->spr.xrepeat = psp->xrepeat;
-    actor->spr.yrepeat = psp->yrepeat;
-
-    //actor->spr.pal = psp->pal;
-    //u->spal = pu->spal;
+    actor->spr.picnum = plActor->spr.picnum;
+    actor->spr.clipdist = plActor->spr.clipdist;
+    actor->spr.xrepeat = plActor->spr.xrepeat;
+    actor->spr.yrepeat = plActor->spr.yrepeat;
 }
 
 #include "saveable.h"

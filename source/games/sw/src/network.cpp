@@ -68,11 +68,11 @@ void InitNetPlayerOptions(void)
 
     // myconnectindex palette
     pp->TeamColor = gs.NetColor;
-    if (pp->Actor())
+    DSWActor* actor = pp->actor;
+    if (actor)
     {
-        auto psp = &pp->Actor()->s();
-        psp->pal = PALETTE_PLAYER0 + pp->TeamColor;
-        pp->Actor()->user.spal = psp->pal;
+        actor->spr.pal = PALETTE_PLAYER0 + pp->TeamColor;
+        pp->Actor()->user.spal = actor->spr.pal;
     }
 }
 

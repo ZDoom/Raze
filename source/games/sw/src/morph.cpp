@@ -114,7 +114,6 @@ short DoSectorObjectSetScale(short match)
 short DoSOevent(short match, short state)
 {
     SECTOR_OBJECTp sop;
-    SPRITEp me_sp;
     short vel_adj=0, spin_adj=0;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
@@ -138,19 +137,17 @@ short DoSOevent(short match, short state)
             if (me_act == nullptr)
                 continue;
 
-            me_sp = &me_act->s();
-
             // toggle
             if (state == -1)
             {
-                if (TEST_BOOL3(me_sp))
+                if (TEST_BOOL3(me_act))
                 {
-                    RESET_BOOL3(me_sp);
+                    RESET_BOOL3(me_act);
                     state = OFF;
                 }
                 else
                 {
-                    SET_BOOL3(me_sp);
+                    SET_BOOL3(me_act);
                     state = ON;
                 }
             }
@@ -158,22 +155,22 @@ short DoSOevent(short match, short state)
             if (state == ON)
             {
                 spin_adj = (int)SP_TAG3(me_act);
-                vel_adj = SP_TAG7(me_sp);
+                vel_adj = SP_TAG7(me_act);
             }
             else if (state == OFF)
             {
                 spin_adj = -(int)SP_TAG3(me_act);
-                vel_adj = -SP_TAG7(me_sp);
+                vel_adj = -SP_TAG7(me_act);
             }
 
             sop->spin_speed += spin_adj;
 
-            if (TEST_BOOL1(me_sp))
+            if (TEST_BOOL1(me_act))
                 sop->vel_tgt += vel_adj;
             else
                 sop->vel += vel_adj;
 
-            if (TEST_BOOL2(me_sp))
+            if (TEST_BOOL2(me_act))
             {
                 sop->dir *= -1;
             }

@@ -1060,10 +1060,10 @@ int DoRipperHangJF(DSWActor* actor)
 int DoRipperBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp psp = &u->targetActor->s();
+    DSWActor* target = u->targetActor;
     short tang;
 
-    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
+    tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
 
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -1126,11 +1126,10 @@ int DoRipperQuickJump(DSWActor* actor)
     // Tests to see if ripper is on top of a player/enemy and then immediatly
     // does another jump
 
-    if (u->lowActor)
+    DSWActor* low = u->lowActor;
+    if (low)
     {
-        SPRITEp tsp = &u->lowActor->s();
-
-        if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(low->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             NewStateGroup(actor, sg_RipperJumpAttack);
             // move past the first state
@@ -1138,7 +1137,6 @@ int DoRipperQuickJump(DSWActor* actor)
             return true;
         }
     }
-
     return false;
 }
 
@@ -1174,13 +1172,13 @@ int DoRipperRipHeart(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    SPRITEp tsp = &u->targetActor->s();
+    DSWActor* target = u->targetActor;
 
     NewStateGroup(actor, sg_RipperHeart);
     u->WaitTics = 6 * 120;
 
     // player face ripper
-    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
+    target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
     return 0;
 }
 
