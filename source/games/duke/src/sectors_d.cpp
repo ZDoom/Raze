@@ -551,8 +551,8 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
 			lotag += picnum - MULTISWITCH;
 
-		DukeStatIterator it(STAT_EFFECTOR);
-		while (auto other = it.Next())
+		DukeStatIterator itr(STAT_EFFECTOR);
+		while (auto other = itr.Next())
 		{
 			if (other->spr.hitag == lotag)
 			{
@@ -1110,8 +1110,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
-				j->spr.pal = 8;
+				auto spawned = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				spawned->spr.pal = 8;
 			}
 
 			if (targ->spr.picnum == CACTUS)
@@ -1310,8 +1310,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case PIPE6:targ->spr.picnum = PIPE6B; break;
 		}
 		{
-			auto j = spawn(targ, STEAM);
-			if (j) j->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
+			auto spawned = spawn(targ, STEAM);
+			if (spawned) spawned->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -1472,9 +1472,9 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_ACTOR);
-					while (auto j = it.Next())
+					while (auto itActor = it.Next())
 					{
-						if (j->spr.picnum == CAMERA1) j->spr.yvel = 0;
+						if (itActor->spr.picnum == CAMERA1) itActor->spr.yvel = 0;
 					}
 				}
 

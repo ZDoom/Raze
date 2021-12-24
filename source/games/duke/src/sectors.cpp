@@ -829,9 +829,9 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 
 	if (act2)
 	{
-		DukeStatIterator it(STAT_EFFECTOR);
+		DukeStatIterator itr(STAT_EFFECTOR);
 
-		while (auto act3 = it.Next())
+		while (auto act3 = itr.Next())
 		{
 			if (l == (act3->sector()->lotag & 0x8000) && act3->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.hitag == act3->spr.hitag && act3->temp_data[4])
 			{
@@ -839,8 +839,8 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 			}
 		}
 
-		it.Reset(STAT_EFFECTOR);
-		while (auto act3 = it.Next())
+		itr.Reset(STAT_EFFECTOR);
+		while (auto act3 = itr.Next())
 		{
 			if (l == (act3->sector()->lotag & 0x8000) && act3->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.hitag == act3->spr.hitag)
 			{
@@ -1136,8 +1136,8 @@ void operateactivators(int low, int plnum)
 
 				if (act->sector()->lotag < 3)
 				{
-					DukeSectIterator it(act->sector());
-					while (auto a2 = it.Next())
+					DukeSectIterator itr(act->sector());
+					while (auto a2 = itr.Next())
 					{
 						if (a2->spr.statnum == 3) switch (a2->spr.lotag)
 						{

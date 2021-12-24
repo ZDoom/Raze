@@ -1120,8 +1120,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 	{
 		if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
-		auto j = ps[findplayer(actor, &x)].GetActor();
-		x = ldist(j, actor);
+		auto plActor = ps[findplayer(actor, &x)].GetActor();
+		x = ldist(plActor, actor);
 
 		zvel = -x >> 1;
 
@@ -1161,15 +1161,15 @@ void shoot_d(DDukeActor* actor, int atwith)
 		}
 		else zvel = 0;
 
-		auto j = EGS(sect,
+		auto spawned = EGS(sect,
 			sx - bsin(sa, -12),
 			sy + bcos(sa, -12),
 			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
 
-		if (j)
+		if (spawned)
 		{
-			j->spr.cstat = CSTAT_SPRITE_YCENTER;
-			j->spr.clipdist = 32;
+			spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
+			spawned->spr.clipdist = 32;
 		}
 
 
@@ -2323,7 +2323,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 		if (p->kickback_pic == 4)
 		{
-			for(int i = 0; i < 7; i++)
+			for(int ii = 0; ii < 7; ii++)
 				fi.shoot(pact, SHOTGUN);
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 

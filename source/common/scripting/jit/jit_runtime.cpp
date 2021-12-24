@@ -831,11 +831,11 @@ public:
 		if (result)
 		{
 			IMAGEHLP_LINE64 line64;
-			displacement = 0;
+			DWORD displacement1 = 0;
 			memset(&line64, 0, sizeof(IMAGEHLP_LINE64));
 			line64.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-			auto symresult = SymGetLineFromAddr64(GetCurrentProcess(), (DWORD64)frame, &displacement, &line64);
-			if (symresult)
+			result = SymGetLineFromAddr64(GetCurrentProcess(), (DWORD64)frame, &displacement1, &line64);
+			if (result)
 			{
 				s.Format("Called from %s at %s, line %d\n", symbol64->Name, line64.FileName, (int)line64.LineNumber);
 			}

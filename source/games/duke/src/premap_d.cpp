@@ -412,8 +412,8 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 			break;
 
 		case W_FORCEFIELD:
-			for (int j = 0; j < 3; j++)
-				tloadtile(W_FORCEFIELD + j);
+			for (int jj = 0; jj < 3; jj++)
+				tloadtile(W_FORCEFIELD + jj);
 			[[fallthrough]];
 		case W_FORCEFIELD + 1:
 		case W_FORCEFIELD + 2:
@@ -448,8 +448,8 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case SCREENBREAK6:
 		case SCREENBREAK7:
 		case SCREENBREAK8:
-			for (int j = SCREENBREAK6; j < SCREENBREAK9; j++)
-				tloadtile(j);
+			for (int jj = SCREENBREAK6; jj < SCREENBREAK9; jj++)
+				tloadtile(jj);
 			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;

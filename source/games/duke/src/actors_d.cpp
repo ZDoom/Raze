@@ -1768,15 +1768,15 @@ static void weaponcommon_d(DDukeActor* proj)
 			}
 			else if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && (!isWorldTour() || proj->spr.picnum != FIREBALL))
 			{
-				auto k = spawn(proj, EXPLOSION2);
-				if (k)
+				auto spawned = spawn(proj, EXPLOSION2);
+				if (spawned)
 				{
-					k->spr.xrepeat = k->spr.yrepeat = proj->spr.xrepeat >> 1;
+					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
 						if (proj->spr.zvel < 0)
 						{
-							k->spr.cstat |= CSTAT_SPRITE_YFLIP; k->spr.pos.Z += (72 << 8);
+							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; spawned->spr.pos.Z += (72 << 8);
 						}
 					}
 				}
@@ -2302,16 +2302,16 @@ static void greenslime(DDukeActor *actor)
 			{
 				for (x = 0; x < 8; x++)
 				{
-					auto j = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
-					j->spr.pal = 6;
+					auto spawned = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+					spawned->spr.pal = 6;
 				}
 
 				S_PlayActorSound(SLIM_DYING, actor);
 				S_PlayActorSound(SQUISHED, actor);
 				if ((krand() & 255) < 32)
 				{
-					auto j = spawn(actor, BLOODPOOL);
-					if (j) j->spr.pal = 0;
+					auto spawned = spawn(actor, BLOODPOOL);
+					if (spawned) spawned->spr.pal = 0;
 				}
 				ps[p].actors_killed++;
 				actor->temp_data[0] = -3;
@@ -2411,14 +2411,14 @@ static void greenslime(DDukeActor *actor)
 
 		if ((krand() & 255) < 32)
 		{
-			auto j = spawn(actor, BLOODPOOL);
-			if (j) j->spr.pal = 0;
+			auto spawned = spawn(actor, BLOODPOOL);
+			if (spawned) spawned->spr.pal = 0;
 		}
 
 		for (x = 0; x < 8; x++)
 		{
-			auto j = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
-			if (j) j->spr.pal = 6;
+			auto spawned = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+			if (spawned) spawned->spr.pal = 6;
 		}
 		actor->temp_data[0] = -3;
 		deletesprite(actor);
@@ -2963,8 +2963,8 @@ void moveactors_d(void)
 					act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YCENTER;
 					k = 1;
 
-					DukeStatIterator it(STAT_ACTOR);
-					while (auto act2 = it.Next())
+					DukeStatIterator itr(STAT_ACTOR);
+					while (auto act2 = itr.Next())
 					{
 						if (act2->spr.lotag == act->spr.lotag &&
 							act2->spr.picnum == act->spr.picnum)

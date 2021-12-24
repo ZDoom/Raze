@@ -790,8 +790,8 @@ void movefallers_r(void)
 					if (act->spr.extra <= 0)
 					{
 						act->temp_data[0] = 1;
-						DukeStatIterator it(STAT_FALLER);
-						while (auto ac2 = it.Next())
+						DukeStatIterator itr(STAT_FALLER);
+						while (auto ac2 = itr.Next())
 						{
 							if (ac2->spr.hitag == act->spr.hitag)
 							{
@@ -1446,16 +1446,16 @@ static void weaponcommon_r(DDukeActor *proj)
 			else if (isRRRA() && proj->spr.picnum == RRTILE1790) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
 			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && proj->spr.picnum != SHRINKSPARK)
 			{
-				auto k = spawn(proj, 1441);
-				if (k)
+				auto spawned = spawn(proj, 1441);
+				if (spawned)
 				{
-					k->spr.xrepeat = k->spr.yrepeat = proj->spr.xrepeat >> 1;
+					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
 						if (proj->spr.zvel < 0)
 						{
-							k->spr.cstat |= CSTAT_SPRITE_YFLIP;
-							k->spr.pos.Z += (72 << 8);
+							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
+							spawned->spr.pos.Z += (72 << 8);
 						}
 					}
 				}
@@ -1802,12 +1802,12 @@ void movetransports_r(void)
 
 						if (sectlotag > 0)
 						{
-							auto k = spawn(act2, WATERSPLASH2);
-							if (k && sectlotag == 1 && act2->spr.statnum == 4)
+							auto spawned = spawn(act2, WATERSPLASH2);
+							if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 							{
-								k->spr.xvel = act2->spr.xvel >> 1;
-								k->spr.ang = act2->spr.ang;
-								ssp(k, CLIPMASK0);
+								spawned->spr.xvel = act2->spr.xvel >> 1;
+								spawned->spr.ang = act2->spr.ang;
+								ssp(spawned, CLIPMASK0);
 							}
 						}
 
@@ -1986,8 +1986,8 @@ static void rrra_specialstats()
 
 	if (enemysizecheat > 0)
 	{
-		DukeSpriteIterator it;
-		while (auto act = it.Next())
+		DukeSpriteIterator itr;
+		while (auto act = itr.Next())
 		{
 			switch (act->spr.picnum)
 			{

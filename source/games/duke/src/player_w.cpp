@@ -497,15 +497,14 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				)
 			{
 				// reload in progress...
-				int i;
-				i = aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum);
+				int timer = aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum);
 				// time for 'reload'
 
 				if (p->kickback_pic == (aplWeaponTotalTime(p->curr_weapon, snum) + 1))
 				{ // eject shortly after 'total time'
 					S_PlayActorSound(EJECT_CLIP, pact);
 				}
-				else if (p->kickback_pic == (aplWeaponReload(p->curr_weapon, snum) - (i / 3)))
+				else if (p->kickback_pic == (aplWeaponReload(p->curr_weapon, snum) - (timer / 3)))
 				{
 					// insert occurs 2/3 of way through reload delay
 					S_PlayActorSound(INSERT_CLIP, pact);

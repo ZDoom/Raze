@@ -397,10 +397,10 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
-	for (unsigned i = 0; i < sector.Size(); i++)
+	for (unsigned ii = 0; ii < sector.Size(); ii++)
 	{
-		if (!gFullMap || !show2dsector[i]) continue;
-		DukeSectIterator it(i);
+		if (!gFullMap || !show2dsector[ii]) continue;
+		DukeSectIterator it(ii);
 		while (auto act = it.Next())
 		{
 			if (act == pactor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.xrepeat == 0) continue;

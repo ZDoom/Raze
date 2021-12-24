@@ -589,15 +589,15 @@ void movefx(void)
 				int flags = S_GetUserFlags(act->spr.lotag);
 				if (flags & SF_MSFX)
 				{
-					int x = dist(ps[screenpeek].GetActor(), act);
+					int distance = dist(ps[screenpeek].GetActor(), act);
 
-					if (x < ht && act->temp_data[0] == 0)
+					if (distance < ht && act->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
 						S_PlayActorSound(act->spr.lotag, act, CHAN_AUTO, CHANF_LOOP);
 						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
-					else if (x >= ht && act->temp_data[0] == 1)
+					else if (distance >= ht && act->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
 						S_StopSound(act->spr.lotag, act);
@@ -2932,10 +2932,10 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					}
 				}
 
-			auto Owner = actor->GetOwner();
-			if (Owner)
+			auto actOwner = actor->GetOwner();
+			if (actOwner)
 			{
-				DukeSectIterator itr(Owner->sector());
+				DukeSectIterator itr(actOwner->sector());
 				while (auto a2 = itr.Next())
 				{
 					if (a2->spr.statnum == 1 && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
@@ -3874,8 +3874,8 @@ void handle_se17(DDukeActor* actor)
 		actor->temp_data[1] = 0;
 
 		DDukeActor* act2;
-		DukeStatIterator it(STAT_EFFECTOR);
-		while ((act2 = it.Next()))
+		DukeStatIterator itr(STAT_EFFECTOR);
+		while ((act2 = itr.Next()))
 		{
 			if (actor != act2 && (act2->spr.lotag) == 17)
 				if ((sc->hitag - actor->temp_data[0]) == (act2->sector()->hitag) && sh == (act2->spr.hitag))
@@ -4872,8 +4872,8 @@ void makeitfall(DDukeActor* actor)
 
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))
 	{
-		Collision c;
-		getzrange({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (FOURSLEIGHT) }, actor->spr.sector(), &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
+		Collision coll;
+		getzrange({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (FOURSLEIGHT) }, actor->spr.sector(), &actor->ceilingz, coll, &actor->floorz, coll, 127, CLIPMASK0);
 	}
 	else
 	{

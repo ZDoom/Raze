@@ -2073,10 +2073,10 @@ int ParseState::parse(void)
 			updatesector(ps[g_p].pos.X,ps[g_p].pos.Y,&ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
-			while (auto j = it.Next())
+			while (auto actj = it.Next())
 			{
-				if (j->spr.picnum == TILE_CAMERA1)
-					j->spr.yvel = 0;
+				if (actj->spr.picnum == TILE_CAMERA1)
+					actj->spr.yvel = 0;
 			}
 		}
 
@@ -2189,16 +2189,16 @@ int ParseState::parse(void)
 					s = 0;
 				else s = (krand()%3);
 
-				auto l = EGS(g_ac->spr.sector(),
+				auto spawned = EGS(g_ac->spr.sector(),
 					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.pos.Y + (krand() & 255) - 128, g_ac->spr.pos.Z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
-				if (l)
+				if (spawned)
 				{
 					if (weap)
-						l->spr.yvel = gs.weaponsandammosprites[j % 14];
-					else l->spr.yvel = -1;
-					l->spr.pal = g_ac->spr.pal;
+						spawned->spr.yvel = gs.weaponsandammosprites[j % 14];
+					else spawned->spr.yvel = -1;
+					spawned->spr.pal = g_ac->spr.pal;
 				}
 			}
 			insptr++;
@@ -2577,20 +2577,20 @@ int ParseState::parse(void)
 		break;
 */
 	case concmd_addlog:
-	{	int l;
+	{	int instr;
 		int lFile;
 		insptr++;
 		lFile=*(insptr++);	// file
-		l=*(insptr++);	// line
+		instr=*(insptr++);	// line
 		// this was only printing file name and line number as debug output.
 		break;
 	}
 	case concmd_addlogvar:
-	{	int l;
+	{	int instr;
 		int lFile;
 		insptr++;
 		lFile=*(insptr++);	// file
-		l=*(insptr++);	// l=Line number, *instpr=varID
+		instr=*(insptr++);	// l=Line number, *instpr=varID
 		if( (*insptr >= iGameVarCount)
 			|| *insptr < 0
 			)
@@ -2960,16 +2960,16 @@ int ParseState::parse(void)
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
-		while (auto j = it.Next())
+		while (auto actj = it.Next())
 		{
-			if (j->spr.picnum == lType)
+			if (actj->spr.picnum == lType)
 			{
-				lTemp = ldist(g_ac, j);
+				lTemp = ldist(g_ac, actj);
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)
 					{
-						lFound = j;
+						lFound = actj;
 					}
 				}
 
@@ -3003,16 +3003,16 @@ int ParseState::parse(void)
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
-		while (auto j = it.Next())
+		while (auto actj = it.Next())
 		{
-			if (j->spr.picnum == lType)
+			if (actj->spr.picnum == lType)
 			{
-				lTemp = ldist(g_ac, j);
+				lTemp = ldist(g_ac, actj);
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)
 					{
-						lFound = j;
+						lFound = actj;
 					}
 				}
 
@@ -3230,16 +3230,16 @@ int ParseState::parse(void)
 	case concmd_modvar:
 	{
 		int i;
-		int l;
+		int instr;
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l = (*insptr);
-		if (l == 0)
+		instr = (*insptr);
+		if (instr == 0)
 		{
 			I_Error("Divide by Zero in CON");
 		}
-		lResult = GetGameVarID(i, g_ac, g_p).safeValue() % l;
+		lResult = GetGameVarID(i, g_ac, g_p).safeValue() % instr;
 		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
@@ -3247,12 +3247,12 @@ int ParseState::parse(void)
 	case concmd_andvar:
 	{
 		int i;
-		int l;
+		int instr;
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l = (*insptr);
-		lResult = GetGameVarID(i, g_ac, g_p).safeValue() & l;
+		instr = (*insptr);
+		lResult = GetGameVarID(i, g_ac, g_p).safeValue() & instr;
 		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
@@ -3260,12 +3260,12 @@ int ParseState::parse(void)
 	case concmd_xorvar:
 	{
 		int i;
-		int l;
+		int instr;
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l = (*insptr);
-		lResult = GetGameVarID(i, g_ac, g_p).safeValue() ^ l;
+		instr = (*insptr);
+		lResult = GetGameVarID(i, g_ac, g_p).safeValue() ^ instr;
 		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
@@ -3273,12 +3273,12 @@ int ParseState::parse(void)
 	case concmd_orvar:
 	{
 		int i;
-		int l;
+		int instr;
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l = (*insptr);
-		lResult = GetGameVarID(i, g_ac, g_p).safeValue() | l;
+		instr = (*insptr);
+		lResult = GetGameVarID(i, g_ac, g_p).safeValue() | instr;
 		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;

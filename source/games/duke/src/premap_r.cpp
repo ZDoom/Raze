@@ -503,13 +503,13 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					dist = act->spr.lotag << 4;
 					speed = act->spr.hitag;
 					DukeSpriteIterator itt;
-					while(auto act = itt.Next())
+					while(auto act1 = itt.Next())
 					{
-						if (act->spr.picnum == RRTILE66)
-							if (act->spr.lotag == act->spr.sectno()) // bad map format design... Should have used a tag instead...
+						if (act1->spr.picnum == RRTILE66)
+							if (act1->spr.lotag == act->spr.sectno()) // bad map format design... Should have used a tag instead...
 							{
-								childsectnum = act->spr.sector();
-								deletesprite(act);
+								childsectnum = act1->spr.sector();
+								deletesprite(act1);
 							}
 					}
 					deletesprite(act);
@@ -694,10 +694,10 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					I_Error("Too many switches (64 max).");
 
 				DukeStatIterator it1(STAT_EFFECTOR);
-				while (auto j = it1.Next())
+				while (auto actj = it1.Next())
 				{
-					if (j->spr.lotag == 12 && j->spr.hitag == ac->spr.lotag)
-						j->temp_data[0] = 1;
+					if (actj->spr.lotag == 12 && actj->spr.hitag == ac->spr.lotag)
+						actj->temp_data[0] = 1;
 				}
 			}
 			break;

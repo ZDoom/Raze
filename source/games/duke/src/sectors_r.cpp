@@ -789,8 +789,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					DDukeActor* switches[3];
 					int switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, act, &v);
-					DukeSpriteIterator it;
-					while (auto actt = it.Next())
+					DukeSpriteIterator itr;
+					while (auto actt = itr.Next())
 					{
 						int jpn = actt->spr.picnum;
 						int jht = actt->spr.hitag;
@@ -835,8 +835,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				lotag += picnum - MULTISWITCH2;
 		}
 
-		DukeStatIterator it(STAT_EFFECTOR);
-		while (auto other = it.Next())
+		DukeStatIterator itr(STAT_EFFECTOR);
+		while (auto other = itr.Next())
 		{
 			if (other->spr.hitag == lotag)
 			{
@@ -1503,8 +1503,8 @@ bool checkhitceiling_r(sectortype* sectp)
 			{
 				if (act1->spr.picnum == SECTOREFFECTOR && (act1->spr.lotag == 12 || (isRRRA() && (act1->spr.lotag == 47 || act1->spr.lotag == 48))))
 				{
-					DukeStatIterator it(STAT_EFFECTOR);
-					while (auto act2 = it.Next())
+					DukeStatIterator itr(STAT_EFFECTOR);
+					while (auto act2 = itr.Next())
 					{
 						if (act2->spr.hitag == act1->spr.hitag)
 							act2->temp_data[3] = 1;
@@ -2164,8 +2164,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
-				j->spr.pal = 8;
+				auto spawned = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				if (spawned) spawned->spr.pal = 8;
 			}
 
 			if (targ->spr.picnum == CACTUS)
@@ -2322,8 +2322,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case PIPE6:targ->spr.picnum = PIPE6B; break;
 		}
 		{
-			auto j = spawn(targ, STEAM);
-			if (j) j->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
+			auto spawned = spawn(targ, STEAM);
+			if (spawned) spawned->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
 		}
 		break;
 
