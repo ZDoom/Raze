@@ -504,16 +504,16 @@ void CoolgCommon(DSWActor* actor)
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
-    sp->clipdist = (200) >> 2;
+    actor->spr.clipdist = (200) >> 2;
     //u->floor_dist = Z(5);
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(20);
 
-    u->sz = sp->pos.Z;
+    u->sz = actor->spr.pos.Z;
 
-    sp->xrepeat = 42;
-    sp->yrepeat = 42;
-    SET(sp->extra, SPRX_PLAYER_OR_ENEMY);
+    actor->spr.xrepeat = 42;
+    actor->spr.yrepeat = 42;
+    SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 }
 
 int SetupCoolg(DSWActor* actor)
@@ -522,7 +522,7 @@ int SetupCoolg(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = SpawnUser(actor,COOLG_RUN_R0,s_CoolgRun[0]);
         u->Health = HEALTH_COOLIE_GHOST;
@@ -552,7 +552,7 @@ int NewCoolg(DSWActor* actor)
     SPRITEp np;
     ANIMATOR DoActorDecide;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 50);
+    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 50);
 
     nu = actorNew->u();
     np = &actorNew->s();
@@ -564,7 +564,7 @@ int NewCoolg(DSWActor* actor)
 
     nu->ActorActionSet = &CoolgActionSet;
 
-    np->shade = sp->shade;
+    np->shade = actor->spr.shade;
     nu->Personality = &CoolgPersonality;
     nu->Attrib = &CoolgAttrib;
 
@@ -624,7 +624,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     int bound;
 
     // If blocking bits get unset, just die
-    if (!TEST(sp->cstat,CSTAT_SPRITE_BLOCK) || !TEST(sp->cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
+    if (!TEST(actor->spr.cstat,CSTAT_SPRITE_BLOCK) || !TEST(actor->spr.cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
     {
         InitBloodSpray(actor, true, 105);
         InitBloodSpray(actor, true, 105);
@@ -681,13 +681,13 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS<<3)) & 2047;
-    sp->pos.Z = u->sz + MulScale(COOLG_BOB_AMT, bsin(u->Counter), 14);
+    actor->spr.pos.Z = u->sz + MulScale(COOLG_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + COOLG_BOB_AMT;
-    if (sp->pos.Z < bound)
+    if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        sp->pos.Z = u->sz = bound + COOLG_BOB_AMT;
+        actor->spr.pos.Z = u->sz = bound + COOLG_BOB_AMT;
     }
 
     return 0;
@@ -706,9 +706,9 @@ int InitCoolgCircle(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
-    sp->xvel = 400;
+    actor->spr.xvel = 400;
     // angle adjuster
-    u->Counter2 = sp->xvel/3;
+    u->Counter2 = actor->spr.xvel/3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         u->Counter2 = -u->Counter2;
@@ -732,10 +732,10 @@ int DoCoolgCircle(DSWActor* actor)
     int nx,ny,bound;
 
 
-    sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
+    actor->spr.ang = NORM_ANGLE(actor->spr.ang + u->Counter2);
 
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     if (!move_actor(actor, nx, ny, 0L))
     {
@@ -774,10 +774,10 @@ int DoCoolgDeath(DSWActor* actor)
     int nx, ny;
 
 
-    RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-    RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-    sp->xrepeat = 42;
-    sp->shade = -10;
+    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actor->spr.xrepeat = 42;
+    actor->spr.shade = -10;
 
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -794,17 +794,17 @@ int DoCoolgDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     u->coll = move_sprite(actor, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (sp->pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
-        RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
         NewStateGroup(actor, u->ActorActionSet->Dead);
         return 0;
     }
@@ -823,24 +823,24 @@ int DoCoolgMove(DSWActor* actor)
         switch (u->FlagOwner)
         {
         case 0:
-            SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+            SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
             u->ShellNum = SEC(2);
             break;
         case 1:
             PlaySound(DIGI_VOID3, actor, v3df_follow);
-            RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-            SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(1) + SEC(RandomRange(2));
             break;
         case 2:
-            SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-            RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(2);
             break;
         case 3:
             PlaySound(DIGI_VOID3, actor, v3df_follow);
-            RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-            RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(2) + SEC(RandomRange(3));
             break;
         default:
@@ -853,28 +853,28 @@ int DoCoolgMove(DSWActor* actor)
 
     if (u->FlagOwner-1 == 0)
     {
-        sp->xrepeat--;
-        sp->shade++;
-        if (sp->xrepeat < 4) sp->xrepeat = 4;
-        if (sp->shade > 126)
+        actor->spr.xrepeat--;
+        actor->spr.shade++;
+        if (actor->spr.xrepeat < 4) actor->spr.xrepeat = 4;
+        if (actor->spr.shade > 126)
         {
-            sp->shade = 127;
-            sp->hitag = 9998;
+            actor->spr.shade = 127;
+            actor->spr.hitag = 9998;
         }
     }
     else if (u->FlagOwner-1 == 2)
     {
-        sp->hitag = 0;
-        sp->xrepeat++;
-        sp->shade--;
-        if (sp->xrepeat > 42) sp->xrepeat = 42;
-        if (sp->shade < -10) sp->shade = -10;
+        actor->spr.hitag = 0;
+        actor->spr.xrepeat++;
+        actor->spr.shade--;
+        if (actor->spr.xrepeat > 42) actor->spr.xrepeat = 42;
+        if (actor->spr.shade < -10) actor->spr.shade = -10;
     }
     else if (u->FlagOwner == 0)
     {
-        sp->xrepeat = 42;
-        sp->shade = -10;
-        sp->hitag = 0;
+        actor->spr.xrepeat = 42;
+        actor->spr.shade = -10;
+        actor->spr.hitag = 0;
     }
 
     if (TEST(u->Flags,SPR_SLIDING))
@@ -887,7 +887,7 @@ int DoCoolgMove(DSWActor* actor)
         (*u->ActorActionFunc)(actor);
     }
 
-    if (RANDOM_P2(1024) < 32 && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+    if (RANDOM_P2(1024) < 32 && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
         InitCoolgDrip(actor);
 
     DoCoolgMatchPlayerZ(actor);

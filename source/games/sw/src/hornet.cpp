@@ -293,7 +293,7 @@ int SetupHornet(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -313,16 +313,16 @@ int SetupHornet(DSWActor* actor)
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-    sp->clipdist = (100) >> 2;
+    actor->spr.clipdist = (100) >> 2;
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(16);
 
-    u->sz = sp->pos.Z;
+    u->sz = actor->spr.pos.Z;
 
-    sp->xrepeat = 37;
-    sp->yrepeat = 32;
+    actor->spr.xrepeat = 37;
+    actor->spr.yrepeat = 32;
 
     // Special looping buzz sound attached to each hornet spawned
     PlaySound(DIGI_HORNETBUZZ, actor, v3df_follow|v3df_init);
@@ -405,13 +405,13 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     u->sz = max(u->sz, hiz + u->ceiling_dist);    
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->pos.Z = u->sz + MulScale(HORNET_BOB_AMT, bsin(u->Counter), 14);
+    actor->spr.pos.Z = u->sz + MulScale(HORNET_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + HORNET_BOB_AMT;
-    if (sp->pos.Z < bound)
+    if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        sp->pos.Z = u->sz = bound + HORNET_BOB_AMT;
+        actor->spr.pos.Z = u->sz = bound + HORNET_BOB_AMT;
     }
 
     return 0;
@@ -430,9 +430,9 @@ int InitHornetCircle(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
-    sp->xvel = 400;
+    actor->spr.xvel = 400;
     // angle adjuster
-    u->Counter2 = sp->xvel/3;
+    u->Counter2 = actor->spr.xvel/3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         u->Counter2 = -u->Counter2;
@@ -455,10 +455,10 @@ int DoHornetCircle(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int nx,ny,bound;
 
-    sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
+    actor->spr.ang = NORM_ANGLE(actor->spr.ang + u->Counter2);
 
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     if (!move_actor(actor, nx, ny, 0L))
     {
@@ -466,9 +466,9 @@ int DoHornetCircle(DSWActor* actor)
 
         // try moving in the opposite direction
         u->Counter2 = -u->Counter2;
-        sp->ang = NORM_ANGLE(sp->ang + 1024);
-        nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-        ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
+        nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+        ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
         if (!move_actor(actor, nx, ny, 0L))
         {
@@ -514,7 +514,7 @@ int DoHornetDeath(DSWActor* actor)
     }
     else
     {
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
         u->jump_speed = 0;
         u->floor_dist = 0;
         DoBeginFall(actor);
@@ -526,16 +526,16 @@ int DoHornetDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     u->coll = move_sprite(actor, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
-    if (sp->pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
-        RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
         NewStateGroup(actor, u->ActorActionSet->Dead);
         DeleteNoSoundOwner(actor);
         return 0;
@@ -563,7 +563,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (u->targetActor->user.PlayerP)
     {
         pp = u->targetActor->user.PlayerP;
-        DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
     }
     else
         return 0;
@@ -579,7 +579,7 @@ int DoCheckSwarm(DSWActor* actor)
 
         if (tsp->hitag != TAG_SWARMSPOT || tsp->lotag != 2) continue;
 
-        DISTANCE(sp->pos.X, sp->pos.Y, tsp->pos.X, tsp->pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, tsp->pos.X, tsp->pos.Y, dist, a, b, c);
 
         if (dist < pdist && u->ID == tu->ID) // Only flock to your own kind
         {
@@ -599,7 +599,7 @@ int DoHornetMove(DSWActor* actor)
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
     // lotag of 0 is normal
-    if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
+    if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
     if (TEST(u->Flags,SPR_SLIDING))

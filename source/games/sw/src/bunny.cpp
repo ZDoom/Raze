@@ -728,7 +728,7 @@ int SetupBunny(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -747,29 +747,29 @@ int SetupBunny(DSWActor* actor)
     u->ShellNum = 0; // Not Pregnant right now
     u->FlagOwner = 0;
 
-    sp->clipdist = (150) >> 2;
+    actor->spr.clipdist = (150) >> 2;
 
-    if (sp->pal == PALETTE_PLAYER1)
+    if (actor->spr.pal == PALETTE_PLAYER1)
     {
         EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         u->Attrib = &WhiteBunnyAttrib;
-        sp->xrepeat = 96;
-        sp->yrepeat = 90;
+        actor->spr.xrepeat = 96;
+        actor->spr.yrepeat = 90;
 
-        sp->clipdist = 200>>2;
+        actor->spr.clipdist = 200>>2;
 
-        if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
             u->Health = 60;
     }
-    else if (sp->pal == PALETTE_PLAYER8) // Male Rabbit
+    else if (actor->spr.pal == PALETTE_PLAYER8) // Male Rabbit
     {
         EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
-        //sp->xrepeat = 76;
-        //sp->yrepeat = 70;
+        //actor->spr.xrepeat = 76;
+        //actor->spr.yrepeat = 70;
 
-        //sp->shade = 0; // darker
-        if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+        //actor->spr.shade = 0; // darker
+        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
             u->Health = 20;
         u->Flag1 = 0;
     }
@@ -778,9 +778,9 @@ int SetupBunny(DSWActor* actor)
         // Female Rabbit
         EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
-        u->spal = sp->pal = PALETTE_PLAYER0;
+        u->spal = actor->spr.pal = PALETTE_PLAYER0;
         u->Flag1 = SEC(5);
-        //sp->shade = 0; // darker
+        //actor->spr.shade = 0; // darker
     }
 
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -843,15 +843,15 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     SPRITEp psp = &u->targetActor->s();
     int tang;
 
-    tang = getangle(psp->pos.X - sp->pos.X, psp->pos.Y - sp->pos.Y);
+    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
         0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        sp->ang = NORM_ANGLE(sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6);
+        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6);
     else
-        sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -882,8 +882,8 @@ int DoBunnyMoveJump(DSWActor* actor)
         int nx, ny;
 
         // Move while jumping
-        nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-        ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+        nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+        ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
         move_actor(actor, nx, ny, 0L);
 
@@ -923,11 +923,11 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (tu->ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(tsp->pos.X, tsp->pos.Y, sp->pos.X, sp->pos.Y, dist, a, b, c);
+        DISTANCE(tsp->pos.X, tsp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), tsp->pos.X, tsp->pos.Y, ActorUpperZ(itActor), tsp->sector());
+        ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), tsp->pos.X, tsp->pos.Y, ActorUpperZ(itActor), tsp->sector());
 
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
@@ -961,12 +961,12 @@ int DoBunnyQuickJump(DSWActor* actor)
 
 
         // Not mature enough yet
-        if (sp->xrepeat != 64 || sp->yrepeat != 64) return false;
+        if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
         if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
 
         // Kill a rival
         // Only males fight
-        if (tu->spal == sp->pal && RandomRange(1000) > 995)
+        if (tu->spal == actor->spr.pal && RandomRange(1000) > 995)
         {
             if (u->spal == PALETTE_PLAYER8 && tu->spal == PALETTE_PLAYER8)
             {
@@ -1003,7 +1003,7 @@ int DoBunnyQuickJump(DSWActor* actor)
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
         // Not mature enough to mate yet
-        if (sp->xrepeat != 64 || sp->yrepeat != 64) return false;
+        if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
         if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
 
         if (tu->ShellNum <= 0 && tu->WaitTics <= 0 && u->WaitTics <= 0)
@@ -1032,7 +1032,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfTop(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfTop(sp),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1047,19 +1047,19 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfTop(sp),sp->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfTop(sp),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
                 }
 
-                sp->pos.X = tsp->pos.X; // Mount up little bunny
-                sp->pos.Y = tsp->pos.Y;
-                sp->ang = tsp->ang;
-                sp->ang = NORM_ANGLE(sp->ang + 1024);
+                actor->spr.pos.X = tsp->pos.X; // Mount up little bunny
+                actor->spr.pos.Y = tsp->pos.Y;
+                actor->spr.ang = tsp->ang;
+                actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 HelpMissileLateral(actor, 2000);
-                sp->ang = tsp->ang;
-                u->Vis = sp->ang;  // Remember angles for later
+                actor->spr.ang = tsp->ang;
+                u->Vis = actor->spr.ang;  // Remember angles for later
                 tu->Vis = tsp->ang;
 
                 NewStateGroup(actor, sg_BunnyScrew);
@@ -1121,7 +1121,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     u->WaitTics = 6 * 120;
 
     // player face bunny
-    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->pos.Y - tsp->pos.Y);
+    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
     return 0;
 }
 
@@ -1155,19 +1155,19 @@ void BunnyHatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
-        auto actorNew = insertActor(sp->sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
         np = &actorNew->s();
         np->clear();
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = sp->pos.Z;
+        np->pos.X = actor->spr.pos.X;
+        np->pos.Y = actor->spr.pos.Y;
+        np->pos.Z = actor->spr.pos.Z;
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
         np->ang = rip_ang[i];
         np->pal = 0;
         SetupBunny(actorNew);
         nu = actorNew->u();
-        np->shade = sp->shade;
+        np->shade = actor->spr.shade;
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
@@ -1284,8 +1284,8 @@ int DoBunnyMove(DSWActor* actor)
     auto sp = &actor->s();
 
     // Parental lock crap
-    if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-        RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+        RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
 
     // Sometimes they just won't die!
     if (u->Health <= 0)
@@ -1324,9 +1324,9 @@ int DoBunnyMove(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    if (RandomRange(1000) > 985 && sp->pal != PALETTE_PLAYER1 && u->track < 0)
+    if (RandomRange(1000) > 985 && actor->spr.pal != PALETTE_PLAYER1 && u->track < 0)
     {
-        switch (sp->sector()->floorpicnum)
+        switch (actor->spr.sector()->floorpicnum)
         {
         case 153:
         case 154:
@@ -1341,7 +1341,7 @@ int DoBunnyMove(DSWActor* actor)
             NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
-            sp->ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
+            actor->spr.ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
             u->jump_speed = -350;
             DoActorBeginJump(actor);
             u->ActorActionFunc = DoActorMoveJump;
@@ -1387,7 +1387,7 @@ int DoBunnyEat(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    switch (sp->sector()->floorpicnum)
+    switch (actor->spr.sector()->floorpicnum)
     {
     case 153:
     case 154:
@@ -1449,7 +1449,7 @@ int DoBunnyScrew(DSWActor* actor)
 
     if (u->WaitTics <= 0)
     {
-        RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
+        RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
         u->FlagOwner = 0;
         NewStateGroup(actor,sg_BunnyRun);
     }
@@ -1462,21 +1462,21 @@ int DoBunnyGrowUp(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    if (sp->pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
+    if (actor->spr.pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {
-        if ((++sp->xrepeat) > 64) sp->xrepeat = 64;
-        if ((++sp->yrepeat) > 64) sp->yrepeat = 64;
+        if ((++actor->spr.xrepeat) > 64) actor->spr.xrepeat = 64;
+        if ((++actor->spr.yrepeat) > 64) actor->spr.yrepeat = 64;
         u->Counter = 60;
     }
 
     // Don't go homo too much!
-    if (sp->pal != PALETTE_PLAYER0 && u->Flag1 > 0)
+    if (actor->spr.pal != PALETTE_PLAYER0 && u->Flag1 > 0)
         u->Flag1 -= ACTORMOVETICS;
 
     // Gestation period for female rabbits
-    if (sp->pal == PALETTE_PLAYER0 && u->ShellNum > 0)
+    if (actor->spr.pal == PALETTE_PLAYER0 && u->ShellNum > 0)
     {
         if ((u->Flag1 -= ACTORMOVETICS) <= 0)
         {

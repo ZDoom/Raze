@@ -362,15 +362,15 @@ void EelCommon(DSWActor* actor)
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
-    sp->clipdist = (100) >> 2;
+    actor->spr.clipdist = (100) >> 2;
     u->floor_dist = Z(16);
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(20);
 
-    u->sz = sp->pos.Z;
+    u->sz = actor->spr.pos.Z;
 
-    sp->xrepeat = 35;
-    sp->yrepeat = 27;
+    actor->spr.xrepeat = 35;
+    actor->spr.yrepeat = 27;
     u->Radius = 400;
 }
 
@@ -380,7 +380,7 @@ int SetupEel(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -435,17 +435,17 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     int bound;
 
-    if (FAF_ConnectArea(sp->sector()))
+    if (FAF_ConnectArea(actor->spr.sector()))
     {
         if (u->hi_sectp)
         {
-            u->hiz = sp->sector()->ceilingz + Z(16);
-            u->hi_sectp = sp->sector();
+            u->hiz = actor->spr.sector()->ceilingz + Z(16);
+            u->hi_sectp = actor->spr.sector();
         }
         else
         {
-            if (u->hiz < sp->sector()->ceilingz + Z(16))
-                u->hiz = sp->sector()->ceilingz + Z(16);
+            if (u->hiz < actor->spr.sector()->ceilingz + Z(16))
+                u->hiz = actor->spr.sector()->ceilingz + Z(16);
         }
     }
 
@@ -477,7 +477,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // lower bound
     if (u->lowActor && u->targetActor == u->highActor) // this doesn't look right...
     {
-        DISTANCE(sp->pos.X, sp->pos.Y, u->lowActor->spr.pos.X, u->lowActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->lowActor->spr.pos.X, u->lowActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
             bound = u->sz;
         else
@@ -494,7 +494,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // upper bound
     if (u->highActor && u->targetActor == u->highActor)
     {
-        DISTANCE(sp->pos.X, sp->pos.Y, u->highActor->spr.pos.X, u->highActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->highActor->spr.pos.X, u->highActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
             bound = u->sz;
         else
@@ -512,13 +512,13 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->pos.Z = u->sz + MulScale(EEL_BOB_AMT, bsin(u->Counter), 14);
+    actor->spr.pos.Z = u->sz + MulScale(EEL_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + EEL_BOB_AMT;
-    if (sp->pos.Z < bound)
+    if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        sp->pos.Z = u->sz = bound + EEL_BOB_AMT;
+        actor->spr.pos.Z = u->sz = bound + EEL_BOB_AMT;
     }
 
     return 0;
@@ -544,20 +544,20 @@ int DoEelDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     u->coll = move_sprite(actor, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (sp->pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)
-            SET(sp->cstat, CSTAT_SPRITE_XFLIP);
+            SET(actor->spr.cstat, CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
-            SET(sp->cstat, CSTAT_SPRITE_YFLIP);
+            SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
         NewStateGroup(actor, u->ActorActionSet->Dead);
         return 0;
     }

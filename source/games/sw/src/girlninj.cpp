@@ -716,7 +716,7 @@ int SetupGirlNinja(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -729,11 +729,11 @@ int SetupGirlNinja(DSWActor* actor)
 
     u->StateEnd = s_GirlNinjaDie;
     u->Rot = sg_GirlNinjaRun;
-    sp->xrepeat = 51;
-    sp->yrepeat = 43;
+    actor->spr.xrepeat = 51;
+    actor->spr.yrepeat = 43;
 
     u->Attrib = &GirlNinjaAttrib;
-    sp->pal = u->spal = 26;
+    actor->spr.pal = u->spal = 26;
     EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
     ChangeState(actor, s_GirlNinjaRun[0]);
@@ -790,8 +790,8 @@ int GirlNinjaJumpActionFunc(DSWActor* actor)
     int nx, ny;
 
     // Move while jumping
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
@@ -844,9 +844,9 @@ int DoGirlNinjaSpecial(DSWActor* actor)
 
     if (u->spal == PALETTE_PLAYER5)
     {
-        RESET(sp->cstat,CSTAT_SPRITE_TRANSLUCENT);
-        sp->hitag = 0;
-        sp->shade = -10;
+        RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
+        actor->spr.hitag = 0;
+        actor->spr.shade = -10;
     }
 
     return 0;

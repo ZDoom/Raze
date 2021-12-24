@@ -402,12 +402,12 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     break;
     }
 
-    RESET(sp->cstat, CSTAT_SPRITE_RESTORE);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_RESTORE);
 
-    u->spal = sp->pal;
+    u->spal = actor->spr.pal;
 
     u->RotNum = 5;
-    sp->clipdist = (256) >> 2;
+    actor->spr.clipdist = (256) >> 2;
 
     u->zclip = Z(48);
     u->lo_step = Z(32);
@@ -421,10 +421,10 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
     u->PainThreshold = (u->Health >> 4) - 1;
 
-    SET(sp->cstat,CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(sp->extra,SPRX_PLAYER_OR_ENEMY);
+    SET(actor->spr.cstat,CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(actor->spr.extra,SPRX_PLAYER_OR_ENEMY);
 
-    sp->picnum = u->State->Pic;
+    actor->spr.picnum = u->State->Pic;
     change_actor_stat(actor, STAT_ENEMY);
 
     u->Personality = person;
@@ -456,11 +456,11 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
         }
     }
 
-    if (depth && labs(sp->pos.Z - u->loz) < Z(8))
+    if (depth && labs(actor->spr.pos.Z - u->loz) < Z(8))
     {
-        sp->pos.Z += Z(depth);
-        u->loz = sp->pos.Z;
-        sp->backupz();
+        actor->spr.pos.Z += Z(depth);
+        u->loz = actor->spr.pos.Z;
+        actor->spr.backupz();
     }
 
     if (!action)
@@ -490,7 +490,7 @@ int SetupCoolie(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -509,8 +509,8 @@ int SetupCoolie(DSWActor* actor)
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
 
-    sp->xrepeat = 42;
-    sp->yrepeat = 42;
+    actor->spr.xrepeat = 42;
+    actor->spr.yrepeat = 42;
 
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
@@ -586,7 +586,7 @@ int DoCoolieMove(DSWActor* actor)
         return 0;
     }
 
-    if (Distance(sp->pos.X, sp->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y) < 1200)
+    if (Distance(actor->spr.pos.X, actor->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y) < 1200)
     {
         UpdateSinglePlayKills(actor);
         DoActorDie(actor, actor, 0);

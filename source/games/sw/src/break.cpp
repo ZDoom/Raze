@@ -493,11 +493,11 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 {
     auto sp = &actor->s();
-    int picnum = sp->picnum;
+    int picnum = actor->spr.picnum;
     BREAK_INFOp break_info;
 
     // ignore as a breakable if true
-    if (sp->lotag == TAG_SPRITE_HIT_MATCH)
+    if (actor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         return nullptr;
 
     break_info = FindSpriteBreakInfo(picnum);
@@ -508,20 +508,20 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
         if (TEST(break_info->flags, BF_OVERRIDE_BLOCK))
         {
             // if not blocking then skip this code
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
             {
                 return (BREAK_INFOp)(-1);
             }
         }
 
         if (TEST(break_info->flags, BF_BURN))
-            SET(sp->extra, SPRX_BURNABLE);
+            SET(actor->spr.extra, SPRX_BURNABLE);
         else
-            SET(sp->extra, SPRX_BREAKABLE);
+            SET(actor->spr.extra, SPRX_BREAKABLE);
 
-        sp->clipdist = GetSpriteSizeX(sp);
+        actor->spr.clipdist = GetSpriteSizeX(sp);
 
-        SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
+        SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
     }
 
     return break_info;
@@ -537,7 +537,7 @@ DSWActor* FindBreakSpriteMatch(int match)
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        if (SP_TAG2(sp) == match && sp->picnum == ST1)
+        if (SP_TAG2(sp) == match && actor->spr.picnum == ST1)
         {
             return actor;
         }
@@ -1053,7 +1053,7 @@ static void DoWallBreakSpriteMatch(int match)
     {
         SPRITEp sp = &actor->s();
 
-        if (sp->hitag == match)
+        if (actor->spr.hitag == match)
         {
             KillActor(actor);
         }
