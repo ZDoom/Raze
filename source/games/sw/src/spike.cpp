@@ -54,15 +54,15 @@ void ReverseSpike(DSWActor* actor)
     // moving toward to OFF pos
     if (u->z_tgt == u->oz)
     {
-        if (sp->pos.Z == u->oz)
+        if (actor->spr.pos.Z == u->oz)
             u->z_tgt = u->sz;
         else if (u->sz == u->oz)
-            u->z_tgt = sp->pos.Z;
+            u->z_tgt = actor->spr.pos.Z;
     }
     else if (u->z_tgt == u->sz)
     {
-        if (sp->pos.Z == u->oz)
-            u->z_tgt = sp->pos.Z;
+        if (actor->spr.pos.Z == u->oz)
+            u->z_tgt = actor->spr.pos.Z;
         else if (u->sz == u->oz)
             u->z_tgt = u->sz;
     }
@@ -80,7 +80,7 @@ bool SpikeSwitch(short match, short setting)
     {
         sp = &actor->s();
 
-        if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
+        if (actor->spr.lotag == TAG_SPRITE_SWITCH_VATOR && actor->spr.hitag == match)
         {
             found = true;
             AnimateSwitch(sp, setting);
@@ -94,14 +94,14 @@ void SetSpikeActive(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    SECTORp sectp = sp->sector();
+    SECTORp sectp = actor->spr.sector();
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StartInterpolation(sp->sector(), Interp_Sect_Ceilingheinum);
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+        StartInterpolation(actor->spr.sector(), Interp_Sect_Ceilingheinum);
     else
-        StartInterpolation(sp->sector(), Interp_Sect_Floorheinum);
+        StartInterpolation(actor->spr.sector(), Interp_Sect_Floorheinum);
 
-    InterpSectorSprites(sp->sector(), true);
+    InterpSectorSprites(actor->spr.sector(), true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
@@ -110,7 +110,7 @@ void SetSpikeActive(DSWActor* actor)
     u->Tics = 0;
 
     // moving to the ON position
-    if (u->z_tgt == sp->pos.Z)
+    if (u->z_tgt == actor->spr.pos.Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
@@ -254,17 +254,17 @@ void SpikeAlign(DSWActor* actor)
     // either work on single sector or all tagged in SOBJ
     if ((int8_t)SP_TAG7(sp) < 0)
     {
-        if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-            alignceilslope(sp->sector(), sp->pos.X, sp->pos.Y, u->zclip);
+        if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+            alignceilslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
         else
-            alignflorslope(sp->sector(), sp->pos.X, sp->pos.Y, u->zclip);
+            alignflorslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
     }
     else
     {
-        if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(sp)], sp->pos.X, sp->pos.Y, u->zclip);
+        if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(sp)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
         else
-            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(sp)], sp->pos.X, sp->pos.Y, u->zclip);
+            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(sp)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
     }
 }
 
@@ -281,11 +281,11 @@ void MoveSpritesWithSpike(sectortype* sect)
         if (actor->hasU())
             continue;
 
-        if (TEST(sp->extra, SPRX_STAY_PUT_VATOR))
+        if (TEST(actor->spr.extra, SPRX_STAY_PUT_VATOR))
             continue;
 
-        getzsofslopeptr(sect, sp->pos.X, sp->pos.Y, &cz, &fz);
-        sp->pos.Z = fz;
+        getzsofslopeptr(sect, actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
+        actor->spr.pos.Z = fz;
     }
 }
 
@@ -303,14 +303,14 @@ int DoSpike(DSWActor* actor)
     lptr = &u->zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(sp->sector());
+    MoveSpritesWithSpike(actor->spr.sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
     if (*lptr == u->z_tgt)
     {
         // in the ON position
-        if (u->z_tgt == sp->pos.Z)
+        if (u->z_tgt == actor->spr.pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -330,7 +330,7 @@ int DoSpike(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = (short)abs(u->vel_rate);
-            u->z_tgt = sp->pos.Z;
+            u->z_tgt = actor->spr.pos.Z;
 
             SetSpikeInactive(actor);
 
@@ -369,7 +369,7 @@ int DoSpike(DSWActor* actor)
             USERp bu;
             bool found = false;
 
-            SWSectIterator it(sp->sector());
+            SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
                 bsp = &actor->s();
@@ -392,8 +392,8 @@ int DoSpike(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == sp->sector() ||
-                        pp->hi_sectp == sp->sector())
+                    if (pp->lo_sectp == actor->spr.sector() ||
+                        pp->hi_sectp == actor->spr.sector())
                     {
                         ReverseSpike(actor);
                         found = true;
@@ -415,14 +415,14 @@ int DoSpikeAuto(DSWActor* actor)
     lptr = &u->zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(sp->sector());
+    MoveSpritesWithSpike(actor->spr.sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
     if (*lptr == u->z_tgt)
     {
         // in the UP position
-        if (u->z_tgt == sp->pos.Z)
+        if (u->z_tgt == actor->spr.pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -439,7 +439,7 @@ int DoSpikeAuto(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = (short)abs(u->vel_rate);
-            u->z_tgt = sp->pos.Z;
+            u->z_tgt = actor->spr.pos.Z;
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))
