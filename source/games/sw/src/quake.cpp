@@ -162,8 +162,7 @@ void ProcessQuakeSpot(void)
 void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *ang_diff)
 {
     int i;
-    SPRITEp sp;
-    SPRITEp save_sp = nullptr;
+    DSWActor* save_act = nullptr;
     int dist,save_dist = 999999;
     int dist_diff, scale_value;
     int ang_amt;
@@ -179,47 +178,46 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
         return;
 
     // find the closest quake - should be a strength value
+    DSWActor* actor = nullptr;
     SWStatIterator it(STAT_QUAKE_ON);
-	while (auto actor = it.Next())
+	while (actor = it.Next())
 	{
-		sp = &actor->s();
-
-        dist = FindDistance3D(pp->pos.X - sp->pos.X, pp->pos.Y - sp->pos.Y, pp->pos.Z - sp->pos.Z);
+        dist = FindDistance3D(pp->pos.X - actor->spr.pos.X, pp->pos.Y - actor->spr.pos.Y, pp->pos.Z - actor->spr.pos.Z);
 
         // shake whole level
-        if (QUAKE_TestDontTaper(sp))
+        if (QUAKE_TestDontTaper(actor))
         {
             save_dist = dist;
-            save_sp = sp;
+            save_act = actor;
             break;
         }
 
         if (dist < save_dist)
         {
             save_dist = dist;
-            save_sp = sp;
+            save_act = actor;
         }
     }
 
-    if (!save_sp)
+    if (!save_act)
         return;
     else
-        sp = save_sp;
+        actor = save_act;
 
-    radius = QUAKE_Radius(sp) * 8L;
+    radius = QUAKE_Radius(actor) * 8L;
     if (save_dist > radius)
         return;
 
-    *z_diff = Z(STD_RANDOM_RANGE(SP_TAG3(sp)) - (SP_TAG3(sp)/2));
+    *z_diff = Z(STD_RANDOM_RANGE(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2));
 
-    ang_amt = QUAKE_AngAmt(sp) * 4L;
+    ang_amt = QUAKE_AngAmt(actor) * 4L;
     *ang_diff = STD_RANDOM_RANGE(ang_amt) - (ang_amt/2);
 
-    pos_amt = QUAKE_PosAmt(sp) * 4L;
+    pos_amt = QUAKE_PosAmt(actor) * 4L;
     *x_diff = STD_RANDOM_RANGE(pos_amt) - (pos_amt/2);
     *y_diff = STD_RANDOM_RANGE(pos_amt) - (pos_amt/2);
 
-    if (!QUAKE_TestDontTaper(sp))
+    if (!QUAKE_TestDontTaper(actor))
     {
         // scale values from epicenter
         dist_diff = radius - save_dist;
