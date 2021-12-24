@@ -444,7 +444,6 @@ void SetVoxelSprite(SPRITEp sp, int pic)
 
 void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 {
-    SPRITEp sp1, sp2, sp;
     int spnum;
     int xoff,yoff,zoff;
     int match;
@@ -453,65 +452,54 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
     SWStatIterator it(STAT_WARP_COPY_SPRITE1);
     while (auto itActor = it.Next())
     {
-        sp1 = &itActor->s();
-        match = sp1->lotag;
+        match = itActor->spr.lotag;
 
         // look for the second one
         SWStatIterator it1(STAT_WARP_COPY_SPRITE2);
         while (auto itActor1 = it.Next())
         {
-            sp = &itActor1->s();
-
-            if (sp->lotag == match)
+            if (itActor1->spr.lotag == match)
             {
-                sp2 = sp;
-                auto sect1 = sp1->sector();
-                auto sect2 = sp2->sector();
+                auto sect1 = itActor->spr.sector();
+                auto sect2 = itActor1->spr.sector();
 
                 SWSectIterator it2(sect1);
                 while (auto itActor2 = it.Next())
                 {
-                    auto spit = &itActor2->s();
-                    if (spit == sp1)
+                    if (itActor2 == itActor)
                         continue;
 
-                    if (spit->picnum == ST1)
+                    if (itActor2->spr.picnum == ST1)
                         continue;
 
                     tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
-                    xoff = sp1->pos.X - newTSpr->pos.X;
-                    yoff = sp1->pos.Y - newTSpr->pos.Y;
-                    zoff = sp1->pos.Z - newTSpr->pos.Z;
+                    xoff = itActor->spr.pos.X - newTSpr->pos.X;
+                    yoff = itActor->spr.pos.Y - newTSpr->pos.Y;
+                    zoff = itActor->spr.pos.Z - newTSpr->pos.Z;
 
-                    newTSpr->pos.X = sp2->pos.X - xoff;
-                    newTSpr->pos.Y = sp2->pos.Y - yoff;
-                    newTSpr->pos.Z = sp2->pos.Z - zoff;
-                    newTSpr->setsector(sp2->sector());
+                    newTSpr->pos.X = itActor1->spr.pos.X - xoff;
+                    newTSpr->pos.Y = itActor1->spr.pos.Y - yoff;
+                    newTSpr->pos.Z = itActor1->spr.pos.Z - zoff;
+                    newTSpr->setsector(itActor1->spr.sector());
                 }
 
                 it2.Reset(sect2);
                 while (auto itActor2 = it2.Next())
                 {
-                    auto spit = &itActor2->s();
-                    if (spit == sp2)
+                    if (itActor2 == itActor1)
                         continue;
 
-                    if (spit->picnum == ST1)
+                    if (itActor2->spr.picnum == ST1)
                         continue;
 
                     tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
-                    xoff = sp2->pos.X - newTSpr->pos.X;
-                    yoff = sp2->pos.Y - newTSpr->pos.Y;
-                    zoff = sp2->pos.Z - newTSpr->pos.Z;
-
-                    newTSpr->pos.X = sp1->pos.X - xoff;
-                    newTSpr->pos.Y = sp1->pos.Y - yoff;
-                    newTSpr->pos.Z = sp1->pos.Z - zoff;
-                    newTSpr->setsector(sp1->sector());
+                    auto off = itActor1->spr.pos - newTSpr->pos;
+                    newTSpr->pos = itActor->spr.pos - off;
+                    newTSpr->setsector(itActor->spr.sector());
                 }
             }
         }
