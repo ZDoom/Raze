@@ -171,41 +171,40 @@ void WallSetup(void)
 
     for (auto& wal : wall)
     {
-        auto wp = &wal;
-        if (wp->picnum == FAF_PLACE_MIRROR_PIC)
-            wp->picnum = FAF_MIRROR_PIC;
+        if (wal.picnum == FAF_PLACE_MIRROR_PIC)
+            wal.picnum = FAF_MIRROR_PIC;
 
-        if (wp->picnum == FAF_PLACE_MIRROR_PIC+1)
-            wp->picnum = FAF_MIRROR_PIC+1;
+        if (wal.picnum == FAF_PLACE_MIRROR_PIC+1)
+            wal.picnum = FAF_MIRROR_PIC+1;
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);
 
-        switch (wp->lotag)
+        switch (wal.lotag)
         {
         case TAG_WALL_LOOP_DONT_SPIN:
         {
-            WallSetupLoop(wp, TAG_WALL_LOOP_DONT_SPIN, WALLFX_LOOP_DONT_SPIN);
+            WallSetupLoop(&wal, TAG_WALL_LOOP_DONT_SPIN, WALLFX_LOOP_DONT_SPIN);
             break;
         }
 
         case TAG_WALL_LOOP_DONT_SCALE:
         {
-            WallSetupLoop(wp, TAG_WALL_LOOP_DONT_SCALE, WALLFX_DONT_SCALE);
-            wp->lotag = 0;
+            WallSetupLoop(&wal, TAG_WALL_LOOP_DONT_SCALE, WALLFX_DONT_SCALE);
+            wal.lotag = 0;
             break;
         }
 
         case TAG_WALL_LOOP_OUTER_SECONDARY:
         {
             // make sure it's a red wall
-            if (wp->twoSided())
+            if (wal.twoSided())
             {
-                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER | WALLFX_LOOP_OUTER_SECONDARY);
+                WallSetupLoop(&wal, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER | WALLFX_LOOP_OUTER_SECONDARY);
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(wp));
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(&wal));
             }
             break;
         }
@@ -213,40 +212,40 @@ void WallSetup(void)
         case TAG_WALL_LOOP_OUTER:
         {
             // make sure it's a red wall
-            if (wp->twoSided())
+            if (wal.twoSided())
             {
-                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
+                WallSetupLoop(&wal, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(wp));
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(&wal));
             }
-            wp->lotag = 0;
+            wal.lotag = 0;
             break;
         }
 
         case TAG_WALL_DONT_MOVE:
         {
             // set first wall
-            SET(wp->extra, WALLFX_DONT_MOVE);
+            SET(wal.extra, WALLFX_DONT_MOVE);
             break;
         }
 
         case TAG_WALL_LOOP_SPIN_2X:
         {
-            WallSetupLoop(wp, TAG_WALL_LOOP_SPIN_2X, WALLFX_LOOP_SPIN_2X);
+            WallSetupLoop(&wal, TAG_WALL_LOOP_SPIN_2X, WALLFX_LOOP_SPIN_2X);
             break;
         }
 
         case TAG_WALL_LOOP_SPIN_4X:
         {
-            WallSetupLoop(wp, TAG_WALL_LOOP_SPIN_4X, WALLFX_LOOP_SPIN_4X);
+            WallSetupLoop(&wal, TAG_WALL_LOOP_SPIN_4X, WALLFX_LOOP_SPIN_4X);
             break;
         }
 
         case TAG_WALL_LOOP_REVERSE_SPIN:
         {
-            WallSetupLoop(wp, TAG_WALL_LOOP_REVERSE_SPIN, WALLFX_LOOP_REVERSE_SPIN);
+            WallSetupLoop(&wal, TAG_WALL_LOOP_REVERSE_SPIN, WALLFX_LOOP_REVERSE_SPIN);
             break;
         }
 
@@ -258,13 +257,13 @@ void WallSetup(void)
             SINE_WALLp sw;
             int range = 250, speed = 3, peak = 0;
 
-            tag_end = wp->lotag + 2;
+            tag_end = wal.lotag + 2;
 
-            type = wp->lotag - TAG_WALL_SINE_Y_BEGIN;
+            type = wal.lotag - TAG_WALL_SINE_Y_BEGIN;
 
 
             // count up num_points
-            for (wall_num = wp, num_points = 0;
+            for (wall_num = &wal, num_points = 0;
                  num_points < MAX_SINE_WALL_POINTS && wall_num->lotag != tag_end;
                  wall_num = wall_num->point2Wall(), num_points++)
             {
@@ -288,7 +287,7 @@ void WallSetup(void)
             if (peak)
                 num_points = peak;
 
-            for (wall_num = wp, cnt = 0;
+            for (wall_num = &wal, cnt = 0;
                  cnt < MAX_SINE_WALL_POINTS && wall_num->lotag != tag_end;
                  wall_num = wall_num->point2Wall(), cnt++)
             {
@@ -319,7 +318,7 @@ void WallSetup(void)
         }
 
         // this overwrites the lotag so it needs to be called LAST
-        SetupWallForBreak(wp);
+        SetupWallForBreak(&wal);
     }
 }
 
@@ -2022,12 +2021,8 @@ bool NearThings(PLAYERp pp)
 
         if (hit.hitWall != nullptr)
         {
-            WALLp wp;
-
-            wp =  hit.hitWall;
-
             // Near a plain old vanilla wall.  Can't do anything but grunt.
-            if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
+            if (!TEST(hit.hitWall->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
             {
                 if (STD_RANDOM_RANGE(1000) > 970)
                     PlayerSound(DIGI_HITTINGWALLS, v3df_follow|v3df_dontpan,pp);
