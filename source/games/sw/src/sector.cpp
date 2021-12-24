@@ -2235,10 +2235,10 @@ void PlayerOperateEnv(PLAYERp pp)
             if (!found)
             {
                 int z[3];
-                auto psp = &pp->Actor()->s();
+                DSWActor* plActor = pp->actor;
 
-                z[0] = psp->pos.Z - GetSpriteSizeZ(psp) - Z(10);
-                z[1] = psp->pos.Z;
+                z[0] = plActor->spr.pos.Z - ActorSizeZ(plActor) - Z(10);
+                z[1] = plActor->spr.pos.Z;
                 z[2] = DIV2(z[0] + z[1]);
 
                 for (unsigned i = 0; i < SIZ(z); i++)

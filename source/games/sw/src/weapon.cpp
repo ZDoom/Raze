@@ -11619,7 +11619,6 @@ int DoRing(DSWActor* actor)
 
 void InitSpellRing(PLAYERp pp)
 {
-    auto psp = &pp->Actor()->s();
     short ang, ang_diff, ang_start, missiles;
     USERp u;
     short max_missiles = 16;
@@ -11983,7 +11982,7 @@ int InitSerpRing(DSWActor* actor)
 
 void InitSpellNapalm(PLAYERp pp)
 {
-    auto psp = &pp->Actor()->s();
+    DSWActor* plActor = pp->actor;
     USERp u;
     unsigned i;
     short ammo;
@@ -12041,8 +12040,8 @@ void InitSpellNapalm(PLAYERp pp)
         u->ceiling_dist = Z(1);
         u->Dist = 200;
 
-        auto oclipdist = psp->clipdist;
-        psp->clipdist = 1;
+        auto oclipdist = plActor->spr.clipdist;
+        plActor->spr.clipdist = 1;
 
         if (mp[i].dist_over != 0)
         {
@@ -12057,7 +12056,7 @@ void InitSpellNapalm(PLAYERp pp)
 
         if (MissileSetPos(actor, DoNapalm, mp[i].dist_out))
         {
-            psp->clipdist = oclipdist;
+            plActor->spr.clipdist = oclipdist;
             KillActor(actor);
             continue;
         }
@@ -12065,7 +12064,7 @@ void InitSpellNapalm(PLAYERp pp)
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actor))
             SET(u->Flags, SPR_UNDERWATER);
 
-        psp->clipdist = oclipdist;
+        plActor->spr.clipdist = oclipdist;
 
         u->Counter = 0;
 
@@ -12183,16 +12182,16 @@ int InitSpellMirv(PLAYERp pp)
     u->ceiling_dist = Z(16);
     u->Dist = 200;
 
-    auto psp = &pp->Actor()->s();
-    auto oclipdist = psp->clipdist;
-    psp->clipdist = 0;
+    DSWActor* plActor = pp->actor;
+    auto oclipdist = plActor->spr.clipdist;
+    plActor->spr.clipdist = 0;
 
     u->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     u->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     u->zchange = actorNew->spr.zvel;
 
     MissileSetPos(actorNew, DoMirv, 600);
-    psp->clipdist = oclipdist;
+    plActor->spr.clipdist = oclipdist;
 
     u->Counter = 0;
     return 0;
@@ -12244,8 +12243,7 @@ int InitEnemyMirv(DSWActor* actor)
 int InitSwordAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u(), tu;
-    auto psp = &pp->Actor()->s();
+    USERp u = plActor->u(), tu;
     unsigned stat;
     int dist;
     short reach, face;
@@ -12308,7 +12306,7 @@ int InitSwordAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
                 {
-                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, ActorZOfMiddle(plActor), psp->sector()))
+                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
                         DoDamage(itActor, pp->Actor());
                 }
             }
@@ -13090,8 +13088,8 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
 
 int InitStar(PLAYERp pp)
 {
-    auto psp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
     USERp wu;
     int nx, ny, nz;
     int zvel;
@@ -13202,7 +13200,7 @@ int InitStar(PLAYERp pp)
 
 void InitHeartAttack(PLAYERp pp)
 {
-    auto psp = &pp->Actor()->s();
+    DSWActor* plActor = pp->actor;
     USERp u;
     short i = 0;
 
@@ -13243,8 +13241,8 @@ void InitHeartAttack(PLAYERp pp)
     u->ceiling_dist = Z(1);
     u->Dist = 200;
 
-    auto oclipdist = psp->clipdist;
-    psp->clipdist = 1;
+    auto oclipdist = plActor->spr.clipdist;
+    plActor->spr.clipdist = 1;
 
     u->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     u->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
@@ -13252,7 +13250,7 @@ void InitHeartAttack(PLAYERp pp)
 
     MissileSetPos(actorNew, DoBloodWorm, mp[i].dist_out);
 
-    psp->clipdist = oclipdist;
+    plActor->spr.clipdist = oclipdist;
     u->Counter = 0;
     u->Counter2 = 0;
     u->Counter3 = 0;
@@ -15522,9 +15520,9 @@ int InitTracerUzi(PLAYERp pp)
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
-    auto psp = &pp->Actor()->s();
-    oclipdist = psp->clipdist;
-    psp->clipdist = 0;
+    DSWActor* plActor = pp->actor;
+    oclipdist = plActor->spr.clipdist;
+    plActor->spr.clipdist = 0;
 
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
     if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnUziType == 0)
@@ -15535,14 +15533,14 @@ int InitTracerUzi(PLAYERp pp)
 
     if (MissileSetPos(actorNew, DoTracerStart, 800))
     {
-        psp->clipdist = oclipdist;
+        plActor->spr.clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
 
-    psp->clipdist = oclipdist;
+    plActor->spr.clipdist = oclipdist;
 
     WeaponAutoAim(pp->Actor(), actorNew, 32, false);
 
