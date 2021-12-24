@@ -614,7 +614,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     int smr4, smr2;
     USERp tu;
     static int ang = 0;
-    PLAYERp pp = nullptr;
+    PLAYERp pp = Player + screenpeek;
     int newshade=0;
 
     const int DART_PIC = 2526;
