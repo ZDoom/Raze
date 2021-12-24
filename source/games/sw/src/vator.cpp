@@ -88,7 +88,7 @@ bool VatorSwitch(short match, short setting)
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
             found = true;
-            AnimateSwitch(sp, setting);
+            AnimateSwitch(actor, setting);
         }
     }
 
