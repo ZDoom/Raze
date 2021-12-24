@@ -60,7 +60,7 @@ void precache()
 
         if (wal.twoSided())
         {
-            int j = wal.overpicnum;
+            j = wal.overpicnum;
             markTileForPrecache(j, wal.pal);
             if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
                 for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wal.pal);

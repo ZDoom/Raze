@@ -169,7 +169,7 @@ public:
 
                     if (nPixels)
                     {
-                        int nRead = (int)fp.Read(pFrame, nPixels);
+                        nRead = (int)fp.Read(pFrame, nPixels);
                         pFrame += nRead;
                         nSize -= nRead;
                     }

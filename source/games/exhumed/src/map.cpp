@@ -94,9 +94,6 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
             GetActorExtents(pPlayerActor, &nTop, &nBottom);
             int nScale = (pPlayerActor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;
             nScale = clamp(nScale, 8000, 65536 << 1);
-            // Players on automap
-            double x = xdim / 2. + x1 / double(1 << 12);
-            double y = ydim / 2. + y1 / double(1 << 12);
             // This very likely needs fixing later
             DrawTexture(twod, tileGetTexture(nTile /*+ ((PlayClock >> 4) & 3)*/, true), xx, yy, DTA_ClipLeft, windowxy1.X, DTA_ClipTop, windowxy1.Y, DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
                 DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (pPlayerActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);

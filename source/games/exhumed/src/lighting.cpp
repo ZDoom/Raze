@@ -342,8 +342,8 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     pSector->ceilingpal += 7;
 
-                    int edx = pSector->ceilingshade + var_28;
-                    int eax = edx;
+                    edx = pSector->ceilingshade + var_28;
+                    eax = edx;
 
                     if (edx < -127) {
                         eax = -127;
@@ -368,7 +368,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     pActor->spr.pal += 7;
 
-                    int eax = -255;
+                    eax = -255;
 
                     if (!var_18)
                     {

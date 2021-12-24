@@ -148,6 +148,7 @@ void menu_DoPlasma()
             for (int y = 0; y < kPlasmaHeight - 2; y++)
             {
                 uint8_t al = *r_edx;
+                uint8_t cl;
 
                 if (al != 96)
                 {
@@ -165,8 +166,8 @@ void menu_DoPlasma()
                     }
                     else
                     {
-                        uint8_t al = *(r_edx + 1);
-                        uint8_t cl = *(r_edx - 1);
+                        al = *(r_edx + 1);
+                        cl = *(r_edx - 1);
 
                         if (al <= cl) {
                             al = cl;

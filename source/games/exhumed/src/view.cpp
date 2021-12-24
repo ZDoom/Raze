@@ -105,8 +105,8 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
         if (pTSprite->sector() != nullptr)
         {
-            sectortype *pSector = pTSprite->sector();
-            int nSectShade = (pSector->ceilingstat & CSTAT_SECTOR_SKY) ? pSector->ceilingshade : pSector->floorshade;
+            sectortype *pTSector = pTSprite->sector();
+            int nSectShade = (pTSector->ceilingstat & CSTAT_SECTOR_SKY) ? pTSector->ceilingshade : pTSector->floorshade;
             int nShade = pTSprite->shade + nSectShade + 6;
             pTSprite->shade = clamp(nShade, -128, 127);
         }

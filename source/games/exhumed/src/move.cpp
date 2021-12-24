@@ -928,7 +928,6 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         {
             pos = { x_b, y_b, nZVal };
 
-            Collision scratch;
             clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
             int ebx = pos.X;
@@ -994,7 +993,6 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                     pos.Y = pActor->spr.pos.Y;
                     pSectorB = pSector;
 
-                    Collision scratch;
                     clipmove(pos, &pSectorB, -xvect, -yvect, 4 * pActor->spr.clipdist, 0, 0, CLIPMASK0, scratch);
 
                     if (pSectorB) {
@@ -1011,7 +1009,6 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                 pos = pActor->spr.pos;
                 pSectorB = pNextSector;
 
-                Collision scratch;
                 clipmove(pos, &pSectorB,
                     -xvect - (bcos(nAngle) * (4 * pActor->spr.clipdist)),
                     -yvect - (bsin(nAngle) * (4 * pActor->spr.clipdist)),
@@ -1058,7 +1055,6 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->spr.pos.Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                Collision scratch;
                 clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
             }
         }

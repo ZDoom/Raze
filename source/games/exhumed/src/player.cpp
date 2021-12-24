@@ -765,9 +765,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         sPlayerInput[nPlayer].nItem = -1;
     }
 
-    int var_EC = PlayerList[nPlayer].nSeqSize;
-
-    pPlayerActor->spr.picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, PlayerList[nPlayer].nSeqSize);
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
 
     if (PlayerList[nPlayer].nTorch > 0)

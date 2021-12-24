@@ -174,7 +174,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
             if (pTarget == nullptr)
             {
-                auto pTarget = FindPlayer(pActor, 100);
+                pTarget = FindPlayer(pActor, 100);
                 if (pTarget != nullptr)
                 {
                     D3PlayFX(StaticSound[kSound7], pActor);

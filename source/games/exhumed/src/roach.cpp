@@ -226,7 +226,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
         if (((pActor->nPhase & 0xF) == (totalmoves & 0xF)) && pTarget == nullptr)
         {
-            auto pTarget = FindPlayer(pActor, 50);
+            pTarget = FindPlayer(pActor, 50);
             if (pTarget)
             {
                 pActor->nAction = 2;
@@ -244,7 +244,7 @@ void AIRoach::Tick(RunListEvent* ev)
         // partly the same as case 0.
         if (((pActor->nPhase & 0xF) == (totalmoves & 0xF)) && pTarget == nullptr)
         {
-            auto pTarget = FindPlayer(pActor, 100);
+            pTarget = FindPlayer(pActor, 100);
             if (pTarget)
             {
                 pActor->nAction = 2;
