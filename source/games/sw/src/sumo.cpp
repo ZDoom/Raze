@@ -638,7 +638,7 @@ int SetupSumo(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -660,19 +660,19 @@ int SetupSumo(DSWActor* actor)
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
-    sp->clipdist = (512) >> 2;
-    if (sp->pal == 16)
+    actor->spr.clipdist = (512) >> 2;
+    if (actor->spr.pal == 16)
     {
         // Mini Sumo
-        sp->xrepeat = 43;
-        sp->yrepeat = 29;
+        actor->spr.xrepeat = 43;
+        actor->spr.yrepeat = 29;
         u->ActorActionSet = &MiniSumoActionSet;
         u->Health = 500;
     }
     else
     {
-        sp->xrepeat = 115;
-        sp->yrepeat = 75;
+        actor->spr.xrepeat = 115;
+        actor->spr.yrepeat = 75;
     }
 
     //SET(u->Flags, SPR_XFLIP_TOGGLE);
@@ -754,7 +754,7 @@ int InitSumoClap(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    if (sp->pal == 16 && RandomRange(1000) <= 800)
+    if (actor->spr.pal == 16 && RandomRange(1000) <= 800)
         InitMiniSumoClap(actor);
     else
         InitSumoSkull(actor);
@@ -772,7 +772,7 @@ int DoSumoDeathMelt(DSWActor* actor)
     InitChemBomb(actor);
     u->ID = 0;
 
-    DoMatchEverything(nullptr, sp->lotag, ON);
+    DoMatchEverything(nullptr, actor->spr.lotag, ON);
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
@@ -838,7 +838,7 @@ void BossHealthMeter(void)
             sp = &actor->s();
             u = actor->u();
 
-            if (cansee(sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp), sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
+            if (cansee(actor->spr.pos.X, actor->spr.pos.Y, GetSpriteZOfTop(sp), actor->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
                 {

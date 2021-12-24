@@ -756,8 +756,8 @@ int SetupZombie(DSWActor* actor)
     u->Health = 100;
     u->StateEnd = &s_ZombiePain[0][0];
     u->Rot = sg_ZombieRun;
-    sp->xrepeat = PLAYER_NINJA_XREPEAT;
-    sp->yrepeat = PLAYER_NINJA_YREPEAT;
+    actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
+    actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
     u->Attrib = &ZombieAttrib;
     EnemyDefaults(actor, &ZombieActionSet, &ZombiePersonality);
@@ -810,8 +810,8 @@ void SpawnZombie2(DSWActor* actor)
     SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
-    auto sectu = sp->sector();
-    SECTORp sectp = sp->sector();
+    auto sectu = actor->spr.sector();
+    SECTORp sectp = actor->spr.sector();
 
     auto ownerActor = GetOwner(actor);
 
@@ -821,19 +821,19 @@ void SpawnZombie2(DSWActor* actor)
     if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
         return;
 
-    if (SectorIsUnderwaterArea(sp->sector()))
+    if (SectorIsUnderwaterArea(actor->spr.sector()))
         return;
 
-    if (FAF_ConnectArea(sp->sector()))
+    if (FAF_ConnectArea(actor->spr.sector()))
     {
-        auto newsect = sp->sector();
-        updatesectorz(sp->pos.X, sp->pos.Y, sp->pos.Z + Z(10), &newsect);
+        auto newsect = actor->spr.sector();
+        updatesectorz(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z + Z(10), &newsect);
         if (SectorIsUnderwaterArea(newsect))
             return;
     }
 
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     np = &actorNew->s();
     nu = actorNew->u();
     nu->Counter3 = 0;

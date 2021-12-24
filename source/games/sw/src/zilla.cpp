@@ -644,7 +644,7 @@ int SetupZilla(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -666,9 +666,9 @@ int SetupZilla(DSWActor* actor)
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
-    sp->clipdist = (512) >> 2;
-    sp->xrepeat = 97;
-    sp->yrepeat = 79;
+    actor->spr.clipdist = (512) >> 2;
+    actor->spr.xrepeat = 97;
+    actor->spr.yrepeat = 79;
 
     return 0;
 }
@@ -681,19 +681,19 @@ int NullZilla(DSWActor* actor)
 #if 0
     if (u->State == s_ZillaDie)
     {
-        getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
-        u->lo_sectp = sp->sector();
-        u->hi_sectp = sp->sector();
-        sp->z = u->loz;
+        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, &u->hiz, &u->loz);
+        u->lo_sectp = actor->spr.sector();
+        u->hi_sectp = actor->spr.sector();
+        actor->spr.z = u->loz;
     }
 #endif
 
-    getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &u->hiz, &u->loz);
-    u->lo_sectp = sp->sector();
-    u->hi_sectp = sp->sector();
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
+    u->lo_sectp = actor->spr.sector();
+    u->hi_sectp = actor->spr.sector();
     u->lowActor = nullptr;
     u->highActor = nullptr;
-    sp->pos.Z = u->loz;
+    actor->spr.pos.Z = u->loz;
 
     DoActorSectorDamage(actor);
 
@@ -754,7 +754,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     u->ID = ZILLA_RUN_R0;
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
-    //DoMatchEverything(nullptr, sp->lotag, ON);
+    //DoMatchEverything(nullptr, actor->spr.lotag, ON);
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
@@ -762,12 +762,12 @@ int DoZillaDeathMelt(DSWActor* actor)
     }
 
     //KeepActorOnFloor(actor);
-    getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &u->hiz, &u->loz);
-    u->lo_sectp = sp->sector();
-    u->hi_sectp = sp->sector();
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
+    u->lo_sectp = actor->spr.sector();
+    u->hi_sectp = actor->spr.sector();
     u->lowActor = nullptr;
     u->highActor = nullptr;
-    sp->pos.Z = u->loz;
+    actor->spr.pos.Z = u->loz;
 
     BossSpriteNum[2] = nullptr;
     return 0;
