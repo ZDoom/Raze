@@ -12465,7 +12465,7 @@ int InitSwordAttack(PLAYERp pp)
             -256, -128, 0, 128, 256
         };
 
-        for (int i = 0; i < (int)SIZ(dangs); i++)
+        for (size_t i = 0; i < countof(dangs); i++)
         {
             if (RandomRange(1000) < 500) continue; // Don't spawn bubbles every time
             bubble = SpawnBubble(pp->Actor());
@@ -12646,7 +12646,7 @@ int InitFistAttack(PLAYERp pp)
             -128,128
         };
 
-        for (int i = 0; i < (int)SIZ(dangs); i++)
+        for (size_t i = 0; i < countof(dangs); i++)
         {
             bubble = SpawnBubble(pp->Actor());
             if (bubble != nullptr)
@@ -12837,7 +12837,7 @@ int InitSumoNapalm(DSWActor* actor)
     SPRITEp sp = &actor->s(), wp;
     USERp u = actor->u(), wu;
     short dist;
-    short i,j,ang;
+    short ang;
 
     typedef struct
     {
@@ -12853,18 +12853,18 @@ int InitSumoNapalm(DSWActor* actor)
     PlaySound(DIGI_NAPFIRE, actor, v3df_none);
 
     ang = sp->ang;
-    for (j=0; j<4; j++)
+    for (int j = 0; j < 4; j++)
     {
-        for (i = 0; i < (int)SIZ(mp); i++)
+        for (size_t i = 0; i < countof(mp); i++)
         {
             auto wActor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sector(),
-                            sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp), ang, NAPALM_VELOCITY);
+                sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp), ang, NAPALM_VELOCITY);
 
             wp = &wActor->s();
             wu = wActor->u();
 
             wp->hitag = LUMINOUS; //Always full brightness
-            if (i==0) // Only attach sound to first projectile
+            if (i == 0) // Only attach sound to first projectile
             {
                 PlaySound(DIGI_NAPWIZ, wActor, v3df_follow);
             }
@@ -13316,7 +13316,6 @@ int InitStar(PLAYERp pp)
     int zvel;
 
     static short dang[] = {-12, 12};
-    uint8_t i;
     SPRITEp np;
     USERp nu;
     const int STAR_REPEAT = 26;
@@ -13380,7 +13379,7 @@ int InitStar(PLAYERp pp)
 
     wp->backuppos();
 
-    for (i = 0; i < (int)SIZ(dang); i++)
+    for (size_t i = 0; i < countof(dang); i++)
     {
         auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
         np = &actorNew2->s();
