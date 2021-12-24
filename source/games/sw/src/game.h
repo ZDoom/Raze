@@ -2038,17 +2038,13 @@ struct GameInterface : public ::GameInterface
 };
 
 
+END_SW_NS
+
+#include "swactor.h"
+
+BEGIN_SW_NS
+
 // OVER and UNDER water macros
-inline bool SpriteInDiveArea(SPRITEp sp)
-{
-    return (TEST(sp->sector()->extra, SECTFX_DIVE_AREA) ? true : false);
-}
-
-inline bool SpriteInUnderwaterArea(SPRITEp sp)
-{
-    return (TEST(sp->sector()->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
-}
-
 inline bool SectorIsDiveArea(sectortype* sect)
 {
     return (TEST(sect->extra, SECTFX_DIVE_AREA) ? true : false);
@@ -2059,12 +2055,6 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
     if (!sect) return false;
     return (TEST(sect->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
 }
-
-END_SW_NS
-
-#include "swactor.h"
-
-BEGIN_SW_NS
 
 inline int PlayerFacingRange(PLAYERp pp, DSWActor* a, int range)
 {

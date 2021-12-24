@@ -1696,8 +1696,9 @@ void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob
 
 void UpdatePlayerUnderSprite(PLAYERp pp)
 {
-    SPRITEp over_sp = &pp->Actor()->s();
-    USERp over_u = pp->Actor()->u();
+    auto actor = pp->actor;
+    SPRITEp over_sp = &actor->s();
+    USERp over_u = actor->u();
 
     SPRITEp sp;
     USERp u;
@@ -1708,15 +1709,14 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     if (Prediction)
         return;
 
-    ASSERT(over_sp);
     ASSERT(over_u);
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = over_sp->sector()->floorz; // - Z(pp->WadeDepth);
+    water_level_z = actor->spr.sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
-    above_water = (GetSpriteZOfBottom(over_sp) <= water_level_z);
-    in_dive_area = SpriteInDiveArea(over_sp);
+    above_water = (ActorZOfBottom(actor) <= water_level_z);
+    in_dive_area = SpriteInDiveArea(actor);
 
     // if not in dive area OR (in dive area AND above the water) - Kill it
     if (!in_dive_area || (in_dive_area && above_water))
@@ -1742,10 +1742,8 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     sp = &pp->PlayerUnderActor->s();
     u = pp->PlayerUnderActor->u();
 
-    sp->pos.X = over_sp->pos.X;
-    sp->pos.Y = over_sp->pos.Y;
-    sp->pos.Z = over_sp->pos.Z;
-    ChangeActorSect(pp->PlayerUnderActor, over_sp->sector());
+    sp->pos = actor->spr.pos;
+    ChangeActorSect(pp->PlayerUnderActor, actor->spr.sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
 
@@ -1760,7 +1758,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     u->Rot = over_u->Rot;
     u->StateStart = over_u->StateStart;
 
-    sp->picnum = over_sp->picnum;
+    sp->picnum = actor->spr.picnum;
 }
 
 
