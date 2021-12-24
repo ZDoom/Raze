@@ -2748,7 +2748,6 @@ int SpawnShrapX(DSWActor* actor)
 int DoLavaErupt(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     short i,pnum;
     PLAYERp pp;
     SPRITEp tsp;
@@ -2829,7 +2828,6 @@ int DoLavaErupt(DSWActor* actor)
 int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
 {
     SPRITEp parent = &parentActor->s();
-    SPRITEp sp;
     USERp u, pu = parentActor->u();
     short i;
 
@@ -3679,7 +3677,6 @@ AutoShrap:
             auto actor = SpawnActor(STAT_SKIP4, p->id, p->state, parent->sector(),
                                     parent->pos.X, parent->pos.Y, hz[p->zlevel], shrap_ang, 512);
 
-            sp = &actor->s();
             u = actor->u();
 
             if (p->random_disperse)
@@ -3802,7 +3799,6 @@ void DoShrapMove(DSWActor* actor)
 int DoVomit(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
     actor->spr.xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
@@ -3857,7 +3853,6 @@ int DoVomitSplash(DSWActor* actor)
 int DoFastShrapJumpFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.X += u->xchange*2;
     actor->spr.pos.Y += u->ychange*2;
@@ -3873,7 +3868,6 @@ int DoFastShrapJumpFall(DSWActor* actor)
 int DoTracerShrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.X += u->xchange;
     actor->spr.pos.Y += u->ychange;
@@ -3917,7 +3911,6 @@ int DoShrapJumpFall(DSWActor* actor)
 int DoShrapDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -3956,7 +3949,6 @@ int DoShrapDamage(DSWActor* actor)
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z)
 {
     auto u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
     int i;
@@ -4050,7 +4042,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
         {
         case NINJA_RUN_R0: //sword
             // if sprite and weapon are the same it must be HARIII-KARIII
-            if (sp == wp)
+            if (actor == weapActor)
             {
                 p = HariKariBlood;
                 hit_ang = actor->spr.ang;
@@ -4292,8 +4284,6 @@ bool VehicleMoveHit(DSWActor* actor)
 bool WeaponMoveHit(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
-
 
     switch (u->coll.type)
     {
@@ -4516,22 +4506,18 @@ bool WeaponMoveHit(DSWActor* actor)
 
 int DoUziSmoke(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     actor->spr.pos.Z -= 200; // !JIM! Make them float up
     return 0;
 }
 
 int DoShotgunSmoke(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     actor->spr.pos.Z -= 200; // !JIM! Make them float up
     return 0;
 }
 
 int DoMineSpark(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
     if (actor->spr.picnum != 0)
     {
         DoDamageTest(actor);
@@ -4542,13 +4528,12 @@ int DoMineSpark(DSWActor* actor)
 int DoFireballFlames(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(),ap;
     bool jumping = false;
 
     // if no Owner then stay where you are
     if (u->attachActor != nullptr)
     {
-        ap = &u->attachActor->s();
+        auto ap = &u->attachActor->s();
 
         actor->spr.pos.X = ap->pos.X;
         actor->spr.pos.Y = ap->pos.Y;
@@ -4639,7 +4624,6 @@ int DoFireballFlames(DSWActor* actor)
 int DoBreakFlames(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool jumping = false;
 
     if (TEST(u->Flags, SPR_JUMPING))
@@ -4731,7 +4715,6 @@ int SetSuicide(DSWActor* actor)
 int DoActorScale(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->scale_speed = 70;
     u->scale_value = actor->spr.xrepeat << 8;
@@ -4749,7 +4732,6 @@ int DoActorScale(DSWActor* actor)
 int DoRipperGrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->scale_speed = 70;
     u->scale_value = actor->spr.xrepeat << 8;
@@ -4811,7 +4793,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 {
     if (!actor->hasU()) return false;
 
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     USERp wu = weapActor? weapActor->u() : nullptr;
 
@@ -5056,7 +5037,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
 int ActorHealth(DSWActor* actor, short amt)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     extern int FinishAnim;
 
@@ -5163,7 +5143,6 @@ int ActorHealth(DSWActor* actor, short amt)
 int SopDamage(SECTOR_OBJECTp sop, short amt)
 {
     auto actor = sop->sp_child;
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     // does not have damage
@@ -5263,7 +5242,6 @@ int ActorPainPlasma(DSWActor* actor)
 int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
     assert(weapActor != nullptr);
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp wp = &weapActor->s();
     USERp wu = weapActor->u();
@@ -5381,7 +5359,6 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
     // if ndx does radius
     if (d->radius > 0 && weapActor)
     {
-        SPRITEp sp = &actor->s();
         SPRITEp wp = &weapActor->s();
         int dist,a,b,c;
         int damage_per_pixel, damage_force, damage_amt;
@@ -5420,7 +5397,6 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
 {
     DSWActor* actor = pp->actor;
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     // Store off what player was struck by
@@ -5598,7 +5574,6 @@ bool OwnerIs(DSWActor* actor, int pic)
 
 int DoDamage(DSWActor* actor, DSWActor* weapActor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp wp;
     USERp wu;
@@ -7144,7 +7119,6 @@ int DoDamageTest(DSWActor* actor)
     SPRITEp wp = &actor->s();
 
     USERp u;
-    SPRITEp sp;
     int i;
     unsigned stat;
     int dist, tx, ty;
@@ -7212,7 +7186,6 @@ int DoFlamesDamageTest(DSWActor* actor)
     USERp wu = actor->u();
 
     USERp u;
-    SPRITEp sp;
     int i;
     unsigned stat;
     int dist, tx, ty;
@@ -7351,7 +7324,6 @@ int DoExpDamageTest(DSWActor* actor)
     SPRITEp wp = &actor->s();
 
     USERp u;
-    SPRITEp sp;
     short i, stat;
     int dist, tx, ty;
     int tmin;
@@ -7497,7 +7469,6 @@ int DoMineExpMine(DSWActor* actor)
     SPRITEp wp = &actor->s();
 
     USERp u;
-    SPRITEp sp;
     int i;
     int dist, tx, ty;
     int tmin;
@@ -7534,7 +7505,6 @@ int DoMineExpMine(DSWActor* actor)
 int DoStar(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp su;
     int vel;
 
@@ -7776,7 +7746,6 @@ int DoCrossBolt(DSWActor* actor)
 int DoPlasmaDone(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.xrepeat += u->Counter;
     actor->spr.yrepeat -= 4;
@@ -7813,7 +7782,6 @@ DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 
 int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     int zh;
@@ -7895,7 +7863,6 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
 // combination of vector manipulation
 int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     int dist;
@@ -7962,7 +7929,6 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
 // completely vector manipulation
 int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     int dist;
@@ -8052,7 +8018,6 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 // completely vector manipulation
 int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     int dist;
@@ -8159,7 +8124,6 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 int DoPlasmaFountain(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp ap;
 
     // if no Owner then die
@@ -8207,7 +8171,6 @@ int DoPlasmaFountain(DSWActor* actor)
 int DoPlasma(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
     int ox,oy,oz;
 
@@ -8281,7 +8244,6 @@ int DoPlasma(DSWActor* actor)
 int DoCoolgFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -8328,7 +8290,6 @@ void ScaleSpriteVector(DSWActor* actor, int scale)
 void WallBounce(DSWActor* actor, short ang)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     int old_ang;
     int k,l;
     int dax, day;
@@ -8361,7 +8322,6 @@ void WallBounce(DSWActor* actor, short ang)
 bool SlopeBounce(DSWActor* actor, bool *hit_wall)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     int k,l;
     int hiz,loz;
     int slope;
@@ -8431,7 +8391,6 @@ extern STATE s_Phosphorus[];
 int DoGrenade(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     short i;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -8669,7 +8628,6 @@ int DoGrenade(DSWActor* actor)
 int DoVulcanBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->Counter += 40;
     u->zchange += u->Counter;
@@ -8822,7 +8780,6 @@ int DoMineRangeTest(DSWActor* actor, int range)
     SPRITEp wp = &actor->s();
 
     USERp u;
-    SPRITEp sp;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
@@ -8871,7 +8828,6 @@ int DoMineRangeTest(DSWActor* actor, int range)
 int DoMineStuck(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     constexpr int MINE_DETONATE_STATE = 99;
 
     // if no Owner then die
@@ -9027,7 +8983,6 @@ int DoMineStuck(DSWActor* actor)
 void SetMineStuck(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // stuck
     SET(u->Flags, SPR_BOUNCE);
@@ -9044,7 +8999,6 @@ void SetMineStuck(DSWActor* actor)
 int DoMine(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -9207,7 +9161,6 @@ int DoMine(DSWActor* actor)
 int DoPuff(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
  
     actor->spr.pos.X += u->xchange;
     actor->spr.pos.Y += u->ychange;
@@ -9218,8 +9171,6 @@ int DoPuff(DSWActor* actor)
 
 int DoRailPuff(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
     actor->spr.xrepeat += 4;
     actor->spr.yrepeat += 4;
 
@@ -9229,7 +9180,6 @@ int DoRailPuff(DSWActor* actor)
 int DoBoltThinMan(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
     DoBlurExtend(actor, 0, 4);
@@ -9265,7 +9215,6 @@ int DoBoltThinMan(DSWActor* actor)
 int DoTracer(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     for (int i = 0; i < 4; i++)
     {
@@ -9291,10 +9240,8 @@ int DoTracer(DSWActor* actor)
 int DoEMP(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-    short i;
 
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9329,7 +9276,6 @@ int DoEMP(DSWActor* actor)
 int DoEMPBurst(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     DSWActor* attachActor = u->attachActor;
     if (attachActor != nullptr)
@@ -9424,7 +9370,6 @@ int DoTracerStart(DSWActor* actor)
 int DoLaser(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
     short spawn_count = 0;
@@ -9494,7 +9439,6 @@ int DoLaserStart(DSWActor* actor)
 int DoRail(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
     short spawn_count = 0;
@@ -9604,7 +9548,6 @@ int DoRailStart(DSWActor* actor)
 int DoRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int dist,a,b,c;
     auto pos = actor->spr.pos;
 
@@ -9710,7 +9653,6 @@ int DoMicroMini(DSWActor* actor)
 int SpawnExtraMicroMini(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -9746,7 +9688,6 @@ int SpawnExtraMicroMini(DSWActor* actor)
 int DoMicro(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -9817,7 +9758,6 @@ int DoMicro(DSWActor* actor)
 int DoUziBullet(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
     int sx,sy;
     short i;
@@ -9884,7 +9824,6 @@ int DoUziBullet(DSWActor* actor)
 int DoBoltSeeker(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
@@ -9925,7 +9864,6 @@ int DoBoltFatMan(DSWActor* actor)
 int DoElectro(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
     DoBlurExtend(actor, 0, 4);
@@ -10034,7 +9972,6 @@ int SpawnCoolieExp(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp eu;
-    SPRITEp sp = &actor->s();
 
     SPRITEp exp;
     int zh,nx,ny;
@@ -10069,7 +10006,7 @@ int SpawnCoolieExp(DSWActor* actor)
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
-    SPRITEp sp = &actor->s(), ep = nullptr;
+    SPRITEp ep = nullptr;
     USERp u = actor->u(), eu = nullptr;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -10188,7 +10125,6 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 
 int SpawnBreakFlames(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp np;
     USERp nu;
@@ -10226,7 +10162,6 @@ int SpawnBreakFlames(DSWActor* actor)
 
 void SpawnBreakStaticFlames(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp np;
     USERp nu;
@@ -10260,7 +10195,6 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
 void SpawnFireballExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10300,7 +10234,6 @@ void SpawnFireballExp(DSWActor* actor)
 
 void SpawnGoroFireballExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10336,7 +10269,6 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
 void SpawnBoltExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10374,7 +10306,6 @@ void SpawnBoltExp(DSWActor* actor)
 
 int SpawnBunnyExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     ASSERT(u);
@@ -10395,7 +10326,6 @@ int SpawnBunnyExp(DSWActor* actor)
 
 void SpawnTankShellExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10431,7 +10361,6 @@ void SpawnTankShellExp(DSWActor* actor)
 
 void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10474,7 +10403,6 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 
 void SpawnNuclearExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10560,7 +10488,6 @@ void SpawnNuclearExp(DSWActor* actor)
 
 void SpawnTracerExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10602,7 +10529,6 @@ void SpawnTracerExp(DSWActor* actor)
 
 void SpawnMicroExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10640,7 +10566,6 @@ void SpawnMicroExp(DSWActor* actor)
 
 void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     unsigned sn;
 
@@ -10672,13 +10597,11 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 
 void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, bool smallflames)
 {
-    SPRITEp sp;
     USERp u;
     SPRITEp exp;
     USERp eu;
     unsigned sn;
 
-    sp = &actor->s();
     u = actor->u();
 
     auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, actor->spr.sector(),
@@ -10741,7 +10664,6 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
 
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10791,7 +10713,6 @@ int SpawnGrenadeSmallExp(DSWActor* actor)
 
 void SpawnGrenadeExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10901,7 +10822,6 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 
 void SpawnMineExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10949,7 +10869,6 @@ int DoMineExp(DSWActor* actor)
 int DoSectorExp(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.X += u->xchange;
     actor->spr.pos.Y += u->ychange;
@@ -10959,7 +10878,6 @@ int DoSectorExp(DSWActor* actor)
 
 DSWActor* SpawnSectorExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -10995,7 +10913,6 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 // called from SpawnShrap
 DSWActor* SpawnLargeExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
     
@@ -11027,7 +10944,6 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
 
 void SpawnMeteorExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
@@ -11074,7 +10990,6 @@ void SpawnMeteorExp(DSWActor* actor)
 
 void SpawnLittleExp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11099,7 +11014,6 @@ void SpawnLittleExp(DSWActor* actor)
 int DoFireball(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -11161,7 +11075,7 @@ int DoFireball(DSWActor* actor)
 
 int DoFindGround(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), hsp;
+    SPRITEp hsp;
     USERp u = actor->u();
     Collision ceilhit, florhit;
 
@@ -11216,7 +11130,7 @@ int DoFindGround(DSWActor* actor)
 
 int DoFindGroundPoint(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), hsp;
+    SPRITEp hsp;
     USERp u = actor->u();
     Collision ceilhit, florhit;
 
@@ -11272,7 +11186,7 @@ int DoFindGroundPoint(DSWActor* actor)
 int DoNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), exp;
+    SPRITEp exp;
 
     int ox, oy, oz;
 
@@ -11376,7 +11290,6 @@ int DoNapalm(DSWActor* actor)
 int DoBloodWorm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     short ang;
     int xvect,yvect;
     int bx,by;
@@ -11467,7 +11380,6 @@ int DoMeteor(DSWActor* actor)
 int DoSerpMeteor(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int ox, oy, oz;
 
     ox = actor->spr.pos.X;
@@ -11517,7 +11429,6 @@ int DoSerpMeteor(DSWActor* actor)
 int DoMirvMissile(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.xrepeat += MISSILEMOVETICS * 2;
     if (actor->spr.xrepeat > 80)
@@ -11543,7 +11454,7 @@ int DoMirvMissile(DSWActor* actor)
 int DoMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), np;
+    SPRITEp np;
     USERp nu;
 
     u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11707,7 +11618,6 @@ enum
 int DoRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
     PLAYERp pp = own->user.PlayerP;;
@@ -11853,7 +11763,6 @@ void InitSpellRing(PLAYERp pp)
 int DoSerpRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int dist,a,b,c;
     int cz,fz;
 
@@ -11964,7 +11873,7 @@ int InitLavaFlame(DSWActor* actor)
 int InitLavaThrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w;
@@ -12020,7 +11929,7 @@ int InitLavaThrow(DSWActor* actor)
 void InitVulcanBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, nang;
     int zsize;
@@ -12092,7 +12001,7 @@ void InitVulcanBoulder(DSWActor* actor)
 int InitSerpRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), np;
+    SPRITEp np;
     USERp nu;
     short ang, ang_diff, ang_start, missiles;
     short max_missiles;
@@ -12164,7 +12073,6 @@ int InitSerpRing(DSWActor* actor)
 void InitSpellNapalm(PLAYERp pp)
 {
     auto psp = &pp->Actor()->s();
-    SPRITEp sp;
     USERp u;
     unsigned i;
     short ammo;
@@ -12199,7 +12107,6 @@ void InitSpellNapalm(PLAYERp pp)
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
                                 pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
-        sp = &actor->s();
         u = actor->u();
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
@@ -12257,7 +12164,7 @@ void InitSpellNapalm(PLAYERp pp)
 int InitEnemyNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     short dist;
     unsigned i;
@@ -12340,7 +12247,6 @@ int InitEnemyNapalm(DSWActor* actor)
 
 int InitSpellMirv(PLAYERp pp)
 {
-    SPRITEp sp;
     USERp u;
 
     PlaySound(DIGI_MIRVFIRE, pp, v3df_none);
@@ -12386,7 +12292,7 @@ int InitSpellMirv(PLAYERp pp)
 int InitEnemyMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int dist;
 
@@ -12816,7 +12722,7 @@ int InitFistAttack(PLAYERp pp)
 
 int InitSumoNapalm(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp u = actor->u(), wu;
     short dist;
     short ang;
@@ -12898,7 +12804,7 @@ int InitSumoNapalm(DSWActor* actor)
 
 int InitSumoSkull(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), np;
+    SPRITEp np;
     USERp u = actor->u(), nu;
 
     extern STATE s_SkullExplode[];
@@ -12952,7 +12858,7 @@ int InitSumoSkull(DSWActor* actor)
 int InitSumoStompAttack(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s(),tsp;
+    SPRITEp tsp;
     unsigned stat;
     int dist;
     short reach;
@@ -12991,7 +12897,6 @@ int InitSumoStompAttack(DSWActor* actor)
 
 int InitMiniSumoClap(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     int dist;
     short reach;
@@ -13084,7 +12989,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 
 int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
-    auto sp = &actor->s();
     USERp u = actor->u();
 
     USERp wu = missileActor->u();
@@ -13153,7 +13057,6 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
 {
     USERp u = actor->u();
-    auto sp = &actor->s();
     int dist;
     int zh;
     int xvect;
@@ -13206,7 +13109,6 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
 DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 {
     USERp u = actor->u();
-    auto sp = &actor->s();
     int dist;
     int zh;
     int xvect;
@@ -13255,7 +13157,6 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 
 void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
 {
-    auto sp = &actor->s();
     auto hp = &hitActor->s();
     int dist;
     int zh;
@@ -13407,7 +13308,6 @@ int InitStar(PLAYERp pp)
 void InitHeartAttack(PLAYERp pp)
 {
     auto psp = &pp->Actor()->s();
-    SPRITEp sp;
     USERp u;
     short i = 0;
 
@@ -13548,7 +13448,6 @@ int InitShotgun(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     short daang,ndaang, i;
     HitInfo hit{};
     int daz, ndaz;
@@ -13720,7 +13619,6 @@ int InitLaser(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -13822,7 +13720,6 @@ int InitRail(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -13912,7 +13809,6 @@ int InitRail(PLAYERp pp)
 int InitZillaRail(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -13996,7 +13892,6 @@ int InitRocket(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14113,7 +14008,6 @@ int InitBunnyRocket(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14226,7 +14120,6 @@ int InitNuke(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14326,7 +14219,6 @@ int InitNuke(PLAYERp pp)
 int InitEnemyNuke(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14410,7 +14302,6 @@ int InitMicro(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
@@ -14541,7 +14432,6 @@ int InitMicro(PLAYERp pp)
 int InitRipperSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp hu;
     SPRITEp hp;
     int i;
@@ -14579,7 +14469,6 @@ int InitRipperSlash(DSWActor* actor)
 int InitBunnySlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14613,7 +14502,6 @@ int InitBunnySlash(DSWActor* actor)
 int InitSerpSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14681,7 +14569,6 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 int DoBladeDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14723,7 +14610,6 @@ int DoBladeDamage(DSWActor* actor)
 int DoStaticFlamesDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14768,7 +14654,6 @@ int DoStaticFlamesDamage(DSWActor* actor)
 int InitCoolgBash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14805,7 +14690,6 @@ int InitCoolgBash(DSWActor* actor)
 int InitSkelSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14838,7 +14722,6 @@ int InitSkelSlash(DSWActor* actor)
 int InitGoroChop(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -14879,7 +14762,6 @@ int InitHornetSting(DSWActor* actor)
 int InitSerpSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), np;
     USERp nu;
     int dist;
     short i;
@@ -14901,7 +14783,7 @@ int InitSerpSpell(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 1500);
 
-        np = &actorNew->s();
+        auto np = &actorNew->s();
         nu = actorNew->u();
 
         np->pos.Z = ActorZOfTop(actor);
@@ -14955,7 +14837,6 @@ int InitSerpSpell(DSWActor* actor)
 int SpawnDemonFist(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
 
@@ -14989,7 +14870,7 @@ int SpawnDemonFist(DSWActor* actor)
 int InitSerpMonstSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), np;
+    SPRITEp np;
     USERp nu;
     int dist;
     short i;
@@ -15076,7 +14957,7 @@ int DoTeleRipper(DSWActor* actor)
 int InitEnemyRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15140,7 +15021,6 @@ int InitEnemyRocket(DSWActor* actor)
 int InitEnemyRail(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz, dist, nang;
@@ -15230,7 +15110,7 @@ int InitEnemyRail(DSWActor* actor)
 int InitZillaRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w, i;
@@ -15316,7 +15196,7 @@ int InitZillaRocket(DSWActor* actor)
 int InitEnemyStar(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15361,7 +15241,7 @@ int InitEnemyStar(DSWActor* actor)
 int InitEnemyCrossbow(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15413,7 +15293,7 @@ int InitEnemyCrossbow(DSWActor* actor)
 int InitSkelSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15461,7 +15341,7 @@ int InitSkelSpell(DSWActor* actor)
 int InitCoolgFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15524,8 +15404,7 @@ int InitCoolgFire(DSWActor* actor)
 int DoCoolgDrip(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
+    
     u->Counter += 220;
     actor->spr.pos.Z += u->Counter;
 
@@ -15542,7 +15421,6 @@ int DoCoolgDrip(DSWActor* actor)
 
 int InitCoolgDrip(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -15554,7 +15432,7 @@ int InitCoolgDrip(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, 0);
 
-    wp = &actorNew->s();
+    auto wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15574,7 +15452,7 @@ int InitCoolgDrip(DSWActor* actor)
 int GenerateDrips(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w = 0;
@@ -15621,7 +15499,6 @@ int GenerateDrips(DSWActor* actor)
 int InitEelFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp hu;
     SPRITEp hp;
     unsigned stat;
@@ -15662,7 +15539,7 @@ int InitEelFire(DSWActor* actor)
 void InitFireballTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -15697,7 +15574,7 @@ void InitFireballTrap(DSWActor* actor)
 void InitBoltTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -15733,7 +15610,7 @@ void InitBoltTrap(DSWActor* actor)
 
 void InitSpearTrap(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
 
@@ -15861,7 +15738,6 @@ int InitTracerUzi(PLAYERp pp)
 int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -15916,7 +15792,6 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -15964,7 +15839,6 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
     SPRITEp hsp = &hitActor->s();
     USERp hu = hitActor->u();
-    auto sp = &actor->s();
     SPRITEp wp;
     short id;
 
@@ -16048,10 +15922,8 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
 DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang;
-    SPRITEp sp;
 
     auto actor = insertActor(hit_sect, STAT_DEFAULT);
-    sp = &actor->s();
     actor->spr.xrepeat = actor->spr.yrepeat = 16;
     actor->spr.cstat = 0;
     actor->spr.pal = 0;
@@ -16077,7 +15949,6 @@ DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int
 
 bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
-    SPRITEp sp = &actor->s();
     int16_t ang;
     int xvect,yvect;
 
@@ -16319,7 +16190,6 @@ int InitUzi(PLAYERp pp)
 int InitTankShell(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -16368,7 +16238,6 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
 int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     USERp pu = pp->Actor()->u();
     USERp wu,hu;
@@ -16476,7 +16345,6 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -16522,7 +16390,6 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 int InitTurretFireball(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -16568,7 +16435,6 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
 int InitTurretRail(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -16624,7 +16490,6 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
 int InitTurretLaser(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -16678,7 +16543,6 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
 int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     short daang;
     HitInfo hit{};
     int daz;
@@ -16784,14 +16648,12 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
 int InitSobjGun(PLAYERp pp)
 {
     short i;
-    SPRITEp sp;
     bool first = false;
 
     for (i = 0; pp->sop->so_actors[i] != nullptr; i++)
     {
         DSWActor* actor = pp->sop->so_actors[i];
         if (!actor) continue;
-        sp = &actor->s();
         if (actor->spr.statnum == STAT_SO_SHOOT_POINT)
         {
             // match when firing
@@ -17054,7 +16916,6 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
     int nx,ny,nz;
     short cstat = 0;
     short delta;
-    SPRITEp sp;
     int xvect,yvect,zvect;
 
     PlaySound(DIGI_BOATFIRE, &sop->pmid, v3df_dontpan|v3df_doppler);
@@ -17063,7 +16924,6 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
     {
         DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
-        sp = &actor->s();
         if (actor->spr.statnum == STAT_SO_SHOOT_POINT)
         {
             nx = actor->spr.pos.X;
@@ -17213,7 +17073,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 int InitEnemyUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     USERp wu;
     short daang;
     HitInfo hit{};
@@ -17372,7 +17232,6 @@ int InitGrenade(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -17473,7 +17332,6 @@ int InitGrenade(PLAYERp pp)
 int InitSpriteGrenade(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -17602,7 +17460,6 @@ int InitMine(PLAYERp pp)
 int InitEnemyMine(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -17654,7 +17511,6 @@ int InitEnemyMine(DSWActor* actor)
 
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     int xchange, ychange;
 
@@ -17681,7 +17537,6 @@ int InitFireball(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    auto sp = &actor->s();
     SPRITEp wp;
     int nx = 0, ny = 0, nz;
     USERp wu;
@@ -17756,7 +17611,7 @@ int InitFireball(PLAYERp pp)
 int InitEnemyFireball(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(), fp = nullptr;
+    SPRITEp fp = nullptr;
     SPRITEp wp;
     int nz, dist;
     int size_z;
@@ -17985,7 +17840,6 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
 bool SpriteWarpToUnderwater(DSWActor* actor)
 {
     USERp u = actor->u();
-    auto sp = &actor->s();
     int i;
     auto sectu = actor->spr.sector();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -18061,7 +17915,6 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 bool SpriteWarpToSurface(DSWActor* actor)
 {
     USERp u = actor->u();
-    auto sp = &actor->s();
     auto sectu = actor->spr.sector();
     int sx, sy;
 
@@ -18143,7 +17996,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 int SpawnSplash(DSWActor* actor)
 {
     USERp u = actor->u(), wu;
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
 
     auto sectu = actor->spr.sector();
     SECTORp sectp = actor->spr.sector();
@@ -18207,7 +18060,6 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
 bool MissileHitDiveArea(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // correctly set underwater bit for missiles
     // in Stacked water areas.
@@ -18261,7 +18113,7 @@ bool MissileHitDiveArea(DSWActor* actor)
 
 DSWActor* SpawnBubble(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), bp;
+    SPRITEp bp;
     USERp bu;
 
     if (Prediction)
@@ -18291,7 +18143,6 @@ DSWActor* SpawnBubble(DSWActor* actor)
 int DoVehicleSmoke(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.Z -= actor->spr.zvel;
 
@@ -18304,7 +18155,6 @@ int DoVehicleSmoke(DSWActor* actor)
 
 int DoWaterSmoke(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     actor->spr.pos.Z -= actor->spr.zvel;
     return false;
 }
@@ -18312,7 +18162,7 @@ int DoWaterSmoke(DSWActor* actor)
 int SpawnVehicleSmoke(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(),np;
+    SPRITEp np;
     USERp nu;
 
     if (MoveSkip2 != 0)
@@ -18348,7 +18198,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
 int SpawnSmokePuff(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s(),np;
+    SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_WaterSmoke, actor->spr.sector(),
@@ -18383,7 +18233,6 @@ int SpawnSmokePuff(DSWActor* actor)
 int DoBubble(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.Z -= actor->spr.zvel;
     actor->spr.zvel += 32;
@@ -18542,7 +18391,6 @@ bool TestDontStickSector(sectortype* hit_sect)
 
 int QueueStar(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     SPRITEp osp;
 
     if (TestDontStick(actor, nullptr))
@@ -18579,7 +18427,6 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     short w,nw,wall_ang;
     DSWActor* spawnedActor;
     int nx,ny;
-    SPRITEp sp;
 
     if (TestDontStick(nullptr, hit_wall))
         return;
@@ -18637,7 +18484,6 @@ int QueueFloorBlood(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp hsp = &actor->s();
-    SPRITEp sp;
     SECTORp sectp = hsp->sector();
     DSWActor* spawnedActor = nullptr;
 
@@ -18845,7 +18691,6 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     short w,nw,wall_ang,dang;
     DSWActor* spawnedActor;
     int nx,ny;
-    SPRITEp sp;
     short rndnum;
     int daz;
     HitInfo hit{};
@@ -18953,7 +18798,6 @@ int DoFloorBlood(DSWActor* actor)
     const int FEET_IN_BLOOD_DIST = 300;
 
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     int dist, near_dist = FEET_IN_BLOOD_DIST, a,b,c;
     short pnum;
@@ -19016,8 +18860,6 @@ int DoFloorBlood(DSWActor* actor)
 
 int DoWallBlood(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
     // Make blood drip down the wall
     if (actor->spr.yrepeat < 80)
     {
@@ -19032,7 +18874,6 @@ int DoWallBlood(DSWActor* actor)
 void QueueGeneric(DSWActor* actor, short pic)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     SPRITEp osp;
 
     if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -19076,7 +18917,6 @@ void QueueGeneric(DSWActor* actor, short pic)
         ASSERT(actor->spr.statnum != MAXSTATUS);
     }
 
-    sp = &actor->s();
     actor->spr.picnum = pic;
     actor->spr.xrepeat = xrepeat;
     actor->spr.yrepeat = yrepeat;
@@ -19109,7 +18949,6 @@ void QueueGeneric(DSWActor* actor, short pic)
 #if 0
 int DoShellShrap(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     // If the shell doesn't fall in the allowable range, kill it.
@@ -19139,7 +18978,6 @@ int DoShellShrap(DSWActor* actor)
 int DoShrapVelocity(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor))
     {
@@ -19294,7 +19132,6 @@ int DoShrapVelocity(DSWActor* actor)
 
 int ShrapKillSprite(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     short rnd_num;
 
@@ -19461,7 +19298,6 @@ bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
 
 int DoItemFly(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -19544,7 +19380,6 @@ int DoItemFly(DSWActor* actor)
 // This is the FAST queue, it doesn't call any animator functions or states
 void QueueLoWangs(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     DSWActor* spawnedActor;
 
