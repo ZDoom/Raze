@@ -2169,9 +2169,14 @@ inline int ActorMid(DSWActor* actor)
     return GetSpriteZOfMiddle(&actor->s());
 }
 
-inline int GetSpriteSizeZ(DSWActor* sp)
+inline int ActorSizeX(DSWActor* sp)
 {
-    return (tileHeight(sp->spr.picnum) * sp->spr.yrepeat) << 2;
+    return MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6);
+}
+
+inline int ActorSizeY(DSWActor* sp)
+{
+    return MulScale(tileHeight(sp->spr.picnum), sp->spr.yrepeat, 6);
 }
 
 inline int Facing(DSWActor* actor1, DSWActor* actor2)

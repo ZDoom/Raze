@@ -492,7 +492,6 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
 
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 {
-    auto sp = &actor->s();
     int picnum = actor->spr.picnum;
     BREAK_INFOp break_info;
 
@@ -519,7 +518,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
         else
             SET(actor->spr.extra, SPRX_BREAKABLE);
 
-        actor->spr.clipdist = GetSpriteSizeX(sp);
+        actor->spr.clipdist = ActorSizeX(actor);
 
         SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
     }
@@ -664,27 +663,25 @@ bool UserBreakWall(WALLp wp)
         return true;
     }
 
-    auto sp = &actor->s();
-
-    if (wp->picnum == SP_TAG5(sp))
+    if (wp->picnum == SP_TAG5(actor))
         return true;
 
     // make it BROKEN
-    if (SP_TAG7(sp) <= 1)
+    if (SP_TAG7(actor) <= 1)
     {
         DoSpawnSpotsForKill(match);
         DoLightingMatch(match, -1);
 
-        if (SP_TAG8(sp) == 0)
+        if (SP_TAG8(actor) == 0)
         {
-            wp->picnum = SP_TAG5(sp);
+            wp->picnum = SP_TAG5(actor);
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->twoSided())
                 wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
             ret = false;
         }
-        else if (SP_TAG8(sp) == 1)
+        else if (SP_TAG8(actor) == 1)
         {
             // clear flags
             RESET(wp->cstat, flags);
@@ -697,10 +694,10 @@ bool UserBreakWall(WALLp wp)
 
             ret = true;
         }
-        else if (SP_TAG8(sp) == 2)
+        else if (SP_TAG8(actor) == 2)
         {
             // set to broken pic
-            wp->picnum = SP_TAG5(sp);
+            wp->picnum = SP_TAG5(actor);
 
             // clear flags
             RESET(wp->cstat, block_flags);
@@ -843,7 +840,6 @@ int KillBreakSprite(DSWActor* breakActor)
 
 int UserBreakSprite(DSWActor* breakActor)
 {
-    SPRITEp sp;
     SPRITEp bp = &breakActor->s();
     int match = bp->lotag;
     int match_extra;
@@ -861,41 +857,40 @@ int UserBreakSprite(DSWActor* breakActor)
         return true;
     }
 
-    sp = &actor->s();
     match_extra = SP_TAG6(bp);
 
-    if (bp->picnum == SP_TAG5(sp))
+    if (bp->picnum == SP_TAG5(actor))
         return true;
 
     // make it BROKEN
-    if (SP_TAG7(sp) <= 1)
+    if (SP_TAG7(actor) <= 1)
     {
         DoMatchEverything(nullptr, match_extra, -1);
         //DoSpawnSpotsForKill(match_extra);
         DoLightingMatch(match_extra, OFF);
 
-        if (SP_TAG8(sp) == 0)
+        if (SP_TAG8(actor) == 0)
         {
-            bp->picnum = SP_TAG5(sp);
+            bp->picnum = SP_TAG5(actor);
             RESET(bp->extra, SPRX_BREAKABLE);
         }
         else
         // kill sprite
-        if (SP_TAG8(sp) == 1)
+        if (SP_TAG8(actor) == 1)
         {
             // Kill sound if one is attached
             DeleteNoSoundOwner(breakActor);
             KillBreakSprite(breakActor);
             return true;
         }
-        else if (SP_TAG8(sp) == 2)
+        else if (SP_TAG8(actor) == 2)
         // leave it
         {
             // set to broken pic
-            bp->picnum = SP_TAG5(sp);
+            bp->picnum = SP_TAG5(actor);
 
             // reset
-            if (SP_TAG8(sp) == 2)
+            if (SP_TAG8(actor) == 2)
             {
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             }
@@ -1050,8 +1045,6 @@ static void DoWallBreakSpriteMatch(int match)
     SWStatIterator it(STAT_ENEMY);
     while (auto actor = it.Next())
     {
-        SPRITEp sp = &actor->s();
-
         if (actor->spr.hitag == match)
         {
             KillActor(actor);

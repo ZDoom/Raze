@@ -102,7 +102,7 @@ bool ActorFlaming(DSWActor* actor)
 
         size = ActorSizeZ(actor) - (ActorSizeZ(actor) >> 2);
 
-        if (GetSpriteSizeZ(flame) > size)
+        if (ActorSizeZ(flame) > size)
             return true;
     }
 
@@ -246,7 +246,7 @@ int CanHitPlayer(DSWActor* actor)
     yvect = bsin(ang);
 
     // get zvect
-    zhh = targ->spr.pos.Z - (GetSpriteSizeZ(targ) >> 1);
+    zhh = targ->spr.pos.Z - (ActorSizeZ(targ) >> 1);
     if (targ->spr.pos.X - actor->spr.pos.X != 0)
         zvect = xvect * ((zhh - zhs) / (targ->spr.pos.X - actor->spr.pos.X));
     else if (targ->spr.pos.Y - actor->spr.pos.Y != 0)
