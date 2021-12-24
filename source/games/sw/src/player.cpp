@@ -1171,8 +1171,8 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Only look at closest ones
-            //if ((dist = Distance(sp->x, sp->y, ep->x, ep->y)) > PICK_DIST)
-            if ((dist = FindDistance3D(sp->pos.X - ep->pos.X, sp->pos.Y - ep->pos.Y, sp->pos.Z - ep->pos.Z)) > PICK_DIST)
+            //if ((dist = Distance(actor->spr.x, actor->spr.y, ep->x, ep->y)) > PICK_DIST)
+            if ((dist = FindDistance3D(actor->spr.pos.X - ep->pos.X, actor->spr.pos.Y - ep->pos.Y, actor->spr.pos.Z - ep->pos.Z)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1183,12 +1183,12 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Get the angle to the player
-            angle2 = NORM_ANGLE(getangle(ep->pos.X - sp->pos.X, ep->pos.Y - sp->pos.Y));
+            angle2 = NORM_ANGLE(getangle(ep->pos.X - actor->spr.pos.X, ep->pos.Y - actor->spr.pos.Y));
 
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
 
-            delta_ang = short(abs(getincangle(angle2, sp->ang)));
+            delta_ang = short(abs(getincangle(angle2, actor->spr.ang)));
 
             // If delta_ang not in the range skip this one
             if (delta_ang > (int)max_delta_ang)
@@ -1204,9 +1204,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = GetSpriteZOfBottom(ep) - (GetSpriteSizeZ(ep) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, zh, sp->sector(), ep->pos.X, ep->pos.Y, ezh, ep->sector()) &&
-                !FAFcansee(sp->pos.X, sp->pos.Y, zh, sp->sector(), ep->pos.X, ep->pos.Y, ezhm, ep->sector()) &&
-                !FAFcansee(sp->pos.X, sp->pos.Y, zh, sp->sector(), ep->pos.X, ep->pos.Y, ezhl, ep->sector())
+            if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezh, ep->sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezhm, ep->sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezhl, ep->sector())
                 )
                 continue;
 
@@ -1269,7 +1269,7 @@ void DoPlayerTeleportPause(PLAYERp pp)
 
     if ((u->WaitTics-=synctics) <= 0)
     {
-        //RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+        //RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         RESET(pp->Flags2, PF2_TELEPORTED);
         DoPlayerResetMovement(pp);
         DoPlayerBeginRun(pp);
@@ -1277,16 +1277,16 @@ void DoPlayerTeleportPause(PLAYERp pp)
     }
 }
 
-void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
+void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
-    pp->pos.X = pp->opos.X = pp->oldposx = sp->X;
-    pp->pos.Y = pp->opos.Y = pp->oldposy = sp->Y;
+    pp->pos.X = pp->opos.X = pp->oldposx = pos->X;
+    pp->pos.Y = pp->opos.Y = pp->oldposy = pos->Y;
 
-    //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
+    //getzsofslopeptr(actor->spr.sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
-    pp->pos.Z = pp->opos.Z = sp->Z - PLAYER_HEIGHT;
+    pp->pos.Z = pp->opos.Z = pos->Z - PLAYER_HEIGHT;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     SET(pp->Flags2, PF2_TELEPORTED);
@@ -1308,15 +1308,15 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     int nx, ny;
     SPRITEp ep;
 
-    nx = MOVEx(512, sp->ang);
-    ny = MOVEy(512, sp->ang);
+    nx = MOVEx(512, actor->spr.ang);
+    ny = MOVEy(512, actor->spr.ang);
 
-    nx += sp->pos.X;
-    ny += sp->pos.Y;
+    nx += actor->spr.pos.X;
+    ny += actor->spr.pos.Y;
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
                          nx, ny, GetSpriteZOfTop(sp) + Z(16),
-                         sp->ang, 0);
+                         actor->spr.ang, 0);
 
     ep = &effectActor->s();
 
@@ -1336,9 +1336,9 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     extern STATE s_TeleportEffect[];
     SPRITEp ep;
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp) + Z(16),
-                         sp->ang, 0);
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
+                         actor->spr.pos.X, actor->spr.pos.Y, GetSpriteZOfTop(sp) + Z(16),
+                         actor->spr.ang, 0);
 
     ep = &effectActor->s();
 
@@ -1742,7 +1742,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     sp = &actor->s();
     u = actor->u();
 
-    sp->pos = actor->spr.pos;
+    actor->spr.pos = actor->spr.pos;
     ChangeActorSect(pp->PlayerUnderActor, actor->spr.sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
@@ -1752,13 +1752,13 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     zdiff = GetSpriteZOfBottom(over_sp) - water_level_z;
 
     // add diff to ceiling
-    sp->pos.Z = sp->sector()->ceilingz + zdiff;
+    actor->spr.pos.Z = actor->spr.sector()->ceilingz + zdiff;
 
     u->State = over_u->State;
     u->Rot = over_u->Rot;
     u->StateStart = over_u->StateStart;
 
-    sp->picnum = actor->spr.picnum;
+    actor->spr.picnum = actor->spr.picnum;
 }
 
 
@@ -1770,38 +1770,38 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     // Update sprite representation of player
 
-    sp->pos.X = pp->pos.X;
-    sp->pos.Y = pp->pos.Y;
+    actor->spr.pos.X = pp->pos.X;
+    actor->spr.pos.Y = pp->pos.Y;
 
     // there are multiple death functions
     if (TEST(pp->Flags, PF_DEAD))
     {
         ChangeActorSect(pp->Actor(), pp->cursector);
-        sp->ang = pp->angle.ang.asbuild();
+        actor->spr.ang = pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
     }
 
     if (pp->sop_control)
     {
-        sp->pos.Z = pp->cursector->floorz;
+        actor->spr.pos.Z = pp->cursector->floorz;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
-        sp->pos.Z = pp->pos.Z + PLAYER_CRAWL_HEIGHT;
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_CRAWL_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
 #if 0
     else if (pp->DoPlayerAction == DoPlayerSwim)
     {
-        sp->z = pp->loz - Z(pp->WadeDepth) + Z(1);
+        actor->spr.z = pp->loz - Z(pp->WadeDepth) + Z(1);
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
-        sp->pos.Z = pp->pos.Z + PLAYER_HEIGHT;
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
 
         if (pp->WadeDepth > Z(29))
@@ -1812,47 +1812,47 @@ void UpdatePlayerSprite(PLAYERp pp)
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
-        sp->pos.Z = pp->pos.Z + Z(10);
+        actor->spr.pos.Z = pp->pos.Z + Z(10);
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
-        sp->pos.Z = pp->pos.Z + Z(17);
+        actor->spr.pos.Z = pp->pos.Z + Z(17);
 
         // move it forward a bit to look like its on the ladder
-        //sp->x += MOVEx(256+64, sp->ang);
-        //sp->y += MOVEy(256+64, sp->ang);
+        //actor->spr.x += MOVEx(256+64, actor->spr.ang);
+        //actor->spr.y += MOVEy(256+64, actor->spr.ang);
 
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
-        // sp->z = pp->posz + PLAYER_HEIGHT;
+        // actor->spr.z = pp->posz + PLAYER_HEIGHT;
         // bobbing and sprite position taken care of in DoPlayerFly
-        //sp->z = pp->posz + PLAYER_HEIGHT;
+        //actor->spr.z = pp->posz + PLAYER_HEIGHT;
         //DoPlayerSpriteBob(pp, PLAYER_HEIGHT, PLAYER_FLY_BOB_AMT, 3);
         DoPlayerSpriteBob(pp, PLAYER_HEIGHT, Z(6), 3);
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
-        sp->pos.Z = pp->pos.Z + PLAYER_HEIGHT;
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
-        sp->pos.Z = pp->pos.Z + PLAYER_HEIGHT;
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else
     {
-        sp->pos.Z = pp->loz;
+        actor->spr.pos.Z = pp->loz;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
 
     UpdatePlayerUnderSprite(pp);
 
-    sp->ang = pp->angle.ang.asbuild();
+    actor->spr.ang = pp->angle.ang.asbuild();
 }
  
 void DoPlayerZrange(PLAYERp pp)
@@ -1866,12 +1866,12 @@ void DoPlayerZrange(PLAYERp pp)
     // Don't let you fall if you're just slightly over a cliff
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
-    auto bakcstat = sp->cstat;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
+    auto bakcstat = actor->spr.cstat;
+    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
     pos.Z += Z(8);
-    FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)sp->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
-    sp->cstat = bakcstat;
+    FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->spr.clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    actor->spr.cstat = bakcstat;
 
     Collision ceilColl(ceilhit);
     Collision floorColl(florhit);
@@ -1931,7 +1931,7 @@ void DoPlayerSlide(PLAYERp pp)
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
 
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -1945,10 +1945,10 @@ void DoPlayerSlide(PLAYERp pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_xvect, pp->slide_yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_xvect, pp->slide_yvect, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -2078,7 +2078,7 @@ void DoPlayerMove(PLAYERp pp)
     if (labs(pp->xvect) < 12800 && labs(pp->yvect) < 12800)
         pp->xvect = pp->yvect = 0;
 
-    sp->xvel = FindDistance2D(pp->xvect,pp->yvect)>>14;
+    actor->spr.xvel = FindDistance2D(pp->xvect,pp->yvect)>>14;
 
     if (TEST(pp->Flags, PF_CLIP_CHEAT))
     {
@@ -2096,7 +2096,7 @@ void DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2116,16 +2116,16 @@ void DoPlayerMove(PLAYERp pp)
             pp->opos.Y = pp->pos.Y;
         }
 
-        auto save_cstat = sp->cstat;
-        RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
+        auto save_cstat = actor->spr.cstat;
+        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->xvect, pp->yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->xvect, pp->yvect, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
-        sp->cstat = save_cstat;
+        actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2260,10 +2260,10 @@ void PlaySOsound(sectortype* sect, short sound_num)
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        if (sp->statnum == STAT_SOUND_SPOT)
+        if (actor->spr.statnum == STAT_SOUND_SPOT)
         {
-            DoSoundSpotStopSound(sp->lotag);
-            DoSoundSpotMatch(sp->lotag, sound_num, 0);
+            DoSoundSpotStopSound(actor->spr.lotag);
+            DoSoundSpotMatch(actor->spr.lotag, sound_num, 0);
         }
     }
 }
@@ -2275,8 +2275,8 @@ void StopSOsound(sectortype* sect)
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        if (sp->statnum == STAT_SOUND_SPOT)
-            DoSoundSpotStopSound(sp->lotag);
+        if (actor->spr.statnum == STAT_SOUND_SPOT)
+            DoSoundSpotStopSound(actor->spr.lotag);
     }
 }
 
@@ -2310,14 +2310,14 @@ void DoTankTreads(PLAYERp pp)
             if (!TEST_BOOL1(sp))
                 continue;
 
-            if (sp->statnum == STAT_WALL_PAN)
+            if (actor->spr.statnum == STAT_WALL_PAN)
             {
                 if (reverse)
                 {
                     if (!TEST_BOOL2(sp))
                     {
                         SET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
                 else
@@ -2325,20 +2325,20 @@ void DoTankTreads(PLAYERp pp)
                     if (TEST_BOOL2(sp))
                     {
                         RESET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
 
                 SP_TAG5(sp) = vel;
             }
-            else if (sp->statnum == STAT_FLOOR_PAN)
+            else if (actor->spr.statnum == STAT_FLOOR_PAN)
             {
                 if (reverse)
                 {
                     if (!TEST_BOOL2(sp))
                     {
                         SET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
                 else
@@ -2346,20 +2346,20 @@ void DoTankTreads(PLAYERp pp)
                     if (TEST_BOOL2(sp))
                     {
                         RESET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
 
                 SP_TAG5(sp) = vel;
             }
-            else if (sp->statnum == STAT_CEILING_PAN)
+            else if (actor->spr.statnum == STAT_CEILING_PAN)
             {
                 if (reverse)
                 {
                     if (!TEST_BOOL2(sp))
                     {
                         SET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
                 else
@@ -2367,7 +2367,7 @@ void DoTankTreads(PLAYERp pp)
                     if (TEST_BOOL2(sp))
                     {
                         RESET_BOOL2(sp);
-                        sp->ang = NORM_ANGLE(sp->ang + 1024);
+                        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     }
                 }
 
@@ -2420,30 +2420,30 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         sp = &actor->s();
         u = actor->u();
 
-        if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
+        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
-            if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
+            if (TEST(actor->spr.extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
 
-            if (sp->statnum == STAT_MISSILE)
+            if (actor->spr.statnum == STAT_MISSILE)
                 continue;
 
-            if (sp->picnum == ST1)
+            if (actor->spr.picnum == ST1)
                 continue;
 
-            if (TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
-                if (!TEST(u->Flags, SPR_DEAD) && !TEST(sp->extra, SPRX_BREAKABLE))
+                if (!TEST(u->Flags, SPR_DEAD) && !TEST(actor->spr.extra, SPRX_BREAKABLE))
                     continue;
             }
 
-            if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+            if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 continue;
 
-            if (sp->statnum > STAT_DONT_DRAW)
+            if (actor->spr.statnum > STAT_DONT_DRAW)
                 continue;
 
-            if (sp->pos.Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2457,10 +2457,10 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     {
         sp = &actor->s();
 
-        if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
+        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
-            //if (sp->z < pp->posz)
-            if (sp->pos.Z < sop->crush_z)
+            //if (actor->spr.z < pp->posz)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             int32_t const vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
@@ -2486,9 +2486,9 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     {
         sp = &actor->s();
 
-        if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
+        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
-            if (sp->pos.Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2511,12 +2511,12 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         if (u->PlayerP == pp)
             continue;
 
-        if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
+        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
             int damage;
 
-            //if (sp->z < pp->posz)
-            if (sp->pos.Z < sop->crush_z)
+            //if (actor->spr.z < pp->posz)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             damage = -(u->Health + 100);
@@ -2537,12 +2537,12 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             u = actor->u();
 
             // give some extra buffer
-            if (sp->pos.Z < sop->crush_z + Z(40))
+            if (actor->spr.pos.Z < sop->crush_z + Z(40))
                 continue;
 
-            if (TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
-                if (sp->statnum == STAT_ENEMY)
+                if (actor->spr.statnum == STAT_ENEMY)
                 {
                     if (SpawnShrap(actor, nullptr, -99))
                         SetSuicide(actor);
@@ -3180,7 +3180,7 @@ void DoPlayerBeginClimb(PLAYERp pp)
     pp->DoPlayerAction = DoPlayerClimb;
 
     SET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
 
     //DamageData[u->WeaponNum].Init(pp);
 
@@ -3221,7 +3221,7 @@ void DoPlayerClimb(PLAYERp pp)
     if (pp->input.actions & SB_JUMP)
     {
         RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
         DoPlayerBeginJump(pp);
         return;
     }
@@ -3257,26 +3257,26 @@ void DoPlayerClimb(PLAYERp pp)
             }
 
             // sprite
-            if (sp->pos.X != u->sx)
+            if (actor->spr.pos.X != u->sx)
             {
-                if (sp->pos.X < u->sx)
-                    sp->pos.X += ADJ_AMT;
-                else if (sp->pos.X > u->sx)
-                    sp->pos.X -= ADJ_AMT;
+                if (actor->spr.pos.X < u->sx)
+                    actor->spr.pos.X += ADJ_AMT;
+                else if (actor->spr.pos.X > u->sx)
+                    actor->spr.pos.X -= ADJ_AMT;
 
-                if (labs(sp->pos.X - u->sx) <= ADJ_AMT)
-                    sp->pos.X = u->sx;
+                if (labs(actor->spr.pos.X - u->sx) <= ADJ_AMT)
+                    actor->spr.pos.X = u->sx;
             }
 
-            if (sp->pos.Y != u->sy)
+            if (actor->spr.pos.Y != u->sy)
             {
-                if (sp->pos.Y < u->sy)
-                    sp->pos.Y += ADJ_AMT;
-                else if (sp->pos.Y > u->sy)
-                    sp->pos.Y -= ADJ_AMT;
+                if (actor->spr.pos.Y < u->sy)
+                    actor->spr.pos.Y += ADJ_AMT;
+                else if (actor->spr.pos.Y > u->sy)
+                    actor->spr.pos.Y -= ADJ_AMT;
 
-                if (labs(sp->pos.Y - u->sy) <= ADJ_AMT)
-                    sp->pos.Y = u->sy;
+                if (labs(actor->spr.pos.Y - u->sy) <= ADJ_AMT)
+                    actor->spr.pos.Y = u->sy;
             }
         }
     }
@@ -3321,7 +3321,7 @@ void DoPlayerClimb(PLAYERp pp)
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-            RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
             DoPlayerBeginForceJump(pp);
         }
     }
@@ -3348,7 +3348,7 @@ void DoPlayerClimb(PLAYERp pp)
             if (climbvel < 0)
             {
                 RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-                RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+                RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
                 DoPlayerBeginRun(pp);
                 return;
             }
@@ -3360,7 +3360,7 @@ void DoPlayerClimb(PLAYERp pp)
     }
 
     // setsprite to players location
-    sp->pos.Z = pp->pos.Z + PLAYER_HEIGHT;
+    actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
     ChangeActorSect(pp->Actor(), pp->cursector);
 
     if (!SyncInput())
@@ -3706,7 +3706,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     {
         auto fp = &itActor->s();
 
-        dist = Distance(sp->pos.X, sp->pos.Y, fp->pos.X, fp->pos.Y);
+        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, fp->pos.X, fp->pos.Y);
 
         if (dist < near_dist)
         {
@@ -3996,9 +3996,9 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
         while (auto actor = it.Next())
         {
             auto sp = &actor->s();
-            if (inside(x, y, sp->sector()))
+            if (inside(x, y, actor->spr.sector()))
             {
-                sf[found] = sp->sector();
+                sf[found] = actor->spr.sector();
                 found++;
                 PRODUCTION_ASSERT(found <= 2);
             }
@@ -4011,12 +4011,12 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
             {
                 auto sp = &actor->s();
                 // ignore underwater areas with lotag of 0
-                if (sp->lotag == 0)
+                if (actor->spr.lotag == 0)
                     continue;
 
-                if (inside(x, y, sp->sector()))
+                if (inside(x, y, actor->spr.sector()))
                 {
-                    sf[found] = sp->sector();
+                    sf[found] = actor->spr.sector();
                     found++;
                     PRODUCTION_ASSERT(found <= 2);
                 }
@@ -4262,7 +4262,7 @@ void DoPlayerBeginDive(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
 
     //pp->z_speed = 0;
@@ -4315,7 +4315,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
     pp->z_speed = 0;
     pp->DiveTics = PLAYER_DIVE_TIME;
@@ -4371,7 +4371,7 @@ void DoPlayerStopDive(PLAYERp pp)
 
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);
@@ -4938,7 +4938,7 @@ void DoPlayerOperateMatch(PLAYERp pp, bool starting)
     {
         sp = &actor->s();
 
-        if (sp->statnum == STAT_ST1 && sp->hitag == SO_DRIVABLE_ATTRIB)
+        if (actor->spr.statnum == STAT_ST1 && actor->spr.hitag == SO_DRIVABLE_ATTRIB)
         {
             if (starting)
             {
@@ -5642,7 +5642,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         //pp->ceiling_dist = Z(0);
         //pp->floor_dist = Z(0);
 
-        RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(0);
         DoFindGround(pp->Actor());
@@ -5657,11 +5657,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = -300;
         u->slide_vel = 0;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        sp->xrepeat = 48;
-        sp->yrepeat = 48;
+        actor->spr.xrepeat = 48;
+        actor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
@@ -5672,11 +5672,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        sp->xrepeat = 48;
-        sp->yrepeat = 48;
+        actor->spr.xrepeat = 48;
+        actor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,-1);
         InitBloodSpray(pp->Actor(),true,-1);
@@ -5690,11 +5690,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = 200;
         u->slide_vel = 800;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        sp->xrepeat = 48;
-        sp->yrepeat = 48;
+        actor->spr.xrepeat = 48;
+        actor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
@@ -5838,14 +5838,14 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         PlayerSpawnPosition(pp);
 
         NewStateGroup(actor, u->ActorActionSet->Stand);
-        sp->picnum = u->State->Pic;
-        sp->picnum = u->State->Pic;
-        sp->xrepeat = sp->yrepeat = PLAYER_NINJA_XREPEAT;
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-        sp->pos.X = pp->pos.X;
-        sp->pos.Y = pp->pos.Y;
-        sp->pos.Z = pp->pos.Z+PLAYER_HEIGHT;
-        sp->ang = pp->angle.ang.asbuild();
+        actor->spr.picnum = u->State->Pic;
+        actor->spr.picnum = u->State->Pic;
+        actor->spr.xrepeat = actor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actor->spr.pos.X = pp->pos.X;
+        actor->spr.pos.Y = pp->pos.Y;
+        actor->spr.pos.Z = pp->pos.Z+PLAYER_HEIGHT;
+        actor->spr.ang = pp->angle.ang.asbuild();
 
         DoSpawnTeleporterEffect(actor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -5859,11 +5859,11 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-        SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
-        sp->xrepeat = PLAYER_NINJA_XREPEAT;
-        sp->yrepeat = PLAYER_NINJA_YREPEAT;
+        actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
+        actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
         pp->horizon.horiz = q16horiz(0);
@@ -5934,13 +5934,13 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
             if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, sp->pos.X, sp->pos.Y, dist, a, b, c);
+            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
             if (unsigned(dist) < hu->Radius + 100)
             {
                 pp->KillerActor = itActor;
 
-                u->slide_ang = getangle(sp->pos.X - hp->pos.X, sp->pos.Y - hp->pos.Y);
+                u->slide_ang = getangle(actor->spr.pos.X - hp->pos.X, actor->spr.pos.Y - hp->pos.Y);
                 u->slide_ang = NORM_ANGLE(u->slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
                 u->slide_vel = hp->xvel<<1;
@@ -6021,9 +6021,9 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
     }
 
-    pp->pos.X = sp->pos.X;
-    pp->pos.Y = sp->pos.Y;
-    pp->setcursector(sp->sector());
+    pp->pos.X = actor->spr.pos.X;
+    pp->pos.Y = actor->spr.pos.Y;
+    pp->setcursector(actor->spr.sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
@@ -6032,8 +6032,8 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->Actor(), pp->lv_sector);
-        pp->pos.X = sp->pos.X = pp->lv_x;
-        pp->pos.Y = sp->pos.Y = pp->lv_y;
+        pp->pos.X = actor->spr.pos.X = pp->lv_x;
+        pp->pos.Y = actor->spr.pos.Y = pp->lv_y;
     }
     else
     {
@@ -6102,7 +6102,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
         {
             pp->pos.Z += Z(2);
             if (MoveSkip2 == 0)
-                sp->pos.Z += Z(4);
+                actor->spr.pos.Z += Z(4);
 
             // Stick like glue when you hit the ground
             if (pp->pos.Z > pp->loz - PLAYER_DEATH_HEIGHT)
@@ -6129,7 +6129,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
     if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
     {
-        RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->Actor(), sg_PlayerHead);
         u->slide_vel = 0;
         SET(u->Flags, SPR_BOUNCE);
@@ -6182,7 +6182,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
                 return;
             }
 
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->Actor(), sg_PlayerHead);
         }
         else
@@ -6199,7 +6199,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    sp->pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    actor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
@@ -6236,7 +6236,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
                 return;
             }
 
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->Actor(), sg_PlayerHead);
         }
         else
@@ -6254,7 +6254,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    sp->pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    actor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
@@ -6471,9 +6471,9 @@ void PlayerStateControl(DSWActor* actor)
 
     // Set picnum to the correct pic
     if (u->RotNum > 1)
-        sp->picnum = u->Rot[0]->Pic;
+        actor->spr.picnum = u->Rot[0]->Pic;
     else
-        sp->picnum = u->State->Pic;
+        actor->spr.picnum = u->State->Pic;
 
     // Call the correct animator
     if (TEST(u->State->Tics, SF_PLAYER_FUNC))
@@ -6522,8 +6522,8 @@ void MoveSkipSavePos(void)
                 sp = &actor->s();
                 u = actor->u();
 
-                sp->backuppos();
-                u->oz = sp->opos.Z;
+                actor->spr.backuppos();
+                u->oz = actor->spr.opos.Z;
             }
         }
     }
@@ -6542,8 +6542,8 @@ void MoveSkipSavePos(void)
                 sp = &actor->s();
                 u = actor->u();
 
-                sp->backuppos();
-                u->oz = sp->opos.Z;
+                actor->spr.backuppos();
+                u->oz = actor->spr.opos.Z;
             }
         }
     }
@@ -7024,17 +7024,17 @@ void InitMultiPlayerInfo(void)
     {
         sp = &actor->s();
 
-        tag = sp->hitag;
+        tag = actor->spr.hitag;
 
-        if (sp->picnum == ST1)
+        if (actor->spr.picnum == ST1)
         {
             switch (tag)
             {
             case MULTI_PLAYER_START:
-                change_actor_stat(actor, STAT_MULTI_START + sp->lotag);
+                change_actor_stat(actor, STAT_MULTI_START + actor->spr.lotag);
                 break;
             case MULTI_COOPERATIVE_START:
-                change_actor_stat(actor, STAT_CO_OP_START + sp->lotag);
+                change_actor_stat(actor, STAT_CO_OP_START + actor->spr.lotag);
                 break;
             }
         }
