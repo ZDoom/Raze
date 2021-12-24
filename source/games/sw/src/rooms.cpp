@@ -84,10 +84,8 @@ bool FAF_Sector(sectortype* sect)
     SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->statnum == STAT_FAF &&
-            (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
+        if (actor->spr.statnum == STAT_FAF &&
+            (actor->spr.hitag >= VIEW_LEVEL1 && actor->spr.hitag <= VIEW_LEVEL6))
         {
             return true;
         }
@@ -327,11 +325,9 @@ int GetZadjustment(sectortype* sect, short hitag)
     SWStatIterator it(STAT_ST1);
     while (auto itActor = it.Next())
     {
-        sp = &itActor->s();
-
-        if (sp->hitag == hitag && sp->sector() == sect)
+        if (itActor->spr.hitag == hitag && itActor->spr.sector() == sect)
         {
-            return Z(sp->lotag);
+            return Z(itActor->spr.lotag);
         }
     }
 
@@ -588,25 +584,23 @@ void SetupMirrorTiles(void)
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
+        if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            sp->sector()->ceilingpicnum = FAF_MIRROR_PIC;
-            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC;
+            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
 
-        if (sp->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
+        if (actor->spr.sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            sp->sector()->floorpicnum = FAF_MIRROR_PIC;
-            SET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC;
+            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
 
-        if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
-            sp->sector()->ceilingpicnum = FAF_MIRROR_PIC+1;
+        if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
+            actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC+1;
 
-        if (sp->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC+1)
-            sp->sector()->floorpicnum = FAF_MIRROR_PIC+1;
+        if (actor->spr.sector()->floorpicnum == FAF_PLACE_MIRROR_PIC+1)
+            actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC+1;
     }
 }
 
@@ -626,11 +620,9 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
             SWSectIterator it(&sect);
             while (auto actor = it.Next())
             {
-                sp = &actor->s();
-
-                if (sp->statnum == STAT_FAF &&
-                    (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
-                    && sp->lotag == match)
+                if (actor->spr.statnum == STAT_FAF &&
+                    (actor->spr.hitag >= VIEW_LEVEL1 && actor->spr.hitag <= VIEW_LEVEL6)
+                    && actor->spr.lotag == match)
                 {
                     found = true;
                 }
@@ -685,41 +677,37 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 {
     int xoff = 0;
     int yoff = 0;
-    SPRITEp sp = nullptr;
     int pix_diff;
     int newz;
 
     save.zcount = 0;
+    DSWActor* actor = nullptr;
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
     SWStatIterator it(STAT_FAF);
-    while (auto actor = it.Next())
+    while (actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->hitag == VIEW_THRU_CEILING && sp->lotag == match)
+        if (actor->spr.hitag == VIEW_THRU_CEILING && actor->spr.lotag == match)
         {
-            xoff = *x - sp->pos.X;
-            yoff = *y - sp->pos.Y;
+            xoff = *x - actor->spr.pos.X;
+            yoff = *y - actor->spr.pos.Y;
             break;
         }
     }
 
     it.Reset(STAT_FAF);
-    while (auto actor = it.Next())
+    while (actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->lotag == match)
+        if (actor->spr.lotag == match)
         {
             // determine x,y position
-            if (sp->hitag == VIEW_THRU_FLOOR)
+            if (actor->spr.hitag == VIEW_THRU_FLOOR)
             {
                 sectortype* upper,* lower;
 
-                *x = sp->pos.X + xoff;
-                *y = sp->pos.Y + yoff;
+                *x = actor->spr.pos.X + xoff;
+                *y = actor->spr.pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -732,7 +720,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
     if (*sect == nullptr)
         return false;
 
-    if (!sp || sp->hitag != VIEW_THRU_FLOOR)
+    if (!actor || actor->spr.hitag != VIEW_THRU_FLOOR)
     {
         *sect = nullptr;
         return false;
@@ -741,30 +729,28 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 
     if (!testnewrenderer)
     {
-        pix_diff = labs(z - sp->sector()->floorz) >> 8;
-        newz = sp->sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
+        pix_diff = labs(z - actor->spr.sector()->floorz) >> 8;
+        newz = actor->spr.sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while (auto actor = it.Next())
+        while (actor = it.Next())
         {
-            sp = &actor->s();
-
-            if (sp->lotag == match)
+            if (actor->spr.lotag == match)
             {
                 // move lower levels ceilings up for the correct view
-                if (sp->hitag == VIEW_LEVEL2)
+                if (actor->spr.hitag == VIEW_LEVEL2)
                 {
                     // save it off
-                    save.sect[save.zcount] = sp->sector();
-                    save.zval[save.zcount] = sp->sector()->floorz;
-                    save.pic[save.zcount] = sp->sector()->floorpicnum;
-                    save.slope[save.zcount] = sp->sector()->floorheinum;
+                    save.sect[save.zcount] = actor->spr.sector();
+                    save.zval[save.zcount] = actor->spr.sector()->floorz;
+                    save.pic[save.zcount] = actor->spr.sector()->floorpicnum;
+                    save.slope[save.zcount] = actor->spr.sector()->floorheinum;
 
-                    sp->sector()->floorz = newz;
+                    actor->spr.sector()->floorz = newz;
                     // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (sp->sector()->floorpicnum != FAF_MIRROR_PIC)
-                        sp->sector()->floorpicnum = FAF_MIRROR_PIC + 1;
-                    sp->sector()->setfloorslope(0);
+                    if (actor->spr.sector()->floorpicnum != FAF_MIRROR_PIC)
+                        actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC + 1;
+                    actor->spr.sector()->setfloorslope(0);
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);
@@ -772,7 +758,6 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
             }
         }
     }
-
     return true;
 }
 
@@ -780,42 +765,38 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 {
     int xoff = 0;
     int yoff = 0;
-    SPRITEp sp = nullptr;
     int newz;
     int pix_diff;
 
     save.zcount = 0;
+    DSWActor* actor = nullptr;
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
     SWStatIterator it(STAT_FAF);
-    while (auto actor = it.Next())
+    while (actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->hitag == VIEW_THRU_FLOOR && sp->lotag == match)
+        if (actor->spr.hitag == VIEW_THRU_FLOOR && actor->spr.lotag == match)
         {
-            xoff = *x - sp->pos.X;
-            yoff = *y - sp->pos.Y;
+            xoff = *x - actor->spr.pos.X;
+            yoff = *y - actor->spr.pos.Y;
             break;
         }
     }
 
 
     it.Reset(STAT_FAF);
-    while (auto actor = it.Next())
+    while (actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->lotag == match)
+        if (actor->spr.lotag == match)
         {
             // determine x,y position
-            if (sp->hitag == VIEW_THRU_CEILING)
+            if (actor->spr.hitag == VIEW_THRU_CEILING)
             {
                 sectortype* upper,* lower;
 
-                *x = sp->pos.X + xoff;
-                *y = sp->pos.Y + yoff;
+                *x = actor->spr.pos.X + xoff;
+                *y = actor->spr.pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -828,7 +809,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
     if (*sect == nullptr)
         return false;
 
-    if (!sp || sp->hitag != VIEW_THRU_CEILING)
+    if (!actor || actor->spr.hitag != VIEW_THRU_CEILING)
     {
         *sect = nullptr;
         return false;
@@ -837,31 +818,29 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
     if (!testnewrenderer)
     {
         // move ceiling multiple of 128 so that the wall tile will line up
-        pix_diff = labs(z - sp->sector()->ceilingz) >> 8;
-        newz = sp->sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
+        pix_diff = labs(z - actor->spr.sector()->ceilingz) >> 8;
+        newz = actor->spr.sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while (auto actor = it.Next())
+        while (actor = it.Next())
         {
-            sp = &actor->s();
-
-            if (sp->lotag == match)
+            if (actor->spr.lotag == match)
             {
                 // move upper levels floors down for the correct view
-                if (sp->hitag == VIEW_LEVEL1)
+                if (actor->spr.hitag == VIEW_LEVEL1)
                 {
                     // save it off
-                    save.sect[save.zcount] = sp->sector();
-                    save.zval[save.zcount] = sp->sector()->ceilingz;
-                    save.pic[save.zcount] = sp->sector()->ceilingpicnum;
-                    save.slope[save.zcount] = sp->sector()->ceilingheinum;
+                    save.sect[save.zcount] = actor->spr.sector();
+                    save.zval[save.zcount] = actor->spr.sector()->ceilingz;
+                    save.pic[save.zcount] = actor->spr.sector()->ceilingpicnum;
+                    save.slope[save.zcount] = actor->spr.sector()->ceilingheinum;
 
-                    sp->sector()->ceilingz = newz;
+                    actor->spr.sector()->ceilingz = newz;
 
                     // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (sp->sector()->ceilingpicnum != FAF_MIRROR_PIC)
-                        sp->sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
-                    sp->sector()->setceilingslope(0);
+                    if (actor->spr.sector()->ceilingpicnum != FAF_MIRROR_PIC)
+                        actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
+                    actor->spr.sector()->setceilingslope(0);
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);
@@ -880,20 +859,18 @@ short FindViewSectorInScene(sectortype* cursect, short level)
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->hitag == level)
+        if (actor->spr.hitag == level)
         {
-            if (cursect == sp->sector())
+            if (cursect == actor->spr.sector())
             {
                 // ignore case if sprite is pointing up
-                if (sp->ang == 1536)
+                if (actor->spr.ang == 1536)
                     continue;
 
                 // only gets to here is sprite is pointing down
 
                 // found a potential match
-                match = sp->lotag;
+                match = actor->spr.lotag;
 
                 return match;
             }
