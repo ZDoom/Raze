@@ -711,11 +711,11 @@ int OperateSector(sectortype* sect, short player_is_operating)
             if (fsect->hasU() && fsect->stag == SECT_LOCK_DOOR)
                 return false;
 
-            if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && TEST_BOOL7(fsp))
+            if (fsp->statnum == STAT_VATOR && SP_TAG1(actor) == SECT_VATOR && TEST_BOOL7(fsp))
                 return false;
-            if (fsp->statnum == STAT_ROTATOR && SP_TAG1(fsp) == SECT_ROTATOR && TEST_BOOL7(fsp))
+            if (fsp->statnum == STAT_ROTATOR && SP_TAG1(actor) == SECT_ROTATOR && TEST_BOOL7(fsp))
                 return false;
-            if (fsp->statnum == STAT_SLIDOR && SP_TAG1(fsp) == SECT_SLIDOR && TEST_BOOL7(fsp))
+            if (fsp->statnum == STAT_SLIDOR && SP_TAG1(actor) == SECT_SLIDOR && TEST_BOOL7(fsp))
                 return false;
 
         }

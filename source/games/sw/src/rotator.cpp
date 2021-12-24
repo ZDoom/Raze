@@ -155,7 +155,7 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 
@@ -212,7 +212,7 @@ bool TestRotatorMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 

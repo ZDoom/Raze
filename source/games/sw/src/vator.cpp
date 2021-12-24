@@ -153,7 +153,7 @@ void DoVatorOperate(PLAYERp pp, sectortype* sect)
     {
         fsp = &actor->s();
 
-        if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && SP_TAG3(fsp) == 0)
+        if (fsp->statnum == STAT_VATOR && SP_TAG1(actor) == SECT_VATOR && SP_TAG3(fsp) == 0)
         {
             auto fsect = fsp->sector();
 
@@ -203,7 +203,7 @@ void DoVatorMatch(PLAYERp pp, short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_VATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 
@@ -252,7 +252,7 @@ bool TestVatorMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_VATOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 

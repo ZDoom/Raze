@@ -165,7 +165,7 @@ void CopySectorMatch(int match)
                 while (auto itActor = itsec.Next())
                 {
                     // don't move ST1 Copy Tags
-                    if (SP_TAG1(&itActor->spr) != SECT_COPY_SOURCE)
+                    if (SP_TAG1(itActor) != SECT_COPY_SOURCE)
                     {
                         int sx,sy,dx,dy,src_xoff,src_yoff,trash;
 

@@ -6540,7 +6540,7 @@ void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 void MissileWarpType(DSWActor* actor, DSWActor* act_warp)
 {
     auto sp_warp = &act_warp->s();
-    switch (SP_TAG1(sp_warp))
+    switch (SP_TAG1(act_warp))
     {
     case WARP_CEILING_PLANE:
     case WARP_FLOOR_PLANE:

@@ -151,7 +151,7 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 
@@ -205,7 +205,7 @@ bool TestSlidorMatchActive(short match)
     {
         fsp = &actor->s();
 
-        if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
+        if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
             fu = actor->u();
 

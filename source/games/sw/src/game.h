@@ -186,24 +186,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define MSW(fixed) ((fixed)>>16)
 #define LSW(fixed) (((int16_t)(fixed)))
 
-// Defines for reading in ST1 sprite tagging
-#define SP_TAG1(sp) ((sp)->hitag)
-#define SP_TAG2(sp) ((sp)->lotag)
-#define SP_TAG3(sp) ((sp)->clipdist)
-#define SP_TAG4(sp) ((sp)->ang)
-#define SP_TAG5(sp) ((sp)->xvel)
-#define SP_TAG6(sp) ((sp)->yvel)
-#define SP_TAG7(sp) (MSB_VAR((sp)->zvel))
-#define SP_TAG8(sp) (LSB_VAR((sp)->zvel))
-#define SP_TAG9(sp) (MSB_VAR((sp)->owner))
-#define SP_TAG10(sp) (LSB_VAR((sp)->owner))
-#define SP_TAG11(sp) ((sp)->shade)
-#define SP_TAG12(sp) ((sp)->pal)
-#define SP_TAG13(sp) LittleShort(*((int16_t*)&(sp)->xoffset))
-#define SP_TAG14(sp) LittleShort(*((int16_t*)&(sp)->xrepeat))
-#define SP_TAG15(sp) ((sp)->z)
-#define SET_SP_TAG13(sp,val) (*((int16_t*)&(sp)->xoffset)) = LittleShort((int16_t)val)
-#define SET_SP_TAG14(sp,val) (*((int16_t*)&(sp)->xrepeat)) = LittleShort((int16_t)val)
 
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
@@ -2118,6 +2100,25 @@ END_SW_NS
 #include "swactor.h"
 
 BEGIN_SW_NS
+
+// Defines for reading in ST1 sprite tagging
+inline int SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
+#define SP_TAG2(sp) ((sp)->lotag)
+#define SP_TAG3(sp) ((sp)->clipdist)
+#define SP_TAG4(sp) ((sp)->ang)
+#define SP_TAG5(sp) ((sp)->xvel)
+#define SP_TAG6(sp) ((sp)->yvel)
+#define SP_TAG7(sp) (MSB_VAR((sp)->zvel))
+#define SP_TAG8(sp) (LSB_VAR((sp)->zvel))
+#define SP_TAG9(sp) (MSB_VAR((sp)->owner))
+#define SP_TAG10(sp) (LSB_VAR((sp)->owner))
+#define SP_TAG11(sp) ((sp)->shade)
+#define SP_TAG12(sp) ((sp)->pal)
+#define SP_TAG13(sp) LittleShort(*((int16_t*)&(sp)->xoffset))
+#define SP_TAG14(sp) LittleShort(*((int16_t*)&(sp)->xrepeat))
+#define SP_TAG15(sp) ((sp)->z)
+#define SET_SP_TAG13(sp,val) (*((int16_t*)&(sp)->xoffset)) = LittleShort((int16_t)val)
+#define SET_SP_TAG14(sp,val) (*((int16_t*)&(sp)->xrepeat)) = LittleShort((int16_t)val)
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline int ActorZOfTop(DSWActor* actor)
