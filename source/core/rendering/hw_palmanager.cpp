@@ -126,10 +126,10 @@ IHardwareTexture* PaletteManager::GetLookup(int index)
 			memcpy(lookup.Data(), lookups.getTable(index), lookup.Size());
 			for (int i = 0; i < numshades; i++)
 			{
-				auto p = &lookup[i * 256];
-				p[255] = p[0];
-				p[0] = 0;
-				for (int v = 1; v <= 255; v++) if (p[v] == 0) p[v] = 255;
+				auto palette = &lookup[i * 256];
+				palette[255] = palette[0];
+				palette[0] = 0;
+				for (int v = 1; v <= 255; v++) if (palette[v] == 0) palette[v] = 255;
 			}
 			p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "PaletteLookup");
 			lookuptextures[index] = p;

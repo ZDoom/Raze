@@ -567,8 +567,8 @@ static void DoParseListMenuBody(FScanner &sc, DListMenuDescriptor *desc, bool &s
 							// NB: index has been incremented, so we're not affecting the newly inserted item here.
 							for (unsigned int i = insertIndex; i < desc->mItems.Size(); i++)
 							{
-								auto item = desc->mItems[i];
-								if (item->GetClass()->IsDescendantOf("ListMenuItemSelectable"))
+								auto litem = desc->mItems[i];
+								if (litem->GetClass()->IsDescendantOf("ListMenuItemSelectable"))
 								{
 									desc->mItems[i]->mYpos += desc->mLinespacing;
 								}
@@ -664,9 +664,9 @@ static bool FindMatchingItem(DMenuItemBase *desc)
 	MenuDescriptorList::Pair *pair;
 	while (it.NextPair(pair))
 	{
-		for (auto it : pair->Value->mItems)
+		for (auto item : pair->Value->mItems)
 		{
-			if (it->mAction == name && GetGroup(it) == grp) return true;
+			if (item->mAction == name && GetGroup(item) == grp) return true;
 		}
 	}
 	return false;

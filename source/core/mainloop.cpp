@@ -379,7 +379,7 @@ static void GameTicker()
 	if ((gamestate != GS_LEVEL && gamestate != GS_TITLELEVEL) || paused)
 	{
 		size_t ac = max<size_t>(10, GC::AllocCount);
-		for (size_t i = 0; i < ac; i++)
+		for (size_t cnt = 0; cnt < ac; cnt++)
 		{
 			if (!GC::CheckGC()) break;
 		}

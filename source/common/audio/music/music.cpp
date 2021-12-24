@@ -603,13 +603,13 @@ static void CheckReplayGain(const char *musicname, EMidiDevice playertype, const
 		{
 			float* sbuf = (float*)readbuffer.Data();
 			int numsamples = fmt.mBufferSize / 8;
-			auto index = lbuffer.Reserve(numsamples);
+			auto addr = lbuffer.Reserve(numsamples);
 			rbuffer.Reserve(numsamples);
 
 			for (int i = 0; i < numsamples; i++)
 			{
-				lbuffer[index + i] = sbuf[i * 2] * 32768.f;
-				rbuffer[index + i] = sbuf[i * 2 + 1] * 32768.f;
+				lbuffer[addr + i] = sbuf[i * 2] * 32768.f;
+				rbuffer[addr + i] = sbuf[i * 2 + 1] * 32768.f;
 			}
 		}
 		float accTime = lbuffer.Size() / (float)fmt.mSampleRate;

@@ -143,13 +143,13 @@ static void S_AddSNDINFO (int lump)
 
 			case SI_MusicAlias: {
 				sc.MustGetString();
-				int lump = fileSystem.FindFile(sc.String);
-				if (lump < 0)
-					lump = fileSystem.FindFile(FStringf("music/%s", sc.String));
-				if (lump >= 0)
+				int mlump = fileSystem.FindFile(sc.String);
+				if (mlump < 0)
+					mlump = fileSystem.FindFile(FStringf("music/%s", sc.String));
+				if (mlump >= 0)
 				{
 					// do not set the alias if a later WAD defines its own music of this name
-					int file = fileSystem.GetFileContainer(lump);
+					int file = fileSystem.GetFileContainer(mlump);
 					int sndifile = fileSystem.GetFileContainer(sc.LumpNum);
 					if (file > sndifile)
 					{

@@ -217,10 +217,10 @@ void FDMDModel::LoadGeometry()
 			memcpy(lods[i].triangles, buffer + lodInfo[i].offsetTriangles, lodInfo[i].numTriangles * sizeof(FTriangle));
 			for (int j = 0; j < lodInfo[i].numTriangles; j++)
 			{
-				for (int k = 0; k < 3; k++)
+				for (int kk = 0; kk < 3; kk++)
 				{
-					lods[i].triangles[j].textureIndices[k] = LittleShort(lods[i].triangles[j].textureIndices[k]);
-					lods[i].triangles[j].vertexIndices[k] = LittleShort(lods[i].triangles[j].vertexIndices[k]);
+					lods[i].triangles[j].textureIndices[kk] = LittleShort(lods[i].triangles[j].textureIndices[kk]);
+					lods[i].triangles[j].vertexIndices[kk] = LittleShort(lods[i].triangles[j].vertexIndices[kk]);
 				}
 			}
 		}
@@ -306,7 +306,7 @@ void FDMDModel::BuildVertexBuffer(FModelRenderer *renderer)
 
 			FTriangle *tri = lods[0].triangles;
 
-			for (int i = 0; i < lodInfo[0].numTriangles; i++)
+			for (int ii = 0; ii < lodInfo[0].numTriangles; ii++)
 			{
 				for (int j = 0; j < 3; j++)
 				{
@@ -541,10 +541,10 @@ void FMD2Model::LoadGeometry()
 	memcpy(lods[0].triangles, buffer + lodInfo[0].offsetTriangles, sizeof(FTriangle) * cnt);
 	for (int j = 0; j < cnt; j++)
 	{
-		for (int k = 0; k < 3; k++)
+		for (int kk = 0; kk < 3; kk++)
 		{
-			lods[0].triangles[j].textureIndices[k] = LittleShort(lods[0].triangles[j].textureIndices[k]);
-			lods[0].triangles[j].vertexIndices[k] = LittleShort(lods[0].triangles[j].vertexIndices[k]);
+			lods[0].triangles[j].textureIndices[kk] = LittleShort(lods[0].triangles[j].textureIndices[kk]);
+			lods[0].triangles[j].vertexIndices[kk] = LittleShort(lods[0].triangles[j].vertexIndices[kk]);
 		}
 	}
 }

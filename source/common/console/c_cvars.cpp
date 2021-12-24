@@ -1430,12 +1430,12 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 		cvar = cvar->m_Next;
 	}
 	qsort(cvarlist.Data(), cvarlist.Size(), sizeof(FBaseCVar*), cvarcmp);
-	for (auto cvar : cvarlist)
+	for (auto cv : cvarlist)
 	{
-		const char* const value = (cvar->Flags & CVAR_ISDEFAULT)
-			? cvar->GetGenericRep(CVAR_String).String
-			: cvar->SafeValue.GetChars();
-		f->SetValueForKey(cvar->GetName(), value);
+		const char* const value = (cv->Flags & CVAR_ISDEFAULT)
+			? cv->GetGenericRep(CVAR_String).String
+			: cv->SafeValue.GetChars();
+		f->SetValueForKey(cv->GetName(), value);
 	}
 }
 

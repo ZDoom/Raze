@@ -308,14 +308,14 @@ void FWadFile::SetNamespace(const char *startmarker, const char *endmarker, name
 			// We have found no F_START but one or more F_END markers.
 			// mark all lumps before the last F_END marker as potential flats.
 			unsigned int end = markers[markers.Size()-1].index;
-			for(unsigned int i = 0; i < end; i++)
+			for(unsigned int ii = 0; ii < end; ii++)
 			{
-				if (Lumps[i].LumpSize == 4096)
+				if (Lumps[ii].LumpSize == 4096)
 				{
 					// We can't add this to the flats namespace but 
 					// it needs to be flagged for the texture manager.
-					DPrintf(DMSG_NOTIFY, "Marking %s as potential flat\n", Lumps[i].getName());
-					Lumps[i].Flags |= LUMPF_MAYBEFLAT;
+					DPrintf(DMSG_NOTIFY, "Marking %s as potential flat\n", Lumps[ii].getName());
+					Lumps[ii].Flags |= LUMPF_MAYBEFLAT;
 				}
 			}
 		}

@@ -182,9 +182,9 @@ static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 		if (resfile != NULL)
 		{
 			uint32_t cnt = resfile->LumpCount();
-			for (int i = cnt - 1; i >= 0; i--)
+			for (int c = cnt - 1; c >= 0; c--)
 			{
-				FResourceLump* lmp = resfile->GetLump(i);
+				FResourceLump* lmp = resfile->GetLump(c);
 
 				if (FName(lmp->getName(), true) == gameinfo)
 				{
@@ -368,16 +368,16 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
 		if (userConfig.AddFiles->NumArgs() > 0)
 		{
-			auto fn = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
+			auto fname = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
 			bool isdir = false;
-			if (DirEntryExists(fn, &isdir) && isdir)
+			if (DirEntryExists(fname, &isdir) && isdir)
 			{
 				// Insert the GRPs before this entry itself.
 				FString lastfn;
 				Files.Pop(lastfn);
 				for (auto ext : validexts)
 				{
-					D_AddDirectory(Files, fn, ext, GameConfig);
+					D_AddDirectory(Files, fname, ext, GameConfig);
 				}
 				Files.Push(lastfn);
 			}
@@ -412,10 +412,10 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	if (Args->CheckParm("-dumpfs"))
 	{
 		FILE* f = fopen("filesystem.dir", "wb");
-		for (int i = 0; i < fileSystem.GetNumEntries(); i++)
+		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
 		{
-			auto fd = fileSystem.GetFileAt(i);
-			fprintf(f, "%.50s   %60s  %d\n", fd->getName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i)), fd->Size());
+			auto fd = fileSystem.GetFileAt(num);
+			fprintf(f, "%.50s   %60s  %d\n", fd->getName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd->Size());
 		}
 		fclose(f);
 	}

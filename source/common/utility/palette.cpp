@@ -565,9 +565,9 @@ int V_GetColorFromString(const char* cstr, FScriptPosition* sc)
 	{
 		if (strlen(cstr) == 6)
 		{
-			char* p;
-			int color = strtol(cstr, &p, 16);
-			if (*p == 0)
+			char* endp;
+			int color = strtol(cstr, &endp, 16);
+			if (*endp == 0)
 			{
 				// RRGGBB string
 				c[0] = (color & 0xff0000) >> 16;

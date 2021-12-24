@@ -251,10 +251,10 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 					}
 					Printf("found already visited wall %d\nLinked by:", ww);
 					bugged.Insert(i, true);
-					for (unsigned i = 0; i < wall.Size(); i++)
+					for (unsigned walnum = 0; walnum < wall.Size(); walnum++)
 					{
-						if (wall[i].point2 == ww)
-							Printf(" %d,", i);
+						if (wall[walnum].point2 == ww)
+							Printf(" %d,", walnum);
 					}
 					Printf("\n");
 					sectors.Last().bugged = ESEctionFlag::Unclosed;
@@ -302,9 +302,9 @@ static int insideLoop(int vertex, TArray<int>& loop)
 		// SW: Wanton Destrcution's $bath.map, sector 601 is an example for that.
 		if (i == 1) pt += wall[vertex].delta() / 2; 
 		bool c = false;
-		for (unsigned i = 0; i < loop.Size() - 1; i++)
+		for (unsigned ii = 0; ii < loop.Size() - 1; ii++)
 		{
-			auto& wal = wall[loop[i]];
+			auto& wal = wall[loop[ii]];
 			auto& pt1 = wal.pos;
 			auto& pt2 = wal.point2Wall()->pos;
 
@@ -481,9 +481,9 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 					{
 						if (inside[c] == a)
 						{
-							auto& loop = sectloops[c];
-							builder.sections.Last().wallcount += loop.Size() - 1;
-							builder.sections.Last().loops.Push(std::move(loop));
+							auto& iloop = sectloops[c];
+							builder.sections.Last().wallcount += iloop.Size() - 1;
+							builder.sections.Last().loops.Push(std::move(iloop));
 							inside[c] = -1;
 						}
 					}
@@ -645,13 +645,13 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 			section->loops.Set(loops, srcloops);
 
 			int curwall = 0;
-			for (unsigned i = 0; i < srcloops; i++)
+			for (unsigned ii = 0; ii < srcloops; ii++)
 			{
-				auto& srcloop = srcsect.loops[i];
-				auto& loop = section->loops[i];
+				auto& srcloop = srcsect.loops[ii];
+				auto& loop = section->loops[ii];
 				unsigned numsectionwalls = srcloop.Size() - 1;
-				auto walls = (int*)sectionArena.Calloc(numsectionwalls * sizeof(int));
-				loop.walls.Set(walls, numsectionwalls);
+				auto wallarray = (int*)sectionArena.Calloc(numsectionwalls * sizeof(int));
+				loop.walls.Set(wallarray, numsectionwalls);
 				for (unsigned w = 0; w < numsectionwalls; w++)
 				{
 					int wall_i = srcloop[w];

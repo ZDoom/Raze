@@ -98,7 +98,7 @@ static int FindGFXFile(FString & fn)
 
 	for (const char ** extp=extensions; *extp; extp++)
 	{
-		int lump = fileSystem.CheckNumForFullName(fn + *extp);
+		lump = fileSystem.CheckNumForFullName(fn + *extp);
 		if (lump >= best)  best = lump;
 	}
 	return best;

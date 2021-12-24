@@ -65,9 +65,9 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 	int tilewidth = tileWidth(basetile);
 	for(int i = 0; i < numtiles; i++)
 	{
-		auto tex = tileGetTexture(basetile + tilemap[i]);
-		if (!tex || !tex->isValid() || tex->GetTexture() == 0) return nullptr;
-		build[i].TexImage = static_cast<FImageTexture*>(tex->GetTexture());
+		auto texture = tileGetTexture(basetile + tilemap[i]);
+		if (!texture || !texture->isValid() || texture->GetTexture() == 0) return nullptr;
+		build[i].TexImage = static_cast<FImageTexture*>(texture->GetTexture());
 		build[i].OriginX = tilewidth * i;
 		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}

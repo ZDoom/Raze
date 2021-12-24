@@ -520,8 +520,6 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 
 			else if (node->start >= start && node->start < end)
 			{
-				auto next = node->next;	// get this before making any edits.
-
 				// if the old range is closed, just shorten the new one and continue.
 				if (node->topclip < node->bottomclip)
 				{

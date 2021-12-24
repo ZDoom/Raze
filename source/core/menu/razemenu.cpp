@@ -426,10 +426,10 @@ static void BuildEpisodeMenu()
 				addedVolumes++;
 				if (vol.subtitle.IsNotEmpty())
 				{
-					auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
+					auto item = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
 						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, vol.index);
 					y += ld->mLinespacing * 6 / 10;
-					ld->mItems.Push(it);
+					ld->mItems.Push(item);
 					textadded = true;
 				}
 			}

@@ -222,15 +222,15 @@ void highTileSetup()
 				if (rep.issky) continue;	// do not muck around with skyboxes (yet)
 				if (rep.palnum < NORMALPAL)
 				{
-					auto tex = rep.image;
+					auto imgtex = rep.image;
 					// Make a copy so that multiple appearances of the same texture with different layers can be handled. They will all refer to the same internal texture anyway.
-					tex = MakeGameTexture(tex->GetTexture(), "", ETextureType::Any);
-					if (glowTex) tex->SetGlowmap(glowTex->GetTexture());
-					if (detailTex) tex->SetDetailmap(detailTex->GetTexture());
-					if (normalTex) tex->SetNormalmap(normalTex->GetTexture());
-					if (specTex) tex->SetSpecularmap(specTex->GetTexture());
-					tex->SetDetailScale(scalex, scaley);
-					rep.image = tex;
+					imgtex = MakeGameTexture(imgtex->GetTexture(), "", ETextureType::Any);
+					if (glowTex) imgtex->SetGlowmap(glowTex->GetTexture());
+					if (detailTex) imgtex->SetDetailmap(detailTex->GetTexture());
+					if (normalTex) imgtex->SetNormalmap(normalTex->GetTexture());
+					if (specTex) imgtex->SetSpecularmap(specTex->GetTexture());
+					imgtex->SetDetailScale(scalex, scaley);
+					rep.image = imgtex;
 				}
 			}
 		}
@@ -424,12 +424,12 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 		FVector4 addcol(0, 0, 0, 0);
 		FVector4 modcol(pick.basepalTint.r * (1.f / 255.f), pick.basepalTint.g * (1.f / 255.f), pick.basepalTint.b * (1.f / 255.f), 0);
 		FVector4 blendcol(0, 0, 0, 0);
-		int flags = 0;
+		int tmflags = 0;
 
-		if (pick.basepalTint != 0xffffff) flags |= TextureManipulation::ActiveBit;
+		if (pick.basepalTint != 0xffffff) tmflags |= TextureManipulation::ActiveBit;
 		if (pick.tintFlags != -1)
 		{
-			flags |= TextureManipulation::ActiveBit;
+			tmflags |= TextureManipulation::ActiveBit;
 			if (pick.tintFlags & TINTF_COLORIZE)
 			{
 				modcol.X *= pick.tintColor.r  * (1.f / 64.f);
@@ -440,15 +440,15 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 				modcol.W = 1.f;
 
 			if (pick.tintFlags & TINTF_INVERT)
-				flags |= TextureManipulation::InvertBit;
+				tmflags |= TextureManipulation::InvertBit;
 
 			if (pick.tintFlags & TINTF_BLENDMASK)
 			{
 				blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
-				flags |= (((pick.tintFlags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
+				tmflags |= (((pick.tintFlags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
 			}
 		}
-		addcol.W = (float)flags;
+		addcol.W = (float)tmflags;
 		if ((pick.translation & 0x80000000) && hw_shadeinterpolate) addcol.W += 16384;	// hijack a free bit in here.
 		state->SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
 	}

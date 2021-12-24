@@ -153,10 +153,10 @@ static void ParseStatistics(const char *fn, TArray<FStatistics> &statlist)
 						sc.MustGetString();
 						strncpy(lstats.info, sc.String, 59);
 
-						int h,m,s;
+						int hour,min,sec;
 						sc.MustGetString();
-						sscanf(sc.String, "%d:%d:%d", &h, &m, &s);
-						lstats.timeneeded= ((((h*60)+m)*60)+s);
+						sscanf(sc.String, "%d:%d:%d", &hour, &min, &sec);
+						lstats.timeneeded= ((((hour*60)+min)*60)+sec);
 
 						lstats.skill = 0;
 					}

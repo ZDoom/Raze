@@ -90,9 +90,9 @@ static void doprecache(int picnum, int palette)
 
     for (int i = 0; i <= surfaces; i++)
 	{
-        auto tex = mdloadskin((md2model_t *)models[mid], 0, palette, i, nullptr);
-        int palid = TRANSLATION(Translation_Remap + curbasepal, palette);
-        if (tex) PrecacheTex(tex, palid);
+        auto skintex = mdloadskin((md2model_t *)models[mid], 0, palette, i, nullptr);
+        int paletteid = TRANSLATION(Translation_Remap + curbasepal, palette);
+        if (skintex) PrecacheTex(skintex, paletteid);
 	}
 }
 
