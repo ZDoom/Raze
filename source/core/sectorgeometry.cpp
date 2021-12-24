@@ -1,5 +1,4 @@
 /*
-/*
 ** sectorgeometry.cpp
 **
 ** caches the triangle meshes used for rendering sector planes.
