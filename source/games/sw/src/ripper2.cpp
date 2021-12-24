@@ -888,7 +888,7 @@ int SetupRipper2(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -904,19 +904,19 @@ int SetupRipper2(DSWActor* actor)
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_Ripper2Die;
     u->Rot = sg_Ripper2Run;
-    sp->clipdist = 512 >> 2;  // This actor is bigger, needs bigger box.
-    sp->xrepeat = sp->yrepeat = 55;
+    actor->spr.clipdist = 512 >> 2;  // This actor is bigger, needs bigger box.
+    actor->spr.xrepeat = actor->spr.yrepeat = 55;
 
-    if (sp->pal == PALETTE_BROWN_RIPPER)
+    if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
         EnemyDefaults(actor, &Ripper2BrownActionSet, &Ripper2Personality);
-        sp->xrepeat += 40;
-        sp->yrepeat += 40;
+        actor->spr.xrepeat += 40;
+        actor->spr.yrepeat += 40;
 
-        if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
             u->Health = HEALTH_MOMMA_RIPPER;
 
-        sp->clipdist += 128 >> 2;
+        actor->spr.clipdist += 128 >> 2;
     }
     else
     {
@@ -945,9 +945,9 @@ int InitRipper2Hang(DSWActor* actor)
 
     for (dang = 0; dang < 2048; dang += 128)
     {
-        tang = NORM_ANGLE(sp->ang + dang);
+        tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector(),  // Start position
+        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -956,7 +956,7 @@ int InitRipper2Hang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(sp->pos.X, sp->pos.Y, hit.hitpos.X, hit.hitpos.Y);
+        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, hit.hitpos.X, hit.hitpos.Y);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
@@ -964,7 +964,7 @@ int InitRipper2Hang(DSWActor* actor)
         }
 
         Found = true;
-        sp->ang = tang;
+        actor->spr.ang = tang;
         break;
     }
 
@@ -1013,8 +1013,8 @@ int DoRipper2MoveHang(DSWActor* actor)
     int nx, ny;
 
     // Move while jumping
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
@@ -1025,7 +1025,7 @@ int DoRipper2MoveHang(DSWActor* actor)
             short w, nw;
 
             // Don't keep clinging and going ever higher!
-            if (abs(sp->pos.Z - u->targetActor->spr.pos.Z) > (4000<<4))
+            if (abs(actor->spr.pos.Z - u->targetActor->spr.pos.Z) > (4000<<4))
                 return 0;
 
             NewStateGroup(actor, u->ActorActionSet->Special[1]);
@@ -1035,7 +1035,7 @@ int DoRipper2MoveHang(DSWActor* actor)
                 u->WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            sp->ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
+            actor->spr.ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
 
             return 0;
         }
@@ -1082,16 +1082,16 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     SPRITEp psp = &u->targetActor->s();
     short tang;
 
-    tang = getangle(psp->pos.X - sp->pos.X, psp->pos.Y - sp->pos.Y);
+    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
 
     // Always jump at player if mad.
 	
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
     if (coll.type != kHitNone)
-        sp->ang = NORM_ANGLE((sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.ang = NORM_ANGLE((actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
-        sp->ang = NORM_ANGLE(tang);
+        actor->spr.ang = NORM_ANGLE(tang);
 
 
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -1200,7 +1200,7 @@ int DoRipper2RipHeart(DSWActor* actor)
     u->WaitTics = 6 * 120;
 
     // player face ripper2
-    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->pos.Y - tsp->pos.Y);
+    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
     return 0;
 }
 
@@ -1274,7 +1274,7 @@ int DoRipper2Move(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
     
-    if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
+    if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
     if (u->scale_speed)
