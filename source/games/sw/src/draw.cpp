@@ -532,34 +532,29 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 template<class sprt>
 DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 {
-    SPRITEp sp;
 
     auto actorNew = insertActor(newsector, STAT_FAF_COPY);
-    sp = &actorNew->s();
 
-    sp->pos.X = tsp->pos.X;
-    sp->pos.Y = tsp->pos.Y;
-    sp->pos.Z = tsp->pos.Z;
-    sp->cstat = tsp->cstat;
-    sp->picnum = tsp->picnum;
-    sp->pal = tsp->pal;
-    sp->xrepeat = tsp->xrepeat;
-    sp->yrepeat = tsp->yrepeat;
-    sp->xoffset = tsp->xoffset;
-    sp->yoffset = tsp->yoffset;
-    sp->ang = tsp->ang;
-    sp->xvel = tsp->xvel;
-    sp->yvel = tsp->yvel;
-    sp->zvel = tsp->zvel;
-    sp->shade = tsp->shade;
+    actorNew->spr.pos = tsp->pos;
+    actorNew->spr.cstat = tsp->cstat;
+    actorNew->spr.picnum = tsp->picnum;
+    actorNew->spr.pal = tsp->pal;
+    actorNew->spr.xrepeat = tsp->xrepeat;
+    actorNew->spr.yrepeat = tsp->yrepeat;
+    actorNew->spr.xoffset = tsp->xoffset;
+    actorNew->spr.yoffset = tsp->yoffset;
+    actorNew->spr.ang = tsp->ang;
+    actorNew->spr.xvel = tsp->xvel;
+    actorNew->spr.yvel = tsp->yvel;
+    actorNew->spr.zvel = tsp->zvel;
+    actorNew->spr.shade = tsp->shade;
 
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return actorNew;
 }
 
-template<class sprt>
-DSWActor* ConnectCopySprite(sprt const* tsp)
+DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 {
     sectortype* newsector;
     int testz;
@@ -665,9 +660,8 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                auto sp = &tActor->s();
-                int32_t const floorz = getflorzofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y);
-                if (sp->pos.Z > floorz)
+                int32_t const floorz = getflorzofslopeptr(tActor->spr.sector(), tActor->spr.pos.X, tActor->spr.pos.Y);
+                if (tActor->spr.pos.Z > floorz)
                     tsp->pos.Z = floorz;
             }
 
@@ -973,7 +967,8 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     vz = q16horiz >> 8;
 
     // Player sprite of current view
-    sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    sp = &actor->s();
 
     auto bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1273,19 +1268,18 @@ void PreDrawStackedWater(void)
         {
             if (itActor2->hasU())
             {
-                auto sp = &itActor2->s();
                 auto u = itActor2->u();
-                if (sp->statnum == STAT_ITEM)
+                if (itActor2->spr.statnum == STAT_ITEM)
                     continue;
 
-                if (sp->statnum <= STAT_DEFAULT || sp->statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
+                if (itActor2->spr.statnum <= STAT_DEFAULT || itActor2->spr.statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
                     continue;
 
                 // code so that a copied sprite will not make another copy
                 if (u->xchange == -989898)
                     continue;
 
-                auto actorNew = ConnectCopySprite(sp);
+                auto actorNew = ConnectCopySprite(&itActor2->spr);
                 if (actorNew != nullptr)
                 {
                     // spawn a user
@@ -1347,8 +1341,7 @@ void UpdateWallPortalState()
             DSWActor* cam = mirror[i].cameraActor;
             if (cam)
             {
-                auto sp = &cam->s();
-                if (!TEST_BOOL1(sp))
+                if (!TEST_BOOL1(cam))
                 {
                     wal->portalflags = PORTAL_WALL_TO_SPRITE;
                     wal->portalnum = i;
