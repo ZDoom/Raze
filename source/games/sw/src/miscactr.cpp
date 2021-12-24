@@ -153,7 +153,7 @@ int DoToiletGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner != 1)
     {
@@ -385,7 +385,7 @@ int DoWashGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
@@ -1234,7 +1234,7 @@ int DoCarGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1445,7 +1445,7 @@ int DoMechanicGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1658,7 +1658,7 @@ int DoSailorGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1862,7 +1862,7 @@ int DoPruneGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorZOfMiddle(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {

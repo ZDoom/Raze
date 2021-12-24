@@ -566,14 +566,13 @@ int DoCheckSwarm(DSWActor* actor)
     SWStatIterator it(STAT_ENEMY);
     while (auto itActor = it.Next())
     {
-        tsp = &itActor->s();
         tu = itActor->u();
 
         if (!tu) continue;
 
-        if (tsp->hitag != TAG_SWARMSPOT || tsp->lotag != 2) continue;
+        if (itActor->spr.hitag != TAG_SWARMSPOT || itActor->spr.lotag != 2) continue;
 
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, tsp->pos.X, tsp->pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
         if (dist < pdist && u->ID == tu->ID) // Only flock to your own kind
         {

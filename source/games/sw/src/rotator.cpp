@@ -74,15 +74,12 @@ void ReverseRotator(DSWActor* actor)
 
 bool RotatorSwitch(short match, short setting)
 {
-    SPRITEp sp;
     bool found = false;
 
     SWStatIterator it(STAT_DEFAULT);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
+        if (actor->spr.lotag == TAG_SPRITE_SWITCH_VATOR && actor->spr.hitag == match)
         {
             found = true;
             AnimateSwitch(actor, setting);
@@ -95,7 +92,6 @@ bool RotatorSwitch(short match, short setting)
 void SetRotatorActive(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -230,9 +226,7 @@ bool TestRotatorMatchActive(short match)
 
 void DoRotatorSetInterp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-
-    for(auto& wal : wallsofsector(sp->sector()))
+    for(auto& wal : wallsofsector(actor->spr.sector()))
     {
         StartInterpolation(&wal, Interp_Wall_X);
         StartInterpolation(&wal, Interp_Wall_Y);
@@ -248,8 +242,7 @@ void DoRotatorSetInterp(DSWActor* actor)
 
 void DoRotatorStopInterp(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
-    for (auto& wal : wallsofsector(sp->sector()))
+    for (auto& wal : wallsofsector(actor->spr.sector()))
     {
         StopInterpolation(&wal, Interp_Wall_X);
         StopInterpolation(&wal, Interp_Wall_Y);
@@ -266,7 +259,6 @@ void DoRotatorStopInterp(DSWActor* actor)
 int DoRotator(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     ROTATORp r;
     short ndx,w,startwall,endwall;
     SPRITEp pivot = nullptr;
@@ -311,8 +303,8 @@ int DoRotator(DSWActor* actor)
             r->vel = -r->vel;
             SetRotatorInactive(actor);
 
-            if (SP_TAG6(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
 
             // wait a bit and close it
             if (u->WaitTics)
@@ -338,11 +330,11 @@ int DoRotator(DSWActor* actor)
                 //RotatorSwitch(match, OFF);
             }
 
-            if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor) && TEST_BOOL5(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
 
-        if (TEST_BOOL2(sp))
+        if (TEST_BOOL2(actor))
             kill = true;
     }
 
@@ -351,9 +343,9 @@ int DoRotator(DSWActor* actor)
     while (auto itActor = it.Next())
     {
         auto itsp = &itActor->s();
-        if (itsp->lotag == sp->lotag)
+        if (itsp->lotag == actor->spr.lotag)
         {
-            dist = Distance(sp->pos.X, sp->pos.Y, itsp->pos.X, itsp->pos.Y);
+            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itsp->pos.X, itsp->pos.Y);
             if (dist < closest)
             {
                 closest = dist;
@@ -367,7 +359,7 @@ int DoRotator(DSWActor* actor)
 
     // move points
     ndx = 0;
-    for(auto& wal : wallsofsector(sp->sector()))
+    for(auto& wal : wallsofsector(actor->spr.sector()))
     {
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);

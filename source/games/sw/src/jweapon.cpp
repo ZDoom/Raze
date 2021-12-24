@@ -2188,8 +2188,8 @@ int DoCarryFlagNoDet(DSWActor* actor)
     }
 
     // if in score box, score.
-    if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
-        && ap->pal != actor->spr.pal)
+    if (attached->spr.sector()->hitag == 9000 && attached->spr.sector()->lotag == attached->spr.pal
+        && attached->spr.pal != actor->spr.pal)
     {
         if (u->flagOwnerActor != nullptr)
         {
@@ -2200,7 +2200,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
         if (!TEST_BOOL1(fp))
         {
             PlaySound(DIGI_BIGITEM, u->attachActor, v3df_none);
-            DoFlagScore(ap->pal);
+            DoFlagScore(attached->spr.pal);
             if (SP_TAG5(fp) > 0)
             {
                 fu->filler++;

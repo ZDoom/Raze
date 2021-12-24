@@ -285,7 +285,7 @@ void UseInventoryRepairKit(PLAYERp pp)
 
 void UseInventoryCloak(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
+    DSWActor* plActor = pp->actor;
 
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -300,18 +300,17 @@ void UseInventoryCloak(PLAYERp pp)
     // on/off
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
-    SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-    sp->shade = 100;
+    SET(plActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    plActor->spr.shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
-    //if(RandomRange(1000) > 950)
     if (pp == Player+myconnectindex)
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 
 void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 {
-    SPRITEp sp = &pp->Actor()->s();
+    DSWActor* plActor = pp->actor;
 
     pp->InventoryActive[InventoryNum] = false;
 
@@ -325,8 +324,8 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
     // on/off
     PlayerUpdateInventory(pp, InventoryNum);
 
-    RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
-    sp->shade = 0;
+    RESET(plActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    plActor->spr.shade = 0;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
 }

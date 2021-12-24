@@ -70,15 +70,12 @@ void ReverseSlidor(DSWActor* actor)
 
 bool SlidorSwitch(short match, short setting)
 {
-    SPRITEp sp;
     bool found = false;
 
     SWStatIterator it(STAT_DEFAULT);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
-        if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
+        if (actor->spr.lotag == TAG_SPRITE_SWITCH_VATOR && actor->spr.hitag == match)
         {
             found = true;
             AnimateSwitch(actor, setting);
@@ -91,7 +88,6 @@ bool SlidorSwitch(short match, short setting)
 void SetSlidorActive(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -222,11 +218,11 @@ bool TestSlidorMatchActive(short match)
 
 void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
-    auto sp = actor->spr.sector();
+    auto sect = actor->spr.sector();
 
     // this code is just weird.
-    auto startWall = sp->firstWall();
-    auto endWall = sp->lastWall();
+    auto startWall = sect->firstWall();
+    auto endWall = sect->lastWall();
     auto wal = startWall;
     do
     {
@@ -274,11 +270,11 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 
 int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
-    auto sp = actor->spr.sector();
+    auto sect = actor->spr.sector();
 
     // this code is just weird.
-    auto startWall = sp->firstWall();
-    auto endWall = sp->lastWall();
+    auto startWall = sect->firstWall();
+    auto endWall = sect->lastWall();
     auto wal = startWall;
     walltype* pwal;
 
@@ -394,10 +390,9 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
 int DoSlidorInstantClose(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     int diff;
 
-    auto startwall = sp->sector()->firstWall();
+    auto startwall = actor->spr.sector()->firstWall();
     auto wal = startwall;
 
     do
@@ -405,22 +400,22 @@ int DoSlidorInstantClose(DSWActor* actor)
         switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
-            diff = wal->pos.X - sp->pos.X;
+            diff = wal->pos.X - actor->spr.pos.X;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
-            diff = wal->pos.X - sp->pos.X;
+            diff = wal->pos.X - actor->spr.pos.X;
             DoSlidorMoveWalls(actor, -diff);
             break;
 
         case TAG_WALL_SLIDOR_UP:
-            diff = wal->pos.Y - sp->pos.Y;
+            diff = wal->pos.Y - actor->spr.pos.Y;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
-            diff = wal->pos.Y - sp->pos.Y;
+            diff = wal->pos.Y - actor->spr.pos.Y;
             DoSlidorMoveWalls(actor, -diff);
             break;
         }
@@ -436,7 +431,6 @@ int DoSlidorInstantClose(DSWActor* actor)
 int DoSlidor(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp sp = &actor->s();
     ROTATORp r;
     int old_pos;
     bool kill = false;
@@ -480,8 +474,8 @@ int DoSlidor(DSWActor* actor)
             r->vel = -r->vel;
             SetSlidorInactive(actor);
 
-            if (SP_TAG6(sp) && !TEST_BOOL8(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor) && !TEST_BOOL8(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
 
             // wait a bit and close it
             if (u->WaitTics)
@@ -500,7 +494,7 @@ int DoSlidor(DSWActor* actor)
             r->tgt = r->open_dest;
             SetSlidorInactive(actor);
 
-            RESET_BOOL8(sp);
+            RESET_BOOL8(actor);
 
             // set Owner swith back to OFF
             // only if ALL vators are inactive
@@ -509,22 +503,22 @@ int DoSlidor(DSWActor* actor)
                 //SlidorSwitch(match, OFF);
             }
 
-            if (SP_TAG6(sp) && TEST_BOOL8(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor) && TEST_BOOL8(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
 
-        if (TEST_BOOL2(sp))
+        if (TEST_BOOL2(actor))
             kill = true;
     }
     else
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(sp) && r->tgt == 0)
+        if (TEST_BOOL3(actor) && r->tgt == 0)
         {
             USERp bu;
             bool found = false;
 
-            SWSectIterator it(sp->sector());
+            SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
                 bu = itActor->u();
@@ -533,7 +527,7 @@ int DoSlidor(DSWActor* actor)
                 {
                     // found something blocking so reverse to ON position
                     ReverseSlidor(actor);
-                    SET_BOOL8(sp); // tell vator that something blocking door
+                    SET_BOOL8(actor); // tell vator that something blocking door
                     found = true;
                     break;
                 }
@@ -548,8 +542,8 @@ int DoSlidor(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == sp->sector() ||
-                        pp->hi_sectp == sp->sector())
+                    if (pp->lo_sectp == actor->spr.sector() ||
+                        pp->hi_sectp == actor->spr.sector())
                     {
                         ReverseSlidor(actor);
 

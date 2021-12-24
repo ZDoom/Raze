@@ -2214,9 +2214,7 @@ inline int ActorSizeY(DSWActor* sp)
 
 inline int Facing(DSWActor* actor1, DSWActor* actor2)
 {
-    auto sp1 = &actor1->s();
-    auto sp2 = &actor2->s();
-    return (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < 512);
+    return (abs(getincangle(getangle(actor1->spr.pos.X - actor2->spr.pos.X, actor1->spr.pos.Y - actor2->spr.pos.Y), actor2->spr.ang)) < 512);
 }
 
 // Given a z height and sprite return the correct y repeat value
