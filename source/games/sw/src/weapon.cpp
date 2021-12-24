@@ -18159,8 +18159,6 @@ bool TestDontStickSector(sectortype* hit_sect)
 
 int QueueStar(DSWActor* actor)
 {
-    SPRITEp osp;
-
     if (TestDontStick(actor, nullptr))
     {
         KillActor(actor);
@@ -18178,11 +18176,11 @@ int QueueStar(DSWActor* actor)
     else
     {
         // move old star to new stars place
-        osp = &StarQueue[StarQueueHead]->s();
-        osp->pos = actor->spr.pos;
-        ChangeActorSect(StarQueue[StarQueueHead], actor->spr.sector());
+        auto osp = StarQueue[StarQueueHead];
+        osp->spr.pos = actor->spr.pos;
+        ChangeActorSect(osp, actor->spr.sector());
         KillActor(actor);
-        actor = StarQueue[StarQueueHead];
+        actor = osp;
     }
 
     StarQueueHead = (StarQueueHead+1) & (MAX_STAR_QUEUE-1);
@@ -18251,31 +18249,30 @@ STATE s_FloorBlood1[] =
 int QueueFloorBlood(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp hsp = &actor->s();
-    SECTORp sectp = hsp->sector();
+    SECTORp sectp = actor->spr.sector();
     DSWActor* spawnedActor = nullptr;
 
 
     if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
         return -1;   // No blood in water or current areas
 
-    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
+    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return -1;   // No blood underwater!
 
-    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
-    if (TestDontStickSector(hsp->sector()))
+    if (TestDontStickSector(actor->spr.sector()))
         return -1;   // Not on special sectors you don't
 
     if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)
         KillActor(FloorBloodQueue[FloorBloodQueueHead]);
 
     FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
-                                               SpawnActor(STAT_SKIP4, FLOORBLOOD1, s_FloorBlood1, hsp->sector(), hsp->pos.X, hsp->pos.Y, hsp->pos.Z, hsp->ang, 0);
+                                               SpawnActor(STAT_SKIP4, FLOORBLOOD1, s_FloorBlood1, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
@@ -18292,7 +18289,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = hsp->pos;
+    spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->spr.pos.Z += Z(1);
     spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
@@ -18328,13 +18325,12 @@ STATE s_FootPrint3[] =
 
 int QueueFootPrint(DSWActor* actor)
 {
-    SPRITEp hsp = &actor->s();
     DSWActor* spawnedActor;
     USERp u = actor->u();
     USERp nu;
     short rnd_num=0;
     bool Found=false;
-    SECTORp sectp = hsp->sector();
+    SECTORp sectp = actor->spr.sector();
 
 
     if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
@@ -18352,16 +18348,16 @@ int QueueFootPrint(DSWActor* actor)
             Found = true;
     }
 
-    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || Found || SpriteInDiveArea(hsp))
+    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || Found || SpriteInDiveArea(actor))
         return -1;   // No prints underwater!
 
-    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
-    if (TestDontStickSector(hsp->sector()))
+    if (TestDontStickSector(actor->spr.sector()))
         return -1;   // Not on special sectors you don't
 
     // So, are we like, done checking now!?
@@ -18372,13 +18368,13 @@ int QueueFootPrint(DSWActor* actor)
 
     if (rnd_num > 683)
         FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
-                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT1, s_FootPrint1, hsp->sector(), hsp->pos.X, hsp->pos.Y, hsp->pos.Z, hsp->ang, 0);
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT1, s_FootPrint1, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     else if (rnd_num > 342)
         FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
-                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT2, s_FootPrint2, hsp->sector(), hsp->pos.X, hsp->pos.Y, hsp->pos.Z, hsp->ang, 0);
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT2, s_FootPrint2, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     else
         FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
-                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT3, s_FootPrint3, hsp->sector(), hsp->pos.X, hsp->pos.Y, hsp->pos.Z, hsp->ang, 0);
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT3, s_FootPrint3, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
@@ -18397,8 +18393,8 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = hsp->pos;
-    spawnedActor->spr.ang = hsp->ang;
+    spawnedActor->spr.pos = actor->spr.pos;
+    spawnedActor->spr.ang = actor->spr.ang;
     RESET(nu->Flags, SPR_SHADOW);
     switch (FootMode)
     {
@@ -18455,7 +18451,6 @@ STATE s_WallBlood4[] =
 
 DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 {
-    SPRITEp hsp = &actor->s();
     short w,nw,wall_ang,dang;
     DSWActor* spawnedActor;
     int nx,ny;
@@ -18465,14 +18460,14 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     USERp u = actor->u();
 
 
-    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
+    if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!
 
     daz = Z(RANDOM_P2(128))<<3;
     daz -= DIV2(Z(128)<<3);
     dang = (ang+(RANDOM_P2(128<<5) >> 5)) - DIV2(128);
 
-    FAFhitscan(hsp->pos.X, hsp->pos.Y, hsp->pos.Z - Z(30), hsp->sector(),    // Start position
+    FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(30), actor->spr.sector(),    // Start position
                bcos(dang),      // X vector of 3D ang
                bsin(dang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
@@ -18482,7 +18477,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
         return nullptr;
 
     const int WALLBLOOD_DIST_MAX = 2500;
-    if (Distance(hit.hitpos.X, hit.hitpos.Y, hsp->pos.X, hsp->pos.Y) > WALLBLOOD_DIST_MAX)
+    if (Distance(hit.hitpos.X, hit.hitpos.Y, actor->spr.pos.X, actor->spr.pos.Y) > WALLBLOOD_DIST_MAX)
         return nullptr;
 
     // hit a sprite?
@@ -18642,7 +18637,6 @@ int DoWallBlood(DSWActor* actor)
 void QueueGeneric(DSWActor* actor, short pic)
 {
     USERp u = actor->u();
-    SPRITEp osp;
 
     if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
@@ -18675,11 +18669,9 @@ void QueueGeneric(DSWActor* actor, short pic)
     else
     {
         // move old sprite to new sprite's place
-        osp = &GenericQueue[GenericQueueHead]->s();
-        osp->pos.X = actor->spr.pos.X;
-        osp->pos.Y = actor->spr.pos.Y;
-        osp->pos.Z = actor->spr.pos.Z;
-        ChangeActorSect(GenericQueue[GenericQueueHead], actor->spr.sector());
+        auto osp = GenericQueue[GenericQueueHead];
+        osp->spr.pos = actor->spr.pos;
+        ChangeActorSect(osp, actor->spr.sector());
         KillActor(actor);
         actor = GenericQueue[GenericQueueHead];
         ASSERT(actor->spr.statnum != MAXSTATUS);
@@ -18777,9 +18769,8 @@ int DoShrapVelocity(DSWActor* actor)
             SPRITEp hsp;
 
             auto hit_sprite = u->coll.actor();
-            hsp = &hit_sprite->s();
 
-            wall_ang = NORM_ANGLE(hsp->ang);
+            wall_ang = NORM_ANGLE(hit_sprite->spr.ang);
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
 
@@ -19093,13 +19084,10 @@ int DoItemFly(DSWActor* actor)
         {
             short wall_ang;
             auto hit_sprite = u->coll.actor();
-            SPRITEp hsp;
 
-            hsp = &hit_sprite->s();
-
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hit_sprite->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hit_sprite->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }

@@ -55,19 +55,17 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
     SWStatIterator it(STAT_WARP);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
-        if (sp->sector() == sect)
+        if (actor->spr.sector() == sect)
         {
             // skip - don't teleport
-            if (SP_TAG10(sp) == 1)
+            if (SP_TAG10(actor) == 1)
                 continue;
 
-            if (sp->hitag == WARP_CEILING_PLANE)
+            if (actor->spr.hitag == WARP_CEILING_PLANE)
             {
                 *sp_ceiling = actor;
             }
-            else if (sp->hitag == WARP_FLOOR_PLANE)
+            else if (actor->spr.hitag == WARP_FLOOR_PLANE)
             {
                 *sp_floor = actor;
             }
@@ -111,16 +109,15 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     int xoff;
     int yoff;
     int zoff;
-    SPRITEp const sp = &sp_from->s();
     short match;
     short to_tag = 0;
     short match_rand[16];
     int z_adj = 0;
 
-    xoff = *x - sp->pos.X;
-    yoff = *y - sp->pos.Y;
-    zoff = *z - sp->pos.Z;
-    match = sp->lotag;
+    xoff = *x - sp_from->spr.pos.X;
+    yoff = *y - sp_from->spr.pos.Y;
+    zoff = *z - sp_from->spr.pos.Z;
+    match = sp_from->spr.lotag;
 
 #if 0
     TAG 2 = match
@@ -133,23 +130,23 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
 
     memset(match_rand,0,sizeof(match_rand));
 
-    switch (sp->hitag)
+    switch (sp_from->spr.hitag)
     {
     case WARP_TELEPORTER:
         to_tag = WARP_TELEPORTER;
 
         // if tag 5 has something this is a random teleporter
-        if (SP_TAG5(sp))
+        if (SP_TAG5(sp_from))
         {
             short ndx = 0;
             match_rand[ndx++] = SP_TAG2(sp_from);
-            match_rand[ndx++] = SP_TAG5(sp);
-            if (SP_TAG6(sp))
-                match_rand[ndx++] = SP_TAG6(sp);
-            if (SP_TAG7(sp))
-                match_rand[ndx++] = SP_TAG7(sp);
-            if (SP_TAG8(sp))
-                match_rand[ndx++] = SP_TAG8(sp);
+            match_rand[ndx++] = SP_TAG5(sp_from);
+            if (SP_TAG6(sp_from))
+                match_rand[ndx++] = SP_TAG6(sp_from);
+            if (SP_TAG7(sp_from))
+                match_rand[ndx++] = SP_TAG7(sp_from);
+            if (SP_TAG8(sp_from))
+                match_rand[ndx++] = SP_TAG8(sp_from);
 
             // reset the match you are looking for
             match = match_rand[RandomRange(ndx)];
@@ -216,15 +213,13 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
     SWStatIterator it(STAT_WARP);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
-
-        if (sp->sector() == sect)
+        if (actor->spr.sector() == sect)
         {
             // skip - don't teleport
-            if (SP_TAG10(sp) == 1)
+            if (SP_TAG10(actor) == 1)
                 continue;
 
-            if (sp->hitag == WARP_TELEPORTER)
+            if (actor->spr.hitag == WARP_TELEPORTER)
             {
                 *sp_warp = actor;
             }

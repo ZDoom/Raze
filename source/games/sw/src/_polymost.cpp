@@ -212,27 +212,22 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                 }
                 else if (mirror[cnt].camspriteActor)
                 {
-                    SPRITEp tp;
+                    auto pos = mirror[cnt].camspriteActor->spr.pos;
 
-                    tp = &mirror[cnt].camspriteActor->s();
-
-                    j = abs(tp->pos.X - tx);
-                    j += abs(tp->pos.Y - ty);
+                    j = abs(pos.X - tx);
+                    j += abs(pos.Y - ty);
                     if (j < dist)
                         dist = j;
                 }
 
                 if (mirror[cnt].ismagic)
                 {
-                    SPRITEp sp=nullptr;
                     int camhoriz;
                     int w;
                     int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
                     auto actor = mirror[cnt].cameraActor;
                     ASSERT(actor != nullptr);
-
-                    sp = &actor->s();
 
                     // Calculate the angle of the mirror wall
                     auto wal = mirror[cnt].mirrorWall;
