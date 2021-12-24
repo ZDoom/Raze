@@ -259,7 +259,6 @@ STATE s_BloodSprayDrip[] =
 int DoWallBloodDrip(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     //actor->spr.z += (300+RandomRange(2300)) >> 1;
 
@@ -297,13 +296,12 @@ int DoWallBloodDrip(DSWActor* actor)
 
 void SpawnMidSplash(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp np;
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->spr.sector(),
-                      actor->spr.pos.X, actor->spr.pos.Y, GetSpriteZOfMiddle(sp), actor->spr.ang, 0);
+                      actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -328,7 +326,6 @@ void SpawnMidSplash(DSWActor* actor)
 
 void SpawnFloorSplash(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp np;
     USERp nu;
@@ -361,7 +358,6 @@ void SpawnFloorSplash(DSWActor* actor)
 int DoBloodSpray(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -577,7 +573,6 @@ int DoBloodSpray(DSWActor* actor)
 int DoPhosphorus(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -792,7 +787,6 @@ int DoPhosphorus(DSWActor* actor)
 int DoChemBomb(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1029,7 +1023,6 @@ int DoCaltropsStick(DSWActor* actor)
 int DoCaltrops(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1198,7 +1191,6 @@ int DoCaltrops(DSWActor* actor)
 
 int SpawnRadiationCloud(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(), np;
     USERp u = actor->u(), nu;
 
     if (!MoveSkip4)
@@ -1227,7 +1219,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
-    np = &actorNew->s();
+    auto np = &actorNew->s();
     nu = actorNew->u();
 
     SetOwner(GetOwner(actor), actorNew);
@@ -1274,7 +1266,6 @@ int SpawnRadiationCloud(DSWActor* actor)
 int DoRadiationCloud(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     actor->spr.pos.Z -= actor->spr.zvel;
 
@@ -1382,7 +1373,6 @@ int InitSpriteChemBomb(DSWActor* actor)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp sp = &actor->s(), wp;
     int nx, ny, nz;
 
 
@@ -1397,7 +1387,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
-    wp = &actorNew->s();
+    auto wp = &actorNew->s();
     wu = actorNew->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
@@ -1431,7 +1421,6 @@ int InitSpriteChemBomb(DSWActor* actor)
 
 int InitChemBomb(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
@@ -1507,7 +1496,6 @@ int PlayerInitFlashBomb(PLAYERp pp)
     int dist, tx, ty, tmin;
     short damage;
     auto actor = pp->actor;
-    SPRITEp sp = &actor->s(), hp;
     USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
@@ -1520,7 +1508,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hp = &itActor->s();
+            auto hp = &itActor->s();
             hu = itActor->u();
 
             if (itActor == pp->Actor())
@@ -1533,7 +1521,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
@@ -1572,7 +1560,6 @@ int PlayerInitFlashBomb(PLAYERp pp)
 
 int InitFlashBomb(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
@@ -1598,7 +1585,7 @@ int InitFlashBomb(DSWActor* actor)
             if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1638,9 +1625,7 @@ int InitFlashBomb(DSWActor* actor)
 void SpawnFlashBombOnActor(DSWActor* actor)
 {
     if (!actor->hasU()) return;
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
-
 
     // Forget about burnable sprites
     if (TEST(actor->spr.extra, SPRX_BURNABLE))
@@ -1650,7 +1635,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     {
         if (u->flameActor != nullptr)
         {
-            int sizez = (GetSpriteSizeZ(sp) * 5) >> 2;
+            int sizez = (ActorSizeZ(actor) * 5) >> 2;
 
             auto np = &u->flameActor->s();
             auto nu = u->flameActor->u();
@@ -1694,7 +1679,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (u->flameActor != nullptr)
     {
-        nu->Counter = GetRepeatFromHeight(np, GetSpriteSizeZ(sp) >> 1) * 4;
+        nu->Counter = GetRepeatFromHeight(np, ActorSizeZ(actor) >> 1) * 4;
     }
     else
         nu->Counter = 0;                // max flame size
@@ -1794,7 +1779,6 @@ int PlayerInitCaltrops(PLAYERp pp)
 
 int InitCaltrops(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
@@ -1843,7 +1827,6 @@ int InitCaltrops(DSWActor* actor)
 
 int InitPhosphorus(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
@@ -1899,7 +1882,6 @@ int InitPhosphorus(DSWActor* actor)
 
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
@@ -1941,7 +1923,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         nx = actor->spr.pos.X;
         ny = actor->spr.pos.Y;
-        nz = GetSpriteZOfTop(sp)-20;
+        nz = ActorZOfTop(actor)-20;
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->spr.sector(),
@@ -1999,13 +1981,9 @@ int BloodSprayFall(DSWActor* actor)
 // Update the scoreboard for team color that just scored.
 void DoFlagScore(int16_t pal)
 {
-    SPRITEp sp;
-
     SWStatIterator it(STAT_DEFAULT);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
         if (actor->spr.picnum < 1900 || actor->spr.picnum > 1999)
             continue;
 
@@ -2061,7 +2039,6 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
 int DoCarryFlag(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     const int FLAG_DETONATE_STATE = 99;
     DSWActor* fown = u->flagOwnerActor;
@@ -2217,7 +2194,6 @@ int DoCarryFlag(DSWActor* actor)
 int DoCarryFlagNoDet(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     SPRITEp ap = &u->attachActor->s();
     USERp au = u->attachActor->u();
@@ -2280,7 +2256,6 @@ int DoCarryFlagNoDet(DSWActor* actor)
 
 int SetCarryFlag(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
     // stuck
@@ -2302,7 +2277,6 @@ int SetCarryFlag(DSWActor* actor)
 int DoFlag(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     auto hitActor = DoFlagRangeTest(actor, 1000);
 
@@ -2330,16 +2304,17 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp sp = &actor->s(), wp;
+    SPRITEp wp;
     int nx, ny, nz;
-    short id=0,velocity=0;    STATEp p=nullptr;
+    short id=0,velocity=0;    
+    STATEp p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
 
 
     nx = actor->spr.pos.X;
     ny = actor->spr.pos.Y;
-    nz = DIV2(GetSpriteZOfTop(sp)+ GetSpriteZOfBottom(sp));
+    nz = ActorZOfMiddle(actor);
 
     switch (ShellNum)
     {
