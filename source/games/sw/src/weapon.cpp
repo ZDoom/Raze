@@ -9625,13 +9625,11 @@ int DoMicroMini(DSWActor* actor)
 int SpawnExtraMicroMini(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, actor->spr.xvel);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(GetOwner(actor), actorNew);
@@ -9752,12 +9750,9 @@ int DoUziBullet(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            SPRITEp wp;
-
             WeaponMoveHit(actor);
 
             auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-            wp = &actorNew->s();
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
             actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -9769,7 +9764,6 @@ int DoUziBullet(DSWActor* actor)
             if (!TEST(u->Flags, SPR_UNDERWATER))
             {
                 actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, actorNew->spr.sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y, actorNew->spr.pos.Z, 0, 0);
-                wp = &actorNew->s();
                 actorNew->spr.shade = -40;
                 actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
                 actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
@@ -11797,7 +11791,6 @@ int InitLavaFlame(DSWActor* actor)
 int InitLavaThrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w;
@@ -11813,7 +11806,6 @@ int InitLavaThrow(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_LavaBoulder, actor->spr.sector(),
                     nx, ny, nz, nang, NINJA_BOLT_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -11853,7 +11845,6 @@ int InitLavaThrow(DSWActor* actor)
 void InitVulcanBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, nang;
     int zsize;
@@ -11885,7 +11876,6 @@ void InitVulcanBoulder(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, actor->spr.sector(),
                     nx, ny, nz, nang, (vel/2 + vel/4) + RandomRange(vel/4));
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -11894,7 +11884,7 @@ void InitVulcanBoulder(DSWActor* actor)
     actorNew->spr.ang = nang;
     wu->Counter = 0;
 
-    zsize = GetSpriteSizeZ(wp);
+    zsize = ActorSizeZ(actorNew);
 
     wu->Radius = 200;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
@@ -12086,7 +12076,6 @@ void InitSpellNapalm(PLAYERp pp)
 int InitEnemyNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     short dist;
     unsigned i;
@@ -12111,7 +12100,6 @@ int InitEnemyNapalm(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->spr.sector(),
                         actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2), actor->spr.ang, NAPALM_VELOCITY);
 
-        wp = &actorNew->s();
         wu = actorNew->u();
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -12214,7 +12202,6 @@ int InitSpellMirv(PLAYERp pp)
 int InitEnemyMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int dist;
 
@@ -12223,7 +12210,6 @@ int InitEnemyMirv(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2), actor->spr.ang, MIRV_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
@@ -12644,7 +12630,6 @@ int InitFistAttack(PLAYERp pp)
 
 int InitSumoNapalm(DSWActor* actor)
 {
-    SPRITEp wp;
     USERp u = actor->u(), wu;
     short dist;
     short ang;
@@ -12670,7 +12655,6 @@ int InitSumoNapalm(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->spr.sector(),
                 actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor), ang, NAPALM_VELOCITY);
 
-            wp = &actorNew->s();
             wu = actorNew->u();
 
             actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -13112,7 +13096,6 @@ int InitStar(PLAYERp pp)
     auto psp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -13137,7 +13120,6 @@ int InitStar(PLAYERp pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -13174,7 +13156,7 @@ int InitStar(PLAYERp pp)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = zvel;
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     actorNew->spr.backuppos();
@@ -13536,7 +13518,6 @@ int InitLaser(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
     DoPlayerBeginRecoil(pp, RAIL_RECOIL_AMT);
@@ -13557,7 +13538,6 @@ int InitLaser(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -13586,7 +13566,7 @@ int InitLaser(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // the slower the missile travels the less of a zvel it needs
@@ -13637,7 +13617,6 @@ int InitRail(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -13666,7 +13645,6 @@ int InitRail(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -13695,7 +13673,7 @@ int InitRail(PLAYERp pp)
     HelpMissileLateral(actorNew, 700);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
@@ -13726,7 +13704,6 @@ int InitZillaRail(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -13748,7 +13725,6 @@ int InitZillaRail(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, 1200);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -13777,7 +13753,7 @@ int InitZillaRail(DSWActor* actor)
     HelpMissileLateral(actorNew, 700);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
@@ -13809,7 +13785,6 @@ int InitRocket(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -13845,7 +13820,6 @@ int InitRocket(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -13889,7 +13863,7 @@ int InitRocket(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -13925,7 +13899,6 @@ int InitBunnyRocket(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -13959,7 +13932,6 @@ int InitBunnyRocket(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -14000,7 +13972,7 @@ int InitBunnyRocket(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -14037,7 +14009,6 @@ int InitNuke(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
 
@@ -14067,7 +14038,6 @@ int InitNuke(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -14099,7 +14069,7 @@ int InitNuke(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -14136,10 +14106,8 @@ int InitEnemyNuke(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
-
 
     PlaySound(DIGI_RIOTFIRE, actor, v3df_dontpan|v3df_doppler);
 
@@ -14154,7 +14122,6 @@ int InitEnemyNuke(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, 700);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     if (u->ID == ZOMBIE_RUN_R0)
@@ -14185,7 +14152,7 @@ int InitEnemyNuke(DSWActor* actor)
     HelpMissileLateral(actorNew, 500);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -14219,7 +14186,7 @@ int InitMicro(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu,hu;
-    SPRITEp wp,hp;
+    SPRITEp hp;
     int nx, ny, nz, dist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
@@ -14264,7 +14231,6 @@ int InitMicro(PLAYERp pp)
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector,
                         nx, ny, nz, ang, 1200);
 
-        wp = &actorNew->s();
         wu = actorNew->u();
 
         SetOwner(pp->Actor(), actorNew);
@@ -14300,7 +14266,7 @@ int InitMicro(PLAYERp pp)
         HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             SET(wu->Flags, SPR_UNDERWATER);
 
         // cancel smoke trail
@@ -14868,7 +14834,6 @@ int DoTeleRipper(DSWActor* actor)
 int InitEnemyRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -14885,7 +14850,6 @@ int InitEnemyRocket(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->spr.sector(),
                     nx, ny, nz-Z(8), u->targetActor->spr.ang, NINJA_BOLT_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     // Set default palette
@@ -14933,7 +14897,6 @@ int InitEnemyRail(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz, dist, nang;
     short pnum=0;
 
@@ -14972,9 +14935,7 @@ int InitEnemyRail(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, 1200);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
-
 
     if (u->ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -15021,7 +14982,6 @@ int InitEnemyRail(DSWActor* actor)
 int InitZillaRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w, i;
@@ -15056,7 +15016,7 @@ int InitZillaRocket(DSWActor* actor)
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->spr.sector(),
                         nx, ny, nz-Z(8), u->targetActor->spr.ang, NINJA_BOLT_VELOCITY);
-        wp = &actorNew->s();
+
         wu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -15107,7 +15067,6 @@ int InitZillaRocket(DSWActor* actor)
 int InitEnemyStar(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15122,7 +15081,6 @@ int InitEnemyStar(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, actor->spr.sector(),
                                  nx, ny, nz, u->targetActor->spr.ang, NINJA_STAR_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15152,7 +15110,6 @@ int InitEnemyStar(DSWActor* actor)
 int InitEnemyCrossbow(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15167,7 +15124,6 @@ int InitEnemyCrossbow(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->spr.sector(),
                                  nx, ny, nz, u->targetActor->spr.ang, 800);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15204,7 +15160,6 @@ int InitEnemyCrossbow(DSWActor* actor)
 int InitSkelSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15221,7 +15176,6 @@ int InitSkelSpell(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, actor->spr.sector(),
                     nx, ny, nz, u->targetActor->spr.ang, SKEL_ELECTRO_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15252,7 +15206,6 @@ int InitSkelSpell(DSWActor* actor)
 int InitCoolgFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
 
@@ -15272,7 +15225,6 @@ int InitCoolgFire(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, actor->spr.sector(),
                     nx, ny, nz, u->targetActor->spr.ang, COOLG_FIRE_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15343,7 +15295,6 @@ int InitCoolgDrip(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, 0);
 
-    auto wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15363,7 +15314,6 @@ int InitCoolgDrip(DSWActor* actor)
 int GenerateDrips(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w = 0;
@@ -15388,7 +15338,6 @@ int GenerateDrips(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, actor->spr.sector(),
                         nx, ny, nz, actor->spr.ang, 0);
 
-        wp = &actorNew->s();
         wu = actorNew->u();
 
         SetOwner(actor, actorNew);
@@ -15450,7 +15399,6 @@ int InitEelFire(DSWActor* actor)
 void InitFireballTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -15464,7 +15412,6 @@ void InitFireballTrap(DSWActor* actor)
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->spr.sector(), nx, ny, nz,
                     actor->spr.ang, FIREBALL_TRAP_VELOCITY);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -15485,7 +15432,6 @@ void InitFireballTrap(DSWActor* actor)
 void InitBoltTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -15499,7 +15445,6 @@ void InitBoltTrap(DSWActor* actor)
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->spr.sector(), nx, ny, nz,
                     actor->spr.ang, BOLT_TRAP_VELOCITY);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -15521,7 +15466,6 @@ void InitBoltTrap(DSWActor* actor)
 
 void InitSpearTrap(DSWActor* actor)
 {
-    SPRITEp wp;
     USERp wu;
     int nx, ny, nz;
 
@@ -15532,7 +15476,6 @@ void InitSpearTrap(DSWActor* actor)
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->spr.sector(), nx, ny, nz, actor->spr.ang, 750);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
     
     SetOwner(actor, actorNew);
@@ -15572,7 +15515,6 @@ int InitTracerUzi(PLAYERp pp)
         return 0;
 
     USERp u = pp->Actor()->u();
-    SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
@@ -15590,7 +15532,6 @@ int InitTracerUzi(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -15640,7 +15581,7 @@ int InitTracerUzi(PLAYERp pp)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     return 0;
@@ -15649,7 +15590,6 @@ int InitTracerUzi(PLAYERp pp)
 int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
@@ -15664,7 +15604,6 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, TRACER_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -15694,7 +15633,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     return 0;
@@ -15703,7 +15642,6 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
@@ -15718,7 +15656,6 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, TRACER_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -15739,7 +15676,7 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     wu->ychange = ychange;
     wu->zchange = zchange;
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     return 0;
@@ -15750,7 +15687,6 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
     SPRITEp hsp = &hitActor->s();
     USERp hu = hitActor->u();
-    SPRITEp wp;
     short id;
 
     // hit a NPC or PC?
@@ -15769,7 +15705,6 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         if (ID>0) id = ID;
 
         auto actorNew = SpawnActor(STAT_MISSILE, id, s_UziSmoke, &sector[0], hit_x, hit_y, hit_z, actor->spr.ang, 0);
-        wp = &actorNew->s();
         actorNew->spr.shade = -40;
 
         if (hu->PlayerP)
@@ -15889,7 +15824,6 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 int InitUzi(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SPRITEp wp;
     USERp wu;
     short daang;
     HitInfo hit{};
@@ -16063,7 +15997,6 @@ int InitUzi(PLAYERp pp)
 
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang, 0);
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -16075,7 +16008,6 @@ int InitUzi(PLAYERp pp)
     DoHitscanDamage(actorNew, hit.actor());
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang, 0);
-    wp = &actorNew->s();
     wu = actorNew->u();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
@@ -16101,7 +16033,6 @@ int InitUzi(PLAYERp pp)
 int InitTankShell(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     if (!SW_SHAREWARE)
@@ -16111,7 +16042,6 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, TANK_SHELL_VELOCITY);
 
     wu = actorNew->u();
-    wp = &actorNew->s();
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 8;
@@ -16139,7 +16069,7 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
 
@@ -16152,7 +16082,7 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 
     USERp pu = pp->Actor()->u();
     USERp wu,hu;
-    SPRITEp wp,hp;
+    SPRITEp hp;
     int nx, ny, nz, dist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
@@ -16198,7 +16128,6 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
                         nx, ny, nz, ang, 1200);
 
         wu = actorNew->u();
-        wp = &actorNew->s();
 
         SetOwner(pp->Actor(), actorNew);
         actorNew->spr.yrepeat = 24;
@@ -16256,17 +16185,14 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     if (SW_SHAREWARE) return false; // JBF: verify
-
 
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, ROCKET_VELOCITY);
 
     wu = actorNew->u();
-    wp = &actorNew->s();
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 40;
@@ -16292,7 +16218,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     return 0;
@@ -16301,7 +16227,6 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 int InitTurretFireball(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -16310,7 +16235,6 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, FIREBALL_VELOCITY);
 
     wu = actorNew->u();
-    wp = &actorNew->s();
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 40;
@@ -16337,7 +16261,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     return 0;
@@ -16347,7 +16271,6 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -16366,7 +16289,6 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
                     nx, ny, nz, actor->spr.ang, 1200);
 
     wu = actorNew->u();
-    wp = &actorNew->s();
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 52;
@@ -16402,7 +16324,6 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -16421,7 +16342,6 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
                     nx, ny, nz, actor->spr.ang, 300);
 
     wu = actorNew->u();
-    wp = &actorNew->s();
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 52;
@@ -16664,11 +16584,9 @@ int InitSobjGun(PLAYERp pp)
 
 DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    SPRITEp wp;
     USERp wu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
@@ -16685,7 +16603,6 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
@@ -16706,11 +16623,9 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
 int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     USERp u = pp->Actor()->u();
-    SPRITEp wp;
     USERp wu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->Actor(), actorNew);
@@ -16727,7 +16642,6 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->Actor(), actorNew);
@@ -16746,11 +16660,9 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
 
 DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    SPRITEp wp;
     USERp wu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
@@ -16765,7 +16677,6 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
@@ -16783,12 +16694,10 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
 
 DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    SPRITEp wp;
     USERp wu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
@@ -16801,7 +16710,6 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &actorNew->s();
     actorNew->spr.xrepeat = SHOTGUN_SMOKE_REPEAT;
     actorNew->spr.yrepeat = SHOTGUN_SMOKE_REPEAT;
     SetOwner(pp->Actor(), actorNew);
@@ -16984,7 +16892,6 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 int InitEnemyUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp wp;
     USERp wu;
     short daang;
     HitInfo hit{};
@@ -17088,7 +16995,6 @@ int InitEnemyUzi(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -17104,7 +17010,6 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew->spr.clipdist = 32L >> 2;
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang, 0);
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -17117,7 +17022,6 @@ int InitEnemyUzi(DSWActor* actor)
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang, 0);
     wu = actorNew->u();
-    wp = &actorNew->s();
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
@@ -17144,7 +17048,6 @@ int InitGrenade(PLAYERp pp)
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int zvel;
     bool auto_aim = false;
@@ -17171,7 +17074,6 @@ int InitGrenade(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     // don't throw it as far if crawling
@@ -17198,7 +17100,7 @@ int InitGrenade(PLAYERp pp)
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
@@ -17244,7 +17146,6 @@ int InitSpriteGrenade(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
 
@@ -17259,7 +17160,6 @@ int InitSpriteGrenade(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, GRENADE_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     wu->RotNum = 5;
@@ -17307,7 +17207,6 @@ int InitMine(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     int dot;
 
@@ -17328,7 +17227,6 @@ int InitMine(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(pp->Actor(), actorNew);
@@ -17346,7 +17244,7 @@ int InitMine(PLAYERp pp)
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     wu->spal = actorNew->spr.pal = u->spal; // Set sticky color
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 800);
@@ -17372,7 +17270,6 @@ int InitEnemyMine(DSWActor* actor)
 {
     USER* u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
 
@@ -17387,7 +17284,6 @@ int InitEnemyMine(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, MINE_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SetOwner(actor, actorNew);
@@ -17405,7 +17301,7 @@ int InitEnemyMine(DSWActor* actor)
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     wu->spal = actorNew->spr.pal = u->spal; // Set sticky color
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 300);
@@ -17448,7 +17344,6 @@ int InitFireball(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    SPRITEp wp;
     int nx = 0, ny = 0, nz;
     USERp wu;
     int zvel;
@@ -17469,7 +17364,6 @@ int InitFireball(PLAYERp pp)
     nz = pp->pos.Z + pp->bob_z + Z(15);
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -17494,7 +17388,7 @@ int InitFireball(PLAYERp pp)
     HelpMissileLateral(actorNew, 2100);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16)))
@@ -17523,7 +17417,6 @@ int InitEnemyFireball(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp fp = nullptr;
-    SPRITEp wp;
     int nz, dist;
     int size_z;
     USERp wu;
@@ -17548,12 +17441,12 @@ int InitEnemyFireball(DSWActor* actor)
     xchange = MOVEx(GORO_FIREBALL_VELOCITY, actor->spr.ang);
     ychange = MOVEy(GORO_FIREBALL_VELOCITY, actor->spr.ang);
 
+    int lastvel = 0;
     for (i = 0; i < 2; i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, GORO_FIREBALL, s_Fireball, actor->spr.sector(),
                         actor->spr.pos.X, actor->spr.pos.Y, nz, actor->spr.ang, GORO_FIREBALL_VELOCITY);
 
-        wp = &actorNew->s();
         wu = actorNew->u();
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -17577,7 +17470,7 @@ int InitEnemyFireball(DSWActor* actor)
         if (i == 0)
         {
             // back up first one
-            fp = wp;
+            lastvel = actorNew->spr.zvel;
 
             // find the distance to the target (player)
             dist = ksqrt(SQ(actorNew->spr.pos.X - tsp->pos.X) + SQ(actorNew->spr.pos.Y - tsp->pos.Y));
@@ -17594,7 +17487,7 @@ int InitEnemyFireball(DSWActor* actor)
         else
         {
             // use the first calculations so the balls stay together
-            wu->zchange = actorNew->spr.zvel = fp->zvel;
+            wu->zchange = actorNew->spr.zvel = lastvel;
         }
     }
 
@@ -17907,7 +17800,6 @@ bool SpriteWarpToSurface(DSWActor* actor)
 int SpawnSplash(DSWActor* actor)
 {
     USERp u = actor->u(), wu;
-    SPRITEp wp;
 
     auto sectu = actor->spr.sector();
     SECTORp sectp = actor->spr.sector();
@@ -17927,7 +17819,6 @@ int SpawnSplash(DSWActor* actor)
     MissileWaterAdjust(actor);
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, u->loz, actor->spr.ang, 0);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
@@ -17943,7 +17834,6 @@ int SpawnSplash(DSWActor* actor)
 int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
 {
     USERp wu;
-    SPRITEp wp;
 
     if (Prediction)
         return 0;
@@ -17955,7 +17845,6 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectp, hit_x, hit_y, hit_z, 0, 0);
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     if (sectp->hasU() && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)

@@ -1281,7 +1281,6 @@ int PlayerInitChemBomb(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     short oclipdist;
 
@@ -1300,7 +1299,6 @@ int PlayerInitChemBomb(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     // don't throw it as far if crawling
@@ -1324,23 +1322,15 @@ int PlayerInitChemBomb(PLAYERp pp)
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
-
-    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d", pp->horizon.horiz.asbuild(), pp->horizon.horizoff.asbuild(),
-    // pp->horizon.horizoff.asbuild() + pp->horizon.horiz.asbuild());
-    // MONO_PRINT(ds);
 
     auto psp = &pp->Actor()->s();
     oclipdist = psp->clipdist;
     psp->clipdist = 0;
     actorNew->spr.clipdist = 0;
-
-//    actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
-//    HelpMissileLateral(actorNew, 800);
-//    actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
@@ -1379,7 +1369,6 @@ int InitSpriteChemBomb(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
-    auto wp = &actorNew->s();
     wu = actorNew->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
@@ -1415,7 +1404,6 @@ int InitChemBomb(DSWActor* actor)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
 
 
@@ -1431,7 +1419,6 @@ int InitChemBomb(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
@@ -1448,7 +1435,7 @@ int InitChemBomb(DSWActor* actor)
     // invis.
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    if (SpriteInUnderwaterArea(wp))
+    if (SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
@@ -1814,7 +1801,6 @@ int InitPhosphorus(DSWActor* actor)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     short daang;
 
@@ -1832,7 +1818,6 @@ int InitPhosphorus(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->spr.sector(),
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
@@ -1869,7 +1854,6 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     short i, cnt, ang, vel, rnd;
 
@@ -1914,7 +1898,6 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->spr.sector(),
                         nx, ny, nz, ang, vel*2);
 
-        wp = &actorNew->s();
         wu = actorNew->u();
 
         SET(wu->Flags, SPR_XFLIP_TOGGLE);
@@ -2287,7 +2270,6 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 {
     USERp u = actor->u();
     USERp wu;
-    SPRITEp wp;
     int nx, ny, nz;
     short id=0,velocity=0;    
     STATEp p=nullptr;
@@ -2316,7 +2298,6 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->spr.sector(), nx, ny, nz, actor->spr.ang, 64);
 
-    wp = &actorNew->s();
     wu = actorNew->u();
 
     actorNew->spr.zvel = -(velocity);
@@ -2382,8 +2363,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     wu->zchange = actorNew->spr.zvel;
-    //if (TEST(u->PlayerP->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
-    //    SET(wu->Flags, SPR_UNDERWATER);
+    
     wu->jump_speed = 200;
     wu->jump_speed += RandomRange(400);
     wu->jump_speed = -wu->jump_speed;
