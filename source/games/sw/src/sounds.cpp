@@ -202,7 +202,7 @@ FRolloffInfo GetRolloff(int basedist)
 
 struct AmbientSound
 {
-    SPRITEp sp;
+    DSWActor* spot;
     int ambIndex;
     int vocIndex;
     int ChanFlags;
@@ -264,7 +264,7 @@ void InitAmbient(int num, DSWActor* actor)
     }
 
     auto amb = new AmbientSound;
-    amb->sp = &actor->s();
+    amb->spot = actor;
     amb->ambIndex = num;
     amb->vocIndex = vnum;
     amb->ChanFlags = CHANF_TRANSIENT;
@@ -376,13 +376,13 @@ static void UpdateAmbients()
 
     for (auto& amb : ambients)
     {
-        auto sp = amb->sp;
-        auto sdist = SoundDist(sp->pos.X, sp->pos.Y, sp->pos.Z, voc[amb->vocIndex].voc_distance);
+        auto spot = amb->spot;
+        auto sdist = SoundDist(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, voc[amb->vocIndex].voc_distance);
 
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYERp pp = Player + screenpeek;
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+            if (!FAFcansee(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, spot->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
             {
                 sdist = 255;
             }
@@ -553,14 +553,14 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Ambient)
         {
-            auto sp = ((AmbientSound*)source)->sp;
-            vpos = &sp->pos;
+            auto spot = ((AmbientSound*)source)->spot;
+            vpos = &spot->spr.pos;
             FVector3 npos = GetSoundPos(vpos);
 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, spot->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
