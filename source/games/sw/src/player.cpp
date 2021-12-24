@@ -1152,7 +1152,6 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
         SWStatIterator it(*shp);
         while (auto itActor = it.Next())
         {
-            ep = &itActor->s();
             eu = itActor->u();
 
             // don't pick yourself
@@ -1170,19 +1169,19 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Only look at closest ones
-            //if ((dist = Distance(actor->spr.x, actor->spr.y, ep->x, ep->y)) > PICK_DIST)
-            if ((dist = FindDistance3D(actor->spr.pos.X - ep->pos.X, actor->spr.pos.Y - ep->pos.Y, actor->spr.pos.Z - ep->pos.Z)) > PICK_DIST)
+            //if ((dist = Distance(actor->spr.x, actor->spr.y, itActor->spr.x, itActor->spr.y)) > PICK_DIST)
+            if ((dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
             {
                 // don't set off mine
-                if (!TEST(ep->extra, SPRX_PLAYER_OR_ENEMY))
+                if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                     continue;
             }
 
             // Get the angle to the player
-            angle2 = NORM_ANGLE(getangle(ep->pos.X - actor->spr.pos.X, ep->pos.Y - actor->spr.pos.Y));
+            angle2 = NORM_ANGLE(getangle(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y));
 
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
@@ -1198,14 +1197,14 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             else
                 zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
-            ezh = GetSpriteZOfTop(ep) + (GetSpriteSizeZ(ep) >> 2);
-            ezhm = GetSpriteZOfTop(ep) + (GetSpriteSizeZ(ep) >> 1);
-            ezhl = GetSpriteZOfBottom(ep) - (GetSpriteSizeZ(ep) >> 2);
+            ezh = ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 2);
+            ezhm = ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 1);
+            ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezh, ep->sector()) &&
-                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezhm, ep->sector()) &&
-                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), ep->pos.X, ep->pos.Y, ezhl, ep->sector())
+            if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezh, itActor->spr.sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhm, itActor->spr.sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhl, itActor->spr.sector())
                 )
                 continue;
 
@@ -1316,16 +1315,14 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
                          nx, ny, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    ep = &effectActor->s();
+    SetActorZ(effectActor, &effectActor->spr.pos);
 
-    SetActorZ(effectActor, &ep->pos);
+    effectActor->spr.shade = -40;
+    effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
+    SET(effectActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    ep->shade = -40;
-    ep->xrepeat = ep->yrepeat = 42;
-    SET(ep->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(ep->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    SET(ep->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(effectActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
 void DoSpawnTeleporterEffectPlace(DSWActor* actor)
@@ -1337,16 +1334,14 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
                          actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    ep = &effectActor->s();
+    SetActorZ(effectActor, &effectActor->spr.pos);
 
-    SetActorZ(effectActor, &ep->pos);
+    effectActor->spr.shade = -40;
+    effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
+    SET(effectActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    ep->shade = -40;
-    ep->xrepeat = ep->yrepeat = 42;
-    SET(ep->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(ep->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    SET(ep->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(effectActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
 void DoPlayerWarpTeleporter(PLAYERp pp)
@@ -1371,7 +1366,6 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         return;
     }
 
-    sp_warp = &act_warp->s();
     switch (SP_TAG3(act_warp))
     {
     case 1:
@@ -1379,7 +1373,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         UpdatePlayerSprite(pp);
         break;
     default:
-        DoPlayerTeleportToSprite(pp, &sp_warp->pos, sp_warp->ang);
+        DoPlayerTeleportToSprite(pp, &act_warp->spr.pos, act_warp->spr.ang);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
@@ -1470,15 +1464,16 @@ void DoPlayerCrawlHeight(PLAYERp pp)
 
 void UpdatePlayerSpriteAngle(PLAYERp pp)
 {
-    auto psp = &pp->Actor()->s();
-    psp->backupang();
-    psp->ang = pp->angle.ang.asbuild();
+    DSWActor* plActor = pp->actor;
+    plActor->spr.backupang();
+    plActor->spr.ang = pp->angle.ang.asbuild();
 
-    if (!Prediction && pp->PlayerUnderActor != nullptr)
+    plActor = pp->PlayerUnderActor;
+
+    if (!Prediction && plActor)
     {
-        auto usp = &pp->PlayerUnderActor->s();
-        usp->backupang();
-        usp->ang = pp->angle.ang.asbuild();
+        plActor->spr.backupang();
+        plActor->spr.ang = pp->angle.ang.asbuild();
     }
 }
 
@@ -1691,9 +1686,8 @@ void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob
 
 void UpdatePlayerUnderSprite(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    SPRITEp over_sp = &actor->s();
-    USERp over_u = actor->u();
+    DSWActor* act_over = pp->actor;
+    USERp over_u = act_over->u();
 
     USERp u;
 
@@ -1706,11 +1700,11 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     ASSERT(over_u);
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = actor->spr.sector()->floorz; // - Z(pp->WadeDepth);
+    water_level_z = act_over->spr.sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
-    above_water = (ActorZOfBottom(actor) <= water_level_z);
-    in_dive_area = SpriteInDiveArea(actor);
+    above_water = (ActorZOfBottom(act_over) <= water_level_z);
+    in_dive_area = SpriteInDiveArea(act_over);
 
     // if not in dive area OR (in dive area AND above the water) - Kill it
     if (!in_dive_area || (in_dive_area && above_water))
@@ -1733,26 +1727,26 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
         }
     }
 
-    actor = pp->PlayerUnderActor;
-    u = actor->u();
+    DSWActor* act_under = pp->PlayerUnderActor;
+    u = act_under->u();
 
-    actor->spr.pos = actor->spr.pos;
-    ChangeActorSect(pp->PlayerUnderActor, actor->spr.sector());
+    act_under->spr.pos = act_under->spr.pos;
+    ChangeActorSect(pp->PlayerUnderActor, act_under->spr.sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level
-    zdiff = GetSpriteZOfBottom(over_sp) - water_level_z;
+    zdiff = ActorZOfBottom(act_over) - water_level_z;
 
     // add diff to ceiling
-    actor->spr.pos.Z = actor->spr.sector()->ceilingz + zdiff;
+    act_under->spr.pos.Z = act_under->spr.sector()->ceilingz + zdiff;
 
     u->State = over_u->State;
     u->Rot = over_u->Rot;
     u->StateStart = over_u->StateStart;
 
-    actor->spr.picnum = actor->spr.picnum;
+    act_under->spr.picnum = act_under->spr.picnum;
 }
 
 
@@ -1889,11 +1883,11 @@ void DoPlayerZrange(PLAYERp pp)
         pp->lowActor = floorColl.actor();
 
         // prevent player from standing on Zombies
-        auto fsp = &floorColl.actor()->s();
-        if (fsp->statnum == STAT_ENEMY && floorColl.actor()->user.ID == ZOMBIE_RUN_R0)
+        auto fsp = floorColl.actor();
+        if (fsp->spr.statnum == STAT_ENEMY && floorColl.actor()->user.ID == ZOMBIE_RUN_R0)
         {
-            pp->lo_sectp = fsp->sector();
-            pp->loz = fsp->pos.Z;
+            pp->lo_sectp = fsp->spr.sector();
+            pp->loz = fsp->spr.pos.Z;
             pp->lowActor = nullptr;
         }
     }
@@ -2537,7 +2531,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     int floor_dist;
     DSWActor* actor = pp->sop->sp_child;
     if (!actor) return;
-    auto psp = &pp->Actor()->s();
+    DSWActor* plActor = pp->actor;
     USERp u = actor->u();
     int x[4], y[4], ox[4], oy[4];
     int wallcount;
@@ -2637,13 +2631,13 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         int vel;
         int ret;
 
-        auto save_cstat = psp->cstat;
-        RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
+        auto save_cstat = plActor->spr.cstat;
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK);
         DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
 
         ret = RectClipMove(pp, x, y);
         DriveCrush(pp, x, y);
-        psp->cstat = save_cstat;
+        plActor->spr.cstat = save_cstat;
 
         if (!ret)
         {
@@ -2692,8 +2686,8 @@ void DoPlayerMoveVehicle(PLAYERp pp)
             DoPlayerTurnVehicle(pp, pp->input.avel, z, floor_dist);
         }
 
-        auto save_cstat = psp->cstat;
-        RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
+        auto save_cstat = plActor->spr.cstat;
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->pos.X, pp->pos.Y, z };
@@ -2706,7 +2700,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         {
             u->coll = MultiClipMove(pp, z, floor_dist);
         }
-        psp->cstat = save_cstat;
+        plActor->spr.cstat = save_cstat;
 
         if (u->coll.type != kHitNone)
         {
@@ -2980,8 +2974,7 @@ void StackedWaterSplash(PLAYERp pp)
     {
         auto sect = pp->cursector;
 
-        auto psp = &pp->Actor()->s();
-        updatesectorz(pp->pos.X, pp->pos.Y, GetSpriteZOfBottom(psp), &sect);
+        updatesectorz(pp->pos.X, pp->pos.Y, ActorZOfBottom(pp->actor), &sect);
 
         if (SectorIsUnderwaterArea(sect))
         {
@@ -3370,12 +3363,11 @@ void DoPlayerClimb(PLAYERp pp)
         {
             auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
             if (!lActor) return;
-            auto lsp = &lActor->s();
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lsp->ang);
-            ny = MOVEy(100, lsp->ang);
+            nx = MOVEx(100, lActor->spr.ang);
+            ny = MOVEy(100, lActor->spr.ang);
 
             // set ladder sector
             pp->LadderSector = near.hitWall->twoSided()? near.hitWall->nextSector() : near.hitWall->sectorp();
@@ -3383,10 +3375,10 @@ void DoPlayerClimb(PLAYERp pp)
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
 
-            pp->lx = lsp->pos.X + nx * 5;
-            pp->ly = lsp->pos.Y + ny * 5;
+            pp->lx = lActor->spr.pos.X + nx * 5;
+            pp->ly = lActor->spr.pos.Y + ny * 5;
 
-            pp->angle.settarget(lsp->ang + 1024);
+            pp->angle.settarget(lActor->spr.ang + 1024);
         }
     }
 }
@@ -3677,9 +3669,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     SWStatIterator it(stat);
     while (auto itActor = it.Next())
     {
-        auto fp = &itActor->s();
-
-        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, fp->pos.X, fp->pos.Y);
+        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
 
         if (dist < near_dist)
         {
@@ -3695,7 +3685,6 @@ bool PlayerOnLadder(PLAYERp pp)
 {
     int nx, ny;
     unsigned i;
-    SPRITEp lsp;
     HitInfo hit, near;
     int dir, dist;
 
@@ -3758,21 +3747,20 @@ bool PlayerOnLadder(PLAYERp pp)
     if (!lActor)
         return false;
 
-    lsp = &lActor->s();
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
-    nx = MOVEx(100, lsp->ang);
-    ny = MOVEy(100, lsp->ang);
+    nx = MOVEx(100, lActor->spr.ang);
+    ny = MOVEy(100, lActor->spr.ang);
 
     pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-    pp->lx = lsp->pos.X + nx * 5;
-    pp->ly = lsp->pos.Y + ny * 5;
+    pp->lx = lActor->spr.pos.X + nx * 5;
+    pp->ly = lActor->spr.pos.Y + ny * 5;
 
-    pp->angle.settarget(lsp->ang + 1024);
+    pp->angle.settarget(lActor->spr.ang + 1024);
 
     return true;
 }
@@ -3847,7 +3835,7 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
         {
             auto sect = pp->cursector;
 
-            updatesectorz(pp->pos.X, pp->pos.Y, GetSpriteZOfBottom(&pp->Actor()->s()), &sect);
+            updatesectorz(pp->pos.X, pp->pos.Y, ActorZOfBottom(pp->actor), &sect);
 
             if (SectorIsUnderwaterArea(sect))
             {
