@@ -112,7 +112,6 @@ STATE s_ToiletGirlUzi[16] =
 
 int  SetupToiletGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -151,11 +150,10 @@ int  SetupToiletGirl(DSWActor* actor)
 int DoToiletGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner != 1)
     {
@@ -206,11 +204,10 @@ int DoToiletGirl(DSWActor* actor)
 int NullToiletGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -348,7 +345,6 @@ STATE s_WashGirlUzi[16] =
 
 int SetupWashGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -386,11 +382,10 @@ int SetupWashGirl(DSWActor* actor)
 int DoWashGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
@@ -450,11 +445,10 @@ int DoWashGirl(DSWActor* actor)
 int NullWashGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -555,7 +549,6 @@ STATE s_TrashCanPain[7] =
 
 int SetupTrashCan(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -593,7 +586,6 @@ int SetupTrashCan(DSWActor* actor)
 int DoTrashCan(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // stay on floor unless doing certain things
     if (TEST(u->Flags,SPR_SLIDING))
@@ -660,7 +652,6 @@ STATE s_PachinkoLightOperate[] =
 
 int SetupPachinkoLight(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -698,7 +689,6 @@ int SetupPachinkoLight(DSWActor* actor)
 int PachinkoLightOperate(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -760,7 +750,6 @@ STATE s_Pachinko1Operate[] =
 
 int SetupPachinko1(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -796,13 +785,11 @@ int SetupPachinko1(DSWActor* actor)
 int PachinkoCheckWin(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     u->WaitTics = 0;  // Can operate it again now
 
-    //Printf("bool1 = %d",TEST_BOOL1(sp));
     // You already won, no more from this machine!
-    if (TEST_BOOL1(sp)) return 0;
+    if (TEST_BOOL1(actor)) return 0;
 
     // Well? Did I win????!
     /*short rnd = */RandomRange(1000);
@@ -822,7 +809,7 @@ int PachinkoCheckWin(DSWActor* actor)
         PlaySound(DIGI_PALARM, actor, v3df_none);
 
         // Can't win any more now!
-        SET_BOOL1(sp);
+        SET_BOOL1(actor);
 
         // Turn on the pachinko lights
         SWStatIterator it(STAT_ENEMY);
@@ -833,7 +820,7 @@ int PachinkoCheckWin(DSWActor* actor)
 
             if (tsp->lotag == TAG_PACHINKOLIGHT)
             {
-                if (tsp->hitag == SP_TAG5(sp))
+                if (tsp->hitag == SP_TAG5(actor))
                 {
                     tsp->shade = -90; // Full brightness
                     tu->WaitTics = SEC(3); // Flash
@@ -861,7 +848,6 @@ int PachinkoCheckWin(DSWActor* actor)
 int Pachinko1Operate(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     short rnd;
 
     rnd = RandomRange(1000);
@@ -930,7 +916,6 @@ STATE s_Pachinko2Operate[] =
 
 int SetupPachinko2(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1013,7 +998,6 @@ STATE s_Pachinko3Operate[] =
 
 int SetupPachinko3(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1097,7 +1081,6 @@ STATE s_Pachinko4Operate[] =
 
 int SetupPachinko4(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1209,7 +1192,6 @@ STATE s_CarGirlUzi[16] =
 
 int SetupCarGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1249,11 +1231,10 @@ int SetupCarGirl(DSWActor* actor)
 int DoCarGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1295,11 +1276,10 @@ int DoCarGirl(DSWActor* actor)
 int NullCarGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1424,7 +1404,6 @@ STATE s_MechanicGirlDrill[2] =
 
 int SetupMechanicGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1463,11 +1442,10 @@ int SetupMechanicGirl(DSWActor* actor)
 int DoMechanicGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1509,11 +1487,10 @@ int DoMechanicGirl(DSWActor* actor)
 int NullMechanicGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1639,7 +1616,6 @@ short alreadythrew;
 
 int SetupSailorGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1679,11 +1655,10 @@ int SetupSailorGirl(DSWActor* actor)
 int DoSailorGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1729,12 +1704,11 @@ int DoSailorGirl(DSWActor* actor)
 int NullSailorGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
     static short alreadythrew = 0;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1847,7 +1821,6 @@ STATE s_PruneGirlPain[2] =
 
 int SetupPruneGirl(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1886,11 +1859,10 @@ int SetupPruneGirl(DSWActor* actor)
 int DoPruneGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,ActorMid(u->targetActor),u->targetActor->spr.sector());
 
     if (u->FlagOwner == 1)
     {
@@ -1948,11 +1920,10 @@ int DoPruneGirl(DSWActor* actor)
 int NullPruneGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,GetSpriteZOfMiddle(sp),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
+    ICanSee = FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),u->targetActor->spr.pos.X,u->targetActor->spr.pos.Y,u->targetActor->spr.pos.Z,u->targetActor->spr.sector());
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
