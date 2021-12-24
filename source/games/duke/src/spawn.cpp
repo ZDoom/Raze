@@ -488,26 +488,24 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	apt.poleactor = nullptr;
 
 	DukeStatIterator it(STAT_DEFAULT);
-	while (auto act = it.Next())
+	while (auto actk = it.Next())
 	{
-		if (act->spr.picnum == CRANEPOLE && act->spr.hitag == (act->spr.hitag))
+		if (actk->spr.picnum == CRANEPOLE && act->spr.hitag == actk->spr.hitag)
 		{
-			apt.poleactor = act;
+			apt.poleactor = actk;
 
-			act->temp_sect = act->spr.sector();
+			act->temp_sect = actk->spr.sector();
 
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 128;
+			actk->spr.xrepeat = 48;
+			actk->spr.yrepeat = 128;
 
-			apt.polex = act->spr.pos.X;
-			apt.poley = act->spr.pos.Y;
+			apt.polex = actk->spr.pos.X;
+			apt.poley = actk->spr.pos.Y;
 
-			act->spr.pos.X = act->spr.pos.X;
-			act->spr.pos.Y = act->spr.pos.Y;
-			act->spr.pos.Z = act->spr.pos.Z;
-			act->spr.shade = act->spr.shade;
+			actk->spr.pos = act->spr.pos;
+			actk->spr.shade = act->spr.shade;
 
-			SetActor(act, act->spr.pos);
+			SetActor(actk, actk->spr.pos);
 			break;
 		}
 	}
