@@ -2237,6 +2237,17 @@ inline int Facing(DSWActor* actor1, DSWActor* actor2)
     return (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < 512);
 }
 
+inline bool SpriteInDiveArea(DSWActor* a)
+{
+    return (TEST(a->spr.sector()->extra, SECTFX_DIVE_AREA) ? true : false);
+}
+
+inline bool SpriteInUnderwaterArea(DSWActor* a)
+{
+    return (TEST(a->spr.sector()->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+}
+
+
 // just determine if the player is moving
 inline bool PLAYER_MOVING(PLAYERp pp)
 {

@@ -11795,7 +11795,6 @@ void InitSpellRing(PLAYERp pp)
 {
     auto psp = &pp->Actor()->s();
     short ang, ang_diff, ang_start, missiles;
-    SPRITEp sp;
     USERp u;
     short max_missiles = 16;
     short ammo;
@@ -11847,7 +11846,7 @@ void InitSpellRing(PLAYERp pp)
 
         actorNew->spr.backuppos();
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(&actorNew->spr))
+        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             SET(u->Flags, SPR_UNDERWATER);
     }
 }
@@ -13550,8 +13549,9 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
 
 int InitShotgun(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     short daang,ndaang, i;
     HitInfo hit{};
     int daz, ndaz;
@@ -13721,8 +13721,9 @@ int InitShotgun(PLAYERp pp)
 
 int InitLaser(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -13822,8 +13823,9 @@ int InitLaser(PLAYERp pp)
 
 int InitRail(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -13995,8 +13997,9 @@ int InitZillaRail(DSWActor* actor)
 
 int InitRocket(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14111,8 +14114,9 @@ int InitRocket(PLAYERp pp)
 
 int InitBunnyRocket(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14223,8 +14227,9 @@ int InitBunnyRocket(PLAYERp pp)
 
 int InitNuke(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14406,8 +14411,9 @@ int InitEnemyNuke(DSWActor* actor)
 
 int InitMicro(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
@@ -17675,8 +17681,9 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 
 int InitFireball(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     SPRITEp wp;
     int nx = 0, ny = 0, nz;
     USERp wu;
@@ -18589,38 +18596,36 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     HoleQueueHead = (HoleQueueHead+1) & (MAX_HOLE_QUEUE-1);
 
     sp = &spawnedActor->s();
-    sp->xrepeat = sp->yrepeat = 16;
-    sp->cstat = 0;
-    sp->pal = 0;
-    sp->shade = 0;
-    sp->extra = 0;
-    sp->clipdist = 0;
-    sp->xoffset = sp->yoffset = 0;
-    sp->pos.X = hit_x;
-    sp->pos.Y = hit_y;
-    sp->pos.Z = hit_z;
-    sp->picnum = 2151;
+    spawnedActor->spr.xrepeat = spawnedActor->spr.yrepeat = 16;
+    spawnedActor->spr.cstat = 0;
+    spawnedActor->spr.pal = 0;
+    spawnedActor->spr.shade = 0;
+    spawnedActor->spr.extra = 0;
+    spawnedActor->spr.clipdist = 0;
+    spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
+    spawnedActor->spr.pos = { hit_x, hit_y, hit_z };
+    spawnedActor->spr.picnum = 2151;
     ChangeActorSect(spawnedActor, hit_sect);
 
-    ASSERT(sp->statnum != MAXSTATUS);
+    ASSERT(spawnedActor->spr.statnum != MAXSTATUS);
 
-    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
-    sp->ang = wall_ang;
+    spawnedActor->spr.ang = wall_ang;
 
     // move it back some
-    nx = bcos(sp->ang, 4);
-    ny = bsin(sp->ang, 4);
+    nx = bcos(spawnedActor->spr.ang, 4);
+    ny = bsin(spawnedActor->spr.ang, 4);
 
-    auto sect = sp->sector();
+    auto sect = spawnedActor->spr.sector();
 
     Collision coll;
-    clipmove(sp->pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
-    if (sp->sector() != sect)
+    if (spawnedActor->spr.sector() != sect)
         ChangeActorSect(spawnedActor, sect);
 
 }
@@ -18665,29 +18670,27 @@ int QueueFloorBlood(DSWActor* actor)
 
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
-    sp = &spawnedActor->s();
     // Stupid hack to fix the blood under the skull to not show through
     // x,y repeat of floor blood MUST be smaller than the sprite above it or clipping probs.
     if (u->ID == GORE_Head)
-        sp->hitag = 9995;
+        spawnedActor->spr.hitag = 9995;
     else
-        sp->hitag = 0;
-    sp->xrepeat = sp->yrepeat = 8;
-    sp->cstat = 0;
-    sp->pal = 0;
-    sp->shade = 0;
-    sp->extra = 0;
-    sp->clipdist = 0;
-    sp->xoffset = sp->yoffset = 0;
-    sp->pos.X = hsp->pos.X;
-    sp->pos.Y = hsp->pos.Y;
-    sp->pos.Z = hsp->pos.Z + Z(1);
-    sp->ang = RANDOM_P2(2048); // Just make it any old angle
-    sp->shade -= 5;  // Brighten it up just a bit
+        spawnedActor->spr.hitag = 0;
+    spawnedActor->spr.xrepeat = spawnedActor->spr.yrepeat = 8;
+    spawnedActor->spr.cstat = 0;
+    spawnedActor->spr.pal = 0;
+    spawnedActor->spr.shade = 0;
+    spawnedActor->spr.extra = 0;
+    spawnedActor->spr.clipdist = 0;
+    spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
+    spawnedActor->spr.pos = hsp->pos;
+    spawnedActor->spr.pos.Z += Z(1);
+    spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
+    spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
 
-    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(u->Flags, SPR_SHADOW);
 
     return 0;
@@ -18718,7 +18721,6 @@ int QueueFootPrint(DSWActor* actor)
 {
     SPRITEp hsp = &actor->s();
     DSWActor* spawnedActor;
-    SPRITEp sp;
     USERp u = actor->u();
     USERp nu;
     short rnd_num=0;
@@ -18776,29 +18778,26 @@ int QueueFootPrint(DSWActor* actor)
         u->PlayerP->NumFootPrints--;
 
 
-    sp = &spawnedActor->s();
     nu = spawnedActor->u();
-    sp->hitag = 0;
-    sp->xrepeat = 48;
-    sp->yrepeat = 54;
-    sp->cstat = 0;
-    sp->pal = 0;
-    sp->shade = 0;
-    sp->extra = 0;
-    sp->clipdist = 0;
-    sp->xoffset = sp->yoffset = 0;
-    sp->pos.X = hsp->pos.X;
-    sp->pos.Y = hsp->pos.Y;
-    sp->pos.Z = hsp->pos.Z;
-    sp->ang = hsp->ang;
+    spawnedActor->spr.hitag = 0;
+    spawnedActor->spr.xrepeat = 48;
+    spawnedActor->spr.yrepeat = 54;
+    spawnedActor->spr.cstat = 0;
+    spawnedActor->spr.pal = 0;
+    spawnedActor->spr.shade = 0;
+    spawnedActor->spr.extra = 0;
+    spawnedActor->spr.clipdist = 0;
+    spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
+    spawnedActor->spr.pos = hsp->pos;
+    spawnedActor->spr.ang = hsp->ang;
     RESET(nu->Flags, SPR_SHADOW);
     switch (FootMode)
     {
     case BLOOD_FOOT:
-        nu->spal = sp->pal = PALETTE_PLAYER3; // Turn blue to blood red
+        nu->spal = spawnedActor->spr.pal = PALETTE_PLAYER3; // Turn blue to blood red
         break;
     default:
-        nu->spal = sp->pal = PALETTE_PLAYER1; // Gray water
+        nu->spal = spawnedActor->spr.pal = PALETTE_PLAYER1; // Gray water
         break;
     }
 
@@ -18806,10 +18805,10 @@ int QueueFootPrint(DSWActor* actor)
     // Alternate the feet
     left_foot = !left_foot;
     if (left_foot)
-        SET(sp->cstat, CSTAT_SPRITE_XFLIP);
-    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        SET(spawnedActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return 0;
 }
@@ -18919,39 +18918,36 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 
     WallBloodQueueHead = (WallBloodQueueHead+1) & (MAX_WALLBLOOD_QUEUE-1);
 
-    sp = &spawnedActor->s();
-    sp->xrepeat = 30;
-    sp->yrepeat = 40;   // yrepeat will grow towards 64, it's default size
-    sp->cstat = 0;
-    sp->pal = 0;
-    sp->shade = 0;
-    sp->extra = 0;
-    sp->clipdist = 0;
-    sp->xoffset = sp->yoffset = 0;
-    sp->pos.X = hit.hitpos.X;
-    sp->pos.Y = hit.hitpos.Y;
-    sp->pos.Z = hit.hitpos.Z;
-    sp->shade -= 5;  // Brighten it up just a bit
+    spawnedActor->spr.xrepeat = 30;
+    spawnedActor->spr.yrepeat = 40;   // yrepeat will grow towards 64, it's default size
+    spawnedActor->spr.cstat = 0;
+    spawnedActor->spr.pal = 0;
+    spawnedActor->spr.shade = 0;
+    spawnedActor->spr.extra = 0;
+    spawnedActor->spr.clipdist = 0;
+    spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
+    spawnedActor->spr.pos = hit.hitpos;
+    spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
     spawnedActor->tempwall = hit.hitWall; // pass hitinfo.wall
 
-    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wall_ang = NORM_ANGLE(getangle(hit.hitWall->delta()) + 512);
-    sp->ang = wall_ang;
+    spawnedActor->spr.ang = wall_ang;
 
     // move it back some
-    nx = bcos(sp->ang, 4);
-    ny = bsin(sp->ang, 4);
+    nx = bcos(spawnedActor->spr.ang, 4);
+    ny = bsin(spawnedActor->spr.ang, 4);
 
-    auto sect = sp->sector();
+    auto sect = spawnedActor->spr.sector();
 
     Collision coll;
-    clipmove(sp->pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
-    if (sp->sector() != sect)
+    if (spawnedActor->spr.sector() != sect)
         ChangeActorSect(spawnedActor, sect);
 
     return spawnedActor;
@@ -19553,9 +19549,9 @@ int DoItemFly(DSWActor* actor)
 // This is the FAST queue, it doesn't call any animator functions or states
 void QueueLoWangs(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s(),ps;
+    SPRITEp sp = &actor->s();
     USERp u;
-    DSWActor* NewSprite;
+    DSWActor* spawnedActor;
 
 
     if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -19575,7 +19571,7 @@ void QueueLoWangs(DSWActor* actor)
 
     if (LoWangsQueue[LoWangsQueueHead] == nullptr)
     {
-        LoWangsQueue[LoWangsQueueHead] = NewSprite =
+        LoWangsQueue[LoWangsQueueHead] = spawnedActor =
                                              SpawnActor(STAT_GENERIC_QUEUE, sp->picnum, s_DeadLoWang, sp->sector(),
                                                          sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 0);
     }
@@ -19583,23 +19579,21 @@ void QueueLoWangs(DSWActor* actor)
     {
         // move old sprite to new sprite's place
         SetActorZ(LoWangsQueue[LoWangsQueueHead], &sp->pos);
-        NewSprite = LoWangsQueue[LoWangsQueueHead];
-        ASSERT(NewSprite->spr.statnum != MAXSTATUS);
+        spawnedActor = LoWangsQueue[LoWangsQueueHead];
+        ASSERT(spawnedActor->spr.statnum != MAXSTATUS);
     }
 
     // Point passed in sprite to ps
-    ps = sp;
-    sp = &NewSprite->s();
-    u = NewSprite->u();
-    sp->cstat = 0;
-    sp->xrepeat = ps->xrepeat;
-    sp->yrepeat = ps->yrepeat;
-    sp->shade = ps->shade;
-    u->spal = sp->pal = ps->pal;
-    change_actor_stat(NewSprite, STAT_DEFAULT); // Breakable
-    SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
-    SET(sp->extra, SPRX_BREAKABLE);
-    SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+    u = spawnedActor->u();
+    spawnedActor->spr.cstat = 0;
+    spawnedActor->spr.xrepeat = sp->xrepeat;
+    spawnedActor->spr.yrepeat = sp->yrepeat;
+    spawnedActor->spr.shade = sp->shade;
+    u->spal = spawnedActor->spr.pal = sp->pal;
+    change_actor_stat(spawnedActor, STAT_DEFAULT); // Breakable
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+    SET(spawnedActor->spr.extra, SPRX_BREAKABLE);
+    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
 
     LoWangsQueueHead = (LoWangsQueueHead+1) & (MAX_LOWANGS_QUEUE-1);
 }
