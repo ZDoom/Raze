@@ -481,19 +481,17 @@ int DoVator(DSWActor* actor)
         if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
             int i;
-            SPRITEp bsp;
             USERp bu;
             bool found = false;
 
             SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
-                bsp = &itActor->s();
                 bu = itActor->u();
 
-                if (bsp->statnum == STAT_ENEMY)
+                if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < GetSpriteSizeZ(bsp))
+                    if (labs(sectp->ceilingz - sectp->floorz) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
@@ -502,7 +500,7 @@ int DoVator(DSWActor* actor)
                     }
                 }
 
-                if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
+                if (bu && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
                     ReverseVator(actor);
@@ -534,16 +532,12 @@ int DoVator(DSWActor* actor)
         }
         else
         {
-            SPRITEp bsp;
-
             SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
-                bsp = &itActor->s();
-
-                if (bsp->statnum == STAT_ENEMY)
+                if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < GetSpriteSizeZ(bsp))
+                    if (labs(sectp->ceilingz - sectp->floorz) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);

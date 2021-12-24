@@ -2358,7 +2358,6 @@ void InitPlayerSprite(PLAYERp pp)
                                             pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
 
     pp->actor = actor;
-    sp = &actor->s();
     pp->pnum = pnum;
 
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);

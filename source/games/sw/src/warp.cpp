@@ -167,26 +167,24 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     SWStatIterator it(STAT_WARP);
     while (auto actor = it.Next())
     {
-        auto spi = &actor->s();
-
-        if (spi->lotag == match && actor != sp_from)
+        if (actor->spr.lotag == match && actor != sp_from)
         {
             // exp: WARP_CEILING or WARP_CEILING_PLANE
-            if (spi->hitag == to_tag)
+            if (actor->spr.hitag == to_tag)
             {
-                if (!spi->insector())
+                if (!actor->spr.insector())
                     return nullptr;
 
                 // determine new x,y,z position
-                *x = spi->pos.X + xoff;
-                *y = spi->pos.Y + yoff;
-                *z = spi->pos.Z + zoff;
+                *x = actor->spr.pos.X + xoff;
+                *y = actor->spr.pos.Y + yoff;
+                *z = actor->spr.pos.Z + zoff;
 
                 // make sure you warp outside of warp plane
                 *z += z_adj;
 
                 // get new sector
-                *sect = spi->sector();
+                *sect = actor->spr.sector();
                 updatesector(*x, *y, sect);
 
                 return actor;

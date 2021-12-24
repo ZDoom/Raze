@@ -12423,7 +12423,7 @@ int InitSwordAttack(PLAYERp pp)
 
 int InitFistAttack(PLAYERp pp)
 {
-    auto plActor = pp->actor;
+    DSWActor* plActor = pp->actor;
     USERp u = plActor->u(),tu;
     auto psp = &plActor->s();
     unsigned stat;

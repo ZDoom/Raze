@@ -86,15 +86,13 @@ int DoWallMove(DSWActor* actor)
     short dang;
     bool SOsprite = false;
 
-    auto sp = &actor->s();
-
     dist = SP_TAG13(actor);
-    ang = SP_TAG4(sp);
-    picnum1 = SP_TAG5(sp);
-    picnum2 = SP_TAG6(sp);
-    shade1 = SP_TAG7(sp);
-    shade2 = SP_TAG8(sp);
-    dang = ((int)SP_TAG10(sp)) << 3;
+    ang = SP_TAG4(actor);
+    picnum1 = SP_TAG5(actor);
+    picnum2 = SP_TAG6(actor);
+    shade1 = SP_TAG7(actor);
+    shade2 = SP_TAG8(actor);
+    dang = ((int)SP_TAG10(actor)) << 3;
 
     if (dang)
         ang = NORM_ANGLE(ang + (RandomRange(dang) - dang/2));
@@ -104,7 +102,7 @@ int DoWallMove(DSWActor* actor)
 
     for(auto& wal : wall)
     {
-        if (wal.pos.X == sp->pos.X && wal.pos.Y == sp->pos.Y)
+        if (wal.pos.X == actor->spr.pos.X && wal.pos.Y == actor->spr.pos.Y)
         {
             found = true;
 
@@ -119,7 +117,7 @@ int DoWallMove(DSWActor* actor)
             }
             else
             {
-                wal.move(sp->pos.X + nx, sp->pos.Y + ny);
+                wal.move(actor->spr.pos.X + nx, actor->spr.pos.Y + ny);
             }
 
             if (shade1)
@@ -136,8 +134,8 @@ int DoWallMove(DSWActor* actor)
         }
     }
 
-    SP_TAG9(sp)--;
-    if ((int8_t)SP_TAG9(sp) <= 0)
+    SP_TAG9(actor)--;
+    if ((int8_t)SP_TAG9(actor) <= 0)
     {
         KillActor(actor);
     }
@@ -151,8 +149,8 @@ int DoWallMove(DSWActor* actor)
         }
         else
         {
-            sp->pos.X += nx;
-            sp->pos.Y += ny;
+            actor->spr.pos.X += nx;
+            actor->spr.pos.Y += ny;
         }
     }
 
@@ -163,18 +161,15 @@ bool CanSeeWallMove(DSWActor* caller, int match)
 {
     int i;
     bool found = false;
-    SPRITEp sp;
 
     SWStatIterator it(STAT_WALL_MOVE_CANSEE);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
         if (SP_TAG2(actor) == match)
         {
             found = true;
 
-            if (cansee(caller->spr.pos.X, caller->spr.pos.Y, caller->spr.pos.Z, caller->spr.sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector()))
+            if (cansee(caller->spr.pos.X, caller->spr.pos.Y, caller->spr.pos.Z, caller->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
             {
                 return true;
             }

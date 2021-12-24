@@ -365,17 +365,15 @@ int DoSpike(DSWActor* actor)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
-           SPRITEp bsp;
             USERp bu;
             bool found = false;
 
             SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
-                bsp = &actor->s();
                 bu = actor->u();
 
-                if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
+                if (bu && TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     ReverseSpike(actor);
                     found = true;

@@ -453,8 +453,7 @@ int DoBloodSpray(DSWActor* actor)
             }
             else
             {
-				auto bsp = &bldActor->s();
-                if (FAF_Sector(bsp->sector()) || FAF_ConnectArea(bsp->sector()))
+                if (FAF_Sector(bldActor->spr.sector()) || FAF_ConnectArea(bldActor->spr.sector()))
                 {
                     KillActor(actor);
                     return 0;
@@ -462,8 +461,8 @@ int DoBloodSpray(DSWActor* actor)
 
                 actor->spr.xvel = actor->spr.yvel = u->xchange = u->ychange = 0;
                 actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
-                actor->spr.pos.X = bsp->pos.X;
-                actor->spr.pos.Y = bsp->pos.Y;
+                actor->spr.pos.X = bldActor->spr.pos.X;
+                actor->spr.pos.Y = bldActor->spr.pos.Y;
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
