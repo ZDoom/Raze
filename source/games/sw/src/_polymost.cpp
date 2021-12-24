@@ -11,18 +11,18 @@ int ViewSectorInScene(sectortype* cursect, int level)
     {
         auto sp = &actor->s();
 
-        if (sp->hitag == level)
+        if (actor->spr.hitag == level)
         {
-            if (cursect == sp->sector())
+            if (cursect == actor->spr.sector())
             {
                 // ignore case if sprite is pointing up
-                if (sp->ang == 1536)
+                if (actor->spr.ang == 1536)
                     continue;
 
                 // only gets to here is sprite is pointing down
 
                 // found a potential match
-                int match = sp->lotag;
+                int match = actor->spr.lotag;
 
                 if (!testgotpic(FAF_MIRROR_PIC, true))
                     return -1;
@@ -100,19 +100,19 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(sp) = sp->sector()->ceilingpicnum;
-            sp->sector()->ceilingpicnum = SP_TAG2(actor);
-            SP_TAG4(sp) = sp->sector()->ceilingstat;
-            SET(sp->sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
-            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            SP_TAG5(sp) = actor->spr.sector()->ceilingpicnum;
+            actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
+            SP_TAG4(sp) = actor->spr.sector()->ceilingstat;
+            SET(actor->spr.sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
+            RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            SP_TAG5(sp) = sp->sector()->floorpicnum;
-            sp->sector()->floorpicnum = SP_TAG2(actor);
-            SP_TAG4(sp) = sp->sector()->floorstat;
-            SET(sp->sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(sp)));
-            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
+            SP_TAG5(sp) = actor->spr.sector()->floorpicnum;
+            actor->spr.sector()->floorpicnum = SP_TAG2(actor);
+            SP_TAG4(sp) = actor->spr.sector()->floorstat;
+            SET(actor->spr.sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(sp)));
+            RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 
@@ -123,7 +123,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     {
         auto sp = &actor->s();
         // manually set gotpic
-        if (gotsector[sp->sectno()])
+        if (gotsector[actor->spr.sectno()])
         {
             gotpic.Set(FAF_MIRROR_PIC);
         }
@@ -131,15 +131,15 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            sp->sector()->ceilingpicnum = SP_TAG5(sp);
-            sp->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(sp));
-            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->ceilingpicnum = SP_TAG5(sp);
+            actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(sp));
+            RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            sp->sector()->floorpicnum = SP_TAG5(sp);
-            sp->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));
-            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->floorpicnum = SP_TAG5(sp);
+            actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));
+            RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 }
@@ -250,20 +250,20 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     tdy = abs(midy - ty);
 
                     if (midx >= tx)
-                        dx = sp->pos.X - tdx;
+                        dx = actor->spr.pos.X - tdx;
                     else
-                        dx = sp->pos.X + tdx;
+                        dx = actor->spr.pos.X + tdx;
 
                     if (midy >= ty)
-                        dy = sp->pos.Y - tdy;
+                        dy = actor->spr.pos.Y - tdy;
                     else
-                        dy = sp->pos.Y + tdy;
+                        dy = actor->spr.pos.Y + tdy;
 
-                    tdz = abs(tz - sp->pos.Z);
-                    if (tz >= sp->pos.Z)
-                        dz = sp->pos.Z + tdz;
+                    tdz = abs(tz - actor->spr.pos.Z);
+                    if (tz >= actor->spr.pos.Z)
+                        dz = actor->spr.pos.Z + tdz;
                     else
-                        dz = sp->pos.Z - tdz;
+                        dz = actor->spr.pos.Z - tdz;
 
 
                     // Is it a TV cam or a teleporter that shows destination?
@@ -283,7 +283,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
-                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sector(), true);
+                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, actor->spr.sector(), true);
                         analyzesprites(pm_tsprite, pm_spritesortcnt, dx, dy, dz, false);
                         renderDrawMasks();
                     }
