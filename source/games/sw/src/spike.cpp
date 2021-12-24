@@ -139,15 +139,12 @@ void SetSpikeInactive(DSWActor* actor)
 // called for operation from the space bar
 void DoSpikeOperate(sectortype* sect)
 {
-    SPRITEp fsp;
     short match;
 
     SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
-        fsp = &actor->s();
-
-        if (fsp->statnum == STAT_SPIKE && SP_TAG1(actor) == SECT_SPIKE && SP_TAG3(fsp) == 0)
+        if (actor->spr.statnum == STAT_SPIKE && SP_TAG1(actor) == SECT_SPIKE && SP_TAG3(actor) == 0)
         {
             match = SP_TAG2(actor);
             if (match > 0)
@@ -186,19 +183,16 @@ void DoSpikeMatch(short match)
 bool TestSpikeMatchActive(short match)
 {
     USERp fu;
-    SPRITEp fsp;
 
     SWStatIterator it(STAT_SPIKE);
     while (auto actor = it.Next())
     {
-        fsp = &actor->s();
-
         if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
             // door war
-            if (TEST_BOOL6(fsp))
+            if (TEST_BOOL6(actor))
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)

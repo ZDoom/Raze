@@ -140,7 +140,6 @@ void DoRotatorOperate(PLAYERp pp, sectortype* sect)
 void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
-    SPRITEp fsp;
     DSWActor* firstVator = nullptr;
 
     //RotatorSwitch(match, ON);
@@ -148,22 +147,20 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
     SWStatIterator it(STAT_ROTATOR);
     while (auto actor = it.Next())
     {
-        fsp = &actor->s();
-
         if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
             // single play only vator
             // bool 8 must be set for message to display
-            if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
+            if (TEST_BOOL4(actor) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
-                if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
+                if (pp && TEST_BOOL11(actor)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
                 continue;
             }
 
             // switch trigger only
-            if (SP_TAG3(fsp) == 1)
+            if (SP_TAG3(actor) == 1)
             {
                 // tried to manually operat a switch/trigger only
                 if (manual)
@@ -173,7 +170,7 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
             if (firstVator == nullptr)
                 firstVator = actor;
 
-            auto sect = fsp->sector();
+            auto sect = actor->spr.sector();
 
             if (pp && sect->hasU() && sect->stag == SECT_LOCK_DOOR && sect->number)
             {
@@ -205,14 +202,12 @@ bool TestRotatorMatchActive(short match)
     SWStatIterator it(STAT_ROTATOR);
     while (auto actor = it.Next())
     {
-        fsp = &actor->s();
-
         if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(actor) == match)
         {
             fu = actor->u();
 
             // Does not have to be inactive to be operated
-            if (TEST_BOOL6(fsp))
+            if (TEST_BOOL6(actor))
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
