@@ -209,7 +209,6 @@ STATEp sg_SkullExplode[] =
 
 int SetupSkull(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -239,13 +238,13 @@ int SetupSkull(DSWActor* actor)
 
     u->Radius = 400;
 
-    if (GetSpriteZOfBottom(sp) > u->loz - Z(16))
+    if (ActorZOfBottom(actor) > u->loz - Z(16))
     {
         actor->spr.pos.Z = u->loz + Z(tileTopOffset(actor->spr.picnum));
 
         u->loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
-        actor->spr.pos.Z += GetSpriteSizeToTop(sp) - Z(3);;
+        actor->spr.pos.Z += ActorSizeToTop(actor) - Z(3);;
     }
     else
     {
@@ -260,7 +259,6 @@ int SetupSkull(DSWActor* actor)
 int DoSkullMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
     dax = MOVEx(actor->spr.xvel, actor->spr.ang);
@@ -276,7 +274,6 @@ int DoSkullMove(DSWActor* actor)
 int DoSkullBeginDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int16_t i,num_ord=0;
 
     // Decrease for Serp God
@@ -356,7 +353,6 @@ int DoSkullBeginDeath(DSWActor* actor)
 int DoSkullJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (actor->spr.xvel)
         DoSkullMove(actor);
@@ -418,7 +414,6 @@ int DoSkullJump(DSWActor* actor)
 int DoSkullBob(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // actor does a sine wave about u->sz - this is the z mid point
     const int SKULL_BOB_AMT = (Z(16));
@@ -441,7 +436,6 @@ int DoSkullSpawnShrap(DSWActor* actor)
 int DoSkullWait(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int a,b,c,dist;
 
     DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, dist, a, b, c);
@@ -613,7 +607,6 @@ STATEp sg_BettyExplode[] =
 
 int SetupBetty(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -643,13 +636,13 @@ int SetupBetty(DSWActor* actor)
 
     u->Radius = 400;
 
-    if (GetSpriteZOfBottom(sp) > u->loz - Z(16))
+    if (ActorZOfBottom(actor) > u->loz - Z(16))
     {
         actor->spr.pos.Z = u->loz + Z(tileTopOffset(actor->spr.picnum));
 
         u->loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
-        actor->spr.pos.Z += GetSpriteSizeToTop(sp) - Z(3);;
+        actor->spr.pos.Z += ActorSizeToTop(actor) - Z(3);;
     }
     else
     {
@@ -664,7 +657,6 @@ int SetupBetty(DSWActor* actor)
 int DoBettyMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
     dax = MOVEx(actor->spr.xvel, actor->spr.ang);
@@ -680,7 +672,6 @@ int DoBettyMove(DSWActor* actor)
 int DoBettyBeginDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int16_t i,num_ord=0;
 
     // starts the explosion that does the actual damage
@@ -754,7 +745,6 @@ int DoBettyBeginDeath(DSWActor* actor)
 int DoBettyJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (actor->spr.xvel)
         DoBettyMove(actor);
@@ -814,7 +804,6 @@ int DoBettyJump(DSWActor* actor)
 int DoBettyBob(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     // actor does a sine wave about u->sz - this is the z mid point
     const int  BETTY_BOB_AMT = (Z(16));
@@ -836,7 +825,6 @@ int DoBettySpawnShrap(DSWActor* actor)
 int DoBettyWait(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     int a,b,c,dist;
 
     DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, dist, a, b, c);

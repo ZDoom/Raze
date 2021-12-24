@@ -634,7 +634,6 @@ ACTOR_ACTION_SET MiniSumoActionSet =
 
 int SetupSumo(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -714,46 +713,29 @@ int DoSumoMove(DSWActor* actor)
 
 int DoSumoRumble(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     SetSumoQuake(actor);
-
     return 0;
 }
 
 int InitSumoFart(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     PlaySound(DIGI_SUMOFART, actor, v3df_follow);
-
     InitChemBomb(actor);
-
     SetSumoFartQuake(actor);
     InitSumoNapalm(actor);
-
     return 0;
 }
 
 int InitSumoStomp(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     PlaySound(DIGI_SUMOSTOMP, actor, v3df_none);
     SetSumoQuake(actor);
     InitSumoStompAttack(actor);
-
     return 0;
 }
 
 int InitSumoClap(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     if (actor->spr.pal == 16 && RandomRange(1000) <= 800)
         InitMiniSumoClap(actor);
     else
@@ -764,7 +746,6 @@ int InitSumoClap(DSWActor* actor)
 int DoSumoDeathMelt(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     PlaySound(DIGI_SUMOFART, actor, v3df_follow);
 
@@ -832,13 +813,12 @@ void BossHealthMeter(void)
     // Only show the meter when you can see the boss
     for (int i=0; i<3; i++)
     {
-        auto actor = BossSpriteNum[i];
+        DSWActor* actor = BossSpriteNum[i];
         if (actor != nullptr && !bosswasseen[i])
         {
-            sp = &actor->s();
             u = actor->u();
 
-            if (cansee(actor->spr.pos.X, actor->spr.pos.Y, GetSpriteZOfTop(sp), actor->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
+            if (cansee(actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor), actor->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
                 {
@@ -871,7 +851,7 @@ void BossHealthMeter(void)
 
     for (int i=0; i<3; i++)
     {
-        auto actor = BossSpriteNum[i];
+        DSWActor* actor = BossSpriteNum[i];
         if ((!bosswasseen[i] || actor == nullptr))
             continue;
 

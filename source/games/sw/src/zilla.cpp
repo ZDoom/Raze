@@ -640,7 +640,6 @@ ACTOR_ACTION_SET ZillaActionSet =
 
 int SetupZilla(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -676,7 +675,6 @@ int SetupZilla(DSWActor* actor)
 int NullZilla(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
 #if 0
     if (u->State == s_ZillaDie)
@@ -703,7 +701,6 @@ int NullZilla(DSWActor* actor)
 int DoZillaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     short choose;
 
     // Random Zilla taunts
@@ -746,7 +743,6 @@ int DoZillaStomp(DSWActor* actor)
 int DoZillaDeathMelt(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     if (RandomRange(1000) > 800)
         SpawnGrenadeExp(actor);

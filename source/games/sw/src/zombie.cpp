@@ -749,7 +749,6 @@ ACTOR_ACTION_SET ZombieActionSet =
 
 int SetupZombie(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     USERp u = actor->u();
     ANIMATOR DoActorDecide;
 
@@ -807,7 +806,6 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 
 void SpawnZombie2(DSWActor* actor)
 {
-    SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
     auto sectu = actor->spr.sector();
