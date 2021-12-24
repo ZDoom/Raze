@@ -1376,7 +1376,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
     }
 
     sp_warp = &act_warp->s();
-    switch (SP_TAG3(sp_warp))
+    switch (SP_TAG3(act_warp))
     {
     case 1:
         DoPlayerTeleportToOffset(pp);

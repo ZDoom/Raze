@@ -134,10 +134,11 @@ short DoSOevent(short match, short state)
                 }
             }
 
-            if (sop->match_event_actor == nullptr)
+            auto me_act = sop->match_event_actor;
+            if (me_act == nullptr)
                 continue;
 
-            me_sp = &sop->match_event_actor->s();
+            me_sp = &me_act->s();
 
             // toggle
             if (state == -1)
@@ -156,12 +157,12 @@ short DoSOevent(short match, short state)
 
             if (state == ON)
             {
-                spin_adj = (int)SP_TAG3(me_sp);
+                spin_adj = (int)SP_TAG3(me_act);
                 vel_adj = SP_TAG7(me_sp);
             }
             else if (state == OFF)
             {
-                spin_adj = -(int)SP_TAG3(me_sp);
+                spin_adj = -(int)SP_TAG3(me_act);
                 vel_adj = -SP_TAG7(me_sp);
             }
 

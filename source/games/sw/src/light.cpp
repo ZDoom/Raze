@@ -109,7 +109,7 @@ void DiffuseLighting(DSWActor* actor)
         if (LIGHT_Match(itActor) != LIGHT_Match(actor))
             continue;
 
-        shade = sp->shade + ((LIGHT_DiffuseNum(dsp) + 1) * LIGHT_DiffuseMult(dsp));
+        shade = sp->shade + ((LIGHT_DiffuseNum(itActor) + 1) * LIGHT_DiffuseMult(dsp));
 
         if (shade > LIGHT_MaxDark(sp))
             shade = LIGHT_MaxDark(sp);
@@ -136,7 +136,7 @@ void DoLightingMatch(short match, short state)
         if (LIGHT_Match(itActor) != match)
             continue;
 
-        switch (LIGHT_Type(sp))
+        switch (LIGHT_Type(itActor))
         {
         case LIGHT_CONSTANT:
 
@@ -278,7 +278,7 @@ void DoLighting(void)
         if (TEST_BOOL1(sp) == OFF)
             continue;
 
-        switch (LIGHT_Type(sp))
+        switch (LIGHT_Type(itActor))
         {
         case LIGHT_CONSTANT:
             break;

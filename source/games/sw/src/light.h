@@ -36,7 +36,7 @@ void DoLighting(void);
 // Descriptive Light variables mapped from other variables
 
 inline int LIGHT_Match(DSWActor* sp) { return SP_TAG2(sp); }
-#define LIGHT_Type(sp)          (SP_TAG3((sp)))
+inline int LIGHT_Type(DSWActor* sp) { return SP_TAG3(sp); }
 #define LIGHT_MaxTics(sp)       (SP_TAG4((sp)))
 inline int8_t LIGHT_MaxBright(spritetype* sp) { return int8_t(SP_TAG5(sp)); }
 inline int8_t LIGHT_MaxDark(spritetype* sp) { return int8_t(SP_TAG6(sp)); }
@@ -50,7 +50,7 @@ inline int8_t LIGHT_MaxDark(spritetype* sp) { return int8_t(SP_TAG6(sp)); }
 #define LIGHT_CeilingShade(sp)  ((sp)->yoffset)
 #define LIGHT_Tics(sp)          ((sp)->pos.Z)
 
-#define LIGHT_DiffuseNum(sp) (SP_TAG3((sp)))
+inline int LIGHT_DiffuseNum(DSWActor* sp) { return SP_TAG3(sp); }
 #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))
 
 enum LightTypes {LIGHT_CONSTANT, LIGHT_FLICKER, LIGHT_FADE, LIGHT_FLICKER_ON, LIGHT_FADE_TO_ON_OFF};

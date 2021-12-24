@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 inline int16_t& QUAKE_Match(DSWActor* actor) { return SP_TAG2(actor); }
-#define QUAKE_Zamt(sp) (SP_TAG3(sp))
+inline uint8_t& QUAKE_Zamt(DSWActor* actor) { return SP_TAG3(actor); }
 #define QUAKE_Radius(sp) (SP_TAG4(sp))
 #define QUAKE_Duration(sp) (SP_TAG5(sp))
 #define QUAKE_WaitSecs(sp) (SP_TAG6(sp))
@@ -134,7 +134,6 @@ void ProcessQuakeSpot(void)
             continue;
 
         // spawn a quake if time is up
-        //QUAKE_WaitTics(sp) -= 4*synctics;
         SET_SP_TAG13(sp, (QUAKE_WaitTics(sp)-4*synctics));
         if ((int16_t)QUAKE_WaitTics(sp) < 0)
         {
@@ -211,7 +210,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     if (save_dist > radius)
         return;
 
-    *z_diff = Z(STD_RANDOM_RANGE(QUAKE_Zamt(sp)) - (QUAKE_Zamt(sp)/2));
+    *z_diff = Z(STD_RANDOM_RANGE(SP_TAG3(sp)) - (SP_TAG3(sp)/2));
 
     ang_amt = QUAKE_AngAmt(sp) * 4L;
     *ang_diff = STD_RANDOM_RANGE(ang_amt) - (ang_amt/2);
@@ -247,7 +246,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
     sp->extra = 0;
 
     QUAKE_Match(actorNew) = -1;
-    QUAKE_Zamt(sp) = uint8_t(amt);
+    QUAKE_Zamt(actorNew) = uint8_t(amt);
     QUAKE_Radius(sp) = radius/8;
     QUAKE_Duration(sp) = tics;
     QUAKE_AngAmt(sp) = 8;

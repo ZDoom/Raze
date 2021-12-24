@@ -1374,7 +1374,7 @@ void UpdateWallPortalState()
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        if (SP_TAG3(sp) == 0)
+        if (SP_TAG3(actor) == 0)
         {
             // back up ceilingpicnum and ceilingstat
             SP_TAG5(sp) = sp->sector()->ceilingpicnum;
@@ -1383,7 +1383,7 @@ void UpdateWallPortalState()
             SET(sp->sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
-        else if (SP_TAG3(sp) == 1)
+        else if (SP_TAG3(actor) == 1)
         {
             SP_TAG5(sp) = sp->sector()->floorpicnum;
             sp->sector()->floorpicnum = SP_TAG2(actor);
@@ -1401,7 +1401,7 @@ void RestorePortalState()
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        if (SP_TAG3(sp) == 0)
+        if (SP_TAG3(actor) == 0)
         {
             // restore ceilingpicnum and ceilingstat
             sp->sector()->ceilingpicnum = SP_TAG5(sp);
@@ -1409,7 +1409,7 @@ void RestorePortalState()
             //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
-        else if (SP_TAG3(sp) == 1)
+        else if (SP_TAG3(actor) == 1)
         {
             sp->sector()->floorpicnum = SP_TAG5(sp);
             sp->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));

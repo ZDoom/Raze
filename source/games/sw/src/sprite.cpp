@@ -2011,7 +2011,6 @@ void SpriteSetup(void)
                 case QUAKE_SPOT:
                 {
                     change_actor_stat(actor, STAT_QUAKE_SPOT);
-                    //SP_TAG13(sp) = (SP_TAG6(sp)*10L) * 120L;
                     SET_SP_TAG13(sp, ((SP_TAG6(sp)*10L) * 120L));
                     break;
                 }
@@ -2608,7 +2607,6 @@ void SpriteSetup(void)
                 }
 
                 case SOUND_SPOT:
-                    //SP_TAG13(sp) = SP_TAG4(sp);
                     SET_SP_TAG13(sp, SP_TAG4(sp));
                     change_actor_stat(actor, STAT_SOUND_SPOT);
                     break;
@@ -3600,17 +3598,17 @@ int ActorCoughItem(DSWActor* actor)
         choose = RANDOM_P2(1024);
 
         if (choose > 854)
-            SP_TAG3(np) = 91; // Match number
+            SP_TAG3(actorNew) = 91; // Match number
         else if (choose > 684)
-            SP_TAG3(np) = 48; // Match number
+            SP_TAG3(actorNew) = 48; // Match number
         else if (choose > 514)
-            SP_TAG3(np) = 58; // Match number
+            SP_TAG3(actorNew) = 58; // Match number
         else if (choose > 344)
-            SP_TAG3(np) = 60; // Match number
+            SP_TAG3(actorNew) = 60; // Match number
         else if (choose > 174)
-            SP_TAG3(np) = 62; // Match number
+            SP_TAG3(actorNew) = 62; // Match number
         else
-            SP_TAG3(np) = 68; // Match number
+            SP_TAG3(actorNew) = 68; // Match number
 
         // match
         SP_TAG2(actorNew) = -1;
@@ -3639,7 +3637,7 @@ int ActorCoughItem(DSWActor* actor)
         // zvel
         SP_TAG8(np) = 40;
 
-        SP_TAG3(np) = 69; // Match number
+        SP_TAG3(actorNew) = 69; // Match number
 
         // match
         SP_TAG2(actorNew) = -1;
@@ -3668,7 +3666,7 @@ int ActorCoughItem(DSWActor* actor)
         // zvel
         SP_TAG8(np) = 40;
 
-        SP_TAG3(np) = 70; // Match number
+        SP_TAG3(actorNew) = 70; // Match number
 
         // match
         SP_TAG2(actorNew) = -1;
@@ -3703,36 +3701,36 @@ int ActorCoughItem(DSWActor* actor)
             switch (u->WeaponNum)
             {
             case WPN_UZI:
-                SP_TAG3(np) = 0;
+                SP_TAG3(actorNew) = 0;
                 break;
             case WPN_SHOTGUN:
-                SP_TAG3(np) = 51;
+                SP_TAG3(actorNew) = 51;
                 break;
             case WPN_STAR:
                 if (u->PlayerP->WpnAmmo[WPN_STAR] < 9)
                     break;
-                SP_TAG3(np) = 41;
+                SP_TAG3(actorNew) = 41;
                 break;
             case WPN_MINE:
                 if (u->PlayerP->WpnAmmo[WPN_MINE] < 5)
                     break;
-                SP_TAG3(np) = 42;
+                SP_TAG3(actorNew) = 42;
                 break;
             case WPN_MICRO:
             case WPN_ROCKET:
-                SP_TAG3(np) = 43;
+                SP_TAG3(actorNew) = 43;
                 break;
             case WPN_GRENADE:
-                SP_TAG3(np) = 45;
+                SP_TAG3(actorNew) = 45;
                 break;
             case WPN_RAIL:
-                SP_TAG3(np) = 47;
+                SP_TAG3(actorNew) = 47;
                 break;
             case WPN_HEART:
-                SP_TAG3(np) = 55;
+                SP_TAG3(actorNew) = 55;
                 break;
             case WPN_HOTHEAD:
-                SP_TAG3(np) = 53;
+                SP_TAG3(actorNew) = 53;
                 break;
             }
 
@@ -3765,33 +3763,33 @@ int ActorCoughItem(DSWActor* actor)
 
         if (u->spal == PAL_XLAT_LT_TAN)
         {
-            SP_TAG3(np) = 44;
+            SP_TAG3(actorNew) = 44;
         }
         else if (u->spal == PAL_XLAT_LT_GREY)
         {
-            SP_TAG3(np) = 46;
+            SP_TAG3(actorNew) = 46;
         }
         else if (u->spal == PALETTE_PLAYER5) // Green Ninja
         {
             if (RANDOM_P2(1024) < 700)
-                SP_TAG3(np) = 61;
+                SP_TAG3(actorNew) = 61;
             else
-                SP_TAG3(np) = 60;
+                SP_TAG3(actorNew) = 60;
         }
         else if (u->spal == PALETTE_PLAYER3) // Red Ninja
         {
             // type
             if (RANDOM_P2(1024) < 800)
-                SP_TAG3(np) = 68;
+                SP_TAG3(actorNew) = 68;
             else
-                SP_TAG3(np) = 44;
+                SP_TAG3(actorNew) = 44;
         }
         else
         {
             if (RANDOM_P2(1024) < 512)
-                SP_TAG3(np) = 41;
+                SP_TAG3(actorNew) = 41;
             else
-                SP_TAG3(np) = 68;
+                SP_TAG3(actorNew) = 68;
         }
 
         // match
@@ -3824,30 +3822,30 @@ int ActorCoughItem(DSWActor* actor)
         if (u->ID == PACHINKO1)
         {
             if (RANDOM_P2(1024) < 600)
-                SP_TAG3(np) = 64; // Small MedKit
+                SP_TAG3(actorNew) = 64; // Small MedKit
             else
-                SP_TAG3(np) = 59; // Fortune Cookie
+                SP_TAG3(actorNew) = 59; // Fortune Cookie
         }
         else if (u->ID == PACHINKO2)
         {
             if (RANDOM_P2(1024) < 600)
-                SP_TAG3(np) = 52; // Lg Shot Shell
+                SP_TAG3(actorNew) = 52; // Lg Shot Shell
             else
-                SP_TAG3(np) = 68; // Uzi clip
+                SP_TAG3(actorNew) = 68; // Uzi clip
         }
         else if (u->ID == PACHINKO3)
         {
             if (RANDOM_P2(1024) < 600)
-                SP_TAG3(np) = 57;
+                SP_TAG3(actorNew) = 57;
             else
-                SP_TAG3(np) = 63;
+                SP_TAG3(actorNew) = 63;
         }
         else if (u->ID == PACHINKO4)
         {
             if (RANDOM_P2(1024) < 600)
-                SP_TAG3(np) = 60;
+                SP_TAG3(actorNew) = 60;
             else
-                SP_TAG3(np) = 61;
+                SP_TAG3(actorNew) = 61;
         }
 
         // match
