@@ -9973,7 +9973,6 @@ int SpawnCoolieExp(DSWActor* actor)
     USER* u = actor->u();
     USERp eu;
 
-    SPRITEp exp;
     int zh,nx,ny;
 
     ASSERT(u);
@@ -10195,7 +10194,6 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 void SpawnFireballExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10233,7 +10231,6 @@ void SpawnFireballExp(DSWActor* actor)
 void SpawnGoroFireballExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10267,7 +10264,6 @@ void SpawnGoroFireballExp(DSWActor* actor)
 void SpawnBoltExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10279,7 +10275,6 @@ void SpawnBoltExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10324,7 +10319,6 @@ int SpawnBunnyExp(DSWActor* actor)
 void SpawnTankShellExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10336,7 +10330,6 @@ void SpawnTankShellExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10359,14 +10352,13 @@ void SpawnTankShellExp(DSWActor* actor)
 void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
 
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 512);
-    exp = &expActor->s();
+
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10401,7 +10393,6 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 void SpawnNuclearExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     short ang=0;
     PLAYERp pp = nullptr;
@@ -10430,7 +10421,6 @@ void SpawnNuclearExp(DSWActor* actor)
     // Spawn big mushroom cloud
     auto expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10449,7 +10439,6 @@ void SpawnNuclearExp(DSWActor* actor)
     // Do central explosion
     expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     SetOwner(own, expActor);
@@ -10486,7 +10475,6 @@ void SpawnNuclearExp(DSWActor* actor)
 void SpawnTracerExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     DSWActor* expActor;
 
@@ -10501,7 +10489,6 @@ void SpawnTracerExp(DSWActor* actor)
         expActor = SpawnActor(STAT_MISSILE, TRACER_EXP, s_TracerExp, actor->spr.sector(),
                                 actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10527,7 +10514,6 @@ void SpawnTracerExp(DSWActor* actor)
 void SpawnMicroExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10536,7 +10522,6 @@ void SpawnMicroExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_MicroExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10595,7 +10580,6 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, bool smallflames)
 {
     USERp u;
-    SPRITEp exp;
     USERp eu;
     unsigned sn;
 
@@ -10603,7 +10587,6 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
 
     auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10662,14 +10645,12 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     int vel;
 
     ASSERT(u);
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 1024);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10711,7 +10692,6 @@ int SpawnGrenadeSmallExp(DSWActor* actor)
 void SpawnGrenadeExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     int dx,dy,dz;
 
@@ -10744,7 +10724,6 @@ void SpawnGrenadeExp(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->spr.sector(),
                             dx, dy, dz, actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10775,7 +10754,6 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
     USERp u = actor->u();
     USERp eu = expActor->u();
     int tos_z, bos_z;
-    auto exp = &expActor->s();
 
     ASSERT(eu);
 
@@ -10820,7 +10798,6 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 void SpawnMineExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     ASSERT(u);
@@ -10833,7 +10810,6 @@ void SpawnMineExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, MINE_EXP, s_MineExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10876,7 +10852,6 @@ int DoSectorExp(DSWActor* actor)
 DSWActor* SpawnSectorExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     short explosion;
 
@@ -10889,7 +10864,6 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10910,7 +10884,6 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 // called from SpawnShrap
 DSWActor* SpawnLargeExp(DSWActor* actor)
 {
-    SPRITEp exp;
     USERp eu;
     
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
@@ -10918,7 +10891,6 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10942,7 +10914,6 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
 void SpawnMeteorExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    SPRITEp exp;
     USERp eu;
     DSWActor* expActor;
 
@@ -10962,7 +10933,6 @@ void SpawnMeteorExp(DSWActor* actor)
                                 actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     }
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10987,7 +10957,6 @@ void SpawnMeteorExp(DSWActor* actor)
 
 void SpawnLittleExp(DSWActor* actor)
 {
-    SPRITEp exp;
     USERp eu;
     short explosion;
 
@@ -10995,7 +10964,6 @@ void SpawnLittleExp(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -11183,7 +11151,6 @@ int DoFindGroundPoint(DSWActor* actor)
 int DoNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp exp;
 
     int ox, oy, oz;
 
@@ -11245,7 +11212,6 @@ int DoNapalm(DSWActor* actor)
 
         auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, actor->spr.sector(),
                                 actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-        exp = &expActor->s();
         eu = expActor->u();
 
         expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -14834,7 +14800,6 @@ int InitSerpSpell(DSWActor* actor)
 int SpawnDemonFist(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp exp;
     USERp eu;
 
     if (TEST(u->Flags, SPR_SUICIDE))
@@ -14843,7 +14808,6 @@ int SpawnDemonFist(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
-    exp = &expActor->s();
     eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
