@@ -12610,9 +12610,9 @@ int InitSwordAttack(PLAYERp pp)
 
 int InitFistAttack(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u(),tu;
-    auto psp = &pp->Actor()->s();
-    SPRITEp sp = nullptr;
+    auto plActor = pp->actor;
+    USERp u = plActor->u(),tu;
+    auto psp = &plActor->s();
     unsigned stat;
     int dist;
     short reach,face;
@@ -12656,15 +12656,13 @@ int InitFistAttack(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            sp = &itActor->s();
-
             if (itActor->user.PlayerP == pp)
                 break;
 
-            if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->pos.X, pp->pos.Y, sp->pos.X, sp->pos.Y);
+            dist = Distance(pp->pos.X, pp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
 
             if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
             {
@@ -12677,12 +12675,12 @@ int InitFistAttack(PLAYERp pp)
                 face = 200;
             }
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PlayerFacingRange(pp, itActor, face))
+            if (dist < CLOSE_RANGE_DIST_FUDGE(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(sp->pos.X,sp->pos.Y,GetSpriteZOfMiddle(sp),sp->sector(),psp->pos.X,psp->pos.Y,GetSpriteZOfMiddle(psp),psp->sector()))
-                        DoDamage(itActor, pp->Actor());
+                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, GetSpriteZOfMiddle(psp), psp->sector()))
+                        DoDamage(itActor, plActor);
                     if (face == 190)
                     {
                         SpawnDemonFist(itActor);
@@ -17373,8 +17371,9 @@ int InitEnemyUzi(DSWActor* actor)
 
 int InitGrenade(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    auto sp = &pp->Actor()->s();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -18595,7 +18594,6 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
 
     HoleQueueHead = (HoleQueueHead+1) & (MAX_HOLE_QUEUE-1);
 
-    sp = &spawnedActor->s();
     spawnedActor->spr.xrepeat = spawnedActor->spr.yrepeat = 16;
     spawnedActor->spr.cstat = 0;
     spawnedActor->spr.pal = 0;
