@@ -824,16 +824,15 @@ int DoChemBomb(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            SPRITEp hsp;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
-            hsp = &actor->s();
+            auto hitActor = u->coll.actor();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
