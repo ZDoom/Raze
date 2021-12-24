@@ -838,10 +838,10 @@ int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp psp = &u->targetActor->s();
+    DSWActor* target = actor->user.targetActor;
     int tang;
 
-    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
+    tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
         0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -912,18 +912,17 @@ void DoPickCloseBunny(DSWActor* actor)
     SWStatIterator it(STAT_ENEMY);
     while (auto itActor = it.Next())
     {
-        auto tsp = &itActor->s();
         auto tu = itActor->u();
 
         if (actor == itActor) continue;
 
         if (tu->ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(tsp->pos.X, tsp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), tsp->pos.X, tsp->pos.Y, ActorUpperZ(itActor), tsp->sector());
+        ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->spr.sector());
 
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
@@ -949,7 +948,6 @@ int DoBunnyQuickJump(DSWActor* actor)
     DSWActor* hitActor = u->lowActor;
     if (hitActor)
     {
-        SPRITEp tsp = &hitActor->s();
         USERp tu = hitActor->u();
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
@@ -957,7 +955,7 @@ int DoBunnyQuickJump(DSWActor* actor)
 
         // Not mature enough yet
         if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
-        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
+        if (hitActor->spr.xrepeat != 64 || hitActor->spr.yrepeat != 64) return false;
 
         // Kill a rival
         // Only males fight
@@ -991,7 +989,6 @@ int DoBunnyQuickJump(DSWActor* actor)
     hitActor = u->lowActor;
     if (hitActor && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        SPRITEp tsp = &hitActor->s();
         USERp tu = hitActor->u();
 
 
@@ -999,11 +996,11 @@ int DoBunnyQuickJump(DSWActor* actor)
 
         // Not mature enough to mate yet
         if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
-        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
+        if (hitActor->spr.xrepeat != 64 || hitActor->spr.yrepeat != 64) return false;
 
         if (tu->ShellNum <= 0 && tu->WaitTics <= 0 && u->WaitTics <= 0)
         {
-            if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
                 PLAYERp pp = nullptr;
 
@@ -1048,14 +1045,14 @@ int DoBunnyQuickJump(DSWActor* actor)
                     }
                 }
 
-                actor->spr.pos.X = tsp->pos.X; // Mount up little bunny
-                actor->spr.pos.Y = tsp->pos.Y;
-                actor->spr.ang = tsp->ang;
+                actor->spr.pos.X = hitActor->spr.pos.X; // Mount up little bunny
+                actor->spr.pos.Y = hitActor->spr.pos.Y;
+                actor->spr.ang = hitActor->spr.ang;
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 HelpMissileLateral(actor, 2000);
-                actor->spr.ang = tsp->ang;
+                actor->spr.ang = hitActor->spr.ang;
                 u->Vis = actor->spr.ang;  // Remember angles for later
-                tu->Vis = tsp->ang;
+                tu->Vis = hitActor->spr.ang;
 
                 NewStateGroup(actor, sg_BunnyScrew);
                 NewStateGroup(hitActor, sg_BunnyScrew);
@@ -1108,13 +1105,13 @@ int DoBunnyPain(DSWActor* actor)
 int DoBunnyRipHeart(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp tsp = &u->targetActor->s();
+    DSWActor* target = actor->user.targetActor;
 
     NewStateGroup(actor, sg_BunnyHeart);
     u->WaitTics = 6 * 120;
 
     // player face bunny
-    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
+    target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
     return 0;
 }
 

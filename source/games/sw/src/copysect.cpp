@@ -106,29 +106,24 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 
 void CopySectorMatch(int match)
 {
-    SPRITEp dest_sp, src_sp;
     SECTORp dsectp,ssectp;
     int kill;
-    SPRITEp k;
 
     SWStatIterator it(STAT_COPY_DEST);
     while (auto dActor = it.Next())
     {
-        dest_sp = &dActor->s();
-        dsectp = dest_sp->sector();
+        dsectp = dActor->spr.sector();
 
-        if (match != dest_sp->lotag)
+        if (match != dActor->spr.lotag)
             continue;
 
         SWStatIterator it2(STAT_COPY_SOURCE);
         while (auto sActor = it2.Next())
         {
-            src_sp = &sActor->s();
-
             if (SP_TAG2(sActor) == SP_TAG2(dActor) &&
                 SP_TAG3(sActor) == SP_TAG3(dActor))
             {
-                ssectp = src_sp->sector();
+                ssectp = sActor->spr.sector();
 
                 // !!!!!AAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH
                 // Don't kill anything you don't have to
@@ -140,10 +135,8 @@ void CopySectorMatch(int match)
                 SWSectIterator itsec(dsectp);
                 while (auto itActor = itsec.Next())
                 {
-                    k = &itActor->s();
-
                     // kill anything not invisible
-                    if (!TEST(k->cstat, CSTAT_SPRITE_INVISIBLE))
+                    if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                     {
                         if (itActor->hasU())
                         {
@@ -172,8 +165,8 @@ void CopySectorMatch(int match)
                         // move sprites from source to dest - use center offset
 
                         // get center of src and dest sect
-                        SectorMidPoint(src_sp->sector(), &sx, &sy, &trash);
-                        SectorMidPoint(dest_sp->sector(), &dx, &dy, &trash);
+                        SectorMidPoint(sActor->spr.sector(), &sx, &sy, &trash);
+                        SectorMidPoint(dActor->spr.sector(), &dx, &dy, &trash);
 
                         // get offset
                         src_xoff = sx - itActor->spr.pos.X;
