@@ -1179,53 +1179,21 @@ enum
 // #define SPRX_USER_NON_STANDARD  (BIT(0)|BIT(1)|BIT(2))   // used for lighting
 
 // boolean flags carried over from build
-#define SPRX_BOOL11 (BIT(5))
-#define SPRX_BOOL1 (BIT(6))
-#define SPRX_BOOL2 (BIT(7))
-#define SPRX_BOOL3 (BIT(8))
-#define SPRX_BOOL4 (BIT(9))
-#define SPRX_BOOL5 (BIT(10))
-#define SPRX_BOOL6 (BIT(11))
-#define SPRX_BOOL7 (BIT(4))  // bit 12 was used build
-#define SPRX_BOOL8 (BIT(13))
-#define SPRX_BOOL9 (BIT(14))
-#define SPRX_BOOL10 (BIT(15))
+enum
+{
+    SPRX_BOOL11 = (BIT(5)),
+    SPRX_BOOL1 = (BIT(6)),
+    SPRX_BOOL2 = (BIT(7)),
+    SPRX_BOOL3 = (BIT(8)),
+    SPRX_BOOL4 = (BIT(9)),
+    SPRX_BOOL5 = (BIT(10)),
+    SPRX_BOOL6 = (BIT(11)),
+    SPRX_BOOL7 = (BIT(4)),  // bit 12 was used build
+    SPRX_BOOL8 = (BIT(13)),
+    SPRX_BOOL9 = (BIT(14)),
+    SPRX_BOOL10 = (BIT(15)),
+};
 
-#define SET_BOOL1(sp) SET((sp)->extra, SPRX_BOOL1)
-#define SET_BOOL2(sp) SET((sp)->extra, SPRX_BOOL2)
-#define SET_BOOL3(sp) SET((sp)->extra, SPRX_BOOL3)
-#define SET_BOOL4(sp) SET((sp)->extra, SPRX_BOOL4)
-#define SET_BOOL5(sp) SET((sp)->extra, SPRX_BOOL5)
-#define SET_BOOL6(sp) SET((sp)->extra, SPRX_BOOL6)
-#define SET_BOOL7(sp) SET((sp)->extra, SPRX_BOOL7)
-#define SET_BOOL8(sp) SET((sp)->extra, SPRX_BOOL8)
-#define SET_BOOL9(sp) SET((sp)->extra, SPRX_BOOL9)
-#define SET_BOOL10(sp) SET((sp)->extra, SPRX_BOOL10)
-#define SET_BOOL11(sp) SET((sp)->extra, SPRX_BOOL11)
-
-#define RESET_BOOL1(sp) RESET((sp)->extra, SPRX_BOOL1)
-#define RESET_BOOL2(sp) RESET((sp)->extra, SPRX_BOOL2)
-#define RESET_BOOL3(sp) RESET((sp)->extra, SPRX_BOOL3)
-#define RESET_BOOL4(sp) RESET((sp)->extra, SPRX_BOOL4)
-#define RESET_BOOL5(sp) RESET((sp)->extra, SPRX_BOOL5)
-#define RESET_BOOL6(sp) RESET((sp)->extra, SPRX_BOOL6)
-#define RESET_BOOL7(sp) RESET((sp)->extra, SPRX_BOOL7)
-#define RESET_BOOL8(sp) RESET((sp)->extra, SPRX_BOOL8)
-#define RESET_BOOL9(sp) RESET((sp)->extra, SPRX_BOOL9)
-#define RESET_BOOL10(sp) RESET((sp)->extra, SPRX_BOOL10)
-#define RESET_BOOL11(sp) RESET((sp)->extra, SPRX_BOOL11)
-
-#define TEST_BOOL1(sp) TEST((sp)->extra, SPRX_BOOL1)
-#define TEST_BOOL2(sp) TEST((sp)->extra, SPRX_BOOL2)
-#define TEST_BOOL3(sp) TEST((sp)->extra, SPRX_BOOL3)
-#define TEST_BOOL4(sp) TEST((sp)->extra, SPRX_BOOL4)
-#define TEST_BOOL5(sp) TEST((sp)->extra, SPRX_BOOL5)
-#define TEST_BOOL6(sp) TEST((sp)->extra, SPRX_BOOL6)
-#define TEST_BOOL7(sp) TEST((sp)->extra, SPRX_BOOL7)
-#define TEST_BOOL8(sp) TEST((sp)->extra, SPRX_BOOL8)
-#define TEST_BOOL9(sp) TEST((sp)->extra, SPRX_BOOL9)
-#define TEST_BOOL10(sp) TEST((sp)->extra, SPRX_BOOL10)
-#define TEST_BOOL11(sp) TEST((sp)->extra, SPRX_BOOL11)
 
 // User->Flags flags
 enum
@@ -2101,6 +2069,42 @@ END_SW_NS
 
 BEGIN_SW_NS
 
+inline void SET_BOOL1(spritetype* sp) { sp->extra |= SPRX_BOOL1; }
+inline void SET_BOOL2(spritetype* sp) { sp->extra |= SPRX_BOOL2; }
+inline void SET_BOOL3(spritetype* sp) { sp->extra |= SPRX_BOOL3; }
+inline void SET_BOOL4(spritetype* sp) { sp->extra |= SPRX_BOOL4; }
+inline void SET_BOOL5(spritetype* sp) { sp->extra |= SPRX_BOOL5; }
+inline void SET_BOOL6(spritetype* sp) { sp->extra |= SPRX_BOOL6; }
+inline void SET_BOOL7(spritetype* sp) { sp->extra |= SPRX_BOOL7; }
+inline void SET_BOOL8(spritetype* sp) { sp->extra |= SPRX_BOOL8; }
+inline void SET_BOOL9(spritetype* sp) { sp->extra |= SPRX_BOOL9; }
+inline void SET_BOOL10(spritetype* sp) { sp->extra |= SPRX_BOOL10; }
+inline void SET_BOOL11(spritetype* sp) { sp->extra |= SPRX_BOOL11; }
+
+inline void RESET_BOOL1(spritetype* sp) { sp->extra &= ~SPRX_BOOL1; }
+inline void RESET_BOOL2(spritetype* sp) { sp->extra &= ~SPRX_BOOL2; }
+inline void RESET_BOOL3(spritetype* sp) { sp->extra &= ~SPRX_BOOL3; }
+inline void RESET_BOOL4(spritetype* sp) { sp->extra &= ~SPRX_BOOL4; }
+inline void RESET_BOOL5(spritetype* sp) { sp->extra &= ~SPRX_BOOL5; }
+inline void RESET_BOOL6(spritetype* sp) { sp->extra &= ~SPRX_BOOL6; }
+inline void RESET_BOOL7(spritetype* sp) { sp->extra &= ~SPRX_BOOL7; }
+inline void RESET_BOOL8(spritetype* sp) { sp->extra &= ~SPRX_BOOL8; }
+inline void RESET_BOOL9(spritetype* sp) { sp->extra &= ~SPRX_BOOL9; }
+inline void RESET_BOOL10(spritetype* sp) { sp->extra &= ~SPRX_BOOL10; }
+inline void RESET_BOOL11(spritetype* sp) { sp->extra &= ~SPRX_BOOL11; }
+
+inline int TEST_BOOL1(spritetype* sp) { return sp->extra & SPRX_BOOL1; }
+inline int TEST_BOOL2(spritetype* sp) { return sp->extra & SPRX_BOOL2; }
+inline int TEST_BOOL3(spritetype* sp) { return sp->extra & SPRX_BOOL3; }
+inline int TEST_BOOL4(spritetype* sp) { return sp->extra & SPRX_BOOL4; }
+inline int TEST_BOOL5(spritetype* sp) { return sp->extra & SPRX_BOOL5; }
+inline int TEST_BOOL6(spritetype* sp) { return sp->extra & SPRX_BOOL6; }
+inline int TEST_BOOL7(spritetype* sp) { return sp->extra & SPRX_BOOL7; }
+inline int TEST_BOOL8(spritetype* sp) { return sp->extra & SPRX_BOOL8; }
+inline int TEST_BOOL9(spritetype* sp) { return sp->extra & SPRX_BOOL9; }
+inline int TEST_BOOL10(spritetype* sp) { return sp->extra & SPRX_BOOL10; }
+inline int TEST_BOOL11(spritetype* sp) { return sp->extra & SPRX_BOOL11; }
+
 inline uint8_t& SP_TAG3(spritetype* s) { return s->clipdist; }
 inline int16_t& SP_TAG4(spritetype* s) { return s->ang; }
 inline int16_t& SP_TAG5(spritetype* s) { return s->xvel; }
@@ -2114,6 +2118,42 @@ inline uint8_t& SP_TAG12(spritetype* s) { return s->pal; }
 inline int16_t SP_TAG13(spritetype* s) { return int16_t(s->xoffset + (s->yoffset << 8)); }
 inline int16_t SP_TAG14(spritetype* s) { return int16_t(s->xrepeat + (s->yrepeat << 8)); }
 inline void SET_SP_TAG13(spritetype* s, int val) { s->xoffset = uint8_t(val); s->yoffset = uint8_t(val >> 8); }
+
+inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
+inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
+inline void SET_BOOL3(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL3; }
+inline void SET_BOOL4(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL4; }
+inline void SET_BOOL5(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL5; }
+inline void SET_BOOL6(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL6; }
+inline void SET_BOOL7(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL7; }
+inline void SET_BOOL8(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL8; }
+inline void SET_BOOL9(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL9; }
+inline void SET_BOOL10(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL10; }
+inline void SET_BOOL11(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL11; }
+
+inline void RESET_BOOL1(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL1; }
+inline void RESET_BOOL2(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL2; }
+inline void RESET_BOOL3(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL3; }
+inline void RESET_BOOL4(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL4; }
+inline void RESET_BOOL5(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL5; }
+inline void RESET_BOOL6(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL6; }
+inline void RESET_BOOL7(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL7; }
+inline void RESET_BOOL8(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL8; }
+inline void RESET_BOOL9(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL9; }
+inline void RESET_BOOL10(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL10; }
+inline void RESET_BOOL11(DSWActor* sp) { sp->spr.extra &= ~SPRX_BOOL11; }
+
+inline int TEST_BOOL1(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL1; }
+inline int TEST_BOOL2(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL2; }
+inline int TEST_BOOL3(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL3; }
+inline int TEST_BOOL4(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL4; }
+inline int TEST_BOOL5(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL5; }
+inline int TEST_BOOL6(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL6; }
+inline int TEST_BOOL7(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL7; }
+inline int TEST_BOOL8(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL8; }
+inline int TEST_BOOL9(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL9; }
+inline int TEST_BOOL10(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL10; }
+inline int TEST_BOOL11(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL11; }
 
 // Defines for reading in ST1 sprite tagging
 inline int16_t SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
