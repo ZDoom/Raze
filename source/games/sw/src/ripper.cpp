@@ -820,7 +820,7 @@ int SetupRipper(DSWActor* actor)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
         u = actor->u();
         ASSERT(u);
@@ -836,19 +836,19 @@ int SetupRipper(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
     u->StateEnd = s_RipperDie;
     u->Rot = sg_RipperRun;
-    sp->xrepeat = 64;
-    sp->yrepeat = 64;
+    actor->spr.xrepeat = 64;
+    actor->spr.yrepeat = 64;
 
-    if (sp->pal == PALETTE_BROWN_RIPPER)
+    if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
         EnemyDefaults(actor, &RipperBrownActionSet, &RipperPersonality);
-        sp->xrepeat = 106;
-        sp->yrepeat = 90;
+        actor->spr.xrepeat = 106;
+        actor->spr.yrepeat = 90;
 
-        if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
+        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
             u->Health = HEALTH_MOMMA_RIPPER;
 
-        sp->clipdist += 128 >> 2;
+        actor->spr.clipdist += 128 >> 2;
     }
     else
     {
@@ -942,9 +942,9 @@ int InitRipperHang(DSWActor* actor)
 
     for (dang = 0; dang < 2048; dang += 128)
     {
-        tang = NORM_ANGLE(sp->ang + dang);
+        tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector(),  // Start position
+        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -953,7 +953,7 @@ int InitRipperHang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(sp->pos.X, sp->pos.Y, hit.hitpos.X, hit.hitpos.Y);
+        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, hit.hitpos.X, hit.hitpos.Y);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
@@ -961,7 +961,7 @@ int InitRipperHang(DSWActor* actor)
         }
 
         Found = true;
-        sp->ang = tang;
+        actor->spr.ang = tang;
         break;
     }
 
@@ -1009,8 +1009,8 @@ int DoRipperMoveHang(DSWActor* actor)
     int nx, ny;
 
     // Move while jumping
-    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
-    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
@@ -1021,7 +1021,7 @@ int DoRipperMoveHang(DSWActor* actor)
             u->WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
-            sp->ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
+            actor->spr.ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
 
             return 0;
         }
@@ -1068,15 +1068,15 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
     SPRITEp psp = &u->targetActor->s();
     short tang;
 
-    tang = getangle(psp->pos.X - sp->pos.X, psp->pos.Y - sp->pos.Y);
+    tang = getangle(psp->pos.X - actor->spr.pos.X, psp->pos.Y - actor->spr.pos.Y);
 
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 	
     if (coll.type != kHitNone)
-        sp->ang = NORM_ANGLE((sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.ang = NORM_ANGLE((actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
-        sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1186,7 +1186,7 @@ int DoRipperRipHeart(DSWActor* actor)
     u->WaitTics = 6 * 120;
 
     // player face ripper
-    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->pos.Y - tsp->pos.Y);
+    tsp->ang = getangle(actor->spr.pos.X - tsp->pos.X, actor->spr.pos.Y - tsp->pos.Y);
     return 0;
 }
 
