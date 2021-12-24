@@ -4133,10 +4133,10 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 // Don't do central blood splats for every hitscan
                 if (RANDOM_P2(1024) < 950)
                 {
-                    np->xrepeat = np->yrepeat = 0;
+                    actorNew->spr.xrepeat = actorNew->spr.yrepeat = 0;
                 }
                 if (RANDOM_P2(1024) < 512)
-                    SET(np->cstat, CSTAT_SPRITE_XFLIP);
+                    SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
                 //shrap_xsize = 96;
                 //shrap_ysize = 75;
                 //shrap_xsize = 10;
@@ -4146,39 +4146,39 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
             if (p->random_disperse)
             {
-                np->ang = hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
-                np->ang = NORM_ANGLE(np->ang);
+                actorNew->spr.ang = hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
+                actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
             }
             else
             {
-                np->ang = start_ang + (i * dang);
-                np->ang = NORM_ANGLE(np->ang);
+                actorNew->spr.ang = start_ang + (i * dang);
+                actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
             }
 
             SET(nu->Flags, SPR_BOUNCE);
 
-            np->shade = int8_t(shrap_shade);
-            np->xrepeat = uint8_t(shrap_xsize);
-            np->yrepeat = uint8_t(shrap_ysize);
-            np->clipdist = 16 >> 2;
+            actorNew->spr.shade = int8_t(shrap_shade);
+            actorNew->spr.xrepeat = uint8_t(shrap_xsize);
+            actorNew->spr.yrepeat = uint8_t(shrap_ysize);
+            actorNew->spr.clipdist = 16 >> 2;
 
-            np->pal = nu->spal = uint8_t(shrap_pal);
+            actorNew->spr.pal = nu->spal = uint8_t(shrap_pal);
 
-            np->xvel = p->min_vel;
-            np->xvel += RandomRange(p->max_vel - p->min_vel);
+            actorNew->spr.xvel = p->min_vel;
+            actorNew->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
             // special case
             // blood coming off of actors should have the acceleration of the actor
             // so add it in
-            np->xvel += actor->spr.xvel;
+            actorNew->spr.xvel += actor->spr.xvel;
 
             nu->ceiling_dist = nu->floor_dist = Z(2);
             nu->jump_speed = p->min_jspeed;
             nu->jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             nu->jump_speed = -nu->jump_speed;
 
-            nu->xchange = MOVEx(np->xvel, np->ang);
-            nu->ychange = MOVEy(np->xvel, np->ang);
+            nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+            nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
 
             // for FastShrap
             nu->zchange = labs(nu->jump_speed*4) - RandomRange(labs(nu->jump_speed)*8);
@@ -8109,12 +8109,12 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
     np = &actorNew->s();
     nu = actorNew->u();
 
-    np->shade = -40;
+    actorNew->spr.shade = -40;
     if (wActor)
         SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
-    np->yrepeat = 0;
-    np->clipdist = 8>>2;
+    actorNew->spr.yrepeat = 0;
+    actorNew->spr.clipdist = 8>>2;
 
     nu->WaitTics = 120+60;
     nu->Radius = 50;
@@ -8605,12 +8605,12 @@ int DoGrenade(DSWActor* actor)
         nu = actorNew->u();
 
         SetOwner(actor, actorNew);
-        np->shade = -40;
-        np->xrepeat = 40;
-        np->yrepeat = 40;
-        np->opos = actor->spr.opos;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 40;
+        actorNew->spr.yrepeat = 40;
+        actorNew->spr.opos = actor->spr.opos;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
@@ -9400,13 +9400,13 @@ int DoLaser(DSWActor* actor)
             np = &actorNew->s();
             nu = actorNew->u();
 
-            np->shade = -40;
-            np->xrepeat = 16;
-            np->yrepeat = 16;
-            np->pal = nu->spal = PALETTE_RED_LIGHTING;
+            actorNew->spr.shade = -40;
+            actorNew->spr.xrepeat = 16;
+            actorNew->spr.yrepeat = 16;
+            actorNew->spr.pal = nu->spal = PALETTE_RED_LIGHTING;
 
-            SET(np->cstat, CSTAT_SPRITE_YCENTER);
-            RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+            RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
             nu->xchange = nu->ychange = nu->zchange = 0;
         }
@@ -9496,19 +9496,19 @@ int DoRail(DSWActor* actor)
             np = &actorNew->s();
             nu = actorNew->u();
 
-            np->xvel += (RandomRange(140)-RandomRange(140));
-            np->yvel += (RandomRange(140)-RandomRange(140));
-            np->zvel += (RandomRange(140)-RandomRange(140));
+            actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
+            actorNew->spr.yvel += (RandomRange(140)-RandomRange(140));
+            actorNew->spr.zvel += (RandomRange(140)-RandomRange(140));
 
             nu->RotNum = 5;
             NewStateGroup(actorNew, sg_RailPuff);
 
-            np->shade = -40;
-            np->xrepeat = 10;
-            np->yrepeat = 10;
-            np->opos = actor->spr.opos;
-            SET(np->cstat, CSTAT_SPRITE_YCENTER);
-            RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            actorNew->spr.shade = -40;
+            actorNew->spr.xrepeat = 10;
+            actorNew->spr.yrepeat = 10;
+            actorNew->spr.opos = actor->spr.opos;
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+            RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
             nu->xchange = u->xchange;
             nu->ychange = u->ychange;
@@ -9606,12 +9606,12 @@ int DoRocket(DSWActor* actor)
         nu = actorNew->u();
 
         SetOwner(actor, actorNew);
-        np->shade = -40;
-        np->xrepeat = 40;
-        np->yrepeat = 40;
-        np->opos = actor->spr.opos;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 40;
+        actorNew->spr.yrepeat = 40;
+        actorNew->spr.opos = actor->spr.opos;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
@@ -9711,13 +9711,13 @@ int DoMicro(DSWActor* actor)
         nu = actorNew->u();
 
         SetOwner(GetOwner(actor), actorNew);
-        np->shade = -40;
-        np->xrepeat = 20;
-        np->yrepeat = 20;
-        np->opos = actor->spr.opos;
-        np->zvel = actor->spr.zvel;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 20;
+        actorNew->spr.yrepeat = 20;
+        actorNew->spr.opos = actor->spr.opos;
+        actorNew->spr.zvel = actor->spr.zvel;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         nu->xchange = u->xchange;
         nu->ychange = u->ychange;
@@ -9731,7 +9731,7 @@ int DoMicro(DSWActor* actor)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            SetActorZ(actorNew, &np->pos);
+            SetActorZ(actorNew, &actorNew->spr.pos);
             NewStateGroup(actor, &sg_MicroMini[0]);
             actor->spr.xrepeat = actor->spr.yrepeat = 10;
             RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
@@ -10064,13 +10064,13 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     auto np = &actorNew->s();
     auto nu = actorNew->u();
 
-    np->hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
     if (enemyActor != nullptr)
         eu->flameActor = actorNew;
 
-    np->xrepeat = 16;
-    np->yrepeat = 16;
+    actorNew->spr.xrepeat = 16;
+    actorNew->spr.yrepeat = 16;
     if (enemyActor != nullptr)
     {
         // large flame for trees and such
@@ -10090,10 +10090,10 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     }
 
     SetOwner(GetOwner(actor), actorNew);
-    np->shade = -40;
-    np->pal = nu->spal = u->spal;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.pal = nu->spal = u->spal;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //nu->Radius = DamageData[DMG_FIREBALL_FLAMES].radius;
     nu->Radius = 200;
@@ -10104,7 +10104,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     }
     else
     {
-        if (TestDontStickSector(np->sector()))
+        if (TestDontStickSector(actorNew->spr.sector()))
         {
             KillActor(actorNew);
             return;
@@ -10131,18 +10131,18 @@ int SpawnBreakFlames(DSWActor* actor)
     np = &actorNew->s();
     nu = actorNew->u();
 
-    np->hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
-    np->xrepeat = 16;
-    np->yrepeat = 16;
+    actorNew->spr.xrepeat = 16;
+    actorNew->spr.yrepeat = 16;
     nu->Counter = 48; // max flame size
 
     
-    np->shade = -40;
+    actorNew->spr.shade = -40;
     if (u)
-        np->pal = nu->spal = u->spal;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.pal = nu->spal = u->spal;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     nu->Radius = 200;
 
@@ -10170,22 +10170,22 @@ void SpawnBreakStaticFlames(DSWActor* actor)
     nu = actorNew->u();
 
     if (RandomRange(1000) > 500)
-        np->picnum = 3143;
+        actorNew->spr.picnum = 3143;
     else
-        np->picnum = 3157;
+        actorNew->spr.picnum = 3157;
 
-    np->hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
-    np->xrepeat = 32;
-    np->yrepeat = 32;
+    actorNew->spr.xrepeat = 32;
+    actorNew->spr.yrepeat = 32;
     
-    np->shade = -40;
-    np->pal = nu->spal = u->spal;
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.pal = nu->spal = u->spal;
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     nu->Radius = 200;
     nu->floor_dist = nu->ceiling_dist = 0;
-    np->pos.Z = getflorzofslopeptr(np->sector(), np->pos.X, np->pos.Y);
+    actorNew->spr.pos.Z = getflorzofslopeptr(actorNew->spr.sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y);
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
@@ -11453,21 +11453,21 @@ int DoMirv(DSWActor* actor)
             nu->StateEnd = s_MirvMeteorExp;
 
             SetOwner(actor, actorNew);
-            np->shade = -40;
-            np->xrepeat = 40;
-            np->yrepeat = 40;
-            np->clipdist = 32L >> 2;
-            np->zvel = 0;
-            SET(np->cstat, CSTAT_SPRITE_YCENTER);
+            actorNew->spr.shade = -40;
+            actorNew->spr.xrepeat = 40;
+            actorNew->spr.yrepeat = 40;
+            actorNew->spr.clipdist = 32L >> 2;
+            actorNew->spr.zvel = 0;
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
             nu->ceiling_dist = Z(16);
             nu->floor_dist = Z(16);
             nu->Dist = 200;
             //nu->Dist = 0;
 
-            nu->xchange = MOVEx(np->xvel, np->ang);
-            nu->ychange = MOVEy(np->xvel, np->ang);
-            nu->zchange = np->zvel;
+            nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+            nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+            nu->zchange = actorNew->spr.zvel;
 
             if (TEST(u->Flags, SPR_UNDERWATER))
                 SET(nu->Flags, SPR_UNDERWATER);
@@ -11991,22 +11991,22 @@ int InitSerpRing(DSWActor* actor)
         np = &actorNew->s();
         nu = actorNew->u();
 
-        np->xvel = 500;
+        actorNew->spr.xvel = 500;
         SetOwner(actor, actorNew);
-        np->shade = -20;
-        np->xrepeat = 64;
-        np->yrepeat = 64;
-        np->yvel = 2*RINGMOVETICS;
-        np->zvel = Z(3);
-        np->pal = 0;
+        actorNew->spr.shade = -20;
+        actorNew->spr.xrepeat = 64;
+        actorNew->spr.yrepeat = 64;
+        actorNew->spr.yvel = 2*RINGMOVETICS;
+        actorNew->spr.zvel = Z(3);
+        actorNew->spr.pal = 0;
 
-        np->pos.Z = ActorZOfTop(actor) - Z(20);
+        actorNew->spr.pos.Z = ActorZOfTop(actor) - Z(20);
         nu->sz = Z(50);
 
         // ang around the serp is now slide_ang
-        nu->slide_ang = np->ang;
+        nu->slide_ang = actorNew->spr.ang;
         // randomize the head turning angle
-        np->ang = RANDOM_P2(2048<<5)>>5;
+        actorNew->spr.ang = RANDOM_P2(2048<<5)>>5;
 
         // control direction of spinning
         FLIP(u->Flags, SPR_BOUNCE);
@@ -12022,11 +12022,11 @@ int InitSerpRing(DSWActor* actor)
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
         change_actor_stat(actorNew, STAT_SKIP4);
-        RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
+        RESET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
-        np->clipdist = (128+64) >> 2;
+        actorNew->spr.clipdist = (128+64) >> 2;
         SET(nu->Flags, SPR_XFLIP_TOGGLE);
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
         nu->Radius = 400;
     }
@@ -12783,15 +12783,15 @@ int InitSumoSkull(DSWActor* actor)
     np = &actorNew->s();
     nu = actorNew->u();
 
-    np->xvel = 500;
+    actorNew->spr.xvel = 500;
     SetOwner(actor, actorNew);
-    np->shade = -20;
-    np->xrepeat = 64;
-    np->yrepeat = 64;
-    np->pal = 0;
+    actorNew->spr.shade = -20;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.yrepeat = 64;
+    actorNew->spr.pal = 0;
 
     // randomize the head turning angle
-    np->ang = RANDOM_P2(2048<<5)>>5;
+    actorNew->spr.ang = RANDOM_P2(2048<<5)>>5;
 
     // control direction of spinning
     FLIP(u->Flags, SPR_BOUNCE);
@@ -12803,16 +12803,16 @@ int InitSumoSkull(DSWActor* actor)
     nu->Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     nu->Counter = RANDOM_P2(2048);
-    nu->sz = np->pos.Z;
+    nu->sz = actorNew->spr.pos.Z;
     nu->Health = 100;
 
     // defaults do change the statnum
     EnemyDefaults(actorNew, nullptr, nullptr);
-    SET(np->extra, SPRX_PLAYER_OR_ENEMY);
+    SET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
-    np->clipdist = (128+64) >> 2;
+    actorNew->spr.clipdist = (128+64) >> 2;
     SET(nu->Flags, SPR_XFLIP_TOGGLE);
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
     nu->Radius = 400;
     return 0;
@@ -14747,21 +14747,21 @@ int InitSerpSpell(DSWActor* actor)
         auto np = &actorNew->s();
         nu = actorNew->u();
 
-        np->pos.Z = ActorZOfTop(actor);
+        actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         nu->RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
         SetOwner(actor, actorNew);
-        np->shade = -40;
+        actorNew->spr.shade = -40;
         PlaySound(DIGI_SERPMAGICLAUNCH, actor, v3df_none);
-        nu->spal = np->pal = 27; // Bright Green
-        np->xrepeat = 64;
-        np->yrepeat = 64;
-        np->clipdist = 32L >> 2;
-        np->zvel = 0;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
+        nu->spal = actorNew->spr.pal = 27; // Bright Green
+        actorNew->spr.xrepeat = 64;
+        actorNew->spr.yrepeat = 64;
+        actorNew->spr.clipdist = 32L >> 2;
+        actorNew->spr.zvel = 0;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
         nu->ceiling_dist = Z(16);
         nu->floor_dist = Z(16);
@@ -14770,20 +14770,20 @@ int InitSerpSpell(DSWActor* actor)
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
 
-        np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + lat_ang[i]);
         HelpMissileLateral(actorNew, 4200);
-        np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - lat_ang[i]);
 
         // find the distance to the target (player)
-        dist = Distance(np->pos.X, np->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
+        dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
         if (dist != 0)
-            np->zvel = (np->xvel * (ActorUpperZ(u->targetActor) - np->pos.Z)) / dist;
+            actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(u->targetActor) - actorNew->spr.pos.Z)) / dist;
 
-        np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + delta_ang[i]);
 
-        nu->xchange = MOVEx(np->xvel, np->ang);
-        nu->ychange = MOVEy(np->xvel, np->ang);
-        nu->zchange = np->zvel;
+        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        nu->zchange = actorNew->spr.zvel;
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
@@ -14856,20 +14856,20 @@ int InitSerpMonstSpell(DSWActor* actor)
         np = &actorNew->s();
         nu = actorNew->u();
 
-        nu->spal = np->pal = 25; // Bright Red
-        np->pos.Z = ActorZOfTop(actor);
+        nu->spal = actorNew->spr.pal = 25; // Bright Red
+        actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         nu->RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         nu->StateEnd = s_TeleportEffect2;
 
         SetOwner(actor, actorNew);
-        np->shade = -40;
-        np->xrepeat = 122;
-        np->yrepeat = 116;
-        np->clipdist = 32L >> 2;
-        np->zvel = 0;
-        SET(np->cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.shade = -40;
+        actorNew->spr.xrepeat = 122;
+        actorNew->spr.yrepeat = 116;
+        actorNew->spr.clipdist = 32L >> 2;
+        actorNew->spr.zvel = 0;
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
         nu->ceiling_dist = Z(16);
         nu->floor_dist = Z(16);
@@ -14879,20 +14879,20 @@ int InitSerpMonstSpell(DSWActor* actor)
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
 
-        np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + lat_ang[i]);
         HelpMissileLateral(actorNew, 4200);
-        np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - lat_ang[i]);
 
         // find the distance to the target (player)
-        dist = Distance(np->pos.X, np->pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
+        dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y);
         if (dist != 0)
-            np->zvel = (np->xvel * (ActorUpperZ(u->targetActor) - np->pos.Z)) / dist;
+            actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(u->targetActor) - actorNew->spr.pos.Z)) / dist;
 
-        np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
+        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + delta_ang[i]);
 
-        nu->xchange = MOVEx(np->xvel, np->ang);
-        nu->ychange = MOVEy(np->xvel, np->ang);
-        nu->zchange = np->zvel;
+        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        nu->zchange = actorNew->spr.zvel;
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
@@ -18134,22 +18134,22 @@ int SpawnVehicleSmoke(DSWActor* actor)
     nu = actorNew->u();
 
     nu->WaitTics = 1*120;
-    np->shade = -40;
-    np->xrepeat = 64;
-    np->yrepeat = 64;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.yrepeat = 64;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_XFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_YFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
-    np->ang = RANDOM_P2(2048);
-    np->xvel = RANDOM_P2(32);
-    nu->xchange = MOVEx(np->xvel, np->ang);
-    nu->ychange = MOVEy(np->xvel, np->ang);
-    np->zvel = Z(4) + RANDOM_P2(Z(4));
+    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.xvel = RANDOM_P2(32);
+    nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
 
     return false;
 }
@@ -18167,23 +18167,23 @@ int SpawnSmokePuff(DSWActor* actor)
     nu = actorNew->u();
 
     nu->WaitTics = 1*120;
-    np->shade = -40;
-    np->xrepeat = 64;
-    np->yrepeat = 64;
-    SET(np->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.yrepeat = 64;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_XFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) < 512)
-        SET(np->cstat, CSTAT_SPRITE_YFLIP);
+        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
-    np->ang = RANDOM_P2(2048);
-    np->xvel = RANDOM_P2(32);
-    nu->xchange = MOVEx(np->xvel, np->ang);
-    nu->ychange = MOVEy(np->xvel, np->ang);
-    //np->zvel = Z(4) + RANDOM_P2(Z(4));
-    np->zvel = Z(1) + RANDOM_P2(Z(2));
+    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.xvel = RANDOM_P2(32);
+    nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    //actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
+    actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
 
     return false;
 }
