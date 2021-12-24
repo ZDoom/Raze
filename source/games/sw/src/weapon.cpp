@@ -4034,7 +4034,6 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
     // most of the time is the weapon
     if (weapActor != nullptr)
     {
-        SPRITEp wp = &weapActor->s();
         USERp wu = weapActor->u();
 
         switch (wu->ID)
@@ -4047,22 +4046,20 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 hit_ang = actor->spr.ang;
                 hit_x = actor->spr.pos.X;
                 hit_y = actor->spr.pos.Y;
-                hit_z = GetSpriteZOfTop(wp) + (GetSpriteSizeZ(wp) >> 4);
+                hit_z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) >> 4);
             }
             else
             {
                 p = ExtraBlood;
-                hit_ang = NORM_ANGLE(wp->ang + 1024);
+                hit_ang = NORM_ANGLE(weapActor->spr.ang + 1024);
                 hit_x = actor->spr.pos.X;
                 hit_y = actor->spr.pos.Y;
-                hit_z = GetSpriteZOfTop(wp) + (GetSpriteSizeZ(wp) >> 2);
-
-                //ASSERT(wu->PlayerP);
+                hit_z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) >> 2);
             }
             break;
         case SERP_RUN_R0:
             p = ExtraBlood;
-            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_ang = NORM_ANGLE(weapActor->spr.ang + 1024);
             hit_x = actor->spr.pos.X;
             hit_y = actor->spr.pos.Y;
             hit_z = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
@@ -4075,29 +4072,29 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             hit_ang = NORM_ANGLE(AngToSprite(actor, weapActor) + 1024);
             hit_x = actor->spr.pos.X;
             hit_y = actor->spr.pos.Y;
-            hit_z = wp->pos.Z - DIV2(GetSpriteSizeZ(wp));
+            hit_z = weapActor->spr.pos.Z - (ActorSizeZ(weapActor) >> 1);
             break;
         case STAR1:
         case CROSSBOLT:
             p = SomeBlood;
-            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_ang = NORM_ANGLE(weapActor->spr.ang + 1024);
             hit_x = actor->spr.pos.X;
             hit_y = actor->spr.pos.Y;
-            hit_z = wp->pos.Z;
+            hit_z = weapActor->spr.pos.Z;
             break;
         case PLASMA_FOUNTAIN:
             p = PlasmaFountainBlood;
-            hit_ang = wp->ang;
+            hit_ang = weapActor->spr.ang;
             hit_x = actor->spr.pos.X;
             hit_y = actor->spr.pos.Y;
             hit_z = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
             break;
         default:
             p = SomeBlood;
-            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_ang = NORM_ANGLE(weapActor->spr.ang + 1024);
             hit_x = actor->spr.pos.X;
             hit_y = actor->spr.pos.Y;
-            hit_z = GetSpriteZOfTop(wp) + (GetSpriteSizeZ(wp) >> 2);
+            hit_z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) >> 2);
             break;
         }
     }
@@ -5241,7 +5238,6 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
     assert(weapActor != nullptr);
     USERp u = actor->u();
-    SPRITEp wp = &weapActor->s();
     USERp wu = weapActor->u();
        
     // Attack the player that is attacking you
@@ -5357,12 +5353,11 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
     // if ndx does radius
     if (d->radius > 0 && weapActor)
     {
-        SPRITEp wp = &weapActor->s();
         int dist,a,b,c;
         int damage_per_pixel, damage_force, damage_amt;
 
 
-        DISTANCE(wp->pos.X,wp->pos.Y,actor->spr.pos.X,actor->spr.pos.Y,dist,a,b,c);
+        DISTANCE(weapActor->spr.pos.X,weapActor->spr.pos.Y,actor->spr.pos.X,actor->spr.pos.Y,dist,a,b,c);
 
         // take off the box around the player or else you'll never get
         // the max_damage;
@@ -5417,7 +5412,6 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
             return true;
         }
 
-        SPRITEp wp = &weapActor->s();
         USERp   wu = weapActor->u();
 
         if (weapActor != nullptr && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
@@ -5439,7 +5433,7 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
             auto own = GetOwner(weapActor);
             if (own)
                 pp->KillerActor = own;
-            else if (TEST(wp->extra, SPRX_PLAYER_OR_ENEMY))
+            else if (TEST(weapActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 pp->KillerActor = weapActor;
         }
 
@@ -5447,8 +5441,8 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
         DoPlayerBeginDie(pp);
 
         // for death direction
-        //u->slide_ang = wp->ang;
-        u->slide_ang = getangle(actor->spr.pos.X - wp->pos.X, actor->spr.pos.Y - wp->pos.Y);
+        //u->slide_ang = weapActor->spr.ang;
+        u->slide_ang = getangle(actor->spr.pos.X - weapActor->spr.pos.X, actor->spr.pos.Y - weapActor->spr.pos.Y);
         // for death velocity
         u->slide_vel = u->LastDamage * 5;
 
@@ -5464,7 +5458,6 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         return true;
 
     USERp u = pp->Actor()->u();
-    SPRITEp wp = &weapActor->s();
     USERp   wu = weapActor->u();
 
     auto weapOwner = GetOwner(weapActor);
@@ -5573,7 +5566,6 @@ bool OwnerIs(DSWActor* actor, int pic)
 int DoDamage(DSWActor* actor, DSWActor* weapActor)
 {
     USERp u = actor->u();
-    SPRITEp wp;
     USERp wu;
     int damage=0;
 
@@ -5589,7 +5581,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     if (!weapActor || !weapActor->hasU() || TEST(u->Flags, SPR_SUICIDE))
         return 0;
 
-    wp = &weapActor->s();
     wu = weapActor->u();
 
     if (TEST(wu->Flags, SPR_SUICIDE))
@@ -5627,7 +5618,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             }
             else if (u->PlayerP)
             {
-                PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+                PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
                 if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
@@ -5692,7 +5683,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5726,7 +5717,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5756,7 +5747,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5784,7 +5775,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5814,7 +5805,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5848,7 +5839,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5883,7 +5874,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5914,7 +5905,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage/4, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage/4, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -5991,7 +5982,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Is the player blocking?
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6006,7 +5997,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6025,7 +6016,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6039,7 +6030,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6058,7 +6049,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6070,7 +6061,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6089,7 +6080,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6101,7 +6092,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6125,7 +6116,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         else if (u->PlayerP)
         {
             //PlayerDamageSlide(u->PlayerP, damage, AngToPlayer(u->PlayerP, weapActor));
-            PlayerDamageSlide(u->PlayerP, damage/2, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage/2, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6139,7 +6130,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
             switch (u->ID)
             {
@@ -6174,7 +6165,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6188,7 +6179,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6223,7 +6214,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6250,7 +6241,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6333,7 +6324,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage>>1, wp->ang);
+            ActorDamageSlide(actor, damage>>1, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6659,7 +6650,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6671,7 +6662,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6726,7 +6717,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6751,7 +6742,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6816,7 +6807,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6828,7 +6819,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6849,7 +6840,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (u->PlayerP)
         {
-            PlayerDamageSlide(u->PlayerP, damage, wp->ang);
+            PlayerDamageSlide(u->PlayerP, damage, weapActor->spr.ang);
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
@@ -6863,7 +6854,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, wp->ang);
+            ActorDamageSlide(actor, damage, weapActor->spr.ang);
             ActorChooseDeath(actor, weapActor);
         }
 
