@@ -2071,7 +2071,10 @@ inline int PlayerFacingRange(PLAYERp pp, DSWActor* a, int range)
     return (abs(getincangle(getangle(a->spr.pos.X - (pp)->pos.X, a->spr.pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range));
 }
 
-#define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < (range))
+inline int FacingRange(DSWActor* a1, DSWActor* a2, int range)
+{
+    return (abs(getincangle(getangle(a1->spr.pos.X - a2->spr.pos.X, a1->spr.pos.Y - a2->spr.pos.Y), a2->spr.ang)) < (range));
+}
 
 inline void SET_BOOL1(spritetype* sp) { sp->extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(spritetype* sp) { sp->extra |= SPRX_BOOL2; }

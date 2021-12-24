@@ -12491,7 +12491,7 @@ int InitSwordAttack(PLAYERp pp)
             reach = 1000; // !JIM! was 800
             face = 200;
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
+            if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
                 {
@@ -12674,7 +12674,7 @@ int InitFistAttack(PLAYERp pp)
                 face = 200;
             }
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
+            if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
@@ -12977,7 +12977,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
             reach = 16384;
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
+            if (dist < CloseRangeDist(itActor, actor, reach))
             {
                 if (FAFcansee(tsp->pos.X,tsp->pos.Y,GetSpriteZOfMiddle(tsp),tsp->sector(),actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector()))
                     DoDamage(itActor, actor);
@@ -12996,31 +12996,31 @@ int InitMiniSumoClap(DSWActor* actor)
     int dist;
     short reach;
 
-
-    if (!u->targetActor) return 0;
-    auto tsp = &u->targetActor->s();
+    auto targetActor = u->targetActor;
+    if (!targetActor) return 0;
+    auto tsp = &targetActor->s();
 
     dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, tsp->pos.X, tsp->pos.Y);
 
     reach = 10000;
 
-    if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, 1000))
+    if (dist < CloseRangeDist(targetActor, actor, 1000))
     {
-        if (SpriteOverlapZ(actor, u->targetActor, Z(20)))
+        if (SpriteOverlapZ(actor, targetActor, Z(20)))
         {
-            if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorMid(u->targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+            if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorMid(targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
-                DoDamage(u->targetActor, actor);
+                DoDamage(targetActor, actor);
             }
         }
     }
-    else if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
+    else if (dist < CloseRangeDist(targetActor, actor, reach))
     {
-        if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorMid(u->targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+        if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorMid(targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
-            SpawnFireballFlames(actor, u->targetActor);
+            SpawnFireballFlames(actor, targetActor);
         }
     }
 
@@ -14566,7 +14566,7 @@ int InitRipperSlash(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
                 DoDamage(itActor, actor);
             }
@@ -14599,7 +14599,7 @@ int InitBunnySlash(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
                 DoDamage(itActor, actor);
             }
@@ -14633,7 +14633,7 @@ int InitSerpSlash(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 800) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,150))
             {
                 DoDamage(itActor, actor);
             }
@@ -14792,7 +14792,7 @@ int InitCoolgBash(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
                 DoDamage(itActor, actor);
             }
@@ -14825,7 +14825,7 @@ int InitSkelSlash(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
                 DoDamage(itActor, actor);
             }
@@ -14858,7 +14858,7 @@ int InitGoroChop(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 700) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,150))
             {
                 PlaySound(DIGI_GRDAXEHIT, actor, v3df_none);
                 DoDamage(itActor, actor);
@@ -15646,7 +15646,7 @@ int InitEelFire(DSWActor* actor)
 
             DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
                 PlaySound(DIGI_GIBS1, actor, v3df_none);
                 DoDamage(itActor, actor);
