@@ -2101,24 +2101,36 @@ END_SW_NS
 
 BEGIN_SW_NS
 
+inline uint8_t& SP_TAG3(spritetype* s) { return s->clipdist; }
+inline int16_t& SP_TAG4(spritetype* s) { return s->ang; }
+inline int16_t& SP_TAG5(spritetype* s) { return s->xvel; }
+inline int16_t& SP_TAG6(spritetype* s) { return s->yvel; }
+inline uint8_t& SP_TAG7(spritetype* s) { return MSB_VAR(s->zvel); }
+inline uint8_t& SP_TAG8(spritetype* s) { return LSB_VAR(s->zvel); }
+inline uint8_t& SP_TAG9(spritetype* s) { return MSB_VAR(s->owner); }
+inline uint8_t& SP_TAG10(spritetype* s) { return LSB_VAR(s->owner); }
+inline int8_t& SP_TAG11(spritetype* s) { return s->shade; }
+inline uint8_t& SP_TAG12(spritetype* s) { return s->pal; }
+inline int16_t SP_TAG13(spritetype* s) { return int16_t(s->xoffset + (s->yoffset << 8)); }
+inline int16_t SP_TAG14(spritetype* s) { return int16_t(s->xrepeat + (s->yrepeat << 8)); }
+inline void SET_SP_TAG13(spritetype* s, int val) { s->xoffset = uint8_t(val); s->yoffset = uint8_t(val >> 8); }
+
 // Defines for reading in ST1 sprite tagging
 inline int16_t SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
 inline int16_t& SP_TAG2(DSWActor* actor) { return actor->spr.lotag; }
-#define SP_TAG3(sp) ((sp)->clipdist)
-#define SP_TAG4(sp) ((sp)->ang)
-#define SP_TAG5(sp) ((sp)->xvel)
-#define SP_TAG6(sp) ((sp)->yvel)
-#define SP_TAG7(sp) (MSB_VAR((sp)->zvel))
-#define SP_TAG8(sp) (LSB_VAR((sp)->zvel))
-#define SP_TAG9(sp) (MSB_VAR((sp)->owner))
-#define SP_TAG10(sp) (LSB_VAR((sp)->owner))
-#define SP_TAG11(sp) ((sp)->shade)
-#define SP_TAG12(sp) ((sp)->pal)
-#define SP_TAG13(sp) LittleShort(*((int16_t*)&(sp)->xoffset))
-#define SP_TAG14(sp) LittleShort(*((int16_t*)&(sp)->xrepeat))
-#define SP_TAG15(sp) ((sp)->z)
-#define SET_SP_TAG13(sp,val) (*((int16_t*)&(sp)->xoffset)) = LittleShort((int16_t)val)
-#define SET_SP_TAG14(sp,val) (*((int16_t*)&(sp)->xrepeat)) = LittleShort((int16_t)val)
+inline uint8_t& SP_TAG3(DSWActor* actor) { return actor->spr.clipdist; }
+inline int16_t& SP_TAG4(DSWActor* actor) { return actor->spr.ang; }
+inline int16_t& SP_TAG5(DSWActor* actor) { return actor->spr.xvel; }
+inline int16_t& SP_TAG6(DSWActor* actor) { return actor->spr.yvel; }
+inline uint8_t& SP_TAG7(DSWActor* actor) { return MSB_VAR(actor->spr.zvel); }
+inline uint8_t& SP_TAG8(DSWActor* actor) { return LSB_VAR(actor->spr.zvel); }
+inline uint8_t& SP_TAG9(DSWActor* actor) { return MSB_VAR(actor->spr.owner); }
+inline uint8_t& SP_TAG10(DSWActor* actor) { return LSB_VAR(actor->spr.owner); }
+inline int8_t& SP_TAG11(DSWActor* actor) { return actor->spr.shade; }
+inline uint8_t& SP_TAG12(DSWActor* actor) { return actor->spr.pal; }
+inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(actor->spr.xoffset + (actor->spr.yoffset << 8)); }
+inline int16_t SP_TAG14(DSWActor* actor) { return int16_t(actor->spr.xrepeat + (actor->spr.yrepeat << 8)); }
+inline void SET_SP_TAG13(DSWActor* actor, int val) { actor->spr.xoffset = uint8_t(val); actor->spr.yoffset = uint8_t(val >> 8); }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline int ActorZOfTop(DSWActor* actor)

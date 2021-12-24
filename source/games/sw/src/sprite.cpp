@@ -2621,9 +2621,8 @@ void SpriteSetup(void)
                     if (!actor->hasU())
                         u = SpawnUser(actor, ST1, nullptr);
 
-                    if (SP_TAG14(sp) == ((64<<8)|64))
-                        //SP_TAG14(sp) = 0;
-                        SET_SP_TAG14(sp, 0);
+                    if (sp->xrepeat == 64 && sp->yrepeat == 64)
+                        sp->xrepeat = sp->yrepeat = 0;
 
                     change_actor_stat(actor, STAT_SPAWN_SPOT);
                     break;
