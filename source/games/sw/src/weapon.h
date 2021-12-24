@@ -157,6 +157,11 @@ inline int CLOSE_RANGE_DIST_FUDGE(SPRITEp sp1, SPRITEp sp2, int fudge)
     return (((int)sp1->clipdist << 2) + ((int)sp2->clipdist << 2) + fudge);
 }
 
+inline int CLOSE_RANGE_DIST_FUDGE(DSWActor* a1, DSWActor* a2, int fudge)
+{
+    return (((int)a1->spr.clipdist << 2) + ((int)a2->spr.clipdist << 2) + fudge);
+}
+
 inline int CLOSE_RANGE_DIST(SPRITEp sp1, SPRITEp sp2)
 {
     return CLOSE_RANGE_DIST_FUDGE(sp1, sp2, 400);

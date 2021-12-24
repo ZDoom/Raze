@@ -855,7 +855,6 @@ void BossHealthMeter(void)
         if ((!bosswasseen[i] || actor == nullptr))
             continue;
 
-        sp = &actor->s();
         u = actor->u();
 
         if (u->ID == SERP_RUN_R0 && bosswasseen[0])

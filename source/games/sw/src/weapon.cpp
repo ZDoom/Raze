@@ -11821,8 +11821,6 @@ void InitSpellRing(PLAYERp pp)
     {
         auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, ang, 0);
 
-        sp = &actorNew->s();
-
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.xvel = 500;
         SetOwner(pp->Actor(), actorNew);
@@ -11849,7 +11847,7 @@ void InitSpellRing(PLAYERp pp)
 
         actorNew->spr.backuppos();
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(sp))
+        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(&actorNew->spr))
             SET(u->Flags, SPR_UNDERWATER);
     }
 }
@@ -12434,9 +12432,9 @@ int InitEnemyMirv(DSWActor* actor)
 
 int InitSwordAttack(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u(), tu;
     auto psp = &pp->Actor()->s();
-    SPRITEp sp = nullptr;
     unsigned stat;
     int dist;
     short reach, face;
@@ -12484,24 +12482,22 @@ int InitSwordAttack(PLAYERp pp)
             if (!itActor->hasU())
                 break;
 
-            sp = &itActor->s();
-
             if (itActor->user.PlayerP == pp)
                 break;
 
-            if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->pos.X, pp->pos.Y, sp->pos.X, sp->pos.Y);
+            dist = Distance(pp->pos.X, pp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
 
             reach = 1000; // !JIM! was 800
             face = 200;
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
+            if (dist < CLOSE_RANGE_DIST_FUDGE(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
                 {
-                    if (FAFcansee(sp->pos.X, sp->pos.Y, GetSpriteZOfMiddle(sp), sp->sector(), psp->pos.X, psp->pos.Y, GetSpriteZOfMiddle(psp), psp->sector()))
+                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, ActorZOfMiddle(plActor), psp->sector()))
                         DoDamage(itActor, pp->Actor());
                 }
             }
@@ -12682,7 +12678,7 @@ int InitFistAttack(PLAYERp pp)
                 face = 200;
             }
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
+            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
@@ -13438,20 +13434,19 @@ void InitHeartAttack(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
                             pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
-    sp = &actorNew->s();
     u = actorNew->u();
 
-    sp->hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
     SetOwner(pp->Actor(), actorNew);
-    sp->shade = -10;
-    sp->xrepeat = 52;
-    sp->yrepeat = 52;
-    sp->clipdist = 0;
-    sp->zvel = -pp->horizon.horiz.asq16() >> 9;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -10;
+    actorNew->spr.xrepeat = 52;
+    actorNew->spr.yrepeat = 52;
+    actorNew->spr.clipdist = 0;
+    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(u->Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
     u->floor_dist = Z(1);
     u->ceiling_dist = Z(1);
@@ -13460,9 +13455,9 @@ void InitHeartAttack(PLAYERp pp)
     auto oclipdist = psp->clipdist;
     psp->clipdist = 1;
 
-    u->xchange = MOVEx(sp->xvel, sp->ang);
-    u->ychange = MOVEy(sp->xvel, sp->ang);
-    u->zchange = sp->zvel;
+    u->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    u->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    u->zchange = actorNew->spr.zvel;
 
     MissileSetPos(actorNew, DoBloodWorm, mp[i].dist_out);
 

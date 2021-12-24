@@ -287,9 +287,6 @@ constexpr int SQ(int val)
 }
 
 
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range))
-#define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < (range))
-
 // two vectors
 // can determin direction
 #define DOT_PRODUCT_2D(x1,y1,x2,y2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16))
@@ -2068,6 +2065,13 @@ END_SW_NS
 #include "swactor.h"
 
 BEGIN_SW_NS
+
+inline int PlayerFacingRange(PLAYERp pp, DSWActor* a, int range)
+{
+    return (abs(getincangle(getangle(a->spr.pos.X - (pp)->pos.X, a->spr.pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range));
+}
+
+#define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < (range))
 
 inline void SET_BOOL1(spritetype* sp) { sp->extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(spritetype* sp) { sp->extra |= SPRX_BOOL2; }
