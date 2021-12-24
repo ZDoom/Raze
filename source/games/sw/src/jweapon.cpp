@@ -261,32 +261,32 @@ int DoWallBloodDrip(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    //sp->z += (300+RandomRange(2300)) >> 1;
+    //actor->spr.z += (300+RandomRange(2300)) >> 1;
 
     // sy & sz are the ceiling and floor of the sector you are sliding down
     if (u->sz != u->sy)
     {
         // if you are between the ceiling and floor fall fast
-        if (sp->pos.Z > u->sy && sp->pos.Z < u->sz)
+        if (actor->spr.pos.Z > u->sy && actor->spr.pos.Z < u->sz)
         {
-            sp->zvel += 300;
-            sp->pos.Z += sp->zvel;
+            actor->spr.zvel += 300;
+            actor->spr.pos.Z += actor->spr.zvel;
         }
         else
         {
-            sp->zvel = (300+RandomRange(2300)) >> 1;
-            sp->pos.Z += sp->zvel;
+            actor->spr.zvel = (300+RandomRange(2300)) >> 1;
+            actor->spr.pos.Z += actor->spr.zvel;
         }
     }
     else
     {
-        sp->zvel = (300+RandomRange(2300)) >> 1;
-        sp->pos.Z += sp->zvel;
+        actor->spr.zvel = (300+RandomRange(2300)) >> 1;
+        actor->spr.pos.Z += actor->spr.zvel;
     }
 
-    if (sp->pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= u->loz)
     {
-        sp->pos.Z = u->loz;
+        actor->spr.pos.Z = u->loz;
         SpawnFloorSplash(actor);
         KillActor(actor);
         return 0;
@@ -302,8 +302,8 @@ void SpawnMidSplash(DSWActor* actor)
     SPRITEp np;
     USERp nu;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sector(),
-                      sp->pos.X, sp->pos.Y, GetSpriteZOfMiddle(sp), sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->spr.sector(),
+                      actor->spr.pos.X, actor->spr.pos.Y, GetSpriteZOfMiddle(sp), actor->spr.ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -311,7 +311,7 @@ void SpawnMidSplash(DSWActor* actor)
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
     np->yrepeat = 70-RandomRange(20);
-    np->opos = sp->opos;
+    np->opos = actor->spr.opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -333,8 +333,8 @@ void SpawnFloorSplash(DSWActor* actor)
     SPRITEp np;
     USERp nu;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sector(),
-                      sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->spr.sector(),
+                      actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -342,7 +342,7 @@ void SpawnFloorSplash(DSWActor* actor)
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
     np->yrepeat = 70-RandomRange(20);
-    np->opos = sp->opos;
+    np->opos = actor->spr.opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -377,16 +377,16 @@ int DoBloodSpray(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    if (sp->xvel <= 2)
+    if (actor->spr.xvel <= 2)
     {
         // special stuff for blood worm
-        sp->pos.Z += (u->zchange >> 1);
+        actor->spr.pos.Z += (u->zchange >> 1);
 
-        getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &cz, &fz);
+        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
         // pretend like we hit a sector
-        if (sp->pos.Z >= fz)
+        if (actor->spr.pos.Z >= fz)
         {
-            sp->pos.Z = fz;
+            actor->spr.pos.Z = fz;
             SpawnFloorSplash(actor);
             KillActor(actor);
             return true;
@@ -444,7 +444,7 @@ int DoBloodSpray(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, u->ID);
+                HitBreakWall(wph, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -468,10 +468,10 @@ int DoBloodSpray(DSWActor* actor)
                     return 0;
                 }
 
-                sp->xvel = sp->yvel = u->xchange = u->ychange = 0;
-                sp->xrepeat = sp->yrepeat = 70 - RandomRange(25);
-                sp->pos.X = bsp->pos.X;
-                sp->pos.Y = bsp->pos.Y;
+                actor->spr.xvel = actor->spr.yvel = u->xchange = u->ychange = 0;
+                actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
+                actor->spr.pos.X = bsp->pos.X;
+                actor->spr.pos.Y = bsp->pos.Y;
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
@@ -479,12 +479,12 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (bldActor->tempwall->twoSided())
-                        getzsofslopeptr(bldActor->tempwall->nextSector(), sp->pos.X, sp->pos.Y, &u->sy, &u->sz);
+                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->spr.pos.X, actor->spr.pos.Y, &u->sy, &u->sz);
                     else
                         u->sy = u->sz; // ceiling and floor are equal - white wall
                 }
 
-                RESET(sp->cstat,CSTAT_SPRITE_INVISIBLE);
+                RESET(actor->spr.cstat,CSTAT_SPRITE_INVISIBLE);
                 ChangeState(actor, s_BloodSprayDrip);
             }
 
@@ -494,13 +494,13 @@ int DoBloodSpray(DSWActor* actor)
         case kHitSector:
         {
             // hit floor
-            if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+            if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
             {
                 if (TEST(u->Flags, SPR_UNDERWATER))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing
                 // underwater
 
-                if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
+                if (u->lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                 // shallow water
 
@@ -541,8 +541,8 @@ int DoBloodSpray(DSWActor* actor)
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER))
     {
 
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -551,7 +551,7 @@ int DoBloodSpray(DSWActor* actor)
         np->shade = -12;
         np->xrepeat = 40-RandomRange(30);
         np->yrepeat = 40-RandomRange(30);
-        np->opos = sp->opos;
+        np->opos = actor->spr.opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -652,7 +652,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, u->ID);
+                HitBreakWall(wph, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -680,7 +680,7 @@ int DoPhosphorus(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                    if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -709,13 +709,13 @@ int DoPhosphorus(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
+                    if (u->lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -751,11 +751,11 @@ int DoPhosphorus(DSWActor* actor)
 
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+    if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
     {
 
-        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 100);
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -765,7 +765,7 @@ int DoPhosphorus(DSWActor* actor)
         np->shade = -40;
         np->xrepeat = 12 + RandomRange(10);
         np->yrepeat = 12 + RandomRange(10);
-        np->opos = sp->opos;
+        np->opos = actor->spr.opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -825,7 +825,7 @@ int DoChemBomb(DSWActor* actor)
         {
             short wall_ang;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
             auto hitActor = u->coll.actor();
@@ -839,7 +839,7 @@ int DoChemBomb(DSWActor* actor)
             else
             {
                 // Canister pops when first smoke starts out
-                if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+                if (u->WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 {
                     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                     PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -861,12 +861,12 @@ int DoChemBomb(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, u->ID);
+                HitBreakWall(wph, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, u->ID);
                 u->coll.setNone();
                 break;
             }
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
             int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
@@ -892,12 +892,12 @@ int DoChemBomb(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                    if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
-                            if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+                            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
@@ -908,7 +908,7 @@ int DoChemBomb(DSWActor* actor)
                         else
                         {
                             // Canister pops when first smoke starts out
-                            if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+                            if (u->WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                             {
                                 PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                                 PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -931,19 +931,19 @@ int DoChemBomb(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
+                    if (u->lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
-                        if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+                        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                             PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
                         u->coll.setNone();
@@ -955,7 +955,7 @@ int DoChemBomb(DSWActor* actor)
                     else
                     {
                         // Canister pops when first smoke starts out
-                        if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+                        if (u->WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                         {
                             PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                             PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -981,10 +981,10 @@ int DoChemBomb(DSWActor* actor)
     }
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
+    if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
     {
-        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
+                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -993,7 +993,7 @@ int DoChemBomb(DSWActor* actor)
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
-        np->opos = sp->opos;
+        np->opos = actor->spr.opos;
         // !Frank - dont do translucent
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         // SET(np->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
@@ -1086,7 +1086,7 @@ int DoCaltrops(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, u->ID);
+                HitBreakWall(wph, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -1116,7 +1116,7 @@ int DoCaltrops(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                    if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -1130,8 +1130,8 @@ int DoCaltrops(DSWActor* actor)
                         else
                         {
                             u->xchange = u->ychange = 0;
-                            SET(sp->extra, SPRX_BREAKABLE);
-                            SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
+                            SET(actor->spr.extra, SPRX_BREAKABLE);
+                            SET(actor->spr.cstat,CSTAT_SPRITE_BREAKABLE);
                             ChangeState(actor, s_CaltropsStick);
                             return true;
                         }
@@ -1146,13 +1146,13 @@ int DoCaltrops(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->pos.Z > ((u->hiz + u->loz) >> 1))
+                if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
+                    if (u->lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1168,8 +1168,8 @@ int DoCaltrops(DSWActor* actor)
                     else
                     {
                         u->xchange = u->ychange = 0;
-                        SET(sp->extra, SPRX_BREAKABLE);
-                        SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
+                        SET(actor->spr.extra, SPRX_BREAKABLE);
+                        SET(actor->spr.cstat,CSTAT_SPRITE_BREAKABLE);
                         ChangeState(actor, s_CaltropsStick);
                         return true;
                     }
@@ -1224,8 +1224,8 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER))
         return -1;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sector(),
-                      sp->pos.X, sp->pos.Y, sp->pos.Z - RANDOM_P2(Z(8)), sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->spr.sector(),
+                      actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -1235,7 +1235,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     np->shade = -40;
     np->xrepeat = 32;
     np->yrepeat = 32;
-    np->clipdist = sp->clipdist;
+    np->clipdist = actor->spr.clipdist;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     nu->spal = np->pal = PALETTE_PLAYER6;
@@ -1276,10 +1276,10 @@ int DoRadiationCloud(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    sp->pos.Z -= sp->zvel;
+    actor->spr.pos.Z -= actor->spr.zvel;
 
-    sp->pos.X += u->xchange;
-    sp->pos.Y += u->ychange;
+    actor->spr.pos.X += u->xchange;
+    actor->spr.pos.Y += u->ychange;
 
     if (u->ID)
     {
@@ -1388,14 +1388,14 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
-    nx = sp->pos.X;
-    ny = sp->pos.Y;
-    nz = sp->pos.Z;
+    nx = actor->spr.pos.X;
+    ny = actor->spr.pos.Y;
+    nz = actor->spr.pos.Z;
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, sp->sector(),
-                    nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->spr.sector(),
+                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
     wp = &actorNew->s();
     wu = actorNew->u();
@@ -1441,14 +1441,14 @@ int InitChemBomb(DSWActor* actor)
 // Need to make it take away from inventory weapon list
 //    PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    nx = sp->pos.X;
-    ny = sp->pos.Y;
-    nz = sp->pos.Z;
+    nx = actor->spr.pos.X;
+    ny = actor->spr.pos.Y;
+    nz = actor->spr.pos.Z;
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, sp->sector(),
-                    nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->spr.sector(),
+                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
     wp = &actorNew->s();
     wu = actorNew->u();
@@ -1526,14 +1526,14 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (itActor == pp->Actor())
                 break;
 
-            DISTANCE(hp->pos.X, hp->pos.Y, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
@@ -1591,14 +1591,14 @@ int InitFlashBomb(DSWActor* actor)
             hp = &itActor->s();
             hu = itActor->u();
 
-            DISTANCE(hp->pos.X, hp->pos.Y, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
+            DISTANCE(hp->pos.X, hp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
-            if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
+            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z - GetSpriteSizeZ(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->pos.Z, hp->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - GetSpriteSizeZ(sp), actor->spr.sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1643,7 +1643,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
 
     // Forget about burnable sprites
-    if (TEST(sp->extra, SPRX_BURNABLE))
+    if (TEST(actor->spr.extra, SPRX_BURNABLE))
         return;
 
     if (actor != nullptr)
@@ -1681,8 +1681,8 @@ void SpawnFlashBombOnActor(DSWActor* actor)
         }
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sector(),
-                      sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->spr.sector(),
+                      actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     auto np = &actorNew->s();
     auto nu = actorNew->u();
 
@@ -1803,14 +1803,14 @@ int InitCaltrops(DSWActor* actor)
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
-    nx = sp->pos.X;
-    ny = sp->pos.Y;
-    nz = sp->pos.Z;
+    nx = actor->spr.pos.X;
+    ny = actor->spr.pos.Y;
+    nz = actor->spr.pos.Z;
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sector(),
-                    nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY / 2);
+    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
+                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
 
     wp = &spawnedActor->s();
     wu = spawnedActor->u();
@@ -1822,7 +1822,7 @@ int InitCaltrops(DSWActor* actor)
     wp->xrepeat = 64;
     wp->shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    wp->clipdist = sp->clipdist;
+    wp->clipdist = actor->spr.clipdist;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
@@ -1853,15 +1853,15 @@ int InitPhosphorus(DSWActor* actor)
 
     PlaySound(DIGI_FIREBALL1, actor, v3df_follow);
 
-    nx = sp->pos.X;
-    ny = sp->pos.Y;
-    nz = sp->pos.Z;
+    nx = actor->spr.pos.X;
+    ny = actor->spr.pos.Y;
+    nz = actor->spr.pos.Z;
 
     daang = NORM_ANGLE(RandomRange(2048));
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, sp->sector(),
+    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->spr.sector(),
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
     wp = &actorNew->s();
@@ -1878,10 +1878,10 @@ int InitPhosphorus(DSWActor* actor)
     wp->xrepeat = 64;
     wp->shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    if (sp->clipdist > 0)
-        wp->clipdist = sp->clipdist-1;
+    if (actor->spr.clipdist > 0)
+        wp->clipdist = actor->spr.clipdist-1;
     else
-        wp->clipdist = sp->clipdist;
+        wp->clipdist = actor->spr.clipdist;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 600;
     wu->ceiling_dist = Z(3);
@@ -1923,7 +1923,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         PlaySound(DIGI_GIBS3, actor, v3df_none);
     //    }
 
-    ang = sp->ang;
+    ang = actor->spr.ang;
     vel = velocity;
 
     for (i=0; i<cnt; i++)
@@ -1939,12 +1939,12 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         else
             ang = NORM_ANGLE(ang+1024+256 - RandomRange(256));
 
-        nx = sp->pos.X;
-        ny = sp->pos.Y;
+        nx = actor->spr.pos.X;
+        ny = actor->spr.pos.Y;
         nz = GetSpriteZOfTop(sp)-20;
 
         // Spawn a shot
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->spr.sector(),
                         nx, ny, nz, ang, vel*2);
 
         wp = &actorNew->s();
@@ -1961,7 +1961,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         wp->yrepeat = 64-RandomRange(35);
         wp->xrepeat = 64-RandomRange(35);
         wp->shade = -15;
-        wp->clipdist = sp->clipdist;
+        wp->clipdist = actor->spr.clipdist;
         wu->WeaponNum = u->WeaponNum;
         wu->Radius = 600;
         wu->ceiling_dist = Z(3);
@@ -2006,14 +2006,14 @@ void DoFlagScore(int16_t pal)
     {
         sp = &actor->s();
 
-        if (sp->picnum < 1900 || sp->picnum > 1999)
+        if (actor->spr.picnum < 1900 || actor->spr.picnum > 1999)
             continue;
 
-        if (sp->pal == pal)
-            sp->picnum++;               // Increment the counter
+        if (actor->spr.pal == pal)
+            actor->spr.picnum++;               // Increment the counter
 
-        if (sp->picnum > 1999)
-            sp->picnum = 1900;          // Roll it over if you must
+        if (actor->spr.picnum > 1999)
+            actor->spr.picnum = 1900;          // Roll it over if you must
 
     }
 }
@@ -2077,7 +2077,7 @@ int DoCarryFlag(DSWActor* actor)
 
         vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
         SetActorZ(actor, &pos);
-        sp->ang = NORM_ANGLE(ap->ang + 1536);
+        actor->spr.ang = NORM_ANGLE(ap->ang + 1536);
     }
 
     // not activated yet
@@ -2113,7 +2113,7 @@ int DoCarryFlag(DSWActor* actor)
             }
             // if in score box, score.
             if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
-                && ap->pal != sp->pal)
+                && ap->pal != actor->spr.pal)
             {
                 if (fown != nullptr)
                 {
@@ -2235,8 +2235,8 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         vec3_t pos = { ap->pos.X, ap->pos.Y, GetSpriteZOfMiddle(ap) };
         SetActorZ(actor, &pos);
-        sp->ang = NORM_ANGLE(ap->ang + 1536);
-        sp->pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
+        actor->spr.ang = NORM_ANGLE(ap->ang + 1536);
+        actor->spr.pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
     }
 
     if (!au || au->Health <= 0)
@@ -2249,7 +2249,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
 
     // if in score box, score.
     if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
-        && ap->pal != sp->pal)
+        && ap->pal != actor->spr.pal)
     {
         if (u->flagOwnerActor != nullptr)
         {
@@ -2288,10 +2288,10 @@ int SetCarryFlag(DSWActor* actor)
     // not yet active for 1 sec
 //    RESET(u->Flags, SPR_ACTIVE);
 //    u->WaitTics = SEC(3);
-    SET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Counter = 0;
     change_actor_stat(actor, STAT_ITEM);
-    if (sp->hitag == 1)
+    if (actor->spr.hitag == 1)
         ChangeState(actor, s_CarryFlagNoDet);
     else
         ChangeState(actor, s_CarryFlag);
@@ -2316,7 +2316,7 @@ int DoFlag(DSWActor* actor)
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
-            RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
             u->sz = hsp->pos.Z - DIV2(GetSpriteSizeZ(hsp));
         }
@@ -2337,8 +2337,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     extern STATE s_ShotgunShellShrap[];
 
 
-    nx = sp->pos.X;
-    ny = sp->pos.Y;
+    nx = actor->spr.pos.X;
+    ny = actor->spr.pos.Y;
     nz = DIV2(GetSpriteZOfTop(sp)+ GetSpriteZOfBottom(sp));
 
     switch (ShellNum)
@@ -2356,7 +2356,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, sp->sector(), nx, ny, nz, sp->ang, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->spr.sector(), nx, ny, nz, actor->spr.ang, 64);
 
     wp = &actorNew->s();
     wu = actorNew->u();
@@ -2375,7 +2375,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         if (ShellNum == -3)
         {
-            wp->ang = sp->ang;
+            wp->ang = actor->spr.ang;
             HelpMissileLateral(actorNew,2500);
             wp->ang = NORM_ANGLE(wp->ang-512);
             HelpMissileLateral(actorNew,1000); // Was 1500
@@ -2383,7 +2383,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         }
         else
         {
-            wp->ang = sp->ang;
+            wp->ang = actor->spr.ang;
             HelpMissileLateral(actorNew,2500);
             wp->ang = NORM_ANGLE(wp->ang+512);
             HelpMissileLateral(actorNew,1500);
@@ -2398,7 +2398,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     case SHOT_SHELL:
         wp->pos.Z -= Z(13);
-        wp->ang = sp->ang;
+        wp->ang = actor->spr.ang;
         HelpMissileLateral(actorNew,2500);
         wp->ang = NORM_ANGLE(wp->ang+512);
         HelpMissileLateral(actorNew,1300);
