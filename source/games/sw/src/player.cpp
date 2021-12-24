@@ -4020,7 +4020,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
+    DSWActor* under_act = nullptr, * over_act = nullptr;
     bool Found = false;
 
     if (Prediction)
@@ -4029,13 +4029,11 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (auto actor = it.Next())
+    while (over_act = it.Next())
     {
-        over_sp = &actor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(over_act->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            over_act->spr.sector()->hasU() &&
+            over_act->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4047,13 +4045,11 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (auto actor = it.Next())
+    while (under_act = it.Next())
     {
-        under_sp = &actor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(under_act->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            under_act->spr.sector()->hasU() &&
+            under_act->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4063,15 +4059,15 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    u->sx = over_sp->pos.X - pp->pos.X;
-    u->sy = over_sp->pos.Y - pp->pos.Y;
+    u->sx = over_act->spr.pos.X - pp->pos.X;
+    u->sy = over_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = under_sp->pos.X - u->sx;
-    pp->pos.Y = under_sp->pos.Y - u->sy;
+    pp->pos.X = under_act->spr.pos.X - u->sx;
+    pp->pos.Y = under_act->spr.pos.Y - u->sy;
 
-    auto over  = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over  = over_act->spr.sector();
+    auto under = under_act->spr.sector();
 
     if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under) == 2)
     {
@@ -4080,7 +4076,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     else
         pp->setcursector(over);
 
-    pp->pos.Z = under_sp->sector()->ceilingz + Z(6);
+    pp->pos.Z = under_act->spr.sector()->ceilingz + Z(6);
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
@@ -4095,7 +4091,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
 
-    SPRITEp under_sp = nullptr, over_sp = nullptr;
+    DSWActor* under_act = nullptr, * over_act = nullptr;
     bool Found = false;
 
     if (Prediction)
@@ -4103,13 +4099,11 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (auto actor = it.Next())
+    while (under_act = it.Next())
     {
-        under_sp = &actor->s();
-
-        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->number == sectu->number)
+        if (TEST(under_act->spr.sector()->extra, SECTFX_UNDERWATER) &&
+            under_act->spr.sector()->hasU() &&
+            under_act->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4121,13 +4115,11 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (auto actor = it.Next())
+    while (over_act = it.Next())
     {
-        over_sp = &actor->s();
-
-        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->number == sectu->number)
+        if (TEST(over_act->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+            over_act->spr.sector()->hasU() &&
+            over_act->spr.sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4137,22 +4129,22 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    u->sx = under_sp->pos.X - pp->pos.X;
-    u->sy = under_sp->pos.Y - pp->pos.Y;
+    u->sx = under_act->spr.pos.X - pp->pos.X;
+    u->sy = under_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = over_sp->pos.X - u->sx;
-    pp->pos.Y = over_sp->pos.Y - u->sy;
+    pp->pos.X = over_act->spr.pos.X - u->sx;
+    pp->pos.Y = over_act->spr.pos.Y - u->sy;
 
-    auto over = over_sp->sector();
-    auto under = under_sp->sector();
+    auto over = over_act->spr.sector();
+    auto under = under_act->spr.sector();
 
     if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under))
     {
         pp->setcursector(over);
     }
 
-    pp->pos.Z = over_sp->sector()->floorz - Z(2);
+    pp->pos.Z = over_act->spr.sector()->floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
@@ -6305,11 +6297,11 @@ void DoPlayerRun(PLAYERp pp)
                     else if (TEST(pp->cursector->extra, SECTFX_TRIGGER))
                     {
                         auto sActor = FindNearSprite(pp->Actor(), STAT_TRIGGER);
-                        if (sActor && SP_TAG5(&sActor->s()) == TRIGGER_TYPE_REMOTE_SO)
+                        if (sActor && SP_TAG5(sActor) == TRIGGER_TYPE_REMOTE_SO)
                         {
                             pp->remoteActor = sActor;
                             pp->KeyPressBits &= ~SB_OPEN;
-                            DoPlayerBeginRemoteOperate(pp, &SectorObject[SP_TAG7(&sActor->s())]);
+                            DoPlayerBeginRemoteOperate(pp, &SectorObject[SP_TAG7(sActor)]);
                             return;
                         }
                     }

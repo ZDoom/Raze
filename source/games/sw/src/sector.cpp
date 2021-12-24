@@ -2318,7 +2318,7 @@ void PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((GetSpriteZOfBottom(&pp->Actor()->s()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((ActorZOfBottom(pp->Actor()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
