@@ -2536,8 +2536,8 @@ void SpriteSetup(void)
                     change_actor_stat(actor, STAT_CLIMB_MARKER);
 
                     // make a QUICK_LADDER sprite automatically
-                    auto ns = insertActor(sp->sector(), STAT_QUICK_LADDER);
-                    auto np = &ns->s();
+                    auto actorNew = insertActor(sp->sector(), STAT_QUICK_LADDER);
+                    auto np = &actorNew->s();
 
                     np->cstat = 0;
                     np->extra = 0;

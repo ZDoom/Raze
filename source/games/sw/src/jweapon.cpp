@@ -1633,23 +1633,23 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (actor != nullptr)
     {
-        if (u->flameActor != nullptr)
+        DSWActor* flameActor = u->flameActor;
+        if (flameActor != nullptr)
         {
             int sizez = (ActorSizeZ(actor) * 5) >> 2;
 
-            auto np = &u->flameActor->s();
-            auto nu = u->flameActor->u();
+            auto nu = flameActor->u();
 
 
-            if (nu->Counter >= GetRepeatFromHeight(np, sizez))
+            if (nu->Counter >= GetRepeatFromHeight(flameActor, sizez))
             {
                 // keep flame only slightly bigger than the enemy itself
-                nu->Counter = GetRepeatFromHeight(np, sizez) * 2;
+                nu->Counter = GetRepeatFromHeight(flameActor, sizez) * 2;
             }
             else
             {
                 // increase max size
-                nu->Counter += GetRepeatFromHeight(np, 8 << 8) * 2;
+                nu->Counter += GetRepeatFromHeight(flameActor, 8 << 8) * 2;
             }
 
             // Counter is max size

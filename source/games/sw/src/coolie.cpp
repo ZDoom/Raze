@@ -446,10 +446,9 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
             SWSectIterator it(u->lo_sectp);
             while (auto itActor = it.Next())
             {
-                SPRITEp np = &itActor->s();
-                if (np->picnum == ST1 && np->hitag == SECT_SINK)
+                if (itActor->spr.picnum == ST1 && itActor->spr.hitag == SECT_SINK)
                 {
-                    depth = np->lotag;
+                    depth = itActor->spr.lotag;
                 }
             }
         }

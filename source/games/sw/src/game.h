@@ -2240,6 +2240,12 @@ inline int Facing(DSWActor* actor1, DSWActor* actor2)
     return (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < 512);
 }
 
+// Given a z height and sprite return the correct y repeat value
+inline int GetRepeatFromHeight(DSWActor* sp, int zh)
+{
+    return zh / (4 * tileHeight(sp->spr.picnum));
+}
+
 inline bool SpriteInDiveArea(DSWActor* a)
 {
     return (TEST(a->spr.sector()->extra, SECTFX_DIVE_AREA) ? true : false);

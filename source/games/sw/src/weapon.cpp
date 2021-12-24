@@ -10025,24 +10025,24 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
             return;
         }
 
-        if (eu->flameActor != nullptr)
+        auto flameActor = eu->flameActor;
+        if (flameActor != nullptr)
         {
             int sizez = GetSpriteSizeZ(ep) + (GetSpriteSizeZ(ep) >> 2);
-            auto np = &eu->flameActor->s();
-            auto nu = eu->flameActor->u();
+            auto nu = flameActor->u();
 
             if (TEST(ep->extra, SPRX_BURNABLE))
                 return;
 
-            if (nu->Counter >= GetRepeatFromHeight(np, sizez))
+            if (nu->Counter >= GetRepeatFromHeight(flameActor, sizez))
             {
                 // keep flame only slightly bigger than the enemy itself
-                nu->Counter = GetRepeatFromHeight(np, sizez);
+                nu->Counter = GetRepeatFromHeight(flameActor, sizez);
             }
             else
             {
                 //increase max size
-                nu->Counter += GetRepeatFromHeight(np, 8<<8);
+                nu->Counter += GetRepeatFromHeight(flameActor, 8<<8);
             }
 
             // Counter is max size
@@ -13162,7 +13162,6 @@ int InitStar(PLAYERp pp)
     int zvel;
 
     static short dang[] = {-12, 12};
-    SPRITEp np;
     USERp nu;
     const int STAR_REPEAT = 26;
     const int STAR_HORIZ_ADJ = 100;
@@ -13228,26 +13227,25 @@ int InitStar(PLAYERp pp)
     for (size_t i = 0; i < countof(dang); i++)
     {
         auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
-        np = &actorNew2->s();
         nu = actorNew2->u();
 
         SetOwner(GetOwner(actorNew), actorNew2);
-        np->yrepeat = np->xrepeat = STAR_REPEAT;
-        np->shade = wp->shade;
+        actorNew2->spr.yrepeat = actorNew2->spr.xrepeat = STAR_REPEAT;
+        actorNew2->spr.shade = wp->shade;
 
-        np->extra = wp->extra;
-        np->clipdist = wp->clipdist;
+        actorNew2->spr.extra = wp->extra;
+        actorNew2->spr.clipdist = wp->clipdist;
         nu->WeaponNum = wu->WeaponNum;
         nu->Radius = wu->Radius;
         nu->ceiling_dist = wu->ceiling_dist;
         nu->floor_dist = wu->floor_dist;
         nu->Flags2 = wu->Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(np))
+        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
             SET(nu->Flags, SPR_UNDERWATER);
 
         zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
-        np->zvel = zvel >> 1;
+        actorNew2->spr.zvel = zvel >> 1;
 
         if (MissileSetPos(actorNew2, DoStar, 1000))
         {
@@ -13258,11 +13256,11 @@ int InitStar(PLAYERp pp)
         // move the same as middle star
         zvel = wu->zchange;
 
-        nu->xchange = MOVEx(np->xvel, np->ang);
-        nu->ychange = MOVEy(np->xvel, np->ang);
+        nu->xchange = MOVEx(actorNew2->spr.xvel, actorNew2->spr.ang);
+        nu->ychange = MOVEy(actorNew2->spr.xvel, actorNew2->spr.ang);
         nu->zchange = zvel;
 
-        np->backuppos();
+        actorNew2->spr.backuppos();
     }
 
     return 0;

@@ -118,7 +118,6 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
     {
-        auto sp = &actor->s();
         // manually set gotpic
         if (gotsector[actor->spr.sectno()])
         {
