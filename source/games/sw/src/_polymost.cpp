@@ -233,10 +233,10 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     int w;
                     int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
+                    auto actor = mirror[cnt].cameraActor;
+                    ASSERT(actor != nullptr);
 
-                    ASSERT(mirror[cnt].cameraActor != nullptr);
-
-                    sp = &mirror[cnt].cameraActor->s();
+                    sp = &actor->s();
 
                     // Calculate the angle of the mirror wall
                     auto wal = mirror[cnt].mirrorWall;
