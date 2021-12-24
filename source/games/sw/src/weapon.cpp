@@ -9989,15 +9989,14 @@ int SpawnCoolieExp(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->spr.sector(),
                             nx, ny, zh, actor->spr.ang, 0);
 
-    exp = &actorNew->s();
     eu = actorNew->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(actor, actorNew);
-    exp->shade = -40;
-    exp->pal = eu->spal = u->spal;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.pal = eu->spal = u->spal;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
     DoExpDamageTest(actorNew);
@@ -10208,18 +10207,17 @@ void SpawnFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &actorNew->s();
     eu = actorNew->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->xrepeat = 52;
-    exp->yrepeat = 52;
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.xrepeat = 52;
+    actorNew->spr.yrepeat = 52;
     SetOwner(GetOwner(actor), actorNew);
-    exp->shade = -40;
-    exp->pal = eu->spal = u->spal;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.shade = -40;
+    actorNew->spr.pal = eu->spal = u->spal;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(eu->Flags, TEST(u->Flags,SPR_UNDERWATER));
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
     // All this stuff assures that explosions do not go into floors &
@@ -10247,17 +10245,16 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    exp = &actorNew->s();
     eu = actorNew->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->xrepeat = 16;
-    exp->yrepeat = 16;
+    actorNew->spr.hitag = LUMINOUS; //Always full brightness
+    actorNew->spr.xrepeat = 16;
+    actorNew->spr.yrepeat = 16;
     SetOwner(GetOwner(actor), actorNew);
-    exp->shade = -40;
-    exp->pal = eu->spal = u->spal;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.shade = -40;
+    actorNew->spr.pal = eu->spal = u->spal;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
     // All this stuff assures that explosions do not go into floors &
@@ -10285,15 +10282,15 @@ void SpawnBoltExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 76;
-    exp->yrepeat = 76;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 76;
+    expActor->spr.yrepeat = 76;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
 
     SpawnExpZadjust(actor, expActor, Z(40), Z(40));
@@ -10301,7 +10298,7 @@ void SpawnBoltExp(DSWActor* actor)
     DoExpDamageTest(expActor);
 
     SetExpQuake(actor); // !JIM! made rocket launcher shake things
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 }
 
 int SpawnBunnyExp(DSWActor* actor)
@@ -10342,20 +10339,20 @@ void SpawnTankShellExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 64+32;
-    exp->yrepeat = 64+32;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 64+32;
+    expActor->spr.yrepeat = 64+32;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
     SpawnExpZadjust(actor, expActor, Z(40), Z(40));
     DoExpDamageTest(expActor);
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 }
 
 
@@ -10372,16 +10369,16 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -128;
-    exp->xrepeat = 218;
-    exp->yrepeat = 152;
-    exp->clipdist = actor->spr.clipdist;
+    expActor->spr.shade = -128;
+    expActor->spr.xrepeat = 218;
+    expActor->spr.yrepeat = 152;
+    expActor->spr.clipdist = actor->spr.clipdist;
     eu->ceiling_dist = Z(16);
     eu->floor_dist = Z(16);
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
     int32_t const vel = (2048+128) + RandomRange(2048);
@@ -10391,7 +10388,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     eu->coll = move_missile(expActor, eu->xchange, eu->ychange, 0,
                            eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(exp->pos.X - actor->spr.pos.X, exp->pos.Y - actor->spr.pos.Y, exp->pos.Z - actor->spr.pos.Z) < 1024)
+    if (FindDistance3D(expActor->spr.pos.X - actor->spr.pos.X, expActor->spr.pos.Y - actor->spr.pos.Y, expActor->spr.pos.Z - actor->spr.pos.Z) < 1024)
     {
         KillActor(expActor);
         return;
@@ -10436,15 +10433,15 @@ void SpawnNuclearExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(own, expActor);
-    exp->shade = -128;
-    exp->xrepeat = 255;
-    exp->yrepeat = 255;
-    exp->clipdist = actor->spr.clipdist;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    eu->spal = exp->pal = PALETTE_PLAYER1;  // Set nuke puff to gray
+    expActor->spr.shade = -128;
+    expActor->spr.xrepeat = 255;
+    expActor->spr.yrepeat = 255;
+    expActor->spr.clipdist = actor->spr.clipdist;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    eu->spal = expActor->spr.pal = PALETTE_PLAYER1;  // Set nuke puff to gray
 
     InitChemBomb(expActor);
 
@@ -10456,13 +10453,13 @@ void SpawnNuclearExp(DSWActor* actor)
     eu = expActor->u();
 
     SetOwner(own, expActor);
-    exp->shade = -128;
-    exp->xrepeat = 218;
-    exp->yrepeat = 152;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -128;
+    expActor->spr.xrepeat = 218;
+    expActor->spr.yrepeat = 152;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
 
     eu->Radius = NUKE_RADIUS;
 
@@ -10507,16 +10504,16 @@ void SpawnTracerExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 4;
-    exp->yrepeat = 4;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 4;
+    expActor->spr.yrepeat = 4;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
 
     if (u->ID == BOLT_THINMAN_R1)
     {
@@ -10542,17 +10539,17 @@ void SpawnMicroExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 32;
-    exp->yrepeat = 32;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 32;
+    expActor->spr.yrepeat = 32;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_YFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
 
     //
@@ -10561,7 +10558,7 @@ void SpawnMicroExp(DSWActor* actor)
     //
 
     SpawnExpZadjust(actor, expActor, Z(20), Z(20));
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 }
 
 void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
@@ -10609,26 +10606,26 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(Operator, expActor);
-    exp->shade = -40;
+    expActor->spr.shade = -40;
     if (smallflames)
     {
-        exp->xrepeat = 12;
-        exp->yrepeat = 12;
+        expActor->spr.xrepeat = 12;
+        expActor->spr.yrepeat = 12;
     }
     else
     {
-        exp->xrepeat = 34;
-        exp->yrepeat = 34;
+        expActor->spr.xrepeat = 34;
+        expActor->spr.yrepeat = 34;
     }
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(exp->cstat, CSTAT_SPRITE_YFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
 
     // place all sprites on list
     for (sn = 0; sn < SIZ(sop->so_actors); sn++)
@@ -10647,14 +10644,14 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     if (TEST(u->Flags, SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        exp->pos.Z = actor->spr.sector()->floorz - u->sz;
-        exp->backupz();
+        expActor->spr.pos.Z = actor->spr.sector()->floorz - u->sz;
+        expActor->spr.backupz();
     }
     else
     {
         // move with the mid sector
-        exp->pos.Z = sop->mid_sector->floorz - u->sz;
-        exp->backupz();
+        expActor->spr.pos.Z = sop->mid_sector->floorz - u->sz;
+        expActor->spr.backupz();
     }
 
     eu->sx = u->sx;
@@ -10675,16 +10672,16 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 32;
-    exp->yrepeat = 32;
-    exp->clipdist = actor->spr.clipdist;
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 32;
+    expActor->spr.yrepeat = 32;
+    expActor->spr.clipdist = actor->spr.clipdist;
     eu->ceiling_dist = Z(16);
     eu->floor_dist = Z(16);
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
     vel = (1024+512) + RandomRange(1024);
@@ -10694,14 +10691,14 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     eu->coll = move_missile(expActor, eu->xchange, eu->ychange, 0,
                            eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(exp->pos.X - actor->spr.pos.X, exp->pos.Y - actor->spr.pos.Y, exp->pos.Z - actor->spr.pos.Z) < 1024)
+    if (FindDistance3D(expActor->spr.pos.X - actor->spr.pos.X, expActor->spr.pos.Y - actor->spr.pos.Y, expActor->spr.pos.Z - actor->spr.pos.Z) < 1024)
     {
         KillActor(expActor);
         return;
     }
 
     SpawnExpZadjust(actor, expActor, Z(50), Z(10));
-    exp->backuppos();
+    expActor->spr.backuppos();
 }
 
 int SpawnGrenadeSmallExp(DSWActor* actor)
@@ -10750,14 +10747,14 @@ void SpawnGrenadeExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 64 + 32;
-    exp->yrepeat = 64 + 32;
-    exp->clipdist = actor->spr.clipdist;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 64 + 32;
+    expActor->spr.yrepeat = 64 + 32;
+    expActor->spr.clipdist = actor->spr.clipdist;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_GRENADE_EXP].radius;
 
     //
@@ -10770,7 +10767,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     DoExpDamageTest(expActor);
 
     SetExpQuake(expActor);
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 0);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 0);
 }
 
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize)
@@ -10784,40 +10781,40 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 
     if (u)
     {
-        tos_z = exp->pos.Z - upper_zsize;
-        bos_z = exp->pos.Z + lower_zsize;
+        tos_z = expActor->spr.pos.Z - upper_zsize;
+        bos_z = expActor->spr.pos.Z + lower_zsize;
 
         if (tos_z <= u->hiz + Z(4))
         {
-            exp->pos.Z = u->hiz + upper_zsize;
-            SET(exp->cstat, CSTAT_SPRITE_YFLIP);
+            expActor->spr.pos.Z = u->hiz + upper_zsize;
+            SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > u->loz)
         {
-            exp->pos.Z = u->loz - lower_zsize;
+            expActor->spr.pos.Z = u->loz - lower_zsize;
         }
     }
     else
     {
         int cz,fz;
 
-        getzsofslopeptr(exp->sector(), exp->pos.X, exp->pos.Y, &cz, &fz);
+        getzsofslopeptr(expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, &cz, &fz);
 
-        tos_z = exp->pos.Z - upper_zsize;
-        bos_z = exp->pos.Z + lower_zsize;
+        tos_z = expActor->spr.pos.Z - upper_zsize;
+        bos_z = expActor->spr.pos.Z + lower_zsize;
 
         if (tos_z <= cz + Z(4))
         {
-            exp->pos.Z = cz + upper_zsize;
-            SET(exp->cstat, CSTAT_SPRITE_YFLIP);
+            expActor->spr.pos.Z = cz + upper_zsize;
+            SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > fz)
         {
-            exp->pos.Z = fz - lower_zsize;
+            expActor->spr.pos.Z = fz - lower_zsize;
         }
     }
 
-    exp->backupz();
+    expActor->spr.backupz();
 }
 
 void SpawnMineExp(DSWActor* actor)
@@ -10839,13 +10836,13 @@ void SpawnMineExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
-    exp->shade = -40;
-    exp->xrepeat = 64 + 44;
-    exp->yrepeat = 64 + 44;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 64 + 44;
+    expActor->spr.yrepeat = 64 + 44;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_MINE_EXP].radius;
 
     //
@@ -10854,7 +10851,7 @@ void SpawnMineExp(DSWActor* actor)
     //
 
     SpawnExpZadjust(actor, expActor, Z(100), Z(20));
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 
     SetExpQuake(expActor);
 }
@@ -10895,17 +10892,17 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->shade = -40;
-    exp->xrepeat = 90; // was 40,40
-    exp->yrepeat = 90;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 90; // was 40,40
+    expActor->spr.yrepeat = 90;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
     DoExpDamageTest(expActor);
     SetExpQuake(expActor);
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 
     return expActor;
 }
@@ -10924,12 +10921,12 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->shade = -40;
-    exp->xrepeat = 90; // was 40,40
-    exp->yrepeat = 90;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 90; // was 40,40
+    expActor->spr.yrepeat = 90;
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
     SpawnExpZadjust(actor, expActor, Z(50), Z(50));
@@ -10937,7 +10934,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
     SetExpQuake(expActor);
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 
     return expActor;
 }
@@ -10968,23 +10965,23 @@ void SpawnMeteorExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->shade = -40;
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
+    expActor->spr.shade = -40;
     if (actor->spr.yrepeat < 64)
     {
         // small
-        exp->xrepeat = 64;
-        exp->yrepeat = 64;
+        expActor->spr.xrepeat = 64;
+        expActor->spr.yrepeat = 64;
     }
     else
     {
         // large - boss
-        exp->xrepeat = 80;
-        exp->yrepeat = 80;
+        expActor->spr.xrepeat = 80;
+        expActor->spr.yrepeat = 80;
     }
 
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
 }
 
@@ -11001,14 +10998,14 @@ void SpawnLittleExp(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->shade = -127;
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
+    expActor->spr.shade = -127;
 
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
     DoExpDamageTest(expActor);
-    SpawnVis(nullptr, exp->sector(), exp->pos.X, exp->pos.Y, exp->pos.Z, 16);
+    SpawnVis(nullptr, expActor->spr.sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 }
 
 int DoFireball(DSWActor* actor)
@@ -11251,27 +11248,27 @@ int DoNapalm(DSWActor* actor)
         exp = &expActor->s();
         eu = expActor->u();
 
-        exp->hitag = LUMINOUS; //Always full brightness
+        expActor->spr.hitag = LUMINOUS; //Always full brightness
         SetOwner(actor, expActor);
-        exp->shade = -40;
-        exp->cstat = actor->spr.cstat;
-        exp->xrepeat = 48;
-        exp->yrepeat = 64;
-        SET(exp->cstat, CSTAT_SPRITE_YCENTER);
+        expActor->spr.shade = -40;
+        expActor->spr.cstat = actor->spr.cstat;
+        expActor->spr.xrepeat = 48;
+        expActor->spr.yrepeat = 64;
+        SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
         if (RANDOM_P2(1024) < 512)
-            SET(exp->cstat, CSTAT_SPRITE_XFLIP);
-        RESET(exp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+            SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        RESET(expActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         eu->Radius = 1500;
 
         DoFindGroundPoint(expActor);
         MissileWaterAdjust(expActor);
-        exp->pos.Z = eu->loz;
-        exp->backupz();
+        expActor->spr.pos.Z = eu->loz;
+        expActor->spr.backupz();
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(eu->Flags, SPR_UNDERWATER);
 
-        ASSERT(exp->picnum == 3072);
+        ASSERT(expActor->spr.picnum == 3072);
         ASSERT(eu->Tics == 0);
     }
 
@@ -14849,20 +14846,20 @@ int SpawnDemonFist(DSWActor* actor)
     exp = &expActor->s();
     eu = expActor->u();
 
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->shade = -40;
-    exp->xrepeat = 32;
-    exp->yrepeat = 32;
-    eu->spal = exp->pal = 25;
+    expActor->spr.hitag = LUMINOUS; //Always full brightness
+    expActor->spr.shade = -40;
+    expActor->spr.xrepeat = 32;
+    expActor->spr.yrepeat = 32;
+    eu->spal = expActor->spr.pal = 25;
 
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
 
     if (RANDOM_P2(1024<<8)>>8 > 600)
-        SET(exp->cstat, CSTAT_SPRITE_XFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024<<8)>>8 > 600)
-        SET(exp->cstat, CSTAT_SPRITE_YFLIP);
+        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
 
     return 0;
 }
