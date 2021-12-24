@@ -2539,16 +2539,16 @@ void SpriteSetup(void)
                     auto actorNew = insertActor(sp->sector(), STAT_QUICK_LADDER);
                     auto np = &actorNew->s();
 
-                    np->cstat = 0;
-                    np->extra = 0;
-                    np->pos.X = sp->pos.X;
-                    np->pos.Y = sp->pos.Y;
-                    np->pos.Z = sp->pos.Z;
-                    np->ang = NORM_ANGLE(sp->ang + 1024);
-                    np->picnum = sp->picnum;
+                    actorNew->spr.cstat = 0;
+                    actorNew->spr.extra = 0;
+                    actorNew->spr.pos.X = sp->pos.X;
+                    actorNew->spr.pos.Y = sp->pos.Y;
+                    actorNew->spr.pos.Z = sp->pos.Z;
+                    actorNew->spr.ang = NORM_ANGLE(sp->ang + 1024);
+                    actorNew->spr.picnum = sp->picnum;
 
-                    np->pos.X += MOVEx(256+128, sp->ang);
-                    np->pos.Y += MOVEy(256+128, sp->ang);
+                    actorNew->spr.pos.X += MOVEx(256+128, sp->ang);
+                    actorNew->spr.pos.Y += MOVEy(256+128, sp->ang);
 
                     break;
                 }
@@ -3582,13 +3582,13 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = 0;
-        np->extra = 0;
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = GetSpriteZOfMiddle(sp);
-        np->ang = 0;
-        np->extra = 0;
+        actorNew->spr.cstat = 0;
+        actorNew->spr.extra = 0;
+        actorNew->spr.pos.X = sp->pos.X;
+        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.ang = 0;
+        actorNew->spr.extra = 0;
 
         // vel
         SP_TAG7(np) = 1;
@@ -3624,13 +3624,13 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = 0;
-        np->extra = 0;
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = GetSpriteZOfMiddle(sp);
-        np->ang = 0;
-        np->extra = 0;
+        actorNew->spr.cstat = 0;
+        actorNew->spr.extra = 0;
+        actorNew->spr.pos.X = sp->pos.X;
+        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.ang = 0;
+        actorNew->spr.extra = 0;
 
         // vel
         SP_TAG7(np) = 1;
@@ -3653,13 +3653,13 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = 0;
-        np->extra = 0;
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = GetSpriteZOfMiddle(sp);
-        np->ang = 0;
-        np->extra = 0;
+        actorNew->spr.cstat = 0;
+        actorNew->spr.extra = 0;
+        actorNew->spr.pos.X = sp->pos.X;
+        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.ang = 0;
+        actorNew->spr.extra = 0;
 
         // vel
         SP_TAG7(np) = 1;
@@ -3685,13 +3685,13 @@ int ActorCoughItem(DSWActor* actor)
             ASSERT(sp->insector());
             actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
             np = &actorNew->s();
-            np->cstat = 0;
-            np->extra = 0;
-            np->pos.X = sp->pos.X;
-            np->pos.Y = sp->pos.Y;
-            np->pos.Z = GetSpriteZOfMiddle(sp);
-            np->ang = 0;
-            np->extra = 0;
+            actorNew->spr.cstat = 0;
+            actorNew->spr.extra = 0;
+            actorNew->spr.pos.X = sp->pos.X;
+            actorNew->spr.pos.Y = sp->pos.Y;
+            actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+            actorNew->spr.ang = 0;
+            actorNew->spr.extra = 0;
 
             // vel
             SP_TAG7(np) = 1;
@@ -3748,13 +3748,13 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = 0;
-        np->extra = 0;
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = GetSpriteZOfMiddle(sp);
-        np->ang = 0;
-        np->extra = 0;
+        actorNew->spr.cstat = 0;
+        actorNew->spr.extra = 0;
+        actorNew->spr.pos.X = sp->pos.X;
+        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.Z = GetSpriteZOfMiddle(sp);
+        actorNew->spr.ang = 0;
+        actorNew->spr.extra = 0;
 
         // vel
         SP_TAG7(np) = 1;
@@ -3807,12 +3807,12 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = 0;
-        np->extra = 0;
-        np->pos.X = sp->pos.X;
-        np->pos.Y = sp->pos.Y;
-        np->pos.Z = ActorLowerZ(actor) + Z(10);
-        np->ang = sp->ang;
+        actorNew->spr.cstat = 0;
+        actorNew->spr.extra = 0;
+        actorNew->spr.pos.X = sp->pos.X;
+        actorNew->spr.pos.Y = sp->pos.Y;
+        actorNew->spr.pos.Z = ActorLowerZ(actor) + Z(10);
+        actorNew->spr.ang = sp->ang;
 
         // vel
         SP_TAG7(np) = 10;
@@ -4939,7 +4939,7 @@ int KillGet(DSWActor* actor)
         np = &actorNew->s();
         nu = actorNew->u();
 
-        np->shade = -20;
+        actorNew->spr.shade = -20;
         nu->WaitTics = u->WaitTics - 12;
 
         break;
@@ -4991,7 +4991,7 @@ int KillGetAmmo(DSWActor* actor)
         np = &actorNew->s();
         nu = actorNew->u();
 
-        np->shade = -20;
+        actorNew->spr.shade = -20;
         nu->WaitTics = u->WaitTics - 12;
 
         break;
@@ -5051,7 +5051,7 @@ int KillGetWeapon(DSWActor* actor)
         np = &actorNew->s();
         nu = actorNew->u();
 
-        np->shade = -20;
+        actorNew->spr.shade = -20;
         nu->WaitTics = u->WaitTics - 12;
 
         break;
@@ -6000,15 +6000,15 @@ KeyMain:
 
             np = &actorNew->s();
             nu = actorNew->u();
-            np->shade = -20;
+            actorNew->spr.shade = -20;
 
             // Attach flag to player
             nu->Counter = 0;
-            RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(np->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+            RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
             nu->sz = GetSpriteZOfMiddle(&pp->Actor()->s());  // Set mid way up who it hit
-            nu->spal = np->pal = sp->pal;   // Set the palette of the flag
+            nu->spal = actorNew->spr.pal = sp->pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
             nu->flagOwnerActor = actor;       // Tell carried flag who owns it
