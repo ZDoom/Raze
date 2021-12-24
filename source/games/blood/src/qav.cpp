@@ -358,7 +358,7 @@ QAV* getQAV(int res_id)
         qavdata->frames[i].sound.priority = fr.ReadUInt8();
         qavdata->frames[i].sound.sndFlags = fr.ReadUInt8();
         qavdata->frames[i].sound.sndRange = fr.ReadUInt8();
-        for (int i = 0; i < 1; i++) fr.ReadUInt8();
+        for (int j = 0; j < 1; j++) fr.ReadUInt8();
 
         // Read TILE_FRAME data.
         for (int j = 0; j < 8; j++)

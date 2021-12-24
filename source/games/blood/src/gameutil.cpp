@@ -418,9 +418,9 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             int otherZ = other->spr.pos.Z;
             if (other->spr.cstat & CSTAT_SPRITE_YCENTER)
                 otherZ += height / 2;
-            int nOffset = tileTopOffset(nPicnum);
-            if (nOffset)
-                otherZ -= (nOffset*other->spr.yrepeat)<<2;
+            int nTopOfs = tileTopOffset(nPicnum);
+            if (nTopOfs)
+                otherZ -= (nTopOfs*other->spr.yrepeat)<<2;
             assert(height > 0);
             int height2 = scale(otherZ-gHitInfo.hitpos.Z, tileHeight(nPicnum), height);
             if (!(other->spr.cstat & CSTAT_SPRITE_YFLIP))
@@ -432,8 +432,8 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 int check1 = ((y1 - other->spr.pos.Y)*dx - (x1 - other->spr.pos.X)*dy) / ksqrt(dx*dx+dy*dy);
                 assert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
-                int nOffset = tileLeftOffset(nPicnum);
-                width2 += nOffset + tileWidth(nPicnum) / 2;
+                int nLeftOfs = tileLeftOffset(nPicnum);
+                width2 += nLeftOfs + tileWidth(nPicnum) / 2;
                 if (width2 >= 0 && width2 < tileWidth(nPicnum))
                 {
                     auto pData = tilePtr(nPicnum);
@@ -441,7 +441,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                         return 3;
                 }
             }
-            auto bakCstat = other->spr.cstat;
+            bakCstat = other->spr.cstat;
             other->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
             gHitInfo.clearObj();
             pos = gHitInfo.hitpos; // must make a copy!
@@ -468,14 +468,14 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             }
             if (!(pWall->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)))
                 return 0;
-            int nOffset;
+            int nOfs;
             if (pWall->cstat & CSTAT_WALL_ALIGN_BOTTOM)
-                nOffset = ClipHigh(pSector->floorz, pSectorNext->floorz);
+                nOfs = ClipHigh(pSector->floorz, pSectorNext->floorz);
             else
-                nOffset = ClipLow(pSector->ceilingz, pSectorNext->ceilingz);
-            nOffset = (gHitInfo.hitpos.Z - nOffset) >> 8;
+                nOfs = ClipLow(pSector->ceilingz, pSectorNext->ceilingz);
+            nOfs = (gHitInfo.hitpos.Z - nOfs) >> 8;
             if (pWall->cstat & CSTAT_WALL_YFLIP)
-                nOffset = -nOffset;
+                nOfs = -nOfs;
 
             int nPicnum = pWall->overpicnum;
             int nSizX = tileWidth(nPicnum);
@@ -483,8 +483,8 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             if (!nSizX || !nSizY)
                 return 0;
 
-            nOffset = (nOffset*pWall->yrepeat) / 8;
-            nOffset += int((nSizY*pWall->ypan_) / 256);
+            nOfs = (nOfs*pWall->yrepeat) / 8;
+            nOfs += int((nSizY*pWall->ypan_) / 256);
             int nLength = approxDist(pWall->pos.X - pWall->point2Wall()->pos.X, pWall->pos.Y - pWall->point2Wall()->pos.Y);
             int nHOffset;
             if (pWall->cstat & CSTAT_WALL_XFLIP)
@@ -494,14 +494,14 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
 
             nHOffset = pWall->xpan() + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
-            nOffset %= nSizY;
+            nOfs %= nSizY;
             auto pData = tilePtr(nPicnum);
             int nPixel;
-            nPixel = nHOffset*nSizY + nOffset;
+            nPixel = nHOffset*nSizY + nOfs;
 
             if (pData[nPixel] == TRANSPARENT_INDEX)
             {
-                auto bakCstat = pWall->cstat;
+                auto bakCstat1 = pWall->cstat;
                 pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
                 auto bakCstat2 = pWall->nextWall()->cstat;
                 pWall->nextWall()->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
@@ -509,7 +509,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 pos = gHitInfo.hitpos;
                 hitscan(pos, pWall->nextSector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
-                pWall->cstat = bakCstat;
+                pWall->cstat = bakCstat1;
                 pWall->nextWall()->cstat = bakCstat2;
                 continue;
             }
@@ -519,13 +519,13 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
         {
             if (dz > 0)
             {
-                auto actor = barrier_cast<DBloodActor*>(gHitInfo.hitSector->upperLink);
-                if (!actor) return 2;
-                auto link = actor->GetOwner();
+                auto upper = barrier_cast<DBloodActor*>(gHitInfo.hitSector->upperLink);
+                if (!upper) return 2;
+                auto link = upper->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
-                y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - actor->spr.pos.Y;
-                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - actor->spr.pos.Z;
+                x1 = gHitInfo.hitpos.X + link->spr.pos.X - upper->spr.pos.X;
+                y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - upper->spr.pos.Y;
+                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - upper->spr.pos.Z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
@@ -533,13 +533,13 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             }
             else
             {
-                auto actor = barrier_cast<DBloodActor*>(gHitInfo.hitSector->lowerLink);
-                if (!actor) return 1;
-                auto link = actor->GetOwner();
+                auto lower = barrier_cast<DBloodActor*>(gHitInfo.hitSector->lowerLink);
+                if (!lower) return 1;
+                auto link = lower->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
-                y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - actor->spr.pos.Y;
-                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - actor->spr.pos.Z;
+                x1 = gHitInfo.hitpos.X + link->spr.pos.X - lower->spr.pos.X;
+                y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - lower->spr.pos.Y;
+                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - lower->spr.pos.Z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
                 continue;
@@ -603,15 +603,15 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     getzrange(lpos, pSector, (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
     if (floorColl->type == kHitSector)
     {
-        auto pSector = floorColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & CSTAT_SECTOR_SKY))
+        auto pHitSect = floorColl->hitSector;
+        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pHitSect->floorstat & CSTAT_SECTOR_SKY))
             *floorZ = 0x7fffffff;
-        if (pSector->hasX())
+        if (pHitSect->hasX())
         {
-            XSECTOR* pXSector = &pSector->xs();
+            XSECTOR* pXSector = &pHitSect->xs();
             *floorZ += pXSector->Depth << 10;
         }
-        auto actor = barrier_cast<DBloodActor*>(pSector->upperLink);
+        auto actor = barrier_cast<DBloodActor*>(pHitSect->upperLink);
         if (actor)
         {
             auto link = actor->GetOwner();
@@ -622,10 +622,10 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     }
     if (ceilColl->type == kHitSector)
     {
-        auto pSector = ceilColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & CSTAT_SECTOR_SKY))
+        auto pHitSect = ceilColl->hitSector;
+        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pHitSect->ceilingstat & CSTAT_SECTOR_SKY))
             *ceilZ = 0x80000000;
-        auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
+        auto actor = barrier_cast<DBloodActor*>(pHitSect->lowerLink);
         if (actor)
         {
             auto link = actor->GetOwner();

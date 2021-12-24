@@ -1592,7 +1592,7 @@ void aiLookForTarget(DBloodActor* actor)
 				int nDist = approxDist(dx, dy);
 				if (actor2->spr.type == kDudeInnocent)
 				{
-					DUDEINFO* pDudeInfo = getDudeInfo(actor2->spr.type);
+					pDudeInfo = getDudeInfo(actor2->spr.type);
 					if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 						continue;
 					aiSetTarget(actor, actor2);

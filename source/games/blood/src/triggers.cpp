@@ -1805,8 +1805,8 @@ void ProcessMotion(void)
                 viewInterpolateSector(pSector);
                 pSector->floorz = pSector->baseFloor + vdi;
 
-                BloodSectIterator it(pSector);
-                while (auto actor = it.Next())
+                BloodSectIterator itr(pSector);
+                while (auto actor = itr.Next())
                 {
                     if (actor->spr.flags&2)
                         actor->spr.flags |= 4;
@@ -1828,8 +1828,8 @@ void ProcessMotion(void)
                 viewInterpolateSector(pSector);
                 pSector->ceilingz = pSector->baseCeil + vdi;
 
-                BloodSectIterator it(pSector);
-                while (auto actor = it.Next())
+                BloodSectIterator itr(pSector);
+                while (auto actor = itr.Next())
                 {
                     int top, bottom;
                     GetActorExtents(actor, &top, &bottom);

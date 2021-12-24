@@ -417,8 +417,8 @@ void UpdateAimVector(PLAYER * pPlayer)
         }
         if (pWeaponTrack->thingAngle > 0)
         {
-            BloodStatIterator it(kStatThing);
-            while (auto actor = it.Next())
+            BloodStatIterator itr(kStatThing);
+            while (auto actor = itr.Next())
             {
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, actor))
                     continue;

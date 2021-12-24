@@ -200,8 +200,8 @@ void levelLoadDefaults(void)
             {
                 CutsceneDef& csA = pLevelInfo->intro;
                 csA.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneA", ""));
-                int soundint = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
-                if (soundint > 0) csA.soundID = soundint + 0x40000000;
+                int soundfileint = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
+                if (soundfileint > 0) csA.soundID = soundfileint + 0x40000000;
                 else csA.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", ""));
             }
         }

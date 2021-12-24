@@ -6740,10 +6740,10 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(pWall))
 			{
-				int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-				int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-				int z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
-				int nSurf = surfType[pWall->picnum];
+				x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
+				y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
+				z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
+				nSurf = surfType[pWall->picnum];
 				assert(nSurf < kSurfMax);
 				if (pVectorData->surfHit[nSurf].fx1 >= 0)
 				{
@@ -6828,7 +6828,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				}
 				if (Chance(pVectorData->fxChance))
 				{
-					int t = gVectorData[19].maxDist;
+					t = gVectorData[19].maxDist;
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
@@ -6837,14 +6837,14 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 						if (approxDist(gHitInfo.hitpos.X - actor->spr.pos.X, gHitInfo.hitpos.Y - actor->spr.pos.Y) <= t)
 						{
 							auto pWall = gHitInfo.hitWall;
-							auto pSector = gHitInfo.hitSector;
+							pSector = gHitInfo.hitSector;
 							if (actCanSplatWall(pWall))
 							{
-								int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-								int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-								int z = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
-								int nSurf = surfType[pWall->picnum];
-								const VECTORDATA* pVectorData = &gVectorData[19];
+								x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
+								y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
+								z = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
+								nSurf = surfType[pWall->picnum];
+								pVectorData = &gVectorData[19];
 								FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
 								FX_ID t3 = pVectorData->surfHit[nSurf].fx3;
 

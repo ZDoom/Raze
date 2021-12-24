@@ -122,16 +122,16 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt1.at8)
 			{
-				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
 				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz, nDist, 10);
+					aim.dz = DivScale(tz1, nDist, 10);
 				}
 				else
-					aim.dz = tz;
+					aim.dz = tz1;
 			}
 		}
 	}
@@ -200,17 +200,17 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 			if (abs(nDeltaAngle) <= tt1.at8)
 			{
 				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2->spr.type);
-				int height = (pDudeInfo2->aimHeight * actor2->spr.yrepeat) << 2;
-				int tz = (z2 - height) - z;
+				int height1 = (pDudeInfo2->aimHeight * actor2->spr.yrepeat) << 2;
+				int tz1 = (z2 - height1) - z;
 				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz, nDist, 10);
+					aim.dz = DivScale(tz1, nDist, 10);
 				}
 				else
-					aim.dz = tz;
+					aim.dz = tz1;
 			}
 		}
 	}

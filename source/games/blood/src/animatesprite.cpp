@@ -802,15 +802,15 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFlareHalo);
                     if (pTSprite->type != kMissileFlareRegular) break;
-                    sectortype *pSector = pTSprite->sector();
+                    sectortype *pSector1 = pTSprite->sector();
                     
-                    int zDiff = (pTSprite->pos.Z - pSector->ceilingz) >> 8;
-                    if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
+                    int zDiff = (pTSprite->pos.Z - pSector1->ceilingz) >> 8;
+                    if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectCeilGlow);
                     }
                     
-                    zDiff = (pSector->floorz - pTSprite->pos.Z) >> 8;
-                    if ((pSector->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
+                    zDiff = (pSector1->floorz - pTSprite->pos.Z) >> 8;
+                    if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFloorGlow);
                     }
                     break;

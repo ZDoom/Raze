@@ -137,26 +137,26 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
 				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz, nDist, 10);
-					if (tz > -0x333)
-						aim.dz = DivScale(tz, nDist, 10);
-					else if (tz < -0x333 && tz > -0xb33)
-						aim.dz = DivScale(tz, nDist, 10) + 9460;
-					else if (tz < -0xb33 && tz > -0x3000)
-						aim.dz = DivScale(tz, nDist, 10) + 9460;
-					else if (tz < -0x3000)
-						aim.dz = DivScale(tz, nDist, 10) - 7500;
+					aim.dz = DivScale(tz1, nDist, 10);
+					if (tz1 > -0x333)
+						aim.dz = DivScale(tz1, nDist, 10);
+					else if (tz1 < -0x333 && tz1 > -0xb33)
+						aim.dz = DivScale(tz1, nDist, 10) + 9460;
+					else if (tz1 < -0xb33 && tz1 > -0x3000)
+						aim.dz = DivScale(tz1, nDist, 10) + 9460;
+					else if (tz1 < -0x3000)
+						aim.dz = DivScale(tz1, nDist, 10) - 7500;
 					else
-						aim.dz = DivScale(tz, nDist, 10);
+						aim.dz = DivScale(tz1, nDist, 10);
 				}
 				else
-					aim.dz = DivScale(tz, nDist, 10);
+					aim.dz = DivScale(tz1, nDist, 10);
 			}
 		}
 	}

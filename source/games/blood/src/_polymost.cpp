@@ -276,8 +276,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 sector[nSector].floorstat |= CSTAT_SECTOR_SKY;
                 renderDrawMasks();
                 sector[nSector].floorstat = fstat;
-                for (int i = 0; i < 16; i++)
-                    gotpic.Clear(4080 + i);
+                for (int ii = 0; ii < 16; ii++)
+                    gotpic.Clear(4080 + ii);
                 if (viewPlayer >= 0)
                 {
                     gPlayer[viewPlayer].actor->spr.cstat = bakCstat;
@@ -308,8 +308,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 sector[nSector].ceilingstat |= CSTAT_SECTOR_SKY;
                 renderDrawMasks();
                 sector[nSector].ceilingstat = cstat;
-                for (int i = 0; i < 16; i++)
-                    gotpic.Clear(4080 + i);
+                for (int ii = 0; ii < 16; ii++)
+                    gotpic.Clear(4080 + ii);
                 if (viewPlayer >= 0)
                 {
                     gPlayer[viewPlayer].actor->spr.cstat = bakCstat;

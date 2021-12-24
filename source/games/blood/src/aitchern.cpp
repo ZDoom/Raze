@@ -106,16 +106,16 @@ void sub_71BD4(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
 				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz, nDist, 10);
+					aim.dz = DivScale(tz1, nDist, 10);
 				}
 				else
-					aim.dz = tz;
+					aim.dz = tz1;
 			}
 		}
 	}
@@ -178,16 +178,16 @@ void sub_720AC(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
 				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz, nDist, 10);
+					aim.dz = DivScale(tz1, nDist, 10);
 				}
 				else
-					aim.dz = tz;
+					aim.dz = tz1;
 			}
 		}
 	}

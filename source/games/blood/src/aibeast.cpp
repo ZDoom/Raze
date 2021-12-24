@@ -80,8 +80,8 @@ void SlashSeqCallback(int, DBloodActor* actor)
 
 void StompSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.ang);
-	int dy = bsin(actor->spr.ang);
+	int angx = bcos(actor->spr.ang);
+	int angy = bsin(actor->spr.ang);
 	int x = actor->spr.pos.X;
 	int y = actor->spr.pos.Y;
 	int z = actor->spr.pos.Z;
@@ -91,9 +91,9 @@ void StompSeqCallback(int, DBloodActor* actor)
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, vc, nullptr, newSectCheckMethod);
-	int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
-	DBloodActor* actor2 = nullptr;
-	actHitcodeToData(hit, &gHitInfo, &actor2);
+	int hit = HitScan(actor, actor->spr.pos.Z, angx, angy, 0, CLIPMASK1, 0);
+	DBloodActor* actorh = nullptr;
+	actHitcodeToData(hit, &gHitInfo, &actorh);
 
 	vc <<= 4;
 	BloodStatIterator it1(kStatDude);

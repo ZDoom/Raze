@@ -1155,8 +1155,8 @@ void nnExtProcessSuperSprites()
 
             if (!pProx->xspr.DudeLockout)
             {
-                BloodStatIterator it(kStatDude);
-                while (auto affected = it.Next())
+                BloodStatIterator itr(kStatDude);
+                while (auto affected = itr.Next())
                 {
                     if (!affected->hasX() || affected->xspr.health <= 0) continue;
                     else if (CheckProximity(affected, x, y, z, pSect, okDist))
@@ -1742,9 +1742,9 @@ void debrisMove(int listIndex)
                 else
                 {
                         evPostActor(actor, 0, kCallbackEnemeyBubble);
-                    for (int i = 2; i <= 5; i++)
+                    for (int ii = 2; ii <= 5; ii++)
                     {
-                            if (Chance(0x5000 * i))
+                            if (Chance(0x5000 * ii))
                                 evPostActor(actor, Random(5), kCallbackEnemeyBubble);
                     }
                 }
@@ -2753,17 +2753,17 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data4 = sprite cstat
             if (valueIsBetween(sourceactor->xspr.data4, -1, 65535)) 
             {
-                auto old = targetactor->spr.cstat;
+                auto oldstat = targetactor->spr.cstat;
 
                 // set new cstat
                 if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(sourceactor->xspr.data4); // relative
                 else targetactor->spr.cstat = ESpriteFlags::FromInt(sourceactor->xspr.data4 & 0xffff); // absolute
 
                 // and handle exceptions
-                if ((old & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
-                if ((old & CSTAT_SPRITE_YCENTER)) targetactor->spr.cstat |= CSTAT_SPRITE_YCENTER;
+                if ((oldstat & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
+                if ((oldstat & CSTAT_SPRITE_YCENTER)) targetactor->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
-                targetactor->spr.cstat |= (old & CSTAT_SPRITE_MOVE_MASK);
+                targetactor->spr.cstat |= (oldstat & CSTAT_SPRITE_MOVE_MASK);
 #if 0
                 // looks very broken.
                 if (old & 0x6000) 
@@ -4205,9 +4205,9 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             switch (cond) {
                 case 10:
                 {
-                    auto var = aiPatrolMarkerBusy(objActor, targ);
-                    if (!var) return false;
-                    else if (PUSH) condPush(aCond, var);
+                    auto check = aiPatrolMarkerBusy(objActor, targ);
+                    if (!check) return false;
+                    else if (PUSH) condPush(aCond, check);
                     break;
                 }
                 case 11:
@@ -4977,9 +4977,9 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
     for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
     {
         if (!rxBucket[i].isActor()) continue;
-        auto actor = rxBucket[i].actor();
-        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
-        if (actor->xspr.health > 0) return true;
+        auto rxactor = rxBucket[i].actor();
+        if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
+        if (rxactor->xspr.health > 0) return true;
     }
 
     // check redirected TX buckets
@@ -4990,9 +4990,9 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
             if (!rxBucket[i].isActor()) continue;
-            auto actor = rxBucket[i].actor();
-	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
-	        if (actor->xspr.health > 0) return true;
+            auto rxactor = rxBucket[i].actor();
+	        if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
+	        if (rxactor->xspr.health > 0) return true;
         }
     }
     return false;

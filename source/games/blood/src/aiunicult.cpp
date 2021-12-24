@@ -940,7 +940,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 {
                                     // allow attack if dude is far from object, but target is close to it
                                     int dudeDist = approxDist(gHitInfo.hitpos.X - actor->spr.pos.X, gHitInfo.hitpos.Y - actor->spr.pos.Y);
-                                    int targetDist = approxDist(gHitInfo.hitpos.X - target->spr.pos.X, gHitInfo.hitpos.Y - target->spr.pos.Y);
+                                    int targetDist1 = approxDist(gHitInfo.hitpos.X - target->spr.pos.X, gHitInfo.hitpos.Y - target->spr.pos.Y);
                                     if (dudeDist < mdist) 
                                     {
                                         //viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);
@@ -948,7 +948,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                         else aiGenDudeNewState(actor, &genDudeChaseL);
                                         return;
                                     } 
-                                    else if (targetDist <= mdist >> 1) 
+                                    else if (targetDist1 <= mdist >> 1) 
                                     {
                                         //viewSetSystemMessage("TARGET CLOSE TO OBJ: %d, MDIST: %d", targetDist, mdist >> 1);
                                         break;
@@ -2353,8 +2353,8 @@ bool genDudePrepare(DBloodActor* actor, int propId)
                         else if ((i - seqStartId) == kGenDudeSeqAttackPunch) 
                         {
                             pExtra->forcePunch = true; // required for those who don't have fire trigger in punch seq and for default animation
-                            for (int i = 0; i < pSeq->nFrames; i++) {
-                                if (!pSeq->frames[i].trigger) continue;
+                            for (int ii = 0; ii < pSeq->nFrames; ii++) {
+                                if (!pSeq->frames[ii].trigger) continue;
                                 pExtra->forcePunch = false;
                                 break;
                             }

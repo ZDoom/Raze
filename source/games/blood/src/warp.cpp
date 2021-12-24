@@ -165,9 +165,9 @@ void warpInit(TArray<DBloodActor*>& actors)
         if (actor && actor->hasX())
         {
             int nLink = actor->xspr.data1;
-            for(auto& sect: sector)
+            for(auto& isect: sector)
             {
-                auto actor2 = barrier_cast<DBloodActor*>(sect.lowerLink);
+                auto actor2 = barrier_cast<DBloodActor*>(isect.lowerLink);
                 if (actor2 && actor2->hasX())
                 {
                     if (actor2->xspr.data1 == nLink)
