@@ -112,17 +112,11 @@ STATE s_ToiletGirlUzi[16] =
 
 int  SetupToiletGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, TOILETGIRL_R0, s_ToiletGirlStand);
+        SpawnUser(actor, TOILETGIRL_R0, s_ToiletGirlStand);
         actor->user.Health = 60;
     }
 
@@ -149,7 +143,6 @@ int  SetupToiletGirl(DSWActor* actor)
 
 int DoToiletGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -203,7 +196,6 @@ int DoToiletGirl(DSWActor* actor)
 
 int NullToiletGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -234,8 +226,6 @@ int NullToiletGirl(DSWActor* actor)
 
 int ToiletGirlUzi(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -251,8 +241,6 @@ int ToiletGirlUzi(DSWActor* actor)
 
 int ToiletGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullToiletGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -345,17 +333,11 @@ STATE s_WashGirlUzi[16] =
 
 int SetupWashGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, WASHGIRL_R0,s_WashGirlStand);
+        SpawnUser(actor, WASHGIRL_R0,s_WashGirlStand);
         actor->user.Health = 60;
     }
 
@@ -381,7 +363,6 @@ int SetupWashGirl(DSWActor* actor)
 
 int DoWashGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -444,7 +425,6 @@ int DoWashGirl(DSWActor* actor)
 
 int NullWashGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -475,8 +455,6 @@ int NullWashGirl(DSWActor* actor)
 
 int WashGirlUzi(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -492,7 +470,6 @@ int WashGirlUzi(DSWActor* actor)
 
 int WashGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
     NullWashGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -549,17 +526,11 @@ STATE s_TrashCanPain[7] =
 
 int SetupTrashCan(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, TRASHCAN,s_TrashCanStand);
+        SpawnUser(actor, TRASHCAN,s_TrashCanStand);
         actor->user.Health = 60;
     }
 
@@ -585,8 +556,6 @@ int SetupTrashCan(DSWActor* actor)
 
 int DoTrashCan(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // stay on floor unless doing certain things
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -603,8 +572,6 @@ int DoTrashCan(DSWActor* actor)
 
 int TrashCanPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -652,17 +619,11 @@ STATE s_PachinkoLightOperate[] =
 
 int SetupPachinkoLight(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PACHINKOLIGHT_R0,s_PachinkoLightStand);
+        SpawnUser(actor, PACHINKOLIGHT_R0,s_PachinkoLightStand);
         actor->user.Health = 1;
     }
 
@@ -688,8 +649,6 @@ int SetupPachinkoLight(DSWActor* actor)
 
 int PachinkoLightOperate(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
     {
         actor->spr.shade = -2;
@@ -750,17 +709,11 @@ STATE s_Pachinko1Operate[] =
 
 int SetupPachinko1(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PACHINKO1,s_Pachinko1Stand);
+        SpawnUser(actor, PACHINKO1,s_Pachinko1Stand);
         actor->user.Health = 1;
     }
 
@@ -784,8 +737,6 @@ int SetupPachinko1(DSWActor* actor)
 
 int PachinkoCheckWin(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->user.WaitTics = 0;  // Can operate it again now
 
     // You already won, no more from this machine!
@@ -842,7 +793,6 @@ int PachinkoCheckWin(DSWActor* actor)
 
 int Pachinko1Operate(DSWActor* actor)
 {
-    USER* u = actor->u();
     short rnd;
 
     rnd = RandomRange(1000);
@@ -911,17 +861,11 @@ STATE s_Pachinko2Operate[] =
 
 int SetupPachinko2(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PACHINKO2,s_Pachinko2Stand);
+        SpawnUser(actor, PACHINKO2,s_Pachinko2Stand);
         actor->user.Health = 1;
     }
 
@@ -993,17 +937,11 @@ STATE s_Pachinko3Operate[] =
 
 int SetupPachinko3(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PACHINKO3,s_Pachinko3Stand);
+        SpawnUser(actor, PACHINKO3,s_Pachinko3Stand);
         actor->user.Health = 1;
     }
 
@@ -1076,17 +1014,11 @@ STATE s_Pachinko4Operate[] =
 
 int SetupPachinko4(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PACHINKO4,s_Pachinko4Stand);
+        SpawnUser(actor, PACHINKO4,s_Pachinko4Stand);
         actor->user.Health = 1;
     }
 
@@ -1187,17 +1119,11 @@ STATE s_CarGirlUzi[16] =
 
 int SetupCarGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, CARGIRL_R0,s_CarGirlStand);
+        SpawnUser(actor, CARGIRL_R0,s_CarGirlStand);
         actor->user.Health = 60;
     }
 
@@ -1225,7 +1151,6 @@ int SetupCarGirl(DSWActor* actor)
 
 int DoCarGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1270,7 +1195,6 @@ int DoCarGirl(DSWActor* actor)
 
 int NullCarGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1308,8 +1232,6 @@ int NullCarGirl(DSWActor* actor)
 
 int CarGirlUzi(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -1325,7 +1247,6 @@ int CarGirlUzi(DSWActor* actor)
 
 int CarGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
     NullCarGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1399,17 +1320,11 @@ STATE s_MechanicGirlDrill[2] =
 
 int SetupMechanicGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, MECHANICGIRL_R0,s_MechanicGirlStand);
+        SpawnUser(actor, MECHANICGIRL_R0,s_MechanicGirlStand);
         actor->user.Health = 60;
     }
 
@@ -1436,7 +1351,6 @@ int SetupMechanicGirl(DSWActor* actor)
 
 int DoMechanicGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1481,7 +1395,6 @@ int DoMechanicGirl(DSWActor* actor)
 
 int NullMechanicGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1519,8 +1432,6 @@ int NullMechanicGirl(DSWActor* actor)
 
 int MechanicGirlDrill(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -1536,8 +1447,6 @@ int MechanicGirlDrill(DSWActor* actor)
 
 int MechanicGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullMechanicGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1611,17 +1520,11 @@ short alreadythrew;
 
 int SetupSailorGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, SAILORGIRL_R0,s_SailorGirlStand);
+        SpawnUser(actor, SAILORGIRL_R0,s_SailorGirlStand);
         actor->user.Health = 60;
     }
 
@@ -1649,7 +1552,6 @@ int SetupSailorGirl(DSWActor* actor)
 
 int DoSailorGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1698,7 +1600,6 @@ int DoSailorGirl(DSWActor* actor)
 
 int NullSailorGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
     static short alreadythrew = 0;
 
@@ -1741,8 +1642,6 @@ int NullSailorGirl(DSWActor* actor)
 
 int SailorGirlThrow(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -1758,7 +1657,6 @@ int SailorGirlThrow(DSWActor* actor)
 
 int SailorGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
     NullSailorGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1816,17 +1714,11 @@ STATE s_PruneGirlPain[2] =
 
 int SetupPruneGirl(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, PRUNEGIRL_R0,s_PruneGirlStand);
+        SpawnUser(actor, PRUNEGIRL_R0,s_PruneGirlStand);
         actor->user.Health = 60;
     }
 
@@ -1853,7 +1745,6 @@ int SetupPruneGirl(DSWActor* actor)
 
 int DoPruneGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1914,7 +1805,6 @@ int DoPruneGirl(DSWActor* actor)
 
 int NullPruneGirl(DSWActor* actor)
 {
-    USER* u = actor->u();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1951,8 +1841,6 @@ int NullPruneGirl(DSWActor* actor)
 
 int PruneGirlUzi(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -1968,8 +1856,6 @@ int PruneGirlUzi(DSWActor* actor)
 
 int PruneGirlPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullPruneGirl(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
