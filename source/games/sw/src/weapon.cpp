@@ -11174,13 +11174,13 @@ int DoFireball(DSWActor* actor)
                 SPRITEp hsp;
                 USERp hu;
 
-                hsp = &u->coll.actor->s();
+                hsp = &u->coll.actor->s(); // hitActor
                 hu = u->coll.actor->u();
 
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(actor, hsp->picnum, nullptr);
+                        hu = SpawnUser(u->coll.actor, hsp->picnum, nullptr);
                     SpawnFireballFlames(actor, u->coll.actor);
                     hit_burn = true;
                 }
