@@ -227,7 +227,7 @@ STATE s_GirlNinjaRise[5][3] =
         {GIRLNINJA_STAND_R0 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[0][2]},
         {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},  // JBF: sg_GirlNinjaRun really is supposed to be the
         // pointer to the state group. See StateControl() where
-        // it says "if (!u->State->Pic)".
+        // it says "if (!actor->user.State->Pic)".
     },
     {
         {GIRLNINJA_KNEEL_R1 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[1][1]},
@@ -723,23 +723,23 @@ int SetupGirlNinja(DSWActor* actor)
     else
     {
         u = SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
-        u->Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
+        actor->user.Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
-    u->StateEnd = s_GirlNinjaDie;
-    u->Rot = sg_GirlNinjaRun;
+    actor->user.StateEnd = s_GirlNinjaDie;
+    actor->user.Rot = sg_GirlNinjaRun;
     actor->spr.xrepeat = 51;
     actor->spr.yrepeat = 43;
 
-    u->Attrib = &GirlNinjaAttrib;
-    actor->spr.pal = u->spal = 26;
+    actor->user.Attrib = &GirlNinjaAttrib;
+    actor->spr.pal = actor->user.spal = 26;
     EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
     ChangeState(actor, s_GirlNinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    u->Radius = 280;
-    RESET(u->Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Radius = 280;
+    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -750,28 +750,28 @@ int DoGirlNinjaMove(DSWActor* actor)
     USER* u = actor->u();
 
     // jumping and falling
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoActorJump(actor);
-        else if (TEST(u->Flags, SPR_FALLING))
+        else if (TEST(actor->user.Flags, SPR_FALLING))
             DoActorFall(actor);
     }
 
     // sliding
-    if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING))
+    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
         DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
         KeepActorOnFloor(actor);
     }
@@ -797,7 +797,7 @@ int GirlNinjaJumpActionFunc(DSWActor* actor)
         return 0;
     }
 
-    if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
     {
         InitActorDecide(actor);
     }
@@ -809,12 +809,12 @@ int NullGirlNinja(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
+    if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
-    if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -829,7 +829,7 @@ int DoGirlNinjaPain(DSWActor* actor)
 
     NullGirlNinja(actor);
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         InitActorDecide(actor);
 
     return 0;
@@ -839,7 +839,7 @@ int DoGirlNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (u->spal == PALETTE_PLAYER5)
+    if (actor->user.spal == PALETTE_PLAYER5)
     {
         RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.hitag = 0;
