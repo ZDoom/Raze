@@ -9958,31 +9958,30 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         if (flameActor != nullptr)
         {
             int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
-            auto nu = flameActor->u();
 
             if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
                 return;
 
-            if (nu->Counter >= GetRepeatFromHeight(flameActor, sizez))
+            if (flameActor->user.Counter >= GetRepeatFromHeight(flameActor, sizez))
             {
                 // keep flame only slightly bigger than the enemy itself
-                nu->Counter = GetRepeatFromHeight(flameActor, sizez);
+                flameActor->user.Counter = GetRepeatFromHeight(flameActor, sizez);
             }
             else
             {
                 //increase max size
-                nu->Counter += GetRepeatFromHeight(flameActor, 8<<8);
+                flameActor->user.Counter += GetRepeatFromHeight(flameActor, 8<<8);
             }
 
             // Counter is max size
-            if (nu->Counter >= 230)
+            if (flameActor->user.Counter >= 230)
             {
                 // this is far too big
-                nu->Counter = 230;
+                flameActor->user.Counter = 230;
             }
 
-            if (nu->WaitTics < 2*120)
-                nu->WaitTics = 2*120;  // allow it to grow again
+            if (flameActor->user.WaitTics < 2*120)
+                flameActor->user.WaitTics = 2*120;  // allow it to grow again
 
             return;
         }
@@ -13095,7 +13094,6 @@ int InitStar(PLAYERp pp)
     for (size_t i = 0; i < countof(dang); i++)
     {
         auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, NORM_ANGLE(actorNew->spr.ang + dang[i]), actorNew->spr.xvel);
-        nu = actorNew2->u();
 
         SetOwner(GetOwner(actorNew), actorNew2);
         actorNew2->spr.yrepeat = actorNew2->spr.xrepeat = STAR_REPEAT;
@@ -13103,14 +13101,14 @@ int InitStar(PLAYERp pp)
 
         actorNew2->spr.extra = actorNew->spr.extra;
         actorNew2->spr.clipdist = actorNew->spr.clipdist;
-        nu->WeaponNum = wu->WeaponNum;
-        nu->Radius = wu->Radius;
-        nu->ceiling_dist = wu->ceiling_dist;
-        nu->floor_dist = wu->floor_dist;
-        nu->Flags2 = wu->Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
+        actorNew2->user.WeaponNum = wu->WeaponNum;
+        actorNew2->user.Radius = wu->Radius;
+        actorNew2->user.ceiling_dist = wu->ceiling_dist;
+        actorNew2->user.floor_dist = wu->floor_dist;
+        actorNew2->user.Flags2 = wu->Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew2->user.Flags, SPR_UNDERWATER);
 
         zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
         actorNew2->spr.zvel = zvel >> 1;
@@ -13124,9 +13122,9 @@ int InitStar(PLAYERp pp)
         // move the same as middle star
         zvel = wu->zchange;
 
-        nu->xchange = MOVEx(actorNew2->spr.xvel, actorNew2->spr.ang);
-        nu->ychange = MOVEy(actorNew2->spr.xvel, actorNew2->spr.ang);
-        nu->zchange = zvel;
+        actorNew2->user.xchange = MOVEx(actorNew2->spr.xvel, actorNew2->spr.ang);
+        actorNew2->user.ychange = MOVEy(actorNew2->spr.xvel, actorNew2->spr.ang);
+        actorNew2->user.zchange = zvel;
 
         actorNew2->spr.backuppos();
     }
@@ -18230,7 +18228,6 @@ int QueueFootPrint(DSWActor* actor)
 {
     DSWActor* spawnedActor;
     USERp u = actor->u();
-    USERp nu;
     short rnd_num=0;
     bool Found=false;
     SECTORp sectp = actor->spr.sector();
@@ -18286,7 +18283,6 @@ int QueueFootPrint(DSWActor* actor)
         u->PlayerP->NumFootPrints--;
 
 
-    nu = spawnedActor->u();
     spawnedActor->spr.hitag = 0;
     spawnedActor->spr.xrepeat = 48;
     spawnedActor->spr.yrepeat = 54;
@@ -18298,14 +18294,14 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->spr.ang = actor->spr.ang;
-    RESET(nu->Flags, SPR_SHADOW);
+    RESET(spawnedActor->user.Flags, SPR_SHADOW);
     switch (FootMode)
     {
     case BLOOD_FOOT:
-        nu->spal = spawnedActor->spr.pal = PALETTE_PLAYER3; // Turn blue to blood red
+        spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER3; // Turn blue to blood red
         break;
     default:
-        nu->spal = spawnedActor->spr.pal = PALETTE_PLAYER1; // Gray water
+        spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER1; // Gray water
         break;
     }
 

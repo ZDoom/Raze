@@ -1269,23 +1269,23 @@ void PreDrawStackedWater(void)
                 if (actorNew != nullptr)
                 {
                     // spawn a user
-                    auto nu = actorNew->allocUser();
+                    actorNew->allocUser();
 
-                    nu->xchange = -989898;
+                    actorNew->user.xchange = -989898;
 
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image
-                    nu->State = u->State;
-                    nu->Rot = u->Rot;
-                    nu->StateStart = u->StateStart;
-                    nu->StateEnd = u->StateEnd;
-                    nu->Flags = u->Flags;
-                    nu->Flags2 = u->Flags2;
-                    nu->RotNum = u->RotNum;
-                    nu->ID = u->ID;
+                    actorNew->user.State = u->State;
+                    actorNew->user.Rot = u->Rot;
+                    actorNew->user.StateStart = u->StateStart;
+                    actorNew->user.StateEnd = u->StateEnd;
+                    actorNew->user.Flags = u->Flags;
+                    actorNew->user.Flags2 = u->Flags2;
+                    actorNew->user.RotNum = u->RotNum;
+                    actorNew->user.ID = u->ID;
 
-                    nu->PlayerP = u->PlayerP;
-                    nu->spal = u->spal;
+                    actorNew->user.PlayerP = u->PlayerP;
+                    actorNew->user.spal = u->spal;
                 }
             }
         }
