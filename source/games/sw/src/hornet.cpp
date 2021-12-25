@@ -289,17 +289,11 @@ int DoHornetMatchPlayerZ(DSWActor* actor);
 
 int SetupHornet(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
+        SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
         actor->user.Health = HEALTH_HORNET;
     }
 
@@ -331,8 +325,6 @@ int SetupHornet(DSWActor* actor)
 
 int NullHornet(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -346,7 +338,6 @@ enum { HORNET_BOB_AMT = (Z(16)) };
 
 int DoHornetMatchPlayerZ(DSWActor* actor)
 {
-    USERp u = actor->u();
     int zdiff,zdist;
     int loz,hiz;
     
@@ -416,8 +407,6 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
 int InitHornetCircle(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->user.ActorActionFunc = DoHornetCircle;
 
     NewStateGroup(actor, actor->user.ActorActionSet->Run);
@@ -447,7 +436,6 @@ int InitHornetCircle(DSWActor* actor)
 
 int DoHornetCircle(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx,ny,bound;
 
     actor->spr.ang = NORM_ANGLE(actor->spr.ang + actor->user.Counter2);
@@ -498,7 +486,6 @@ int DoHornetCircle(DSWActor* actor)
 
 int DoHornetDeath(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
 
     if (TEST(actor->user.Flags, SPR_FALLING))
@@ -541,8 +528,6 @@ int DoHornetDeath(DSWActor* actor)
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
 int DoCheckSwarm(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp tsp;
     int dist, pdist, a,b,c;
     PLAYERp pp;
 
@@ -583,8 +568,6 @@ int DoCheckSwarm(DSWActor* actor)
 
 int DoHornetMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
     // lotag of 0 is normal
