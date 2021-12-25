@@ -2268,20 +2268,16 @@ void PlayerDeathReset(PLAYERp pp)
 void PlayerPanelSetup(void)
 {
     short pnum;
-    PLAYERp pp;
-    USERp u;
 
     // For every player setup the panel weapon stuff
     //for (pp = Player; pp < &Player[numplayers]; pp++)
     TRAVERSE_CONNECT(pnum)
     {
-        pp = Player + pnum;
+        auto pp = Player + pnum;
 
-        u = pp->Actor()->u();
+        ASSERT(pp->actor->hasU());
 
-        ASSERT(u != nullptr);
-
-        PlayerUpdateWeapon(pp, u->WeaponNum);
+        PlayerUpdateWeapon(pp, pp->actor->user.WeaponNum);
     }
 }
 
@@ -2420,7 +2416,7 @@ void InitPlayerSprite(PLAYERp pp)
 void SpawnPlayerUnderSprite(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp pu = plActor->u(), u;
+    USERp u;
 
     int pnum = int(pp - Player);
 
@@ -2428,21 +2424,21 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
                                                  NINJA_RUN_R0, nullptr, pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
 
     DSWActor* actor = pp->PlayerUnderActor;
-    u = pp->PlayerUnderActor->u();
+    u = actor->u();
 
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     u->Rot = sg_NinjaRun;
-    u->RotNum = pu->RotNum;
-    NewStateGroup(pp->PlayerUnderActor, pu->Rot);
+    u->RotNum = plActor->user.RotNum;
+    NewStateGroup(pp->PlayerUnderActor, plActor->user.Rot);
 
-    u->Radius = pu->Radius;
+    u->Radius = plActor->user.Radius;
     u->PlayerP = pp;
     u->Health = pp->MaxHealth;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
-    u->ActorActionSet = pu->ActorActionSet;
+    u->ActorActionSet = plActor->user.ActorActionSet;
 
     actor->spr.picnum = plActor->spr.picnum;
     actor->spr.clipdist = plActor->spr.clipdist;
