@@ -258,10 +258,6 @@ STATE s_BloodSprayDrip[] =
 
 int DoWallBloodDrip(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    //actor->spr.z += (300+RandomRange(2300)) >> 1;
-
     // sy & sz are the ceiling and floor of the sector you are sliding down
     if (actor->user.sz != actor->user.sy)
     {
@@ -296,8 +292,6 @@ int DoWallBloodDrip(DSWActor* actor)
 
 void SpawnMidSplash(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
@@ -321,8 +315,6 @@ void SpawnMidSplash(DSWActor* actor)
 
 void SpawnFloorSplash(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->spr.sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
@@ -347,7 +339,6 @@ void SpawnFloorSplash(DSWActor* actor)
 
 int DoBloodSpray(DSWActor* actor)
 {
-    USER* u = actor->u();
     int cz,fz;
 
     if (TEST(actor->user.Flags, SPR_UNDERWATER))
@@ -557,8 +548,6 @@ int DoBloodSpray(DSWActor* actor)
 
 int DoPhosphorus(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
@@ -763,8 +752,6 @@ int DoPhosphorus(DSWActor* actor)
 
 int DoChemBomb(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
@@ -984,8 +971,6 @@ int DoChemBomb(DSWActor* actor)
 
 int DoCaltropsStick(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->user.Counter = !actor->user.Counter;
 
     if (actor->user.Counter)
@@ -996,8 +981,6 @@ int DoCaltropsStick(DSWActor* actor)
 
 int DoCaltrops(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
@@ -1164,8 +1147,6 @@ int DoCaltrops(DSWActor* actor)
 
 int SpawnRadiationCloud(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     if (!MoveSkip4)
         return false;
 
@@ -1235,8 +1216,6 @@ int SpawnRadiationCloud(DSWActor* actor)
 
 int DoRadiationCloud(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->spr.pos.Z -= actor->spr.zvel;
 
     actor->spr.pos.X += actor->user.xchange;
@@ -1327,7 +1306,6 @@ int PlayerInitChemBomb(PLAYERp pp)
 
 int InitSpriteChemBomb(DSWActor* actor)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
@@ -1372,11 +1350,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
 int InitChemBomb(DSWActor* actor)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
-
-// Need to make it take away from inventory weapon list
-//    PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
 
     nx = actor->spr.pos.X;
     ny = actor->spr.pos.Y;
@@ -1561,7 +1535,6 @@ int InitFlashBomb(DSWActor* actor)
 void SpawnFlashBombOnActor(DSWActor* actor)
 {
     if (!actor->hasU()) return;
-    USERp u = actor->u();
 
     // Forget about burnable sprites
     if (TEST(actor->spr.extra, SPRX_BURNABLE))
@@ -1703,7 +1676,6 @@ int PlayerInitCaltrops(PLAYERp pp)
 
 int InitCaltrops(DSWActor* actor)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
@@ -1745,7 +1717,6 @@ int InitCaltrops(DSWActor* actor)
 
 int InitPhosphorus(DSWActor* actor)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
     short daang;
 
@@ -1794,7 +1765,6 @@ int InitPhosphorus(DSWActor* actor)
 
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
     short i, cnt, ang, vel, rnd;
 
@@ -1943,8 +1913,6 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
 
 int DoCarryFlag(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     const int FLAG_DETONATE_STATE = 99;
     DSWActor* fown = actor->user.flagOwnerActor;
     if (!fown) return 0;
@@ -2092,8 +2060,6 @@ int DoCarryFlag(DSWActor* actor)
 
 int DoCarryFlagNoDet(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     DSWActor* attached = actor->user.attachActor;
     DSWActor* fown = actor->user.flagOwnerActor;
     if (!fown) return 0;
@@ -2152,13 +2118,10 @@ int DoCarryFlagNoDet(DSWActor* actor)
 
 int SetCarryFlag(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     // stuck
     SET(actor->user.Flags, SPR_BOUNCE);
     // not yet active for 1 sec
-//    RESET(actor->user.Flags, SPR_ACTIVE);
-//    actor->user.WaitTics = SEC(3);
+
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.Counter = 0;
     change_actor_stat(actor, STAT_ITEM);
@@ -2172,8 +2135,6 @@ int SetCarryFlag(DSWActor* actor)
 
 int DoFlag(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     auto hitActor = DoFlagRangeTest(actor, 1000);
 
     if (hitActor)
@@ -2196,7 +2157,6 @@ int DoFlag(DSWActor* actor)
 
 int SpawnShell(DSWActor* actor, int ShellNum)
 {
-    USERp u = actor->u();
     int nx, ny, nz;
     short id=0,velocity=0;    
     STATEp p=nullptr;
