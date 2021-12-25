@@ -634,28 +634,22 @@ ACTOR_ACTION_SET MiniSumoActionSet =
 
 int SetupSumo(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,SUMO_RUN_R0,s_SumoRun[0]);
-        u->Health = 6000;
+        SpawnUser(actor,SUMO_RUN_R0,s_SumoRun[0]);
+        actor->user.Health = 6000;
     }
 
-    if (Skill == 0) u->Health = 2000;
-    if (Skill == 1) u->Health = 4000;
+    if (Skill == 0) actor->user.Health = 2000;
+    if (Skill == 1) actor->user.Health = 4000;
 
     ChangeState(actor,s_SumoRun[0]);
-    u->Attrib = &SumoAttrib;
+    actor->user.Attrib = &SumoAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_SumoDie;
-    u->Rot = sg_SumoRun;
+    actor->user.StateEnd = s_SumoDie;
+    actor->user.Rot = sg_SumoRun;
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
@@ -665,8 +659,8 @@ int SetupSumo(DSWActor* actor)
         // Mini Sumo
         actor->spr.xrepeat = 43;
         actor->spr.yrepeat = 29;
-        u->ActorActionSet = &MiniSumoActionSet;
-        u->Health = 500;
+        actor->user.ActorActionSet = &MiniSumoActionSet;
+        actor->user.Health = 500;
     }
     else
     {
@@ -674,16 +668,14 @@ int SetupSumo(DSWActor* actor)
         actor->spr.yrepeat = 75;
     }
 
-    //SET(u->Flags, SPR_XFLIP_TOGGLE);
+    //SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
 
 int NullSumo(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (!TEST(u->Flags,SPR_CLIMBING))
+    if (!TEST(actor->user.Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -693,12 +685,10 @@ int NullSumo(DSWActor* actor)
 
 int DoSumoMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 
@@ -745,13 +735,11 @@ int InitSumoClap(DSWActor* actor)
 
 int DoSumoDeathMelt(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     PlaySound(DIGI_SUMOFART, actor, v3df_follow);
 
-    u->ID = SUMO_RUN_R0;
+    actor->user.ID = SUMO_RUN_R0;
     InitChemBomb(actor);
-    u->ID = 0;
+    actor->user.ID = 0;
 
     DoMatchEverything(nullptr, actor->spr.lotag, ON);
     if (!SW_SHAREWARE)
@@ -768,7 +756,6 @@ int DoSumoDeathMelt(DSWActor* actor)
 
 void BossHealthMeter(void)
 {
-    USERp u;
     PLAYERp pp = Player + myconnectindex;
     short color=0,metertics,meterunit;
     int y;
@@ -791,15 +778,13 @@ void BossHealthMeter(void)
         SWStatIterator it(STAT_ENEMY);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
-            if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && itActor->spr.pal != 16)
+            if ((itActor->user.ID == SERP_RUN_R0 || itActor->user.ID == SUMO_RUN_R0 || itActor->user.ID == ZILLA_RUN_R0) && itActor->spr.pal != 16)
             {
-                if (u->ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
+                if (itActor->user.ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
                     BossSpriteNum[0] = itActor;
-                else if (u->ID == SUMO_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SUMO))
+                else if (itActor->user.ID == SUMO_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SUMO))
                     BossSpriteNum[1] = itActor;
-                else if (u->ID == ZILLA_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_ZILLA))
+                else if (itActor->user.ID == ZILLA_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_ZILLA))
                     BossSpriteNum[2] = itActor;
             }
         }
@@ -815,8 +800,6 @@ void BossHealthMeter(void)
         DSWActor* actor = BossSpriteNum[i];
         if (actor != nullptr && !bosswasseen[i])
         {
-            u = actor->u();
-
             if (cansee(actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor), actor->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z - Z(40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
@@ -854,9 +837,7 @@ void BossHealthMeter(void)
         if ((!bosswasseen[i] || actor == nullptr))
             continue;
 
-        u = actor->u();
-
-        if (u->ID == SERP_RUN_R0 && bosswasseen[0])
+        if (actor->user.ID == SERP_RUN_R0 && bosswasseen[0])
         {
             if (Skill == 0) health = 1100;
             else if (Skill == 1) health = 2200;
@@ -864,7 +845,7 @@ void BossHealthMeter(void)
                 health = HEALTH_SERP_GOD;
             meterunit = health / 30;
         }
-        else if (u->ID == SUMO_RUN_R0 && bosswasseen[1])
+        else if (actor->user.ID == SUMO_RUN_R0 && bosswasseen[1])
         {
             if (Skill == 0) health = 2000;
             else if (Skill == 1) health = 4000;
@@ -872,7 +853,7 @@ void BossHealthMeter(void)
                 health = 6000;
             meterunit = health / 30;
         }
-        else if (u->ID == ZILLA_RUN_R0 && bosswasseen[2])
+        else if (actor->user.ID == ZILLA_RUN_R0 && bosswasseen[2])
         {
             if (Skill == 0) health = 2000;
             else if (Skill == 1) health = 4000;
@@ -885,10 +866,10 @@ void BossHealthMeter(void)
 
         if (meterunit > 0)
         {
-            if (u->Health < meterunit && u->Health > 0)
+            if (actor->user.Health < meterunit && actor->user.Health > 0)
                 metertics = 1;
             else
-                metertics = u->Health / meterunit;
+                metertics = actor->user.Health / meterunit;
         }
         else
             continue;
@@ -905,8 +886,8 @@ void BossHealthMeter(void)
 
         if ((currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SUMO|LEVEL_SW_BOSSMETER_ZILLA)) == (LEVEL_SW_BOSSMETER_SUMO | LEVEL_SW_BOSSMETER_ZILLA) && numplayers >= 2)
         {
-            if (u->ID == SUMO_RUN_R0 && bosswasseen[1]) y += 10;
-            else if (u->ID == ZILLA_RUN_R0 && bosswasseen[2]) y += 20;
+            if (actor->user.ID == SUMO_RUN_R0 && bosswasseen[1]) y += 10;
+            else if (actor->user.ID == ZILLA_RUN_R0 && bosswasseen[2]) y += 20;
         }
 
         if (metertics <= 12 && metertics > 6)
