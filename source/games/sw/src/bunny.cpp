@@ -912,11 +912,9 @@ void DoPickCloseBunny(DSWActor* actor)
     SWStatIterator it(STAT_ENEMY);
     while (auto itActor = it.Next())
     {
-        auto tu = itActor->u();
-
         if (actor == itActor) continue;
 
-        if (tu->ID != BUNNY_RUN_R0) continue;
+        if (itActor->user.ID != BUNNY_RUN_R0) continue;
 
         DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
@@ -924,7 +922,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->spr.sector());
 
-        if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
+        if (ICanSee && dist < near_dist && itActor->user.ID == BUNNY_RUN_R0)
         {
             near_dist = dist;
             u->targetActor = itActor;
@@ -948,9 +946,7 @@ int DoBunnyQuickJump(DSWActor* actor)
     DSWActor* hitActor = u->lowActor;
     if (hitActor)
     {
-        USERp tu = hitActor->u();
-
-        if (!tu || tu->ID != BUNNY_RUN_R0) return false;
+        if (!hitActor->hasU() || hitActor->user.ID != BUNNY_RUN_R0) return false;
 
 
         // Not mature enough yet
@@ -959,13 +955,13 @@ int DoBunnyQuickJump(DSWActor* actor)
 
         // Kill a rival
         // Only males fight
-        if (tu->spal == actor->spr.pal && RandomRange(1000) > 995)
+        if (hitActor->user.spal == actor->spr.pal && RandomRange(1000) > 995)
         {
-            if (u->spal == PALETTE_PLAYER8 && tu->spal == PALETTE_PLAYER8)
+            if (u->spal == PALETTE_PLAYER8 && hitActor->user.spal == PALETTE_PLAYER8)
             {
                 PlaySound(DIGI_BUNNYATTACK, actor, v3df_follow);
                 PlaySound(DIGI_BUNNYDIE2, hitActor, v3df_follow);
-                tu->Health = 0;
+                hitActor->user.Health = 0;
 
                 // Blood fountains
                 InitBloodSpray(hitActor, true,-1);
@@ -989,33 +985,30 @@ int DoBunnyQuickJump(DSWActor* actor)
     hitActor = u->lowActor;
     if (hitActor && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        USERp tu = hitActor->u();
-
-
-        if (!tu || tu->ID != BUNNY_RUN_R0) return false;
+        if (!hitActor->hasU() || hitActor->user.ID != BUNNY_RUN_R0) return false;
 
         // Not mature enough to mate yet
         if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
         if (hitActor->spr.xrepeat != 64 || hitActor->spr.yrepeat != 64) return false;
 
-        if (tu->ShellNum <= 0 && tu->WaitTics <= 0 && u->WaitTics <= 0)
+        if (hitActor->user.ShellNum <= 0 && hitActor->user.WaitTics <= 0 && u->WaitTics <= 0)
         {
             if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
                 PLAYERp pp = nullptr;
 
-                if (RandomRange(1000) < 995 && tu->spal != PALETTE_PLAYER0) return false;
+                if (RandomRange(1000) < 995 && hitActor->user.spal != PALETTE_PLAYER0) return false;
 
                 DoActorPickClosePlayer(actor);
 
                 if (u->targetActor->user.PlayerP)
                     pp = u->targetActor->user.PlayerP;
 
-                if (tu->spal != PALETTE_PLAYER0)
+                if (hitActor->user.spal != PALETTE_PLAYER0)
                 {
-                    if (tu->Flag1 > 0) return false;
-                    tu->FlagOwner = 1; // FAG!
-                    tu->Flag1 = SEC(10);
+                    if (hitActor->user.Flag1 > 0) return false;
+                    hitActor->user.FlagOwner = 1; // FAG!
+                    hitActor->user.Flag1 = SEC(10);
                     if (pp)
                     {
                         int choose_snd;
@@ -1052,11 +1045,11 @@ int DoBunnyQuickJump(DSWActor* actor)
                 HelpMissileLateral(actor, 2000);
                 actor->spr.ang = hitActor->spr.ang;
                 u->Vis = actor->spr.ang;  // Remember angles for later
-                tu->Vis = hitActor->spr.ang;
+                hitActor->user.Vis = hitActor->spr.ang;
 
                 NewStateGroup(actor, sg_BunnyScrew);
                 NewStateGroup(hitActor, sg_BunnyScrew);
-                u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
+                u->WaitTics = hitActor->user.WaitTics = SEC(10);  // Mate for this long
                 return true;
             }
         }

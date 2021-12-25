@@ -106,10 +106,10 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
     int rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
+    auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int angle2;
 
-    if (tu->RotNum == 0)
+    if (!ownerActor->hasU() || ownerActor->user.RotNum == 0)
         return 0;
 
     // Get which of the 8 angles of the sprite to draw (0-7)
@@ -118,9 +118,9 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
     rotation = ((tsp->ang + 3072 + 128 - angle2) & 2047);
     rotation = (rotation >> 8) & 7;
 
-    if (tu->RotNum == 5)
+    if (ownerActor->user.RotNum == 5)
     {
-        if (TEST(tu->Flags, SPR_XFLIP_TOGGLE))
+        if (TEST(ownerActor->user.Flags, SPR_XFLIP_TOGGLE))
         {
             if (rotation <= 4)
             {
@@ -148,9 +148,10 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
         }
 
         // Special case bunk
-        if (tu->ID == TOILETGIRL_R0 || tu->ID == WASHGIRL_R0 || tu->ID == TRASHCAN ||
-            tu->ID == CARGIRL_R0 || tu->ID == MECHANICGIRL_R0 || tu->ID == PRUNEGIRL_R0 ||
-            tu->ID == SAILORGIRL_R0)
+        int ID = ownerActor->user.ID;
+        if (ID == TOILETGIRL_R0 || ID == WASHGIRL_R0 || ID == TRASHCAN ||
+            ID == CARGIRL_R0 || ID == MECHANICGIRL_R0 || ID == PRUNEGIRL_R0 ||
+            ID == SAILORGIRL_R0)
             RESET(tsp->cstat, CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
 
         return RotTable5[rotation];
@@ -172,14 +173,15 @@ directions was not standardized.
 int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
+    auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int StateOffset, Rotation;
 
+    if (!ownerActor->hasU()) return 0;
     // don't modify ANY tu vars - back them up!
-    STATEp State = tu->State;
-    STATEp StateStart = tu->StateStart;
+    STATEp State = ownerActor->user.State;
+    STATEp StateStart = ownerActor->user.StateStart;
 
-    if (tu->RotNum == 0)
+    if (ownerActor->user.RotNum == 0)
         return 0;
 
     // Get the offset into the State animation
@@ -191,7 +193,7 @@ int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, i
     ASSERT(Rotation < 5);
 
     // Reset the State animation start based on the Rotation
-    StateStart = tu->Rot[Rotation];
+    StateStart = ownerActor->user.Rot[Rotation];
 
     // Set the sprites state
     State = StateStart + StateOffset;
@@ -260,12 +262,14 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
 void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t tSpr = &tsprite[spritesortcnt];
-    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
+    auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
     int xrepeat;
     int yrepeat;
+
+    if (!ownerActor->hasU()) return;
 
     auto sect = tsp->sector();
     // make sure its the correct sector
@@ -297,10 +301,10 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     tSpr->shade = 127;
     SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    loz = tu->loz;
-    if (tu->lowActor)
+    loz = ownerActor->user.loz;
+    if (ownerActor->user.lowActor)
     {
-        if (!TEST(tu->lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (!TEST(ownerActor->user.lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }
@@ -356,7 +360,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
 
 void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
-    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
+    auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int nx,ny,nz = 0,dx,dy,dz;
     int i, ang;
     int xrepeat, yrepeat, repeat_adj = 0;
@@ -364,31 +368,31 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
 
     ang = NORM_ANGLE(tsp->ang + 1024);
 
-    if (tsp->xvel == 0)
+    if (!ownerActor->hasU() || tsp->xvel == 0)
     {
         return;
     }
 
     if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
     {
-        z_amt_per_pixel = IntToFixed((int)-tu->jump_speed * ACTORMOVETICS)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-ownerActor->user.jump_speed * ACTORMOVETICS)/tsp->xvel;
     }
     else
     {
         z_amt_per_pixel = IntToFixed((int)-tsp->zvel)/tsp->xvel;
     }
 
-    switch (tu->motion_blur_dist)
+    switch (ownerActor->user.motion_blur_dist)
     {
     case 64:
     case 128:
     case 256:
     case 512:
-        nz = FixedToInt(z_amt_per_pixel * tu->motion_blur_dist);
+        nz = FixedToInt(z_amt_per_pixel * ownerActor->user.motion_blur_dist);
         [[fallthrough]];
     default:
-        dx = nx = MOVEx(tu->motion_blur_dist, ang);
-        dy = ny = MOVEy(tu->motion_blur_dist, ang);
+        dx = nx = MOVEx(ownerActor->user.motion_blur_dist, ang);
+        dy = ny = MOVEy(ownerActor->user.motion_blur_dist, ang);
         break;
     }
 
@@ -397,20 +401,20 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
     xrepeat = tsp->xrepeat;
     yrepeat = tsp->yrepeat;
 
-    switch (TEST(tu->Flags2, SPR2_BLUR_TAPER))
+    switch (TEST(ownerActor->user.Flags2, SPR2_BLUR_TAPER))
     {
     case 0:
         repeat_adj = 0;
         break;
     case SPR2_BLUR_TAPER_SLOW:
-        repeat_adj = xrepeat / (tu->motion_blur_num*2);
+        repeat_adj = xrepeat / (ownerActor->user.motion_blur_num*2);
         break;
     case SPR2_BLUR_TAPER_FAST:
-        repeat_adj = xrepeat / tu->motion_blur_num;
+        repeat_adj = xrepeat / ownerActor->user.motion_blur_num;
         break;
     }
 
-    for (i = 0; i < tu->motion_blur_num; i++)
+    for (i = 0; i < ownerActor->user.motion_blur_num; i++)
     {
         tspriteptr_t tSpr = &tsprite[spritesortcnt];
         *tSpr = *tsp;
@@ -499,7 +503,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
     }
 }
 
-void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
+void DoStarView(tspriteptr_t tsp, DSWActor* tActor, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
@@ -507,10 +511,10 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 
     if (labs(zdiff) > Z(24))
     {
-        if (tu->StateStart == s_StarStuck)
-            tsp->picnum = s_StarDownStuck[tu->State - s_StarStuck].Pic;
+        if (tActor->user.StateStart == s_StarStuck)
+            tsp->picnum = s_StarDownStuck[tActor->user.State - s_StarStuck].Pic;
         else
-            tsp->picnum = s_StarDown[tu->State - s_Star].Pic;
+            tsp->picnum = s_StarDown[tActor->user.State - s_Star].Pic;
 
         if (zdiff > 0)
             SET(tsp->cstat, CSTAT_SPRITE_YFLIP);
@@ -588,7 +592,6 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 {
     int tSpriteNum;
     int smr4, smr2;
-    USERp tu;
     static int ang = 0;
     PLAYERp pp = Player + screenpeek;
     int newshade=0;
@@ -605,20 +608,19 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     {
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
-        tu = tActor->hasU()? tActor->u() : nullptr;
         auto tsectp = tsp->sector();
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
-        if (tu && tu->Vis > 0)
+        if (tu && tActor->user.Vis > 0)
         {
             int tmpshade; // Having this prevent overflow
 
-            tmpshade = tsp->shade  - tu->Vis;
+            tmpshade = tsp->shade  - tActor->user.Vis;
             if (tmpshade < -128) tmpshade = -128;
 
             tsp->shade = tmpshade;
-            tu->Vis -= 8;
+            tActor->user.Vis -= 8;
         }
 #endif
 
@@ -629,11 +631,11 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             continue;
         }
 
-        if (tu)
+        if (tActor->hasU())
         {
             if (tsp->statnum != STAT_DEFAULT)
             {
-                if (TEST(tu->Flags, SPR_SKIP4))
+                if (TEST(tActor->user.Flags, SPR_SKIP4))
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
@@ -641,7 +643,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     }
                 }
 
-                if (TEST(tu->Flags, SPR_SKIP2))
+                if (TEST(tActor->user.Flags, SPR_SKIP2))
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
@@ -658,7 +660,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     tsp->pos.Z = floorz;
             }
 
-            if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
+            if (r_shadows && TEST(tActor->user.Flags, SPR_SHADOW))
             {
                 DoShadows(tsprite, spritesortcnt, tsp, viewz, camang);
             }
@@ -668,14 +670,14 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             //#define DART_REPEAT 6
             //#define DART_PIC 2233
             if (sw_darts)
-                if (tu->ID == 1793 || tsp->picnum == 1793)
+                if (tActor->user.ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
                     tsp->xrepeat = 27;
                     tsp->yrepeat = 29;
                 }
 
-            if (tu->ID == STAR1)
+            if (tActor->user.ID == STAR1)
             {
                 if (sw_darts)
                 {
@@ -686,14 +688,14 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     SET(tsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
-                    DoStarView(tsp, tu, viewz);
+                    DoStarView(tsp, tActor, viewz);
             }
 
             // rotation
-            if (tu->RotNum > 0)
+            if (tActor->user.RotNum > 0)
                 SetActorRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
 
-            if (tu->motion_blur_num)
+            if (tActor->user.motion_blur_num)
             {
                 DoMotionBlur(tsprite, spritesortcnt, tsp);
             }
@@ -703,9 +705,9 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             {
                 if (tsectp->floorpal == PALETTE_DEFAULT)
                 {
-                    // default pal for sprite is stored in tu->spal
+                    // default pal for sprite is stored in tActor->user.spal
                     // mostly for players and other monster types
-                    tsp->pal = tu->spal;
+                    tsp->pal = tActor->user.spal;
                 }
                 else
                 {
@@ -720,14 +722,14 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                         nosectpal = true;
                     }
 
-                    //if(tu->spal == PALETTE_DEFAULT)
+                    //if(tActor->user.spal == PALETTE_DEFAULT)
                     if (tsp->hitag != SECTFU_DONT_COPY_PALETTE && tsp->hitag != LUMINOUS
                         && !nosectpal
                         && pal != PALETTE_FOG && pal != PALETTE_DIVE &&
                         pal != PALETTE_DIVE_LAVA)
                         tsp->pal = pal;
                     else
-                        tsp->pal = tu->spal;
+                        tsp->pal = tActor->user.spal;
 
                 }
             }
@@ -756,7 +758,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
         // only do this of you are a player sprite
         //if (tsp->statnum >= STAT_PLAYER0 && tsp->statnum < STAT_PLAYER0 + MAX_SW_PLAYERS)
-        if (tu && tu->PlayerP)
+        if (tActor->hasU() && tActor->user.PlayerP)
         {
             // Shadow spell
             if (!TEST(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT))
@@ -797,7 +799,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             }
             else // Otherwise just interpolate the player sprite
             {
-                pp = tu->PlayerP;
+                pp = tActor->user.PlayerP;
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->pos.X - pp->opos.X, sr, 16);
                 tsp->pos.Y -= MulScale(pp->pos.Y - pp->opos.Y, sr, 16);
@@ -856,19 +858,19 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
         if (pp->NightVision && TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            if (tu && tu->ID == TRASHCAN) continue; // Don't light up trashcan
+            if (tActor->hasU() && tActor->user.ID == TRASHCAN) continue; // Don't light up trashcan
 
             tsp->pal = PALETTE_ILLUMINATE;  // Make sprites REALLY bright green.
             tsp->shade = -128;
         }
 
-        if (tu && tu->PlayerP)
+        if (tActor->hasU() && tActor->user.PlayerP)
         {
-            if (TEST(tu->Flags2, SPR2_VIS_SHADING))
+            if (TEST(tActor->user.Flags2, SPR2_VIS_SHADING))
             {
                 if (Player[screenpeek].Actor() != tActor)
                 {
-                    if (!TEST(tu->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
+                    if (!TEST(tActor->user.PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
                     {
                         RESET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
                     }
@@ -901,7 +903,6 @@ tspriteptr_t get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* act
 void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
-    USERp tu;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
@@ -911,10 +912,9 @@ void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
 
         if (actor->hasU())
         {
-            tu = actor->u();
-            if (tu->ID == FIREBALL_FLAMES && tu->attachActor != nullptr)
+            if (actor->user.ID == FIREBALL_FLAMES && actor->user.attachActor != nullptr)
             {
-                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->attachActor);
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, actor->user.attachActor);
 
                 if (!atsp)
                 {
