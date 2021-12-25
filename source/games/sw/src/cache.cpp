@@ -74,7 +74,6 @@ void precacheMap(void)
 	int j;
 	SECTORp sectp;
 	WALLp wp;
-	SPRITEp sp;
 
 	for(auto& sec: sector)
 	{

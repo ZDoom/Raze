@@ -145,7 +145,6 @@ ANIMATOR GenerateDrips;
 /////////////////////////////////////////////////////
 void JS_SpriteSetup(void)
 {
-    SPRITEp sp;
     USERp u;
 
     SWStatIterator it(STAT_DEFAULT);
@@ -304,7 +303,6 @@ void JS_InitMirrors(void)
                 do if (wal.lotag == TAG_WALL_MAGIC_MIRROR)
                 {
                     int ii;
-                    SPRITEp sp;
 
                     Found_Cam = false;
 

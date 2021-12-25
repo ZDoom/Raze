@@ -2347,7 +2347,6 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
 void InitPlayerSprite(PLAYERp pp)
 {
-    SPRITE *sp;
     USERp u;
     int pnum = int(pp - Player);
     extern bool NewGame;
@@ -2423,7 +2422,6 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
     DSWActor* plActor = pp->actor;
     USERp pu = plActor->u(), u;
 
-    SPRITEp sp;
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,

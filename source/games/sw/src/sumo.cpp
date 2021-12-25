@@ -768,7 +768,6 @@ int DoSumoDeathMelt(DSWActor* actor)
 
 void BossHealthMeter(void)
 {
-    SPRITEp sp;
     USERp u;
     PLAYERp pp = Player + myconnectindex;
     short color=0,metertics,meterunit;

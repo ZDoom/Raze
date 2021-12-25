@@ -65,8 +65,6 @@ DSWActor* insertActor(sectortype* sect, int statnum)
 
 bool FAF_Sector(sectortype* sect)
 {
-    SPRITEp sp;
-
     SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
@@ -303,8 +301,6 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
 
 int GetZadjustment(sectortype* sect, short hitag)
 {
-    SPRITEp sp;
-
     if (sect == nullptr || !TEST(sect->extra, SECTFX_Z_ADJUST))
         return 0;
 
@@ -565,8 +561,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
 
 void SetupMirrorTiles(void)
 {
-    SPRITEp sp;
-
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
@@ -595,7 +589,6 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
     int i;
     sectortype* sectorlist[16];
     int sln = 0;
-    SPRITEp sp;
 
     for(auto& sect: sector)
     {
@@ -839,7 +832,6 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 
 short FindViewSectorInScene(sectortype* cursect, short level)
 {
-    SPRITEp sp;
     short match;
 
     SWStatIterator it(STAT_FAF);
