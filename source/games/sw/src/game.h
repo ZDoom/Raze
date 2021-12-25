@@ -1100,27 +1100,6 @@ struct USER
 
 using USERp = USER*;
 
-struct USERSAVE
-{
-    int16_t Health;
-    int8_t WeaponNum;
-    int8_t LastWeaponNum;
-
-    void CopyFromUser(USER* u)
-    {
-        Health = u->Health;
-        WeaponNum = u->WeaponNum;
-        LastWeaponNum = u->LastWeaponNum;
-    }
-
-    void CopyToUser(USER* u)
-    {
-        u->Health = Health;
-        u->WeaponNum = WeaponNum;
-        u->LastWeaponNum = LastWeaponNum;
-    }
-
-};
 
 enum
 {
@@ -1819,8 +1798,6 @@ extern short connecthead, connectpoint2[MAXPLAYERS];
 */
 extern int *lastpacket2clock;
 
-// save player info when moving to a new level (shortened to only cover the fields that actually are copied back.(
-extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 ///////////////////////////
 //
@@ -2221,6 +2198,31 @@ struct ANIMstruct
 
 extern ANIM Anim[MAXANIM];
 extern short AnimCnt;
+
+struct USERSAVE
+{
+    int16_t Health;
+    int8_t WeaponNum;
+    int8_t LastWeaponNum;
+
+    void CopyFromUser(DSWActor* u)
+    {
+        Health = u->user.Health;
+        WeaponNum = u->user.WeaponNum;
+        LastWeaponNum = u->user.LastWeaponNum;
+    }
+
+    void CopyToUser(DSWActor* u)
+    {
+        u->user.Health = Health;
+        u->user.WeaponNum = WeaponNum;
+        u->user.LastWeaponNum = LastWeaponNum;
+    }
+
+};
+
+// save player info when moving to a new level (shortened to only cover the fields that actually are copied back.)
+extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 
 END_SW_NS

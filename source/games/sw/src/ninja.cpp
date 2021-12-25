@@ -2400,7 +2400,7 @@ void InitPlayerSprite(PLAYERp pp)
     else
     {
         // restore stuff from last level
-        puser[pnum].CopyToUser(u);
+        puser[pnum].CopyToUser(actor);
         PlayerLevelReset(pp);
     }
 

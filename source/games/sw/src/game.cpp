@@ -527,7 +527,7 @@ void TerminateLevel(void)
         SWStatIterator it(stat);
         if (auto actor = it.Next())
         {
-            if (actor->hasU()) puser[pnum].CopyFromUser(actor->u());
+            if (actor->hasU()) puser[pnum].CopyFromUser(actor);
         }
     }
 
