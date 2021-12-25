@@ -1285,23 +1285,23 @@ int PlayerInitChemBomb(PLAYERp pp)
         actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
 
-//    wu->RotNum = 5;
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+//    actorNew->user.RotNum = 5;
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = 200;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.Radius = 200;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(wu->Flags, SPR_UNDERWATER);
+        SET(actorNew->user.Flags, SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
@@ -1315,16 +1315,16 @@ int PlayerInitChemBomb(PLAYERp pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
-    wu->xchange += pp->xvect >> 14;
-    wu->ychange += pp->yvect >> 14;
+    actorNew->user.xchange += pp->xvect >> 14;
+    actorNew->user.ychange += pp->yvect >> 14;
 
     // Smoke will come out for this many seconds
-    wu->WaitTics = CHEMTICS;
+    actorNew->user.WaitTics = CHEMTICS;
 
     return 0;
 }
@@ -1349,17 +1349,17 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     wu = actorNew->u();
 
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = 200;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.Radius = 200;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
@@ -1367,12 +1367,12 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = actorNew->spr.zvel >> 1;
 
     // Smoke will come out for this many seconds
-    wu->WaitTics = CHEMTICS;
+    actorNew->user.WaitTics = CHEMTICS;
 
     return 0;
 }
@@ -1399,42 +1399,42 @@ int InitChemBomb(DSWActor* actor)
 
     wu = actorNew->u();
 
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    wu->Radius = 200;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.Radius = 200;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
     // invis.
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(wu->Flags, SPR_UNDERWATER);
+        SET(actorNew->user.Flags, SPR_UNDERWATER);
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
     actorNew->spr.clipdist = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121 || u->ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
-        wu->xchange = 0;
-        wu->ychange = 0;
-        wu->zchange = 0;
+        actorNew->user.xchange = 0;
+        actorNew->user.ychange = 0;
+        actorNew->user.zchange = 0;
         actorNew->spr.xvel = actorNew->spr.yvel = actorNew->spr.zvel = 0;
         // Smoke will come out for this many seconds
-        wu->WaitTics = 40*120;
+        actorNew->user.WaitTics = 40*120;
     }
     else
     {
-        wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        wu->zchange = actorNew->spr.zvel >> 1;
+        actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.zchange = actorNew->spr.zvel >> 1;
         // Smoke will come out for this many seconds
-        wu->WaitTics = 3*120;
+        actorNew->user.WaitTics = 3*120;
     }
 
 
@@ -1674,21 +1674,21 @@ int PlayerInitCaltrops(PLAYERp pp)
         actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
 
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->Actor(), actorNew);
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = 200;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.Radius = 200;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
 //      SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(wu->Flags, SPR_UNDERWATER);
+        SET(actorNew->user.Flags, SPR_UNDERWATER);
 
     // They go out at different angles
 //        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
@@ -1705,13 +1705,13 @@ int PlayerInitCaltrops(PLAYERp pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
-    wu->xchange += pp->xvect >> 14;
-    wu->ychange += pp->yvect >> 14;
+    actorNew->user.xchange += pp->xvect >> 14;
+    actorNew->user.ychange += pp->yvect >> 14;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
@@ -1736,7 +1736,7 @@ int InitCaltrops(DSWActor* actor)
 
     wu = actorNew->u();
 
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = 64;
@@ -1744,19 +1744,19 @@ int InitCaltrops(DSWActor* actor)
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     actorNew->spr.clipdist = actor->spr.clipdist;
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = 200;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.Radius = 200;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = actorNew->spr.zvel >> 1;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
@@ -1786,7 +1786,7 @@ int InitPhosphorus(DSWActor* actor)
     wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
     // !Frank - don't do translucent
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     // SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
@@ -1800,17 +1800,17 @@ int InitPhosphorus(DSWActor* actor)
         actorNew->spr.clipdist = actor->spr.clipdist-1;
     else
         actorNew->spr.clipdist = actor->spr.clipdist;
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = 600;
-    wu->ceiling_dist = Z(3);
-    wu->floor_dist = Z(3);
-    wu->Counter = 0;
+    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.Radius = 600;
+    actorNew->user.ceiling_dist = Z(3);
+    actorNew->user.floor_dist = Z(3);
+    actorNew->user.Counter = 0;
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = (actorNew->spr.zvel >> 1);
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = (actorNew->spr.zvel >> 1);
 
     return 0;
 }
@@ -1865,7 +1865,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         wu = actorNew->u();
 
-        SET(wu->Flags, SPR_XFLIP_TOGGLE);
+        SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
         if (dogib)
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
         else
@@ -1877,17 +1877,17 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->spr.xrepeat = 64-RandomRange(35);
         actorNew->spr.shade = -15;
         actorNew->spr.clipdist = actor->spr.clipdist;
-        wu->WeaponNum = u->WeaponNum;
-        wu->Radius = 600;
-        wu->ceiling_dist = Z(3);
-        wu->floor_dist = Z(3);
-        wu->Counter = 0;
+        actorNew->user.WeaponNum = u->WeaponNum;
+        actorNew->user.Radius = 600;
+        actorNew->user.ceiling_dist = Z(3);
+        actorNew->user.floor_dist = Z(3);
+        actorNew->user.Counter = 0;
 
         actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
-        wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        wu->zchange = actorNew->spr.zvel >> 1;
+        actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.zchange = actorNew->spr.zvel >> 1;
 
         if (!GlobalSkipZrange)
             DoActorZrange(actorNew);
@@ -2266,7 +2266,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.pos.Z += xs_CRoundToInt(-MulScaleF(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3., 16));
     }
 
-    switch (wu->ID)
+    switch (actorNew->user.ID)
     {
     case UZI_SHELL:
         actorNew->spr.pos.Z -= Z(13);
@@ -2291,7 +2291,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number
-        wu->ShellNum = ShellCount;
+        actorNew->user.ShellNum = ShellCount;
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 13;
         break;
     case SHOT_SHELL:
@@ -2305,30 +2305,30 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number
-        wu->ShellNum = ShellCount;
+        actorNew->user.ShellNum = ShellCount;
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 18;
         break;
     }
 
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -15;
-    wu->ceiling_dist = Z(1);
-    wu->floor_dist = Z(1);
-    wu->Counter = 0;
+    actorNew->user.ceiling_dist = Z(1);
+    actorNew->user.floor_dist = Z(1);
+    actorNew->user.Counter = 0;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    RESET(wu->Flags, SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
+    RESET(actorNew->user.Flags, SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
-    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    wu->zchange = actorNew->spr.zvel;
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.zchange = actorNew->spr.zvel;
     
-    wu->jump_speed = 200;
-    wu->jump_speed += RandomRange(400);
-    wu->jump_speed = -wu->jump_speed;
+    actorNew->user.jump_speed = 200;
+    actorNew->user.jump_speed += RandomRange(400);
+    actorNew->user.jump_speed = -actorNew->user.jump_speed;
 
     DoBeginJump(actor);
-    wu->jump_grav = ACTOR_GRAVITY;
+    actorNew->user.jump_grav = ACTOR_GRAVITY;
 
     return 0;
 }
