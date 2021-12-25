@@ -4023,21 +4023,19 @@ int SpawnItemsMatch(short match)
 
         case 57:
         {
-            USERp u;
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_ARMOR))
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            u = spawnedActor->u();
-            SET(u->Flags2, SPR2_NEVER_RESPAWN);
+            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
 
             if (spawnedActor->spr.pal != PALETTE_PLAYER3)
-                spawnedActor->spr.pal = u->spal = PALETTE_PLAYER1;
+                spawnedActor->spr.pal = spawnedActor->user.spal = PALETTE_PLAYER1;
             else
-                spawnedActor->spr.pal = u->spal = PALETTE_PLAYER3;
+                spawnedActor->spr.pal = spawnedActor->user.spal = PALETTE_PLAYER3;
             break;
         }
 
@@ -4225,7 +4223,6 @@ int SpawnItemsMatch(short match)
         case 12:
         {
             short num;
-            USERp u;
 
             static const uint8_t KeyPal[] =
             {
@@ -4252,14 +4249,12 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            u = spawnedActor->u();
 
-            ASSERT(u != nullptr);
-            spawnedActor->spr.picnum = u->ID = s_Key[num]->Pic;
+            spawnedActor->spr.picnum = spawnedActor->user.ID = s_Key[num]->Pic;
 
 
             // need to set the palette here - suggest table lookup
-            u->spal = spawnedActor->spr.pal = KeyPal[num];
+            spawnedActor->user.spal = spawnedActor->spr.pal = KeyPal[num];
 
 
             ChangeState(spawnedActor, s_Key[num]);
@@ -4310,13 +4305,10 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 
 bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 {
-    USERp ua = actor_a->u();
-    USERp ub = actor_b->u();
-
     int spa_tos, spa_bos, spb_tos, spb_bos, overlap_z;
 
-    if (!ua || !ub) return false;
-    if ((unsigned)Distance(actor_a->spr.pos.X, actor_a->spr.pos.Y, actor_b->spr.pos.X, actor_b->spr.pos.Y) > ua->Radius + ub->Radius)
+    if (!actor_a->hasU() || !actor_b->hasU()) return false;
+    if ((unsigned)Distance(actor_a->spr.pos.X, actor_a->spr.pos.Y, actor_b->spr.pos.X, actor_b->spr.pos.Y) > actor_a->user.Radius + actor_b->user.Radius)
     {
         return false;
     }
@@ -4328,7 +4320,7 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
     spb_bos = ActorZOfBottom(actor_b);
 
 
-    overlap_z = ua->OverlapZ + ub->OverlapZ;
+    overlap_z = actor_a->user.OverlapZ + actor_b->user.OverlapZ;
 
     // if the top of sprite a is below the bottom of b
     if (spa_tos - overlap_z > spb_bos)
@@ -5097,13 +5089,13 @@ int DoGet(DSWActor* actor)
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
-        pu = pp->Actor()->u();
+        DSWActor* plActor = pp->actor;
 
         if (TEST(pp->Flags, PF_DEAD))
             continue;
 
         DISTANCE(pp->pos.X, pp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a,b,c);
-        if ((unsigned)dist > (pu->Radius + u->Radius))
+        if ((unsigned)dist > (plActor->user.Radius + u->Radius))
         {
             continue;
         }
@@ -5213,7 +5205,7 @@ KeyMain:
         //
 
         case ICON_SM_MEDKIT:
-            if (pu->Health < 100)
+            if (plActor->user.Health < 100)
             {
                 bool putbackmax=false;
 
@@ -5245,7 +5237,7 @@ KeyMain:
 
         case ICON_BOOSTER:   // Fortune cookie
             pp->MaxHealth = 200;
-            if (pu->Health < 200)
+            if (plActor->user.Health < 200)
             {
                 PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
@@ -5435,7 +5427,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum <= WPN_STAR && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum <= WPN_STAR && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponStar(pp);
             break;
@@ -5463,7 +5455,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_MINE && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_MINE && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMine(pp);
             break;
@@ -5507,7 +5499,7 @@ KeyMain:
             if (!cl_weaponswitch)
                 break;
 
-            if (pu->WeaponNum > WPN_UZI && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_UZI && plActor->user.WeaponNum != WPN_SWORD)
                 break;
 
             InitWeaponUzi(pp);
@@ -5549,7 +5541,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_MICRO && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_MICRO && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMicro(pp);
             break;
@@ -5618,7 +5610,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_GRENADE && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_GRENADE && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponGrenade(pp);
             break;
@@ -5692,7 +5684,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_RAIL && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_RAIL && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponRail(pp);
             break;
@@ -5734,7 +5726,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_SHOTGUN && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_SHOTGUN && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponShotgun(pp);
             break;
@@ -5802,7 +5794,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (pu->WeaponNum > WPN_HOTHEAD && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_HOTHEAD && plActor->user.WeaponNum != WPN_SWORD)
                 break;
             InitWeaponHothead(pp);
             break;
@@ -5848,7 +5840,7 @@ KeyMain:
             if (!cl_weaponswitch)
                 break;
 
-            if (pu->WeaponNum > WPN_HEART && pu->WeaponNum != WPN_SWORD)
+            if (plActor->user.WeaponNum > WPN_HEART && plActor->user.WeaponNum != WPN_SWORD)
                 break;
 
             InitWeaponHeart(pp);
