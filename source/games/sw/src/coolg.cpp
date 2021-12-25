@@ -501,8 +501,6 @@ int DoCoolgMatchPlayerZ(DSWActor* actor);
 
 void CoolgCommon(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     actor->spr.clipdist = (200) >> 2;
     actor->user.floor_dist = Z(16);
     actor->user.ceiling_dist = Z(20);
@@ -516,15 +514,13 @@ void CoolgCommon(DSWActor* actor)
 
 int SetupCoolg(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
     if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = SpawnUser(actor,COOLG_RUN_R0,s_CoolgRun[0]);
+        SpawnUser(actor,COOLG_RUN_R0,s_CoolgRun[0]);
         actor->user.Health = HEALTH_COOLIE_GHOST;
     }
-    u = actor->u();
 
     ChangeState(actor, s_CoolgRun[0]);
     actor->user.Attrib = &CoolgAttrib;
@@ -543,7 +539,6 @@ int SetupCoolg(DSWActor* actor)
 
 int NewCoolg(DSWActor* actor)
 {
-    USERp u = actor->u();
     ANIMATOR DoActorDecide;
 
     auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 50);
@@ -569,7 +564,6 @@ int NewCoolg(DSWActor* actor)
 
 int DoCoolgBirth(DSWActor* actor)
 {
-    USER* u = actor->u();
     ANIMATOR DoActorDecide;
 
     actor->user.Health = HEALTH_COOLIE_GHOST;
@@ -592,8 +586,6 @@ int DoCoolgBirth(DSWActor* actor)
 
 int NullCoolg(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->user.ShellNum -= ACTORMOVETICS;
 
     if (TEST(actor->user.Flags,SPR_SLIDING))
@@ -607,7 +599,6 @@ int NullCoolg(DSWActor* actor)
 
 int DoCoolgMatchPlayerZ(DSWActor* actor)
 {
-    USER* u = actor->u();
     int zdiff,zdist;
     int loz,hiz;
 
@@ -622,7 +613,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
         SetSuicide(actor);
     }
 
-    // actor does a sine wave about u->sz - this is the z mid point
+    // actor does a sine wave about sz - this is the z mid point
 
     zdiff = (ActorZOfMiddle(actor->user.targetActor)) - actor->user.sz;
 
@@ -685,8 +676,6 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
 int InitCoolgCircle(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     actor->user.ActorActionFunc = DoCoolgCircle;
 
     NewStateGroup(actor, actor->user.ActorActionSet->Run);
@@ -716,9 +705,7 @@ int InitCoolgCircle(DSWActor* actor)
 
 int DoCoolgCircle(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx,ny,bound;
-
 
     actor->spr.ang = NORM_ANGLE(actor->spr.ang + actor->user.Counter2);
 
@@ -757,7 +744,6 @@ int DoCoolgCircle(DSWActor* actor)
 
 int DoCoolgDeath(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
 
     RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -801,8 +787,6 @@ int DoCoolgDeath(DSWActor* actor)
 
 int DoCoolgMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.ShellNum -= ACTORMOVETICS) <= 0)
     {
         switch (actor->user.FlagOwner)
@@ -886,7 +870,6 @@ int DoCoolgMove(DSWActor* actor)
 
 int DoCoolgPain(DSWActor* actor)
 {
-    USER* u = actor->u();
     NullCoolg(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
