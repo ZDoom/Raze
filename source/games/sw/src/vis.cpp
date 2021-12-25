@@ -125,13 +125,12 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
     DSWActor* actorNew = nullptr;
     if (parentActor != nullptr)
     {
-        auto psp = &parentActor->s();
         auto pu = parentActor->u();
 
-        if (psp->sector()->floorpal == PALETTE_FOG)
+        if (parentActor->spr.sector()->floorpal == PALETTE_FOG)
             return;
 
-        if (psp->sector()->floorpal == PALETTE_DIVE_LAVA)
+        if (parentActor->spr.sector()->floorpal == PALETTE_DIVE_LAVA)
             return;
 
         // kill any others with the same parent
@@ -144,16 +143,16 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
             }
         }
 
-        actorNew = insertActor(psp->sector(), STAT_VIS_ON);
+        actorNew = insertActor(parentActor->spr.sector(), STAT_VIS_ON);
         SetOwner(parentActor, actorNew);
 
 
         ASSERT(parentActor->hasU());
         SET(pu->Flags2, SPR2_CHILDREN);
 
-        actorNew->spr.pos.X = psp->pos.X;
-        actorNew->spr.pos.Y = psp->pos.Y;
-        actorNew->spr.pos.Z = psp->pos.Z;
+        actorNew->spr.pos.X = parentActor->spr.pos.X;
+        actorNew->spr.pos.Y = parentActor->spr.pos.Y;
+        actorNew->spr.pos.Z = parentActor->spr.pos.Z;
 
         SET(pu->Flags2, SPR2_VIS_SHADING);
     }

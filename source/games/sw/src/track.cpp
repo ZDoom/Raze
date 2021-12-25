@@ -710,10 +710,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     {
         I_Error("SOP bound sprite with hitag %d not found", 501 + (int(sop - SectorObject) * 5));
     }
-    BoundSprite = &BoundActor->s();
-
-    xhigh = BoundSprite->pos.X;
-    yhigh = BoundSprite->pos.Y;
+    xhigh = BoundActor->spr.pos.X;
+    yhigh = BoundActor->spr.pos.Y;
 
     KillActor(BoundActor);
 
@@ -726,10 +724,9 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     BoundActor = FindBoundSprite(SECT_SO_CENTER);
     if (BoundActor)
     {
-        BoundSprite = &BoundActor->s();
-        sop->xmid = BoundSprite->pos.X;
-        sop->ymid = BoundSprite->pos.Y;
-        sop->zmid = BoundSprite->pos.Z;
+        sop->xmid = BoundActor->spr.pos.X;
+        sop->ymid = BoundActor->spr.pos.Y;
+        sop->zmid = BoundActor->spr.pos.Z;
         KillActor(BoundActor);
     }
 
@@ -2811,11 +2808,10 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
         {
             DSWActor* sActor = sop->so_actors[i];
             if (!sActor) continue;
-            auto shootp = &sActor->s();
 
-			if (shootp->statnum == STAT_SO_SHOOT_POINT)
+			if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
             {
-                if (!FAFcansee(shootp->pos.X, shootp->pos.Y, shootp->pos.Z-Z(4), shootp->sector(),
+                if (!FAFcansee(sActor->spr.pos.X, sActor->spr.pos.Y, sActor->spr.pos.Z-Z(4), sActor->spr.sector(),
                                u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpperZ(u->targetActor), u->targetActor->spr.sector()))
                 {
                     return;
@@ -3362,7 +3358,6 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (u->ActorActionSet->Jump)
         {
             int bos_z,nx,ny;
-            SPRITEp lsp;
             HitInfo near;
 
             //
@@ -3375,17 +3370,16 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 ActorLeaveTrack(actor);
                 return false;
             }
-            lsp = &lActor->s();
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lsp->ang);
-            ny = MOVEy(100, lsp->ang);
+            nx = MOVEx(100, lActor->spr.ang);
+            ny = MOVEy(100, lActor->spr.ang);
 
-            actor->spr.pos.X = lsp->pos.X + nx;
-            actor->spr.pos.Y = lsp->pos.Y + ny;
+            actor->spr.pos.X = lActor->spr.pos.X + nx;
+            actor->spr.pos.Y = lActor->spr.pos.Y + ny;
 
-            actor->spr.ang = NORM_ANGLE(lsp->ang + 1024);
+            actor->spr.ang = NORM_ANGLE(lActor->spr.ang + 1024);
 
             //
             // Get the z height to climb
