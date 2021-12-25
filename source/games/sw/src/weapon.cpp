@@ -18230,7 +18230,7 @@ int SpawnSplash(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);
     wp = &actorNew->s();
-    wu = actor->u();
+    wu = actorNew->u();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
