@@ -10929,7 +10929,6 @@ int DoFireball(DSWActor* actor)
             {
             case kHitSprite:
             {
-                SPRITEp hsp;
                 USERp hu;
 
                 auto hitActor = u->coll.actor();
@@ -11654,16 +11653,15 @@ int DoSerpRing(DSWActor* actor)
         u->ID = SKULL_SERP;
         return 0;
     }
-    auto osp = &own->s();
     auto ou = own->u();
 
     // move the center with the player
-    actor->spr.pos.X = osp->pos.X;
-    actor->spr.pos.Y = osp->pos.Y;
+    actor->spr.pos.X = own->spr.pos.X;
+    actor->spr.pos.Y = own->spr.pos.Y;
 
     actor->spr.pos.Z += actor->spr.zvel;
-    if (actor->spr.pos.Z > osp->pos.Z - u->sz)
-        actor->spr.pos.Z = osp->pos.Z - u->sz;
+    if (actor->spr.pos.Z > own->spr.pos.Z - u->sz)
+        actor->spr.pos.Z = own->spr.pos.Z - u->sz;
 
     // go out until its time to come back in
     if (u->Counter2 == false)
@@ -12214,7 +12212,6 @@ int InitSwordAttack(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING))
     {
         DSWActor* bubble;
-        SPRITEp bp;
         int nx, ny;
         short random_amt;
 
@@ -12229,15 +12226,13 @@ int InitSwordAttack(PLAYERp pp)
             bubble = SpawnBubble(pp->Actor());
             if (bubble != nullptr)
             {
-                bp = &bubble->s();
-
-                bp->ang = pp->angle.ang.asbuild();
+                bubble->spr.ang = pp->angle.ang.asbuild();
 
                 random_amt = (RANDOM_P2(32 << 8) >> 8) - 16;
 
                 // back it up a bit to get it out of your face
-                nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
-                ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
+                nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bubble->spr.ang + dangs[i] + random_amt));
+                ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bubble->spr.ang + dangs[i] + random_amt));
 
                 move_missile(bubble, nx, ny, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
@@ -12382,7 +12377,6 @@ int InitFistAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
     USERp u = plActor->u(),tu;
-    auto psp = &plActor->s();
     unsigned stat;
     int dist;
     short reach,face;
@@ -12392,7 +12386,6 @@ int InitFistAttack(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING))
     {
         DSWActor* bubble;
-        SPRITEp bp;
         int nx,ny;
         short random_amt;
 
@@ -12406,15 +12399,13 @@ int InitFistAttack(PLAYERp pp)
             bubble = SpawnBubble(pp->Actor());
             if (bubble != nullptr)
             {
-                bp = &bubble->s();
-
-                bp->ang = pp->angle.ang.asbuild();
+                bubble->spr.ang = pp->angle.ang.asbuild();
 
                 random_amt = (RANDOM_P2(32<<8)>>8) - 16;
 
                 // back it up a bit to get it out of your face
-                nx = MOVEx((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
-                ny = MOVEy((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
+                nx = MOVEx((1024+256)*3, NORM_ANGLE(bubble->spr.ang + dangs[i] + random_amt));
+                ny = MOVEy((1024+256)*3, NORM_ANGLE(bubble->spr.ang + dangs[i] + random_amt));
 
                 move_missile(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
@@ -12449,7 +12440,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), psp->pos.X, psp->pos.Y, ActorZOfMiddle(plActor), psp->sector()))
+                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
                         DoDamage(itActor, plActor);
                     if (face == 190)
                     {
@@ -12761,9 +12752,8 @@ int InitMiniSumoClap(DSWActor* actor)
 
     auto targetActor = u->targetActor;
     if (!targetActor) return 0;
-    auto tsp = &targetActor->s();
 
-    dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, tsp->pos.X, tsp->pos.Y);
+    dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, targetActor->spr.pos.X, targetActor->spr.pos.Y);
 
     reach = 10000;
 
@@ -12771,7 +12761,7 @@ int InitMiniSumoClap(DSWActor* actor)
     {
         if (SpriteOverlapZ(actor, targetActor, Z(20)))
         {
-            if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorZOfMiddle(targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+            if (FAFcansee(targetActor->spr.pos.X, targetActor->spr.pos.Y, ActorZOfMiddle(targetActor), targetActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
                 DoDamage(targetActor, actor);
@@ -12780,7 +12770,7 @@ int InitMiniSumoClap(DSWActor* actor)
     }
     else if (dist < CloseRangeDist(targetActor, actor, reach))
     {
-        if (FAFcansee(tsp->pos.X, tsp->pos.Y, ActorZOfMiddle(targetActor), tsp->sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+        if (FAFcansee(targetActor->spr.pos.X, targetActor->spr.pos.Y, ActorZOfMiddle(targetActor), targetActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
             SpawnFireballFlames(actor, targetActor);
@@ -12921,16 +12911,15 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
     if (hitActor == nullptr)
         return nullptr;
 
-    hp = &hitActor->s();
     hu = hitActor->u();
 
     SET(hu->Flags, SPR_TARGETED);
     SET(hu->Flags, SPR_ATTACKED);
 
-    *ang = getangle(hp->pos.X - actor->spr.pos.X, hp->pos.Y - actor->spr.pos.Y);
+    *ang = getangle(hitActor->spr.pos.X - actor->spr.pos.X, hitActor->spr.pos.Y - actor->spr.pos.Y);
 
     // find the distance to the target
-    dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y));
+    dist = ksqrt(SQ(actor->spr.pos.X - hitActor->spr.pos.X) + SQ(actor->spr.pos.Y - hitActor->spr.pos.Y));
 
     if (dist != 0)
     {
@@ -12939,10 +12928,10 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
         xvect = bcos(*ang);
         yvect = bsin(*ang);
 
-        if (hp->pos.X - actor->spr.pos.X != 0)
-            *z = Scale(xvect,zh - *z,hp->pos.X - actor->spr.pos.X);
-        else if (hp->pos.Y - actor->spr.pos.Y != 0)
-            *z = Scale(yvect,zh - *z,hp->pos.Y - actor->spr.pos.Y);
+        if (hitActor->spr.pos.X - actor->spr.pos.X != 0)
+            *z = Scale(xvect,zh - *z,hitActor->spr.pos.X - actor->spr.pos.X);
+        else if (hitActor->spr.pos.Y - actor->spr.pos.Y != 0)
+            *z = Scale(yvect,zh - *z,hitActor->spr.pos.Y - actor->spr.pos.Y);
         else
             *z = 0;
 
@@ -13008,7 +12997,6 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 
 void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
 {
-    auto hp = &hitActor->s();
     int dist;
     int zh;
     int xvect;
@@ -13016,25 +13004,25 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
     int z;
     short ang;
 
-    ang = NORM_ANGLE(getangle(hp->pos.X - actor->spr.pos.X, hp->pos.Y - actor->spr.pos.Y));
+    ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - actor->spr.pos.X, hitActor->spr.pos.Y - actor->spr.pos.Y));
 
     // find the distance to the target
-    dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y));
+    dist = ksqrt(SQ(actor->spr.pos.X - hitActor->spr.pos.X) + SQ(actor->spr.pos.Y - hitActor->spr.pos.Y));
 
     if (dist != 0)
     {
-        zh = GetSpriteZOfBottom(hp) + Z(20);
+        zh = ActorZOfBottom(hitActor) + Z(20);
         z = actor->spr.pos.Z;
 
         xvect = bcos(ang);
         yvect = bsin(ang);
 
-        if (hp->pos.X - actor->spr.pos.X != 0)
-            //*z = xvect * ((zh - *z)/(hp->pos.X - actor->spr.pos.X));
-            *zvect = Scale(xvect,zh - z, hp->pos.X - actor->spr.pos.X);
-        else if (hp->pos.Y - actor->spr.pos.Y != 0)
-            //*z = yvect * ((zh - *z)/(hp->pos.Y - actor->spr.pos.Y));
-            *zvect = Scale(yvect,zh - z, hp->pos.Y - actor->spr.pos.Y);
+        if (hitActor->spr.pos.X - actor->spr.pos.X != 0)
+            //*z = xvect * ((zh - *z)/(hitActor->spr.pos.X - actor->spr.pos.X));
+            *zvect = Scale(xvect,zh - z, hitActor->spr.pos.X - actor->spr.pos.X);
+        else if (hitActor->spr.pos.Y - actor->spr.pos.Y != 0)
+            //*z = yvect * ((zh - *z)/(hitActor->spr.pos.Y - actor->spr.pos.Y));
+            *zvect = Scale(yvect,zh - z, hitActor->spr.pos.Y - actor->spr.pos.Y);
         else
             *zvect = 0;
     }
@@ -17343,12 +17331,13 @@ int InitEnemyFireball(DSWActor* actor)
         512, -512
     };
 
-    tsp = &u->targetActor->s();
+    auto targetActor = u->targetActor;
+    if (!targetActor) return 0;
 
     PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->spr.ang = NORM_ANGLE(getangle(tsp->pos.X - actor->spr.pos.X, tsp->pos.Y - actor->spr.pos.Y));
+    actor->spr.ang = NORM_ANGLE(getangle(targetActor->spr.pos.X - actor->spr.pos.X, targetActor->spr.pos.Y - actor->spr.pos.Y));
 
     size_z = Z(ActorSizeY(actor));
     nz = actor->spr.pos.Z - size_z + (size_z >> 2) + (size_z >> 3) + Z(4);
@@ -17388,11 +17377,10 @@ int InitEnemyFireball(DSWActor* actor)
             lastvel = actorNew->spr.zvel;
 
             // find the distance to the target (player)
-            dist = ksqrt(SQ(actorNew->spr.pos.X - tsp->pos.X) + SQ(actorNew->spr.pos.Y - tsp->pos.Y));
-            //dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, tsp->pos.X, tsp->pos.Y);
+            dist = ksqrt(SQ(actorNew->spr.pos.X - targetActor->spr.pos.X) + SQ(actorNew->spr.pos.Y - targetActor->spr.pos.Y));
 
             // Determine target Z value
-            targ_z = tsp->pos.Z - (Z(ActorSizeY(actor)) >> 1);
+            targ_z = targetActor->spr.pos.Z - (Z(ActorSizeY(actor)) >> 1);
 
             // (velocity * difference between the target and the throwing star) /
             // distance
@@ -17814,29 +17802,27 @@ bool MissileHitDiveArea(DSWActor* actor)
 
 DSWActor* SpawnBubble(DSWActor* actor)
 {
-    SPRITEp bp;
     USERp bu;
 
     if (Prediction)
         return nullptr;
 
     auto actorNew = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    bp = &actorNew->s();
     bu = actorNew->u();
 
-    bp->xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
-    bp->yrepeat = bp->xrepeat;
-    bu->sx = bp->xrepeat;
-    bu->sy = bp->yrepeat;
+    actorNew->spr.xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
+    actorNew->spr.yrepeat = actorNew->spr.xrepeat;
+    bu->sx = actorNew->spr.xrepeat;
+    bu->sy = actorNew->spr.yrepeat;
     bu->ceiling_dist = Z(1);
     bu->floor_dist = Z(1);
-    bp->shade = actor->spr.sector()->floorshade - 10;
+    actorNew->spr.shade = actor->spr.sector()->floorshade - 10;
     bu->WaitTics = 120 * 120;
-    bp->zvel = 512;
-    bp->clipdist = 12 >> 2;
-    SET(bp->cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.zvel = 512;
+    actorNew->spr.clipdist = 12 >> 2;
+    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     SET(bu->Flags, SPR_UNDERWATER);
-    bp->shade = -60; // Make em brighter
+    actorNew->spr.shade = -60; // Make em brighter
 
     return actorNew;
 }
