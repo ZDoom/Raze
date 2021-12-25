@@ -372,7 +372,6 @@ ACTOR_ACTION_SET CoolieActionSet =
 // later. This is used by multiple enemies.
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
-    USERp u = actor->u();
     unsigned int wpn;
     int wpn_cnt;
     int depth = 0;
@@ -484,17 +483,11 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
 int SetupCoolie(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,COOLIE_RUN_R0,s_CoolieRun[0]);
+        SpawnUser(actor,COOLIE_RUN_R0,s_CoolieRun[0]);
         actor->user.Health = HEALTH_COOLIE;
     }
 
@@ -532,8 +525,6 @@ int SpawnCoolg(DSWActor* actor)
 
 int CooliePain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -550,8 +541,6 @@ int CooliePain(DSWActor* actor)
 
 int NullCoolie(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -565,8 +554,6 @@ int NullCoolie(DSWActor* actor)
 
 int DoCoolieMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -609,8 +596,6 @@ int InitCoolieCharge(DSWActor* actor)
 
 int DoCoolieWaitBirth(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.Counter -= ACTORMOVETICS) <= 0)
     {
         ChangeState(actor,&s_CoolieDie[9]);
