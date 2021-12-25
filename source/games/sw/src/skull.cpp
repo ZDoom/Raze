@@ -209,17 +209,11 @@ STATEp sg_SkullExplode[] =
 
 int SetupSkull(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,SKULL_R0,s_SkullWait[0]);
+        SpawnUser(actor,SKULL_R0,s_SkullWait[0]);
         actor->user.Health = HEALTH_SKULL;
     }
 
@@ -258,7 +252,6 @@ int SetupSkull(DSWActor* actor)
 
 int DoSkullMove(DSWActor* actor)
 {
-    USER* u = actor->u();
     int32_t dax, day, daz;
 
     dax = MOVEx(actor->spr.xvel, actor->spr.ang);
@@ -273,7 +266,6 @@ int DoSkullMove(DSWActor* actor)
 
 int DoSkullBeginDeath(DSWActor* actor)
 {
-    USER* u = actor->u();
     int16_t i,num_ord=0;
 
     // Decrease for Serp God
@@ -352,8 +344,6 @@ int DoSkullBeginDeath(DSWActor* actor)
 
 int DoSkullJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->spr.xvel)
         DoSkullMove(actor);
     else
@@ -413,8 +403,6 @@ int DoSkullJump(DSWActor* actor)
 
 int DoSkullBob(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // actor does a sine wave about actor->user.sz - this is the z mid point
     const int SKULL_BOB_AMT = (Z(16));
 
@@ -435,7 +423,6 @@ int DoSkullSpawnShrap(DSWActor* actor)
 
 int DoSkullWait(DSWActor* actor)
 {
-    USER* u = actor->u();
     int a,b,c,dist;
 
     DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
@@ -607,17 +594,11 @@ STATEp sg_BettyExplode[] =
 
 int SetupBetty(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,BETTY_R0,s_BettyWait[0]);
+        SpawnUser(actor,BETTY_R0,s_BettyWait[0]);
         actor->user.Health = HEALTH_SKULL;
     }
 
@@ -656,7 +637,6 @@ int SetupBetty(DSWActor* actor)
 
 int DoBettyMove(DSWActor* actor)
 {
-    USER* u = actor->u();
     int32_t dax, day, daz;
 
     dax = MOVEx(actor->spr.xvel, actor->spr.ang);
@@ -671,7 +651,6 @@ int DoBettyMove(DSWActor* actor)
 
 int DoBettyBeginDeath(DSWActor* actor)
 {
-    USER* u = actor->u();
     int16_t i,num_ord=0;
 
     // starts the explosion that does the actual damage
@@ -744,8 +723,6 @@ int DoBettyBeginDeath(DSWActor* actor)
 
 int DoBettyJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->spr.xvel)
         DoBettyMove(actor);
     else
@@ -803,8 +780,6 @@ int DoBettyJump(DSWActor* actor)
 
 int DoBettyBob(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // actor does a sine wave about actor->user.sz - this is the z mid point
     const int  BETTY_BOB_AMT = (Z(16));
 
@@ -818,21 +793,16 @@ int DoBettyBob(DSWActor* actor)
 int DoBettySpawnShrap(DSWActor* actor)
 {
     SpawnShrap(actor, nullptr);
-    //PlaySpriteSound(actor,attr_extra1,v3df_none);
     return 0;
 }
 
 int DoBettyWait(DSWActor* actor)
 {
-    USER* u = actor->u();
     int a,b,c,dist;
 
     DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
-
-    //if (dist < actor->user.active_range)
-    //    return(0);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
     {
