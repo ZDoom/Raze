@@ -10626,7 +10626,6 @@ void SpawnMineExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, MINE_EXP, s_MineExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10680,8 +10679,6 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    eu = expActor->u();
-
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 90; // was 40,40
@@ -10706,8 +10703,6 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
 
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-
-    eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
@@ -10749,8 +10744,6 @@ void SpawnMeteorExp(DSWActor* actor)
                                 actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     }
 
-    eu = expActor->u();
-
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
     if (actor->spr.yrepeat < 64)
@@ -10779,8 +10772,6 @@ void SpawnLittleExp(DSWActor* actor)
     PlaySound(DIGI_HEADSHOTHIT, actor, v3df_none);
     auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_SectorExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-
-    eu = expActor->u();
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -127;
@@ -11022,7 +11013,6 @@ int DoNapalm(DSWActor* actor)
 
         auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, actor->spr.sector(),
                                 actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-        eu = expActor->u();
 
         expActor->spr.hitag = LUMINOUS; //Always full brightness
         SetOwner(actor, expActor);
@@ -12231,7 +12221,6 @@ int InitSwordAttack(PLAYERp pp)
 int InitFistAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
     unsigned stat;
     int dist;
     short reach,face;
@@ -12872,7 +12861,6 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
 int InitStar(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
     int nx, ny, nz;
     int zvel;
 
@@ -12880,7 +12868,7 @@ int InitStar(PLAYERp pp)
     const int STAR_REPEAT = 26;
     const int STAR_HORIZ_ADJ = 100;
 
-    PlayerUpdateAmmo(pp, u->WeaponNum, -3);
+    PlayerUpdateAmmo(pp, plActor->user.WeaponNum, -3);
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
@@ -12907,7 +12895,7 @@ int InitStar(PLAYERp pp)
 
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 100;
     actorNew->user.Counter = 0;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
