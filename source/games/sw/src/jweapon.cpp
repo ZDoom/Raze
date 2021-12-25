@@ -589,10 +589,8 @@ int DoPhosphorus(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            USERp hu;
 
             auto hitActor = u->coll.actor();
-            hu = hitActor->u();
 
             if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -604,10 +602,10 @@ int DoPhosphorus(DSWActor* actor)
             {
                 if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
                 {
-                    if (!hu)
-                        hu = SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
+                    if (!hitActor->hasU())
+                        SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
                     SpawnFireballExp(actor);
-                    if (hu)
+                    if (hitActor->hasU())
                         SpawnFireballFlames(actor, hitActor);
                     DoFlamesDamageTest(actor);
                 }
@@ -1455,7 +1453,6 @@ int PlayerInitFlashBomb(PLAYERp pp)
     int dist, tx, ty, tmin;
     short damage;
     DSWActor* actor = pp->actor;
-    USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
 
@@ -1467,8 +1464,6 @@ int PlayerInitFlashBomb(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hu = itActor->u();
-
             if (itActor == pp->Actor())
                 break;
 
@@ -1484,16 +1479,16 @@ int PlayerInitFlashBomb(PLAYERp pp)
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
 
-            if (hu->sop_parent)
+            if (itActor->user.sop_parent)
             {
                 break;
             }
-            else if (hu->PlayerP)
+            else if (itActor->user.PlayerP)
             {
-//              if(hu->PlayerP->NightVision)
+//              if(itActor->user.PlayerP->NightVision)
 //              {
-//                  SetFadeAmt(hu->PlayerP, -200, 1); // Got him with night vision on!
-//                  PlayerUpdateHealth(hu->PlayerP, -15); // Hurt eyes
+//                  SetFadeAmt(itActor->user.PlayerP, -200, 1); // Got him with night vision on!
+//                  PlayerUpdateHealth(itActor->user.PlayerP, -15); // Hurt eyes
 //              }else
                 if (damage < -70)
                 {
@@ -1503,7 +1498,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
 
                     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
-                SetFadeAmt(hu->PlayerP, damage, 1);     // White flash
+                SetFadeAmt(itActor->user.PlayerP, damage, 1);     // White flash
             }
             else
             {
@@ -1522,7 +1517,6 @@ int InitFlashBomb(DSWActor* actor)
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    USERp hu;
     PLAYERp pp = Player + screenpeek;
 
     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
@@ -1532,8 +1526,6 @@ int InitFlashBomb(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hu = itActor->u();
-
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
@@ -1546,11 +1538,11 @@ int InitFlashBomb(DSWActor* actor)
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
 
-            if (hu->sop_parent)
+            if (itActor->user.sop_parent)
             {
                 break;
             }
-            else if (hu->PlayerP)
+            else if (itActor->user.PlayerP)
             {
                 if (damage < -70)
                 {
@@ -1560,7 +1552,7 @@ int InitFlashBomb(DSWActor* actor)
 
                     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
-                SetFadeAmt(hu->PlayerP, damage, 1);     // White flash
+                SetFadeAmt(itActor->user.PlayerP, damage, 1);     // White flash
             }
             else
             {

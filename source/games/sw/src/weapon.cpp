@@ -10899,15 +10899,12 @@ int DoFireball(DSWActor* actor)
             {
             case kHitSprite:
             {
-                USERp hu;
-
                 auto hitActor = u->coll.actor();
-                hu = hitActor->u();
 
                 if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
                 {
                     if (!hitActor->hasU())
-                        hu = SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
+                        SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
                     SpawnFireballFlames(actor, hitActor);
                     hit_burn = true;
                 }
@@ -14203,7 +14200,6 @@ int InitMicro(PLAYERp pp)
 int InitRipperSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    USERp hu;
     int i;
     unsigned stat;
     int dist, a, b, c;
@@ -14215,12 +14211,10 @@ int InitRipperSlash(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hu = itActor->u();
-
             if (itActor == actor)
                 break;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > hu->Radius + u->Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > itActor->user.Radius + u->Radius)
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
@@ -15219,7 +15213,6 @@ int GenerateDrips(DSWActor* actor)
 int InitEelFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    USERp hu;
     unsigned stat;
     int dist, a, b, c;
 
@@ -15228,15 +15221,13 @@ int InitEelFire(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            hu = itActor->u();
-
             if (itActor == actor)
                 continue;
 
             if (itActor != u->targetActor)
                 continue;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > hu->Radius + u->Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > itActor->user.Radius + u->Radius)
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);

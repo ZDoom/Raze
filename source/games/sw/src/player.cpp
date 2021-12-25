@@ -5861,8 +5861,6 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            auto hu = itActor->u();
-
             if (itActor == pp->Actor())
                 break;
 
@@ -5872,7 +5870,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
 
-            if (unsigned(dist) < hu->Radius + 100)
+            if (unsigned(dist) < itActor->user.Radius + 100)
             {
                 pp->KillerActor = itActor;
 
