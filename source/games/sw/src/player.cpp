@@ -1133,7 +1133,6 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     short angle2, delta_ang;
     int dist, zh;
     SPRITEp ep;
-    USERp eu;
     int16_t* shp;
     USERp u = actor->u();
     int ezh, ezhl, ezhm;
@@ -1152,19 +1151,17 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
         SWStatIterator it(*shp);
         while (auto itActor = it.Next())
         {
-            eu = itActor->u();
-
             // don't pick yourself
             if (actor == itActor)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
             {
-                if (skip_targets && TEST(eu->Flags, SPR_TARGETED))
+                if (skip_targets && TEST(itActor->user.Flags, SPR_TARGETED))
                     continue;
 
                 // don't pick a dead player
-                if (eu->PlayerP && TEST(eu->PlayerP->Flags, PF_DEAD))
+                if (itActor->user.PlayerP && TEST(itActor->user.PlayerP->Flags, PF_DEAD))
                     continue;
             }
 

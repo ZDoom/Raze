@@ -9831,7 +9831,6 @@ int DoSpear(DSWActor* actor)
 int SpawnCoolieExp(DSWActor* actor)
 {
     USER* u = actor->u();
-    USERp eu;
 
     int zh,nx,ny;
 
@@ -9848,16 +9847,14 @@ int SpawnCoolieExp(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->spr.sector(),
                             nx, ny, zh, actor->spr.ang, 0);
 
-    eu = actorNew->u();
-
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.pal = eu->spal = u->spal;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    eu->Radius = DamageData[DMG_BOLT_EXP].radius;
+    actorNew->user.Radius = DamageData[DMG_BOLT_EXP].radius;
     DoExpDamageTest(actorNew);
     return 0;
 }
@@ -9865,26 +9862,24 @@ int SpawnCoolieExp(DSWActor* actor)
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
     SPRITEp ep = nullptr;
-    USERp u = actor->u(), eu = nullptr;
+    USERp u = actor->u();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
         return;
 
     if (enemyActor != nullptr)
     {
-        eu = enemyActor->u();
-
         // test for already burned
         if (TEST(enemyActor->spr.extra, SPRX_BURNABLE) && enemyActor->spr.shade > 40)
             return;
 
-        if (!eu)
+        if (!enemyActor->hasU())
         {
             ASSERT(true == false);
             return;
         }
 
-        auto flameActor = eu->flameActor;
+        auto flameActor = enemyActor->user.flameActor;
         if (flameActor != nullptr)
         {
             int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
@@ -9923,7 +9918,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
     if (enemyActor != nullptr)
-        eu->flameActor = actorNew;
+        enemyActor->user.flameActor = actorNew;
 
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 16;
@@ -10042,7 +10037,6 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 void SpawnFireballExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp eu;
 
     ASSERT(u);
 
@@ -10053,16 +10047,14 @@ void SpawnFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    eu = actorNew->u();
-
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 52;
     actorNew->spr.yrepeat = 52;
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.pal = eu->spal = u->spal;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(eu->Flags, TEST(u->Flags,SPR_UNDERWATER));
+    SET(actorNew->user.Flags, TEST(u->Flags,SPR_UNDERWATER));
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
@@ -10079,7 +10071,6 @@ void SpawnFireballExp(DSWActor* actor)
 void SpawnGoroFireballExp(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp eu;
 
     ASSERT(u);
 
@@ -10090,14 +10081,13 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    eu = actorNew->u();
-
+    
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 16;
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.pal = eu->spal = u->spal;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
