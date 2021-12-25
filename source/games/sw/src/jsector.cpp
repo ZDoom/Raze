@@ -145,8 +145,6 @@ ANIMATOR GenerateDrips;
 /////////////////////////////////////////////////////
 void JS_SpriteSetup(void)
 {
-    USERp u;
-
     SWStatIterator it(STAT_DEFAULT);
     while (auto itActor = it.Next())
     {
@@ -185,13 +183,12 @@ void JS_SpriteSetup(void)
             }
             else if (tag == TAG_DRIPGEN)
             {
-                u = SpawnUser(itActor, 0, nullptr);
+                SpawnUser(itActor, 0, nullptr);
 
-                ASSERT(u != nullptr);
-                u->RotNum = 0;
-                u->WaitTics = itActor->spr.lotag * 120;
+                itActor->user.RotNum = 0;
+                itActor->user.WaitTics = itActor->spr.lotag * 120;
 
-                u->ActorActionFunc = GenerateDrips;
+                itActor->user.ActorActionFunc = GenerateDrips;
 
                 change_actor_stat(itActor, STAT_NO_STATE);
                 SET(itActor->spr.cstat, CSTAT_SPRITE_INVISIBLE);

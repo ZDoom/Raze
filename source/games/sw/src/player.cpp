@@ -2776,7 +2776,6 @@ void DoPlayerMoveTurret(PLAYERp pp)
 void DoPlayerBeginJump(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING);
@@ -2807,7 +2806,6 @@ void DoPlayerBeginJump(PLAYERp pp)
 void DoPlayerBeginForceJump(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
@@ -2953,7 +2951,6 @@ void DoPlayerForceJump(PLAYERp pp)
 void DoPlayerBeginFall(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_JUMPING);
@@ -3095,7 +3092,6 @@ void DoPlayerFall(PLAYERp pp)
                 else if (pp->jump_speed >= 4000)
                 {
                     DSWActor* plActor = pp->actor;
-                    USERp u = pp->Actor()->u();
                     PlayerUpdateHealth(pp, -plActor->user.Health);  // Make sure he dies!
                     plActor->user.Health = 0;
                 }
@@ -3164,7 +3160,6 @@ void DoPlayerBeginClimb(PLAYERp pp)
 void DoPlayerClimb(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
     int climb_amt;
     int i;
     int climbvel;
@@ -3436,7 +3431,6 @@ bool PlayerFlyKey(void)
 void DoPlayerBeginCrawl(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
     SET(pp->Flags, PF_CRAWLING);
@@ -3478,7 +3472,6 @@ const int PLAYER_STANDING_ROOM = Z(68);
 void DoPlayerCrawl(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     if (SectorIsUnderwaterArea(pp->cursector))
     {
@@ -4025,7 +4018,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
+
     auto sectu = pp->cursector;
     DSWActor* under_act = nullptr, * over_act = nullptr;
     bool Found = false;
@@ -4096,7 +4089,6 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 void DoPlayerWarpToSurface(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
 
     DSWActor* under_act = nullptr, * over_act = nullptr;
@@ -4191,7 +4183,6 @@ void DoPlayerDivePalette(PLAYERp pp)
 void DoPlayerBeginDive(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -4239,7 +4230,6 @@ void DoPlayerBeginDive(PLAYERp pp)
 void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -4383,7 +4373,6 @@ void DoPlayerDiveMeter(PLAYERp pp)
 void DoPlayerDive(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
 
     // whenever your view is not in a water area
@@ -4562,7 +4551,6 @@ void DoPlayerDive(PLAYERp pp)
 int DoPlayerTestPlaxDeath(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     // landed on a paralax floor
     if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, CSTAT_SECTOR_SKY))
@@ -4593,7 +4581,6 @@ void DoPlayerCurrent(PLAYERp pp)
         if (!TEST(pp->Flags, PF_DEAD))
         {
             DSWActor* plActor = pp->actor;
-            USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -plActor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
@@ -4613,7 +4600,6 @@ void DoPlayerCurrent(PLAYERp pp)
         if (!TEST(pp->Flags, PF_DEAD))
         {
             DSWActor* plActor = pp->actor;
-            USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -plActor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
@@ -4628,7 +4614,6 @@ void DoPlayerCurrent(PLAYERp pp)
 void DoPlayerFireOutWater(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     if (Prediction)
         return;
@@ -4645,7 +4630,6 @@ void DoPlayerFireOutWater(PLAYERp pp)
 void DoPlayerFireOutDeath(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     if (Prediction)
         return;
@@ -4660,7 +4644,6 @@ void DoPlayerFireOutDeath(PLAYERp pp)
 void DoPlayerBeginWade(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     // landed on a paralax floor?
     if (DoPlayerTestPlaxDeath(pp))
@@ -4693,7 +4676,6 @@ void DoPlayerBeginWade(PLAYERp pp)
 void DoPlayerWade(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     DoPlayerFireOutWater(pp);
 
@@ -4833,7 +4815,6 @@ void DoPlayerWade(PLAYERp pp)
 void DoPlayerBeginOperateVehicle(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
@@ -4853,7 +4834,6 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
 void DoPlayerBeginOperateTurret(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
@@ -5461,7 +5441,6 @@ void DoPlayerBeginDie(PLAYERp pp)
     int choosesnd = 0;
 
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
     {
@@ -5700,7 +5679,6 @@ int DoPlayerDeathTilt(PLAYERp pp, short target, short speed)
 void DoPlayerDeathZrange(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     // make sure we don't land on a regular sprite
     DoFindGround(pp->Actor());
@@ -5773,7 +5751,6 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
     auto plActor = pp->Actor();
-    USERp u = plActor->u();
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -5869,7 +5846,6 @@ void DoPlayerHeadDebris(PLAYERp pp)
 void DoPlayerDeathCheckKick(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
     SPRITEp hp;
     unsigned stat;
     int dist;
@@ -5925,7 +5901,6 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
 void DoPlayerDeathMoveHead(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
     int dax,day;
 
     dax = MOVEx(plActor->user.slide_vel, plActor->user.slide_ang);
@@ -6064,7 +6039,6 @@ void DoPlayerDeathDrown(PLAYERp pp)
 void DoPlayerDeathBounce(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -6094,7 +6068,6 @@ void DoPlayerDeathBounce(PLAYERp pp)
 void DoPlayerDeathCrumble(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -6147,7 +6120,6 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 void DoPlayerDeathExplode(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -6201,7 +6173,6 @@ void DoPlayerDeathExplode(PLAYERp pp)
 void DoPlayerBeginRun(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     // Crawl if in small aread automatically
     if (DoPlayerTestCrawl(pp))
@@ -6236,7 +6207,6 @@ void DoPlayerBeginRun(PLAYERp pp)
 void DoPlayerRun(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     if (SectorIsUnderwaterArea(pp->cursector))
     {
