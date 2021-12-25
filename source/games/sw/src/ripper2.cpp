@@ -884,17 +884,11 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
 
 int SetupRipper2(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, RIPPER2_RUN_R0, s_Ripper2Run[0]);
+        SpawnUser(actor, RIPPER2_RUN_R0, s_Ripper2Run[0]);
         actor->user.Health = HEALTH_RIPPER2;
     }
 
@@ -933,7 +927,6 @@ int SetupRipper2(DSWActor* actor)
 
 int InitRipper2Hang(DSWActor* actor)
 {
-    USER* u = actor->u();
     int dist;
 
     HitInfo hit{};
@@ -992,8 +985,6 @@ int InitRipper2Hang(DSWActor* actor)
 
 int DoRipper2Hang(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
@@ -1006,7 +997,6 @@ int DoRipper2Hang(DSWActor* actor)
 
 int DoRipper2MoveHang(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
 
     // Move while jumping
@@ -1044,8 +1034,6 @@ int DoRipper2MoveHang(DSWActor* actor)
 
 int DoRipper2HangJF(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(actor->user.Flags, SPR_JUMPING))
@@ -1074,7 +1062,6 @@ int DoRipper2HangJF(DSWActor* actor)
 
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
-    USER* u = actor->u();
     DSWActor* target = actor->user.targetActor;
     short tang;
 
@@ -1111,8 +1098,6 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
 
 int DoRipper2MoveJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(actor->user.Flags, SPR_JUMPING))
@@ -1139,8 +1124,6 @@ int DoRipper2MoveJump(DSWActor* actor)
 
 int DoRipper2QuickJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
 
@@ -1162,8 +1145,6 @@ int DoRipper2QuickJump(DSWActor* actor)
 
 int NullRipper2(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -1175,7 +1156,6 @@ int NullRipper2(DSWActor* actor)
 
 int DoRipper2Pain(DSWActor* actor)
 {
-    USER* u = actor->u();
     NullRipper2(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1186,8 +1166,6 @@ int DoRipper2Pain(DSWActor* actor)
 
 int DoRipper2RipHeart(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     DSWActor* target = actor->user.targetActor;
     NewStateGroup(actor, sg_Ripper2Heart);
     actor->user.WaitTics = 6 * 120;
@@ -1199,8 +1177,6 @@ int DoRipper2RipHeart(DSWActor* actor)
 
 int DoRipper2StandHeart(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullRipper2(actor);
 
     if (!SoundValidAndActive(actor, CHAN_RipHeart))
@@ -1254,8 +1230,6 @@ void Ripper2Hatch(DSWActor* actor)
 
 int DoRipper2Move(DSWActor* actor)
 {
-    USER* u = actor->u();
-    
     if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
