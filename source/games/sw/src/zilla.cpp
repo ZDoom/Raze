@@ -640,28 +640,22 @@ ACTOR_ACTION_SET ZillaActionSet =
 
 int SetupZilla(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, ZILLA_RUN_R0, s_ZillaRun[0]);
-        u->Health = 6000;
+        SpawnUser(actor, ZILLA_RUN_R0, s_ZillaRun[0]);
+        actor->user.Health = 6000;
     }
 
-    if (Skill == 0) u->Health = 2000;
-    if (Skill == 1) u->Health = 4000;
+    if (Skill == 0) actor->user.Health = 2000;
+    if (Skill == 1) actor->user.Health = 4000;
 
     ChangeState(actor,s_ZillaRun[0]);
-    u->Attrib = &ZillaAttrib;
+    actor->user.Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_ZillaDie;
-    u->Rot = sg_ZillaRun;
+    actor->user.StateEnd = s_ZillaDie;
+    actor->user.Rot = sg_ZillaRun;
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
@@ -674,24 +668,22 @@ int SetupZilla(DSWActor* actor)
 
 int NullZilla(DSWActor* actor)
 {
-    USER* u = actor->u();
-
 #if 0
-    if (u->State == s_ZillaDie)
+    if (actor->user.State == s_ZillaDie)
     {
-        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, &u->hiz, &u->loz);
-        u->lo_sectp = actor->spr.sector();
-        u->hi_sectp = actor->spr.sector();
-        actor->spr.z = u->loz;
+        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, &actor->user.hiz, &actor->user.loz);
+        actor->user.lo_sectp = actor->spr.sector();
+        actor->user.hi_sectp = actor->spr.sector();
+        actor->spr.z = actor->user.loz;
     }
 #endif
 
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
-    u->lo_sectp = actor->spr.sector();
-    u->hi_sectp = actor->spr.sector();
-    u->lowActor = nullptr;
-    u->highActor = nullptr;
-    actor->spr.pos.Z = u->loz;
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    actor->user.lo_sectp = actor->spr.sector();
+    actor->user.hi_sectp = actor->spr.sector();
+    actor->user.lowActor = nullptr;
+    actor->user.highActor = nullptr;
+    actor->spr.pos.Z = actor->user.loz;
 
     DoActorSectorDamage(actor);
 
@@ -700,7 +692,6 @@ int NullZilla(DSWActor* actor)
 
 int DoZillaMove(DSWActor* actor)
 {
-    USER* u = actor->u();
     short choose;
 
     // Random Zilla taunts
@@ -718,10 +709,10 @@ int DoZillaMove(DSWActor* actor)
     }
 
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 
@@ -742,13 +733,11 @@ int DoZillaStomp(DSWActor* actor)
 
 int DoZillaDeathMelt(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (RandomRange(1000) > 800)
         SpawnGrenadeExp(actor);
 
-    u->ID = ZILLA_RUN_R0;
-    RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
+    actor->user.ID = ZILLA_RUN_R0;
+    RESET(actor->user.Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(nullptr, actor->spr.lotag, ON);
     if (!SW_SHAREWARE)
@@ -758,12 +747,12 @@ int DoZillaDeathMelt(DSWActor* actor)
     }
 
     //KeepActorOnFloor(actor);
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
-    u->lo_sectp = actor->spr.sector();
-    u->hi_sectp = actor->spr.sector();
-    u->lowActor = nullptr;
-    u->highActor = nullptr;
-    actor->spr.pos.Z = u->loz;
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    actor->user.lo_sectp = actor->spr.sector();
+    actor->user.hi_sectp = actor->spr.sector();
+    actor->user.lowActor = nullptr;
+    actor->user.highActor = nullptr;
+    actor->spr.pos.Z = actor->user.loz;
 
     BossSpriteNum[2] = nullptr;
     return 0;

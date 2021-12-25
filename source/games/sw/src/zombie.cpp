@@ -749,23 +749,22 @@ ACTOR_ACTION_SET ZombieActionSet =
 
 int SetupZombie(DSWActor* actor)
 {
-    USERp u = actor->u();
     ANIMATOR DoActorDecide;
 
-    u->Health = 100;
-    u->StateEnd = &s_ZombiePain[0][0];
-    u->Rot = sg_ZombieRun;
+    actor->user.Health = 100;
+    actor->user.StateEnd = &s_ZombiePain[0][0];
+    actor->user.Rot = sg_ZombieRun;
     actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
     actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
-    u->Attrib = &ZombieAttrib;
+    actor->user.Attrib = &ZombieAttrib;
     EnemyDefaults(actor, &ZombieActionSet, &ZombiePersonality);
 
     ChangeState(actor, s_ZombieRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    u->Radius = 280;
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Radius = 280;
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -773,7 +772,6 @@ int SetupZombie(DSWActor* actor)
 void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 {
     SPRITEp np;
-    USERp nu;
 
     auto ownerActor = GetOwner(weaponActor);
 
@@ -781,7 +779,6 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
         return;
 
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
-    nu = actorNew->u();
     actorNew->spr.setsector(pp->cursector);
     SetOwner(actorNew, ownerActor);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
@@ -806,7 +803,6 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 void SpawnZombie2(DSWActor* actor)
 {
     SPRITEp np;
-    USERp nu;
     auto sectu = actor->spr.sector();
     SECTORp sectp = actor->spr.sector();
 
@@ -831,7 +827,6 @@ void SpawnZombie2(DSWActor* actor)
 
 
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    nu = actorNew->u();
     actorNew->user.Counter3 = 0;
     SetOwner(ownerActor, actorNew);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
@@ -855,9 +850,7 @@ void SpawnZombie2(DSWActor* actor)
 
 int DoZombieMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
+    if (actor->user.Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
         InitBloodSpray(actor,true,105);
         InitBloodSpray(actor,true,105);
@@ -866,7 +859,7 @@ int DoZombieMove(DSWActor* actor)
         return 0;
     }
 
-    DSWActor* tActor = u->targetActor;
+    DSWActor* tActor = actor->user.targetActor;
     if (tActor && tActor->hasU())
     {
         if (TEST(tActor->user.Flags, PF_DEAD))
@@ -874,28 +867,28 @@ int DoZombieMove(DSWActor* actor)
     }
 
     // jumping and falling
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoActorJump(actor);
-        else if (TEST(u->Flags, SPR_FALLING))
+        else if (TEST(actor->user.Flags, SPR_FALLING))
             DoActorFall(actor);
     }
 
     // sliding
-    if (TEST(u->Flags, SPR_SLIDING))
+    if (TEST(actor->user.Flags, SPR_SLIDING))
         DoActorSlide(actor);
 
     // Do track or call current action function - such as DoActorMoveCloser()
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         KeepActorOnFloor(actor);
     }
@@ -908,9 +901,7 @@ int DoZombieMove(DSWActor* actor)
 
 int NullZombie(DSWActor* actor)
 {
-    USER* u = actor->u();
-    
-    if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
+    if (actor->user.Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
         InitBloodSpray(actor,true,105);
         InitBloodSpray(actor,true,105);
@@ -919,20 +910,20 @@ int NullZombie(DSWActor* actor)
         return 0;
     }
 
-    DSWActor* tActor = u->targetActor;
+    DSWActor* tActor = actor->user.targetActor;
     if (tActor && tActor->hasU())
     {
         if (TEST(tActor->user.Flags, PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 
-    if (u->WaitTics > 0)
-        u->WaitTics -= ACTORMOVETICS;
+    if (actor->user.WaitTics > 0)
+        actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
-    if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -943,11 +934,9 @@ int NullZombie(DSWActor* actor)
 
 int DoZombiePain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullZombie(actor);
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         InitActorDecide(actor);
 
     return 0;
