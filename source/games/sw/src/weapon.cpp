@@ -4338,10 +4338,8 @@ bool WeaponMoveHit(DSWActor* actor)
     case kHitSprite:
     {
         SPRITEp hsp;
-        USERp hu;
 
         auto hitActor = u->coll.actor();
-        hu = hitActor->u();
 
         ASSERT(hitActor->spr.extra != -1);
 
@@ -7762,8 +7760,6 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range)) != nullptr)
                 {
-                    USERp hu = hitActor->u();
-
                     u->WpnGoalActor = hitActor;
                     SET(hitActor->user.Flags, SPR_TARGETED);
                     SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -7771,8 +7767,6 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
             }
             else if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = hitActor->u();
-
                 u->WpnGoalActor = hitActor;
                 SET(hitActor->user.Flags, SPR_TARGETED);
                 SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -7841,8 +7835,6 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
 
             if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = hitActor->u();
-
                 u->WpnGoalActor = hitActor;
                 SET(hitActor->user.Flags, SPR_TARGETED);
                 SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -7908,16 +7900,12 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range1)) != nullptr)
                 {
-                    USERp hu = hitActor->u();
-
                     u->WpnGoalActor = hitActor;
                     SET(hitActor->user.Flags, SPR_TARGETED);
                     SET(hitActor->user.Flags, SPR_ATTACKED);
                 }
                 else if ((hitActor = PickEnemyTarget(actor, aware_range2)) != nullptr)
                 {
-                    USERp hu = hitActor->u();
-
                     u->WpnGoalActor = hitActor;
                     SET(hitActor->user.Flags, SPR_TARGETED);
                     SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -7927,14 +7915,12 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
             {
                 if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
                 {
-                    USERp hu = hitActor->u();
                     u->WpnGoalActor = hitActor;
                     SET(hitActor->user.Flags, SPR_TARGETED);
                     SET(hitActor->user.Flags, SPR_ATTACKED);
                 }
                 else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
                 {
-                    USERp hu = hitActor->u();
                     u->WpnGoalActor = hitActor;
                     SET(hitActor->user.Flags, SPR_TARGETED);
                     SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -7992,14 +7978,12 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
             DSWActor* hitActor;
             if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
             {
-                USERp hu = hitActor->u();
                 u->WpnGoalActor = hitActor;
                 SET(hitActor->user.Flags, SPR_TARGETED);
                 SET(hitActor->user.Flags, SPR_ATTACKED);
             }
             else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
             {
-                USERp hu = hitActor->u();
                 u->WpnGoalActor = hitActor;
                 SET(hitActor->user.Flags, SPR_TARGETED);
                 SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -8142,13 +8126,12 @@ int DoPlasma(DSWActor* actor)
         if (u->coll.type == kHitSprite)
         {
             auto hitActor = u->coll.actor();
-            USERp hu = hitActor->u();
 
             if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto hcstat = hitActor->spr.cstat;
 
-                if (hu && hitActor != u->WpnGoalActor)
+                if (hitActor->hasU() && hitActor != u->WpnGoalActor)
                 {
                     actor->spr.pos.X = ox;
                     actor->spr.pos.Y = oy;
@@ -8972,14 +8955,13 @@ int DoMine(DSWActor* actor)
         case kHitSprite:
         {
             auto hitActor = u->coll.actor();
-            USERp hu = hitActor->u();
 
             SetMineStuck(actor);
             // Set the Z position
             actor->spr.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1);
 
             // If it's not alive, don't stick it
-            if (hu && hitActor->user.Health <= 0) return false;    // JBF: added null check
+            if (hitActor->hasU() && hitActor->user.Health <= 0) return false;    // JBF: added null check
 
             // check to see if sprite is player or enemy
             if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
@@ -9801,7 +9783,6 @@ int DoElectro(DSWActor* actor)
             case kHitSprite:
             {
                 auto hitActor = u->coll.actor();
-                USERp hu = hitActor->u();
 
                 if (!TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY) || hitActor->user.ID == SKULL_R0 || hitActor->user.ID == BETTY_R0)
                     SpawnShrap(actor, nullptr);
@@ -11244,7 +11225,6 @@ int DoSerpMeteor(DSWActor* actor)
         if (u->coll.type == kHitSprite)
         {
             auto hitActor = u->coll.actor();
-            USERp hu = hitActor->u();
 
             if (hitActor->hasU() && hitActor->user.ID >= SKULL_R0 && hitActor->user.ID <= SKULL_SERP)
             {
@@ -12752,8 +12732,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        USERp hu = hitActor->u();
-
         wu->WpnGoalActor = hitActor;
         SET(hitActor->user.Flags, SPR_TARGETED);
         SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -12815,8 +12793,6 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        USERp hu = hitActor->u();
-
         wu->WpnGoalActor = hitActor;
         SET(hitActor->user.Flags, SPR_TARGETED);
         SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -12859,13 +12835,10 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
     int xvect;
     int yvect;
     SPRITEp hp;
-    USERp hu;
 
     DSWActor* hitActor = u->targetActor;
     if (hitActor == nullptr)
         return nullptr;
-
-    hu = hitActor->u();
 
     SET(hitActor->user.Flags, SPR_TARGETED);
     SET(hitActor->user.Flags, SPR_ATTACKED);
@@ -13357,9 +13330,8 @@ int InitShotgun(PLAYERp pp)
         if (hit.actor() != nullptr)
         {
             auto hitActor = hit.actor();
-            auto hu = hitActor->u();
 
-            if (hu && hitActor->user.ID == TRASHCAN)   // JBF: added null check
+            if (hitActor->hasU() && hitActor->user.ID == TRASHCAN)   // JBF: added null check
             {
                 extern STATE s_TrashCanPain[];
 
@@ -15534,7 +15506,6 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID)
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
-    USERp hu = hitActor->u();
     short id;
 
     // hit a NPC or PC?
@@ -15806,9 +15777,8 @@ int InitUzi(PLAYERp pp)
     if (hit.actor() != nullptr)
     {
         auto hitActor = hit.actor();
-        auto hu = hitActor->u();
 
-        if (hu) // JBF: added null check
+        if (hitActor->hasU()) // JBF: added null check
             if (hitActor->user.ID == TRASHCAN)
             {
                 extern STATE s_TrashCanPain[];
