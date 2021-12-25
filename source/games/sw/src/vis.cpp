@@ -40,8 +40,8 @@ BEGIN_SW_NS
 extern short NormalVisibility;  // player.c
 
 inline int16_t& VIS_VisCur(DSWActor* actor) { return SP_TAG2(actor); }
-#define VIS_VisDir(sp) (SP_TAG3(sp))
-#define VIS_VisGoal(sp) (SP_TAG4(sp))
+#define VIS_VisDir(actor) (SP_TAG3(actor))
+#define VIS_VisGoal(actor) (SP_TAG4(actor))
 
 void ProcessVisOn(void)
 {
@@ -52,15 +52,15 @@ void ProcessVisOn(void)
     {
         sp = &actor->s();
 
-        if (VIS_VisDir(sp))
+        if (VIS_VisDir(actor))
         {
             // get brighter
             VIS_VisCur(actor) >>= 1;
             //VIS_VisCur(actor) -= 16;
-            if (VIS_VisCur(actor) <= VIS_VisGoal(sp))
+            if (VIS_VisCur(actor) <= VIS_VisGoal(actor))
             {
-                VIS_VisCur(actor) = VIS_VisGoal(sp);
-                VIS_VisDir(sp) ^= 1;
+                VIS_VisCur(actor) = VIS_VisGoal(actor);
+                VIS_VisDir(actor) ^= 1;
             }
         }
         else
@@ -179,9 +179,9 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
 
-    VIS_VisDir(&actorNew->spr) = 1;
+    VIS_VisDir(actorNew) = 1;
     VIS_VisCur(actorNew) = NormalVisibility;
-    VIS_VisGoal(&actorNew->spr) = amt;
+    VIS_VisGoal(actorNew) = amt;
 }
 
 END_SW_NS

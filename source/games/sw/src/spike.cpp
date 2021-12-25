@@ -246,7 +246,7 @@ void SpikeAlign(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     // either work on single sector or all tagged in SOBJ
-    if ((int8_t)SP_TAG7(sp) < 0)
+    if ((int8_t)SP_TAG7(actor) < 0)
     {
         if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
             alignceilslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
@@ -256,9 +256,9 @@ void SpikeAlign(DSWActor* actor)
     else
     {
         if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
-            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(sp)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
+            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
         else
-            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(sp)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
+            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, u->zclip);
     }
 }
 

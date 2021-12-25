@@ -3522,15 +3522,15 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
     auto sip = &spawner->s();
 
     // setup item for jumping
-    if (SP_TAG7(sip))
+    if (SP_TAG7(spawner))
     {
         change_actor_stat(actor, STAT_SKIP4);
         u->ceiling_dist = Z(6);
         u->floor_dist = Z(0);
         u->Counter = 0;
 
-        actor->spr.xvel = (int)SP_TAG7(sip)<<2;
-        actor->spr.zvel = -(((int)SP_TAG8(sip))<<5);
+        actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
+        actor->spr.zvel = -(((int)SP_TAG8(spawner))<<5);
 
         u->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
         u->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
@@ -3835,7 +3835,7 @@ int SpawnItemsMatch(short match)
         if (SP_TAG2(itActor) != match)
             continue;
 
-        switch (SP_TAG3(sip))
+        switch (SP_TAG3(itActor))
         {
         case 90:
             spawnedActor = BunnyHatch2(itActor);
@@ -4253,7 +4253,7 @@ int SpawnItemsMatch(short match)
             if (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS)
                 break;
 
-            num = SP_TAG3(sip) - 1;
+            num = SP_TAG3(itActor) - 1;
 
             if (!ItemSpotClear(itActor, STAT_ITEM, s_Key[num]->Pic))
                 break;
@@ -6489,8 +6489,7 @@ void MissileWarpType(DSWActor* actor, DSWActor* act_warp)
 
 void ActorWarpType(DSWActor* actor, DSWActor* act_warp)
 {
-    auto sp_warp = &act_warp->s();
-    switch (SP_TAG3(sp_warp))
+    switch (SP_TAG3(act_warp))
     {
     case 1:
         break;

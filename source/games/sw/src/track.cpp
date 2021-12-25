@@ -1085,10 +1085,10 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 switch (sp->hitag)
                 {
                 case SO_SCALE_XY_MULT:
-                    if (SP_TAG5(sp))
-                        sop->scale_x_mult = SP_TAG5(sp);
-                    if (SP_TAG6(sp))
-                        sop->scale_y_mult = SP_TAG6(sp);
+                    if (SP_TAG5(actor))
+                        sop->scale_x_mult = SP_TAG5(actor);
+                    if (SP_TAG6(actor))
+                        sop->scale_y_mult = SP_TAG6(actor);
                     KillActor(actor);
                     break;
 
@@ -1101,33 +1101,33 @@ void SetupSectorObject(sectortype* sectp, short tag)
                         sop->scale_point_speed[j] = SP_TAG2(actor);
                     }
 
-                    if (SP_TAG4(sp))
-                        sop->scale_point_rand_freq = (uint8_t)SP_TAG4(sp);
+                    if (SP_TAG4(actor))
+                        sop->scale_point_rand_freq = (uint8_t)SP_TAG4(actor);
                     else
                         sop->scale_point_rand_freq = 64;
 
-                    sop->scale_point_dist_min = -SP_TAG5(sp);
-                    sop->scale_point_dist_max = SP_TAG6(sp);
+                    sop->scale_point_dist_min = -SP_TAG5(actor);
+                    sop->scale_point_dist_max = SP_TAG6(actor);
                     KillActor(actor);
                     break;
 
                 case SO_SCALE_INFO:
                     SET(sop->flags, SOBJ_DYNAMIC);
                     sop->scale_speed = SP_TAG2(actor);
-                    sop->scale_dist_min = -SP_TAG5(sp);
-                    sop->scale_dist_max = SP_TAG6(sp);
+                    sop->scale_dist_min = -SP_TAG5(actor);
+                    sop->scale_dist_max = SP_TAG6(actor);
 
-                    sop->scale_type = SP_TAG4(sp);
-                    sop->scale_active_type = SP_TAG7(sp);
+                    sop->scale_type = SP_TAG4(actor);
+                    sop->scale_active_type = SP_TAG7(actor);
 
-                    if (SP_TAG8(sp))
-                        sop->scale_rand_freq = (uint8_t)SP_TAG8(sp);
+                    if (SP_TAG8(actor))
+                        sop->scale_rand_freq = (uint8_t)SP_TAG8(actor);
                     else
                         sop->scale_rand_freq = 64>>3;
 
-                    if (SP_TAG3(sp) == 0)
+                    if (SP_TAG3(actor) == 0)
                         sop->scale_dist = sop->scale_dist_min;
-                    else if (SP_TAG3(sp) == 1)
+                    else if (SP_TAG3(actor) == 1)
                         sop->scale_dist = sop->scale_dist_max;
 
                     KillActor(actor);
@@ -1199,8 +1199,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_MAX_DAMAGE:
                     u->MaxHealth = SP_TAG2(actor);
-                    if (SP_TAG5(sp) != 0)
-                        sop->max_damage = SP_TAG5(sp);
+                    if (SP_TAG5(actor) != 0)
+                        sop->max_damage = SP_TAG5(actor);
                     else
                         sop->max_damage = u->MaxHealth;
 
@@ -2189,7 +2189,7 @@ void CallbackSOsink(ANIMp ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - GetSpriteSizeZ(sp) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - ActorSizeZ(actor) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2860,12 +2860,10 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
                 DSWActor* sActor = sop->so_actors[i];
                 if (!sActor) continue;
 
-				auto shootp = &sActor->s();
-
-				if (shootp->statnum == STAT_SO_SHOOT_POINT)
+				if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
 				{
-                    if (SP_TAG5(shootp))
-                        u->Counter = SP_TAG5(shootp);
+                    if (SP_TAG5(sActor))
+                        u->Counter = SP_TAG5(sActor);
                     else
                         u->Counter = 12;
                     InitTurretMgun(sop);
@@ -3194,8 +3192,8 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         sp->ang = tpoint->ang;
 
-        z[0] = sp->pos.Z - GetSpriteSizeZ(sp) + Z(5);
-        z[1] = sp->pos.Z - DIV2(GetSpriteSizeZ(sp));
+        z[0] = sp->pos.Z - ActorSizeZ(actor) + Z(5);
+        z[1] = sp->pos.Z - DIV2(ActorSizeZ(actor));
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
@@ -3418,7 +3416,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ sp->pos.X, sp->pos.Y, GetSpriteZOfTop(sp) - DIV2(GetSpriteSizeZ(sp)) }, sp->sector(), sp->ang, near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ sp->pos.X, sp->pos.Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, sp->sector(), sp->ang, near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {
@@ -3447,7 +3445,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             //
 
             SET(sp->cstat, CSTAT_SPRITE_YCENTER);
-            bos_z = GetSpriteZOfBottom(sp);
+            bos_z = ActorZOfBottom(actor);
             if (bos_z > u->loz)
             {
                 u->sy = (bos_z - sp->pos.Z);
@@ -3602,7 +3600,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (TEST(u->Flags, SPR_CLIMBING))
         {
-            if (GetSpriteZOfTop(sp) + (GetSpriteSizeZ(sp) >> 2) < u->sz)
+            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < u->sz)
             {
                 RESET(u->Flags, SPR_CLIMBING);
 

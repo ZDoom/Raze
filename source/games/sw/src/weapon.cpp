@@ -2636,8 +2636,6 @@ STATE s_PaperShrapC[] =
 
 bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
 {
-    SPRITEp hsp = &hitActor->s();
-
     if (WeaponNum <= -1)
     {
         ASSERT(weapActor != nullptr);
@@ -2645,11 +2643,11 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         WeaponNum = wu->WeaponNum;
 
         // can be hit by SO only
-        if (SP_TAG7(hsp) == 4)
+        if (SP_TAG7(hitActor) == 4)
         {
             if (TEST(wu->Flags2, SPR2_SO_MISSILE))
             {
-                DoMatchEverything(nullptr, hsp->hitag, -1);
+                DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
                 return true;
             }
             else
@@ -2659,7 +2657,7 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         }
     }
 
-    if (SP_TAG7(hsp) == 0)
+    if (SP_TAG7(hitActor) == 0)
     {
         switch (WeaponNum)
         {
@@ -2667,11 +2665,11 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         case WPN_MICRO:
         case WPN_NAPALM:
         case WPN_ROCKET:
-            DoMatchEverything(nullptr, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             return true;
         }
     }
-    else if (SP_TAG7(hsp) == 1)
+    else if (SP_TAG7(hitActor) == 1)
     {
         switch (WeaponNum)
         {
@@ -2680,11 +2678,11 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         case WPN_HOTHEAD:
         case WPN_NAPALM:
         case WPN_ROCKET:
-            DoMatchEverything(nullptr, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             return true;
         }
     }
-    else if (SP_TAG7(hsp) == 2)
+    else if (SP_TAG7(hitActor) == 2)
     {
         switch (WeaponNum)
         {
@@ -2695,11 +2693,11 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         case WPN_ROCKET:
         case WPN_UZI:
         case WPN_SHOTGUN:
-            DoMatchEverything(nullptr, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             return true;
         }
     }
-    else if (SP_TAG7(hsp) == 3)
+    else if (SP_TAG7(hitActor) == 3)
     {
         switch (WeaponNum)
         {
@@ -2713,7 +2711,7 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         case WPN_ROCKET:
         case WPN_UZI:
         case WPN_SHOTGUN:
-            DoMatchEverything(nullptr, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             return true;
         }
     }
@@ -2750,7 +2748,6 @@ int DoLavaErupt(DSWActor* actor)
     USER* u = actor->u();
     short i,pnum;
     PLAYERp pp;
-    SPRITEp tsp;
     bool found = false;
 
     if (TEST_BOOL1(actor))
@@ -2763,9 +2760,7 @@ int DoLavaErupt(DSWActor* actor)
                 SWSectIterator it(pp->cursector);
                 while (auto itActor = it.Next())
                 {
-                    tsp = &itActor->s();
-
-                    if (tsp->statnum == STAT_TRIGGER && SP_TAG7(tsp) == 0 && SP_TAG5(tsp) == 1)
+                    if (itActor->spr.statnum == STAT_TRIGGER && SP_TAG7(itActor) == 0 && SP_TAG5(itActor) == 1)
                     {
                         found = true;
                         break;
@@ -3146,7 +3141,6 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     int hz[3];
     short dang = 0;
 
-    //SHRAPp p = StdShrap;
     SHRAPp p = SmallGore;
     short shrap_shade = -15;
     short shrap_xsize = 48, shrap_ysize = 48;
@@ -3187,7 +3181,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         if (!parentActor->hasU())
         {
             // Jump to shrap type
-            shrap_type = SP_TAG8(parent);
+            shrap_type = SP_TAG8(parentActor);
             goto UserShrap;
         }
         else
@@ -3209,17 +3203,17 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         case SPAWN_SPOT:
         {
             if (pu->LastDamage)
-                shrap_type = SP_TAG3(parent);
+                shrap_type = SP_TAG3(parentActor);
             else
-                shrap_type = SP_TAG6(parent);
+                shrap_type = SP_TAG6(parentActor);
 
 UserShrap:
 
-            shrap_delta_size = (int8_t)SP_TAG10(parent);
-            shrap_rand_zamt = SP_TAG9(parent);
+            shrap_delta_size = (int8_t)SP_TAG10(parentActor);
+            shrap_rand_zamt = SP_TAG9(parentActor);
             // Hey, better limit this in case mappers go crazy, like I did. :)
             // Kills frame rate!
-            shrap_amt = SP_TAG8(parent);
+            shrap_amt = SP_TAG8(parentActor);
             if (shrap_amt > 5)
                 shrap_amt = 5;
 
@@ -8417,7 +8411,7 @@ int DoGrenade(DSWActor* actor)
             // special case so grenade can ring gong
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (TEST(SP_TAG8(hsp), BIT(3)))
+                if (TEST(SP_TAG8(hitActor), BIT(3)))
                     DoMatchEverything(nullptr, hsp->hitag, -1);
             }
 

@@ -2060,16 +2060,6 @@ inline int FacingRange(DSWActor* a1, DSWActor* a2, int range)
 {
     return (abs(getincangle(getangle(a1->spr.pos.X - a2->spr.pos.X, a1->spr.pos.Y - a2->spr.pos.Y), a2->spr.ang)) < (range));
 }
-
-inline uint8_t& SP_TAG3(spritetype* s) { return s->clipdist; }
-inline int16_t& SP_TAG4(spritetype* s) { return s->ang; }
-inline int16_t& SP_TAG5(spritetype* s) { return s->xvel; }
-inline int16_t& SP_TAG6(spritetype* s) { return s->yvel; }
-inline uint8_t& SP_TAG7(spritetype* s) { return MSB_VAR(s->zvel); }
-inline uint8_t& SP_TAG8(spritetype* s) { return LSB_VAR(s->zvel); }
-inline uint8_t& SP_TAG9(spritetype* s) { return MSB_VAR(s->owner); }
-inline uint8_t& SP_TAG10(spritetype* s) { return LSB_VAR(s->owner); }
-
 inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
 inline void SET_BOOL3(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL3; }
