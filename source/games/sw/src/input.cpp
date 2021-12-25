@@ -78,21 +78,21 @@ enum
 
 static void processWeapon(PLAYERp const pp)
 {
-    if (pp->Actor() == nullptr) return;
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
+    if (plActor == nullptr) return;
     int i;
 
     if (loc.getNewWeapon() == WeaponSel_Next)
     {
-        int next_weapon = u->WeaponNum + 1;
+        int next_weapon = plActor->user.WeaponNum + 1;
         int start_weapon;
 
-        start_weapon = u->WeaponNum + 1;
+        start_weapon = plActor->user.WeaponNum + 1;
 
-        if (u->WeaponNum == WPN_SWORD)
+        if (plActor->user.WeaponNum == WPN_SWORD)
             start_weapon = WPN_STAR;
 
-        if (u->WeaponNum == WPN_FIST)
+        if (plActor->user.WeaponNum == WPN_FIST)
         {
             next_weapon = 14;
         }
@@ -119,16 +119,16 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
-        int prev_weapon = u->WeaponNum - 1;
+        int prev_weapon = plActor->user.WeaponNum - 1;
         int start_weapon;
 
-        start_weapon = u->WeaponNum - 1;
+        start_weapon = plActor->user.WeaponNum - 1;
 
-        if (u->WeaponNum == WPN_SWORD)
+        if (plActor->user.WeaponNum == WPN_SWORD)
         {
             prev_weapon = 13;
         }
-        else if (u->WeaponNum == WPN_STAR)
+        else if (plActor->user.WeaponNum == WPN_STAR)
         {
             prev_weapon = 14;
         }
@@ -151,7 +151,7 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
-        int which_weapon = u->WeaponNum + 1;
+        int which_weapon = plActor->user.WeaponNum + 1;
         loc.setNewWeapon(which_weapon);
     }
 }

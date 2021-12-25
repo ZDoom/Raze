@@ -139,7 +139,6 @@ void AutoPickInventory(PLAYERp pp)
 
 void UseInventoryMedkit(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
     short diff;
     short inv = INVENTORY_MEDKIT;
     short amt;
@@ -148,7 +147,7 @@ void UseInventoryMedkit(PLAYERp pp)
     if (!pp->InventoryAmount[inv])
         return;
 
-    diff = 100 - u->Health;
+    diff = 100 - pp->actor->user.Health;
     if (diff <= 0)
         return;
 

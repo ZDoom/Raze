@@ -289,9 +289,8 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                 auto actorofang = data->actorofang;
                 if (actorofang)
                 {
-                    USERp u = actorofang->u();
-                    if (u)
-                        u->oangdiff = 0;
+                    if (actorofang->hasU())
+                        actorofang->user.oangdiff = 0;
                     if (!interpolating)
                         data->lastangdiff = 0;
                     data->oldipos = actorofang->spr.ang;
@@ -346,8 +345,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                     auto actorofang = data->actorofang;
                     if (actorofang)
                     {
-                        USERp u = actorofang->u();
-                        data->lastangdiff = u ? u->oangdiff : 0;
+                        data->lastangdiff = actorofang->hasU() ? actorofang->user.oangdiff : 0;
                     }
                 }
             }
@@ -390,10 +388,9 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
 				DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                USERp u = actor->u();
-                if (u && (actor->spr.statnum != STAT_DEFAULT) &&
-                    ((TEST(u->Flags, SPR_SKIP4) && (actor->spr.statnum <= STAT_SKIP4_INTERP_END)) ||
-                     (TEST(u->Flags, SPR_SKIP2) && (actor->spr.statnum <= STAT_SKIP2_INTERP_END))))
+                if (actor->hasU() && (actor->spr.statnum != STAT_DEFAULT) &&
+                    ((TEST(actor->user.Flags, SPR_SKIP4) && (actor->spr.statnum <= STAT_SKIP4_INTERP_END)) ||
+                     (TEST(actor->user.Flags, SPR_SKIP2) && (actor->spr.statnum <= STAT_SKIP2_INTERP_END))))
                     continue;
             }
 
