@@ -1128,7 +1128,6 @@ void BunnyHatch(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    USERp nu;
     const int MAX_BUNNYS = 1;
     int16_t rip_ang[MAX_BUNNYS];
 
@@ -1144,7 +1143,6 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.ang = rip_ang[i];
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
-        nu = actorNew->u();
         actorNew->spr.shade = actor->spr.shade;
 
         // make immediately active
@@ -1204,7 +1202,6 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
-    auto nu = actorNew->u();
     actorNew->spr.shade = actor->spr.shade;
 
     // make immediately active

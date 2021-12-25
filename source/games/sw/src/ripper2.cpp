@@ -1213,8 +1213,6 @@ int DoRipper2StandHeart(DSWActor* actor)
 
 void Ripper2Hatch(DSWActor* actor)
 {
-    USERp nu;
-
 	const int MAX_RIPPER2S = 1;
     short rip_ang[MAX_RIPPER2S];
 
@@ -1233,7 +1231,6 @@ void Ripper2Hatch(DSWActor* actor)
         actorNew->spr.pal = 0;
         actorNew->spr.shade = -10;
         SetupRipper2(actorNew);
-        nu = actorNew->u();
 
         // make immediately active
         SET(actorNew->user.Flags, SPR_ACTIVE);

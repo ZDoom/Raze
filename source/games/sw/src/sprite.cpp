@@ -4846,8 +4846,6 @@ int KillGet(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    USERp nu;
-
     switch (gNet.MultiGameType)
     {
     case MULTI_GAME_NONE:
@@ -4873,8 +4871,6 @@ int KillGet(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
-        nu = actorNew->u();
-
         actorNew->spr.shade = -20;
         actorNew->user.WaitTics = u->WaitTics - 12;
 
@@ -4886,8 +4882,6 @@ int KillGet(DSWActor* actor)
 int KillGetAmmo(DSWActor* actor)
 {
     USERp u = actor->u();
-
-    USERp nu;
 
     switch (gNet.MultiGameType)
     {
@@ -4922,8 +4916,6 @@ int KillGetAmmo(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
-        nu = actorNew->u();
-
         actorNew->spr.shade = -20;
         actorNew->user.WaitTics = u->WaitTics - 12;
 
@@ -4935,8 +4927,6 @@ int KillGetAmmo(DSWActor* actor)
 int KillGetWeapon(DSWActor* actor)
 {
     USERp u = actor->u();
-
-    USERp nu;
 
     switch (gNet.MultiGameType)
     {
@@ -4978,8 +4968,6 @@ int KillGetWeapon(DSWActor* actor)
 
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
-
-        nu = actorNew->u();
 
         actorNew->spr.shade = -20;
         actorNew->user.WaitTics = u->WaitTics - 12;
@@ -5080,7 +5068,6 @@ int DoGet(DSWActor* actor)
     bool can_see;
 
     // For flag stuff
-    USERp nu;
     
     // Invisiblility is only used for DeathMatch type games
     // Sprites stays invisible for a period of time and is un-gettable
@@ -5923,7 +5910,6 @@ KeyMain:
                 actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, actor->spr.sector(),
                                   actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
-            nu = actorNew->u();
             actorNew->spr.shade = -20;
 
             // Attach flag to player

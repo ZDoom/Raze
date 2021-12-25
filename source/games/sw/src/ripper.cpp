@@ -1196,7 +1196,6 @@ int DoRipperStandHeart(DSWActor* actor)
 
 void RipperHatch(DSWActor* actor)
 {
-    USERp nu;
 	const int MAX_RIPPERS = 1;
     short rip_ang[MAX_RIPPERS];
 
@@ -1214,7 +1213,6 @@ void RipperHatch(DSWActor* actor)
         actorNew->spr.ang = rip_ang[i];
         actorNew->spr.pal = 0;
         SetupRipper(actorNew);
-		nu = actorNew->u();
 
         // make immediately active
         SET(actorNew->user.Flags, SPR_ACTIVE);
