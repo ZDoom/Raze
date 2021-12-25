@@ -1833,95 +1833,95 @@ int SetupNinja(DSWActor* actor)
     else
     {
         u = SpawnUser(actor, NINJA_RUN_R0, s_NinjaRun[0]);
-        u->Health = HEALTH_NINJA;
+        actor->user.Health = HEALTH_NINJA;
     }
 
-    u->StateEnd = s_NinjaDie;
-    u->Rot = sg_NinjaRun;
+    actor->user.StateEnd = s_NinjaDie;
+    actor->user.Rot = sg_NinjaRun;
     actor->spr.xrepeat = 46;
     actor->spr.yrepeat = 46;
 
     if (actor->spr.pal == PALETTE_PLAYER5)
     {
-        u->Attrib = &InvisibleNinjaAttrib;
+        actor->user.Attrib = &InvisibleNinjaAttrib;
         EnemyDefaults(actor, &NinjaGreenActionSet, &NinjaPersonality);
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = RedNinjaHealth;
+            actor->user.Health = RedNinjaHealth;
         SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.shade = 127;
-        actor->spr.pal = u->spal = PALETTE_PLAYER5;
+        actor->spr.pal = actor->user.spal = PALETTE_PLAYER5;
         actor->spr.hitag = 9998;
         if (pic == NINJA_CRAWL_R0)
         {
             if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
             {
-                u->Attrib = &NinjaAttrib;
-                u->ActorActionSet = &NinjaActionSet;
-                u->Personality = &NinjaPersonality;
+                actor->user.Attrib = &NinjaAttrib;
+                actor->user.ActorActionSet = &NinjaActionSet;
+                actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
-                u->Attrib = &NinjaAttrib;
-                u->ActorActionSet = &NinjaSniperActionSet;
-                u->Personality = &NinjaSniperPersonality;
+                actor->user.Attrib = &NinjaAttrib;
+                actor->user.ActorActionSet = &NinjaSniperActionSet;
+                actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
         }
     }
     else if (actor->spr.pal == PALETTE_PLAYER3)
     {
-        u->Attrib = &NinjaAttrib;
+        actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaRedActionSet, &NinjaPersonality);
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = RedNinjaHealth;
-        actor->spr.pal = u->spal = PALETTE_PLAYER3;
+            actor->user.Health = RedNinjaHealth;
+        actor->spr.pal = actor->user.spal = PALETTE_PLAYER3;
         if (pic == NINJA_CRAWL_R0)
         {
             if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
             {
-                u->Attrib = &NinjaAttrib;
-                u->ActorActionSet = &NinjaActionSet;
-                u->Personality = &NinjaPersonality;
+                actor->user.Attrib = &NinjaAttrib;
+                actor->user.ActorActionSet = &NinjaActionSet;
+                actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
-                u->Attrib = &NinjaAttrib;
-                u->ActorActionSet = &NinjaSniperActionSet;
-                u->Personality = &NinjaSniperPersonality;
+                actor->user.Attrib = &NinjaAttrib;
+                actor->user.ActorActionSet = &NinjaSniperActionSet;
+                actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
         }
     }
     else if (actor->spr.pal == PAL_XLAT_LT_TAN)
     {
-        u->Attrib = &NinjaAttrib;
+        actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaSeekerActionSet, &NinjaPersonality);
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = RedNinjaHealth;
-        actor->spr.pal = u->spal = PAL_XLAT_LT_TAN;
-        u->Attrib = &NinjaAttrib;
+            actor->user.Health = RedNinjaHealth;
+        actor->spr.pal = actor->user.spal = PAL_XLAT_LT_TAN;
+        actor->user.Attrib = &NinjaAttrib;
     }
     else if (actor->spr.pal == PAL_XLAT_LT_GREY)
     {
-        u->Attrib = &NinjaAttrib;
+        actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaGrenadeActionSet, &NinjaPersonality);
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = RedNinjaHealth;
-        actor->spr.pal = u->spal = PAL_XLAT_LT_GREY;
-        u->Attrib = &NinjaAttrib;
+            actor->user.Health = RedNinjaHealth;
+        actor->spr.pal = actor->user.spal = PAL_XLAT_LT_GREY;
+        actor->user.Attrib = &NinjaAttrib;
     }
     else
     {
-        u->Attrib = &NinjaAttrib;
-        actor->spr.pal = u->spal = PALETTE_PLAYER0;
+        actor->user.Attrib = &NinjaAttrib;
+        actor->spr.pal = actor->user.spal = PALETTE_PLAYER0;
         EnemyDefaults(actor, &NinjaActionSet, &NinjaPersonality);
         if (pic == NINJA_CRAWL_R0)
         {
-            u->Attrib = &NinjaAttrib;
-            u->ActorActionSet = &NinjaSniperActionSet;
-            u->Personality = &NinjaSniperPersonality;
+            actor->user.Attrib = &NinjaAttrib;
+            actor->user.ActorActionSet = &NinjaSniperActionSet;
+            actor->user.Personality = &NinjaSniperPersonality;
             ChangeState(actor, s_NinjaDuck[0]);
         }
     }
@@ -1929,8 +1929,8 @@ int SetupNinja(DSWActor* actor)
     ChangeState(actor, s_NinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    u->Radius = 280;
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Radius = 280;
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -1942,11 +1942,11 @@ int DoNinjaHariKari(DSWActor* actor)
     UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(u->Flags, SPR_DEAD);
-    RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
-    u->floor_dist = Z(40);
-    u->RotNum = 0;
-    u->ActorActionFunc = nullptr;
+    SET(actor->user.Flags, SPR_DEAD);
+    RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
+    actor->user.floor_dist = Z(40);
+    actor->user.RotNum = 0;
+    actor->user.ActorActionFunc = nullptr;
 
     SET(actor->spr.extra, SPRX_BREAKABLE);
     SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
@@ -1966,26 +1966,26 @@ int DoNinjaGrabThroat(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
     {
         UpdateSinglePlayKills(actor);
-        RESET(u->Flags2, SPR2_DYING);
+        RESET(actor->user.Flags2, SPR2_DYING);
         RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);
         RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(u->Flags, SPR_DEAD);
-        RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
-        u->floor_dist = Z(40);
-        u->RotNum = 0;
-        u->ActorActionFunc = nullptr;
+        SET(actor->user.Flags, SPR_DEAD);
+        RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
+        actor->user.floor_dist = Z(40);
+        actor->user.RotNum = 0;
+        actor->user.ActorActionFunc = nullptr;
 
         SET(actor->spr.extra, SPRX_BREAKABLE);
         SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
 
         
-        ChangeState(actor, u->StateEnd);
+        ChangeState(actor, actor->user.StateEnd);
         actor->spr.xvel = 0;
-        //u->jump_speed = -300;
+        //actor->user.jump_speed = -300;
         //DoActorBeginJump(actor);
         PlaySound(DIGI_NINJASCREAM, actor, v3df_follow);
     }
@@ -2003,7 +2003,7 @@ int DoNinjaMove(DSWActor* actor)
 {
     USER* u = actor->u();
     
-    if (TEST(u->Flags2, SPR2_DYING))
+    if (TEST(actor->user.Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
             NewStateGroup(actor, sg_NinjaHariKari);
@@ -2013,28 +2013,28 @@ int DoNinjaMove(DSWActor* actor)
     }
 
     // jumping and falling
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoActorJump(actor);
-        else if (TEST(u->Flags, SPR_FALLING))
+        else if (TEST(actor->user.Flags, SPR_FALLING))
             DoActorFall(actor);
     }
 
     // sliding
-    if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING))
+    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
         DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
         KeepActorOnFloor(actor);
     }
@@ -2060,7 +2060,7 @@ int NinjaJumpActionFunc(DSWActor* actor)
         return 0;
     }
 
-    if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
     {
         InitActorDecide(actor);
     }
@@ -2079,12 +2079,12 @@ int NullNinja(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
+    if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
-    if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -2099,7 +2099,7 @@ int DoNinjaPain(DSWActor* actor)
 
     NullNinja(actor);
 
-    if (TEST(u->Flags2, SPR2_DYING))
+    if (TEST(actor->user.Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
             NewStateGroup(actor, sg_NinjaHariKari);
@@ -2108,7 +2108,7 @@ int DoNinjaPain(DSWActor* actor)
         return 0;
     }
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         InitActorDecide(actor);
 
     return 0;
@@ -2118,7 +2118,7 @@ int DoNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
  
-    if (u->spal == PALETTE_PLAYER5)
+    if (actor->user.spal == PALETTE_PLAYER5)
     {
         RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.hitag = 0;
@@ -2195,7 +2195,7 @@ void PlayerLevelReset(PLAYERp pp)
     pp->sop_remote = nullptr;
     pp->sop = nullptr;
     DoPlayerResetMovement(pp);
-    DamageData[u->WeaponNum].Init(pp);
+    DamageData[actor->user.WeaponNum].Init(pp);
 }
 
 void PlayerDeathReset(PLAYERp pp)
@@ -2209,8 +2209,8 @@ void PlayerDeathReset(PLAYERp pp)
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
     // second weapon - whatever it is
-    u->WeaponNum = WPN_SWORD;
-    pp->WpnFirstType = u->WeaponNum;
+    actor->user.WeaponNum = WPN_SWORD;
+    pp->WpnFirstType = actor->user.WeaponNum;
     pp->WpnRocketType = 0;
     pp->WpnRocketHeat = 0;             // 5 to 0 range
     pp->WpnRocketNuke = 0;             // 1, you have it, or you don't
@@ -2235,15 +2235,15 @@ void PlayerDeathReset(PLAYERp pp)
     pp->WpnFlags = 0;
     pp->WpnGotOnceFlags = 0;
     SET(pp->WpnFlags, BIT(WPN_SWORD));
-    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(u->WeaponNum));
-    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(u->WeaponNum));
+    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
+    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
     RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
     RESET(pp->Flags, PF_TWO_UZI);
 
-    u->Health = 100;
+    actor->user.Health = 100;
     pp->MaxHealth = 100;
     //PlayerUpdateHealth(pp, 500);
-    puser[pp->pnum].Health = u->Health;
+    puser[pp->pnum].Health = actor->user.Health;
     pp->Armor = 0;
     PlayerUpdateArmor(pp, 0);
     pp->KillerActor = nullptr;;
@@ -2262,7 +2262,7 @@ void PlayerDeathReset(PLAYERp pp)
     DoPlayerResetMovement(pp);
     //if (pp->CurWpn)
     //    RESET(pp->CurWpn->flags, PANF_DEATH_HIDE);
-    DamageData[u->WeaponNum].Init(pp);
+    DamageData[actor->user.WeaponNum].Init(pp);
 }
 
 void PlayerPanelSetup(void)
@@ -2288,8 +2288,8 @@ void PlayerGameReset(PLAYERp pp)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    u->WeaponNum = WPN_SWORD;
-    pp->WpnFirstType = u->WeaponNum;
+    actor->user.WeaponNum = WPN_SWORD;
+    pp->WpnFirstType = actor->user.WeaponNum;
     pp->WpnRocketType = 0;
     pp->WpnRocketHeat = 0; // 5 to 0 range
     pp->WpnRocketNuke = 0; // 1, you have it, or you don't
@@ -2310,8 +2310,8 @@ void PlayerGameReset(PLAYERp pp)
     pp->WpnFlags = 0;
     pp->WpnGotOnceFlags = 0;
     SET(pp->WpnFlags, BIT(WPN_SWORD));
-    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(u->WeaponNum));
-    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(u->WeaponNum));
+    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
+    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
     RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
     RESET(pp->Flags, PF_TWO_UZI);
     pp->MaxHealth = 100;
@@ -2336,7 +2336,7 @@ void PlayerGameReset(PLAYERp pp)
     pp->sop_remote = nullptr;
     pp->sop = nullptr;
     DoPlayerResetMovement(pp);
-    DamageData[u->WeaponNum].Init(pp);
+    DamageData[actor->user.WeaponNum].Init(pp);
 }
 
 extern ACTOR_ACTION_SET PlayerNinjaActionSet;
@@ -2363,27 +2363,27 @@ void InitPlayerSprite(PLAYERp pp)
 
     // Grouping items that need to be reset after a LoadLevel
     ChangeState(actor, s_NinjaRun[0]);
-    u->Rot = sg_NinjaRun;
-    u->ActorActionSet = &PlayerNinjaActionSet;
+    actor->user.Rot = sg_NinjaRun;
+    actor->user.ActorActionSet = &PlayerNinjaActionSet;
 
-    u->RotNum = 5;
+    actor->user.RotNum = 5;
 
-    u->Radius = 400;
-    u->PlayerP = pp;
-    //u->Health = pp->MaxHealth;
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Radius = 400;
+    actor->user.PlayerP = pp;
+    //actor->user.Health = pp->MaxHealth;
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
 
-    actor->spr.picnum = u->State->Pic;
+    actor->spr.picnum = actor->user.State->Pic;
     actor->spr.shade = -60; // was 15
     actor->spr.clipdist = (256 >> 2);
 
     actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
     actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
     actor->spr.pal = PALETTE_PLAYER0 + pp->pnum;
-    u->spal = actor->spr.pal;
+    actor->user.spal = actor->spr.pal;
 
-    NewStateGroup(pp->Actor(), u->ActorActionSet->Run);
+    NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Run);
 
     pp->PlayerUnderActor = nullptr;
 
@@ -2429,16 +2429,16 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
-    u->Rot = sg_NinjaRun;
-    u->RotNum = plActor->user.RotNum;
+    actor->user.Rot = sg_NinjaRun;
+    actor->user.RotNum = plActor->user.RotNum;
     NewStateGroup(pp->PlayerUnderActor, plActor->user.Rot);
 
-    u->Radius = plActor->user.Radius;
-    u->PlayerP = pp;
-    u->Health = pp->MaxHealth;
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Radius = plActor->user.Radius;
+    actor->user.PlayerP = pp;
+    actor->user.Health = pp->MaxHealth;
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
-    u->ActorActionSet = plActor->user.ActorActionSet;
+    actor->user.ActorActionSet = plActor->user.ActorActionSet;
 
     actor->spr.picnum = plActor->spr.picnum;
     actor->spr.clipdist = plActor->spr.clipdist;
