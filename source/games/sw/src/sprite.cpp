@@ -632,7 +632,7 @@ void KillActor(DSWActor* actor)
         int pnum;
 
         // doing a MissileSetPos - don't allow killing
-        if (TEST(u->Flags, SPR_SET_POS_DONT_KILL))
+        if (TEST(actor->user.Flags, SPR_SET_POS_DONT_KILL))
             return;
 
         // for attached sprites that are getable make sure they don't have
@@ -641,7 +641,7 @@ void KillActor(DSWActor* actor)
         AnimDelete(ANIM_Spritez, 0, actor);
 
         // adjust sprites attached to sector objects
-        if (TEST(u->Flags, SPR_SO_ATTACHED))
+        if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
         {
             SECTOR_OBJECTp sop;
             int sn, FoundSpriteNdx = -1;
@@ -691,10 +691,10 @@ void KillActor(DSWActor* actor)
         // if on a track and died reset the track to non-occupied
         if (actor->spr.statnum == STAT_ENEMY)
         {
-            if (u->track != -1)
+            if (actor->user.track != -1)
             {
-                if (Track[u->track].flags)
-                    RESET(Track[u->track].flags, TF_TRACK_OCCUPIED);
+                if (Track[actor->user.track].flags)
+                    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
             }
         }
 
@@ -721,7 +721,7 @@ void KillActor(DSWActor* actor)
         }
 
         // much faster
-        if (TEST(u->Flags2, SPR2_CHILDREN))
+        if (TEST(actor->user.Flags2, SPR2_CHILDREN))
         //if (TEST(actor->spr.extra, SPRX_CHILDREN))
         {
             // check for children and alert them that the Owner is dead
@@ -757,9 +757,9 @@ void KillActor(DSWActor* actor)
             }
         }
 
-        if (u->flameActor != nullptr)
+        if (actor->user.flameActor != nullptr)
         {
-            SetSuicide(u->flameActor);
+            SetSuicide(actor->user.flameActor);
         }
         actor->clearUser();
     }
@@ -775,10 +775,10 @@ void ChangeState(DSWActor* actor, STATEp statep)
         return;
 
     USERp u = actor->u();
-    u->Tics = 0;
-    u->State = u->StateStart = statep;
+    actor->user.Tics = 0;
+    actor->user.State = actor->user.StateStart = statep;
     // Just in case
-    PicAnimOff(u->State->Pic);
+    PicAnimOff(actor->user.State->Pic);
 }
 
 void change_actor_stat(DSWActor* actor, int stat, bool quick)
@@ -789,13 +789,13 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
     if (actor->hasU() && !quick)
     {
         USERp u = actor->u();
-        RESET(u->Flags, SPR_SKIP2|SPR_SKIP4);
+        RESET(actor->user.Flags, SPR_SKIP2|SPR_SKIP4);
 
         if (stat >= STAT_SKIP4_START && stat <= STAT_SKIP4_END)
-            SET(u->Flags, SPR_SKIP4);
+            SET(actor->user.Flags, SPR_SKIP4);
 
         if (stat >= STAT_SKIP2_START && stat <= STAT_SKIP2_END)
-            SET(u->Flags, SPR_SKIP2);
+            SET(actor->user.Flags, SPR_SKIP2);
 
         switch (stat)
         {
@@ -818,9 +818,9 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
             wait_active_check_offset += ACTORMOVETICS*3;
             if (wait_active_check_offset > ACTIVE_CHECK_TIME)
                 wait_active_check_offset = 0;
-            u->wait_active_check = wait_active_check_offset;
+            actor->user.wait_active_check = wait_active_check_offset;
             // don't do a break here
-            SET(u->Flags, SPR_SHADOW);
+            SET(actor->user.Flags, SPR_SHADOW);
             break;
         }
 
@@ -840,45 +840,45 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     PRODUCTION_ASSERT(u != nullptr);
 
     // be careful State can be nullptr
-    u->State = u->StateStart = state;
+    actor->user.State = actor->user.StateStart = state;
 
     change_actor_stat(actor, actor->spr.statnum);
 
-    u->ID = id;
-    u->Health = 100;
-    u->WpnGoalActor = nullptr;
-    u->attachActor = nullptr;
-    u->track = -1;
-    u->targetActor = Player[0].Actor();
-    u->Radius = 220;
-    u->Sibling = -1;
-    u->WaitTics = 0;
-    u->OverlapZ = Z(4);
-    u->bounce = 0;
+    actor->user.ID = id;
+    actor->user.Health = 100;
+    actor->user.WpnGoalActor = nullptr;
+    actor->user.attachActor = nullptr;
+    actor->user.track = -1;
+    actor->user.targetActor = Player[0].Actor();
+    actor->user.Radius = 220;
+    actor->user.Sibling = -1;
+    actor->user.WaitTics = 0;
+    actor->user.OverlapZ = Z(4);
+    actor->user.bounce = 0;
 
-    u->motion_blur_num = 0;
-    u->motion_blur_dist = 256;
+    actor->user.motion_blur_num = 0;
+    actor->user.motion_blur_dist = 256;
 
     actor->spr.backuppos();
-    u->oz = actor->spr.opos.Z;
+    actor->user.oz = actor->spr.opos.Z;
 
-    u->active_range = MIN_ACTIVE_RANGE;
+    actor->user.active_range = MIN_ACTIVE_RANGE;
 
     // default
 
     // based on clipmove z of 48 pixels off the floor
-    u->floor_dist = Z(48) - Z(28);
-    u->ceiling_dist = Z(8);
+    actor->user.floor_dist = Z(48) - Z(28);
+    actor->user.ceiling_dist = Z(8);
 
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    u->loz = actor->spr.sector()->floorz;
-    u->hiz = actor->spr.sector()->ceilingz;
-    u->lowActor = nullptr;
-    u->highActor = nullptr;
-    u->lo_sectp = actor->spr.sector();
-    u->hi_sectp = actor->spr.sector();
+    actor->user.loz = actor->spr.sector()->floorz;
+    actor->user.hiz = actor->spr.sector()->ceilingz;
+    actor->user.lowActor = nullptr;
+    actor->user.highActor = nullptr;
+    actor->user.lo_sectp = actor->spr.sector();
+    actor->user.hi_sectp = actor->spr.sector();
 
     return u;
 }
@@ -899,9 +899,9 @@ DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, in
     u = SpawnUser(spawnedActor, id, state);
 
     // be careful State can be nullptr
-    if (u->State)
+    if (spawnedActor->user.State)
     {
-        spawnedActor->spr.picnum = u->State->Pic;
+        spawnedActor->spr.picnum = spawnedActor->user.State->Pic;
         PicAnimOff(spawnedActor->spr.picnum);
     }
 
@@ -1410,7 +1410,7 @@ void IconDefault(DSWActor* actor)
     change_actor_stat(actor, STAT_ITEM);
 
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    u->Radius = 650;
+    actor->user.Radius = 650;
 
     DoActorZrange(actor);
 }
@@ -1540,10 +1540,10 @@ void SpriteSetupPost(void)
 
             u = SpawnUser(jActor, 0, nullptr);
             change_actor_stat(jActor, STAT_NO_STATE);
-            u->ceiling_dist = Z(4);
-            u->floor_dist = -Z(2);
+            jActor->user.ceiling_dist = Z(4);
+            jActor->user.floor_dist = -Z(2);
 
-            u->ActorActionFunc = DoActorDebris;
+            jActor->user.ActorActionFunc = DoActorDebris;
 
             SET(jActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
             SET(jActor->spr.extra, SPRX_BREAKABLE);
@@ -2001,10 +2001,10 @@ void SpriteSetup(void)
                     u = SpawnUser(actor, 0, nullptr);
 
                     ASSERT(u != nullptr);
-                    u->RotNum = 0;
-                    u->WaitTics = actor->spr.lotag * 120;
+                    actor->user.RotNum = 0;
+                    actor->user.WaitTics = actor->spr.lotag * 120;
 
-                    u->ActorActionFunc = DoGenerateSewerDebris;
+                    actor->user.ActorActionFunc = DoGenerateSewerDebris;
 
                     change_actor_stat(actor, STAT_NO_STATE);
                     break;
@@ -2039,37 +2039,37 @@ void SpriteSetup(void)
                     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
-                    u->jump_speed = u->vel_tgt = speed;
-                    u->vel_rate = vel;
-                    u->WaitTics = time*15; // 1/8 of a sec
-                    u->Tics = 0;
+                    actor->user.jump_speed = actor->user.vel_tgt = speed;
+                    actor->user.vel_rate = vel;
+                    actor->user.WaitTics = time*15; // 1/8 of a sec
+                    actor->user.Tics = 0;
 
-                    SET(u->Flags, SPR_ACTIVE);
+                    SET(actor->user.Flags, SPR_ACTIVE);
 
                     switch (type)
                     {
                     case 0:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoVator;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoVator;
                         break;
                     case 1:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoVator;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoVator;
                         break;
                     case 2:
-                        u->ActorActionFunc = DoVatorAuto;
+                        actor->user.ActorActionFunc = DoVatorAuto;
                         break;
                     case 3:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoVatorAuto;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoVatorAuto;
                         break;
                     }
 
                     if (floor_vator)
                     {
                         // start off
-                        u->sz = sectp->floorz;
-                        u->z_tgt = actor->spr.pos.Z;
+                        actor->user.sz = sectp->floorz;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
@@ -2078,19 +2078,19 @@ void SpriteSetup(void)
                             // start in the on position
                             //sectp->floorz = actor->spr.z;
                             sectp->floorz += amt;
-                            u->z_tgt = u->sz;
+                            actor->user.z_tgt = actor->user.sz;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
                         }
 
                         // set orig z
-                        u->oz = actor->spr.opos.Z = sectp->floorz;
+                        actor->user.oz = actor->spr.opos.Z = sectp->floorz;
                     }
                     else
                     {
                         // start off
-                        u->sz = sectp->ceilingz;
-                        u->z_tgt = actor->spr.pos.Z;
+                        actor->user.sz = sectp->ceilingz;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
@@ -2099,13 +2099,13 @@ void SpriteSetup(void)
                             // starting in the on position
                             //sectp->ceilingz = actor->spr.z;
                             sectp->ceilingz += amt;
-                            u->z_tgt = u->sz;
+                            actor->user.z_tgt = actor->user.sz;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
                         }
 
                         // set orig z
-                        u->oz = actor->spr.opos.Z = sectp->ceilingz;
+                        actor->user.oz = actor->spr.opos.Z = sectp->ceilingz;
                     }
 
 
@@ -2134,38 +2134,38 @@ void SpriteSetup(void)
                     type = SP_TAG3(actor);
                     time = SP_TAG9(actor);
 
-                    u->WaitTics = time*15; // 1/8 of a sec
-                    u->Tics = 0;
+                    actor->user.WaitTics = time*15; // 1/8 of a sec
+                    actor->user.Tics = 0;
 
-                    u->rotator.Alloc();
-                    u->rotator->open_dest = SP_TAG5(actor);
-                    u->rotator->speed = SP_TAG7(actor);
-                    u->rotator->vel = SP_TAG8(actor);
-                    u->rotator->pos = 0; // closed
-                    u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->SetNumWalls(actor->spr.sector()->wallnum);
+                    actor->user.rotator.Alloc();
+                    actor->user.rotator->open_dest = SP_TAG5(actor);
+                    actor->user.rotator->speed = SP_TAG7(actor);
+                    actor->user.rotator->vel = SP_TAG8(actor);
+                    actor->user.rotator->pos = 0; // closed
+                    actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
+                    actor->user.rotator->SetNumWalls(actor->spr.sector()->wallnum);
 
-                    u->rotator->orig_speed = u->rotator->speed;
+                    actor->user.rotator->orig_speed = actor->user.rotator->speed;
 
                     wallcount = 0;
                     for(auto& wal : wallsofsector(actor->spr.sector()))
                     {
-                        u->rotator->origX[wallcount] = wal.pos.X;
-                        u->rotator->origY[wallcount] = wal.pos.Y;
+                        actor->user.rotator->origX[wallcount] = wal.pos.X;
+                        actor->user.rotator->origY[wallcount] = wal.pos.Y;
                         wallcount++;
                     }
 
-                    SET(u->Flags, SPR_ACTIVE);
+                    SET(actor->user.Flags, SPR_ACTIVE);
 
                     switch (type)
                     {
                     case 0:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoRotator;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoRotator;
                         break;
                     case 1:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoRotator;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoRotator;
                         break;
                     }
 
@@ -2188,29 +2188,29 @@ void SpriteSetup(void)
                     type = SP_TAG3(actor);
                     time = SP_TAG9(actor);
 
-                    u->WaitTics = time*15; // 1/8 of a sec
-                    u->Tics = 0;
+                    actor->user.WaitTics = time*15; // 1/8 of a sec
+                    actor->user.Tics = 0;
 
-                    u->rotator.Alloc();
-                    u->rotator->open_dest = SP_TAG5(actor);
-                    u->rotator->speed = SP_TAG7(actor);
-                    u->rotator->vel = SP_TAG8(actor);
-                    u->rotator->pos = 0; // closed
-                    u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->ClearWalls();
-                    u->rotator->orig_speed = u->rotator->speed;
+                    actor->user.rotator.Alloc();
+                    actor->user.rotator->open_dest = SP_TAG5(actor);
+                    actor->user.rotator->speed = SP_TAG7(actor);
+                    actor->user.rotator->vel = SP_TAG8(actor);
+                    actor->user.rotator->pos = 0; // closed
+                    actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
+                    actor->user.rotator->ClearWalls();
+                    actor->user.rotator->orig_speed = actor->user.rotator->speed;
 
-                    SET(u->Flags, SPR_ACTIVE);
+                    SET(actor->user.Flags, SPR_ACTIVE);
 
                     switch (type)
                     {
                     case 0:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoSlidor;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoSlidor;
                         break;
                     case 1:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoSlidor;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoSlidor;
                         break;
                     }
 
@@ -2243,29 +2243,29 @@ void SpriteSetup(void)
                     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
-                    u->jump_speed = u->vel_tgt = speed;
-                    u->vel_rate = vel;
-                    u->WaitTics = time*15; // 1/8 of a sec
-                    u->Tics = 0;
+                    actor->user.jump_speed = actor->user.vel_tgt = speed;
+                    actor->user.vel_rate = vel;
+                    actor->user.WaitTics = time*15; // 1/8 of a sec
+                    actor->user.Tics = 0;
 
-                    SET(u->Flags, SPR_ACTIVE);
+                    SET(actor->user.Flags, SPR_ACTIVE);
 
                     switch (type)
                     {
                     case 0:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoSpike;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoSpike;
                         break;
                     case 1:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoSpike;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoSpike;
                         break;
                     case 2:
-                        u->ActorActionFunc = DoSpikeAuto;
+                        actor->user.ActorActionFunc = DoSpikeAuto;
                         break;
                     case 3:
-                        RESET(u->Flags, SPR_ACTIVE);
-                        u->ActorActionFunc = DoSpikeAuto;
+                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.ActorActionFunc = DoSpikeAuto;
                         break;
                     }
 
@@ -2273,39 +2273,39 @@ void SpriteSetup(void)
 
                     if (floor_vator)
                     {
-                        u->zclip = floorz;
+                        actor->user.zclip = floorz;
 
                         // start off
-                        u->sz = u->zclip;
-                        u->z_tgt = actor->spr.pos.Z;
+                        actor->user.sz = actor->user.zclip;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // start in the on position
-                            u->zclip = actor->spr.pos.Z;
-                            u->z_tgt = u->sz;
+                            actor->user.zclip = actor->spr.pos.Z;
+                            actor->user.z_tgt = actor->user.sz;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        u->oz = actor->spr.opos.Z = u->zclip;
+                        actor->user.oz = actor->spr.opos.Z = actor->user.zclip;
                     }
                     else
                     {
-                        u->zclip = ceilingz;
+                        actor->user.zclip = ceilingz;
 
                         // start off
-                        u->sz = u->zclip;
-                        u->z_tgt = actor->spr.pos.Z;
+                        actor->user.sz = actor->user.zclip;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
-                            u->zclip = actor->spr.pos.Z;
-                            u->z_tgt = u->sz;
+                            actor->user.zclip = actor->spr.pos.Z;
+                            actor->user.z_tgt = actor->user.sz;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        u->oz = actor->spr.opos.Z = u->zclip;
+                        actor->user.oz = actor->spr.opos.Z = actor->user.zclip;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
@@ -2338,9 +2338,9 @@ void SpriteSetup(void)
                     }
 
                     u = SpawnUser(actor, 0, nullptr);
-                    u->WallShade.Resize(wallcount);
+                    actor->user.WallShade.Resize(wallcount);
                     wallcount = 0;
-                    wall_shade = u->WallShade.Data();
+                    wall_shade = actor->user.WallShade.Data();
 
                     // save off original wall shades
                     for(auto& wal : wallsofsector(actor->spr.sector()))
@@ -2357,7 +2357,7 @@ void SpriteSetup(void)
                         }
                     }
 
-                    u->spal = actor->spr.pal;
+                    actor->user.spal = actor->spr.pal;
 
                     // DON'T USE COVER function
                     change_actor_stat(actor, STAT_LIGHTING, true);
@@ -2389,9 +2389,9 @@ void SpriteSetup(void)
                     // !LIGHT
                     // make an wall_shade array and put it in User
                     u = SpawnUser(actor, 0, nullptr);
-                    u->WallShade.Resize(wallcount);
+                    actor->user.WallShade.Resize(wallcount);
                     wallcount = 0;
-                    wall_shade = u->WallShade.Data();
+                    wall_shade = actor->user.WallShade.Data();
 
                     // save off original wall shades
                     for (auto& wal : wallsofsector(actor->spr.sector()))
@@ -2440,14 +2440,14 @@ void SpriteSetup(void)
                     u = SpawnUser(actor, ST1, nullptr);
 
                     change_actor_stat(actor, STAT_NO_STATE);
-                    u->ActorActionFunc = DoLavaErupt;
+                    actor->user.ActorActionFunc = DoLavaErupt;
 
                     // interval between erupts
                     if (SP_TAG10(actor) == 0)
                         SP_TAG10(actor) = 20;
 
                     // interval in seconds
-                    u->WaitTics = RandomRange(SP_TAG10(actor)) * 120;
+                    actor->user.WaitTics = RandomRange(SP_TAG10(actor)) * 120;
 
                     // time to erupt
                     if (SP_TAG9(actor) == 0)
@@ -2837,9 +2837,9 @@ KeyMain:
                 u = SpawnUser(actor, 0, nullptr);
 
                 ASSERT(u != nullptr);
-                actor->spr.picnum = u->ID = actor->spr.picnum;
+                actor->spr.picnum = actor->user.ID = actor->spr.picnum;
 
-                u->spal = actor->spr.pal; // Set the palette from build
+                actor->user.spal = actor->spr.pal; // Set the palette from build
 
                 //SET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
@@ -2849,7 +2849,7 @@ KeyMain:
                 RESET(picanm[actor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_actor_stat(actor, STAT_ITEM);
                 RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
-                u->Radius = 500;
+                actor->user.Radius = 500;
                 actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
 
                 DoActorZrange(actor);
@@ -2877,14 +2877,14 @@ KeyMain:
             /*
              * u = SpawnUser(actor, FIRE_FLY0, nullptr);
              *
-             * u->State = u->StateStart = &s_FireFly[0]; u->RotNum = 0;
+             * actor->user.State = actor->user.StateStart = &s_FireFly[0]; actor->user.RotNum = 0;
              *
              * actor->spr.ang = 0; actor->spr.xvel = 4;
              *
              * if (labs(actor->spr.z - actor->spr.sector()->floorz) < Z(32)) actor->spr.z =
              * actor->spr.sector()->floorz - Z(32);
              *
-             * u->sz = actor->spr.z;
+             * actor->user.sz = actor->spr.z;
              *
              * change_actor_stat(actor, STAT_MISC);
              */
@@ -3078,7 +3078,7 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_SHOTGUN, s_IconShotgun);
 
-            u->Radius = 350; // Shotgun is hard to pick up for some reason.
+            actor->user.Radius = 350; // Shotgun is hard to pick up for some reason.
 
             IconDefault(actor);
             break;
@@ -3194,9 +3194,9 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_ARMOR, s_IconArmor);
             if (actor->spr.pal != PALETTE_PLAYER3)
-                actor->spr.pal = u->spal = PALETTE_PLAYER1;
+                actor->spr.pal = actor->user.spal = PALETTE_PLAYER1;
             else
-                actor->spr.pal = u->spal = PALETTE_PLAYER3;
+                actor->spr.pal = actor->user.spal = PALETTE_PLAYER3;
             IconDefault(actor);
             break;
 
@@ -3369,9 +3369,9 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_FLAG, s_IconFlag);
-            u->spal = actor->spr.pal;
+            actor->user.spal = actor->spr.pal;
             actor->spr.sector()->hitag = 9000;       // Put flag's color in sect containing it
-            actor->spr.sector()->lotag = u->spal;
+            actor->spr.sector()->lotag = actor->user.spal;
             IconDefault(actor);
             PicAnimOff(actor->spr.picnum);
             break;
@@ -3392,8 +3392,8 @@ NUKE_REPLACEMENT:
 
             change_actor_stat(actor, STAT_STATIC_FIRE);
 
-            u->ID = FIREBALL_FLAMES;
-            u->Radius = 200;
+            actor->user.ID = FIREBALL_FLAMES;
+            actor->user.Radius = 200;
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -3519,16 +3519,16 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
     if (SP_TAG7(spawner))
     {
         change_actor_stat(actor, STAT_SKIP4);
-        u->ceiling_dist = Z(6);
-        u->floor_dist = Z(0);
-        u->Counter = 0;
+        actor->user.ceiling_dist = Z(6);
+        actor->user.floor_dist = Z(0);
+        actor->user.Counter = 0;
 
         actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
         actor->spr.zvel = -(((int)SP_TAG8(spawner))<<5);
 
-        u->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
-        u->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
-        u->zchange = actor->spr.zvel;
+        actor->user.xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+        actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
+        actor->user.zchange = actor->spr.zvel;
     }
 }
 
@@ -3539,7 +3539,7 @@ int ActorCoughItem(DSWActor* actor)
     DSWActor* actorNew = nullptr;
 
 
-    switch (u->ID)
+    switch (actor->user.ID)
     {
     case SAILORGIRL_R0:
         ASSERT(actor->spr.insector());
@@ -3637,7 +3637,7 @@ int ActorCoughItem(DSWActor* actor)
 
     case NINJA_RUN_R0:
 
-        if (u->PlayerP)
+        if (actor->user.PlayerP)
         {
             if (RANDOM_P2(1024) > 200)
                 return 0;
@@ -3657,7 +3657,7 @@ int ActorCoughItem(DSWActor* actor)
             // zvel
             SP_TAG8(actorNew) = 40;
 
-            switch (u->WeaponNum)
+            switch (actor->user.WeaponNum)
             {
             case WPN_UZI:
                 SP_TAG3(actorNew) = 0;
@@ -3666,12 +3666,12 @@ int ActorCoughItem(DSWActor* actor)
                 SP_TAG3(actorNew) = 51;
                 break;
             case WPN_STAR:
-                if (u->PlayerP->WpnAmmo[WPN_STAR] < 9)
+                if (actor->user.PlayerP->WpnAmmo[WPN_STAR] < 9)
                     break;
                 SP_TAG3(actorNew) = 41;
                 break;
             case WPN_MINE:
-                if (u->PlayerP->WpnAmmo[WPN_MINE] < 5)
+                if (actor->user.PlayerP->WpnAmmo[WPN_MINE] < 5)
                     break;
                 SP_TAG3(actorNew) = 42;
                 break;
@@ -3719,22 +3719,22 @@ int ActorCoughItem(DSWActor* actor)
         // zvel
         SP_TAG8(actorNew) = 40;
 
-        if (u->spal == PAL_XLAT_LT_TAN)
+        if (actor->user.spal == PAL_XLAT_LT_TAN)
         {
             SP_TAG3(actorNew) = 44;
         }
-        else if (u->spal == PAL_XLAT_LT_GREY)
+        else if (actor->user.spal == PAL_XLAT_LT_GREY)
         {
             SP_TAG3(actorNew) = 46;
         }
-        else if (u->spal == PALETTE_PLAYER5) // Green Ninja
+        else if (actor->user.spal == PALETTE_PLAYER5) // Green Ninja
         {
             if (RANDOM_P2(1024) < 700)
                 SP_TAG3(actorNew) = 61;
             else
                 SP_TAG3(actorNew) = 60;
         }
-        else if (u->spal == PALETTE_PLAYER3) // Red Ninja
+        else if (actor->user.spal == PALETTE_PLAYER3) // Red Ninja
         {
             // type
             if (RANDOM_P2(1024) < 800)
@@ -3776,28 +3776,28 @@ int ActorCoughItem(DSWActor* actor)
         // zvel
         SP_TAG8(actorNew) = 10;
 
-        if (u->ID == PACHINKO1)
+        if (actor->user.ID == PACHINKO1)
         {
             if (RANDOM_P2(1024) < 600)
                 SP_TAG3(actorNew) = 64; // Small MedKit
             else
                 SP_TAG3(actorNew) = 59; // Fortune Cookie
         }
-        else if (u->ID == PACHINKO2)
+        else if (actor->user.ID == PACHINKO2)
         {
             if (RANDOM_P2(1024) < 600)
                 SP_TAG3(actorNew) = 52; // Lg Shot Shell
             else
                 SP_TAG3(actorNew) = 68; // Uzi clip
         }
-        else if (u->ID == PACHINKO3)
+        else if (actor->user.ID == PACHINKO3)
         {
             if (RANDOM_P2(1024) < 600)
                 SP_TAG3(actorNew) = 57;
             else
                 SP_TAG3(actorNew) = 63;
         }
-        else if (u->ID == PACHINKO4)
+        else if (actor->user.ID == PACHINKO4)
         {
             if (RANDOM_P2(1024) < 600)
                 SP_TAG3(actorNew) = 60;
@@ -4288,13 +4288,13 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 
     // Kind of a goofy check, but it should catch alot of invalid states!
     // BTW, 6144 is the max tile number allowed in editart.
-    if (u->State && (u->State->Pic < 0 || u->State->Pic > MAXTILES))    // JBF: verify this!
+    if (actor->user.State && (actor->user.State->Pic < 0 || actor->user.State->Pic > MAXTILES))    // JBF: verify this!
         return 0;
 
-    u->Rot = StateGroup;
-    u->State = u->StateStart = StateGroup[0];
+    actor->user.Rot = StateGroup;
+    actor->user.State = actor->user.StateStart = StateGroup[0];
 
-    u->Tics = 0;
+    actor->user.Tics = 0;
 
     // turn anims off because people keep setting them in the
     // art file
@@ -4498,20 +4498,20 @@ void DoActorZrange(DSWActor* actor)
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = actor->spr.pos;
     pos.Z -= (ActorSizeZ(actor) >> 1);
-    FAFgetzrange(pos, actor->spr.sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    FAFgetzrange(pos, actor->spr.sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     actor->spr.cstat |= save_cstat;
 
-    u->lo_sectp = u->hi_sectp = nullptr;
-    u->highActor = nullptr;
-    u->lowActor = nullptr;
+    actor->user.lo_sectp = actor->user.hi_sectp = nullptr;
+    actor->user.highActor = nullptr;
+    actor->user.lowActor = nullptr;
 
     switch (ceilhit.type)
     {
     case kHitSprite:
-        u->highActor = ceilhit.actor();
+        actor->user.highActor = ceilhit.actor();
         break;
     case kHitSector:
-        u->hi_sectp = ceilhit.hitSector;
+        actor->user.hi_sectp = ceilhit.hitSector;
         break;
     default:
         ASSERT(true==false);
@@ -4521,10 +4521,10 @@ void DoActorZrange(DSWActor* actor)
     switch (florhit.type)
     {
     case kHitSprite:
-        u->lowActor = florhit.actor();
+        actor->user.lowActor = florhit.actor();
         break;
     case kHitSector:
-        u->lo_sectp = florhit.hitSector;
+        actor->user.lo_sectp = florhit.hitSector;
         break;
     default:
         ASSERT(true==false);
@@ -4532,37 +4532,37 @@ void DoActorZrange(DSWActor* actor)
     }
 }
 
-// !AIC - puts getzrange results into USER varaible u->loz, u->hiz, u->lo_sectp, u->hi_sectp, etc.
+// !AIC - puts getzrange results into USER varaible actor->user.loz, actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
 // The loz and hiz are used a lot.
 
 int DoActorGlobZ(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    u->loz = globloz;
-    u->hiz = globhiz;
+    actor->user.loz = globloz;
+    actor->user.hiz = globhiz;
 
-    u->lo_sectp = u->hi_sectp = nullptr;
-    u->highActor = nullptr;
-    u->lowActor = nullptr;
+    actor->user.lo_sectp = actor->user.hi_sectp = nullptr;
+    actor->user.highActor = nullptr;
+    actor->user.lowActor = nullptr;
 
     switch (globhihit.type)
     {
     case kHitSprite:
-        u->highActor = globhihit.actor();
+        actor->user.highActor = globhihit.actor();
         break;
     default:
-        u->hi_sectp = globhihit.hitSector;
+        actor->user.hi_sectp = globhihit.hitSector;
         break;
     }
 
     switch (globlohit.type)
     {
     case kHitSprite:
-        u->lowActor = globlohit.actor();
+        actor->user.lowActor = globlohit.actor();
         break;
     default:
-        u->lo_sectp = globlohit.hitSector;
+        actor->user.lo_sectp = globlohit.hitSector;
         break;
     }
 
@@ -4662,79 +4662,79 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     int cliptype = CLIPMASK_ACTOR;
 
 
-    if (TEST(u->Flags, SPR_NO_SCAREDZ))
+    if (TEST(actor->user.Flags, SPR_NO_SCAREDZ))
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        actor->spr.pos.Z = u->sz;
+        actor->spr.pos.Z = actor->user.sz;
     }
 
     // save off x,y values
     x = actor->spr.pos.X;
     y = actor->spr.pos.Y;
     z = actor->spr.pos.Z;
-    loz = u->loz;
-    hiz = u->hiz;
-    lowActor = u->lowActor;
-    highActor = u->highActor;
-    lo_sectp = u->lo_sectp;
-    hi_sectp = u->hi_sectp;
+    loz = actor->user.loz;
+    hiz = actor->user.hiz;
+    lowActor = actor->user.lowActor;
+    highActor = actor->user.highActor;
+    lo_sectp = actor->user.lo_sectp;
+    hi_sectp = actor->user.hi_sectp;
     auto sect = actor->spr.sector();
 
-    u->coll = move_sprite(actor, xchange, ychange, zchange,
-                         u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
+                         actor->user.ceiling_dist, actor->user.floor_dist, cliptype, ACTORMOVETICS);
 
     ASSERT(actor->spr.insector());
 
     // try and determine whether you moved > lo_step in the z direction
-    if (!TEST(u->Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING))
+    if (!TEST(actor->user.Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING))
     {
-        if (labs(actor->spr.pos.Z - globloz) > u->lo_step)
+        if (labs(actor->spr.pos.Z - globloz) > actor->user.lo_step)
         {
             // cancel move
             actor->spr.pos.X = x;
             actor->spr.pos.Y = y;
             actor->spr.pos.Z = z;
-            //actor->spr.z = u->loz;             // place on ground in case you are in the air
-            u->loz = loz;
-            u->hiz = hiz;
-            u->lowActor = lowActor;
-            u->highActor = highActor;
-            u->lo_sectp = lo_sectp;
-            u->hi_sectp = hi_sectp;
-            u->coll.invalidate();
+            //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
+            actor->user.loz = loz;
+            actor->user.hiz = hiz;
+            actor->user.lowActor = lowActor;
+            actor->user.highActor = highActor;
+            actor->user.lo_sectp = lo_sectp;
+            actor->user.hi_sectp = hi_sectp;
+            actor->user.coll.invalidate();
             ChangeActorSect(actor, sect);
             return false;
         }
 
-        if (ActorDrop(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), u->lo_step))
+        if (ActorDrop(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), actor->user.lo_step))
         {
             // cancel move
             actor->spr.pos.X = x;
             actor->spr.pos.Y = y;
             actor->spr.pos.Z = z;
-            //actor->spr.z = u->loz;             // place on ground in case you are in the air
-            u->loz = loz;
-            u->hiz = hiz;
-            u->lowActor = lowActor;
-            u->highActor = highActor;
-            u->lo_sectp = lo_sectp;
-            u->hi_sectp = hi_sectp;
-            u->coll.invalidate();
+            //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
+            actor->user.loz = loz;
+            actor->user.hiz = hiz;
+            actor->user.lowActor = lowActor;
+            actor->user.highActor = highActor;
+            actor->user.lo_sectp = lo_sectp;
+            actor->user.hi_sectp = hi_sectp;
+            actor->user.coll.invalidate();
             ChangeActorSect(actor, sect);
             return false;
         }
     }
 
-    SET(u->Flags, SPR_MOVED);
+    SET(actor->user.Flags, SPR_MOVED);
 
-    if (u->coll.type == kHitNone)
+    if (actor->user.coll.type == kHitNone)
     {
         // Keep track of how far sprite has moved
         dist = Distance(x, y, actor->spr.pos.X, actor->spr.pos.Y);
-        u->TargetDist -= dist;
-        u->Dist += dist;
-        u->DistCheck += dist;
+        actor->user.TargetDist -= dist;
+        actor->user.Dist += dist;
+        actor->user.DistCheck += dist;
         return true;
     }
     else
@@ -4804,30 +4804,30 @@ int DoCoin(DSWActor* actor)
     USER* u = actor->u();
     int offset;
 
-    u->WaitTics -= ACTORMOVETICS * 2;
+    actor->user.WaitTics -= ACTORMOVETICS * 2;
 
-    if (u->WaitTics <= 0)
+    if (actor->user.WaitTics <= 0)
     {
         KillActor(actor);
         return 0;
     }
 
-    if (u->WaitTics < 10*120)
+    if (actor->user.WaitTics < 10*120)
     {
-        if (u->StateStart != s_GreenCoin)
+        if (actor->user.StateStart != s_GreenCoin)
         {
-            offset = int(u->State - u->StateStart);
+            offset = int(actor->user.State - actor->user.StateStart);
             ChangeState(actor, s_GreenCoin);
-            u->State = u->StateStart + offset;
+            actor->user.State = actor->user.StateStart + offset;
         }
     }
-    else if (u->WaitTics < 20*120)
+    else if (actor->user.WaitTics < 20*120)
     {
-        if (u->StateStart != s_YellowCoin)
+        if (actor->user.StateStart != s_YellowCoin)
         {
-            offset = int(u->State - u->StateStart);
+            offset = int(actor->user.State - actor->user.StateStart);
             ChangeState(actor, s_YellowCoin);
-            u->State = u->StateStart + offset;
+            actor->user.State = actor->user.StateStart + offset;
         }
     }
 
@@ -4847,13 +4847,13 @@ int KillGet(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
         }
 
-        u->WaitTics = 30*120;
+        actor->user.WaitTics = 30*120;
         SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
@@ -4864,7 +4864,7 @@ int KillGet(DSWActor* actor)
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         actorNew->spr.shade = -20;
-        actorNew->user.WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = actor->user.WaitTics - 12;
 
         break;
     }
@@ -4885,7 +4885,7 @@ int KillGetAmmo(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4898,7 +4898,7 @@ int KillGetAmmo(DSWActor* actor)
             break;
         }
 
-        u->WaitTics = 30*120;
+        actor->user.WaitTics = 30*120;
         SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
@@ -4909,7 +4909,7 @@ int KillGetAmmo(DSWActor* actor)
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         actorNew->spr.shade = -20;
-        actorNew->user.WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = actor->user.WaitTics - 12;
 
         break;
     }
@@ -4930,7 +4930,7 @@ int KillGetWeapon(DSWActor* actor)
         // don't kill weapons in coop
 
         // unless told too :)
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4940,7 +4940,7 @@ int KillGetWeapon(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4951,7 +4951,7 @@ int KillGetWeapon(DSWActor* actor)
         if (gNet.NoRespawn)
             break;
 
-        u->WaitTics = 30*120;
+        actor->user.WaitTics = 30*120;
         SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
@@ -4962,7 +4962,7 @@ int KillGetWeapon(DSWActor* actor)
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 0, 0);
 
         actorNew->spr.shade = -20;
-        actorNew->user.WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = actor->user.WaitTics - 12;
 
         break;
     }
@@ -5006,7 +5006,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
         return true;
 
     case MULTI_GAME_COOPERATIVE:
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
             return true;
 
         if (TEST(pp->WpnGotOnceFlags, BIT(WPN)))
@@ -5017,7 +5017,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
+        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
             return true;
 
         // No Respawn - can't get a weapon again if you already got it
@@ -5066,8 +5066,8 @@ int DoGet(DSWActor* actor)
     // then "Re-Spawns" by becomming visible.  Its never actually killed.
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
     {
-        u->WaitTics -= ACTORMOVETICS * 2;
-        if (u->WaitTics <= 0)
+        actor->user.WaitTics -= ACTORMOVETICS * 2;
+        if (actor->user.WaitTics <= 0)
         {
             PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
             DoSpawnItemTeleporterEffect(actor);
@@ -5095,7 +5095,7 @@ int DoGet(DSWActor* actor)
             continue;
 
         DISTANCE(pp->pos.X, pp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a,b,c);
-        if ((unsigned)dist > (plActor->user.Radius + u->Radius))
+        if ((unsigned)dist > (plActor->user.Radius + actor->user.Radius))
         {
             continue;
         }
@@ -5116,7 +5116,7 @@ int DoGet(DSWActor* actor)
             continue;
         }
 
-        switch (u->ID)
+        switch (actor->user.ID)
         {
         //
         // Keys
@@ -5170,7 +5170,7 @@ KeyMain:
         case ICON_ARMOR:
             if (pp->Armor < InventoryDecls[InvDecl_Kevlar].amount)
             {
-                if (u->spal == PALETTE_PLAYER3)
+                if (actor->user.spal == PALETTE_PLAYER3)
                 {
                     PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Kevlar].amount);
                     PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
@@ -5932,20 +5932,20 @@ void ProcessActiveVars(DSWActor* actor)
     USERp u = actor->u();
     const int TIME_TILL_INACTIVE = (4 * 120);
 
-    if (!TEST(u->Flags, SPR_ACTIVE))
+    if (!TEST(actor->user.Flags, SPR_ACTIVE))
     {
         // if actor has been unaware for more than a few seconds
-        u->inactive_time += ACTORMOVETICS;
-        if (u->inactive_time > TIME_TILL_INACTIVE)
+        actor->user.inactive_time += ACTORMOVETICS;
+        if (actor->user.inactive_time > TIME_TILL_INACTIVE)
         {
             // reset to min update range
-            u->active_range = MIN_ACTIVE_RANGE;
+            actor->user.active_range = MIN_ACTIVE_RANGE;
             // keep time low so it doesn't roll over
-            u->inactive_time = TIME_TILL_INACTIVE;
+            actor->user.inactive_time = TIME_TILL_INACTIVE;
         }
     }
 
-    u->wait_active_check += ACTORMOVETICS;
+    actor->user.wait_active_check += ACTORMOVETICS;
 }
 
 void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
@@ -5956,10 +5956,10 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 
 
     // do no FAFcansee before it is time
-    if (u->wait_active_check < ACTIVE_CHECK_TIME)
+    if (actor->user.wait_active_check < ACTIVE_CHECK_TIME)
         return;
 
-    u->wait_active_check = 0;
+    actor->user.wait_active_check = 0;
 
     // check aboslute max
     if (dist > MAX_ACTIVE_RANGE)
@@ -5967,7 +5967,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 
     // do not do a FAFcansee if your already active
     // Actor only becomes INACTIVE in DoActorDecision
-    if (TEST(u->Flags, SPR_ACTIVE))
+    if (TEST(actor->user.Flags, SPR_ACTIVE))
         return;
 
     //
@@ -5982,10 +5982,10 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
         // adjust update range of this sprite
 
         // some huge distance
-        u->active_range = 75000;
+        actor->user.active_range = 75000;
         // sprite is AWARE
-        SET(u->Flags, SPR_ACTIVE);
-        u->inactive_time = 0;
+        SET(actor->user.Flags, SPR_ACTIVE);
+        actor->user.inactive_time = 0;
     }
 }
 
@@ -6003,43 +6003,43 @@ int  StateControl(DSWActor* actor)
     USERp u = actor->u();
     short StateTics;
 
-    if (!u->State)
+    if (!actor->user.State)
     {
-        ASSERT(u->ActorActionFunc);
-        (u->ActorActionFunc)(actor);
+        ASSERT(actor->user.ActorActionFunc);
+        (actor->user.ActorActionFunc)(actor);
         return 0;
     }
 
     if (actor->spr.statnum >= STAT_SKIP4_START && actor->spr.statnum <= STAT_SKIP4_END)
-        u->Tics += ACTORMOVETICS * 2;
+        actor->user.Tics += ACTORMOVETICS * 2;
     else
-        u->Tics += ACTORMOVETICS;
+        actor->user.Tics += ACTORMOVETICS;
 
     // Skip states if too much time has passed
-    while (u->Tics >= TEST(u->State->Tics, SF_TICS_MASK))
+    while (actor->user.Tics >= TEST(actor->user.State->Tics, SF_TICS_MASK))
     {
-        StateTics = TEST(u->State->Tics, SF_TICS_MASK);
+        StateTics = TEST(actor->user.State->Tics, SF_TICS_MASK);
 
-        if (TEST(u->State->Tics, SF_TIC_ADJUST))
+        if (TEST(actor->user.State->Tics, SF_TIC_ADJUST))
         {
-            ASSERT(u->Attrib);
-            ASSERT(u->speed < MAX_SPEED);
-            ASSERT(StateTics > -u->Attrib->TicAdjust[u->speed]);
+            ASSERT(actor->user.Attrib);
+            ASSERT(actor->user.speed < MAX_SPEED);
+            ASSERT(StateTics > -actor->user.Attrib->TicAdjust[actor->user.speed]);
 
-            StateTics += u->Attrib->TicAdjust[u->speed];
+            StateTics += actor->user.Attrib->TicAdjust[actor->user.speed];
         }
 
         // Set Tics
-        u->Tics -= StateTics;
+        actor->user.Tics -= StateTics;
 
         // Transition to the next state
-        u->State = u->State->NextState;
+        actor->user.State = actor->user.State->NextState;
 
         // Look for flags embedded into the Tics variable
-        while (TEST(u->State->Tics, SF_QUICK_CALL))
+        while (TEST(actor->user.State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(actor);
+            (*actor->user.State->Animator)(actor);
 
             ASSERT(u); //put this in to see if actor was getting killed with in his QUICK_CALL state
 
@@ -6048,39 +6048,39 @@ int  StateControl(DSWActor* actor)
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if (TEST(u->State->Tics, SF_QUICK_CALL))
-                u->State = u->State->NextState;
+            if (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+                actor->user.State = actor->user.State->NextState;
         }
 
         if (!u)
             break;
 
-        if (!u->State->Pic)
+        if (!actor->user.State->Pic)
         {
-            NewStateGroup(actor, (STATEp *) u->State->NextState);
+            NewStateGroup(actor, (STATEp *) actor->user.State->NextState);
         }
     }
 
     if (u)
     {
-        ASSERT(u->State);
+        ASSERT(actor->user.State);
         // Set picnum to the correct pic
-        if (TEST(u->State->Tics, SF_WALL_STATE))
+        if (TEST(actor->user.State->Tics, SF_WALL_STATE))
         {
-            ASSERT(u->WallP);
-            u->WallP->picnum = u->State->Pic;
+            ASSERT(actor->user.WallP);
+            actor->user.WallP->picnum = actor->user.State->Pic;
         }
         else
         {
-            if (u->RotNum > 1)
-                actor->spr.picnum = u->Rot[0]->Pic;
+            if (actor->user.RotNum > 1)
+                actor->spr.picnum = actor->user.Rot[0]->Pic;
             else
-                actor->spr.picnum = u->State->Pic;
+                actor->spr.picnum = actor->user.State->Pic;
         }
 
         // Call the correct animator
-        if (u->State->Animator && u->State->Animator != NullAnimator)
-            (*u->State->Animator)(actor);
+        if (actor->user.State->Animator && actor->user.State->Animator != NullAnimator)
+            (*actor->user.State->Animator)(actor);
     }
 
     return 0;
@@ -6139,13 +6139,13 @@ void SpriteControl(void)
 
                 AdjustActiveRange(pp, actor, dist);
 
-                if (dist < u->active_range)
+                if (dist < actor->user.active_range)
                 {
                     CloseToPlayer = true;
                 }
             }
 
-            RESET(u->Flags, SPR_MOVED);
+            RESET(actor->user.Flags, SPR_MOVED);
 
             // Only update the ones close to ANY player
             if (CloseToPlayer)
@@ -6155,7 +6155,7 @@ void SpriteControl(void)
             else
             {
                 // to far away to be attacked
-                RESET(u->Flags, SPR_ATTACKED);
+                RESET(actor->user.Flags, SPR_ATTACKED);
             }
         }
     }
@@ -6177,8 +6177,8 @@ void SpriteControl(void)
     while (auto actor = it.Next())
     {
         u = actor->u();
-        if (u && u->ActorActionFunc)
-            u->ActorActionFunc(actor);
+        if (u && actor->user.ActorActionFunc)
+            actor->user.ActorActionFunc(actor);
     }
 
     if (MoveSkip8 == 0)
@@ -6208,18 +6208,18 @@ void SpriteControl(void)
 
         if (u == 0)
             continue;
-        if (u->Tics)
+        if (actor->user.Tics)
         {
-            if ((u->Tics -= synctics) <= 0)
+            if ((actor->user.Tics -= synctics) <= 0)
                 SetVatorActive(actor);
             else
                 continue;
         }
 
-        if (!TEST(u->Flags, SPR_ACTIVE))
+        if (!TEST(actor->user.Flags, SPR_ACTIVE))
             continue;
 
-        u->ActorActionFunc(actor);
+        actor->user.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SPIKE);
@@ -6227,18 +6227,18 @@ void SpriteControl(void)
     {
         u = actor->u();
 
-        if (u->Tics)
+        if (actor->user.Tics)
         {
-            if ((u->Tics -= synctics) <= 0)
+            if ((actor->user.Tics -= synctics) <= 0)
                 SetSpikeActive(actor);
             else
                 continue;
         }
 
-        if (!TEST(u->Flags, SPR_ACTIVE))
+        if (!TEST(actor->user.Flags, SPR_ACTIVE))
             continue;
 
-        u->ActorActionFunc(actor);
+        actor->user.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_ROTATOR);
@@ -6246,18 +6246,18 @@ void SpriteControl(void)
     {
         u = actor->u();
 
-        if (u->Tics)
+        if (actor->user.Tics)
         {
-            if ((u->Tics -= synctics) <= 0)
+            if ((actor->user.Tics -= synctics) <= 0)
                 SetRotatorActive(actor);
             else
                 continue;
         }
 
-        if (!TEST(u->Flags, SPR_ACTIVE))
+        if (!TEST(actor->user.Flags, SPR_ACTIVE))
             continue;
 
-        u->ActorActionFunc(actor);
+        actor->user.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SLIDOR);
@@ -6265,18 +6265,18 @@ void SpriteControl(void)
     {
         u = actor->u();
 
-        if (u->Tics)
+        if (actor->user.Tics)
         {
-            if ((u->Tics -= synctics) <= 0)
+            if ((actor->user.Tics -= synctics) <= 0)
                 SetSlidorActive(actor);
             else
                 continue;
         }
 
-        if (!TEST(u->Flags, SPR_ACTIVE))
+        if (!TEST(actor->user.Flags, SPR_ACTIVE))
             continue;
 
-        u->ActorActionFunc(actor);
+        actor->user.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SUICIDE);
@@ -6321,7 +6321,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     else
     {
         // move the center point up for moving
-        zh = u->zclip;
+        zh = actor->user.zclip;
         clippos.Z -= zh;
     }
 
@@ -6359,7 +6359,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     actor->spr.cstat = tempstat;
 
-    // !AIC - puts getzrange results into USER varaible u->loz, u->hiz, u->lo_sectp, u->hi_sectp, etc.
+    // !AIC - puts getzrange results into USER varaible actor->user.loz, actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
     // Takes info from global variables
     DoActorGlobZ(actor);
 
@@ -6370,7 +6370,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     {
         if (retval.type == kHitNone)
         {
-            if (TEST(u->Flags, SPR_CLIMBING))
+            if (TEST(actor->user.Flags, SPR_CLIMBING))
             {
                 actor->spr.pos.Z = clippos.Z;
                 return retval;
@@ -6414,7 +6414,7 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
     actor->spr.backuppos();
-    u->oz = actor->spr.opos.Z;
+    actor->user.oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
@@ -6423,7 +6423,7 @@ void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
     actor->spr.backuppos();
-    u->oz = actor->spr.opos.Z;
+    actor->user.oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }
@@ -6469,11 +6469,11 @@ int MissileWaterAdjust(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    auto sectp = u->lo_sectp;
+    auto sectp = actor->user.lo_sectp;
     if (sectp && sectp->hasU())
     {
         if (FixedToInt(sectp->depth_fixed))
-            u->loz -= Z(FixedToInt(sectp->depth_fixed));
+            actor->user.loz -= Z(FixedToInt(sectp->depth_fixed));
     }
     return 0;
 }
@@ -6518,7 +6518,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
     else
     {
-        zh = u->zclip;
+        zh = actor->user.zclip;
         clippos.Z -= zh;
     }
 
@@ -6560,16 +6560,16 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (clippos.Z - zh <= u->hiz + ceildist)
+    if (clippos.Z - zh <= actor->user.hiz + ceildist)
     {
         // normal code
-        actor->spr.pos.Z = u->hiz + zh + ceildist;
+        actor->spr.pos.Z = actor->user.hiz + zh + ceildist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
-    else if (clippos.Z - zh > u->loz - flordist)
+    else if (clippos.Z - zh > actor->user.loz - flordist)
     {
-        actor->spr.pos.Z = u->loz + zh - flordist;
+        actor->spr.pos.Z = actor->user.loz + zh - flordist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
@@ -6639,11 +6639,11 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     daz = actor->spr.pos.Z;
 
     // climbing a wall
-    if (u->z_tgt)
+    if (actor->user.z_tgt)
     {
-        if (labs(u->z_tgt - actor->spr.pos.Z) > Z(40))
+        if (labs(actor->user.z_tgt - actor->spr.pos.Z) > Z(40))
         {
-            if (u->z_tgt > actor->spr.pos.Z)
+            if (actor->user.z_tgt > actor->spr.pos.Z)
             {
                 actor->spr.pos.Z += Z(30);
                 return retval;
@@ -6655,7 +6655,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
             }
         }
         else
-            u->z_tgt = 0;
+            actor->user.z_tgt = 0;
     }
 
     actor->spr.pos.X += xchange/2;
@@ -6690,7 +6690,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         }
 
 
-    u->z_tgt = 0;
+    actor->user.z_tgt = 0;
     if ((dasect != actor->spr.sector()) && (dasect != nullptr))
     {
         int new_loz,new_hiz;
@@ -6700,13 +6700,13 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         ChangeActorSect(actor, dasect);
     }
 
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
 
-    u->hi_sectp = u->lo_sectp = actor->spr.sector();
-    u->highActor = nullptr; u->lowActor = nullptr;
-    actor->spr.pos.Z = u->loz - Z(8);
+    actor->user.hi_sectp = actor->user.lo_sectp = actor->spr.sector();
+    actor->user.highActor = nullptr; actor->user.lowActor = nullptr;
+    actor->spr.pos.Z = actor->user.loz - Z(8);
 
-    if (labs(u->hiz - u->loz) < Z(12))
+    if (labs(actor->user.hiz - actor->user.loz) < Z(12))
     {
         // we've gone into a very small place - kill it
         retval.setVoid();
