@@ -724,17 +724,11 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
 
 int SetupBunny(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, BUNNY_RUN_R0, s_BunnyRun[0]);
+        SpawnUser(actor, BUNNY_RUN_R0, s_BunnyRun[0]);
         actor->user.Health = 10;
     }
 
@@ -811,8 +805,6 @@ int GetBunnyJumpHeight(int jump_speed, int jump_grav)
 
 int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 {
-    USERp u = actor->u();
-
     ASSERT(pix_height < 128);
 
     actor->user.jump_speed = -600;
@@ -837,7 +829,6 @@ int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 
 int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
-    USER* u = actor->u();
     DSWActor* target = actor->user.targetActor;
     int tang;
 
@@ -872,8 +863,6 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 
 int DoBunnyMoveJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         int nx, ny;
@@ -902,7 +891,6 @@ int DoBunnyMoveJump(DSWActor* actor)
 
 void DoPickCloseBunny(DSWActor* actor)
 {
-    auto u = actor->u();
     int dist, near_dist = 1000, a,b,c;
 
     // if actor can still see the player
@@ -935,8 +923,6 @@ void DoPickCloseBunny(DSWActor* actor)
 
 int DoBunnyQuickJump(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->user.spal != PALETTE_PLAYER8) return false;
 
     if (!actor->user.lowActor&& actor->user.spal == PALETTE_PLAYER8 && MoveSkip4)
@@ -1061,8 +1047,6 @@ int DoBunnyQuickJump(DSWActor* actor)
 
 int NullBunny(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(actor->user.Flags, SPR_JUMPING))
@@ -1086,8 +1070,6 @@ int NullBunny(DSWActor* actor)
 
 int DoBunnyPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullBunny(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1097,7 +1079,6 @@ int DoBunnyPain(DSWActor* actor)
 
 int DoBunnyRipHeart(DSWActor* actor)
 {
-    USER* u = actor->u();
     DSWActor* target = actor->user.targetActor;
 
     NewStateGroup(actor, sg_BunnyHeart);
@@ -1110,8 +1091,6 @@ int DoBunnyRipHeart(DSWActor* actor)
 
 int DoBunnyStandKill(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullBunny(actor);
 
     // Growl like the bad ass bunny you are!
@@ -1126,8 +1105,6 @@ int DoBunnyStandKill(DSWActor* actor)
 
 void BunnyHatch(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     const int MAX_BUNNYS = 1;
     int16_t rip_ang[MAX_BUNNYS];
 
@@ -1252,8 +1229,6 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 
 int DoBunnyMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // Parental lock crap
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
         RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
@@ -1331,8 +1306,6 @@ int BunnySpew(DSWActor* actor)
 
 int DoBunnyEat(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(actor->user.Flags, SPR_JUMPING))
@@ -1380,8 +1353,6 @@ int DoBunnyEat(DSWActor* actor)
 
 int DoBunnyScrew(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(actor->user.Flags, SPR_JUMPING))
@@ -1427,8 +1398,6 @@ int DoBunnyScrew(DSWActor* actor)
 
 int DoBunnyGrowUp(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->spr.pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 
     if ((actor->user.Counter -= ACTORMOVETICS) <= 0)
