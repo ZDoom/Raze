@@ -2639,13 +2639,12 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
     if (WeaponNum <= -1)
     {
         ASSERT(weapActor != nullptr);
-        USERp wu = weapActor->u();
-        WeaponNum = wu->WeaponNum;
+        WeaponNum = weapActor->user.WeaponNum;
 
         // can be hit by SO only
         if (SP_TAG7(hitActor) == 4)
         {
-            if (TEST(wu->Flags2, SPR2_SO_MISSILE))
+            if (TEST(weapActor->user.Flags2, SPR2_SO_MISSILE))
             {
                 DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
                 return true;
@@ -3627,14 +3626,12 @@ AutoShrap:
     // most of the time is is the weapon
     if (secondaryActor != nullptr)
     {
-        USERp wu = secondaryActor->u();
-
-        if (wu->PlayerP && wu->PlayerP->sop_control)
+        if (secondaryActor->user.PlayerP && secondaryActor->user.PlayerP->sop_control)
         {
             p = StdShrap;
         }
         else
-            switch (wu->ID)
+            switch (secondaryActor->user.ID)
             {
             case PLASMA_FOUNTAIN:
                 p = HeartAttackShrap;
@@ -4015,9 +4012,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
     // most of the time is the weapon
     if (weapActor != nullptr)
     {
-        USERp wu = weapActor->u();
-
-        switch (wu->ID)
+        switch (weapActor->user.ID)
         {
         case NINJA_RUN_R0: //sword
             // if sprite and weapon are the same it must be HARIII-KARIII
@@ -4762,7 +4757,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
     if (!actor->hasU()) return false;
 
     USERp u = actor->u();
-    USERp wu = weapActor? weapActor->u() : nullptr;
 
     if (u->Health > 0)
         return false;
@@ -4826,9 +4820,9 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
     {
         if ((u->ID == TOILETGIRL_R0 ||
              u->ID == CARGIRL_R0 || u->ID == MECHANICGIRL_R0 || u->ID == SAILORGIRL_R0 || u->ID == PRUNEGIRL_R0 ||
-             u->ID == WASHGIRL_R0) && wu->ID == NINJA_RUN_R0 && wu->PlayerP)
+             u->ID == WASHGIRL_R0) && weapActor->hasU() && weapActor->user.ID == NINJA_RUN_R0 && weapActor->user.PlayerP)
         {
-            PLAYERp pp = wu->PlayerP;
+            PLAYERp pp = weapActor->user.PlayerP;
             if (pp && !TEST(pp->Flags, PF_DIVING))  // JBF: added null test
                 pp->Bloody = true;
             PlaySound(DIGI_TOILETGIRLSCREAM, actor, v3df_none);
@@ -4848,14 +4842,14 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
     default:
 
-        switch (wu->ID)
+        switch (weapActor->user.ID)
         {
         case NINJA_RUN_R0: //sword
-            if (wu->PlayerP)
+            if (weapActor->user.PlayerP)
             {
-                PLAYERp pp = wu->PlayerP;
+                PLAYERp pp = weapActor->user.PlayerP;
 
-                if (wu->WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
+                if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
                 {
                     int choosesnd = StdRandomRange(6);
 
@@ -4874,7 +4868,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     //PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
                     //    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
                 }
-                else if (wu->WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
+                else if (weapActor->user.WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
                 {
                     short choose_snd;
 
@@ -4931,9 +4925,9 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
         case SKULL_R0:
         case BETTY_R0:
 #if 0
-            if (RANDOM_P2(1024) < 256 && wu->Radius != NUKE_RADIUS)
+            if (RANDOM_P2(1024) < 256 && weapActor->user.Radius != NUKE_RADIUS)
             {
-                if (wu->ID == BOLT_THINMAN_R1 && wu->Radius == RAIL_RADIUS)
+                if (weapActor->user.ID == BOLT_THINMAN_R1 && weapActor->user.Radius == RAIL_RADIUS)
                 {
                     SpawnShrapX(wu);    // Do rail gun shrap
                 }
@@ -4946,7 +4940,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                 int choosesnd = 0;
 
                 // For the Nuke, do residual radiation if he gibs
-                if (wu->Radius == NUKE_RADIUS)
+                if (weapActor->user.Radius == NUKE_RADIUS)
                     SpawnFireballFlames(actor, nullptr);
 
                 // Random chance of taunting the AI's here
@@ -5211,7 +5205,6 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
     assert(weapActor != nullptr);
     USERp u = actor->u();
-    USERp wu = weapActor->u();
        
     // Attack the player that is attacking you
     // Only if hes still alive
@@ -5225,7 +5218,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
     }
 
     // Reset the weapons target before dying
-    DSWActor* goal = wu->WpnGoalActor;
+    DSWActor* goal = weapActor->user.WpnGoalActor;
     if (goal != nullptr)
     {
         // attempt to see if it was killed
@@ -5385,18 +5378,16 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
             return true;
         }
 
-        USERp   wu = weapActor->u();
-
-        if (weapActor != nullptr && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
+        if (weapActor != nullptr && (weapActor->user.ID == RIPPER_RUN_R0 || weapActor->user.ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
 
-        if (weapActor != nullptr && wu->ID == CALTROPS)
+        if (weapActor != nullptr && weapActor->user.ID == CALTROPS)
             pp->DeathType = PLAYER_DEATH_FLIP;
 
-        if (weapActor != nullptr && wu->ID == NINJA_RUN_R0 && wu->PlayerP)
+        if (weapActor != nullptr && weapActor->user.ID == NINJA_RUN_R0 && weapActor->user.PlayerP)
         {
             pp->DeathType = PLAYER_DEATH_FLIP;
-            wu->PlayerP->Bloody = true;
+            weapActor->user.PlayerP->Bloody = true;
         }
 
         // keep track of who killed you for death purposes
@@ -5431,14 +5422,13 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         return true;
 
     USERp u = pp->Actor()->u();
-    USERp   wu = weapActor->u();
 
     auto weapOwner = GetOwner(weapActor);
 
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
         // ZOMBIE special case for single play
-        if (wu->ID == ZOMBIE_RUN_R0)
+        if (weapActor->user.ID == ZOMBIE_RUN_R0)
         {
             // if weapons Owner the player
             if (weapOwner == pp->Actor())
@@ -5455,7 +5445,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if weapon IS the YOURSELF take damage
-        if (wu->PlayerP == pp)
+        if (weapActor->user.PlayerP == pp)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
@@ -5463,7 +5453,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if weapon IS the player no damage
-        if (wu->PlayerP)
+        if (weapActor->user.PlayerP)
             return false;
 
         // if the weapons Owner is a player
@@ -5477,17 +5467,17 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if weapon IS the YOURSELF take damage
-        if (wu->PlayerP == pp)
+        if (weapActor->user.PlayerP == pp)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
         if (weapOwner && weapOwner->hasU() && weapOwner->user.PlayerP == pp)
             return true;
 
-        if (wu->PlayerP)
+        if (weapActor->user.PlayerP)
         {
             // if both on the same team then no damage
-            if (wu->spal == u->spal)
+            if (weapActor->user.spal == u->spal)
                 return false;
         }
 
@@ -5539,7 +5529,6 @@ bool OwnerIs(DSWActor* actor, int pic)
 int DoDamage(DSWActor* actor, DSWActor* weapActor)
 {
     USERp u = actor->u();
-    USERp wu;
     int damage=0;
 
     ASSERT(u);
@@ -5554,9 +5543,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     if (!weapActor || !weapActor->hasU() || TEST(u->Flags, SPR_SUICIDE))
         return 0;
 
-    wu = weapActor->u();
-
-    if (TEST(wu->Flags, SPR_SUICIDE))
+    if (TEST(weapActor->user.Flags, SPR_SUICIDE))
         return 0;
 
     if (u->Attrib && RANDOM_P2(1024) > 850)
@@ -5578,9 +5565,9 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     }
 
     // weapon is drivable object manned by player
-    if (wu->PlayerP && wu->PlayerP->sop)
+    if (weapActor->user.PlayerP && weapActor->user.PlayerP->sop)
     {
-        switch (wu->PlayerP->sop->track)
+        switch (weapActor->user.PlayerP->sop->track)
         {
         case SO_VEHICLE:
             damage = -200;
@@ -5623,19 +5610,19 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 }
 
     // weapon is the actor - no missile used - example swords, axes, etc
-    switch (wu->ID)
+    switch (weapActor->user.ID)
     {
     case NINJA_RUN_R0:
 
-        ASSERT(wu->PlayerP);
+        ASSERT(weapActor->user.PlayerP);
 
-        if (wu->WeaponNum == WPN_SWORD)
+        if (weapActor->user.WeaponNum == WPN_SWORD)
             damage = GetDamage(actor, weapActor, WPN_SWORD);
         else
         {
             damage = GetDamage(actor, weapActor, WPN_FIST);
             // Add damage for stronger attacks!
-            switch (wu->PlayerP->WpnKungFuMove)
+            switch (weapActor->user.PlayerP->WpnKungFuMove)
             {
             case 1:
                 damage -= 2 - RandomRange(7);
@@ -5903,7 +5890,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case BLADE3:
     case 5011:
 
-        if (wu->ID == 5011)
+        if (weapActor->user.ID == 5011)
             damage = -(3 + (RandomRange(4<<8)>>8));
         else
             damage = GetDamage(actor, weapActor, DMG_BLADE);
@@ -5976,7 +5963,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         StarBlood(actor, weapActor);
 
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         SetSuicide(weapActor);
         break;
 
@@ -6009,7 +5996,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         SetSuicide(weapActor);
         break;
 
@@ -6040,7 +6027,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         SetSuicide(weapActor);
         break;
 
@@ -6071,13 +6058,13 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         SetSuicide(weapActor);
         break;
 
     case UZI_SMOKE:
     case UZI_SMOKE+2:
-        if (wu->ID == UZI_SMOKE)
+        if (weapActor->user.ID == UZI_SMOKE)
             damage = GetDamage(actor, weapActor, WPN_UZI);
         else
             damage = GetDamage(actor, weapActor, WPN_UZI)/3; // Enemy Uzi, 1/3 damage
@@ -6126,7 +6113,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         // reset id so no more damage is taken
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         break;
 
     case SHOTGUN_SMOKE:
@@ -6174,7 +6161,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
 
         // reset id so no more damage is taken
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         break;
 
     case MIRV_METEOR:
@@ -6253,7 +6240,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorStdMissile(actor, weapActor);
         }
 
-        if (wu->Radius == NUKE_RADIUS)
+        if (weapActor->user.Radius == NUKE_RADIUS)
             SpawnNuclearExp(weapActor);
         else
             SpawnBoltExp(weapActor);
@@ -6301,7 +6288,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        wu->ID = 0; // No more damage
+        weapActor->user.ID = 0; // No more damage
         SpawnTracerExp(weapActor);
         SetSuicide(weapActor);
         break;
@@ -6328,7 +6315,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorStdMissile(actor, weapActor);
         }
 
-        if (wu->Radius == NUKE_RADIUS)
+        if (weapActor->user.Radius == NUKE_RADIUS)
             SpawnNuclearExp(weapActor);
         else
             SpawnBoltExp(weapActor);
@@ -6446,7 +6433,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 if (PlayerCheckDeath(u->PlayerP, weapActor))
                 {
                     // degrade blood worm life
-                    wu->Counter3 += (4*120)/MISSILEMOVETICS;
+                    weapActor->user.Counter3 += (4*120)/MISSILEMOVETICS;
                 }
             }
         }
@@ -6459,7 +6446,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
 
         // degrade blood worm life
-        wu->Counter3 += (2*120)/MISSILEMOVETICS;
+        weapActor->user.Counter3 += (2*120)/MISSILEMOVETICS;
 
         break;
 
@@ -6495,13 +6482,10 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case MUSHROOM_CLOUD:
     case GRENADE_EXP:
-        if (wu->Radius == NUKE_RADIUS) // Special Nuke stuff
+        if (weapActor->user.Radius == NUKE_RADIUS) // Special Nuke stuff
             damage = (GetDamage(actor, weapActor, DMG_NUCLEAR_EXP));
         else
             damage = GetDamage(actor, weapActor, DMG_GRENADE_EXP);
-
-        //DSPRINTF(ds,"MUSHROOM: damage = %d, wu->radius = %d\n",damage,wu->Radius);
-        MONO_PRINT(ds);
 
         if (u->sop_parent)
         {
@@ -6610,7 +6594,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
 
         // reset id so no more damage is taken
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         break;
     }
 #if 0
@@ -6640,7 +6624,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
 
         // reset id so no more damage is taken
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         break;
 #endif
 
@@ -6888,7 +6872,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
 
 //        u->ID = 0;
-        wu->ID = 0;
+        weapActor->user.ID = 0;
         break;
 
     case PLASMA:
@@ -7077,8 +7061,6 @@ const char *DeathString(DSWActor* actor)
 
 int DoDamageTest(DSWActor* actor)
 {
-    auto wu = actor->u();
-
     USERp u;
     int i;
     unsigned stat;
@@ -7094,7 +7076,7 @@ int DoDamageTest(DSWActor* actor)
 
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-            if ((unsigned)dist > wu->Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + u->Radius)
                 continue;
 
             if (actor == itActor)
@@ -7105,7 +7087,7 @@ int DoDamageTest(DSWActor* actor)
 
             // !JIM! Put in a cansee so that you don't take damage through walls and such
             // For speed's sake, try limiting check only to radius weapons!
-            if (wu->Radius > 200)
+            if (actor->user.Radius > 200)
             {
                 if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
                     continue;
@@ -7143,8 +7125,6 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
 
 int DoFlamesDamageTest(DSWActor* actor)
 {
-    USERp wu = actor->u();
-
     USERp u;
     int i;
     unsigned stat;
@@ -7171,7 +7151,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
-            if ((unsigned)dist > wu->Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + u->Radius)
                 continue;
 
             if (actor == itActor)
@@ -7183,7 +7163,7 @@ int DoFlamesDamageTest(DSWActor* actor)
             if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                 continue;
 
-            if (wu->Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
+            if (actor->user.Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
                 if (FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorZOfMiddle(actor),itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector()))
                 {
@@ -7280,8 +7260,6 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
 
 int DoExpDamageTest(DSWActor* actor)
 {
-    auto wu = actor->u();
-
     USERp u;
     short i, stat;
     int dist, tx, ty;
@@ -7294,7 +7272,7 @@ int DoExpDamageTest(DSWActor* actor)
     int DoWallMoveMatch(short match);
 
     // crack sprites
-    if (wu->ID != MUSHROOM_CLOUD)
+    if (actor->user.ID != MUSHROOM_CLOUD)
         WeaponExplodeSectorInRange(actor);
 
     // Just like DoDamageTest() except that it doesn't care about the Owner
@@ -7313,7 +7291,7 @@ int DoExpDamageTest(DSWActor* actor)
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
-            if ((unsigned)dist > wu->Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + u->Radius)
                 continue;
 
             if (itActor == actor)
@@ -7325,7 +7303,7 @@ int DoExpDamageTest(DSWActor* actor)
             }
             else
             {
-                if ((unsigned)FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, itActor->spr.pos.Z - actor->spr.pos.Z) > wu->Radius + u->Radius)
+                if ((unsigned)FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, itActor->spr.pos.Z - actor->spr.pos.Z) > actor->user.Radius + u->Radius)
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
@@ -7343,10 +7321,10 @@ int DoExpDamageTest(DSWActor* actor)
         }
     }
 
-    if (wu->ID == MUSHROOM_CLOUD) return 0;   // Central Nuke doesn't break stuff
+    if (actor->user.ID == MUSHROOM_CLOUD) return 0;   // Central Nuke doesn't break stuff
     // Only secondaries do that
 
-    TraverseBreakableWalls(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, wu->Radius);
+    TraverseBreakableWalls(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, actor->user.Radius);
 
     break_count = 0;
     max_stat = SIZ(StatBreakList);
@@ -7359,11 +7337,11 @@ int DoExpDamageTest(DSWActor* actor)
             u = itActor->u();
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-            if ((unsigned)dist > wu->Radius)
+            if ((unsigned)dist > actor->user.Radius)
                 continue;
 
             dist = FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, ActorZOfMiddle(itActor) - actor->spr.pos.Z);
-            if ((unsigned)dist > wu->Radius)
+            if ((unsigned)dist > actor->user.Radius)
                 continue;
 
             if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
@@ -7371,7 +7349,7 @@ int DoExpDamageTest(DSWActor* actor)
 
             if (TEST(itActor->spr.extra, SPRX_BREAKABLE))
             {
-                HitBreakSprite(itActor, wu->ID);
+                HitBreakSprite(itActor, actor->user.ID);
                 break_count++;
                 if (break_count > 6)
                     break;
@@ -7379,7 +7357,7 @@ int DoExpDamageTest(DSWActor* actor)
         }
     }
 
-    if (wu->ID == BLOOD_WORM)
+    if (actor->user.ID == BLOOD_WORM)
         return 0;
 
     // wall damaging
@@ -7387,7 +7365,7 @@ int DoExpDamageTest(DSWActor* actor)
     while (auto itActor = it.Next())
     {
         DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-        if ((unsigned)dist > wu->Radius/4)
+        if ((unsigned)dist > actor->user.Radius/4)
             continue;
 
         if (TEST_BOOL1(actor))
@@ -7424,8 +7402,6 @@ int DoExpDamageTest(DSWActor* actor)
 
 int DoMineExpMine(DSWActor* actor)
 {
-    auto wu = actor->u();
-
     USERp u;
     int i;
     int dist, tx, ty;
@@ -7438,7 +7414,7 @@ int DoMineExpMine(DSWActor* actor)
         u = itActor->u();
 
         DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-        if ((unsigned)dist > wu->Radius + u->Radius)
+        if ((unsigned)dist > actor->user.Radius + u->Radius)
             continue;
 
         if (itActor == actor)
@@ -7449,7 +7425,7 @@ int DoMineExpMine(DSWActor* actor)
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
         zdist = abs(itActor->spr.pos.Z - actor->spr.pos.Z)>>4;
-        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < wu->Radius + u->Radius)
+        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < actor->user.Radius + u->Radius)
         {
             DoDamage(itActor, actor);
             // only explode one mine at a time
@@ -11344,15 +11320,14 @@ int DoMirv(DSWActor* actor)
 
 bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
 {
-    USERp wu = actor->u();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
     bool retval = false;
 
     // backup values
-    oldxc = wu->xchange;
-    oldyc = wu->ychange;
-    oldzc = wu->zchange;
+    oldxc = actor->user.xchange;
+    oldyc = actor->user.ychange;
+    oldzc = actor->user.zchange;
     oldvel = actor->spr.xvel;
     oldzvel = actor->spr.zvel;
 
@@ -11362,19 +11337,19 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     actor->spr.zvel = short((actor->spr.zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    wu->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
-    wu->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
-    wu->zchange = actor->spr.zvel;
+    actor->user.xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+    actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
+    actor->user.zchange = actor->spr.zvel;
 
-    SET(wu->Flags, SPR_SET_POS_DONT_KILL);
+    SET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
         retval = true;
-    RESET(wu->Flags, SPR_SET_POS_DONT_KILL);
+    RESET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
 
     // reset values
-    wu->xchange = oldxc;
-    wu->ychange = oldyc;
-    wu->zchange = oldzc;
+    actor->user.xchange = oldxc;
+    actor->user.ychange = oldyc;
+    actor->user.zchange = oldzc;
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -11386,15 +11361,14 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
 
 bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
 {
-    USERp wu = actor->u();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
     bool retval = false;
 
     // backup values
-    oldxc = wu->xchange;
-    oldyc = wu->ychange;
-    oldzc = wu->zchange;
+    oldxc = actor->user.xchange;
+    oldyc = actor->user.ychange;
+    oldzc = actor->user.zchange;
     oldvel = actor->spr.xvel;
     oldzvel = actor->spr.zvel;
 
@@ -11404,19 +11378,19 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     zvel = short((zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    wu->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
-    wu->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
-    wu->zchange = zvel;
+    actor->user.xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
+    actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
+    actor->user.zchange = zvel;
 
-    SET(wu->Flags, SPR_SET_POS_DONT_KILL);
+    SET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
         retval = true;
-    RESET(wu->Flags, SPR_SET_POS_DONT_KILL);
+    RESET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
 
     // reset values
-    wu->xchange = oldxc;
-    wu->ychange = oldyc;
-    wu->zchange = oldzc;
+    actor->user.xchange = oldxc;
+    actor->user.ychange = oldyc;
+    actor->user.zchange = oldzc;
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -12717,7 +12691,6 @@ int InitMiniSumoClap(DSWActor* actor)
 int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 {
     USERp u = actor->u();
-    USERp wu = mislActor->u();
     int dist;
     int zh;
 
@@ -12732,7 +12705,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        wu->WpnGoalActor = hitActor;
+        mislActor->user.WpnGoalActor = hitActor;
         SET(hitActor->user.Flags, SPR_TARGETED);
         SET(hitActor->user.Flags, SPR_ATTACKED);
 
@@ -12769,7 +12742,6 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 {
     USERp u = actor->u();
 
-    USERp wu = missileActor->u();
     int dist;
     int zh;
 
@@ -12793,7 +12765,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        wu->WpnGoalActor = hitActor;
+        missileActor->user.WpnGoalActor = hitActor;
         SET(hitActor->user.Flags, SPR_TARGETED);
         SET(hitActor->user.Flags, SPR_ATTACKED);
 

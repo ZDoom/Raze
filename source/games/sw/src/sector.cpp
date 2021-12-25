@@ -1140,7 +1140,6 @@ void KillMatchingCrackSprites(short match)
 
 void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    USERp wu = wActor->u();
     int dist;
     int radius;
 
@@ -1155,7 +1154,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
 
         radius = (((int)actor->spr.clipdist) << 2) * 8;
 
-        if ((unsigned int)dist > (wu->Radius/2) + radius)
+        if ((unsigned int)dist > (wActor->user.Radius/2) + radius)
             continue;
 
         if (!FAFcansee(wActor->spr.pos.X,wActor->spr.pos.Y,wActor->spr.pos.Z,wActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
