@@ -221,7 +221,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 
 void PlayerUpdateHealth(PLAYERp pp, short value)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
     short x,y;
 
     if (Prediction)
@@ -256,7 +256,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
         }
 
         // TAKE SOME DAMAGE
-        u->LastDamage = -value;
+        plActor->user.LastDamage = -value;
 
         // adjust for armor
         if (pp->Armor && !NoArmor)
@@ -267,7 +267,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
             value = -player_damage;
         }
 
-        u->Health += value;
+        plActor->user.Health += value;
 
         if (value < 0)
         {
@@ -275,7 +275,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
             choosesnd = RandomRange(MAX_PAIN);
 
-            if (u->Health > 50)
+            if (plActor->user.Health > 50)
             {
                 PlayerSound(PlayerPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
             }
@@ -298,19 +298,19 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
                     SetFadeAmt(pp,-20,112);
             }
         }
-        if (u->Health <= 100)
+        if (plActor->user.Health <= 100)
             pp->MaxHealth = 100; // Reset max health if sank below 100
     }
     else
     {
         // ADD SOME HEALTH
         if (value > 1000)
-            u->Health += (value-1000);
+            plActor->user.Health += (value-1000);
         else
         {
-            if (u->Health < pp->MaxHealth)
+            if (plActor->user.Health < pp->MaxHealth)
             {
-                u->Health+=value;
+                plActor->user.Health+=value;
             }
         }
 
@@ -319,11 +319,11 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
             value -= 1000;  // Strip out high value
     }
 
-    if (u->Health < 0)
-        u->Health = 0;
+    if (plActor->user.Health < 0)
+        plActor->user.Health = 0;
 
-    if (u->Health > pp->MaxHealth)
-        u->Health = pp->MaxHealth;
+    if (plActor->user.Health > pp->MaxHealth)
+        plActor->user.Health = pp->MaxHealth;
 }
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
@@ -366,13 +366,13 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
 
     // weapon Change
     if (Prediction)
         return;
 
-    u->WeaponNum = int8_t(WeaponNum);
+    plActor->user.WeaponNum = int8_t(WeaponNum);
 }
 
 void PlayerUpdateKills(PLAYERp pp, short value)
@@ -432,8 +432,7 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
-    USERp u = pp->Actor()->u();
-
+    DSWActor* plActor = pp->actor;
 
     InventoryKeys(pp);
 
@@ -494,8 +493,8 @@ int WeaponOperate(PLAYERp pp)
             {
             case WPN_FIST:
                 //case WPN_SWORD:
-                if (u->WeaponNum == WPN_FIST
-                    || u->WeaponNum == WPN_SWORD)
+                if (plActor->user.WeaponNum == WPN_FIST
+                    || plActor->user.WeaponNum == WPN_SWORD)
                 {
                     // toggle
                     if (pp->WpnFirstType == WPN_FIST)
@@ -518,7 +517,7 @@ int WeaponOperate(PLAYERp pp)
                 InitWeaponStar(pp);
                 break;
             case WPN_UZI:
-                if (u->WeaponNum == WPN_UZI)
+                if (plActor->user.WeaponNum == WPN_UZI)
                 {
                     if (TEST(pp->Flags, PF_TWO_UZI))
                     {
@@ -533,7 +532,7 @@ int WeaponOperate(PLAYERp pp)
                 InitWeaponUzi(pp);
                 break;
             case WPN_MICRO:
-                if (u->WeaponNum == WPN_MICRO)
+                if (plActor->user.WeaponNum == WPN_MICRO)
                 {
                     pp->WpnRocketType++;
                     PlaySound(DIGI_ROCKET_UP, pp, v3df_follow);
@@ -549,7 +548,7 @@ int WeaponOperate(PLAYERp pp)
                 InitWeaponMicro(pp);
                 break;
             case WPN_SHOTGUN:
-                if (u->WeaponNum == WPN_SHOTGUN)
+                if (plActor->user.WeaponNum == WPN_SHOTGUN)
                 {
                     pp->WpnShotgunType++;
                     if (pp->WpnShotgunType > 1)
@@ -562,7 +561,7 @@ int WeaponOperate(PLAYERp pp)
                 if (!SW_SHAREWARE)
                 {
 #if 0
-                    if (u->WeaponNum == WPN_RAIL)
+                    if (plActor->user.WeaponNum == WPN_RAIL)
                     {
                         pp->WpnRailType++;
                         if (pp->WpnRailType > 1)
@@ -581,9 +580,9 @@ int WeaponOperate(PLAYERp pp)
             case WPN_HOTHEAD:
                 if (!SW_SHAREWARE)
                 {
-                    if (u->WeaponNum == WPN_HOTHEAD
-                        || u->WeaponNum == WPN_RING
-                        || u->WeaponNum == WPN_NAPALM)
+                    if (plActor->user.WeaponNum == WPN_HOTHEAD
+                        || plActor->user.WeaponNum == WPN_RING
+                        || plActor->user.WeaponNum == WPN_NAPALM)
                     {
                         pp->WpnFlameType++;
                         if (pp->WpnFlameType > 2)
@@ -650,32 +649,28 @@ int WeaponOperate(PLAYERp pp)
 
 bool WeaponOK(PLAYERp pp)
 {
-    USERp u;
     short min_ammo, WeaponNum, FindWeaponNum;
     static const uint8_t wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
 
-    if (!pp->Actor())
-        return(false);
+    DSWActor* plActor = pp->actor;
 
-    if (!pp->Actor()->hasU())
+    if (!plActor || !plActor->hasU())
         return(false);
-
-    u = pp->Actor()->u();
 
     // sword
-    if (DamageData[u->WeaponNum].max_ammo == -1)
+    if (DamageData[plActor->user.WeaponNum].max_ammo == -1)
         return true;
 
-    WeaponNum = u->WeaponNum;
-    FindWeaponNum = u->WeaponNum;
+    WeaponNum = plActor->user.WeaponNum;
+    FindWeaponNum = plActor->user.WeaponNum;
 
     min_ammo = DamageData[WeaponNum].min_ammo;
 
     // if ran out of ammo switch to something else
     if (pp->WpnAmmo[WeaponNum] < min_ammo)
     {
-        if (u->WeaponNum == WPN_UZI) pp->WpnUziType = 2; // Set it for retract
+        if (plActor->user.WeaponNum == WPN_UZI) pp->WpnUziType = 2; // Set it for retract
 
         // Still got a nuke, it's ok.
         if (WeaponNum == WPN_MICRO && pp->WpnRocketNuke)
@@ -683,8 +678,8 @@ bool WeaponOK(PLAYERp pp)
             //pp->WpnRocketType = 2; // Set it to Nuke
             if (!pp->NukeInitialized) pp->TestNukeInit = true;
 
-            u->WeaponNum = WPN_MICRO;
-            (*DamageData[u->WeaponNum].Init)(pp);
+            plActor->user.WeaponNum = WPN_MICRO;
+            (*DamageData[plActor->user.WeaponNum].Init)(pp);
 
             return true;
         }
@@ -710,15 +705,15 @@ bool WeaponOK(PLAYERp pp)
             FindWeaponNum = wpn_order[wpn_ndx];
         }
 
-        u->WeaponNum = int8_t(FindWeaponNum);
+        plActor->user.WeaponNum = int8_t(FindWeaponNum);
 
-        if (u->WeaponNum == WPN_HOTHEAD)
+        if (plActor->user.WeaponNum == WPN_HOTHEAD)
         {
             pp->WeaponType = WPN_HOTHEAD;
             pp->WpnFlameType = 0;
         }
 
-        (*DamageData[u->WeaponNum].Init)(pp);
+        (*DamageData[plActor->user.WeaponNum].Init)(pp);
 
         return false;
     }
@@ -3765,10 +3760,10 @@ void SpawnOnFire(PLAYERp pp)
 
 void pOnFire(PANEL_SPRITEp psp)
 {
-    auto actor = psp->PlayerP->Actor();
-    auto u = actor->u();
+    DSWActor* plActor = psp->PlayerP->actor;
+
     // Kill immediately - in case of death/water
-    if (u->flameActor == nullptr && u->Flags2 & SPR2_FLAMEDIE)
+    if (plActor->user.flameActor == nullptr && plActor->user.Flags2 & SPR2_FLAMEDIE)
     {
         pKillSprite(psp);
         return;
@@ -3776,7 +3771,7 @@ void pOnFire(PANEL_SPRITEp psp)
 
     psp->backupy();    
 
-    if (u->flameActor == nullptr)
+    if (plActor->user.flameActor == nullptr)
     {
         // take flames down and kill them
         psp->y += 1;
@@ -6382,7 +6377,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
 bool DrawBeforeView = false;
 void pDisplaySprites(PLAYERp pp, double smoothratio)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
     PANEL_SPRITEp next=nullptr;
     short shade, picnum, overlay_shade = 0;
     double x, y;
@@ -6608,7 +6603,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
             case 4081:
             case 2220:
             case 2221:
-                pal = u->spal;
+                pal = plActor->user.spal;
                 break;
             }
         }
