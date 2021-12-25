@@ -2822,7 +2822,6 @@ int DoLavaErupt(DSWActor* actor)
 
 int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
 {
-    SPRITEp parent = &parentActor->s();
     USERp u, pu = parentActor->u();
     short i;
 
@@ -3156,7 +3155,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     short WaitTics = 64; // for FastShrap
     short shrap_type;
     int shrap_rand_zamt = 0;
-    short shrap_ang = parent->ang;
+    short shrap_ang = parentActor->spr.ang;
     short shrap_delta_size = 0;
     short shrap_amt = 0;
 
@@ -3164,7 +3163,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         return 0;
 
     // Don't spawn shrapnel in invalid sectors gosh dern it!
-    if (!parent->insector())
+    if (!parentActor->spr.insector())
     {
         return 0;
     }
@@ -3175,7 +3174,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         shrap_amt = breakinfo->shrap_amt;
         goto AutoShrap;
     }
-    else if (TEST(parent->extra, SPRX_BREAKABLE))
+    else if (TEST(parentActor->spr.extra, SPRX_BREAKABLE))
     {
         // if no user
         if (!parentActor->hasU())
@@ -3188,8 +3187,8 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         {
             // has a user - is programmed
             change_actor_stat(parentActor, STAT_MISC);
-            RESET(parent->extra, SPRX_BREAKABLE);
-            RESET(parent->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(parentActor->spr.extra, SPRX_BREAKABLE);
+            RESET(parentActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
     }
 
@@ -3198,7 +3197,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     switch (pu->ID)
     {
     case ST1:
-        switch (parent->hitag)
+        switch (parentActor->spr.hitag)
         {
         case SPAWN_SPOT:
         {
@@ -3395,28 +3394,18 @@ AutoShrap:
 
             case SHRAP_EXPLOSION:
             {
-                short size;
-                SPRITEp ep;
-
                 auto spnum = SpawnLargeExp(parentActor);
-                ep = &spnum->s();
-
-                size = ep->xrepeat;
-                ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
+                short size = spnum->spr.xrepeat;
+                spnum->spr.xrepeat = spnum->spr.yrepeat = size + shrap_delta_size;
 
                 return false;
             }
 
             case SHRAP_LARGE_EXPLOSION:
             {
-                short size;
-                SPRITEp ep;
-
                 auto spnum = SpawnLargeExp(parentActor);
-                ep = &spnum->s();
-
-                size = ep->xrepeat;
-                ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
+                short size = spnum->spr.xrepeat;
+                spnum->spr.xrepeat = spnum->spr.yrepeat = size + shrap_delta_size;
 
                 InitPhosphorus(spnum);
 
@@ -3653,8 +3642,8 @@ AutoShrap:
             }
     }
 
-    hz[Z_TOP] = GetSpriteZOfTop(parent);        // top
-    hz[Z_BOT] = GetSpriteZOfBottom(parent);        // bottom
+    hz[Z_TOP] = ActorZOfTop(parentActor);        // top
+    hz[Z_BOT] = ActorZOfBottom(parentActor);        // bottom
     hz[Z_MID] = DIV2(hz[0] + hz[2]);        // mid
 
     for (; p->id; p++)
@@ -3668,8 +3657,8 @@ AutoShrap:
 
         for (i = 0; i < p->num; i++)
         {
-            auto actor = SpawnActor(STAT_SKIP4, p->id, p->state, parent->sector(),
-                                    parent->pos.X, parent->pos.Y, hz[p->zlevel], shrap_ang, 512);
+            auto actor = SpawnActor(STAT_SKIP4, p->id, p->state, parentActor->spr.sector(),
+                                    parentActor->spr.pos.X, parentActor->spr.pos.Y, hz[p->zlevel], shrap_ang, 512);
 
             u = actor->u();
 
@@ -4198,7 +4187,6 @@ bool VehicleMoveHit(DSWActor* actor)
     // sprite controlling sop
     DSWActor*  ctrlr = sop->controller;
     if (!ctrlr) return false;
-    cp = &ctrlr->s();
 
     switch (u->coll.type)
     {
@@ -4217,15 +4205,14 @@ bool VehicleMoveHit(DSWActor* actor)
     case kHitSprite:
     {
         auto hitActor = u->coll.actor();
-        SPRITEp hsp = &hitActor->s();
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE))
+        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
         {
             HitBreakSprite(hitActor, u->ID);
             return true;
         }
 
-        if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             if (hitActor != GetOwner(ctrlr))
             {
@@ -4235,7 +4222,7 @@ bool VehicleMoveHit(DSWActor* actor)
         }
         else
         {
-            if (hsp->statnum == STAT_MINE_STUCK)
+            if (hitActor->spr.statnum == STAT_MINE_STUCK)
             {
                 DoDamage(hitActor, actor);
                 return true;
@@ -4357,18 +4344,17 @@ bool WeaponMoveHit(DSWActor* actor)
         USERp hu;
 
         auto hitActor = u->coll.actor();
-        hsp = &hitActor->s();
         hu = hitActor->u();
 
-        ASSERT(hsp->extra != -1);
+        ASSERT(hitActor->spr.extra != -1);
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE))
+        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
         {
             HitBreakSprite(hitActor, u->ID);
             return true;
         }
 
-        if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             // make sure you didn't hit the Owner of the missile
             if (hitActor != GetOwner(actor))
@@ -4405,22 +4391,22 @@ bool WeaponMoveHit(DSWActor* actor)
         }
         else
         {
-            if (hsp->statnum == STAT_MINE_STUCK)
+            if (hitActor->spr.statnum == STAT_MINE_STUCK)
             {
                 DoDamage(hitActor, actor);
                 return true;
             }
         }
 
-        if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+        if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             if (MissileHitMatch(actor, -1, hitActor))
                 return true;
         }
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
         {
-            if (hsp->lotag || hsp->hitag)
+            if (hitActor->spr.lotag || hitActor->spr.hitag)
             {
                 ShootableSwitch(hitActor);
                 return true;
@@ -4468,17 +4454,16 @@ bool WeaponMoveHit(DSWActor* actor)
         if (hit.actor())
         {
             auto hitActor = hit.actor();
-            SPRITEp hsp = &hitActor->s();
 
-            if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+            if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
             {
                 if (MissileHitMatch(actor, -1, hitActor))
                     return true;
             }
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                if (hsp->lotag || hsp->hitag)
+                if (hitActor->spr.lotag || hitActor->spr.hitag)
                 {
                     ShootableSwitch(hitActor);
                     return true;
@@ -4520,22 +4505,21 @@ int DoFireballFlames(DSWActor* actor)
     bool jumping = false;
 
     // if no Owner then stay where you are
-    if (u->attachActor != nullptr)
+    DSWActor* attach = u->attachActor;
+    if (attach != nullptr)
     {
-        auto ap = &u->attachActor->s();
+        actor->spr.pos.X = attach->spr.pos.X;
+        actor->spr.pos.Y = attach->spr.pos.Y;
 
-        actor->spr.pos.X = ap->pos.X;
-        actor->spr.pos.Y = ap->pos.Y;
+        actor->spr.pos.Z = ActorZOfMiddle(attach);
 
-        actor->spr.pos.Z = DIV2(GetSpriteZOfTop(ap) + GetSpriteZOfBottom(ap));
-
-        if (TEST(ap->extra, SPRX_BURNABLE))
+        if (TEST(attach->spr.extra, SPRX_BURNABLE))
         {
             if ((u->Counter2 & 1) == 0)
             {
-                ap->shade++;
-                if (ap->shade > 10)
-                    ap->shade = 10;
+                attach->spr.shade++;
+                if (attach->spr.shade > 10)
+                    attach->spr.shade = 10;
             }
         }
     }
@@ -7799,12 +7783,11 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
         }
     }
 
-    if (u->WpnGoalActor != nullptr)
+    DSWActor* goal = u->WpnGoalActor;
+    if (goal != nullptr)
     {
-        hp = &u->WpnGoalActor->s();
-
         // move to correct angle
-        ang2tgt = getangle(hp->pos.X - actor->spr.pos.X, hp->pos.Y - actor->spr.pos.Y);
+        ang2tgt = getangle(goal->spr.pos.X - actor->spr.pos.X, goal->spr.pos.Y - actor->spr.pos.Y);
 
         delta_ang = getincangle(ang2tgt, actor->spr.ang);
 
@@ -7814,11 +7797,11 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
                 delta_ang = 32;
             else
                 delta_ang = -32;
-        }
+        } 
 
         actor->spr.ang -= delta_ang;
 
-        zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+        zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
         delta_ang = (zh - actor->spr.pos.Z)>>1;
 
@@ -7870,13 +7853,13 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
         }
     }
 
-    if (u->WpnGoalActor != nullptr)
+    DSWActor* goal = u->WpnGoalActor;
+    if (goal != nullptr)
     {
         int oz;
-        hp = &u->WpnGoalActor->s();
 
         // move to correct angle
-        ang2tgt = getangle(hp->pos.X - actor->spr.pos.X, hp->pos.Y - actor->spr.pos.Y);
+        ang2tgt = getangle(goal->spr.pos.X - actor->spr.pos.X, goal->spr.pos.Y - actor->spr.pos.Y);
 
         delta_ang = getincangle(ang2tgt, actor->spr.ang);
 
@@ -7893,9 +7876,9 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
         u->xchange = MOVEx(actor->spr.xvel, actor->spr.ang);
         u->ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
 
-        zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+        zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
-        dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
+        dist = ksqrt(SQ(actor->spr.pos.X - goal->spr.pos.X) + SQ(actor->spr.pos.Y - goal->spr.pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
 
         oz = u->zchange;
 
@@ -7963,23 +7946,21 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
         }
     }
 
-    if (u->WpnGoalActor != nullptr)
+    DSWActor* goal = u->WpnGoalActor;
+    if (goal != nullptr)
     {
         int ox,oy,oz;
-        hp = &u->WpnGoalActor->s();
 
-        if (!hp) return 0;
+        zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
-        zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
-
-        dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
+        dist = ksqrt(SQ(actor->spr.pos.X - goal->spr.pos.X) + SQ(actor->spr.pos.Y - goal->spr.pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
 
         ox = u->xchange;
         oy = u->ychange;
         oz = u->zchange;
 
-        u->xchange = Scale(actor->spr.xvel, hp->pos.X - actor->spr.pos.X, dist);
-        u->ychange = Scale(actor->spr.xvel, hp->pos.Y - actor->spr.pos.Y, dist);
+        u->xchange = Scale(actor->spr.xvel, goal->spr.pos.X - actor->spr.pos.X, dist);
+        u->ychange = Scale(actor->spr.xvel, goal->spr.pos.Y - actor->spr.pos.Y, dist);
         u->zchange = Scale(actor->spr.xvel, zh - actor->spr.pos.Z, dist);
 
         // the large turn_speed is the slower the turn
@@ -8029,21 +8010,21 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
         }
     }
 
-    if (u->WpnGoalActor != nullptr)
+    DSWActor* goal = u->WpnGoalActor;
+    if (goal != nullptr)
     {
         int ox,oy,oz;
-        hp = &u->WpnGoalActor->s();
 
-        zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+        zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
-        dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
+        dist = ksqrt(SQ(actor->spr.pos.X - goal->spr.pos.X) + SQ(actor->spr.pos.Y - goal->spr.pos.Y) + (SQ(actor->spr.pos.Z - zh)>>8));
 
         ox = u->xchange;
         oy = u->ychange;
         oz = u->zchange;
 
-        u->xchange = Scale(actor->spr.xvel, hp->pos.X - actor->spr.pos.X, dist);
-        u->ychange = Scale(actor->spr.xvel, hp->pos.Y - actor->spr.pos.Y, dist);
+        u->xchange = Scale(actor->spr.xvel, goal->spr.pos.X - actor->spr.pos.X, dist);
+        u->ychange = Scale(actor->spr.xvel, goal->spr.pos.Y - actor->spr.pos.Y, dist);
         u->zchange = Scale(actor->spr.xvel, zh - actor->spr.pos.Z, dist);
 
         u->xchange = (u->xchange + ox*7)/8;
@@ -8116,8 +8097,8 @@ int DoPlasmaFountain(DSWActor* actor)
         ap = &attachActor->s();
 
         // move with sprite
-        SetActorZ(actor, &ap->pos);
-        actor->spr.ang = ap->ang;
+        SetActorZ(actor, &attachActor->spr.pos);
+        actor->spr.ang = attachActor->spr.ang;
 
         u->Counter++;
         if (u->Counter > 3)
@@ -8819,9 +8800,9 @@ int DoMineStuck(DSWActor* actor)
             u->WaitTics = SEC(1)/2;
         }
 
-        vec3_t pos = { ap->pos.X, ap->pos.Y, ap->pos.Z - u->sz };
+        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - u->sz };
         SetActorZ(actor, &pos);
-        actor->spr.pos.Z = ap->pos.Z - DIV2(GetSpriteSizeZ(ap));
+        actor->spr.pos.Z = attachActor->spr.pos.Z - DIV2(GetSpriteSizeZ(ap));
     }
 
     // not activated yet
@@ -9254,9 +9235,9 @@ int DoEMPBurst(DSWActor* actor)
     if (attachActor != nullptr)
     {
         SPRITEp ap = &attachActor->s();
-        vec3_t pos = { ap->pos.X, ap->pos.Y, ap->pos.Z - u->sz };
+        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - u->sz };
         SetActorZ(actor, &pos);
-        actor->spr.ang = NORM_ANGLE(ap->ang+1024);
+        actor->spr.ang = NORM_ANGLE(attachActor->spr.ang+1024);
     }
 
     // not activated yet
