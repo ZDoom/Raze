@@ -1663,23 +1663,23 @@ int PlayerInitCaltrops(PLAYERp pp)
     ny = pp->pos.Y;
     nz = pp->pos.Z + pp->bob_z + Z(8);
 
-    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
-    wu = spawnedActor->u();
+    wu = actorNew->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        spawnedActor->spr.xvel -= (spawnedActor->spr.xvel >> 2);
+        actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->Actor(), spawnedActor);
-    spawnedActor->spr.yrepeat = 64;
-    spawnedActor->spr.xrepeat = 64;
-    spawnedActor->spr.shade = -15;
+    SetOwner(pp->Actor(), actorNew);
+    actorNew->spr.yrepeat = 64;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.shade = -15;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
@@ -1687,33 +1687,33 @@ int PlayerInitCaltrops(PLAYERp pp)
     wu->Counter = 0;
 //      SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(spawnedActor))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         SET(wu->Flags, SPR_UNDERWATER);
 
     // They go out at different angles
 //        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
 
-    spawnedActor->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
+    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
     DSWActor* plActor = pp->actor;
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
-    spawnedActor->spr.clipdist = 0;
+    actorNew->spr.clipdist = 0;
 
-    MissileSetPos(spawnedActor, DoCaltrops, 1000);
+    MissileSetPos(actorNew, DoCaltrops, 1000);
 
     plActor->spr.clipdist = uint8_t(oclipdist);
-    spawnedActor->spr.clipdist = 80L >> 2;
+    actorNew->spr.clipdist = 80L >> 2;
 
-    wu->xchange = MOVEx(spawnedActor->spr.xvel, spawnedActor->spr.ang);
-    wu->ychange = MOVEy(spawnedActor->spr.xvel, spawnedActor->spr.ang);
-    wu->zchange = spawnedActor->spr.zvel >> 1;
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
     wu->xchange += pp->xvect >> 14;
     wu->ychange += pp->yvect >> 14;
 
-    SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
+    SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
 }
 
@@ -1731,34 +1731,34 @@ int InitCaltrops(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
 
-    wu = spawnedActor->u();
+    wu = actorNew->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(actor, spawnedActor);
-    spawnedActor->spr.yrepeat = 64;
-    spawnedActor->spr.xrepeat = 64;
-    spawnedActor->spr.shade = -15;
+    SetOwner(actor, actorNew);
+    actorNew->spr.yrepeat = 64;
+    actorNew->spr.xrepeat = 64;
+    actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    spawnedActor->spr.clipdist = actor->spr.clipdist;
+    actorNew->spr.clipdist = actor->spr.clipdist;
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 200;
     wu->ceiling_dist = Z(3);
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    spawnedActor->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
-    wu->xchange = MOVEx(spawnedActor->spr.xvel, spawnedActor->spr.ang);
-    wu->ychange = MOVEy(spawnedActor->spr.xvel, spawnedActor->spr.ang);
-    wu->zchange = spawnedActor->spr.zvel >> 1;
+    wu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    wu->zchange = actorNew->spr.zvel >> 1;
 
-    SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
+    SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
 }
 
