@@ -698,10 +698,9 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     {
         I_Error("SOP bound sprite with hitag %d not found", 500 + (int(sop - SectorObject) * 5));
     }
-    auto BoundSprite = &BoundActor->s();
 
-    xlow = BoundSprite->pos.X;
-    ylow = BoundSprite->pos.Y;
+    xlow = BoundActor->spr.pos.X;
+    ylow = BoundActor->spr.pos.Y;
 
     KillActor(BoundActor);
 

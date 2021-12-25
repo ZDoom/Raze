@@ -13013,37 +13013,35 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
         }
     }
 
-    DSWActor* hitActor;
-    if ((hitActor = DoPickTarget(actor, *ang, test)) != nullptr)
+    DSWActor* picked;
+    if ((picked = DoPickTarget(actor, *ang, test)) != nullptr)
     {
-        SPRITEp hp = &hitActor->s();
-        USERp hu = hitActor->u();
 
-        SET(hu->Flags, SPR_TARGETED);
-        SET(hu->Flags, SPR_ATTACKED);
+        SET(picked->user.Flags, SPR_TARGETED);
+        SET(picked->user.Flags, SPR_ATTACKED);
 
-        *ang = NORM_ANGLE(getangle(hp->pos.X - actor->spr.pos.X, hp->pos.Y - actor->spr.pos.Y));
+        *ang = NORM_ANGLE(getangle(picked->spr.pos.X - actor->spr.pos.X, picked->spr.pos.Y - actor->spr.pos.Y));
 
         // find the distance to the target
-        dist = ksqrt(SQ(actor->spr.pos.X - hp->pos.X) + SQ(actor->spr.pos.Y - hp->pos.Y));
+        dist = ksqrt(SQ(actor->spr.pos.X - picked->spr.pos.X) + SQ(actor->spr.pos.Y - picked->spr.pos.Y));
 
         if (dist != 0)
         {
-            zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+            zh = ActorZOfTop(picked) + (ActorSizeZ(picked) >> 2);
 
             xvect = bcos(*ang);
             yvect = bsin(*ang);
 
-            if (hp->pos.X - actor->spr.pos.X != 0)
-                *z = Scale(xvect,zh - *z,hp->pos.X - actor->spr.pos.X);
-            else if (hp->pos.Y - actor->spr.pos.Y != 0)
-                *z = Scale(yvect,zh - *z,hp->pos.Y - actor->spr.pos.Y);
+            if (picked->spr.pos.X - actor->spr.pos.X != 0)
+                *z = Scale(xvect,zh - *z,picked->spr.pos.X - actor->spr.pos.X);
+            else if (picked->spr.pos.Y - actor->spr.pos.Y != 0)
+                *z = Scale(yvect,zh - *z,picked->spr.pos.Y - actor->spr.pos.Y);
             else
                 *z = 0;
         }
     }
 
-    return hitActor;
+    return picked;
 }
 
 void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
@@ -14174,11 +14172,11 @@ int InitMicro(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
     USERp u = actor->u();
-    USERp wu,hu;
-    SPRITEp hp;
+    USERp wu;
     int nx, ny, nz, dist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
+    DSWActor* picked = nullptr;
 
     nx = pp->pos.X;
     ny = pp->pos.Y;
@@ -14197,17 +14195,15 @@ int InitMicro(PLAYERp pp)
     {
         if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
         {
-            hp = &ts->actor->s();
-            hu = ts->actor->u();
+            picked = ts->actor;
 
-            ang = getangle(hp->pos.X - nx, hp->pos.Y - ny);
+            ang = getangle(picked->spr.pos.X - nx, picked->spr.pos.Y - ny);
 
             ts++;
         }
         else
         {
-            hp = nullptr;
-            hu = nullptr;
+            picked = nullptr;
             ang = pp->angle.ang.asbuild();
         }
 
@@ -14273,19 +14269,19 @@ int InitMicro(PLAYERp pp)
 
         const int MICRO_ANG = 400;
 
-        if (hp)
+        if (picked)
         {
-            dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, hp->pos.X, hp->pos.Y);
+            dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, picked->spr.pos.X, picked->spr.pos.Y);
             if (dist != 0)
             {
                 int zh;
-                zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+                zh = ActorZOfTop(picked) + (ActorSizeZ(picked) >> 2);
                 actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->spr.pos.Z)) / dist;
             }
 
             wu->WpnGoalActor = ts->actor;
-            SET(hu->Flags, SPR_TARGETED);
-            SET(hu->Flags, SPR_ATTACKED);
+            SET(picked->user.Flags, SPR_TARGETED);
+            SET(picked->user.Flags, SPR_ATTACKED);
         }
         else
         {
@@ -16045,11 +16041,11 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
     USERp u = actor->u();
 
     USERp pu = pp->Actor()->u();
-    USERp wu,hu;
-    SPRITEp hp;
+    USERp wu;
     int nx, ny, nz, dist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
+    DSWActor* picked = nullptr;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -16068,17 +16064,15 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
     {
         if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
         {
-            hp = &ts->actor->s();
-            hu = ts->actor->u();
+            picked = ts->actor;
 
-            ang = getangle(hp->pos.X - nx, hp->pos.Y - ny);
+            ang = getangle(picked->spr.pos.X - nx, picked->spr.pos.Y - ny);
 
             ts++;
         }
         else
         {
-            hp = nullptr;
-            hu = nullptr;
+            picked = nullptr;
             ang = actor->spr.ang;
         }
 
@@ -16118,19 +16112,19 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 
         const int MICRO_ANG = 400;
 
-        if (hp)
+        if (picked)
         {
-            dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, hp->pos.X, hp->pos.Y);
+            dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, picked->spr.pos.X, picked->spr.pos.Y);
             if (dist != 0)
             {
                 int zh;
-                zh = GetSpriteZOfTop(hp) + (GetSpriteSizeZ(hp) >> 2);
+                zh = ActorZOfTop(picked) + (ActorSizeZ(picked) >> 2);
                 actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->spr.pos.Z)) / dist;
             }
 
             wu->WpnGoalActor = ts->actor;
-            SET(hu->Flags, SPR_TARGETED);
-            SET(hu->Flags, SPR_ATTACKED);
+            SET(picked->user.Flags, SPR_TARGETED);
+            SET(picked->user.Flags, SPR_ATTACKED);
         }
         else
         {
