@@ -40,8 +40,6 @@ bool TestSpikeMatchActive(short match);
 
 void ReverseSpike(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     // if paused go ahead and start it up again
     if (actor->user.Tics)
     {
@@ -88,7 +86,6 @@ bool SpikeSwitch(short match, short setting)
 
 void SetSpikeActive(DSWActor* actor)
 {
-    USERp u = actor->u();
     SECTORp sectp = actor->spr.sector();
 
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
@@ -115,7 +112,6 @@ void SetSpikeActive(DSWActor* actor)
 
 void SetSpikeInactive(DSWActor* actor)
 {
-    USERp u = actor->u();
     SECTORp sectp = actor->spr.sector();
 
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
@@ -177,20 +173,16 @@ void DoSpikeMatch(short match)
 
 bool TestSpikeMatchActive(short match)
 {
-    USERp fu;
-
     SWStatIterator it(STAT_SPIKE);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_SPIKE && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
             // door war
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
+            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -200,7 +192,6 @@ bool TestSpikeMatchActive(short match)
 
 int DoSpikeMove(DSWActor* actor, int *lptr)
 {
-    USERp u = actor->u();
     int zval;
 
     zval = *lptr;
@@ -237,8 +228,6 @@ int DoSpikeMove(DSWActor* actor, int *lptr)
 
 void SpikeAlign(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     // either work on single sector or all tagged in SOBJ
     if ((int8_t)SP_TAG7(actor) < 0)
     {
@@ -276,7 +265,6 @@ void MoveSpritesWithSpike(sectortype* sect)
 
 int DoSpike(DSWActor* actor)
 {
-    USER* u = actor->u();
     int *lptr;
 
     // zclip = floor or ceiling z
@@ -387,7 +375,6 @@ int DoSpike(DSWActor* actor)
 
 int DoSpikeAuto(DSWActor* actor)
 {
-    USER* u = actor->u();
     int *lptr;
 
     lptr = &actor->user.zclip;
