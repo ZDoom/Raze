@@ -1217,17 +1217,17 @@ void RipperHatch(DSWActor* actor)
 		nu = actorNew->u();
 
         // make immediately active
-        SET(nu->Flags, SPR_ACTIVE);
+        SET(actorNew->user.Flags, SPR_ACTIVE);
 
-        NewStateGroup(actorNew, nu->ActorActionSet->Jump);
-        nu->ActorActionFunc = DoActorMoveJump;
+        NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+        actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
-        SET(nu->Flags, SPR_JUMPING);
-        RESET(nu->Flags, SPR_FALLING);
+        SET(actorNew->user.Flags, SPR_JUMPING);
+        RESET(actorNew->user.Flags, SPR_FALLING);
 
-        nu->jump_grav = 8;
+        actorNew->user.jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
         DoActorZrange(actorNew);

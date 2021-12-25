@@ -553,15 +553,15 @@ int NewCoolg(DSWActor* actor)
     nu = actorNew->u();
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
-    nu->StateEnd = s_CoolgDie;
-    nu->Rot = sg_CoolgRun;
-    actorNew->spr.pal = nu->spal = u->spal;
+    actorNew->user.StateEnd = s_CoolgDie;
+    actorNew->user.Rot = sg_CoolgRun;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
 
-    nu->ActorActionSet = &CoolgActionSet;
+    actorNew->user.ActorActionSet = &CoolgActionSet;
 
     actorNew->spr.shade = actor->spr.shade;
-    nu->Personality = &CoolgPersonality;
-    nu->Attrib = &CoolgAttrib;
+    actorNew->user.Personality = &CoolgPersonality;
+    actorNew->user.Attrib = &CoolgAttrib;
 
     // special case
     TotalKillable++;

@@ -1148,12 +1148,12 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.shade = actor->spr.shade;
 
         // make immediately active
-        SET(nu->Flags, SPR_ACTIVE);
+        SET(actorNew->user.Flags, SPR_ACTIVE);
         if (RandomRange(1000) > 500) // Boy or Girl?
-            nu->spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
+            actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
         else
         {
-            nu->spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
+            actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
             // Oops, mommy died giving birth to a boy
             if (RandomRange(1000) > 500)
             {
@@ -1172,17 +1172,17 @@ void BunnyHatch(DSWActor* actor)
             }
         }
 
-        nu->ShellNum = 0; // Not Pregnant right now
+        actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(actorNew, nu->ActorActionSet->Jump);
-        nu->ActorActionFunc = DoActorMoveJump;
+        NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+        actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
-        SET(nu->Flags, SPR_JUMPING);
-        RESET(nu->Flags, SPR_FALLING);
+        SET(actorNew->user.Flags, SPR_JUMPING);
+        RESET(actorNew->user.Flags, SPR_FALLING);
 
-        nu->jump_grav = 8;
+        actorNew->user.jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
         DoActorZrange(actorNew);
@@ -1208,42 +1208,42 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.shade = actor->spr.shade;
 
     // make immediately active
-    SET(nu->Flags, SPR_ACTIVE);
+    SET(actorNew->user.Flags, SPR_ACTIVE);
     if (RandomRange(1000) > 500) // Boy or Girl?
     {
-        nu->spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
-        nu->Flag1 = SEC(5);
+        actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
+        actorNew->user.Flag1 = SEC(5);
     }
     else
     {
-        nu->spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
-        nu->Flag1 = 0;
+        actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER8; // Boy
+        actorNew->user.Flag1 = 0;
     }
 
-    nu->ShellNum = 0; // Not Pregnant right now
+    actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(actorNew, nu->ActorActionSet->Jump);
-    nu->ActorActionFunc = DoActorMoveJump;
+    NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+    actorNew->user.ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(actor))
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
         actorNew->spr.xvel = 150 + RandomRange(1000);
-        nu->Health = 1; // Easy to pop. Like shootn' skeet.
+        actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
         actorNew->spr.ang -= RandomRange(128);
         actorNew->spr.ang += RandomRange(128);
     }
     else
         PickJumpMaxSpeed(actorNew, -600);
 
-    SET(nu->Flags, SPR_JUMPING);
-    RESET(nu->Flags, SPR_FALLING);
+    SET(actorNew->user.Flags, SPR_JUMPING);
+    RESET(actorNew->user.Flags, SPR_FALLING);
 
-    nu->jump_grav = 8;
-    nu->FlagOwner = 0;
+    actorNew->user.jump_grav = 8;
+    actorNew->user.FlagOwner = 0;
 
-    nu->active_range = 75000; // Set it far
+    actorNew->user.active_range = 75000; // Set it far
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);

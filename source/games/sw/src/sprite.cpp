@@ -4876,7 +4876,7 @@ int KillGet(DSWActor* actor)
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
-        nu->WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = u->WaitTics - 12;
 
         break;
     }
@@ -4925,7 +4925,7 @@ int KillGetAmmo(DSWActor* actor)
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
-        nu->WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = u->WaitTics - 12;
 
         break;
     }
@@ -4982,7 +4982,7 @@ int KillGetWeapon(DSWActor* actor)
         nu = actorNew->u();
 
         actorNew->spr.shade = -20;
-        nu->WaitTics = u->WaitTics - 12;
+        actorNew->user.WaitTics = u->WaitTics - 12;
 
         break;
     }
@@ -5927,15 +5927,15 @@ KeyMain:
             actorNew->spr.shade = -20;
 
             // Attach flag to player
-            nu->Counter = 0;
+            actorNew->user.Counter = 0;
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
-            nu->sz = ActorZOfMiddle(pp->Actor());  // Set mid way up who it hit
-            nu->spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
+            actorNew->user.sz = ActorZOfMiddle(pp->Actor());  // Set mid way up who it hit
+            actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
-            nu->flagOwnerActor = actor;       // Tell carried flag who owns it
+            actorNew->user.flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(actor);  // Set up for flag respawning
             break;
         }

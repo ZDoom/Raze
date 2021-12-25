@@ -314,12 +314,12 @@ void SpawnMidSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
 
-    nu->xchange = 0;
-    nu->ychange = 0;
-    nu->zchange = 0;
+    actorNew->user.xchange = 0;
+    actorNew->user.ychange = 0;
+    actorNew->user.zchange = 0;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
-        SET(nu->Flags, SPR_UNDERWATER);
+        SET(actorNew->user.Flags, SPR_UNDERWATER);
 }
 
 void SpawnFloorSplash(DSWActor* actor)
@@ -342,12 +342,12 @@ void SpawnFloorSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
 
-    nu->xchange = 0;
-    nu->ychange = 0;
-    nu->zchange = 0;
+    actorNew->user.xchange = 0;
+    actorNew->user.ychange = 0;
+    actorNew->user.zchange = 0;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
-        SET(nu->Flags, SPR_UNDERWATER);
+        SET(actorNew->user.Flags, SPR_UNDERWATER);
 }
 
 
@@ -549,14 +549,14 @@ int DoBloodSpray(DSWActor* actor)
         if (RANDOM_P2(1024) < 512)
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return false;
@@ -758,16 +758,16 @@ int DoPhosphorus(DSWActor* actor)
         if (RANDOM_P2(1024) < 512)
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
-        nu->spal = actorNew->spr.pal = PALETTE_PLAYER3;   // RED
+        actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER3;   // RED
 
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return false;
@@ -981,16 +981,16 @@ int DoChemBomb(DSWActor* actor)
         // SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
-        nu->spal = actorNew->spr.pal = PALETTE_PLAYER6;
+        actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER6;
 
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return false;
@@ -1209,14 +1209,14 @@ int SpawnRadiationCloud(DSWActor* actor)
     nu = actorNew->u();
 
     SetOwner(GetOwner(actor), actorNew);
-    nu->WaitTics = 1 * 120;
+    actorNew->user.WaitTics = 1 * 120;
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.yrepeat = 32;
     actorNew->spr.clipdist = actor->spr.clipdist;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    nu->spal = actorNew->spr.pal = PALETTE_PLAYER6;
+    actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER6;
     // Won't take floor palettes
     actorNew->spr.hitag = SECTFU_DONT_COPY_PALETTE;
 
@@ -1228,22 +1228,22 @@ int SpawnRadiationCloud(DSWActor* actor)
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
 
-    nu->Counter = 0;
-    nu->Counter2 = 0;
+    actorNew->user.Counter = 0;
+    actorNew->user.Counter2 = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121)
     {
-        nu->Radius = 2000;
-        nu->xchange = (MOVEx(actorNew->spr.xvel>>2, actorNew->spr.ang));
-        nu->ychange = (MOVEy(actorNew->spr.xvel>>2, actorNew->spr.ang));
+        actorNew->user.Radius = 2000;
+        actorNew->user.xchange = (MOVEx(actorNew->spr.xvel>>2, actorNew->spr.ang));
+        actorNew->user.ychange = (MOVEy(actorNew->spr.xvel>>2, actorNew->spr.ang));
         actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
     }
     else
     {
-        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
         actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
-        nu->Radius = 4000;
+        actorNew->user.Radius = 4000;
     }
 
     return false;
@@ -1645,16 +1645,16 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (u->flameActor != nullptr)
     {
-        nu->Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(actor) >> 1) * 4;
+        actorNew->user.Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(actor) >> 1) * 4;
     }
     else
-        nu->Counter = 0;                // max flame size
+        actorNew->user.Counter = 0;                // max flame size
 
     actorNew->spr.shade = -40;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    nu->Radius = 200;
+    actorNew->user.Radius = 200;
 
     if (u->flameActor != nullptr)
     {

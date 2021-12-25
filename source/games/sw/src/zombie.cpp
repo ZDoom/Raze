@@ -784,20 +784,20 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     nu = actorNew->u();
     actorNew->spr.setsector(pp->cursector);
     SetOwner(actorNew, ownerActor);
-    actorNew->spr.pal = nu->spal = ownerActor->user.spal;
+    actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
     actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
-    SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
+    SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 
     // make immediately active
-    SET(nu->Flags, SPR_ACTIVE);
+    SET(actorNew->user.Flags, SPR_ACTIVE);
 
-    RESET(nu->Flags, SPR_JUMPING);
-    RESET(nu->Flags, SPR_FALLING);
+    RESET(actorNew->user.Flags, SPR_JUMPING);
+    RESET(actorNew->user.Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);
@@ -832,22 +832,22 @@ void SpawnZombie2(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     nu = actorNew->u();
-    nu->Counter3 = 0;
+    actorNew->user.Counter3 = 0;
     SetOwner(ownerActor, actorNew);
-    actorNew->spr.pal = nu->spal = ownerActor->user.spal;
+    actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
     actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
-    SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
+    SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 
     // make immediately active
-    SET(nu->Flags, SPR_ACTIVE);
+    SET(actorNew->user.Flags, SPR_ACTIVE);
 
-    RESET(nu->Flags, SPR_JUMPING);
-    RESET(nu->Flags, SPR_FALLING);
+    RESET(actorNew->user.Flags, SPR_JUMPING);
+    RESET(actorNew->user.Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);
