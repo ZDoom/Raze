@@ -695,35 +695,29 @@ ACTOR_ACTION_SET SerpActionSet =
 
 int SetupSerp(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);
-        u->Health = HEALTH_SERP_GOD;
+        SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);
+        actor->user.Health = HEALTH_SERP_GOD;
     }
 
-    if (Skill == 0) u->Health = 1100;
-    if (Skill == 1) u->Health = 2200;
+    if (Skill == 0) actor->user.Health = 1100;
+    if (Skill == 1) actor->user.Health = 2200;
 
     ChangeState(actor, s_SerpRun[0]);
-    u->Attrib = &SerpAttrib;
+    actor->user.Attrib = &SerpAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_SerpDie;
-    u->Rot = sg_SerpRun;
+    actor->user.StateEnd = s_SerpDie;
+    actor->user.Rot = sg_SerpRun;
 
     EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
 
     // Mini-Boss Serp
     if (actor->spr.pal == 16)
     {
-        u->Health = 1000;
+        actor->user.Health = 1000;
         actor->spr.yrepeat = 74;
         actor->spr.xrepeat = 74;
     }
@@ -734,26 +728,24 @@ int SetupSerp(DSWActor* actor)
     }
 
     actor->spr.clipdist = (512) >> 2;
-    SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    u->loz = actor->spr.pos.Z;
+    actor->user.loz = actor->spr.pos.Z;
 
     // amount to move up for clipmove
-    u->zclip = Z(80);
+    actor->user.zclip = Z(80);
     // size of step can walk off of
-    u->lo_step = Z(40);
+    actor->user.lo_step = Z(40);
 
-    u->floor_dist = u->zclip - u->lo_step;
-    u->ceiling_dist = ActorSizeZ(actor) - u->zclip;
+    actor->user.floor_dist = actor->user.zclip - actor->user.lo_step;
+    actor->user.ceiling_dist = ActorSizeZ(actor) - actor->user.zclip;
 
     return 0;
 }
 
 int NullSerp(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -764,33 +756,30 @@ int NullSerp(DSWActor* actor)
 
 int DoSerpMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     // serp ring
     if (actor->spr.pal != 16)
     {
-        switch (u->Counter2)
+        switch (actor->user.Counter2)
         {
         case 0:
-            if (u->Health != u->MaxHealth)
+            if (actor->user.Health != actor->user.MaxHealth)
             {
                 NewStateGroup(actor, sg_SerpSkullSpell);
-                u->Counter2++;
+                actor->user.Counter2++;
             }
             break;
 
         case 1:
-            //if (u->Health <= DIV2(u->MaxHealth))
         {
-            if (u->Counter <= 0)
+            if (actor->user.Counter <= 0)
                 NewStateGroup(actor, sg_SerpSkullSpell);
         }
         break;
