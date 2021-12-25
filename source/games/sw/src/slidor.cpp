@@ -41,15 +41,14 @@ BEGIN_SW_NS
 
 void ReverseSlidor(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     // if paused go ahead and start it up again
-    if (u->Tics)
+    if (actor->user.Tics)
     {
-        u->Tics = 0;
+        actor->user.Tics = 0;
         SetSlidorActive(actor);
         return;
     }
@@ -87,18 +86,17 @@ bool SlidorSwitch(short match, short setting)
 
 void SetSlidorActive(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     DoSlidorInterp(actor, StartInterpolation);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
-    SET(u->Flags, SPR_ACTIVE);
-    u->Tics = 0;
+    SET(actor->user.Flags, SPR_ACTIVE);
+    actor->user.Tics = 0;
 
     // moving to the OFF position
     if (r->tgt == 0)
@@ -109,14 +107,12 @@ void SetSlidorActive(DSWActor* actor)
 
 void SetSlidorInactive(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     DoSlidorInterp(actor, StopInterpolation);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
-    RESET(u->Flags, SPR_ACTIVE);
+    RESET(actor->user.Flags, SPR_ACTIVE);
 }
 
 // called for operation from the space bar
@@ -138,15 +134,11 @@ void DoSlidorOperate(PLAYERp pp, sectortype* sect)
 // returns first vator found
 void DoSlidorMatch(PLAYERp pp, short match, bool manual)
 {
-    USERp fu;
-
     SWStatIterator it(STAT_SLIDOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
             // single play only vator
             // bool 8 must be set for message to display
             if (TEST_BOOL4(actor) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
@@ -175,7 +167,7 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
                 }
             }
 
-            if (TEST(fu->Flags, SPR_ACTIVE))
+            if (TEST(actor->user.Flags, SPR_ACTIVE))
             {
                 ReverseSlidor(actor);
                 continue;
@@ -189,20 +181,16 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
 bool TestSlidorMatchActive(short match)
 {
-    USERp fu;
-
     SWStatIterator it(STAT_SLIDOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_SLIDOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
+            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -424,12 +412,11 @@ int DoSlidorInstantClose(DSWActor* actor)
 
 int DoSlidor(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
     int old_pos;
     bool kill = false;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 
@@ -472,8 +459,8 @@ int DoSlidor(DSWActor* actor)
                 DoMatchEverything(nullptr, SP_TAG6(actor), -1);
 
             // wait a bit and close it
-            if (u->WaitTics)
-                u->Tics = u->WaitTics;
+            if (actor->user.WaitTics)
+                actor->user.Tics = actor->user.WaitTics;
         }
         else
         // If ang is CLOSED then
@@ -538,7 +525,7 @@ int DoSlidor(DSWActor* actor)
                     {
                         ReverseSlidor(actor);
 
-                        u->vel_rate = -u->vel_rate;
+                        actor->user.vel_rate = -actor->user.vel_rate;
                         found = true;
                     }
                 }
