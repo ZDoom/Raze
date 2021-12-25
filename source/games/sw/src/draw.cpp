@@ -208,9 +208,9 @@ int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, i
 int DoShadowFindGroundPoint(tspriteptr_t tspr)
 {
     // USES TSPRITE !!!!!
-    USERp u = static_cast<DSWActor*>(tspr->ownerActor)->u();
+    auto ownerActor = static_cast<DSWActor*>(tspr->ownerActor);
     Collision ceilhit, florhit;
-    int hiz, loz = u->loz;
+    int hiz, loz = ownerActor->user.loz;
     ESpriteFlags save_cstat, bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -1056,12 +1056,10 @@ FString GameInterface::GetCoordString()
 void PrintSpriteInfo(PLAYERp pp)
 {
     const int Y_STEP = 7;
-    USERp u;
 
     //if (SpriteInfo && !LocationInfo)
     {
         auto actor = DoPickTarget(pp->Actor(), 32, 2);
-        u = actor->u();
 
         actor->spr.hitag = 9997; // Special tag to make the actor glow red for one frame
 
@@ -1075,12 +1073,12 @@ void PrintSpriteInfo(PLAYERp pp)
 
         if (actor->hasU())
         {
-            Printf("ID:%d, ", u->ID);
-            Printf("PALETTE:%d, ", u->spal);
-            Printf("HEALTH:%d, ", u->Health);
-            Printf("WAITTICS:%d, ", u->WaitTics);
-            Printf("COUNTER:%d, ", u->Counter);
-            Printf("COUNTER2:%d\n", u->Counter);
+            Printf("ID:%d, ", actor->user.ID);
+            Printf("PALETTE:%d, ", actor->user.spal);
+            Printf("HEALTH:%d, ", actor->user.Health);
+            Printf("WAITTICS:%d, ", actor->user.WaitTics);
+            Printf("COUNTER:%d, ", actor->user.Counter);
+            Printf("COUNTER2:%d\n", actor->user.Counter);
         }
         
         {
@@ -1099,8 +1097,7 @@ void DrawCrosshair(PLAYERp pp)
 
     if (!(CameraTestMode))
     {
-        USERp u = pp->Actor()->u();
-        ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
@@ -1254,7 +1251,6 @@ void PreDrawStackedWater(void)
         {
             if (itActor2->hasU())
             {
-                auto u = itActor2->u();
                 if (itActor2->spr.statnum == STAT_ITEM)
                     continue;
 
@@ -1262,7 +1258,7 @@ void PreDrawStackedWater(void)
                     continue;
 
                 // code so that a copied sprite will not make another copy
-                if (u->xchange == -989898)
+                if (itActor2->user.xchange == -989898)
                     continue;
 
                 auto actorNew = ConnectCopySprite(&itActor2->spr);
@@ -1275,17 +1271,17 @@ void PreDrawStackedWater(void)
 
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image
-                    actorNew->user.State = u->State;
-                    actorNew->user.Rot = u->Rot;
-                    actorNew->user.StateStart = u->StateStart;
-                    actorNew->user.StateEnd = u->StateEnd;
-                    actorNew->user.Flags = u->Flags;
-                    actorNew->user.Flags2 = u->Flags2;
-                    actorNew->user.RotNum = u->RotNum;
-                    actorNew->user.ID = u->ID;
+                    actorNew->user.State = itActor2->user.State;
+                    actorNew->user.Rot = itActor2->user.Rot;
+                    actorNew->user.StateStart = itActor2->user.StateStart;
+                    actorNew->user.StateEnd = itActor2->user.StateEnd;
+                    actorNew->user.Flags = itActor2->user.Flags;
+                    actorNew->user.Flags2 = itActor2->user.Flags2;
+                    actorNew->user.RotNum = itActor2->user.RotNum;
+                    actorNew->user.ID = itActor2->user.ID;
 
-                    actorNew->user.PlayerP = u->PlayerP;
-                    actorNew->user.spal = u->spal;
+                    actorNew->user.PlayerP = itActor2->user.PlayerP;
+                    actorNew->user.spal = itActor2->user.spal;
                 }
             }
         }
