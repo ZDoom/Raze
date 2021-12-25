@@ -502,31 +502,25 @@ ACTOR_ACTION_SET SkelActionSet =
 
 int SetupSkel(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,SKEL_RUN_R0,s_SkelRun[0]);
-        u->Health = HEALTH_SKEL_PRIEST;
+        SpawnUser(actor,SKEL_RUN_R0,s_SkelRun[0]);
+        actor->user.Health = HEALTH_SKEL_PRIEST;
     }
 
     ChangeState(actor, s_SkelRun[0]);
-    u->Attrib = &SkelAttrib;
+    actor->user.Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_SkelDie;
-    u->Rot = sg_SkelRun;
+    actor->user.StateEnd = s_SkelDie;
+    actor->user.Rot = sg_SkelRun;
 
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
     // 256 is default
     //actor->spr.clipdist = 256 >> 2;
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -540,7 +534,6 @@ int DoSkelInitTeleport(DSWActor* actor)
 
 int DoSkelTeleport(DSWActor* actor)
 {
-    USER* u = actor->u();
     int x,y;
 
     x = actor->spr.pos.X;
@@ -578,8 +571,7 @@ int DoSkelTermTeleport(DSWActor* actor)
 
 int NullSkel(DSWActor* actor)
 {
-    USER* u = actor->u();
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -590,11 +582,9 @@ int NullSkel(DSWActor* actor)
 
 int DoSkelPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullSkel(actor);
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         InitActorDecide(actor);
 
     return 0;
@@ -602,15 +592,13 @@ int DoSkelPain(DSWActor* actor)
 
 int DoSkelMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 
