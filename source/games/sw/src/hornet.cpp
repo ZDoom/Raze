@@ -300,25 +300,25 @@ int SetupHornet(DSWActor* actor)
     else
     {
         u = SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
-        u->Health = HEALTH_HORNET;
+        actor->user.Health = HEALTH_HORNET;
     }
 
     ChangeState(actor, s_HornetRun[0]);
-    u->Attrib = &HornetAttrib;
+    actor->user.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_HornetDie;
-    u->Rot = sg_HornetRun;
+    actor->user.StateEnd = s_HornetDie;
+    actor->user.Rot = sg_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
-    SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
 
     actor->spr.clipdist = (100) >> 2;
-    u->floor_dist = Z(16);
-    u->ceiling_dist = Z(16);
+    actor->user.floor_dist = Z(16);
+    actor->user.ceiling_dist = Z(16);
 
-    u->sz = actor->spr.pos.Z;
+    actor->user.sz = actor->spr.pos.Z;
 
     actor->spr.xrepeat = 37;
     actor->spr.yrepeat = 32;
@@ -333,7 +333,7 @@ int NullHornet(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     DoHornetMatchPlayerZ(actor);
@@ -352,9 +352,9 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     
     int bound;
 
-    // actor does a sine wave about u->sz - this is the z mid point
+    // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (ActorZOfMiddle(u->targetActor)) - u->sz;
+    zdiff = (ActorZOfMiddle(actor->user.targetActor)) - actor->user.sz;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(200)); // put a random amount
@@ -362,53 +362,53 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     {
         if (zdiff > 0)
             // manipulate the z midpoint
-            //u->sz += 256 * ACTORMOVETICS;
-            u->sz += 1024 * ACTORMOVETICS;
+            //actor->user.sz += 256 * ACTORMOVETICS;
+            actor->user.sz += 1024 * ACTORMOVETICS;
         else
-            u->sz -= 256 * ACTORMOVETICS;
+            actor->user.sz -= 256 * ACTORMOVETICS;
     }
 
     // save off lo and hi z
-    loz = u->loz;
-    hiz = u->hiz;
+    loz = actor->user.loz;
+    hiz = actor->user.hiz;
 
     // adjust loz/hiz for water depth
-    if (u->lo_sectp && u->lo_sectp->hasU() && FixedToInt(u->lo_sectp->depth_fixed))
-        loz -= Z(FixedToInt(u->lo_sectp->depth_fixed)) - Z(8);
+    if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
+        loz -= Z(FixedToInt(actor->user.lo_sectp->depth_fixed)) - Z(8);
 
     // lower bound
-    if (u->lowActor)
-        bound = loz - u->floor_dist;
+    if (actor->user.lowActor)
+        bound = loz - actor->user.floor_dist;
     else
-        bound = loz - u->floor_dist - HORNET_BOB_AMT;
+        bound = loz - actor->user.floor_dist - HORNET_BOB_AMT;
 
-    if (u->sz > bound)
+    if (actor->user.sz > bound)
     {
-        u->sz = bound;
+        actor->user.sz = bound;
     }
 
     // upper bound
-    if (u->highActor)
-        bound = hiz + u->ceiling_dist;
+    if (actor->user.highActor)
+        bound = hiz + actor->user.ceiling_dist;
     else
-        bound = hiz + u->ceiling_dist + HORNET_BOB_AMT;
+        bound = hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
 
-    if (u->sz < bound)
+    if (actor->user.sz < bound)
     {
-        u->sz = bound;
+        actor->user.sz = bound;
     }
 
-    u->sz = min(u->sz, loz - u->floor_dist);    
-    u->sz = max(u->sz, hiz + u->ceiling_dist);    
+    actor->user.sz = min(actor->user.sz, loz - actor->user.floor_dist);    
+    actor->user.sz = max(actor->user.sz, hiz + actor->user.ceiling_dist);    
 
-    u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = u->sz + MulScale(HORNET_BOB_AMT, bsin(u->Counter), 14);
+    actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
+    actor->spr.pos.Z = actor->user.sz + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14);
 
-    bound = u->hiz + u->ceiling_dist + HORNET_BOB_AMT;
+    bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
     if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        actor->spr.pos.Z = u->sz = bound + HORNET_BOB_AMT;
+        actor->spr.pos.Z = actor->user.sz = bound + HORNET_BOB_AMT;
     }
 
     return 0;
@@ -418,9 +418,9 @@ int InitHornetCircle(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    u->ActorActionFunc = DoHornetCircle;
+    actor->user.ActorActionFunc = DoHornetCircle;
 
-    NewStateGroup(actor, u->ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -428,19 +428,19 @@ int InitHornetCircle(DSWActor* actor)
     // set to really fast
     actor->spr.xvel = 400;
     // angle adjuster
-    u->Counter2 = actor->spr.xvel/3;
+    actor->user.Counter2 = actor->spr.xvel/3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
-        u->Counter2 = -u->Counter2;
+        actor->user.Counter2 = -actor->user.Counter2;
 
     // z velocity
-    u->jump_speed = 200 + RANDOM_P2(128);
-    if (labs(u->sz - u->hiz) < labs(u->sz - u->loz))
-        u->jump_speed = -u->jump_speed;
+    actor->user.jump_speed = 200 + RANDOM_P2(128);
+    if (labs(actor->user.sz - actor->user.hiz) < labs(actor->user.sz - actor->user.loz))
+        actor->user.jump_speed = -actor->user.jump_speed;
 
-    u->WaitTics = (RandomRange(3)+1) * 60;
+    actor->user.WaitTics = (RandomRange(3)+1) * 60;
 
-    (*u->ActorActionFunc)(actor);
+    (*actor->user.ActorActionFunc)(actor);
 
     return 0;
 }
@@ -450,7 +450,7 @@ int DoHornetCircle(DSWActor* actor)
     USER* u = actor->u();
     int nx,ny,bound;
 
-    actor->spr.ang = NORM_ANGLE(actor->spr.ang + u->Counter2);
+    actor->spr.ang = NORM_ANGLE(actor->spr.ang + actor->user.Counter2);
 
     nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
@@ -460,7 +460,7 @@ int DoHornetCircle(DSWActor* actor)
         //ActorMoveHitReact(actor);
 
         // try moving in the opposite direction
-        u->Counter2 = -u->Counter2;
+        actor->user.Counter2 = -actor->user.Counter2;
         actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
         nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
         ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
@@ -473,22 +473,22 @@ int DoHornetCircle(DSWActor* actor)
     }
 
     // move in the z direction
-    u->sz -= u->jump_speed * ACTORMOVETICS;
+    actor->user.sz -= actor->user.jump_speed * ACTORMOVETICS;
 
-    bound = u->hiz + u->ceiling_dist + HORNET_BOB_AMT;
-    if (u->sz < bound)
+    bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
+    if (actor->user.sz < bound)
     {
         // bumped something
-        u->sz = bound;
+        actor->user.sz = bound;
         InitActorReposition(actor);
         return 0;
     }
 
     // time out
-    if ((u->WaitTics -= ACTORMOVETICS) < 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) < 0)
     {
         InitActorReposition(actor);
-        u->WaitTics = 0;
+        actor->user.WaitTics = 0;
         return 0;
     }
 
@@ -501,36 +501,36 @@ int DoHornetDeath(DSWActor* actor)
     USER* u = actor->u();
     int nx, ny;
 
-    if (TEST(u->Flags, SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_FALLING))
     {
-        u->loz = u->zclip;
+        actor->user.loz = actor->user.zclip;
         DoFall(actor);
     }
     else
     {
         RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        u->jump_speed = 0;
-        u->floor_dist = 0;
+        actor->user.jump_speed = 0;
+        actor->user.floor_dist = 0;
         DoBeginFall(actor);
         DoFindGroundPoint(actor);
-        u->zclip = u->loz;
+        actor->user.zclip = actor->user.loz;
     }
 
-    if (TEST(u->Flags, SPR_SLIDING))
+    if (TEST(actor->user.Flags, SPR_SLIDING))
         DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
-    u->coll = move_sprite(actor, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
-    if (actor->spr.pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= actor->user.loz)
     {
-        RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
+        RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
         RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        NewStateGroup(actor, u->ActorActionSet->Dead);
+        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         DeleteNoSoundOwner(actor);
         return 0;
     }
@@ -548,14 +548,14 @@ int DoCheckSwarm(DSWActor* actor)
 
     if (!MoveSkip8) return 0;     // Don't over check
 
-    if (!u->targetActor) return 0;
+    if (!actor->user.targetActor) return 0;
 
     // Who's the closest meat!?
     DoActorPickClosePlayer(actor);
 
-    if (u->targetActor->user.PlayerP)
+    if (actor->user.targetActor->user.PlayerP)
     {
-        pp = u->targetActor->user.PlayerP;
+        pp = actor->user.targetActor->user.PlayerP;
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
     }
     else
@@ -571,9 +571,9 @@ int DoCheckSwarm(DSWActor* actor)
 
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
-        if (dist < pdist && u->ID == itActor->user.ID) // Only flock to your own kind
+        if (dist < pdist && actor->user.ID == itActor->user.ID) // Only flock to your own kind
         {
-            u->targetActor = itActor; // Set target to swarm center
+            actor->user.targetActor = itActor; // Set target to swarm center
         }
     }
 
@@ -591,13 +591,13 @@ int DoHornetMove(DSWActor* actor)
     if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     DoHornetMatchPlayerZ(actor);
 
