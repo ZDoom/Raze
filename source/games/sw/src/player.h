@@ -121,7 +121,6 @@ int SetVisHigh(void);
 int SetVisNorm(void);
 void DoWeapon(void);
 void HeadBobStateControl(void);
-int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
@@ -137,7 +136,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp);
 void DoPlayerWarpTeleporter(PLAYERp pp);
 void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(sectortype* sect,short sound_num);
-void DoSpawnTeleporterEffectPlace(SPRITEp sp);
+void DoSpawnTeleporterEffectPlace(DSWActor* sp);
 void FindMainSector(SECTOR_OBJECTp sop);
 
 END_SW_NS

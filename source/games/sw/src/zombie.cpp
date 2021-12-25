@@ -771,8 +771,6 @@ int SetupZombie(DSWActor* actor)
 
 void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 {
-    SPRITEp np;
-
     auto ownerActor = GetOwner(weaponActor);
 
     if (ownerActor == nullptr)
@@ -802,7 +800,6 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 
 void SpawnZombie2(DSWActor* actor)
 {
-    SPRITEp np;
     auto sectu = actor->spr.sector();
     SECTORp sectp = actor->spr.sector();
 

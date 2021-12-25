@@ -1132,7 +1132,6 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
     short angle2, delta_ang;
     int dist, zh;
-    SPRITEp ep;
     int16_t* shp;
     USERp u = actor->u();
     int ezh, ezhl, ezhm;
@@ -1300,8 +1299,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
     int nx, ny;
-    SPRITEp ep;
-
+    
     nx = MOVEx(512, actor->spr.ang);
     ny = MOVEy(512, actor->spr.ang);
 
@@ -1325,8 +1323,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    SPRITEp ep;
-
+    
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
                          actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
@@ -1347,8 +1344,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
     USERp u = ppActor->u();
     short pnum;
     DSWActor* act_warp;
-    SPRITEp sp_warp;
-
+    
 #if 0
     TAG 2 = match
             TAG 3 = Type
@@ -5843,7 +5839,6 @@ void DoPlayerHeadDebris(PLAYERp pp)
 void DoPlayerDeathCheckKick(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    SPRITEp hp;
     unsigned stat;
     int dist;
     int a,b,c;

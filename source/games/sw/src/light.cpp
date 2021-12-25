@@ -93,8 +93,7 @@ void DiffuseLighting(DSWActor* actor)
     int i;
     short count;
     short shade;
-    SPRITEp dsp;
-
+    
     // diffused lighting
     count = 0;
     SWStatIterator it(STAT_LIGHTING_DIFFUSE);

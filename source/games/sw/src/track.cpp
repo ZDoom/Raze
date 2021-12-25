@@ -378,7 +378,6 @@ void QuickScanSetup(short stat, short lotag, short type)
     int ndx;
     TRACK_POINTp tp;
     TRACKp t;
-    SPRITEp nsp;
     DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks

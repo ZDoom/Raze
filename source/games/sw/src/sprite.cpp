@@ -3795,7 +3795,6 @@ int ActorCoughItem(DSWActor* actor)
 int SpawnItemsMatch(short match)
 {
     DSWActor* spawnedActor = nullptr;
-    SPRITEp sip;
 
     SWStatIterator it(STAT_SPAWN_ITEMS);
     while (auto itActor = it.Next())
@@ -4461,7 +4460,6 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
 
 void DoActorZrange(DSWActor* actor)
 {
-    SPRITEp wp;
     Collision ceilhit, florhit;
 
     auto save_cstat = actor->spr.cstat & CSTAT_SPRITE_BLOCK;
@@ -4928,7 +4926,6 @@ int KillGetWeapon(DSWActor* actor)
 int DoSpawnItemTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    SPRITEp ep;
 
     auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
                          actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(12),

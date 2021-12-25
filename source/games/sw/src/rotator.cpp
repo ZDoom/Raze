@@ -189,8 +189,6 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
 bool TestRotatorMatchActive(short match)
 {
-    SPRITEp fsp;
-
     SWStatIterator it(STAT_ROTATOR);
     while (auto actor = it.Next())
     {

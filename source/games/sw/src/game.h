@@ -418,7 +418,6 @@ typedef pANIMATOR *pANIMATORp;
 typedef void soANIMATOR (SECTOR_OBJECTp);
 typedef soANIMATOR *soANIMATORp;
 
-typedef spritetype SPRITE, *SPRITEp;
 typedef sectortype SECTOR, *SECTORp;
 typedef walltype WALL, *WALLp;
 

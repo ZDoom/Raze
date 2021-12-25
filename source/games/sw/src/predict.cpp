@@ -71,7 +71,7 @@ void DoPrediction(PLAYERp ppp)
 {
 #if 0
     USERp u;
-    SPRITE spr;
+    spritetype spr;
     int bakrandomseed;
 
     // routine called from MoveLoop
