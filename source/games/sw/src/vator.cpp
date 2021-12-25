@@ -45,8 +45,6 @@ bool TestVatorMatchActive(short match);
 
 void ReverseVator(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     // if paused go ahead and start it up again
     if (actor->user.Tics)
     {
@@ -93,7 +91,6 @@ bool VatorSwitch(short match, short setting)
 
 void SetVatorActive(DSWActor* actor)
 {
-    USERp u = actor->u();
     SECTORp sectp = actor->spr.sector();
 
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
@@ -120,7 +117,6 @@ void SetVatorActive(DSWActor* actor)
 
 void SetVatorInactive(DSWActor* actor)
 {
-    USERp u = actor->u();
     SECTORp sectp = actor->spr.sector();
 
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
@@ -186,15 +182,11 @@ void DoVatorOperate(PLAYERp pp, sectortype* sect)
 // returns first vator found
 void DoVatorMatch(PLAYERp pp, short match)
 {
-    USERp u;
-
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
-            u = actor->u();
-
             // single play only vator
             // bool 8 must be set for message to display
             if (TEST_BOOL4(actor) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
@@ -232,15 +224,11 @@ void DoVatorMatch(PLAYERp pp, short match)
 
 bool TestVatorMatchActive(short match)
 {
-    USERp u;
-
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
-            u = actor->u();
-
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(actor))
                 continue;
@@ -260,7 +248,6 @@ void InterpSectorSprites(sectortype* sect, bool state)
     {
         if (actor->hasU())
         {
-            auto u = actor->u();
             if (TEST(actor->user.Flags, SPR_SKIP4) && actor->spr.statnum <= STAT_SKIP4_INTERP_END)
                 continue;
 
@@ -332,7 +319,6 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
 
 int DoVatorMove(DSWActor* actor, int *lptr)
 {
-    USERp u = actor->u();
     int zval;
     int move_amt;
 
@@ -372,7 +358,6 @@ int DoVatorMove(DSWActor* actor, int *lptr)
 
 int DoVator(DSWActor* actor)
 {
-    USER* u = actor->u();
     SECTORp sectp = actor->spr.sector();
     int *lptr;
     int amt;
@@ -530,7 +515,6 @@ int DoVator(DSWActor* actor)
 
 int DoVatorAuto(DSWActor* actor)
 {
-    USER* u = actor->u();
     SECTORp sectp = actor->spr.sector();
     int *lptr;
     int amt;
