@@ -45,13 +45,9 @@ inline int16_t& VIS_VisCur(DSWActor* actor) { return SP_TAG2(actor); }
 
 void ProcessVisOn(void)
 {
-    SPRITEp sp;
-
     SWStatIterator it(STAT_VIS_ON);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
         if (VIS_VisDir(actor))
         {
             // get brighter
@@ -86,7 +82,6 @@ void ProcessVisOn(void)
 
 void VisViewChange(PLAYERp pp, int *vis)
 {
-    SPRITEp sp;
     short BrightestVis = NormalVisibility;
     int x,y,z;
     sectortype* sectp;
@@ -98,8 +93,6 @@ void VisViewChange(PLAYERp pp, int *vis)
     SWStatIterator it(STAT_VIS_ON);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
-
         auto own = GetOwner(actor);
         if (own != nullptr)
         {
@@ -110,10 +103,10 @@ void VisViewChange(PLAYERp pp, int *vis)
         }
         else
         {
-            x = sp->pos.X;
-            y = sp->pos.Y;
-            z = sp->pos.Z;
-            sectp = sp->sector();
+            x = actor->spr.pos.X;
+            y = actor->spr.pos.Y;
+            z = actor->spr.pos.Z;
+            sectp = actor->spr.sector();
         }
 
         // save off the brightest vis that you can see
