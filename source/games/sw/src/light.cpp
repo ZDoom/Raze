@@ -36,7 +36,6 @@ BEGIN_SW_NS
 
 void SectorLightShade(DSWActor* actor, short intensity)
 {
-	auto u = actor->hasU()? actor->u() : nullptr;
     int8_t* wall_shade;
     short base_shade;
 
@@ -60,8 +59,8 @@ void SectorLightShade(DSWActor* actor, short intensity)
     // change wall
     if (!TEST_BOOL4(actor))
     {
-        ASSERT(u && u->WallShade.Data());
-        wall_shade = u->WallShade.Data();
+        ASSERT(actor->hasU() && actor->user.WallShade.Data());
+        wall_shade = actor->user.WallShade.Data();
         int wallcount = 0;
 
         for(auto &wal : wallsofsector(actor->spr.sector()))
@@ -124,8 +123,6 @@ void DoLightingMatch(short match, short state)
     SWStatIterator it(STAT_LIGHTING);
     while (auto itActor = it.Next())
     {
-        auto u = itActor->u();
-
         if (LIGHT_Match(itActor) != match)
             continue;
 
@@ -144,7 +141,7 @@ void DoLightingMatch(short match, short state)
             {
                 SET_BOOL1(itActor);
                 itActor->spr.shade = -LIGHT_MaxBright(itActor);
-                itActor->spr.pal = u->spal; // on
+                itActor->spr.pal = itActor->user.spal; // on
                 SectorLightShade(itActor, itActor->spr.shade);
                 DiffuseLighting(itActor);
             }
@@ -258,8 +255,6 @@ void DoLighting(void)
     SWStatIterator it(STAT_LIGHTING);
     while (auto itActor = it.Next())
     {
-        auto u = itActor->u();
-
         // on/off test
         if (TEST_BOOL1(itActor) == OFF)
             continue;
@@ -345,7 +340,7 @@ void DoLighting(void)
                 else
                 {
                     itActor->spr.shade -= LIGHT_ShadeInc(itActor);
-                    itActor->spr.pal = u->spal; // on
+                    itActor->spr.pal = itActor->user.spal; // on
                     if (itActor->spr.shade <= -LIGHT_MaxBright(itActor))
                     {
                         LIGHT_DirChange(itActor);

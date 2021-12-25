@@ -453,41 +453,33 @@ ACTOR_ACTION_SET LavaActionSet =
 
 int SetupLava(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, LAVA_RUN_R0, s_LavaRun[0]);
-        u->Health = 100;
+        SpawnUser(actor, LAVA_RUN_R0, s_LavaRun[0]);
+        actor->user.Health = 100;
     }
 
     ChangeState(actor, s_LavaRun[0]);
-    u->Attrib = &LavaAttrib;
+    actor->user.Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_LavaDie;
-    u->Rot = sg_LavaRun;
+    actor->user.StateEnd = s_LavaDie;
+    actor->user.Rot = sg_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
     actor->spr.xrepeat = actor->spr.yrepeat = 110;
     actor->spr.clipdist = (512) >> 2;
-    SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    u->loz = actor->spr.pos.Z;
+    actor->user.loz = actor->spr.pos.Z;
 
     return 0;
 }
 
 int NullLava(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -498,15 +490,13 @@ int NullLava(DSWActor* actor)
 
 int DoLavaMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

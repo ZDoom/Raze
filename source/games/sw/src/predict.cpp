@@ -39,7 +39,7 @@ BEGIN_SW_NS
 bool PredictionOn = true;
 bool Prediction = false;
 PLAYER PredictPlayer;
-USER PredictUser;
+//USER PredictUser;
 PLAYERp ppp = &PredictPlayer;
 
 typedef struct
@@ -63,8 +63,8 @@ void InitPrediction(PLAYERp pp)
         return;
 
     // make a copy of player struct and sprite
-    *ppp = *pp;
-    PredictUser = *pp->Actor()->u();
+    //*ppp = *pp;
+    //PredictUser = *pp->Actor()->user;
 }
 
 void DoPrediction(PLAYERp ppp)
