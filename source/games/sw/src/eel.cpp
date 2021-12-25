@@ -359,8 +359,6 @@ int DoEelMatchPlayerZ(DSWActor* actor);
 
 void EelCommon(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     actor->spr.clipdist = (100) >> 2;
     actor->user.floor_dist = Z(16);
     actor->user.floor_dist = Z(16);
@@ -375,17 +373,11 @@ void EelCommon(DSWActor* actor)
 
 int SetupEel(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);
+        SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);
         actor->user.Health = 40;
     }
 
@@ -410,8 +402,6 @@ int SetupEel(DSWActor* actor)
 
 int NullEel(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -424,7 +414,6 @@ int NullEel(DSWActor* actor)
 
 int DoEelMatchPlayerZ(DSWActor* actor)
 {
-    USER* u = actor->u();
     int zdiff,zdist;
     int loz,hiz;
     int dist,a,b,c;
@@ -522,7 +511,6 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
 int DoEelDeath(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
     if (TEST(actor->user.Flags, SPR_FALLING))
     {
@@ -562,8 +550,6 @@ int DoEelDeath(DSWActor* actor)
 
 int DoEelMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     ASSERT(actor->user.Rot != nullptr);
 
     if (SpriteOverlap(actor, actor->user.targetActor))
