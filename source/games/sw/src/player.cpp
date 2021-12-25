@@ -2775,6 +2775,7 @@ void DoPlayerMoveTurret(PLAYERp pp)
 
 void DoPlayerBeginJump(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_JUMPING);
@@ -2805,6 +2806,7 @@ void DoPlayerBeginJump(PLAYERp pp)
 
 void DoPlayerBeginForceJump(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_JUMPING);
@@ -2950,6 +2952,7 @@ void DoPlayerForceJump(PLAYERp pp)
 
 void DoPlayerBeginFall(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     SET(pp->Flags, PF_FALLING);
@@ -3091,6 +3094,7 @@ void DoPlayerFall(PLAYERp pp)
                 }
                 else if (pp->jump_speed >= 4000)
                 {
+                    DSWActor* plActor = pp->actor;
                     USERp u = pp->Actor()->u();
                     PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
                     u->Health = 0;
@@ -3159,8 +3163,8 @@ void DoPlayerBeginClimb(PLAYERp pp)
 
 void DoPlayerClimb(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
     int climb_amt;
     int i;
     int climbvel;
@@ -3188,7 +3192,7 @@ void DoPlayerClimb(PLAYERp pp)
     if (pp->input.actions & SB_JUMP)
     {
         RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
         DoPlayerBeginJump(pp);
         return;
     }
@@ -3224,26 +3228,26 @@ void DoPlayerClimb(PLAYERp pp)
             }
 
             // sprite
-            if (actor->spr.pos.X != u->sx)
+            if (plActor->spr.pos.X != u->sx)
             {
-                if (actor->spr.pos.X < u->sx)
-                    actor->spr.pos.X += ADJ_AMT;
-                else if (actor->spr.pos.X > u->sx)
-                    actor->spr.pos.X -= ADJ_AMT;
+                if (plActor->spr.pos.X < u->sx)
+                    plActor->spr.pos.X += ADJ_AMT;
+                else if (plActor->spr.pos.X > u->sx)
+                    plActor->spr.pos.X -= ADJ_AMT;
 
-                if (labs(actor->spr.pos.X - u->sx) <= ADJ_AMT)
-                    actor->spr.pos.X = u->sx;
+                if (labs(plActor->spr.pos.X - u->sx) <= ADJ_AMT)
+                    plActor->spr.pos.X = u->sx;
             }
 
-            if (actor->spr.pos.Y != u->sy)
+            if (plActor->spr.pos.Y != u->sy)
             {
-                if (actor->spr.pos.Y < u->sy)
-                    actor->spr.pos.Y += ADJ_AMT;
-                else if (actor->spr.pos.Y > u->sy)
-                    actor->spr.pos.Y -= ADJ_AMT;
+                if (plActor->spr.pos.Y < u->sy)
+                    plActor->spr.pos.Y += ADJ_AMT;
+                else if (plActor->spr.pos.Y > u->sy)
+                    plActor->spr.pos.Y -= ADJ_AMT;
 
-                if (labs(actor->spr.pos.Y - u->sy) <= ADJ_AMT)
-                    actor->spr.pos.Y = u->sy;
+                if (labs(plActor->spr.pos.Y - u->sy) <= ADJ_AMT)
+                    plActor->spr.pos.Y = u->sy;
             }
         }
     }
@@ -3288,7 +3292,7 @@ void DoPlayerClimb(PLAYERp pp)
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+            RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
             DoPlayerBeginForceJump(pp);
         }
     }
@@ -3315,7 +3319,7 @@ void DoPlayerClimb(PLAYERp pp)
             if (climbvel < 0)
             {
                 RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-                RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
                 DoPlayerBeginRun(pp);
                 return;
             }
@@ -3327,7 +3331,7 @@ void DoPlayerClimb(PLAYERp pp)
     }
 
     // setsprite to players location
-    actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
+    plActor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
     ChangeActorSect(pp->Actor(), pp->cursector);
 
     if (!SyncInput())
@@ -3431,6 +3435,7 @@ bool PlayerFlyKey(void)
 
 void DoPlayerBeginCrawl(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
@@ -3472,6 +3477,7 @@ const int PLAYER_STANDING_ROOM = Z(68);
 
 void DoPlayerCrawl(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     if (SectorIsUnderwaterArea(pp->cursector))
@@ -4018,6 +4024,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 
 void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
     DSWActor* under_act = nullptr, * over_act = nullptr;
@@ -4088,6 +4095,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
 void DoPlayerWarpToSurface(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
 
@@ -4182,8 +4190,8 @@ void DoPlayerDivePalette(PLAYERp pp)
 
 void DoPlayerBeginDive(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -4212,7 +4220,7 @@ void DoPlayerBeginDive(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
 
     //pp->z_speed = 0;
@@ -4230,8 +4238,8 @@ void DoPlayerBeginDive(PLAYERp pp)
 
 void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -4264,7 +4272,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
     pp->z_speed = 0;
     pp->DiveTics = PLAYER_DIVE_TIME;
@@ -4374,6 +4382,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
 
 void DoPlayerDive(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector;
 
@@ -4552,6 +4561,7 @@ void DoPlayerDive(PLAYERp pp)
 
 int DoPlayerTestPlaxDeath(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     // landed on a paralax floor
@@ -4582,6 +4592,7 @@ void DoPlayerCurrent(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
+            DSWActor* plActor = pp->actor;
             USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
@@ -4601,6 +4612,7 @@ void DoPlayerCurrent(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
+            DSWActor* plActor = pp->actor;
             USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
@@ -4615,6 +4627,7 @@ void DoPlayerCurrent(PLAYERp pp)
 
 void DoPlayerFireOutWater(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     if (Prediction)
@@ -4631,6 +4644,7 @@ void DoPlayerFireOutWater(PLAYERp pp)
 
 void DoPlayerFireOutDeath(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     if (Prediction)
@@ -4645,6 +4659,7 @@ void DoPlayerFireOutDeath(PLAYERp pp)
 
 void DoPlayerBeginWade(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     // landed on a paralax floor?
@@ -4677,6 +4692,7 @@ void DoPlayerBeginWade(PLAYERp pp)
 
 void DoPlayerWade(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     DoPlayerFireOutWater(pp);
@@ -4816,6 +4832,7 @@ void DoPlayerWade(PLAYERp pp)
 
 void DoPlayerBeginOperateVehicle(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -4835,6 +4852,7 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
 
 void DoPlayerBeginOperateTurret(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -5442,8 +5460,8 @@ void DoPlayerBeginDie(PLAYERp pp)
     short bak;
     int choosesnd = 0;
 
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
     {
@@ -5582,7 +5600,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         //pp->ceiling_dist = Z(0);
         //pp->floor_dist = Z(0);
 
-        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(0);
         DoFindGround(pp->Actor());
@@ -5597,11 +5615,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = -300;
         u->slide_vel = 0;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        actor->spr.xrepeat = 48;
-        actor->spr.yrepeat = 48;
+        plActor->spr.xrepeat = 48;
+        plActor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
@@ -5612,11 +5630,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        actor->spr.xrepeat = 48;
-        actor->spr.yrepeat = 48;
+        plActor->spr.xrepeat = 48;
+        plActor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,-1);
         InitBloodSpray(pp->Actor(),true,-1);
@@ -5630,11 +5648,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = 200;
         u->slide_vel = 800;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        actor->spr.xrepeat = 48;
-        actor->spr.yrepeat = 48;
+        plActor->spr.xrepeat = 48;
+        plActor->spr.yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
@@ -5681,6 +5699,7 @@ int DoPlayerDeathTilt(PLAYERp pp, short target, short speed)
 
 void DoPlayerDeathZrange(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     // make sure we don't land on a regular sprite
@@ -5753,8 +5772,8 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
-    auto actor = pp->Actor();
-    USERp u = actor->u();
+    auto plActor = pp->Actor();
+    USERp u = plActor->u();
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -5768,24 +5787,24 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             // If he's not on the floor, then gib like a mo-fo!
-            InitBloodSpray(actor,true,-1);
-            InitBloodSpray(actor,true,-1);
-            InitBloodSpray(actor,true,-1);
+            InitBloodSpray(plActor,true,-1);
+            InitBloodSpray(plActor,true,-1);
+            InitBloodSpray(plActor,true,-1);
         }
 
         PlayerSpawnPosition(pp);
 
-        NewStateGroup(actor, u->ActorActionSet->Stand);
-        actor->spr.picnum = u->State->Pic;
-        actor->spr.picnum = u->State->Pic;
-        actor->spr.xrepeat = actor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        actor->spr.pos.X = pp->pos.X;
-        actor->spr.pos.Y = pp->pos.Y;
-        actor->spr.pos.Z = pp->pos.Z+PLAYER_HEIGHT;
-        actor->spr.ang = pp->angle.ang.asbuild();
+        NewStateGroup(plActor, u->ActorActionSet->Stand);
+        plActor->spr.picnum = u->State->Pic;
+        plActor->spr.picnum = u->State->Pic;
+        plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        plActor->spr.pos.X = pp->pos.X;
+        plActor->spr.pos.Y = pp->pos.Y;
+        plActor->spr.pos.Z = pp->pos.Z+PLAYER_HEIGHT;
+        plActor->spr.ang = pp->angle.ang.asbuild();
 
-        DoSpawnTeleporterEffect(actor);
+        DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerZrange(pp);
@@ -5797,11 +5816,11 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        SET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
-        actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
-        actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
+        plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
+        plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
         pp->horizon.horiz = q16horiz(0);
@@ -5849,8 +5868,8 @@ void DoPlayerHeadDebris(PLAYERp pp)
 
 void DoPlayerDeathCheckKick(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
     SPRITEp hp;
     unsigned stat;
     int dist;
@@ -5868,13 +5887,13 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
             if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, plActor->spr.pos.X, plActor->spr.pos.Y, dist, a, b, c);
 
             if (unsigned(dist) < itActor->user.Radius + 100)
             {
                 pp->KillerActor = itActor;
 
-                u->slide_ang = getangle(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y);
+                u->slide_ang = getangle(plActor->spr.pos.X - itActor->spr.pos.X, plActor->spr.pos.Y - itActor->spr.pos.Y);
                 u->slide_ang = NORM_ANGLE(u->slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
                 u->slide_vel = itActor->spr.xvel<<1;
@@ -5890,7 +5909,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
     DoPlayerZrange(pp);
 
     // sector stomper kick
-    if (labs(pp->loz - pp->hiz) < ActorSizeZ(actor) - Z(8))
+    if (labs(pp->loz - pp->hiz) < ActorSizeZ(plActor) - Z(8))
     {
         u->slide_ang = RANDOM_P2(2048);
         u->slide_vel = 1000;
@@ -5905,8 +5924,8 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
 
 void DoPlayerDeathMoveHead(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
     int dax,day;
 
     dax = MOVEx(u->slide_vel, u->slide_ang);
@@ -5946,9 +5965,9 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
     }
 
-    pp->pos.X = actor->spr.pos.X;
-    pp->pos.Y = actor->spr.pos.Y;
-    pp->setcursector(actor->spr.sector());
+    pp->pos.X = plActor->spr.pos.X;
+    pp->pos.Y = plActor->spr.pos.Y;
+    pp->setcursector(plActor->spr.sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
@@ -5957,8 +5976,8 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->Actor(), pp->lv_sector);
-        pp->pos.X = actor->spr.pos.X = pp->lv_x;
-        pp->pos.Y = actor->spr.pos.Y = pp->lv_y;
+        pp->pos.X = plActor->spr.pos.X = pp->lv_x;
+        pp->pos.Y = plActor->spr.pos.Y = pp->lv_y;
     }
     else
     {
@@ -6044,15 +6063,15 @@ void DoPlayerDeathDrown(PLAYERp pp)
 
 void DoPlayerDeathBounce(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     if (Prediction)
         return;
 
     if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
     {
-        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->Actor(), sg_PlayerHead);
         u->slide_vel = 0;
         SET(u->Flags, SPR_BOUNCE);
@@ -6074,8 +6093,8 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
 void DoPlayerDeathCrumble(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -6104,7 +6123,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
                 return;
             }
 
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->Actor(), sg_PlayerHead);
         }
         else
@@ -6121,14 +6140,14 @@ void DoPlayerDeathCrumble(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    actor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    plActor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
 void DoPlayerDeathExplode(PLAYERp pp)
 {
-    DSWActor* actor = pp->actor;
-    USERp u = actor->u();
+    DSWActor* plActor = pp->actor;
+    USERp u = plActor->u();
 
     if (Prediction)
         return;
@@ -6157,7 +6176,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
                 return;
             }
 
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->Actor(), sg_PlayerHead);
         }
         else
@@ -6175,12 +6194,13 @@ void DoPlayerDeathExplode(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    actor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    plActor->spr.pos.Z = pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
 void DoPlayerBeginRun(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     // Crawl if in small aread automatically
@@ -6215,6 +6235,7 @@ void DoPlayerBeginRun(PLAYERp pp)
 
 void DoPlayerRun(PLAYERp pp)
 {
+    DSWActor* plActor = pp->actor;
     USERp u = pp->Actor()->u();
 
     if (SectorIsUnderwaterArea(pp->cursector))
