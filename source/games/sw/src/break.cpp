@@ -808,8 +808,6 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
 
 int KillBreakSprite(DSWActor* breakActor)
 {
-    USERp bu = breakActor->u();
-
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
 
@@ -818,7 +816,7 @@ int KillBreakSprite(DSWActor* breakActor)
 
     SpriteQueueDelete(breakActor);
 
-    if (bu)
+    if (breakActor->hasU())
     {
         if (breakActor->spr.statnum == STAT_DEFAULT)
             // special case allow kill of sprites on STAT_DEFAULT list
@@ -993,8 +991,6 @@ bool NullActor(DSWActor* actor)
 
 int HitBreakSprite(DSWActor* breakActor, int type)
 {
-    USERp bu = breakActor->u();
-
     if (TEST_BOOL1(breakActor))
     {
         if (TEST_BOOL2(breakActor))
@@ -1003,7 +999,7 @@ int HitBreakSprite(DSWActor* breakActor, int type)
         return UserBreakSprite(breakActor);
     }
 
-    if (bu && !NullActor(breakActor))
+    if (breakActor->hasU() && !NullActor(breakActor))
     {
         // programmed animating type - without BOOL1 set
         if (breakActor->spr.lotag)

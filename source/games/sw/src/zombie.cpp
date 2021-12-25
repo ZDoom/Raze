@@ -866,10 +866,10 @@ int DoZombieMove(DSWActor* actor)
         return 0;
     }
 
-    if (u->targetActor && u->targetActor->hasU())
+    DSWActor* tActor = u->targetActor;
+    if (tActor && tActor->hasU())
     {
-        auto tu = u->targetActor->u();
-        if (TEST(tu->Flags, PF_DEAD))
+        if (TEST(tActor->user.Flags, PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 
@@ -919,10 +919,10 @@ int NullZombie(DSWActor* actor)
         return 0;
     }
 
-    if (u->targetActor && u->targetActor->hasU())
+    DSWActor* tActor = u->targetActor;
+    if (tActor && tActor->hasU())
     {
-        auto tu = u->targetActor->u();
-        if (TEST(tu->Flags, PF_DEAD))
+        if (TEST(tActor->user.Flags, PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 

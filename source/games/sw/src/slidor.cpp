@@ -509,15 +509,12 @@ int DoSlidor(DSWActor* actor)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(actor) && r->tgt == 0)
         {
-            USERp bu;
             bool found = false;
 
             SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
-                bu = itActor->u();
-
-                if (bu && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (itActor->hasU() && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
                     ReverseSlidor(actor);

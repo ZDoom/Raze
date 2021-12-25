@@ -796,8 +796,6 @@ int PachinkoCheckWin(DSWActor* actor)
     if (RandomRange(1000) > 900 || Pachinko_Win_Cheat)
     {
         int i;
-        SPRITEp tsp;
-        USERp tu;
 
         // Do a possible combo switch
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, actor->spr.hitag))
@@ -815,14 +813,12 @@ int PachinkoCheckWin(DSWActor* actor)
         SWStatIterator it(STAT_ENEMY);
         while (auto itActor = it.Next())
         {
-            tu = itActor->u();
-
             if (itActor->spr.lotag == TAG_PACHINKOLIGHT)
             {
                 if (itActor->spr.hitag == SP_TAG5(actor))
                 {
                     itActor->spr.shade = -90; // Full brightness
-                    tu->WaitTics = SEC(3); // Flash
+                    itActor->user.WaitTics = SEC(3); // Flash
                     ChangeState(itActor,s_PachinkoLightOperate);
                 }
             }

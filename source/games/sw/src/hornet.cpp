@@ -543,7 +543,6 @@ int DoCheckSwarm(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp tsp;
-    USERp tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
 
@@ -566,15 +565,13 @@ int DoCheckSwarm(DSWActor* actor)
     SWStatIterator it(STAT_ENEMY);
     while (auto itActor = it.Next())
     {
-        tu = itActor->u();
-
-        if (!tu) continue;
+        if (!itActor->hasU()) continue;
 
         if (itActor->spr.hitag != TAG_SWARMSPOT || itActor->spr.lotag != 2) continue;
 
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
-        if (dist < pdist && u->ID == tu->ID) // Only flock to your own kind
+        if (dist < pdist && u->ID == itActor->user.ID) // Only flock to your own kind
         {
             u->targetActor = itActor; // Set target to swarm center
         }

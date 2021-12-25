@@ -11197,9 +11197,6 @@ int DoBloodWorm(DSWActor* actor)
         // stay alive for 10 seconds
         if (++u->Counter3 > 3)
         {
-            USERp tu;
-            int i;
-
             InitBloodSpray(actor, false, 1);
             InitBloodSpray(actor, false, 1);
             InitBloodSpray(actor, false, 1);
@@ -11209,9 +11206,8 @@ int DoBloodWorm(DSWActor* actor)
             while (auto itActor = it.Next())
             {
                 if (!itActor->hasU()) continue;
-                tu = itActor->u();
 
-                if (tu->ID == ZOMBIE_RUN_R0 && GetOwner(itActor) == GetOwner(actor))
+                if (itActor->user.ID == ZOMBIE_RUN_R0 && GetOwner(itActor) == GetOwner(actor))
                 {
                     InitBloodSpray(itActor, true, 105);
                     InitBloodSpray(itActor, true, 105);
@@ -11704,10 +11700,10 @@ int DoSerpRing(DSWActor* actor)
 
     if (u->Counter2 > 0)
     {
-        auto tu = ou->targetActor->u();
-        if (!ou->targetActor->hasU() ||
-            !tu->PlayerP ||
-            !TEST(tu->PlayerP->Flags, PF_DEAD))
+        DSWActor* tActor = ou->targetActor;
+        if (!tActor->hasU() ||
+            !tActor->user.PlayerP ||
+            !TEST(tActor->user.PlayerP->Flags, PF_DEAD))
         {
             u->targetActor = ou->targetActor;
             DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, dist, a,b,c);
@@ -12202,7 +12198,7 @@ int InitEnemyMirv(DSWActor* actor)
 int InitSwordAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u(), tu;
+    USERp u = plActor->u();
     unsigned stat;
     int dist;
     short reach, face;
@@ -12297,17 +12293,16 @@ int InitSwordAttack(PLAYERp pp)
 
                 if (hitActor->hasU())     // JBF: added null check
                 {
-                    tu = hitActor->u();
-                    switch (tu->ID)
+                    switch (hitActor->user.ID)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
                         PlaySound(DIGI_SWORDCLANK, &hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
-                        if (tu->WaitTics <= 0)
+                        if (hitActor->user.WaitTics <= 0)
                         {
-                            tu->WaitTics = SEC(2);
+                            hitActor->user.WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
@@ -12376,7 +12371,7 @@ int InitSwordAttack(PLAYERp pp)
 int InitFistAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u = plActor->u(),tu;
+    USERp u = plActor->u();
     unsigned stat;
     int dist;
     short reach,face;
@@ -12480,17 +12475,16 @@ int InitFistAttack(PLAYERp pp)
 
                 if (hitActor->hasU())     // JBF: added null check
                 {
-                    tu = hitActor->u();
-                    switch (tu->ID)
+                    switch (hitActor->user.ID)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
                         PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
-                        if (tu->WaitTics <= 0)  
+                        if (hitActor->user.WaitTics <= 0)  
                         {
-                            tu->WaitTics = SEC(2);
+                            hitActor->user.WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
@@ -17802,26 +17796,23 @@ bool MissileHitDiveArea(DSWActor* actor)
 
 DSWActor* SpawnBubble(DSWActor* actor)
 {
-    USERp bu;
-
     if (Prediction)
         return nullptr;
 
     auto actorNew = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    bu = actorNew->u();
 
     actorNew->spr.xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat;
-    bu->sx = actorNew->spr.xrepeat;
-    bu->sy = actorNew->spr.yrepeat;
-    bu->ceiling_dist = Z(1);
-    bu->floor_dist = Z(1);
+    actorNew->user.sx = actorNew->spr.xrepeat;
+    actorNew->user.sy = actorNew->spr.yrepeat;
+    actorNew->user.ceiling_dist = Z(1);
+    actorNew->user.floor_dist = Z(1);
     actorNew->spr.shade = actor->spr.sector()->floorshade - 10;
-    bu->WaitTics = 120 * 120;
+    actorNew->user.WaitTics = 120 * 120;
     actorNew->spr.zvel = 512;
     actorNew->spr.clipdist = 12 >> 2;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(bu->Flags, SPR_UNDERWATER);
+    SET(actorNew->user.Flags, SPR_UNDERWATER);
     actorNew->spr.shade = -60; // Make em brighter
 
     return actorNew;

@@ -458,14 +458,11 @@ int DoVator(DSWActor* actor)
         if (TEST_BOOL3(actor) && u->z_tgt == u->oz)
         {
             int i;
-            USERp bu;
             bool found = false;
 
             SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
-                bu = itActor->u();
-
                 if (itActor->spr.statnum == STAT_ENEMY)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < ActorSizeZ(itActor))
@@ -477,7 +474,7 @@ int DoVator(DSWActor* actor)
                     }
                 }
 
-                if (bu && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (itActor->hasU() && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
                     ReverseVator(actor);
