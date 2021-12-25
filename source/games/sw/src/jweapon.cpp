@@ -1257,7 +1257,7 @@ int DoRadiationCloud(DSWActor* actor)
 //////////////////////////////////////////////
 int PlayerInitChemBomb(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
     int nx, ny, nz;
     short oclipdist;
 
@@ -1289,7 +1289,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
@@ -1302,7 +1302,6 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    DSWActor* plActor = pp->actor;
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
     actorNew->spr.clipdist = 0;
@@ -1638,7 +1637,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
 int PlayerInitCaltrops(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* plActor = pp->actor;
     int nx, ny, nz;
     short oclipdist;
 
@@ -1666,7 +1665,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
-    actorNew->user.WeaponNum = u->WeaponNum;
+    actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
@@ -1681,7 +1680,6 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    DSWActor* plActor = pp->actor;
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
     actorNew->spr.clipdist = 0;
@@ -1950,7 +1948,6 @@ int DoCarryFlag(DSWActor* actor)
     const int FLAG_DETONATE_STATE = 99;
     DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
-    USERp fu = fown->u();
 
     DSWActor* attached = u->attachActor;
 
@@ -1985,9 +1982,7 @@ int DoCarryFlag(DSWActor* actor)
         // not already in detonate state
         if (u->Counter2 < FLAG_DETONATE_STATE)
         {
-            USERp au = attached->u();
-
-            if (!attached->hasU() || au->Health <= 0)
+            if (!attached->hasU() || attached->user.Health <= 0)
             {
                 u->Counter2 = FLAG_DETONATE_STATE;
                 u->WaitTics = SEC(1) / 2;
@@ -2007,10 +2002,10 @@ int DoCarryFlag(DSWActor* actor)
                     DoFlagScore(attached->spr.pal);
                     if (SP_TAG5(fown) > 0)
                     {
-                        fu->filler++;
-                        if (fu->filler >= SP_TAG5(fown))
+                        fown->user.filler++;
+                        if (fown->user.filler >= SP_TAG5(fown))
                         {
-                            fu->filler = 0;
+                            fown->user.filler = 0;
                             DoMatchEverything(nullptr, SP_TAG6(fown), ON);
                         }
                     }
@@ -2100,14 +2095,12 @@ int DoCarryFlagNoDet(DSWActor* actor)
     USER* u = actor->u();
 
     DSWActor* attached = u->attachActor;
-    USERp au = attached->u();
     DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
-    USERp fu = fown->u();
 
 
     if (u->flagOwnerActor != nullptr)
-        fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
+        fown->user.WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
 
     // if no Owner then die
     if (attached != nullptr)
@@ -2118,10 +2111,10 @@ int DoCarryFlagNoDet(DSWActor* actor)
         actor->spr.pos.Z = attached->spr.pos.Z - (ActorSizeZ(attached) >> 1);
     }
 
-    if (!au || au->Health <= 0)
+    if (!attached->hasU() || attached->user.Health <= 0)
     {
         if (u->flagOwnerActor != nullptr)
-            fu->WaitTics = 0;           // Tell it to respawn
+            fown->user.WaitTics = 0;           // Tell it to respawn
         SetSuicide(actor);
         return false;
     }
@@ -2134,7 +2127,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
         {
             if (fown->spr.lotag)              // Trigger everything if there is a lotag
                 DoMatchEverything(nullptr, fown->spr.lotag, ON);
-            fu->WaitTics = 0;           // Tell it to respawn
+            fown->user.WaitTics = 0;           // Tell it to respawn
         }
         if (!TEST_BOOL1(fown))
         {
@@ -2142,10 +2135,10 @@ int DoCarryFlagNoDet(DSWActor* actor)
             DoFlagScore(attached->spr.pal);
             if (SP_TAG5(fown) > 0)
             {
-                fu->filler++;
-                if (fu->filler >= SP_TAG5(fown))
+                fown->user.filler++;
+                if (fown->user.filler >= SP_TAG5(fown))
                 {
-                    fu->filler = 0;
+                    fown->user.filler = 0;
                     DoMatchEverything(nullptr, SP_TAG6(fown), ON);
                 }
             }
