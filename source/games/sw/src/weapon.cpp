@@ -4100,7 +4100,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                               hit_x, hit_y, hit_z, hit_ang, 0);
             nu = actorNew->u();
 
-            switch (nu->ID)
+            switch (actorNew->user.ID)
             {
             case ELECTRO_SHARD:
                 shrap_xsize = 7;
@@ -4133,14 +4133,14 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
             }
 
-            SET(nu->Flags, SPR_BOUNCE);
+            SET(actorNew->user.Flags, SPR_BOUNCE);
 
             actorNew->spr.shade = int8_t(shrap_shade);
             actorNew->spr.xrepeat = uint8_t(shrap_xsize);
             actorNew->spr.yrepeat = uint8_t(shrap_ysize);
             actorNew->spr.clipdist = 16 >> 2;
 
-            actorNew->spr.pal = nu->spal = uint8_t(shrap_pal);
+            actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
 
             actorNew->spr.xvel = p->min_vel;
             actorNew->spr.xvel += RandomRange(p->max_vel - p->min_vel);
@@ -4150,17 +4150,17 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             // so add it in
             actorNew->spr.xvel += actor->spr.xvel;
 
-            nu->ceiling_dist = nu->floor_dist = Z(2);
-            nu->jump_speed = p->min_jspeed;
-            nu->jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
-            nu->jump_speed = -nu->jump_speed;
+            actorNew->user.ceiling_dist = actorNew->user.floor_dist = Z(2);
+            actorNew->user.jump_speed = p->min_jspeed;
+            actorNew->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
+            actorNew->user.jump_speed = -actorNew->user.jump_speed;
 
-            nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-            nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+            actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+            actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
 
             // for FastShrap
-            nu->zchange = labs(nu->jump_speed*4) - RandomRange(labs(nu->jump_speed)*8);
-            nu->WaitTics = 64 + RANDOM_P2(32);
+            actorNew->user.zchange = labs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8);
+            actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
             SET(u->Flags, SPR_BOUNCE);
 
@@ -8074,8 +8074,8 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
     actorNew->spr.yrepeat = 0;
     actorNew->spr.clipdist = 8>>2;
 
-    nu->WaitTics = 120+60;
-    nu->Radius = 50;
+    actorNew->user.WaitTics = 120+60;
+    actorNew->user.Radius = 50;
     return 0;
 }
 
@@ -8565,14 +8565,14 @@ int DoGrenade(DSWActor* actor)
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
         ScaleSpriteVector(actorNew, 22000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return false;
@@ -9348,12 +9348,12 @@ int DoLaser(DSWActor* actor)
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = 16;
             actorNew->spr.yrepeat = 16;
-            actorNew->spr.pal = nu->spal = PALETTE_RED_LIGHTING;
+            actorNew->spr.pal = actorNew->user.spal = PALETTE_RED_LIGHTING;
 
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-            nu->xchange = nu->ychange = nu->zchange = 0;
+            actorNew->user.xchange = actorNew->user.ychange = actorNew->user.zchange = 0;
         }
     }
 }
@@ -9442,7 +9442,7 @@ int DoRail(DSWActor* actor)
             actorNew->spr.yvel += (RandomRange(140)-RandomRange(140));
             actorNew->spr.zvel += (RandomRange(140)-RandomRange(140));
 
-            nu->RotNum = 5;
+            actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, sg_RailPuff);
 
             actorNew->spr.shade = -40;
@@ -9452,14 +9452,14 @@ int DoRail(DSWActor* actor)
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-            nu->xchange = u->xchange;
-            nu->ychange = u->ychange;
-            nu->zchange = u->zchange;
+            actorNew->user.xchange = u->xchange;
+            actorNew->user.ychange = u->ychange;
+            actorNew->user.zchange = u->zchange;
 
             ScaleSpriteVector(actorNew, 1500);
 
             if (TEST(u->Flags, SPR_UNDERWATER))
-                SET(nu->Flags, SPR_UNDERWATER);
+                SET(actorNew->user.Flags, SPR_UNDERWATER);
         }
     }
 }
@@ -9552,14 +9552,14 @@ int DoRocket(DSWActor* actor)
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
     return false;
 }
@@ -9654,14 +9654,14 @@ int DoMicro(DSWActor* actor)
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        nu->xchange = u->xchange;
-        nu->ychange = u->ychange;
-        nu->zchange = u->zchange;
+        actorNew->user.xchange = u->xchange;
+        actorNew->user.ychange = u->ychange;
+        actorNew->user.zchange = u->zchange;
 
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
 
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
@@ -10004,26 +10004,26 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
         {
             int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
-            nu->Counter = GetRepeatFromHeight(actorNew, sizez);
+            actorNew->user.Counter = GetRepeatFromHeight(actorNew, sizez);
         }
         else
         {
-            nu->Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(enemyActor)>>1);
+            actorNew->user.Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(enemyActor)>>1);
         }
     }
     else
     {
-        nu->Counter = 48; // max flame size
+        actorNew->user.Counter = 48; // max flame size
     }
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.pal = nu->spal = u->spal;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    //nu->Radius = DamageData[DMG_FIREBALL_FLAMES].radius;
-    nu->Radius = 200;
+    //actorNew->user.Radius = DamageData[DMG_FIREBALL_FLAMES].radius;
+    actorNew->user.Radius = 200;
 
     if (enemyActor != nullptr)
     {
@@ -10037,10 +10037,10 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
             return;
         }
 
-        nu->floor_dist = nu->ceiling_dist = 0;
+        actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
 
         DoFindGround(actorNew);
-        nu->jump_speed = 0;
+        actorNew->user.jump_speed = 0;
         DoBeginJump(actorNew);
     }
 
@@ -10060,21 +10060,21 @@ int SpawnBreakFlames(DSWActor* actor)
 
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 16;
-    nu->Counter = 48; // max flame size
+    actorNew->user.Counter = 48; // max flame size
 
     
     actorNew->spr.shade = -40;
     if (u)
-        actorNew->spr.pal = nu->spal = u->spal;
+        actorNew->spr.pal = actorNew->user.spal = u->spal;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    nu->Radius = 200;
+    actorNew->user.Radius = 200;
 
-    nu->floor_dist = nu->ceiling_dist = 0;
+    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
 
     DoFindGround(actorNew);
-    nu->jump_speed = 0;
+    actorNew->user.jump_speed = 0;
     DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
@@ -10103,11 +10103,11 @@ void SpawnBreakStaticFlames(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     
     actorNew->spr.shade = -40;
-    actorNew->spr.pal = nu->spal = u->spal;
+    actorNew->spr.pal = actorNew->user.spal = u->spal;
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    nu->Radius = 200;
-    nu->floor_dist = nu->ceiling_dist = 0;
+    actorNew->user.Radius = 200;
+    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
     actorNew->spr.pos.Z = getflorzofslopeptr(actorNew->spr.sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y);
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
@@ -11360,9 +11360,9 @@ int DoMirv(DSWActor* actor)
 
             nu = actorNew->u();
 
-            nu->RotNum = 5;
+            actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
-            nu->StateEnd = s_MirvMeteorExp;
+            actorNew->user.StateEnd = s_MirvMeteorExp;
 
             SetOwner(actor, actorNew);
             actorNew->spr.shade = -40;
@@ -11372,17 +11372,17 @@ int DoMirv(DSWActor* actor)
             actorNew->spr.zvel = 0;
             SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-            nu->ceiling_dist = Z(16);
-            nu->floor_dist = Z(16);
-            nu->Dist = 200;
-            //nu->Dist = 0;
+            actorNew->user.ceiling_dist = Z(16);
+            actorNew->user.floor_dist = Z(16);
+            actorNew->user.Dist = 200;
+            //actorNew->user.Dist = 0;
 
-            nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-            nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-            nu->zchange = actorNew->spr.zvel;
+            actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+            actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+            actorNew->user.zchange = actorNew->spr.zvel;
 
             if (TEST(u->Flags, SPR_UNDERWATER))
-                SET(nu->Flags, SPR_UNDERWATER);
+                SET(actorNew->user.Flags, SPR_UNDERWATER);
         }
 
     }
@@ -11902,23 +11902,23 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.pal = 0;
 
         actorNew->spr.pos.Z = ActorZOfTop(actor) - Z(20);
-        nu->sz = Z(50);
+        actorNew->user.sz = Z(50);
 
         // ang around the serp is now slide_ang
-        nu->slide_ang = actorNew->spr.ang;
+        actorNew->user.slide_ang = actorNew->spr.ang;
         // randomize the head turning angle
         actorNew->spr.ang = RANDOM_P2(2048<<5)>>5;
 
         // control direction of spinning
         FLIP(u->Flags, SPR_BOUNCE);
-        SET(nu->Flags, TEST(u->Flags, SPR_BOUNCE));
+        SET(actorNew->user.Flags, TEST(u->Flags, SPR_BOUNCE));
 
-        nu->Dist = 600;
-        nu->TargetDist = SERP_RING_DIST;
-        nu->Counter2 = 0;
+        actorNew->user.Dist = 600;
+        actorNew->user.TargetDist = SERP_RING_DIST;
+        actorNew->user.Counter2 = 0;
 
-        nu->StateEnd = s_SkullExplode;
-        nu->Rot = sg_SkullRing;
+        actorNew->user.StateEnd = s_SkullExplode;
+        actorNew->user.Rot = sg_SkullRing;
 
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
@@ -11926,10 +11926,10 @@ int InitSerpRing(DSWActor* actor)
         RESET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
         actorNew->spr.clipdist = (128+64) >> 2;
-        SET(nu->Flags, SPR_XFLIP_TOGGLE);
+        SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-        nu->Radius = 400;
+        actorNew->user.Radius = 400;
     }
     return 0;
 }
@@ -12676,26 +12676,26 @@ int InitSumoSkull(DSWActor* actor)
 
     // control direction of spinning
     FLIP(u->Flags, SPR_BOUNCE);
-    SET(nu->Flags, TEST(u->Flags, SPR_BOUNCE));
+    SET(actorNew->user.Flags, TEST(u->Flags, SPR_BOUNCE));
 
-    nu->StateEnd = s_SkullExplode;
-    nu->Rot = sg_SkullWait;
+    actorNew->user.StateEnd = s_SkullExplode;
+    actorNew->user.Rot = sg_SkullWait;
 
-    nu->Attrib = &SkullAttrib;
+    actorNew->user.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    nu->Counter = RANDOM_P2(2048);
-    nu->sz = actorNew->spr.pos.Z;
-    nu->Health = 100;
+    actorNew->user.Counter = RANDOM_P2(2048);
+    actorNew->user.sz = actorNew->spr.pos.Z;
+    actorNew->user.Health = 100;
 
     // defaults do change the statnum
     EnemyDefaults(actorNew, nullptr, nullptr);
     SET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     actorNew->spr.clipdist = (128+64) >> 2;
-    SET(nu->Flags, SPR_XFLIP_TOGGLE);
+    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-    nu->Radius = 400;
+    actorNew->user.Radius = 400;
     return 0;
 }
 
@@ -14572,23 +14572,23 @@ int InitSerpSpell(DSWActor* actor)
 
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        nu->RotNum = 5;
+        actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
-        nu->StateEnd = s_MirvMeteorExp;
+        actorNew->user.StateEnd = s_MirvMeteorExp;
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
         PlaySound(DIGI_SERPMAGICLAUNCH, actor, v3df_none);
-        nu->spal = actorNew->spr.pal = 27; // Bright Green
+        actorNew->user.spal = actorNew->spr.pal = 27; // Bright Green
         actorNew->spr.xrepeat = 64;
         actorNew->spr.yrepeat = 64;
         actorNew->spr.clipdist = 32L >> 2;
         actorNew->spr.zvel = 0;
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-        nu->ceiling_dist = Z(16);
-        nu->floor_dist = Z(16);
-        nu->Dist = 200;
+        actorNew->user.ceiling_dist = Z(16);
+        actorNew->user.floor_dist = Z(16);
+        actorNew->user.Dist = 200;
 
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
@@ -14604,15 +14604,15 @@ int InitSerpSpell(DSWActor* actor)
 
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + delta_ang[i]);
 
-        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        nu->zchange = actorNew->spr.zvel;
+        actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.zchange = actorNew->spr.zvel;
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return 0;
@@ -14677,12 +14677,12 @@ int InitSerpMonstSpell(DSWActor* actor)
 
         nu = actorNew->u();
 
-        nu->spal = actorNew->spr.pal = 25; // Bright Red
+        actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        nu->RotNum = 5;
+        actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
-        nu->StateEnd = s_TeleportEffect2;
+        actorNew->user.StateEnd = s_TeleportEffect2;
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -14692,10 +14692,10 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->spr.zvel = 0;
         SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
-        nu->ceiling_dist = Z(16);
-        nu->floor_dist = Z(16);
+        actorNew->user.ceiling_dist = Z(16);
+        actorNew->user.floor_dist = Z(16);
 
-        nu->Dist = 200;
+        actorNew->user.Dist = 200;
 
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
@@ -14711,15 +14711,15 @@ int InitSerpMonstSpell(DSWActor* actor)
 
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + delta_ang[i]);
 
-        nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        nu->zchange = actorNew->spr.zvel;
+        actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.zchange = actorNew->spr.zvel;
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
-            SET(nu->Flags, SPR_UNDERWATER);
+            SET(actorNew->user.Flags, SPR_UNDERWATER);
     }
 
     return 0;
@@ -17848,7 +17848,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
 
     nu = actorNew->u();
 
-    nu->WaitTics = 1*120;
+    actorNew->user.WaitTics = 1*120;
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.yrepeat = 64;
@@ -17862,8 +17862,8 @@ int SpawnVehicleSmoke(DSWActor* actor)
 
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
-    nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
 
     return false;
@@ -17879,7 +17879,7 @@ int SpawnSmokePuff(DSWActor* actor)
 
     nu = actorNew->u();
 
-    nu->WaitTics = 1*120;
+    actorNew->user.WaitTics = 1*120;
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.yrepeat = 64;
@@ -17893,8 +17893,8 @@ int SpawnSmokePuff(DSWActor* actor)
 
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
-    nu->xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    nu->ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     //actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
     actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
 
