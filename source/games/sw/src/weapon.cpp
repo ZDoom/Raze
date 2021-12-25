@@ -8094,7 +8094,6 @@ int DoPlasmaFountain(DSWActor* actor)
     {
         DSWActor* attachActor = u->attachActor;
         if (!attachActor) return 0;
-        ap = &attachActor->s();
 
         // move with sprite
         SetActorZ(actor, &attachActor->spr.pos);
@@ -8150,12 +8149,11 @@ int DoPlasma(DSWActor* actor)
         if (u->coll.type == kHitSprite)
         {
             auto hitActor = u->coll.actor();
-            SPRITEp hsp = &hitActor->s();
             USERp hu = hitActor->u();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                auto hcstat = hsp->cstat;
+                auto hcstat = hitActor->spr.cstat;
 
                 if (hu && hitActor != u->WpnGoalActor)
                 {
@@ -8163,9 +8161,9 @@ int DoPlasma(DSWActor* actor)
                     actor->spr.pos.Y = oy;
                     actor->spr.pos.Z = oz;
 
-                    RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+                    RESET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                     u->coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
-                    hsp->cstat = hcstat;
+                    hitActor->spr.cstat = hcstat;
                 }
             }
         }
@@ -8387,18 +8385,17 @@ int DoGrenade(DSWActor* actor)
             PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
             auto hitActor = u->coll.actor();
-            hsp = &hitActor->s();
 
             // special case so grenade can ring gong
-            if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+            if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
             {
                 if (TEST(SP_TAG8(hitActor), BIT(3)))
-                    DoMatchEverything(nullptr, hsp->hitag, -1);
+                    DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             }
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -8613,11 +8610,10 @@ int DoVulcanBoulder(DSWActor* actor)
             SPRITEp hsp;
 
             auto hitActor = u->coll.actor();
-            hsp = &hitActor->s();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hsp->ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 40000);
             }
@@ -8788,7 +8784,6 @@ int DoMineStuck(DSWActor* actor)
     DSWActor* attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
-        SPRITEp ap = &attachActor->s();
         USERp au = attachActor->u();
 
         ASSERT(au);
@@ -8802,7 +8797,7 @@ int DoMineStuck(DSWActor* actor)
 
         vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - u->sz };
         SetActorZ(actor, &pos);
-        actor->spr.pos.Z = attachActor->spr.pos.Z - DIV2(GetSpriteSizeZ(ap));
+        actor->spr.pos.Z = attachActor->spr.pos.Z - (ActorSizeZ(attachActor) >> 1);
     }
 
     // not activated yet
@@ -8988,25 +8983,24 @@ int DoMine(DSWActor* actor)
         case kHitSprite:
         {
             auto hitActor = u->coll.actor();
-            SPRITEp hsp = &hitActor->s();
             USERp hu = hitActor->u();
 
             SetMineStuck(actor);
             // Set the Z position
-            actor->spr.pos.Z = hsp->pos.Z - DIV2(GetSpriteSizeZ(hsp));
+            actor->spr.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1);
 
             // If it's not alive, don't stick it
             if (hu && hu->Health <= 0) return false;    // JBF: added null check
 
             // check to see if sprite is player or enemy
-            if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
+            if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
                 USERp uo;
                 PLAYERp pp;
 
                 // attach weapon to sprite
                 SetAttach(hitActor, actor);
-                u->sz = hsp->pos.Z - actor->spr.pos.Z;
+                u->sz = hitActor->spr.pos.Z - actor->spr.pos.Z;
 
                 auto own = GetOwner(actor);
                 if (own && own->hasU())
@@ -9030,11 +9024,11 @@ int DoMine(DSWActor* actor)
             }
             else
             {
-                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 {
                     SET(u->Flags2, SPR2_ATTACH_WALL);
                 }
-                else if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+                else if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
                     if (actor->spr.pos.Z > ((u->hiz + u->loz) >> 1))
@@ -9234,7 +9228,6 @@ int DoEMPBurst(DSWActor* actor)
     DSWActor* attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
-        SPRITEp ap = &attachActor->s();
         vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - u->sz };
         SetActorZ(actor, &pos);
         actor->spr.ang = NORM_ANGLE(attachActor->spr.ang+1024);
@@ -9409,15 +9402,14 @@ int DoRail(DSWActor* actor)
                 if (u->coll.type == kHitSprite)
                 {
                     auto hitActor = u->coll.actor();
-                    auto hs = &hitActor->s();
  
-                    if (hs->extra & SPRX_PLAYER_OR_ENEMY)
+                    if (hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY)
                     {
-                        auto cstat_save = hs->cstat;
+                        auto cstat_save = hitActor->spr.cstat;
 
-                        RESET(hs->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
+                        RESET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
                         DoRail(actor);
-                        hs->cstat = cstat_save;
+                        hitActor->spr.cstat = cstat_save;
                         return true;
                     }
                     else
@@ -9833,10 +9825,9 @@ int DoElectro(DSWActor* actor)
             case kHitSprite:
             {
                 auto hitActor = u->coll.actor();
-                SPRITEp hsp = &hitActor->s();
                 USERp hu = hitActor->u();
 
-                if (!TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY) || hu->ID == SKULL_R0 || hu->ID == BETTY_R0)
+                if (!TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY) || hu->ID == SKULL_R0 || hu->ID == BETTY_R0)
                     SpawnShrap(actor, nullptr);
                 break;
             }
@@ -12501,7 +12492,6 @@ int InitFistAttack(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
                 auto hitActor = hit.actor();
-                SPRITEp hsp = &hitActor->s();
 
                 if (hitActor->hasU())     // JBF: added null check
                 {
@@ -12533,24 +12523,24 @@ int InitFistAttack(PLAYERp pp)
                     }
                 }
 
-                if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+                if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
                 {
                     if (MissileHitMatch(nullptr, WPN_STAR, hitActor))
                         return 0;
                 }
 
-                if (TEST(hsp->extra, SPRX_BREAKABLE))
+                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hitActor,0);
                 }
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hitActor);
                 }
 
-                switch (hsp->picnum)
+                switch (hitActor->spr.picnum)
                 {
                 case 5062:
                 case 5063:
@@ -12559,7 +12549,7 @@ int InitFistAttack(PLAYERp pp)
                     PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                     if (RandomRange(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
-                    SET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                    SET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                     break;
                 }
             }
@@ -12824,23 +12814,22 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        SPRITEp hp = &hitActor->s();
         USERp hu = hitActor->u();
 
         wu->WpnGoalActor = hitActor;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
-        mislActor->spr.ang = NORM_ANGLE(getangle(hp->pos.X - mislActor->spr.pos.X, hp->pos.Y - mislActor->spr.pos.Y));
-        dist = FindDistance2D(mislActor->spr.pos.X - hp->pos.X, mislActor->spr.pos.Y - hp->pos.Y);
+        mislActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - mislActor->spr.pos.X, hitActor->spr.pos.Y - mislActor->spr.pos.Y));
+        dist = FindDistance2D(mislActor->spr.pos.X - hitActor->spr.pos.X, mislActor->spr.pos.Y - hitActor->spr.pos.Y);
 
         if (dist != 0)
         {
             int tos, diff, siz;
 
-            tos = GetSpriteZOfTop(hp);
+            tos = ActorZOfTop(hitActor);
             diff = mislActor->spr.pos.Z - tos;
-            siz = GetSpriteSizeZ(hp);
+            siz = ActorSizeZ(hitActor);
 
             // hit_sprite is below
             if (diff < -Z(50))
@@ -12888,24 +12877,22 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
     DSWActor* hitActor;
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        SPRITEp hp = &hitActor->s();
         USERp hu = hitActor->u();
 
         wu->WpnGoalActor = hitActor;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
-        missileActor->spr.ang = NORM_ANGLE(getangle(hp->pos.X - missileActor->spr.pos.X, hp->pos.Y - missileActor->spr.pos.Y));
-        //dist = FindDistance2D(missileActor->spr.pos.X, missileActor->spr.pos.Y, hp->pos.X, hp->pos.Y);
-        dist = FindDistance2D(missileActor->spr.pos.X - hp->pos.X, missileActor->spr.pos.Y - hp->pos.Y);
+        missileActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - missileActor->spr.pos.X, hitActor->spr.pos.Y - missileActor->spr.pos.Y));
+        dist = FindDistance2D(missileActor->spr.pos.X - hitActor->spr.pos.X, missileActor->spr.pos.Y - hitActor->spr.pos.Y);
 
         if (dist != 0)
         {
             int tos, diff, siz;
 
-            tos = GetSpriteZOfTop(hp);
+            tos = ActorZOfTop(hitActor);
             diff = missileActor->spr.pos.Z - tos;
-            siz = GetSpriteSizeZ(hp);
+            siz = ActorSizeZ(hitActor);
 
             // hit_sprite is below
             if (diff < -Z(50))
@@ -13436,7 +13423,6 @@ int InitShotgun(PLAYERp pp)
         if (hit.actor() != nullptr)
         {
             auto hitActor = hit.actor();
-            SPRITEp hsp = &hitActor->s();
             auto hu = hitActor->u();
 
             if (hu && hu->ID == TRASHCAN)   // JBF: added null check
@@ -13451,13 +13437,13 @@ int InitShotgun(PLAYERp pp)
                 }
             }
 
-            if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+            if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
             {
                 if (MissileHitMatch(nullptr, WPN_SHOTGUN, hitActor))
                     continue;
             }
 
-            if (TEST(hsp->extra, SPRX_BREAKABLE))
+            if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
             {
                 HitBreakSprite(hitActor,0);
                 continue;
@@ -13467,7 +13453,7 @@ int InitShotgun(PLAYERp pp)
                 continue;
 
             // hit a switch?
-            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
             {
                 ShootableSwitch(hitActor);
             }
@@ -15626,12 +15612,11 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID)
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
-    SPRITEp hsp = &hitActor->s();
     USERp hu = hitActor->u();
     short id;
 
     // hit a NPC or PC?
-    if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
+    if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
     {
         // spawn a red splotch
         // !FRANK! this if was incorrect - its not who is HIT, its who is SHOOTING
@@ -15899,7 +15884,6 @@ int InitUzi(PLAYERp pp)
     if (hit.actor() != nullptr)
     {
         auto hitActor = hit.actor();
-        SPRITEp hsp = &hitActor->s();
         auto hu = hitActor->u();
 
         if (hu) // JBF: added null check
@@ -15915,13 +15899,13 @@ int InitUzi(PLAYERp pp)
                 }
             }
 
-        if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+        if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             if (MissileHitMatch(nullptr, WPN_UZI, hitActor))
                 return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(hitActor,0))
+        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE) && HitBreakSprite(hitActor,0))
         {
             return 0;
         }
@@ -15930,7 +15914,7 @@ int InitUzi(PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hitActor);
         }
