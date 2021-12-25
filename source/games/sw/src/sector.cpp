@@ -847,7 +847,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &u->hiz, &u->loz);
+    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
 
     // spawn explosion
     auto exp = SpawnSectorExp(actor);
@@ -907,12 +907,12 @@ int DoSpawnSpot(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if ((u->WaitTics -= synctics) < 0)
+    if ((actor->user.WaitTics -= synctics) < 0)
     {
         change_actor_stat(actor, STAT_SPAWN_SPOT);
         SpawnShrap(actor, nullptr);
 
-        if (u->LastDamage == 1)
+        if (actor->user.LastDamage == 1)
         {
             KillActor(actor);
             return 0;
@@ -938,11 +938,11 @@ void DoSpawnSpotsForKill(short match)
         {
             u = actor->u();
             change_actor_stat(actor, STAT_NO_STATE);
-            u->ActorActionFunc = DoSpawnSpot;
-            u->WaitTics = SP_TAG5(actor) * 15;
+            actor->user.ActorActionFunc = DoSpawnSpot;
+            actor->user.WaitTics = SP_TAG5(actor) * 15;
             SetActorZ(actor, &actor->spr.pos);
             // setting for Killed
-            u->LastDamage = 1;
+            actor->user.LastDamage = 1;
         }
     }
 }
@@ -963,10 +963,10 @@ void DoSpawnSpotsForDamage(short match)
         {
             u = actor->u();
             change_actor_stat(actor, STAT_NO_STATE);
-            u->ActorActionFunc = DoSpawnSpot;
-            u->WaitTics = SP_TAG7(actor) * 15;
+            actor->user.ActorActionFunc = DoSpawnSpot;
+            actor->user.WaitTics = SP_TAG7(actor) * 15;
             // setting for Damaged
-            u->LastDamage = 0;
+            actor->user.LastDamage = 0;
         }
     }
 }
@@ -1410,8 +1410,8 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         short choose_snd;
 
-        u->FlagOwner = 1;
-        u->WaitTics = SEC(4);
+        actor->user.FlagOwner = 1;
+        actor->user.WaitTics = SEC(4);
 
         if (pp != Player+myconnectindex) return true;
 
@@ -1488,10 +1488,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     case PACHINKO1:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return true;
+        if (actor->user.WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, actor, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RandomRange(10));
+        actor->user.WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko1Operate);
 
         return true;
@@ -1499,10 +1499,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     case PACHINKO2:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return true;
+        if (actor->user.WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, actor, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RandomRange(10));
+        actor->user.WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko2Operate);
 
         return true;
@@ -1510,10 +1510,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     case PACHINKO3:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return true;
+        if (actor->user.WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, actor, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RandomRange(10));
+        actor->user.WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko3Operate);
 
         return true;
@@ -1521,10 +1521,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     case PACHINKO4:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return true;
+        if (actor->user.WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, actor, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RandomRange(10));
+        actor->user.WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko4Operate);
 
         return true;
@@ -1630,7 +1630,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         u = SpawnUser(actor, 0, nullptr);
 
-        u->ActorActionFunc = DoGrating;
+        actor->user.ActorActionFunc = DoGrating;
 
         actor->spr.lotag = 0;
         actor->spr.hitag /= 2;
@@ -1704,15 +1704,15 @@ int DoTrapReset(short match)
 
         // if correct type and matches
         if (actor->spr.hitag == FIREBALL_TRAP)
-            u->WaitTics = 0;
+            actor->user.WaitTics = 0;
 
         // if correct type and matches
         if (actor->spr.hitag == BOLT_TRAP)
-            u->WaitTics = 0;
+            actor->user.WaitTics = 0;
 
         // if correct type and matches
         if (actor->spr.hitag == SPEAR_TRAP)
-            u->WaitTics = 0;
+            actor->user.WaitTics = 0;
     }
     return 0;
 }
@@ -1734,11 +1734,11 @@ int DoTrapMatch(short match)
         // if correct type and matches
         if (actor->spr.hitag == FIREBALL_TRAP)
         {
-            u->WaitTics -= synctics;
+            actor->user.WaitTics -= synctics;
 
-            if (u->WaitTics <= 0)
+            if (actor->user.WaitTics <= 0)
             {
-                u->WaitTics = 1 * 120;
+                actor->user.WaitTics = 1 * 120;
                 InitFireballTrap(actor);
             }
         }
@@ -1746,11 +1746,11 @@ int DoTrapMatch(short match)
         // if correct type and matches
         if (actor->spr.hitag == BOLT_TRAP)
         {
-            u->WaitTics -= synctics;
+            actor->user.WaitTics -= synctics;
 
-            if (u->WaitTics <= 0)
+            if (actor->user.WaitTics <= 0)
             {
-                u->WaitTics = 1 * 120;
+                actor->user.WaitTics = 1 * 120;
                 InitBoltTrap(actor);
             }
         }
@@ -1758,11 +1758,11 @@ int DoTrapMatch(short match)
         // if correct type and matches
         if (actor->spr.hitag == SPEAR_TRAP)
         {
-            u->WaitTics -= synctics;
+            actor->user.WaitTics -= synctics;
 
-            if (u->WaitTics <= 0)
+            if (actor->user.WaitTics <= 0)
             {
-                u->WaitTics = 1 * 120;
+                actor->user.WaitTics = 1 * 120;
                 InitSpearTrap(actor);
             }
         }
@@ -1857,12 +1857,12 @@ void OperateTripTrigger(PLAYERp pp)
         {
             u = actor->u();
 
-            if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
+            if (TEST(actor->user.Flags, SPR_WAIT_FOR_TRIGGER))
             {
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
                 {
-                    u->targetActor = pp->Actor();
-                    RESET(u->Flags, SPR_WAIT_FOR_TRIGGER);
+                    actor->user.targetActor = pp->Actor();
+                    RESET(actor->user.Flags, SPR_WAIT_FOR_TRIGGER);
                 }
             }
         }
@@ -1928,12 +1928,13 @@ void OperateContinuousTrigger(PLAYERp pp)
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
     auto sectu = pp->cursector;
+    DSWActor* actor = pp->actor;
     USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
-    if ((u->DamageTics -= synctics) < 0)
+    if ((actor->user.DamageTics -= synctics) < 0)
     {
-        u->DamageTics = DAMAGE_TIME;
+        actor->user.DamageTics = DAMAGE_TIME;
 
         PlayerUpdateHealth(pp, -sectu->damage);
         PlayerCheckDeath(pp, nullptr);
@@ -2315,8 +2316,7 @@ void PlayerOperateEnv(PLAYERp pp)
     }
     else
     {
-        USERp u = pp->Actor()->u();
-        u->DamageTics = 0;
+        pp->actor->user.DamageTics = 0;
     }
 
 
