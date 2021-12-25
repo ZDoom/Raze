@@ -895,14 +895,14 @@ int SetupRipper2(DSWActor* actor)
     else
     {
         u = SpawnUser(actor, RIPPER2_RUN_R0, s_Ripper2Run[0]);
-        u->Health = HEALTH_RIPPER2;
+        actor->user.Health = HEALTH_RIPPER2;
     }
 
     ChangeState(actor, s_Ripper2Run[0]);
-    u->Attrib = &Ripper2Attrib;
+    actor->user.Attrib = &Ripper2Attrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_Ripper2Die;
-    u->Rot = sg_Ripper2Run;
+    actor->user.StateEnd = s_Ripper2Die;
+    actor->user.Rot = sg_Ripper2Run;
     actor->spr.clipdist = 512 >> 2;  // This actor is bigger, needs bigger box.
     actor->spr.xrepeat = actor->spr.yrepeat = 55;
 
@@ -913,7 +913,7 @@ int SetupRipper2(DSWActor* actor)
         actor->spr.yrepeat += 40;
 
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = HEALTH_MOMMA_RIPPER;
+            actor->user.Health = HEALTH_MOMMA_RIPPER;
 
         actor->spr.clipdist += 128 >> 2;
     }
@@ -922,7 +922,7 @@ int SetupRipper2(DSWActor* actor)
         EnemyDefaults(actor, &Ripper2ActionSet, &Ripper2Personality);
     }
 
-    SET(u->Flags, SPR_XFLIP_TOGGLE);
+    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -973,17 +973,17 @@ int InitRipper2Hang(DSWActor* actor)
     }
 
     NewStateGroup(actor, sg_Ripper2HangJump);
-    u->StateFallOverride = sg_Ripper2HangFall;
+    actor->user.StateFallOverride = sg_Ripper2HangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
-    //u->jump_speed = -800;
+    //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
-    SET(u->Flags, SPR_JUMPING);
-    RESET(u->Flags, SPR_FALLING);
+    SET(actor->user.Flags, SPR_JUMPING);
+    RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
-    u->jump_grav = 8;
+    actor->user.jump_grav = 8;
 
     DoJump(actor);
 
@@ -994,12 +994,12 @@ int DoRipper2Hang(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if ((u->WaitTics -= ACTORMOVETICS) > 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
     NewStateGroup(actor, sg_Ripper2JumpAttack);
     // move to the 2nd frame - past the pause frame
-    u->Tics += u->State->Tics;
+    actor->user.Tics += actor->user.State->Tics;
 
     return 0;
 }
@@ -1016,23 +1016,23 @@ int DoRipper2MoveHang(DSWActor* actor)
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
     {
-        if (u->coll.type == kHitWall)
+        if (actor->user.coll.type == kHitWall)
         {
             short hit_wall;
             short w, nw;
 
             // Don't keep clinging and going ever higher!
-            if (abs(actor->spr.pos.Z - u->targetActor->spr.pos.Z) > (4000<<4))
+            if (abs(actor->spr.pos.Z - actor->user.targetActor->spr.pos.Z) > (4000<<4))
                 return 0;
 
-            NewStateGroup(actor, u->ActorActionSet->Special[1]);
+            NewStateGroup(actor, actor->user.ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
-                u->WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
+                actor->user.WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
             else
-                u->WaitTics = 0; // Double jump
+                actor->user.WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            actor->spr.ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
+            actor->spr.ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512);
 
             return 0;
         }
@@ -1046,15 +1046,15 @@ int DoRipper2HangJF(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
     }
 
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (DoRipper2QuickJump(actor))
             return 0;
@@ -1075,7 +1075,7 @@ int DoRipper2HangJF(DSWActor* actor)
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    DSWActor* target = u->targetActor;
+    DSWActor* target = actor->user.targetActor;
     short tang;
 
     tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
@@ -1083,7 +1083,7 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     // Always jump at player if mad.
 	
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
-							   0, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
+							   0, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
     if (coll.type != kHitNone)
         actor->spr.ang = NORM_ANGLE((actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
@@ -1092,14 +1092,14 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
-    //u->jump_speed = -800;
+    //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
-    SET(u->Flags, SPR_JUMPING);
-    RESET(u->Flags, SPR_FALLING);
+    SET(actor->user.Flags, SPR_JUMPING);
+    RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
-    u->jump_grav = 8;
+    actor->user.jump_grav = 8;
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actor);
@@ -1113,15 +1113,15 @@ int DoRipper2MoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
     }
 
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (DoRipper2QuickJump(actor))
             return 0;
@@ -1144,14 +1144,14 @@ int DoRipper2QuickJump(DSWActor* actor)
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
 
-    DSWActor* low = u->targetActor;
+    DSWActor* low = actor->user.targetActor;
     if (low)
     {
         if (TEST(low->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             NewStateGroup(actor, sg_Ripper2JumpAttack);
             // move past the first state
-            u->Tics = 30;
+            actor->user.Tics = 30;
             return true;
         }
     }
@@ -1164,7 +1164,7 @@ int NullRipper2(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     DoActorSectorDamage(actor);
@@ -1178,7 +1178,7 @@ int DoRipper2Pain(DSWActor* actor)
     USER* u = actor->u();
     NullRipper2(actor);
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         InitActorDecide(actor);
     return 0;
 }
@@ -1188,9 +1188,9 @@ int DoRipper2RipHeart(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    DSWActor* target = u->targetActor;
+    DSWActor* target = actor->user.targetActor;
     NewStateGroup(actor, sg_Ripper2Heart);
-    u->WaitTics = 6 * 120;
+    actor->user.WaitTics = 6 * 120;
 
     // player face ripper2
     target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
@@ -1206,7 +1206,7 @@ int DoRipper2StandHeart(DSWActor* actor)
     if (!SoundValidAndActive(actor, CHAN_RipHeart))
         PlaySound(DIGI_RIPPER2HEARTOUT, actor, v3df_none, CHAN_RipHeart);
 
-    if ((u->WaitTics -= ACTORMOVETICS) <= 0)
+    if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(actor, sg_Ripper2Run);
     return 0;
 }
@@ -1259,21 +1259,21 @@ int DoRipper2Move(DSWActor* actor)
     if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
-    if (u->scale_speed)
+    if (actor->user.scale_speed)
     {
         DoScaleSprite(actor);
     }
 
-    if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(u->Flags, SPR_JUMPING))
+        if (TEST(actor->user.Flags, SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
     }
 
     // if on a player/enemy sprite jump quickly
-    if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
+    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (DoRipper2QuickJump(actor))
             return 0;
@@ -1281,13 +1281,13 @@ int DoRipper2Move(DSWActor* actor)
         KeepActorOnFloor(actor);
     }
 
-    if (TEST(u->Flags, SPR_SLIDING))
+    if (TEST(actor->user.Flags, SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     DoActorSectorDamage(actor);
 
