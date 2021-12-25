@@ -48,30 +48,30 @@ void ReverseVator(DSWActor* actor)
     USERp u = actor->u();
 
     // if paused go ahead and start it up again
-    if (u->Tics)
+    if (actor->user.Tics)
     {
-        u->Tics = 0;
+        actor->user.Tics = 0;
         SetVatorActive(actor);
         return;
     }
 
     // moving toward to OFF pos
-    if (u->z_tgt == u->oz)
+    if (actor->user.z_tgt == actor->user.oz)
     {
-        if (actor->spr.pos.Z == u->oz)
-            u->z_tgt = u->sz;
-        else if (u->sz == u->oz)
-            u->z_tgt = actor->spr.pos.Z;
+        if (actor->spr.pos.Z == actor->user.oz)
+            actor->user.z_tgt = actor->user.sz;
+        else if (actor->user.sz == actor->user.oz)
+            actor->user.z_tgt = actor->spr.pos.Z;
     }
-    else if (u->z_tgt == u->sz)
+    else if (actor->user.z_tgt == actor->user.sz)
     {
-        if (actor->spr.pos.Z == u->oz)
-            u->z_tgt = actor->spr.pos.Z;
-        else if (u->sz == u->oz)
-            u->z_tgt = u->sz;
+        if (actor->spr.pos.Z == actor->user.oz)
+            actor->user.z_tgt = actor->spr.pos.Z;
+        else if (actor->user.sz == actor->user.oz)
+            actor->user.z_tgt = actor->user.sz;
     }
 
-    u->vel_rate = -u->vel_rate;
+    actor->user.vel_rate = -actor->user.vel_rate;
 }
 
 bool VatorSwitch(short match, short setting)
@@ -106,15 +106,15 @@ void SetVatorActive(DSWActor* actor)
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
-    SET(u->Flags, SPR_ACTIVE);
-    u->Tics = 0;
+    SET(actor->user.Flags, SPR_ACTIVE);
+    actor->user.Tics = 0;
 
     // moving to the ON position
-    if (u->z_tgt == actor->spr.pos.Z)
+    if (actor->user.z_tgt == actor->spr.pos.Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
-    if (u->z_tgt == u->sz)
+    if (actor->user.z_tgt == actor->user.sz)
         VatorSwitch(SP_TAG2(actor), false);
 }
 
@@ -133,7 +133,7 @@ void SetVatorInactive(DSWActor* actor)
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
-    RESET(u->Flags, SPR_ACTIVE);
+    RESET(actor->user.Flags, SPR_ACTIVE);
 }
 
 // called for operation from the space bar
@@ -186,14 +186,14 @@ void DoVatorOperate(PLAYERp pp, sectortype* sect)
 // returns first vator found
 void DoVatorMatch(PLAYERp pp, short match)
 {
-    USERp fu;
+    USERp u;
 
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
+            u = actor->u();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -216,9 +216,9 @@ void DoVatorMatch(PLAYERp pp, short match)
             }
 
             // remember the player than activated it
-            fu->PlayerP = pp;
+            actor->user.PlayerP = pp;
 
-            if (TEST(fu->Flags, SPR_ACTIVE))
+            if (TEST(actor->user.Flags, SPR_ACTIVE))
             {
                 ReverseVator(actor);
                 continue;
@@ -232,20 +232,20 @@ void DoVatorMatch(PLAYERp pp, short match)
 
 bool TestVatorMatchActive(short match)
 {
-    USERp fu;
+    USERp u;
 
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
     {
         if (SP_TAG1(actor) == SECT_VATOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
+            u = actor->u();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
+            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -261,10 +261,10 @@ void InterpSectorSprites(sectortype* sect, bool state)
         if (actor->hasU())
         {
             auto u = actor->u();
-            if (TEST(u->Flags, SPR_SKIP4) && actor->spr.statnum <= STAT_SKIP4_INTERP_END)
+            if (TEST(actor->user.Flags, SPR_SKIP4) && actor->spr.statnum <= STAT_SKIP4_INTERP_END)
                 continue;
 
-            if (TEST(u->Flags, SPR_SKIP2) && actor->spr.statnum <= STAT_SKIP2_INTERP_END)
+            if (TEST(actor->user.Flags, SPR_SKIP2) && actor->spr.statnum <= STAT_SKIP2_INTERP_END)
                 continue;
         }
     }
@@ -339,28 +339,28 @@ int DoVatorMove(DSWActor* actor, int *lptr)
     zval = *lptr;
 
     // if LESS THAN goal
-    if (zval < u->z_tgt)
+    if (zval < actor->user.z_tgt)
     {
         // move it DOWN
-        zval += (synctics * u->jump_speed);
+        zval += (synctics * actor->user.jump_speed);
 
-        u->jump_speed += u->vel_rate * synctics;
+        actor->user.jump_speed += actor->user.vel_rate * synctics;
 
         // if the other way make it equal
-        if (zval > u->z_tgt)
-            zval = u->z_tgt;
+        if (zval > actor->user.z_tgt)
+            zval = actor->user.z_tgt;
     }
 
     // if GREATER THAN goal
-    if (zval > u->z_tgt)
+    if (zval > actor->user.z_tgt)
     {
         // move it UP
-        zval -= (synctics * u->jump_speed);
+        zval -= (synctics * actor->user.jump_speed);
 
-        u->jump_speed += u->vel_rate * synctics;
+        actor->user.jump_speed += actor->user.vel_rate * synctics;
 
-        if (zval < u->z_tgt)
-            zval = u->z_tgt;
+        if (zval < actor->user.z_tgt)
+            zval = actor->user.z_tgt;
     }
 
     move_amt = zval - *lptr;
@@ -377,11 +377,11 @@ int DoVator(DSWActor* actor)
     int *lptr;
     int amt;
 
-    // u->sz        - where the sector z started
-    // u->z_tgt     - current target z
-    // u->oz        - original z - where it initally starts off
+    // actor->user.sz        - where the sector z started
+    // actor->user.z_tgt     - current target z
+    // actor->user.oz        - original z - where it initally starts off
     // actor->spr.z        - z of the sprite
-    // u->vel_rate  - velocity
+    // actor->user.vel_rate  - velocity
 
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
     {
@@ -397,31 +397,31 @@ int DoVator(DSWActor* actor)
     }
 
     // EQUAL this entry has finished
-    if (*lptr == u->z_tgt)
+    if (*lptr == actor->user.z_tgt)
     {
         // in the ON position
-        if (u->z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
-            u->z_tgt = u->sz;
-            u->vel_rate = -u->vel_rate;
+            actor->user.z_tgt = actor->user.sz;
+            actor->user.vel_rate = -actor->user.vel_rate;
 
             SetVatorInactive(actor);
 
             // if tag6 and nothing blocking door
             if (SP_TAG6(actor) && !TEST_BOOL8(actor))
-                DoMatchEverything(u->PlayerP, SP_TAG6(actor), -1);
+                DoMatchEverything(actor->user.PlayerP, SP_TAG6(actor), -1);
         }
         else
         // in the OFF position
-        if (u->z_tgt == u->sz)
+        if (actor->user.z_tgt == actor->user.sz)
         {
             short match = SP_TAG2(actor);
 
             // change target
-            u->jump_speed = u->vel_tgt;
-            u->vel_rate = short(abs(u->vel_rate));
-            u->z_tgt = actor->spr.pos.Z;
+            actor->user.jump_speed = actor->user.vel_tgt;
+            actor->user.vel_rate = short(abs(actor->user.vel_rate));
+            actor->user.z_tgt = actor->spr.pos.Z;
 
             RESET_BOOL8(actor);
             SetVatorInactive(actor);
@@ -434,7 +434,7 @@ int DoVator(DSWActor* actor)
             }
 
             if (SP_TAG6(actor) && TEST_BOOL5(actor))
-                DoMatchEverything(u->PlayerP, SP_TAG6(actor), -1);
+                DoMatchEverything(actor->user.PlayerP, SP_TAG6(actor), -1);
         }
 
         // operate only once
@@ -446,16 +446,16 @@ int DoVator(DSWActor* actor)
         }
 
         // setup to go back to the original z
-        if (*lptr != u->oz)
+        if (*lptr != actor->user.oz)
         {
-            if (u->WaitTics)
-                u->Tics = u->WaitTics;
+            if (actor->user.WaitTics)
+                actor->user.Tics = actor->user.WaitTics;
         }
     }
-    else // if (*lptr == u->z_tgt)
+    else // if (*lptr == actor->user.z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(actor) && u->z_tgt == u->oz)
+        if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.oz)
         {
             int i;
             bool found = false;
@@ -498,7 +498,7 @@ int DoVator(DSWActor* actor)
                     {
                         ReverseVator(actor);
 
-                        u->vel_rate = -u->vel_rate;
+                        actor->user.vel_rate = -actor->user.vel_rate;
                         found = true;
                     }
                 }
@@ -549,28 +549,28 @@ int DoVatorAuto(DSWActor* actor)
     }
 
     // EQUAL this entry has finished
-    if (*lptr == u->z_tgt)
+    if (*lptr == actor->user.z_tgt)
     {
         // in the UP position
-        if (u->z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
-            u->z_tgt = u->sz;
-            u->vel_rate = -u->vel_rate;
-            u->Tics = u->WaitTics;
+            actor->user.z_tgt = actor->user.sz;
+            actor->user.vel_rate = -actor->user.vel_rate;
+            actor->user.Tics = actor->user.WaitTics;
 
             if (SP_TAG6(actor))
-                DoMatchEverything(u->PlayerP, SP_TAG6(actor), -1);
+                DoMatchEverything(actor->user.PlayerP, SP_TAG6(actor), -1);
         }
         else
         // in the DOWN position
-        if (u->z_tgt == u->sz)
+        if (actor->user.z_tgt == actor->user.sz)
         {
             // change target
-            u->jump_speed = u->vel_tgt;
-            u->vel_rate = short(abs(u->vel_rate));
-            u->z_tgt = actor->spr.pos.Z;
-            u->Tics = u->WaitTics;
+            actor->user.jump_speed = actor->user.vel_tgt;
+            actor->user.vel_rate = short(abs(actor->user.vel_rate));
+            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.Tics = actor->user.WaitTics;
 
             if (SP_TAG6(actor) && TEST_BOOL5(actor))
                 DoMatchEverything(nullptr, SP_TAG6(actor), -1);
