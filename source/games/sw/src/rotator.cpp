@@ -46,15 +46,14 @@ void DoRotatorStopInterp(DSWActor*);
 
 void ReverseRotator(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     // if paused go ahead and start it up again
-    if (u->Tics)
+    if (actor->user.Tics)
     {
-        u->Tics = 0;
+        actor->user.Tics = 0;
         SetRotatorActive(actor);
         return;
     }
@@ -91,18 +90,17 @@ bool RotatorSwitch(short match, short setting)
 
 void SetRotatorActive(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     DoRotatorSetInterp(actor);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
-    SET(u->Flags, SPR_ACTIVE);
-    u->Tics = 0;
+    SET(actor->user.Flags, SPR_ACTIVE);
+    actor->user.Tics = 0;
 
     // moving to the OFF position
     if (r->tgt == 0)
@@ -113,14 +111,12 @@ void SetRotatorActive(DSWActor* actor)
 
 void SetRotatorInactive(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     DoRotatorStopInterp(actor);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
-    RESET(u->Flags, SPR_ACTIVE);
+    RESET(actor->user.Flags, SPR_ACTIVE);
 }
 
 // called for operation from the space bar
@@ -139,7 +135,6 @@ void DoRotatorOperate(PLAYERp pp, sectortype* sect)
 // returns first vator found
 void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
-    USERp fu;
     DSWActor* firstVator = nullptr;
 
     //RotatorSwitch(match, ON);
@@ -149,8 +144,6 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
     {
         if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
             // single play only vator
             // bool 8 must be set for message to display
             if (TEST_BOOL4(actor) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
@@ -182,7 +175,7 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
                 }
             }
 
-            if (TEST(fu->Flags, SPR_ACTIVE))
+            if (TEST(actor->user.Flags, SPR_ACTIVE))
             {
                 ReverseRotator(actor);
                 continue;
@@ -196,7 +189,6 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
 bool TestRotatorMatchActive(short match)
 {
-    USERp fu;
     SPRITEp fsp;
 
     SWStatIterator it(STAT_ROTATOR);
@@ -204,13 +196,11 @@ bool TestRotatorMatchActive(short match)
     {
         if (SP_TAG1(actor) == SECT_ROTATOR && SP_TAG2(actor) == match)
         {
-            fu = actor->u();
-
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
+            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -253,7 +243,6 @@ void DoRotatorStopInterp(DSWActor* actor)
 
 int DoRotator(DSWActor* actor)
 {
-    USERp u = actor->u();
     ROTATORp r;
     short ndx,w,startwall,endwall;
     DSWActor* pivot = nullptr;
@@ -261,7 +250,7 @@ int DoRotator(DSWActor* actor)
     int dist,closest;
     bool kill = false;
 
-    r = u->rotator.Data();
+    r = actor->user.rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 
@@ -302,8 +291,8 @@ int DoRotator(DSWActor* actor)
                 DoMatchEverything(nullptr, SP_TAG6(actor), -1);
 
             // wait a bit and close it
-            if (u->WaitTics)
-                u->Tics = u->WaitTics;
+            if (actor->user.WaitTics)
+                actor->user.Tics = actor->user.WaitTics;
         }
         else
         // If ang is CLOSED then
