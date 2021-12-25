@@ -483,17 +483,11 @@ ACTOR_ACTION_SET GoroActionSet =
 
 int SetupGoro(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);
+        SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);
         actor->user.Health = HEALTH_GORO;
     }
 
@@ -513,8 +507,6 @@ int SetupGoro(DSWActor* actor)
 
 int NullGoro(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
@@ -526,8 +518,6 @@ int NullGoro(DSWActor* actor)
 
 int DoGoroPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-    
     NullGoro(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -537,8 +527,6 @@ int DoGoroPain(DSWActor* actor)
 
 int DoGoroMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
