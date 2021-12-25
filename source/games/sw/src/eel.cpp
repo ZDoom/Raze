@@ -362,15 +362,15 @@ void EelCommon(DSWActor* actor)
     USERp u = actor->u();
 
     actor->spr.clipdist = (100) >> 2;
-    u->floor_dist = Z(16);
-    u->floor_dist = Z(16);
-    u->ceiling_dist = Z(20);
+    actor->user.floor_dist = Z(16);
+    actor->user.floor_dist = Z(16);
+    actor->user.ceiling_dist = Z(20);
 
-    u->sz = actor->spr.pos.Z;
+    actor->user.sz = actor->spr.pos.Z;
 
     actor->spr.xrepeat = 35;
     actor->spr.yrepeat = 27;
-    u->Radius = 400;
+    actor->user.Radius = 400;
 }
 
 int SetupEel(DSWActor* actor)
@@ -386,23 +386,23 @@ int SetupEel(DSWActor* actor)
     else
     {
         u = SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);
-        u->Health = 40;
+        actor->user.Health = 40;
     }
 
     ChangeState(actor, s_EelRun[0]);
-    u->Attrib = &EelAttrib;
+    actor->user.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    u->StateEnd = s_EelDie;
-    u->Rot = sg_EelRun;
+    actor->user.StateEnd = s_EelDie;
+    actor->user.Rot = sg_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
-    SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
     EelCommon(actor);
 
-    RESET(u->Flags, SPR_SHADOW); // Turn off shadows
-    u->zclip = Z(8);
+    RESET(actor->user.Flags, SPR_SHADOW); // Turn off shadows
+    actor->user.zclip = Z(8);
 
     return 0;
 }
@@ -412,7 +412,7 @@ int NullEel(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     DoEelMatchPlayerZ(actor);
@@ -433,21 +433,21 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     if (FAF_ConnectArea(actor->spr.sector()))
     {
-        if (u->hi_sectp)
+        if (actor->user.hi_sectp)
         {
-            u->hiz = actor->spr.sector()->ceilingz + Z(16);
-            u->hi_sectp = actor->spr.sector();
+            actor->user.hiz = actor->spr.sector()->ceilingz + Z(16);
+            actor->user.hi_sectp = actor->spr.sector();
         }
         else
         {
-            if (u->hiz < actor->spr.sector()->ceilingz + Z(16))
-                u->hiz = actor->spr.sector()->ceilingz + Z(16);
+            if (actor->user.hiz < actor->spr.sector()->ceilingz + Z(16))
+                actor->user.hiz = actor->spr.sector()->ceilingz + Z(16);
         }
     }
 
-    // actor does a sine wave about u->sz - this is the z mid point
+    // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (ActorZOfBottom(u->targetActor) - Z(8)) - u->sz;
+    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.sz;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(64)); // put a random amount
@@ -455,66 +455,66 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         if (zdiff > 0)
             // manipulate the z midpoint
-            u->sz += 160 * ACTORMOVETICS;
+            actor->user.sz += 160 * ACTORMOVETICS;
         else
-            u->sz -= 160 * ACTORMOVETICS;
+            actor->user.sz -= 160 * ACTORMOVETICS;
     }
 
     const int EEL_BOB_AMT = (Z(4));
 
     // save off lo and hi z
-    loz = u->loz;
-    hiz = u->hiz;
+    loz = actor->user.loz;
+    hiz = actor->user.hiz;
 
     // adjust loz/hiz for water depth
-    if (u->lo_sectp && u->lo_sectp->hasU() && FixedToInt(u->lo_sectp->depth_fixed))
-        loz -= Z(FixedToInt(u->lo_sectp->depth_fixed)) - Z(8);
+    if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
+        loz -= Z(FixedToInt(actor->user.lo_sectp->depth_fixed)) - Z(8);
 
     // lower bound
-    if (u->lowActor && u->targetActor == u->highActor) // this doesn't look right...
+    if (actor->user.lowActor && actor->user.targetActor == actor->user.highActor) // this doesn't look right...
     {
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->lowActor->spr.pos.X, u->lowActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.lowActor->spr.pos.X, actor->user.lowActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
-            bound = u->sz;
+            bound = actor->user.sz;
         else
-            bound = loz - u->floor_dist;
+            bound = loz - actor->user.floor_dist;
     }
     else
-        bound = loz - u->floor_dist - EEL_BOB_AMT;
+        bound = loz - actor->user.floor_dist - EEL_BOB_AMT;
 
-    if (u->sz > bound)
+    if (actor->user.sz > bound)
     {
-        u->sz = bound;
+        actor->user.sz = bound;
     }
 
     // upper bound
-    if (u->highActor && u->targetActor == u->highActor)
+    if (actor->user.highActor && actor->user.targetActor == actor->user.highActor)
     {
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, u->highActor->spr.pos.X, u->highActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.highActor->spr.pos.X, actor->user.highActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
-            bound = u->sz;
+            bound = actor->user.sz;
         else
-            bound = hiz + u->ceiling_dist;
+            bound = hiz + actor->user.ceiling_dist;
     }
     else
-        bound = hiz + u->ceiling_dist + EEL_BOB_AMT;
+        bound = hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
 
-    if (u->sz < bound)
+    if (actor->user.sz < bound)
     {
-        u->sz = bound;
+        actor->user.sz = bound;
     }
 
-    u->sz = min(u->sz, loz - u->floor_dist);
-    u->sz = max(u->sz, hiz + u->ceiling_dist);
+    actor->user.sz = min(actor->user.sz, loz - actor->user.floor_dist);
+    actor->user.sz = max(actor->user.sz, hiz + actor->user.ceiling_dist);
 
-    u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = u->sz + MulScale(EEL_BOB_AMT, bsin(u->Counter), 14);
+    actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
+    actor->spr.pos.Z = actor->user.sz + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14);
 
-    bound = u->hiz + u->ceiling_dist + EEL_BOB_AMT;
+    bound = actor->user.hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
     if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        actor->spr.pos.Z = u->sz = bound + EEL_BOB_AMT;
+        actor->spr.pos.Z = actor->user.sz = bound + EEL_BOB_AMT;
     }
 
     return 0;
@@ -524,36 +524,36 @@ int DoEelDeath(DSWActor* actor)
 {
     USER* u = actor->u();
     int nx, ny;
-    if (TEST(u->Flags, SPR_FALLING))
+    if (TEST(actor->user.Flags, SPR_FALLING))
     {
         DoFall(actor);
     }
     else
     {
         DoFindGroundPoint(actor);
-        u->floor_dist = 0;
+        actor->user.floor_dist = 0;
         DoBeginFall(actor);
     }
 
-    if (TEST(u->Flags, SPR_SLIDING))
+    if (TEST(actor->user.Flags, SPR_SLIDING))
         DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
-    u->coll = move_sprite(actor, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (actor->spr.pos.Z >= u->loz)
+    if (actor->spr.pos.Z >= actor->user.loz)
     {
-        RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
+        RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)
             SET(actor->spr.cstat, CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
             SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
-        NewStateGroup(actor, u->ActorActionSet->Dead);
+        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         return 0;
     }
 
@@ -564,18 +564,18 @@ int DoEelMove(DSWActor* actor)
 {
     USER* u = actor->u();
 
-    ASSERT(u->Rot != nullptr);
+    ASSERT(actor->user.Rot != nullptr);
 
-    if (SpriteOverlap(actor, u->targetActor))
-        NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
+    if (SpriteOverlap(actor, actor->user.targetActor))
+        NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
 
-    if (TEST(u->Flags,SPR_SLIDING))
+    if (TEST(actor->user.Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (u->track >= 0)
+    if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(actor);
+        (*actor->user.ActorActionFunc)(actor);
 
     DoEelMatchPlayerZ(actor);
 
