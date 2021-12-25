@@ -196,14 +196,28 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 
 int StdRandomRange(int range);
 #define STD_RANDOM_P2(pwr_of_2) (MOD_P2(rand(),(pwr_of_2)))
-#define STD_RANDOM() (rand())
 
 #define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
 
-#define MOVEx(vel,ang) (MulScale(vel, bcos(ang), 14))
-#define MOVEy(vel,ang) (MulScale(vel, bsin(ang), 14))
+inline int MOVEx(int vel, int ang)
+{
+    return (MulScale(vel, bcos(ang), 14));
+}
 
-#define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
+inline int MOVEy(int vel, int ang)
+{
+    return (MulScale(vel, bsin(ang), 14));
+}
+
+inline int SQ(int val)
+{
+    return val * val;
+}
+
+inline int DIST(int x1, int y1, int x2, int y2)
+{
+    return ksqrt(SQ((x1)-(x2)) + SQ((y1)-(y2)));
+}
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
@@ -213,11 +227,6 @@ inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty
 	ty = abs(y2 - y1);
 	tmin = min(tx, ty);
 	dist = tx + ty - (tmin >> 1);
-}
-
-inline int GetSpriteSizeX(const spritetypebase* sp)
-{
-	return MulScale(tileWidth(sp->picnum), sp->xrepeat, 6);
 }
 
 inline int GetSpriteSizeY(const spritetypebase* sp)
@@ -231,22 +240,15 @@ inline int GetSpriteSizeZ(const spritetypebase* sp)
 }
 
 
-// Given a z height and sprite return the correct y repeat value
-inline int GetRepeatFromHeight(const spritetype* sp, int zh)
-{
-	return zh / (4 * tileHeight(sp->picnum));
-}
-
-
 // Z size of top (TOS) and bottom (BOS) part of sprite
 inline int GetSpriteSizeToTop(const spritetypebase* sp)
 {
-    return (DIV2(GetSpriteSizeZ(sp)) + (tileTopOffset(sp->picnum) << 8));
+    return ((GetSpriteSizeZ(sp) >> 1) + (tileTopOffset(sp->picnum) << 8));
 }
 
 inline int GetSpriteSizeToBottom(const spritetypebase* sp)
 {
-    return (DIV2(GetSpriteSizeZ(sp)) - (tileTopOffset(sp->picnum) << 8));
+    return ((GetSpriteSizeZ(sp) >> 1) - (tileTopOffset(sp->picnum) << 8));
 }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
@@ -275,37 +277,25 @@ constexpr int PIXZ(int value)
     return value >> 8;
 }
 
-constexpr int SQ(int val)
-{
-    return val * val;
-}
-
 
 // two vectors
 // can determin direction
-#define DOT_PRODUCT_2D(x1,y1,x2,y2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16))
+constexpr int DOT_PRODUCT_2D(int x1, int y1, int x2, int y2)
+{
+    return (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16));
+}
+
+constexpr int SEC(int value)
+{
+    return ((value) * 120);
+}
 
 
-#define SEC(value) ((value)*120)
-
-#define CEILING_DIST (Z(4))
-#define FLOOR_DIST (Z(4))
-
-#define NORM_SPRITE(val) ((val) & (kHitIndexMask))
-
-#define NORM_SECTOR(val) ((val) & (kHitIndexMask))
-
-// overwritesprite flags
-#define OVER_SPRITE_MIDDLE      (BIT(0))
-#define OVER_SPRITE_VIEW_CLIP   (BIT(1))
-#define OVER_SPRITE_TRANSLUCENT (BIT(2))
-#define OVER_SPRITE_XFLIP       (BIT(3))
-#define OVER_SPRITE_YFLIP       (BIT(4))
-
-#undef CLIPMASK0 // defined in build.h
-#undef CLIPMASK1
-
-// new define more readable defines
+enum
+{
+    CEILING_DIST = (Z(4)),
+    FLOOR_DIST = (Z(4))
+};
 
 // Clip Sprite adjustment
 constexpr int CS(int sprite_bit)

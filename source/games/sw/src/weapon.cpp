@@ -14806,7 +14806,7 @@ int InitEnemyRocket(DSWActor* actor)
 
     nx = actor->spr.pos.X;
     ny = actor->spr.pos.Y;
-    nz = actor->spr.pos.Z - DIV2(ActorSizeZ(actor))-Z(8);
+    nz = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1)-Z(8);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->spr.sector(),
@@ -14889,7 +14889,7 @@ int InitEnemyRail(DSWActor* actor)
 
     nx = actor->spr.pos.X;
     ny = actor->spr.pos.Y;
-    nz = actor->spr.pos.Z - DIV2(ActorSizeZ(actor))-Z(8);
+    nz = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1)-Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -14973,7 +14973,7 @@ int InitZillaRocket(DSWActor* actor)
     {
         nx = actor->spr.pos.X;
         ny = actor->spr.pos.Y;
-        nz = actor->spr.pos.Z - DIV2(ActorSizeZ(actor))-Z(8);
+        nz = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1)-Z(8);
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->spr.sector(),
@@ -15132,7 +15132,7 @@ int InitSkelSpell(DSWActor* actor)
 
     nx = actor->spr.pos.X;
     ny = actor->spr.pos.Y;
-    nz = actor->spr.pos.Z - DIV2(ActorSizeZ(actor));
+    nz = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, actor->spr.sector(),
@@ -17435,7 +17435,7 @@ int InitEnemyFireball(DSWActor* actor)
             //dist = Distance(actorNew->spr.pos.X, actorNew->spr.pos.Y, tsp->pos.X, tsp->pos.Y);
 
             // Determine target Z value
-            targ_z = tsp->pos.Z - DIV2(Z(ActorSizeY(actor)));
+            targ_z = tsp->pos.Z - (Z(ActorSizeY(actor)) >> 1);
 
             // (velocity * difference between the target and the throwing star) /
             // distance
@@ -18433,8 +18433,8 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
         return nullptr;   // No blood underwater!
 
     daz = Z(RANDOM_P2(128))<<3;
-    daz -= DIV2(Z(128)<<3);
-    dang = (ang+(RANDOM_P2(128<<5) >> 5)) - DIV2(128);
+    daz -= (Z(128)<<2);
+    dang = (ang+(RANDOM_P2(128<<5) >> 5)) - (64);
 
     FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(30), actor->spr.sector(),    // Start position
                bcos(dang),      // X vector of 3D ang

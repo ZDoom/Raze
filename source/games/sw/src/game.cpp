@@ -773,7 +773,7 @@ int StdRandomRange(int range)
     if (range <= 0)
         return 0;
 
-    rand_num = STD_RANDOM();
+    rand_num = rand();
 
     if (rand_num == RAND_MAX)
         rand_num--;
