@@ -5421,6 +5421,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
     if (weapActor == nullptr)
         return true;
 
+    DSWActor* actor = pp->actor;
     USERp u = pp->Actor()->u();
 
     auto weapOwner = GetOwner(weapActor);
@@ -7061,7 +7062,6 @@ const char *DeathString(DSWActor* actor)
 
 int DoDamageTest(DSWActor* actor)
 {
-    USERp u;
     int i;
     unsigned stat;
     int dist, tx, ty;
@@ -7072,11 +7072,8 @@ int DoDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
-
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-            if ((unsigned)dist > actor->user.Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
 
             if (actor == itActor)
@@ -7125,7 +7122,6 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
 
 int DoFlamesDamageTest(DSWActor* actor)
 {
-    USERp u;
     int i;
     unsigned stat;
     int dist, tx, ty;
@@ -7136,9 +7132,7 @@ int DoFlamesDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
-            switch (u->ID)
+            switch (itActor->user.ID)
             {
             case TRASHCAN:
             case PACHINKO1:
@@ -7151,7 +7145,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
-            if ((unsigned)dist > actor->user.Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
 
             if (actor == itActor)
@@ -7260,7 +7254,6 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
 
 int DoExpDamageTest(DSWActor* actor)
 {
-    USERp u;
     short i, stat;
     int dist, tx, ty;
     int tmin;
@@ -7287,11 +7280,9 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
 
-            if ((unsigned)dist > actor->user.Radius + u->Radius)
+            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
 
             if (itActor == actor)
@@ -7303,7 +7294,7 @@ int DoExpDamageTest(DSWActor* actor)
             }
             else
             {
-                if ((unsigned)FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, itActor->spr.pos.Z - actor->spr.pos.Z) > actor->user.Radius + u->Radius)
+                if ((unsigned)FindDistance3D(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y, itActor->spr.pos.Z - actor->spr.pos.Z) > actor->user.Radius + itActor->user.Radius)
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
@@ -7334,8 +7325,6 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatBreakList[stat]);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if ((unsigned)dist > actor->user.Radius)
                 continue;
@@ -7402,7 +7391,6 @@ int DoExpDamageTest(DSWActor* actor)
 
 int DoMineExpMine(DSWActor* actor)
 {
-    USERp u;
     int i;
     int dist, tx, ty;
     int tmin;
@@ -7411,10 +7399,8 @@ int DoMineExpMine(DSWActor* actor)
     SWStatIterator it(STAT_MINE_STUCK);
     while (auto itActor = it.Next())
     {
-        u = itActor->u();
-
         DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
-        if ((unsigned)dist > actor->user.Radius + u->Radius)
+        if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
             continue;
 
         if (itActor == actor)
@@ -7425,7 +7411,7 @@ int DoMineExpMine(DSWActor* actor)
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
         zdist = abs(itActor->spr.pos.Z - actor->spr.pos.Z)>>4;
-        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < actor->user.Radius + u->Radius)
+        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < actor->user.Radius + itActor->user.Radius)
         {
             DoDamage(itActor, actor);
             // only explode one mine at a time
@@ -8677,7 +8663,6 @@ bool OwnerIsPlayer(DSWActor* actor)
 
 int DoMineRangeTest(DSWActor* actor, int range)
 {
-    USERp u;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
@@ -8690,8 +8675,6 @@ int DoMineRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            u = itActor->u();
-
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
@@ -8705,7 +8688,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            if (u->ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
+            if (itActor->user.ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
                 continue;
 
             dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
