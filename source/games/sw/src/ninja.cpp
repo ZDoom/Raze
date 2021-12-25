@@ -1817,7 +1817,6 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
 
 int SetupNinja(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
     short pic = actor->spr.picnum;
 
@@ -1825,14 +1824,9 @@ int SetupNinja(DSWActor* actor)
     int RedNinjaHealth = MinEnemySkill <= Skill ? HEALTH_RED_NINJA : HEALTH_NINJA;
     if (Skill < MinEnemySkill - 1) actor->spr.pal = 0;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, NINJA_RUN_R0, s_NinjaRun[0]);
+        SpawnUser(actor, NINJA_RUN_R0, s_NinjaRun[0]);
         actor->user.Health = HEALTH_NINJA;
     }
 
@@ -1937,8 +1931,6 @@ int SetupNinja(DSWActor* actor)
 
 int DoNinjaHariKari(DSWActor* actor)
 {
-    USER* u = actor->u();
-    
     UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1964,8 +1956,6 @@ int DoNinjaHariKari(DSWActor* actor)
 
 int DoNinjaGrabThroat(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
     {
         UpdateSinglePlayKills(actor);
@@ -2001,8 +1991,6 @@ int DoNinjaGrabThroat(DSWActor* actor)
 
 int DoNinjaMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-    
     if (TEST(actor->user.Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
@@ -2047,7 +2035,6 @@ int DoNinjaMove(DSWActor* actor)
 
 int NinjaJumpActionFunc(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
 
     // Move while jumping
@@ -2077,8 +2064,6 @@ int NinjaJumpActionFunc(DSWActor* actor)
 
 int NullNinja(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
     if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
@@ -2095,8 +2080,6 @@ int NullNinja(DSWActor* actor)
 
 int DoNinjaPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullNinja(actor);
 
     if (TEST(actor->user.Flags2, SPR2_DYING))
@@ -2116,8 +2099,6 @@ int DoNinjaPain(DSWActor* actor)
 
 int DoNinjaSpecial(DSWActor* actor)
 {
-    USER* u = actor->u();
- 
     if (actor->user.spal == PALETTE_PLAYER5)
     {
         RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
@@ -2161,7 +2142,6 @@ void InitAllPlayerSprites(void)
 void PlayerLevelReset(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
-    USERp u = actor->u();
 
     if (gNet.MultiGameType == MULTI_GAME_COMMBAT)
     {
@@ -2201,7 +2181,6 @@ void PlayerLevelReset(PLAYERp pp)
 void PlayerDeathReset(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
-    USERp u = actor->u();
 
     if (TEST(pp->Flags, PF_DIVING))
         DoPlayerStopDiveNoWarp(pp);
@@ -2284,7 +2263,6 @@ void PlayerPanelSetup(void)
 void PlayerGameReset(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
-    USERp u = actor->u();
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
@@ -2343,7 +2321,6 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
 void InitPlayerSprite(PLAYERp pp)
 {
-    USERp u;
     int pnum = int(pp - Player);
     extern bool NewGame;
 
@@ -2358,8 +2335,6 @@ void InitPlayerSprite(PLAYERp pp)
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
     RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-
-    u = actor->u();
 
     // Grouping items that need to be reset after a LoadLevel
     ChangeState(actor, s_NinjaRun[0]);
@@ -2416,7 +2391,6 @@ void InitPlayerSprite(PLAYERp pp)
 void SpawnPlayerUnderSprite(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    USERp u;
 
     int pnum = int(pp - Player);
 
@@ -2424,7 +2398,6 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
                                                  NINJA_RUN_R0, nullptr, pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
 
     DSWActor* actor = pp->PlayerUnderActor;
-    u = actor->u();
 
     SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
