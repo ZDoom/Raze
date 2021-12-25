@@ -829,7 +829,6 @@ int AnimateSwitch(DSWActor* actor, int tgt_value)
 
 void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 {
-    USERp u = actor->u();
     int x,y,z;
 
     RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
@@ -876,7 +875,7 @@ void DoExplodeSector(short match)
             continue;
 
         if (!actor->hasU())
-            /*u = */SpawnUser(actor, 0, nullptr);
+            SpawnUser(actor, 0, nullptr);
 
         sectp = actor->spr.sector();
 
@@ -905,8 +904,6 @@ void DoExplodeSector(short match)
 
 int DoSpawnSpot(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if ((actor->user.WaitTics -= synctics) < 0)
     {
         change_actor_stat(actor, STAT_SPAWN_SPOT);
@@ -925,8 +922,6 @@ int DoSpawnSpot(DSWActor* actor)
 // spawns shrap when killing an object
 void DoSpawnSpotsForKill(short match)
 {
-    USERp u;
-
     if (match < 0)
         return;
 
@@ -936,7 +931,6 @@ void DoSpawnSpotsForKill(short match)
         // change the stat num and set the delay correctly to call SpawnShrap
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
-            u = actor->u();
             change_actor_stat(actor, STAT_NO_STATE);
             actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG5(actor) * 15;
@@ -950,8 +944,6 @@ void DoSpawnSpotsForKill(short match)
 // spawns shrap when damaging an object
 void DoSpawnSpotsForDamage(short match)
 {
-    USERp u;
-
     if (match < 0)
         return;
 
@@ -961,7 +953,6 @@ void DoSpawnSpotsForDamage(short match)
         // change the stat num and set the delay correctly to call SpawnShrap
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
-            u = actor->u();
             change_actor_stat(actor, STAT_NO_STATE);
             actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG7(actor) * 15;
@@ -1376,7 +1367,6 @@ bool ComboSwitchTest(short combo_type, short match)
 // NOTE: switches are always wall sprites
 int OperateSprite(DSWActor* actor, short player_is_operating)
 {
-    USERp u = actor->u();
     PLAYERp pp = nullptr;
     short state;
     short key_num=0;
@@ -1628,7 +1618,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         change_actor_stat(actor, STAT_NO_STATE);
 
-        u = SpawnUser(actor, 0, nullptr);
+        SpawnUser(actor, 0, nullptr);
 
         actor->user.ActorActionFunc = DoGrating;
 
@@ -1692,13 +1682,9 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
 int DoTrapReset(short match)
 {
-    USERp u;
-
     SWStatIterator it(STAT_TRAP);
     while (auto actor = it.Next())
     {
-        u = actor->u();
-
         if (actor->spr.lotag != match)
             continue;
 
@@ -1719,15 +1705,11 @@ int DoTrapReset(short match)
 
 int DoTrapMatch(short match)
 {
-    USERp u;
-
     // may need to be reset to fire immediately
 
     SWStatIterator it(STAT_TRAP);
     while (auto actor = it.Next())
     {
-        u = actor->u();
-
         if (actor->spr.lotag != match)
             continue;
 
@@ -1848,15 +1830,12 @@ void OperateTripTrigger(PLAYERp pp)
     {
         int dist;
         int i;
-        USERp u;
 
         dist = sectp->hitag;
 
         SWStatIterator it(STAT_ENEMY);
         while (auto actor = it.Next())
         {
-            u = actor->u();
-
             if (TEST(actor->user.Flags, SPR_WAIT_FOR_TRIGGER))
             {
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
@@ -1929,7 +1908,6 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 {
     auto sectu = pp->cursector;
     DSWActor* actor = pp->actor;
-    USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
     if ((actor->user.DamageTics -= synctics) < 0)
