@@ -332,7 +332,6 @@ void QuickJumpSetup(short stat, short lotag, short type)
     int ndx;
     TRACK_POINTp tp;
     TRACKp t;
-    SPRITEp nsp;
     DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks
@@ -362,24 +361,21 @@ void QuickJumpSetup(short stat, short lotag, short type)
         start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &start_sprite->s();
-        nsp->lotag = TRACK_START;
-        nsp->hitag = 0;
+        start_sprite->spr.lotag = TRACK_START;
+        start_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        nsp = &actor->s();
-        nsp->pos.X += MulScale(64, bcos(nsp->ang), 14);
-        nsp->pos.Y += MulScale(64, bsin(nsp->ang), 14);
-        nsp->lotag = lotag;
+        actor->spr.pos.X += MulScale(64, bcos(actor->spr.ang), 14);
+        actor->spr.pos.Y += MulScale(64, bsin(actor->spr.ang), 14);
+        actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &end_sprite->s();
-        nsp->pos.X += MulScale(2048, bcos(nsp->ang), 14);
-        nsp->pos.Y += MulScale(2048, bsin(nsp->ang), 14);
-        nsp->lotag = TRACK_END;
-        nsp->hitag = 0;
+        end_sprite->spr.pos.X += MulScale(2048, bcos(end_sprite->spr.ang), 14);
+        end_sprite->spr.pos.Y += MulScale(2048, bsin(end_sprite->spr.ang), 14);
+        end_sprite->spr.lotag = TRACK_END;
+        end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
     }
 }
@@ -424,24 +420,21 @@ void QuickScanSetup(short stat, short lotag, short type)
         start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &start_sprite->s();
-        nsp->lotag = TRACK_START;
-        nsp->hitag = 0;
-        nsp->pos.X += MulScale(64, -bcos(nsp->ang), 14);
-        nsp->pos.Y += MulScale(64, -bsin(nsp->ang), 14);
+        start_sprite->spr.lotag = TRACK_START;
+        start_sprite->spr.hitag = 0;
+        start_sprite->spr.pos.X += MulScale(64, -bcos(start_sprite->spr.ang), 14);
+        start_sprite->spr.pos.Y += MulScale(64, -bsin(start_sprite->spr.ang), 14);
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        nsp = &actor->s();
-        nsp->lotag = lotag;
+        actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &end_sprite->s();
-        nsp->pos.X += MulScale(64, bcos(nsp->ang), 14);
-        nsp->pos.Y += MulScale(64, bsin(nsp->ang), 14);
-        nsp->lotag = TRACK_END;
-        nsp->hitag = 0;
+        end_sprite->spr.pos.X += MulScale(64, bcos(end_sprite->spr.ang), 14);
+        end_sprite->spr.pos.Y += MulScale(64, bsin(end_sprite->spr.ang), 14);
+        end_sprite->spr.lotag = TRACK_END;
+        end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
     }
 }
@@ -451,7 +444,6 @@ void QuickExitSetup(short stat, short type)
     int ndx;
     TRACK_POINTp tp;
     TRACKp t;
-    SPRITEp nsp;
     DSWActor* start_sprite,* end_sprite;
 
     SWStatIterator it(stat);
@@ -483,19 +475,17 @@ void QuickExitSetup(short stat, short type)
         start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &start_sprite->s();
-        nsp->lotag = TRACK_START;
-        nsp->hitag = 0;
+        start_sprite->spr.lotag = TRACK_START;
+        start_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, start_sprite);
 
         KillActor(actor);
 
         // add end point
-        nsp = &end_sprite->s();
-        nsp->pos.X += MulScale(1024, bcos(nsp->ang), 14);
-        nsp->pos.Y += MulScale(1024, bsin(nsp->ang), 14);
-        nsp->lotag = TRACK_END;
-        nsp->hitag = 0;
+        end_sprite->spr.pos.X += MulScale(1024, bcos(end_sprite->spr.ang), 14);
+        end_sprite->spr.pos.Y += MulScale(1024, bsin(end_sprite->spr.ang), 14);
+        end_sprite->spr.lotag = TRACK_END;
+        end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
     }
 }
@@ -505,7 +495,6 @@ void QuickLadderSetup(short stat, short lotag, short type)
     int ndx;
     TRACK_POINTp tp;
     TRACKp t;
-    SPRITEp nsp;
     DSWActor* start_sprite,* end_sprite;
 
     SWStatIterator it(stat);
@@ -537,24 +526,21 @@ void QuickLadderSetup(short stat, short lotag, short type)
         start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &start_sprite->s();
-        nsp->lotag = TRACK_START;
-        nsp->hitag = 0;
-        nsp->pos.X += MOVEx(256,nsp->ang + 1024);
-        nsp->pos.Y += MOVEy(256,nsp->ang + 1024);
+        start_sprite->spr.lotag = TRACK_START;
+        start_sprite->spr.hitag = 0;
+        start_sprite->spr.pos.X += MOVEx(256,start_sprite->spr.ang + 1024);
+        start_sprite->spr.pos.Y += MOVEy(256,start_sprite->spr.ang + 1024);
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
-        nsp = &actor->s();
-        nsp->lotag = lotag;
+        actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &end_sprite->s();
-        nsp->pos.X += MOVEx(512,nsp->ang);
-        nsp->pos.Y += MOVEy(512,nsp->ang);
-        nsp->lotag = TRACK_END;
-        nsp->hitag = 0;
+        end_sprite->spr.pos.X += MOVEx(512,end_sprite->spr.ang);
+        end_sprite->spr.pos.Y += MOVEy(512,end_sprite->spr.ang);
+        end_sprite->spr.lotag = TRACK_END;
+        end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
     }
 }
@@ -859,12 +845,10 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         SWStatIterator it(StatList[i]);
         while (auto itActor = it.Next())
         {
-            SPRITEp sp = &itActor->s();
-
-            if (sp->pos.X > xlow && sp->pos.X < xhigh && sp->pos.Y > ylow && sp->pos.Y < yhigh)
+            if (itActor->spr.pos.X > xlow && itActor->spr.pos.X < xhigh && itActor->spr.pos.Y > ylow && itActor->spr.pos.Y < yhigh)
             {
                 // some delete sprites ride others don't
-                if (sp->statnum == STAT_DELETE_SPRITE)
+                if (itActor->spr.statnum == STAT_DELETE_SPRITE)
                 {
                     if (!TEST_BOOL2(itActor))
                         continue;
@@ -877,29 +861,29 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 u->RotNum = 0;
 
-                sp->backuppos();
-                u->oz = sp->opos.Z;
+                itActor->spr.backuppos();
+                u->oz = itActor->spr.opos.Z;
 
-                switch (sp->statnum)
+                switch (itActor->spr.statnum)
                 {
                 case STAT_WALL_MOVE:
                     ////DSPRINTF(ds,"Damage Wall attached ");
                     //MONO_PRINT(ds);
                     break;
                 case STAT_DEFAULT:
-                    switch (sp->hitag)
+                    switch (itActor->spr.hitag)
                     {
                     case SO_CLIP_BOX:
                     {
                         short ang2;
                         sop->clipdist = 0;
-                        sop->clipbox_dist[sop->clipbox_num] = sp->lotag;
-                        sop->clipbox_xoff[sop->clipbox_num] = sop->xmid - sp->pos.X;
-                        sop->clipbox_yoff[sop->clipbox_num] = sop->ymid - sp->pos.Y;
+                        sop->clipbox_dist[sop->clipbox_num] = itActor->spr.lotag;
+                        sop->clipbox_xoff[sop->clipbox_num] = sop->xmid - itActor->spr.pos.X;
+                        sop->clipbox_yoff[sop->clipbox_num] = sop->ymid - itActor->spr.pos.Y;
 
-                        sop->clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->xmid - sp->pos.X) + SQ(sop->ymid - sp->pos.Y));
+                        sop->clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->xmid - itActor->spr.pos.X) + SQ(sop->ymid - itActor->spr.pos.Y));
 
-                        ang2 = getangle(sp->pos.X - sop->xmid, sp->pos.Y - sop->ymid);
+                        ang2 = getangle(itActor->spr.pos.X - sop->xmid, itActor->spr.pos.Y - sop->ymid);
                         sop->clipbox_ang[sop->clipbox_num] = getincangle(ang2, sop->ang);
 
                         sop->clipbox_num++;
@@ -911,7 +895,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     case SO_SHOOT_POINT:
                         ClearOwner(itActor);
                         change_actor_stat(itActor, STAT_SO_SHOOT_POINT);
-                        RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                        RESET(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                         break;
                     default:
                         break;
@@ -920,14 +904,14 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 }
 
 
-                u->sx = sop->xmid - sp->pos.X;
-                u->sy = sop->ymid - sp->pos.Y;
-                u->sz = sop->mid_sector->floorz - sp->pos.Z;
+                u->sx = sop->xmid - itActor->spr.pos.X;
+                u->sy = sop->ymid - itActor->spr.pos.Y;
+                u->sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
                 SET(u->Flags, SPR_SO_ATTACHED);
 
-                u->sang = sp->ang;
-                u->spal = sp->pal;
+                u->sang = itActor->spr.ang;
+                u->spal = itActor->spr.pal;
 
                 // search SO's sectors to make sure that it is not on a
                 // sector
@@ -950,10 +934,10 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     // true
                     for (j = 0; j < sop->num_sectors; j++)
                     {
-                        if (sop->sectp[j] == sp->sector())
+                        if (sop->sectp[j] == itActor->spr.sector())
                         {
                             SET(u->Flags, SPR_ON_SO_SECTOR);
-                            u->sz = sp->sector()->floorz - sp->pos.Z;
+                            u->sz = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }
                     }
