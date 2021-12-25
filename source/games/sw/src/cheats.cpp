@@ -196,7 +196,6 @@ static cheatseq_t swcheats[] = {
 static void WeaponCheat(int player)
 {
     auto p = &Player[player];
-    auto u = p->Actor()->u();
 
     if (!TEST(p->Flags, PF_TWO_UZI))
     {
@@ -217,7 +216,7 @@ static void WeaponCheat(int player)
     p->WpnRocketHeat = 5;
     p->WpnRocketNuke = 1;
 
-    PlayerUpdateWeapon(p, u->WeaponNum);
+    PlayerUpdateWeapon(p, p->Actor()->user.WeaponNum);
 }
 
 static void ItemCheat(int player)
@@ -280,7 +279,6 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     case GIVE_AMMO:
     {
         auto p = &Player[player];
-        auto u = p->Actor()->u();
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;
@@ -291,7 +289,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
             p->WpnAmmo[i] = DamageData[i].max_ammo;
         }
 
-        PlayerUpdateWeapon(p, u->WeaponNum);
+        PlayerUpdateWeapon(p, p->actor->user.WeaponNum);
         break;
     }
 
