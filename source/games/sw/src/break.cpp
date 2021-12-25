@@ -971,19 +971,18 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
 
 bool NullActor(DSWActor* actor)
 {
-    auto u = actor->u();
     // a Null Actor is defined as an actor that has no real controlling programming attached
 
     // check to see if attached to SO
-    if (TEST(u->Flags, SPR_SO_ATTACHED))
+    if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
         return true;
 
     // does not have a STATE or FUNC to control it
-    if (!u->State)
+    if (!actor->user.State)
         return true;
 
     // does not have a STATE or FUNC to control it
-    if (!u->ActorActionFunc)
+    if (!actor->user.ActorActionFunc)
         return true;
 
     return false;
