@@ -7869,7 +7869,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range)) != nullptr)
                 {
-                    USERp hu = actor->u();
+                    USERp hu = hitActor->u();
 
                     u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
@@ -7878,7 +7878,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
             }
             else if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = actor->u();
+                USERp hu = hitActor->u();
 
                 u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
@@ -7950,7 +7950,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
 
             if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = actor->u();
+                USERp hu = hitActor->u();
 
                 u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
@@ -8018,7 +8018,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range1)) != nullptr)
                 {
-                    USERp hu = actor->u();
+                    USERp hu = hitActor->u();
 
                     u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8026,7 +8026,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
                 }
                 else if ((hitActor = PickEnemyTarget(actor, aware_range2)) != nullptr)
                 {
-                    USERp hu = actor->u();
+                    USERp hu = hitActor->u();
 
                     u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8039,14 +8039,14 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
                 if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
                 {
-                    USERp hu = actor->u();
+                    USERp hu = hitActor->u();
                     u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
                 else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
                 {
-                    USERp hu = actor->u();
+                    USERp hu = hitActor->u();
                     u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
@@ -8107,14 +8107,14 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
             DSWActor* hitActor;
             if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
             {
-                USERp hu = actor->u();
+                USERp hu = hitActor->u();
                 u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
             else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
             {
-                USERp hu = actor->u();
+                USERp hu = hitActor->u();
                 u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
