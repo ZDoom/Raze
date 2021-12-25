@@ -307,7 +307,7 @@ static void RestartAmbient(AmbientSound* amb)
     auto rolloff = GetRolloff(vp.voc_distance);
     int pitch = 0;
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
-    else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
+    else pitch = vp.pitch_lo + (StdRandomRange(vp.pitch_hi - vp.pitch_lo));
     amb->curIndex = PlayClock;
 
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY, amb->vocIndex))
@@ -332,7 +332,7 @@ static int RandomizeAmbientSpecials(int handle)
     for (i = 0; i < MAXRNDAMB; i++)
     {
         if (handle == ambrand[i])
-            return ambrand[STD_RANDOM_RANGE(MAXRNDAMB - 1)];
+            return ambrand[StdRandomRange(MAXRNDAMB - 1)];
     }
 
     return -1;
@@ -356,7 +356,7 @@ static void DoTimedSound(AmbientSound* amb)
             if (ambid != -1)
             {
                 amb->vocIndex = ambarray[ambid].diginame;
-                amb->maxIndex = STD_RANDOM_RANGE(ambarray[ambid].maxtics);
+                amb->maxIndex = StdRandomRange(ambarray[ambid].maxtics);
             }
             RestartAmbient(amb);
         }
@@ -676,7 +676,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYERp pp, vec3_t* pos, Voc3D_Flags fl
 
     int pitch = 0;
     if (vp->pitch_hi <= vp->pitch_lo) pitch = vp->pitch_lo;
-    else if (vp->pitch_hi != vp->pitch_lo) pitch = vp->pitch_lo + (STD_RANDOM_RANGE(vp->pitch_hi - vp->pitch_lo));
+    else if (vp->pitch_hi != vp->pitch_lo) pitch = vp->pitch_lo + (StdRandomRange(vp->pitch_hi - vp->pitch_lo));
 
     auto rolloff = GetRolloff(vp->voc_distance);
     FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);

@@ -5011,7 +5011,7 @@ void ChoosePlayerGetSound(PLAYERp pp)
 
     if (pp != Player+myconnectindex) return;
 
-    choose_snd = STD_RANDOM_RANGE((MAX_GETSOUNDS-1)<<8)>>8;
+    choose_snd = StdRandomRange((MAX_GETSOUNDS-1)<<8)>>8;
 
     PlayerSound(PlayerGetItemVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
@@ -5266,7 +5266,7 @@ KeyMain:
                 // Say something witty
                 if (pp == Player+myconnectindex)
                 {
-                    int cookie = STD_RANDOM_RANGE(MAX_FORTUNES);
+                    int cookie = StdRandomRange(MAX_FORTUNES);
                     // print to the console, and the user quote display.
                     FStringf msg("%s %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
                     Printf(PRINT_NONOTIFY, TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
@@ -5588,7 +5588,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
-                if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
+                if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                     PlayerSound(DIGI_ILIKENUKES, v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 if (pp->CurWpn == pp->Wpn[WPN_MICRO])
                 {
@@ -5622,7 +5622,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)))
@@ -5692,7 +5692,7 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             if (pp == Player+myconnectindex)
             {
-                if (STD_RANDOM_RANGE(1000) > 700)
+                if (StdRandomRange(1000) > 700)
                     PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 else
                     PlayerSound(DIGI_GOTRAILGUN, v3df_dontpan|v3df_doppler|v3df_follow,pp);
@@ -5806,7 +5806,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)))
@@ -5851,7 +5851,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)))

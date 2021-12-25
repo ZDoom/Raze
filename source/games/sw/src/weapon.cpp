@@ -4876,9 +4876,9 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
             {
                 PLAYERp pp = wu->PlayerP;
 
-                if (wu->WeaponNum == WPN_FIST && STD_RANDOM_RANGE(1000)>500 && pp == Player+myconnectindex)
+                if (wu->WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
                 {
-                    int choosesnd = STD_RANDOM_RANGE(6);
+                    int choosesnd = StdRandomRange(6);
 
                     if (choosesnd == 0)
                         PlayerSound(DIGI_KUNGFU, v3df_follow|v3df_dontpan,pp);
@@ -4895,11 +4895,11 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     //PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
                     //    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
                 }
-                else if (wu->WeaponNum == WPN_SWORD && STD_RANDOM_RANGE(1000)>500 && pp == Player+myconnectindex)
+                else if (wu->WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
                 {
                     short choose_snd;
 
-                    choose_snd = STD_RANDOM_RANGE(1000);
+                    choose_snd = StdRandomRange(1000);
                     if (choose_snd > 750)
                         PlayerSound(DIGI_SWORDGOTU1, v3df_follow|v3df_dontpan,pp);
                     else if (choose_snd > 575)
@@ -4981,7 +4981,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                         pp = own->user.PlayerP;
                         if (pp)
                         {
-                            choosesnd=STD_RANDOM_RANGE(MAX_TAUNTAI<<8)>>8;
+                            choosesnd=StdRandomRange(MAX_TAUNTAI<<8)>>8;
 
                             if (pp == Player+myconnectindex)
                                 PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
@@ -5628,7 +5628,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 {
                     int choosesnd=0;
                     // Random chance of taunting the AI's here
-                    if (STD_RANDOM_RANGE(1024) > 512 && pp == Player+myconnectindex)
+                    if (StdRandomRange(1024) > 512 && pp == Player+myconnectindex)
                     {
                         choosesnd=RandomRange(MAX_TAUNTAI);
                         PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);

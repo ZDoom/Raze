@@ -5332,7 +5332,7 @@ const char *SuicideNote[MAX_SUICIDE] =
 char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
 {
     const int MAX_KILL_NOTES = 16;
-    short rnd = STD_RANDOM_RANGE(MAX_KILL_NOTES);
+    short rnd = StdRandomRange(MAX_KILL_NOTES);
     const char *p1 = pp->PlayerName;
     const char *p2 = killer->PlayerName;
 
@@ -5405,7 +5405,7 @@ void DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
 
     if (pp == killer && pp == Player + myconnectindex)
     {
-        sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[STD_RANDOM_RANGE(MAX_SUICIDE)]);
+        sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[StdRandomRange(MAX_SUICIDE)]);
         SEND_OK = true;
     }
     else

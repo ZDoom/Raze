@@ -585,7 +585,7 @@ static void PlayOrderSound()
     if (!DidOrderSound)
     {
         DidOrderSound = true;
-        int choose_snd = STD_RANDOM_RANGE(1000);
+        int choose_snd = StdRandomRange(1000);
         if (choose_snd > 500)
             PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
         else

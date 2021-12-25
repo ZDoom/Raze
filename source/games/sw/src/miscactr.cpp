@@ -1870,7 +1870,7 @@ int DoPruneGirl(DSWActor* actor)
             if (!SoundValidAndActive(actor, CHAN_AnimeMad))
             {
                 short choose;
-                choose = STD_RANDOM_RANGE(1000);
+                choose = StdRandomRange(1000);
 
                 if (choose > 750)
                     PlaySound(DIGI_LANI089, actor, v3df_dontpan, CHAN_AnimeMad);
@@ -1890,7 +1890,7 @@ int DoPruneGirl(DSWActor* actor)
         if (!SoundValidAndActive(actor, CHAN_CoyHandle))
         {
             short choose;
-            choose = STD_RANDOM_RANGE(1000);
+            choose = StdRandomRange(1000);
 
             if (choose > 990)
                 PlaySound(DIGI_PRUNECACKLE, actor, v3df_dontpan, CHAN_CoyHandle);

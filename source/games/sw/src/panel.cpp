@@ -193,7 +193,7 @@ void DoPlayerChooseYell(PLAYERp pp)
 
     if (RandomRange(1000) < 990) return;
 
-    choose_snd = STD_RANDOM_RANGE(MAX_YELLSOUNDS);
+    choose_snd = StdRandomRange(MAX_YELLSOUNDS);
 
     if (pp == Player+myconnectindex)
         PlayerSound(PlayerYellVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
@@ -990,7 +990,7 @@ void InitWeaponSword(PLAYERp pp)
 
     if (pp == Player+myconnectindex && PlayClock > 0)
     {
-        rnd_num = STD_RANDOM_RANGE(1024);
+        rnd_num = StdRandomRange(1024);
         if (rnd_num > 900)
             PlaySound(DIGI_TAUNTAI2, pp, v3df_follow|v3df_dontpan);
         else if (rnd_num > 800)
@@ -1385,7 +1385,7 @@ void InitWeaponStar(PLAYERp pp)
     pSetState(psp, psp->PresentState);
 
     PlaySound(DIGI_PULL, pp, v3df_follow|v3df_dontpan);
-    if (STD_RANDOM_RANGE(1000) > 900 && pp == Player+myconnectindex)
+    if (StdRandomRange(1000) > 900 && pp == Player+myconnectindex)
     {
         if (!sw_darts)
             PlayerSound(DIGI_ILIKESHURIKEN, v3df_follow|v3df_dontpan,pp);
@@ -4176,7 +4176,7 @@ void pMicroRest(PANEL_SPRITEp psp)
 
         if (pp == Player+myconnectindex)
         {
-            choose_voc = STD_RANDOM_RANGE(1024);
+            choose_voc = StdRandomRange(1024);
             if (choose_voc > 600)
                 PlayerSound(DIGI_TAUNTAI2,v3df_dontpan|v3df_follow,psp->PlayerP);
             else if (choose_voc > 300)

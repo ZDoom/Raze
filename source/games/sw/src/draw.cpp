@@ -874,7 +874,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     }
                 }
 
-                tsp->shade = 12 - STD_RANDOM_RANGE(30);
+                tsp->shade = 12 - StdRandomRange(30);
             }
         }
     }

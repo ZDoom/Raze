@@ -1023,7 +1023,7 @@ int DoBunnyQuickJump(DSWActor* actor)
 
                         if (pp == Player+myconnectindex)
                         {
-                            choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
+                            choose_snd = StdRandomRange(2<<8)>>8;
                             if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
@@ -1038,7 +1038,7 @@ int DoBunnyQuickJump(DSWActor* actor)
 
                         if (pp == Player+myconnectindex)
                         {
-                            choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
+                            choose_snd = StdRandomRange(3<<8)>>8;
                             if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }

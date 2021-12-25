@@ -1416,7 +1416,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         if (pp != Player+myconnectindex) return true;
 
-        choose_snd = STD_RANDOM_RANGE(1000);
+        choose_snd = StdRandomRange(1000);
         if (actor->spr.lotag == CARGIRL_R0)
         {
             if (choose_snd > 700)
@@ -2015,7 +2015,7 @@ bool NearThings(PLAYERp pp)
             // Near a plain old vanilla wall.  Can't do anything but grunt.
             if (!TEST(hit.hitWall->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
             {
-                if (STD_RANDOM_RANGE(1000) > 970)
+                if (StdRandomRange(1000) > 970)
                     PlayerSound(DIGI_HITTINGWALLS, v3df_follow|v3df_dontpan,pp);
                 else
                     PlayerSound(DIGI_SEARCHWALL, v3df_follow|v3df_dontpan,pp);

@@ -262,7 +262,7 @@ void UseInventoryRepairKit(PLAYERp pp)
     //PlaySound(DIGI_TOOLBOX, pp, v3df_none);
     if (pp == Player + myconnectindex)
     {
-        if (STD_RANDOM_RANGE(1000) > 500)
+        if (StdRandomRange(1000) > 500)
             PlayerSound(DIGI_NOREPAIRMAN, v3df_follow|v3df_dontpan,pp);
         else
             PlayerSound(DIGI_NOREPAIRMAN2, v3df_follow|v3df_dontpan,pp);

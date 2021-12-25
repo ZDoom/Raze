@@ -134,7 +134,7 @@ void ProcessQuakeSpot(void)
             // spawn a quake if condition is met
             rand_test = QUAKE_RandomTest(actor);
             // wrong - all quakes need to happen at the same time on all computerssg
-            //if (!rand_test || (rand_test && STD_RANDOM_RANGE(128) < rand_test))
+            //if (!rand_test || (rand_test && StdRandomRange(128) < rand_test))
             if (!rand_test || (rand_test && RandomRange(128) < rand_test))
             {
                 CopyQuakeSpotToOn(actor);
@@ -199,14 +199,14 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     if (save_dist > radius)
         return;
 
-    *z_diff = Z(STD_RANDOM_RANGE(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2));
+    *z_diff = Z(StdRandomRange(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2));
 
     ang_amt = QUAKE_AngAmt(actor) * 4L;
-    *ang_diff = STD_RANDOM_RANGE(ang_amt) - (ang_amt/2);
+    *ang_diff = StdRandomRange(ang_amt) - (ang_amt/2);
 
     pos_amt = QUAKE_PosAmt(actor) * 4L;
-    *x_diff = STD_RANDOM_RANGE(pos_amt) - (pos_amt/2);
-    *y_diff = STD_RANDOM_RANGE(pos_amt) - (pos_amt/2);
+    *x_diff = StdRandomRange(pos_amt) - (pos_amt/2);
+    *y_diff = StdRandomRange(pos_amt) - (pos_amt/2);
 
     if (!QUAKE_TestDontTaper(actor))
     {

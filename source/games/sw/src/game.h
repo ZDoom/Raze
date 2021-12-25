@@ -196,7 +196,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 
 int StdRandomRange(int range);
 #define STD_RANDOM_P2(pwr_of_2) (MOD_P2(rand(),(pwr_of_2)))
-#define STD_RANDOM_RANGE(range) (StdRandomRange(range))
 #define STD_RANDOM() (rand())
 
 #define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
