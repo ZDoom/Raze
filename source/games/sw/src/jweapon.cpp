@@ -1258,7 +1258,6 @@ int DoRadiationCloud(DSWActor* actor)
 int PlayerInitChemBomb(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    USERp wu;
     int nx, ny, nz;
     short oclipdist;
 
@@ -1276,8 +1275,6 @@ int PlayerInitChemBomb(PLAYERp pp)
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
-
-    wu = actorNew->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1332,9 +1329,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 int InitSpriteChemBomb(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
-
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
@@ -1346,8 +1341,6 @@ int InitSpriteChemBomb(DSWActor* actor)
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
-
-    wu = actorNew->u();
 
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
@@ -1381,9 +1374,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 int InitChemBomb(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
-
 
 // Need to make it take away from inventory weapon list
 //    PlayerUpdateAmmo(pp, u->WeaponNum, -1);
@@ -1396,8 +1387,6 @@ int InitChemBomb(DSWActor* actor)
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
-
-    wu = actorNew->u();
 
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
@@ -1650,7 +1639,6 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 int PlayerInitCaltrops(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    USERp wu;
     int nx, ny, nz;
     short oclipdist;
 
@@ -1665,8 +1653,6 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
-
-    wu = actorNew->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1720,7 +1706,6 @@ int PlayerInitCaltrops(PLAYERp pp)
 int InitCaltrops(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
 
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
@@ -1733,8 +1718,6 @@ int InitCaltrops(DSWActor* actor)
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
-
-    wu = actorNew->u();
 
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
@@ -1765,10 +1748,8 @@ int InitCaltrops(DSWActor* actor)
 int InitPhosphorus(DSWActor* actor)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
     short daang;
-
 
     PlaySound(DIGI_FIREBALL1, actor, v3df_follow);
 
@@ -1782,8 +1763,6 @@ int InitPhosphorus(DSWActor* actor)
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->spr.sector(),
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
-
-    wu = actorNew->u();
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
@@ -1818,7 +1797,6 @@ int InitPhosphorus(DSWActor* actor)
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
     short i, cnt, ang, vel, rnd;
 
@@ -1862,8 +1840,6 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->spr.sector(),
                         nx, ny, nz, ang, vel*2);
-
-        wu = actorNew->u();
 
         SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
         if (dogib)
@@ -2228,7 +2204,6 @@ int DoFlag(DSWActor* actor)
 int SpawnShell(DSWActor* actor, int ShellNum)
 {
     USERp u = actor->u();
-    USERp wu;
     int nx, ny, nz;
     short id=0,velocity=0;    
     STATEp p=nullptr;
@@ -2256,8 +2231,6 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     }
 
     auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->spr.sector(), nx, ny, nz, actor->spr.ang, 64);
-
-    wu = actorNew->u();
 
     actorNew->spr.zvel = -(velocity);
 
