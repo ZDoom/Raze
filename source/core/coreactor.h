@@ -44,16 +44,6 @@ public:
 		return (unsigned)spr.statnum < MAXSTATUS;
 	}
 
-	const spritetype& s() const
-	{ 
-		return spr;
-	}
-
-	spritetype& s()
-	{
-		return spr;
-	}
-
 	int GetIndex() const
 	{ 
 		// This is only identical with the sprite index for items spawned at map start.

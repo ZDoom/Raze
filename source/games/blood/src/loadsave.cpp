@@ -484,7 +484,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 				
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-				if (s().type == kDudeModernCustom || s().type == kDudeModernCustomBurning)
+				if (spr.type == kDudeModernCustom || spr.type == kDudeModernCustomBurning)
 				{
 				arc("gendudeextra", genDudeExtra);
 				}

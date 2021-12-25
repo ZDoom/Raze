@@ -109,37 +109,37 @@ public:
 	void SetSpecialOwner() // nnext hackery
 	{
 		ownerActor = nullptr;
-		s().owner = kMagicOwner;
+		spr.owner = kMagicOwner;
 	}
 
 	bool GetSpecialOwner()
 	{
-		return  ownerActor == nullptr && (s().owner == kMagicOwner);
+		return  ownerActor == nullptr && (spr.owner == kMagicOwner);
 	}
 
 	bool IsPlayerActor()
 	{
-		return s().type >= kDudePlayer1 && s().type <= kDudePlayer8;
+		return spr.type >= kDudePlayer1 && spr.type <= kDudePlayer8;
 	}
 
 	bool IsDudeActor()
 	{
-		return s().type >= kDudeBase && s().type < kDudeMax;
+		return spr.type >= kDudeBase && spr.type < kDudeMax;
 	}
 
 	bool IsItemActor()
 	{
-		return s().type >= kItemBase && s().type < kItemMax;
+		return spr.type >= kItemBase && spr.type < kItemMax;
 	}
 
 	bool IsWeaponActor()
 	{
-		return s().type >= kItemWeaponBase && s().type < kItemWeaponMax;
+		return spr.type >= kItemWeaponBase && spr.type < kItemWeaponMax;
 	}
 
 	bool IsAmmoActor()
 	{
-		return s().type >= kItemAmmoBase && s().type < kItemAmmoMax;
+		return spr.type >= kItemAmmoBase && spr.type < kItemAmmoMax;
 	}
 
 	bool isActive() 
