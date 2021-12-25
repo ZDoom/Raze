@@ -1709,7 +1709,7 @@ void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
 DSWActor* GetOwner(DSWActor* child);
 void SetAttach(DSWActor*, DSWActor*);
-void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
+void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
 void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
@@ -2100,12 +2100,12 @@ inline int ActorSizeZ(DSWActor* actor)
 
 inline int ActorUpperZ(DSWActor* actor)
 {
-    return (GetSpriteZOfTop(&actor->spr) + (GetSpriteSizeZ(&actor->spr) >> 2));
+    return (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2));
 }
 
 inline int ActorLowerZ(DSWActor* actor)
 {
-    return (GetSpriteZOfBottom(&actor->spr) - (GetSpriteSizeZ(&actor->spr) >> 2));
+    return (ActorZOfBottom(actor) - (ActorSizeZ(actor) >> 2));
 }
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
