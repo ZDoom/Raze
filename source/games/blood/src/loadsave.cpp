@@ -507,7 +507,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 				
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
+				if (w.s().type == kDudeModernCustom || w.s().type == kDudeModernCustomBurning)
 				{
 					arc("gendudeextra", w.genDudeExtra);
 				}
