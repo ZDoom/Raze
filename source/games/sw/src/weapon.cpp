@@ -4147,7 +4147,6 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
 bool VehicleMoveHit(DSWActor* actor)
 {
-    SPRITEp cp;
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
     bool TestKillSectorObject(SECTOR_OBJECTp);
@@ -4311,8 +4310,6 @@ bool WeaponMoveHit(DSWActor* actor)
 
     case kHitSprite:
     {
-        SPRITEp hsp;
-
         auto hitActor = actor->user.coll.actor();
 
         ASSERT(hitActor->spr.extra != -1);
@@ -7655,8 +7652,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
     int zh;
     short ang2tgt, delta_ang;
 
-    SPRITEp hp;
-
+    
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
 
@@ -7729,8 +7725,6 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
     int dist;
     int zh;
     short ang2tgt, delta_ang;
-
-    SPRITEp hp;
 
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
@@ -8241,7 +8235,6 @@ int DoGrenade(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            SPRITEp hsp;
 
             PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
@@ -8462,7 +8455,6 @@ int DoVulcanBoulder(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            SPRITEp hsp;
 
             auto hitActor = actor->user.coll.actor();
 
@@ -9727,8 +9719,6 @@ int SpawnCoolieExp(DSWActor* actor)
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
-    SPRITEp ep = nullptr;
-
     if (TEST(actor->user.Flags, SPR_UNDERWATER))
         return;
 
@@ -10671,7 +10661,6 @@ int DoFireball(DSWActor* actor)
 
 int DoFindGround(DSWActor* actor)
 {
-    SPRITEp hsp;
     Collision ceilhit, florhit;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -10724,7 +10713,6 @@ int DoFindGround(DSWActor* actor)
 
 int DoFindGroundPoint(DSWActor* actor)
 {
-    SPRITEp hsp;
     Collision ceilhit, florhit;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -16751,10 +16739,8 @@ int InitFireball(PLAYERp pp)
 
 int InitEnemyFireball(DSWActor* actor)
 {
-    SPRITEp fp = nullptr;
     int nz, dist;
     int size_z;
-    SPRITEp tsp;
     int i, targ_z, xchange, ychange;
 
     static short lat_ang[] =
@@ -18064,7 +18050,6 @@ int DoShrapVelocity(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            SPRITEp hsp;
 
             auto hit_sprite = actor->user.coll.actor();
 
