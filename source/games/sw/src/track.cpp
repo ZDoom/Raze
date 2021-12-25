@@ -866,7 +866,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 // some delete sprites ride others don't
                 if (sp->statnum == STAT_DELETE_SPRITE)
                 {
-                    if (!TEST_BOOL2(sp))
+                    if (!TEST_BOOL2(itActor))
                         continue;
                 }
 
@@ -1235,23 +1235,23 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                     sop->drive_angspeed = SP_TAG2(actor);
                     sop->drive_angspeed <<= 5;
-                    sop->drive_angslide = SP_TAG3(sp);
+                    sop->drive_angslide = SP_TAG3(actor);
                     if (sop->drive_angslide <= 0 || sop->drive_angslide == 32)
                         sop->drive_angslide = 1;
 
-                    sop->drive_speed = SP_TAG6(sp);
+                    sop->drive_speed = SP_TAG6(actor);
                     sop->drive_speed <<= 5;
-                    sop->drive_slide = SP_TAG7(sp);
+                    sop->drive_slide = SP_TAG7(actor);
                     if (sop->drive_slide <= 0)
                         sop->drive_slide = 1;
 
-                    if (TEST_BOOL1(sp))
+                    if (TEST_BOOL1(actor))
                         SET(sop->flags, SOBJ_NO_QUAKE);
 
-                    if (TEST_BOOL3(sp))
+                    if (TEST_BOOL3(actor))
                         SET(sop->flags, SOBJ_REMOTE_ONLY);
 
-                    if (TEST_BOOL4(sp))
+                    if (TEST_BOOL4(actor))
                     {
                         sop->crush_z = sp->pos.Z;
                         SET(sop->flags, SOBJ_RECT_CLIP);

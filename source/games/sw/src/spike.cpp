@@ -312,8 +312,8 @@ int DoSpike(DSWActor* actor)
 
             SetSpikeInactive(actor);
 
-            if (SP_TAG6(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
         else
         // in the OFF position
@@ -335,12 +335,12 @@ int DoSpike(DSWActor* actor)
                 //SpikeSwitch(match, OFF);
             }
 
-            if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor) && TEST_BOOL5(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
 
         // operate only once
-        if (TEST_BOOL2(sp))
+        if (TEST_BOOL2(actor))
         {
             SetSpikeInactive(actor);
             KillActor(actor);
@@ -357,7 +357,7 @@ int DoSpike(DSWActor* actor)
     else // if (*lptr == u->z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
+        if (TEST_BOOL3(actor) && u->z_tgt == u->oz)
         {
             USERp bu;
             bool found = false;
@@ -421,8 +421,8 @@ int DoSpikeAuto(DSWActor* actor)
             u->vel_rate = -u->vel_rate;
             u->Tics = u->WaitTics;
 
-            if (SP_TAG6(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
         else
         // in the DOWN position
@@ -434,8 +434,8 @@ int DoSpikeAuto(DSWActor* actor)
             u->z_tgt = actor->spr.pos.Z;
             u->Tics = u->WaitTics;
 
-            if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
+            if (SP_TAG6(actor) && TEST_BOOL5(actor))
+                DoMatchEverything(nullptr, SP_TAG6(actor), -1);
         }
     }
 

@@ -3500,7 +3500,7 @@ bool ItemSpotClear(DSWActor* actor, short statnum, short id)
     int i;
     auto sip = &actor->s();
 
-    if (TEST_BOOL2(sip))
+    if (TEST_BOOL2(actor))
     {
         SWSectIterator it(sip->sector());
         while (auto itActor = it.Next())
@@ -4280,7 +4280,7 @@ int SpawnItemsMatch(short match)
         }
         }
 
-        if (!TEST_BOOL1(sip))
+        if (!TEST_BOOL1(itActor))
             KillActor(itActor);
     }
     return 0;

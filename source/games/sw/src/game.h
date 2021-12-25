@@ -2061,42 +2061,6 @@ inline int FacingRange(DSWActor* a1, DSWActor* a2, int range)
     return (abs(getincangle(getangle(a1->spr.pos.X - a2->spr.pos.X, a1->spr.pos.Y - a2->spr.pos.Y), a2->spr.ang)) < (range));
 }
 
-inline void SET_BOOL1(spritetype* sp) { sp->extra |= SPRX_BOOL1; }
-inline void SET_BOOL2(spritetype* sp) { sp->extra |= SPRX_BOOL2; }
-inline void SET_BOOL3(spritetype* sp) { sp->extra |= SPRX_BOOL3; }
-inline void SET_BOOL4(spritetype* sp) { sp->extra |= SPRX_BOOL4; }
-inline void SET_BOOL5(spritetype* sp) { sp->extra |= SPRX_BOOL5; }
-inline void SET_BOOL6(spritetype* sp) { sp->extra |= SPRX_BOOL6; }
-inline void SET_BOOL7(spritetype* sp) { sp->extra |= SPRX_BOOL7; }
-inline void SET_BOOL8(spritetype* sp) { sp->extra |= SPRX_BOOL8; }
-inline void SET_BOOL9(spritetype* sp) { sp->extra |= SPRX_BOOL9; }
-inline void SET_BOOL10(spritetype* sp) { sp->extra |= SPRX_BOOL10; }
-inline void SET_BOOL11(spritetype* sp) { sp->extra |= SPRX_BOOL11; }
-
-inline void RESET_BOOL1(spritetype* sp) { sp->extra &= ~SPRX_BOOL1; }
-inline void RESET_BOOL2(spritetype* sp) { sp->extra &= ~SPRX_BOOL2; }
-inline void RESET_BOOL3(spritetype* sp) { sp->extra &= ~SPRX_BOOL3; }
-inline void RESET_BOOL4(spritetype* sp) { sp->extra &= ~SPRX_BOOL4; }
-inline void RESET_BOOL5(spritetype* sp) { sp->extra &= ~SPRX_BOOL5; }
-inline void RESET_BOOL6(spritetype* sp) { sp->extra &= ~SPRX_BOOL6; }
-inline void RESET_BOOL7(spritetype* sp) { sp->extra &= ~SPRX_BOOL7; }
-inline void RESET_BOOL8(spritetype* sp) { sp->extra &= ~SPRX_BOOL8; }
-inline void RESET_BOOL9(spritetype* sp) { sp->extra &= ~SPRX_BOOL9; }
-inline void RESET_BOOL10(spritetype* sp) { sp->extra &= ~SPRX_BOOL10; }
-inline void RESET_BOOL11(spritetype* sp) { sp->extra &= ~SPRX_BOOL11; }
-
-inline int TEST_BOOL1(spritetype* sp) { return sp->extra & SPRX_BOOL1; }
-inline int TEST_BOOL2(spritetype* sp) { return sp->extra & SPRX_BOOL2; }
-inline int TEST_BOOL3(spritetype* sp) { return sp->extra & SPRX_BOOL3; }
-inline int TEST_BOOL4(spritetype* sp) { return sp->extra & SPRX_BOOL4; }
-inline int TEST_BOOL5(spritetype* sp) { return sp->extra & SPRX_BOOL5; }
-inline int TEST_BOOL6(spritetype* sp) { return sp->extra & SPRX_BOOL6; }
-inline int TEST_BOOL7(spritetype* sp) { return sp->extra & SPRX_BOOL7; }
-inline int TEST_BOOL8(spritetype* sp) { return sp->extra & SPRX_BOOL8; }
-inline int TEST_BOOL9(spritetype* sp) { return sp->extra & SPRX_BOOL9; }
-inline int TEST_BOOL10(spritetype* sp) { return sp->extra & SPRX_BOOL10; }
-inline int TEST_BOOL11(spritetype* sp) { return sp->extra & SPRX_BOOL11; }
-
 inline uint8_t& SP_TAG3(spritetype* s) { return s->clipdist; }
 inline int16_t& SP_TAG4(spritetype* s) { return s->ang; }
 inline int16_t& SP_TAG5(spritetype* s) { return s->xvel; }
@@ -2105,8 +2069,6 @@ inline uint8_t& SP_TAG7(spritetype* s) { return MSB_VAR(s->zvel); }
 inline uint8_t& SP_TAG8(spritetype* s) { return LSB_VAR(s->zvel); }
 inline uint8_t& SP_TAG9(spritetype* s) { return MSB_VAR(s->owner); }
 inline uint8_t& SP_TAG10(spritetype* s) { return LSB_VAR(s->owner); }
-inline int8_t& SP_TAG11(spritetype* s) { return s->shade; }
-inline uint8_t& SP_TAG12(spritetype* s) { return s->pal; }
 
 inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
