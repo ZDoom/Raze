@@ -9942,11 +9942,10 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 
     if (enemyActor != nullptr)
     {
-        ep = &enemyActor->s();
         eu = enemyActor->u();
 
         // test for already burned
-        if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
+        if (TEST(enemyActor->spr.extra, SPRX_BURNABLE) && enemyActor->spr.shade > 40)
             return;
 
         if (!eu)
@@ -9958,10 +9957,10 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         auto flameActor = eu->flameActor;
         if (flameActor != nullptr)
         {
-            int sizez = GetSpriteSizeZ(ep) + (GetSpriteSizeZ(ep) >> 2);
+            int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
             auto nu = flameActor->u();
 
-            if (TEST(ep->extra, SPRX_BURNABLE))
+            if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
                 return;
 
             if (nu->Counter >= GetRepeatFromHeight(flameActor, sizez))
@@ -10003,14 +10002,14 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     if (enemyActor != nullptr)
     {
         // large flame for trees and such
-        if (TEST(ep->extra, SPRX_BURNABLE))
+        if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
         {
-            int sizez = GetSpriteSizeZ(ep) + (GetSpriteSizeZ(ep) >> 2);
+            int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
             nu->Counter = GetRepeatFromHeight(actorNew, sizez);
         }
         else
         {
-            nu->Counter = GetRepeatFromHeight(actorNew, GetSpriteSizeZ(ep)>>1);
+            nu->Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(enemyActor)>>1);
         }
     }
     else
@@ -10933,14 +10932,14 @@ int DoFireball(DSWActor* actor)
                 SPRITEp hsp;
                 USERp hu;
 
-                hsp = &u->coll.actor()->s(); // hitActor
-                hu = u->coll.actor()->u();
+                auto hitActor = u->coll.actor();
+                hu = hitActor->u();
 
-                if (TEST(hsp->extra, SPRX_BURNABLE))
+                if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
                 {
-                    if (!hu)
-                        hu = SpawnUser(u->coll.actor(), hsp->picnum, nullptr);
-                    SpawnFireballFlames(actor, u->coll.actor());
+                    if (!hitActor->hasU())
+                        hu = SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
+                    SpawnFireballFlames(actor, hitActor);
                     hit_burn = true;
                 }
 
@@ -10982,9 +10981,8 @@ int DoFindGround(DSWActor* actor)
     case kHitSprite:
     {
         auto florActor = florhit.actor();
-        hsp = &florActor->s();
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (TEST(florActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             u->lowActor = florActor;
@@ -10995,10 +10993,10 @@ int DoFindGround(DSWActor* actor)
         {
             // reset the blocking bit of what you hit and try again -
             // recursive
-            auto bak_cstat = hsp->cstat;
-            RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            auto bak_cstat = florActor->spr.cstat;
+            RESET(florActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             DoFindGround(actor);
-            hsp->cstat = bak_cstat;
+            florActor->spr.cstat = bak_cstat;
         }
 
         return false;
@@ -11037,9 +11035,8 @@ int DoFindGroundPoint(DSWActor* actor)
     case kHitSprite:
     {
         auto florActor = florhit.actor();
-        hsp = &florActor->s();
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (TEST(florActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             u->lowActor = florActor;
@@ -11050,10 +11047,10 @@ int DoFindGroundPoint(DSWActor* actor)
         {
             // reset the blocking bit of what you hit and try again -
             // recursive
-            auto bak_cstat = hsp->cstat;
-            RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            auto bak_cstat = florActor->spr.cstat;
+            RESET(florActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             DoFindGroundPoint(actor);
-            hsp->cstat = bak_cstat;
+            florActor->spr.cstat = bak_cstat;
         }
 
         return false;
@@ -11108,19 +11105,19 @@ int DoNapalm(DSWActor* actor)
         // if hit a player/enemy back up and do it again with blocking reset
         if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &u->coll.actor()->s();
+            auto hitActor = u->coll.actor();
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                auto hcstat = hsp->cstat;
+                auto hcstat = hitActor->spr.cstat;
 
                 actor->spr.pos.X = ox;
                 actor->spr.pos.Y = oy;
                 actor->spr.pos.Z = oz;
 
-                RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+                RESET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-                hsp->cstat = hcstat;
+                hitActor->spr.cstat = hcstat;
             }
         }
     }
@@ -11201,7 +11198,6 @@ int DoBloodWorm(DSWActor* actor)
         // stay alive for 10 seconds
         if (++u->Counter3 > 3)
         {
-            SPRITEp tsp;
             USERp tu;
             int i;
 
@@ -11214,7 +11210,6 @@ int DoBloodWorm(DSWActor* actor)
             while (auto itActor = it.Next())
             {
                 if (!itActor->hasU()) continue;
-                tsp = &itActor->s();
                 tu = itActor->u();
 
                 if (tu->ID == ZOMBIE_RUN_R0 && GetOwner(itActor) == GetOwner(actor))
@@ -11286,20 +11281,20 @@ int DoSerpMeteor(DSWActor* actor)
         // if hit a player/enemy back up and do it again with blocking reset
         if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &u->coll.actor()->s();
-            USERp hu = u->coll.actor()->u();
+            auto hitActor = u->coll.actor();
+            USERp hu = hitActor->u();
 
-            if (hu && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
+            if (hitActor->hasU() && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
             {
-                auto hcstat = hsp->cstat;
+                auto hcstat = hitActor->spr.cstat;
 
                 actor->spr.pos.X = ox;
                 actor->spr.pos.Y = oy;
                 actor->spr.pos.Z = oz;
 
-                RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+                RESET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-                hsp->cstat = hcstat;
+                hitActor->spr.cstat = hcstat;
             }
         }
 
@@ -12304,7 +12299,6 @@ int InitSwordAttack(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
                 auto hitActor = hit.actor();
-                SPRITEp hsp = &hitActor->s();
 
                 if (hitActor->hasU())     // JBF: added null check
                 {
@@ -12336,19 +12330,19 @@ int InitSwordAttack(PLAYERp pp)
                     }
                 }
 
-                if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+                if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
                 {
                     if (MissileHitMatch(nullptr, WPN_STAR, hitActor))
                         return 0;
                 }
 
-                if (TEST(hsp->extra, SPRX_BREAKABLE))
+                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hitActor, 0);
                 }
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hitActor);
                 }
@@ -13267,15 +13261,15 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
     // hit a sprite?
     if (hit.actor() != nullptr)
     {
-        SPRITEp hsp = &hit.actor()->s();
+        auto hitActor = u->coll.actor();
 
-        if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+        if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             if (MissileHitMatch(nullptr, WPN_SHOTGUN, hit.actor()))
                 return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE))
+        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
         {
             HitBreakSprite(hit.actor(),0);
             return 0;
@@ -13285,7 +13279,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hit.actor());
         }
@@ -16365,9 +16359,8 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     // hit a sprite?
     if (hit.actor() != nullptr)
     {
-        SPRITEp hsp = &hit.actor()->s();
-
-        if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+        auto hitActor = u->coll.actor();
+        if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
@@ -16377,7 +16370,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE))
+        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
         {
             HitBreakSprite(hit.actor(), 0);
             return 0;
@@ -16387,7 +16380,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hit.actor());
         }
@@ -16651,7 +16644,6 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
 
 int InitTurretMgun(SECTOR_OBJECTp sop)
 {
-    SPRITEp hsp;
     short daang, i;
     HitInfo hit{};
     int daz;
@@ -16778,15 +16770,15 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             // hit a sprite?
             if (hit.actor() != nullptr)
             {
-                hsp = &hit.actor()->s();
+                auto hitActor = hit.actor();
 
-                if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
+                if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
                 {
                     if (MissileHitMatch(nullptr, WPN_UZI, hit.actor()))
                         continue;
                 }
 
-                if (TEST(hsp->extra, SPRX_BREAKABLE))
+                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hit.actor(), 0);
                     continue;
@@ -16796,7 +16788,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hit.actor());
                 }
