@@ -712,17 +712,11 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
 
 int SetupGirlNinja(DSWActor* actor)
 {
-    USERp u;
     ANIMATOR DoActorDecide;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = actor->u();
-        ASSERT(u);
-    }
-    else
-    {
-        u = SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
+        SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
         actor->user.Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
@@ -747,8 +741,6 @@ int SetupGirlNinja(DSWActor* actor)
 
 int DoGirlNinjaMove(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     // jumping and falling
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
     {
@@ -784,7 +776,6 @@ int DoGirlNinjaMove(DSWActor* actor)
 
 int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
-    USER* u = actor->u();
     int nx, ny;
 
     // Move while jumping
@@ -807,8 +798,6 @@ int GirlNinjaJumpActionFunc(DSWActor* actor)
 
 int NullGirlNinja(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
     if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
@@ -825,8 +814,6 @@ int NullGirlNinja(DSWActor* actor)
 
 int DoGirlNinjaPain(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     NullGirlNinja(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -837,8 +824,6 @@ int DoGirlNinjaPain(DSWActor* actor)
 
 int DoGirlNinjaSpecial(DSWActor* actor)
 {
-    USER* u = actor->u();
-
     if (actor->user.spal == PALETTE_PLAYER5)
     {
         RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
