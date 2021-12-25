@@ -1700,7 +1700,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
     auto np = &actorNew->s();
-    auto nu = actor->u();
+    auto nu = actorNew->u();
 
     if (u->flameActor != nullptr)
         u->flameActor = actorNew;

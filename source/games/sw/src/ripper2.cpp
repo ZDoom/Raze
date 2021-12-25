@@ -1253,7 +1253,7 @@ void Ripper2Hatch(DSWActor* actor)
         np->pal = 0;
         np->shade = -10;
         SetupRipper2(actorNew);
-        nu = actor->u();
+        nu = actorNew->u();
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
