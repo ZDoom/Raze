@@ -152,7 +152,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         {
         case BIT(TT_DUCK_N_SHOOT):
         {
-            if (!u->ActorActionSet->Duck)
+            if (!actor->user.ActorActionSet->Duck)
                 return -1;
 
             end_point[1] = 0;
@@ -162,7 +162,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         // for ladders only look at first track point
         case BIT(TT_LADDER):
         {
-            if (!u->ActorActionSet->Climb)
+            if (!actor->user.ActorActionSet->Climb)
                 return -1;
 
             end_point[1] = 0;
@@ -172,7 +172,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         case BIT(TT_JUMP_UP):
         case BIT(TT_JUMP_DOWN):
         {
-            if (!u->ActorActionSet->Jump)
+            if (!actor->user.ActorActionSet->Jump)
                 return -1;
 
             end_point[1] = 0;
@@ -181,7 +181,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
 
         case BIT(TT_TRAVERSE):
         {
-            if (!u->ActorActionSet->Crawl || !u->ActorActionSet->Jump)
+            if (!actor->user.ActorActionSet->Crawl || !actor->user.ActorActionSet->Jump)
                 return -1;
 
             break;
@@ -215,14 +215,14 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
                 // to
                 if (player_dir == TOWARD_PLAYER)
                 {
-                    if (!TrackTowardPlayer(u->targetActor, t, tp))
+                    if (!TrackTowardPlayer(actor->user.targetActor, t, tp))
                     {
                         continue;
                     }
                 }
                 else if (player_dir == AWAY_FROM_PLAYER)
                 {
-                    if (TrackTowardPlayer(u->targetActor, t, tp))
+                    if (TrackTowardPlayer(actor->user.targetActor, t, tp))
                     {
                         continue;
                     }
@@ -278,13 +278,13 @@ void NextActorTrackPoint(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    u->point += u->track_dir;
+    actor->user.point += actor->user.track_dir;
 
-    if (u->point > Track[u->track].NumPoints - 1)
-        u->point = 0;
+    if (actor->user.point > Track[actor->user.track].NumPoints - 1)
+        actor->user.point = 0;
 
-    if (u->point < 0)
-        u->point = Track[u->track].NumPoints - 1;
+    if (actor->user.point < 0)
+        actor->user.point = Track[actor->user.track].NumPoints - 1;
 }
 
 void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
@@ -934,7 +934,7 @@ cont:
         }
     }
 
-    // for SPRITE OBJECT sprites, set the u->sz value to the difference
+    // for SPRITE OBJECT sprites, set the actor->user.sz value to the difference
     // between the zmid and the actor->spr.z
     if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
     {
@@ -1475,46 +1475,46 @@ void PlaceActorsOnTracks(void)
             continue;
 
         // setup sprite track defaults
-        u->track = tag - TAG_ACTOR_TRACK_BEGIN;
+        actor->user.track = tag - TAG_ACTOR_TRACK_BEGIN;
 
         // if facing left go backward
         if (actor->spr.ang >= 513 && actor->spr.ang <= 1535)
         {
-            u->track_dir = -1;
+            actor->user.track_dir = -1;
         }
         else
         {
-            u->track_dir = 1;
+            actor->user.track_dir = 1;
         }
 
-        u->track_vel = actor->spr.xvel * 256;
-        u->vel_tgt = u->track_vel;
-        u->vel_rate = 6;
+        actor->user.track_vel = actor->spr.xvel * 256;
+        actor->user.vel_tgt = actor->user.track_vel;
+        actor->user.vel_rate = 6;
 
         // find the closest point on the track and put SOBJ on it
-        for (j = 0; j < Track[u->track].NumPoints; j++)
+        for (j = 0; j < Track[actor->user.track].NumPoints; j++)
         {
-            tpoint = Track[u->track].TrackPoint;
+            tpoint = Track[actor->user.track].TrackPoint;
 
             dist = Distance((tpoint + j)->x, (tpoint + j)->y, actor->spr.pos.X, actor->spr.pos.Y);
 
             if (dist < low_dist)
             {
                 low_dist = dist;
-                u->point = j;
+                actor->user.point = j;
             }
         }
 
         NextActorTrackPoint(actor);
 
-        if (Track[u->track].NumPoints == 0)
+        if (Track[actor->user.track].NumPoints == 0)
         {
-            Printf("WARNING: Sprite %d (%d, %d) placed on track %d with no points!\n", actor->GetIndex(), actor->spr.pos.X, actor->spr.pos.Y, u->track);
+            Printf("WARNING: Sprite %d (%d, %d) placed on track %d with no points!\n", actor->GetIndex(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.track);
             continue;
         }
 
         // check angle in the "forward" direction
-        actor->spr.ang = getangle((tpoint + u->point)->x - actor->spr.pos.X, (tpoint + u->point)->y - actor->spr.pos.Y);
+        actor->spr.ang = getangle((tpoint + actor->user.point)->x - actor->spr.pos.X, (tpoint + actor->user.point)->y - actor->spr.pos.Y);
     }
 }
 
@@ -1700,7 +1700,7 @@ PlayerPart:
 		u = actor->u();
 
         // if its a player sprite || NOT attached
-        if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
+        if (!u || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
             continue;
 
         // move the player
@@ -1715,34 +1715,34 @@ PlayerPart:
             }
         }
 
-        actor->spr.pos.X = sop->xmid - u->sx;
-        actor->spr.pos.Y = sop->ymid - u->sy;
+        actor->spr.pos.X = sop->xmid - actor->user.sx;
+        actor->spr.pos.Y = sop->ymid - actor->user.sy;
 
         // sprites z update
         if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->spr.pos.Z = sop->zmid - u->sz;
+            actor->spr.pos.Z = sop->zmid - actor->user.sz;
         }
         else
         {
             // Sector Objects can either have sprites ON or OFF of the sector
-            if (TEST(u->Flags, SPR_ON_SO_SECTOR))
+            if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->spr.pos.Z = actor->spr.sector()->floorz - u->sz;
+                actor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.sz;
             }
             else
             {
                 // move with the mid sector
-                actor->spr.pos.Z = sop->mid_sector->floorz - u->sz;
+                actor->spr.pos.Z = sop->mid_sector->floorz - actor->user.sz;
             }
         }
 
         int16_t oldang = actor->spr.ang;
-        actor->spr.ang = u->sang;
+        actor->spr.ang = actor->user.sang;
 
-        if (TEST(u->Flags, SPR_ON_SO_SECTOR))
+        if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
         {
             if (TEST(sop->flags, SOBJ_DONT_ROTATE))
                 continue;
@@ -1779,7 +1779,7 @@ PlayerPart:
                 SetActorZ(sop->so_actors[i], &actor->spr.pos);
         }
 
-        u->oangdiff += getincangle(oldang, actor->spr.ang);
+        actor->user.oangdiff += getincangle(oldang, actor->spr.ang);
 
         if (TEST(actor->spr.extra, SPRX_BLADE))
         {
@@ -1927,7 +1927,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
         u = actor->u();
 
         // not a part of the so anymore
-        RESET(u->Flags, SPR_SO_ATTACHED);
+        RESET(actor->user.Flags, SPR_SO_ATTACHED);
 
         if (actor->spr.picnum == ST1 && actor->spr.hitag == SPAWN_SPOT)
             continue;
@@ -2157,11 +2157,11 @@ void CallbackSOsink(ANIMp ap, void *data)
     {
         u = actor->u();
 
-        if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
+        if (!u || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - ActorSizeZ(actor) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.sz - ActorSizeZ(actor) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2682,7 +2682,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
                         DoSoundSpotStopSound(actor->spr.lotag);
                     }
 
-                    u->ActorActionFunc = animator;
+                    actor->user.ActorActionFunc = animator;
                 }
                 break;
             }
@@ -2787,13 +2787,13 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
         return;
 
 
-    u->WaitTics -= synctics;
+    actor->user.WaitTics -= synctics;
 
     // check for new player if doesn't have a target or time limit expired
-    if (!u->targetActor || u->WaitTics < 0)
+    if (!actor->user.targetActor || actor->user.WaitTics < 0)
     {
         // 4 seconds
-        u->WaitTics = 4*120;
+        actor->user.WaitTics = 4*120;
         DoActorPickClosePlayer(actor);
     }
 
@@ -2807,7 +2807,7 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 			if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
             {
                 if (!FAFcansee(sActor->spr.pos.X, sActor->spr.pos.Y, sActor->spr.pos.Z-Z(4), sActor->spr.sector(),
-                               u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpperZ(u->targetActor), u->targetActor->spr.sector()))
+                               actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, ActorUpperZ(actor->user.targetActor), actor->user.targetActor->spr.sector()))
                 {
                     return;
                 }
@@ -2816,14 +2816,14 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 
 
         // FirePausing
-        if (u->Counter > 0)
+        if (actor->user.Counter > 0)
         {
-            u->Counter -= synctics*2;
-            if (u->Counter <= 0)
-                u->Counter = 0;
+            actor->user.Counter -= synctics*2;
+            if (actor->user.Counter <= 0)
+                actor->user.Counter = 0;
         }
 
-        if (u->Counter == 0)
+        if (actor->user.Counter == 0)
         {
 			for (i = 0; sop->so_actors[i] != nullptr; i++)
 			{
@@ -2833,16 +2833,15 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 				if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
 				{
                     if (SP_TAG5(sActor))
-                        u->Counter = SP_TAG5(sActor);
+                        actor->user.Counter = SP_TAG5(sActor);
                     else
-                        u->Counter = 12;
+                        actor->user.Counter = 12;
                     InitTurretMgun(sop);
                 }
             }
         }
 
-        //sop->ang_tgt = getangle(sop->xmid - u->targetActor->spr.x, sop->ymid - u->targetActor->spr.y);
-        sop->ang_tgt = getangle(u->targetActor->spr.pos.X - sop->xmid,  u->targetActor->spr.pos.Y - sop->ymid);
+        sop->ang_tgt = getangle(actor->user.targetActor->spr.pos.X - sop->xmid,  actor->user.targetActor->spr.pos.Y - sop->ymid);
 
         // get delta to target angle
         delta_ang = getincangle(sop->ang, sop->ang_tgt);
@@ -2874,44 +2873,44 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
 {
     auto u = actor->u();
 
-    RESET(Track[u->track].flags, TF_TRACK_OCCUPIED);
+    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
 
     // jump the current track & determine if you should go to another
-    if (TEST(u->Flags, SPR_RUN_AWAY))
+    if (TEST(actor->user.Flags, SPR_RUN_AWAY))
     {
         // look for another track leading away from the player
-        u->track = FindTrackAwayFromPlayer(actor);
+        actor->user.track = FindTrackAwayFromPlayer(actor);
 
-        if (u->track >= 0)
+        if (actor->user.track >= 0)
         {
-            actor->spr.ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - actor->spr.pos.X, (Track[u->track].TrackPoint + u->point)->y - actor->spr.pos.Y));
+            actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y));
         }
         else
         {
-            RESET(u->Flags, SPR_RUN_AWAY);
+            RESET(actor->user.Flags, SPR_RUN_AWAY);
             DoActorSetSpeed(actor, NORM_SPEED);
-            u->track = -1;
+            actor->user.track = -1;
         }
     }
-    else if (TEST(u->Flags, SPR_FIND_PLAYER))
+    else if (TEST(actor->user.Flags, SPR_FIND_PLAYER))
     {
         // look for another track leading away from the player
-        u->track = FindTrackToPlayer(actor);
+        actor->user.track = FindTrackToPlayer(actor);
 
-        if (u->track >= 0)
+        if (actor->user.track >= 0)
         {
-            actor->spr.ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - actor->spr.pos.X, (Track[u->track].TrackPoint + u->point)->y - actor->spr.pos.Y));
+            actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y));
         }
         else
         {
-            RESET(u->Flags, SPR_FIND_PLAYER);
+            RESET(actor->user.Flags, SPR_FIND_PLAYER);
             DoActorSetSpeed(actor, NORM_SPEED);
-            u->track = -1;
+            actor->user.track = -1;
         }
     }
     else
     {
-         u->track = -1;
+         actor->user.track = -1;
     }
 }
 
@@ -2920,12 +2919,12 @@ void ActorLeaveTrack(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    if (u->track == -1)
+    if (actor->user.track == -1)
         return;
 
-    RESET(u->Flags, SPR_FIND_PLAYER|SPR_RUN_AWAY|SPR_CLIMBING);
-    RESET(Track[u->track].flags, TF_TRACK_OCCUPIED);
-    u->track = -1;
+    RESET(actor->user.Flags, SPR_FIND_PLAYER|SPR_RUN_AWAY|SPR_CLIMBING);
+    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
+    actor->user.track = -1;
 }
 
 bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
@@ -2938,9 +2937,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         // if track has a type and actor is going the right direction jump
         // the track
-        if (Track[u->track].ttflags)
+        if (Track[actor->user.track].ttflags)
         {
-            if (u->track_dir == -1)
+            if (actor->user.track_dir == -1)
             {
                 DoActorHitTrackEndPoint(actor);
                 return false;
@@ -2952,9 +2951,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     case TRACK_END:
         // if track has a type and actor is going to right direction jump the
         // track
-        if (Track[u->track].ttflags)
+        if (Track[actor->user.track].ttflags)
         {
-            if (u->track_dir == 1)
+            if (actor->user.track_dir == 1)
             {
                 DoActorHitTrackEndPoint(actor);
                 return false;
@@ -2966,15 +2965,15 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_WAIT_FOR_PLAYER:
     {
-        SET(u->Flags, SPR_WAIT_FOR_PLAYER);
-        u->Dist = tpoint->tag_high;
+        SET(actor->user.Flags, SPR_WAIT_FOR_PLAYER);
+        actor->user.Dist = tpoint->tag_high;
         break;
     }
 
     case TRACK_ACTOR_WAIT_FOR_TRIGGER:
     {
-        SET(u->Flags, SPR_WAIT_FOR_TRIGGER);
-        u->Dist = tpoint->tag_high;
+        SET(actor->user.Flags, SPR_WAIT_FOR_TRIGGER);
+        actor->user.Dist = tpoint->tag_high;
         break;
     }
 
@@ -2983,66 +2982,66 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     //
 
     case TRACK_ACTOR_VEL_RATE:
-        u->vel_rate = tpoint->tag_high;
+        actor->user.vel_rate = tpoint->tag_high;
         break;
     case TRACK_ACTOR_SPEED_UP:
-        RESET(u->Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
-        if (u->track_dir < 0)
+        RESET(actor->user.Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
+        if (actor->user.track_dir < 0)
         {
             // set target to new slower target
-            u->vel_tgt = u->vel_tgt - (tpoint->tag_high * 256);
-            SET(u->Flags, SPR_SLOW_DOWN);
+            actor->user.vel_tgt = actor->user.vel_tgt - (tpoint->tag_high * 256);
+            SET(actor->user.Flags, SPR_SLOW_DOWN);
         }
         else
         {
-            u->vel_tgt = u->vel_tgt + (tpoint->tag_high * 256);
-            SET(u->Flags, SPR_SPEED_UP);
+            actor->user.vel_tgt = actor->user.vel_tgt + (tpoint->tag_high * 256);
+            SET(actor->user.Flags, SPR_SPEED_UP);
         }
 
         break;
 
     case TRACK_ACTOR_SLOW_DOWN:
-        RESET(u->Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
-        if (u->track_dir > 0)
+        RESET(actor->user.Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
+        if (actor->user.track_dir > 0)
         {
-            u->vel_tgt = u->vel_tgt - (tpoint->tag_high * 256);
-            SET(u->Flags, SPR_SLOW_DOWN);
+            actor->user.vel_tgt = actor->user.vel_tgt - (tpoint->tag_high * 256);
+            SET(actor->user.Flags, SPR_SLOW_DOWN);
         }
         else
         {
-            u->vel_tgt = u->vel_tgt + (tpoint->tag_high * 256);
-            SET(u->Flags, SPR_SPEED_UP);
+            actor->user.vel_tgt = actor->user.vel_tgt + (tpoint->tag_high * 256);
+            SET(actor->user.Flags, SPR_SPEED_UP);
         }
         break;
 
     // Reverse it
     case TRACK_ACTOR_REVERSE:
-        u->track_dir *= -1;
+        actor->user.track_dir *= -1;
         break;
 
     case TRACK_ACTOR_STAND:
-        NewStateGroup(actor, u->ActorActionSet->Stand);
+        NewStateGroup(actor, actor->user.ActorActionSet->Stand);
         break;
 
     case TRACK_ACTOR_JUMP:
-        if (u->ActorActionSet->Jump)
+        if (actor->user.ActorActionSet->Jump)
         {
             actor->spr.ang = tpoint->ang;
 
             if (!tpoint->tag_high)
-                u->jump_speed = ACTOR_STD_JUMP;
+                actor->user.jump_speed = ACTOR_STD_JUMP;
             else
-                u->jump_speed = -tpoint->tag_high;
+                actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
-            u->ActorActionFunc = DoActorMoveJump;
+            actor->user.ActorActionFunc = DoActorMoveJump;
         }
 
         break;
 
     case TRACK_ACTOR_QUICK_JUMP:
     case TRACK_ACTOR_QUICK_SUPER_JUMP:
-        if (u->ActorActionSet->Jump)
+        if (actor->user.ActorActionSet->Jump)
         {
             int zdiff;
             HitInfo hit{};
@@ -3054,7 +3053,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
             if (tpoint->tag_high)
             {
-                u->jump_speed = -tpoint->tag_high;
+                actor->user.jump_speed = -tpoint->tag_high;
             }
             else
             {
@@ -3081,11 +3080,11 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
                 zdiff = labs(actor->spr.pos.Z - hit.hitWall->nextSector()->floorz) >> 8;
 
-                u->jump_speed = PickJumpSpeed(actor, zdiff);
+                actor->user.jump_speed = PickJumpSpeed(actor, zdiff);
             }
 
             DoActorBeginJump(actor);
-            u->ActorActionFunc = DoActorMoveJump;
+            actor->user.ActorActionFunc = DoActorMoveJump;
 
             return false;
         }
@@ -3094,7 +3093,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_JUMP_DOWN:
 
-        if (u->ActorActionSet->Jump)
+        if (actor->user.ActorActionSet->Jump)
         {
             actor->spr.ang = tpoint->ang;
 
@@ -3102,15 +3101,15 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
             if (tpoint->tag_high)
             {
-                u->jump_speed = -tpoint->tag_high;
+                actor->user.jump_speed = -tpoint->tag_high;
             }
             else
             {
-                u->jump_speed = -350;
+                actor->user.jump_speed = -350;
             }
 
             DoActorBeginJump(actor);
-            u->ActorActionFunc = DoActorMoveJump;
+            actor->user.ActorActionFunc = DoActorMoveJump;
             return false;
         }
 
@@ -3118,7 +3117,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_SCAN:
 
-        if (u->ActorActionSet->Jump)
+        if (actor->user.ActorActionSet->Jump)
         {
             ActorLeaveTrack(actor);
             return false;
@@ -3128,19 +3127,19 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_DUCK:
 
-        if (u->Rot != u->ActorActionSet->Duck)
+        if (actor->user.Rot != actor->user.ActorActionSet->Duck)
         {
             actor->spr.ang = tpoint->ang;
 
             ActorLeaveTrack(actor);
 
             if (!tpoint->tag_high)
-                u->WaitTics = 4 * 120;
+                actor->user.WaitTics = 4 * 120;
             else
-                u->WaitTics = tpoint->tag_high * 128;
+                actor->user.WaitTics = tpoint->tag_high * 128;
 
             InitActorDuck(actor);
-            u->ActorActionFunc = DoActorDuck;
+            actor->user.ActorActionFunc = DoActorDuck;
             return false;
         }
 
@@ -3153,7 +3152,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         int z[2];
         int i;
 
-        if (u->Rot == u->ActorActionSet->Sit || u->Rot == u->ActorActionSet->Stand)
+        if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
             return false;
 
         actor->spr.ang = tpoint->ang;
@@ -3170,11 +3169,11 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 if (OperateSprite(near.actor(), false))
                 {
                     if (!tpoint->tag_high)
-                        u->WaitTics = 2 * 120;
+                        actor->user.WaitTics = 2 * 120;
                     else
-                        u->WaitTics = tpoint->tag_high * 128;
+                        actor->user.WaitTics = tpoint->tag_high * 128;
 
-                    NewStateGroup(actor, u->ActorActionSet->Stand);
+                    NewStateGroup(actor, actor->user.ActorActionSet->Stand);
                 }
             }
         }
@@ -3184,11 +3183,11 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             if (OperateSector(near.hitSector, false))
             {
                 if (!tpoint->tag_high)
-                    u->WaitTics = 2 * 120;
+                    actor->user.WaitTics = 2 * 120;
                 else
-                    u->WaitTics = tpoint->tag_high * 128;
+                    actor->user.WaitTics = tpoint->tag_high * 128;
 
-                NewStateGroup(actor, u->ActorActionSet->Sit);
+                NewStateGroup(actor, actor->user.ActorActionSet->Sit);
             }
         }
 
@@ -3196,12 +3195,12 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     }
 
     case TRACK_ACTOR_JUMP_IF_FORWARD:
-        if (u->ActorActionSet->Jump && u->track_dir == 1)
+        if (actor->user.ActorActionSet->Jump && actor->user.track_dir == 1)
         {
             if (!tpoint->tag_high)
-                u->jump_speed = ACTOR_STD_JUMP;
+                actor->user.jump_speed = ACTOR_STD_JUMP;
             else
-                u->jump_speed = -tpoint->tag_high;
+                actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
         }
@@ -3209,12 +3208,12 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_JUMP_IF_REVERSE:
-        if (u->ActorActionSet->Jump && u->track_dir == -1)
+        if (actor->user.ActorActionSet->Jump && actor->user.track_dir == -1)
         {
             if (!tpoint->tag_high)
-                u->jump_speed = ACTOR_STD_JUMP;
+                actor->user.jump_speed = ACTOR_STD_JUMP;
             else
-                u->jump_speed = -tpoint->tag_high;
+                actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
         }
@@ -3222,92 +3221,92 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_CRAWL:
-        if (u->Rot != u->ActorActionSet->Crawl)
-            NewStateGroup(actor, u->ActorActionSet->Crawl);
+        if (actor->user.Rot != actor->user.ActorActionSet->Crawl)
+            NewStateGroup(actor, actor->user.ActorActionSet->Crawl);
         else
-            NewStateGroup(actor, u->ActorActionSet->Rise);
+            NewStateGroup(actor, actor->user.ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_SWIM:
-        if (u->Rot != u->ActorActionSet->Swim)
-            NewStateGroup(actor, u->ActorActionSet->Swim);
+        if (actor->user.Rot != actor->user.ActorActionSet->Swim)
+            NewStateGroup(actor, actor->user.ActorActionSet->Swim);
         else
-            NewStateGroup(actor, u->ActorActionSet->Rise);
+            NewStateGroup(actor, actor->user.ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_FLY:
-        NewStateGroup(actor, u->ActorActionSet->Fly);
+        NewStateGroup(actor, actor->user.ActorActionSet->Fly);
         break;
 
     case TRACK_ACTOR_SIT:
 
-        if (u->ActorActionSet->Sit)
+        if (actor->user.ActorActionSet->Sit)
         {
             if (!tpoint->tag_high)
-                u->WaitTics = 3 * 120;
+                actor->user.WaitTics = 3 * 120;
             else
-                u->WaitTics = tpoint->tag_high * 128;
+                actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, u->ActorActionSet->Sit);
+            NewStateGroup(actor, actor->user.ActorActionSet->Sit);
         }
 
         break;
 
     case TRACK_ACTOR_DEATH1:
-        if (u->ActorActionSet->Death2)
+        if (actor->user.ActorActionSet->Death2)
         {
-            u->WaitTics = 4 * 120;
-            NewStateGroup(actor, u->ActorActionSet->Death1);
+            actor->user.WaitTics = 4 * 120;
+            NewStateGroup(actor, actor->user.ActorActionSet->Death1);
         }
         break;
 
     case TRACK_ACTOR_DEATH2:
 
-        if (u->ActorActionSet->Death2)
+        if (actor->user.ActorActionSet->Death2)
         {
-            u->WaitTics = 4 * 120;
-            NewStateGroup(actor, u->ActorActionSet->Death2);
+            actor->user.WaitTics = 4 * 120;
+            NewStateGroup(actor, actor->user.ActorActionSet->Death2);
         }
 
         break;
 
     case TRACK_ACTOR_DEATH_JUMP:
 
-        if (u->ActorActionSet->DeathJump)
+        if (actor->user.ActorActionSet->DeathJump)
         {
-            SET(u->Flags, SPR_DEAD);
+            SET(actor->user.Flags, SPR_DEAD);
             actor->spr.xvel <<= 1;
-            u->jump_speed = -495;
+            actor->user.jump_speed = -495;
             DoActorBeginJump(actor);
-            NewStateGroup(actor, u->ActorActionSet->DeathJump);
+            NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);
         }
 
         break;
 
     case TRACK_ACTOR_CLOSE_ATTACK1:
 
-        if (u->ActorActionSet->CloseAttack[0])
+        if (actor->user.ActorActionSet->CloseAttack[0])
         {
             if (!tpoint->tag_high)
-                u->WaitTics = 2 * 120;
+                actor->user.WaitTics = 2 * 120;
             else
-                u->WaitTics = tpoint->tag_high * 128;
+                actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
+            NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
         }
 
         break;
 
     case TRACK_ACTOR_CLOSE_ATTACK2:
 
-        if (u->ActorActionSet->CloseAttack[1])
+        if (actor->user.ActorActionSet->CloseAttack[1])
         {
             if (!tpoint->tag_high)
-                u->WaitTics = 4 * 120;
+                actor->user.WaitTics = 4 * 120;
             else
-                u->WaitTics = tpoint->tag_high * 128;
+                actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, u->ActorActionSet->CloseAttack[1]);
+            NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[1]);
         }
 
         break;
@@ -3319,15 +3318,15 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     case TRACK_ACTOR_ATTACK5:
     case TRACK_ACTOR_ATTACK6:
     {
-        STATEp **ap = &u->ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
+        STATEp **ap = &actor->user.ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
 
 
         if (*ap)
         {
             if (!tpoint->tag_high)
-                u->WaitTics = 4 * 120;
+                actor->user.WaitTics = 4 * 120;
             else
-                u->WaitTics = tpoint->tag_high * 128;
+                actor->user.WaitTics = tpoint->tag_high * 128;
 
             NewStateGroup(actor, *ap);
         }
@@ -3336,21 +3335,21 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     }
 
     case TRACK_ACTOR_ZDIFF_MODE:
-        if (TEST(u->Flags, SPR_ZDIFF_MODE))
+        if (TEST(actor->user.Flags, SPR_ZDIFF_MODE))
         {
-            RESET(u->Flags, SPR_ZDIFF_MODE);
+            RESET(actor->user.Flags, SPR_ZDIFF_MODE);
             actor->spr.pos.Z = actor->spr.sector()->floorz;
             actor->spr.zvel = 0;
         }
         else
         {
-            SET(u->Flags, SPR_ZDIFF_MODE);
+            SET(actor->user.Flags, SPR_ZDIFF_MODE);
         }
         break;
 
     case TRACK_ACTOR_CLIMB_LADDER:
 
-        if (u->ActorActionSet->Jump)
+        if (actor->user.ActorActionSet->Jump)
         {
             int bos_z,nx,ny;
             HitInfo near;
@@ -3398,9 +3397,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
             // destination z for climbing
             if (wal->twoSided())
-                u->sz = wal->nextSector()->floorz;
+                actor->user.sz = wal->nextSector()->floorz;
             else
-                u->sz = wal->sectorp()->ceilingz; // don't crash on bad setups.
+                actor->user.sz = wal->sectorp()->ceilingz; // don't crash on bad setups.
 
             DoActorZrange(actor);
 
@@ -3410,18 +3409,18 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
             SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
             bos_z = ActorZOfBottom(actor);
-            if (bos_z > u->loz)
+            if (bos_z > actor->user.loz)
             {
-                u->sy = (bos_z - actor->spr.pos.Z);
-                actor->spr.pos.Z -= u->sy;
+                actor->user.sy = (bos_z - actor->spr.pos.Z);
+                actor->spr.pos.Z -= actor->user.sy;
             }
 
             //
             // Misc climb setup
             //
 
-            SET(u->Flags, SPR_CLIMBING);
-            NewStateGroup(actor, u->ActorActionSet->Climb);
+            SET(actor->user.Flags, SPR_CLIMBING);
+            NewStateGroup(actor, actor->user.ActorActionSet->Climb);
 
             actor->spr.zvel = -Z(1);
         }
@@ -3429,7 +3428,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_SET_JUMP:
-        u->jump_speed = -tpoint->tag_high;
+        actor->user.jump_speed = -tpoint->tag_high;
         break;
     }
 
@@ -3457,48 +3456,48 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     int dist;
 
     // if not on a track then better not go here
-    if (u->track == -1)
+    if (actor->user.track == -1)
         return true;
 
     // if lying in wait for player
-    if (TEST(u->Flags, SPR_WAIT_FOR_PLAYER | SPR_WAIT_FOR_TRIGGER))
+    if (TEST(actor->user.Flags, SPR_WAIT_FOR_PLAYER | SPR_WAIT_FOR_TRIGGER))
     {
-        if (TEST(u->Flags, SPR_WAIT_FOR_PLAYER))
+        if (TEST(actor->user.Flags, SPR_WAIT_FOR_PLAYER))
         {
             TRAVERSE_CONNECT(pnum)
             {
                 pp = &Player[pnum];
 
-                if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < u->Dist)
+                if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < actor->user.Dist)
                 {
-                    u->targetActor = pp->Actor();
-                    RESET(u->Flags, SPR_WAIT_FOR_PLAYER);
+                    actor->user.targetActor = pp->Actor();
+                    RESET(actor->user.Flags, SPR_WAIT_FOR_PLAYER);
                     return true;
                 }
             }
         }
 
-        u->Tics = 0;
+        actor->user.Tics = 0;
         return true;
     }
 
     // if pausing the return
-    if (u->WaitTics)
+    if (actor->user.WaitTics)
     {
-        u->WaitTics -= locktics;
-        if (u->WaitTics <= 0)
+        actor->user.WaitTics -= locktics;
+        if (actor->user.WaitTics <= 0)
         {
-            RESET(u->Flags, SPR_DONT_UPDATE_ANG);
-            NewStateGroup(actor, u->ActorActionSet->Run);
-            u->WaitTics = 0;
+            RESET(actor->user.Flags, SPR_DONT_UPDATE_ANG);
+            NewStateGroup(actor, actor->user.ActorActionSet->Run);
+            actor->user.WaitTics = 0;
         }
 
         return true;
     }
 
-    tpoint = Track[u->track].TrackPoint + u->point;
+    tpoint = Track[actor->user.track].TrackPoint + actor->user.point;
 
-    if (!(TEST(u->Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
+    if (!(TEST(actor->user.Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
     {
         actor->spr.ang = getangle(tpoint->x - actor->spr.pos.X, tpoint->y - actor->spr.pos.Y);
     }
@@ -3510,15 +3509,15 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         // get the next point
         NextActorTrackPoint(actor);
-        tpoint = Track[u->track].TrackPoint + u->point;
+        tpoint = Track[actor->user.track].TrackPoint + actor->user.point;
 
-        if (!(TEST(u->Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
+        if (!(TEST(actor->user.Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
         {
             // calculate a new angle to the target
             actor->spr.ang = getangle(tpoint->x - actor->spr.pos.X, tpoint->y - actor->spr.pos.Y);
         }
 
-        if (TEST(u->Flags, SPR_ZDIFF_MODE))
+        if (TEST(actor->user.Flags, SPR_ZDIFF_MODE))
         {
             // set dx,dy,dz up for finding the z magnitude
             dx = tpoint->x;
@@ -3536,36 +3535,36 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     else
     {
         // make velocity approach the target velocity
-        if (TEST(u->Flags, SPR_SPEED_UP))
+        if (TEST(actor->user.Flags, SPR_SPEED_UP))
         {
-            if ((u->track_vel += (locktics << u->vel_rate)) >= u->vel_tgt)
+            if ((actor->user.track_vel += (locktics << actor->user.vel_rate)) >= actor->user.vel_tgt)
             {
-                u->track_vel = u->vel_tgt;
-                RESET(u->Flags, SPR_SPEED_UP);
+                actor->user.track_vel = actor->user.vel_tgt;
+                RESET(actor->user.Flags, SPR_SPEED_UP);
             }
 
             // update the real velocity
-            actor->spr.xvel = (u->track_vel) >> 8;
+            actor->spr.xvel = (actor->user.track_vel) >> 8;
         }
-        else if (TEST(u->Flags, SPR_SLOW_DOWN))
+        else if (TEST(actor->user.Flags, SPR_SLOW_DOWN))
         {
-            if ((u->track_vel -= (locktics << u->vel_rate)) <= u->vel_tgt)
+            if ((actor->user.track_vel -= (locktics << actor->user.vel_rate)) <= actor->user.vel_tgt)
             {
-                u->track_vel = u->vel_tgt;
-                RESET(u->Flags, SOBJ_SLOW_DOWN);
+                actor->user.track_vel = actor->user.vel_tgt;
+                RESET(actor->user.Flags, SOBJ_SLOW_DOWN);
             }
 
-            actor->spr.xvel = (u->track_vel) >> 8;
+            actor->spr.xvel = (actor->user.track_vel) >> 8;
         }
 
         nx = 0;
         ny = 0;
 
-        if (TEST(u->Flags, SPR_CLIMBING))
+        if (TEST(actor->user.Flags, SPR_CLIMBING))
         {
-            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < u->sz)
+            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.sz)
             {
-                RESET(u->Flags, SPR_CLIMBING);
+                RESET(actor->user.Flags, SPR_CLIMBING);
 
                 actor->spr.zvel = 0;
 
@@ -3573,11 +3572,11 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
-                actor->spr.pos.Z += u->sy;
+                actor->spr.pos.Z += actor->user.sy;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
-                u->ActorActionFunc = NinjaJumpActionFunc;
-                u->jump_speed = -650;
+                actor->user.ActorActionFunc = NinjaJumpActionFunc;
+                actor->user.jump_speed = -650;
                 DoActorBeginJump(actor);
 
                 return true;
@@ -3596,12 +3595,12 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             nz = actor->spr.zvel * locktics;
     }
 
-    u->coll = move_sprite(actor, nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics);
+    actor->user.coll = move_sprite(actor, nx, ny, nz, actor->user.ceiling_dist, actor->user.floor_dist, 0, locktics);
 
 
-    if (u->coll.type != kHitNone)
+    if (actor->user.coll.type != kHitNone)
     {
-        if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
+        if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
             ActorLeaveTrack(actor);
     }
 
