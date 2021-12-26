@@ -11141,8 +11141,8 @@ int DoFireball(DSWActor* actor)
                 SPRITEp hsp;
                 USERp hu;
 
-                hsp = &u->coll.actor->s(); // hitActor
-                hu = u->coll.actor->u();
+                hsp = &u->coll.actor()->s(); // hitActor
+                hu = u->coll.actor()->u();
 
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
