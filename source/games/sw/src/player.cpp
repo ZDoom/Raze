@@ -5456,15 +5456,14 @@ void DoPlayerBeginDie(PLAYERp pp)
     if (numplayers > 1)
     {
         // Give kill credit to player if necessary
-        if (pp->KillerActor != nullptr)
+        DSWActor* killer = pp->KillerActor;
+        if (killer != nullptr)
         {
-            USERp ku = pp->KillerActor->u();
+            ASSERT(killer->hasU());
 
-            ASSERT(ku);
-
-            if (ku && ku->PlayerP)
+            if (killer->hasU() && killer->user.PlayerP)
             {
-                if (pp == ku->PlayerP)
+                if (pp == killer->user.PlayerP)
                 {
                     // Killed yourself
                     PlayerUpdateKills(pp, -1);
@@ -5476,24 +5475,24 @@ void DoPlayerBeginDie(PLAYERp pp)
                     if (gNet.TeamPlay)
                     {
                         // playing team play
-                        if (pp->Actor()->user.spal == ku->spal)
+                        if (pp->Actor()->user.spal == killer->user.spal)
                         {
                             // Killed your team member
                             PlayerUpdateKills(pp, -1);
-                            DoPlayerDeathMessage(pp, ku->PlayerP);
+                            DoPlayerDeathMessage(pp, killer->user.PlayerP);
                         }
                         else
                         {
                             // killed another team member
-                            PlayerUpdateKills(ku->PlayerP, 1);
-                            DoPlayerDeathMessage(pp, ku->PlayerP);
+                            PlayerUpdateKills(killer->user.PlayerP, 1);
+                            DoPlayerDeathMessage(pp, killer->user.PlayerP);
                         }
                     }
                     else
                     {
                         // not playing team play
-                        PlayerUpdateKills(ku->PlayerP, 1);
-                        DoPlayerDeathMessage(pp, ku->PlayerP);
+                        PlayerUpdateKills(killer->user.PlayerP, 1);
+                        DoPlayerDeathMessage(pp, killer->user.PlayerP);
                     }
                 }
             }

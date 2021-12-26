@@ -125,8 +125,6 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
     DSWActor* actorNew = nullptr;
     if (parentActor != nullptr)
     {
-        auto pu = parentActor->u();
-
         if (parentActor->spr.sector()->floorpal == PALETTE_FOG)
             return;
 
@@ -148,13 +146,11 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
 
 
         ASSERT(parentActor->hasU());
-        SET(pu->Flags2, SPR2_CHILDREN);
+        SET(parentActor->user.Flags2, SPR2_CHILDREN);
 
-        actorNew->spr.pos.X = parentActor->spr.pos.X;
-        actorNew->spr.pos.Y = parentActor->spr.pos.Y;
-        actorNew->spr.pos.Z = parentActor->spr.pos.Z;
+        actorNew->spr.pos = parentActor->spr.pos;
 
-        SET(pu->Flags2, SPR2_VIS_SHADING);
+        SET(parentActor->user.Flags2, SPR2_VIS_SHADING);
     }
     else
     {

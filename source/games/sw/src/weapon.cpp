@@ -2820,7 +2820,6 @@ int DoLavaErupt(DSWActor* actor)
 
 int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
 {
-    USERp pu = parentActor->u();
     short i;
 
     /////////////////////////////////////////
@@ -3190,16 +3189,16 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         }
     }
 
-    ASSERT(pu);
+    ASSERT(parentActor->hasU());
 
-    switch (pu->ID)
+    switch (parentActor->user.ID)
     {
     case ST1:
         switch (parentActor->spr.hitag)
         {
         case SPAWN_SPOT:
         {
-            if (pu->LastDamage)
+            if (parentActor->user.LastDamage)
                 shrap_type = SP_TAG3(parentActor);
             else
                 shrap_type = SP_TAG6(parentActor);
@@ -3508,7 +3507,7 @@ AutoShrap:
     case FIREBALL_EXP:
         return false;
 //        p = FireballExpShrap[RANDOM_P2(2<<8)>>8];
-//        shrap_pal = pu->spal;
+//        shrap_pal = parentActor->user.spal;
         break;
     case ELECTRO_PLAYER:
     case ELECTRO_ENEMY:
@@ -3528,7 +3527,7 @@ AutoShrap:
     {
         extern STATEp sg_PlayerHeadHurl[];
 
-        if (pu->Rot == sg_PlayerHeadHurl)
+        if (parentActor->user.Rot == sg_PlayerHeadHurl)
         {
             p = PlayerHeadHurl1;
         }
@@ -3546,9 +3545,9 @@ AutoShrap:
     case NINJA_RUN_R0:
     {
         p = StdShrap;
-        if (pu->PlayerP)
+        if (parentActor->user.PlayerP)
         {
-            PLAYERp pp = pu->PlayerP;
+            PLAYERp pp = parentActor->user.PlayerP;
 
             if (pp->DeathType == PLAYER_DEATH_CRUMBLE)
                 p = PlayerGoreFall;
@@ -3566,14 +3565,14 @@ AutoShrap:
         break;
     case RIPPER_RUN_R0:
         p = StdShrap;
-        if (pu->spal != 0)
+        if (parentActor->user.spal != 0)
             shrap_xsize = shrap_ysize = 64;
         else
             shrap_xsize = shrap_ysize = 32;
         break;
     case RIPPER2_RUN_R0:
         p = StdShrap;
-        if (pu->spal != 0)
+        if (parentActor->user.spal != 0)
             shrap_xsize = shrap_ysize = 64;
         else
             shrap_xsize = shrap_ysize = 32;
@@ -6913,9 +6912,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 const char *DeathString(DSWActor* actor)
 {
     if (!actor->hasU()) return " ";
-    USERp ku = actor->u();
 
-    switch (ku->ID)
+    switch (actor->user.ID)
     {
     case NINJA_RUN_R0:
         return " ";
@@ -7376,7 +7374,6 @@ int DoMineExpMine(DSWActor* actor)
 
 int DoStar(DSWActor* actor)
 {
-    USERp su;
     int vel;
 
     const int STAR_STICK_RNUM = 400;
@@ -7570,8 +7567,8 @@ int DoStar(DSWActor* actor)
     {
         if (actor->user.coll.type == kHitSprite && actor->user.coll.actor()->hasU())
         {
-            su = actor->user.coll.actor()->u();
-            if (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0)
+            auto su = actor->user.coll.actor();
+            if (su->user.ID == TRASHCAN || su->user.ID == ZILLA_RUN_R0)
                 PlaySound(DIGI_STARCLINK, actor, v3df_none);
         }
 
@@ -8627,12 +8624,10 @@ int DoMineStuck(DSWActor* actor)
     DSWActor* attachActor = actor->user.attachActor;
     if (attachActor != nullptr)
     {
-        USERp au = attachActor->u();
-
-        ASSERT(au);
+        ASSERT(attachActor->hasU());
 
         // Is it attached to a dead actor? Blow it up if so.
-        if (TEST(au->Flags, SPR_DEAD) && actor->user.Counter2 < MINE_DETONATE_STATE)
+        if (TEST(attachActor->user.Flags, SPR_DEAD) && actor->user.Counter2 < MINE_DETONATE_STATE)
         {
             actor->user.Counter2 = MINE_DETONATE_STATE;
             actor->user.WaitTics = SEC(1)/2;
@@ -8833,7 +8828,6 @@ int DoMine(DSWActor* actor)
             // check to see if sprite is player or enemy
             if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
-                USERp uo;
                 PLAYERp pp;
 
                 // attach weapon to sprite
@@ -8843,11 +8837,9 @@ int DoMine(DSWActor* actor)
                 auto own = GetOwner(actor);
                 if (own && own->hasU())
                 {
-                    uo = own->u();
-
-                    if (uo->PlayerP)
+                    if (own->user.PlayerP)
                     {
-                        pp = uo->PlayerP;
+                        pp = own->user.PlayerP;
 
                         if (RandomRange(1000) > 800)
                             PlayerSound(DIGI_STICKYGOTU1, v3df_follow|v3df_dontpan,pp);

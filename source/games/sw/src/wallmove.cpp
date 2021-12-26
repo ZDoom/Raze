@@ -48,7 +48,6 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist,
     if (!actor->hasU() || TEST(sop->flags, SOBJ_SPRITE_OBJ))
         return;
 
-    auto u = actor->u();
     wallcount = 0;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -59,9 +58,8 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist,
             // find the one wall we want to adjust
             if (&wal == find_wallp)
             {
-                short ang;
                 // move orig x and y in saved angle
-                ang = u->sang;
+                int ang = actor->user.sang;
 
                 *nx = MulScale(dist, bcos(ang), 14);
                 *ny = MulScale(dist, bsin(ang), 14);
