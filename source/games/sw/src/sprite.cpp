@@ -700,7 +700,6 @@ void KillActor(DSWActor* actor)
         // that it is already dead
         if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
-            USERp mu;
             static int8_t MissileStats[] = {STAT_MISSILE, STAT_MISSILE_SKIP4};
 
             for (stat = 0; stat < SIZ(MissileStats); stat++)
@@ -821,7 +820,7 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
     }
 }
 
-USERp SpawnUser(DSWActor* actor, short id, STATEp state)
+void SpawnUser(DSWActor* actor, short id, STATEp state)
 {
     ASSERT(!Prediction);
 
@@ -870,8 +869,6 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     actor->user.highActor = nullptr;
     actor->user.lo_sectp = actor->spr.sector();
     actor->user.hi_sectp = actor->spr.sector();
-
-    return &actor->user;
 }
 
 DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, int y, int z, int init_ang, int vel)

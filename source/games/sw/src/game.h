@@ -1097,9 +1097,6 @@ struct USER
     uint8_t filler;
 };
 
-using USERp = USER*;
-
-
 enum
 {
     // sprite->extra flags
@@ -1627,7 +1624,7 @@ int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
 void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);
-USERp SpawnUser(DSWActor* actor, short id, STATEp state);
+void SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
 

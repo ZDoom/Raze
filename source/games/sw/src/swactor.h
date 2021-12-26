@@ -29,11 +29,9 @@ public:
 	bool hasU() { return hasUser; }
 
 
-	USER* u() { return &user; }
-	USER* allocUser() 
+	void allocUser() 
 	{ 
 		hasUser = true;
-		return u(); 
 	}
 
 	void clearUser()
