@@ -1256,7 +1256,8 @@ void DoPlayerResetMovement(PLAYERp pp)
 
 void DoPlayerTeleportPause(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
+    DSWActor* actor = pp->actor;
+    USERp u = actor->u();
 
     // set this so we don't get stuck in teleporting loop
     pp->lastcursector = pp->cursector;
@@ -1341,7 +1342,6 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 void DoPlayerWarpTeleporter(PLAYERp pp)
 {
     auto ppActor = pp->Actor();
-    USERp u = ppActor->u();
     short pnum;
     DSWActor* act_warp;
     
@@ -1372,11 +1372,8 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
 
         DoPlayerResetMovement(pp);
 
-        u->WaitTics = 30;
-        //ppActor->spr.shade =
-        //SET(ppActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+        ppActor->user.WaitTics = 30;
         DoPlayerBeginRun(pp);
-        //DoPlayerStand(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
 
         NewStateGroup(ppActor, ppActor->user.ActorActionSet->Stand);
@@ -1680,9 +1677,6 @@ void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob
 void UpdatePlayerUnderSprite(PLAYERp pp)
 {
     DSWActor* act_over = pp->actor;
-    USERp over_u = act_over->u();
-
-    USERp u;
 
     int water_level_z, zdiff;
     bool above_water, in_dive_area;
@@ -1690,7 +1684,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     if (Prediction)
         return;
 
-    ASSERT(over_u);
+    ASSERT(act_over->hasU());
 
     // dont bother spawning if you ain't really in the water
     water_level_z = act_over->spr.sector()->floorz; // - Z(pp->WadeDepth);
@@ -1721,7 +1715,6 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     }
 
     DSWActor* act_under = pp->PlayerUnderActor;
-    u = act_under->u();
 
     act_under->spr.pos = act_under->spr.pos;
     ChangeActorSect(pp->PlayerUnderActor, act_under->spr.sector());
@@ -1735,9 +1728,9 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     // add diff to ceiling
     act_under->spr.pos.Z = act_under->spr.sector()->ceilingz + zdiff;
 
-    u->State = over_u->State;
-    u->Rot = over_u->Rot;
-    u->StateStart = over_u->StateStart;
+    act_under->user.State = act_over->user.State;
+    act_under->user.Rot = act_over->user.Rot;
+    act_under->user.StateStart = act_over->user.StateStart;
 
     act_under->spr.picnum = act_under->spr.picnum;
 }
