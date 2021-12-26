@@ -176,7 +176,7 @@ static bool UseEye(int nPlayer)
     if (PlayerList[nPlayer].nInvisible >= 0) 
         PlayerList[nPlayer].nInvisible = 900;
 
-    auto pActor = PlayerList[nPlayer].Actor();
+    auto pActor = PlayerList[nPlayer].pActor;
 
     pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
@@ -199,7 +199,7 @@ static bool UseMask(int nPlayer)
 
     if (nPlayer == nLocalPlayer)
     {
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].Actor());
+        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
     }
     return true;
 }
@@ -223,7 +223,7 @@ bool UseHeart(int nPlayer)
         if (nPlayer == nLocalPlayer)
         {
             ItemFlash();
-            D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].Actor());
+            D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
         }
         return true;
     }
@@ -239,7 +239,7 @@ bool UseScarab(int nPlayer)
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].Actor());
+        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
     }
     return true;
 }
@@ -252,7 +252,7 @@ static bool UseHand(int nPlayer)
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].Actor());
+        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
     }
     return true;
 }

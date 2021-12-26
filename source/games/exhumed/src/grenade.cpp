@@ -53,7 +53,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
         return;
 
     DExhumedActor* pActor = PlayerList[nPlayer].pPlayerGrenade;
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
 
     int nAngle = pPlayerActor->spr.ang;
 
@@ -102,7 +102,7 @@ void BuildGrenade(int nPlayer)
 {
     auto pActor = insertActor(PlayerList[nPlayer].pPlayerViewSect, 201);
 
-	auto pPlayerActor = PlayerList[nPlayer].Actor();
+	auto pPlayerActor = PlayerList[nPlayer].pActor;
 
     pActor->spr.pos.X = pPlayerActor->spr.pos.X;
     pActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
@@ -174,7 +174,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     if (pActor->nTurn < 0)
     {
-        auto pPlayerActor = PlayerList[nPlayer].Actor();
+        auto pPlayerActor = PlayerList[nPlayer].pActor;
         int nAngle = pPlayerActor->spr.ang;
 
         pActor->spr.pos.Z = pPlayerActor->spr.pos.Z;

@@ -85,7 +85,7 @@ void FreeRa(int nPlayer)
 
 void BuildRa(int nPlayer)
 {
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
 
     auto pActor = insertActor(pPlayerActor->spr.sector(), 203);
 
@@ -160,7 +160,7 @@ void MoveRaToEnemy(int nPlayer)
         }
 
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-        pTarget = PlayerList[nPlayer].Actor();
+        pTarget = PlayerList[nPlayer].pActor;
     }
 	
     pActor->spr.pos.X = pTarget->spr.pos.X;
@@ -261,7 +261,7 @@ void AIRa::Tick(RunListEvent* ev)
             {
                 if (PlayerList[nPlayer].nAmmo[kWeaponRing] > 0)
                 {
-                    runlist_DamageEnemy(Ra[nPlayer].pTarget, PlayerList[Ra[nPlayer].nPlayer].Actor(), BulletInfo[kWeaponRing].nDamage);
+                    runlist_DamageEnemy(Ra[nPlayer].pTarget, PlayerList[Ra[nPlayer].nPlayer].pActor, BulletInfo[kWeaponRing].nDamage);
                     AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
                     SetQuake(pActor, 100);
                 }

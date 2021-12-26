@@ -352,7 +352,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
         if (pSect2->Flag & kSectUnderwater)
         {
-            if (pActor == PlayerList[nLocalPlayer].Actor()) {
+            if (pActor == PlayerList[nLocalPlayer].pActor) {
                 D3PlayFX(StaticSound[kSound2], pActor);
             }
 
@@ -712,7 +712,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
         if (i >= nTotalPlayers)
             return nullptr;
 
-        pPlayerActor = PlayerList[i].Actor();
+        pPlayerActor = PlayerList[i].pActor;
 
         if ((pPlayerActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
         {
@@ -1076,7 +1076,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         Can cause local player sounds to play off-centre.
         TODO: Might need to be done elsewhere too?
     */
-    auto pActor = PlayerList[nLocalPlayer].Actor();
+    auto pActor = PlayerList[nLocalPlayer].pActor;
     initx = pActor->spr.pos.X;
     inity = pActor->spr.pos.Y;
     initz = pActor->spr.pos.Z;
@@ -1093,7 +1093,7 @@ void SetQuake(DExhumedActor* pActor, int nVal)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        auto pPlayerActor = PlayerList[i].Actor();
+        auto pPlayerActor = PlayerList[i].pActor;
 
 
         uint32_t xDiff = abs((int32_t)((pPlayerActor->spr.pos.X - x) >> 8));
@@ -1236,7 +1236,7 @@ int GetWallNormal(walltype* pWall)
 
 void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
 {
-    auto pActor = PlayerList[nPlayer].Actor();
+    auto pActor = PlayerList[nPlayer].pActor;
     int height = GetActorHeight(pActor) >> 1;
 
     *sectnum = pActor->spr.sector();

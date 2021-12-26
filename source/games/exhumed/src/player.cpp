@@ -217,7 +217,7 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 void RestartPlayer(int nPlayer)
 {
 	auto plr = &PlayerList[nPlayer];
-    auto pActor = plr->Actor();
+    auto pActor = plr->pActor;
     DExhumedActor* pDopSprite = plr->pDoppleSprite;
 
     DExhumedActor* floorsprt;
@@ -431,7 +431,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 {
     FreeRa(nPlayer);
 
-    auto pActor = PlayerList[nPlayer].Actor();
+    auto pActor = PlayerList[nPlayer].pActor;
     PlayerList[nPlayer].nHealth = 0;
 
     int nLotag = pActor->spr.sector()->lotag;
@@ -601,7 +601,7 @@ static void pickupMessage(int no)
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang.asbuild();
-    if (pPlayer->Actor()) pPlayer->Actor()->spr.ang = inita;
+    if (pPlayer->pActor) pPlayer->pActor->spr.ang = inita;
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -618,7 +618,7 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
 
     if (PlayerList[nPlayer].nHealth <= 0)
     {
@@ -633,7 +633,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 {
     int nDamage = ev->nDamage;
     int nPlayer = RunData[ev->nRun].nObjIndex;
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
     int nAction = PlayerList[nPlayer].nAction;
     DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
@@ -743,7 +743,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
 
     DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
@@ -2477,7 +2477,7 @@ sectdone:
                     // will invalidate nPlayerSprite
                     RestartPlayer(nPlayer);
 
-                    pPlayerActor = PlayerList[nPlayer].Actor();
+                    pPlayerActor = PlayerList[nPlayer].pActor;
                     pDopple = PlayerList[nPlayer].pDoppleSprite;
                 }
                 else
@@ -2756,7 +2756,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->Actor()->spr.ang);
+    ACTION_RETURN_INT(self->pActor->spr.ang);
 }
 
 

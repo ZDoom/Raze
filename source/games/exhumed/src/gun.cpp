@@ -243,7 +243,7 @@ void ResetSwordSeqs()
 
 Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSector)
 {
-    auto pActor = PlayerList[nPlayer].Actor();
+    auto pActor = PlayerList[nPlayer].pActor;
 
     int ang = pActor->spr.ang;
     int xVect = bcos(ang);
@@ -318,7 +318,7 @@ void MoveWeapons(int nPlayer)
     if (!PlayerList[nPlayer].bIsFiring || (nSectFlag & kSectUnderwater))
         nTemperature[nPlayer] = 0;
 
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
     int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     if (nWeapon < -1)
@@ -377,7 +377,7 @@ void MoveWeapons(int nPlayer)
                             if (!WeaponCanFire(nPlayer))
                             {
                                 if (!dword_96E22) {
-                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].Actor());
+                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].pActor);
                                 }
                             }
                             else
@@ -951,7 +951,7 @@ void DrawWeapons(double smooth)
     }
 
     if (nWeapon < 0) {
-        nShade = PlayerList[nLocalPlayer].Actor()->spr.shade;
+        nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
     }
 
     double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);

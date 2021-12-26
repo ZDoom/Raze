@@ -83,7 +83,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
         }
     }
 
-    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
+    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
 
     int var_38 = 20;
     int var_2C = 30000;
@@ -206,7 +206,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     DoInterpolations(smoothRatio / 65536.);
     pm_smoothratio = (int)smoothRatio;
 
-    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
+    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
     auto pDop = PlayerList[nLocalPlayer].pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;

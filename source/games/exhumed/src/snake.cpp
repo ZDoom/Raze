@@ -129,7 +129,7 @@ void BuildSnake(int nPlayer, int zVal)
 
     zVal -= 1280;
 
-    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
     int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
@@ -258,7 +258,7 @@ void BuildSnake(int nPlayer, int zVal)
 DExhumedActor* FindSnakeEnemy(int nSnake)
 {
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
-	auto pPlayerActor = PlayerList[nPlayer].Actor();
+	auto pPlayerActor = PlayerList[nPlayer].pActor;
 	
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;

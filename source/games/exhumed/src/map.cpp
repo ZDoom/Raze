@@ -48,7 +48,7 @@ void DrawMap(double const smoothratio)
 {
     if (!nFreeze && automapMode != am_off) 
     {
-        auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
+        auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
 
         int x = pPlayerActor->spr.interpolatedx(smoothratio);
         int y = pPlayerActor->spr.interpolatedy(smoothratio);
@@ -73,7 +73,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 {
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-		auto pPlayerActor = PlayerList[i].Actor();
+		auto pPlayerActor = PlayerList[i].pActor;
 
         int xvect = -bsin(a) * z;
         int yvect = -bcos(a) * z;

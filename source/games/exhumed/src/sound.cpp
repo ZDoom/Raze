@@ -640,7 +640,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     }
 
     // Nuke: added nSprite >= 0 check
-    if (pActor != PlayerList[nLocalPlayer].Actor() && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
+    if (pActor != PlayerList[nLocalPlayer].pActor && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         nCreepyTimer = kCreepyCount;
 }
 
@@ -684,7 +684,7 @@ void CheckAmbience(sectortype* sect)
                 {
                     if (sect == pSector2)
                     {
-                        amb = GetSoundPos(&PlayerList[0].Actor()->spr.pos);
+                        amb = GetSoundPos(&PlayerList[0].pActor->spr.pos);
                     }
                     else
                     {

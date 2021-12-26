@@ -54,8 +54,7 @@ struct PlayerSave
 
 struct Player
 {
-	DExhumedActor* Actor() { return pActor; }
-    TObjPtr<DExhumedActor*> pActor;
+    DExhumedActor* pActor;
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
