@@ -155,7 +155,7 @@ struct MapRecord
 	
 	const char* LabelName() const
 	{
-		if (flags & MI_USERMAP) return GStrings("TXT_USERMAP");
+		if (flags & MI_USERMAP) return GStrings("MNU_USERMAP");
 		return labelName;
 	}
 	const char *DisplayName() const

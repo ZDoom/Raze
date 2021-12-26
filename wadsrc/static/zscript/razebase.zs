@@ -100,7 +100,7 @@ struct MapRecord native
 	
 	String GetLabelName()
 	{
-		if (flags & USERMAP) return StringTable.Localize("$TXT_USERMAP");
+		if (flags & USERMAP) return StringTable.Localize("$MNU_USERMAP");
 		return labelName;
 	}
 	String DisplayName()
