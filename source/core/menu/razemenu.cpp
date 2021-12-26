@@ -434,18 +434,14 @@ static void BuildEpisodeMenu()
 				}
 			}
 		}
-#if 0	// this needs to be backed by a working selection menu, until that gets done it must be disabled.
 		if (!(g_gameType & GAMEFLAG_SHAREWARE))
 		{
-			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
-			//ld->mItems.Push(it);
-
 			y += ld->mLinespacing / 3;
-			auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, 'U', "$MNU_USERMAP", ld->mFont, 0, 0, NAME_UsermapMenu);
+			auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, 'U', "$MNU_USERMAP", ld->mFont, CR_UNTRANSLATED, 0, NAME_UsermapMenu, 0);
 			ld->mItems.Push(it);
 			addedVolumes++;
 		}
-#endif
+
 		if (addedVolumes == 1)
 		{
 			ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);

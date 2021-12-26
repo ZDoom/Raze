@@ -60,7 +60,7 @@ struct UsermapDirectory native
 		Selected -= GetNumDirectories();
 		let entry = GetEntry(Selected);
 		if (!entry) return "";
-		if (entry.info.Length() > 0) return String.Format("Map %s: %s\n%s", entry.filename, entry.info, entry.container);
+		if (entry.info.Length() > 0) return String.Format("Map %s: %s\n%s", entry.filename, StringTable.Localize(entry.info), entry.container);
 		return String.Format("Map %s\n%s", entry.filename, entry.container);
 	}
 	void Select(int Selected)
@@ -171,7 +171,6 @@ class UsermapMenu : ListMenu
 		numdirs = currentDir.GetNumDirectories();
 		numentries = currentDir.GetNumEntries();
 		NumTotalEntries = numparent + numdirs + numentries;
-		Console.Printf("Selects = %d", selects.Size());
 	}
 
 	override void Drawer ()

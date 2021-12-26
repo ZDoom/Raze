@@ -131,8 +131,8 @@ void ReadUserMaps()
 	{
 		auto fn1 = fileSystem.GetFileFullName(i);
 		if (!fn1 || !*fn1) continue;
-		auto map = strstr(fn1, ".map");
-		if (!map || strcmp(map, ".map")) continue;
+		FString lowfn = fn1;
+		if (lowfn.Right(4).CompareNoCase(".map")) continue;
 		if (!ValidateMap(i)) continue;
 		InsertMap(i);
 	}
