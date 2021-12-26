@@ -269,7 +269,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 				int o = GetWindingOrder(thisloop);
 				if (o == 0)
 				{
-					Printf("Unable to determine winding order of loop in sector %d!\n", i);
+					//Printf("Unable to determine winding order of loop in sector %d!\n", i);
 					bugged.Insert(i, true);
 				}
 
@@ -366,7 +366,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 			if (last != 1)
 			{
 				builder.sections.Last().bugged = ESEctionFlag::BadWinding; // Todo: Use flags for bugginess.
-				Printf("Sector %d has wrong winding order\n", i);
+				//Printf("Sector %d has wrong winding order\n", i);
 				bugged.Insert(i, true);
 			}
 			continue;
@@ -444,7 +444,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 						{
 							if (sectloops[a].Last() != -1 || sectloops[b].Last() != 1)
 							{
-								Printf("Bad winding order for loops in sector %d\n", i);
+								//Printf("Bad winding order for loops in sector %d\n", i);
 								bugged.Insert(i, true);
 								inside[a] = inside[b] = -2; // invalidate both loops
 							}
@@ -456,7 +456,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 						}
 						else
 						{
-							Printf("Nested loops found in sector %d, comparing loops starting at %d and %d\n", i, sectloops[a][0], sectloops[b][0]);
+							//Printf("Nested loops found in sector %d, comparing loops starting at %d and %d\n", i, sectloops[a][0], sectloops[b][0]);
 							bugged.Insert(i, true);
 							if (inside[a] != -2)
 							{
