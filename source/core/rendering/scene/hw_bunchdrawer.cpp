@@ -173,7 +173,7 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 	PlanesAtPoint(backsector, wal->pos.X, wal->pos.Y, &bs_ceilingheight1, &bs_floorheight1);
 	PlanesAtPoint(backsector, pt2->pos.X, pt2->pos.Y, &bs_ceilingheight2, &bs_floorheight2);
 
-	*bottomclip = max(max(bs_floorheight1, bs_floorheight2), max(fs_floorheight1, fs_floorheight2));
+	*bottomclip = max(min(bs_floorheight1, bs_floorheight2), min(fs_floorheight1, fs_floorheight2));
 
 	// if one plane is sky on both sides, the line must not clip.
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY)
@@ -183,7 +183,7 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 		*topclip = FLT_MAX;
 		return false;
 	}
-	*topclip = min(min(bs_ceilingheight1, bs_ceilingheight2), min(fs_ceilingheight1, fs_ceilingheight2));
+	*topclip = min(max(bs_ceilingheight1, bs_ceilingheight2), max(fs_ceilingheight1, fs_ceilingheight2));
 
 	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY)
 	{
