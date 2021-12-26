@@ -1071,23 +1071,22 @@ void DoPlayerSpriteThrow(PLAYERp pp)
 
 int DoPlayerSpriteReset(DSWActor* actor)
 {
-    USER* u = actor->u();
     PLAYERp pp;
 
-    if (!u->PlayerP)
+    if (!actor->user.PlayerP)
         return 0;
 
-    pp = u->PlayerP;
+    pp = actor->user.PlayerP;
 
     // need to figure out what frames to put sprite into
     if (pp->DoPlayerAction == DoPlayerCrawl)
-        NewStateGroup(pp->Actor(), u->ActorActionSet->Crawl);
+        NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Crawl);
     else
     {
         if (TEST(pp->Flags, PF_PLAYER_MOVED))
-            NewStateGroup(pp->Actor(), u->ActorActionSet->Run);
+            NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Run);
         else
-            NewStateGroup(pp->Actor(), u->ActorActionSet->Stand);
+            NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Stand);
     }
 
     return 0;
@@ -1133,7 +1132,6 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     short angle2, delta_ang;
     int dist, zh;
     int16_t* shp;
-    USERp u = actor->u();
     int ezh, ezhl, ezhm;
     unsigned ndx;
     TARGET_SORTp ts;
@@ -1188,8 +1186,8 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (delta_ang > (int)max_delta_ang)
                 continue;
 
-            if (u && u->PlayerP)
-                zh = u->PlayerP->pos.Z;
+            if (actor->hasU() && actor->user.PlayerP)
+                zh = actor->user.PlayerP->pos.Z;
             else
                 zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
@@ -1257,12 +1255,11 @@ void DoPlayerResetMovement(PLAYERp pp)
 void DoPlayerTeleportPause(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
-    USERp u = actor->u();
 
     // set this so we don't get stuck in teleporting loop
     pp->lastcursector = pp->cursector;
 
-    if ((u->WaitTics-=synctics) <= 0)
+    if ((actor->user.WaitTics-=synctics) <= 0)
     {
         //RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         RESET(pp->Flags2, PF2_TELEPORTED);
@@ -1887,7 +1884,6 @@ void DoPlayerSlide(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
 
-    USERp u = actor->u();
     int push_ret;
 
     if ((pp->slide_xvect|pp->slide_yvect) == 0)
@@ -1907,7 +1903,7 @@ void DoPlayerSlide(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
-            PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
+            PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
@@ -1924,7 +1920,7 @@ void DoPlayerSlide(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
-            PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
+            PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
@@ -1982,7 +1978,6 @@ void PlayerSectorBound(PLAYERp pp, int amt)
 void DoPlayerMove(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
-    USERp u = actor->u();
     int friction;
     int push_ret = 0;
 
@@ -2072,7 +2067,7 @@ void DoPlayerMove(PLAYERp pp)
         {
             if (!TEST(pp->Flags, PF_DEAD))
             {
-                PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
+                PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
 
                 if (TEST(pp->Flags, PF_DEAD))
@@ -2101,7 +2096,7 @@ void DoPlayerMove(PLAYERp pp)
 
             if (!TEST(pp->Flags, PF_DEAD))
             {
-                PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
+                PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
 
                 if (TEST(pp->Flags, PF_DEAD))
@@ -2366,7 +2361,6 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     int testpointinquad(int x, int y, int *qx, int *qy);
 
     SECTOR_OBJECTp sop = pp->sop_control;
-    USERp u;
     short stat;
     SECTORp *sectp;
 
@@ -2381,8 +2375,6 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     SWSectIterator it(sop->op_main_sector);
     while (auto actor = it.Next())
     {
-        u = actor->u();
-
         if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
             if (TEST(actor->spr.extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
@@ -2396,7 +2388,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 
             if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
-                if (!TEST(u->Flags, SPR_DEAD) && !TEST(actor->spr.extra, SPRX_BREAKABLE))
+                if (!TEST(actor->user.Flags, SPR_DEAD) && !TEST(actor->spr.extra, SPRX_BREAKABLE))
                     continue;
             }
 
@@ -2464,9 +2456,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         if (actor == nullptr)
             continue;
 
-        u = actor->u();
-
-        if (u->PlayerP == pp)
+        if (actor->user.PlayerP == pp)
             continue;
 
         if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
@@ -2477,10 +2467,10 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
-            damage = -(u->Health + 100);
-            PlayerDamageSlide(u->PlayerP, damage, pp->angle.ang.asbuild());
-            PlayerUpdateHealth(u->PlayerP, damage);
-            PlayerCheckDeath(u->PlayerP, pp->Actor());
+            damage = -(actor->user.Health + 100);
+            PlayerDamageSlide(actor->user.PlayerP, damage, pp->angle.ang.asbuild());
+            PlayerUpdateHealth(actor->user.PlayerP, damage);
+            PlayerCheckDeath(actor->user.PlayerP, pp->Actor());
         }
     }
 
@@ -2491,8 +2481,6 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         it.Reset(*sectp);
         while (auto actor = it.Next())
         {
-            u = actor->u();
-
             // give some extra buffer
             if (actor->spr.pos.Z < sop->crush_z + Z(40))
                 continue;
@@ -2518,7 +2506,6 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     DSWActor* actor = pp->sop->sp_child;
     if (!actor) return;
     DSWActor* plActor = pp->actor;
-    USERp u = actor->u();
     int x[4], y[4], ox[4], oy[4];
     int wallcount;
     int count=0;
@@ -2640,11 +2627,11 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                 if (FindDistance2D(hit.hitpos.X - hit_pos.X, hit.hitpos.Y - hit_pos.Y) < 800)
                 {
                     if (hit.hitWall)
-                        u->coll.setWall(wallnum(hit.hitWall));
+                        actor->user.coll.setWall(wallnum(hit.hitWall));
                     else if (hit.actor())
-                        u->coll.setSprite(hit.actor());
+                        actor->user.coll.setSprite(hit.actor());
                     else
-                        u->coll.setNone();
+                        actor->user.coll.setNone();
 
                     VehicleMoveHit(actor);
                 }
@@ -2678,17 +2665,17 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         {
             vec3_t clippos = { pp->pos.X, pp->pos.Y, z };
             Collision coll;
-            clipmove(clippos, &pp->cursector, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, u->coll);
+            clipmove(clippos, &pp->cursector, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
 
             pp->pos.vec2 = clippos.vec2;
         }
         else
         {
-            u->coll = MultiClipMove(pp, z, floor_dist);
+            actor->user.coll = MultiClipMove(pp, z, floor_dist);
         }
         plActor->spr.cstat = save_cstat;
 
-        if (u->coll.type != kHitNone)
+        if (actor->user.coll.type != kHitNone)
         {
             int vel;
 
@@ -6332,56 +6319,53 @@ void PlayerStateControl(DSWActor* actor)
 {
     if (actor == nullptr || !actor->hasU()) return;
 
-    auto u = actor->u();
-
-    u->Tics += synctics;
+    actor->user.Tics += synctics;
 
     // Skip states if too much time has passed
-    while (u->Tics >= TEST(u->State->Tics, SF_TICS_MASK))
+    while (actor->user.Tics >= TEST(actor->user.State->Tics, SF_TICS_MASK))
     {
 
         // Set Tics
-        u->Tics -= TEST(u->State->Tics, SF_TICS_MASK);
+        actor->user.Tics -= TEST(actor->user.State->Tics, SF_TICS_MASK);
 
         // Transition to the next state
-        u->State = u->State->NextState;
+        actor->user.State = actor->user.State->NextState;
 
         // !JIM! Added this so I can do quick calls in player states!
         // Need this in order for floor blood and footprints to not get called more than once.
-        while (TEST(u->State->Tics, SF_QUICK_CALL))
+        while (TEST(actor->user.State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(actor);
+            (*actor->user.State->Animator)(actor);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if (TEST(u->State->Tics, SF_QUICK_CALL))
-                u->State = u->State->NextState;
+            if (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+                actor->user.State = actor->user.State->NextState;
         }
 
-        if (!u->State->Pic)
+        if (!actor->user.State->Pic)
         {
-            NewStateGroup(actor, (STATEp *) u->State->NextState);
+            NewStateGroup(actor, (STATEp *) actor->user.State->NextState);
         }
     }
 
     // Set picnum to the correct pic
-    if (u->RotNum > 1)
-        actor->spr.picnum = u->Rot[0]->Pic;
+    if (actor->user.RotNum > 1)
+        actor->spr.picnum = actor->user.Rot[0]->Pic;
     else
-        actor->spr.picnum = u->State->Pic;
+        actor->spr.picnum = actor->user.State->Pic;
 
     // Call the correct animator
-    if (TEST(u->State->Tics, SF_PLAYER_FUNC))
-        if (u->State->Animator)
-            (*u->State->Animator)(actor);
+    if (TEST(actor->user.State->Tics, SF_PLAYER_FUNC))
+        if (actor->user.State->Animator)
+            (*actor->user.State->Animator)(actor);
 
     return;
 }
 
 void MoveSkipSavePos(void)
 {
-    USERp u;
     int i;
     short pnum;
     PLAYERp pp;
@@ -6414,10 +6398,8 @@ void MoveSkipSavePos(void)
             while (auto actor = it.Next())
             {
                 if (!actor->hasU()) continue;
-                u = actor->u();
-
                 actor->spr.backuppos();
-                u->oz = actor->spr.opos.Z;
+                actor->user.oz = actor->spr.opos.Z;
             }
         }
     }
@@ -6433,10 +6415,8 @@ void MoveSkipSavePos(void)
             while (auto actor = it.Next())
             {
                 if (!actor->hasU()) continue;
-                u = actor->u();
-
                 actor->spr.backuppos();
-                u->oz = actor->spr.opos.Z;
+                actor->user.oz = actor->spr.opos.Z;
             }
         }
     }
@@ -6976,17 +6956,15 @@ void InitMultiPlayerInfo(void)
 // If player stepped in something gooey, track it all over the place.
 int DoFootPrints(DSWActor* actor)
 {
-    USER* u = actor->u();
-
-    if (u->PlayerP)
+    if (actor->user.PlayerP)
     {
-        if (!u->PlayerP->insector())
+        if (!actor->user.PlayerP->insector())
             return 0;
 
-        if (FAF_ConnectArea(u->PlayerP->cursector))
+        if (FAF_ConnectArea(actor->user.PlayerP->cursector))
             return 0;
 
-        if (u->PlayerP->NumFootPrints > 0)
+        if (actor->user.PlayerP->NumFootPrints > 0)
         {
             QueueFootPrint(actor);
         }
