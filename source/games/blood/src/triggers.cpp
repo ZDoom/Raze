@@ -1031,11 +1031,9 @@ DBloodActor* GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBo
     return found;
 }
 
-int VCrushBusy(unsigned int nSector, unsigned int a2)
+int VCrushBusy(sectortype *pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    auto pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR *pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
@@ -1051,9 +1049,9 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     if (dz2 != 0)
         v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
     int v18;
-    if (GetHighestSprite(nSector, 6, &v18) && vc >= v18)
+    if (GetHighestSprite(sectnum(pSector), 6, &v18) && vc >= v18)
         return 1;
-    viewInterpolateSector(&sector[nSector]);
+    viewInterpolateSector(pSector);
     if (dz1 != 0)
         pSector->ceilingz = vc;
     if (dz2 != 0)
@@ -1063,18 +1061,16 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int VSpriteBusy(unsigned int nSector, unsigned int a2)
+int VSpriteBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    auto pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
@@ -1084,7 +1080,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz1 = pXSector->onFloorZ - pXSector->offFloorZ;
     if (dz1 != 0)
     {
-        BloodSectIterator it(nSector);
+        BloodSectIterator it(pSector);
         while (auto actor = it.Next())
         {
             spritetype *pSprite = &actor->s();
@@ -1098,7 +1094,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz2 = pXSector->onCeilZ - pXSector->offCeilZ;
     if (dz2 != 0)
     {
-        BloodSectIterator it(nSector);
+        BloodSectIterator it(pSector);
         while (auto actor = it.Next())
         {
             spritetype* pSprite = &actor->s();
@@ -1114,18 +1110,16 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int VDoorBusy(unsigned int nSector, unsigned int a2)
+int VDoorBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    auto pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR *pXSector = &pSector->xs();
     int vbp;
     if (pXSector->state)
@@ -1133,7 +1127,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     else
         vbp = -65536/ClipLow((120*pXSector->busyTimeB)/10, 1);
     int top, bottom;
-    auto actor = GetCrushedSpriteExtents(nSector,&top,&bottom);
+    auto actor = GetCrushedSpriteExtents(sectnum(pSector),&top,&bottom);
     if (actor && a2 > pXSector->busy)
     {
         assert(actor->hasX());
@@ -1205,24 +1199,22 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
         nWave = pXSector->busyWaveA;
     else
         nWave = pXSector->busyWaveB;
-    ZTranslateSector(nSector, pXSector, a2, nWave);
+    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int HDoorBusy(unsigned int nSector, unsigned int a2)
+int HDoorBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
@@ -1232,25 +1224,23 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
     if (!pXSector->marker0 || !pXSector->marker1) return 0;
     spritetype *pSprite1 = &pXSector->marker0->s();
     spritetype *pSprite2 = &pXSector->marker1->s();
-    TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
-    ZTranslateSector(nSector, pXSector, a2, nWave);
+    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int RDoorBusy(unsigned int nSector, unsigned int a2)
+int RDoorBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
@@ -1259,25 +1249,23 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
         nWave = pXSector->busyWaveB;
     if (!pXSector->marker0) return 0;
     spritetype* pSprite = &pXSector->marker0->s();
-    TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
-    ZTranslateSector(nSector, pXSector, a2, nWave);
+    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
+    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int StepRotateBusy(unsigned int nSector, unsigned int a2)
+int StepRotateBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     if (!pXSector->marker0) return 0;
     spritetype* pSprite = &pXSector->marker0->s();
@@ -1286,20 +1274,20 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     {
         vbp = pXSector->data+pSprite->ang;
         int nWave = pXSector->busyWaveA;
-        TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, pXSector->data, pSprite->x, pSprite->y, vbp, 1);
+        TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, pXSector->data, pSprite->x, pSprite->y, vbp, 1);
     }
     else
     {
         vbp = pXSector->data-pSprite->ang;
         int nWave = pXSector->busyWaveB;
-        TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, vbp, pSprite->x, pSprite->y, pXSector->data, 1);
+        TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, vbp, pSprite->x, pSprite->y, pXSector->data, 1);
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         pXSector->data = vbp&2047;
         return 3;
@@ -1307,29 +1295,25 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     return 0;
 }
 
-int GenSectorBusy(unsigned int nSector, unsigned int a2)
+int GenSectorBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
 }
 
-int PathBusy(unsigned int nSector, unsigned int a2)
+int PathBusy(sectortype* pSector, unsigned int a2)
 {
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    assert(pSector->hasX());
+    assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
 
     if (!pXSector->basePath || !pXSector->marker0 || !pXSector->marker1) return 0;
@@ -1340,8 +1324,8 @@ int PathBusy(unsigned int nSector, unsigned int a2)
     XSPRITE *pXSprite2 = &pXSector->marker1->x();
 
     int nWave = pXSprite1->wave;
-    TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
-    ZTranslateSector(nSector, pXSector, a2, nWave);
+    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
+    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
     {
@@ -1349,7 +1333,7 @@ int PathBusy(unsigned int nSector, unsigned int a2)
         pXSector->state = 0;
         pXSector->busy = 0;
         if (pXSprite1->data4)
-            PathSound(nSector, pXSprite1->data4);
+            PathSound(sectnum(pSector), pXSprite1->data4);
         pXSector->marker0 = pXSector->marker1;
         pXSector->data = pXSprite2->data1;
         return 3;
@@ -1363,18 +1347,18 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
     switch (event.cmd) {
         case kCmdOff:
             if (!pXSector->busy) break;
-            AddBusy(nSector, busyWave, -65536/ClipLow((pXSector->busyTimeB*120)/10, 1));
+            AddBusy(sectnum(pSector), busyWave, -65536/ClipLow((pXSector->busyTimeB*120)/10, 1));
             SectorStartSound(pSector, 1);
             break;
         case kCmdOn:
             if (pXSector->busy == 0x10000) break;
-            AddBusy(nSector, busyWave, 65536/ClipLow((pXSector->busyTimeA*120)/10, 1));
+            AddBusy(sectnum(pSector), busyWave, 65536/ClipLow((pXSector->busyTimeA*120)/10, 1));
             SectorStartSound(pSector, 0);
             break;
         default:
             if (pXSector->busy & 0xffff)  {
                 if (pXSector->interruptable) {
-                    ReverseBusy(nSector, busyWave);
+                    ReverseBusy(sectnum(pSector), busyWave);
                     pXSector->state = !pXSector->state;
                 }
             } else {
@@ -1383,7 +1367,7 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
                 if (t) nDelta = 65536/ClipLow((pXSector->busyTimeA*120)/10, 1);
                 else nDelta = -65536/ClipLow((pXSector->busyTimeB*120)/10, 1);
             
-                AddBusy(nSector, busyWave, nDelta);
+                AddBusy(sectnum(pSector), busyWave, nDelta);
                 SectorStartSound(pSector, pXSector->state);
             }
             break;
@@ -1468,6 +1452,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
+    auto pSector = &sector[nSector];
     if (!pXSector->marker0) return;
     spritetype* pSprite2 = &pXSector->marker0->s();
     XSPRITE *pXSprite2 = &pXSector->marker0->x();
@@ -1651,20 +1636,20 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
     int nBusy = GetSourceBusy(event);
     switch (pSector->type) {
         case kSectorZMotionSprite:
-            VSpriteBusy(nSector, nBusy);
+            VSpriteBusy(&sector[nSector], nBusy);
             break;
         case kSectorZMotion:
-            VDoorBusy(nSector, nBusy);
+            VDoorBusy(&sector[nSector], nBusy);
             break;
         case kSectorSlideMarked:
         case kSectorSlide:
-            HDoorBusy(nSector, nBusy);
+            HDoorBusy(&sector[nSector], nBusy);
             break;
         case kSectorRotateMarked:
         case kSectorRotate:
             // force synchronised input here for now.
             setForcedSyncInput();
-            RDoorBusy(nSector, nBusy);
+            RDoorBusy(&sector[nSector], nBusy);
             break;
         default:
             pXSector->busy = nBusy;
@@ -1946,7 +1931,7 @@ void AlignSlopes(void)
     }
 }
 
-int(*gBusyProc[])(unsigned int, unsigned int) =
+int(*gBusyProc[])(sectortype*, unsigned int) =
 {
     VCrushBusy,
     VSpriteBusy,
@@ -1970,7 +1955,7 @@ void trProcessBusy(void)
         int oldBusy = gBusy[i].busy;
         gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
         #ifdef NOONE_EXTENSIONS
-            if (!gModernMap || !sector[gBusy[i].index].xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
+            if (!gModernMap || !sector[gBusy[i].index].xs().unused1) nStatus = gBusyProc[gBusy[i].type](&sector[gBusy[i].index], gBusy[i].busy);
             else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
         #else
             nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
