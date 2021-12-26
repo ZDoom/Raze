@@ -562,17 +562,21 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 			node = next;
 		}
 		
-		// we get here if a new range needs to be inserted.
-		node = cliphead;
-		// advance to the place where this can be inserted.		
-		while (node != nullptr && node->start < end)
+		// cliphead *can* be null here if a sole existing older range got removed because this one covers it entirely.
+		if (cliphead)
 		{
-			prevNode = node;
-			node = node->next;
+			// we get here if a new range needs to be inserted.
+			node = cliphead;
+			// advance to the place where this can be inserted.		
+			while (node != nullptr && node->start < end)
+			{
+				prevNode = node;
+				node = node->next;
+			}
+			assert(!prevNode || prevNode->end <= start);
+			assert(!prevNode || !prevNode->next || prevNode->next->start >= end);
+			assert(prevNode || (cliphead && (!cliphead->next || cliphead->next->start >= end)));
 		}
-		assert(!prevNode || prevNode->end <= start);
-		assert(!prevNode || !prevNode->next || prevNode->next->start >= end);
-		assert(prevNode || (cliphead && (!cliphead->next || cliphead->next->start >= end)));
 	}
 
 	if (topclip > viewz) topclip = FLT_MAX;
