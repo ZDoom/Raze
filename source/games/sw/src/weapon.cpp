@@ -5385,7 +5385,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         if (weapActor->user.ID == ZOMBIE_RUN_R0)
         {
             // if weapons Owner the player
-            if (weapOwner == pp->Actor())
+            if (weapOwner == pp->actor)
                 return false;
         }
 
@@ -11264,7 +11264,7 @@ void InitSpellRing(PLAYERp pp)
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.xvel = 500;
-        SetOwner(pp->Actor(), actorNew);
+        SetOwner(pp->actor, actorNew);
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 32;
         actorNew->spr.yrepeat = 32;
@@ -11624,7 +11624,7 @@ void InitSpellNapalm(PLAYERp pp)
             PlaySound(DIGI_NAPWIZ, actor, v3df_follow);
         }
 
-        SetOwner(pp->Actor(), actor);
+        SetOwner(pp->actor, actor);
         actor->spr.shade = -40;
         actor->spr.xrepeat = 32;
         actor->spr.yrepeat = 32;
@@ -11759,7 +11759,7 @@ int InitSpellMirv(PLAYERp pp)
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 72;
     actorNew->spr.yrepeat = 72;
@@ -11849,7 +11849,7 @@ int InitSwordAttack(PLAYERp pp)
         for (size_t i = 0; i < countof(dangs); i++)
         {
             if (RandomRange(1000) < 500) continue; // Don't spawn bubbles every time
-            bubble = SpawnBubble(pp->Actor());
+            bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
                 bubble->spr.ang = pp->angle.ang.asbuild();
@@ -11886,10 +11886,10 @@ int InitSwordAttack(PLAYERp pp)
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
-                if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
+                if (SpriteOverlapZ(pp->actor, itActor, Z(20)))
                 {
                     if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
-                        DoDamage(itActor, pp->Actor());
+                        DoDamage(itActor, pp->actor);
                 }
             }
         }
@@ -12020,7 +12020,7 @@ int InitFistAttack(PLAYERp pp)
 
         for (size_t i = 0; i < countof(dangs); i++)
         {
-            bubble = SpawnBubble(pp->Actor());
+            bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
                 bubble->spr.ang = pp->angle.ang.asbuild();
@@ -12062,7 +12062,7 @@ int InitFistAttack(PLAYERp pp)
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
-                if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
+                if (SpriteOverlapZ(pp->actor, itActor, Z(20)) || face == 190)
                 {
                     if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
                         DoDamage(itActor, plActor);
@@ -12651,7 +12651,7 @@ int InitStar(PLAYERp pp)
 
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
     actorNew->spr.shade = -25;
     actorNew->spr.clipdist = 32 >> 2;
@@ -12676,7 +12676,7 @@ int InitStar(PLAYERp pp)
         return 0;
     }
 
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) != -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) != -1)
     {
         zvel = actorNew->spr.zvel;
     }
@@ -12757,7 +12757,7 @@ void InitHeartAttack(PLAYERp pp)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.shade = -10;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.yrepeat = 52;
@@ -12851,7 +12851,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hit.actor(), hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
+        if (BulletHitSprite(pp->actor, hit.actor(), hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
             return 0;
 
         // hit a switch?
@@ -12898,7 +12898,7 @@ int InitShotgun(PLAYERp pp)
     daz = nz = pp->pos.Z + pp->bob_z;
 
     daang = 64;
-    if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
+    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
     }
     else
@@ -13017,7 +13017,7 @@ int InitShotgun(PLAYERp pp)
                 continue;
             }
 
-            if (BulletHitSprite(pp->Actor(), hitActor, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->actor, hitActor, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
@@ -13059,7 +13059,7 @@ int InitLaser(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
@@ -13116,7 +13116,7 @@ int InitLaser(PLAYERp pp)
 
     actor->spr.clipdist = oclipdist;
 
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 5);
     }
@@ -13162,7 +13162,7 @@ int InitRail(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
     
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
@@ -13201,7 +13201,7 @@ int InitRail(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->spr.zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 4);
     }
@@ -13329,7 +13329,7 @@ int InitRocket(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 90;
     actorNew->spr.xrepeat = 90;
     actorNew->spr.shade = -15;
@@ -13387,7 +13387,7 @@ int InitRocket(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->spr.zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 5);
     }
@@ -13437,7 +13437,7 @@ int InitBunnyRocket(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
@@ -13492,7 +13492,7 @@ int InitBunnyRocket(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->spr.zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 5);
     }
@@ -13539,7 +13539,7 @@ int InitNuke(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 128;
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
@@ -13585,7 +13585,7 @@ int InitNuke(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->spr.zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 5);
     }
@@ -13689,7 +13689,7 @@ int InitMicro(PLAYERp pp)
 
     const int MAX_MICRO = 1;
 
-    DoPickTarget(pp->Actor(), 256, false);
+    DoPickTarget(pp->actor, 256, false);
 
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
@@ -13722,7 +13722,7 @@ int InitMicro(PLAYERp pp)
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector,
                         nx, ny, nz, ang, 1200);
 
-        SetOwner(pp->Actor(), actorNew);
+        SetOwner(pp->actor, actorNew);
         actorNew->spr.yrepeat = 24;
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
@@ -14347,7 +14347,7 @@ int InitEnemyRail(DSWActor* actor)
         TRAVERSE_CONNECT(pnum)
         {
             pp = &Player[pnum];
-            if (actor->user.targetActor == pp->Actor())
+            if (actor->user.targetActor == pp->actor)
                 return 0;
         }
     }
@@ -14922,7 +14922,7 @@ int InitTracerUzi(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 10;
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
@@ -14959,7 +14959,7 @@ int InitTracerUzi(PLAYERp pp)
 
     plActor->spr.clipdist = oclipdist;
 
-    WeaponAutoAim(pp->Actor(), actorNew, 32, false);
+    WeaponAutoAim(pp->actor, actorNew, 32, false);
 
     // a bit of randomness
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + RandomRange(30) - 15);
@@ -15241,7 +15241,7 @@ int InitUzi(PLAYERp pp)
     nz = pp->pos.Z + pp->bob_z;
     daz = pp->pos.Z + pp->bob_z;
     daang = 32;
-    if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
+    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
         daang += RandomRange(24) - 12;
         daang = NORM_ANGLE(daang);
@@ -15357,7 +15357,7 @@ int InitUzi(PLAYERp pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hitActor, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
+        if (BulletHitSprite(pp->actor, hitActor, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
             return 0;
 
         // hit a switch?
@@ -15372,7 +15372,7 @@ int InitUzi(PLAYERp pp)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     SET(actorNew->spr.cstat, cstat | CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
 
@@ -15384,7 +15384,7 @@ int InitUzi(PLAYERp pp)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = pal;
     SET(actorNew->spr.cstat, cstat | CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
@@ -15410,7 +15410,7 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_TankShell, actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, TANK_SHELL_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 8;
     actorNew->spr.xrepeat = 8;
     actorNew->spr.shade = -40;
@@ -15549,7 +15549,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, ROCKET_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 40;
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
@@ -15586,7 +15586,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->spr.sector(),
                     actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, FIREBALL_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 40;
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
@@ -15636,7 +15636,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
                     nx, ny, nz, actor->spr.ang, 1200);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
@@ -15654,7 +15654,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
 
     actorNew->spr.clipdist = 64L>>2;
 
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
     }
@@ -15685,7 +15685,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
                     nx, ny, nz, actor->spr.ang, 300);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
@@ -15729,7 +15729,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     daz = nz = actor->spr.pos.Z;
 
     if (RANDOM_P2(1024) < 200)
-        InitTracerTurret(actor, pp->Actor(), pp->horizon.horiz.asq16());
+        InitTracerTurret(actor, pp->actor, pp->horizon.horiz.asq16());
 
     daang = 64;
     if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
@@ -15800,7 +15800,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hit.actor(), hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
+        if (BulletHitSprite(pp->actor, hit.actor(), hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, 0))
             return 0;
 
         // hit a switch?
@@ -15853,7 +15853,7 @@ int InitSobjGun(PLAYERp pp)
             case 32:
             case 0:
                 SpawnVis(actor, nullptr, -1, -1, -1, 8);
-                SpawnBigGunFlames(actor, pp->Actor(), pp->sop, false);
+                SpawnBigGunFlames(actor, pp->actor, pp->sop, false);
                 SetGunQuake(actor);
                 InitTankShell(actor, pp);
                 if (!SP_TAG5(actor))
@@ -15863,7 +15863,7 @@ int InitSobjGun(PLAYERp pp)
                 break;
             case 1:
                 SpawnVis(actor, nullptr, -1, -1, -1, 32);
-                SpawnBigGunFlames(actor, pp->Actor(), pp->sop, true);
+                SpawnBigGunFlames(actor, pp->actor, pp->sop, true);
                 InitSobjMachineGun(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 10;
@@ -15928,7 +15928,7 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -15944,7 +15944,7 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
@@ -15965,7 +15965,7 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -15980,7 +15980,7 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     if (actor->user.WeaponNum == WPN_FIST)
@@ -16033,7 +16033,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
 
@@ -16044,7 +16044,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     actorNew->spr.xrepeat = SHOTGUN_SMOKE_REPEAT;
     actorNew->spr.yrepeat = SHOTGUN_SMOKE_REPEAT;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -16411,7 +16411,7 @@ int InitGrenade(PLAYERp pp)
     NewStateGroup(actorNew, &sg_Grenade[0]);
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
@@ -16445,7 +16445,7 @@ int InitGrenade(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     zvel = actorNew->spr.zvel;
-    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) >= 0)
+    if (WeaponAutoAim(pp->actor, actorNew, 32, false) >= 0)
     {
         auto_aim = true;
     }
@@ -16546,7 +16546,7 @@ int InitMine(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
@@ -16679,7 +16679,7 @@ int InitFireball(PLAYERp pp)
     actorNew->spr.yrepeat = 40;
     actorNew->spr.shade = -40;
     actorNew->spr.clipdist = 32>>2;
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
     actorNew->user.Radius = 100;
 
@@ -16709,7 +16709,7 @@ int InitFireball(PLAYERp pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->spr.zvel = zvel >> 1;
-    if (WeaponAutoAimZvel(pp->Actor(), actorNew, &zvel, 32, false) == -1)
+    if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, 32, false) == -1)
     {
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 9);
     }

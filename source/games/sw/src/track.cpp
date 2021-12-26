@@ -1798,7 +1798,7 @@ PlayerPart:
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
                 pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
-                pp->Actor()->spr.pos.Z = pp->loz;
+                pp->actor->spr.pos.Z = pp->loz;
             }
             else
             {
@@ -1809,7 +1809,7 @@ PlayerPart:
                 if (!TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
                 {
                     pp->pos.Z = pp->loz - PLAYER_HEIGHT;
-                    pp->Actor()->spr.pos.Z = pp->loz;
+                    pp->actor->spr.pos.Z = pp->loz;
                 }
             }
         }
@@ -3445,7 +3445,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < actor->user.Dist)
                 {
-                    actor->user.targetActor = pp->Actor();
+                    actor->user.targetActor = pp->actor;
                     RESET(actor->user.Flags, SPR_WAIT_FOR_PLAYER);
                     return true;
                 }

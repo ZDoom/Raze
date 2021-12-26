@@ -2358,7 +2358,7 @@ void InitPlayerSprite(PLAYERp pp)
     actor->spr.pal = PALETTE_PLAYER0 + pp->pnum;
     actor->user.spal = actor->spr.pal;
 
-    NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, actor->user.ActorActionSet->Run);
 
     pp->PlayerUnderActor = nullptr;
 

@@ -1059,13 +1059,13 @@ void DoPlayerSpriteThrow(PLAYERp pp)
 {
     if (!TEST(pp->Flags, PF_DIVING|PF_FLYING|PF_CRAWLING))
     {
-        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->Actor()->user.Rot != sg_PlayerNinjaSword)
-            NewStateGroup(pp->Actor(), sg_PlayerNinjaSword);
+        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->actor->user.Rot != sg_PlayerNinjaSword)
+            NewStateGroup(pp->actor, sg_PlayerNinjaSword);
         else
-            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->Actor()->user.Rot != sg_PlayerNinjaPunch)
-            NewStateGroup(pp->Actor(), sg_PlayerNinjaPunch);
+            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->actor->user.Rot != sg_PlayerNinjaPunch)
+            NewStateGroup(pp->actor, sg_PlayerNinjaPunch);
         //else
-        //    NewStateGroup(pp->Actor(), sg_PlayerNinjaThrow);
+        //    NewStateGroup(pp->actor, sg_PlayerNinjaThrow);
     }
 }
 
@@ -1080,13 +1080,13 @@ int DoPlayerSpriteReset(DSWActor* actor)
 
     // need to figure out what frames to put sprite into
     if (pp->DoPlayerAction == DoPlayerCrawl)
-        NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Crawl);
+        NewStateGroup(pp->actor, actor->user.ActorActionSet->Crawl);
     else
     {
         if (TEST(pp->Flags, PF_PLAYER_MOVED))
-            NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Run);
+            NewStateGroup(pp->actor, actor->user.ActorActionSet->Run);
         else
-            NewStateGroup(pp->Actor(), actor->user.ActorActionSet->Stand);
+            NewStateGroup(pp->actor, actor->user.ActorActionSet->Stand);
     }
 
     return 0;
@@ -1338,7 +1338,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 
 void DoPlayerWarpTeleporter(PLAYERp pp)
 {
-    auto ppActor = pp->Actor();
+    auto ppActor = pp->actor;
     short pnum;
     DSWActor* act_warp;
     
@@ -1387,9 +1387,9 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
                 // if someone already standing there
                 if (npp->cursector == pp->cursector)
                 {
-                    PlayerUpdateHealth(npp, -npp->Actor()->user.Health);  // Make sure he dies!
+                    PlayerUpdateHealth(npp, -npp->actor->user.Health);  // Make sure he dies!
                     // telefraged by teleporting player
-                    PlayerCheckDeath(npp, pp->Actor());
+                    PlayerCheckDeath(npp, pp->actor);
                 }
             }
         }
@@ -1492,7 +1492,7 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
         if (MultiClipTurn(pp, NORM_ANGLE(sum.asbuild()), z, floor_dist))
         {
             pp->angle.ang = sum;
-            pp->Actor()->spr.ang = pp->angle.ang.asbuild();
+            pp->actor->spr.ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1520,7 +1520,7 @@ void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         if (RectClipTurn(pp, NORM_ANGLE(sum.asbuild()), x, y, ox, oy))
         {
             pp->angle.ang = sum;
-            pp->Actor()->spr.ang = pp->angle.ang.asbuild();
+            pp->actor->spr.ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1560,7 +1560,7 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->Actor()->spr.ang = pp->angle.ang.asbuild();
+        pp->actor->spr.ang = pp->angle.ang.asbuild();
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->xmid, pp->sop->ymid);
@@ -1746,7 +1746,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     // there are multiple death functions
     if (TEST(pp->Flags, PF_DEAD))
     {
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
         actor->spr.ang = pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
@@ -1755,24 +1755,24 @@ void UpdatePlayerSprite(PLAYERp pp)
     if (pp->sop_control)
     {
         actor->spr.pos.Z = pp->cursector->floorz;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
         actor->spr.pos.Z = pp->pos.Z + PLAYER_CRAWL_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
 #if 0
     else if (pp->DoPlayerAction == DoPlayerSwim)
     {
         actor->spr.z = pp->loz - Z(pp->WadeDepth) + Z(1);
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
         actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
 
         if (pp->WadeDepth > Z(29))
         {
@@ -1783,7 +1783,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
         actor->spr.pos.Z = pp->pos.Z + Z(10);
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
@@ -1793,7 +1793,7 @@ void UpdatePlayerSprite(PLAYERp pp)
         //actor->spr.x += MOVEx(256+64, actor->spr.ang);
         //actor->spr.y += MOVEy(256+64, actor->spr.ang);
 
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
@@ -1802,22 +1802,22 @@ void UpdatePlayerSprite(PLAYERp pp)
         //actor->spr.z = pp->posz + PLAYER_HEIGHT;
         //DoPlayerSpriteBob(pp, PLAYER_HEIGHT, PLAYER_FLY_BOB_AMT, 3);
         DoPlayerSpriteBob(pp, PLAYER_HEIGHT, Z(6), 3);
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
         actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
         actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
     else
     {
         actor->spr.pos.Z = pp->loz;
-        ChangeActorSect(pp->Actor(), pp->cursector);
+        ChangeActorSect(pp->actor, pp->cursector);
     }
 
     UpdatePlayerUnderSprite(pp);
@@ -2470,7 +2470,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             damage = -(actor->user.Health + 100);
             PlayerDamageSlide(actor->user.PlayerP, damage, pp->angle.ang.asbuild());
             PlayerUpdateHealth(actor->user.PlayerP, damage);
-            PlayerCheckDeath(actor->user.PlayerP, pp->Actor());
+            PlayerCheckDeath(actor->user.PlayerP, pp->actor);
         }
     }
 
@@ -2773,7 +2773,7 @@ void DoPlayerBeginJump(PLAYERp pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Jump);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
 void DoPlayerBeginForceJump(PLAYERp pp)
@@ -2794,7 +2794,7 @@ void DoPlayerBeginForceJump(PLAYERp pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Jump);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
 void DoPlayerJump(PLAYERp pp)
@@ -2938,7 +2938,7 @@ void DoPlayerBeginFall(PLAYERp pp)
     // Only change to falling frame if you were in the jump frame
     // Otherwise an animation may be messed up such as Running Jump Kick
     if (plActor->user.Rot == plActor->user.ActorActionSet->Jump)
-        NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Fall);
+        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Fall);
 }
 
 void StackedWaterSplash(PLAYERp pp)
@@ -3125,8 +3125,8 @@ void DoPlayerBeginClimb(PLAYERp pp)
 
     //DamageData[plActor->user.WeaponNum].Init(pp);
 
-    //NewStateGroup(pp->Actor(), pp->Actor()->user.ActorActionSet->Climb);
-    NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
+    //NewStateGroup(pp->actor, pp->actor->user.ActorActionSet->Climb);
+    NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
 }
 
 
@@ -3242,7 +3242,7 @@ void DoPlayerClimb(PLAYERp pp)
         {
             // put player at the hiz
             pp->pos.Z = pp->hiz;
-            NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
+            NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
         // if player gets to close the ceiling while climbing
@@ -3250,7 +3250,7 @@ void DoPlayerClimb(PLAYERp pp)
         {
             // put player at the ceiling
             pp->pos.Z = pp->LadderSector->ceilingz + Z(4);
-            NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
+            NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
         // if floor is ABOVE you && your head goes above it, do a jump up to
@@ -3295,12 +3295,12 @@ void DoPlayerClimb(PLAYERp pp)
     }
     else
     {
-        NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
+        NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
     }
 
     // setsprite to players location
     plActor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHT;
-    ChangeActorSect(pp->Actor(), pp->cursector);
+    ChangeActorSect(pp->actor, pp->cursector);
 
     if (!SyncInput())
     {
@@ -3333,7 +3333,7 @@ void DoPlayerClimb(PLAYERp pp)
 
         if (near.hitWall)
         {
-            auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
+            auto lActor = FindNearSprite(pp->actor, STAT_CLIMB_MARKER);
             if (!lActor) return;
 
             // determine where the player is supposed to be in relation to the ladder
@@ -3379,7 +3379,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
             if (hit.hitSector != nullptr && labs(hit.hitSector->floorz - pp->pos.Z) < Z(50))
             {
-                if (Distance(pp->pos.X, pp->pos.Y, hit.hitpos.X, hit.hitpos.Y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
+                if (Distance(pp->pos.X, pp->pos.Y, hit.hitpos.X, hit.hitpos.Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3415,7 +3415,7 @@ void DoPlayerBeginCrawl(PLAYERp pp)
 
     //pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Crawl);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
 }
 
 bool PlayerFallTest(PLAYERp pp, int player_height)
@@ -3490,7 +3490,7 @@ void DoPlayerCrawl(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_PLAYER_MOVED))
     {
-        NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Crawl);
+        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -3528,7 +3528,7 @@ void DoPlayerBeginFly(PLAYERp pp)
     pp->bob_amt = 0;
     pp->bob_ndx = 1024;
 
-    NewStateGroup(pp->Actor(), sg_PlayerNinjaFly);
+    NewStateGroup(pp->actor, sg_PlayerNinjaFly);
 }
 
 int GetSinNdx(int range, int bob_amt)
@@ -3714,7 +3714,7 @@ bool PlayerOnLadder(PLAYERp pp)
     }
 
 
-    auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
+    auto lActor = FindNearSprite(pp->actor, STAT_CLIMB_MARKER);
 
     if (!lActor)
         return false;
@@ -4172,7 +4172,7 @@ void DoPlayerBeginDive(PLAYERp pp)
         pp->Reverb = 140;
     }
 
-    SpawnSplash(pp->Actor());
+    SpawnSplash(pp->actor);
 
     DoPlayerWarpToUnderwater(pp);
     OperateTripTrigger(pp);
@@ -4195,7 +4195,7 @@ void DoPlayerBeginDive(PLAYERp pp)
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Dive);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Dive);
 
     DoPlayerDive(pp);
 }
@@ -4242,7 +4242,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     pp->DiveDamageTics = 0;
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Dive);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Dive);
     DoPlayerDive(pp);
 }
 
@@ -4261,7 +4261,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
     RESET(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(pp->Actor()->spr.cstat, CSTAT_SPRITE_YCENTER);
+    RESET(pp->actor->spr.cstat, CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);
@@ -4509,7 +4509,7 @@ void DoPlayerDive(PLAYERp pp)
         int nx,ny;
 
         PlaySound(DIGI_BUBBLES, pp, v3df_none);
-        auto bubble = SpawnBubble(pp->Actor());
+        auto bubble = SpawnBubble(pp->actor);
         if (bubble != nullptr)
         {
             // back it up a bit to get it out of your face
@@ -4548,7 +4548,7 @@ void DoPlayerCurrent(PLAYERp pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -4564,10 +4564,10 @@ void DoPlayerCurrent(PLAYERp pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -4633,7 +4633,7 @@ void DoPlayerBeginWade(PLAYERp pp)
     DoPlayerFireOutWater(pp);
 
     if (pp->jump_speed > 100)
-        SpawnSplash(pp->Actor());
+        SpawnSplash(pp->actor);
 
     // fix it so that you won't go under water unless you hit the water at a
     // certain speed
@@ -4642,7 +4642,7 @@ void DoPlayerBeginWade(PLAYERp pp)
 
     ASSERT(plActor->user.ActorActionSet->Run);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
 }
 
 
@@ -4734,12 +4734,12 @@ void DoPlayerWade(PLAYERp pp)
     if (TEST(pp->Flags, PF_PLAYER_MOVED))
     {
         if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
-            NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Run);
+            NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
     }
     else
     {
         if (plActor->user.Rot != plActor->user.ActorActionSet->Stand)
-            NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Stand);
+            NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -4801,7 +4801,7 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
 
     ASSERT(plActor->user.ActorActionSet->Stand);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Stand);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
 void DoPlayerBeginOperateTurret(PLAYERp pp)
@@ -4820,7 +4820,7 @@ void DoPlayerBeginOperateTurret(PLAYERp pp)
 
     ASSERT(plActor->user.ActorActionSet->Stand);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Stand);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
 void FindMainSector(SECTOR_OBJECTp sop)
@@ -4906,7 +4906,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     }
 
     pp->sop = pp->sop_control = sop;
-    sop->controller = pp->Actor();
+    sop->controller = pp->actor;
 
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->pos.X = sop->xmid;
@@ -4972,7 +4972,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     int i;
 
     pp->sop_remote = pp->sop = pp->sop_control = sop;
-    sop->controller = pp->Actor();
+    sop->controller = pp->actor;
 
     // won't operate - broken
     if (sop->max_damage != -9999 && sop->max_damage <= 0)
@@ -5271,7 +5271,7 @@ void DoPlayerDeathFall(PLAYERp pp)
         //if (pp->posz > loz - PLAYER_DEATH_HEIGHT)
         {
             if (loz != pp->loz)
-                SpawnSplash(pp->Actor());
+                SpawnSplash(pp->actor);
 
             if (RandomRange(1000) > 500)
                 PlaySound(DIGI_BODYFALL1, pp, v3df_dontpan);
@@ -5307,7 +5307,7 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
     const char *p1 = pp->PlayerName;
     const char *p2 = killer->PlayerName;
 
-    if (pp->HitBy == killer->Actor())
+    if (pp->HitBy == killer->actor)
     {
         sprintf(ds,"%s was killed by %s.",p1,p2);
         return ds;
@@ -5451,7 +5451,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
     pp->tilt_dest = 0;
 
-    ActorCoughItem(pp->Actor());
+    ActorCoughItem(pp->actor);
 
     if (numplayers > 1)
     {
@@ -5475,7 +5475,7 @@ void DoPlayerBeginDie(PLAYERp pp)
                     if (gNet.TeamPlay)
                     {
                         // playing team play
-                        if (pp->Actor()->user.spal == killer->user.spal)
+                        if (pp->actor->user.spal == killer->user.spal)
                         {
                             // Killed your team member
                             PlayerUpdateKills(pp, -1);
@@ -5523,7 +5523,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     pp->sop = nullptr;
     RESET(pp->Flags, PF_TWO_UZI);
 
-    NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
     pWeaponForceRest(pp);
 
     switch (pp->DeathType)
@@ -5533,9 +5533,9 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_JUMPING);
         plActor->user.ID = NINJA_DEAD;
         pp->jump_speed = -200;
-        NewStateGroup(pp->Actor(), sg_PlayerDeath);
-        DoFindGround(pp->Actor());
-        DoBeginJump(pp->Actor());
+        NewStateGroup(pp->actor, sg_PlayerDeath);
+        DoFindGround(pp->actor);
+        DoBeginJump(pp->actor);
         plActor->user.jump_speed = -300;
         break;
     }
@@ -5547,15 +5547,15 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_JUMPING);
         plActor->user.ID = NINJA_DEAD;
         pp->jump_speed = -300;
-        NewStateGroup(pp->Actor(), sg_PlayerDeath);
+        NewStateGroup(pp->actor, sg_PlayerDeath);
         //pp->ceiling_dist = Z(0);
         //pp->floor_dist = Z(0);
 
         RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         plActor->user.ceiling_dist = Z(10);
         plActor->user.floor_dist = Z(0);
-        DoFindGround(pp->Actor());
-        DoBeginJump(pp->Actor());
+        DoFindGround(pp->actor);
+        DoBeginJump(pp->actor);
         plActor->user.jump_speed = -400;
         break;
     case PLAYER_DEATH_CRUMBLE:
@@ -5565,14 +5565,14 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
         plActor->user.slide_vel = 0;
-        SpawnShrap(pp->Actor(), nullptr);
+        SpawnShrap(pp->actor, nullptr);
         SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
+        NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
         plActor->spr.yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->Actor(),true,105);
+        InitBloodSpray(pp->actor,true,105);
         break;
     case PLAYER_DEATH_EXPLODE:
 
@@ -5580,16 +5580,16 @@ void DoPlayerBeginDie(PLAYERp pp)
 
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
-        SpawnShrap(pp->Actor(), nullptr);
+        SpawnShrap(pp->actor, nullptr);
         SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
+        NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
         plActor->spr.yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->Actor(),true,-1);
-        InitBloodSpray(pp->Actor(),true,-1);
-        InitBloodSpray(pp->Actor(),true,-1);
+        InitBloodSpray(pp->actor,true,-1);
+        InitBloodSpray(pp->actor,true,-1);
+        InitBloodSpray(pp->actor,true,-1);
         break;
     case PLAYER_DEATH_SQUISH:
 
@@ -5598,14 +5598,14 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
         plActor->user.slide_vel = 800;
-        SpawnShrap(pp->Actor(), nullptr);
+        SpawnShrap(pp->actor, nullptr);
         SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
+        NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
         plActor->spr.yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->Actor(),true,105);
+        InitBloodSpray(pp->actor,true,105);
         break;
 
     }
@@ -5653,7 +5653,7 @@ void DoPlayerDeathZrange(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     // make sure we don't land on a regular sprite
-    DoFindGround(pp->Actor());
+    DoFindGround(pp->actor);
 
     // update player values with results from DoFindGround
     pp->loz = plActor->user.loz;
@@ -5672,10 +5672,10 @@ void DoPlayerDeathHurl(PLAYERp pp)
 
 
                 SET(pp->Flags, PF_HEAD_CONTROL);
-                NewStateGroup(pp->Actor(), sg_PlayerHeadHurl);
+                NewStateGroup(pp->actor, sg_PlayerHeadHurl);
                 if (MoveSkip4 == 0)
                 {
-                    SpawnShrap(pp->Actor(), nullptr);
+                    SpawnShrap(pp->actor, nullptr);
                     if (RandomRange(1000) > 400)
                         PlayerSound(DIGI_DHVOMIT, v3df_dontpan|v3df_follow,pp);
                 }
@@ -5685,7 +5685,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
     }
 
     if (!TEST(pp->Flags, PF_JUMPING|PF_FALLING))
-        NewStateGroup(pp->Actor(), sg_PlayerHead);
+        NewStateGroup(pp->actor, sg_PlayerHead);
 }
 
 
@@ -5722,7 +5722,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
-    auto plActor = pp->Actor();
+    DSWActor* plActor = pp->actor;
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -5731,7 +5731,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT))
         {
             if (pp->DeathType == PLAYER_DEATH_FLIP || pp->DeathType == PLAYER_DEATH_RIPPER)
-                QueueLoWangs(pp->Actor());
+                QueueLoWangs(pp->actor);
         }
         else
         {
@@ -5827,7 +5827,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            if (itActor == pp->Actor())
+            if (itActor == pp->actor)
                 break;
 
             // don't set off mine
@@ -5846,9 +5846,9 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
                 plActor->user.slide_vel = itActor->spr.xvel<<1;
                 RESET(plActor->user.Flags,SPR_BOUNCE);
                 pp->jump_speed = -500;
-                NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
+                NewStateGroup(pp->actor, sg_PlayerHeadFly);
                 SET(pp->Flags, PF_JUMPING);
-                SpawnShrap(pp->Actor(), nullptr);
+                SpawnShrap(pp->actor, nullptr);
             }
         }
     }
@@ -5862,9 +5862,9 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
         plActor->user.slide_vel = 1000;
         RESET(plActor->user.Flags,SPR_BOUNCE);
         pp->jump_speed = -100;
-        NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
+        NewStateGroup(pp->actor, sg_PlayerHeadFly);
         SET(pp->Flags, PF_JUMPING);
-        SpawnShrap(pp->Actor(), nullptr);
+        SpawnShrap(pp->actor, nullptr);
     }
 }
 
@@ -5877,7 +5877,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     dax = MOVEx(plActor->user.slide_vel, plActor->user.slide_ang);
     day = MOVEy(plActor->user.slide_vel, plActor->user.slide_ang);
 
-    plActor->user.coll = move_sprite(pp->Actor(), dax, day, 0, Z(16), Z(16), 1, synctics);
+    plActor->user.coll = move_sprite(pp->actor, dax, day, 0, Z(16), Z(16), 1, synctics);
     {
         switch (plActor->user.coll.type)
         {
@@ -5895,7 +5895,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             dang = getincangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
-            SpawnShrap(pp->Actor(), nullptr);
+            SpawnShrap(pp->actor, nullptr);
             break;
         }
         case kHitWall:
@@ -5905,7 +5905,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             int dang = getincangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
-            SpawnShrap(pp->Actor(), nullptr);
+            SpawnShrap(pp->actor, nullptr);
             break;
         }
         }
@@ -5921,7 +5921,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     if (sect == nullptr)
     {
         pp->cursector = pp->lv_sector;
-        ChangeActorSect(pp->Actor(), pp->lv_sector);
+        ChangeActorSect(pp->actor, pp->lv_sector);
         pp->pos.X = plActor->spr.pos.X = pp->lv_x;
         pp->pos.Y = plActor->spr.pos.Y = pp->lv_y;
     }
@@ -5947,7 +5947,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
             if (MoveSkip2 == 0)
-                DoJump(pp->Actor());
+                DoJump(pp->actor);
         }
 
         if (TEST(pp->Flags,PF_FALLING))
@@ -5955,7 +5955,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
             if (MoveSkip2 == 0)
-                DoFall(pp->Actor());
+                DoFall(pp->actor);
         }
     }
     else
@@ -5984,7 +5984,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
             if (MoveSkip2 == 0)
-                DoJump(pp->Actor());
+                DoJump(pp->actor);
         }
 
         if (TEST(pp->Flags,PF_FALLING))
@@ -6017,7 +6017,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
     if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
     {
         RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        NewStateGroup(pp->Actor(), sg_PlayerHead);
+        NewStateGroup(pp->actor, sg_PlayerHead);
         plActor->user.slide_vel = 0;
         SET(plActor->user.Flags, SPR_BOUNCE);
 
@@ -6030,7 +6030,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
     plActor->user.slide_vel >>= 2;
     plActor->user.slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
     SET(pp->Flags, PF_JUMPING);
-    SpawnShrap(pp->Actor(), nullptr);
+    SpawnShrap(pp->actor, nullptr);
 }
 
 
@@ -6068,7 +6068,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
             }
 
             RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            NewStateGroup(pp->Actor(), sg_PlayerHead);
+            NewStateGroup(pp->actor, sg_PlayerHead);
         }
         else
         {
@@ -6120,7 +6120,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
             }
 
             RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            NewStateGroup(pp->Actor(), sg_PlayerHead);
+            NewStateGroup(pp->actor, sg_PlayerHead);
         }
         else
         {
@@ -6170,9 +6170,9 @@ void DoPlayerBeginRun(PLAYERp pp)
     ASSERT(plActor->user.ActorActionSet->Run);
 
     if (TEST(pp->Flags, PF_PLAYER_MOVED))
-        NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Run);
+        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
     else
-        NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Stand);
+        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
 void DoPlayerRun(PLAYERp pp)
@@ -6243,7 +6243,7 @@ void DoPlayerRun(PLAYERp pp)
                     }
                     else if (TEST(pp->cursector->extra, SECTFX_TRIGGER))
                     {
-                        auto sActor = FindNearSprite(pp->Actor(), STAT_TRIGGER);
+                        auto sActor = FindNearSprite(pp->actor, STAT_TRIGGER);
                         if (sActor && SP_TAG5(sActor) == TRIGGER_TYPE_REMOTE_SO)
                         {
                             pp->remoteActor = sActor;
@@ -6285,12 +6285,12 @@ void DoPlayerRun(PLAYERp pp)
         if (TEST(pp->Flags, PF_PLAYER_MOVED))
         {
             if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
-                NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Run);
+                NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
         }
         else
         {
             if (plActor->user.Rot != plActor->user.ActorActionSet->Stand)
-                NewStateGroup(pp->Actor(), plActor->user.ActorActionSet->Stand);
+                NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
         }
     }
 
@@ -6506,7 +6506,7 @@ void PlayerGlobal(PLAYERp pp)
                 {
                     ////DSPRINTF(ds,"Squish diff %d, min %d, cz %d, fz %d, lo %d, hi %d",labs(pp->loz - pp->hiz)>>8,min_height>>8, pp->ceiling_dist>>8, pp->floor_dist>>8,pp->lo_sectp-sector,pp->hi_sectp-sector);
                     //MONO_PRINT(ds);
-                    PlayerUpdateHealth(pp, -pp->Actor()->user.Health);  // Make sure he dies!
+                    PlayerUpdateHealth(pp, -pp->actor->user.Health);  // Make sure he dies!
                     PlayerCheckDeath(pp, nullptr);
 
                     if (TEST(pp->Flags, PF_DEAD))
@@ -6670,7 +6670,7 @@ void domovethings(void)
 
         pSpriteControl(pp);
 
-        PlayerStateControl(pp->Actor());
+        PlayerStateControl(pp->actor);
 
         DoPlayerSectorUpdatePostMove(pp);
         PlayerGlobal(pp);

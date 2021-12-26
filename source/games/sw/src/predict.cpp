@@ -64,7 +64,7 @@ void InitPrediction(PLAYERp pp)
 
     // make a copy of player struct and sprite
     //*ppp = *pp;
-    //PredictUser = *pp->Actor()->user;
+    //PredictUser = *pp->actor->user;
 }
 
 void DoPrediction(PLAYERp ppp)

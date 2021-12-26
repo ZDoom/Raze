@@ -216,7 +216,7 @@ static void WeaponCheat(int player)
     p->WpnRocketHeat = 5;
     p->WpnRocketNuke = 1;
 
-    PlayerUpdateWeapon(p, p->Actor()->user.WeaponNum);
+    PlayerUpdateWeapon(p, p->actor->user.WeaponNum);
 }
 
 static void ItemCheat(int player)
@@ -265,9 +265,9 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
 
     case GIVE_HEALTH:
-        if (Player[player].Actor()->user.Health < Player[player].MaxHealth)
+        if (Player[player].actor->user.Health < Player[player].MaxHealth)
         {
-            Player[player].Actor()->user.Health += 25;
+            Player[player].actor->user.Health += 25;
             PutStringInfo(&Player[player], GStrings("TXTS_ADDEDHEALTH"));
         }
         break;
@@ -294,7 +294,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     }
 
     case GIVE_ARMOR:
-        if (Player[player].Actor()->user.Health < Player[player].MaxHealth)
+        if (Player[player].actor->user.Health < Player[player].MaxHealth)
         {
             Player[player].Armor = 100;
             PutStringInfo(&Player[player], GStrings("TXTB_FULLARM"));

@@ -72,7 +72,7 @@ void InitNetPlayerOptions(void)
     if (actor)
     {
         actor->spr.pal = PALETTE_PLAYER0 + pp->TeamColor;
-        pp->Actor()->user.spal = actor->spr.pal;
+        pp->actor->user.spal = actor->spr.pal;
     }
 }
 

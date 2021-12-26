@@ -1840,7 +1840,7 @@ void OperateTripTrigger(PLAYERp pp)
             {
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
                 {
-                    actor->user.targetActor = pp->Actor();
+                    actor->user.targetActor = pp->actor;
                     RESET(actor->user.Flags, SPR_WAIT_FOR_TRIGGER);
                 }
             }
@@ -2159,7 +2159,7 @@ void PlayerOperateEnv(PLAYERp pp)
 {
     bool found;
 
-    if (Prediction || !pp->Actor())
+    if (Prediction || !pp->actor)
         return;
 
     //
@@ -2287,7 +2287,7 @@ void PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((ActorZOfBottom(pp->Actor()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((ActorZOfBottom(pp->actor) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }

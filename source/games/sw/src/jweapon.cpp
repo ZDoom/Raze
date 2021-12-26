@@ -1264,7 +1264,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 //    actorNew->user.RotNum = 5;
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
@@ -1426,7 +1426,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            if (itActor == pp->Actor())
+            if (itActor == pp->actor)
                 break;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, tx, ty, tmin);
@@ -1439,7 +1439,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector()))
                 continue;
 
-            damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
+            damage = GetDamage(itActor, pp->actor, DMG_FLASHBOMB);
 
             if (itActor->user.sop_parent)
             {
@@ -1634,7 +1634,7 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->Actor(), actorNew);
+    SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;

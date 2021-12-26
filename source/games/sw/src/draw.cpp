@@ -765,7 +765,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
-            if (Player[screenpeek].Actor() == tActor)
+            if (Player[screenpeek].actor == tActor)
             {
                 pp = Player + screenpeek;
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
@@ -868,7 +868,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
         {
             if (TEST(tActor->user.Flags2, SPR2_VIS_SHADING))
             {
-                if (Player[screenpeek].Actor() != tActor)
+                if (Player[screenpeek].actor != tActor)
                 {
                     if (!TEST(tActor->user.PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
                     {
@@ -1059,7 +1059,7 @@ void PrintSpriteInfo(PLAYERp pp)
 
     //if (SpriteInfo && !LocationInfo)
     {
-        auto actor = DoPickTarget(pp->Actor(), 32, 2);
+        auto actor = DoPickTarget(pp->actor, 32, 2);
 
         actor->spr.hitag = 9997; // Special tag to make the actor glow red for one frame
 
@@ -1477,10 +1477,10 @@ void drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, pp->Actor(), &tsect, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, pp->Actor(), &tsect, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio);
         }
     }
     else
@@ -1520,7 +1520,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(pp->Actor(), { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+        render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 
@@ -1633,7 +1633,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 
     // Draw sprites
-    auto peekActor = Player[screenpeek].Actor();
+    auto peekActor = Player[screenpeek].actor;
     for (unsigned i = 0; i < sector.Size(); i++)
     {
         SWSectIterator it(i);
@@ -1641,7 +1641,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
         {
             for (p = connecthead; p >= 0; p = connectpoint2[p])
             {
-                if (Player[p].Actor() == actor)
+                if (Player[p].actor == actor)
                 {
                     if (actor->spr.xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
@@ -1673,7 +1673,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case 0:  // Regular sprite
-                    if (Player[p].Actor() == actor)
+                    if (Player[p].actor == actor)
                     {
                         ox = mx - cposx;
                         oy = my - cposy;
@@ -1692,7 +1692,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                             int spnum = -1;
                             if (sprisplayer)
                             {
-                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].Actor())
+                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].actor)
                                     spnum = 1196 + pspr_ndx[myconnectindex];
                             }
                             else spnum = actor->spr.picnum;

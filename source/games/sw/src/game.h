@@ -614,18 +614,13 @@ struct PLAYERstruct
     // variable that fit in the sprite or user structure
     vec3_t pos, opos;
     
-    TObjPtr<DSWActor*> actor;
+    DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
     TObjPtr<DSWActor*> PlayerUnderActor;
     TObjPtr<DSWActor*> KillerActor;  //who killed me
     TObjPtr<DSWActor*> HitBy;                    // Sprite num of whatever player was last hit by
     TObjPtr<DSWActor*> last_camera_act;
-
-    DSWActor* Actor()
-    {
-        return actor;
-    }
 
     // holds last valid move position
     int lv_x,lv_y,lv_z;

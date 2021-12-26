@@ -839,7 +839,7 @@ void SpawnUser(DSWActor* actor, short id, STATEp state)
     actor->user.WpnGoalActor = nullptr;
     actor->user.attachActor = nullptr;
     actor->user.track = -1;
-    actor->user.targetActor = Player[0].Actor();
+    actor->user.targetActor = Player[0].actor;
     actor->user.Radius = 220;
     actor->user.Sibling = -1;
     actor->user.WaitTics = 0;
@@ -5046,7 +5046,7 @@ int DoGet(DSWActor* actor)
             continue;
         }
 
-        if (!SpriteOverlap(actor, pp->Actor()))
+        if (!SpriteOverlap(actor, pp->actor))
         {
             continue;
         }
@@ -5836,7 +5836,7 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (actor->spr.pal == pp->Actor()->spr.pal) break; // Can't pick up your own flag!
+            if (actor->spr.pal == pp->actor->spr.pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
@@ -5854,11 +5854,11 @@ KeyMain:
             actorNew->user.Counter = 0;
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-            SetAttach(pp->Actor(), actorNew);
-            actorNew->user.sz = ActorZOfMiddle(pp->Actor());  // Set mid way up who it hit
+            SetAttach(pp->actor, actorNew);
+            actorNew->user.sz = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
-            SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
+            SetOwner(pp->actor, actorNew);  // Player now owns the flag
             actorNew->user.flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(actor);  // Set up for flag respawning
             break;

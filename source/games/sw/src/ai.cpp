@@ -293,7 +293,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         goto TARGETACTOR;
 
     // Set initial target to Player 0
-    actor->user.targetActor = Player->Actor();
+    actor->user.targetActor = Player->actor;
 
     if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
     {
