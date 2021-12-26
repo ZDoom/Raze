@@ -510,6 +510,170 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 }
 
 
+//==========================================================================
+//
+// Decrypt
+//
+// Note that this is different from the general RFF encryption.
+//
+//==========================================================================
+
+static void Decrypt(void* to_, const void* from_, int len, int key)
+{
+	uint8_t* to = (uint8_t*)to_;
+	const uint8_t* from = (const uint8_t*)from_;
+
+	for (int i = 0; i < len; ++i, ++key)
+	{
+		to[i] = from[i] ^ key;
+	}
+}
+
+
+//==========================================================================
+//
+// P_LoadBloodMap
+// 
+// This was adapted from ZDoom's old Build map loader.
+//
+//==========================================================================
+
+static void P_LoadBloodMapWalls(uint8_t* data, size_t len, TArray<walltype>& lwalls)
+{
+	uint8_t infoBlock[37];
+	int mapver = data[5];
+	uint32_t matt;
+	int i;
+	int k;
+
+	if (mapver != 6 && mapver != 7)
+	{
+		return;
+	}
+
+	matt = *(uint32_t*)(data + 28);
+	if (matt != 0 &&
+		matt != MAKE_ID('M', 'a', 't', 't') &&
+		matt != MAKE_ID('t', 't', 'a', 'M'))
+	{
+		Decrypt(infoBlock, data + 6, 37, 0x7474614d);
+	}
+	else
+	{
+		memcpy(infoBlock, data + 6, 37);
+	}
+	int numRevisions = *(uint32_t*)(infoBlock + 27);
+	int numSectors = *(uint16_t*)(infoBlock + 31);
+	int numWalls = *(uint16_t*)(infoBlock + 33);
+	int numSprites = *(uint16_t*)(infoBlock + 35);
+	int skyLen = 2 << *(uint16_t*)(infoBlock + 16);
+
+	if (mapver == 7)
+	{
+		// Version 7 has some extra stuff after the info block. This
+		// includes a copyright, and I have no idea what the rest of
+		// it is.
+		data += 171;
+	}
+	else
+	{
+		data += 43;
+	}
+
+	// Skip the sky info.
+	data += skyLen;
+
+	lwalls.Reserve(numWalls);
+
+	// Read sectors
+	k = numRevisions * sizeof(sectortypedisk);
+	for (i = 0; i < numSectors; ++i)
+	{
+		sectortypedisk bsec;
+		if (mapver == 7)
+		{
+			Decrypt(&bsec, data, sizeof(sectortypedisk), k);
+		}
+		else
+		{
+			memcpy(&bsec, data, sizeof(sectortypedisk));
+		}
+		data += sizeof(sectortypedisk);
+		if (bsec.extra > 0)	// skip Xsector
+		{
+			data += 60;
+		}
+	}
+
+	// Read walls
+	k |= 0x7474614d;
+	for (i = 0; i < numWalls; ++i)
+	{
+		walltypedisk load;
+		if (mapver == 7)
+		{
+			Decrypt(&load, data, sizeof(walltypedisk), k);
+		}
+		else
+		{
+			memcpy(&load, data, sizeof(walltypedisk));
+		}
+		// only copy what we need to draw the map preview.
+
+		auto pWall = &lwalls[i];
+		pWall->pos.X = LittleLong(load.x);
+		pWall->pos.Y = LittleLong(load.y);
+		pWall->point2 = LittleShort(load.point2);
+		pWall->nextwall = LittleShort(load.nextwall);
+		pWall->nextsector = LittleShort(load.nextsector);
+
+		data += sizeof(walltypedisk);
+		if (load.extra > 0)	// skip Xwall
+		{
+			data += 24;
+		}
+	}
+
+}
+
+TArray<walltype> loadMapWalls(const char* filename)
+{
+	TArray<walltype> lwalls;
+	FileReader fr = fileSystem.OpenFileReader(filename);
+	if (!fr.isOpen()) return lwalls;
+
+	if (isBlood())
+	{
+		auto data = fr.Read();
+		P_LoadBloodMapWalls(data.Data(), data.Size(), lwalls);
+		return lwalls;
+	}
+
+
+	int mapversion = fr.ReadInt32();
+	if (mapversion < 5 || mapversion > 9) return lwalls;
+
+	fr.Seek(16, FileReader::SeekCur);
+
+	// Get the basics out before loading the data so that we can set up the global storage.
+	unsigned numsectors = fr.ReadUInt16();
+	fr.Seek((mapversion == 5 ? sectorsize5 : mapversion == 6 ? sectorsize6 : sectorsize7) * numsectors, FileReader::SeekCur);
+	unsigned numwalls = fr.ReadUInt16();
+
+	lwalls.Resize(numwalls);
+	for (unsigned i = 0; i < lwalls.Size(); i++)
+	{
+		switch (mapversion)
+		{
+		case 5: ReadWallV5(fr, lwalls[i]); break;
+		case 6: ReadWallV6(fr, lwalls[i]); break;
+		default: ReadWallV7(fr, lwalls[i]); break;
+		}
+	}
+	return lwalls;
+}
+
+
 void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang);
 
 

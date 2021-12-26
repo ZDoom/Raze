@@ -53,7 +53,6 @@ struct UsermapDirectory native
 	native int GetNumDirectories();
 	native UsermapEntry GetEntry(int num);
 	native UsermapDirectory GetDirectory(int num);
-	native void DrawPreview(int num, int left, int top, int width, int height);
 	String GetInfo(int Selected)
 	{
 		if (parent) Selected--;
@@ -105,7 +104,7 @@ class UsermapMenu : ListMenu
 
 	// private to this menu to prevent exploits.
 	private native static void StartMap(UsermapEntry entry);
-	
+	private native static void DrawPreview(UsermapEntry entry, int left, int top, int width, int height);
 
 	//=============================================================================
 	//
@@ -183,7 +182,13 @@ class UsermapMenu : ListMenu
 		SetWindows();
 		DrawFrame(previewLeft, previewTop, previewWidth, previewHeight);
 		screen.Dim(0, 0.6, previewLeft, previewTop, previewWidth, previewHeight);
-		currentDir.DrawPreview(Selected, previewLeft, previewTop, previewWidth, previewHeight);
+		
+		if (Selected >= numparent + numdirs)
+		{
+			let entry = currentDir.GetEntry(Selected - numparent - numdirs);
+			DrawPreview(entry, previewLeft, previewTop, previewWidth, previewHeight);
+		}
+
 
 		// Draw comment area
 		DrawFrame (commentLeft, commentTop, commentWidth, commentHeight);

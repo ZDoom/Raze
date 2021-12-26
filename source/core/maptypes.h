@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "tarray.h"
 #include "tflags.h"
+#include "intvec.h"
 
 //=============================================================================
 //
@@ -700,5 +701,6 @@ void allocateMapArrays(int numwall, int numsector, int numsprites);
 void validateSprite(spritetype& spr, int secno, int index);
 void fixSectors();
 void loadMap(const char *filename, int flags, vec3_t *pos, int16_t *ang, int *cursectnum, SpawnSpriteDef& sprites);
+TArray<walltype> loadMapWalls(const char* filename);
 void loadMapBackup(const char* filename);
 void loadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);

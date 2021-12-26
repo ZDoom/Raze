@@ -119,58 +119,6 @@ const int nXSpriteSize = 56;
 const int nXWallSize = 24;
 
 
-#pragma pack(push, 1)
-// This is the on-disk format. Only Blood still needs this for its retarded encryption that has to read this in as a block so that it can be decoded.
-// Keep it local so that the engine's sprite type is no longer limited by file format restrictions.
-struct spritetypedisk
-{
-    int32_t x, y, z;
-    uint16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal, clipdist, detail;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    int16_t sectnum, statnum;
-    int16_t ang, owner;
-    int16_t index, yvel, inittype;
-    int16_t type;
-    int16_t hitag;
-    int16_t extra;
-};
-
-struct sectortypedisk
-{
-    int16_t wallptr, wallnum;
-    int32_t ceilingz, floorz;
-    uint16_t ceilingstat, floorstat;
-    int16_t ceilingpicnum, ceilingheinum;
-    int8_t ceilingshade;
-    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
-    int16_t floorpicnum, floorheinum;
-    int8_t floorshade;
-    uint8_t floorpal, floorxpanning, floorypanning;
-    uint8_t visibility, fogpal;
-    int16_t type;
-    int16_t hitag;
-    int16_t extra;
-};
-
-struct walltypedisk
-{
-    int32_t x, y;
-    int16_t point2, nextwall, nextsector;
-    uint16_t cstat;
-    int16_t picnum, overpicnum;
-    int8_t shade;
-    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
-    int16_t type;
-    int16_t hitag;
-    int16_t extra;
-};
-
-#pragma pack(pop)
-
 void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** ppSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites)
 {
     int16_t tpskyoff[256];

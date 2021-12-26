@@ -47,6 +47,7 @@
 #include "usermap.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
+#include "v_draw.h"
 
 static FUsermapDirectory root;
 
@@ -139,6 +140,25 @@ void ReadUserMaps()
 	SortEntries(root);
 }
 
+void LoadMapPreview(FUsermapEntry* entry)
+{
+	if (entry->wallsread) return;
+	entry->walls = loadMapWalls(entry->filename);
+}
+
+void UnloadMapPreviews(FUsermapDirectory* dir)
+{
+	for (auto& entry : dir->entries)
+	{
+		if (entry.walls.Size() > 0) entry.wallsread = false;
+		entry.walls.Reset();
+	}
+	for (auto& sub : dir->subdirectories)
+	{
+		UnloadMapPreviews(&sub);
+	}
+}
+
 DEFINE_FIELD(FUsermapEntry, filename);
 DEFINE_FIELD(FUsermapEntry, container);
 DEFINE_FIELD(FUsermapEntry, displayname);
@@ -185,17 +205,51 @@ DEFINE_ACTION_FUNCTION(FUsermapDirectory, GetDirectory)
 	ACTION_RETURN_POINTER(&self->subdirectories[num]);
 }
 
-DEFINE_ACTION_FUNCTION(FUsermapDirectory, DrawPreview)
+DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
-
-	PARAM_UINT(num);
+	PARAM_PROLOGUE;
+	PARAM_POINTER(entry, FUsermapEntry);
 	PARAM_INT(left);
 	PARAM_INT(top);
 	PARAM_INT(width);
 	PARAM_INT(height);
-	if (num >= self->entries.Size()) return 0;
-	// todo
+	if (!entry) return 0;
+	LoadMapPreview(entry);
+	if (entry->walls.Size() == 0) return 0;
+	int minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
+	for (auto& wal : entry->walls)
+	{
+		if (wal.pos.X < minx) minx = wal.pos.X;
+		if (wal.pos.X > maxx) maxx = wal.pos.X;
+		if (wal.pos.Y < miny) miny = wal.pos.Y;
+		if (wal.pos.Y > maxy) maxy = wal.pos.Y;
+	}
+	float scalex = float(width) / (maxx - minx);
+	float scaley = float(height) / (maxy - miny);
+	int centerx = (minx + maxx) >> 1;
+	int centery = (miny + maxy) >> 1;
+	int dcenterx = left + (width >> 1);
+	int dcentery = top + (height >> 1);
+	float scale = min(scalex, scaley);
+	float drawleft = dcenterx - (centerx - minx) * scale;
+	float drawtop = dcentery - (centery - miny) * scale;
+
+	for (auto& wal : entry->walls)
+	{
+		if (wal.nextwall < 0) continue;
+		auto point2 = &entry->walls[wal.point2];
+		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
+			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
+			-1, -1, INT_MAX, INT_MAX, 0xff808080);
+	}
+	for (auto& wal : entry->walls)
+	{
+		if (wal.nextwall >= 0) continue;
+		auto point2 = &entry->walls[wal.point2];
+		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
+			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
+			-1, -1, INT_MAX, INT_MAX, 0xffffffff);
+	}
 	return 0;
 }
 
@@ -213,5 +267,6 @@ DEFINE_ACTION_FUNCTION(_UsermapMenu, StartMap)
 
 	DoStartMap(entry->filename);
 	M_ClearMenus();
+	UnloadMapPreviews(&root);
 	return 0;
 }

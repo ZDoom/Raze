@@ -1,5 +1,6 @@
 #pragma once
 
+#include "maptypes.h"
 
 struct FUsermapEntry
 {
@@ -7,7 +8,9 @@ struct FUsermapEntry
 	FString container;
 	FString filename;
 	FString info;
-	int size;
+	int size = 0;
+	bool wallsread  = false;
+	TArray<walltype> walls;	// for rendering a preview of the map
 };
 
 struct FUsermapDirectory
