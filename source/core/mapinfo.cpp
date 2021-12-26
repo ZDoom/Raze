@@ -249,6 +249,8 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 	map->name = "";
 	map->SetFileName(boardfilename);
 	map->flags = MI_USERMAP|MI_FORCEEOG;
-	map->music = G_SetupFilenameBasedMusic(boardfilename, defaultmusic);
+	int lookup = LookupMusic(boardfilename, true);
+	if (lookup >= 0) map->music = fileSystem.GetFileFullName(lookup);
+	else map->music = defaultmusic;
 	return map;
 }
