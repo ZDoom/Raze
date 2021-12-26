@@ -7036,7 +7036,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (actor->user.Radius > 200)
             {
-                if (!FAFcansee(itActor, ActorUpperZ(actor), actor actor->spr.pos.Z))
+                if (!FAFcansee(itActor, ActorUpperZ(actor), actor, actor->spr.pos.Z))
                     continue;
             }
 
