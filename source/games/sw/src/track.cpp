@@ -676,7 +676,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
     SECTORp *sectp;
-    USERp u = sop->sp_child->u();
+    DSWActor* child = sop->sp_child;
 
     static const uint8_t StatList[] =
     {
@@ -714,8 +714,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     KillActor(BoundActor);
 
     // set radius for explosion checking - based on bounding box
-    u->Radius = ((xhigh - xlow) + (yhigh - ylow)) >> 2;
-    u->Radius -= (u->Radius >> 2); // trying to get it a good size
+    child->user.Radius = ((xhigh - xlow) + (yhigh - ylow)) >> 2;
+    child->user.Radius -= (child->user.Radius >> 2); // trying to get it a good size
 
     // search for center sprite if it exists
 
@@ -842,14 +842,12 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 }
 
                 if (!itActor->hasU())
-                    u = SpawnUser(itActor, 0, nullptr);
-                else
-                    u = itActor->u();
+                    SpawnUser(itActor, 0, nullptr);
 
-                u->RotNum = 0;
+                itActor->user.RotNum = 0;
 
                 itActor->spr.backuppos();
-                u->oz = itActor->spr.opos.Z;
+                itActor->user.oz = itActor->spr.opos.Z;
 
                 switch (itActor->spr.statnum)
                 {
@@ -891,14 +889,14 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 }
 
 
-                u->sx = sop->xmid - itActor->spr.pos.X;
-                u->sy = sop->ymid - itActor->spr.pos.Y;
-                u->sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
+                itActor->user.sx = sop->xmid - itActor->spr.pos.X;
+                itActor->user.sy = sop->ymid - itActor->spr.pos.Y;
+                itActor->user.sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
-                SET(u->Flags, SPR_SO_ATTACHED);
+                SET(itActor->user.Flags, SPR_SO_ATTACHED);
 
-                u->sang = itActor->spr.ang;
-                u->spal = itActor->spr.pal;
+                itActor->user.sang = itActor->spr.ang;
+                itActor->user.spal = itActor->spr.pal;
 
                 // search SO's sectors to make sure that it is not on a
                 // sector
@@ -923,8 +921,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     {
                         if (sop->sectp[j] == itActor->spr.sector())
                         {
-                            SET(u->Flags, SPR_ON_SO_SECTOR);
-                            u->sz = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
+                            SET(itActor->user.Flags, SPR_ON_SO_SECTOR);
+                            itActor->user.sz = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }
                     }
@@ -1057,9 +1055,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
         auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = actorNew;
-        u = actorNew->u();
-        u->sop_parent = sop;
-        SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
+        actorNew->user.sop_parent = sop;
+        SET(actorNew->user.Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
         // check for any ST1 sprites laying on the center sector
         SWSectIterator it(sectp);
@@ -1122,8 +1119,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     if (actor->spr.clipdist == 3)
                     {
                         change_actor_stat(actor, STAT_NO_STATE);
-                        u = SpawnUser(actor, 0, nullptr);
-                        u->ActorActionFunc = nullptr;
+                        SpawnUser(actor, 0, nullptr);
+                        actor->user.ActorActionFunc = nullptr;
                     }
                     break;
 
@@ -1183,11 +1180,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_MAX_DAMAGE:
-                    u->MaxHealth = SP_TAG2(actor);
+                    actorNew->user.MaxHealth = SP_TAG2(actor);
                     if (SP_TAG5(actor) != 0)
                         sop->max_damage = SP_TAG5(actor);
                     else
-                        sop->max_damage = u->MaxHealth;
+                        sop->max_damage = actorNew->user.MaxHealth;
 
                     switch (actor->spr.clipdist)
                     {
