@@ -44,7 +44,7 @@ enum BUSYID {
 
 #define kMaxBusyCount 128
 struct BUSY {
-    int index;
+    sectortype* sect;
     int delta;
     int busy;
     int/*BUSYID*/ type;

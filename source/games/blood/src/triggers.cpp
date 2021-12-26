@@ -133,20 +133,20 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 int gBusyCount = 0;
 BUSY gBusy[];
 
-void AddBusy(int a1, BUSYID a2, int nDelta)
+void AddBusy(sectortype* pSector, BUSYID a2, int nDelta)
 {
     assert(nDelta != 0);
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].index == a1 && gBusy[i].type == a2)
+        if (gBusy[i].sect == pSector && gBusy[i].type == a2)
             break;
     }
     if (i == gBusyCount)
     {
         if (gBusyCount == kMaxBusyCount)
             return;
-        gBusy[i].index = a1;
+        gBusy[i].sect = pSector;
         gBusy[i].type = a2;
         gBusy[i].busy = nDelta > 0 ? 0 : 65536;
         gBusyCount++;
@@ -154,12 +154,12 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     gBusy[i].delta = nDelta;
 }
 
-void ReverseBusy(int a1, BUSYID a2)
+void ReverseBusy(sectortype* pSector, BUSYID a2)
 {
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].index == a1 && gBusy[i].type == a2)
+        if (gBusy[i].sect == pSector && gBusy[i].type == a2)
         {
             gBusy[i].delta = -gBusy[i].delta;
             break;
@@ -1347,18 +1347,18 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
     switch (event.cmd) {
         case kCmdOff:
             if (!pXSector->busy) break;
-            AddBusy(sectnum(pSector), busyWave, -65536/ClipLow((pXSector->busyTimeB*120)/10, 1));
+            AddBusy(pSector, busyWave, -65536/ClipLow((pXSector->busyTimeB*120)/10, 1));
             SectorStartSound(pSector, 1);
             break;
         case kCmdOn:
             if (pXSector->busy == 0x10000) break;
-            AddBusy(sectnum(pSector), busyWave, 65536/ClipLow((pXSector->busyTimeA*120)/10, 1));
+            AddBusy(pSector, busyWave, 65536/ClipLow((pXSector->busyTimeA*120)/10, 1));
             SectorStartSound(pSector, 0);
             break;
         default:
             if (pXSector->busy & 0xffff)  {
                 if (pXSector->interruptable) {
-                    ReverseBusy(sectnum(pSector), busyWave);
+                    ReverseBusy(pSector, busyWave);
                     pXSector->state = !pXSector->state;
                 }
             } else {
@@ -1367,7 +1367,7 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
                 if (t) nDelta = 65536/ClipLow((pXSector->busyTimeA*120)/10, 1);
                 else nDelta = -65536/ClipLow((pXSector->busyTimeB*120)/10, 1);
             
-                AddBusy(sectnum(pSector), busyWave, nDelta);
+                AddBusy(pSector, busyWave, nDelta);
                 SectorStartSound(pSector, pXSector->state);
             }
             break;
@@ -1490,7 +1490,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
         case kCmdOn:
             pXSector->state = 0;
             pXSector->busy = 0;
-            AddBusy(nSector, BUSYID_7, 65536/ClipLow((120*pXSprite2->busyTime)/10,1));
+            AddBusy(pSector, BUSYID_7, 65536/ClipLow((120*pXSprite2->busyTime)/10,1));
             if (pXSprite2->data3) PathSound(nSector, pXSprite2->data3);
             break;
     }
@@ -1553,13 +1553,13 @@ void OperateSector(sectortype* pSector, EVENT event)
                         case kCmdOn:
                             pXSector->state = 0;
                             pXSector->busy = 0;
-                            AddBusy(nSector, BUSYID_5, 65536/ClipLow((120*pXSector->busyTimeA)/10, 1));
+                            AddBusy(pSector, BUSYID_5, 65536/ClipLow((120*pXSector->busyTimeA)/10, 1));
                             SectorStartSound(pSector, 0);
                             break;
                         case kCmdOff:
                             pXSector->state = 1;
                             pXSector->busy = 65536;
-                            AddBusy(nSector, BUSYID_5, -65536/ClipLow((120*pXSector->busyTimeB)/10, 1));
+                            AddBusy(pSector, BUSYID_5, -65536/ClipLow((120*pXSector->busyTimeB)/10, 1));
                             SectorStartSound(pSector, 1);
                             break;
                     }
@@ -1636,20 +1636,20 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
     int nBusy = GetSourceBusy(event);
     switch (pSector->type) {
         case kSectorZMotionSprite:
-            VSpriteBusy(&sector[nSector], nBusy);
+            VSpriteBusy(pSector, nBusy);
             break;
         case kSectorZMotion:
-            VDoorBusy(&sector[nSector], nBusy);
+            VDoorBusy(pSector, nBusy);
             break;
         case kSectorSlideMarked:
         case kSectorSlide:
-            HDoorBusy(&sector[nSector], nBusy);
+            HDoorBusy(pSector, nBusy);
             break;
         case kSectorRotateMarked:
         case kSectorRotate:
             // force synchronised input here for now.
             setForcedSyncInput();
-            RDoorBusy(&sector[nSector], nBusy);
+            RDoorBusy(pSector, nBusy);
             break;
         default:
             pXSector->busy = nBusy;
@@ -1955,7 +1955,7 @@ void trProcessBusy(void)
         int oldBusy = gBusy[i].busy;
         gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
         #ifdef NOONE_EXTENSIONS
-            if (!gModernMap || !sector[gBusy[i].index].xs().unused1) nStatus = gBusyProc[gBusy[i].type](&sector[gBusy[i].index], gBusy[i].busy);
+            if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy);
             else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
         #else
             nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
@@ -2262,7 +2262,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, BUSY& w, BUSY* def
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
+		arc("index", w.sect)
 			("type", w.type)
 			("delta", w.delta)
 			("busy", w.busy)

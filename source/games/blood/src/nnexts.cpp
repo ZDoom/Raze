@@ -5229,7 +5229,7 @@ int sectorInMotion(int nSector)
  
     for (int i = 0; i < kMaxBusyCount; i++) 
     {
-        if (gBusy->index == nSector) return i;
+        if (gBusy->sect == &sector[nSector]) return i;
     }
     return -1;
 }
@@ -5367,7 +5367,7 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 
     SectorStartSound(pSector, pXSector->state);
     nDelta = (pXSector->state) ? -nDelta : nDelta;
-    gBusy[gBusyCount].index = sectnum(pSector);
+    gBusy[gBusyCount].sect = pSector;
     gBusy[gBusyCount].delta = nDelta;
     gBusy[gBusyCount].busy = pXSector->busy;
     gBusy[gBusyCount].type = (BUSYID)busyFunc;
