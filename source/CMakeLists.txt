@@ -1273,6 +1273,7 @@ set (PCH_SOURCES
 	core/music/s_advsound.cpp
 
 	core/menu/loadsavemenu.cpp
+	core/menu/usermap.cpp
 	core/menu/razemenu.cpp
 	
 	#Duke is split because Duke and RR need different constants.
