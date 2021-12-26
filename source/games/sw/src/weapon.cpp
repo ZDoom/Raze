@@ -10440,8 +10440,6 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 
 void SpawnMineExp(DSWActor* actor)
 {
-    USERp eu;
-
     ASSERT(actor->hasU());
     if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
         return;
@@ -10489,7 +10487,6 @@ int DoSectorExp(DSWActor* actor)
 
 DSWActor* SpawnSectorExp(DSWActor* actor)
 {
-    USERp eu;
     short explosion;
 
     ASSERT(actor->hasU());
@@ -10519,8 +10516,6 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 // called from SpawnShrap
 DSWActor* SpawnLargeExp(DSWActor* actor)
 {
-    USERp eu;
-    
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->spr.sector(),
@@ -10586,7 +10581,6 @@ void SpawnMeteorExp(DSWActor* actor)
 
 void SpawnLittleExp(DSWActor* actor)
 {
-    USERp eu;
     short explosion;
 
     PlaySound(DIGI_HEADSHOTHIT, actor, v3df_none);
@@ -10819,8 +10813,6 @@ int DoNapalm(DSWActor* actor)
 
     if (!actor->user.Counter)
     {
-        USERp eu;
-
         PlaySound(DIGI_NAPPUFF, actor, v3df_none);
 
         auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, actor->spr.sector(),

@@ -70,7 +70,6 @@ void InitPrediction(PLAYERp pp)
 void DoPrediction(PLAYERp ppp)
 {
 #if 0
-    USERp u;
     spritetype spr;
     int bakrandomseed;
 

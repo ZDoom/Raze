@@ -7220,22 +7220,19 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnReloadState)
 DEFINE_ACTION_FUNCTION(_SWPlayer, WeaponNum)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = self->Actor()->u();
-    ACTION_RETURN_INT(uu->WeaponNum);
+    ACTION_RETURN_INT(self->actor->user.WeaponNum);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, Health)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = self->Actor()->u();
-    ACTION_RETURN_INT(uu->Health);
+    ACTION_RETURN_INT(self->actor->user.Health);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, MaxUserHealth)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = self->Actor()->u();
-    ACTION_RETURN_INT(uu->MaxHealth);
+    ACTION_RETURN_INT(self->actor->user.MaxHealth);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, GetBuildAngle)
