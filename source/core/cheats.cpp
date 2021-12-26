@@ -414,6 +414,28 @@ CCMD(changemap)
 //
 //---------------------------------------------------------------------------
 
+void DoStartMap(FString mapname)
+{
+	FString mapfilename = mapname;
+	DefaultExtension(mapfilename, ".map");
+
+	// Check if the map is already defined.
+	auto map = FindMapByName(mapname);
+	if (map == nullptr)
+	{
+		map = SetupUserMap(mapfilename, g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
+	}
+	if (map)
+	{
+		if (fileSystem.FindFile(map->fileName) < 0)
+		{
+			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
+		}
+
+		DeferredStartGame(map, g_nextskill);
+	}
+}
+
 CCMD(map)
 {
 	if (argv.argc() < 2)
@@ -429,24 +451,6 @@ CCMD(map)
 	}
 
 	FString mapname = argv[1];
-	FString mapfilename = mapname;
-	DefaultExtension(mapfilename, ".map");
-
-	// Check if the map is already defined.
-	auto map = FindMapByName(mapname);
-	if (map == nullptr)
-	{
-		map = SetupUserMap(mapfilename, g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
-	}
-	if (map)
-	{
-		if (fileSystem.FindFile(map->fileName) < 0)
-		{
-			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
-		}
-
-		DeferredStartGame(map, g_nextskill);
-	}
 }
 
 //---------------------------------------------------------------------------

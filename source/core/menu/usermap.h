@@ -1,19 +1,20 @@
 #pragma once
 
 
-struct UsermapEntry
+struct FUsermapEntry
 {
 	FString displayname;
-	const char* filename;
-	const char* container;
+	FString container;
+	FString filename;
+	FString info;
 	int size;
 };
 
-struct UsermapDirectory
+struct FUsermapDirectory
 {
-	FString name;
-	UsermapDirectory* parent = nullptr;
-	TArray<UsermapDirectory> subdirectories;
-	TArray<UsermapEntry> entries;
+	FString dirname;
+	FUsermapDirectory* parent = nullptr;
+	TArray<FUsermapDirectory> subdirectories;
+	TArray<FUsermapEntry> entries;
 };
 

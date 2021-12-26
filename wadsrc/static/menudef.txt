@@ -408,6 +408,19 @@ ListMenu "SaveGameMenu"
 	
 //-------------------------------------------------------------------------------------------
 //
+// Base definition for user map menu. Only the configurable part is done here
+//
+//-------------------------------------------------------------------------------------------
+
+ListMenu "UsermapMenu"
+{
+	Position 0, 40
+	Class "UsermapMenu"	// uses its own implementation
+	CaptionItem "$MNU_USERMAP"
+}
+	
+//-------------------------------------------------------------------------------------------
+//
 // The generic options menus start here
 //
 //-------------------------------------------------------------------------------------------

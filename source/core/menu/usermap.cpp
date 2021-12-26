@@ -46,8 +46,9 @@
 #include "v_draw.h"
 #include "usermap.h"
 #include "gamecontrol.h"
+#include "mapinfo.h"
 
-static UsermapDirectory root;
+static FUsermapDirectory root;
 
 void InsertMap(int lumpnum)
 {
@@ -57,11 +58,11 @@ void InsertMap(int lumpnum)
 	auto current = &root;
 	for (unsigned i = 0; i < path.Size() - 1; i++)
 	{
-		unsigned place = current->subdirectories.FindEx([=](const UsermapDirectory& entry) { return entry.name.CompareNoCase(path[i]) == 0; });
+		unsigned place = current->subdirectories.FindEx([=](const FUsermapDirectory& entry) { return entry.dirname.CompareNoCase(path[i]) == 0; });
 		if (place == current->subdirectories.Size())
 		{
 			place = current->subdirectories.Reserve(1);
-			current->subdirectories.Last().name = path[i];
+			current->subdirectories.Last().dirname = path[i];
 		}
 		current = &current->subdirectories[place];
 	}
@@ -70,6 +71,8 @@ void InsertMap(int lumpnum)
 	current->entries.Last().filename = fileSystem.GetFileFullName(lumpnum);
 	current->entries.Last().container = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 	current->entries.Last().size = fileSystem.FileLength(lumpnum);
+	auto mapinfo = FindMapByName(StripExtension(path.Last()));
+	if (mapinfo) current->entries.Last().info = mapinfo->name;
 }
 
 bool ValidateMap(int lumpnum)
@@ -91,20 +94,20 @@ bool ValidateMap(int lumpnum)
 	return true;
 }
 
-void SortEntries(UsermapDirectory& dir)
+void SortEntries(FUsermapDirectory& dir)
 {
 	qsort(dir.subdirectories.Data(), dir.subdirectories.Size(), sizeof(dir.subdirectories[0]), [](const void* a, const void* b) -> int
 		{
-			auto A = (UsermapDirectory*)a;
-			auto B = (UsermapDirectory*)b;
+			auto A = (FUsermapDirectory*)a;
+			auto B = (FUsermapDirectory*)b;
 
-			return A->name.CompareNoCase(B->name);
+			return A->dirname.CompareNoCase(B->dirname);
 		});
 
 	qsort(dir.entries.Data(), dir.entries.Size(), sizeof(dir.entries[0]), [](const void* a, const void* b) -> int
 		{
-			auto A = (UsermapEntry*)a;
-			auto B = (UsermapEntry*)b;
+			auto A = (FUsermapEntry*)a;
+			auto B = (FUsermapEntry*)b;
 
 			return A->displayname.CompareNoCase(B->displayname);
 		});
@@ -118,6 +121,10 @@ void SortEntries(UsermapDirectory& dir)
 
 void ReadUserMaps()
 {
+	static bool didit = false;
+	if (didit) return;
+	didit = true;
+
 	int numfiles = fileSystem.GetNumEntries();
 
 	for (int i = 0; i < numfiles; i++)
@@ -132,7 +139,79 @@ void ReadUserMaps()
 	SortEntries(root);
 }
 
-CCMD(readusermaps)
+DEFINE_FIELD(FUsermapEntry, filename);
+DEFINE_FIELD(FUsermapEntry, container);
+DEFINE_FIELD(FUsermapEntry, displayname);
+DEFINE_FIELD(FUsermapEntry, info);
+DEFINE_FIELD(FUsermapEntry, size);
+
+DEFINE_FIELD(FUsermapDirectory, dirname);
+DEFINE_FIELD(FUsermapDirectory, parent);
+
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, ReadData)
 {
 	ReadUserMaps();
+	ACTION_RETURN_POINTER(&root);
+}
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, GetNumEntries)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
+	ACTION_RETURN_INT(self->entries.Size());
+}
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, GetNumDirectories)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
+	ACTION_RETURN_INT(self->subdirectories.Size());
+}
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, GetEntry)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
+
+	PARAM_UINT(num);
+	if (num >= self->entries.Size()) ACTION_RETURN_POINTER(nullptr);
+	ACTION_RETURN_POINTER(&self->entries[num]);
+}
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, GetDirectory)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
+
+	PARAM_UINT(num);
+	if (num >= self->subdirectories.Size()) ACTION_RETURN_POINTER(nullptr);
+	ACTION_RETURN_POINTER(&self->subdirectories[num]);
+}
+
+DEFINE_ACTION_FUNCTION(FUsermapDirectory, DrawPreview)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FUsermapDirectory);
+
+	PARAM_UINT(num);
+	PARAM_INT(left);
+	PARAM_INT(top);
+	PARAM_INT(width);
+	PARAM_INT(height);
+	if (num >= self->entries.Size()) return 0;
+	// todo
+	return 0;
+}
+
+void DoStartMap(FString mapname);
+
+DEFINE_ACTION_FUNCTION(_UsermapMenu, StartMap)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(entry, FUsermapEntry);
+
+	if (DMenu::InMenu == 0)
+	{
+		ThrowAbortException(X_OTHER, "Attempt to start user map outside of menu code");
+	}
+
+	DoStartMap(entry->filename);
+	M_ClearMenus();
+	return 0;
 }
