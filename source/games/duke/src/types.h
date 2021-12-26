@@ -227,7 +227,7 @@ struct player_struct
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
-	TObjPtr<DDukeActor*> actor;
+	DDukeActor* actor;
 	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
 
 	short last_extra, subweapon;

@@ -80,7 +80,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
-    TObjPtr<DBloodActor*>        actor;
+    DBloodActor*        actor;
     DUDEINFO*           pDudeInfo;
     InputPacket         input;
     PlayerHorizon       horizon;
