@@ -1731,6 +1731,8 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HitInfo& hit, int32_t clipmask);
 
+
+
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
 
 void FAFgetzrange(vec3_t pos, sectortype* sect,
@@ -2152,6 +2154,21 @@ inline bool PLAYER_MOVING(PLAYERp pp)
 inline void PlaySound(int num, DSWActor* actor, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(num, actor, nullptr, nullptr, flags, channel, sndflags);
+}
+
+inline bool FAFcansee(DSWActor* source, DSWActor* dest)
+{
+    return FAFcansee(source->spr.pos.X, source->spr.pos.Y, source->spr.pos.Z, source->sector(), dest->spr.pos.X, dest->spr.pos.Y, dest->spr.pos.Z, dest->sector());
+}
+
+inline bool FAFcansee(DSWActor* source, int srcz, DSWActor* dest, int destz)
+{
+    return FAFcansee(source->spr.pos.X, source->spr.pos.Y, srcz, source->sector(), dest->spr.pos.X, dest->spr.pos.Y, destz, dest->sector());
+}
+
+inline bool FAFcanseeOfs(DSWActor* source, int srcz, DSWActor* dest, int destz)
+{
+    return FAFcansee(source->spr.pos.X, source->spr.pos.Y, source->spr.pos.Z + srcz, source->sector(), dest->spr.pos.X, dest->spr.pos.Y, dest->spr.pos.Z + destz, dest->sector());
 }
 
 struct ANIMstruct

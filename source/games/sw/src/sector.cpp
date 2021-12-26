@@ -1148,7 +1148,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wActor->user.Radius/2) + radius)
             continue;
 
-        if (!FAFcansee(wActor->spr.pos.X,wActor->spr.pos.Y,wActor->spr.pos.Z,wActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
+        if (!FAFcansee(wActor, actor))
             continue;
 
 

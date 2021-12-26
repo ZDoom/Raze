@@ -5920,7 +5920,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 
     // if actor can still see the player
     look_height = ActorZOfTop(actor);
-    if (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpperZ(plActor), plActor->spr.sector()))
+    if (FAFcansee(actor, look_height, plActor, ActorUpperZ(plActor)))
     {
         // Player is visible
         // adjust update range of this sprite

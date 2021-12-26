@@ -7036,7 +7036,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (actor->user.Radius > 200)
             {
-                if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
+                if (!FAFcansee(itActor, ActorUpperZ(actor), actor actor->spr.pos.Z))
                     continue;
             }
 
@@ -7109,7 +7109,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             if (actor->user.Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorZOfMiddle(actor),itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector()))
+                if (FAFcansee(itActor, ActorZOfMiddle(actor), actor, ActorZOfMiddle(actor)))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -7253,8 +7253,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(actor), itActor->spr.sector()) &&
-                    !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorLowerZ(actor), itActor->spr.sector()))
+                if (!FAFcansee(actor, actor->spr.pos.Z, itActor, ActorUpperZ(actor)) &&
+                    !FAFcansee(actor, actor->spr.pos.Z, itActor, ActorLowerZ(actor)))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -7283,7 +7283,7 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
+            if (FAFcansee(itActor, ActorZOfMiddle(itActor), actor, actor->spr.pos.Z))
                 continue;
 
             if (TEST(itActor->spr.extra, SPRX_BREAKABLE))
@@ -8605,7 +8605,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(itActor->spr.pos.X,itActor->spr.pos.Y,ActorUpperZ(actor),itActor->spr.sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->spr.sector()))
+            if (FAFcansee(itActor, ActorUpperZ(itActor), actor, actor->spr.pos.Z))
                 continue;
 
             return true;
@@ -11888,7 +11888,7 @@ int InitSwordAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)))
                 {
-                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
+                    if (FAFcansee(itActor, ActorZOfMiddle(itActor), plActor, ActorZOfMiddle(plActor)))
                         DoDamage(itActor, pp->actor);
                 }
             }
@@ -12064,7 +12064,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorZOfMiddle(plActor), plActor->spr.sector()))
+                    if (FAFcansee(itActor, ActorZOfMiddle(itActor), plActor, ActorZOfMiddle(plActor)))
                         DoDamage(itActor, plActor);
                     if (face == 190)
                     {
@@ -12348,7 +12348,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
             if (dist < CloseRangeDist(itActor, actor, reach))
             {
-                if (FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, ActorZOfMiddle(itActor), itActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+                if (FAFcansee(itActor, ActorZOfMiddle(itActor), actor, ActorZOfMiddle(actor)))
                     DoDamage(itActor, actor);
             }
         }
@@ -12374,7 +12374,7 @@ int InitMiniSumoClap(DSWActor* actor)
     {
         if (SpriteOverlapZ(actor, targetActor, Z(20)))
         {
-            if (FAFcansee(targetActor->spr.pos.X, targetActor->spr.pos.Y, ActorZOfMiddle(targetActor), targetActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+            if (FAFcansee(targetActor, ActorZOfMiddle(targetActor), actor, ActorZOfMiddle(actor)))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
                 DoDamage(targetActor, actor);
@@ -12383,7 +12383,7 @@ int InitMiniSumoClap(DSWActor* actor)
     }
     else if (dist < CloseRangeDist(targetActor, actor, reach))
     {
-        if (FAFcansee(targetActor->spr.pos.X, targetActor->spr.pos.Y, ActorZOfMiddle(targetActor), targetActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.sector()))
+        if (FAFcansee(targetActor, ActorZOfMiddle(targetActor), actor, ActorZOfMiddle(actor)))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
             SpawnFireballFlames(actor, targetActor);
@@ -13991,7 +13991,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 DoDamage(itActor, actor);
             else if (actor->user.Radius > 200)
             {
-                if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfMiddle(actor),actor->spr.sector(),itActor->spr.pos.X,itActor->spr.pos.Y,ActorZOfMiddle(itActor),itActor->spr.sector()))
+                if (FAFcansee(actor, ActorZOfMiddle(actor), itActor, ActorZOfMiddle(itActor)))
                     DoDamage(itActor, actor);
             }
         }
