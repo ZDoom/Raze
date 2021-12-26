@@ -1138,7 +1138,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
     while (auto actor = it.Next())
     {
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wActor->spr.pos.X - actor->spr.pos.X, wActor->spr.pos.Y - actor->spr.pos.Y, wActor->spr.pos.Z - actor->spr.pos.Z);
+        dist = FindDistance3D(wActor->spr.pos - actor->spr.pos);
 
         if (actor->spr.clipdist == 0)
             continue;

@@ -1900,7 +1900,7 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             if (!FAFcansee(itActor, actor))
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos - itActor->spr.pos);
             if (dist > range)
                 continue;
 

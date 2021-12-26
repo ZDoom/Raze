@@ -175,7 +175,7 @@ int hits(DDukeActor* actor)
 	else zoff = 0;
 
 	hitscan(actor->spr.pos, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.hitpos.X - actor->spr.pos.X, hit.hitpos.Y - actor->spr.pos.Y));
+	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -200,7 +200,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.hitpos.X - actor->spr.pos.X, hit.hitpos.Y - actor->spr.pos.Y));
+	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -216,7 +216,7 @@ int hitawall(struct player_struct* p, walltype** hitw)
 	hitscan(p->pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.hitpos.X - p->pos.X, hit.hitpos.Y - p->pos.Y));
+	return (FindDistance2D(hit.hitpos.vec2 - p->pos.vec2));
 }
 
 

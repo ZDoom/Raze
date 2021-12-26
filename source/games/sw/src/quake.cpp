@@ -173,7 +173,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     SWStatIterator it(STAT_QUAKE_ON);
 	while (actor = it.Next())
 	{
-        dist = FindDistance3D(pp->pos.X - actor->spr.pos.X, pp->pos.Y - actor->spr.pos.Y, pp->pos.Z - actor->spr.pos.Z);
+        dist = FindDistance3D(pp->pos - actor->spr.pos);
 
         // shake whole level
         if (QUAKE_TestDontTaper(actor))

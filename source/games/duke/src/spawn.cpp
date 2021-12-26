@@ -780,7 +780,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.pos.X - wal.pos.X, actor->spr.pos.Y - wal.pos.Y);
+				d = FindDistance2D(actor->spr.pos.vec2 - wal.pos);
 				if (d < q)
 				{
 					q = d;
@@ -794,7 +794,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.pos.X - wal.pos.X, actor->spr.pos.Y - wal.pos.Y);
+				d = FindDistance2D(actor->spr.pos.vec2 - wal.pos);
 				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;

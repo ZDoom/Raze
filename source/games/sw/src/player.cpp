@@ -1164,7 +1164,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             // Only look at closest ones
             //if ((dist = Distance(actor->spr.x, actor->spr.y, itActor->spr.x, itActor->spr.y)) > PICK_DIST)
-            if ((dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z)) > PICK_DIST)
+            if ((dist = FindDistance3D(actor->spr.pos - itActor->spr.pos)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -2624,7 +2624,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
                     hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hit.hitpos.X - hit_pos.X, hit.hitpos.Y - hit_pos.Y) < 800)
+                if (FindDistance2D(hit.hitpos.vec2 - hit_pos.vec2) < 800)
                 {
                     if (hit.hitWall)
                         actor->user.coll.setWall(wallnum(hit.hitWall));
@@ -6784,7 +6784,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(spawn_sprite->spr.pos.X - opp->pos.X, spawn_sprite->spr.pos.Y - opp->pos.Y, spawn_sprite->spr.pos.Z - opp->pos.Z) < 1000)
+                if (FindDistance3D(spawn_sprite->spr.pos - opp->pos) < 1000)
                 {
                     blocked = true;
                     break;

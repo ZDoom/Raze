@@ -1379,7 +1379,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		MulScale(k, bsin(proj->spr.ang), 14), ll, CLIPMASK1, coll);
 
 	if ((proj->spr.picnum == RPG || (isRRRA() && isIn(proj->spr.picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
-		if (FindDistance2D(proj->spr.pos.X - proj->temp_actor->spr.pos.X, proj->spr.pos.Y - proj->temp_actor->spr.pos.Y) < 256)
+		if (FindDistance2D(proj->spr.pos.vec2 - proj->temp_actor->spr.pos.vec2) < 256)
 			coll.setSprite(proj->temp_actor);
 
 	if (!proj->spr.insector()) // || (isRR() && proj->spr.sector()->filler == 800))

@@ -8601,7 +8601,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (itActor->user.ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos - itActor->spr.pos);
             if (dist > range)
                 continue;
 
@@ -10041,7 +10041,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->user.coll = move_missile(expActor, expActor->user.xchange, expActor->user.ychange, 0,
                            expActor->user.ceiling_dist, expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(expActor->spr.pos.X - actor->spr.pos.X, expActor->spr.pos.Y - actor->spr.pos.Y, expActor->spr.pos.Z - actor->spr.pos.Z) < 1024)
+    if (FindDistance3D(expActor->spr.pos - actor->spr.pos) < 1024)
     {
         KillActor(expActor);
         return;
@@ -10312,7 +10312,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->user.coll = move_missile(expActor, expActor->user.xchange, expActor->user.ychange, 0,
                            expActor->user.ceiling_dist, expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(expActor->spr.pos.X - actor->spr.pos.X, expActor->spr.pos.Y - actor->spr.pos.Y, expActor->spr.pos.Z - actor->spr.pos.Z) < 1024)
+    if (FindDistance3D(expActor->spr.pos - actor->spr.pos) < 1024)
     {
         KillActor(expActor);
         return;
@@ -11913,7 +11913,7 @@ int InitSwordAttack(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->pos.X - hit.hitpos.X, pp->pos.Y - hit.hitpos.Y, pp->pos.Z - hit.hitpos.Z) < 700)
+        if (FindDistance3D(pp->pos - hit.hitpos) < 700)
         {
 
             if (hit.actor() != nullptr)
@@ -12094,7 +12094,7 @@ int InitFistAttack(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->pos.X - hit.hitpos.X, pp->pos.Y - hit.hitpos.Y, pp->pos.Z - hit.hitpos.Z) < 700)
+        if (FindDistance3D(pp->pos - hit.hitpos) < 700)
         {
 
             if (hit.actor() != nullptr)
@@ -12414,7 +12414,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
         SET(hitActor->user.Flags, SPR_ATTACKED);
 
         mislActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - mislActor->spr.pos.X, hitActor->spr.pos.Y - mislActor->spr.pos.Y));
-        dist = FindDistance2D(mislActor->spr.pos.X - hitActor->spr.pos.X, mislActor->spr.pos.Y - hitActor->spr.pos.Y);
+        dist = FindDistance2D(mislActor->spr.pos.vec2 - hitActor->spr.pos.vec2);
 
         if (dist != 0)
         {
@@ -12470,7 +12470,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
         SET(hitActor->user.Flags, SPR_ATTACKED);
 
         missileActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - missileActor->spr.pos.X, hitActor->spr.pos.Y - missileActor->spr.pos.Y));
-        dist = FindDistance2D(missileActor->spr.pos.X - hitActor->spr.pos.X, missileActor->spr.pos.Y - hitActor->spr.pos.Y);
+        dist = FindDistance2D(missileActor->spr.pos.vec2 - hitActor->spr.pos.vec2);
 
         if (dist != 0)
         {
@@ -13816,7 +13816,7 @@ int InitRipperSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > itActor->user.Radius + actor->user.Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos - itActor->spr.pos) > itActor->user.Radius + actor->user.Radius)
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
@@ -13945,7 +13945,7 @@ int DoBladeDamage(DSWActor* actor)
             if (dist > 2000)
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos - itActor->spr.pos);
 
             if (dist > 2000)
                 continue;
@@ -13982,7 +13982,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
             if (dist > 2000)
                 continue;
 
-            dist = FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z);
+            dist = FindDistance3D(actor->spr.pos - itActor->spr.pos);
 
             if (dist > 2000)
                 continue;
@@ -14777,7 +14777,7 @@ int InitEelFire(DSWActor* actor)
             if (itActor != actor->user.targetActor)
                 continue;
 
-            if ((unsigned)FindDistance3D(actor->spr.pos.X - itActor->spr.pos.X, actor->spr.pos.Y - itActor->spr.pos.Y, actor->spr.pos.Z - itActor->spr.pos.Z) > itActor->user.Radius + actor->user.Radius)
+            if ((unsigned)FindDistance3D(actor->spr.pos - itActor->spr.pos) > itActor->user.Radius + actor->user.Radius)
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);

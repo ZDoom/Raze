@@ -254,12 +254,6 @@ int CanHitPlayer(DSWActor* actor)
     else
         return false;
 
-    // so actors won't shoot straight up at you
-    // need to be a bit of a distance away
-    // before they have a valid shot
-//    if (labs(zvect / FindDistance2D(targ->spr.x - actor->spr.x, targ->spr.y - actor->spr.y)) > 200)
-//       return(false);
-
     FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, zhs, actor->spr.sector(),
                xvect,
                yvect,

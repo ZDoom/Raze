@@ -2988,7 +2988,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		}
 		if (actor->temp_data[4] == 2)
 		{
-			int l = FindDistance2D(Owner->spr.pos.X - actor->spr.pos.X, Owner->spr.pos.Y - actor->spr.pos.Y);
+			int l = FindDistance2D(Owner->spr.pos.vec2 - actor->spr.pos.vec2);
 
 			if (l <= 128)
 				actor->spr.xvel = 0;
