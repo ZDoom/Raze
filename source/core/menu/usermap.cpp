@@ -45,3 +45,94 @@
 #include "findfile.h"
 #include "v_draw.h"
 #include "usermap.h"
+#include "gamecontrol.h"
+
+static UsermapDirectory root;
+
+void InsertMap(int lumpnum)
+{
+	FString filename = fileSystem.GetFileFullName(lumpnum);
+	auto path = filename.Split("/");
+
+	auto current = &root;
+	for (unsigned i = 0; i < path.Size() - 1; i++)
+	{
+		unsigned place = current->subdirectories.FindEx([=](const UsermapDirectory& entry) { return entry.name.CompareNoCase(path[i]) == 0; });
+		if (place == current->subdirectories.Size())
+		{
+			place = current->subdirectories.Reserve(1);
+			current->subdirectories.Last().name = path[i];
+		}
+		current = &current->subdirectories[place];
+	}
+	current->entries.Reserve(1);
+	current->entries.Last().displayname = path.Last();
+	current->entries.Last().filename = fileSystem.GetFileFullName(lumpnum);
+	current->entries.Last().container = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
+	current->entries.Last().size = fileSystem.FileLength(lumpnum);
+}
+
+bool ValidateMap(int lumpnum)
+{
+	FString filename = fileSystem.GetFileFullName(lumpnum);
+
+	if (fileSystem.FindFile(filename) != lumpnum) return false;
+	auto fr = fileSystem.OpenFileReader(lumpnum);
+	uint8_t check[4];
+	fr.Read(&check, 4);
+	if (!isBlood())
+	{
+		if (check[0] < 5 || check[0] > 9 || check[1] || check[2] || check[3]) return false;
+	}
+	else
+	{
+		if (memcmp(check, "BLM\x1a", 4)) return false;
+	}
+	return true;
+}
+
+void SortEntries(UsermapDirectory& dir)
+{
+	qsort(dir.subdirectories.Data(), dir.subdirectories.Size(), sizeof(dir.subdirectories[0]), [](const void* a, const void* b) -> int
+		{
+			auto A = (UsermapDirectory*)a;
+			auto B = (UsermapDirectory*)b;
+
+			return A->name.CompareNoCase(B->name);
+		});
+
+	qsort(dir.entries.Data(), dir.entries.Size(), sizeof(dir.entries[0]), [](const void* a, const void* b) -> int
+		{
+			auto A = (UsermapEntry*)a;
+			auto B = (UsermapEntry*)b;
+
+			return A->displayname.CompareNoCase(B->displayname);
+		});
+
+	for (auto& subdir : dir.subdirectories)
+	{
+		subdir.parent = &dir;
+		SortEntries(subdir);
+	}
+}
+
+void ReadUserMaps()
+{
+	int numfiles = fileSystem.GetNumEntries();
+
+	for (int i = 0; i < numfiles; i++)
+	{
+		auto fn1 = fileSystem.GetFileFullName(i);
+		if (!fn1 || !*fn1) continue;
+		auto map = strstr(fn1, ".map");
+		if (!map || strcmp(map, ".map")) continue;
+		if (!ValidateMap(i)) continue;
+		InsertMap(i);
+	}
+	SortEntries(root);
+}
+
+CCMD(readusermaps)
+{
+	ReadUserMaps();
+}
