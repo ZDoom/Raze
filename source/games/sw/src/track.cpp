@@ -115,8 +115,6 @@ point to the sprite.
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* track_point_num, int* track_dir)
 {
-    USERp u = actor->u();
-
     int dist, near_dist = 999999, zdiff;
 
     int i;
@@ -276,8 +274,6 @@ void NextTrackPoint(SECTOR_OBJECTp sop)
 
 void NextActorTrackPoint(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     actor->user.point += actor->user.track_dir;
 
     if (actor->user.point > Track[actor->user.track].NumPoints - 1)
@@ -967,7 +963,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
     SECTOR_OBJECTp sop;
     int object_num;
     short j;
-    USERp u;
 
     tag -= (TAG_OBJECT_CENTER - 1);
 
@@ -1458,7 +1453,6 @@ void PlaceSectorObjectsOnTracks(void)
 void PlaceActorsOnTracks(void)
 {
     short j, tag;
-    USERp u;
     TRACK_POINTp tpoint = nullptr;
 
     // place each actor on the track
@@ -1466,8 +1460,6 @@ void PlaceActorsOnTracks(void)
     while (auto actor = it.Next())
     {
         int low_dist = 999999, dist;
-
-        u = actor->u();
 
         tag = actor->spr.lotag;
 
@@ -1600,7 +1592,6 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     int pnum;
     PLAYERp pp;
     SECTORp *sectp;
-    USERp u;
     int i, rot_ang;
     bool PlayerMove = true;
 
@@ -1697,10 +1688,9 @@ PlayerPart:
 	{
         DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
-		u = actor->u();
 
         // if its a player sprite || NOT attached
-        if (!u || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        if (!actor->hasU() || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
             continue;
 
         // move the player
@@ -1917,15 +1907,13 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 
 void KillSectorObjectSprites(SECTOR_OBJECTp sop)
 {
-    USERp u;
     int i;
 
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
 		DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
-        u = actor->u();
-
+        
         // not a part of the so anymore
         RESET(actor->user.Flags, SPR_SO_ATTACHED);
 
@@ -2098,7 +2086,6 @@ void MoveZ(SECTOR_OBJECTp sop)
 void CallbackSOsink(ANIMp ap, void *data)
 {
     SECTOR_OBJECTp sop;
-    USERp u;
     int i, ndx;
     bool found = false;
     int tgt_depth;
@@ -2155,9 +2142,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     SWSectIterator it(destsect);
     while (auto actor = it.Next())
     {
-        u = actor->u();
-
-        if (!u || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        if (!actor->hasU() || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
             continue;
 
         // move sprite WAY down in water
@@ -2659,8 +2644,6 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
         SWSectIterator it(*sectp);
         while (auto actor = it.Next())
         {
-            USERp u = actor->u();
-
             switch (actor->spr.hitag)
             {
 
@@ -2778,12 +2761,11 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
     DSWActor* actor = sop->sp_child;
     if (!actor) return;
 
-    USERp u = actor->u();
     short delta_ang;
     int diff;
     short i;
 
-    if ((sop->max_damage != -9999 && sop->max_damage <= 0) || !u)
+    if ((sop->max_damage != -9999 && sop->max_damage <= 0) || !actor->hasU())
         return;
 
 
@@ -2871,8 +2853,6 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 
 void DoActorHitTrackEndPoint(DSWActor* actor)
 {
-    auto u = actor->u();
-
     RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
 
     // jump the current track & determine if you should go to another
@@ -2917,8 +2897,6 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
 
 void ActorLeaveTrack(DSWActor* actor)
 {
-    USERp u = actor->u();
-
     if (actor->user.track == -1)
         return;
 
@@ -2929,8 +2907,6 @@ void ActorLeaveTrack(DSWActor* actor)
 
 bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 {
-    USERp u = actor->u();
-
     switch (tpoint->tag_low)
     {
     case TRACK_START:
@@ -3447,7 +3423,6 @@ present time.
 
 int ActorFollowTrack(DSWActor* actor, short locktics)
 {
-    USERp u = actor->u();
     PLAYERp pp;
 
     TRACK_POINTp tpoint;
