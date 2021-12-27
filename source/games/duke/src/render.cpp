@@ -121,7 +121,10 @@ void GameInterface::UpdateCameras(double smoothratio)
 				}
 				else
 				{
+					auto cstat = camera->spr.cstat;
+					camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					render_camtex(camera, camera->spr.pos, camera->spr.sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
+					camera->spr.cstat = cstat;
 				}
 				display_mirror = 0;
 			});
@@ -290,7 +293,11 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildang(interpolatedangle(ud.cameraactor->tempang, act->spr.ang, smoothratio));
 
 		auto bh = buildhoriz(act->spr.yvel);
+		auto cstat = act->spr.cstat;
+		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 		renderView(act, act->spr.sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		act->spr.cstat = cstat;
+
 	}
 	else
 	{
@@ -345,6 +352,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		DDukeActor* viewer;
+		bool camview = false;
 		if (p->newOwner != nullptr)
 		{
 			auto act = p->newOwner;
@@ -357,6 +365,7 @@ void displayrooms(int snum, double smoothratio)
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
 			viewer = act;
+			camview = true;
 		}
 		else if (p->over_shoulder_on == 0)
 		{
@@ -401,6 +410,8 @@ void displayrooms(int snum, double smoothratio)
 
 		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
 
+		auto cstat = viewer->spr.cstat;
+		if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 		if (isRR() && sect->lotag == 848 && !testnewrenderer)
 		{
 			renderSetRollAngle((float)rotscrnang.asbuildf());
@@ -410,6 +421,7 @@ void displayrooms(int snum, double smoothratio)
 		{
 			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
 		}
+		viewer->spr.cstat = cstat;
 	}
 	//GLInterface.SetMapFog(false);
 	RestoreInterpolations();
