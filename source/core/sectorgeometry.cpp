@@ -379,11 +379,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 
 		section->dirty &= ~EDirty::CeilingDirty;
 	}
-#ifdef SECTOR_HACKJOB
-	memcpy(compare, sec, sizeof(*sec));
-#else
-	*compare = *sec;
-#endif
+	compare->copy(sec);
 	sdata.poscompare[plane] = sec->firstWall()->pos;
 	sdata.poscompare2[plane] = sec->firstWall()->point2Wall()->pos;
 	return false;
