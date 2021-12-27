@@ -77,7 +77,6 @@ void LoadScripts()
 {
 	cycle_t timer;
 
-	PClass::StaticInit();
 	PType::StaticInit();
 	InitImports();
 	timer.Reset(); timer.Clock();
