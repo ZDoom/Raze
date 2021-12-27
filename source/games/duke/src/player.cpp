@@ -230,7 +230,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 {
 	bool gotshrinker, gotfreezer;
 	int a, k, cans;
-	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
+	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
 
@@ -239,11 +239,27 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	// Autoaim from DukeGDX.
 	if (actor->spr.picnum == TILE_APLAYER)
 	{
+		auto* plr = &ps[actor->spr.yvel];
 		int autoaim = Autoaim(actor->spr.yvel);
 		if (!autoaim)
 		{
+			// Some fudging to avoid aim randomization when autoaim is off.
+			// This is a reimplementation of how it was solved in RedNukem.
+			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
+			{
+				int zvel = -plr->horizon.sum().asq16() >> 5;
+
+				HitInfo hit{};
+				hitscan(plr->pos.withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
+
+				if (hit.actor() != nullptr)
+				{
+					if (isIn(hit.actor()->spr.statnum, { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR }))
+						return hit.actor();
+				}
+			}
 			// The chickens in RRRA are homing and must always autoaim.
-			if (!isRRRA() || ps[actor->spr.yvel].curr_weapon != CHICKEN_WEAPON)
+			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
 				return nullptr;
 		}
 		else if (autoaim == 2)
@@ -251,11 +267,11 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			int weap;
 			if (!isWW2GI())
 			{
-				weap = ps[actor->spr.yvel].curr_weapon;
+				weap = plr->curr_weapon;
 			}
 			else
 			{
-				weap = aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel);
+				weap = aplWeaponWorksLike(plr->curr_weapon, actor->spr.yvel);
 			}
 			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
 			{

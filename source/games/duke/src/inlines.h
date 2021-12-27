@@ -112,7 +112,6 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 	return false;
 }
 
-
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
