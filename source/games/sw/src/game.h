@@ -28,10 +28,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define GAME_H
 
-#ifndef DEBUG
-#define DEBUG 0
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(disable:4101) // there's too many of these... :(
 #endif
@@ -108,22 +104,13 @@ enum
 
 #define ASSERT assert
 
-#define MONO_PRINT(str)
-
-
-#define HEAP_CHECK()
-#define RANDOM_DEBUG 0
-
-
 int RandomRange(int);
 inline int RANDOM(void)
 {
     randomseed = ((randomseed * 21 + 1) & 65535);
     return randomseed;
 }
-
-#define MOD_P2(number,modby)  ((number) & ((modby)-1))
-#define RANDOM_P2(pwr_of_2) (MOD_P2(RANDOM(),(pwr_of_2)))
+int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
 
 //
 // Map directions/degrees
@@ -250,16 +237,16 @@ inline int GetSpriteSizeToBottom(const spritetypebase* sp)
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline int GetSpriteZOfTop(const spritetypebase* sp)
 {
-    return (TEST(sp->cstat, CSTAT_SPRITE_YCENTER) ?
+    return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
         sp->pos.Z - GetSpriteSizeToTop(sp) :
-        sp->pos.Z - GetSpriteSizeZ(sp));
+        sp->pos.Z - GetSpriteSizeZ(sp);
 }
 
 inline int GetSpriteZOfBottom(const spritetypebase* sp)
 {
-    return (TEST(sp->cstat, CSTAT_SPRITE_YCENTER) ?
+    return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
         sp->pos.Z + GetSpriteSizeToBottom(sp) :
-        sp->pos.Z);
+        sp->pos.Z;
 }
 
 // mid and upper/lower sprite calculations
@@ -452,17 +439,18 @@ void QueueLoWangs(DSWActor*);                   // Weapon.c
 int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
 void UnlockKeyLock(short key_num, DSWActor* actor);  // JSector.c
 
-#define MAX_PAIN 5
+enum
+{
+    MAX_PAIN = 5,
+    MAX_TAUNTAI = 33,
+    MAX_GETSOUNDS = 5,
+    MAX_YELLSOUNDS = 3,
+};
+
 extern int PlayerPainVocs[MAX_PAIN];
 extern int PlayerLowHealthPainVocs[MAX_PAIN];
-
-#define MAX_TAUNTAI 33
 extern int TauntAIVocs[MAX_TAUNTAI];
-
-#define MAX_GETSOUNDS 5
 extern int PlayerGetItemVocs[MAX_GETSOUNDS];
-
-#define MAX_YELLSOUNDS 3
 extern int PlayerYellVocs[MAX_YELLSOUNDS];
 
 void BossHealthMeter(void);
@@ -481,14 +469,16 @@ void BossHealthMeter(void);
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_WEAPONS_KEYS 10
-#define MAX_WEAPONS_EXTRA 4 // extra weapons like the two extra head attacks
-#define MAX_WEAPONS (MAX_WEAPONS_KEYS + MAX_WEAPONS_EXTRA)
+enum
+{
+    MAX_WEAPONS_KEYS = 10,
+    MAX_WEAPONS_EXTRA = 4, // extra weapons like the two extra head attacks
+    MAX_WEAPONS = (MAX_WEAPONS_KEYS + MAX_WEAPONS_EXTRA),
 
-// weapons that not missile type sprites
-#define WPN_NM_LAVA (-8)
-#define WPN_NM_SECTOR_SQUISH (-9)
-
+    // weapons that not missile type sprites
+    WPN_NM_LAVA = (-8),
+    WPN_NM_SECTOR_SQUISH = (-9),
+};
 //#define WEAP_ENTRY(id, init_func, damage_lo, damage_hi, radius)
 
 typedef struct
@@ -535,15 +525,15 @@ extern void (*InitWeapon[MAX_WEAPONS]) (PLAYERp);
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_SW_PLAYERS_SW  (4)
-#define MAX_SW_PLAYERS_REG (8)
+enum
+{
+    MAX_SW_PLAYERS_SW = (4),
+    MAX_SW_PLAYERS_REG = (8)
+};
 #define MAX_SW_PLAYERS (SW_SHAREWARE ? MAX_SW_PLAYERS_SW : MAX_SW_PLAYERS_REG)
 
 extern int   ThemeTrack[6];                                          // w
 extern FString ThemeSongs[6];                                          //
-
-#define MAX_EPISODE_NAME_LEN 24
-extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
 enum
 {
@@ -585,8 +575,6 @@ enum
     // Again, here a gap of two needs to be inserted because the weapon array contains two bogus entries the parser can access.
 
 };
-
-#define PACK 1
 
 extern bool CameraTestMode;
 
@@ -843,29 +831,34 @@ enum
 // Hit Points
 //
 
-#define HEALTH_RIPPER            70
-#define HEALTH_RIPPER2           200
-#define HEALTH_MOMMA_RIPPER      500
-#define HEALTH_NINJA             40
-#define HEALTH_RED_NINJA         160
-#define HEALTH_COOLIE            120
-#define HEALTH_COOLIE_GHOST      65
-#define HEALTH_SKEL_PRIEST       90
-#define HEALTH_GORO              200
-#define HEALTH_HORNET            4
-#define HEALTH_SKULL             4
-#define HEALTH_EEL               100
-
-#define HEALTH_SERP_GOD          3800
+enum
+{
+    HEALTH_RIPPER            = 70  ,
+    HEALTH_RIPPER2           = 200 ,
+    HEALTH_MOMMA_RIPPER      = 500 ,
+    HEALTH_NINJA             = 40  ,
+    HEALTH_RED_NINJA         = 160 ,
+    HEALTH_COOLIE            = 120 ,
+    HEALTH_COOLIE_GHOST      = 65  ,
+    HEALTH_SKEL_PRIEST       = 90  ,
+    HEALTH_GORO              = 200 ,
+    HEALTH_HORNET            = 4   ,
+    HEALTH_SKULL             = 4   ,
+    HEALTH_EEL               = 100 ,
+    HEALTH_SERP_GOD          = 3800,
+};
 
 //
 // Action Set Structure
 //
 
+enum
+{
+    MAX_ACTOR_CLOSE_ATTACK = 2,
+    MAX_ACTOR_ATTACK = 6,
+};
 typedef struct
 {
-#define MAX_ACTOR_CLOSE_ATTACK 2
-#define MAX_ACTOR_ATTACK 6
     STATEp *Stand;
     STATEp *Run;
     STATEp *Jump;
@@ -931,12 +924,6 @@ using ROTATORp = ROTATOR*;
 
 struct USER
 {
-    // C++'s default init rules suck, so we have to help it out a bit to do what we need (i.e. setting all POD members to 0.
-    USER()
-    {
-        memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
-    }
-
     void Clear()
     {
         rotator.Clear();
@@ -1337,8 +1324,6 @@ typedef struct
     int16_t TimeOut;
 } DOOR_AUTO_CLOSE, *DOOR_AUTO_CLOSEp;
 
-#define MAX_DOOR_AUTO_CLOSE 16
-
 typedef struct
 {
     int origx[17], origy[17];
@@ -1381,9 +1366,15 @@ struct SPRING_BOARD
 extern SPRING_BOARD SpringBoard[20];
 extern SWING Rotate[17];
 
+enum
+{
+    MAX_DOOR_AUTO_CLOSE = 16,
+    MAXANIM = 256
+};
+
+
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
 
-#define MAXANIM 256
 typedef void ANIM_CALLBACK (ANIMp, void *);
 typedef ANIM_CALLBACK *ANIM_CALLBACKp;
 typedef void *ANIM_DATAp;
@@ -1433,23 +1424,26 @@ typedef struct TRACK
 // Most track type flags are in tags.h
 
 // Regular track flags
-#define TF_TRACK_OCCUPIED BIT(0)
 
 typedef struct
 {
     uint8_t FromRange,ToRange,FromColor,ToColor;
 } COLOR_MAP, *COLOR_MAPp;
 
-#define MAX_TRACKS 100
+enum
+{
+    TF_TRACK_OCCUPIED = BIT(0),
+    MAX_TRACKS = 100,
+    MAX_SO_SECTOR = 40,
+    MAX_SO_POINTS = (MAX_SO_SECTOR*15),
+    MAX_SO_SPRITE = 60,
+    MAX_CLIPBOX = 32
+};
 
 extern TRACK Track[MAX_TRACKS];
 
 struct SECTOR_OBJECTstruct
 {
-#define MAX_SO_SECTOR 40
-#define MAX_SO_POINTS (MAX_SO_SECTOR*15)
-#define MAX_SO_SPRITE 60
-#define MAX_CLIPBOX 32
 
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
@@ -1720,8 +1714,11 @@ void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
 
-#define FAF_PLACE_MIRROR_PIC 341
-#define FAF_MIRROR_PIC 2356
+enum
+{
+    FAF_PLACE_MIRROR_PIC = 341,
+    FAF_MIRROR_PIC = 2356
+};
 
 inline bool FAF_ConnectCeiling(sectortype* sect)
 {
@@ -1767,7 +1764,6 @@ enum SoundType
 
 void DoSoundSpotMatch(short match, short sound_num, short sound_type);
 
-#define ACTOR_GRAVITY 8
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1787,22 +1783,28 @@ extern bool ReloadPrompt;
 
 extern int lockspeed;
 
+// Various scattered constants
 enum
 {
     synctics = 3,
     ACTORMOVETICS = (synctics << 1),
     TICSPERMOVEMENT = synctics,
+    ACTOR_GRAVITY = 8,
+    // subtract value from clipdist on getzrange calls
+    GETZRANGE_CLIP_ADJ = 8,
+    STAT_DAMAGE_LIST_SIZE = 20,
+    COLOR_PAIN  = 128,  // Light red range
+
+    NTAG_SEARCH_LO = 1,
+    NTAG_SEARCH_HI = 2,
+    NTAG_SEARCH_LO_HI = 3,
+
+    ANIM_SERP = 1,
+    ANIM_SUMO  =2,
+    ANIM_ZILLA  =3
+
 };
 
-// subtract value from clipdist on getzrange calls
-#define GETZRANGE_CLIP_ADJ 8
-
-// MULTIPLAYER
-// VARIABLES:  (You should extern these in your game.c)
-/*
-extern short numplayers, myconnectindex;
-extern short connecthead, connectpoint2[MAXPLAYERS];
-*/
 extern int *lastpacket2clock;
 
 
@@ -1817,7 +1819,6 @@ extern int MoveSkip4, MoveSkip2, MoveSkip8;
 extern int MinEnemySkill;
 extern short screenpeek;
 
-#define STAT_DAMAGE_LIST_SIZE 20
 extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 
 ///////////////////////////////////////////////////////////////
@@ -1826,7 +1827,6 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 //
 ///////////////////////////////////////////////////////////////
 
-#define COLOR_PAIN  128  // Light red range
 extern void SetFadeAmt(PLAYERp pp, short damage, uint8_t startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
 extern bool NightVision;
@@ -1905,10 +1905,6 @@ bool CanSeeWallMove(DSWActor* wp,int match);    // wallmove.c
 void DoSpikeOperate(sectortype* sect); // spike.c
 void SetSpikeActive(DSWActor*);   // spike.c
 
-#define NTAG_SEARCH_LO 1
-#define NTAG_SEARCH_HI 2
-#define NTAG_SEARCH_LO_HI 3
-
 DSWActor* insertActor(sectortype* sect, int statnum);
 
 void AudioUpdate(void); // stupid
@@ -1934,10 +1930,6 @@ extern DSWActor* BossSpriteNum[3];
 extern int ChopTics;
 extern int Bunny_Count;
 
-
-#define ANIM_SERP 1
-#define ANIM_SUMO 2
-#define ANIM_ZILLA 3
 
 struct GameInterface : public ::GameInterface
 {
@@ -1998,13 +1990,13 @@ BEGIN_SW_NS
 // OVER and UNDER water macros
 inline bool SectorIsDiveArea(sectortype* sect)
 {
-    return (TEST(sect->extra, SECTFX_DIVE_AREA) ? true : false);
+    return (sect->extra & SECTFX_DIVE_AREA) ? true : false;
 }
 
 inline bool SectorIsUnderwaterArea(sectortype* sect)
 {
     if (!sect) return false;
-    return (TEST(sect->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+    return (sect->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2)) ? true : false;
 }
 
 inline int PlayerFacingRange(PLAYERp pp, DSWActor* a, int range)
@@ -2133,12 +2125,12 @@ inline int GetRepeatFromHeight(DSWActor* sp, int zh)
 
 inline bool SpriteInDiveArea(DSWActor* a)
 {
-    return (TEST(a->spr.sector()->extra, SECTFX_DIVE_AREA) ? true : false);
+    return (a->spr.sector()->extra & SECTFX_DIVE_AREA) ? true : false;
 }
 
 inline bool SpriteInUnderwaterArea(DSWActor* a)
 {
-    return (TEST(a->spr.sector()->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+    return (a->spr.sector()->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2)) ? true : false;
 }
 
 

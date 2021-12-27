@@ -6504,8 +6504,6 @@ void PlayerGlobal(PLAYERp pp)
             {
                 if (!(pp->Flags & PF_DEAD))
                 {
-                    ////DSPRINTF(ds,"Squish diff %d, min %d, cz %d, fz %d, lo %d, hi %d",labs(pp->loz - pp->hiz)>>8,min_height>>8, pp->ceiling_dist>>8, pp->floor_dist>>8,pp->lo_sectp-sector,pp->hi_sectp-sector);
-                    //MONO_PRINT(ds);
                     PlayerUpdateHealth(pp, -pp->actor->user.Health);  // Make sure he dies!
                     PlayerCheckDeath(pp, nullptr);
 

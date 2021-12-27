@@ -141,8 +141,6 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         // Skip if already someone on this track
         if (TEST(t->flags, TF_TRACK_OCCUPIED))
         {
-            //DSPRINTF(ds,"occupied!");
-            MONO_PRINT(ds);
             continue;
         }
 
@@ -848,8 +846,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 switch (itActor->spr.statnum)
                 {
                 case STAT_WALL_MOVE:
-                    ////DSPRINTF(ds,"Damage Wall attached ");
-                    //MONO_PRINT(ds);
                     break;
                 case STAT_DEFAULT:
                     switch (itActor->spr.hitag)
@@ -2390,9 +2386,6 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             sop->bob_sine_ndx = 0;
             sop->bob_amt = 0;
 
-            //DSPRINTF(ds,"dest sector %d",dest_sector);
-            MONO_PRINT(ds);
-
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
                 if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_SINK))
@@ -3363,7 +3356,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             }
             auto wal = near.hitWall;
 
-#if DEBUG
+#if 0
             if (!wal->twoSided())
             {
                 I_Error("Take out white wall ladder x = %d, y = %d",wal->x, wal->y);

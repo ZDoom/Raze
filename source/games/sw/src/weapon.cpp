@@ -5212,9 +5212,6 @@ int ActorDamageSlide(DSWActor* actor, int damage, int ang)
     {
         slide_vel = (damage * 6) - (actor->user.MaxHealth);
 
-        //DSPRINTF(ds,"slide_vel = %ld",slide_vel);
-        MONO_PRINT(ds);
-
         if (slide_vel < -1000) slide_vel = -1000;
         slide_dec = 5;
 
@@ -5890,7 +5887,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (actor->user.PlayerP)
         {
-            MONO_PRINT("Stat Hit Actor");
             // Is the player blocking?
             if (actor->user.PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
@@ -5905,7 +5901,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else
         {
-            MONO_PRINT("Star Hit Actor");
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
@@ -6335,8 +6330,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case BOLT_EXP:
         damage = GetDamage(actor, weapActor, DMG_BOLT_EXP);
-//      //DSPRINTF(ds,"Damage Bolt: %d\n",damage);
-//      MONO_PRINT(ds);
         if (actor->user.sop_parent)
         {
             if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
@@ -6471,9 +6464,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case MICRO_EXP:
 
         damage = GetDamage(actor, weapActor, DMG_MINE_EXP);
-
-//      //DSPRINTF(ds,"Damage Micro: %d\n",damage);
-//      MONO_PRINT(ds);
 
         if (actor->user.sop_parent)
         {
@@ -18288,10 +18278,6 @@ int ShrapKillSprite(DSWActor* actor)
 
 bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
 {
-    ////DSPRINTF(ds,"CheckBreakToughness called with %d",ID);
-    //CON_Message(ds);
-    //MONO_PRINT(ds);
-
     if (TEST(break_info->flags, BF_TOUGH))
     {
         switch (ID)

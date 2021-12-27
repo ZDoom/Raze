@@ -1093,8 +1093,6 @@ void PrintSpriteInfo(PLAYERp pp)
 
 void DrawCrosshair(PLAYERp pp)
 {
-    extern bool CameraTestMode;
-
     if (!(CameraTestMode))
     {
         ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
@@ -1166,9 +1164,6 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
                     // new horiz to player
                     *thoriz = q16horiz(clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax()));
-
-                    //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,thoriz %d",xvect,yvect,zvect,*thoriz.asbuild());
-                    MONO_PRINT(ds);
 
                     *tang = ang;
                     *tx = actor->spr.pos.X;

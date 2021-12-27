@@ -248,9 +248,6 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
         }
         else if (value <= -1000)
         {
-            //DSPRINTF(ds,"value = %d\n",value);
-            MONO_PRINT(ds);
-
             value += 1000;
             IsChem = true;
         }
@@ -1465,9 +1462,6 @@ void pStarRest(PANEL_SPRITEp psp)
 
             if (!WeaponOK(psp->PlayerP))
                 return;
-
-//            //DSPRINTF(ds,"StarFire");
-//            MONO_PRINT(ds);
 
             DoPlayerChooseYell(psp->PlayerP);
 

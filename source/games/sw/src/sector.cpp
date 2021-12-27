@@ -2520,10 +2520,6 @@ void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 
     // move the last entry to the current one to free the last entry up
     Anim[j] = Anim[AnimCnt];
-
-    //DSPRINTF(ds, "Deleted a Anim");
-    MONO_PRINT(ds);
-
 }
 
 

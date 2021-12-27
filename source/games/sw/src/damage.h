@@ -102,7 +102,7 @@ DAMAGE_ENTRY(DMG_VOMIT,           nullptr,                 5,    15,   0, -1, -1
 
 // inanimate objects
 DAMAGE_ENTRY(DMG_BLADE,           nullptr,                10,    20,   0, -1, -1, -1)
-DAMAGE_ENTRY(MAX_WEAPONS,         nullptr,                10,    20,   0, -1, -1, -1)
+DAMAGE_ENTRY(MAX_WEAPONDEF,         nullptr,                10,    20,   0, -1, -1, -1)
 
 #undef DAMAGE_ENTRY
 #undef DAMAGE_ENTRY_WPN

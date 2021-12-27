@@ -823,13 +823,10 @@ int DoActorCantMoveCloser(DSWActor* actor)
 
         actor->user.ActorActionFunc = DoActorDecide;
         NewStateGroup(actor, actor->user.ActorActionSet->Run);
-        //MONO_PRINT("Trying to get to the track point\n");
     }
     else
     {
         // Try to move closer
-        //MONO_PRINT("Move Closer - Trying to move around\n");
-
         InitActorReposition(actor);
     }
     return 0;
@@ -1023,8 +1020,6 @@ int FindWanderTrack(DSWActor* actor)
         BIT(TT_EXIT),
         BIT(TT_OPERATE)
     };
-
-    //MONO_PRINT("FindWanderTrack\n");
 
     for (i = 0; i < SIZ(WanderTracks); i++)
     {

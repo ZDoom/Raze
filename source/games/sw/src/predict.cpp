@@ -142,9 +142,6 @@ void CorrectPrediction(int actualfifoplc)
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", predict->angle.ang.asbuild(), Player[myconnectindex].angle.ang.asbuild(), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  predict->horiz.asbuild(), Player[myconnectindex].horizon.horiz.asbuild()));
-//    MONO_PRINT(ds);
-
     InitPrediction(&Player[myconnectindex]);
     // puts the predicted pos back to actual pos
     predictmovefifoplc = movefifoplc;
