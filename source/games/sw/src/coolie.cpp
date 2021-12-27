@@ -400,7 +400,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     break;
     }
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_RESTORE);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_RESTORE);
 
     actor->user.spal = actor->spr.pal;
 

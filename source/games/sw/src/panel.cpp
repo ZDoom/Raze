@@ -949,7 +949,7 @@ void InitWeaponSword(PLAYERp pp)
     if (pp->Wpn[WPN_SWORD] && TEST(pp->Wpn[WPN_SWORD]->flags, PANF_DEATH_HIDE))
     {
         RESET(pp->Wpn[WPN_SWORD]->flags, PANF_DEATH_HIDE);
-        RESET(pp->Flags, PF_WEAPON_RETRACT|PF_WEAPON_DOWN);
+        pp->Flags &= ~(PF_WEAPON_RETRACT|PF_WEAPON_DOWN);
         pSetState(pp->CurWpn, pp->CurWpn->PresentState);
         return;
     }
@@ -1183,7 +1183,7 @@ void pSwordRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             pSetState(psp, psp->ActionState);
 
@@ -1218,7 +1218,7 @@ void pSwordRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= SWORD_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_SWORD] = nullptr;
         pKillSprite(psp);
     }
@@ -1346,7 +1346,7 @@ void InitWeaponStar(PLAYERp pp)
     if (pp->Wpn[WPN_STAR] && TEST(pp->Wpn[WPN_STAR]->flags, PANF_DEATH_HIDE))
     {
         RESET(pp->Wpn[WPN_STAR]->flags, PANF_DEATH_HIDE);
-        RESET(pp->Flags, PF_WEAPON_RETRACT);
+        pp->Flags &= ~(PF_WEAPON_RETRACT);
         pSetState(pp->CurWpn, pp->CurWpn->PresentState);
         return;
     }
@@ -1461,7 +1461,7 @@ void pStarRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -1501,7 +1501,7 @@ void pStarRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= STAR_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
 
         // kill only in its own routine
         psp->PlayerP->Wpn[WPN_STAR] = nullptr;
@@ -1984,7 +1984,7 @@ void InitWeaponUzi(PLAYERp pp)
         // if actually picked an uzi up and don't currently have double uzi
         if (TEST(pp->Flags, PF_PICKED_UP_AN_UZI) && !TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY))
         {
-            RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
+            pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
 
             if (!TEST(pp->CurWpn->flags, PANF_RELOAD))
                 InitWeaponUzi2(pp->Wpn[WPN_UZI]);
@@ -1993,7 +1993,7 @@ void InitWeaponUzi(PLAYERp pp)
     }
     else
     {
-        RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
+        pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
     }
 
     PlayerUpdateWeapon(pp, WPN_UZI);
@@ -2097,7 +2097,7 @@ void pUziPresent(PANEL_SPRITEp psp)
 
     if (psp->y < UZI_YOFF)
     {
-        RESET(psp->flags, PANF_RELOAD);
+        psp->flags &= ~(PANF_RELOAD);
 
         psp->oy = psp->y = UZI_YOFF;
         psp->backupx();
@@ -2226,7 +2226,7 @@ void pUziRest(PANEL_SPRITEp psp)
         if (!WeaponOK(psp->PlayerP))
             return;
 
-        RESET(psp->flags, PANF_UNHIDE_SHOOT);
+        psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
         pSetState(psp, psp->ActionState);
     }
@@ -2327,7 +2327,7 @@ void pUziRetract(PANEL_SPRITEp psp)
         // no matter whether it is PRIMARY/SECONDARY/neither.
         if (TEST(psp->flags, PANF_RELOAD))
         {
-            RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+            psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
             psp->PlayerP->Wpn[WPN_UZI] = nullptr;
         }
         else
@@ -2336,7 +2336,7 @@ void pUziRetract(PANEL_SPRITEp psp)
             if (TEST(psp->flags, PANF_PRIMARY))
             {
                 // only reset when primary goes off the screen
-                RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+                psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
                 psp->PlayerP->Wpn[WPN_UZI] = nullptr;
             }
             else if (TEST(psp->flags, PANF_SECONDARY))
@@ -2350,7 +2350,7 @@ void pUziRetract(PANEL_SPRITEp psp)
             else
             {
                 // only one uzi here is retracting
-                RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+                psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
                 psp->PlayerP->Wpn[WPN_UZI] = nullptr;
             }
         }
@@ -2692,7 +2692,7 @@ void pShotgunRecoilUp(PANEL_SPRITEp psp)
         pShotgunSetRecoil(psp);
 
         pStatePlusOne(psp);
-        RESET(psp->flags, PANF_BOB);
+        psp->flags &= ~(PANF_BOB);
     }
 }
 
@@ -2729,7 +2729,7 @@ void pShotgunReloadUp(PANEL_SPRITEp psp)
         psp->oy = psp->y = SHOTGUN_YOFF;
 
         pStatePlusOne(psp);
-        RESET(psp->flags, PANF_BOB);
+        psp->flags &= ~(PANF_BOB);
     }
 }
 #endif
@@ -2835,7 +2835,7 @@ bool pShotgunReloadTest(PANEL_SPRITEp psp)
     if (ammo > 0 && (ammo % 4) == 0)
     {
         // clip has run out
-        RESET(psp->flags, PANF_REST_POS);
+        psp->flags &= ~(PANF_REST_POS);
         pSetState(psp, ps_ShotgunReload);
         return true;
     }
@@ -2869,7 +2869,7 @@ void pShotgunRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -2912,7 +2912,7 @@ void pShotgunRestTest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -2948,7 +2948,7 @@ void pShotgunRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= SHOTGUN_YOFF + tileHeight(picnum) + 50)
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
         pKillSprite(psp);
     }
@@ -3162,7 +3162,7 @@ void pRailRecoilUp(PANEL_SPRITEp psp)
         pRailSetRecoil(psp);
 
         pStatePlusOne(psp);
-        RESET(psp->flags, PANF_BOB);
+        psp->flags &= ~(PANF_BOB);
     }
 }
 
@@ -3238,7 +3238,7 @@ void pRailRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -3270,7 +3270,7 @@ void pRailRestTest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -3305,7 +3305,7 @@ void pRailRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= RAIL_YOFF + tileHeight(picnum) + 50)
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
         DeleteNoSoundOwner(psp->PlayerP->actor);
         pKillSprite(psp);
@@ -3645,7 +3645,7 @@ void pHotheadRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             //if (TEST(psp->PlayerP->Flags,PF_DIVING))
             //    return;
@@ -3709,7 +3709,7 @@ void pHotheadRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= HOTHEAD_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_HOTHEAD] = nullptr;
         pKillSprite(psp);
     }
@@ -3995,7 +3995,7 @@ void pMicroRecoilUp(PANEL_SPRITEp psp)
         pMicroSetRecoil(psp);
 
         pStatePlusOne(psp);
-        RESET(psp->flags, PANF_BOB);
+        psp->flags &= ~(PANF_BOB);
     }
 }
 
@@ -4183,7 +4183,7 @@ void pMicroRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -4255,7 +4255,7 @@ void pMicroRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= MICRO_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_MICRO] = nullptr;
         pKillSprite(psp);
     }
@@ -4481,7 +4481,7 @@ void pHeartRest(PANEL_SPRITEp psp)
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             psp->PlayerP->KeyPressBits &= ~SB_FIRE;
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -4552,7 +4552,7 @@ void pHeartRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= HEART_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_HEART] = nullptr;
         pKillSprite(psp);
     }
@@ -4692,7 +4692,7 @@ int DoBeginPanelJump(PANEL_SPRITEp psp)
 #define PANEL_JUMP_GRAVITY FIXED(0,8000)
 
     psp->flags |= (PANF_JUMPING);
-    RESET(psp->flags, PANF_FALLING);
+    psp->flags &= ~(PANF_FALLING);
 
     // set up individual actor jump gravity
     psp->jump_grav = PANEL_JUMP_GRAVITY;
@@ -4724,7 +4724,7 @@ int DoPanelJump(PANEL_SPRITEp psp)
 int DoBeginPanelFall(PANEL_SPRITEp psp)
 {
     psp->flags |= (PANF_FALLING);
-    RESET(psp->flags, PANF_JUMPING);
+    psp->flags &= ~(PANF_JUMPING);
 
     psp->jump_grav = PANEL_JUMP_GRAVITY;
 
@@ -4915,7 +4915,7 @@ void pGrenadeRecoilUp(PANEL_SPRITEp psp)
         pGrenadeSetRecoil(psp);
 
         pStatePlusOne(psp);
-        RESET(psp->flags, PANF_BOB);
+        psp->flags &= ~(PANF_BOB);
     }
 }
 
@@ -4989,7 +4989,7 @@ void pGrenadeRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -5024,7 +5024,7 @@ void pGrenadeRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= GRENADE_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_GRENADE] = nullptr;
         pKillSprite(psp);
     }
@@ -5226,7 +5226,7 @@ void pMineRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
 //            if (!WeaponOK(psp->PlayerP))
 //                return;
@@ -5260,7 +5260,7 @@ void pMineRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= MINE_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_MINE] = nullptr;
         pKillSprite(psp);
     }
@@ -6047,7 +6047,7 @@ void pFistRest(PANEL_SPRITEp psp)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            RESET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
             psp->ActionState = ps_FistSwing;
             psp->PlayerP->WpnKungFuMove = 0;
@@ -6084,7 +6084,7 @@ void pFistRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= FIST_YOFF + tileHeight(picnum))
     {
-        RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
+        psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_FIST] = nullptr;
         pKillSprite(psp);
     }
@@ -6134,7 +6134,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     {
         if (!TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
         {
-            RESET(psp->flags, PANF_WEAPON_HIDE);
+            psp->flags &= ~(PANF_WEAPON_HIDE);
             pSetState(psp, state);
             return true;
         }
@@ -6330,7 +6330,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
     {
         if (labs((psp->sin_ndx & 1023) - 0) < 70)
         {
-            RESET(psp->flags, PANF_BOB);
+            psp->flags &= ~(PANF_BOB);
             psp->sin_ndx = (RANDOM_P2(1024) < 512) ? 1024 : 0;
         }
     }

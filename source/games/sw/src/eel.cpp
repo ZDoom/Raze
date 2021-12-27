@@ -393,7 +393,7 @@ int SetupEel(DSWActor* actor)
 
     EelCommon(actor);
 
-    RESET(actor->user.Flags, SPR_SHADOW); // Turn off shadows
+    actor->user.Flags &= ~(SPR_SHADOW); // Turn off shadows
     actor->user.zclip = Z(8);
 
     return 0;
@@ -536,7 +536,7 @@ int DoEelDeath(DSWActor* actor)
     // on the ground
     if (actor->spr.pos.Z >= actor->user.loz)
     {
-        RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
+        actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)

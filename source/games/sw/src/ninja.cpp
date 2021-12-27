@@ -1933,9 +1933,9 @@ int DoNinjaHariKari(DSWActor* actor)
 {
     UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.Flags |= (SPR_DEAD);
-    RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
+    actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = Z(40);
     actor->user.RotNum = 0;
     actor->user.ActorActionFunc = nullptr;
@@ -1960,11 +1960,11 @@ int DoNinjaGrabThroat(DSWActor* actor)
     {
         UpdateSinglePlayKills(actor);
         RESET(actor->user.Flags2, SPR2_DYING);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         actor->user.Flags |= (SPR_DEAD);
-        RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
+        actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
         actor->user.floor_dist = Z(40);
         actor->user.RotNum = 0;
         actor->user.ActorActionFunc = nullptr;
@@ -2165,10 +2165,10 @@ void PlayerLevelReset(PLAYERp pp)
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-    RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
-    RESET(pp->Flags, PF_DEAD);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
+    pp->Flags &= ~(PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
+    pp->Flags &= ~(PF_DEAD);
 
     pp->sop_control = nullptr;
     pp->sop_riding = nullptr;
@@ -2216,8 +2216,8 @@ void PlayerDeathReset(PLAYERp pp)
     pp->WpnFlags |= (BIT(WPN_SWORD));
     pp->WpnFlags |= (BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
     pp->WpnFlags |= (BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
-    RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
-    RESET(pp->Flags, PF_TWO_UZI);
+    pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
+    pp->Flags &= ~(PF_TWO_UZI);
 
     actor->user.Health = 100;
     pp->MaxHealth = 100;
@@ -2230,9 +2230,9 @@ void PlayerDeathReset(PLAYERp pp)
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-    RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
-    RESET(pp->Flags, PF_DEAD);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
+    pp->Flags &= ~(PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
+    pp->Flags &= ~(PF_DEAD);
 
     pp->sop_control = nullptr;
     pp->sop_riding = nullptr;
@@ -2290,8 +2290,8 @@ void PlayerGameReset(PLAYERp pp)
     pp->WpnFlags |= (BIT(WPN_SWORD));
     pp->WpnFlags |= (BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
     pp->WpnFlags |= (BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
-    RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
-    RESET(pp->Flags, PF_TWO_UZI);
+    pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
+    pp->Flags &= ~(PF_TWO_UZI);
     pp->MaxHealth = 100;
     PlayerUpdateHealth(pp, 500);
     pp->Armor = 0;
@@ -2307,7 +2307,7 @@ void PlayerGameReset(PLAYERp pp)
     pp->FadeAmt = 0;
     pp->DeathType = 0;
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
 
     pp->sop_control = nullptr;
     pp->sop_riding = nullptr;
@@ -2334,7 +2334,7 @@ void InitPlayerSprite(PLAYERp pp)
 
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
 
     // Grouping items that need to be reset after a LoadLevel
     ChangeState(actor, s_NinjaRun[0]);

@@ -125,7 +125,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
             if (rotation <= 4)
             {
                 // leave rotation alone
-                RESET(tsp->cstat, CSTAT_SPRITE_XFLIP);
+                tsp->cstat &= ~(CSTAT_SPRITE_XFLIP);
             }
             else
             {
@@ -138,7 +138,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
             if (rotation > 3 || rotation == 0)
             {
                 // leave rotation alone
-                RESET(tsp->cstat, CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
+                tsp->cstat &= ~(CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
             }
             else
             {
@@ -152,7 +152,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
         if (ID == TOILETGIRL_R0 || ID == WASHGIRL_R0 || ID == TRASHCAN ||
             ID == CARGIRL_R0 || ID == MECHANICGIRL_R0 || ID == PRUNEGIRL_R0 ||
             ID == SAILORGIRL_R0)
-            RESET(tsp->cstat, CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
+            tsp->cstat &= ~(CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
 
         return RotTable5[rotation];
     }
@@ -546,7 +546,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.zvel = tsp->zvel;
     actorNew->spr.shade = tsp->shade;
 
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return actorNew;
 }
@@ -872,7 +872,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 {
                     if (!TEST(tActor->user.PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
                     {
-                        RESET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+                        tsp->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
                     }
                 }
 
@@ -962,7 +962,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     DSWActor* actor = pp->actor;
 
     auto bakcstat = actor->spr.cstat;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Make sure sector passed to hitscan is correct
     //updatesector(*nx, *ny, vsect);
@@ -1207,7 +1207,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         {
             pp->circle_camera_ang = 0;
             pp->circle_camera_dist = CIRCLE_CAMERA_DIST_MIN;
-            RESET(pp->Flags, PF_VIEW_FROM_CAMERA);
+            pp->Flags &= ~(PF_VIEW_FROM_CAMERA);
         }
     }
 }
@@ -1220,7 +1220,7 @@ void PreDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SLOPE);
+        actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SLOPE);
     }
 }
 
@@ -1343,7 +1343,7 @@ void UpdateWallPortalState()
             actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->spr.sector()->ceilingstat;
             actor->spr.sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
@@ -1351,7 +1351,7 @@ void UpdateWallPortalState()
             actor->spr.sector()->floorpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->spr.sector()->floorstat;
             actor->spr.sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 
@@ -1367,13 +1367,13 @@ void RestorePortalState()
             // restore ceilingpicnum and ceilingstat
             actor->spr.sector()->ceilingpicnum = SP_TAG5(actor);
             actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
             actor->spr.sector()->floorpicnum = SP_TAG5(actor);
             actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 }
@@ -1547,7 +1547,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
             {
                 if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
-                    RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+                    actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_FLOOR);
                     actor->spr.owner = -2;
                 }
             }

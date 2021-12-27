@@ -327,7 +327,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         break;
     }
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.RotNum = 0;
     actor->user.Tics = 0;
     actor->user.ID = SKULL_R0;
@@ -706,7 +706,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         break;
     }
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.RotNum = 0;
     actor->user.Tics = 0;
     actor->user.ID = BETTY_R0;

@@ -831,7 +831,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 {
     int x,y,z;
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
     SectorMidPoint(sectp, &x, &y, &z);
     actor->spr.ang = orig_ang;
     actor->spr.pos.X = x;
@@ -1163,13 +1163,13 @@ void ShootableSwitch(DSWActor* actor)
     switch (actor->spr.picnum)
     {
     case SWITCH_SHOOTABLE_1:
-        //RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        //actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         OperateSprite(actor, false);
         actor->spr.picnum = SWITCH_SHOOTABLE_1 + 1;
         break;
     case SWITCH_FUSE:
     case SWITCH_FUSE + 1:
-        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         OperateSprite(actor, false);
         actor->spr.picnum = SWITCH_FUSE + 2;
         break;
@@ -1841,7 +1841,7 @@ void OperateTripTrigger(PLAYERp pp)
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
                 {
                     actor->user.targetActor = pp->actor;
-                    RESET(actor->user.Flags, SPR_WAIT_FOR_TRIGGER);
+                    actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
                 }
             }
         }
@@ -2319,7 +2319,7 @@ void PlayerOperateEnv(PLAYERp pp)
             }
         }
 
-        RESET(pp->Flags2, PF2_TELEPORTED);
+        pp->Flags2 &= ~(PF2_TELEPORTED);
     }
 }
 

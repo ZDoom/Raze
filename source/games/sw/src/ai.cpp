@@ -525,7 +525,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
             // Enemy goes inactive - he is still allowed to roam about for about
             // 5 seconds trying to find another player before his active_range is
             // bumped down
-            RESET(actor->user.Flags, SPR_ACTIVE);
+            actor->user.Flags &= ~(SPR_ACTIVE);
 
             // You've lost the player - now decide what to do
             action = ChooseAction(actor->user.Personality->LostTarget);
@@ -554,7 +554,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
             if (TEST(actor->user.Flags, SPR_TARGETED))
             {
                 // not going to evade, reset the target bit
-                RESET(actor->user.Flags, SPR_TARGETED);        // as far as actor
+                actor->user.Flags &= ~(SPR_TARGETED);        // as far as actor
                 // knows, its not a
                 // target any more
                 if (actor->user.ActorActionSet->Duck && RANDOM_P2(1024<<8)>>8 < 100)
@@ -1216,7 +1216,7 @@ int InitActorEvade(DSWActor* actor)
         actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y));
         DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
-        RESET(actor->user.Flags, SPR_RUN_AWAY);
+        actor->user.Flags &= ~(SPR_RUN_AWAY);
     }
 
     return 0;
@@ -1302,7 +1302,7 @@ int DoActorDuck(DSWActor* actor)
     {
         NewStateGroup(actor, actor->user.ActorActionSet->Rise);
         actor->user.ActorActionFunc = DoActorDecide;
-        RESET(actor->user.Flags, SPR_TARGETED);
+        actor->user.Flags &= ~(SPR_TARGETED);
     }
 
     return 0;
@@ -1585,7 +1585,7 @@ int InitActorReposition(DSWActor* actor)
 
         actor->spr.ang = ang;
         DoActorSetSpeed(actor, FAST_SPEED);
-        RESET(actor->user.Flags, SPR_RUN_AWAY);
+        actor->user.Flags &= ~(SPR_RUN_AWAY);
     }
     else
     {
@@ -1670,7 +1670,7 @@ int DoActorPause(DSWActor* actor)
     if ((actor->user.Vis -= ACTORMOVETICS) < 0)
     {
         actor->user.ActorActionFunc = DoActorDecide;
-        RESET(actor->user.Flags, SPR_TARGETED);
+        actor->user.Flags &= ~(SPR_TARGETED);
     }
 
     return 0;

@@ -495,7 +495,7 @@ int DoHornetDeath(DSWActor* actor)
     }
     else
     {
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         actor->user.jump_speed = 0;
         actor->user.floor_dist = 0;
         DoBeginFall(actor);
@@ -515,8 +515,8 @@ int DoHornetDeath(DSWActor* actor)
     // on the ground
     if (actor->spr.pos.Z >= actor->user.loz)
     {
-        RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
+        actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
         NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         DeleteNoSoundOwner(actor);
         return 0;

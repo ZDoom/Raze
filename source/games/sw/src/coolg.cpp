@@ -746,8 +746,8 @@ int DoCoolgDeath(DSWActor* actor)
 {
     int nx, ny;
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
     actor->spr.xrepeat = 42;
     actor->spr.shade = -10;
 
@@ -775,8 +775,8 @@ int DoCoolgDeath(DSWActor* actor)
     // on the ground
     if (actor->spr.pos.Z >= actor->user.loz)
     {
-        RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
+        actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
         NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         return 0;
     }
@@ -797,19 +797,19 @@ int DoCoolgMove(DSWActor* actor)
             break;
         case 1:
             PlaySound(DIGI_VOID3, actor, v3df_follow);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
             actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
             actor->user.ShellNum = SEC(1) + SEC(RandomRange(2));
             break;
         case 2:
             actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
             actor->user.ShellNum = SEC(2);
             break;
         case 3:
             PlaySound(DIGI_VOID3, actor, v3df_follow);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
             actor->user.ShellNum = SEC(2) + SEC(RandomRange(3));
             break;
         default:

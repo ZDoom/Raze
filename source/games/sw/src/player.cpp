@@ -1249,7 +1249,7 @@ void DoPlayerResetMovement(PLAYERp pp)
     pp->slide_xvect = 0;
     pp->slide_yvect = 0;
     pp->drive_avel = 0;
-    RESET(pp->Flags, PF_PLAYER_MOVED);
+    pp->Flags &= ~(PF_PLAYER_MOVED);
 }
 
 void DoPlayerTeleportPause(PLAYERp pp)
@@ -1261,8 +1261,8 @@ void DoPlayerTeleportPause(PLAYERp pp)
 
     if ((actor->user.WaitTics-=synctics) <= 0)
     {
-        //RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-        RESET(pp->Flags2, PF2_TELEPORTED);
+        //actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
+        pp->Flags2 &= ~(PF2_TELEPORTED);
         DoPlayerResetMovement(pp);
         DoPlayerBeginRun(pp);
         return;
@@ -1648,7 +1648,7 @@ void DoPlayerRecoil(PLAYERp pp)
 
     if (bsin(pp->recoil_ndx) < 0)
     {
-        RESET(pp->Flags, PF_RECOIL);
+        pp->Flags &= ~(PF_RECOIL);
         pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
         return;
     }
@@ -1836,7 +1836,7 @@ void DoPlayerZrange(PLAYERp pp)
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
     auto bakcstat = actor->spr.cstat;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
     pos.Z += Z(8);
     FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->spr.clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
@@ -2006,7 +2006,7 @@ void DoPlayerMove(PLAYERp pp)
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
-        RESET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags &= ~(PF_PLAYER_MOVED);
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
@@ -2082,7 +2082,7 @@ void DoPlayerMove(PLAYERp pp)
         }
 
         auto save_cstat = actor->spr.cstat;
-        RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
         clipmove(pp->pos, &pp->cursector, pp->xvect, pp->yvect, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
@@ -2533,7 +2533,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     setForcedSyncInput();
 
     if (PLAYER_MOVING(pp) == 0)
-        RESET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags &= ~(PF_PLAYER_MOVED);
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
@@ -2605,7 +2605,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         int ret;
 
         auto save_cstat = plActor->spr.cstat;
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
 
         ret = RectClipMove(pp, x, y);
@@ -2660,7 +2660,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         }
 
         auto save_cstat = plActor->spr.cstat;
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->pos.X, pp->pos.Y, z };
@@ -2732,7 +2732,7 @@ void DoPlayerMoveTurret(PLAYERp pp)
     }
 
     if (PLAYER_MOVING(pp) == 0)
-        RESET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags &= ~(PF_PLAYER_MOVED);
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
@@ -2751,9 +2751,9 @@ void DoPlayerBeginJump(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     pp->Flags |= (PF_JUMPING);
-    RESET(pp->Flags, PF_FALLING);
-    RESET(pp->Flags, PF_CRAWLING);
-    RESET(pp->Flags, PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_FALLING);
+    pp->Flags &= ~(PF_CRAWLING);
+    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
@@ -2781,7 +2781,7 @@ void DoPlayerBeginForceJump(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     pp->Flags |= (PF_JUMPING);
-    RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
@@ -2926,9 +2926,9 @@ void DoPlayerBeginFall(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     pp->Flags |= (PF_FALLING);
-    RESET(pp->Flags, PF_JUMPING);
-    RESET(pp->Flags, PF_CRAWLING);
-    RESET(pp->Flags, PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_JUMPING);
+    pp->Flags &= ~(PF_CRAWLING);
+    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->floor_dist = PLAYER_FALL_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_FALL_CEILING_DIST;
@@ -3114,9 +3114,9 @@ void DoPlayerBeginClimb(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
 
-    RESET(pp->Flags, PF_JUMPING|PF_FALLING);
-    RESET(pp->Flags, PF_CRAWLING);
-    RESET(pp->Flags, PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_JUMPING|PF_FALLING);
+    pp->Flags &= ~(PF_CRAWLING);
+    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->DoPlayerAction = DoPlayerClimb;
 
@@ -3159,8 +3159,8 @@ void DoPlayerClimb(PLAYERp pp)
     // Jump off of the ladder
     if (pp->input.actions & SB_JUMP)
     {
-        RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         DoPlayerBeginJump(pp);
         return;
     }
@@ -3259,8 +3259,8 @@ void DoPlayerClimb(PLAYERp pp)
         if (pp->pos.Z < pp->LadderSector->floorz - Z(6))
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
-            RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-            RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+            pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
+            plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
             DoPlayerBeginForceJump(pp);
         }
     }
@@ -3286,8 +3286,8 @@ void DoPlayerClimb(PLAYERp pp)
             // if moving backwards start running
             if (climbvel < 0)
             {
-                RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-                RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
+                plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 DoPlayerBeginRun(pp);
                 return;
             }
@@ -3405,7 +3405,7 @@ void DoPlayerBeginCrawl(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
 
-    RESET(pp->Flags, PF_FALLING | PF_JUMPING);
+    pp->Flags &= ~(PF_FALLING | PF_JUMPING);
     pp->Flags |= (PF_CRAWLING);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
@@ -3467,7 +3467,7 @@ void DoPlayerCrawl(PLAYERp pp)
     {
         if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
         {
-            RESET(pp->Flags, PF_CRAWLING);
+            pp->Flags &= ~(PF_CRAWLING);
             DoPlayerBeginRun(pp);
             return;
         }
@@ -3483,7 +3483,7 @@ void DoPlayerCrawl(PLAYERp pp)
 
     if (pp->WadeDepth > PLAYER_CRAWL_WADE_DEPTH)
     {
-        RESET(pp->Flags, PF_CRAWLING);
+        pp->Flags &= ~(PF_CRAWLING);
         DoPlayerBeginRun(pp);
         return;
     }
@@ -3497,7 +3497,7 @@ void DoPlayerCrawl(PLAYERp pp)
     if (PlayerFallTest(pp, PLAYER_CRAWL_HEIGHT))
     {
         pp->jump_speed = Z(1);
-        RESET(pp->Flags, PF_CRAWLING);
+        pp->Flags &= ~(PF_CRAWLING);
         DoPlayerBeginFall(pp);
         // call PlayerFall now seems to iron out a hitch before falling
         DoPlayerFall(pp);
@@ -3515,7 +3515,7 @@ void DoPlayerCrawl(PLAYERp pp)
 
 void DoPlayerBeginFly(PLAYERp pp)
 {
-    RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
+    pp->Flags &= ~(PF_FALLING | PF_JUMPING | PF_CRAWLING);
     pp->Flags |= (PF_FLYING);
 
     pp->friction = PLAYER_FLY_FRICTION;
@@ -3619,7 +3619,7 @@ void DoPlayerFly(PLAYERp pp)
 
     if (PlayerFlyKey())
     {
-        RESET(pp->Flags, PF_FLYING);
+        pp->Flags &= ~(PF_FLYING);
         pp->bob_amt = 0;
         pp->bob_ndx = 0;
         DoPlayerBeginFall(pp);
@@ -4177,9 +4177,9 @@ void DoPlayerBeginDive(PLAYERp pp)
     DoPlayerWarpToUnderwater(pp);
     OperateTripTrigger(pp);
 
-    RESET(pp->Flags, PF_JUMPING | PF_FALLING);
-    RESET(pp->Flags, PF_CRAWLING);
-    RESET(pp->Flags, PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_JUMPING | PF_FALLING);
+    pp->Flags &= ~(PF_CRAWLING);
+    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
@@ -4230,7 +4230,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
-    RESET(pp->Flags, PF_JUMPING | PF_FALLING);
+    pp->Flags &= ~(PF_JUMPING | PF_FALLING);
 
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
@@ -4258,7 +4258,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
 
     pp->bob_amt = 0;
 
-    RESET(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA);
+    pp->Flags &= ~(PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
     RESET(pp->actor->spr.cstat, CSTAT_SPRITE_YCENTER);
@@ -4286,11 +4286,11 @@ void DoPlayerStopDive(PLAYERp pp)
     pp->bob_amt = 0;
     DoPlayerWarpToSurface(pp);
     DoPlayerBeginWade(pp);
-    RESET(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA);
+    pp->Flags &= ~(PF_DIVING|PF_DIVING_IN_LAVA);
 
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);
@@ -4622,8 +4622,8 @@ void DoPlayerBeginWade(PLAYERp pp)
     if (DoPlayerTestPlaxDeath(pp))
         return;
 
-    RESET(pp->Flags, PF_JUMPING | PF_FALLING);
-    RESET(pp->Flags, PF_CRAWLING);
+    pp->Flags &= ~(PF_JUMPING | PF_FALLING);
+    pp->Flags &= ~(PF_CRAWLING);
 
     pp->friction = PLAYER_WADE_FRICTION;
     pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
@@ -4896,7 +4896,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
             UseInventoryRepairKit(pp);
             sop->max_damage = sop->sp_child->user.MaxHealth;
             VehicleSetSmoke(sop, nullptr);
-            RESET(sop->flags, SOBJ_BROKEN);
+            sop->flags &= ~(SOBJ_BROKEN);
         }
         else
         {
@@ -4915,7 +4915,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
 
-    RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
     DoPlayerOperateMatch(pp, true);
 
@@ -4982,7 +4982,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
             UseInventoryRepairKit(pp);
             sop->max_damage = sop->sp_child->user.MaxHealth;
             VehicleSetSmoke(sop, nullptr);
-            RESET(sop->flags, SOBJ_BROKEN);
+            sop->flags &= ~(SOBJ_BROKEN);
         }
         else
         {
@@ -5000,7 +5000,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
 
-    RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
     DoPlayerOperateMatch(pp, true);
 
@@ -5106,7 +5106,7 @@ void PlayerRemoteInit(PLAYERp pp)
 
 void DoPlayerStopOperate(PLAYERp pp)
 {
-    RESET(pp->Flags, PF_WEAPON_DOWN);
+    pp->Flags &= ~(PF_WEAPON_DOWN);
     DoPlayerResetMovement(pp);
     DoTankTreads(pp);
     DoPlayerOperateMatch(pp, false);
@@ -5219,7 +5219,7 @@ void DoPlayerDeathJump(PLAYERp pp)
         // have started falling
         if ((pp->jump_speed += PLAYER_DEATH_GRAV) > 0)
         {
-            RESET(pp->Flags, PF_JUMPING);
+            pp->Flags &= ~(PF_JUMPING);
             pp->Flags |= (PF_FALLING);
             DoPlayerDeathFall(pp);
             return;
@@ -5239,7 +5239,7 @@ void DoPlayerDeathJump(PLAYERp pp)
             pp->jump_speed = -pp->jump_speed;
 
             // start falling
-            RESET(pp->Flags, PF_JUMPING);
+            pp->Flags &= ~(PF_JUMPING);
             pp->Flags |= (PF_FALLING);
             DoPlayerDeathFall(pp);
             return;
@@ -5279,7 +5279,7 @@ void DoPlayerDeathFall(PLAYERp pp)
                 PlaySound(DIGI_BODYFALL2, pp, v3df_dontpan);
 
             pp->pos.Z = loz - PLAYER_DEATH_HEIGHT;
-            RESET(pp->Flags, PF_FALLING);
+            pp->Flags &= ~(PF_FALLING);
         }
     }
 }
@@ -5447,7 +5447,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING))
         pp->DeathType = PLAYER_DEATH_DROWN;
 
-    RESET(pp->Flags, PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
 
     pp->tilt_dest = 0;
 
@@ -5521,7 +5521,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     pp->sop_remote = nullptr;
     pp->sop_riding = nullptr;
     pp->sop = nullptr;
-    RESET(pp->Flags, PF_TWO_UZI);
+    pp->Flags &= ~(PF_TWO_UZI);
 
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
     pWeaponForceRest(pp);
@@ -5551,7 +5551,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         //pp->ceiling_dist = Z(0);
         //pp->floor_dist = Z(0);
 
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         plActor->user.ceiling_dist = Z(10);
         plActor->user.floor_dist = Z(0);
         DoFindGround(pp->actor);
@@ -5611,8 +5611,8 @@ void DoPlayerBeginDie(PLAYERp pp)
     }
 
     pp->Flags |= (PF_DEAD);
-    RESET(plActor->user.Flags,SPR_BOUNCE);
-    RESET(pp->Flags, PF_HEAD_CONTROL);
+    plActor->user.Flags &= ~(SPR_BOUNCE);
+    pp->Flags &= ~(PF_HEAD_CONTROL);
 }
 
 void DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
@@ -5747,7 +5747,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.pos.X = pp->pos.X;
         plActor->spr.pos.Y = pp->pos.Y;
         plActor->spr.pos.Z = pp->pos.Z+PLAYER_HEIGHT;
@@ -5763,9 +5763,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->sop_riding = nullptr;
         pp->sop = nullptr;
 
-        RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
-        RESET(pp->Flags, PF_DEAD);
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        pp->Flags &= ~(PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
+        pp->Flags &= ~(PF_DEAD);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
@@ -5844,7 +5844,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
                 plActor->user.slide_ang = NORM_ANGLE(plActor->user.slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
                 plActor->user.slide_vel = itActor->spr.xvel<<1;
-                RESET(plActor->user.Flags,SPR_BOUNCE);
+                plActor->user.Flags &= ~(SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->actor, sg_PlayerHeadFly);
                 pp->Flags |= (PF_JUMPING);
@@ -5860,7 +5860,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
     {
         plActor->user.slide_ang = RANDOM_P2(2048);
         plActor->user.slide_vel = 1000;
-        RESET(plActor->user.Flags,SPR_BOUNCE);
+        plActor->user.Flags &= ~(SPR_BOUNCE);
         pp->jump_speed = -100;
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         pp->Flags |= (PF_JUMPING);
@@ -5997,7 +5997,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
             if (pp->pos.Z > pp->loz - PLAYER_DEATH_HEIGHT)
             {
                 pp->pos.Z = pp->loz - PLAYER_DEATH_HEIGHT;
-                RESET(pp->Flags, PF_FALLING);
+                pp->Flags &= ~(PF_FALLING);
             }
         }
     }
@@ -6016,7 +6016,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
     if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
     {
-        RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->actor, sg_PlayerHead);
         plActor->user.slide_vel = 0;
         plActor->user.Flags |= (SPR_BOUNCE);
@@ -6067,7 +6067,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
                 return;
             }
 
-            RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->actor, sg_PlayerHead);
         }
         else
@@ -6119,7 +6119,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
                 return;
             }
 
-            RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             NewStateGroup(pp->actor, sg_PlayerHead);
         }
         else
@@ -6152,7 +6152,7 @@ void DoPlayerBeginRun(PLAYERp pp)
         return;
     }
 
-    RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
 
     if (pp->WadeDepth)
     {
@@ -6446,7 +6446,7 @@ void ChopsCheck(PLAYERp pp)
             if (pp->Chops)
             {
                 if (!pp->sop_control) // specail case
-                    RESET(pp->Flags, PF_WEAPON_DOWN);
+                    pp->Flags &= ~(PF_WEAPON_DOWN);
                 ChopsSetRetract(pp);
             }
             ChopTics = 0;
@@ -6472,7 +6472,7 @@ void ChopsCheck(PLAYERp pp)
                 {
                     ChopTics = 0;
                     // bring weapon back up
-                    RESET(pp->Flags, PF_WEAPON_DOWN);
+                    pp->Flags &= ~(PF_WEAPON_DOWN);
                     ChopsSetRetract(pp);
                 }
             }
@@ -6657,7 +6657,7 @@ void domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
+        pp->Flags2 &= ~(PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
         pp->horizon.resetadjustment();
         pp->angle.resetadjustment();
 

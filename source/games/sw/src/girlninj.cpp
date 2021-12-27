@@ -733,7 +733,7 @@ int SetupGirlNinja(DSWActor* actor)
     DoActorSetSpeed(actor, NORM_SPEED);
 
     actor->user.Radius = 280;
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
     return 0;
 }

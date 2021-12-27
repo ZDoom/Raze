@@ -89,7 +89,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     actor->user.Flags |= (SPR_DEAD);
-    RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
+    actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = Z(40);
 
     // test for gibable dead bodies
@@ -272,7 +272,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case COOLIE_RUN_R0:
     case SUMO_RUN_R0:
     case ZILLA_RUN_R0:
-        RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
         break;
     }
 
@@ -387,7 +387,7 @@ int DoActorDebris(DSWActor* actor)
     int nx, ny;
 
     // This was move from DoActorDie so actor's can't be walked through until they are on the floor
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Don't let some actors float
     switch (actor->user.ID)
@@ -493,7 +493,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
     sectp = actor->spr.sector();
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
+    actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
 
     if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
         return;
@@ -512,8 +512,8 @@ void KeepActorOnFloor(DSWActor* actor)
             if (actor->user.Rot != actor->user.ActorActionSet->Run && actor->user.Rot != actor->user.ActorActionSet->Swim && actor->user.Rot != actor->user.ActorActionSet->Stand)
             {
                 // was swimming but have now stopped
-                RESET(actor->user.Flags, SPR_SWIMMING);
-                RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                actor->user.Flags &= ~(SPR_SWIMMING);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz;
                 actor->spr.backupz();
                 return;
@@ -541,8 +541,8 @@ void KeepActorOnFloor(DSWActor* actor)
             }
             else
             {
-                RESET(actor->user.Flags, SPR_SWIMMING);
-                RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                actor->user.Flags &= ~(SPR_SWIMMING);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz;
                 actor->spr.backupz();
             }
@@ -552,8 +552,8 @@ void KeepActorOnFloor(DSWActor* actor)
     }
 
     // NOT in a swimming situation
-    RESET(actor->user.Flags, SPR_SWIMMING);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actor->user.Flags &= ~(SPR_SWIMMING);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
 
 #if 1
     if (TEST(actor->user.Flags, SPR_MOVED))
@@ -601,7 +601,7 @@ int DoActorSlide(DSWActor* actor)
 
     if (!move_actor(actor, nx, ny, 0L))
     {
-        RESET(actor->user.Flags, SPR_SLIDING);
+        actor->user.Flags &= ~(SPR_SLIDING);
         return false;
     }
 
@@ -609,7 +609,7 @@ int DoActorSlide(DSWActor* actor)
 
     if (actor->user.slide_vel < 20)
     {
-        RESET(actor->user.Flags, SPR_SLIDING);
+        actor->user.Flags &= ~(SPR_SLIDING);
     }
 
     return true;
@@ -620,7 +620,7 @@ int DoActorSlide(DSWActor* actor)
 int DoActorBeginJump(DSWActor* actor)
 {
     actor->user.Flags |= (SPR_JUMPING);
-    RESET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags &= ~(SPR_FALLING);
 
     // actor->user.jump_speed = should be set before calling
 
@@ -683,7 +683,7 @@ int DoActorJump(DSWActor* actor)
 int DoActorBeginFall(DSWActor* actor)
 {
     actor->user.Flags |= (SPR_FALLING);
-    RESET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags &= ~(SPR_JUMPING);
 
     actor->user.jump_grav = ACTOR_GRAVITY;
 
@@ -730,8 +730,8 @@ int DoActorStopFall(DSWActor* actor)
 {
     actor->spr.pos.Z = actor->user.loz;
 
-    RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+    actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
 
 
     // don't stand on face or wall sprites - jump again
@@ -799,7 +799,7 @@ int DoActorDeathMove(DSWActor* actor)
 int DoBeginJump(DSWActor* actor)
 {
     actor->user.Flags |= (SPR_JUMPING);
-    RESET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags &= ~(SPR_FALLING);
 
     // set up individual actor jump gravity
     actor->user.jump_grav = ACTOR_GRAVITY;
@@ -849,7 +849,7 @@ int DoJump(DSWActor* actor)
 int DoBeginFall(DSWActor* actor)
 {
     actor->user.Flags |= (SPR_FALLING);
-    RESET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags &= ~(SPR_JUMPING);
 
     actor->user.jump_grav = ACTOR_GRAVITY;
 
@@ -870,7 +870,7 @@ int DoFall(DSWActor* actor)
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
         actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
-        RESET(actor->user.Flags, SPR_FALLING);
+        actor->user.Flags &= ~(SPR_FALLING);
     }
 
     return 0;

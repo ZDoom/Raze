@@ -1816,7 +1816,7 @@ PlayerPart:
         else
         {
             // if player was not on any sector object set Riding flag to false
-            RESET(pp->Flags, PF_PLAYER_RIDING);
+            pp->Flags &= ~(PF_PLAYER_RIDING);
         }
     }
 }
@@ -1915,7 +1915,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
         if (!actor) continue;
         
         // not a part of the so anymore
-        RESET(actor->user.Flags, SPR_SO_ATTACHED);
+        actor->user.Flags &= ~(SPR_SO_ATTACHED);
 
         if (actor->spr.picnum == ST1 && actor->spr.hitag == SPAWN_SPOT)
             continue;
@@ -2054,7 +2054,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     {
         i = AnimGetGoal (ANIM_SopZ, int(sop - SectorObject), nullptr);
         if (i < 0)
-            RESET(sop->flags, SOBJ_MOVE_VERTICAL);
+            sop->flags &= ~(SOBJ_MOVE_VERTICAL);
     }
 
     if (TEST(sop->flags, SOBJ_ZDIFF_MODE))
@@ -2070,7 +2070,7 @@ void MoveZ(SECTOR_OBJECTp sop)
             AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
-        RESET(sop->flags, SOBJ_ZDOWN);
+        sop->flags &= ~(SOBJ_ZDOWN);
     }
     else if (TEST(sop->flags, SOBJ_ZUP))
     {
@@ -2079,7 +2079,7 @@ void MoveZ(SECTOR_OBJECTp sop)
             AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
-        RESET(sop->flags, SOBJ_ZUP);
+        sop->flags &= ~(SOBJ_ZUP);
     }
 }
 
@@ -2173,7 +2173,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     {
         if (TEST(sop->flags, SOBJ_UPDATE_ONCE))
         {
-            RESET(sop->flags, SOBJ_UPDATE_ONCE);
+            sop->flags &= ~(SOBJ_UPDATE_ONCE);
             RefreshPoints(sop, 0, 0, false);
         }
         return;
@@ -2236,7 +2236,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
             (sop->ang != sop->ang_tgt) ||
             GlobSpeedSO)
         {
-            RESET(sop->flags, SOBJ_UPDATE_ONCE);
+            sop->flags &= ~(SOBJ_UPDATE_ONCE);
             RefreshPoints(sop, nx, ny, false);
         }
     }
@@ -2336,7 +2336,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             sop->vel_rate = tpoint->tag_high;
             break;
         case TRACK_SPEED_UP:
-            RESET(sop->flags, SOBJ_SLOW_DOWN | SOBJ_SPEED_UP);
+            sop->flags &= ~(SOBJ_SLOW_DOWN | SOBJ_SPEED_UP);
             if (sop->dir < 0)
             {
                 // set target to new slower target
@@ -2352,7 +2352,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             break;
 
         case TRACK_SLOW_DOWN:
-            RESET(sop->flags, SOBJ_SLOW_DOWN | SOBJ_SPEED_UP);
+            sop->flags &= ~(SOBJ_SLOW_DOWN | SOBJ_SPEED_UP);
             if (sop->dir > 0)
             {
                 sop->vel_tgt = sop->vel_tgt - (tpoint->tag_high * 256);
@@ -2480,7 +2480,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             sop->z_rate = Z(tpoint->tag_high);
             break;
         case TRACK_ZUP:
-            RESET(sop->flags, SOBJ_ZDOWN | SOBJ_ZUP);
+            sop->flags &= ~(SOBJ_ZDOWN | SOBJ_ZUP);
             if (sop->dir < 0)
             {
                 sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
@@ -2493,7 +2493,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             }
             break;
         case TRACK_ZDOWN:
-            RESET(sop->flags, SOBJ_ZDOWN | SOBJ_ZUP);
+            sop->flags &= ~(SOBJ_ZDOWN | SOBJ_ZUP);
             if (sop->dir > 0)
             {
                 sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
@@ -2560,7 +2560,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if ((sop->vel += (locktics << sop->vel_rate)) >= sop->vel_tgt)
             {
                 sop->vel = sop->vel_tgt;
-                RESET(sop->flags, SOBJ_SPEED_UP);
+                sop->flags &= ~(SOBJ_SPEED_UP);
             }
         }
         else if (TEST(sop->flags, SOBJ_SLOW_DOWN))
@@ -2568,7 +2568,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if ((sop->vel -= (locktics << sop->vel_rate)) <= sop->vel_tgt)
             {
                 sop->vel = sop->vel_tgt;
-                RESET(sop->flags, SOBJ_SLOW_DOWN);
+                sop->flags &= ~(SOBJ_SLOW_DOWN);
             }
         }
     }
@@ -2866,7 +2866,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         }
         else
         {
-            RESET(actor->user.Flags, SPR_RUN_AWAY);
+            actor->user.Flags &= ~(SPR_RUN_AWAY);
             DoActorSetSpeed(actor, NORM_SPEED);
             actor->user.track = -1;
         }
@@ -2882,7 +2882,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         }
         else
         {
-            RESET(actor->user.Flags, SPR_FIND_PLAYER);
+            actor->user.Flags &= ~(SPR_FIND_PLAYER);
             DoActorSetSpeed(actor, NORM_SPEED);
             actor->user.track = -1;
         }
@@ -2899,7 +2899,7 @@ void ActorLeaveTrack(DSWActor* actor)
     if (actor->user.track == -1)
         return;
 
-    RESET(actor->user.Flags, SPR_FIND_PLAYER|SPR_RUN_AWAY|SPR_CLIMBING);
+    actor->user.Flags &= ~(SPR_FIND_PLAYER|SPR_RUN_AWAY|SPR_CLIMBING);
     RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
     actor->user.track = -1;
 }
@@ -2960,7 +2960,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         actor->user.vel_rate = tpoint->tag_high;
         break;
     case TRACK_ACTOR_SPEED_UP:
-        RESET(actor->user.Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
+        actor->user.Flags &= ~(SPR_SLOW_DOWN | SPR_SPEED_UP);
         if (actor->user.track_dir < 0)
         {
             // set target to new slower target
@@ -2976,7 +2976,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_SLOW_DOWN:
-        RESET(actor->user.Flags, SPR_SLOW_DOWN | SPR_SPEED_UP);
+        actor->user.Flags &= ~(SPR_SLOW_DOWN | SPR_SPEED_UP);
         if (actor->user.track_dir > 0)
         {
             actor->user.vel_tgt = actor->user.vel_tgt - (tpoint->tag_high * 256);
@@ -3032,7 +3032,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             }
             else
             {
-                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
                 FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(24), actor->spr.sector(),      // Start position
                            bcos(actor->spr.ang),    // X vector of 3D ang
@@ -3312,7 +3312,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     case TRACK_ACTOR_ZDIFF_MODE:
         if (TEST(actor->user.Flags, SPR_ZDIFF_MODE))
         {
-            RESET(actor->user.Flags, SPR_ZDIFF_MODE);
+            actor->user.Flags &= ~(SPR_ZDIFF_MODE);
             actor->spr.pos.Z = actor->spr.sector()->floorz;
             actor->spr.zvel = 0;
         }
@@ -3445,7 +3445,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < actor->user.Dist)
                 {
                     actor->user.targetActor = pp->actor;
-                    RESET(actor->user.Flags, SPR_WAIT_FOR_PLAYER);
+                    actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);
                     return true;
                 }
             }
@@ -3461,7 +3461,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         actor->user.WaitTics -= locktics;
         if (actor->user.WaitTics <= 0)
         {
-            RESET(actor->user.Flags, SPR_DONT_UPDATE_ANG);
+            actor->user.Flags &= ~(SPR_DONT_UPDATE_ANG);
             NewStateGroup(actor, actor->user.ActorActionSet->Run);
             actor->user.WaitTics = 0;
         }
@@ -3514,7 +3514,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             if ((actor->user.track_vel += (locktics << actor->user.vel_rate)) >= actor->user.vel_tgt)
             {
                 actor->user.track_vel = actor->user.vel_tgt;
-                RESET(actor->user.Flags, SPR_SPEED_UP);
+                actor->user.Flags &= ~(SPR_SPEED_UP);
             }
 
             // update the real velocity
@@ -3525,7 +3525,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             if ((actor->user.track_vel -= (locktics << actor->user.vel_rate)) <= actor->user.vel_tgt)
             {
                 actor->user.track_vel = actor->user.vel_tgt;
-                RESET(actor->user.Flags, SOBJ_SLOW_DOWN);
+                actor->user.Flags &= ~(SOBJ_SLOW_DOWN);
             }
 
             actor->spr.xvel = (actor->user.track_vel) >> 8;
@@ -3538,14 +3538,14 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         {
             if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.sz)
             {
-                RESET(actor->user.Flags, SPR_CLIMBING);
+                actor->user.Flags &= ~(SPR_CLIMBING);
 
                 actor->spr.zvel = 0;
 
                 actor->spr.ang = getangle(tpoint->x - actor->spr.pos.X, tpoint->y - actor->spr.pos.Y);
 
                 ActorLeaveTrack(actor);
-                RESET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 actor->spr.pos.Z += actor->user.sy;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);

@@ -867,7 +867,7 @@ int UserBreakSprite(DSWActor* breakActor)
         if (SP_TAG8(actor) == 0)
         {
             breakActor->spr.picnum = SP_TAG5(actor);
-            RESET(breakActor->spr.extra, SPRX_BREAKABLE);
+            breakActor->spr.extra &= ~(SPRX_BREAKABLE);
         }
         else
         // kill sprite
@@ -887,10 +887,10 @@ int UserBreakSprite(DSWActor* breakActor)
             // reset
             if (SP_TAG8(actor) == 2)
             {
-                RESET(breakActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                breakActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             }
 
-            RESET(breakActor->spr.extra, SPRX_BREAKABLE);
+            breakActor->spr.extra &= ~(SPRX_BREAKABLE);
         }
     }
     else
@@ -926,22 +926,22 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
         {
             if (!TEST(break_info->flags, BF_LEAVE_BREAK))
             {
-                RESET(breakActor->spr.extra, SPRX_BREAKABLE);
-                RESET(breakActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+                breakActor->spr.extra &= ~(SPRX_BREAKABLE);
+                breakActor->spr.cstat &= ~(CSTAT_SPRITE_BREAKABLE);
             }
 
             breakActor->spr.picnum = break_info->breaknum;
             // pass Break Info Globally
             SpawnShrap(breakActor, nullptr, -1, break_info);
             if (breakActor->spr.picnum == 3683)
-                RESET(breakActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                breakActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
 
         return false;
     }
 
-    RESET(breakActor->spr.extra, SPRX_BREAKABLE);
-    RESET(breakActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+    breakActor->spr.extra &= ~(SPRX_BREAKABLE);
+    breakActor->spr.cstat &= ~(CSTAT_SPRITE_BREAKABLE);
 
     // pass Break Info Globally
     SpawnShrap(breakActor, nullptr, -1, break_info);
@@ -952,7 +952,7 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
         if (TEST(break_info->flags, BF_FIRE_FALL))
             SpawnBreakFlames(breakActor);
 
-        RESET(breakActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        breakActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         breakActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         // Kill sound if one is attached
         DeleteNoSoundOwner(breakActor);
@@ -963,7 +963,7 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
     {
         breakActor->spr.picnum = break_info->breaknum;
         if (breakActor->spr.picnum == 3683)
-            RESET(breakActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            breakActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     }
 
     return false;

@@ -737,7 +737,7 @@ int DoZillaDeathMelt(DSWActor* actor)
         SpawnGrenadeExp(actor);
 
     actor->user.ID = ZILLA_RUN_R0;
-    RESET(actor->user.Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
+    actor->user.Flags &= ~(SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(nullptr, actor->spr.lotag, ON);
     if (!SW_SHAREWARE)

@@ -136,7 +136,7 @@ int  SetupToiletGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = TOILETGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -356,7 +356,7 @@ int SetupWashGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = WASHGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -548,8 +548,8 @@ int SetupTrashCan(DSWActor* actor)
     actor->spr.xvel = actor->spr.yvel = actor->spr.zvel = 0;
     actor->user.ID = TRASHCAN;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -641,8 +641,8 @@ int SetupPachinkoLight(DSWActor* actor)
     actor->spr.shade = -2;
     actor->user.spal = actor->spr.pal;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -729,8 +729,8 @@ int SetupPachinko1(DSWActor* actor)
     actor->spr.yvel = actor->spr.zvel = 0;
     actor->spr.lotag = PACHINKO1;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -881,8 +881,8 @@ int SetupPachinko2(DSWActor* actor)
     actor->spr.yvel = actor->spr.zvel = 0;
     actor->spr.lotag = PACHINKO2;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -957,8 +957,8 @@ int SetupPachinko3(DSWActor* actor)
     actor->spr.yvel = actor->spr.zvel = 0;
     actor->spr.lotag = PACHINKO3;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -1034,8 +1034,8 @@ int SetupPachinko4(DSWActor* actor)
     actor->spr.yvel = actor->spr.zvel = 0;
     actor->spr.lotag = PACHINKO4;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    RESET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
+    actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
     return 0;
 }
@@ -1143,7 +1143,7 @@ int SetupCarGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = CARGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
     return 0;
@@ -1344,7 +1344,7 @@ int SetupMechanicGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = MECHANICGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -1544,7 +1544,7 @@ int SetupSailorGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = SAILORGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
     alreadythrew = 0;
 
     return 0;
@@ -1738,7 +1738,7 @@ int SetupPruneGirl(DSWActor* actor)
     actor->user.FlagOwner = 0;
     actor->user.ID = PRUNEGIRL_R0;
 
-    RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
     return 0;
 }

@@ -300,7 +300,7 @@ void SpawnMidSplash(DSWActor* actor)
     actorNew->spr.yrepeat = 70-RandomRange(20);
     actorNew->spr.opos = actor->spr.opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -323,7 +323,7 @@ void SpawnFloorSplash(DSWActor* actor)
     actorNew->spr.yrepeat = 70-RandomRange(20);
     actorNew->spr.opos = actor->spr.opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -525,7 +525,7 @@ int DoBloodSpray(DSWActor* actor)
         actorNew->spr.yrepeat = 40-RandomRange(30);
         actorNew->spr.opos = actor->spr.opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if (RANDOM_P2(1024) < 512)
             actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -728,7 +728,7 @@ int DoPhosphorus(DSWActor* actor)
         actorNew->spr.yrepeat = 12 + RandomRange(10);
         actorNew->spr.opos = actor->spr.opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if (RANDOM_P2(1024) < 512)
             actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -952,7 +952,7 @@ int DoChemBomb(DSWActor* actor)
         // !Frank - dont do translucent
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         // actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
-        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         actorNew->user.xchange = actor->user.xchange;
         actorNew->user.ychange = actor->user.ychange;
@@ -1180,7 +1180,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.clipdist = actor->spr.clipdist;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER6;
     // Won't take floor palettes
     actorNew->spr.hitag = SECTFU_DONT_COPY_PALETTE;
@@ -1373,7 +1373,7 @@ int InitChemBomb(DSWActor* actor)
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
     // invis.
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -1590,7 +1590,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     actorNew->spr.shade = -40;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.Radius = 200;
 
@@ -2145,7 +2145,7 @@ int DoFlag(DSWActor* actor)
         if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
             actor->user.sz = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1);
         }
@@ -2242,8 +2242,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->user.floor_dist = Z(1);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    RESET(actorNew->user.Flags, SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
+    actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->user.Flags &= ~(SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
     actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);

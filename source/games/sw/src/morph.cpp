@@ -127,7 +127,7 @@ short DoSOevent(short match, short state)
             {
                 if (sop->save_vel > 0 || sop->save_spin_speed > 0)
                 {
-                    RESET(sop->flags, SOBJ_WAIT_FOR_EVENT);
+                    sop->flags &= ~(SOBJ_WAIT_FOR_EVENT);
                     sop->vel = sop->save_vel;
                     sop->spin_speed = sop->save_spin_speed;
                 }

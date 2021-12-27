@@ -791,8 +791,8 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     // make immediately active
     actorNew->user.Flags |= (SPR_ACTIVE);
 
-    RESET(actorNew->user.Flags, SPR_JUMPING);
-    RESET(actorNew->user.Flags, SPR_FALLING);
+    actorNew->user.Flags &= ~(SPR_JUMPING);
+    actorNew->user.Flags &= ~(SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);
@@ -838,8 +838,8 @@ void SpawnZombie2(DSWActor* actor)
     // make immediately active
     actorNew->user.Flags |= (SPR_ACTIVE);
 
-    RESET(actorNew->user.Flags, SPR_JUMPING);
-    RESET(actorNew->user.Flags, SPR_FALLING);
+    actorNew->user.Flags &= ~(SPR_JUMPING);
+    actorNew->user.Flags &= ~(SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);

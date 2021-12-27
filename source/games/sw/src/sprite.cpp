@@ -782,7 +782,7 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
 
     if (actor->hasU() && !quick)
     {
-        RESET(actor->user.Flags, SPR_SKIP2|SPR_SKIP4);
+        actor->user.Flags &= ~(SPR_SKIP2|SPR_SKIP4);
 
         if (stat >= STAT_SKIP4_START && stat <= STAT_SKIP4_END)
             actor->user.Flags |= (SPR_SKIP4);
@@ -932,7 +932,7 @@ bool ActorTestSpawn(DSWActor* actor)
         actorNew->spr = actor->spr;
         actorNew->spr.time = t;
         change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
-        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return false;
     }
 
@@ -1392,7 +1392,7 @@ void IconDefault(DSWActor* actor)
 {
     change_actor_stat(actor, STAT_ITEM);
 
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.Radius = 650;
 
     DoActorZrange(actor);
@@ -1572,7 +1572,7 @@ void SpriteSetup(void)
 
         // CSTAT_SPIN is insupported - get rid of it
         if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB)
-            RESET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_SLAB);
 
         // if BLOCK is set set BLOCK_HITSCAN
         // Hope this doesn't screw up anything
@@ -1631,12 +1631,12 @@ void SpriteSetup(void)
             // crack sprite
             if (actor->spr.picnum == 80)
             {
-                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
                 actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
             }
             else
             {
-                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
                 actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
                 actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);;
             }
@@ -1645,7 +1645,7 @@ void SpriteSetup(void)
                 actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE); ;
 
             if (TEST(SP_TAG8(actor), BIT(1)))
-                RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
 
             change_actor_stat(actor, STAT_SPRITE_HIT_MATCH);
             continue;
@@ -1709,7 +1709,7 @@ void SpriteSetup(void)
 
             tag = actor->spr.hitag;
 
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
             // for bounding sector objects
@@ -2027,18 +2027,18 @@ void SpriteSetup(void)
                     switch (type)
                     {
                     case 0:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoVator;
                         break;
                     case 1:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoVator;
                         break;
                     case 2:
                         actor->user.ActorActionFunc = DoVatorAuto;
                         break;
                     case 3:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoVatorAuto;
                         break;
                     }
@@ -2138,11 +2138,11 @@ void SpriteSetup(void)
                     switch (type)
                     {
                     case 0:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoRotator;
                         break;
                     case 1:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoRotator;
                         break;
                     }
@@ -2183,11 +2183,11 @@ void SpriteSetup(void)
                     switch (type)
                     {
                     case 0:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoSlidor;
                         break;
                     case 1:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoSlidor;
                         break;
                     }
@@ -2231,18 +2231,18 @@ void SpriteSetup(void)
                     switch (type)
                     {
                     case 0:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoSpike;
                         break;
                     case 1:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoSpike;
                         break;
                     case 2:
                         actor->user.ActorActionFunc = DoSpikeAuto;
                         break;
                     case 3:
-                        RESET(actor->user.Flags, SPR_ACTIVE);
+                        actor->user.Flags &= ~(SPR_ACTIVE);
                         actor->user.ActorActionFunc = DoSpikeAuto;
                         break;
                     }
@@ -2825,7 +2825,7 @@ KeyMain:
                 RESET(picanm[actor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[actor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_actor_stat(actor, STAT_ITEM);
-                RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
                 actor->user.Radius = 500;
                 actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
 
@@ -3371,8 +3371,8 @@ NUKE_REPLACEMENT:
 
             actor->user.ID = FIREBALL_FLAMES;
             actor->user.Radius = 200;
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK_HITSCAN);
 
             actor->spr.hitag = LUMINOUS; //Always full brightness
             actor->spr.shade = -40;
@@ -3390,7 +3390,7 @@ NUKE_REPLACEMENT:
 
             change_actor_stat(actor, STAT_DEFAULT);
 
-            RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
             actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
             actor->spr.extra |= (SPRX_BLADE);
 
@@ -4460,7 +4460,7 @@ void DoActorZrange(DSWActor* actor)
     Collision ceilhit, florhit;
 
     auto save_cstat = actor->spr.cstat & CSTAT_SPRITE_BLOCK;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     vec3_t pos = actor->spr.pos;
     pos.Z -= (ActorSizeZ(actor) >> 1);
     FAFgetzrange(pos, actor->spr.sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
@@ -4540,7 +4540,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
 
     // look only at the center point for a floor sprite
     auto save_cstat = TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     FAFgetzrangepoint(x, y, z - (ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
     actor->spr.cstat |= (save_cstat);
 
@@ -5017,7 +5017,7 @@ int DoGet(DSWActor* actor)
         {
             PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
             DoSpawnItemTeleporterEffect(actor);
-            RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
         }
 
         return 0;
@@ -5852,7 +5852,7 @@ KeyMain:
 
             // Attach flag to player
             actorNew->user.Counter = 0;
-            RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->actor, actorNew);
             actorNew->user.sz = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
@@ -6085,7 +6085,7 @@ void SpriteControl(void)
                 }
             }
 
-            RESET(actor->user.Flags, SPR_MOVED);
+            actor->user.Flags &= ~(SPR_MOVED);
 
             // Only update the ones close to ANY player
             if (CloseToPlayer)
@@ -6095,7 +6095,7 @@ void SpriteControl(void)
             else
             {
                 // to far away to be attacked
-                RESET(actor->user.Flags, SPR_ATTACKED);
+                actor->user.Flags &= ~(SPR_ATTACKED);
             }
         }
     }
@@ -6409,7 +6409,7 @@ int MissileZrange(DSWActor* actor)
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
     auto tempshort = actor->spr.cstat;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
     FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - 1, actor->spr.sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
@@ -6464,7 +6464,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
     auto tempshort = actor->spr.cstat;
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
     FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - 1, actor->spr.sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);

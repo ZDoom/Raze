@@ -964,7 +964,7 @@ int InitRipperHang(DSWActor* actor)
     PickJumpMaxSpeed(actor, -800);
 
     actor->user.Flags |= (SPR_JUMPING);
-    RESET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags &= ~(SPR_FALLING);
 
     // set up individual actor jump gravity
     actor->user.jump_grav = 8;
@@ -1061,7 +1061,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
     PickJumpMaxSpeed(actor, -400); // was -800
 
     actor->user.Flags |= (SPR_JUMPING);
-    RESET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags &= ~(SPR_FALLING);
 
     // set up individual actor jump gravity
     actor->user.jump_grav = 17; // was 8
@@ -1192,7 +1192,7 @@ void RipperHatch(DSWActor* actor)
         PickJumpMaxSpeed(actorNew, -600);
 
         actorNew->user.Flags |= (SPR_JUMPING);
-        RESET(actorNew->user.Flags, SPR_FALLING);
+        actorNew->user.Flags &= ~(SPR_FALLING);
 
         actorNew->user.jump_grav = 8;
 

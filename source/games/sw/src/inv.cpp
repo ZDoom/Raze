@@ -323,7 +323,7 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
     // on/off
     PlayerUpdateInventory(pp, InventoryNum);
 
-    RESET(plActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    plActor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
     plActor->spr.shade = 0;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);

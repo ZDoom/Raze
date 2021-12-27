@@ -848,7 +848,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     PickJumpMaxSpeed(actor, -400); // was -800
 
     actor->user.Flags |= (SPR_JUMPING);
-    RESET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags &= ~(SPR_FALLING);
 
     // set up individual actor jump gravity
     actor->user.jump_grav = 17; // was 8
@@ -1155,7 +1155,7 @@ void BunnyHatch(DSWActor* actor)
         PickJumpMaxSpeed(actorNew, -600);
 
         actorNew->user.Flags |= (SPR_JUMPING);
-        RESET(actorNew->user.Flags, SPR_FALLING);
+        actorNew->user.Flags &= ~(SPR_FALLING);
 
         actorNew->user.jump_grav = 8;
 
@@ -1212,7 +1212,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
         PickJumpMaxSpeed(actorNew, -600);
 
     actorNew->user.Flags |= (SPR_JUMPING);
-    RESET(actorNew->user.Flags, SPR_FALLING);
+    actorNew->user.Flags &= ~(SPR_FALLING);
 
     actorNew->user.jump_grav = 8;
     actorNew->user.FlagOwner = 0;
@@ -1231,7 +1231,7 @@ int DoBunnyMove(DSWActor* actor)
 {
     // Parental lock crap
     if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
-        RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
+        actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE); // Turn em' back on
 
     // Sometimes they just won't die!
     if (actor->user.Health <= 0)
@@ -1388,7 +1388,7 @@ int DoBunnyScrew(DSWActor* actor)
 
     if (actor->user.WaitTics <= 0)
     {
-        RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
+        actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE); // Turn em' back on
         actor->user.FlagOwner = 0;
         NewStateGroup(actor,sg_BunnyRun);
     }

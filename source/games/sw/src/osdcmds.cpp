@@ -102,7 +102,7 @@ void GameInterface::ToggleThirdPerson()
     auto pp = &Player[myconnectindex];
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
+        pp->Flags &= ~(PF_VIEW_FROM_OUTSIDE);
     }
     else
     {

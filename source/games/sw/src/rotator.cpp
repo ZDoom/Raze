@@ -116,7 +116,7 @@ void SetRotatorInactive(DSWActor* actor)
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
 
-    RESET(actor->user.Flags, SPR_ACTIVE);
+    actor->user.Flags &= ~(SPR_ACTIVE);
 }
 
 // called for operation from the space bar

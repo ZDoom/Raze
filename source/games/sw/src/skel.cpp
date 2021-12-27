@@ -527,7 +527,7 @@ int SetupSkel(DSWActor* actor)
 
 int DoSkelInitTeleport(DSWActor* actor)
 {
-    RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     PlaySpriteSound(actor,attr_extra3,v3df_follow);
     return 0;
 }
