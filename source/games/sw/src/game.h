@@ -1220,37 +1220,42 @@ typedef struct
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 // flags in EXTRA variable
-#define SECTFX_SINK                  BIT(0)
-#define SECTFX_OPERATIONAL           BIT(1)
-#define SECTFX_WARP_SECTOR           BIT(2)
-#define SECTFX_CURRENT               BIT(3)
-#define SECTFX_Z_ADJUST              BIT(4) // adjust ceiling/floor
-#define SECTFX_NO_RIDE               BIT(5) // moving sector - don't ride it
-#define SECTFX_DYNAMIC_AREA          BIT(6)
-#define SECTFX_DIVE_AREA             BIT(7) // Diving area
-#define SECTFX_UNDERWATER            BIT(8) // Underwater area
-#define SECTFX_UNDERWATER2           BIT(9) // Underwater area
-
-#define SECTFX_LIQUID_MASK           (BIT(10)|BIT(11)) // only valid for sectors with depth
-#define SECTFX_LIQUID_NONE           (0)
-#define SECTFX_LIQUID_LAVA           BIT(10)
-#define SECTFX_LIQUID_WATER          BIT(11)
-#define SECTFX_SECTOR_OBJECT         BIT(12)  // for collision detection
-#define SECTFX_VATOR                 BIT(13)  // denotes that this is a vertical moving sector
-// vator type
-#define SECTFX_TRIGGER               BIT(14)  // trigger type to replace tags.h trigger types
+enum
+{
+    SECTFX_SINK                  = BIT(0),
+    SECTFX_OPERATIONAL           = BIT(1),
+    SECTFX_WARP_SECTOR           = BIT(2),
+    SECTFX_CURRENT               = BIT(3),
+    SECTFX_Z_ADJUST              = BIT(4), // adjust ceiling/floor
+    SECTFX_NO_RIDE               = BIT(5), // moving sector - don't ride it
+    SECTFX_DYNAMIC_AREA          = BIT(6),
+    SECTFX_DIVE_AREA             = BIT(7), // Diving area
+    SECTFX_UNDERWATER            = BIT(8), // Underwater area
+    SECTFX_UNDERWATER2           = BIT(9), // Underwater area
+                             
+    SECTFX_LIQUID_MASK           = (BIT(10)|BIT(11)), // only valid for sectors with depth
+    SECTFX_LIQUID_NONE           = (0),
+    SECTFX_LIQUID_LAVA           = BIT(10),
+    SECTFX_LIQUID_WATER          = BIT(11),
+    SECTFX_SECTOR_OBJECT         = BIT(12),  // for collision detection
+    SECTFX_VATOR                 = BIT(13),  // denotes that this is a vertical moving sector vator type
+    SECTFX_TRIGGER               = BIT(14),  // trigger type to replace tags.h trigger types
+};
 
 // flags in sector USER structure
-#define SECTFU_SO_DONT_BOB          BIT(0)
-#define SECTFU_SO_SINK_DEST         BIT(1)
-#define SECTFU_SO_DONT_SINK         BIT(2)
-#define SECTFU_DONT_COPY_PALETTE    BIT(3)
-#define SECTFU_SO_SLOPE_FLOOR_TO_POINT BIT(4)
-#define SECTFU_SO_SLOPE_CEILING_TO_POINT BIT(5)
-#define SECTFU_DAMAGE_ABOVE_SECTOR  BIT(6)
-#define SECTFU_VATOR_BOTH           BIT(7)  // vators set up for both ceiling and floor
-#define SECTFU_CANT_SURFACE         BIT(8)  // for diving
-#define SECTFU_SLIDE_SECTOR         BIT(9)  // for diving
+enum
+{
+    SECTFU_SO_DONT_BOB                = BIT(0),
+    SECTFU_SO_SINK_DEST               = BIT(1),
+    SECTFU_SO_DONT_SINK               = BIT(2),
+    SECTFU_DONT_COPY_PALETTE          = BIT(3),
+    SECTFU_SO_SLOPE_FLOOR_TO_POINT    = BIT(4),
+    SECTFU_SO_SLOPE_CEILING_TO_POINT  = BIT(5),
+    SECTFU_DAMAGE_ABOVE_SECTOR        = BIT(6),
+    SECTFU_VATOR_BOTH                 = BIT(7), // vators set up for both ceiling and floor
+    SECTFU_CANT_SURFACE               = BIT(8), // for diving
+    SECTFU_SLIDE_SECTOR               = BIT(9), // for diving
+};
 
 #define MAKE_STAG_ENUM
 enum stag_id
@@ -1261,16 +1266,18 @@ typedef enum stag_id STAG_ID;
 #undef MAKE_STAG_ENUM
 
 
-#define WALLFX_LOOP_DONT_SPIN            BIT(0)
-#define WALLFX_LOOP_REVERSE_SPIN         BIT(1)
-#define WALLFX_LOOP_SPIN_2X              BIT(2)
-#define WALLFX_LOOP_SPIN_4X              BIT(3)
-#define WALLFX_LOOP_OUTER                BIT(4) // for sector object
-#define WALLFX_DONT_MOVE                 BIT(5) // for sector object
-#define WALLFX_SECTOR_OBJECT             BIT(6) // for collision detection
-#define WALLFX_DONT_STICK                BIT(7) // for bullet holes and stars
-#define WALLFX_DONT_SCALE                BIT(8) // for sector object
-#define WALLFX_LOOP_OUTER_SECONDARY      BIT(9) // for sector object
+enum {
+    WALLFX_LOOP_DONT_SPIN         = BIT(0),
+    WALLFX_LOOP_REVERSE_SPIN      = BIT(1),
+    WALLFX_LOOP_SPIN_2X           = BIT(2),
+    WALLFX_LOOP_SPIN_4X           = BIT(3),
+    WALLFX_LOOP_OUTER             = BIT(4), // for sector object
+    WALLFX_DONT_MOVE              = BIT(5), // for sector object
+    WALLFX_SECTOR_OBJECT          = BIT(6), // for collision detection
+    WALLFX_DONT_STICK             = BIT(7), // for bullet holes and stars
+    WALLFX_DONT_SCALE             = BIT(8), // for sector object
+    WALLFX_LOOP_OUTER_SECONDARY   = BIT(9), // for sector object
+};
 
 enum ShrapType
 {
@@ -1348,7 +1355,13 @@ typedef struct SINE_WAVE_FLOOR
     uint8_t flags;
 } *SINE_WAVE_FLOORp;
 
-#define MAX_SINE_WAVE 6
+enum
+{
+    MAX_SINE_WAVE = 6,
+    MAX_SINE_WALL = 10,
+    MAX_SINE_WALL_POINTS = 64,
+};
+
 extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
 typedef struct SINE_WALL
@@ -1358,8 +1371,6 @@ typedef struct SINE_WALL
     int16_t sintable_ndx, speed_shift, type;
 } *SINE_WALLp;
 
-#define MAX_SINE_WALL 10
-#define MAX_SINE_WALL_POINTS 64
 extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
 struct SPRING_BOARD
@@ -1565,44 +1576,48 @@ struct SECTOR_OBJECTstruct
 
 };
 
-#define MAX_SECTOR_OBJECTS 20
-
-#define SOBJ_SPEED_UP           BIT(0)
-#define SOBJ_SLOW_DOWN          BIT(1)
-#define SOBJ_ZUP                BIT(2)
-#define SOBJ_ZDOWN              BIT(3)
-#define SOBJ_ZDIFF_MODE         BIT(4)
-#define SOBJ_MOVE_VERTICAL      BIT(5) // for sprite objects - move straight up/down
-#define SOBJ_ABSOLUTE_ANGLE     BIT(7)
-#define SOBJ_SPRITE_OBJ         BIT(8)
-#define SOBJ_DONT_ROTATE        BIT(9)
-#define SOBJ_WAIT_FOR_EVENT     BIT(10)
-#define SOBJ_HAS_WEAPON         BIT(11)
-#define SOBJ_SYNC1              BIT(12) // for syncing up several SO's perfectly
-#define SOBJ_SYNC2              BIT(13) // for syncing up several SO's perfectly
-#define SOBJ_DYNAMIC            BIT(14) // denotes scaling or morphing object
-#define SOBJ_ZMID_FLOOR         BIT(15) // can't remember which sector objects need this
-// think its the bobbing and sinking ones
-#define SOBJ_SLIDE              BIT(16)
-
-#define SOBJ_OPERATIONAL        BIT(17)
-#define SOBJ_KILLABLE           BIT(18)
-#define SOBJ_DIE_HARD           BIT(19)
-#define SOBJ_UPDATE_ONCE        BIT(20)
-#define SOBJ_UPDATE             BIT(21)
-#define SOBJ_NO_QUAKE           BIT(22)
-#define SOBJ_REMOTE_ONLY        BIT(23)
-#define SOBJ_RECT_CLIP          BIT(24)
-#define SOBJ_BROKEN               BIT(25)
+enum
+{
+    SOBJ_SPEED_UP           = BIT(0) ,
+    SOBJ_SLOW_DOWN          = BIT(1) ,
+    SOBJ_ZUP                = BIT(2) ,
+    SOBJ_ZDOWN              = BIT(3) ,
+    SOBJ_ZDIFF_MODE         = BIT(4) ,
+    SOBJ_MOVE_VERTICAL      = BIT(5) ,// for sprite objects - move straight up/down
+    SOBJ_ABSOLUTE_ANGLE     = BIT(7) ,
+    SOBJ_SPRITE_OBJ         = BIT(8) ,
+    SOBJ_DONT_ROTATE        = BIT(9) ,
+    SOBJ_WAIT_FOR_EVENT     = BIT(10),
+    SOBJ_HAS_WEAPON         = BIT(11),
+    SOBJ_SYNC1              = BIT(12), // for syncing up several SO's perfectly
+    SOBJ_SYNC2              = BIT(13), // for syncing up several SO's perfectly
+    SOBJ_DYNAMIC            = BIT(14), // denotes scaling or morphing object
+    SOBJ_ZMID_FLOOR         = BIT(15), // can't remember which sector objects need this think its the bobbing and sinking ones
+    SOBJ_SLIDE              = BIT(16),    
+    SOBJ_OPERATIONAL        = BIT(17),
+    SOBJ_KILLABLE           = BIT(18),
+    SOBJ_DIE_HARD           = BIT(19),
+    SOBJ_UPDATE_ONCE        = BIT(20),
+    SOBJ_UPDATE             = BIT(21),
+    SOBJ_NO_QUAKE           = BIT(22),
+    SOBJ_REMOTE_ONLY        = BIT(23),
+    SOBJ_RECT_CLIP          = BIT(24),
+    SOBJ_BROKEN             = BIT(25),
+};
 
 // track set to these to tell them apart
-#define SO_OPERATE_TRACK_START 90
-#define SO_TURRET_MGUN 96 // machine gun
-#define SO_TURRET 97
-#define SO_VEHICLE 98
-// #define SO_SPEED_BOAT 99
+enum
+{
+    MAX_SECTOR_OBJECTS = 20,
+    SO_OPERATE_TRACK_START = 90,
+    SO_TURRET_MGUN = 96, // machine gun
+    SO_TURRET = 97,
+    SO_VEHICLE = 98,
+    // #define SO_SPEED_BOAT 99
+    MAXSO = INT32_MAX
+};
 
-#define SO_EMPTY(sop) ((sop)->xmid == INT32_MAX)
+inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->xmid == INT32_MAX); }
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
@@ -1794,18 +1809,6 @@ extern int *lastpacket2clock;
 
 ///////////////////////////
 //
-// TEXT PRINTING
-//
-///////////////////////////
-
-#define TEXT_TEST_LINE (200/2)
-#define TEXT_XCENTER(width) ((320 - width)/2)
-#define TEXT_YCENTER(h) ((200 - height)/2)
-#define TEXT_TEST_COL(width) TEXT_XCENTER(width)
-#define TEXT_TEST_TIME 2
-
-///////////////////////////
-//
 // RECENT network additions
 //
 ///////////////////////////
@@ -1813,9 +1816,6 @@ extern int *lastpacket2clock;
 extern double smoothratio;
 extern int MoveSkip4, MoveSkip2, MoveSkip8;
 extern int MinEnemySkill;
-
-#define MASTER_SWITCHING 1
-
 extern short screenpeek;
 
 #define STAT_DAMAGE_LIST_SIZE 20
@@ -1833,8 +1833,6 @@ extern void DoPaletteFlash(PLAYERp pp);
 extern bool NightVision;
 
 
-
-#define MAXSO (INT32_MAX)
 
 ///////////////////////////////////////////////////////////////
 //
