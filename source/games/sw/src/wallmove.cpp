@@ -67,7 +67,7 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist,
                 sop->xorig[wallcount] -= *nx;
                 sop->yorig[wallcount] -= *ny;
 
-                SET(sop->flags, SOBJ_UPDATE_ONCE);
+                sop->flags |= (SOBJ_UPDATE_ONCE);
                 return;
             }
 

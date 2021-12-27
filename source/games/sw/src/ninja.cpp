@@ -2213,9 +2213,9 @@ void PlayerDeathReset(PLAYERp pp)
     pp->WpnAmmo[WPN_SWORD] = pp->WpnAmmo[WPN_FIST] = 30;
     pp->WpnFlags = 0;
     pp->WpnGotOnceFlags = 0;
-    SET(pp->WpnFlags, BIT(WPN_SWORD));
-    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
-    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
+    pp->WpnFlags |= (BIT(WPN_SWORD));
+    pp->WpnFlags |= (BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
+    pp->WpnFlags |= (BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
     RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
     RESET(pp->Flags, PF_TWO_UZI);
 
@@ -2287,9 +2287,9 @@ void PlayerGameReset(PLAYERp pp)
     pp->WpnAmmo[WPN_SWORD] = pp->WpnAmmo[WPN_FIST] = 30;
     pp->WpnFlags = 0;
     pp->WpnGotOnceFlags = 0;
-    SET(pp->WpnFlags, BIT(WPN_SWORD));
-    SET(pp->WpnFlags, BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
-    SET(pp->WpnFlags, BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
+    pp->WpnFlags |= (BIT(WPN_SWORD));
+    pp->WpnFlags |= (BIT(WPN_FIST) | BIT(actor->user.WeaponNum));
+    pp->WpnFlags |= (BIT(WPN_STAR) | BIT(actor->user.WeaponNum));
     RESET(pp->Flags, PF_PICKED_UP_AN_UZI);
     RESET(pp->Flags, PF_TWO_UZI);
     pp->MaxHealth = 100;

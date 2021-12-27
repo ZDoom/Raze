@@ -50,7 +50,7 @@ short DoSectorObjectSetScale(short match)
 
         if (sop->match_event == match)
         {
-            SET(sop->flags, SOBJ_DYNAMIC);
+            sop->flags |= (SOBJ_DYNAMIC);
             sop->PreMoveAnimator = ScaleSectorObject;
 
             switch (sop->scale_active_type)

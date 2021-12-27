@@ -176,7 +176,7 @@ bool pKillScreenSpiteIDs(PLAYERp pp, short id)
 
 void pSetSuicide(PANEL_SPRITEp psp)
 {
-    //SET(psp->flags, PANF_SUICIDE);
+    //psp->flags |= (PANF_SUICIDE);
     //psp->State = nullptr;
     psp->PanelSpriteFunc = pSuicide;
 }
@@ -769,7 +769,7 @@ void SwordBlur(PANEL_SPRITEp psp)
     }
     else if (psp->kill_tics <= 6)
     {
-        SET(psp->flags, PANF_TRANS_FLIP);
+        psp->flags |= (PANF_TRANS_FLIP);
     }
 
     psp->shade += 10;
@@ -791,7 +791,7 @@ void SpawnSwordBlur(PANEL_SPRITEp psp)
 
     nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->x, psp->y);
 
-    SET(nsp->flags, PANF_WEAPON_SPRITE);
+    nsp->flags |= (PANF_WEAPON_SPRITE);
     nsp->ang = psp->ang;
     nsp->vel = psp->vel;
     nsp->PanelSpriteFunc = SwordBlur;
@@ -802,12 +802,12 @@ void SpawnSwordBlur(PANEL_SPRITEp psp)
     nsp->picnum = psp->picndx;
 
     if (TEST(psp->State->flags, psf_Xflip))
-        SET(nsp->flags, PANF_XFLIP);
+        nsp->flags |= (PANF_XFLIP);
 
     nsp->rotate_ang = psp->rotate_ang;
     nsp->scale = psp->scale;
 
-    SET(nsp->flags, PANF_TRANSLUCENT);
+    nsp->flags |= (PANF_TRANSLUCENT);
 }
 
 void pSwordPresent(PANEL_SPRITEp psp);
@@ -905,7 +905,7 @@ void RetractCurWpn(PLAYERp pp)
         if ((pp->CurWpn == pp->Wpn[WPN_UZI] && pp->WpnUziType == 2) || pp->CurWpn != pp->Wpn[WPN_UZI])
         {
             pSetState(pp->CurWpn, pp->CurWpn->RetractState);
-            SET(pp->Flags, PF_WEAPON_RETRACT);
+            pp->Flags |= (PF_WEAPON_RETRACT);
         }
 
         if (pp->CurWpn->sibling)
@@ -974,7 +974,7 @@ void InitWeaponSword(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_SWORD];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_SwordSwing;
     psp->RetractState = ps_RetractSword;
     psp->PresentState = ps_PresentSword;
@@ -1370,7 +1370,7 @@ void InitWeaponStar(PLAYERp pp)
 
     // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_STAR];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ThrowStar;
     //psp->ActionState = &ps_ThrowStar[1];
     psp->RetractState = ps_RetractStar;
@@ -2002,7 +2002,7 @@ void InitWeaponUzi(PLAYERp pp)
 
     // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_UZI];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = &ps_FireUzi[1];
     psp->RetractState = ps_RetractUzi;
     psp->PresentState = ps_PresentUzi;
@@ -2151,7 +2151,7 @@ void pUziStartReload(PANEL_SPRITEp psp)
     // Uzi #1 reload - starting from a full up position
     pSetState(psp, ps_UziEject);
 
-    SET(psp->flags, PANF_RELOAD);
+    psp->flags |= (PANF_RELOAD);
 
     if (TEST(psp->flags, PANF_PRIMARY) && psp->sibling)
     {
@@ -2636,7 +2636,7 @@ void InitWeaponShotgun(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ShotgunFire;
     //psp->ActionState = ps_ShotgunAutoFire;
     psp->RetractState = ps_RetractShotgun;
@@ -2874,7 +2874,7 @@ void pShotgunRest(PANEL_SPRITEp psp)
             if (!WeaponOK(psp->PlayerP))
                 return;
 
-            SET(psp->flags, PANF_REST_POS); // Used for reload checking in autofire
+            psp->flags |= (PANF_REST_POS); // Used for reload checking in autofire
 
             if (psp->PlayerP->WpnShotgunType == 0)
                 psp->PlayerP->WpnShotgunLastShell = ammo-1;
@@ -3108,7 +3108,7 @@ void InitWeaponRail(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_RailFire;
     psp->RetractState = ps_RetractRail;
     psp->PresentState = ps_PresentRail;
@@ -3529,7 +3529,7 @@ void InitWeaponHothead(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HOTHEAD];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HotheadAttack;
     psp->PresentState = ps_PresentHothead;
     psp->RestState = HotheadRestStates[psp->PlayerP->WpnFlameType];
@@ -3943,7 +3943,7 @@ void InitWeaponMicro(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MICRO];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MicroFire;
     psp->RetractState = ps_RetractMicro;
     psp->RestState = ps_MicroRest;
@@ -4406,7 +4406,7 @@ void InitWeaponHeart(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HEART];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HeartAttack;
     psp->RetractState = ps_RetractHeart;
     psp->PresentState = ps_PresentHeart;
@@ -4691,7 +4691,7 @@ int DoBeginPanelJump(PANEL_SPRITEp psp)
 {
 #define PANEL_JUMP_GRAVITY FIXED(0,8000)
 
-    SET(psp->flags, PANF_JUMPING);
+    psp->flags |= (PANF_JUMPING);
     RESET(psp->flags, PANF_FALLING);
 
     // set up individual actor jump gravity
@@ -4723,7 +4723,7 @@ int DoPanelJump(PANEL_SPRITEp psp)
 
 int DoBeginPanelFall(PANEL_SPRITEp psp)
 {
-    SET(psp->flags, PANF_FALLING);
+    psp->flags |= (PANF_FALLING);
     RESET(psp->flags, PANF_JUMPING);
 
     psp->jump_grav = PANEL_JUMP_GRAVITY;
@@ -4861,7 +4861,7 @@ void InitWeaponGrenade(PLAYERp pp)
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_GrenadeFire;
     psp->RetractState = ps_RetractGrenade;
     psp->PresentState = ps_PresentGrenade;
@@ -5122,7 +5122,7 @@ void InitWeaponMine(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MINE];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MineThrow;
     psp->RetractState = ps_RetractMine;
     psp->PresentState = ps_PresentMine;
@@ -5376,7 +5376,7 @@ void InitChops(PLAYERp pp)
     // Set up the new weapon variables
     psp = pp->Chops;
 
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ChopsAttack1;
     psp->PresentState = ps_ChopsAttack1;
     psp->RetractState = ps_ChopsRetract;
@@ -5542,7 +5542,7 @@ void FistBlur(PANEL_SPRITEp psp)
     }
     else if (psp->kill_tics <= 6)
     {
-        SET(psp->flags, PANF_TRANS_FLIP);
+        psp->flags |= (PANF_TRANS_FLIP);
     }
 
     psp->shade += 10;
@@ -5564,7 +5564,7 @@ void SpawnFistBlur(PANEL_SPRITEp psp)
 
     nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->x, psp->y);
 
-    SET(nsp->flags, PANF_WEAPON_SPRITE);
+    nsp->flags |= (PANF_WEAPON_SPRITE);
     nsp->ang = psp->ang;
     nsp->vel = psp->vel;
     nsp->PanelSpriteFunc = FistBlur;
@@ -5575,12 +5575,12 @@ void SpawnFistBlur(PANEL_SPRITEp psp)
     nsp->picnum = psp->picndx;
 
     if (TEST(psp->State->flags, psf_Xflip))
-        SET(nsp->flags, PANF_XFLIP);
+        nsp->flags |= (PANF_XFLIP);
 
     nsp->rotate_ang = psp->rotate_ang;
     nsp->scale = psp->scale;
 
-    SET(nsp->flags, PANF_TRANSLUCENT);
+    nsp->flags |= (PANF_TRANSLUCENT);
 }
 
 void pFistPresent(PANEL_SPRITEp psp);
@@ -5757,7 +5757,7 @@ void InitWeaponFist(PLAYERp pp)
 
     // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_FIST];
-    SET(psp->flags, PANF_WEAPON_SPRITE);
+    psp->flags |= (PANF_WEAPON_SPRITE);
     psp->ActionState = ps_FistSwing;
     psp->RetractState = ps_RetractFist;
     psp->PresentState = ps_PresentFist;
@@ -6160,7 +6160,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     {
         if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
-            SET(psp->flags, PANF_UNHIDE_SHOOT);
+            psp->flags |= (PANF_UNHIDE_SHOOT);
             pSetState(psp, state);
             return true;
         }
@@ -6173,14 +6173,14 @@ bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     if (TEST(psp->PlayerP->Flags, PF_DEAD))
     {
-        SET(psp->flags, PANF_DEATH_HIDE);
+        psp->flags |= (PANF_DEATH_HIDE);
         pSetState(psp, state);
         return true;
     }
 
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
     {
-        SET(psp->flags, PANF_WEAPON_HIDE);
+        psp->flags |= (PANF_WEAPON_HIDE);
         pSetState(psp, state);
         return true;
     }
@@ -6324,7 +6324,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
 
     if (condition)
     {
-        SET(psp->flags, PANF_BOB);
+        psp->flags |= (PANF_BOB);
     }
     else
     {

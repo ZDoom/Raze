@@ -2145,7 +2145,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         StarQueue[i] = nullptr;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
             return true;
-        SET(pp->WpnFlags, BIT(WPN_STAR));
+        pp->WpnFlags |= (BIT(WPN_STAR));
         InitWeaponStar(pp);
         return true;
     }

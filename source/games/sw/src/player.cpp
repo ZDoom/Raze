@@ -1281,7 +1281,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
     pp->pos.Z = pp->opos.Z = pos->Z - PLAYER_HEIGHT;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-    SET(pp->Flags2, PF2_TELEPORTED);
+    pp->Flags2 |= (PF2_TELEPORTED);
 }
 
 void DoPlayerTeleportToOffset(PLAYERp pp)
@@ -1290,7 +1290,7 @@ void DoPlayerTeleportToOffset(PLAYERp pp)
     pp->opos.Y = pp->oldposy = pp->pos.Y;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-    SET(pp->Flags2, PF2_TELEPORTED);
+    pp->Flags2 |= (PF2_TELEPORTED);
 }
 
 void DoSpawnTeleporterEffect(DSWActor* actor)
@@ -1633,7 +1633,7 @@ void DoPlayerBob(PLAYERp pp)
 
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
 {
-    SET(pp->Flags, PF_RECOIL);
+    pp->Flags |= (PF_RECOIL);
 
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
@@ -1993,7 +1993,7 @@ void DoPlayerMove(PLAYERp pp)
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
+        pp->Flags2 |= (PF2_INPUT_CAN_TURN_GENERAL);
     }
     else
     {
@@ -2008,7 +2008,7 @@ void DoPlayerMove(PLAYERp pp)
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
     else
-        SET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags |= (PF_PLAYER_MOVED);
 
     DoPlayerSlide(pp);
 
@@ -2125,7 +2125,7 @@ void DoPlayerMove(PLAYERp pp)
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+        pp->Flags2 |= (PF2_INPUT_CAN_AIM);
     }
     else
     {
@@ -2535,7 +2535,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
     else
-        SET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags |= (PF_PLAYER_MOVED);
 
     pp->oxvect = pp->xvect;
     pp->oyvect = pp->yvect;
@@ -2652,7 +2652,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     {
         if (!SyncInput())
         {
-            SET(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE);
+            pp->Flags2 |= (PF2_INPUT_CAN_TURN_VEHICLE);
         }
         else
         {
@@ -2702,7 +2702,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+        pp->Flags2 |= (PF2_INPUT_CAN_AIM);
     }
     else
     {
@@ -2724,7 +2724,7 @@ void DoPlayerMoveTurret(PLAYERp pp)
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
+        pp->Flags2 |= (PF2_INPUT_CAN_TURN_TURRET);
     }
     else
     {
@@ -2734,11 +2734,11 @@ void DoPlayerMoveTurret(PLAYERp pp)
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
     else
-        SET(pp->Flags, PF_PLAYER_MOVED);
+        pp->Flags |= (PF_PLAYER_MOVED);
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+        pp->Flags2 |= (PF2_INPUT_CAN_AIM);
     }
     else
     {
@@ -2750,7 +2750,7 @@ void DoPlayerBeginJump(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
 
-    SET(pp->Flags, PF_JUMPING);
+    pp->Flags |= (PF_JUMPING);
     RESET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
@@ -2780,7 +2780,7 @@ void DoPlayerBeginForceJump(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
 
-    SET(pp->Flags, PF_JUMPING);
+    pp->Flags |= (PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
@@ -2925,7 +2925,7 @@ void DoPlayerBeginFall(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
 
-    SET(pp->Flags, PF_FALLING);
+    pp->Flags |= (PF_FALLING);
     RESET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
@@ -3120,7 +3120,7 @@ void DoPlayerBeginClimb(PLAYERp pp)
 
     pp->DoPlayerAction = DoPlayerClimb;
 
-    SET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
+    pp->Flags |= (PF_CLIMBING|PF_WEAPON_DOWN);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     //DamageData[plActor->user.WeaponNum].Init(pp);
@@ -3304,7 +3304,7 @@ void DoPlayerClimb(PLAYERp pp)
 
     if (!SyncInput())
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+        pp->Flags2 |= (PF2_INPUT_CAN_AIM);
     }
     else
     {
@@ -3406,7 +3406,7 @@ void DoPlayerBeginCrawl(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
-    SET(pp->Flags, PF_CRAWLING);
+    pp->Flags |= (PF_CRAWLING);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
     pp->floor_dist = PLAYER_CRAWL_FLOOR_DIST;
@@ -3516,7 +3516,7 @@ void DoPlayerCrawl(PLAYERp pp)
 void DoPlayerBeginFly(PLAYERp pp)
 {
     RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
-    SET(pp->Flags, PF_FLYING);
+    pp->Flags |= (PF_FLYING);
 
     pp->friction = PLAYER_FLY_FRICTION;
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -4162,7 +4162,7 @@ void DoPlayerBeginDive(PLAYERp pp)
 
     if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
 
-    SET(pp->Flags, PF_DIVING);
+    pp->Flags |= (PF_DIVING);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -4222,11 +4222,11 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 
     if (TEST(pp->lo_sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
-        SET(pp->Flags, PF_DIVING_IN_LAVA);
+        pp->Flags |= (PF_DIVING_IN_LAVA);
         plActor->user.DamageTics = 0;
     }
 
-    SET(pp->Flags, PF_DIVING);
+    pp->Flags |= (PF_DIVING);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -4795,7 +4795,7 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
 
     // temporary set to get weapons down
     if (TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
-        SET(pp->Flags, PF_WEAPON_DOWN);
+        pp->Flags |= (PF_WEAPON_DOWN);
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
@@ -4814,7 +4814,7 @@ void DoPlayerBeginOperateTurret(PLAYERp pp)
 
     // temporary set to get weapons down
     if (TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
-        SET(pp->Flags, PF_WEAPON_DOWN);
+        pp->Flags |= (PF_WEAPON_DOWN);
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
@@ -4924,7 +4924,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     {
         if (sop->so_actors[i]->spr.statnum == STAT_SO_SHOOT_POINT)
         {
-            SET(sop->flags, SOBJ_HAS_WEAPON);
+            sop->flags |= (SOBJ_HAS_WEAPON);
             break;
         }
     }
@@ -5009,7 +5009,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     {
         if (sop->so_actors[i]->spr.statnum == STAT_SO_SHOOT_POINT)
         {
-            SET(sop->flags, SOBJ_HAS_WEAPON);
+            sop->flags |= (SOBJ_HAS_WEAPON);
             break;
         }
     }
@@ -5220,7 +5220,7 @@ void DoPlayerDeathJump(PLAYERp pp)
         if ((pp->jump_speed += PLAYER_DEATH_GRAV) > 0)
         {
             RESET(pp->Flags, PF_JUMPING);
-            SET(pp->Flags, PF_FALLING);
+            pp->Flags |= (PF_FALLING);
             DoPlayerDeathFall(pp);
             return;
         }
@@ -5240,7 +5240,7 @@ void DoPlayerDeathJump(PLAYERp pp)
 
             // start falling
             RESET(pp->Flags, PF_JUMPING);
-            SET(pp->Flags, PF_FALLING);
+            pp->Flags |= (PF_FALLING);
             DoPlayerDeathFall(pp);
             return;
         }
@@ -5530,7 +5530,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     {
     case PLAYER_DEATH_DROWN:
     {
-        SET(pp->Flags, PF_JUMPING);
+        pp->Flags |= (PF_JUMPING);
         plActor->user.ID = NINJA_DEAD;
         pp->jump_speed = -200;
         NewStateGroup(pp->actor, sg_PlayerDeath);
@@ -5544,7 +5544,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
         //PlaySound(DIGI_SCREAM1, pp, v3df_dontpan|v3df_follow);
 
-        SET(pp->Flags, PF_JUMPING);
+        pp->Flags |= (PF_JUMPING);
         plActor->user.ID = NINJA_DEAD;
         pp->jump_speed = -300;
         NewStateGroup(pp->actor, sg_PlayerDeath);
@@ -5562,7 +5562,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
         PlaySound(DIGI_BODYSQUISH1, pp, v3df_dontpan);
 
-        SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
+        pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
         plActor->user.slide_vel = 0;
         SpawnShrap(pp->actor, nullptr);
@@ -5578,7 +5578,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
         PlaySound(DIGI_BODYSQUISH1, pp, v3df_dontpan);
 
-        SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
+        pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
         SpawnShrap(pp->actor, nullptr);
         SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
@@ -5595,7 +5595,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
         PlaySound(DIGI_BODYCRUSHED1, pp, v3df_dontpan);
 
-        SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
+        pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
         plActor->user.slide_vel = 800;
         SpawnShrap(pp->actor, nullptr);
@@ -5610,7 +5610,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
     }
 
-    SET(pp->Flags, PF_DEAD);
+    pp->Flags |= (PF_DEAD);
     RESET(plActor->user.Flags,SPR_BOUNCE);
     RESET(pp->Flags, PF_HEAD_CONTROL);
 }
@@ -5671,7 +5671,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
             {
 
 
-                SET(pp->Flags, PF_HEAD_CONTROL);
+                pp->Flags |= (PF_HEAD_CONTROL);
                 NewStateGroup(pp->actor, sg_PlayerHeadHurl);
                 if (MoveSkip4 == 0)
                 {
@@ -5701,7 +5701,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     {  
         if (!SyncInput())
         {
-            SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
+            pp->Flags2 |= (PF2_INPUT_CAN_TURN_GENERAL);
         }
         else
         {
@@ -5847,7 +5847,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
                 RESET(plActor->user.Flags,SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->actor, sg_PlayerHeadFly);
-                SET(pp->Flags, PF_JUMPING);
+                pp->Flags |= (PF_JUMPING);
                 SpawnShrap(pp->actor, nullptr);
             }
         }
@@ -5863,7 +5863,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
         RESET(plActor->user.Flags,SPR_BOUNCE);
         pp->jump_speed = -100;
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
-        SET(pp->Flags, PF_JUMPING);
+        pp->Flags |= (PF_JUMPING);
         SpawnShrap(pp->actor, nullptr);
     }
 }
@@ -6029,7 +6029,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
     pp->jump_speed = -300;
     plActor->user.slide_vel >>= 2;
     plActor->user.slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
-    SET(pp->Flags, PF_JUMPING);
+    pp->Flags |= (PF_JUMPING);
     SpawnShrap(pp->actor, nullptr);
 }
 
@@ -6461,7 +6461,7 @@ void ChopsCheck(PLAYERp pp)
                 {
                     ChopTics = 0;
                     // take weapon down
-                    SET(pp->Flags, PF_WEAPON_DOWN);
+                    pp->Flags |= (PF_WEAPON_DOWN);
                     InitChops(pp);
                 }
             }

@@ -738,7 +738,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             pp->RevolveX = pp->posx;
             pp->RevolveY = pp->posy;
             pp->RevolveDeltaAng = 0;
-            SET(pp->Flags, PF_PLAYER_RIDING);
+            pp->Flags |= (PF_PLAYER_RIDING);
 
             pp->sop_riding = sop;
         }
@@ -1089,7 +1089,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
 
                 case SO_SCALE_INFO:
-                    SET(sop->flags, SOBJ_DYNAMIC);
+                    sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_speed = SP_TAG2(actor);
                     sop->scale_dist_min = -SP_TAG5(actor);
                     sop->scale_dist_max = SP_TAG6(actor);
@@ -1127,7 +1127,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 case SO_TORNADO:
                     if (SW_SHAREWARE) break;
                     sop->vel = 120;
-                    SET(sop->flags, SOBJ_DYNAMIC);
+                    sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
                     sop->spin_speed = 16;
@@ -1148,7 +1148,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_FLOOR_MORPH:
                     if (SW_SHAREWARE) break;
-                    SET(sop->flags, SOBJ_DYNAMIC);
+                    sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_NONE;
                     sop->morph_speed = 120;
                     sop->morph_z_speed = 7;
@@ -1159,7 +1159,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
 
                 case SO_AMOEBA:
-                    SET(sop->flags, SOBJ_DYNAMIC);
+                    sop->flags |= (SOBJ_DYNAMIC);
                     //sop->scale_type = SO_SCALE_CYCLE;
                     sop->scale_type = SO_SCALE_RANDOM_POINT;
                     sop->PreMoveAnimator = ScaleSectorObject;
@@ -1186,7 +1186,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     case 0:
                         break;
                     case 1:
-                        SET(sop->flags, SOBJ_DIE_HARD);
+                        sop->flags |= (SOBJ_DIE_HARD);
                         break;
                     }
                     KillActor(actor);
@@ -1207,15 +1207,15 @@ void SetupSectorObject(sectortype* sectp, short tag)
                         sop->drive_slide = 1;
 
                     if (TEST_BOOL1(actor))
-                        SET(sop->flags, SOBJ_NO_QUAKE);
+                        sop->flags |= (SOBJ_NO_QUAKE);
 
                     if (TEST_BOOL3(actor))
-                        SET(sop->flags, SOBJ_REMOTE_ONLY);
+                        sop->flags |= (SOBJ_REMOTE_ONLY);
 
                     if (TEST_BOOL4(actor))
                     {
                         sop->crush_z = actor->spr.pos.Z;
-                        SET(sop->flags, SOBJ_RECT_CLIP);
+                        sop->flags |= (SOBJ_RECT_CLIP);
                     }
 
                     //KillActor(actor);
@@ -1230,11 +1230,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SECT_SO_SPRITE_OBJ:
-                    SET(sop->flags, SOBJ_SPRITE_OBJ);
+                    sop->flags |= (SOBJ_SPRITE_OBJ);
                     KillActor(actor);
                     break;
                 case SECT_SO_DONT_ROTATE:
-                    SET(sop->flags, SOBJ_DONT_ROTATE);
+                    sop->flags |= (SOBJ_DONT_ROTATE);
                     KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
@@ -1285,15 +1285,15 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_SYNC1:
-                    SET(sop->flags, SOBJ_SYNC1);
+                    sop->flags |= (SOBJ_SYNC1);
                     KillActor(actor);
                     break;
                 case SO_SYNC2:
-                    SET(sop->flags, SOBJ_SYNC2);
+                    sop->flags |= (SOBJ_SYNC2);
                     KillActor(actor);
                     break;
                 case SO_KILLABLE:
-                    SET(sop->flags, SOBJ_KILLABLE);
+                    sop->flags |= (SOBJ_KILLABLE);
                     KillActor(actor);
                     break;
                 }
@@ -1313,18 +1313,18 @@ void SetupSectorObject(sectortype* sectp, short tag)
             case SO_TURRET:
             case SO_VEHICLE:
                 sop->vel = 0;
-                SET(sop->flags, SOBJ_OPERATIONAL);
+                sop->flags |= (SOBJ_OPERATIONAL);
                 break;
 #if 0
             case SO_SPEED_BOAT:
                 sop->vel = 0;
                 sop->bob_amt = Z(2);
                 sop->bob_speed = 4;
-                SET(sop->flags, SOBJ_OPERATIONAL);
+                sop->flags |= (SOBJ_OPERATIONAL);
                 break;
 #endif
             default:
-                SET(sop->flags, SOBJ_OPERATIONAL);
+                sop->flags |= (SOBJ_OPERATIONAL);
                 break;
             }
         }
@@ -1525,7 +1525,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     // set up the player for riding
     if (!TEST(pp->Flags, PF_PLAYER_MOVED) && !TEST(pp->Flags, PF_PLAYER_RIDING))
     {
-        SET(pp->Flags, PF_PLAYER_RIDING);
+        pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
         pp->RevolveX = pp->pos.X;
@@ -2300,7 +2300,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             break;
 
         case TRACK_BOB_START:
-            SET(sop->flags, SOBJ_ZMID_FLOOR);
+            sop->flags |= (SOBJ_ZMID_FLOOR);
             sop->bob_amt = Z(tpoint->tag_high);
             sop->bob_sine_ndx = 0;
             sop->bob_speed = 4;
@@ -2341,12 +2341,12 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             {
                 // set target to new slower target
                 sop->vel_tgt = sop->vel_tgt - (tpoint->tag_high * 256);
-                SET(sop->flags, SOBJ_SLOW_DOWN);
+                sop->flags |= (SOBJ_SLOW_DOWN);
             }
             else
             {
                 sop->vel_tgt = sop->vel_tgt + (tpoint->tag_high * 256);
-                SET(sop->flags, SOBJ_SPEED_UP);
+                sop->flags |= (SOBJ_SPEED_UP);
             }
 
             break;
@@ -2356,12 +2356,12 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (sop->dir > 0)
             {
                 sop->vel_tgt = sop->vel_tgt - (tpoint->tag_high * 256);
-                SET(sop->flags, SOBJ_SLOW_DOWN);
+                sop->flags |= (SOBJ_SLOW_DOWN);
             }
             else
             {
                 sop->vel_tgt = sop->vel_tgt + (tpoint->tag_high * 256);
-                SET(sop->flags, SOBJ_SPEED_UP);
+                sop->flags |= (SOBJ_SPEED_UP);
             }
             break;
 
@@ -2432,7 +2432,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         case TRACK_MOVE_VERTICAL:
         {
             int zr;
-            SET(sop->flags, SOBJ_MOVE_VERTICAL);
+            sop->flags |= (SOBJ_MOVE_VERTICAL);
 
             if (tpoint->tag_high > 0)
                 zr = tpoint->tag_high;
@@ -2460,7 +2460,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (tpoint->tag_high == -1)
                 break;
 
-            SET(sop->flags, SOBJ_WAIT_FOR_EVENT);
+            sop->flags |= (SOBJ_WAIT_FOR_EVENT);
             sop->save_vel = sop->vel;
             sop->save_spin_speed = sop->spin_speed;
 
@@ -2473,7 +2473,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         }
 
         case TRACK_ZDIFF_MODE:
-            SET(sop->flags, SOBJ_ZDIFF_MODE);
+            sop->flags |= (SOBJ_ZDIFF_MODE);
             sop->zdelta = Z(tpoint->tag_high);
             break;
         case TRACK_ZRATE:
@@ -2484,12 +2484,12 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (sop->dir < 0)
             {
                 sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
-                SET(sop->flags, SOBJ_ZDOWN);
+                sop->flags |= (SOBJ_ZDOWN);
             }
             else
             {
                 sop->z_tgt = sop->z_tgt - Z(tpoint->tag_high);
-                SET(sop->flags, SOBJ_ZUP);
+                sop->flags |= (SOBJ_ZUP);
             }
             break;
         case TRACK_ZDOWN:
@@ -2497,12 +2497,12 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (sop->dir > 0)
             {
                 sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
-                SET(sop->flags, SOBJ_ZDOWN);
+                sop->flags |= (SOBJ_ZDOWN);
             }
             else
             {
                 sop->z_tgt = sop->z_tgt - Z(tpoint->tag_high);
-                SET(sop->flags, SOBJ_ZUP);
+                sop->flags |= (SOBJ_ZUP);
             }
             break;
         }

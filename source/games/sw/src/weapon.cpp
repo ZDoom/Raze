@@ -5099,7 +5099,7 @@ int SopCheckKill(SECTOR_OBJECTp sop)
         if (!killed)
         {
             VehicleSetSmoke(sop, SpawnVehicleSmoke);
-            SET(sop->flags, SOBJ_BROKEN);
+            sop->flags |= (SOBJ_BROKEN);
         }
     }
 
@@ -7664,15 +7664,15 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
                 if ((hitActor = PickEnemyTarget(actor, aware_range)) != nullptr)
                 {
                     actor->user.WpnGoalActor = hitActor;
-                    SET(hitActor->user.Flags, SPR_TARGETED);
-                    SET(hitActor->user.Flags, SPR_ATTACKED);
+                    hitActor->user.Flags |= (SPR_TARGETED);
+                    hitActor->user.Flags |= (SPR_ATTACKED);
                 }
             }
             else if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
                 actor->user.WpnGoalActor = hitActor;
-                SET(hitActor->user.Flags, SPR_TARGETED);
-                SET(hitActor->user.Flags, SPR_ATTACKED);
+                hitActor->user.Flags |= (SPR_TARGETED);
+                hitActor->user.Flags |= (SPR_ATTACKED);
             }
         }
     }
@@ -7735,8 +7735,8 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
             if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
                 actor->user.WpnGoalActor = hitActor;
-                SET(hitActor->user.Flags, SPR_TARGETED);
-                SET(hitActor->user.Flags, SPR_ATTACKED);
+                hitActor->user.Flags |= (SPR_TARGETED);
+                hitActor->user.Flags |= (SPR_ATTACKED);
             }
         }
     }
@@ -7796,14 +7796,14 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
                 if ((hitActor = PickEnemyTarget(actor, aware_range1)) != nullptr)
                 {
                     actor->user.WpnGoalActor = hitActor;
-                    SET(hitActor->user.Flags, SPR_TARGETED);
-                    SET(hitActor->user.Flags, SPR_ATTACKED);
+                    hitActor->user.Flags |= (SPR_TARGETED);
+                    hitActor->user.Flags |= (SPR_ATTACKED);
                 }
                 else if ((hitActor = PickEnemyTarget(actor, aware_range2)) != nullptr)
                 {
                     actor->user.WpnGoalActor = hitActor;
-                    SET(hitActor->user.Flags, SPR_TARGETED);
-                    SET(hitActor->user.Flags, SPR_ATTACKED);
+                    hitActor->user.Flags |= (SPR_TARGETED);
+                    hitActor->user.Flags |= (SPR_ATTACKED);
                 }
             }
             else
@@ -7811,14 +7811,14 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
                 if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
                 {
                     actor->user.WpnGoalActor = hitActor;
-                    SET(hitActor->user.Flags, SPR_TARGETED);
-                    SET(hitActor->user.Flags, SPR_ATTACKED);
+                    hitActor->user.Flags |= (SPR_TARGETED);
+                    hitActor->user.Flags |= (SPR_ATTACKED);
                 }
                 else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
                 {
                     actor->user.WpnGoalActor = hitActor;
-                    SET(hitActor->user.Flags, SPR_TARGETED);
-                    SET(hitActor->user.Flags, SPR_ATTACKED);
+                    hitActor->user.Flags |= (SPR_TARGETED);
+                    hitActor->user.Flags |= (SPR_ATTACKED);
                 }
             }
         }
@@ -7870,14 +7870,14 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
             if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
             {
                 actor->user.WpnGoalActor = hitActor;
-                SET(hitActor->user.Flags, SPR_TARGETED);
-                SET(hitActor->user.Flags, SPR_ATTACKED);
+                hitActor->user.Flags |= (SPR_TARGETED);
+                hitActor->user.Flags |= (SPR_ATTACKED);
             }
             else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
             {
                 actor->user.WpnGoalActor = hitActor;
-                SET(hitActor->user.Flags, SPR_TARGETED);
-                SET(hitActor->user.Flags, SPR_ATTACKED);
+                hitActor->user.Flags |= (SPR_TARGETED);
+                hitActor->user.Flags |= (SPR_ATTACKED);
             }
         }
     }
@@ -9954,10 +9954,10 @@ void SpawnBoltExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 76;
     expActor->spr.yrepeat = 76;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     expActor->user.Radius = DamageData[DMG_BOLT_EXP].radius;
 
     SpawnExpZadjust(actor, expActor, Z(40), Z(40));
@@ -10003,10 +10003,10 @@ void SpawnTankShellExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 64+32;
     expActor->spr.yrepeat = 64+32;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     expActor->user.Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
     SpawnExpZadjust(actor, expActor, Z(40), Z(40));
@@ -10030,7 +10030,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->spr.clipdist = actor->spr.clipdist;
     expActor->user.ceiling_dist = Z(16);
     expActor->user.floor_dist = Z(16);
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
@@ -10087,7 +10087,7 @@ void SpawnNuclearExp(DSWActor* actor)
     expActor->spr.xrepeat = 255;
     expActor->spr.yrepeat = 255;
     expActor->spr.clipdist = actor->spr.clipdist;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.spal = expActor->spr.pal = PALETTE_PLAYER1;  // Set nuke puff to gray
 
@@ -10102,10 +10102,10 @@ void SpawnNuclearExp(DSWActor* actor)
     expActor->spr.shade = -128;
     expActor->spr.xrepeat = 218;
     expActor->spr.yrepeat = 152;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
     expActor->user.Radius = NUKE_RADIUS;
 
@@ -10149,11 +10149,11 @@ void SpawnTracerExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 4;
     expActor->spr.yrepeat = 4;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
     if (actor->user.ID == BOLT_THINMAN_R1)
     {
@@ -10178,12 +10178,12 @@ void SpawnMicroExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 32;
     expActor->spr.yrepeat = 32;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
     expActor->user.Radius = DamageData[DMG_BOLT_EXP].radius;
 
     //
@@ -10245,13 +10245,13 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
         expActor->spr.xrepeat = 34;
         expActor->spr.yrepeat = 34;
     }
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     // place all sprites on list
     for (sn = 0; sn < SIZ(sop->so_actors); sn++)
@@ -10301,7 +10301,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->spr.clipdist = actor->spr.clipdist;
     expActor->user.ceiling_dist = Z(16);
     expActor->user.floor_dist = Z(16);
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
@@ -10369,7 +10369,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     expActor->spr.xrepeat = 64 + 32;
     expActor->spr.yrepeat = 64 + 32;
     expActor->spr.clipdist = actor->spr.clipdist;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_GRENADE_EXP].radius;
 
@@ -10400,7 +10400,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
         if (tos_z <= actor->user.hiz + Z(4))
         {
             expActor->spr.pos.Z = actor->user.hiz + upper_zsize;
-            SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
+            expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > actor->user.loz)
         {
@@ -10419,7 +10419,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
         if (tos_z <= cz + Z(4))
         {
             expActor->spr.pos.Z = cz + upper_zsize;
-            SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
+            expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > fz)
         {
@@ -10448,7 +10448,7 @@ void SpawnMineExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 64 + 44;
     expActor->spr.yrepeat = 64 + 44;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_MINE_EXP].radius;
 
@@ -10494,7 +10494,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 90; // was 40,40
     expActor->spr.yrepeat = 90;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_SECTOR_EXP].radius;
 
@@ -10517,7 +10517,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 90; // was 40,40
     expActor->spr.yrepeat = 90;
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_SECTOR_EXP].radius;
 
@@ -10566,7 +10566,7 @@ void SpawnMeteorExp(DSWActor* actor)
         expActor->spr.yrepeat = 80;
     }
 
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_BASIC_EXP].radius;
 }
@@ -10582,7 +10582,7 @@ void SpawnLittleExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -127;
 
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_BASIC_EXP].radius;
     DoExpDamageTest(expActor);
@@ -10816,9 +10816,9 @@ int DoNapalm(DSWActor* actor)
         expActor->spr.cstat = actor->spr.cstat;
         expActor->spr.xrepeat = 48;
         expActor->spr.yrepeat = 64;
-        SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         if (RANDOM_P2(1024) < 512)
-            SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+            expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         RESET(expActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
         expActor->user.Radius = 1500;
 
@@ -12410,8 +12410,8 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
         mislActor->user.WpnGoalActor = hitActor;
-        SET(hitActor->user.Flags, SPR_TARGETED);
-        SET(hitActor->user.Flags, SPR_ATTACKED);
+        hitActor->user.Flags |= (SPR_TARGETED);
+        hitActor->user.Flags |= (SPR_ATTACKED);
 
         mislActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - mislActor->spr.pos.X, hitActor->spr.pos.Y - mislActor->spr.pos.Y));
         dist = FindDistance2D(mislActor->spr.pos.vec2 - hitActor->spr.pos.vec2);
@@ -12466,8 +12466,8 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
     if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
         missileActor->user.WpnGoalActor = hitActor;
-        SET(hitActor->user.Flags, SPR_TARGETED);
-        SET(hitActor->user.Flags, SPR_ATTACKED);
+        hitActor->user.Flags |= (SPR_TARGETED);
+        hitActor->user.Flags |= (SPR_ATTACKED);
 
         missileActor->spr.ang = NORM_ANGLE(getangle(hitActor->spr.pos.X - missileActor->spr.pos.X, hitActor->spr.pos.Y - missileActor->spr.pos.Y));
         dist = FindDistance2D(missileActor->spr.pos.vec2 - hitActor->spr.pos.vec2);
@@ -12510,8 +12510,8 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
     if (hitActor == nullptr)
         return nullptr;
 
-    SET(hitActor->user.Flags, SPR_TARGETED);
-    SET(hitActor->user.Flags, SPR_ATTACKED);
+    hitActor->user.Flags |= (SPR_TARGETED);
+    hitActor->user.Flags |= (SPR_ATTACKED);
 
     *ang = getangle(hitActor->spr.pos.X - actor->spr.pos.X, hitActor->spr.pos.Y - actor->spr.pos.Y);
 
@@ -14180,14 +14180,14 @@ int SpawnDemonFist(DSWActor* actor)
     expActor->spr.yrepeat = 32;
     expActor->user.spal = expActor->spr.pal = 25;
 
-    SET(expActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(expActor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_BASIC_EXP].radius;
 
     if (RANDOM_P2(1024<<8)>>8 > 600)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_XFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024<<8)>>8 > 600)
-        SET(expActor->spr.cstat, CSTAT_SPRITE_YFLIP);
+        expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     return 0;
 }
@@ -17499,8 +17499,8 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
 
     ASSERT(spawnedActor->spr.statnum != MAXSTATUS);
 
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
@@ -17575,8 +17575,8 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
 
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(actor->user.Flags, SPR_SHADOW);
 
@@ -17688,9 +17688,9 @@ int QueueFootPrint(DSWActor* actor)
     // Alternate the feet
     left_foot = !left_foot;
     if (left_foot)
-        SET(spawnedActor->spr.cstat, CSTAT_SPRITE_XFLIP);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+        spawnedActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return 0;
@@ -17809,9 +17809,9 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
     spawnedActor->tempwall = hit.hitWall; // pass hitinfo.wall
 
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wall_ang = NORM_ANGLE(getangle(hit.hitWall->delta()) + 512);
@@ -18438,9 +18438,9 @@ void QueueLoWangs(DSWActor* actor)
     spawnedActor->spr.shade = actor->spr.shade;
     spawnedActor->user.spal = spawnedActor->spr.pal = actor->spr.pal;
     change_actor_stat(spawnedActor, STAT_DEFAULT); // Breakable
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
     SET(spawnedActor->spr.extra, SPRX_BREAKABLE);
-    SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+    spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
 
     LoWangsQueueHead = (LoWangsQueueHead+1) & (MAX_LOWANGS_QUEUE-1);
 }

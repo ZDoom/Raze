@@ -1725,7 +1725,7 @@ void SpriteSetup(void)
             {
                 bit = 1 << (tag);
 
-                SET(actor->spr.sector()->extra, bit);
+                actor->spr.sector()->extra |= (bit);
 
                 if (TEST(bit, SECTFX_SINK))
                 {
@@ -1906,7 +1906,7 @@ void SpriteSetup(void)
 
                 case TRIGGER_SECTOR:
                 {
-                    SET(actor->spr.sector()->extra, SECTFX_TRIGGER);
+                    actor->spr.sector()->extra |= (SECTFX_TRIGGER);
                     change_actor_stat(actor, STAT_TRIGGER);
                     break;
                 }
@@ -2002,7 +2002,7 @@ void SpriteSetup(void)
                     }
                     SET(sectp->extra, SECTFX_VATOR);
                     SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, true, true);
-                    SET(actor->spr.sector()->extra, SECTFX_DYNAMIC_AREA);
+                    actor->spr.sector()->extra |= (SECTFX_DYNAMIC_AREA);
 
                     // don't step on toes of other sector settings
                     if (sectp->lotag == 0 && sectp->hitag == 0)
@@ -2210,7 +2210,7 @@ void SpriteSetup(void)
                     SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, false, true);
-                    SET(actor->spr.sector()->extra, SECTFX_DYNAMIC_AREA);
+                    actor->spr.sector()->extra |= (SECTFX_DYNAMIC_AREA);
 
                     type = SP_TAG3(actor);
                     speed = SP_TAG4(actor);
@@ -2601,7 +2601,7 @@ void SpriteSetup(void)
 
                 case PLAX_GLOB_Z_ADJUST:
                 {
-                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
+                    actor->spr.sector()->extra |= (SECTFX_Z_ADJUST);
                     PlaxCeilGlobZadjust = SP_TAG2(actor);
                     PlaxFloorGlobZadjust = SP_TAG3(actor);
                     KillActor(actor);
@@ -2610,14 +2610,14 @@ void SpriteSetup(void)
 
                 case CEILING_Z_ADJUST:
                 {
-                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
+                    actor->spr.sector()->extra |= (SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
                 case FLOOR_Z_ADJUST:
                 {
-                    SET(actor->spr.sector()->extra, SECTFX_Z_ADJUST);
+                    actor->spr.sector()->extra |= (SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
@@ -2625,7 +2625,7 @@ void SpriteSetup(void)
                 case WARP_TELEPORTER:
                 {
                     actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
+                    actor->spr.sector()->extra |= (SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
 
                     // if just a destination teleporter
@@ -2657,19 +2657,19 @@ void SpriteSetup(void)
                 case WARP_FLOOR_PLANE:
                 {
                     actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
+                    actor->spr.sector()->extra |= (SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
                     break;
                 }
 
                 case WARP_COPY_SPRITE1:
                     actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
+                    actor->spr.sector()->extra |= (SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
                     break;
                 case WARP_COPY_SPRITE2:
                     actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
+                    actor->spr.sector()->extra |= (SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
                     break;
 
@@ -5369,7 +5369,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_STAR));
+            pp->WpnFlags |= (BIT(WPN_STAR));
 
             if (!cl_weaponswitch)
                 break;
@@ -5397,7 +5397,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_MINE)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_MINE));
+            pp->WpnFlags |= (BIT(WPN_MINE));
 
             if (!cl_weaponswitch)
                 break;
@@ -5428,17 +5428,17 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_UZI)) && TEST(pp->Flags, PF_TWO_UZI))
                 break;
             // flag to help with double uzi powerup - simpler but kludgy
-            SET(pp->Flags, PF_PICKED_UP_AN_UZI);
+            pp->Flags |= (PF_PICKED_UP_AN_UZI);
             if (TEST(pp->WpnFlags, BIT(WPN_UZI)))
             {
-                SET(pp->Flags, PF_TWO_UZI);
+                pp->Flags |= (PF_TWO_UZI);
                 pp->WpnUziType = 0; // Let it come up
                 if (pp == Player+myconnectindex)
                     PlayerSound(DIGI_DOUBLEUZI, v3df_dontpan|v3df_follow, pp);
             }
             else
             {
-                SET(pp->WpnFlags, BIT(WPN_UZI));
+                pp->WpnFlags |= (BIT(WPN_UZI));
                 ChoosePlayerGetSound(pp);
             }
 
@@ -5483,7 +5483,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_MICRO)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_MICRO));
+            pp->WpnFlags |= (BIT(WPN_MICRO));
 
             if (!cl_weaponswitch)
                 break;
@@ -5552,7 +5552,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_GRENADE));
+            pp->WpnFlags |= (BIT(WPN_GRENADE));
 
             if (!cl_weaponswitch)
                 break;
@@ -5581,7 +5581,7 @@ KeyMain:
             KillGet(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_ROCKET)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_ROCKET));
+            pp->WpnFlags |= (BIT(WPN_ROCKET));
 
             if (!cl_weaponswitch)
                 break;
@@ -5626,7 +5626,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_RAIL)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_RAIL));
+            pp->WpnFlags |= (BIT(WPN_RAIL));
 
             if (!cl_weaponswitch)
                 break;
@@ -5668,7 +5668,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_SHOTGUN));
+            pp->WpnFlags |= (BIT(WPN_SHOTGUN));
 
             if (!cl_weaponswitch)
                 break;
@@ -5736,7 +5736,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
+            pp->WpnFlags |= (BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
 
             if (!cl_weaponswitch)
                 break;
@@ -5781,7 +5781,7 @@ KeyMain:
             KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)))
                 break;
-            SET(pp->WpnFlags, BIT(WPN_HEART));
+            pp->WpnFlags |= (BIT(WPN_HEART));
 
             if (!cl_weaponswitch)
                 break;

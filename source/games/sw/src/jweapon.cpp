@@ -1643,7 +1643,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
     actorNew->user.Counter = 0;
-//      SET(spawnedActor->spr.cstat, CSTAT_SPRITE_BLOCK);
+//      spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);

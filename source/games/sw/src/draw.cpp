@@ -1191,7 +1191,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
     if (player_in_camera)
     {
         pp->camera_check_time_delay = 120/2;
-        SET(pp->Flags, PF_VIEW_FROM_CAMERA);
+        pp->Flags |= (PF_VIEW_FROM_CAMERA);
 
         ASSERT(found_camera);
     }
@@ -1201,7 +1201,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
     {
         if (found_camera)
         {
-            SET(pp->Flags, PF_VIEW_FROM_CAMERA);
+            pp->Flags |= (PF_VIEW_FROM_CAMERA);
         }
         else
         {

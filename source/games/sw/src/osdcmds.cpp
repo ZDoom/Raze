@@ -106,7 +106,7 @@ void GameInterface::ToggleThirdPerson()
     }
     else
     {
-        SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
+        pp->Flags |= (PF_VIEW_FROM_OUTSIDE);
         cameradist = 0;
     }
 }
