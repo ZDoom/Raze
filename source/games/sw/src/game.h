@@ -162,12 +162,14 @@ extern bool MenuInputMode;
 // Defines
 //
 
-#define CIRCLE_CAMERA_DIST_MIN 12000
-
-// dist at which actors will not move (unless shot?? to do)
-#define MAX_ACTIVE_RANGE 42000
-// dist at which actors roam about on their own
-#define MIN_ACTIVE_RANGE 20000
+enum
+{
+    CIRCLE_CAMERA_DIST_MIN = 12000,
+    // dist at which actors will not move (unless shot?? to do)
+    MAX_ACTIVE_RANGE = 42000,
+    // dist at which actors roam about on their own
+    MIN_ACTIVE_RANGE = 20000,
+};
 
 inline int32_t FIXED(int32_t msw, int32_t lsw)
 {
@@ -184,22 +186,14 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 # define MSB_VAR(fixed) (*((uint8_t*)&(fixed)))
 #endif
 
-#define MSW(fixed) ((fixed)>>16)
-#define LSW(fixed) (((int16_t)(fixed)))
-
-
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
-#define NORM_ANGLE(ang) ((ang) & 2047)
-#define ANGLE_2_PLAYER(pp,x,y) (NORM_ANGLE(getangle(pp->posx-(x), pp->posy-(y))))
-#define NORM_Q16ANGLE(ang) ((ang) & 0x7FFFFFF)
+constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
+inline int RANDOM_NEG(int x, int y) { return ((RANDOM_P2(((x) << (y)) << 1) - (x)) << (y)); }
 
 int StdRandomRange(int range);
 
-#define STD_RANDOM_P2(pwr_of_2) (MOD_P2(rand(),(pwr_of_2)))
-
-#define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
 
 inline int MOVEx(int vel, int ang)
 {
@@ -436,11 +430,14 @@ struct STATEstruct
 // State Flags
 //
 
-#define SF_TICS_MASK 0xFFFF
-#define SF_QUICK_CALL BIT(16)
-#define SF_PLAYER_FUNC BIT(17) // only for players to execute
-#define SF_TIC_ADJUST BIT(18) // use tic adjustment for these frames
-#define SF_WALL_STATE BIT(19) // use for walls instead of sprite
+enum
+{
+    SF_TICS_MASK = 0xFFFF,
+    SF_QUICK_CALL = BIT(16),
+    SF_PLAYER_FUNC = BIT(17), // only for players to execute
+    SF_TIC_ADJUST = BIT(18), // use tic adjustment for these frames
+    SF_WALL_STATE = BIT(19), // use for walls instead of sprite
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Jim's MISC declarations from other files
