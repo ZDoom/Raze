@@ -1313,7 +1313,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
@@ -1331,7 +1331,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
@@ -4261,7 +4261,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
     pp->Flags &= ~(PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(pp->actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    pp->actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);

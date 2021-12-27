@@ -692,7 +692,7 @@ void KillActor(DSWActor* actor)
             if (actor->user.track != -1)
             {
                 if (Track[actor->user.track].flags)
-                    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
+                    Track[actor->user.track].flags &= ~(TF_TRACK_OCCUPIED);
             }
         }
 
@@ -908,7 +908,7 @@ void PicAnimOff(short picnum)
     if (!anim_type)
         return;
 
-    RESET(picanm[picnum].sf, PICANM_ANIMTYPE_MASK);
+    picanm[picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
 }
 
 bool IconSpawn(DSWActor* actor)
@@ -1589,7 +1589,7 @@ void SpriteSetup(void)
         // Non ST1 sprites that are tagged like them
         if (TEST_BOOL1(actor) && actor->spr.picnum != ST1)
         {
-            RESET(actor->spr.extra,
+            actor->spr.extra &= ~(
                   SPRX_BOOL4|
                   SPRX_BOOL5|
                   SPRX_BOOL6|
@@ -2822,8 +2822,8 @@ KeyMain:
 
                 ChangeState(actor, s_Key[num]);
 
-                RESET(picanm[actor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
-                RESET(picanm[actor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
+                picanm[actor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
+                picanm[actor->spr.picnum + 1].sf &= ~(PICANM_ANIMTYPE_MASK);
                 change_actor_stat(actor, STAT_ITEM);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
                 actor->user.Radius = 500;
@@ -4231,8 +4231,8 @@ int SpawnItemsMatch(short match)
 
             ChangeState(spawnedActor, s_Key[num]);
 
-            RESET(picanm[spawnedActor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
-            RESET(picanm[spawnedActor->spr.picnum + 1].sf, PICANM_ANIMTYPE_MASK);
+            picanm[spawnedActor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
+            picanm[spawnedActor->spr.picnum + 1].sf &= ~(PICANM_ANIMTYPE_MASK);
 
             SetupItemForJump(itActor, spawnedActor);
 
@@ -4265,7 +4265,7 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 
     // turn anims off because people keep setting them in the
     // art file
-    RESET(picanm[actor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
+    picanm[actor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
     return 0;
 }
 

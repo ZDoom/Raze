@@ -109,7 +109,7 @@ void ResetWallWarpHitscan(sectortype* sect)
     // Travel all the way around loop setting wall bits
     do
     {
-        RESET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
+        wall_num->cstat &= ~(CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall_num->point2Wall();
     }
     while (wall_num != start_wall);

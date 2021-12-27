@@ -602,23 +602,23 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
     {
         if (break_info->breaknum == -1)
         {
-            RESET(wallp->cstat, CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
+            wallp->cstat &= ~(CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
             wallp->overpicnum = 0;
             if (wallp->twoSided())
             {
                 nwp = wallp->nextWall();
-                RESET(nwp->cstat, CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
+                nwp->cstat &= ~(CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
                 nwp->overpicnum = 0;
             }
         }
         else
         {
-            RESET(wallp->cstat, CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
+            wallp->cstat &= ~(CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
             wallp->overpicnum = break_info->breaknum;
             if (wallp->twoSided())
             {
                 nwp = wallp->nextWall();
-                RESET(nwp->cstat, CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
+                nwp->cstat &= ~(CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
                 nwp->overpicnum = break_info->breaknum;
             }
         }
@@ -651,9 +651,9 @@ bool UserBreakWall(WALLp wp)
     {
         // do it the old way and get rid of wall - assumed to be masked
         DoSpawnSpotsForKill(match);
-        RESET(wp->cstat, flags);
+        wp->cstat &= ~(flags);
         if (wp->twoSided())
-            RESET(wp->nextWall()->cstat, flags);
+            wp->nextWall()->cstat &= ~(flags);
 
         // clear tags
         wp->hitag = wp->lotag = 0;
@@ -683,9 +683,9 @@ bool UserBreakWall(WALLp wp)
         else if (SP_TAG8(actor) == 1)
         {
             // clear flags
-            RESET(wp->cstat, flags);
+            wp->cstat &= ~(flags);
             if (wp->twoSided())
-                RESET(wp->nextWall()->cstat, flags);
+                wp->nextWall()->cstat &= ~(flags);
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->twoSided())
@@ -699,9 +699,9 @@ bool UserBreakWall(WALLp wp)
             wp->picnum = SP_TAG5(actor);
 
             // clear flags
-            RESET(wp->cstat, block_flags);
+            wp->cstat &= ~(block_flags);
             if (wp->twoSided())
-                RESET(wp->nextWall()->cstat, block_flags);
+                wp->nextWall()->cstat &= ~(block_flags);
 
             // clear tags
             wp->hitag = wp->lotag = 0;

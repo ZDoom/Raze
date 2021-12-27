@@ -72,7 +72,7 @@ void ProcessVisOn(void)
                 if (own != nullptr)
                 {
                     ASSERT(own->hasU());
-                    RESET(own->user.Flags2, SPR2_VIS_SHADING);
+                    own->user.Flags2 &= ~(SPR2_VIS_SHADING);
                 }
                 KillActor(actor);
             }

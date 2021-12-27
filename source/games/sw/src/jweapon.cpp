@@ -459,7 +459,7 @@ int DoBloodSpray(DSWActor* actor)
                         actor->user.sy = actor->user.sz; // ceiling and floor are equal - white wall
                 }
 
-                RESET(actor->spr.cstat,CSTAT_SPRITE_INVISIBLE);
+                actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
                 ChangeState(actor, s_BloodSprayDrip);
             }
 

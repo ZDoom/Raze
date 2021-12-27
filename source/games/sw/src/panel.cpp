@@ -353,7 +353,7 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     {
         // star and mine
         if (TEST(WeaponIsAmmo, BIT(WeaponNum)))
-            RESET(pp->WpnFlags, BIT(WeaponNum));
+            pp->WpnFlags &= ~(BIT(WeaponNum));
 
         pp->WpnAmmo[WeaponNum] = 0;
     }
@@ -948,7 +948,7 @@ void InitWeaponSword(PLAYERp pp)
     // needed for death sequence when the SWORD was your weapon when you died
     if (pp->Wpn[WPN_SWORD] && TEST(pp->Wpn[WPN_SWORD]->flags, PANF_DEATH_HIDE))
     {
-        RESET(pp->Wpn[WPN_SWORD]->flags, PANF_DEATH_HIDE);
+        pp->Wpn[WPN_SWORD]->flags &= ~(PANF_DEATH_HIDE);
         pp->Flags &= ~(PF_WEAPON_RETRACT|PF_WEAPON_DOWN);
         pSetState(pp->CurWpn, pp->CurWpn->PresentState);
         return;
@@ -1345,7 +1345,7 @@ void InitWeaponStar(PLAYERp pp)
     // needed for death sequence when the STAR was your weapon when you died
     if (pp->Wpn[WPN_STAR] && TEST(pp->Wpn[WPN_STAR]->flags, PANF_DEATH_HIDE))
     {
-        RESET(pp->Wpn[WPN_STAR]->flags, PANF_DEATH_HIDE);
+        pp->Wpn[WPN_STAR]->flags &= ~(PANF_DEATH_HIDE);
         pp->Flags &= ~(PF_WEAPON_RETRACT);
         pSetState(pp->CurWpn, pp->CurWpn->PresentState);
         return;

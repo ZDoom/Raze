@@ -876,7 +876,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     case SO_SHOOT_POINT:
                         ClearOwner(itActor);
                         change_actor_stat(itActor, STAT_SO_SHOOT_POINT);
-                        RESET(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                        itActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                         break;
                     default:
                         break;
@@ -2120,7 +2120,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     destsect->floorshade = srcsect->floorshade;
 //    destsect->floorz = srcsect->floorz;
 
-    RESET(destsect->floorstat, CSTAT_SECTOR_ALIGN);
+    destsect->floorstat &= ~(CSTAT_SECTOR_ALIGN);
     destsect->u_defined = true;
     ASSERT(srcsect->hasU());
 
@@ -2154,7 +2154,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     // Take out any blocking walls
     for(auto& wal : wallsofsector(destsect))
     {
-        RESET(wal.cstat, CSTAT_WALL_BLOCK);
+        wal.cstat &= ~(CSTAT_WALL_BLOCK);
     }
 
     return;
@@ -2421,7 +2421,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                         AnimSet(ANIM_Floorz, *sectp, (*sectp)->floorz + Z((*sectp)->height), 128);
                         (*sectp)->floorshade += (*sectp)->height / 6;
 
-                        RESET((*sectp)->extra, SECTFX_NO_RIDE);
+                        (*sectp)->extra &= ~(SECTFX_NO_RIDE);
                     }
                 }
             }
@@ -2852,7 +2852,7 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 
 void DoActorHitTrackEndPoint(DSWActor* actor)
 {
-    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
+    Track[actor->user.track].flags &= ~(TF_TRACK_OCCUPIED);
 
     // jump the current track & determine if you should go to another
     if (TEST(actor->user.Flags, SPR_RUN_AWAY))
@@ -2900,7 +2900,7 @@ void ActorLeaveTrack(DSWActor* actor)
         return;
 
     actor->user.Flags &= ~(SPR_FIND_PLAYER|SPR_RUN_AWAY|SPR_CLIMBING);
-    RESET(Track[actor->user.track].flags, TF_TRACK_OCCUPIED);
+    Track[actor->user.track].flags &= ~(TF_TRACK_OCCUPIED);
     actor->user.track = -1;
 }
 

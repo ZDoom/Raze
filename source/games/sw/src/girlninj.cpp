@@ -826,7 +826,7 @@ int DoGirlNinjaSpecial(DSWActor* actor)
 {
     if (actor->user.spal == PALETTE_PLAYER5)
     {
-        RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.hitag = 0;
         actor->spr.shade = -10;
     }

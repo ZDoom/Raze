@@ -221,7 +221,7 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
     // because the ceiling and floors get moved out of the way for drawing.
 
     save_cstat = tspr->cstat;
-    RESET(tspr->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    tspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     FAFgetzrangepoint(tspr->pos.X, tspr->pos.Y, tspr->pos.Z, tspr->sector(), &hiz, &ceilhit, &loz, &florhit);
     tspr->cstat = save_cstat;
 
@@ -241,7 +241,7 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
             // reset the blocking bit of what you hit and try again -
             // recursive
             bak_cstat = hitactor->spr.cstat;
-            RESET(hitactor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            hitactor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             loz = DoShadowFindGroundPoint(tspr);
             hitactor->spr.cstat = bak_cstat;
         }
@@ -1006,7 +1006,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
             if (!TEST(hitactor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto flag_backup = hitactor->spr.cstat;
-                RESET(hitactor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                hitactor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
                 CircleCamera(nx, ny, nz, vsect, nang, q16horiz);
                 hitactor->spr.cstat = flag_backup;

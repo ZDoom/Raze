@@ -3184,8 +3184,8 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         {
             // has a user - is programmed
             change_actor_stat(parentActor, STAT_MISC);
-            RESET(parentActor->spr.extra, SPRX_BREAKABLE);
-            RESET(parentActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+            parentActor->spr.extra &= ~(SPRX_BREAKABLE);
+            parentActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
     }
 
@@ -5180,7 +5180,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
         // attempt to see if it was killed
         ASSERT(goal->spr.insector());
         if (goal->hasU())
-            RESET(goal->user.Flags, SPR_TARGETED);
+            goal->user.Flags &= ~(SPR_TARGETED);
     }
 
     return 0;
@@ -11570,7 +11570,7 @@ int InitSerpRing(DSWActor* actor)
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
         change_actor_stat(actorNew, STAT_SKIP4);
-        RESET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
+        actorNew->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
         actorNew->spr.clipdist = (128+64) >> 2;
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -17673,7 +17673,7 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->spr.ang = actor->spr.ang;
-    RESET(spawnedActor->user.Flags, SPR_SHADOW);
+    spawnedActor->user.Flags &= ~(SPR_SHADOW);
     switch (FootMode)
     {
     case BLOOD_FOOT:

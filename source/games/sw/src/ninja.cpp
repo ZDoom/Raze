@@ -1959,7 +1959,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
     {
         UpdateSinglePlayKills(actor);
-        RESET(actor->user.Flags2, SPR2_DYING);
+        actor->user.Flags2 &= ~(SPR2_DYING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -2101,7 +2101,7 @@ int DoNinjaSpecial(DSWActor* actor)
 {
     if (actor->user.spal == PALETTE_PLAYER5)
     {
-        RESET(actor->spr.cstat,CSTAT_SPRITE_TRANSLUCENT);
+        actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.hitag = 0;
         actor->spr.shade = -10;
     }
@@ -2239,8 +2239,6 @@ void PlayerDeathReset(PLAYERp pp)
     pp->sop_remote = nullptr;
     pp->sop = nullptr;
     DoPlayerResetMovement(pp);
-    //if (pp->CurWpn)
-    //    RESET(pp->CurWpn->flags, PANF_DEATH_HIDE);
     DamageData[actor->user.WeaponNum].Init(pp);
 }
 
