@@ -90,17 +90,24 @@ FNewGameStartup NewGameStartupInfo;
 
 static bool DoStartGame(FNewGameStartup& gs)
 {
-	auto vol = FindVolume(gs.Episode);
-	if (!vol) return false;
-
-	if (isShareware() && (vol->flags & VF_SHAREWARELOCK))
+	MapRecord* map;
+	if (gs.Map == nullptr)
 	{
-		M_StartMessage(GStrings("SHAREWARELOCK"), 1, NAME_None);
-		return false;
-	}
+		auto vol = FindVolume(gs.Episode);
+		if (!vol) return false;
 
-	auto map = FindMapByName(vol->startmap);
-	if (!map) return false;
+		if (isShareware() && (vol->flags & VF_SHAREWARELOCK))
+		{
+			M_StartMessage(GStrings("SHAREWARELOCK"), 1, NAME_None);
+			return false;
+		}
+
+		map = FindMapByName(vol->startmap);
+		if (!map) return false;
+	}
+	else
+		map = gs.Map;
+
 	soundEngine->StopAllChannels();
 
 	gi->StartGame(gs);	// play game specific effects (like Duke/RR/SW's voice lines when starting a game.)
@@ -132,9 +139,13 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		break;
 
 	case NAME_Skillmenu:
-		// sent from the episode menu
-		NewGameStartupInfo.Episode = param;
-		NewGameStartupInfo.Level = 0;
+		// sent from the episode or user map menu
+		if (param != INT_MAX)
+		{
+			NewGameStartupInfo.Map = nullptr;
+			NewGameStartupInfo.Episode = param;
+			NewGameStartupInfo.Level = 0;
+		}
 		NewGameStartupInfo.Skill = gDefaultSkill;
 		return true;
 

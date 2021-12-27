@@ -253,8 +253,6 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 	return 0;
 }
 
-void DoStartMap(FString mapname);
-
 DEFINE_ACTION_FUNCTION(_UsermapMenu, StartMap)
 {
 	PARAM_PROLOGUE;
@@ -264,9 +262,9 @@ DEFINE_ACTION_FUNCTION(_UsermapMenu, StartMap)
 	{
 		ThrowAbortException(X_OTHER, "Attempt to start user map outside of menu code");
 	}
-
-	DoStartMap(entry->filename);
-	M_ClearMenus();
-	UnloadMapPreviews(&root);
+	NewGameStartupInfo.Episode = -1;
+	NewGameStartupInfo.Level = -1;
+	NewGameStartupInfo.Map = SetupUserMap(entry->filename, g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
+	M_SetMenu(NAME_Skillmenu, INT_MAX);
 	return 0;
 }

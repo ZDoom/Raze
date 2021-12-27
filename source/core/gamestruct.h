@@ -16,6 +16,7 @@ struct spritetype;
 struct sectortype;
 struct tspritetype;
 class DCoreActor;
+struct MapRecord;
 
 struct GameStats
 {
@@ -27,6 +28,7 @@ struct GameStats
 
 struct FNewGameStartup
 {
+	MapRecord* Map;
 	int Episode;
 	int Level;
 	int Skill;
