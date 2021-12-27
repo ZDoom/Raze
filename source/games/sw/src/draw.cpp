@@ -130,7 +130,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
             else
             {
                 rotation = (8 - rotation);
-                SET(tsp->cstat, CSTAT_SPRITE_XFLIP);    // clear x-flipping bit
+                tsp->cstat |= (CSTAT_SPRITE_XFLIP);    // clear x-flipping bit
             }
         }
         else
@@ -143,7 +143,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
             else
             {
                 rotation = (8 - rotation);
-                SET(tsp->cstat, CSTAT_SPRITE_XFLIP);    // set
+                tsp->cstat |= (CSTAT_SPRITE_XFLIP);    // set
             }
         }
 
@@ -517,12 +517,12 @@ void DoStarView(tspriteptr_t tsp, DSWActor* tActor, int viewz)
             tsp->picnum = s_StarDown[tActor->user.State - s_Star].Pic;
 
         if (zdiff > 0)
-            SET(tsp->cstat, CSTAT_SPRITE_YFLIP);
+            tsp->cstat |= (CSTAT_SPRITE_YFLIP);
     }
     else
     {
         if (zdiff > 0)
-            SET(tsp->cstat, CSTAT_SPRITE_YFLIP);
+            tsp->cstat |= (CSTAT_SPRITE_YFLIP);
     }
 }
 
@@ -685,7 +685,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
-                    SET(tsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+                    tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
                     DoStarView(tsp, tActor, viewz);
@@ -749,7 +749,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 tsp->picnum = DART_PIC;
                 tsp->ang = NORM_ANGLE(tsp->ang - 512);
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
-                SET(tsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+                tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
 
         // Call my sprite handler
@@ -771,7 +771,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
                     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-                        SET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
+                        tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
                     if (TEST(pp->Flags, PF_CLIMBING))
                     {
@@ -794,7 +794,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 {
                     // dont draw your sprite
                     tsp->ownerActor = nullptr;
-                    //SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE);
+                    //tsp->cstat |= (CSTAT_SPRITE_INVISIBLE);
                 }
             }
             else // Otherwise just interpolate the player sprite
@@ -1230,7 +1230,7 @@ void PostDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SLOPE);
+        actor->spr.sector()->floorstat |= (CSTAT_SECTOR_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
@@ -1342,7 +1342,7 @@ void UpdateWallPortalState()
             SP_TAG5(actor) = actor->spr.sector()->ceilingpicnum;
             actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->spr.sector()->ceilingstat;
-            SET(actor->spr.sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->spr.sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
             RESET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
@@ -1350,7 +1350,7 @@ void UpdateWallPortalState()
             SP_TAG5(actor) = actor->spr.sector()->floorpicnum;
             actor->spr.sector()->floorpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->spr.sector()->floorstat;
-            SET(actor->spr.sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->spr.sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
             RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }

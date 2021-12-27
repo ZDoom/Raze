@@ -567,13 +567,13 @@ void SetupMirrorTiles(void)
         if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
             actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC;
-            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->ceilingstat |= (CSTAT_SECTOR_SKY);
         }
 
         if (actor->spr.sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
         {
             actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC;
-            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY);
+            actor->spr.sector()->floorstat |= (CSTAT_SECTOR_SKY);
         }
 
         if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)

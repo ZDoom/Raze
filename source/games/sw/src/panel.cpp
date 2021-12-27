@@ -1750,7 +1750,7 @@ void pSpawnUziClip(PANEL_SPRITEp gun)
     if (TEST(gun->flags, PANF_XFLIP))
     {
         New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x - UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
-        SET(New->flags, PANF_XFLIP);
+        New->flags |= (PANF_XFLIP);
         New->ang = NORM_ANGLE(1024 + 256 + 22);
         New->ang = NORM_ANGLE(New->ang + 512);
     }
@@ -1761,7 +1761,7 @@ void pSpawnUziClip(PANEL_SPRITEp gun)
     }
 
     New->vel = 1050;
-    SET(New->flags, PANF_WEAPON_SPRITE);
+    New->flags |= (PANF_WEAPON_SPRITE);
 
 
     // carry Eject sprite with clip
@@ -2042,7 +2042,7 @@ PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     uzi_orig->sibling = New;
 
     // Set up the New weapon variables
-    SET(New->flags, PANF_WEAPON_SPRITE);
+    New->flags |= (PANF_WEAPON_SPRITE);
     New->ActionState = &ps_FireUzi2[1];
     New->RetractState = ps_RetractUzi2;
     New->PresentState = ps_PresentUzi2;
@@ -2050,7 +2050,7 @@ PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     pSetState(New, New->PresentState);
 
     New->sibling = uzi_orig;
-    SET(New->flags, PANF_SECONDARY);
+    New->flags |= (PANF_SECONDARY);
     pUziOverlays(New, CHAMBER_REST);
 
     return New;
@@ -2065,10 +2065,10 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
     New->y += tileHeight(New->picndx);
     New->oy = New->y;
 
-    SET(New->flags, PANF_XFLIP);
+    New->flags |= (PANF_XFLIP);
 
     // Set up the New weapon variables
-    SET(New->flags, PANF_WEAPON_SPRITE);
+    New->flags |= (PANF_WEAPON_SPRITE);
     New->ActionState = ps_UziEject;
     New->RetractState = ps_RetractUzi;
     New->PresentState = ps_PresentUzi;
@@ -2077,7 +2077,7 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
     pSetState(New, ps_PresentUziReload);
 
     New->sibling = uzi_orig;
-    SET(New->flags, PANF_SECONDARY|PANF_RELOAD);
+    New->flags |= (PANF_SECONDARY|PANF_RELOAD);
 
     return New;
 }
@@ -4115,7 +4115,7 @@ bool pMicroOverlays(PANEL_SPRITEp psp)
 
         psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_20;
         SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
-        SET(psp->over[MICRO_HEAT_NUM].flags, psf_ShadeNone);
+        psp->over[MICRO_HEAT_NUM].flags |= (psf_ShadeNone);
         return true;
     }
     return false;
@@ -6552,7 +6552,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
 
             if (pp->InventoryActive[INVENTORY_CLOAK])
             {
-                SET(flags, RS_TRANS1);
+                flags |= (RS_TRANS1);
             }
 
             //shade = overlay_shade = DIV2(pp->cursector->floorshade + pp->cursector->ceilingshade);
@@ -6574,16 +6574,16 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         }
 
         if (TEST(psp->flags, PANF_TRANSLUCENT))
-            SET(flags, RS_TRANS1);
+            flags |= (RS_TRANS1);
 
-        SET(flags, TEST(psp->flags, PANF_TRANS_FLIP));
+        flags |= (TEST(psp->flags, PANF_TRANS_FLIP));
 
         if (TEST(psp->flags, PANF_CORNER))
-            SET(flags, RS_TOPLEFT);
+            flags |= (RS_TOPLEFT);
 
         if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))
         {
-            SET(flags, RS_XFLIPHUD);
+            flags |= (RS_XFLIPHUD);
         }
 
         // shading

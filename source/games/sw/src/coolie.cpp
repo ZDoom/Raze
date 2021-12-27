@@ -419,8 +419,8 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
     actor->user.PainThreshold = (actor->user.Health >> 4) - 1;
 
-    SET(actor->spr.cstat,CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actor->spr.extra,SPRX_PLAYER_OR_ENEMY);
+    actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
     actor->spr.picnum = actor->user.State->Pic;
     change_actor_stat(actor, STAT_ENEMY);

@@ -93,7 +93,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     actor->user.floor_dist = Z(40);
 
     // test for gibable dead bodies
-    SET(actor->spr.extra, SPRX_BREAKABLE);
+    actor->spr.extra |= (SPRX_BREAKABLE);
     actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
     if (weapActor == nullptr)

@@ -330,27 +330,27 @@ void SectorLiquidSet(sectortype* sectp)
     if (sectp->floorpicnum >= 300 && sectp->floorpicnum <= 307)
     {
         sectp->u_defined = true;
-        SET(sectp->extra, SECTFX_LIQUID_WATER);
+        sectp->extra |= (SECTFX_LIQUID_WATER);
     }
     else if (sectp->floorpicnum >= 320 && sectp->floorpicnum <= 343)
     {
         sectp->u_defined = true;
-        SET(sectp->extra, SECTFX_LIQUID_WATER);
+        sectp->extra |= (SECTFX_LIQUID_WATER);
     }
     else if (sectp->floorpicnum >= 780 && sectp->floorpicnum <= 794)
     {
         sectp->u_defined = true;
-        SET(sectp->extra, SECTFX_LIQUID_WATER);
+        sectp->extra |= (SECTFX_LIQUID_WATER);
     }
     else if (sectp->floorpicnum >= 890 && sectp->floorpicnum <= 897)
     {
         sectp->u_defined = true;
-        SET(sectp->extra, SECTFX_LIQUID_WATER);
+        sectp->extra |= (SECTFX_LIQUID_WATER);
     }
     else if (sectp->floorpicnum >= 175 && sectp->floorpicnum <= 182)
     {
         sectp->u_defined = true;
-        SET(sectp->extra, SECTFX_LIQUID_LAVA);
+        sectp->extra |= (SECTFX_LIQUID_LAVA);
         if (!sectp->damage)
             sectp->damage = 40;
     }
@@ -414,7 +414,7 @@ void SectorSetup(void)
             // don't do a z adjust for FAF area
             if (sectp->floorpicnum != FAF_PLACE_MIRROR_PIC)
             {
-                SET(sectp->extra, SECTFX_Z_ADJUST);
+                sectp->extra |= (SECTFX_Z_ADJUST);
             }
         }
 
@@ -423,7 +423,7 @@ void SectorSetup(void)
             // don't do a z adjust for FAF area
             if (sectp->ceilingpicnum != FAF_PLACE_MIRROR_PIC)
             {
-                SET(sectp->extra, SECTFX_Z_ADJUST);
+                sectp->extra |= (SECTFX_Z_ADJUST);
             }
         }
 

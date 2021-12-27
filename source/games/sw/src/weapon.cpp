@@ -5041,7 +5041,7 @@ int ActorHealth(DSWActor* actor, short amt)
                     rnd = RANDOM_P2(1024<<4)>>4;
                     if (rnd < 950)
                         return true;
-                    SET(actor->user.Flags2, SPR2_DYING); // Only let it check this once!
+                    actor->user.Flags2 |= (SPR2_DYING); // Only let it check this once!
                     actor->user.WaitTics = SEC(1) + SEC(RandomRange(2));
                     actor->user.Health = 60;
                     PlaySound(DIGI_NINJACHOKE, actor, v3df_follow);
@@ -8856,15 +8856,15 @@ int DoMine(DSWActor* actor)
             {
                 if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 {
-                    SET(actor->user.Flags2, SPR2_ATTACH_WALL);
+                    actor->user.Flags2 |= (SPR2_ATTACH_WALL);
                 }
                 else if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
-                        SET(actor->user.Flags2, SPR2_ATTACH_FLOOR);
+                        actor->user.Flags2 |= (SPR2_ATTACH_FLOOR);
                     else
-                        SET(actor->user.Flags2, SPR2_ATTACH_CEILING);
+                        actor->user.Flags2 |= (SPR2_ATTACH_CEILING);
                 }
                 else
                 {
@@ -8890,7 +8890,7 @@ int DoMine(DSWActor* actor)
 
             SetMineStuck(actor);
 
-            SET(actor->user.Flags2, SPR2_ATTACH_WALL);
+            actor->user.Flags2 |= (SPR2_ATTACH_WALL);
 
             if (TEST(hit_wall->extra, WALLFX_SECTOR_OBJECT))
             {
@@ -8914,9 +8914,9 @@ int DoMine(DSWActor* actor)
 
             // hit floor
             if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
-                SET(actor->user.Flags2, SPR2_ATTACH_FLOOR);
+                actor->user.Flags2 |= (SPR2_ATTACH_FLOOR);
             else
-                SET(actor->user.Flags2, SPR2_ATTACH_CEILING);
+                actor->user.Flags2 |= (SPR2_ATTACH_CEILING);
 
 
             if (TEST(hit_sect->extra, SECTFX_SECTOR_OBJECT))
@@ -11632,7 +11632,7 @@ void InitSpellNapalm(PLAYERp pp)
         actor->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(actor->user.Flags2, SPR2_BLUR_TAPER_FAST);
+        actor->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
         actor->user.floor_dist = Z(1);
         actor->user.ceiling_dist = Z(1);
@@ -11711,7 +11711,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->spr.clipdist = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(actorNew->user.Flags2, SPR2_BLUR_TAPER_FAST);
+        actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
         actorNew->user.floor_dist = Z(1);
         actorNew->user.ceiling_dist = Z(1);
@@ -12237,7 +12237,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->spr.clipdist = 0;
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(actorNew->user.Flags2, SPR2_BLUR_TAPER_FAST);
+            actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
             actorNew->user.floor_dist = Z(1);
             actorNew->user.ceiling_dist = Z(1);
@@ -12764,7 +12764,7 @@ void InitHeartAttack(PLAYERp pp)
     actorNew->spr.clipdist = 0;
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
+    actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->user.floor_dist = Z(1);
@@ -12937,7 +12937,7 @@ int InitShotgun(PLAYERp pp)
             if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
             {
                 hit.hitpos.Z += Z(16);
-                SET(cstat, CSTAT_SPRITE_YFLIP);
+                cstat |= (CSTAT_SPRITE_YFLIP);
 
                 if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                     continue;
@@ -14387,7 +14387,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -15275,7 +15275,7 @@ int InitUzi(PLAYERp pp)
         if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
-            SET(cstat, CSTAT_SPRITE_YFLIP);
+            cstat |= (CSTAT_SPRITE_YFLIP);
 
             if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                 return 0;
@@ -15421,7 +15421,7 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
@@ -15560,7 +15560,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
@@ -15597,7 +15597,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
@@ -15648,7 +15648,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -15696,7 +15696,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
+    actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->spr.clipdist = 64L>>2;
@@ -15764,7 +15764,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
-            SET(cstat, CSTAT_SPRITE_YFLIP);
+            cstat |= (CSTAT_SPRITE_YFLIP);
 
             if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                 return 0;
@@ -16145,7 +16145,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                 if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
                 {
                     hit.hitpos.Z += Z(16);
-                    SET(cstat, CSTAT_SPRITE_YFLIP);
+                    cstat |= (CSTAT_SPRITE_YFLIP);
 
                     if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                         continue;
@@ -17967,7 +17967,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     case GORE_Head:
         change_actor_stat(actor,STAT_DEFAULT); // Breakable
         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
-        SET(actor->spr.extra, SPRX_BREAKABLE);
+        actor->spr.extra |= (SPRX_BREAKABLE);
         break;
     default:
         RESET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);

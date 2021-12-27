@@ -783,7 +783,7 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
-    SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
+    actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
@@ -830,7 +830,7 @@ void SpawnZombie2(DSWActor* actor)
     actorNew->spr.ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
-    SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
+    actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);

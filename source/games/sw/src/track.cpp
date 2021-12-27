@@ -341,7 +341,7 @@ void QuickJumpSetup(short stat, short lotag, short type)
         t = &Track[ndx];
 
         // set track type
-        SET(t->ttflags, BIT(type));
+        t->ttflags |= (BIT(type));
         t->flags = 0;
 
         // clone point
@@ -399,7 +399,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         t = &Track[ndx];
 
         // set track type
-        SET(t->ttflags, BIT(type));
+        t->ttflags |= (BIT(type));
         t->flags = 0;
 
         // clone point
@@ -454,7 +454,7 @@ void QuickExitSetup(short stat, short type)
         t = &Track[ndx];
 
         // set track type
-        SET(t->ttflags, BIT(type));
+        t->ttflags |= (BIT(type));
         t->flags = 0;
 
         // clone point
@@ -505,7 +505,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         t = &Track[ndx];
 
         // set track type
-        SET(t->ttflags, BIT(type));
+        t->ttflags |= (BIT(type));
         t->flags = 0;
 
         // clone point
@@ -596,7 +596,7 @@ void TrackSetup(void)
 
         // set up flags for track types
         if (tp->tag_low == TRACK_START && tp->tag_high)
-            SET(t->ttflags, BIT(tp->tag_high));
+            t->ttflags |= (BIT(tp->tag_high));
 
         // while there are still sprites on this status list
 
@@ -1051,7 +1051,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = actorNew;
         actorNew->user.sop_parent = sop;
-        SET(actorNew->user.Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
+        actorNew->user.Flags2 |= (SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
         // check for any ST1 sprites laying on the center sector
         SWSectIterator it(sectp);

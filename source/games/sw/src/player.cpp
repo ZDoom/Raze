@@ -1312,10 +1312,10 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
-    SET(effectActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    SET(effectActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
 void DoSpawnTeleporterEffectPlace(DSWActor* actor)
@@ -1330,10 +1330,10 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
-    SET(effectActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(effectActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    SET(effectActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
 void DoPlayerWarpTeleporter(PLAYERp pp)
@@ -4184,7 +4184,7 @@ void DoPlayerBeginDive(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
 
     //pp->z_speed = 0;
@@ -4235,7 +4235,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
     pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
-    SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
     pp->z_speed = 0;
     pp->DiveTics = PLAYER_DIVE_TIME;
@@ -5566,7 +5566,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = -300;
         plActor->user.slide_vel = 0;
         SpawnShrap(pp->actor, nullptr);
-        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
@@ -5581,7 +5581,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
         SpawnShrap(pp->actor, nullptr);
-        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
@@ -5599,7 +5599,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = 200;
         plActor->user.slide_vel = 800;
         SpawnShrap(pp->actor, nullptr);
-        SET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
+        plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
         plActor->spr.xrepeat = 48;
@@ -5766,7 +5766,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
         RESET(plActor->spr.cstat, CSTAT_SPRITE_YCENTER);
-        SET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;

@@ -1079,7 +1079,7 @@ int DoCaltrops(DSWActor* actor)
                         else
                         {
                             actor->user.xchange = actor->user.ychange = 0;
-                            SET(actor->spr.extra, SPRX_BREAKABLE);
+                            actor->spr.extra |= (SPRX_BREAKABLE);
                             SET(actor->spr.cstat,CSTAT_SPRITE_BREAKABLE);
                             ChangeState(actor, s_CaltropsStick);
                             return true;
@@ -1117,7 +1117,7 @@ int DoCaltrops(DSWActor* actor)
                     else
                     {
                         actor->user.xchange = actor->user.ychange = 0;
-                        SET(actor->spr.extra, SPRX_BREAKABLE);
+                        actor->spr.extra |= (SPRX_BREAKABLE);
                         SET(actor->spr.cstat,CSTAT_SPRITE_BREAKABLE);
                         ChangeState(actor, s_CaltropsStick);
                         return true;

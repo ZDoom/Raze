@@ -1940,7 +1940,7 @@ int DoNinjaHariKari(DSWActor* actor)
     actor->user.RotNum = 0;
     actor->user.ActorActionFunc = nullptr;
 
-    SET(actor->spr.extra, SPRX_BREAKABLE);
+    actor->spr.extra |= (SPRX_BREAKABLE);
     actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
     PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_follow);
@@ -1969,7 +1969,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         actor->user.RotNum = 0;
         actor->user.ActorActionFunc = nullptr;
 
-        SET(actor->spr.extra, SPRX_BREAKABLE);
+        actor->spr.extra |= (SPRX_BREAKABLE);
         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
         
@@ -2333,7 +2333,7 @@ void InitPlayerSprite(PLAYERp pp)
     pp->pnum = pnum;
 
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
     RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     // Grouping items that need to be reset after a LoadLevel
@@ -2400,7 +2400,7 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
     DSWActor* actor = pp->PlayerUnderActor;
 
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
     actor->user.Rot = sg_NinjaRun;
     actor->user.RotNum = plActor->user.RotNum;

@@ -1604,7 +1604,7 @@ void SpriteSetup(void)
                 // need something that tells missiles to hit them
                 // but allows actors to move through them
                 actor->spr.clipdist = ActorSizeX(actor);
-                SET(actor->spr.extra, SPRX_BREAKABLE);
+                actor->spr.extra |= (SPRX_BREAKABLE);
                 actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
                 break;
             }
@@ -1765,7 +1765,7 @@ void SpriteSetup(void)
                     sectp->u_defined = true;
                     sectp->number = actor->spr.lotag;
                     if (actor->spr.clipdist == 1)
-                        SET(sectp->flags, SECTFU_CANT_SURFACE);
+                        sectp->flags |= (SECTFU_CANT_SURFACE);
                     change_actor_stat(actor, STAT_UNDERWATER2);
                 }
             }
@@ -1791,7 +1791,7 @@ void SpriteSetup(void)
 
                 case SLIDE_SECTOR:
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SLIDE_SECTOR);
+                    sectp->flags |= (SECTFU_SLIDE_SECTOR);
                     sectp->speed = SP_TAG2(actor);
                     KillActor(actor);
                     break;
@@ -1800,7 +1800,7 @@ void SpriteSetup(void)
                 {
                     sectp->u_defined = true;
                     if (TEST_BOOL1(actor))
-                        SET(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR);
+                        sectp->flags |= (SECTFU_DAMAGE_ABOVE_SECTOR);
                     sectp->damage = actor->spr.lotag;
                     KillActor(actor);
                     break;
@@ -1824,7 +1824,7 @@ void SpriteSetup(void)
                 case SECT_DONT_COPY_PALETTE:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_DONT_COPY_PALETTE);
+                    sectp->flags |= (SECTFU_DONT_COPY_PALETTE);
                     KillActor(actor);
                     break;
                 }
@@ -1939,16 +1939,16 @@ void SpriteSetup(void)
                     if (SP_TAG7(actor) == 0 || SP_TAG7(actor) == 1)
                     {
                         if (SP_TAG3(actor) == 0)
-                            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            actor->spr.sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            actor->spr.sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
                     else if (TEST_BOOL1(actor))
                     {
                         if (SP_TAG3(actor) == 0)
-                            SET(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            actor->spr.sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                            actor->spr.sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
 
                     // copy tag 7 to tag 6 and pre-shift it
@@ -1998,9 +1998,9 @@ void SpriteSetup(void)
                     if (TEST(sectp->extra, SECTFX_VATOR))
                     {
                         sectp->u_defined = true;
-                        SET(sectp->flags, SECTFU_VATOR_BOTH);
+                        sectp->flags |= (SECTFU_VATOR_BOTH);
                     }
-                    SET(sectp->extra, SECTFX_VATOR);
+                    sectp->extra |= (SECTFX_VATOR);
                     SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, true, true);
                     actor->spr.sector()->extra |= (SECTFX_DYNAMIC_AREA);
 
@@ -2686,7 +2686,7 @@ void SpriteSetup(void)
                 case SECT_SO_DONT_BOB:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SO_DONT_BOB);
+                    sectp->flags |= (SECTFU_SO_DONT_BOB);
                     KillActor(actor);
                     break;
                 }
@@ -2703,7 +2703,7 @@ void SpriteSetup(void)
                 case SECT_SO_SINK_DEST:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SO_SINK_DEST);
+                    sectp->flags |= (SECTFU_SO_SINK_DEST);
                     sectp->number = actor->spr.lotag;  // acually the offset Z
                     // value
                     KillActor(actor);
@@ -2713,7 +2713,7 @@ void SpriteSetup(void)
                 case SECT_SO_DONT_SINK:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SO_DONT_SINK);
+                    sectp->flags |= (SECTFU_SO_DONT_SINK);
                     KillActor(actor);
                     break;
                 }
@@ -2721,8 +2721,8 @@ void SpriteSetup(void)
                 case SO_SLOPE_FLOOR_TO_POINT:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SO_SLOPE_FLOOR_TO_POINT);
-                    SET(sectp->extra, SECTFX_DYNAMIC_AREA);
+                    sectp->flags |= (SECTFU_SO_SLOPE_FLOOR_TO_POINT);
+                    sectp->extra |= (SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
@@ -2730,8 +2730,8 @@ void SpriteSetup(void)
                 case SO_SLOPE_CEILING_TO_POINT:
                 {
                     sectp->u_defined = true;
-                    SET(sectp->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT);
-                    SET(sectp->extra, SECTFX_DYNAMIC_AREA);
+                    sectp->flags |= (SECTFU_SO_SLOPE_CEILING_TO_POINT);
+                    sectp->extra |= (SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
@@ -3392,7 +3392,7 @@ NUKE_REPLACEMENT:
 
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
             actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(actor->spr.extra, SPRX_BLADE);
+            actor->spr.extra |= (SPRX_BLADE);
 
             break;
         }
@@ -3411,7 +3411,7 @@ NUKE_REPLACEMENT:
 
             actor->spr.clipdist = ActorSizeX(actor);
             actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
-            SET(actor->spr.extra, SPRX_BREAKABLE);
+            actor->spr.extra |= (SPRX_BREAKABLE);
             break;
 
         // switches
@@ -5356,7 +5356,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_STAR))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_STAR));
+            pp->WpnGotOnceFlags |= (BIT(WPN_STAR));
 
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
@@ -5383,7 +5383,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_MINE))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_MINE));
+            pp->WpnGotOnceFlags |= (BIT(WPN_MINE));
 
             if (pp->WpnAmmo[WPN_MINE] >= DamageData[WPN_MINE].max_ammo)
                 break;
@@ -5412,7 +5412,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_UZI))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_UZI));
+            pp->WpnGotOnceFlags |= (BIT(WPN_UZI));
 
             if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
@@ -5468,7 +5468,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_MICRO))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_MICRO));
+            pp->WpnGotOnceFlags |= (BIT(WPN_MICRO));
 
             if (TEST(pp->WpnFlags, BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
@@ -5535,7 +5535,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_GRENADE))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_GRENADE));
+            pp->WpnGotOnceFlags |= (BIT(WPN_GRENADE));
 
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
@@ -5605,7 +5605,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_RAIL))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_RAIL));
+            pp->WpnGotOnceFlags |= (BIT(WPN_RAIL));
 
             if (TEST(pp->WpnFlags, BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
@@ -5653,7 +5653,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_SHOTGUN))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_SHOTGUN));
+            pp->WpnGotOnceFlags |= (BIT(WPN_SHOTGUN));
 
             if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
@@ -5720,7 +5720,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_HOTHEAD))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_HOTHEAD));
+            pp->WpnGotOnceFlags |= (BIT(WPN_HOTHEAD));
 
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
@@ -5765,7 +5765,7 @@ KeyMain:
             if (!CanGetWeapon(pp, actor, WPN_HEART))
                 break;
 
-            SET(pp->WpnGotOnceFlags, BIT(WPN_HEART));
+            pp->WpnGotOnceFlags |= (BIT(WPN_HEART));
 
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;

@@ -299,7 +299,7 @@ void UseInventoryCloak(PLAYERp pp)
     // on/off
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
-    SET(plActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    plActor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
     plActor->spr.shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);

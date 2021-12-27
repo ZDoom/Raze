@@ -509,7 +509,7 @@ void CoolgCommon(DSWActor* actor)
 
     actor->spr.xrepeat = 42;
     actor->spr.yrepeat = 42;
-    SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 }
 
 int SetupCoolg(DSWActor* actor)

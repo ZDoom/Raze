@@ -474,7 +474,7 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
     if (break_info)
     {
         wallp->lotag = TAG_WALL_BREAK;
-        SET(wallp->extra, WALLFX_DONT_STICK);
+        wallp->extra |= (WALLFX_DONT_STICK);
     }
 
     if (wallp->overpicnum > 0 && TEST(wallp->cstat, CSTAT_WALL_MASKED))
@@ -483,7 +483,7 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
         if (break_info)
         {
             wallp->lotag = TAG_WALL_BREAK;
-            SET(wallp->extra, WALLFX_DONT_STICK);
+            wallp->extra |= (WALLFX_DONT_STICK);
         }
     }
 
@@ -514,9 +514,9 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
         }
 
         if (TEST(break_info->flags, BF_BURN))
-            SET(actor->spr.extra, SPRX_BURNABLE);
+            actor->spr.extra |= (SPRX_BURNABLE);
         else
-            SET(actor->spr.extra, SPRX_BREAKABLE);
+            actor->spr.extra |= (SPRX_BREAKABLE);
 
         actor->spr.clipdist = ActorSizeX(actor);
 
