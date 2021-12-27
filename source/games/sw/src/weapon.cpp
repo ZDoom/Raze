@@ -2778,7 +2778,7 @@ int DoLavaErupt(DSWActor* actor)
         // inactive
         if ((actor->user.WaitTics -= synctics) <= 0)
         {
-            SET(actor->user.Flags, SPR_ACTIVE);
+            actor->user.Flags |= (SPR_ACTIVE);
             actor->user.Counter = 0;
             actor->user.WaitTics = SP_TAG9(actor) * 120L;
         }
@@ -3757,7 +3757,7 @@ AutoShrap:
             actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
 
             if (!shrap_bounce)
-                SET(actor->user.Flags, SPR_BOUNCE);
+                actor->user.Flags |= (SPR_BOUNCE);
         }
     }
 
@@ -3888,7 +3888,7 @@ int DoShrapDamage(DSWActor* actor)
     {
         if (!TEST(actor->user.Flags, SPR_BOUNCE))
         {
-            SET(actor->user.Flags, SPR_BOUNCE);
+            actor->user.Flags |= (SPR_BOUNCE);
             actor->user.jump_speed = -300;
             actor->spr.xvel >>= 2;
             DoBeginJump(actor);
@@ -4087,7 +4087,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 0;
                 }
                 if (RANDOM_P2(1024) < 512)
-                    SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
+                    actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
                 //shrap_xsize = 96;
                 //shrap_ysize = 75;
                 //shrap_xsize = 10;
@@ -4106,7 +4106,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
             }
 
-            SET(actorNew->user.Flags, SPR_BOUNCE);
+            actorNew->user.Flags |= (SPR_BOUNCE);
 
             actorNew->spr.shade = int8_t(shrap_shade);
             actorNew->spr.xrepeat = uint8_t(shrap_xsize);
@@ -4135,7 +4135,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             actorNew->user.zchange = labs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8);
             actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
-            SET(actor->user.Flags, SPR_BOUNCE);
+            actor->user.Flags |= (SPR_BOUNCE);
 
             DoBeginJump(actorNew);
         }
@@ -4639,7 +4639,7 @@ int SetSuicide(DSWActor* actor)
 {
     if (actor->hasU())
     {
-        SET(actor->user.Flags, SPR_SUICIDE);
+        actor->user.Flags |= (SPR_SUICIDE);
         actor->user.RotNum = 0;
     }
     ChangeState(actor, s_Suicide);
@@ -4970,7 +4970,7 @@ int ActorHealth(DSWActor* actor, short amt)
         return true;
     }
 
-    SET(actor->user.Flags, SPR_ATTACKED);
+    actor->user.Flags |= (SPR_ATTACKED);
 
     actor->user.Health += amt;
 
@@ -7470,7 +7470,7 @@ int DoStar(DSWActor* actor)
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 36000);
-            SET(actor->user.Flags, SPR_BOUNCE);
+            actor->user.Flags |= (SPR_BOUNCE);
             actor->user.motion_blur_num = 0;
             actor->user.coll.setNone();
             break;
@@ -7528,7 +7528,7 @@ int DoStar(DSWActor* actor)
                     if (RANDOM_P2(1024) < STAR_BOUNCE_RNUM)
                         break;
 
-                    SET(actor->user.Flags, SPR_BOUNCE);
+                    actor->user.Flags |= (SPR_BOUNCE);
                     actor->user.motion_blur_num = 0;
                     actor->user.coll.setNone();
 
@@ -7536,7 +7536,7 @@ int DoStar(DSWActor* actor)
                 else
                 {
                     // hit a sloped sector < 45 degrees
-                    SET(actor->user.Flags, SPR_BOUNCE);
+                    actor->user.Flags |= (SPR_BOUNCE);
                     actor->user.motion_blur_num = 0;
                     actor->user.coll.setNone();
                 }
@@ -7545,7 +7545,7 @@ int DoStar(DSWActor* actor)
                 break; // hit a slope
             }
 
-            SET(actor->user.Flags, SPR_BOUNCE);
+            actor->user.Flags |= (SPR_BOUNCE);
             actor->user.motion_blur_num = 0;
             actor->user.coll.setNone();
             actor->user.zchange = -actor->user.zchange;
@@ -8314,7 +8314,7 @@ int DoGrenade(DSWActor* actor)
                         // hit a floor
                         if (!TEST(actor->user.Flags, SPR_BOUNCE))
                         {
-                            SET(actor->user.Flags, SPR_BOUNCE);
+                            actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 40000); // 18000
                             actor->user.coll.setNone();
                             actor->user.zchange /= 4;
@@ -8348,14 +8348,14 @@ int DoGrenade(DSWActor* actor)
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
                     if (TEST(actor->user.Flags, SPR_UNDERWATER))
-                        SET(actor->user.Flags, SPR_BOUNCE); // no bouncing underwater
+                        actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
 
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
-                        SET(actor->user.Flags, SPR_BOUNCE); // no bouncing on shallow water
+                        actor->user.Flags |= (SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(actor->user.Flags, SPR_BOUNCE))
                     {
-                        SET(actor->user.Flags, SPR_BOUNCE);
+                        actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
                         actor->user.zchange = -actor->user.zchange;
@@ -8409,7 +8409,7 @@ int DoGrenade(DSWActor* actor)
         actorNew->spr.xrepeat = 40;
         actorNew->spr.yrepeat = 40;
         actorNew->spr.opos = actor->spr.opos;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         actorNew->user.xchange = actor->user.xchange;
@@ -8419,7 +8419,7 @@ int DoGrenade(DSWActor* actor)
         ScaleSpriteVector(actorNew, 22000);
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
     return false;
@@ -8648,7 +8648,7 @@ int DoMineStuck(DSWActor* actor)
         //actor->user.WaitTics = 65536;
         actor->user.WaitTics = 32767;
         actor->user.Counter2 = 0;
-        SET(actor->user.Flags, SPR_ACTIVE);
+        actor->user.Flags |= (SPR_ACTIVE);
     }
 
     // limit the number of times DoMineRangeTest is called
@@ -8770,12 +8770,12 @@ int DoMineStuck(DSWActor* actor)
 void SetMineStuck(DSWActor* actor)
 {
     // stuck
-    SET(actor->user.Flags, SPR_BOUNCE);
+    actor->user.Flags |= (SPR_BOUNCE);
     // not yet active for 1 sec
     RESET(actor->user.Flags, SPR_ACTIVE);
     actor->user.WaitTics = SEC(3);
-    //SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+    //actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->user.Counter = 0;
     change_actor_stat(actor, STAT_MINE_STUCK);
     ChangeState(actor, s_MineStuck);
@@ -9058,7 +9058,7 @@ int DoEMPBurst(DSWActor* actor)
     {
         // activate it
         actor->user.WaitTics = SEC(7);
-        SET(actor->user.Flags, SPR_ACTIVE);
+        actor->user.Flags |= (SPR_ACTIVE);
     }
 
     if (RandomRange(1000) > 500)
@@ -9165,7 +9165,7 @@ int DoLaser(DSWActor* actor)
             actorNew->spr.yrepeat = 16;
             actorNew->spr.pal = actorNew->user.spal = PALETTE_RED_LIGHTING;
 
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
             actorNew->user.xchange = actorNew->user.ychange = actorNew->user.zchange = 0;
@@ -9258,7 +9258,7 @@ int DoRail(DSWActor* actor)
             actorNew->spr.xrepeat = 10;
             actorNew->spr.yrepeat = 10;
             actorNew->spr.opos = actor->spr.opos;
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
             actorNew->user.xchange = actor->user.xchange;
@@ -9268,7 +9268,7 @@ int DoRail(DSWActor* actor)
             ScaleSpriteVector(actorNew, 1500);
 
             if (TEST(actor->user.Flags, SPR_UNDERWATER))
-                SET(actorNew->user.Flags, SPR_UNDERWATER);
+                actorNew->user.Flags |= (SPR_UNDERWATER);
         }
     }
 }
@@ -9351,7 +9351,7 @@ int DoRocket(DSWActor* actor)
         actorNew->spr.xrepeat = 40;
         actorNew->spr.yrepeat = 40;
         actorNew->spr.opos = actor->spr.opos;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         actorNew->user.xchange = actor->user.xchange;
@@ -9361,7 +9361,7 @@ int DoRocket(DSWActor* actor)
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
     }
     return false;
 }
@@ -9441,7 +9441,7 @@ int DoMicro(DSWActor* actor)
         actorNew->spr.yrepeat = 20;
         actorNew->spr.opos = actor->spr.opos;
         actorNew->spr.zvel = actor->spr.zvel;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
         actorNew->user.xchange = actor->user.xchange;
@@ -9451,7 +9451,7 @@ int DoMicro(DSWActor* actor)
         ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
 
         // last smoke
         if ((actor->user.WaitTics -= MISSILEMOVETICS) <= 0)
@@ -9515,7 +9515,7 @@ int DoUziBullet(DSWActor* actor)
             SetOwner(GetOwner(actor), actorNew);
             actorNew->spr.ang = actor->spr.ang;
             actorNew->spr.clipdist = 128 >> 2;
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
             if (!TEST(actor->user.Flags, SPR_UNDERWATER))
             {
@@ -9525,7 +9525,7 @@ int DoUziBullet(DSWActor* actor)
                 actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
                 SetOwner(GetOwner(actor), actorNew);
                 actorNew->spr.ang = actor->spr.ang;
-                SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+                actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             }
 
             KillActor(actor);
@@ -9701,7 +9701,7 @@ int SpawnCoolieExp(DSWActor* actor)
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.Radius = DamageData[DMG_BOLT_EXP].radius;
@@ -9790,7 +9790,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //actorNew->user.Radius = DamageData[DMG_FIREBALL_FLAMES].radius;
@@ -9832,7 +9832,7 @@ int SpawnBreakFlames(DSWActor* actor)
     actorNew->spr.shade = -40;
     if (actor->hasU())
         actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.Radius = 200;
@@ -9893,8 +9893,8 @@ void SpawnFireballExp(DSWActor* actor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->user.Flags, TEST(actor->user.Flags,SPR_UNDERWATER));
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->user.Flags |= (TEST(actor->user.Flags,SPR_UNDERWATER));
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
@@ -9926,7 +9926,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
@@ -10216,7 +10216,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
     sop->so_actors[sn] = actor;
     so_setspriteinterpolation(sop, actor);
 
-    SET(actor->user.Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
+    actor->user.Flags |= (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
 
     actor->user.sx = sop->xmid - actor->spr.pos.X;
     actor->user.sy = sop->ymid - actor->spr.pos.Y;
@@ -11036,7 +11036,7 @@ int DoMirv(DSWActor* actor)
             actorNew->spr.yrepeat = 40;
             actorNew->spr.clipdist = 32L >> 2;
             actorNew->spr.zvel = 0;
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
             actorNew->user.ceiling_dist = Z(16);
             actorNew->user.floor_dist = Z(16);
@@ -11048,7 +11048,7 @@ int DoMirv(DSWActor* actor)
             actorNew->user.zchange = actorNew->spr.zvel;
 
             if (TEST(actor->user.Flags, SPR_UNDERWATER))
-                SET(actorNew->user.Flags, SPR_UNDERWATER);
+                actorNew->user.Flags |= (SPR_UNDERWATER);
         }
 
     }
@@ -11086,7 +11086,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
     actor->user.zchange = actor->spr.zvel;
 
-    SET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
+    actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
         retval = true;
     RESET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
@@ -11127,7 +11127,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     actor->user.ychange = MOVEy(actor->spr.xvel, actor->spr.ang);
     actor->user.zchange = zvel;
 
-    SET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
+    actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
         retval = true;
     RESET(actor->user.Flags, SPR_SET_POS_DONT_KILL);
@@ -11287,7 +11287,7 @@ void InitSpellRing(PLAYERp pp)
         actorNew->spr.backuppos();
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 }
 
@@ -11423,12 +11423,12 @@ int InitLavaThrow(DSWActor* actor)
     actorNew->spr.ang = nang;
 
     if (RANDOM_P2(1024) > 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->user.Radius = 200;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
     actorNew->user.ceiling_dist = Z(14);
     actorNew->user.floor_dist = Z(14);
@@ -11489,14 +11489,14 @@ void InitVulcanBoulder(DSWActor* actor)
     zsize = ActorSizeZ(actorNew);
 
     actorNew->user.Radius = 200;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
     actorNew->user.ceiling_dist = zsize/2;
     actorNew->user.floor_dist = zsize/2;
     if (RANDOM_P2(1024) > 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     if (SP_TAG7(actor))
     {
@@ -11558,7 +11558,7 @@ int InitSerpRing(DSWActor* actor)
 
         // control direction of spinning
         FLIP(actor->user.Flags, SPR_BOUNCE);
-        SET(actorNew->user.Flags, TEST(actor->user.Flags, SPR_BOUNCE));
+        actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
 
         actorNew->user.Dist = 600;
         actorNew->user.TargetDist = SERP_RING_DIST;
@@ -11573,8 +11573,8 @@ int InitSerpRing(DSWActor* actor)
         RESET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
         actorNew->spr.clipdist = (128+64) >> 2;
-        SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.Radius = 400;
     }
@@ -11630,7 +11630,7 @@ void InitSpellNapalm(PLAYERp pp)
         actor->spr.yrepeat = 32;
         actor->spr.clipdist = 0;
         actor->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
-        SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+        actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(actor->user.Flags2, SPR2_BLUR_TAPER_FAST);
 
@@ -11660,7 +11660,7 @@ void InitSpellNapalm(PLAYERp pp)
         }
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actor))
-            SET(actor->user.Flags, SPR_UNDERWATER);
+            actor->user.Flags |= (SPR_UNDERWATER);
 
         plActor->spr.clipdist = oclipdist;
 
@@ -11709,7 +11709,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->spr.xrepeat = 32;
         actorNew->spr.yrepeat = 32;
         actorNew->spr.clipdist = 0;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(actorNew->user.Flags2, SPR2_BLUR_TAPER_FAST);
 
@@ -11765,7 +11765,7 @@ int InitSpellMirv(PLAYERp pp)
     actorNew->spr.yrepeat = 72;
     actorNew->spr.clipdist = 32 >> 2;
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.floor_dist = Z(16);
@@ -11804,7 +11804,7 @@ int InitEnemyMirv(DSWActor* actor)
     actorNew->spr.yrepeat = 72;
     actorNew->spr.clipdist = 32L >> 2;
 
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.floor_dist = Z(16);
@@ -12235,7 +12235,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->spr.xrepeat = 32;
             actorNew->spr.yrepeat = 32;
             actorNew->spr.clipdist = 0;
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(actorNew->user.Flags2, SPR2_BLUR_TAPER_FAST);
 
@@ -12299,7 +12299,7 @@ int InitSumoSkull(DSWActor* actor)
 
     // control direction of spinning
     FLIP(actor->user.Flags, SPR_BOUNCE);
-    SET(actorNew->user.Flags, TEST(actor->user.Flags, SPR_BOUNCE));
+    actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
 
     actorNew->user.StateEnd = s_SkullExplode;
     actorNew->user.Rot = sg_SkullWait;
@@ -12315,8 +12315,8 @@ int InitSumoSkull(DSWActor* actor)
     SET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     actorNew->spr.clipdist = (128+64) >> 2;
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->user.Radius = 400;
     return 0;
@@ -12664,7 +12664,7 @@ int InitStar(PLAYERp pp)
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 100;
     actorNew->user.Counter = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     // zvel had to be tweaked alot for this weapon
     // MissileSetPos seemed to be pushing the sprite too far up or down when
@@ -12686,7 +12686,7 @@ int InitStar(PLAYERp pp)
     actorNew->user.zchange = zvel;
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     actorNew->spr.backuppos();
 
@@ -12765,7 +12765,7 @@ void InitHeartAttack(PLAYERp pp)
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->user.floor_dist = Z(1);
     actorNew->user.ceiling_dist = Z(1);
@@ -13072,8 +13072,8 @@ int InitLaser(PLAYERp pp)
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
@@ -13085,7 +13085,7 @@ int InitLaser(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // the slower the missile travels the less of a zvel it needs
     // move it 1200 dist in increments - works better
@@ -13175,8 +13175,8 @@ int InitRail(PLAYERp pp)
     actorNew->user.Radius = RAIL_RADIUS;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning
@@ -13189,7 +13189,7 @@ int InitRail(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
@@ -13251,8 +13251,8 @@ int InitZillaRail(DSWActor* actor)
     actorNew->user.Radius = RAIL_RADIUS;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning
@@ -13265,7 +13265,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
@@ -13344,8 +13344,8 @@ int InitRocket(PLAYERp pp)
     actorNew->user.Radius = 2000;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Set default palette
     actorNew->spr.pal = actorNew->user.spal = 17; // White
@@ -13355,7 +13355,7 @@ int InitRocket(PLAYERp pp)
         switch (pp->WpnRocketType)
         {
         case 1:
-            SET(actorNew->user.Flags, SPR_FIND_PLAYER);
+            actorNew->user.Flags |= (SPR_FIND_PLAYER);
             actorNew->spr.pal = actorNew->user.spal = 20; // Yellow
             break;
         }
@@ -13371,7 +13371,7 @@ int InitRocket(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
@@ -13452,16 +13452,16 @@ int InitBunnyRocket(PLAYERp pp)
     actorNew->user.Radius = 2000;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     if (WpnRocketHeat)
     {
         switch (pp->WpnRocketType)
         {
         case 1:
-            SET(actorNew->user.Flags, SPR_FIND_PLAYER);
+            actorNew->user.Flags |= (SPR_FIND_PLAYER);
             break;
         }
     }
@@ -13476,7 +13476,7 @@ int InitBunnyRocket(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
@@ -13556,8 +13556,8 @@ int InitNuke(PLAYERp pp)
     actorNew->user.Radius = NUKE_RADIUS;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
@@ -13569,7 +13569,7 @@ int InitNuke(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
@@ -13640,15 +13640,15 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->user.Radius = NUKE_RADIUS;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
     HelpMissileLateral(actorNew, 500);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
@@ -13740,8 +13740,8 @@ int InitMicro(PLAYERp pp)
         actorNew->user.ceiling_dist = Z(2);
         actorNew->user.floor_dist = Z(2);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         actorNew->user.WaitTics = 10 + RandomRange(40);
 
@@ -13756,7 +13756,7 @@ int InitMicro(PLAYERp pp)
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
 
         // cancel smoke trail
         actorNew->user.Counter = 1;
@@ -14132,7 +14132,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->spr.yrepeat = 64;
         actorNew->spr.clipdist = 32L >> 2;
         actorNew->spr.zvel = 0;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.ceiling_dist = Z(16);
         actorNew->user.floor_dist = Z(16);
@@ -14160,7 +14160,7 @@ int InitSerpSpell(DSWActor* actor)
         actor->spr.clipdist = oclipdist;
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
     return 0;
@@ -14229,7 +14229,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->spr.yrepeat = 116;
         actorNew->spr.clipdist = 32L >> 2;
         actorNew->spr.zvel = 0;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.ceiling_dist = Z(16);
         actorNew->user.floor_dist = Z(16);
@@ -14258,7 +14258,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actor->spr.clipdist = oclipdist;
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(actorNew->user.Flags, SPR_UNDERWATER);
+            actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
     return 0;
@@ -14308,7 +14308,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
     actorNew->user.Radius = 200;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
@@ -14316,7 +14316,7 @@ int InitEnemyRocket(DSWActor* actor)
 
     if (actor->user.spal == PAL_XLAT_LT_TAN)
     {
-        SET(actorNew->user.Flags, SPR_FIND_PLAYER);
+        actorNew->user.Flags |= (SPR_FIND_PLAYER);
         actorNew->spr.pal = actorNew->user.spal = 20; // Yellow
     }
 
@@ -14388,8 +14388,8 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->spr.clipdist = 64 >> 2;
 
@@ -14460,7 +14460,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Rocket[0]);
         actorNew->user.Radius = 200;
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
         actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
@@ -14471,7 +14471,7 @@ int InitZillaRocket(DSWActor* actor)
             actorNew->spr.pal = actorNew->user.spal = 17; // White
         else
         {
-            SET(actorNew->user.Flags, SPR_FIND_PLAYER);
+            actorNew->user.Flags |= (SPR_FIND_PLAYER);
             actorNew->spr.pal = actorNew->user.spal = 20; // Yellow
         }
 
@@ -14563,7 +14563,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.zchange = actorNew->spr.zvel;
 
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     MissileSetPos(actorNew, DoStar, 400);
 
@@ -14603,7 +14603,7 @@ int InitSkelSpell(DSWActor* actor)
     actorNew->spr.zvel = 0;
     actorNew->spr.ang = nang;
     actorNew->spr.clipdist = 64L>>2;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     // find the distance to the target (player)
     dist = Distance(nx, ny, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y);
@@ -14713,7 +14713,7 @@ int InitCoolgDrip(DSWActor* actor)
     actorNew->spr.clipdist = 16L>>2;
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     DoFindGroundPoint(actor);
 
@@ -14752,7 +14752,7 @@ int GenerateDrips(DSWActor* actor)
         actorNew->spr.clipdist = 16L>>2;
         actorNew->user.ceiling_dist = Z(4);
         actorNew->user.floor_dist = Z(4);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         if (TEST_BOOL1(actor))
             actorNew->user.spal = actorNew->spr.pal = PALETTE_BLUE_LIGHTING;
 
@@ -14817,7 +14817,7 @@ void InitFireballTrap(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.clipdist = 32>>2;
     actorNew->spr.zvel = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.WeaponNum = WPN_HOTHEAD;
 
     actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
@@ -14845,7 +14845,7 @@ void InitBoltTrap(DSWActor* actor)
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
     actorNew->spr.zvel = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
@@ -14881,7 +14881,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.zchange = actorNew->spr.zvel;
 
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     PlaySound(DIGI_STAR, actor, v3df_none);
 }
@@ -14934,8 +14934,8 @@ int InitTracerUzi(PLAYERp pp)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     DSWActor* plActor = pp->actor;
     oclipdist = plActor->spr.clipdist;
@@ -14969,7 +14969,7 @@ int InitTracerUzi(PLAYERp pp)
     actorNew->user.zchange = actorNew->spr.zvel;
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
 }
@@ -15001,8 +15001,8 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(q16horiz, actorNew->spr.xvel / 8., 16));
 
@@ -15016,7 +15016,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->user.zchange = actorNew->spr.zvel;
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
 }
@@ -15046,15 +15046,15 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     actorNew->user.Radius = 50;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->user.xchange = xchange;
     actorNew->user.ychange = ychange;
     actorNew->user.zchange = zchange;
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
 }
@@ -15083,7 +15083,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         actorNew->spr.shade = -40;
 
         if (hitActor->user.PlayerP)
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         switch (hitActor->user.ID)
         {
@@ -15102,7 +15102,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         default:
             actorNew->spr.xrepeat = UZI_SMOKE_REPEAT/3;
             actorNew->spr.yrepeat = UZI_SMOKE_REPEAT/3;
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
             //actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
             break;
         }
@@ -15111,7 +15111,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         actorNew->spr.ang = actor->spr.ang;
 
         SetActorZ(actorNew, &hit_pos);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
@@ -15157,9 +15157,9 @@ DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int
     actor->spr.pos.Z = hit_z;
     actor->spr.picnum = 2151;
 
-    //SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(actor->spr.cstat, CSTAT_SPRITE_ONE_SIDE);
+    //actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
+    actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
+    actor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
 
     wall_ang = NORM_ANGLE(getangle(hit_wall->delta())-512);
 
@@ -15373,7 +15373,7 @@ int InitUzi(PLAYERp pp)
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
     SetOwner(pp->actor, actorNew);
-    SET(actorNew->spr.cstat, cstat | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
@@ -15386,7 +15386,7 @@ int InitUzi(PLAYERp pp)
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = pal;
-    SET(actorNew->spr.cstat, cstat | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
@@ -15422,8 +15422,8 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
 
@@ -15437,7 +15437,7 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
     actorNew->user.zchange = actorNew->spr.zvel;
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
 
     return 0;
@@ -15507,8 +15507,8 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
         actorNew->user.ceiling_dist = Z(2);
         actorNew->user.floor_dist = Z(2);
         RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         actorNew->user.WaitTics = 10 + RandomRange(40);
 
@@ -15561,7 +15561,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
 
@@ -15574,7 +15574,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
     actorNew->user.zchange = actorNew->spr.zvel;
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
 }
@@ -15598,7 +15598,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
     actorNew->user.ceiling_dist = Z(4);
     actorNew->user.floor_dist = Z(4);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
 
@@ -15612,7 +15612,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
     actorNew->user.zchange = actorNew->spr.zvel;
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
 }
@@ -15649,8 +15649,8 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->spr.clipdist = 64L>>2;
 
@@ -15697,8 +15697,8 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
     SET(actorNew->user.Flags2, SPR2_SO_MISSILE);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->spr.clipdist = 64L>>2;
 
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
@@ -15929,7 +15929,7 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
     SetOwner(pp->actor, actorNew);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     // Sprite starts out with center exactly on wall.
@@ -15946,7 +15946,7 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.clipdist = 32 >> 2;
 
@@ -15966,7 +15966,7 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->actor, actorNew);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
     // Sprite starts out with center exactly on wall.
@@ -15982,9 +15982,9 @@ int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int h
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     if (actor->user.WeaponNum == WPN_FIST)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     actorNew->spr.clipdist = 32 >> 2;
 
@@ -16000,7 +16000,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
     // Sprite starts out with center exactly on wall.
@@ -16015,7 +16015,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.clipdist = 32 >> 2;
     HitscanSpriteAdjust(actorNew, hit_wall);
@@ -16035,7 +16035,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.clipdist = 32 >> 2;
 
@@ -16045,7 +16045,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     actorNew->spr.xrepeat = SHOTGUN_SMOKE_REPEAT;
     actorNew->spr.yrepeat = SHOTGUN_SMOKE_REPEAT;
     SetOwner(pp->actor, actorNew);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     // Sprite starts out with center exactly on wall.
@@ -16334,7 +16334,7 @@ int InitEnemyUzi(DSWActor* actor)
         SetOwner(actor, actorNew);
 
     actorNew->user.WaitTics = 63;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->spr.clipdist = 32L >> 2;
 
@@ -16343,7 +16343,7 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
     SetOwner(actor, actorNew);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
@@ -16356,7 +16356,7 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
     SetOwner(actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
@@ -16409,7 +16409,7 @@ int InitGrenade(PLAYERp pp)
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Grenade[0]);
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
@@ -16422,11 +16422,11 @@ int InitGrenade(PLAYERp pp)
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
     actorNew->user.Counter = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
@@ -16438,7 +16438,7 @@ int InitGrenade(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     // don't do smoke for this movement
-    SET(actorNew->user.Flags, SPR_BOUNCE);
+    actorNew->user.Flags |= (SPR_BOUNCE);
     MissileSetPos(actorNew, DoGrenade, 1000);
     RESET(actorNew->user.Flags, SPR_BOUNCE);
 
@@ -16484,7 +16484,7 @@ int InitSpriteGrenade(DSWActor* actor)
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Grenade[0]);
-    SET(actorNew->user.Flags, SPR_XFLIP_TOGGLE);
+    actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -16500,8 +16500,8 @@ int InitSpriteGrenade(DSWActor* actor)
     actorNew->user.ceiling_dist = Z(3);
     actorNew->user.floor_dist = Z(3);
     actorNew->user.Counter = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
 
     //actorNew->spr.zvel = (-RandomRange(100) * HORIZ_MULT);
@@ -16516,7 +16516,7 @@ int InitSpriteGrenade(DSWActor* actor)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     // don't do smoke for this movement
-    SET(actorNew->user.Flags, SPR_BOUNCE);
+    actorNew->user.Flags |= (SPR_BOUNCE);
     MissileSetPos(actorNew, DoGrenade, 400);
     RESET(actorNew->user.Flags, SPR_BOUNCE);
 
@@ -16557,12 +16557,12 @@ int InitMine(PLAYERp pp)
     actorNew->user.ceiling_dist = Z(5);
     actorNew->user.floor_dist = Z(5);
     actorNew->user.Counter = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.spal = actorNew->spr.pal = actor->user.spal; // Set sticky color
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 800);
 
@@ -16609,12 +16609,12 @@ int InitEnemyMine(DSWActor* actor)
     actorNew->user.ceiling_dist = Z(5);
     actorNew->user.floor_dist = Z(5);
     actorNew->user.Counter = 0;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.spal = actorNew->spr.pal = actor->user.spal; // Set sticky color
 
     if (SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 300);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-512);
@@ -16680,7 +16680,7 @@ int InitFireball(PLAYERp pp)
     actorNew->spr.shade = -40;
     actorNew->spr.clipdist = 32>>2;
     SetOwner(pp->actor, actorNew);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Radius = 100;
 
     actorNew->user.ceiling_dist = Z(6);
@@ -16697,7 +16697,7 @@ int InitFireball(PLAYERp pp)
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
-        SET(actorNew->user.Flags, SPR_UNDERWATER);
+        actorNew->user.Flags |= (SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16)))
     {
@@ -17144,7 +17144,7 @@ bool MissileHitDiveArea(DSWActor* actor)
     if (FAF_ConnectArea(actor->spr.sector()))
     {
         if (SectorIsUnderwaterArea(actor->spr.sector()))
-            SET(actor->user.Flags, SPR_UNDERWATER);
+            actor->user.Flags |= (SPR_UNDERWATER);
         else
             RESET(actor->user.Flags, SPR_UNDERWATER);
     }
@@ -17163,7 +17163,7 @@ bool MissileHitDiveArea(DSWActor* actor)
             if (actor->spr.pos.Z < (hit_sect->floorz-Z(20)))
                 return false;
 
-            SET(actor->user.Flags, SPR_UNDERWATER);
+            actor->user.Flags |= (SPR_UNDERWATER);
             SpawnSplash(actor);
             SpriteWarpToUnderwater(actor);
             actor->user.coll.setNone();
@@ -17206,8 +17206,8 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->user.WaitTics = 120 * 120;
     actorNew->spr.zvel = 512;
     actorNew->spr.clipdist = 12 >> 2;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
-    SET(actorNew->user.Flags, SPR_UNDERWATER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
+    actorNew->user.Flags |= (SPR_UNDERWATER);
     actorNew->spr.shade = -60; // Make em brighter
 
     return actorNew;
@@ -17241,13 +17241,13 @@ int SpawnVehicleSmoke(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.yrepeat = 64;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) < 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
@@ -17267,13 +17267,13 @@ int SpawnSmokePuff(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.yrepeat = 64;
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     if (RANDOM_P2(1024) < 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_XFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) < 512)
-        SET(actorNew->spr.cstat, CSTAT_SPRITE_YFLIP);
+        actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.ang = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
@@ -17966,7 +17966,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     case 932:
     case GORE_Head:
         change_actor_stat(actor,STAT_DEFAULT); // Breakable
-        SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
         SET(actor->spr.extra, SPRX_BREAKABLE);
         break;
     default:
@@ -18074,7 +18074,7 @@ int DoShrapVelocity(DSWActor* actor)
                         // hit a floor
                         if (!TEST(actor->user.Flags, SPR_BOUNCE))
                         {
-                            SET(actor->user.Flags, SPR_BOUNCE);
+                            actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 18000);
                             actor->user.coll.setNone();
                             actor->user.Counter = 0;
@@ -18102,14 +18102,14 @@ int DoShrapVelocity(DSWActor* actor)
                 {
                     actor->spr.pos.Z = actor->user.loz;
                     if (TEST(actor->user.Flags, SPR_UNDERWATER))
-                        SET(actor->user.Flags, SPR_BOUNCE); // no bouncing underwater
+                        actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
 
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
-                        SET(actor->user.Flags, SPR_BOUNCE); // no bouncing on shallow water
+                        actor->user.Flags |= (SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(actor->user.Flags, SPR_BOUNCE))
                     {
-                        SET(actor->user.Flags, SPR_BOUNCE);
+                        actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
                         actor->user.zchange = -actor->user.zchange;

@@ -530,7 +530,7 @@ int SetupCoolg(DSWActor* actor)
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
 
-    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
     CoolgCommon(actor);
 
@@ -578,7 +578,7 @@ int DoCoolgBirth(DSWActor* actor)
     // special case
     TotalKillable--;
 
-    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     CoolgCommon(actor);
 
     return 0;
@@ -792,17 +792,17 @@ int DoCoolgMove(DSWActor* actor)
         switch (actor->user.FlagOwner)
         {
         case 0:
-            SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
             actor->user.ShellNum = SEC(2);
             break;
         case 1:
             PlaySound(DIGI_VOID3, actor, v3df_follow);
             RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
-            SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
             actor->user.ShellNum = SEC(1) + SEC(RandomRange(2));
             break;
         case 2:
-            SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+            actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
             RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
             actor->user.ShellNum = SEC(2);
             break;

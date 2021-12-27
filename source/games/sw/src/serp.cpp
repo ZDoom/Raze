@@ -728,7 +728,7 @@ int SetupSerp(DSWActor* actor)
     }
 
     actor->spr.clipdist = (512) >> 2;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
     actor->user.loz = actor->spr.pos.Z;
 

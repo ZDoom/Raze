@@ -88,13 +88,13 @@ int DoScaleSprite(DSWActor* actor)
 int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
     change_actor_stat(actor, STAT_DEAD_ACTOR);
-    SET(actor->user.Flags, SPR_DEAD);
+    actor->user.Flags |= (SPR_DEAD);
     RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = Z(40);
 
     // test for gibable dead bodies
     SET(actor->spr.extra, SPRX_BREAKABLE);
-    SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+    actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
     if (weapActor == nullptr)
     {
@@ -165,7 +165,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         {
             // test for gibable dead bodies
             if (RandomRange(1000) > 500)
-                SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+                actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
             ChangeState(actor, actor->user.StateEnd);
             actor->spr.xvel = 0;
             actor->user.jump_speed = 0;
@@ -193,7 +193,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 
     case UZI_SMOKE:
         if (RandomRange(1000) > 500)
-            SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+            actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         ChangeState(actor, actor->user.StateEnd);
         actor->user.RotNum = 0;
         // Rippers still gotta jump or they fall off walls weird
@@ -216,7 +216,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 
     case UZI_SMOKE+1: // Shotgun
         if (RandomRange(1000) > 500)
-            SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+            actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         ChangeState(actor, actor->user.StateEnd);
         actor->user.RotNum = 0;
 
@@ -252,7 +252,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             }
 
             if (RandomRange(1000) > 500)
-                SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+                actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
             ChangeState(actor, actor->user.StateEnd);
             actor->user.RotNum = 0;
             actor->user.ActorActionFunc = nullptr;
@@ -536,8 +536,8 @@ void KeepActorOnFloor(DSWActor* actor)
                 NewStateGroup(actor, actor->user.ActorActionSet->Swim);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz - Z(depth);
                 actor->spr.backupz();
-                SET(actor->user.Flags, SPR_SWIMMING);
-                SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+                actor->user.Flags |= (SPR_SWIMMING);
+                actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             }
             else
             {
@@ -578,7 +578,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
 int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
 {
-    SET(actor->user.Flags, SPR_SLIDING);
+    actor->user.Flags |= (SPR_SLIDING);
 
     actor->user.slide_ang = ang;
     actor->user.slide_vel = vel;
@@ -619,7 +619,7 @@ int DoActorSlide(DSWActor* actor)
 
 int DoActorBeginJump(DSWActor* actor)
 {
-    SET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags |= (SPR_JUMPING);
     RESET(actor->user.Flags, SPR_FALLING);
 
     // actor->user.jump_speed = should be set before calling
@@ -682,7 +682,7 @@ int DoActorJump(DSWActor* actor)
 
 int DoActorBeginFall(DSWActor* actor)
 {
-    SET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags |= (SPR_FALLING);
     RESET(actor->user.Flags, SPR_JUMPING);
 
     actor->user.jump_grav = ACTOR_GRAVITY;
@@ -798,7 +798,7 @@ int DoActorDeathMove(DSWActor* actor)
 
 int DoBeginJump(DSWActor* actor)
 {
-    SET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags |= (SPR_JUMPING);
     RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
@@ -848,7 +848,7 @@ int DoJump(DSWActor* actor)
 
 int DoBeginFall(DSWActor* actor)
 {
-    SET(actor->user.Flags, SPR_FALLING);
+    actor->user.Flags |= (SPR_FALLING);
     RESET(actor->user.Flags, SPR_JUMPING);
 
     actor->user.jump_grav = ACTOR_GRAVITY;

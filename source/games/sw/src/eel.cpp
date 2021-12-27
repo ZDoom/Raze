@@ -389,7 +389,7 @@ int SetupEel(DSWActor* actor)
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
-    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
     EelCommon(actor);
 
@@ -538,9 +538,9 @@ int DoEelDeath(DSWActor* actor)
     {
         RESET(actor->user.Flags, SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)
-            SET(actor->spr.cstat, CSTAT_SPRITE_XFLIP);
+            actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
-            SET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
+            actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         return 0;
     }

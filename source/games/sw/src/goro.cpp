@@ -500,7 +500,7 @@ int SetupGoro(DSWActor* actor)
 
     EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);
     actor->spr.clipdist = 512 >> 2;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }

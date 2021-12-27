@@ -778,7 +778,7 @@ int SetupBunny(DSWActor* actor)
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
 
     actor->user.zclip = Z(16);
@@ -847,7 +847,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -400); // was -800
 
-    SET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags |= (SPR_JUMPING);
     RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
@@ -1123,7 +1123,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.shade = actor->spr.shade;
 
         // make immediately active
-        SET(actorNew->user.Flags, SPR_ACTIVE);
+        actorNew->user.Flags |= (SPR_ACTIVE);
         if (RandomRange(1000) > 500) // Boy or Girl?
             actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
         else
@@ -1154,7 +1154,7 @@ void BunnyHatch(DSWActor* actor)
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
-        SET(actorNew->user.Flags, SPR_JUMPING);
+        actorNew->user.Flags |= (SPR_JUMPING);
         RESET(actorNew->user.Flags, SPR_FALLING);
 
         actorNew->user.jump_grav = 8;
@@ -1182,7 +1182,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.shade = actor->spr.shade;
 
     // make immediately active
-    SET(actorNew->user.Flags, SPR_ACTIVE);
+    actorNew->user.Flags |= (SPR_ACTIVE);
     if (RandomRange(1000) > 500) // Boy or Girl?
     {
         actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER0; // Girl
@@ -1211,7 +1211,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     else
         PickJumpMaxSpeed(actorNew, -600);
 
-    SET(actorNew->user.Flags, SPR_JUMPING);
+    actorNew->user.Flags |= (SPR_JUMPING);
     RESET(actorNew->user.Flags, SPR_FALLING);
 
     actorNew->user.jump_grav = 8;

@@ -668,7 +668,7 @@ int SetupSumo(DSWActor* actor)
         actor->spr.yrepeat = 75;
     }
 
-    //SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    //actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }

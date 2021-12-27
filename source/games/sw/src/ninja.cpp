@@ -1841,7 +1841,7 @@ int SetupNinja(DSWActor* actor)
         EnemyDefaults(actor, &NinjaGreenActionSet, &NinjaPersonality);
         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
             actor->user.Health = RedNinjaHealth;
-        SET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+        actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.shade = 127;
         actor->spr.pal = actor->user.spal = PALETTE_PLAYER5;
         actor->spr.hitag = 9998;
@@ -1924,7 +1924,7 @@ int SetupNinja(DSWActor* actor)
     DoActorSetSpeed(actor, NORM_SPEED);
 
     actor->user.Radius = 280;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -1934,14 +1934,14 @@ int DoNinjaHariKari(DSWActor* actor)
     UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(actor->user.Flags, SPR_DEAD);
+    actor->user.Flags |= (SPR_DEAD);
     RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = Z(40);
     actor->user.RotNum = 0;
     actor->user.ActorActionFunc = nullptr;
 
     SET(actor->spr.extra, SPRX_BREAKABLE);
-    SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+    actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
     PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_follow);
 
@@ -1963,14 +1963,14 @@ int DoNinjaGrabThroat(DSWActor* actor)
         RESET(actor->spr.cstat, CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);
         RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(actor->user.Flags, SPR_DEAD);
+        actor->user.Flags |= (SPR_DEAD);
         RESET(actor->user.Flags, SPR_FALLING | SPR_JUMPING);
         actor->user.floor_dist = Z(40);
         actor->user.RotNum = 0;
         actor->user.ActorActionFunc = nullptr;
 
         SET(actor->spr.extra, SPRX_BREAKABLE);
-        SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
         
         ChangeState(actor, actor->user.StateEnd);
@@ -2332,7 +2332,7 @@ void InitPlayerSprite(PLAYERp pp)
     pp->actor = actor;
     pp->pnum = pnum;
 
-    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
     RESET(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
 
@@ -2346,7 +2346,7 @@ void InitPlayerSprite(PLAYERp pp)
     actor->user.Radius = 400;
     actor->user.PlayerP = pp;
     //actor->user.Health = pp->MaxHealth;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
 
     actor->spr.picnum = actor->user.State->Pic;
@@ -2399,7 +2399,7 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
 
     DSWActor* actor = pp->PlayerUnderActor;
 
-    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(actor->spr.extra, SPRX_PLAYER_OR_ENEMY);
 
     actor->user.Rot = sg_NinjaRun;
@@ -2409,7 +2409,7 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
     actor->user.Radius = plActor->user.Radius;
     actor->user.PlayerP = pp;
     actor->user.Health = pp->MaxHealth;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     actor->user.ActorActionSet = plActor->user.ActorActionSet;
 

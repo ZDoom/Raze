@@ -3121,7 +3121,7 @@ void DoPlayerBeginClimb(PLAYERp pp)
     pp->DoPlayerAction = DoPlayerClimb;
 
     SET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
-    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     //DamageData[plActor->user.WeaponNum].Init(pp);
 

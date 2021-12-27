@@ -764,7 +764,7 @@ int SetupZombie(DSWActor* actor)
     DoActorSetSpeed(actor, NORM_SPEED);
 
     actor->user.Radius = 280;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -784,12 +784,12 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
     SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 
     // make immediately active
-    SET(actorNew->user.Flags, SPR_ACTIVE);
+    actorNew->user.Flags |= (SPR_ACTIVE);
 
     RESET(actorNew->user.Flags, SPR_JUMPING);
     RESET(actorNew->user.Flags, SPR_FALLING);
@@ -831,12 +831,12 @@ void SpawnZombie2(DSWActor* actor)
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
     SET(actorNew->user.Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(actorNew->spr.cstat, CSTAT_SPRITE_TRANSLUCENT);
+    actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
 
     // make immediately active
-    SET(actorNew->user.Flags, SPR_ACTIVE);
+    actorNew->user.Flags |= (SPR_ACTIVE);
 
     RESET(actorNew->user.Flags, SPR_JUMPING);
     RESET(actorNew->user.Flags, SPR_FALLING);

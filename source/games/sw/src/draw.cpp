@@ -1561,7 +1561,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         // Don't show sprites tagged with 257
         if (actor->spr.lotag == 257 && actor->spr.owner == -2)
         {
-            SET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+            actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_FLOOR);
             actor->spr.owner = -1;
         }
     }

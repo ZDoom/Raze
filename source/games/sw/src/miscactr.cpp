@@ -1144,7 +1144,7 @@ int SetupCarGirl(DSWActor* actor)
     actor->user.ID = CARGIRL_R0;
 
     RESET(actor->user.Flags, SPR_XFLIP_TOGGLE);
-    SET(actor->spr.cstat, CSTAT_SPRITE_XFLIP);
+    actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
     return 0;
 }

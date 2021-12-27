@@ -785,10 +785,10 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
         RESET(actor->user.Flags, SPR_SKIP2|SPR_SKIP4);
 
         if (stat >= STAT_SKIP4_START && stat <= STAT_SKIP4_END)
-            SET(actor->user.Flags, SPR_SKIP4);
+            actor->user.Flags |= (SPR_SKIP4);
 
         if (stat >= STAT_SKIP2_START && stat <= STAT_SKIP2_END)
-            SET(actor->user.Flags, SPR_SKIP2);
+            actor->user.Flags |= (SPR_SKIP2);
 
         switch (stat)
         {
@@ -813,7 +813,7 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
                 wait_active_check_offset = 0;
             actor->user.wait_active_check = wait_active_check_offset;
             // don't do a break here
-            SET(actor->user.Flags, SPR_SHADOW);
+            actor->user.Flags |= (SPR_SHADOW);
             break;
         }
 
@@ -1567,7 +1567,7 @@ void SpriteSetup(void)
         if (actor->spr.pos.Z > DIV2(cz + fz))
         {
             // closer to a floor
-            SET(actor->spr.cstat, CSTAT_SPRITE_CLOSE_FLOOR);
+            actor->spr.cstat |= (CSTAT_SPRITE_CLOSE_FLOOR);
         }
 
         // CSTAT_SPIN is insupported - get rid of it
@@ -1577,7 +1577,7 @@ void SpriteSetup(void)
         // if BLOCK is set set BLOCK_HITSCAN
         // Hope this doesn't screw up anything
         if (TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
-            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
 
         ////////////////////////////////////////////
         //
@@ -1605,7 +1605,7 @@ void SpriteSetup(void)
                 // but allows actors to move through them
                 actor->spr.clipdist = ActorSizeX(actor);
                 SET(actor->spr.extra, SPRX_BREAKABLE);
-                SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+                actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
                 break;
             }
         }
@@ -1632,17 +1632,17 @@ void SpriteSetup(void)
             if (actor->spr.picnum == 80)
             {
                 RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
-                SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
+                actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
             }
             else
             {
                 RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
-                SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
-                SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);;
+                actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
+                actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);;
             }
 
             if (TEST(SP_TAG8(actor), BIT(0)))
-                SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE); ;
+                actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE); ;
 
             if (TEST(SP_TAG8(actor), BIT(1)))
                 RESET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
@@ -1710,7 +1710,7 @@ void SpriteSetup(void)
             tag = actor->spr.hitag;
 
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
             // for bounding sector objects
             if ((tag >= 500 && tag < 600) || tag == SECT_SO_CENTER)
@@ -2022,7 +2022,7 @@ void SpriteSetup(void)
                     actor->user.WaitTics = time*15; // 1/8 of a sec
                     actor->user.Tics = 0;
 
-                    SET(actor->user.Flags, SPR_ACTIVE);
+                    actor->user.Flags |= (SPR_ACTIVE);
 
                     switch (type)
                     {
@@ -2133,7 +2133,7 @@ void SpriteSetup(void)
                         wallcount++;
                     }
 
-                    SET(actor->user.Flags, SPR_ACTIVE);
+                    actor->user.Flags |= (SPR_ACTIVE);
 
                     switch (type)
                     {
@@ -2178,7 +2178,7 @@ void SpriteSetup(void)
                     actor->user.rotator->ClearWalls();
                     actor->user.rotator->orig_speed = actor->user.rotator->speed;
 
-                    SET(actor->user.Flags, SPR_ACTIVE);
+                    actor->user.Flags |= (SPR_ACTIVE);
 
                     switch (type)
                     {
@@ -2226,7 +2226,7 @@ void SpriteSetup(void)
                     actor->user.WaitTics = time*15; // 1/8 of a sec
                     actor->user.Tics = 0;
 
-                    SET(actor->user.Flags, SPR_ACTIVE);
+                    actor->user.Flags |= (SPR_ACTIVE);
 
                     switch (type)
                     {
@@ -2624,7 +2624,7 @@ void SpriteSetup(void)
 
                 case WARP_TELEPORTER:
                 {
-                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
                     SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
 
@@ -2656,19 +2656,19 @@ void SpriteSetup(void)
                 case WARP_CEILING_PLANE:
                 case WARP_FLOOR_PLANE:
                 {
-                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
                     SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
                     break;
                 }
 
                 case WARP_COPY_SPRITE1:
-                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
                     SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
                     break;
                 case WARP_COPY_SPRITE2:
-                    SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
                     SET(actor->spr.sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
                     break;
@@ -2818,7 +2818,7 @@ KeyMain:
 
                 actor->user.spal = actor->spr.pal; // Set the palette from build
 
-                //SET(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+                //actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 
                 ChangeState(actor, s_Key[num]);
 
@@ -3391,7 +3391,7 @@ NUKE_REPLACEMENT:
             change_actor_stat(actor, STAT_DEFAULT);
 
             RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
-            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(actor->spr.extra, SPRX_BLADE);
 
             break;
@@ -3410,7 +3410,7 @@ NUKE_REPLACEMENT:
             SpawnUser(actor, actor->spr.picnum, nullptr);
 
             actor->spr.clipdist = ActorSizeX(actor);
-            SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+            actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
             SET(actor->spr.extra, SPRX_BREAKABLE);
             break;
 
@@ -3459,7 +3459,7 @@ NUKE_REPLACEMENT:
             }
 
 
-            SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+            actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             break;
         }
 
@@ -3822,7 +3822,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3833,7 +3833,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3844,7 +3844,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3855,7 +3855,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3866,7 +3866,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3877,7 +3877,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3888,7 +3888,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3899,7 +3899,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3910,7 +3910,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3921,7 +3921,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3932,7 +3932,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3943,7 +3943,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3954,7 +3954,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3965,7 +3965,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3976,7 +3976,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3987,7 +3987,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -3999,7 +3999,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4016,7 +4016,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4027,7 +4027,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4038,7 +4038,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4049,7 +4049,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4060,7 +4060,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4071,7 +4071,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4082,7 +4082,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4093,7 +4093,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4104,7 +4104,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4115,7 +4115,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4127,7 +4127,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4138,7 +4138,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4149,7 +4149,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4161,7 +4161,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4175,7 +4175,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, itActor->spr.sector(), itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->spr.ang, 0);
-            SET(spawnedActor->user.Flags2, SPR2_NEVER_RESPAWN);
+            spawnedActor->user.Flags2 |= SPR2_NEVER_RESPAWN;
             IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
@@ -4542,7 +4542,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     auto save_cstat = TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
     RESET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
     FAFgetzrangepoint(x, y, z - (ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
-    SET(actor->spr.cstat, save_cstat);
+    actor->spr.cstat |= (save_cstat);
 
     if (florhit.type < 0 || ceilhit.type < 0)
     {
@@ -4687,7 +4687,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         }
     }
 
-    SET(actor->user.Flags, SPR_MOVED);
+    actor->user.Flags |= (SPR_MOVED);
 
     if (actor->user.coll.type == kHitNone)
     {
@@ -4809,7 +4809,7 @@ int KillGet(DSWActor* actor)
         }
 
         actor->user.WaitTics = 30*120;
-        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
         if (!gNet.SpawnMarkers || actor->spr.hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
@@ -4852,7 +4852,7 @@ int KillGetAmmo(DSWActor* actor)
         }
 
         actor->user.WaitTics = 30*120;
-        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
         if (!gNet.SpawnMarkers)
@@ -4903,7 +4903,7 @@ int KillGetWeapon(DSWActor* actor)
             break;
 
         actor->user.WaitTics = 30*120;
-        SET(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
         // respawn markers
         if (!gNet.SpawnMarkers)
@@ -5052,7 +5052,7 @@ int DoGet(DSWActor* actor)
         }
 
         auto cstat_bak = actor->spr.cstat;
-        SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(),
                             pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector);
         actor->spr.cstat = cstat_bak;
@@ -5853,7 +5853,7 @@ KeyMain:
             // Attach flag to player
             actorNew->user.Counter = 0;
             RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(actorNew->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+            actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->actor, actorNew);
             actorNew->user.sz = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
@@ -5928,7 +5928,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
         // some huge distance
         actor->user.active_range = 75000;
         // sprite is AWARE
-        SET(actor->user.Flags, SPR_ACTIVE);
+        actor->user.Flags |= (SPR_ACTIVE);
         actor->user.inactive_time = 0;
     }
 }

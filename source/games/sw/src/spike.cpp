@@ -98,7 +98,7 @@ void SetSpikeActive(DSWActor* actor)
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
 
-    SET(actor->user.Flags, SPR_ACTIVE);
+    actor->user.Flags |= (SPR_ACTIVE);
     actor->user.Tics = 0;
 
     // moving to the ON position

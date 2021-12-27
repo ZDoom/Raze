@@ -819,7 +819,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
         actor->spr.ang = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y);
 
         DoActorSetSpeed(actor, MID_SPEED);
-        SET(actor->user.Flags, SPR_FIND_PLAYER);
+        actor->user.Flags |= (SPR_FIND_PLAYER);
 
         actor->user.ActorActionFunc = DoActorDecide;
         NewStateGroup(actor, actor->user.ActorActionSet->Run);
@@ -1055,11 +1055,11 @@ int InitActorRunAway(DSWActor* actor)
     {
         actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y));
         DoActorSetSpeed(actor, FAST_SPEED);
-        SET(actor->user.Flags, SPR_RUN_AWAY);
+        actor->user.Flags |= (SPR_RUN_AWAY);
     }
     else
     {
-        SET(actor->user.Flags, SPR_RUN_AWAY);
+        actor->user.Flags |= (SPR_RUN_AWAY);
         InitActorReposition(actor);
     }
 
@@ -1251,7 +1251,7 @@ int InitActorFindPlayer(DSWActor* actor)
     {
         actor->spr.ang = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->spr.pos.X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->spr.pos.Y);
         DoActorSetSpeed(actor, MID_SPEED);
-        SET(actor->user.Flags, SPR_FIND_PLAYER);
+        actor->user.Flags |= (SPR_FIND_PLAYER);
 
         actor->user.ActorActionFunc = DoActorDecide;
         NewStateGroup(actor, actor->user.ActorActionSet->Run);

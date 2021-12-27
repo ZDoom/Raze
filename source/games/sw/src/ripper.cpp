@@ -848,7 +848,7 @@ int SetupRipper(DSWActor* actor)
         EnemyDefaults(actor, &RipperActionSet, &RipperPersonality);
     }
 
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -963,7 +963,7 @@ int InitRipperHang(DSWActor* actor)
     //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -800);
 
-    SET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags |= (SPR_JUMPING);
     RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
@@ -1060,7 +1060,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
     //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -400); // was -800
 
-    SET(actor->user.Flags, SPR_JUMPING);
+    actor->user.Flags |= (SPR_JUMPING);
     RESET(actor->user.Flags, SPR_FALLING);
 
     // set up individual actor jump gravity
@@ -1184,14 +1184,14 @@ void RipperHatch(DSWActor* actor)
         SetupRipper(actorNew);
 
         // make immediately active
-        SET(actorNew->user.Flags, SPR_ACTIVE);
+        actorNew->user.Flags |= (SPR_ACTIVE);
 
         NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
         actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
-        SET(actorNew->user.Flags, SPR_JUMPING);
+        actorNew->user.Flags |= (SPR_JUMPING);
         RESET(actorNew->user.Flags, SPR_FALLING);
 
         actorNew->user.jump_grav = 8;

@@ -520,7 +520,7 @@ int SetupSkel(DSWActor* actor)
 
     // 256 is default
     //actor->spr.clipdist = 256 >> 2;
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }
@@ -565,7 +565,7 @@ int DoSkelTeleport(DSWActor* actor)
 
 int DoSkelTermTeleport(DSWActor* actor)
 {
-    SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     return 0;
 }
 

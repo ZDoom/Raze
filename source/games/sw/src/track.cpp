@@ -2940,14 +2940,14 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_WAIT_FOR_PLAYER:
     {
-        SET(actor->user.Flags, SPR_WAIT_FOR_PLAYER);
+        actor->user.Flags |= (SPR_WAIT_FOR_PLAYER);
         actor->user.Dist = tpoint->tag_high;
         break;
     }
 
     case TRACK_ACTOR_WAIT_FOR_TRIGGER:
     {
-        SET(actor->user.Flags, SPR_WAIT_FOR_TRIGGER);
+        actor->user.Flags |= (SPR_WAIT_FOR_TRIGGER);
         actor->user.Dist = tpoint->tag_high;
         break;
     }
@@ -2965,12 +2965,12 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         {
             // set target to new slower target
             actor->user.vel_tgt = actor->user.vel_tgt - (tpoint->tag_high * 256);
-            SET(actor->user.Flags, SPR_SLOW_DOWN);
+            actor->user.Flags |= (SPR_SLOW_DOWN);
         }
         else
         {
             actor->user.vel_tgt = actor->user.vel_tgt + (tpoint->tag_high * 256);
-            SET(actor->user.Flags, SPR_SPEED_UP);
+            actor->user.Flags |= (SPR_SPEED_UP);
         }
 
         break;
@@ -2980,12 +2980,12 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (actor->user.track_dir > 0)
         {
             actor->user.vel_tgt = actor->user.vel_tgt - (tpoint->tag_high * 256);
-            SET(actor->user.Flags, SPR_SLOW_DOWN);
+            actor->user.Flags |= (SPR_SLOW_DOWN);
         }
         else
         {
             actor->user.vel_tgt = actor->user.vel_tgt + (tpoint->tag_high * 256);
-            SET(actor->user.Flags, SPR_SPEED_UP);
+            actor->user.Flags |= (SPR_SPEED_UP);
         }
         break;
 
@@ -3040,7 +3040,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                            0,                // Z vector of 3D ang
                            hit, CLIPMASK_MISSILE);
 
-                SET(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+                actor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
                 ASSERT(hit.hitSector != nullptr);
 
@@ -3249,7 +3249,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         if (actor->user.ActorActionSet->DeathJump)
         {
-            SET(actor->user.Flags, SPR_DEAD);
+            actor->user.Flags |= (SPR_DEAD);
             actor->spr.xvel <<= 1;
             actor->user.jump_speed = -495;
             DoActorBeginJump(actor);
@@ -3318,7 +3318,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         }
         else
         {
-            SET(actor->user.Flags, SPR_ZDIFF_MODE);
+            actor->user.Flags |= (SPR_ZDIFF_MODE);
         }
         break;
 
@@ -3382,7 +3382,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Adjust for YCENTERING
             //
 
-            SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+            actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             bos_z = ActorZOfBottom(actor);
             if (bos_z > actor->user.loz)
             {
@@ -3394,7 +3394,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Misc climb setup
             //
 
-            SET(actor->user.Flags, SPR_CLIMBING);
+            actor->user.Flags |= (SPR_CLIMBING);
             NewStateGroup(actor, actor->user.ActorActionSet->Climb);
 
             actor->spr.zvel = -Z(1);

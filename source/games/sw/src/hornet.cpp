@@ -305,8 +305,8 @@ int SetupHornet(DSWActor* actor)
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
-    SET(actor->user.Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
-    SET(actor->spr.cstat, CSTAT_SPRITE_YCENTER);
+    actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
+    actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actor->spr.clipdist = (100) >> 2;
     actor->user.floor_dist = Z(16);

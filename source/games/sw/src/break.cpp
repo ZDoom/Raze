@@ -520,7 +520,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 
         actor->spr.clipdist = ActorSizeX(actor);
 
-        SET(actor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
+        actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
     }
 
     return break_info;

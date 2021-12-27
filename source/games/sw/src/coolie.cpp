@@ -502,7 +502,7 @@ int SetupCoolie(DSWActor* actor)
     actor->spr.xrepeat = 42;
     actor->spr.yrepeat = 42;
 
-    SET(actor->user.Flags, SPR_XFLIP_TOGGLE);
+    actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;
 }
