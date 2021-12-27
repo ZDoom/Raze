@@ -49,7 +49,11 @@ void voxClear()
 {
 	for (auto& vox : voxmodels)
 	{
-		if (vox) delete vox;
+		if (vox)
+		{
+			delete vox->model;
+			delete vox;
+		}
 		vox = nullptr;
 	}
 }
