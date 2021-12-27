@@ -726,7 +726,7 @@ int SetupBunny(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, BUNNY_RUN_R0, s_BunnyRun[0]);
         actor->user.Health = 10;
@@ -751,7 +751,7 @@ int SetupBunny(DSWActor* actor)
 
         actor->spr.clipdist = 200>>2;
 
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 60;
     }
     else if (actor->spr.pal == PALETTE_PLAYER8) // Male Rabbit
@@ -762,7 +762,7 @@ int SetupBunny(DSWActor* actor)
         //actor->spr.yrepeat = 70;
 
         //actor->spr.shade = 0; // darker
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 20;
         actor->user.Flag1 = 0;
     }
@@ -881,7 +881,7 @@ int DoBunnyMoveJump(DSWActor* actor)
 
     DoActorZrange(actor);
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         InitActorDecide(actor);
     }
@@ -1056,7 +1056,7 @@ int NullBunny(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     if (actor->user.Flags & (SPR_SLIDING))
@@ -1251,7 +1251,7 @@ int DoBunnyMove(DSWActor* actor)
     }
 
     // if on a player/enemy sprite jump quickly
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         DoBunnyQuickJump(actor);
     }
@@ -1265,7 +1265,7 @@ int DoBunnyMove(DSWActor* actor)
         (*actor->user.ActorActionFunc)(actor);
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -1315,7 +1315,7 @@ int DoBunnyEat(DSWActor* actor)
     }
 
     // if on a player/enemy sprite jump quickly
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         DoBunnyQuickJump(actor);
     }
@@ -1324,7 +1324,7 @@ int DoBunnyEat(DSWActor* actor)
         DoActorSlide(actor);
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -1365,7 +1365,7 @@ int DoBunnyScrew(DSWActor* actor)
         DoActorSlide(actor);
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);

@@ -1727,40 +1727,40 @@ void SpriteSetup(void)
 
                 actor->spr.sector()->extra |= (bit);
 
-                if (TEST(bit, SECTFX_SINK))
+                if (bit & (SECTFX_SINK))
                 {
                     sectp->u_defined = true;
                     sectp->depth_fixed = IntToFixed(actor->spr.lotag);
                     KillActor(actor);
                 }
-                else if (TEST(bit, SECTFX_OPERATIONAL))
+                else if (bit & (SECTFX_OPERATIONAL))
                 {
                     KillActor(actor);
                 }
-                else if (TEST(bit, SECTFX_CURRENT))
+                else if (bit & (SECTFX_CURRENT))
                 {
                     sectp->u_defined = true;
                     sectp->speed = actor->spr.lotag;
                     sectp->ang = actor->spr.ang;
                     KillActor(actor);
                 }
-                else if (TEST(bit, SECTFX_NO_RIDE))
+                else if (bit & (SECTFX_NO_RIDE))
                 {
                     change_actor_stat(actor, STAT_NO_RIDE);
                 }
-                else if (TEST(bit, SECTFX_DIVE_AREA))
+                else if (bit & (SECTFX_DIVE_AREA))
                 {
                     sectp->u_defined = true;
                     sectp->number = actor->spr.lotag;
                     change_actor_stat(actor, STAT_DIVE_AREA);
                 }
-                else if (TEST(bit, SECTFX_UNDERWATER))
+                else if (bit & (SECTFX_UNDERWATER))
                 {
                     sectp->u_defined = true;
                     sectp->number = actor->spr.lotag;
                     change_actor_stat(actor, STAT_UNDERWATER);
                 }
-                else if (TEST(bit, SECTFX_UNDERWATER2))
+                else if (bit & (SECTFX_UNDERWATER2))
                 {
                     sectp->u_defined = true;
                     sectp->number = actor->spr.lotag;

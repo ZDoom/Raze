@@ -1901,7 +1901,7 @@ void DoPlayerSlide(PLAYERp pp)
     push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
-        if (!TEST(pp->Flags, PF_DEAD))
+        if (!(pp->Flags & PF_DEAD))
         {
             PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
@@ -1918,7 +1918,7 @@ void DoPlayerSlide(PLAYERp pp)
     push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
-        if (!TEST(pp->Flags, PF_DEAD))
+        if (!(pp->Flags & PF_DEAD))
         {
             PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
@@ -2065,7 +2065,7 @@ void DoPlayerMove(PLAYERp pp)
 
         if (push_ret < 0)
         {
-            if (!TEST(pp->Flags, PF_DEAD))
+            if (!(pp->Flags & PF_DEAD))
             {
                 PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
@@ -2094,7 +2094,7 @@ void DoPlayerMove(PLAYERp pp)
         if (push_ret < 0)
         {
 
-            if (!TEST(pp->Flags, PF_DEAD))
+            if (!(pp->Flags & PF_DEAD))
             {
                 PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
@@ -4551,7 +4551,7 @@ void DoPlayerCurrent(PLAYERp pp)
     push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
-        if (!TEST(pp->Flags, PF_DEAD))
+        if (!(pp->Flags & PF_DEAD))
         {
             DSWActor* plActor = pp->actor;
 
@@ -4570,7 +4570,7 @@ void DoPlayerCurrent(PLAYERp pp)
     pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
-        if (!TEST(pp->Flags, PF_DEAD))
+        if (!(pp->Flags & PF_DEAD))
         {
             DSWActor* plActor = pp->actor;
 
@@ -6229,7 +6229,7 @@ void DoPlayerRun(PLAYERp pp)
 
     if (DebugOperate)
     {
-        if (!TEST(pp->Flags, PF_DEAD) && !Prediction)
+        if (!(pp->Flags & PF_DEAD) && !Prediction)
         {
             if (pp->input.actions & SB_OPEN)
             {
@@ -6436,7 +6436,7 @@ void PlayerTimers(PLAYERp pp)
 
 void ChopsCheck(PLAYERp pp)
 {
-    if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
+    if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.avel || pp->input.horz ||
             TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
@@ -6502,7 +6502,7 @@ void PlayerGlobal(PLAYERp pp)
 
             if (labs(pp->loz - pp->hiz) < min_height)
             {
-                if (!TEST(pp->Flags, PF_DEAD))
+                if (!(pp->Flags & PF_DEAD))
                 {
                     ////DSPRINTF(ds,"Squish diff %d, min %d, cz %d, fz %d, lo %d, hi %d",labs(pp->loz - pp->hiz)>>8,min_height>>8, pp->ceiling_dist>>8, pp->floor_dist>>8,pp->lo_sectp-sector,pp->hi_sectp-sector);
                     //MONO_PRINT(ds);
@@ -6646,7 +6646,7 @@ void domovethings(void)
             Player[screenpeek].angle.settarget(bvectangbam(deltax, deltay));
         }
 
-        if (!TEST(pp->Flags, PF_DEAD))
+        if (!(pp->Flags & PF_DEAD))
         {
             WeaponOperate(pp);
             PlayerOperateEnv(pp);

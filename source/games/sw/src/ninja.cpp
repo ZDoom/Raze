@@ -1824,7 +1824,7 @@ int SetupNinja(DSWActor* actor)
     int RedNinjaHealth = MinEnemySkill <= Skill ? HEALTH_RED_NINJA : HEALTH_NINJA;
     if (Skill < MinEnemySkill - 1) actor->spr.pal = 0;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, NINJA_RUN_R0, s_NinjaRun[0]);
         actor->user.Health = HEALTH_NINJA;
@@ -1839,7 +1839,7 @@ int SetupNinja(DSWActor* actor)
     {
         actor->user.Attrib = &InvisibleNinjaAttrib;
         EnemyDefaults(actor, &NinjaGreenActionSet, &NinjaPersonality);
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = RedNinjaHealth;
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT);
         actor->spr.shade = 127;
@@ -1867,7 +1867,7 @@ int SetupNinja(DSWActor* actor)
     {
         actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaRedActionSet, &NinjaPersonality);
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = RedNinjaHealth;
         actor->spr.pal = actor->user.spal = PALETTE_PLAYER3;
         if (pic == NINJA_CRAWL_R0)
@@ -1892,7 +1892,7 @@ int SetupNinja(DSWActor* actor)
     {
         actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaSeekerActionSet, &NinjaPersonality);
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = RedNinjaHealth;
         actor->spr.pal = actor->user.spal = PAL_XLAT_LT_TAN;
         actor->user.Attrib = &NinjaAttrib;
@@ -1901,7 +1901,7 @@ int SetupNinja(DSWActor* actor)
     {
         actor->user.Attrib = &NinjaAttrib;
         EnemyDefaults(actor, &NinjaGrenadeActionSet, &NinjaPersonality);
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = RedNinjaHealth;
         actor->spr.pal = actor->user.spal = PAL_XLAT_LT_GREY;
         actor->user.Attrib = &NinjaAttrib;
@@ -2001,7 +2001,7 @@ int DoNinjaMove(DSWActor* actor)
     }
 
     // jumping and falling
-    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING) && !(actor->user.Flags & SPR_CLIMBING))
     {
         if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
@@ -2010,7 +2010,7 @@ int DoNinjaMove(DSWActor* actor)
     }
 
     // sliding
-    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_SLIDING) && !(actor->user.Flags & SPR_CLIMBING))
         DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
@@ -2022,7 +2022,7 @@ int DoNinjaMove(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -2066,10 +2066,10 @@ int NullNinja(DSWActor* actor)
 {
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (actor->user.Flags & (SPR_SLIDING) && !(actor->user.Flags & SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (!(actor->user.Flags & SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);

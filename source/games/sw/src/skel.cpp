@@ -504,7 +504,7 @@ int SetupSkel(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SKEL_RUN_R0,s_SkelRun[0]);
         actor->user.Health = HEALTH_SKEL_PRIEST;

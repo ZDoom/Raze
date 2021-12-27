@@ -485,7 +485,7 @@ int SetupCoolie(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,COOLIE_RUN_R0,s_CoolieRun[0]);
         actor->user.Health = HEALTH_COOLIE;
@@ -528,7 +528,7 @@ int CooliePain(DSWActor* actor)
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
@@ -544,7 +544,7 @@ int NullCoolie(DSWActor* actor)
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);

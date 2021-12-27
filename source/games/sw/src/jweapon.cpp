@@ -480,7 +480,7 @@ int DoBloodSpray(DSWActor* actor)
                 // shallow water
 
 #if 0
-                if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                if (!(actor->user.Flags & SPR_BOUNCE))
                 {
                     SpawnFloorSplash(actor);
                     actor->user.Flags |= (SPR_BOUNCE);
@@ -647,7 +647,7 @@ int DoPhosphorus(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                     {
                         // hit a floor
-                        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                        if (!(actor->user.Flags & SPR_BOUNCE))
                         {
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
@@ -683,7 +683,7 @@ int DoPhosphorus(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
-                    if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                    if (!(actor->user.Flags & SPR_BOUNCE))
                     {
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
@@ -853,7 +853,7 @@ int DoChemBomb(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                     {
                         // hit a floor
-                        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                        if (!(actor->user.Flags & SPR_BOUNCE))
                         {
                             if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
@@ -899,7 +899,7 @@ int DoChemBomb(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
-                    if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                    if (!(actor->user.Flags & SPR_BOUNCE))
                     {
                         if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
                             PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
@@ -1068,7 +1068,7 @@ int DoCaltrops(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                     {
                         // hit a floor
-                        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                        if (!(actor->user.Flags & SPR_BOUNCE))
                         {
                             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
                             actor->user.Flags |= (SPR_BOUNCE);
@@ -1105,7 +1105,7 @@ int DoCaltrops(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
-                    if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                    if (!(actor->user.Flags & SPR_BOUNCE))
                     {
                         PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
                         actor->user.Flags |= (SPR_BOUNCE);

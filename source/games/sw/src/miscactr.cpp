@@ -114,7 +114,7 @@ int  SetupToiletGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, TOILETGIRL_R0, s_ToiletGirlStand);
         actor->user.Health = 60;
@@ -182,7 +182,7 @@ int DoToiletGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -201,7 +201,7 @@ int NullToiletGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -226,7 +226,7 @@ int NullToiletGirl(DSWActor* actor)
 
 int ToiletGirlUzi(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -335,7 +335,7 @@ int SetupWashGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, WASHGIRL_R0,s_WashGirlStand);
         actor->user.Health = 60;
@@ -411,7 +411,7 @@ int DoWashGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -430,7 +430,7 @@ int NullWashGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -455,7 +455,7 @@ int NullWashGirl(DSWActor* actor)
 
 int WashGirlUzi(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -528,7 +528,7 @@ int SetupTrashCan(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, TRASHCAN,s_TrashCanStand);
         actor->user.Health = 60;
@@ -560,7 +560,7 @@ int DoTrashCan(DSWActor* actor)
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -575,7 +575,7 @@ int TrashCanPain(DSWActor* actor)
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -621,7 +621,7 @@ int SetupPachinkoLight(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PACHINKOLIGHT_R0,s_PachinkoLightStand);
         actor->user.Health = 1;
@@ -711,7 +711,7 @@ int SetupPachinko1(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PACHINKO1,s_Pachinko1Stand);
         actor->user.Health = 1;
@@ -863,7 +863,7 @@ int SetupPachinko2(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PACHINKO2,s_Pachinko2Stand);
         actor->user.Health = 1;
@@ -939,7 +939,7 @@ int SetupPachinko3(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PACHINKO3,s_Pachinko3Stand);
         actor->user.Health = 1;
@@ -1016,7 +1016,7 @@ int SetupPachinko4(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PACHINKO4,s_Pachinko4Stand);
         actor->user.Health = 1;
@@ -1121,7 +1121,7 @@ int SetupCarGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, CARGIRL_R0,s_CarGirlStand);
         actor->user.Health = 60;
@@ -1181,7 +1181,7 @@ int DoCarGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -1200,7 +1200,7 @@ int NullCarGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -1232,7 +1232,7 @@ int NullCarGirl(DSWActor* actor)
 
 int CarGirlUzi(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1322,7 +1322,7 @@ int SetupMechanicGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, MECHANICGIRL_R0,s_MechanicGirlStand);
         actor->user.Health = 60;
@@ -1381,7 +1381,7 @@ int DoMechanicGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -1400,7 +1400,7 @@ int NullMechanicGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -1432,7 +1432,7 @@ int NullMechanicGirl(DSWActor* actor)
 
 int MechanicGirlDrill(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1522,7 +1522,7 @@ int SetupSailorGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, SAILORGIRL_R0,s_SailorGirlStand);
         actor->user.Health = 60;
@@ -1586,7 +1586,7 @@ int DoSailorGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -1606,7 +1606,7 @@ int NullSailorGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -1642,7 +1642,7 @@ int NullSailorGirl(DSWActor* actor)
 
 int SailorGirlThrow(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
@@ -1716,7 +1716,7 @@ int SetupPruneGirl(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, PRUNEGIRL_R0,s_PruneGirlStand);
         actor->user.Health = 60;
@@ -1791,7 +1791,7 @@ int DoPruneGirl(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_CLIMBING)))
     {
         KeepActorOnFloor(actor);
     }
@@ -1810,7 +1810,7 @@ int NullPruneGirl(DSWActor* actor)
     DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(actor, ActorZOfMiddle(actor), actor->user.targetActor, ActorZOfMiddle(actor->user.targetActor));
 
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if (actor->user.FlagOwner != 1)
@@ -1841,7 +1841,7 @@ int NullPruneGirl(DSWActor* actor)
 
 int PruneGirlUzi(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags,SPR_CLIMBING))
+    if (!(actor->user.Flags & SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)

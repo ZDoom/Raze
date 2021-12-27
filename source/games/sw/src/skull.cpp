@@ -211,7 +211,7 @@ int SetupSkull(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SKULL_R0,s_SkullWait[0]);
         actor->user.Health = HEALTH_SKULL;
@@ -596,7 +596,7 @@ int SetupBetty(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,BETTY_R0,s_BettyWait[0]);
         actor->user.Health = HEALTH_SKULL;

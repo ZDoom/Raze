@@ -485,7 +485,7 @@ int SetupGoro(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);
         actor->user.Health = HEALTH_GORO;

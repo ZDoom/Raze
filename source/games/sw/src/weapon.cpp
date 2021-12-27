@@ -3858,7 +3858,7 @@ int DoShrapJumpFall(DSWActor* actor)
     }
     else
     {
-        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+        if (!(actor->user.Flags & SPR_BOUNCE))
         {
             DoShrapVelocity(actor);
             return 0;
@@ -3886,7 +3886,7 @@ int DoShrapDamage(DSWActor* actor)
     }
     else
     {
-        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+        if (!(actor->user.Flags & SPR_BOUNCE))
         {
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.jump_speed = -300;
@@ -5124,7 +5124,7 @@ int ActorPain(DSWActor* actor)
     if (RandomRange(1000) < 875 || actor->user.WaitTics > 0)
         return false;
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         if (actor->user.ActorActionSet && actor->user.ActorActionSet->Pain)
         {
@@ -5315,7 +5315,7 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
     // Store off what player was struck by
     pp->HitBy = weapActor;
 
-    if (actor->user.Health <= 0 && !TEST(pp->Flags, PF_DEAD))
+    if (actor->user.Health <= 0 && !(pp->Flags & PF_DEAD))
     {
         // pick a death type
         if (actor->user.LastDamage >= PLAYER_DEATH_EXPLODE_DAMMAGE_AMT)
@@ -6205,7 +6205,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6308,7 +6308,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         damage /= 3;
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6339,7 +6339,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 //      MONO_PRINT(ds);
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6407,7 +6407,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         damage = GetDamage(actor, weapActor, DMG_TANK_SHELL_EXP);
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6441,7 +6441,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6477,7 +6477,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6511,7 +6511,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6590,7 +6590,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -6677,7 +6677,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         if (actor->user.sop_parent)
         {
-            if (TEST(actor->user.sop_parent->flags, SOBJ_DIE_HARD))
+            if (actor->user.sop_parent->flags & (SOBJ_DIE_HARD))
                 break;
             SopDamage(actor->user.sop_parent, damage);
             SopCheckKill(actor->user.sop_parent);
@@ -7447,7 +7447,7 @@ int DoStar(DSWActor* actor)
                 break;
 
             // chance of sticking
-            if (!TEST(actor->user.Flags, SPR_BOUNCE) && RANDOM_P2(1024) < STAR_STICK_RNUM)
+            if (!(actor->user.Flags & SPR_BOUNCE) && RANDOM_P2(1024) < STAR_STICK_RNUM)
             {
                 actor->user.motion_blur_num = 0;
                 ChangeState(actor, s_StarStuck);
@@ -8312,7 +8312,7 @@ int DoGrenade(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                     {
                         // hit a floor
-                        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                        if (!(actor->user.Flags & SPR_BOUNCE))
                         {
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 40000); // 18000
@@ -8353,7 +8353,7 @@ int DoGrenade(DSWActor* actor)
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing on shallow water
 
-                    if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                    if (!(actor->user.Flags & SPR_BOUNCE))
                     {
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
@@ -18072,7 +18072,7 @@ int DoShrapVelocity(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                     {
                         // hit a floor
-                        if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                        if (!(actor->user.Flags & SPR_BOUNCE))
                         {
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 18000);
@@ -18107,7 +18107,7 @@ int DoShrapVelocity(DSWActor* actor)
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing on shallow water
 
-                    if (!TEST(actor->user.Flags, SPR_BOUNCE))
+                    if (!(actor->user.Flags & SPR_BOUNCE))
                     {
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();

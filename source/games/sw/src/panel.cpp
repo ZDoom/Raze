@@ -941,8 +941,8 @@ void InitWeaponSword(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_SWORD)) ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+    if (!(pp->WpnFlags &BIT(WPN_SWORD)) ||
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     // needed for death sequence when the SWORD was your weapon when you died
@@ -1002,7 +1002,7 @@ void InitWeaponSword(PLAYERp pp)
 
 void pSwordPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -1134,7 +1134,7 @@ void pSwordSlideDownR(PANEL_SPRITEp psp)
 
 void pSwordBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -1162,7 +1162,7 @@ void pSwordHide(PANEL_SPRITEp psp)
 
 void pSwordRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_SwordHide))
         return;
@@ -1177,7 +1177,7 @@ void pSwordRest(PANEL_SPRITEp psp)
     pSwordBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
@@ -1333,9 +1333,9 @@ void InitWeaponStar(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_STAR)) ||
+    if (!(pp->WpnFlags &BIT(WPN_STAR)) ||
         pp->WpnAmmo[WPN_STAR] < 3 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
     {
         //pp->WpnFirstType = WPN_SWORD;
         //InitWeaponSword(pp);
@@ -1391,7 +1391,7 @@ void InitWeaponStar(PLAYERp pp)
 
 void pStarPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -1410,7 +1410,7 @@ void pStarPresent(PANEL_SPRITEp psp)
 
 void pStarBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -1422,7 +1422,7 @@ void pStarBobSetup(PANEL_SPRITEp psp)
 
 void pLStarBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -1449,7 +1449,7 @@ void pStarHide(PANEL_SPRITEp psp)
 
 void pStarRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_StarHide))
         return;
@@ -1865,7 +1865,7 @@ void pUziDoneReload(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
 
 
-    if (TEST(psp->flags, PANF_PRIMARY) && pp->WpnUziType == 3)
+    if (psp->flags & (PANF_PRIMARY) && pp->WpnUziType == 3)
     {
         // if 2 uzi's and the first one has been reloaded
         // kill the first one and make the second one the CurWeapon
@@ -1952,9 +1952,9 @@ void InitWeaponUzi(PLAYERp pp)
 
     // make sure you have the uzi, uzi ammo, and not retracting another
     // weapon
-    if (!TEST(pp->WpnFlags, BIT(WPN_UZI)) ||
+    if (!(pp->WpnFlags &BIT(WPN_UZI)) ||
 //        pp->WpnAmmo[WPN_UZI] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     // if players uzi is null
@@ -2028,7 +2028,7 @@ PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
 
 
     // There is already a second uzi, or it's retracting
-    if (pp->WpnUziType == 1 || pp->CurWpn->sibling || TEST(pp->Flags, PF_WEAPON_RETRACT)) return nullptr;
+    if (pp->WpnUziType == 1 || pp->CurWpn->sibling || (pp->Flags & PF_WEAPON_RETRACT)) return nullptr;
 
     // NOTE: PRIMARY is ONLY set when there is a powerup
     uzi_orig->flags |= PANF_PRIMARY;
@@ -2084,7 +2084,7 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
 
 void pUziPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -2109,7 +2109,7 @@ void pUziPresent(PANEL_SPRITEp psp)
 // same as pUziPresent only faster for reload sequence
 void pUziPresentReload(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -2128,7 +2128,7 @@ void pUziPresentReload(PANEL_SPRITEp psp)
 
 void pUziBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -2153,7 +2153,7 @@ void pUziStartReload(PANEL_SPRITEp psp)
 
     psp->flags |= (PANF_RELOAD);
 
-    if (TEST(psp->flags, PANF_PRIMARY) && psp->sibling)
+    if (psp->flags & (PANF_PRIMARY) && psp->sibling)
     {
         // this is going to KILL Uzi #2 !!!
         pSetState(psp->sibling, psp->sibling->RetractState);
@@ -2171,7 +2171,7 @@ void pUziHide(PANEL_SPRITEp psp)
     {
         psp->oy = psp->y = 200 + tileHeight(picnum);
 
-        if (TEST(psp->flags, PANF_PRIMARY) && psp->PlayerP->WpnUziType != 1)
+        if (psp->flags & (PANF_PRIMARY) && psp->PlayerP->WpnUziType != 1)
         {
             if (pWeaponUnHideKeys(psp, psp->PresentState))
                 pSetState(psp->sibling, psp->sibling->PresentState);
@@ -2186,16 +2186,16 @@ void pUziHide(PANEL_SPRITEp psp)
 void pUziRest(PANEL_SPRITEp psp)
 {
     bool shooting;
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
 
     // If you have two uzi's, but one didn't come up, spawn it
-    if (TEST(psp->PlayerP->Flags, PF_TWO_UZI) && psp->sibling == nullptr)
+    if (psp->PlayerP->Flags & (PF_TWO_UZI) && psp->sibling == nullptr)
     {
         InitWeaponUzi2(psp);
     }
 
-    if (TEST(psp->flags, PANF_PRIMARY) && psp->sibling)
+    if (psp->flags & (PANF_PRIMARY) && psp->sibling)
     {
         if (pWeaponHideKeys(psp, ps_UziHide))
         {
@@ -2210,7 +2210,7 @@ void pUziRest(PANEL_SPRITEp psp)
             return;
     }
 
-    if (TEST(psp->flags, PANF_SECONDARY))
+    if (psp->flags & (PANF_SECONDARY))
         pUziOverlays(psp, CHAMBER_REST);
 
     SetVisNorm();
@@ -2242,7 +2242,7 @@ void pUziAction(PANEL_SPRITEp psp)
 
     if (shooting)
     {
-        if (TEST(psp->flags, PANF_SECONDARY))
+        if (psp->flags & (PANF_SECONDARY))
         {
             alternate++;
             if (alternate > 6) alternate = 0;
@@ -2262,7 +2262,7 @@ void pUziAction(PANEL_SPRITEp psp)
     }
     else
     {
-        if (TEST(psp->flags, PANF_SECONDARY))
+        if (psp->flags & (PANF_SECONDARY))
             pUziOverlays(psp, CHAMBER_REST);
         pUziBobSetup(psp);
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
@@ -2276,13 +2276,13 @@ void pUziFire(PANEL_SPRITEp psp)
     if (!WeaponOK(psp->PlayerP))
         return;
 
-    if (TEST(psp->flags, PANF_SECONDARY) && pp->WpnUziType > 0) return;
+    if (psp->flags & (PANF_SECONDARY) && pp->WpnUziType > 0) return;
 
     InitUzi(psp->PlayerP);
     SpawnUziShell(psp);
 
     // If its the second Uzi, give the shell back only if it's a reload count to keep #'s even
-    if (TEST(psp->flags, PANF_SECONDARY))
+    if (psp->flags & (PANF_SECONDARY))
     {
         if (pp->Flags & (PF_TWO_UZI) && psp->sibling)
         {
@@ -2325,7 +2325,7 @@ void pUziRetract(PANEL_SPRITEp psp)
     {
         // if in the reload phase and its retracting then get rid of uzi
         // no matter whether it is PRIMARY/SECONDARY/neither.
-        if (TEST(psp->flags, PANF_RELOAD))
+        if (psp->flags & (PANF_RELOAD))
         {
             psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
             psp->PlayerP->Wpn[WPN_UZI] = nullptr;
@@ -2333,13 +2333,13 @@ void pUziRetract(PANEL_SPRITEp psp)
         else
         {
             // NOT reloading here
-            if (TEST(psp->flags, PANF_PRIMARY))
+            if (psp->flags & (PANF_PRIMARY))
             {
                 // only reset when primary goes off the screen
                 psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
                 psp->PlayerP->Wpn[WPN_UZI] = nullptr;
             }
-            else if (TEST(psp->flags, PANF_SECONDARY))
+            else if (psp->flags & (PANF_SECONDARY))
             {
                 // primarily for beginning of reload sequence where seconary
                 // is taken off of the screen.  Lets the primary know that
@@ -2467,11 +2467,11 @@ void SpawnShotgunShell(PANEL_SPRITEp psp)
 
 void pShotgunShell(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_JUMPING))
+    if (psp->flags & (PANF_JUMPING))
     {
         DoPanelJump(psp);
     }
-    else if (TEST(psp->flags, PANF_FALLING))
+    else if (psp->flags & (PANF_FALLING))
     {
         DoPanelFall(psp);
     }
@@ -2611,9 +2611,9 @@ void InitWeaponShotgun(PLAYERp pp)
 
     pp->WeaponType = WPN_SHOTGUN;
 
-    if (!TEST(pp->WpnFlags, BIT(pp->WeaponType)) ||
+    if (!(pp->WpnFlags &BIT(pp->WeaponType)) ||
 //        pp->WpnAmmo[pp->WeaponType] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[pp->WeaponType])
@@ -2736,7 +2736,7 @@ void pShotgunReloadUp(PANEL_SPRITEp psp)
 
 void pShotgunPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     // Needed for recoil
@@ -2757,7 +2757,7 @@ void pShotgunPresent(PANEL_SPRITEp psp)
 
 void pShotgunBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -2846,7 +2846,7 @@ bool pShotgunReloadTest(PANEL_SPRITEp psp)
 
 void pShotgunRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
     int ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
     int lastammo = psp->PlayerP->WpnShotgunLastShell;
@@ -2894,7 +2894,7 @@ void pShotgunRest(PANEL_SPRITEp psp)
 
 void pShotgunRestTest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (psp->PlayerP->WpnShotgunType == 1 && !pShotgunReloadTest(psp))
         force = true;
@@ -3083,9 +3083,9 @@ void InitWeaponRail(PLAYERp pp)
 
     pp->WeaponType = WPN_RAIL;
 
-    if (!TEST(pp->WpnFlags, BIT(pp->WeaponType)) ||
+    if (!(pp->WpnFlags &BIT(pp->WeaponType)) ||
 //        pp->WpnAmmo[pp->WeaponType] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[pp->WeaponType])
@@ -3168,7 +3168,7 @@ void pRailRecoilUp(PANEL_SPRITEp psp)
 
 void pRailPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     // Needed for recoil
@@ -3189,7 +3189,7 @@ void pRailPresent(PANEL_SPRITEp psp)
 
 void pRailBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -3224,7 +3224,7 @@ void pRailOkTest(PANEL_SPRITEp psp)
 
 void pRailRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -3258,7 +3258,7 @@ void pRailRest(PANEL_SPRITEp psp)
 
 void pRailRestTest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_RailHide))
         return;
@@ -3504,9 +3504,9 @@ void InitWeaponHothead(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)) ||
+    if (!(pp->WpnFlags &BIT(WPN_HOTHEAD)) ||
 //        pp->WpnAmmo[WPN_HOTHEAD] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[WPN_HOTHEAD])
@@ -3578,7 +3578,7 @@ void pHotheadRestTest(PANEL_SPRITEp psp)
 
 void pHotheadPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -3595,7 +3595,7 @@ void pHotheadPresent(PANEL_SPRITEp psp)
 
 void pHotheadBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -3624,7 +3624,7 @@ void pHotheadHide(PANEL_SPRITEp psp)
 
 void pHotheadRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -3912,9 +3912,9 @@ void InitWeaponMicro(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_MICRO)) ||
+    if (!(pp->WpnFlags &BIT(WPN_MICRO)) ||
 //        pp->WpnAmmo[WPN_MICRO] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[WPN_MICRO])
@@ -4003,7 +4003,7 @@ void pMicroPresent(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     // Needed for recoil
@@ -4030,7 +4030,7 @@ void pMicroPresent(PANEL_SPRITEp psp)
 
 void pMicroBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -4152,7 +4152,7 @@ PANEL_STATE ps_MicroNukeFlash[] =
 void pMicroRest(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MicroHide))
         return;
@@ -4380,9 +4380,9 @@ void InitWeaponHeart(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_HEART)) ||
+    if (!(pp->WpnFlags &BIT(WPN_HEART)) ||
 //        pp->WpnAmmo[WPN_HEART] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[WPN_HEART])
@@ -4418,7 +4418,7 @@ void InitWeaponHeart(PLAYERp pp)
 
 void pHeartPresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -4434,7 +4434,7 @@ void pHeartPresent(PANEL_SPRITEp psp)
 
 void pHeartBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -4461,7 +4461,7 @@ void pHeartHide(PANEL_SPRITEp psp)
 
 void pHeartRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_HeartHide))
         return;
@@ -4668,11 +4668,11 @@ void SpawnSmallHeartBlood(PANEL_SPRITEp psp)
 
 void pHeartBlood(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_JUMPING))
+    if (psp->flags & (PANF_JUMPING))
     {
         DoPanelJump(psp);
     }
-    else if (TEST(psp->flags, PANF_FALLING))
+    else if (psp->flags & (PANF_FALLING))
     {
         DoPanelFall(psp);
     }
@@ -4836,9 +4836,9 @@ void InitWeaponGrenade(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_GRENADE)) ||
+    if (!(pp->WpnFlags &BIT(WPN_GRENADE)) ||
 //        pp->WpnAmmo[WPN_GRENADE] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[WPN_GRENADE])
@@ -4921,7 +4921,7 @@ void pGrenadeRecoilUp(PANEL_SPRITEp psp)
 
 void pGrenadePresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupcoords();
@@ -4947,7 +4947,7 @@ void pGrenadePresent(PANEL_SPRITEp psp)
 
 void pGrenadeBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -4977,7 +4977,7 @@ void pGrenadeHide(PANEL_SPRITEp psp)
 
 void pGrenadeRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_GrenadeHide))
         return;
@@ -5098,9 +5098,9 @@ void InitWeaponMine(PLAYERp pp)
     if (pp->WpnAmmo[WPN_MINE] <= 0)
         PutStringInfo(pp,"Out of Sticky Bombs!");
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_MINE)) ||
+    if (!(pp->WpnFlags &BIT(WPN_MINE)) ||
         pp->WpnAmmo[WPN_MINE] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
         return;
 
     if (!pp->Wpn[WPN_MINE])
@@ -5169,7 +5169,7 @@ void pMineRaise(PANEL_SPRITEp psp)
 
 void pMinePresent(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -5186,7 +5186,7 @@ void pMinePresent(PANEL_SPRITEp psp)
 
 void pMineBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -5214,7 +5214,7 @@ void pMineHide(PANEL_SPRITEp psp)
 
 void pMineRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MineHide))
         return;
@@ -5729,9 +5729,9 @@ void InitWeaponFist(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!TEST(pp->WpnFlags, BIT(WPN_FIST)) ||
+    if (!(pp->WpnFlags &BIT(WPN_FIST)) ||
         //pp->WpnAmmo[WPN_FIST] <= 0 ||
-        TEST(pp->Flags, PF_WEAPON_RETRACT))
+        (pp->Flags & PF_WEAPON_RETRACT))
     {
         pp->WpnFirstType = WPN_SWORD;
         InitWeaponSword(pp);
@@ -5782,7 +5782,7 @@ void pFistPresent(PANEL_SPRITEp psp)
 {
     int rnd;
 
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
+    if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
 
     psp->backupy();
@@ -5993,7 +5993,7 @@ void pFistSlideDownR(PANEL_SPRITEp psp)
 
 void pFistBobSetup(PANEL_SPRITEp psp)
 {
-    if (TEST(psp->flags, PANF_BOB))
+    if (psp->flags & (PANF_BOB))
         return;
 
     psp->backupbobcoords();
@@ -6020,7 +6020,7 @@ void pFistHide(PANEL_SPRITEp psp)
 
 void pFistRest(PANEL_SPRITEp psp)
 {
-    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_FistHide))
         return;
@@ -6035,7 +6035,7 @@ void pFistRest(PANEL_SPRITEp psp)
     pFistBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (psp->ActionState == ps_Kick)
         psp->ActionState = ps_FistSwing;
@@ -6125,12 +6125,12 @@ void pWeaponForceRest(PLAYERp pp)
 bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     // initing the other weapon will take care of this
-    if (TEST(psp->flags, PANF_DEATH_HIDE))
+    if (psp->flags & (PANF_DEATH_HIDE))
     {
         return false;
     }
 
-    if (TEST(psp->flags, PANF_WEAPON_HIDE))
+    if (psp->flags & (PANF_WEAPON_HIDE))
     {
         if (!TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
         {
@@ -6171,14 +6171,14 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 
 bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
-    if (TEST(psp->PlayerP->Flags, PF_DEAD))
+    if (psp->PlayerP->Flags & (PF_DEAD))
     {
         psp->flags |= (PANF_DEATH_HIDE);
         pSetState(psp, state);
         return true;
     }
 
-    if (TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
+    if (psp->PlayerP->Flags & (PF_WEAPON_DOWN))
     {
         psp->flags |= (PANF_WEAPON_HIDE);
         pSetState(psp, state);
@@ -6418,7 +6418,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
             if (!TEST(psp->flags, PANF_DRAW_BEFORE_VIEW))
                 continue;
 
-        if (TEST(psp->flags, PANF_SUICIDE))
+        if (psp->flags & (PANF_SUICIDE))
         {
             //pKillSprite(psp);
             continue;
@@ -6521,14 +6521,14 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         }
 
         // don't draw
-        if (TEST(psp->flags, PANF_INVISIBLE))
+        if (psp->flags & (PANF_INVISIBLE))
             continue;
 
         if (psp->State && TEST(psp->State->flags, psf_Invisible))
             continue;
 
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
-        if (TEST(psp->flags, PANF_WEAPON_SPRITE))
+        if (psp->flags & (PANF_WEAPON_SPRITE))
         {
             sectortype* sectp = nullptr;
             int16_t floorshade = 0;
@@ -6557,13 +6557,13 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
 
             shade = overlay_shade = floorshade - 10;
 
-            if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
+            if (psp->PlayerP->Flags & (PF_VIEW_FROM_OUTSIDE))
             {
                 if (!TEST(psp->PlayerP->Flags, PF_VIEW_OUTSIDE_WEAPON))
                     continue;
             }
 
-            if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_CAMERA))
+            if (psp->PlayerP->Flags & (PF_VIEW_FROM_CAMERA))
                 continue;
 
             // !FRANK - this was moved from BELOW this IF statement
@@ -6572,12 +6572,12 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
                 pal = 0;
         }
 
-        if (TEST(psp->flags, PANF_TRANSLUCENT))
+        if (psp->flags & (PANF_TRANSLUCENT))
             flags |= (RS_TRANS1);
 
-        flags |= (TEST(psp->flags, PANF_TRANS_FLIP));
+        flags |= (psp->flags & (PANF_TRANS_FLIP));
 
-        if (TEST(psp->flags, PANF_CORNER))
+        if (psp->flags & (PANF_CORNER))
             flags |= (RS_TOPLEFT);
 
         if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))

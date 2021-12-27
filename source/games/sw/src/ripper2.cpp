@@ -886,7 +886,7 @@ int SetupRipper2(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, RIPPER2_RUN_R0, s_Ripper2Run[0]);
         actor->user.Health = HEALTH_RIPPER2;
@@ -906,7 +906,7 @@ int SetupRipper2(DSWActor* actor)
         actor->spr.xrepeat += 40;
         actor->spr.yrepeat += 40;
 
-        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = HEALTH_MOMMA_RIPPER;
 
         actor->spr.clipdist += 128 >> 2;
@@ -1042,7 +1042,7 @@ int DoRipper2HangJF(DSWActor* actor)
             DoFall(actor);
     }
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         if (DoRipper2QuickJump(actor))
             return 0;
@@ -1106,7 +1106,7 @@ int DoRipper2MoveJump(DSWActor* actor)
             DoFall(actor);
     }
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         if (DoRipper2QuickJump(actor))
             return 0;
@@ -1247,7 +1247,7 @@ int DoRipper2Move(DSWActor* actor)
     }
 
     // if on a player/enemy sprite jump quickly
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         if (DoRipper2QuickJump(actor))
             return 0;

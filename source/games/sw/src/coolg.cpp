@@ -516,7 +516,7 @@ int SetupCoolg(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,COOLG_RUN_R0,s_CoolgRun[0]);
         actor->user.Health = HEALTH_COOLIE_GHOST;

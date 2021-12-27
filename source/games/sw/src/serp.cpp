@@ -697,7 +697,7 @@ int SetupSerp(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    if (!TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);
         actor->user.Health = HEALTH_SERP_GOD;

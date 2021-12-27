@@ -885,7 +885,7 @@ int DoZombieMove(DSWActor* actor)
     }
 
     // stay on floor unless doing certain things
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
         KeepActorOnFloor(actor);
     }
