@@ -1277,8 +1277,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->cgg, sActor, sPlayer);
 		break;
 	case ACTOR_HTPICNUM:
-		if (bSet) act->picnum = lValue;
-		else SetGameVarID(lVar2, act->picnum, sActor, sPlayer);
+		if (bSet) act->attackertype = lValue;
+		else SetGameVarID(lVar2, act->attackertype, sActor, sPlayer);
 		break;
 	case ACTOR_HTANG:
 		if (bSet) act->ang = lValue;
@@ -2155,7 +2155,7 @@ int ParseState::parse(void)
 	case concmd_ifwasweapon:
 	case concmd_ifspawnedby:	// these two are the same
 		insptr++;
-		parseifelse( g_ac->picnum == *insptr);
+		parseifelse( g_ac->attackertype == *insptr);
 		break;
 	case concmd_ifai:
 		insptr++;

@@ -95,7 +95,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 	if (s_ow)
 	{
-		act->picnum = s_ow->spr.picnum;
+		act->attackertype = s_ow->spr.picnum;
 		act->floorz = s_ow->floorz;
 		act->ceilingz = s_ow->ceilingz;
 	}
@@ -137,7 +137,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &excludes)
 {
-	act->picnum = act->spr.picnum;
+	act->attackertype = act->spr.picnum;
 	act->timetosleep = 0;
 	act->extra = -1;
 
@@ -220,7 +220,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 		auto spawned = EGS(actj->spr.sector(), actj->spr.pos.X, actj->spr.pos.Y, actj->spr.pos.Z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
-			spawned->picnum = actj->spr.picnum;
+			spawned->attackertype = actj->spr.picnum;
 			return fi.spawninit(actj, spawned, nullptr);
 		}
 	}

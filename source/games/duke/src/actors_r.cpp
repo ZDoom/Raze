@@ -304,11 +304,11 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					act2->ang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
-						act2->picnum = RPG;
+						act2->attackertype = RPG;
 					else if ((isRRRA()) && actor->spr.picnum == RPG2 && act2->spr.extra > 0)
-						act2->picnum = RPG;
+						act2->attackertype = RPG;
 					else
-						act2->picnum = RADIUSEXPLOSION;
+						act2->attackertype = RADIUSEXPLOSION;
 
 					if (d < r / 3)
 					{
@@ -657,7 +657,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 				if (hitowner)
 				{
-					if (actor->spr.extra <= 0 && actor->picnum != FREEZEBLAST)
+					if (actor->spr.extra <= 0 && actor->attackertype != FREEZEBLAST)
 					{
 						actor->spr.extra = 0;
 
@@ -671,7 +671,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 					}
 				}
 
-				int pn = actor->picnum;
+				int pn = actor->attackertype;
 				if (pn == RPG2 && !isRRRA()) pn = 0; // avoid messing around with gotos.
 				switch (pn)
 				{
@@ -705,7 +705,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 			}
 
 			actor->extra = -1;
-			return actor->picnum;
+			return actor->attackertype;
 		}
 	}
 
@@ -1067,7 +1067,7 @@ void movestandables_r(void)
 static void chickenarrow(DDukeActor* actor)
 {
 	actor->spr.hitag++;
-	if (actor->picnum != BOSS2 && actor->spr.xrepeat >= 10 && actor->spr.sector()->lotag != 2)
+	if (actor->attackertype != BOSS2 && actor->spr.xrepeat >= 10 && actor->spr.sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
 		if (spawned) spawned->spr.pos.Z += (1 << 8);
@@ -1347,7 +1347,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->picnum != BOSS2 && proj->spr.xrepeat >= 10 && proj->spr.sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->spr.sector()->lotag != 2)
 		{
 			spawn(proj, SMALLSMOKE)->spr.pos.Z += (1 << 8);
 		}
@@ -2678,7 +2678,7 @@ DETONATEB:
 						SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 					}
 
-					if (Owner && (Owner->picnum != HEAVYHBOMB || ud.respawn_items == 0 || Owner->spr.picnum == APLAYER))
+					if (Owner && (Owner->attackertype != HEAVYHBOMB || ud.respawn_items == 0 || Owner->spr.picnum == APLAYER))
 					{
 						if (actor->spr.picnum == HEAVYHBOMB && Owner->spr.picnum != APLAYER && ud.coop)
 							return;
@@ -4014,7 +4014,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 				addspritetodelete();
 			return 0;
 		}
-		actor->picnum = SHOTSPARK1;
+		actor->attackertype = SHOTSPARK1;
 		actor->extra = 1;
 	}
 	else if (isRRRA() && (actor->spr.sector()->floorpicnum == RRTILE7820 || actor->spr.sector()->floorpicnum == RRTILE7768))
@@ -4023,7 +4023,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if ((krand() & 3) == 1)
 			{
-				actor->picnum = SHOTSPARK1;
+				actor->attackertype = SHOTSPARK1;
 				actor->extra = 5;
 			}
 		}
@@ -4075,7 +4075,7 @@ void destroyit(DDukeActor *actor)
 			{
 				if (a3->spr.picnum == DESTRUCTO)
 				{
-					a3->picnum = SHOTSPARK1;
+					a3->attackertype = SHOTSPARK1;
 					a3->extra = 1;
 				}
 			}

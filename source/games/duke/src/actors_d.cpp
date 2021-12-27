@@ -241,7 +241,7 @@ bool ifsquished(DDukeActor* actor, int p)
 
 		if (actor->spr.pal == 1)
 		{
-			actor->picnum = SHOTSPARK1;
+			actor->attackertype = SHOTSPARK1;
 			actor->extra = 1;
 			return false;
 		}
@@ -352,26 +352,26 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					act2->ang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
 					
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
-						act2->picnum = RPG;
+						act2->attackertype = RPG;
 					else if (!isWorldTour())
 					{
 						if (actor->spr.picnum == SHRINKSPARK)
-							act2->picnum = SHRINKSPARK;
-						else act2->picnum = RADIUSEXPLOSION;
+							act2->attackertype = SHRINKSPARK;
+						else act2->attackertype = RADIUSEXPLOSION;
 					}
 					else
 					{
 						if (actor->spr.picnum == SHRINKSPARK || actor->spr.picnum == FLAMETHROWERFLAME)
-							act2->picnum = actor->spr.picnum;
+							act2->attackertype = actor->spr.picnum;
 						else if (actor->spr.picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
 						{
 							if (actor->spr.picnum == LAVAPOOL)
-								act2->picnum = FLAMETHROWERFLAME;
+								act2->attackertype = FLAMETHROWERFLAME;
 							else
-								act2->picnum = RADIUSEXPLOSION;
+								act2->attackertype = RADIUSEXPLOSION;
 						}
 						else
-							act2->picnum = FLAMETHROWERFLAME;
+							act2->attackertype = FLAMETHROWERFLAME;
 					}
 					
 					if (actor->spr.picnum != SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != LAVAPOOL))
@@ -415,7 +415,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						{
 							int p = act2->spr.yvel;
 							
-							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
+							if (isWorldTour() && act2->attackertype == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
 								ps[p].numloogs = -1 - actor->spr.yvel;
 							}
@@ -728,7 +728,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		{
 			if (actor->spr.picnum == APLAYER)
 			{
-				if (ud.god && actor->picnum != SHRINKSPARK) return -1;
+				if (ud.god && actor->attackertype != SHRINKSPARK) return -1;
 
 				p = actor->spr.yvel;
 				
@@ -742,7 +742,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				if (hitowner)
 				{
-					if (actor->spr.extra <= 0 && actor->picnum != FREEZEBLAST)
+					if (actor->spr.extra <= 0 && actor->attackertype != FREEZEBLAST)
 					{
 						actor->spr.extra = 0;
 
@@ -756,7 +756,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					}
 				}
 
-				switch(actor->picnum)
+				switch(actor->attackertype)
 				{
 					case RADIUSEXPLOSION:
 					case RPG:
@@ -777,12 +777,12 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->extra == 0)
-					if (actor->picnum == SHRINKSPARK && actor->spr.xrepeat < 24)
+					if (actor->attackertype == SHRINKSPARK && actor->spr.xrepeat < 24)
 						return -1;
 
-				if (isWorldTour() && actor->picnum == FIREFLY && actor->spr.xrepeat < 48)
+				if (isWorldTour() && actor->attackertype == FIREFLY && actor->spr.xrepeat < 48)
 				{
-					if (actor->picnum != RADIUSEXPLOSION && actor->picnum != RPG)
+					if (actor->attackertype != RADIUSEXPLOSION && actor->attackertype != RPG)
 						return -1;
 				}
 
@@ -793,13 +793,13 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			}
 
 			actor->extra = -1;
-			return actor->picnum;
+			return actor->attackertype;
 		}
 	}
 
 
 	if (ud.multimode < 2 || !isWorldTour()
-		|| actor->picnum != FLAMETHROWERFLAME
+		|| actor->attackertype != FLAMETHROWERFLAME
 		|| actor->extra >= 0
 		|| actor->spr.extra > 0
 		|| actor->spr.picnum != APLAYER
@@ -1663,7 +1663,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->picnum != BOSS2 && proj->spr.xrepeat >= 10 && proj->spr.sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->spr.sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += (1 << 8);

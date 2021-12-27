@@ -35,7 +35,7 @@ public:
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	TObjPtr<DDukeActor*> ownerActor, hitOwnerActor;
-	short picnum, ang, extra, movflag;
+	short attackertype, ang, extra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, aflags;
@@ -66,7 +66,7 @@ public:
 		ownerActor = nullptr;
 		hitOwnerActor = nullptr;
 		cgg = spriteextra = 0;
-		picnum = ang = extra = movflag = tempang = dispicnum = timetosleep = 0;
+		attackertype = ang = extra = movflag = tempang = dispicnum = timetosleep = 0;
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}

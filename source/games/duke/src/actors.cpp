@@ -2327,7 +2327,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 	if (actor->temp_data[2] < 32)
 	{
 		actor->temp_data[2]++;
-		if (actor->picnum == TIRE)
+		if (actor->attackertype == TIRE)
 		{
 			if (actor->spr.xrepeat < 64 && actor->spr.yrepeat < 64)
 			{
@@ -2363,7 +2363,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 		if (actor->temp_data[1] == 1) return false;
 		actor->temp_data[1] = 1;
 
-		if (actor->picnum == TIRE)
+		if (actor->attackertype == TIRE)
 			ps[p].footprintcount = 10;
 		else ps[p].footprintcount = 3;
 
@@ -5149,7 +5149,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 				SKIPJIBS:
 
-					actor->picnum = SHOTSPARK1;
+					actor->attackertype = SHOTSPARK1;
 					actor->extra = 1;
 					actor->spr.zvel = 0;
 				}

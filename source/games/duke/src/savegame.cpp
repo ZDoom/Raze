@@ -300,7 +300,7 @@ void DDukeActor::Serialize(FSerializer& arc)
 
 	arc("cgg", cgg)
 		("spriteextra", spriteextra)
-		("picnum", picnum)
+		("picnum", attackertype)
 		("ang", ang)
 		("extra", extra)
 		("owneractor", ownerActor)

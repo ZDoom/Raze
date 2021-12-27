@@ -469,7 +469,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case SCRAP6 + 6:
 		case SCRAP6 + 7:
 
-			if (h->picnum == BLIMP && t->picnum == SCRAP1 && h->spr.yvel >= 0)
+			if (h->attackertype == BLIMP && t->picnum == SCRAP1 && h->spr.yvel >= 0)
 				t->picnum = h->spr.yvel;
 			else t->picnum += h->temp_data[0];
 			t->shade -= 6;

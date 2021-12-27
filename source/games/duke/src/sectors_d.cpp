@@ -1452,7 +1452,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 						hitpic = FLAMETHROWERFLAME;
 				}
 
-				targ->picnum = hitpic;
+				targ->attackertype = hitpic;
 				targ->extra += proj->spr.extra;
 				targ->ang = proj->spr.ang;
 				targ->SetHitOwner(Owner);

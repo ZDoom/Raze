@@ -2399,7 +2399,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
-				targ->picnum = proj->spr.picnum;
+				targ->attackertype = proj->spr.picnum;
 				targ->extra += proj->spr.extra;
 				if (targ->spr.picnum != COW)
 					targ->ang = proj->spr.ang;
@@ -2915,7 +2915,7 @@ void tearitup(sectortype* sect)
 	{
 		if (act->spr.picnum == DESTRUCTO)
 		{
-			act->picnum = SHOTSPARK1;
+			act->attackertype = SHOTSPARK1;
 			act->extra = 1;
 		}
 	}
