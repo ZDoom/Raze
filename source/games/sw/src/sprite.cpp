@@ -1564,7 +1564,7 @@ void SpriteSetup(void)
     {
         // not used yetv
         getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
-        if (actor->spr.pos.Z > DIV2(cz + fz))
+        if (actor->spr.pos.Z > ((cz + fz) >> 1))
         {
             // closer to a floor
             actor->spr.cstat |= (CSTAT_SPRITE_CLOSE_FLOOR);

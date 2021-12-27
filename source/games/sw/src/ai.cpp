@@ -63,7 +63,7 @@ int Distance(int x1, int y1, int x2, int y2)
     else
         min = x2;
 
-    return x2 + y2 - DIV2(min);
+    return x2 + y2 - (min >> 1);
 }
 
 
@@ -119,7 +119,7 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
     actor->user.speed = speed;
 
     if (ActorFlaming(actor))
-        actor->spr.xvel = actor->user.Attrib->Speed[speed] + DIV2(actor->user.Attrib->Speed[speed]);
+        actor->spr.xvel = actor->user.Attrib->Speed[speed] + (actor->user.Attrib->Speed[speed] >> 1);
     else
         actor->spr.xvel = actor->user.Attrib->Speed[speed];
 }
@@ -233,7 +233,7 @@ int CanHitPlayer(DSWActor* actor)
     // if actor can still see the player
     int zhs, zhh;
 
-    zhs = actor->spr.pos.Z - DIV2(ActorSizeZ(actor));
+    zhs = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1);
 
 
     auto targ = actor->user.targetActor;
@@ -434,7 +434,7 @@ int DoActorOperate(DSWActor* actor)
         return false;
 
     z[0] = actor->spr.pos.Z - ActorSizeZ(actor) + Z(5);
-    z[1] = actor->spr.pos.Z - DIV2(ActorSizeZ(actor));
+    z[1] = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1);
 
     for (i = 0; i < SIZ(z); i++)
     {

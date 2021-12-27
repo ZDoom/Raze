@@ -37,19 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 /*
 ===========================
 =
-= FAST calculations
-=
-===========================
-*/
-
-#define DIV2(x)  ((x) >> 1)
-#define MOD_P2(number,modby)  ((number) & ((modby)-1))
-
-
-
-/*
-===========================
-=
 = Bit manipulation
 =
 ===========================

@@ -408,7 +408,7 @@ int DoSkullBob(DSWActor* actor)
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->spr.pos.Z = actor->user.sz + MulScale(SKULL_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale(DIV2(SKULL_BOB_AMT), bsin(actor->user.Counter), 14);
+            MulScale((SKULL_BOB_AMT / 2), bsin(actor->user.Counter), 14);
 
     return 0;
 }
@@ -785,7 +785,7 @@ int DoBettyBob(DSWActor* actor)
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->spr.pos.Z = actor->user.sz + MulScale(BETTY_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale(DIV2(BETTY_BOB_AMT), bsin(actor->user.Counter), 14);
+            MulScale((BETTY_BOB_AMT / 2), bsin(actor->user.Counter), 14);
 
     return 0;
 }

@@ -953,8 +953,8 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     vy = -ang.bsin(-4);
 
     // lengthen the vector some
-    vx += DIV2(vx);
-    vy += DIV2(vy);
+    vx += vx >> 1;
+    vy += vy >> 1;
 
     vz = q16horiz >> 8;
 

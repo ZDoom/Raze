@@ -3639,14 +3639,14 @@ AutoShrap:
 
     hz[Z_TOP] = ActorZOfTop(parentActor);        // top
     hz[Z_BOT] = ActorZOfBottom(parentActor);        // bottom
-    hz[Z_MID] = DIV2(hz[0] + hz[2]);        // mid
+    hz[Z_MID] = (hz[0] + hz[2]) >> 1;        // mid
 
     for (; p->id; p++)
     {
         if (!p->random_disperse)
         {
             //dang = (2048 / p->num);
-            start_ang = NORM_ANGLE(shrap_ang - DIV2(p->ang_range));
+            start_ang = NORM_ANGLE(shrap_ang - (p->ang_range >> 1));
             dang = (p->ang_range / p->num);
         }
 
@@ -3657,7 +3657,7 @@ AutoShrap:
 
             if (p->random_disperse)
             {
-                actor->spr.ang = shrap_ang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
+                actor->spr.ang = shrap_ang + (RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang);
             }
             else
@@ -4064,7 +4064,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
     {
         if (!p->random_disperse)
         {
-            start_ang = NORM_ANGLE(hit_ang - DIV2(p->ang_range)+1024);
+            start_ang = NORM_ANGLE(hit_ang - (p->ang_range >> 1) + 1024);
             dang = (p->ang_range / p->num);
         }
 
@@ -4097,7 +4097,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
             if (p->random_disperse)
             {
-                actorNew->spr.ang = hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
+                actorNew->spr.ang = hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1);
                 actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
             }
             else
@@ -8142,7 +8142,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     getzsofslopeptr(hit_sector, actor->spr.pos.X, actor->spr.pos.Y, &hiz, &loz);
 
     // detect the ceiling and the hit_wall
-    if (actor->spr.pos.Z < DIV2(hiz+loz))
+    if (actor->spr.pos.Z < ((hiz+loz) >> 1))
     {
         if (!TEST(hit_sector->ceilingstat, CSTAT_SECTOR_SLOPE))
             slope = 0;
@@ -11250,7 +11250,7 @@ void InitSpellRing(PLAYERp pp)
 
     ang_diff = 2048 / max_missiles;
 
-    ang_start = NORM_ANGLE(pp->angle.ang.asbuild() - DIV2(2048));
+    ang_start = NORM_ANGLE(pp->angle.ang.asbuild() - (2048 / 2));
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
@@ -11378,7 +11378,7 @@ int DoSerpRing(DSWActor* actor)
                     actor->user.ID = SKULL_R0;
                     actor->spr.ang = getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y);
                     actor->spr.xvel = dist>>5;
-                    actor->spr.xvel += DIV2(actor->spr.xvel);
+                    actor->spr.xvel += (actor->spr.xvel >> 1);
                     actor->spr.xvel += (RANDOM_P2(128<<8)>>8);
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
@@ -11463,7 +11463,7 @@ void InitVulcanBoulder(DSWActor* actor)
     if (SP_TAG7(actor))
     {
         delta = SP_TAG5(actor);
-        nang = actor->spr.ang + (RandomRange(delta) - DIV2(delta));
+        nang = actor->spr.ang + (RandomRange(delta) - (delta >> 1));
         nang = NORM_ANGLE(nang);
     }
     else
@@ -11531,7 +11531,7 @@ int InitSerpRing(DSWActor* actor)
 
     ang_diff = 2048 / max_missiles;
 
-    ang_start = NORM_ANGLE(actor->spr.ang - DIV2(2048));
+    ang_start = NORM_ANGLE(actor->spr.ang - (2048 / 2));
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
@@ -13752,7 +13752,7 @@ int InitMicro(PLAYERp pp)
 
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
         const int MICRO_LATERAL = 5000;
-        HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
+        HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - (MICRO_LATERAL / 2)));
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
@@ -13789,7 +13789,7 @@ int InitMicro(PLAYERp pp)
         }
         else
         {
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + (RandomRange(MICRO_ANG) - DIV2(MICRO_ANG)) - 16);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + (RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
         actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
@@ -13909,7 +13909,7 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
     day = -bcos(wactor->spr.ang) * wactor->spr.xrepeat;
 
     xsiz = tileWidth(wactor->spr.picnum);
-    mid_dist = DIV2(xsiz) + xoff;
+    mid_dist = (xsiz >> 1) + xoff;
 
     // starting from the center find the first point
     x1 -= MulScale(dax, mid_dist, 16);
@@ -15530,7 +15530,7 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
         }
         else
         {
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + (RandomRange(MICRO_ANG) - DIV2(MICRO_ANG)) - 16);
+            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + (RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
         actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);

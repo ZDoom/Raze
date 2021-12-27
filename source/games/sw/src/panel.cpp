@@ -6555,7 +6555,6 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
                 flags |= (RS_TRANS1);
             }
 
-            //shade = overlay_shade = DIV2(pp->cursector->floorshade + pp->cursector->ceilingshade);
             shade = overlay_shade = floorshade - 10;
 
             if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))

@@ -2213,7 +2213,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
             HelpMissileLateral(actorNew,1500);
             actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128);
         }
-        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
+        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - (128 / 2);
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number
@@ -2227,7 +2227,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);
         HelpMissileLateral(actorNew,1300);
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128-64);
-        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
+        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - (128 / 2);
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
 
         // Set the shell number

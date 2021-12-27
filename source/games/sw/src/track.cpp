@@ -3133,7 +3133,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         actor->spr.ang = tpoint->ang;
 
         z[0] = actor->spr.pos.Z - ActorSizeZ(actor) + Z(5);
-        z[1] = actor->spr.pos.Z - DIV2(ActorSizeZ(actor));
+        z[1] = actor->spr.pos.Z - (ActorSizeZ(actor) >> 1);
 
         for (i = 0; i < (int)SIZ(z); i++)
         {

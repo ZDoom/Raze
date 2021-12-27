@@ -599,7 +599,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
     *xmid = xsum / (sectp->wallnum);
     *ymid = ysum / (sectp->wallnum);
 
-    *zmid = DIV2(sectp->floorz + sectp->ceilingz);
+    *zmid = (sectp->floorz + sectp->ceilingz) >> 1;
 }
 
 
@@ -2208,7 +2208,7 @@ void PlayerOperateEnv(PLAYERp pp)
 
                 z[0] = plActor->spr.pos.Z - ActorSizeZ(plActor) - Z(10);
                 z[1] = plActor->spr.pos.Z;
-                z[2] = DIV2(z[0] + z[1]);
+                z[2] = (z[0] + z[1]) >> 1;
 
                 for (unsigned i = 0; i < SIZ(z); i++)
                 {

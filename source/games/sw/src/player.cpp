@@ -1226,7 +1226,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             // gives a value between 0 and 65535
             ang_weight = IntToFixed(max_delta_ang - ts->dang)/max_delta_ang;
             // gives a value between 0 and 65535
-            dist_weight = IntToFixed(DIV2(PICK_DIST) - DIV2(ts->dist))/DIV2(PICK_DIST);
+            dist_weight = IntToFixed((PICK_DIST / 2) - ((ts->dist) >> 1)) / (PICK_DIST / 2);
             //weighted average
             ts->weight = (ang_weight + dist_weight*4)/5;
 
@@ -2618,7 +2618,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 13000)
             {
-                vec3_t hit_pos = { DIV2(x[0] + x[1]), DIV2(y[0] + y[1]), pp->cursector->floorz - Z(10) };
+                vec3_t hit_pos = { (x[0] + x[1]) >> 1, (y[0] + y[1]) >> 1, pp->cursector->floorz - Z(10) };
 
                 hitscan(hit_pos, pp->cursector,
                     { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
