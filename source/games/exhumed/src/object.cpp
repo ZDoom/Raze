@@ -857,7 +857,7 @@ void AIElev::Tick(RunListEvent* ev)
         }
 
         StartInterpolation(pSector, Interp_Sect_Ceilingz);
-        pSector->ceilingz = ceilZ;
+        pSector->setceilingz(ceilZ);
     }
 
     // maybe this doesn't go here?
@@ -1663,7 +1663,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     pSector->floorshade = 50;
     pSector->extra = -1;
-    pSector->floorz = pActor->spr.pos.Z;
+    pSector->setfloorz(pActor->spr.pos.Z);
 
     pActor->spr.pos.Z = (pActor->spr.pos.Z + pSector->floorz) / 2;
 
@@ -1772,13 +1772,13 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 
     int nFloorZ = pSector->floorz;
 
-    pSector->floorz = pActor->spr.pos.Z;
+    pSector->setfloorz(pActor->spr.pos.Z);
     pActor->spr.pos.Z -= 256;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
-    pSector->floorz = nFloorZ;
+    pSector->setfloorz(nFloorZ);
     pActor->spr.pos.Z += 256;
 
     if (ev->nDamage <= 0) {
@@ -2122,13 +2122,13 @@ void DoDrips()
 
         if (sBob[i].field_3)
         {
-            pSector->ceilingz = edx + sBob[i].z;
+            pSector->setceilingz(edx + sBob[i].z);
         }
         else
         {
             int nFloorZ = pSector->floorz;
 
-            pSector->floorz = edx + sBob[i].z;
+            pSector->setfloorz(edx + sBob[i].z);
 
             MoveSectorSprites(pSector, pSector->floorz - nFloorZ);
         }

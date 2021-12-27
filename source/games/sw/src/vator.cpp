@@ -370,13 +370,13 @@ int DoVator(DSWActor* actor)
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
-        lptr = &sectp->ceilingz;
+        lptr = sectp->ceilingzptr();
         amt = DoVatorMove(actor, lptr);
         MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
     }
     else
     {
-        lptr = &sectp->floorz;
+        lptr = sectp->floorzptr();
         amt = DoVatorMove(actor, lptr);
         MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
     }
@@ -521,13 +521,13 @@ int DoVatorAuto(DSWActor* actor)
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
-        lptr = &sectp->ceilingz;
+        lptr = sectp->ceilingzptr();
         amt = DoVatorMove(actor, lptr);
         MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
     }
     else
     {
-        lptr = &sectp->floorz;
+        lptr = sectp->floorzptr();
         amt = DoVatorMove(actor, lptr);
         MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
     }

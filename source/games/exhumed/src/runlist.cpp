@@ -706,7 +706,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            pSector->floorz = nextSectorP->floorz;
+            pSector->setfloorz(nextSectorP->floorz);
             return;
         }
 

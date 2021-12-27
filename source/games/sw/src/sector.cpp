@@ -879,7 +879,7 @@ void DoExplodeSector(short match)
 
         sectp = actor->spr.sector();
 
-        sectp->ceilingz -= Z(SP_TAG4(actor));
+        sectp->addceilingz(-Z(SP_TAG4(actor)));
 
         if (SP_TAG5(actor))
         {
@@ -1255,7 +1255,7 @@ void DoChangorMatch(short match)
         if (TEST_BOOL1(actor))
         {
             sectp->ceilingpicnum = SP_TAG4(actor);
-            sectp->ceilingz += Z(SP_TAG5(actor));
+            sectp->addceilingz(Z(SP_TAG5(actor)));
             sectp->ceilingheinum += SP_TAG6(actor);
 
             if (sectp->ceilingheinum)
@@ -1269,7 +1269,7 @@ void DoChangorMatch(short match)
         else
         {
             sectp->floorpicnum = SP_TAG4(actor);
-            sectp->floorz += Z(SP_TAG5(actor));
+            sectp->addfloorz(Z(SP_TAG5(actor)));
             sectp->floorheinum += SP_TAG6(actor);
 
             if (sectp->floorheinum)
@@ -2342,13 +2342,13 @@ void DoSineWaveFloor(void)
             if (TEST(flags, SINE_FLOOR))
             {
                 newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                swf->sectp->floorz = newz;
+                swf->sectp->setfloorz(newz);
             }
 
             if (TEST(flags, SINE_CEILING))
             {
                 newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                swf->sectp->ceilingz = newz;
+                swf->sectp->setceilingz(newz);
             }
 
         }
@@ -2423,7 +2423,7 @@ void DoAnim(int numtics)
 
     for (i = AnimCnt - 1; i >= 0; i--)
     {
-        animval = Anim[i].Addr();
+        animval = Anim[i].Addr(true);
 
         // if LESS THAN goal
         if (animval < Anim[i].goal)
@@ -2449,7 +2449,7 @@ void DoAnim(int numtics)
                 animval = Anim[i].goal;
         }
 
-        Anim[i].Addr() =animval;
+        Anim[i].Addr(true) =animval;
 
         // EQUAL this entry has finished
         if (animval == Anim[i].goal)

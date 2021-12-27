@@ -903,7 +903,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->floorz;
-        pSector->baseFloor = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
+        pSector->setfloorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16)));
         pSector->velFloor += (pSector->floorz-oldZ)<<8;
 
         BloodSectIterator it(pSector);
@@ -931,7 +931,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->ceilingz;
-        pSector->baseCeil = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
+        pSector->setceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16)));
         pSector->velCeil += (pSector->ceilingz-oldZ)<<8;
 
         BloodSectIterator it(pSector);
@@ -1018,9 +1018,9 @@ int VCrushBusy(sectortype *pSector, unsigned int a2)
         return 1;
     viewInterpolateSector(pSector);
     if (dz1 != 0)
-        pSector->ceilingz = vc;
+        pSector->setceilingz(vc);
     if (dz2 != 0)
-        pSector->floorz = v10;
+        pSector->setfloorz(v10);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector,pXSector->txID, kCmdLink);
@@ -1803,7 +1803,7 @@ void ProcessMotion(void)
             {
                 int floorZ = pSector->floorz;
                 viewInterpolateSector(pSector);
-                pSector->floorz = pSector->baseFloor + vdi;
+                pSector->setfloorz(pSector->baseFloor + vdi);
 
                 BloodSectIterator itr(pSector);
                 while (auto actor = itr.Next())
@@ -1826,7 +1826,7 @@ void ProcessMotion(void)
             {
                 int ceilZ = pSector->ceilingz;
                 viewInterpolateSector(pSector);
-                pSector->ceilingz = pSector->baseCeil + vdi;
+                pSector->setceilingz(pSector->baseCeil + vdi);
 
                 BloodSectIterator itr(pSector);
                 while (auto actor = itr.Next())

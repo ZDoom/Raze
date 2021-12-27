@@ -900,14 +900,14 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         nZVal = pSector->ceilingz;
         pos.Z = pNextSector->ceilingz + 256;
 
-        pSector->ceilingz = pNextSector->ceilingz;
+        pSector->setceilingz(pNextSector->ceilingz);
     }
     else
     {
         nZVal = pSector->floorz;
         pos.Z = pNextSector->floorz - 256;
 
-        pSector->floorz = pNextSector->floorz;
+        pSector->setfloorz(pNextSector->floorz);
     }
 
     auto pSectorB = pSector;
@@ -1061,10 +1061,10 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     }
 
     if (nSectFlag & kSectUnderwater) {
-        pSector->ceilingz = nZVal;
+        pSector->setceilingz(nZVal);
     }
     else {
-        pSector->floorz = nZVal;
+        pSector->setfloorz(nZVal);
     }
 
     *nXVel = xvect;

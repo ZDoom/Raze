@@ -2170,13 +2170,13 @@ struct ANIMstruct
 	ANIM_CALLBACKp callback;
 	SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
 
-	int& Addr()
+	int& Addr(bool write)
 	{
         static int scratch;
 		switch (animtype)
 		{
 		case ANIM_Floorz:
-			return sector[animindex].floorz;
+            return *sector[animindex].floorzptr(!write);
 		case ANIM_SopZ:
 			return SectorObject[animindex].zmid;
 		case ANIM_Spritez:

@@ -725,7 +725,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
                     save.pic[save.zcount] = actor->spr.sector()->floorpicnum;
                     save.slope[save.zcount] = actor->spr.sector()->floorheinum;
 
-                    actor->spr.sector()->floorz = newz;
+                    actor->spr.sector()->setfloorz(newz, true);
                     // don't change FAF_MIRROR_PIC - ConnectArea
                     if (actor->spr.sector()->floorpicnum != FAF_MIRROR_PIC)
                         actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC + 1;
@@ -814,7 +814,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
                     save.pic[save.zcount] = actor->spr.sector()->ceilingpicnum;
                     save.slope[save.zcount] = actor->spr.sector()->ceilingheinum;
 
-                    actor->spr.sector()->ceilingz = newz;
+                    actor->spr.sector()->setceilingz(newz, true);
 
                     // don't change FAF_MIRROR_PIC - ConnectArea
                     if (actor->spr.sector()->ceilingpicnum != FAF_MIRROR_PIC)

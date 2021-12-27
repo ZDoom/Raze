@@ -2054,8 +2054,7 @@ void SpriteSetup(void)
                             amt = actor->spr.pos.Z - sectp->floorz;
 
                             // start in the on position
-                            //sectp->floorz = actor->spr.z;
-                            sectp->floorz += amt;
+                            sectp->addfloorz(amt);
                             actor->user.z_tgt = actor->user.sz;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
@@ -2075,8 +2074,7 @@ void SpriteSetup(void)
                             amt = actor->spr.pos.Z - sectp->ceilingz;
 
                             // starting in the on position
-                            //sectp->ceilingz = actor->spr.z;
-                            sectp->ceilingz += amt;
+                            sectp->addceilingz(amt);
                             actor->user.z_tgt = actor->user.sz;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
@@ -2455,7 +2453,7 @@ void SpriteSetup(void)
 
                     SP_TAG4(actor) = abs(sectp->ceilingz - sectp->floorz)>>8;
 
-                    sectp->ceilingz = sectp->floorz;
+                    sectp->setceilingz(sectp->floorz);
 
                     change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
                     break;

@@ -251,7 +251,7 @@ void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
     }
 
     if (b) {
-        pSectorB->ceilingz = pSectorA->floorz;
+        pSectorB->setceilingz(pSectorA->floorz);
     }
 
     if (pSectorA->Flag & 0x1000) {

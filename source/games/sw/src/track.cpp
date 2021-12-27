@@ -2042,7 +2042,7 @@ void MoveZ(SECTOR_OBJECTp sop)
             if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
+            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
@@ -2602,7 +2602,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int 
             if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
+            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 

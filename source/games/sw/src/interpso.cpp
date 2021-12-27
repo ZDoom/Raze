@@ -102,9 +102,9 @@ static int &getvalue(so_interp::interp_data& element, bool write)
         if (write) wall[index].moved();
         return wall[index].pos.Y;
     case soi_ceil:
-        return sector[index].ceilingz;
+        return *sector[index].ceilingzptr(!write);
     case soi_floor:
-        return sector[index].floorz;
+        return *sector[index].floorzptr(!write);
     case soi_sox:
         return SectorObject[index].xmid;
     case soi_soy:

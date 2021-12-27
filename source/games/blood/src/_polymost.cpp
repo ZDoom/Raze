@@ -228,8 +228,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 wallarr[mirrorwall[2]].pos.Y = wallarr[mirrorwall[1]].pos.Y + (wallarr[mirrorwall[1]].pos.Y - wallarr[mirrorwall[0]].pos.Y) * 16;
                 wallarr[mirrorwall[3]].pos.X = wallarr[mirrorwall[0]].pos.X + (wallarr[mirrorwall[0]].pos.X - wallarr[mirrorwall[1]].pos.X) * 16;
                 wallarr[mirrorwall[3]].pos.Y = wallarr[mirrorwall[0]].pos.Y + (wallarr[mirrorwall[0]].pos.Y - wallarr[mirrorwall[1]].pos.Y) * 16;
-                sector.Data()[mirrorsector].floorz = sector[nSector].floorz;
-                sector.Data()[mirrorsector].ceilingz = sector[nSector].ceilingz;
+                sector.Data()[mirrorsector].setfloorz(sector[nSector].floorz, true);
+                sector.Data()[mirrorsector].setceilingz(sector[nSector].ceilingz, true);
                 int cx, cy, ca;
                 if (pWall->type == kWallStack)
                 {

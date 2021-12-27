@@ -51,7 +51,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
         // reset Z's
         for (int i = 0; i < save.zcount; i++)
         {
-            save.sect[i]->floorz = save.zval[i];
+            save.sect[i]->setfloorz(save.zval[i], true);
             save.sect[i]->floorpicnum = save.pic[i];
             save.sect[i]->setfloorslope(save.slope[i]);
         }
@@ -76,7 +76,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
             // reset Z's
             for (int i = 0; i < save.zcount; i++)
             {
-                save.sect[i]->ceilingz = save.zval[i];
+                save.sect[i]->setceilingz(save.zval[i], true);
                 save.sect[i]->ceilingpicnum = save.pic[i];
                 save.sect[i]->setceilingslope(save.slope[i]);
             }
