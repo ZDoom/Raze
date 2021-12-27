@@ -525,7 +525,7 @@ int SpawnCoolg(DSWActor* actor)
 
 int CooliePain(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
@@ -541,7 +541,7 @@ int CooliePain(DSWActor* actor)
 
 int NullCoolie(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags,SPR_CLIMBING))
@@ -554,7 +554,7 @@ int NullCoolie(DSWActor* actor)
 
 int DoCoolieMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

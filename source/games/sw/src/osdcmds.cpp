@@ -100,7 +100,7 @@ void GameInterface::ToggleThirdPerson()
 {
     if (gamestate != GS_LEVEL) return;
     auto pp = &Player[myconnectindex];
-    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+    if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         pp->Flags &= ~(PF_VIEW_FROM_OUTSIDE);
     }

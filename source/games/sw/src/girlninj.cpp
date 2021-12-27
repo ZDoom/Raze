@@ -742,16 +742,16 @@ int SetupGirlNinja(DSWActor* actor)
 int DoGirlNinjaMove(DSWActor* actor)
 {
     // jumping and falling
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
-        else if (TEST(actor->user.Flags, SPR_FALLING))
+        else if (actor->user.Flags & (SPR_FALLING))
             DoActorFall(actor);
     }
 
     // sliding
-    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
         DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
@@ -800,7 +800,7 @@ int NullGirlNinja(DSWActor* actor)
 {
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))

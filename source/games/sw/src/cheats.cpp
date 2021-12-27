@@ -157,7 +157,7 @@ bool WarpCheat(cheatseq_t* c)
         if (level_num > 4 || level_num < 1)
             return false;
     }
-    if (TEST(pp->Flags, PF_DEAD))
+    if (pp->Flags & (PF_DEAD))
         return true;
 
     DeferredStartGame(maprec, g_nextskill);

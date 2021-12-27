@@ -479,7 +479,7 @@ int SetupLava(DSWActor* actor)
 
 int NullLava(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -490,7 +490,7 @@ int NullLava(DSWActor* actor)
 
 int DoLavaMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

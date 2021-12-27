@@ -770,10 +770,10 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 pp = Player + screenpeek;
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
-                    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+                    if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
                         tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
-                    if (TEST(pp->Flags, PF_CLIMBING))
+                    if (pp->Flags & (PF_CLIMBING))
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
@@ -1473,7 +1473,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
-    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+    if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
         
@@ -1545,7 +1545,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
             // Don't show sprites tagged with 257
             if (actor->spr.lotag == 257)
             {
-                if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+                if (actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_FLOOR);
                     actor->spr.owner = -2;

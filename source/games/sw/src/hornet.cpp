@@ -325,7 +325,7 @@ int SetupHornet(DSWActor* actor)
 
 int NullHornet(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     DoHornetMatchPlayerZ(actor);
@@ -488,7 +488,7 @@ int DoHornetDeath(DSWActor* actor)
 {
     int nx, ny;
 
-    if (TEST(actor->user.Flags, SPR_FALLING))
+    if (actor->user.Flags & (SPR_FALLING))
     {
         actor->user.loz = actor->user.zclip;
         DoFall(actor);
@@ -503,7 +503,7 @@ int DoHornetDeath(DSWActor* actor)
         actor->user.zclip = actor->user.loz;
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     // slide while falling
@@ -574,7 +574,7 @@ int DoHornetMove(DSWActor* actor)
     if (actor->spr.hitag == TAG_SWARMSPOT && actor->spr.lotag == 1)
         DoCheckSwarm(actor);
 
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

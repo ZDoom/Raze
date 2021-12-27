@@ -495,7 +495,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
 
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
         return;
 
     if (actor->user.lo_sectp && actor->user.lo_sectp->hasU())
@@ -507,7 +507,7 @@ void KeepActorOnFloor(DSWActor* actor)
         depth > 35 &&
         actor->user.ActorActionSet && actor->user.ActorActionSet->Swim)
     {
-        if (TEST(actor->user.Flags, SPR_SWIMMING))
+        if (actor->user.Flags & (SPR_SWIMMING))
         {
             if (actor->user.Rot != actor->user.ActorActionSet->Run && actor->user.Rot != actor->user.ActorActionSet->Swim && actor->user.Rot != actor->user.ActorActionSet->Stand)
             {
@@ -556,7 +556,7 @@ void KeepActorOnFloor(DSWActor* actor)
     actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
 
 #if 1
-    if (TEST(actor->user.Flags, SPR_MOVED))
+    if (actor->user.Flags & (SPR_MOVED))
     {
         actor->user.oz = actor->spr.pos.Z = actor->user.loz;
         actor->spr.backupz();
@@ -630,7 +630,7 @@ int DoActorBeginJump(DSWActor* actor)
     // Change sprites state to jumping
     if (actor->user.ActorActionSet)
     {
-        if (TEST(actor->user.Flags, SPR_DEAD))
+        if (actor->user.Flags & (SPR_DEAD))
             NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);
         else
             NewStateGroup(actor, actor->user.ActorActionSet->Jump);
@@ -690,7 +690,7 @@ int DoActorBeginFall(DSWActor* actor)
     // Change sprites state to falling
     if (actor->user.ActorActionSet)
     {
-        if (TEST(actor->user.Flags, SPR_DEAD))
+        if (actor->user.Flags & (SPR_DEAD))
         {
             NewStateGroup(actor, actor->user.ActorActionSet->DeathFall);
         }
@@ -748,7 +748,7 @@ int DoActorStopFall(DSWActor* actor)
     // Change sprites state to running
     if (actor->user.ActorActionSet)
     {
-        if (TEST(actor->user.Flags, SPR_DEAD))
+        if (actor->user.Flags & (SPR_DEAD))
         {
             NewStateGroup(actor, actor->user.ActorActionSet->Dead);
             PlaySound(DIGI_ACTORBODYFALL1, actor, v3df_none);
@@ -774,9 +774,9 @@ int DoActorDeathMove(DSWActor* actor)
 {
     int nx, ny;
 
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);

@@ -1847,7 +1847,7 @@ int SetupNinja(DSWActor* actor)
         actor->spr.hitag = 9998;
         if (pic == NINJA_CRAWL_R0)
         {
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+            if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             {
                 actor->user.Attrib = &NinjaAttrib;
                 actor->user.ActorActionSet = &NinjaActionSet;
@@ -1872,7 +1872,7 @@ int SetupNinja(DSWActor* actor)
         actor->spr.pal = actor->user.spal = PALETTE_PLAYER3;
         if (pic == NINJA_CRAWL_R0)
         {
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+            if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             {
                 actor->user.Attrib = &NinjaAttrib;
                 actor->user.ActorActionSet = &NinjaActionSet;
@@ -1991,7 +1991,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
 
 int DoNinjaMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags2, SPR2_DYING))
+    if (actor->user.Flags2 & (SPR2_DYING))
     {
         if (sw_ninjahack)
             NewStateGroup(actor, sg_NinjaHariKari);
@@ -2001,16 +2001,16 @@ int DoNinjaMove(DSWActor* actor)
     }
 
     // jumping and falling
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING) && !TEST(actor->user.Flags, SPR_CLIMBING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
-        else if (TEST(actor->user.Flags, SPR_FALLING))
+        else if (actor->user.Flags & (SPR_FALLING))
             DoActorFall(actor);
     }
 
     // sliding
-    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING))
         DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
@@ -2066,7 +2066,7 @@ int NullNinja(DSWActor* actor)
 {
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (TEST(actor->user.Flags, SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags, SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
@@ -2082,7 +2082,7 @@ int DoNinjaPain(DSWActor* actor)
 {
     NullNinja(actor);
 
-    if (TEST(actor->user.Flags2, SPR2_DYING))
+    if (actor->user.Flags2 & (SPR2_DYING))
     {
         if (sw_ninjahack)
             NewStateGroup(actor, sg_NinjaHariKari);
@@ -2149,7 +2149,7 @@ void PlayerLevelReset(PLAYERp pp)
         return;
     }
 
-    if (TEST(pp->Flags, PF_DIVING))
+    if (pp->Flags & (PF_DIVING))
         DoPlayerStopDiveNoWarp(pp);
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
@@ -2182,7 +2182,7 @@ void PlayerDeathReset(PLAYERp pp)
 {
     DSWActor* actor = pp->actor;
 
-    if (TEST(pp->Flags, PF_DIVING))
+    if (pp->Flags & (PF_DIVING))
         DoPlayerStopDiveNoWarp(pp);
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before

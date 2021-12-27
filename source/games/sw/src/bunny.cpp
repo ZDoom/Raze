@@ -863,7 +863,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 
 int DoBunnyMoveJump(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
         int nx, ny;
 
@@ -873,7 +873,7 @@ int DoBunnyMoveJump(DSWActor* actor)
 
         move_actor(actor, nx, ny, 0L);
 
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);
@@ -1047,9 +1047,9 @@ int DoBunnyQuickJump(DSWActor* actor)
 
 int NullBunny(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);
@@ -1059,7 +1059,7 @@ int NullBunny(DSWActor* actor)
     if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(actor);
 
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     DoActorSectorDamage(actor);
@@ -1230,7 +1230,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 int DoBunnyMove(DSWActor* actor)
 {
     // Parental lock crap
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+    if (actor->spr.cstat & (CSTAT_SPRITE_INVISIBLE))
         actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE); // Turn em' back on
 
     // Sometimes they just won't die!
@@ -1242,9 +1242,9 @@ int DoBunnyMove(DSWActor* actor)
         DoScaleSprite(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);
@@ -1256,7 +1256,7 @@ int DoBunnyMove(DSWActor* actor)
         DoBunnyQuickJump(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)
@@ -1306,9 +1306,9 @@ int BunnySpew(DSWActor* actor)
 
 int DoBunnyEat(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);
@@ -1320,7 +1320,7 @@ int DoBunnyEat(DSWActor* actor)
         DoBunnyQuickJump(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     // stay on floor unless doing certain things
@@ -1353,15 +1353,15 @@ int DoBunnyEat(DSWActor* actor)
 
 int DoBunnyScrew(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);
         else
             DoActorFall(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     // stay on floor unless doing certain things

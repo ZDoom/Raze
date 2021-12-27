@@ -571,7 +571,7 @@ int DoSkelTermTeleport(DSWActor* actor)
 
 int NullSkel(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -592,7 +592,7 @@ int DoSkelPain(DSWActor* actor)
 
 int DoSkelMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

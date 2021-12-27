@@ -1014,9 +1014,9 @@ int DoRipperMoveHang(DSWActor* actor)
 
 int DoRipperHangJF(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
@@ -1076,9 +1076,9 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 
 int DoRipperMoveJump(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
@@ -1122,7 +1122,7 @@ int DoRipperQuickJump(DSWActor* actor)
 
 int NullRipper(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     DoActorSectorDamage(actor);
@@ -1210,9 +1210,9 @@ int DoRipperMove(DSWActor* actor)
         DoScaleSprite(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
             DoJump(actor);
         else
             DoFall(actor);
@@ -1227,7 +1227,7 @@ int DoRipperMove(DSWActor* actor)
         KeepActorOnFloor(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

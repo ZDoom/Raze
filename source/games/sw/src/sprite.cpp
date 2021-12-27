@@ -630,7 +630,7 @@ void KillActor(DSWActor* actor)
         int pnum;
 
         // doing a MissileSetPos - don't allow killing
-        if (TEST(actor->user.Flags, SPR_SET_POS_DONT_KILL))
+        if (actor->user.Flags & (SPR_SET_POS_DONT_KILL))
             return;
 
         // for attached sprites that are getable make sure they don't have
@@ -639,7 +639,7 @@ void KillActor(DSWActor* actor)
         AnimDelete(ANIM_Spritez, 0, actor);
 
         // adjust sprites attached to sector objects
-        if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        if (actor->user.Flags & (SPR_SO_ATTACHED))
         {
             SECTOR_OBJECTp sop;
             int sn, FoundSpriteNdx = -1;
@@ -717,7 +717,7 @@ void KillActor(DSWActor* actor)
         }
 
         // much faster
-        if (TEST(actor->user.Flags2, SPR2_CHILDREN))
+        if (actor->user.Flags2 & (SPR2_CHILDREN))
         {
             // check for children and alert them that the Owner is dead
             // don't bother th check if you've never had children
@@ -1571,12 +1571,12 @@ void SpriteSetup(void)
         }
 
         // CSTAT_SPIN is insupported - get rid of it
-        if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB)
+        if ((actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK)) == CSTAT_SPRITE_ALIGNMENT_SLAB)
             actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_SLAB);
 
         // if BLOCK is set set BLOCK_HITSCAN
         // Hope this doesn't screw up anything
-        if (TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
+        if (actor->spr.cstat & (CSTAT_SPRITE_BLOCK))
             actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
 
         ////////////////////////////////////////////
@@ -1657,7 +1657,7 @@ void SpriteSetup(void)
             short track_num;
 
             // skip this sprite, just for numbering walls/sectors
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL))
                 continue;
 
             track_num = actor->spr.picnum - TRACK_SPRITE + 0;
@@ -2014,7 +2014,7 @@ void SpriteSetup(void)
                     time = SP_TAG9(actor);
                     start_on = !!TEST_BOOL1(actor);
                     floor_vator = true;
-                    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+                    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
                     actor->user.jump_speed = actor->user.vel_tgt = speed;
@@ -2218,7 +2218,7 @@ void SpriteSetup(void)
                     time = SP_TAG9(actor);
                     start_on = !!TEST_BOOL1(actor);
                     floor_vator = true;
-                    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+                    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
                         floor_vator = false;
 
                     actor->user.jump_speed = actor->user.vel_tgt = speed;
@@ -4623,7 +4623,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     int cliptype = CLIPMASK_ACTOR;
 
 
-    if (TEST(actor->user.Flags, SPR_NO_SCAREDZ))
+    if (actor->user.Flags & (SPR_NO_SCAREDZ))
     {
         // For COOLG & HORNETS
         // set to actual z before you move
@@ -4802,7 +4802,7 @@ int KillGet(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4838,7 +4838,7 @@ int KillGetAmmo(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4881,7 +4881,7 @@ int KillGetWeapon(DSWActor* actor)
         // don't kill weapons in coop
 
         // unless told too :)
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4891,7 +4891,7 @@ int KillGetWeapon(DSWActor* actor)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
         {
             KillActor(actor);
             break;
@@ -4954,7 +4954,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
         return true;
 
     case MULTI_GAME_COOPERATIVE:
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
             return true;
 
         if (TEST(pp->WpnGotOnceFlags, BIT(WPN)))
@@ -4965,7 +4965,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
-        if (TEST(actor->user.Flags2, SPR2_NEVER_RESPAWN))
+        if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
             return true;
 
         // No Respawn - can't get a weapon again if you already got it
@@ -5010,7 +5010,7 @@ int DoGet(DSWActor* actor)
     // Invisiblility is only used for DeathMatch type games
     // Sprites stays invisible for a period of time and is un-gettable
     // then "Re-Spawns" by becomming visible.  Its never actually killed.
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+    if (actor->spr.cstat & (CSTAT_SPRITE_INVISIBLE))
     {
         actor->user.WaitTics -= ACTORMOVETICS * 2;
         if (actor->user.WaitTics <= 0)
@@ -5037,7 +5037,7 @@ int DoGet(DSWActor* actor)
         pp = &Player[pnum];
         DSWActor* plActor = pp->actor;
 
-        if (TEST(pp->Flags, PF_DEAD))
+        if (pp->Flags & (PF_DEAD))
             continue;
 
         DISTANCE(pp->pos.X, pp->pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a,b,c);
@@ -5367,7 +5367,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
+            if (pp->WpnFlags & (BIT(WPN_STAR)))
                 break;
             pp->WpnFlags |= (BIT(WPN_STAR));
 
@@ -5395,7 +5395,7 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_MINE)))
+            if (pp->WpnFlags & (BIT(WPN_MINE)))
                 break;
             pp->WpnFlags |= (BIT(WPN_MINE));
 
@@ -5414,7 +5414,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_UZI));
 
-            if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
+            if (pp->Flags & (PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Submachine Gun");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNUZI));
@@ -5425,11 +5425,11 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetWeapon(actor);
 
-            if (TEST(pp->WpnFlags, BIT(WPN_UZI)) && TEST(pp->Flags, PF_TWO_UZI))
+            if (pp->WpnFlags & (BIT(WPN_UZI)) && TEST(pp->Flags, PF_TWO_UZI))
                 break;
             // flag to help with double uzi powerup - simpler but kludgy
             pp->Flags |= (PF_PICKED_UP_AN_UZI);
-            if (TEST(pp->WpnFlags, BIT(WPN_UZI)))
+            if (pp->WpnFlags & (BIT(WPN_UZI)))
             {
                 pp->Flags |= (PF_TWO_UZI);
                 pp->WpnUziType = 0; // Let it come up
@@ -5470,7 +5470,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_MICRO));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missile Launcher");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
@@ -5481,7 +5481,7 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_MICRO)))
+            if (pp->WpnFlags & (BIT(WPN_MICRO)))
                 break;
             pp->WpnFlags |= (BIT(WPN_MICRO));
 
@@ -5537,7 +5537,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_GRENADE));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Launcher");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNGRENADE));
@@ -5550,7 +5550,7 @@ KeyMain:
             if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)))
+            if (pp->WpnFlags & (BIT(WPN_GRENADE)))
                 break;
             pp->WpnFlags |= (BIT(WPN_GRENADE));
 
@@ -5579,7 +5579,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGet(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_ROCKET)))
+            if (pp->WpnFlags & (BIT(WPN_ROCKET)))
                 break;
             pp->WpnFlags |= (BIT(WPN_ROCKET));
 
@@ -5607,7 +5607,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_RAIL));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
@@ -5624,7 +5624,7 @@ KeyMain:
             }
             //ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_RAIL)))
+            if (pp->WpnFlags & (BIT(WPN_RAIL)))
                 break;
             pp->WpnFlags |= (BIT(WPN_RAIL));
 
@@ -5655,7 +5655,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_SHOTGUN));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Riot Gun");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIOT));
@@ -5666,7 +5666,7 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)))
+            if (pp->WpnFlags & (BIT(WPN_SHOTGUN)))
                 break;
             pp->WpnFlags |= (BIT(WPN_SHOTGUN));
 
@@ -5722,7 +5722,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_HOTHEAD));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Guardian Head");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNHEAD));
@@ -5734,7 +5734,7 @@ KeyMain:
             if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)))
+            if (pp->WpnFlags & (BIT(WPN_HOTHEAD)))
                 break;
             pp->WpnFlags |= (BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
 
@@ -5767,7 +5767,7 @@ KeyMain:
 
             pp->WpnGotOnceFlags |= (BIT(WPN_HEART));
 
-            if (TEST(pp->WpnFlags, BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
+            if (pp->WpnFlags & (BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Ripper Heart");
             PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIPPER));
@@ -5779,7 +5779,7 @@ KeyMain:
             if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
-            if (TEST(pp->WpnFlags, BIT(WPN_HEART)))
+            if (pp->WpnFlags & (BIT(WPN_HEART)))
                 break;
             pp->WpnFlags |= (BIT(WPN_HEART));
 
@@ -5911,7 +5911,7 @@ void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 
     // do not do a FAFcansee if your already active
     // Actor only becomes INACTIVE in DoActorDecision
-    if (TEST(actor->user.Flags, SPR_ACTIVE))
+    if (actor->user.Flags & (SPR_ACTIVE))
         return;
 
     //
@@ -6244,7 +6244,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     auto dasect = actor->spr.sector();
     auto lastsect = dasect;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YCENTER))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YCENTER))
     {
         zh = 0;
     }
@@ -6300,7 +6300,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     {
         if (retval.type == kHitNone)
         {
-            if (TEST(actor->user.Flags, SPR_CLIMBING))
+            if (actor->user.Flags & (SPR_CLIMBING))
             {
                 actor->spr.pos.Z = clippos.Z;
                 return retval;
@@ -6435,7 +6435,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     auto dasect = actor->spr.sector();
     auto lastsect = dasect;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YCENTER))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YCENTER))
     {
         zh = 0;
     }

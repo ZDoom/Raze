@@ -974,7 +974,7 @@ bool NullActor(DSWActor* actor)
     // a Null Actor is defined as an actor that has no real controlling programming attached
 
     // check to see if attached to SO
-    if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
+    if (actor->user.Flags & (SPR_SO_ATTACHED))
         return true;
 
     // does not have a STATE or FUNC to control it

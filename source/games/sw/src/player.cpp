@@ -1083,7 +1083,7 @@ int DoPlayerSpriteReset(DSWActor* actor)
         NewStateGroup(pp->actor, actor->user.ActorActionSet->Crawl);
     else
     {
-        if (TEST(pp->Flags, PF_PLAYER_MOVED))
+        if (pp->Flags & (PF_PLAYER_MOVED))
             NewStateGroup(pp->actor, actor->user.ActorActionSet->Run);
         else
             NewStateGroup(pp->actor, actor->user.ActorActionSet->Stand);
@@ -1744,7 +1744,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     actor->spr.pos.Y = pp->pos.Y;
 
     // there are multiple death functions
-    if (TEST(pp->Flags, PF_DEAD))
+    if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
         actor->spr.ang = pp->angle.ang.asbuild();
@@ -1906,7 +1906,7 @@ void DoPlayerSlide(PLAYERp pp)
             PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
-            if (TEST(pp->Flags, PF_DEAD))
+            if (pp->Flags & (PF_DEAD))
                 return;
         }
         return;
@@ -1923,7 +1923,7 @@ void DoPlayerSlide(PLAYERp pp)
             PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
-            if (TEST(pp->Flags, PF_DEAD))
+            if (pp->Flags & (PF_DEAD))
                 return;
         }
         return;
@@ -2027,13 +2027,13 @@ void DoPlayerMove(PLAYERp pp)
     pp->xvect  = MulScale(pp->xvect, friction, 16);
     pp->yvect  = MulScale(pp->yvect, friction, 16);
 
-    if (TEST(pp->Flags, PF_FLYING))
+    if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
         pp->xvect = (pp->xvect + (pp->oxvect*1))/2;
         pp->yvect = (pp->yvect + (pp->oyvect*1))/2;
     }
-    else if (TEST(pp->Flags, PF_DIVING))
+    else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
         pp->xvect = (pp->xvect + (pp->oxvect*2))/3;
@@ -2045,7 +2045,7 @@ void DoPlayerMove(PLAYERp pp)
 
     actor->spr.xvel = FindDistance2D(pp->xvect,pp->yvect)>>14;
 
-    if (TEST(pp->Flags, PF_CLIP_CHEAT))
+    if (pp->Flags & (PF_CLIP_CHEAT))
     {
         auto sect = pp->cursector;
         if (interpolate_ride)
@@ -2070,7 +2070,7 @@ void DoPlayerMove(PLAYERp pp)
                 PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
 
-                if (TEST(pp->Flags, PF_DEAD))
+                if (pp->Flags & (PF_DEAD))
                     return;
             }
         }
@@ -2099,7 +2099,7 @@ void DoPlayerMove(PLAYERp pp)
                 PlayerUpdateHealth(pp, -actor->user.Health);  // Make sure he dies!
                 PlayerCheckDeath(pp, nullptr);
 
-                if (TEST(pp->Flags, PF_DEAD))
+                if (pp->Flags & (PF_DEAD))
                     return;
             }
         }
@@ -2134,7 +2134,7 @@ void DoPlayerMove(PLAYERp pp)
 
     if (pp->insector() && TEST(pp->cursector->extra, SECTFX_DYNAMIC_AREA))
     {
-        if (TEST(pp->Flags, PF_FLYING|PF_JUMPING|PF_FALLING))
+        if (pp->Flags & (PF_FLYING|PF_JUMPING|PF_FALLING))
         {
             if (pp->pos.Z > pp->loz)
                 pp->pos.Z = pp->loz - PLAYER_HEIGHT;
@@ -2142,7 +2142,7 @@ void DoPlayerMove(PLAYERp pp)
             if (pp->pos.Z < pp->hiz)
                 pp->pos.Z = pp->hiz + PLAYER_HEIGHT;
         }
-        else if (TEST(pp->Flags, PF_SWIMMING|PF_DIVING))
+        else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
         {
             if (pp->pos.Z > pp->loz)
                 pp->pos.Z = pp->loz - PLAYER_SWIM_HEIGHT;
@@ -2392,7 +2392,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
                     continue;
             }
 
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if (actor->spr.cstat & (CSTAT_SPRITE_INVISIBLE))
                 continue;
 
             if (actor->spr.statnum > STAT_DONT_DRAW)
@@ -3071,7 +3071,7 @@ void DoPlayerFall(PLAYERp pp)
 
                 PlayerCheckDeath(pp, nullptr);
 
-                if (TEST(pp->Flags, PF_DEAD))
+                if (pp->Flags & (PF_DEAD))
                     return;
             }
 
@@ -4365,7 +4365,7 @@ void DoPlayerDive(PLAYERp pp)
             PlayerSound(DIGI_WANGDROWNING, v3df_dontpan|v3df_follow, pp);
             PlayerUpdateHealth(pp, -3 -(RandomRange(7<<8)>>8));
             PlayerCheckDeath(pp, nullptr);
-            if (TEST(pp->Flags, PF_DEAD))
+            if (pp->Flags & (PF_DEAD))
                 return;
         }
     }
@@ -4378,7 +4378,7 @@ void DoPlayerDive(PLAYERp pp)
 
     // while diving in lava
     // every DamageTics time take some damage
-    if (TEST(pp->Flags, PF_DIVING_IN_LAVA))
+    if (pp->Flags & (PF_DIVING_IN_LAVA))
     {
         if ((plActor->user.DamageTics -= synctics) < 0)
         {
@@ -4558,7 +4558,7 @@ void DoPlayerCurrent(PLAYERp pp)
             PlayerUpdateHealth(pp, -plActor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
-            if (TEST(pp->Flags, PF_DEAD))
+            if (pp->Flags & (PF_DEAD))
                 return;
         }
         return;
@@ -4577,7 +4577,7 @@ void DoPlayerCurrent(PLAYERp pp)
             PlayerUpdateHealth(pp, -plActor->user.Health);  // Make sure he dies!
             PlayerCheckDeath(pp, nullptr);
 
-            if (TEST(pp->Flags, PF_DEAD))
+            if (pp->Flags & (PF_DEAD))
                 return;
         }
         return;
@@ -4731,7 +4731,7 @@ void DoPlayerWade(PLAYERp pp)
     // Move about
     DoPlayerMove(pp);
 
-    if (TEST(pp->Flags, PF_PLAYER_MOVED))
+    if (pp->Flags & (PF_PLAYER_MOVED))
     {
         if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
             NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
@@ -5444,7 +5444,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         DoPlayerStopOperate(pp);
 
     // if diving force death to drown type
-    if (TEST(pp->Flags, PF_DIVING))
+    if (pp->Flags & (PF_DIVING))
         pp->DeathType = PLAYER_DEATH_DROWN;
 
     pp->Flags &= ~(PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
@@ -5697,7 +5697,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     //DoPlayerDeathTilt(pp, pp->tilt_dest, 4 * synctics);
 
     // allow turning
-    if (TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
+    if (pp->Flags & (PF_DEAD_HEAD|PF_HEAD_CONTROL))
     {  
         if (!SyncInput())
         {
@@ -6169,7 +6169,7 @@ void DoPlayerBeginRun(PLAYERp pp)
 
     ASSERT(plActor->user.ActorActionSet->Run);
 
-    if (TEST(pp->Flags, PF_PLAYER_MOVED))
+    if (pp->Flags & (PF_PLAYER_MOVED))
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
     else
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
@@ -6282,7 +6282,7 @@ void DoPlayerRun(PLAYERp pp)
 
     if (plActor->user.Rot != sg_PlayerNinjaSword && plActor->user.Rot != sg_PlayerNinjaPunch)
     {
-        if (TEST(pp->Flags, PF_PLAYER_MOVED))
+        if (pp->Flags & (PF_PLAYER_MOVED))
         {
             if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
                 NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
@@ -6488,7 +6488,7 @@ void PlayerGlobal(PLAYERp pp)
 
     PlayerTimers(pp);
 
-    if (TEST(pp->Flags, PF_RECOIL))
+    if (pp->Flags & (PF_RECOIL))
         DoPlayerRecoil(pp);
 
     if (!TEST(pp->Flags, PF_CLIP_CHEAT))
@@ -6509,7 +6509,7 @@ void PlayerGlobal(PLAYERp pp)
                     PlayerUpdateHealth(pp, -pp->actor->user.Health);  // Make sure he dies!
                     PlayerCheckDeath(pp, nullptr);
 
-                    if (TEST(pp->Flags, PF_DEAD))
+                    if (pp->Flags & (PF_DEAD))
                         return;
                 }
             }
@@ -6835,7 +6835,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     case MULTI_GAME_AI_BOTS:
     {
         // start from random position after death
-        if (TEST(pp->Flags, PF_DEAD))
+        if (pp->Flags & (PF_DEAD))
         {
             pos_num = SearchSpawnPosition(pp);
         }

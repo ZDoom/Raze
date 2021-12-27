@@ -507,7 +507,7 @@ int SetupGoro(DSWActor* actor)
 
 int NullGoro(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -527,7 +527,7 @@ int DoGoroPain(DSWActor* actor)
 
 int DoGoroMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

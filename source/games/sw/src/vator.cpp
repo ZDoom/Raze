@@ -93,7 +93,7 @@ void SetVatorActive(DSWActor* actor)
 {
     SECTORp sectp = actor->spr.sector();
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StartInterpolation(actor->spr.sector(), Interp_Sect_Ceilingz);
     else
         StartInterpolation(actor->spr.sector(), Interp_Sect_Floorz);
@@ -119,7 +119,7 @@ void SetVatorInactive(DSWActor* actor)
 {
     SECTORp sectp = actor->spr.sector();
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StopInterpolation(actor->spr.sector(), Interp_Sect_Ceilingz);
     else
         StopInterpolation(actor->spr.sector(), Interp_Sect_Floorz);
@@ -210,7 +210,7 @@ void DoVatorMatch(PLAYERp pp, short match)
             // remember the player than activated it
             actor->user.PlayerP = pp;
 
-            if (TEST(actor->user.Flags, SPR_ACTIVE))
+            if (actor->user.Flags & (SPR_ACTIVE))
             {
                 ReverseVator(actor);
                 continue;
@@ -233,7 +233,7 @@ bool TestVatorMatchActive(short match)
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
+            if (actor->user.Flags & (SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -248,10 +248,10 @@ void InterpSectorSprites(sectortype* sect, bool state)
     {
         if (actor->hasU())
         {
-            if (TEST(actor->user.Flags, SPR_SKIP4) && actor->spr.statnum <= STAT_SKIP4_INTERP_END)
+            if (actor->user.Flags & (SPR_SKIP4) && actor->spr.statnum <= STAT_SKIP4_INTERP_END)
                 continue;
 
-            if (TEST(actor->user.Flags, SPR_SKIP2) && actor->spr.statnum <= STAT_SKIP2_INTERP_END)
+            if (actor->user.Flags & (SPR_SKIP2) && actor->spr.statnum <= STAT_SKIP2_INTERP_END)
                 continue;
         }
     }
@@ -299,7 +299,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
         if (both)
         {
             // sprite started close to floor
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_CLOSE_FLOOR))
+            if (actor->spr.cstat & (CSTAT_SPRITE_CLOSE_FLOOR))
             {
                 // this is a ceiling
                 if (type == 1)
@@ -368,7 +368,7 @@ int DoVator(DSWActor* actor)
     // actor->spr.z        - z of the sprite
     // actor->user.vel_rate  - velocity
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(actor, lptr);
@@ -519,7 +519,7 @@ int DoVatorAuto(DSWActor* actor)
     int *lptr;
     int amt;
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(actor, lptr);

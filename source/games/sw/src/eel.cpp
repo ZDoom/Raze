@@ -402,7 +402,7 @@ int SetupEel(DSWActor* actor)
 
 int NullEel(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     DoEelMatchPlayerZ(actor);
@@ -512,7 +512,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 int DoEelDeath(DSWActor* actor)
 {
     int nx, ny;
-    if (TEST(actor->user.Flags, SPR_FALLING))
+    if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
     }
@@ -523,7 +523,7 @@ int DoEelDeath(DSWActor* actor)
         DoBeginFall(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     // slide while falling
@@ -555,7 +555,7 @@ int DoEelMove(DSWActor* actor)
     if (SpriteOverlap(actor, actor->user.targetActor))
         NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
 
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

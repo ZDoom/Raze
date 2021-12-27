@@ -233,7 +233,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
             return;
     }
 
-    if (TEST(pp->Flags, PF_DEAD))
+    if (pp->Flags & (PF_DEAD))
         return;
 
     if (value < 0)
@@ -519,7 +519,7 @@ int WeaponOperate(PLAYERp pp)
             case WPN_UZI:
                 if (plActor->user.WeaponNum == WPN_UZI)
                 {
-                    if (TEST(pp->Flags, PF_TWO_UZI))
+                    if (pp->Flags & (PF_TWO_UZI))
                     {
                         pp->WpnUziType++;
                         PlaySound(DIGI_UZI_UP, pp, v3df_follow);
@@ -698,7 +698,7 @@ bool WeaponOK(PLAYERp pp)
             }
 
             // if you have the weapon and the ammo is greater than 0
-            if (TEST(pp->WpnFlags, BIT(FindWeaponNum)) && pp->WpnAmmo[FindWeaponNum] >= min_ammo)
+            if (pp->WpnFlags & (BIT(FindWeaponNum)) && pp->WpnAmmo[FindWeaponNum] >= min_ammo)
                 break;
 
             wpn_ndx++;
@@ -1982,7 +1982,7 @@ void InitWeaponUzi(PLAYERp pp)
         }
 
         // if actually picked an uzi up and don't currently have double uzi
-        if (TEST(pp->Flags, PF_PICKED_UP_AN_UZI) && !TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY))
+        if (pp->Flags & (PF_PICKED_UP_AN_UZI) && !TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY))
         {
             pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
 
@@ -2011,7 +2011,7 @@ void InitWeaponUzi(PLAYERp pp)
 
     // power up
     // NOTE: PRIMARY is ONLY set when there is a powerup
-    if (TEST(pp->Flags, PF_TWO_UZI))
+    if (pp->Flags & (PF_TWO_UZI))
     {
         InitWeaponUzi2(psp);
     }
@@ -2284,7 +2284,7 @@ void pUziFire(PANEL_SPRITEp psp)
     // If its the second Uzi, give the shell back only if it's a reload count to keep #'s even
     if (TEST(psp->flags, PANF_SECONDARY))
     {
-        if (TEST(pp->Flags, PF_TWO_UZI) && psp->sibling)
+        if (pp->Flags & (PF_TWO_UZI) && psp->sibling)
         {
             if ((pp->WpnAmmo[WPN_UZI] % 100) == 0)
                 pp->WpnAmmo[WPN_UZI]++;
@@ -2300,7 +2300,7 @@ void pUziFire(PANEL_SPRITEp psp)
             return;
 
         // Reload if done with clip
-        if (TEST(pp->Flags, PF_TWO_UZI) && psp->sibling)
+        if (pp->Flags & (PF_TWO_UZI) && psp->sibling)
         {
             if ((pp->WpnAmmo[WPN_UZI] % 100) == 0)
                 pUziStartReload(psp);

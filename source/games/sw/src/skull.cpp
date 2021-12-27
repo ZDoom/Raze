@@ -349,11 +349,11 @@ int DoSkullJump(DSWActor* actor)
     else
         actor->spr.ang = NORM_ANGLE(actor->spr.ang + (64 * ACTORMOVETICS));
 
-    if (TEST(actor->user.Flags,SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
     }
-    else if (TEST(actor->user.Flags,SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
 
@@ -728,11 +728,11 @@ int DoBettyJump(DSWActor* actor)
     else
         actor->spr.ang = NORM_ANGLE(actor->spr.ang + (64 * ACTORMOVETICS));
 
-    if (TEST(actor->user.Flags,SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
     }
-    else if (TEST(actor->user.Flags,SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
 

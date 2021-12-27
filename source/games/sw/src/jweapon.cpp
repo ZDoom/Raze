@@ -309,7 +309,7 @@ void SpawnMidSplash(DSWActor* actor)
     actorNew->user.ychange = 0;
     actorNew->user.zchange = 0;
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 }
 
@@ -332,7 +332,7 @@ void SpawnFloorSplash(DSWActor* actor)
     actorNew->user.ychange = 0;
     actorNew->user.zchange = 0;
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 }
 
@@ -341,7 +341,7 @@ int DoBloodSpray(DSWActor* actor)
 {
     int cz,fz;
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 
@@ -471,7 +471,7 @@ int DoBloodSpray(DSWActor* actor)
             // hit floor
             if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
             {
-                if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                if (actor->user.Flags & (SPR_UNDERWATER))
                     actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                 // underwater
 
@@ -538,7 +538,7 @@ int DoBloodSpray(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 20000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -548,7 +548,7 @@ int DoBloodSpray(DSWActor* actor)
 
 int DoPhosphorus(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 
@@ -566,7 +566,7 @@ int DoPhosphorus(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     {
@@ -675,7 +675,7 @@ int DoPhosphorus(DSWActor* actor)
                 // hit floor
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
-                    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                    if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
@@ -743,7 +743,7 @@ int DoPhosphorus(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 20000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -752,7 +752,7 @@ int DoPhosphorus(DSWActor* actor)
 
 int DoChemBomb(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 
@@ -770,7 +770,7 @@ int DoChemBomb(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     {
@@ -891,7 +891,7 @@ int DoChemBomb(DSWActor* actor)
                 // hit floor
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
-                    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                    if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
@@ -962,7 +962,7 @@ int DoChemBomb(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 20000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -981,7 +981,7 @@ int DoCaltropsStick(DSWActor* actor)
 
 int DoCaltrops(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 
@@ -1097,7 +1097,7 @@ int DoCaltrops(DSWActor* actor)
                 // hit floor
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
-                    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                    if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
@@ -1167,7 +1167,7 @@ int SpawnRadiationCloud(DSWActor* actor)
             return false;
     }
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
         return -1;
 
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->spr.sector(),
@@ -1256,7 +1256,7 @@ int PlayerInitChemBomb(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
 
     // don't throw it as far if crawling
-    if (TEST(pp->Flags, PF_CRAWLING))
+    if (pp->Flags & (PF_CRAWLING))
     {
         actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
@@ -1276,7 +1276,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
@@ -1627,7 +1627,7 @@ int PlayerInitCaltrops(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
     // don't throw it as far if crawling
-    if (TEST(pp->Flags, PF_CRAWLING))
+    if (pp->Flags & (PF_CRAWLING))
     {
         actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
@@ -1645,7 +1645,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     actorNew->user.Counter = 0;
 //      spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // They go out at different angles

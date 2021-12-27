@@ -800,7 +800,7 @@ int _PlayerSound(int num, PLAYERp pp)
     if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num) || !SoundEnabled())
         return 0;
 
-    if (TEST(pp->Flags, PF_DEAD)) return 0; // You're dead, no talking!
+    if (pp->Flags & (PF_DEAD)) return 0; // You're dead, no talking!
 
     // If this is a player voice and he's already yacking, forget it.
     vp = &voc[num];

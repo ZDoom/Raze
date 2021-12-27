@@ -1516,7 +1516,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     void DoPlayerZrange(PLAYERp pp);
 
     // make sure your standing on the so
-    if (TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
+    if (pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING))
         return;
 
     pp->sop_riding = sop;
@@ -1544,7 +1544,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         return;
     }
 
-    if (TEST(pp->Flags, PF_PLAYER_MOVED))
+    if (pp->Flags & (PF_PLAYER_MOVED))
     {
         // Player is moving
 
@@ -1717,7 +1717,7 @@ PlayerPart:
         else
         {
             // Sector Objects can either have sprites ON or OFF of the sector
-            if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
+            if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
                 actor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.sz;
@@ -1732,7 +1732,7 @@ PlayerPart:
         int16_t oldang = actor->spr.ang;
         actor->spr.ang = actor->user.sang;
 
-        if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
+        if (actor->user.Flags & (SPR_ON_SO_SECTOR))
         {
             if (TEST(sop->flags, SOBJ_DONT_ROTATE))
                 continue;
@@ -2855,7 +2855,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
     Track[actor->user.track].flags &= ~(TF_TRACK_OCCUPIED);
 
     // jump the current track & determine if you should go to another
-    if (TEST(actor->user.Flags, SPR_RUN_AWAY))
+    if (actor->user.Flags & (SPR_RUN_AWAY))
     {
         // look for another track leading away from the player
         actor->user.track = FindTrackAwayFromPlayer(actor);
@@ -2871,7 +2871,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
             actor->user.track = -1;
         }
     }
-    else if (TEST(actor->user.Flags, SPR_FIND_PLAYER))
+    else if (actor->user.Flags & (SPR_FIND_PLAYER))
     {
         // look for another track leading away from the player
         actor->user.track = FindTrackToPlayer(actor);
@@ -3310,7 +3310,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     }
 
     case TRACK_ACTOR_ZDIFF_MODE:
-        if (TEST(actor->user.Flags, SPR_ZDIFF_MODE))
+        if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
             actor->spr.pos.Z = actor->spr.sector()->floorz;
@@ -3434,9 +3434,9 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         return true;
 
     // if lying in wait for player
-    if (TEST(actor->user.Flags, SPR_WAIT_FOR_PLAYER | SPR_WAIT_FOR_TRIGGER))
+    if (actor->user.Flags & (SPR_WAIT_FOR_PLAYER | SPR_WAIT_FOR_TRIGGER))
     {
-        if (TEST(actor->user.Flags, SPR_WAIT_FOR_PLAYER))
+        if (actor->user.Flags & (SPR_WAIT_FOR_PLAYER))
         {
             TRAVERSE_CONNECT(pnum)
             {
@@ -3471,7 +3471,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     tpoint = Track[actor->user.track].TrackPoint + actor->user.point;
 
-    if (!(TEST(actor->user.Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
+    if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
     {
         actor->spr.ang = getangle(tpoint->x - actor->spr.pos.X, tpoint->y - actor->spr.pos.Y);
     }
@@ -3485,13 +3485,13 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         NextActorTrackPoint(actor);
         tpoint = Track[actor->user.track].TrackPoint + actor->user.point;
 
-        if (!(TEST(actor->user.Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
+        if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
         {
             // calculate a new angle to the target
             actor->spr.ang = getangle(tpoint->x - actor->spr.pos.X, tpoint->y - actor->spr.pos.Y);
         }
 
-        if (TEST(actor->user.Flags, SPR_ZDIFF_MODE))
+        if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             // set dx,dy,dz up for finding the z magnitude
             dx = tpoint->x;
@@ -3509,7 +3509,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     else
     {
         // make velocity approach the target velocity
-        if (TEST(actor->user.Flags, SPR_SPEED_UP))
+        if (actor->user.Flags & (SPR_SPEED_UP))
         {
             if ((actor->user.track_vel += (locktics << actor->user.vel_rate)) >= actor->user.vel_tgt)
             {
@@ -3520,7 +3520,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             // update the real velocity
             actor->spr.xvel = (actor->user.track_vel) >> 8;
         }
-        else if (TEST(actor->user.Flags, SPR_SLOW_DOWN))
+        else if (actor->user.Flags & (SPR_SLOW_DOWN))
         {
             if ((actor->user.track_vel -= (locktics << actor->user.vel_rate)) <= actor->user.vel_tgt)
             {
@@ -3534,7 +3534,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         nx = 0;
         ny = 0;
 
-        if (TEST(actor->user.Flags, SPR_CLIMBING))
+        if (actor->user.Flags & (SPR_CLIMBING))
         {
             if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.sz)
             {

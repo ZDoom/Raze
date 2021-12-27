@@ -588,7 +588,7 @@ int NullCoolg(DSWActor* actor)
 {
     actor->user.ShellNum -= ACTORMOVETICS;
 
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     DoCoolgMatchPlayerZ(actor);
@@ -751,7 +751,7 @@ int DoCoolgDeath(DSWActor* actor)
     actor->spr.xrepeat = 42;
     actor->spr.shade = -10;
 
-    if (TEST(actor->user.Flags, SPR_FALLING))
+    if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
     }
@@ -762,7 +762,7 @@ int DoCoolgDeath(DSWActor* actor)
         DoBeginFall(actor);
     }
 
-    if (TEST(actor->user.Flags, SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     // slide while falling
@@ -846,7 +846,7 @@ int DoCoolgMove(DSWActor* actor)
         actor->spr.hitag = 0;
     }
 
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)

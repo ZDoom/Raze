@@ -175,7 +175,7 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
                 }
             }
 
-            if (TEST(actor->user.Flags, SPR_ACTIVE))
+            if (actor->user.Flags & (SPR_ACTIVE))
             {
                 ReverseRotator(actor);
                 continue;
@@ -198,7 +198,7 @@ bool TestRotatorMatchActive(short match)
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
+            if (actor->user.Flags & (SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }

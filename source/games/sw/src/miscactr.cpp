@@ -557,7 +557,7 @@ int SetupTrashCan(DSWActor* actor)
 int DoTrashCan(DSWActor* actor)
 {
     // stay on floor unless doing certain things
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
@@ -572,7 +572,7 @@ int DoTrashCan(DSWActor* actor)
 
 int TrashCanPain(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (!TEST(actor->user.Flags,SPR_CLIMBING))

@@ -1836,7 +1836,7 @@ void OperateTripTrigger(PLAYERp pp)
         SWStatIterator it(STAT_ENEMY);
         while (auto actor = it.Next())
         {
-            if (TEST(actor->user.Flags, SPR_WAIT_FOR_TRIGGER))
+            if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
                 if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
                 {
@@ -2143,7 +2143,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         PlaySound(DIGI_ITEM, StarQueue[i], v3df_none);
         KillActor(StarQueue[i]);
         StarQueue[i] = nullptr;
-        if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
+        if (pp->WpnFlags & (BIT(WPN_STAR)))
             return true;
         pp->WpnFlags |= (BIT(WPN_STAR));
         InitWeaponStar(pp);

@@ -111,7 +111,7 @@ bool ActorFlaming(DSWActor* actor)
 
 void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 {
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_RESTORE))
+    if (actor->spr.cstat & (CSTAT_SPRITE_RESTORE))
         return;
 
     ASSERT(actor->user.Attrib);
@@ -289,7 +289,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     // Set initial target to Player 0
     actor->user.targetActor = Player->actor;
 
-    if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+    if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
     {
         TRAVERSE_CONNECT(pnum)
         {
@@ -311,7 +311,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         pp = &Player[pnum];
 
         // Zombies don't target their masters!
-        if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+        if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
         {
             if (GetOwner(actor) == pp->actor)
                 continue;
@@ -341,7 +341,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         pp = &Player[pnum];
 
         // Zombies don't target their masters!
-        if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+        if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
         {
             if (GetOwner(actor) == pp->actor)
                 continue;
@@ -493,7 +493,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         return action;
     }
 
-    if (TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING))
+    if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
         //CON_Message("Jumping or falling");
         return action;
@@ -511,7 +511,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
     // But need the result multiple times
 
     // !AIC KEY - If aware of player - var is changed in SpriteControl
-    if (TEST(actor->user.Flags, SPR_ACTIVE))
+    if (actor->user.Flags & (SPR_ACTIVE))
     {
 
         // Try to operate stuff
@@ -551,7 +551,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         if (Facing(actor, actor->user.targetActor) && TEST(actor->user.Flags, SPR_ATTACKED) && ICanSee)
         {
             // if I'm a target - at least one missile comming at me
-            if (TEST(actor->user.Flags, SPR_TARGETED))
+            if (actor->user.Flags & (SPR_TARGETED))
             {
                 // not going to evade, reset the target bit
                 actor->user.Flags &= ~(SPR_TARGETED);        // as far as actor

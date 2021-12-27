@@ -88,7 +88,7 @@ void SetSpikeActive(DSWActor* actor)
 {
     SECTORp sectp = actor->spr.sector();
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StartInterpolation(actor->spr.sector(), Interp_Sect_Ceilingheinum);
     else
         StartInterpolation(actor->spr.sector(), Interp_Sect_Floorheinum);
@@ -114,7 +114,7 @@ void SetSpikeInactive(DSWActor* actor)
 {
     SECTORp sectp = actor->spr.sector();
 
-    if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StopInterpolation(sectp, Interp_Sect_Ceilingheinum);
     else
         StopInterpolation(sectp, Interp_Sect_Floorheinum);
@@ -182,7 +182,7 @@ bool TestSpikeMatchActive(short match)
             if (TEST_BOOL6(actor))
                 continue;
 
-            if (TEST(actor->user.Flags, SPR_ACTIVE) || actor->user.Tics)
+            if (actor->user.Flags & (SPR_ACTIVE) || actor->user.Tics)
                 return true;
         }
     }
@@ -231,14 +231,14 @@ void SpikeAlign(DSWActor* actor)
     // either work on single sector or all tagged in SOBJ
     if ((int8_t)SP_TAG7(actor) < 0)
     {
-        if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+        if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             alignceilslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
         else
             alignflorslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
     }
     else
     {
-        if (TEST(actor->spr.cstat, CSTAT_SPRITE_YFLIP))
+        if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
         else
             SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);

@@ -107,7 +107,7 @@ static void processWeapon(PLAYERp const pp)
                     break;
                 }
 
-                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
+                if (pp->WpnFlags & (BIT(i)) && pp->WpnAmmo[i])
                 {
                     next_weapon = i;
                     break;
@@ -140,7 +140,7 @@ static void processWeapon(PLAYERp const pp)
                 if (i <= -1)
                     i = WPN_HEART;
 
-                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
+                if (pp->WpnFlags & (BIT(i)) && pp->WpnAmmo[i])
                 {
                     prev_weapon = i;
                     break;

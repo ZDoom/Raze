@@ -389,8 +389,8 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
 				DSWActor* actor = data->actorofang;
                 if (!actor) continue;
                 if (actor->hasU() && (actor->spr.statnum != STAT_DEFAULT) &&
-                    ((TEST(actor->user.Flags, SPR_SKIP4) && (actor->spr.statnum <= STAT_SKIP4_INTERP_END)) ||
-                     (TEST(actor->user.Flags, SPR_SKIP2) && (actor->spr.statnum <= STAT_SKIP2_INTERP_END))))
+                    ((actor->user.Flags & (SPR_SKIP4) && (actor->spr.statnum <= STAT_SKIP4_INTERP_END)) ||
+                     (actor->user.Flags & (SPR_SKIP2) && (actor->spr.statnum <= STAT_SKIP2_INTERP_END))))
                     continue;
             }
 

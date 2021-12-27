@@ -3775,13 +3775,13 @@ int DoVomit(DSWActor* actor)
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     actor->spr.xrepeat = actor->user.sx + MulScale(12, bcos(actor->user.Counter), 14);
     actor->spr.yrepeat = actor->user.sy + MulScale(12, bsin(actor->user.Counter), 14);
-    if (TEST(actor->user.Flags, SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
         DoJump(actor);
         DoShrapMove(actor);
     }
-    else if (TEST(actor->user.Flags, SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
         DoFall(actor);
@@ -3848,11 +3848,11 @@ int DoTracerShrap(DSWActor* actor)
 
 int DoShrapJumpFall(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoShrapVelocity(actor);
     }
-    else if (TEST(actor->user.Flags, SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoShrapVelocity(actor);
     }
@@ -3874,12 +3874,12 @@ int DoShrapJumpFall(DSWActor* actor)
 
 int DoShrapDamage(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
         DoShrapMove(actor);
     }
-    else if (TEST(actor->user.Flags, SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
         DoShrapMove(actor);
@@ -4489,12 +4489,12 @@ int DoFireballFlames(DSWActor* actor)
     }
     else
     {
-        if (TEST(actor->user.Flags, SPR_JUMPING))
+        if (actor->user.Flags & (SPR_JUMPING))
         {
             DoJump(actor);
             jumping = true;
         }
-        else if (TEST(actor->user.Flags, SPR_FALLING))
+        else if (actor->user.Flags & (SPR_FALLING))
         {
             DoFall(actor);
             jumping = true;
@@ -4562,12 +4562,12 @@ int DoBreakFlames(DSWActor* actor)
 {
     bool jumping = false;
 
-    if (TEST(actor->user.Flags, SPR_JUMPING))
+    if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
         jumping = true;
     }
-    else if (TEST(actor->user.Flags, SPR_FALLING))
+    else if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
         jumping = true;
@@ -4681,7 +4681,7 @@ void UpdateSinglePlayKills(DSWActor* actor)
     // single play and coop kill count
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT && actor->hasU())
     {
-        if (TEST(actor->user.Flags, SPR_SUICIDE))
+        if (actor->user.Flags & (SPR_SUICIDE))
         {
             return;
         }
@@ -5031,8 +5031,8 @@ int ActorHealth(DSWActor* actor, short amt)
                 extern STATEp sg_NinjaGrabThroat[];
                 extern STATEp sg_NinjaHariKari[];
 
-                if (TEST(actor->user.Flags2, SPR2_DYING)) return true;
-                if (TEST(actor->user.Flags, SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return true;
+                if (actor->user.Flags2 & (SPR2_DYING)) return true;
+                if (actor->user.Flags & (SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return true;
 
                 if (!TEST(actor->user.Flags2, SPR2_DYING))
                 {
@@ -5190,7 +5190,7 @@ int ActorDamageSlide(DSWActor* actor, int damage, int ang)
 {
     int slide_vel,slide_dec;
 
-    if (TEST(actor->user.Flags, SPR_CLIMBING))
+    if (actor->user.Flags & (SPR_CLIMBING))
         return false;
 
     damage = abs(damage);
@@ -5501,7 +5501,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     if (actor->user.Attrib && RANDOM_P2(1024) > 850)
         PlaySpriteSound(actor,attr_pain,v3df_follow);
 
-    if (TEST(actor->user.Flags, SPR_DEAD))
+    if (actor->user.Flags & (SPR_DEAD))
     {
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         return 0;
@@ -7104,7 +7104,7 @@ int DoFlamesDamageTest(DSWActor* actor)
             if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
                 continue;
 
-            if (TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if (actor->spr.cstat & (CSTAT_SPRITE_INVISIBLE))
                 continue;
 
             if (actor->user.Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
@@ -7380,7 +7380,7 @@ int DoStar(DSWActor* actor)
     const int STAR_BOUNCE_RNUM = 600;
 
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         actor->user.motion_blur_num = 0;
         ScaleSpriteVector(actor, 54000);
@@ -7443,7 +7443,7 @@ int DoStar(DSWActor* actor)
 
             // special case with MissileSetPos - don't queue star
             // from this routine
-            if (TEST(actor->user.Flags, SPR_SET_POS_DONT_KILL))
+            if (actor->user.Flags & (SPR_SET_POS_DONT_KILL))
                 break;
 
             // chance of sticking
@@ -7659,7 +7659,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
         {
             DSWActor* hitActor;
 
-            if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+            if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range)) != nullptr)
                 {
@@ -7791,7 +7791,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
         {
             DSWActor* hitActor;
 
-            if (TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+            if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
             {
                 if ((hitActor = PickEnemyTarget(actor, aware_range1)) != nullptr)
                 {
@@ -8032,14 +8032,14 @@ int DoPlasma(DSWActor* actor)
 
 
     MissileHitDiveArea(actor);
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor))
         {
-            if (TEST(actor->user.Flags, SPR_SUICIDE))
+            if (actor->user.Flags & (SPR_SUICIDE))
             {
                 KillActor(actor);
                 return true;
@@ -8063,7 +8063,7 @@ int DoCoolgFire(DSWActor* actor)
     actor->user.coll = move_missile(actor, actor->user.xchange, actor->user.ychange, actor->user.zchange, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
@@ -8084,7 +8084,7 @@ int DoCoolgFire(DSWActor* actor)
 
 int DoEelFire(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     return false;
@@ -8201,7 +8201,7 @@ int DoGrenade(DSWActor* actor)
 {
     short i;
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 
@@ -8219,7 +8219,7 @@ int DoGrenade(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
@@ -8347,7 +8347,7 @@ int DoGrenade(DSWActor* actor)
                 // hit floor
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
-                    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                    if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
 
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
@@ -8418,7 +8418,7 @@ int DoGrenade(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 22000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -8783,7 +8783,7 @@ void SetMineStuck(DSWActor* actor)
 
 int DoMine(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         // decrease velocity
         ScaleSpriteVector(actor, 50000);
@@ -8803,7 +8803,7 @@ int DoMine(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
@@ -8966,10 +8966,10 @@ int DoBoltThinMan(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return true;
 
     if (actor->user.coll.type != kHitNone)
@@ -9267,7 +9267,7 @@ int DoRail(DSWActor* actor)
 
             ScaleSpriteVector(actorNew, 1500);
 
-            if (TEST(actor->user.Flags, SPR_UNDERWATER))
+            if (actor->user.Flags & (SPR_UNDERWATER))
                 actorNew->user.Flags |= (SPR_UNDERWATER);
         }
     }
@@ -9308,7 +9308,7 @@ int DoRocket(DSWActor* actor)
         PlaySound(DIGI_MINEBEEP, actor, v3df_follow);
     }
 
-    if (TEST(actor->user.Flags, SPR_FIND_PLAYER))
+    if (actor->user.Flags & (SPR_FIND_PLAYER))
     {
         VectorMissileSeek(actor, 30, 16, 128, 768);
     }
@@ -9317,10 +9317,10 @@ int DoRocket(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return true;
 
     if (actor->user.coll.type != kHitNone)
@@ -9360,7 +9360,7 @@ int DoRocket(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 20000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
     return false;
@@ -9427,7 +9427,7 @@ int DoMicro(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (!actor->user.Counter)
@@ -9450,7 +9450,7 @@ int DoMicro(DSWActor* actor)
 
         ScaleSpriteVector(actorNew, 20000);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
 
         // last smoke
@@ -9501,7 +9501,7 @@ int DoUziBullet(DSWActor* actor)
 
         MissileHitDiveArea(actor);
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 128)
+        if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 128)
             SpawnBubble(actor);
 
         if (actor->user.coll.type != kHitNone)
@@ -9555,7 +9555,7 @@ int DoBoltSeeker(DSWActor* actor)
     actor->user.coll = move_missile(actor, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
@@ -9597,10 +9597,10 @@ int DoElectro(DSWActor* actor)
     actor->user.coll = move_missile(actor, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return true;
 
     if (actor->user.coll.type != kHitNone)
@@ -9636,10 +9636,10 @@ int DoLavaBoulder(DSWActor* actor)
                           actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return true;
 
     if (actor->user.coll.type != kHitNone)
@@ -9662,10 +9662,10 @@ int DoSpear(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return true;
 
     if (actor->user.coll.type != kHitNone)
@@ -9711,7 +9711,7 @@ int SpawnCoolieExp(DSWActor* actor)
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
         return;
 
     if (enemyActor != nullptr)
@@ -9880,7 +9880,7 @@ void SpawnFireballExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_SMALLEXP, actor, v3df_none);
@@ -9894,7 +9894,7 @@ void SpawnFireballExp(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    actorNew->user.Flags |= (TEST(actor->user.Flags,SPR_UNDERWATER));
+    actorNew->user.Flags |= (actor->user.Flags & (SPR_UNDERWATER));
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //
@@ -9912,7 +9912,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
 
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_MEDIUMEXP, actor, v3df_none);
@@ -10267,7 +10267,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
 
     expActor->user.Flags |= (actor->user.Flags & (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
 
-    if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
+    if (actor->user.Flags & (SPR_ON_SO_SECTOR))
     {
         // move with sector its on
         expActor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.sz;
@@ -10482,7 +10482,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     short explosion;
 
     ASSERT(actor->hasU());
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return nullptr;
 
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
@@ -10536,7 +10536,7 @@ void SpawnMeteorExp(DSWActor* actor)
     DSWActor* expActor;
 
     ASSERT(actor->hasU());
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return;
 
     if (actor->user.spal == 25)    // Serp ball
@@ -10591,7 +10591,7 @@ void SpawnLittleExp(DSWActor* actor)
 
 int DoFireball(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         actor->spr.xrepeat = actor->spr.yrepeat -= 1;
         if (actor->spr.xrepeat <= 37)
@@ -10755,7 +10755,7 @@ int DoNapalm(DSWActor* actor)
 
     DoBlurExtend(actor, 1, 7);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         actor->spr.xrepeat = actor->spr.yrepeat -= 1;
         if (actor->spr.xrepeat <= 30)
@@ -10774,7 +10774,7 @@ int DoNapalm(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     {
@@ -10827,7 +10827,7 @@ int DoNapalm(DSWActor* actor)
         expActor->spr.pos.Z = expActor->user.loz;
         expActor->spr.backupz();
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             expActor->user.Flags |= SPR_UNDERWATER;
 
         ASSERT(expActor->spr.picnum == 3072);
@@ -10984,7 +10984,7 @@ int DoMirvMissile(DSWActor* actor)
 
     actor->user.coll = move_missile(actor, actor->user.xchange, actor->user.ychange, actor->user.zchange, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
     if (actor->user.coll.type != kHitNone)
@@ -11005,7 +11005,7 @@ int DoMirv(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
+    if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
 
@@ -11047,7 +11047,7 @@ int DoMirv(DSWActor* actor)
             actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
             actorNew->user.zchange = actorNew->spr.zvel;
 
-            if (TEST(actor->user.Flags, SPR_UNDERWATER))
+            if (actor->user.Flags & (SPR_UNDERWATER))
                 actorNew->user.Flags |= (SPR_UNDERWATER);
         }
 
@@ -11159,7 +11159,7 @@ int DoRing(DSWActor* actor)
     PLAYERp pp = own->user.PlayerP;;
     int cz,fz;
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         actor->spr.xrepeat = actor->spr.yrepeat -= 1;
         if (actor->spr.xrepeat <= 30)
@@ -11286,7 +11286,7 @@ void InitSpellRing(PLAYERp pp)
 
         actorNew->spr.backuppos();
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+        if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 }
@@ -11329,7 +11329,7 @@ int DoSerpRing(DSWActor* actor)
     actor->user.slide_ang = NORM_ANGLE(actor->user.slide_ang + actor->spr.yvel);
 
     // rotate the heads
-    if (TEST(actor->user.Flags, SPR_BOUNCE))
+    if (actor->user.Flags & (SPR_BOUNCE))
         actor->spr.ang = NORM_ANGLE(actor->spr.ang + (28 * RINGMOVETICS));
     else
         actor->spr.ang = NORM_ANGLE(actor->spr.ang - (28 * RINGMOVETICS));
@@ -11558,7 +11558,7 @@ int InitSerpRing(DSWActor* actor)
 
         // control direction of spinning
         actor->user.Flags ^= SPR_BOUNCE;
-        actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
+        actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
         actorNew->user.Dist = 600;
         actorNew->user.TargetDist = SERP_RING_DIST;
@@ -11659,7 +11659,7 @@ void InitSpellNapalm(PLAYERp pp)
             continue;
         }
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actor))
+        if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actor))
             actor->user.Flags |= (SPR_UNDERWATER);
 
         plActor->spr.clipdist = oclipdist;
@@ -11835,7 +11835,7 @@ int InitSwordAttack(PLAYERp pp)
 
     PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan | v3df_doppler);
 
-    if (TEST(pp->Flags, PF_DIVING))
+    if (pp->Flags & (PF_DIVING))
     {
         DSWActor* bubble;
         int nx, ny;
@@ -12007,7 +12007,7 @@ int InitFistAttack(PLAYERp pp)
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
-    if (TEST(pp->Flags, PF_DIVING))
+    if (pp->Flags & (PF_DIVING))
     {
         DSWActor* bubble;
         int nx,ny;
@@ -12299,7 +12299,7 @@ int InitSumoSkull(DSWActor* actor)
 
     // control direction of spinning
     actor->user.Flags ^= SPR_BOUNCE;
-    actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
+    actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
     actorNew->user.StateEnd = s_SkullExplode;
     actorNew->user.Rot = sg_SkullWait;
@@ -12685,7 +12685,7 @@ int InitStar(PLAYERp pp)
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.zchange = zvel;
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     actorNew->spr.backuppos();
@@ -12706,7 +12706,7 @@ int InitStar(PLAYERp pp)
         actorNew2->user.floor_dist = actorNew->user.floor_dist;
         actorNew2->user.Flags2 = actorNew->user.Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
+        if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
             actorNew2->user.Flags |= SPR_UNDERWATER;
 
         zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
@@ -13084,7 +13084,7 @@ int InitLaser(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // the slower the missile travels the less of a zvel it needs
@@ -13188,7 +13188,7 @@ int InitRail(PLAYERp pp)
     HelpMissileLateral(actorNew, 700);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
@@ -13370,7 +13370,7 @@ int InitRocket(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -13475,7 +13475,7 @@ int InitBunnyRocket(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -13568,7 +13568,7 @@ int InitNuke(PLAYERp pp)
     HelpMissileLateral(actorNew, 900);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // cancel smoke trail
@@ -13755,7 +13755,7 @@ int InitMicro(PLAYERp pp)
         HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - (MICRO_LATERAL / 2)));
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-        if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+        if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             actorNew->user.Flags |= (SPR_UNDERWATER);
 
         // cancel smoke trail
@@ -14159,7 +14159,7 @@ int InitSerpSpell(DSWActor* actor)
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -14168,7 +14168,7 @@ int InitSerpSpell(DSWActor* actor)
 
 int SpawnDemonFist(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->user.Flags & (SPR_SUICIDE))
         return -1;
 
     auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
@@ -14257,7 +14257,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         MissileSetPos(actorNew, DoMirvMissile, 400);
         actor->spr.clipdist = oclipdist;
 
-        if (TEST(actor->user.Flags, SPR_UNDERWATER))
+        if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 
@@ -14942,7 +14942,7 @@ int InitTracerUzi(PLAYERp pp)
     plActor->spr.clipdist = 0;
 
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
-    if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnUziType == 0)
+    if (pp->Flags & (PF_TWO_UZI) && pp->WpnUziType == 0)
         HelpMissileLateral(actorNew, lat_dist[RANDOM_P2(2<<8)>>8]);
     else
         HelpMissileLateral(actorNew, lat_dist[0]);
@@ -14968,7 +14968,7 @@ int InitTracerUzi(PLAYERp pp)
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.zchange = actorNew->spr.zvel;
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     return 0;
@@ -15072,7 +15072,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         //if(!hitActor->user.PlayerP)
         if (actor->user.PlayerP)
             id = UZI_SMOKE;
-        else if (TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        else if (actor->user.Flags & (SPR_SO_ATTACHED))
             id = UZI_SMOKE;
         else // Spawn NPC uzi with less damage
             id = UZI_SMOKE+2;
@@ -16402,7 +16402,7 @@ int InitGrenade(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
-    if (TEST(pp->Flags, PF_CRAWLING))
+    if (pp->Flags & (PF_CRAWLING))
     {
         actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
     }
@@ -16425,7 +16425,7 @@ int InitGrenade(PLAYERp pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
@@ -16561,7 +16561,7 @@ int InitMine(PLAYERp pp)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.spal = actorNew->spr.pal = actor->user.spal; // Set sticky color
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 800);
@@ -16696,7 +16696,7 @@ int InitFireball(PLAYERp pp)
     HelpMissileLateral(actorNew, 2100);
     actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang - 512);
 
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew))
+    if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16)))
@@ -17537,7 +17537,7 @@ int QueueFloorBlood(DSWActor* actor)
     if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
         return -1;   // No blood in water or current areas
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
+    if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return -1;   // No blood underwater!
 
     if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -17627,7 +17627,7 @@ int QueueFootPrint(DSWActor* actor)
             Found = true;
     }
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || Found || SpriteInDiveArea(actor))
+    if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || Found || SpriteInDiveArea(actor))
         return -1;   // No prints underwater!
 
     if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -17736,7 +17736,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     int daz;
     HitInfo hit{};
 
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
+    if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!
 
     daz = Z(RANDOM_P2(128))<<3;
@@ -18007,7 +18007,7 @@ int DoShellShrap(DSWActor* actor)
 
 int DoShrapVelocity(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(actor))
+    if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor))
     {
         ScaleSpriteVector(actor, 20000);
 
@@ -18101,7 +18101,7 @@ int DoShrapVelocity(DSWActor* actor)
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
                     actor->spr.pos.Z = actor->user.loz;
-                    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+                    if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
 
                     if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
@@ -18323,7 +18323,7 @@ bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
 
 int DoItemFly(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.Flags & (SPR_UNDERWATER))
     {
         ScaleSpriteVector(actor, 50000);
 

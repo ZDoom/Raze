@@ -745,7 +745,7 @@ int SetupSerp(DSWActor* actor)
 
 int NullSerp(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     KeepActorOnFloor(actor);
@@ -756,7 +756,7 @@ int NullSerp(DSWActor* actor)
 
 int DoSerpMove(DSWActor* actor)
 {
-    if (TEST(actor->user.Flags,SPR_SLIDING))
+    if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
 
     if (actor->user.track >= 0)
