@@ -121,6 +121,8 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
             pTSprite->pos.Z -= nTileY;
         }
 
+        if (pTSprite->pal == 4 && pTSprite->shade >= numshades) pTSprite->shade = numshades - 1;
+
         if (pActor->spr.statnum > 0)
         {
             RunListEvent ev{};
