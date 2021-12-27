@@ -3560,7 +3560,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_29_WAVES:
 			act->spr.hitag += 64;
 			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
-			sc->floorz = act->spr.pos.Z + l;
+			sc->setfloorz(act->spr.pos.Z + l);
 			break;
 
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
@@ -4105,8 +4105,8 @@ void destroyit(DDukeActor *actor)
 						destwal->nextWall()->cstat = 0;
 					}
 				}
-				destsect->floorz = srcsect->floorz;
-				destsect->ceilingz = srcsect->ceilingz;
+				destsect->setfloorz(srcsect->floorz);
+				destsect->setceilingz(srcsect->ceilingz);
 				destsect->ceilingstat = srcsect->ceilingstat;
 				destsect->floorstat = srcsect->floorstat;
 				destsect->ceilingpicnum = srcsect->ceilingpicnum;

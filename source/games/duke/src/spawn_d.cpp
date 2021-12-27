@@ -724,7 +724,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TOUCHPLATE:
 		act->temp_data[2] = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->floorz = act->spr.pos.Z;
+			sectp->setfloorz(act->spr.pos.Z);
 		if (!isWorldTour())
 		{
 			if (act->spr.pal && ud.multimode > 1)

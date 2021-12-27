@@ -184,6 +184,9 @@ END_BLD_NS
 class DCoreActor;
 struct walltype;
 
+// enable for running a compile-check to ensure that renderer-critical variables are not being written to directly.
+//#define SECTOR_HACKJOB
+
 //=============================================================================
 //
 // internal sector struct - no longer identical with on-disk format
@@ -192,12 +195,58 @@ struct walltype;
 
 struct sectortype
 {
+
 	// Fields were reordered by size, some also enlarged.
 	DCoreActor* firstEntry, * lastEntry;
 	
 	int32_t wallptr;
+#ifdef SECTOR_HACKJOB
+	// Debug hack job for finding all places where ceilingz and floorz get written to.
+	// If the engine does not compile with this block on, we got a problem.
+	// Since this is only for compile verification there's no need to provide a working implementation.
+	const int32_t ceilingz;
+	const int32_t floorz;
+	sectortype(int a = 0, int b = 0) : ceilingz(a), floorz(b) {}
+
+	void setceilingz(int cc, bool temp = false) {}
+	void setfloorz(int cc, bool temp = false) {}
+	void addceilingz(int cc, bool temp = false) {}
+	void addfloorz(int cc, bool temp = false) {}
+	int32_t* ceilingzptr(bool temp = false) { return nullptr; }
+	int32_t* floorzptr(bool temp = false) { return nullptr; }
+
+#else
+	// Do not change directly!
 	int32_t ceilingz;
 	int32_t floorz;
+
+	void setceilingz(int cc, bool temp = false)
+	{
+		ceilingz = cc;
+	}
+	void setfloorz(int cc, bool temp = false)
+	{
+		floorz = cc;
+	}
+	void addceilingz(int cc, bool temp = false)
+	{
+		ceilingz += cc;
+	}
+	void addfloorz(int cc, bool temp = false)
+	{
+		floorz += cc;
+	}
+	int32_t* ceilingzptr(bool temp = false)
+	{
+		return &ceilingz;
+	}
+	int32_t* floorzptr(bool temp = false)
+	{
+		return &floorz;
+	}
+
+#endif
+
 	
 	// panning byte fields were promoted to full floats to enable panning interpolation.
 	float ceilingxpan_;

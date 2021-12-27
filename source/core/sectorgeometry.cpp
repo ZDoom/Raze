@@ -379,7 +379,11 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 
 		section->dirty &= ~EDirty::CeilingDirty;
 	}
+#ifdef SECTOR_HACKJOB
+	memcpy(compare, sec, sizeof(*sec));
+#else
 	*compare = *sec;
+#endif
 	sdata.poscompare[plane] = sec->firstWall()->pos;
 	sdata.poscompare2[plane] = sec->firstWall()->point2Wall()->pos;
 	return false;
@@ -435,7 +439,8 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
 	int fz = sectorp->floorz, cz = sectorp->ceilingz;
-	sectorp->floorz = sectorp->ceilingz = 0;	
+	sectorp->setfloorz(0, true);
+	sectorp->setceilingz(0, true);
 
 	UVCalculator uvcalc(sectorp, plane, texture, offset);
 
@@ -453,8 +458,8 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
 	}
 	entry.normal = CalcNormal(sectorp, plane);
-	sectorp->floorz = fz;
-	sectorp->ceilingz = cz;
+	sectorp->setfloorz(fz, true);
+	sectorp->setceilingz(cz, true);
 }
 
 //==========================================================================

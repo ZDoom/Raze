@@ -644,13 +644,13 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				actor->temp_data[1] = sectp->ceilingz;
 				if (actor->spr.pal)
-					sectp->ceilingz = actor->spr.pos.Z;
+					sectp->setceilingz(actor->spr.pos.Z);
 			}
 			else
 			{
 				actor->temp_data[1] = sectp->floorz;
 				if (actor->spr.pal)
-					sectp->floorz = actor->spr.pos.Z;
+					sectp->setfloorz(actor->spr.pos.Z);
 			}
 
 			actor->spr.hitag <<= 2;
@@ -668,11 +668,11 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			else
 				actor->temp_data[4] = sectp->ceilingz;
 
-			sectp->ceilingz = actor->spr.pos.Z;
+			sectp->setceilingz(actor->spr.pos.Z);
 			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
-			sectp->ceilingz = actor->spr.pos.Z;
+			sectp->setceilingz(actor->spr.pos.Z);
 			break;
 		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
@@ -702,12 +702,15 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			if (actor->spr.ang == 512)
 			{
 				if (ceiling)
-					sectp->ceilingz = actor->spr.pos.Z;
+					sectp->setceilingz(actor->spr.pos.Z);
 				else
-					sectp->floorz = actor->spr.pos.Z;
+					sectp->setfloorz(actor->spr.pos.Z);
 			}
 			else
-				sectp->ceilingz = sectp->floorz = actor->spr.pos.Z;
+			{
+				sectp->setceilingz(actor->spr.pos.Z);
+				sectp->setfloorz(actor->spr.pos.Z);
+			}
 
 			if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 			{
@@ -832,7 +835,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_31_FLOOR_RISE_FALL:
 			actor->temp_data[1] = sectp->floorz;
 			//	actor->temp_data[2] = actor->spr.hitag;
-			if (actor->spr.ang != 1536) sectp->floorz = actor->spr.pos.Z;
+			if (actor->spr.ang != 1536) sectp->setfloorz(actor->spr.pos.Z);
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
@@ -843,7 +846,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_32_CEILING_RISE_FALL:
 			actor->temp_data[1] = sectp->ceilingz;
 			actor->temp_data[2] = actor->spr.hitag;
-			if (actor->spr.ang != 1536) sectp->ceilingz = actor->spr.pos.Z;
+			if (actor->spr.ang != 1536) sectp->setceilingz(actor->spr.pos.Z);
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;

@@ -180,7 +180,7 @@ public:
 		HWSkyInfo * sky;			// for normal sky
 		//HWHorizonInfo * horizon;	// for horizon information
 		PortalDesc * portal;			// stacked sector portals
-		int * planemirror;	// for plane mirrors
+		const int * planemirror;	// for plane mirrors
 		spritetype* teleport;	// SW's teleport-views
 	};
 

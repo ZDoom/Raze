@@ -512,8 +512,10 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("lastentry", c.lastEntry)
 			("wallptr", c.wallptr, def->wallptr)
 			("wallnum", c.wallnum, def->wallnum)
+#ifndef SECTOR_HACKJOB //
 			("ceilingz", c.ceilingz, def->ceilingz)
 			("floorz", c.floorz, def->floorz)
+#endif
 			("ceilingstat", c.ceilingstat, def->ceilingstat)
 			("floorstat", c.floorstat, def->floorstat)
 			("ceilingpicnum", c.ceilingpicnum, def->ceilingpicnum)

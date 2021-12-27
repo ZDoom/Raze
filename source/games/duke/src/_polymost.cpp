@@ -71,14 +71,14 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			if (k == tag + 0)
 			{
 				sect->Flag = sect->floorz;
-				sect->floorz += (((z - sect->floorz) / 32768) + 1) * 32768;
+				sect->addfloorz((((z - sect->floorz) / 32768) + 1) * 32768, true);
 				sect->Damage = sect->floorpicnum;
 				sect->floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
 				sect->Flag = sect->ceilingz;
-				sect->ceilingz += (((z - sect->ceilingz) / 32768) - 1) * 32768;
+				sect->addceilingz((((z - sect->ceilingz) / 32768) - 1) * 32768, true);
 				sect->Damage = sect->ceilingpicnum;
 				sect->ceilingpicnum = 13;
 			}
@@ -103,12 +103,12 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			auto sect = act->spr.sector();
 			if (k == tag + 0)
 			{
-				sect->floorz = sect->Flag;
+				sect->setfloorz(sect->Flag, true);
 				sect->floorpicnum = sect->Damage;
 			}
 			if (k == tag + 1)
 			{
-				sect->ceilingz = sect->Flag;
+				sect->setceilingz(sect->Flag, true);
 				sect->ceilingpicnum = sect->Damage;
 			}
 		}// end if

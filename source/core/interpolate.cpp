@@ -63,8 +63,8 @@ void Set(int index, int type, double val)
 	int old;
 	switch(type)
 	{
-	case Interp_Sect_Floorz:			sector[index].floorz = xs_CRoundToInt(val); break;
-	case Interp_Sect_Ceilingz:          sector[index].ceilingz = xs_CRoundToInt(val); break;
+	case Interp_Sect_Floorz:			sector[index].setfloorz(xs_CRoundToInt(val)); break;
+	case Interp_Sect_Ceilingz:          sector[index].setceilingz(xs_CRoundToInt(val)); break;
 	case Interp_Sect_Floorheinum:       sector[index].floorheinum = (short)xs_CRoundToInt(val); break;
 	case Interp_Sect_Ceilingheinum:     sector[index].ceilingheinum = (short)xs_CRoundToInt(val); break;
 	case Interp_Sect_FloorPanX:         sector[index].floorxpan_ = float(val); break;

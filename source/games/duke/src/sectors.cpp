@@ -283,9 +283,9 @@ int* animateptr(int type, int index, bool write)
 	switch (type)
 	{
 	case anim_floorz:
-		return &sector[index].floorz;
+		return sector[index].floorzptr(!write);
 	case anim_ceilingz:
-		return &sector[index].ceilingz;
+		return sector[index].ceilingzptr(!write);
 	case anim_vertexx:
 		if (write) wall[index].moved();
 		return &wall[index].pos.X;
@@ -1243,8 +1243,8 @@ void allignwarpelevators(void)
 			{
 				if ((act2->spr.lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->spr.hitag == act2->spr.hitag)
 				{
-					act2->sector()->floorz = act->sector()->floorz;
-					act2->sector()->ceilingz = act->sector()->ceilingz;
+					act2->sector()->setfloorz(act->sector()->floorz);
+					act2->sector()->setceilingz(act->sector()->ceilingz);
 				}
 			}
 		}

@@ -1094,12 +1094,12 @@ void movetouchplate(DDukeActor* actor, int plate)
 		{
 			if (x >= actor->temp_data[2])
 			{
-				sectp->floorz = x;
+				sectp->setfloorz(x);
 				actor->temp_data[1] = 0;
 			}
 			else
 			{
-				sectp->floorz += sectp->extra;
+				sectp->addfloorz(sectp->extra);
 				p = checkcursectnums(actor->spr.sector());
 				if (p >= 0) ps[p].pos.Z += sectp->extra;
 			}
@@ -1108,12 +1108,12 @@ void movetouchplate(DDukeActor* actor, int plate)
 		{
 			if (x <= actor->spr.pos.Z)
 			{
-				sectp->floorz = actor->spr.pos.Z;
+				sectp->setfloorz(actor->spr.pos.Z);
 				actor->temp_data[1] = 0;
 			}
 			else
 			{
-				sectp->floorz -= sectp->extra;
+				sectp->addfloorz(-sectp->extra);
 				p = checkcursectnums(actor->spr.sector());
 				if (p >= 0)
 					ps[p].pos.Z -= sectp->extra;
@@ -2613,18 +2613,18 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 
 			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
-				sect->floorz -= 512;
+				sect->addfloorz(-512);
 				zchange = -512;
 				if (sect->floorz < actor->spr.pos.Z)
-					sect->floorz = actor->spr.pos.Z;
+					sect->setfloorz(actor->spr.pos.Z);
 			}
 
 			else if (sect->floorz < actor->spr.pos.Z) //z's are touching
 			{
-				sect->floorz += 512;
+				sect->addfloorz(512);
 				zchange = 512;
 				if (sect->floorz > actor->spr.pos.Z)
-					sect->floorz = actor->spr.pos.Z;
+					sect->setfloorz(actor->spr.pos.Z);
 			}
 		}
 		else if (actor->spr.extra == 3)
@@ -2641,18 +2641,18 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 
 			if (sect->floorz > actor->temp_data[3]) //z's are touching
 			{
-				sect->floorz -= 512;
+				sect->addfloorz(-512);
 				zchange = -512;
 				if (sect->floorz < actor->temp_data[3])
-					sect->floorz = actor->temp_data[3];
+					sect->setfloorz(actor->temp_data[3]);
 			}
 
 			else if (sect->floorz < actor->temp_data[3]) //z's are touching
 			{
-				sect->floorz += 512;
+				sect->addfloorz(512);
 				zchange = 512;
 				if (sect->floorz > actor->temp_data[3])
-					sect->floorz = actor->temp_data[3];
+					sect->setfloorz(actor->temp_data[3]);
 			}
 		}
 
@@ -3396,8 +3396,8 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	}
 
 	actor->spr.pos.Z += actor->spr.zvel;
-	sc->ceilingz += actor->spr.zvel;
-	actor->temp_sect->ceilingz += actor->spr.zvel;
+	sc->addceilingz(actor->spr.zvel);
+	actor->temp_sect->addceilingz(actor->spr.zvel);
 	ms(actor);
 	SetActor(actor, actor->spr.pos);
 }
@@ -3682,24 +3682,24 @@ void handle_se13(DDukeActor* actor)
 			if (actor->spriteextra)
 			{
 				if (abs(actor->temp_data[0] - sc->ceilingz) >= j)
-					sc->ceilingz += Sgn(actor->temp_data[0] - sc->ceilingz) * j;
-				else sc->ceilingz = actor->temp_data[0];
+					sc->addceilingz(Sgn(actor->temp_data[0] - sc->ceilingz) * j);
+				else sc->setceilingz(actor->temp_data[0]);
 			}
 			else
 			{
 				if (abs(actor->temp_data[1] - sc->floorz) >= j)
-					sc->floorz += Sgn(actor->temp_data[1] - sc->floorz) * j;
-				else sc->floorz = actor->temp_data[1];
+					sc->addfloorz(Sgn(actor->temp_data[1] - sc->floorz) * j);
+				else sc->setfloorz(actor->temp_data[1]);
 			}
 		}
 		else
 		{
 			if (abs(actor->temp_data[1] - sc->floorz) >= j)
-				sc->floorz += Sgn(actor->temp_data[1] - sc->floorz) * j;
-			else sc->floorz = actor->temp_data[1];
+				sc->addfloorz(Sgn(actor->temp_data[1] - sc->floorz) * j);
+			else sc->setfloorz(actor->temp_data[1]);
 			if (abs(actor->temp_data[0] - sc->ceilingz) >= j)
-				sc->ceilingz += Sgn(actor->temp_data[0] - sc->ceilingz) * j;
-			sc->ceilingz = actor->temp_data[0];
+				sc->addceilingz(Sgn(actor->temp_data[0] - sc->ceilingz) * j);
+			sc->setceilingz(actor->temp_data[0]);
 		}
 
 		if (actor->temp_data[3] == 1)
@@ -3810,8 +3810,8 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 		else actor->spr.shade = 1;
 	}
 
-	if (actor->spr.shade) sc->ceilingz += 1024;
-	else sc->ceilingz -= 512;
+	if (actor->spr.shade) sc->addceilingz(1024);
+	else sc->addceilingz(-512);
 
 	ms(actor);
 	SetActor(actor, actor->spr.pos);
@@ -3830,8 +3830,8 @@ void handle_se17(DDukeActor* actor)
 
 	int q = actor->temp_data[0] * (actor->spr.yvel << 2);
 
-	sc->ceilingz += q;
-	sc->floorz += q;
+	sc->addceilingz(q);
+	sc->addfloorz(q);
 
 	DukeSectIterator it(actor->sector());
 	while (auto act1 = it.Next())
@@ -3944,17 +3944,17 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		{
 			if (actor->spr.ang == 512)
 			{
-				sc->ceilingz -= sc->extra;
+				sc->addceilingz(-sc->extra);
 				if (sc->ceilingz <= actor->temp_data[1])
 				{
-					sc->ceilingz = actor->temp_data[1];
+					sc->setceilingz(actor->temp_data[1]);
 					deletesprite(actor);
 					return;
 				}
 			}
 			else
 			{
-				sc->floorz += sc->extra;
+				sc->addfloorz(sc->extra);
 				if (morecheck)
 				{
 					DukeSectIterator it(actor->sector());
@@ -3971,7 +3971,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				}
 				if (sc->floorz >= actor->temp_data[1])
 				{
-					sc->floorz = actor->temp_data[1];
+					sc->setfloorz(actor->temp_data[1]);
 					deletesprite(actor);
 					return;
 				}
@@ -3981,17 +3981,17 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		{
 			if (actor->spr.ang == 512)
 			{
-				sc->ceilingz += sc->extra;
+				sc->addceilingz(sc->extra);
 				if (sc->ceilingz >= actor->spr.pos.Z)
 				{
-					sc->ceilingz = actor->spr.pos.Z;
+					sc->setceilingz(actor->spr.pos.Z);
 					deletesprite(actor);
 					return;
 				}
 			}
 			else
 			{
-				sc->floorz -= sc->extra;
+				sc->addfloorz(-sc->extra);
 				if (morecheck)
 				{
 					DukeSectIterator it(actor->sector());
@@ -4008,7 +4008,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				}
 				if (sc->floorz <= actor->spr.pos.Z)
 				{
-					sc->floorz = actor->spr.pos.Z;
+					sc->setfloorz(actor->spr.pos.Z);
 					deletesprite(actor);
 					return;
 				}
@@ -4057,10 +4057,10 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 		}
 
 		if (sc->ceilingz < sc->floorz)
-			sc->ceilingz += actor->spr.yvel;
+			sc->addceilingz(actor->spr.yvel);
 		else
 		{
-			sc->ceilingz = sc->floorz;
+			sc->setceilingz(sc->floorz);
 
 			DukeStatIterator it(STAT_EFFECTOR);
 			while (auto a2 = it.Next())
@@ -4204,9 +4204,9 @@ void handle_se21(DDukeActor* actor)
 	if (actor->temp_data[0] == 0) return;
 
 	if (actor->spr.ang == 1536)
-		lp = &sc->ceilingz;
+		lp = sc->ceilingzptr();
 	else
-		lp = &sc->floorz;
+		lp = sc->floorzptr();
 
 	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
 	{
@@ -4239,7 +4239,7 @@ void handle_se22(DDukeActor* actor)
 	if (actor->temp_data[1])
 	{
 		if (getanimationgoal(anim_ceilingz, actor->temp_sect) >= 0)
-			sc->ceilingz += sc->extra * 9;
+			sc->addceilingz(sc->extra * 9);
 		else actor->temp_data[1] = 0;
 	}
 }
@@ -4264,11 +4264,11 @@ void handle_se26(DDukeActor* actor)
 	{
 		actor->spr.pos.X = actor->temp_data[3];
 		actor->spr.pos.Y = actor->temp_data[4];
-		sc->floorz -= ((actor->spr.zvel * actor->spr.shade) - actor->spr.zvel);
+		sc->addfloorz(-((actor->spr.zvel * actor->spr.shade) - actor->spr.zvel));
 		actor->spr.shade = 0;
 	}
 	else
-		sc->floorz += actor->spr.zvel;
+		sc->addfloorz(actor->spr.zvel);
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -4447,20 +4447,20 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 
 	if (actor->spr.shade)
 	{
-		sec->ceilingz += actor->spr.yvel << 4;
+		sec->addceilingz(actor->spr.yvel << 4);
 		if (sec->ceilingz > sec->floorz)
 		{
-			sec->ceilingz = sec->floorz;
+			sec->setceilingz(sec->floorz);
 			if (pistonsound && snd1 >= 0)
 				S_PlayActorSound(snd1, actor);
 		}
 	}
 	else
 	{
-		sec->ceilingz -= actor->spr.yvel << 4;
+		sec->addceilingz(-actor->spr.yvel << 4);
 		if (sec->ceilingz < actor->temp_data[t_index])
 		{
-			sec->ceilingz = actor->temp_data[t_index];
+			sec->setceilingz(actor->temp_data[t_index]);
 			if (pistonsound && snd2 >= 0)
 				S_PlayActorSound(snd2, actor);
 		}
@@ -4487,23 +4487,23 @@ void handle_se32(DDukeActor *actor)
 			{
 				if (abs(sc->ceilingz - actor->spr.pos.Z) < (actor->spr.yvel << 1))
 				{
-					sc->ceilingz = actor->spr.pos.Z;
+					sc->setceilingz(actor->spr.pos.Z);
 					callsound(actor->spr.sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->ceilingz += Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel;
+				else sc->addceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
 			}
 			else
 			{
 				if (abs(sc->ceilingz - actor->temp_data[1]) < (actor->spr.yvel << 1))
 				{
-					sc->ceilingz = actor->temp_data[1];
+					sc->setceilingz(actor->temp_data[1]);
 					callsound(actor->spr.sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->ceilingz += Sgn(actor->temp_data[1] - sc->ceilingz) * actor->spr.yvel;
+				else sc->addceilingz((actor->temp_data[1] - sc->ceilingz) * actor->spr.yvel);
 			}
 			return;
 		}
@@ -4515,9 +4515,9 @@ void handle_se32(DDukeActor *actor)
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->spr.sector(), actor);
-				sc->ceilingz = actor->spr.pos.Z;
+				sc->setceilingz(actor->spr.pos.Z);
 			}
-			else sc->ceilingz += Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel;
+			else sc->addceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
 		}
 		else
 		{
@@ -4527,7 +4527,7 @@ void handle_se32(DDukeActor *actor)
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->spr.sector(), actor);
 			}
-			else sc->ceilingz -= Sgn(actor->spr.pos.Z - actor->temp_data[1]) * actor->spr.yvel;
+			else sc->addceilingz(-Sgn(actor->spr.pos.Z - actor->temp_data[1]) * actor->spr.yvel);
 		}
 	}
 
@@ -4561,17 +4561,17 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	switch (actor->temp_data[0])
 	{
 	case 0:
-		sc->ceilingz += actor->spr.yvel;
+		sc->addceilingz(actor->spr.yvel);
 		if (sc->ceilingz > sc->floorz)
-			sc->floorz = sc->ceilingz;
+			sc->setfloorz(sc->ceilingz);
 		if (sc->ceilingz > actor->spr.pos.Z + (32 << 8))
 			actor->temp_data[0]++;
 		break;
 	case 1:
-		sc->ceilingz -= (actor->spr.yvel << 2);
+		sc->addceilingz(-(actor->spr.yvel << 2));
 		if (sc->ceilingz < actor->temp_data[4])
 		{
-			sc->ceilingz = actor->temp_data[4];
+			sc->setceilingz(actor->temp_data[4]);
 			actor->temp_data[0] = 0;
 		}
 		break;
@@ -4675,7 +4675,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			{
 				if (abs(sec->floorz - actor->spr.pos.Z) < actor->spr.yvel)
 				{
-					sec->floorz = actor->spr.pos.Z;
+					sec->setfloorz(actor->spr.pos.Z);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 					if (choosedir) actor->temp_data[3] = actor->spr.hitag;
@@ -4684,7 +4684,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				else
 				{
 					int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yvel;
-					sec->floorz += l;
+					sec->addfloorz(l);
 
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
@@ -4704,7 +4704,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			{
 				if (abs(sec->floorz - actor->temp_data[1]) < actor->spr.yvel)
 				{
-					sec->floorz = actor->temp_data[1];
+					sec->setfloorz(actor->temp_data[1]);
 					callsound(actor->spr.sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
@@ -4713,7 +4713,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				else
 				{
 					int l = Sgn(actor->temp_data[1] - sec->floorz) * actor->spr.yvel;
-					sec->floorz += l;
+					sec->addfloorz(l);
 
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
@@ -4744,7 +4744,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			else
 			{
 				int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yvel;
-				sec->floorz += l;
+				sec->addfloorz(l);
 
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
@@ -4772,7 +4772,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			else
 			{
 				int l = Sgn(actor->spr.pos.Z - actor->temp_data[1]) * actor->spr.yvel;
-				sec->floorz -= l;
+				sec->addfloorz(-l);
 
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
