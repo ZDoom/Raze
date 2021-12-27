@@ -583,7 +583,7 @@ void SetOwner(DSWActor* ownr, DSWActor* child, bool flag)
 {
     if (flag && ownr != nullptr && ownr->hasU())
     {
-        SET(ownr->user.Flags2, SPR2_CHILDREN);
+        ownr->user.Flags2 |= (SPR2_CHILDREN);
     }
     child->ownerActor = ownr;
 }
@@ -603,7 +603,7 @@ void SetAttach(DSWActor* ownr, DSWActor* child)
 {
     if (child && child->hasU() && ownr->hasU())
     {
-        SET(ownr->user.Flags2, SPR2_CHILDREN);
+        ownr->user.Flags2 |= (SPR2_CHILDREN);
         child->user.attachActor = ownr;
     }
 }
@@ -1525,8 +1525,8 @@ void SpriteSetupPost(void)
 
             jActor->user.ActorActionFunc = DoActorDebris;
 
-            SET(jActor->spr.cstat, CSTAT_SPRITE_BREAKABLE);
-            SET(jActor->spr.extra, SPRX_BREAKABLE);
+            jActor->spr.cstat |= CSTAT_SPRITE_BREAKABLE;
+            jActor->spr.extra |= SPRX_BREAKABLE;
         }
     }
 }
@@ -1899,7 +1899,7 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    SET(hit.hitWall->extra, WALLFX_DONT_STICK);
+                    hit.hitWall->extra |= WALLFX_DONT_STICK;
                     KillActor(actor);
                     break;
                 }
@@ -2643,7 +2643,7 @@ void SpriteSetup(void)
                         // DO NOT TAG WHITE WALLS!
                         if (wall_num->twoSided())
                         {
-                            SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
+                            wall_num->cstat |= (CSTAT_WALL_WARP_HITSCAN);
                         }
 
                         wall_num = wall_num->point2Wall();
@@ -2753,9 +2753,9 @@ void SpriteSetup(void)
                     // Travel all the way around loop setting wall bits
                     do
                     {
-                        SET(wall_num->cstat, CSTAT_WALL_BLOCK_ACTOR);
+                        wall_num->cstat |= (CSTAT_WALL_BLOCK_ACTOR);
                         if (wall_num->twoSided())
-                            SET(wall_num->nextWall()->cstat, CSTAT_WALL_BLOCK_ACTOR);
+                            wall_num->nextWall()->cstat |= CSTAT_WALL_BLOCK_ACTOR;
                         wall_num = wall_num->point2Wall();
                     }
                     while (wall_num != start_wall);
@@ -4930,8 +4930,8 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
 
     effect->spr.shade = -40;
     effect->spr.xrepeat = effect->spr.yrepeat = 36;
-    SET(effect->spr.cstat, CSTAT_SPRITE_YCENTER);
-    RESET(effect->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    effect->spr.cstat |= CSTAT_SPRITE_YCENTER;
+    effect->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     return 0;
 }
 

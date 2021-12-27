@@ -955,7 +955,7 @@ int FindTrackToPlayer(DSWActor* actor)
         {
             actor->user.point = point;
             actor->user.track_dir = track_dir;
-            SET(Track[track].flags, TF_TRACK_OCCUPIED);
+            Track[track].flags |= (TF_TRACK_OCCUPIED);
 
             return track;
         }
@@ -994,7 +994,7 @@ int FindTrackAwayFromPlayer(DSWActor* actor)
         {
             actor->user.point = point;
             actor->user.track_dir = track_dir;
-            SET(Track[track].flags, TF_TRACK_OCCUPIED);
+            Track[track].flags |= (TF_TRACK_OCCUPIED);
 
             return track;
         }
@@ -1034,7 +1034,7 @@ int FindWanderTrack(DSWActor* actor)
         {
             actor->user.point = point;
             actor->user.track_dir = track_dir;
-            SET(Track[track].flags, TF_TRACK_OCCUPIED);
+            Track[track].flags |= (TF_TRACK_OCCUPIED);
 
             return track;
         }

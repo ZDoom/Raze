@@ -96,12 +96,12 @@ void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool s
     do
     {
         if (set_sectwall)
-            SET(wall_num->extra, bit_mask);
+            wall_num->extra |= bit_mask;
 
         if (set_nextwall)
         {
             if (wall_num->twoSided())
-                SET(wall_num->nextWall()->extra, bit_mask);
+                wall_num->nextWall()->extra |= bit_mask;
         }
 
         wall_num = wall_num->point2Wall();
@@ -126,7 +126,7 @@ void WallSetupDontMove(void)
                 {
                     if (wal.pos.X < jActor->spr.pos.X && wal.pos.X > iActor->spr.pos.X && wal.pos.Y < jActor->spr.pos.Y && wal.pos.Y > iActor->spr.pos.Y)
                     {
-                        SET(wal.extra, WALLFX_DONT_MOVE);
+                        wal.extra |= WALLFX_DONT_MOVE;
                     }
                 }
             }
@@ -138,10 +138,10 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
 {
     // set first wall
     {
-        SET(wp->extra, extra);
+        wp->extra |= extra;
 
         if (wp->twoSided())
-            SET(wp->nextWall()->extra, extra);
+            wp->nextWall()->extra |= extra;
     }
 
     // Travel all the way around loop setting wall bits
@@ -149,9 +149,9 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
          wall_num->lotag != lotag;
          wall_num = wall_num->point2Wall())
     {
-        SET(wall_num->extra, extra);
+        wall_num->extra |= extra;
         if (wall_num->twoSided())
-            SET(wall_num->nextWall()->extra, extra);
+            wall_num->nextWall()->extra |= extra;
     }
 }
 
@@ -223,7 +223,7 @@ void WallSetup(void)
         case TAG_WALL_DONT_MOVE:
         {
             // set first wall
-            SET(wal.extra, WALLFX_DONT_MOVE);
+            wal.extra |= WALLFX_DONT_MOVE;
             break;
         }
 
@@ -296,7 +296,7 @@ void WallSetup(void)
                 sw->range = range;
 
                 // don't allow bullet holes/stars
-                SET(wall_num->extra, WALLFX_DONT_STICK);
+                wall_num->extra |= WALLFX_DONT_STICK;
 
                 if (!sw->type)
                     sw->orig_xy = wall_num->pos.Y - (sw->range >> 2);
@@ -478,17 +478,17 @@ void SectorSetup(void)
             switch (num)
             {
             case 0:
-                SET(swf->flags, SINE_FLOOR);
+                swf->flags |= (SINE_FLOOR);
                 if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
                 {
-                    SET(swf->flags, SINE_SLOPED);
+                    swf->flags |= (SINE_SLOPED);
                 }
                 break;
             case 1:
-                SET(swf->flags, SINE_CEILING);
+                swf->flags |= (SINE_CEILING);
                 break;
             case 2:
-                SET(swf->flags, SINE_FLOOR | SINE_CEILING);
+                swf->flags |= (SINE_FLOOR | SINE_CEILING);
                 break;
             }
 
@@ -1259,9 +1259,9 @@ void DoChangorMatch(short match)
             sectp->ceilingheinum += SP_TAG6(actor);
 
             if (sectp->ceilingheinum)
-                SET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
+                sectp->ceilingstat |= CSTAT_SECTOR_SLOPE;
             else
-                RESET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
+                sectp->ceilingstat &= ~CSTAT_SECTOR_SLOPE;
 
             sectp->ceilingshade += SP_TAG7(actor);
             sectp->ceilingpal += SP_TAG8(actor);
@@ -1273,9 +1273,9 @@ void DoChangorMatch(short match)
             sectp->floorheinum += SP_TAG6(actor);
 
             if (sectp->floorheinum)
-                SET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
+                sectp->floorstat |= CSTAT_SECTOR_SLOPE;
             else
-                RESET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
+                sectp->floorstat &= ~CSTAT_SECTOR_SLOPE;
 
             sectp->floorshade += SP_TAG7(actor);
             sectp->floorpal += SP_TAG8(actor);

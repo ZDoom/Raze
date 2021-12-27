@@ -95,7 +95,7 @@ void SetWallWarpHitscan(sectortype* sect)
     do
     {
         if (wall_num->twoSided())
-            SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
+            wall_num->cstat |= (CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall_num->point2Wall();
     }
     while (wall_num != start_wall);

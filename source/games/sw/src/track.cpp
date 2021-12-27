@@ -770,7 +770,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
             // all sectors in sector object have this flag set - for colision
             // detection and recognition
-            SET(sect->extra, SECTFX_SECTOR_OBJECT);
+            sect->extra |= SECTFX_SECTOR_OBJECT;
 
             sop->zorig_floor[sop->num_sectors] = sect->floorz;
             sop->zorig_ceiling[sop->num_sectors] = sect->ceilingz;
@@ -810,9 +810,9 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 FoundOutsideLoop = true;
 
             // each wall has this set - for collision detection
-            SET(wal.extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+            wal.extra |= WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK;
             if (wal.twoSided())
-                SET(wal.nextWall()->extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+                wal.nextWall()->extra |= WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK;
         }
     }
 
@@ -889,7 +889,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 itActor->user.sy = sop->ymid - itActor->spr.pos.Y;
                 itActor->user.sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
-                SET(itActor->user.Flags, SPR_SO_ATTACHED);
+                itActor->user.Flags |= (SPR_SO_ATTACHED);
 
                 itActor->user.sang = itActor->spr.ang;
                 itActor->user.spal = itActor->spr.pal;
@@ -917,7 +917,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     {
                         if (sop->sectp[j] == itActor->spr.sector())
                         {
-                            SET(itActor->user.Flags, SPR_ON_SO_SECTOR);
+                            itActor->user.Flags |= (SPR_ON_SO_SECTOR);
                             itActor->user.sz = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }

@@ -10265,7 +10265,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     sop->so_actors[sn] = expActor;
     so_setspriteinterpolation(sop, expActor);
 
-    SET(expActor->user.Flags, TEST(actor->user.Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
+    expActor->user.Flags |= (actor->user.Flags & (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
 
     if (TEST(actor->user.Flags, SPR_ON_SO_SECTOR))
     {
@@ -10828,7 +10828,7 @@ int DoNapalm(DSWActor* actor)
         expActor->spr.backupz();
 
         if (TEST(actor->user.Flags, SPR_UNDERWATER))
-            SET(expActor->user.Flags, SPR_UNDERWATER);
+            expActor->user.Flags |= SPR_UNDERWATER;
 
         ASSERT(expActor->spr.picnum == 3072);
         ASSERT(expActor->user.Tics == 0);
@@ -12157,7 +12157,7 @@ int InitFistAttack(PLAYERp pp)
                     PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                     if (RandomRange(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
-                    SET(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+                    hitActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                     break;
                 }
             }
@@ -12312,7 +12312,7 @@ int InitSumoSkull(DSWActor* actor)
 
     // defaults do change the statnum
     EnemyDefaults(actorNew, nullptr, nullptr);
-    SET(actorNew->spr.extra, SPRX_PLAYER_OR_ENEMY);
+    actorNew->spr.extra |= SPRX_PLAYER_OR_ENEMY;
 
     actorNew->spr.clipdist = (128+64) >> 2;
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -12564,8 +12564,8 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
     if ((picked = DoPickTarget(actor, *ang, test)) != nullptr)
     {
 
-        SET(picked->user.Flags, SPR_TARGETED);
-        SET(picked->user.Flags, SPR_ATTACKED);
+        picked->user.Flags |= (SPR_TARGETED);
+        picked->user.Flags |= (SPR_ATTACKED);
 
         *ang = NORM_ANGLE(getangle(picked->spr.pos.X - actor->spr.pos.X, picked->spr.pos.Y - actor->spr.pos.Y));
 
@@ -12707,7 +12707,7 @@ int InitStar(PLAYERp pp)
         actorNew2->user.Flags2 = actorNew->user.Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
-            SET(actorNew2->user.Flags, SPR_UNDERWATER);
+            actorNew2->user.Flags |= SPR_UNDERWATER;
 
         zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
         actorNew2->spr.zvel = zvel >> 1;
@@ -13784,8 +13784,8 @@ int InitMicro(PLAYERp pp)
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
-            SET(picked->user.Flags, SPR_TARGETED);
-            SET(picked->user.Flags, SPR_ATTACKED);
+            picked->user.Flags |= (SPR_TARGETED);
+            picked->user.Flags |= (SPR_ATTACKED);
         }
         else
         {
@@ -15525,8 +15525,8 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
-            SET(picked->user.Flags, SPR_TARGETED);
-            SET(picked->user.Flags, SPR_ATTACKED);
+            picked->user.Flags |= (SPR_TARGETED);
+            picked->user.Flags |= (SPR_ATTACKED);
         }
         else
         {
@@ -15788,7 +15788,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, daang);
-            SET(spark->user.Flags2, SPR2_SO_MISSILE);
+            spark->user.Flags2 |= SPR2_SO_MISSILE;
             if (MissileHitMatch(spark, -1, hit.actor()))
                 return 0;
             return 0;
@@ -18439,7 +18439,7 @@ void QueueLoWangs(DSWActor* actor)
     spawnedActor->user.spal = spawnedActor->spr.pal = actor->spr.pal;
     change_actor_stat(spawnedActor, STAT_DEFAULT); // Breakable
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
-    SET(spawnedActor->spr.extra, SPRX_BREAKABLE);
+    spawnedActor->spr.extra |= SPRX_BREAKABLE;
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN);
 
     LoWangsQueueHead = (LoWangsQueueHead+1) & (MAX_LOWANGS_QUEUE-1);

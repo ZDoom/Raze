@@ -1773,10 +1773,10 @@ void pSpawnUziReload(PANEL_SPRITEp oclip)
     PANEL_SPRITEp nclip;
 
     nclip = pSpawnSprite(oclip->PlayerP, ps_UziReload, PRI_BACK, oclip->x, UZI_RELOAD_YOFF);
-    SET(nclip->flags, PANF_WEAPON_SPRITE);
+    nclip->flags |= PANF_WEAPON_SPRITE;
 
     if (TEST(oclip->flags, PANF_XFLIP))
-        SET(nclip->flags, PANF_XFLIP);
+        nclip->flags |= PANF_XFLIP;
 
     // move Reload in oposite direction of clip
     nclip->ang = NORM_ANGLE(oclip->ang + 1024);
@@ -2031,7 +2031,7 @@ PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     if (pp->WpnUziType == 1 || pp->CurWpn->sibling || TEST(pp->Flags, PF_WEAPON_RETRACT)) return nullptr;
 
     // NOTE: PRIMARY is ONLY set when there is a powerup
-    SET(uzi_orig->flags, PANF_PRIMARY);
+    uzi_orig->flags |= PANF_PRIMARY;
 
     // Spawning a 2nd uzi, set weapon mode
     pp->WpnUziType = 0; // 0 is up, 1 is retract
@@ -2785,11 +2785,11 @@ bool pShotgunOverlays(PANEL_SPRITEp psp)
     {
     case 0:
         psp->over[SHOTGUN_AUTO_NUM].pic = -1;
-        SET(psp->over[SHOTGUN_AUTO_NUM].flags, psf_ShadeNone);
+        psp->over[SHOTGUN_AUTO_NUM].flags |= (psf_ShadeNone);
         return false;
     case 1:
         psp->over[SHOTGUN_AUTO_NUM].pic = SHOTGUN_AUTO;
-        SET(psp->over[SHOTGUN_AUTO_NUM].flags, psf_ShadeNone);
+        psp->over[SHOTGUN_AUTO_NUM].flags |= (psf_ShadeNone);
         return false;
     }
     return false;
@@ -3753,7 +3753,7 @@ void SpawnOnFire(PLAYERp pp)
     while (x < 320)
     {
         fire = pSpawnSprite(pp, &ps_OnFire[RANDOM_P2(8<<8)>>8], PRI_FRONT, x, ON_FIRE_Y_BOT);
-        SET(fire->flags, PANF_WEAPON_SPRITE);
+        fire->flags |= PANF_WEAPON_SPRITE;
         x += tileWidth(fire->picndx);
     }
 }
@@ -4086,7 +4086,7 @@ bool pMicroOverlays(PANEL_SPRITEp psp)
     case 0:
         psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
         psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
-        SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
+        psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
         psp->over[MICRO_HEAT_NUM].pic = -1;
         return false;
     case 1:
@@ -4094,7 +4094,7 @@ bool pMicroOverlays(PANEL_SPRITEp psp)
         {
             psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
             psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
-            SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
+            psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
 
             ASSERT(psp->PlayerP->WpnRocketHeat < 6);
 
@@ -4104,7 +4104,7 @@ bool pMicroOverlays(PANEL_SPRITEp psp)
         {
             psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
             psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
-            SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
+            psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
             psp->over[MICRO_HEAT_NUM].pic = -1;
         }
 
@@ -4114,7 +4114,7 @@ bool pMicroOverlays(PANEL_SPRITEp psp)
         psp->over[MICRO_HEAT_NUM].pic = -1;
 
         psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_20;
-        SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
+        psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
         psp->over[MICRO_HEAT_NUM].flags |= (psf_ShadeNone);
         return true;
     }
@@ -4622,7 +4622,7 @@ void SpawnHeartBlood(PANEL_SPRITEp psp)
         blood->y = psp->y + hsp->yoff;
         blood->oy = blood->y;
         blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
-        SET(blood->flags, PANF_WEAPON_SPRITE);
+        blood->flags |= (PANF_WEAPON_SPRITE);
 
         blood->scale = 20000 + RandomRange(50000 - 20000);
 
@@ -4657,7 +4657,7 @@ void SpawnSmallHeartBlood(PANEL_SPRITEp psp)
         blood->y = psp->y + hsp->yoff;
         blood->oy = blood->y;
         blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
-        SET(blood->flags, PANF_WEAPON_SPRITE);
+        blood->flags |= (PANF_WEAPON_SPRITE);
 
         blood->scale = 10000 + RandomRange(30000 - 10000);
 

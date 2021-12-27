@@ -299,7 +299,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     }
 
     tSpr->shade = 127;
-    SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
     loz = ownerActor->user.loz;
     if (ownerActor->user.lowActor)
@@ -418,7 +418,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
     {
         tspriteptr_t tSpr = &tsprite[spritesortcnt];
         *tSpr = *tsp;
-        SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
+        tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP;
 
         tSpr->pos.X += dx;
         tSpr->pos.Y += dy;

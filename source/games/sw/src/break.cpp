@@ -953,7 +953,7 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
             SpawnBreakFlames(breakActor);
 
         RESET(breakActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        SET(breakActor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+        breakActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         // Kill sound if one is attached
         DeleteNoSoundOwner(breakActor);
         KillBreakSprite(breakActor);

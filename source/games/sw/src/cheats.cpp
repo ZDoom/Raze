@@ -199,8 +199,7 @@ static void WeaponCheat(int player)
 
     if (!TEST(p->Flags, PF_TWO_UZI))
     {
-        SET(p->Flags, PF_TWO_UZI);
-        SET(p->Flags, PF_PICKED_UP_AN_UZI);
+        p->Flags |= PF_TWO_UZI | PF_PICKED_UP_AN_UZI;
     }
 
     // ALL WEAPONS

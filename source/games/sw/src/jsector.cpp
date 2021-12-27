@@ -191,7 +191,7 @@ void JS_SpriteSetup(void)
                 itActor->user.ActorActionFunc = GenerateDrips;
 
                 change_actor_stat(itActor, STAT_NO_STATE);
-                SET(itActor->spr.cstat, CSTAT_SPRITE_INVISIBLE);
+                itActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
             }
             break;
         // Sprites in editart that should play ambient sounds
@@ -237,7 +237,7 @@ void JS_SpriteSetup(void)
         case 2608:
         case 2616:
             //case 3834:
-            SET(wal.extra, WALLFX_DONT_STICK);
+            wal.extra |= WALLFX_DONT_STICK;
             break;
         }
     }

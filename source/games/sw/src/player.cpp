@@ -6019,13 +6019,13 @@ void DoPlayerDeathBounce(PLAYERp pp)
         RESET(plActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->actor, sg_PlayerHead);
         plActor->user.slide_vel = 0;
-        SET(plActor->user.Flags, SPR_BOUNCE);
+        plActor->user.Flags |= (SPR_BOUNCE);
 
 
         return;
     }
 
-    SET(plActor->user.Flags, SPR_BOUNCE);
+    plActor->user.Flags |= (SPR_BOUNCE);
     pp->jump_speed = -300;
     plActor->user.slide_vel >>= 2;
     plActor->user.slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
