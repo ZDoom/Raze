@@ -11557,7 +11557,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.ang = RANDOM_P2(2048<<5)>>5;
 
         // control direction of spinning
-        FLIP(actor->user.Flags, SPR_BOUNCE);
+        actor->user.Flags ^= SPR_BOUNCE;
         actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
 
         actorNew->user.Dist = 600;
@@ -12298,7 +12298,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->spr.ang = RANDOM_P2(2048<<5)>>5;
 
     // control direction of spinning
-    FLIP(actor->user.Flags, SPR_BOUNCE);
+    actor->user.Flags ^= SPR_BOUNCE;
     actorNew->user.Flags |= (TEST(actor->user.Flags, SPR_BOUNCE));
 
     actorNew->user.StateEnd = s_SkullExplode;
