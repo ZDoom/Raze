@@ -43,6 +43,8 @@
 #include "memarena.h"
 #include "c_cvars.h"
 
+void CreateVertexMap();
+
 FMemArena sectionArena(102400);
 
 TMap<int, bool> bugged;
@@ -701,6 +703,7 @@ void hw_CreateSections()
 	SplitLoops(builders);
 
 	ConstructSections(builders);
+	CreateVertexMap();
 }
 
 //==========================================================================

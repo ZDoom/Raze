@@ -31,6 +31,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "tarray.h"
 #include "tflags.h"
 #include "intvec.h"
+#include "binaryangle.h"
+#include "dobject.h"
 
 //=============================================================================
 //
