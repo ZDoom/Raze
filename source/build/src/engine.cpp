@@ -608,61 +608,6 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
 }
 
 
-//
-// dragpoint
-//
-void dragpoint(int w, int32_t dax, int32_t day)
-{
-    BFSSearch walbitmap(wall.Size());
-    int clockwise = 0;
-    const int tmpstartwall = w;
-    int cnt = 16384; // limit the number of iterations.
-
-    while (1)
-    {
-        auto wal = &wall[w];
-        wal->move(dax, day);
-        walbitmap.Set(w);
-
-        if (!clockwise)  //search points CCW
-        {
-            if (wal->nextwall >= 0)
-                w = wall[wal->nextwall].point2;
-            else
-            {
-                w = tmpstartwall;
-                clockwise = 1;
-            }
-        }
-
-        cnt--;
-        if (cnt==0)
-        {
-            Printf("dragpoint %d: infinite loop!\n", w);
-            break;
-        }
-
-        if (clockwise)
-        {
-            auto thelastwall = wall[w].lastWall();
-            if (thelastwall->nextwall >= 0)
-                w = thelastwall->nextwall;
-            else
-                break;
-        }
-
-        if (walbitmap.Check(w))
-        {
-            if (clockwise)
-                break;
-
-            w = tmpstartwall;
-            clockwise = 1;
-            continue;
-        }
-    }
-}
-
 ////////// UPDATESECTOR* FAMILY OF FUNCTIONS //////////
 
 /* Different "is inside" predicates.

@@ -745,39 +745,11 @@ void PathSound(sectortype* pSector, int nSound)
 
 void DragPoint(walltype* pWall, int x, int y)
 {
-    viewInterpolateWall(pWall);
-    pWall->move(x, y);
-
-    int vsi = wall.Size();
-    auto prevWall = pWall;
-    do
-    {
-        if (prevWall->twoSided())
+    vertexscan(pWall, [&](walltype* wal)
         {
-            prevWall = prevWall->nextWall()->point2Wall();
-            viewInterpolateWall(prevWall);
-            prevWall->move(x, y);
-        }
-        else
-        {
-            prevWall = pWall;
-            do
-            {
-                auto lw = prevWall->lastWall();
-                if (lw && lw->twoSided())
-                {
-                    prevWall = lw->nextWall();
-                    viewInterpolateWall(prevWall);
-                    prevWall->move(x, y);
-                }
-                else
-                    break;
-                vsi--;
-            } while (prevWall != pWall && vsi > 0);
-            break;
-        }
-        vsi--;
-    } while (prevWall != pWall && vsi > 0);
+            viewInterpolateWall(wal);
+            wal->move(x, y);
+        });
 }
 
 void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)

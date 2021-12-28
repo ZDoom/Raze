@@ -263,7 +263,6 @@ void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
 int32_t   inside(int32_t x, int32_t y, const sectortype* sectnum);
-void   dragpoint(int pointhighlight, int32_t dax, int32_t day);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestruct.h"
 #include "intvec.h"
 #include "coreactor.h"
+#include "interpolate.h"
 
 //---------------------------------------------------------------------------
 //
@@ -383,6 +384,20 @@ bool sectorsConnected(int sect1, int sect2)
 		if (wal.nextsector == sect2) return true;
 	}
 	return false;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void dragpoint(walltype* startwall, int newx, int newy)
+{
+	vertexscan(startwall, [&](walltype* wal)
+	{
+		wal->move(newx, newy);
+	});
 }
 
 //==========================================================================

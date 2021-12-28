@@ -112,6 +112,42 @@ public:
 	}
 };
 
+//==========================================================================
+//
+// scans all vertices equivalent with a given spot and performs some work on them.
+//
+//==========================================================================
+
+template<class func>
+void vertexscan(walltype* startwall, func mark)
+{
+	BFSSearch walbitmap(wall.Size());
+
+	// first pass: scan the the next-in-loop of the partner
+	auto wal = startwall;
+	do
+	{
+		mark(wal);
+		walbitmap.Set(wall.IndexOf(wal));
+		if (wal->nextwall < 0) break;
+		wal = wal->nextWall()->point2Wall();
+	} while (!walbitmap.Check(wall.IndexOf(wal)));
+
+	// second pass: scan the partner of the previous-in-loop.
+	wal = startwall;
+	while (true)
+	{
+		auto thelastwall = wal->lastWall();
+		if (!thelastwall->twoSided()) break;
+
+		wal = thelastwall->nextWall();
+		if (walbitmap.Check(wall.IndexOf(wal))) break;
+		mark(wal);
+		walbitmap.Set(wall.IndexOf(wal));
+	}
+}
+
+
 extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
@@ -130,6 +166,7 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz = nullptr, bool render = false);
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
+void dragpoint(walltype* wal, int newx, int newy);
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!
@@ -320,11 +357,6 @@ inline double SquareDistToWall(double px, double py, const walltype* wal)
 	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
 	t = clamp(t, 0., 1.);
 	return SquareDist(px, py, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1));
-}
-
-inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
-{
-	dragpoint(wallnum(pointhighlight), dax, day);
 }
 
 inline void alignceilslope(sectortype* sect, int x, int y, int z)
