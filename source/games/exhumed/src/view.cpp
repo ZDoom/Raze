@@ -333,12 +333,6 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nFreeze != 3)
     {
         TArray<uint8_t> paldata(sector.Size() * 2 + wall.Size(), true);
-        int const viewingRange = viewingrange;
-        int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
-
-
-        videoSetCorrectedAspect();
-        renderSetAspect(MulScale(vr, viewingrange, 16), yxaspect);
 
         if (HavePLURemap())
         {
@@ -361,6 +355,10 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!testnewrenderer)
         {
+            // this little block of code is Exhumed's entire interface to Polymost.
+            int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
+            videoSetCorrectedAspect();
+            renderSetAspect(MulScale(vr, viewingrange, 16), yxaspect);
             renderSetRollAngle((float)rotscrnang.asbuildf());
             renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), sectnum(pSector), false);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);

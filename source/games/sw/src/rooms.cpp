@@ -39,6 +39,10 @@ BEGIN_SW_NS
 //
 ////////////////////////////////////////////////////////////////////
 
+// Polymost only!
+void SW_FloorPortalHack(DSWActor* actor, int z, int match);
+void SW_CeilingPortalHack(DSWActor* actor, int z, int match);
+
 
 #define ZMAX 400
 typedef struct
@@ -708,34 +712,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 
     if (!testnewrenderer)
     {
-        pix_diff = labs(z - actor->spr.sector()->floorz) >> 8;
-        newz = actor->spr.sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
-
-        it.Reset(STAT_FAF);
-        while (actor = it.Next())
-        {
-            if (actor->spr.lotag == match)
-            {
-                // move lower levels ceilings up for the correct view
-                if (actor->spr.hitag == VIEW_LEVEL2)
-                {
-                    // save it off
-                    save.sect[save.zcount] = actor->spr.sector();
-                    save.zval[save.zcount] = actor->spr.sector()->floorz;
-                    save.pic[save.zcount] = actor->spr.sector()->floorpicnum;
-                    save.slope[save.zcount] = actor->spr.sector()->floorheinum;
-
-                    actor->spr.sector()->setfloorz(newz, true);
-                    // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (actor->spr.sector()->floorpicnum != FAF_MIRROR_PIC)
-                        actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC + 1;
-                    actor->spr.sector()->setfloorslope(0);
-
-                    save.zcount++;
-                    PRODUCTION_ASSERT(save.zcount < ZMAX);
-                }
-            }
-        }
+        SW_CeilingPortalHack(actor, z, match);
     }
     return true;
 }
@@ -796,36 +773,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 
     if (!testnewrenderer)
     {
-        // move ceiling multiple of 128 so that the wall tile will line up
-        pix_diff = labs(z - actor->spr.sector()->ceilingz) >> 8;
-        newz = actor->spr.sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
-
-        it.Reset(STAT_FAF);
-        while (actor = it.Next())
-        {
-            if (actor->spr.lotag == match)
-            {
-                // move upper levels floors down for the correct view
-                if (actor->spr.hitag == VIEW_LEVEL1)
-                {
-                    // save it off
-                    save.sect[save.zcount] = actor->spr.sector();
-                    save.zval[save.zcount] = actor->spr.sector()->ceilingz;
-                    save.pic[save.zcount] = actor->spr.sector()->ceilingpicnum;
-                    save.slope[save.zcount] = actor->spr.sector()->ceilingheinum;
-
-                    actor->spr.sector()->setceilingz(newz, true);
-
-                    // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (actor->spr.sector()->ceilingpicnum != FAF_MIRROR_PIC)
-                        actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
-                    actor->spr.sector()->setceilingslope(0);
-
-                    save.zcount++;
-                    PRODUCTION_ASSERT(save.zcount < ZMAX);
-                }
-            }
-        }
+        SW_FloorPortalHack(actor, z, match);
     }
     return true;
 }
