@@ -33,13 +33,12 @@
 **
 */
 
-#include "basics.h"
 #include "maptypes.h"
 #include "memarena.h"
 #include "gamefuncs.h"
 #include "hw_vertexmap.h"
 
-extern FMemArena sectionArena; // allocate from the same arena as the section as the data here has the same lifetime.
+extern FMemArena sectionArena; // allocate from the same arena as the sections as the data here has the same lifetime.
 
 TArray<int> vertexMap;	// maps walls to the vertex data.
 TArray<vertex_t> vertices;
@@ -59,6 +58,7 @@ void CreateVertexMap()
 	verticespersector.Resize(sector.Size());
 
 	for (auto& c : countpersector) c = 0;
+	for (auto& c : vertexMap) c = -1;
 	for (unsigned i = 0; i < wall.Size(); i++)
 	{
 		if (processed[i]) continue;
@@ -78,7 +78,7 @@ void CreateVertexMap()
 				}
 			});
 
-		vertices.Reserve(1);
+		unsigned index = vertices.Reserve(1);
 		auto newvert = &vertices.Last();
 
 		newvert->masterwall = walls[0];
@@ -86,6 +86,11 @@ void CreateVertexMap()
 		newvert->angletime = 0;
 		newvert->dirty = true;
 		newvert->numheights = 0;
+
+		for (auto w : walls)
+		{
+			vertexMap[w] = index;
+		}
 
 		// allocate all data within this struct from the arena to simplify memory management.
 		auto sect = (int*)sectionArena.Alloc(sectors.Size() * sizeof(int));

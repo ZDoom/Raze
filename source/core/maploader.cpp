@@ -98,8 +98,8 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
 	sect.wallptr = fr.ReadInt16();
 	sect.wallnum = fr.ReadInt16();
-	sect.setceilingz(fr.ReadInt32());
-	sect.setfloorz(fr.ReadInt32());
+	sect.setceilingz(fr.ReadInt32(), true);
+	sect.setfloorz(fr.ReadInt32(), true);
 	sect.ceilingstat = ESectorFlags::FromInt(fr.ReadUInt16());
 	sect.floorstat = ESectorFlags::FromInt(fr.ReadUInt16());
 	sect.ceilingpicnum = fr.ReadUInt16();
@@ -129,8 +129,8 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
-	sect.setceilingz(fr.ReadInt32());
-	sect.setfloorz(fr.ReadInt32());
+	sect.setceilingz(fr.ReadInt32(), true);
+	sect.setfloorz(fr.ReadInt32(), true);
 	sect.ceilingshade = fr.ReadInt8();
 	sect.floorshade = fr.ReadInt8();
 	sect.ceilingxpan_ = fr.ReadUInt8();
@@ -156,8 +156,8 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
-	sect.setceilingz(fr.ReadInt32());
-	sect.setfloorz(fr.ReadInt32());
+	sect.setceilingz(fr.ReadInt32(), true);
+	sect.setfloorz(fr.ReadInt32(), true);
 	sect.ceilingshade = fr.ReadInt8();
 	sect.floorshade = fr.ReadInt8();
 	sect.ceilingxpan_ = fr.ReadUInt8();

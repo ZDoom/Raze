@@ -223,7 +223,11 @@ public:
 
 	int CreateVertices(FFlatVertex *&ptr, bool nosplit);
 
-	//int CountVertices();
+	int CountVertices();
+	void SplitLeftEdge(FFlatVertex*& ptr);
+	void SplitRightEdge(FFlatVertex*& ptr);
+	void CountLeftEdge(unsigned& ptr);
+	void CountRightEdge(unsigned& ptr);
 
 	void RenderWall(HWDrawInfo *di, FRenderState &state, int textured);
 	void RenderFogBoundary(HWDrawInfo *di, FRenderState &state);
