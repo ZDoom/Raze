@@ -43,6 +43,7 @@ extern FMemArena sectionArena; // allocate from the same arena as the section as
 
 TArray<int> vertexMap;	// maps walls to the vertex data.
 TArray<vertex_t> vertices;
+TArray<TArrayView<int>> verticespersector;
 
 
 void CreateVertexMap()
@@ -51,10 +52,13 @@ void CreateVertexMap()
 	processed.Zero();
 	TArray<int> walls;
 	TArray<int> sectors;
+	TArray<int> countpersector(sector.Size(), true);
 
 	vertices.Clear();
 	vertexMap.Resize(wall.Size());
+	verticespersector.Resize(sector.Size());
 
+	for (auto& c : countpersector) c = 0;
 	for (unsigned i = 0; i < wall.Size(); i++)
 	{
 		if (processed[i]) continue;
@@ -64,10 +68,14 @@ void CreateVertexMap()
 		vertexscan(&wall[i], [&](walltype* wal)
 			{
 				int w = wallnum(wal);
+				if (processed[w]) return;	// broken wall setups can trigger this.
 				walls.Push(w);
 				processed.Set(w);
 				if (!sectors.Contains(wal->sector))
+				{
 					sectors.Push(wal->sector);
+					countpersector[wal->sector]++;
+				}
 			});
 
 		vertices.Reserve(1);
@@ -90,6 +98,47 @@ void CreateVertexMap()
 
 		// 2x number of sectors is currently the upper bound for the number of associated heights.
 		newvert->heightlist = (float*)sectionArena.Alloc(sectors.Size() * sizeof(float));
+
+		// create the inverse map to assign vertices to sectors. This is needed by the dirty marking code.
+		for (unsigned ii = 0; ii < sector.Size(); ii++)
+		{
+			auto sdata = (int*)sectionArena.Alloc(countpersector[ii] * sizeof(int));
+			verticespersector[ii].Set(sdata, countpersector[ii]);
+			countpersector[ii] = 0;
+		}
+		for (unsigned ii = 0; ii < vertices.Size(); ii++)
+		{
+			for (auto sec : vertices[ii].sectors)
+			{
+				verticespersector[sec][countpersector[sec]++] = ii;
+			}
+		}
+	}
+#if 0
+	for (unsigned i = 0; i < vertices.Size(); i++)
+	{
+		Printf("Vertex %d at (%2.3f, %2.3f)\n", i, wall[vertices[i].masterwall].pos.X / 16., wall[vertices[i].masterwall].pos.Y / -16.);
+		Printf("    Walls: ");
+		for (auto wal : vertices[i].walls) Printf("%d ", wal);
+		Printf("\n");
+		Printf("    Sectors: ");
+		for (auto wal : vertices[i].sectors) Printf("%d ", wal);
+		Printf("\n");
+	}
+#endif
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void MarkVerticesForSector(int sector)
+{
+	for (auto vert : verticespersector[sector])
+	{
+		vertices[vert].dirty = true;
 	}
 }
 
@@ -102,6 +151,8 @@ void CreateVertexMap()
 void vertex_t::RecalcVertexHeights()
 {
 	numheights = 0;
+	dirty = false;
+	if (sectors.Size() == 1) return;	// no need to bother
 	for (auto& sect : sectors)
 	{
 		float heights[2];
@@ -126,7 +177,6 @@ void vertex_t::RecalcVertexHeights()
 		}
 	}
 	if (numheights <= 2) numheights = 0;	// is not in need of any special attention
-	dirty = false;
 }
 
 

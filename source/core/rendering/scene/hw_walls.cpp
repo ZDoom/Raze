@@ -32,6 +32,7 @@
 #include "hw_renderstate.h"
 #include "hw_skydome.h"
 #include "hw_drawstructs.h"
+#include "hw_vertexmap.h"
 #include "gamefuncs.h"
 #include "cmdlib.h"
 
@@ -998,6 +999,14 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	alpha = 1.0f;
 	RenderStyle = STYLE_Translucent;
 	texture = NULL;
+
+	if (gl_seamless)
+	{
+		auto v = &vertices[vertexMap[wallnum(wal)]];
+		if (v->dirty) v->RecalcVertexHeights();
+		v = &vertices[vertexMap[wal->point2]];
+		if (v->dirty) v->RecalcVertexHeights();
+	}
 
 	/*
 	if (wal->linedef->special == Line_Horizon)

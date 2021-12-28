@@ -34,6 +34,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "binaryangle.h"
 #include "dobject.h"
 
+void MarkVerticesForSector(int sector);
+
 //=============================================================================
 //
 // Constants
@@ -222,30 +224,12 @@ struct sectortype
 	int32_t ceilingz;
 	int32_t floorz;
 
-	void setceilingz(int cc, bool temp = false)
-	{
-		ceilingz = cc;
-	}
-	void setfloorz(int cc, bool temp = false)
-	{
-		floorz = cc;
-	}
-	void addceilingz(int cc, bool temp = false)
-	{
-		ceilingz += cc;
-	}
-	void addfloorz(int cc, bool temp = false)
-	{
-		floorz += cc;
-	}
-	int32_t* ceilingzptr(bool temp = false)
-	{
-		return &ceilingz;
-	}
-	int32_t* floorzptr(bool temp = false)
-	{
-		return &floorz;
-	}
+	void setceilingz(int cc, bool temp = false);
+	void setfloorz(int cc, bool temp = false);
+	void addceilingz(int cc, bool temp = false);
+	void addfloorz(int cc, bool temp = false);
+	int32_t* ceilingzptr(bool temp = false);
+	int32_t* floorzptr(bool temp = false);
 
 #endif
 
@@ -741,6 +725,40 @@ inline int walltype::Length()
 	return length;
 }
 
+#ifndef SECTOR_HACKJOB
+
+inline void sectortype::setceilingz(int cc, bool temp)
+{
+	ceilingz = cc;
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+}
+inline void sectortype::setfloorz(int cc, bool temp)
+{
+	floorz = cc;
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+}
+inline void sectortype::addceilingz(int cc, bool temp)
+{
+	ceilingz += cc;
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+}
+inline void sectortype::addfloorz(int cc, bool temp)
+{
+	floorz += cc;
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+}
+inline int32_t* sectortype::ceilingzptr(bool temp)
+{
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+	return &ceilingz;
+}
+inline int32_t* sectortype::floorzptr(bool temp)
+{
+	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
+	return &floorz;
+}
+
+#endif
 //=============================================================================
 //
 // Map loader stuff
