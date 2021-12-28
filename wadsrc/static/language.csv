@@ -115,15 +115,15 @@ Connect,NETMNU_CONNECT,,,,Připojit,Vebinden,,,Conectar,,Yhdistä,Connecter,Kapc
 ,,Gameplay options,,,,,,,,,,,,,,,,,,,,,
 Hitscan Only,OPTVAL_HITSCAN,,,,Pouze hitscan,Nur Hitscan,,,Solo hitscan,,Vain osumatarkistus,Hitscans seulement,Kizárólag hitscan,,,,,Tylko hitscan,Somente hitscan,,Doar hitscan,,
 Run Mode,PLRMNU_RUNMODE,,,,Režim běhu,Rennmodus,,,Modo de Correr,,Juoksutila,Mode Course,Futás sebesség,,,,,Tryb Biegania,Modo Correr,,Mod fugă,,
-Allow Toggle,PLRMNU_TOGGLE,,,,,Umschalten erlauben,,,Permitir Alternado,,Salli vaihtokytkeminen,Autoriser on/off,Futás sebesség változtatható,,,,,Pozwól na Przełączenie,Permitir Ativar/Desativar,,Permite comutare,,
-Override Toggle,PLRMNU_OVERRIDE,,,,,Umschalten blockieren,,,Anular Alternado,,Kumoa vaihtokytkeminen,Ignorer On/off,Futás sebesség változtatható,,,,,Nadpisz Przełączenie,Ignorar Ativar/Desativar,,Suprascriere comutare,,
+Allow Toggle,PLRMNU_TOGGLE,,,,Povolit přepnutí,Umschalten erlauben,,,Permitir Alternado,,Salli vaihtokytkeminen,Autoriser on/off,Futás sebesség változtatható,,,,,Pozwól na Przełączenie,Permitir Ativar/Desativar,,Permite comutare,,
+Override Toggle,PLRMNU_OVERRIDE,,,,Potlačit přepnutí,Umschalten blockieren,,,Anular Alternado,,Kumoa vaihtokytkeminen,Ignorer On/off,Futás sebesség változtatható,,,,,Nadpisz Przełączenie,Ignorar Ativar/Desativar,,Suprascriere comutare,,
 If New,PLRMNU_IFNEW,,,,Pokud je nová,Wenn neu,,,Si Nuevo,,Jos uusi,Si nouveau,Ha új,,,,,Jeśli Nowe,Quando Novo,,Dacă e nouă,,
 Equip Weapon Pickups,PLRMNU_EQUIP,,,,Přepnout na sebranou zbraň,Waffen sofort aktivieren,,,Equipar Armas Recogidas,,Vaihda poimittuun aseeseen,Equiper armes ramassées,Felvett fegyver használata,,,,,Wybierz Broń,Equipar Armas,,Echipează armele ridicate,,
 Parental Lock,PLRMNU_PLOCK,,,,Rodičovský zámek,Kindersicherung,,,Bloqueo Parental,,Lapsilukko,Contrôle Parental,Szülői zár,,,,,Blokada Rodzicielska,Bloqueio Parental,,Control Parental,,
 Only preferred,PLRMNU_PREFERRED,,,,Pouze preferované,Nur bevorzugte,,,Solo preferido,,Vain parempaan,Seulement si Préféré,Csak a preferált,,,,,Tylko wybrane,Somente preferido,,Doar preferate,,
-Original Keyboard Turning Speed,PLRMNU_EXHUMEDOLDTURN,,,,,Originale Tastatur-Drehgeschwindigkeit,,,Velocidad de Giro del Teclado como en Vanilla,,,,Eredeti billentyűs fordulás sebesség,,,,,Oryginalna prędkość rozglądania się na klawiaturze,,,Viteză Rotire cu Tastatură,,
-QAV Interpolation,PLRMNU_BLDQAVINTERP,,,,,QAV Interpolation,,,,,,,QAV Interpoláció,,,,,,,,,,
-Weapon Interpolation,PLRMNU_BLDWEAPINTERP,,,,,Waffeninterpolation,,,,,,,Fegyver Interpoláció,,,,,,,,,,
+Original Keyboard Turning Speed,PLRMNU_EXHUMEDOLDTURN,,,,Původni rychlost otáčení pomocí klávesnice,Originale Tastatur-Drehgeschwindigkeit,,,Velocidad de Giro del Teclado como en Vanilla,,,,Eredeti billentyűs fordulás sebesség,,,,,Oryginalna prędkość rozglądania się na klawiaturze,,,Viteză Rotire cu Tastatură,,
+QAV Interpolation,PLRMNU_BLDQAVINTERP,,,,Interpolace QAV,QAV Interpolation,,,,,,Interpolation de QAV,QAV Interpoláció,,,,,Interpolacja QAV,,,Interpolare QAV,,
+Weapon Interpolation,PLRMNU_BLDWEAPINTERP,,,,Interpolace zbraní,Waffeninterpolation,,,,,,Interpolation des armes,Fegyver Interpoláció,,,,,Interpolacja Broni,,,Interpolare Arme,,
 ,,Render,,,,,,,,,,,,,,,,,,,,,
 True Color Textures,RENDER_TC,,,True Colour Textures,True Color textury,True Color Texturen,,,Texturas de Color Verdadero,,True Color -asetukset,Textures Truecolor,24 bit textúrák,,,,,Tekstury True Color,Texturas true color,,Texturi Naturale,,
 Pre-load map textures,RENDER_CACHE,,,,Přednačíst textury mapy,Texturen cachen,,,Precargar texturas de mapa,,Esilataa tason pintakuvioinnit,Précharger textures de la map,Pálya textúrák elő-töltése,,,,,Wcześniej Załaduj Tekstury Map,Pré-carregar texturas da fase,,Preîncărcare Texturi Hartă,,
@@ -144,7 +144,7 @@ Shadows,DSPLYMNU_SHADOWS,,,,Stíny,Schatten,,Ombroj,Sombras,,Varjot,Ombres,Árny
 Slope Tilting,DSPLYMNU_SLOPETILT,,,,Naklánět na svazích,Steigungsneigung,,,Inclinarse en Cuestas,,Viettokallistus,Inclinaison sur pentes,Lejtő síkjába dőlés,,,,,Odchylanie przy pochyłościach,Inclinação em Declive,,Înclinare pe pante,,
 View Bobbing,DSPLYMNU_VIEWBOB,,,,Pohupovat pohledem,,,,Balanceo Vertical de Vista,,Katseen heilunta,Démarche chaloupée,Fegyvermozgás,,,,,Pokaż bujanie się w górę i w dół,Balanço Vertical de Visão,,Mișcare vedere sus-jos,,
 View Sway,DSPLYMNU_VIEWSWAY,,,,Kolébat pohledem,,,,Balanceo Horizontal de Vista,,Katseen huojunta,Démarche penchante,Lépésmozgás,,,,,Pokaż bujanie się na boki,Balanço Horizontal de Visão,,Mișcare ritmică a vederii,,
-Show clip amount in fullscreen HUD,DSPLYMNU_CLIPAMT,,,,Zobrazit množství zásobníků ve fullscreen HUD,Zeige Magazin im Vollbild-HUD,,,Mostrar cuenta de cargador en HUD de pantalla completa,,Näytä lipasmäärä täyden ruudun tilanäytössä,Montrer les chargeurs sur HUD plein écran,Tárak mutatása teljes képernyőben,,,,,Pokaż ilość naboi w pełnoekranowym pasku HUD,Mostrar quantidade de munição em tela cheia,,Afișare muniție cartuș,,
+Show clip amount in fullscreen HUD,DSPLYMNU_CLIPAMT,,,,Zobrazit počet zásobníků ve fullscreen HUD,Zeige Magazin im Vollbild-HUD,,,Mostrar cuenta de cargador en HUD de pantalla completa,,Näytä lipasmäärä täyden ruudun tilanäytössä,Montrer les chargeurs sur HUD plein écran,Tárak mutatása teljes képernyőben,,,,,Pokaż ilość naboi w pełnoekranowym pasku HUD,Mostrar quantidade de munição em tela cheia,,Afișare muniție cartuș,,
 Level Statistics,DSPLYMNU_LEVELSTATS,,,,Statistiky levelu,Levelstatistik,,,Estadísticas de Nivel,,Tason tilastot,Aff. stats niveau,Pálya statisztika,Mostra statistiche livello,レベルステータスを表示する,,,Statystyki Poziomu,Mostrar estatísticas da fase,,Statistici Nivel,Показать характеристики уровня,
 Level Statistics Scale,DSPLYMNU_STATSCALE,,,,Velikost statistik,Textgröße für Levelstatistik,,,Escala de Estadísticas de Nivel,,Tason tilastojen skaalaus,Mise à l'échelle stats niveau,Pálya statisztika méret,,,,,Skala Statystyk Poziomu,Escala das estatísticas da fase,,Scară Statistici Nivel,,
 Text Scale,DSPLYMNU_TEXTSCALE,,,,Velikost textu,Textgröße,,Skalo de Teksto,Escala de Texto,,Tekstin skaalaus,Mise à l'échelle Texte,Szöveg méret,,,,,Skala Tekstu,Escala de texto,,Scară Text,,
@@ -154,7 +154,7 @@ Show Map Name,DSPLYMNU_SHOWMAPNAME,,,,Zobrazit název mapy,"Levelnamen anzeigen
 FOV,DSPLYMNU_FOV,,,,Zorné pole (FOV),Gesichtsfeld,,Vidkampo,,,Näkökenttä,Champ de Vision,Látószög,,,,,Pole widzenia,Campo de visão,,Câmp vizual,,
 Crosshair,DSPLYMNU_CROSSHAIR,,,,Zaměřovač,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,Célkereszt,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,Țintă,Прицел,Нишан
 Message Display Style,DSPLYMNU_MESSAGEDISP,,,,Styl zpráv,Nachrichtenstil,,,Estilo de Mensajes,,Viestien näyttötyyli,Style d'affichage messages,Üzenet megjelenítés mód,,,,,Styl wiadomości,Estilo visual de mensagem,,Mod Afișare Mesaje,,
-Ambient Light,DSPLYMNU_AMBIENT_LIGHT,,,,Okolní Světlo,Umgebungslicht,Φως περιβάλλοντος,Ĉirkaŭa Lumo,Luz ambiental,,Tunnelmavalo,Lumière ambiante,Háttérvilágítás,Luce ambientale,周囲光,주변 광,Omgevingslicht,Światła otoczenia,Luz ambiente,,Lumină ambientală,Окружающий свет,Амбијенталног светла
+Ambient Light,DSPLYMNU_AMBIENT_LIGHT,,,,Okolní osvětlení,Umgebungslicht,Φως περιβάλλοντος,Ĉirkaŭa Lumo,Luz ambiental,,Tunnelmavalo,Lumière ambiante,Háttérvilágítás,Luce ambientale,周囲光,주변 광,Omgevingslicht,Światła otoczenia,Luz ambiente,,Lumină ambientală,Окружающий свет,Амбијенталног светла
 Classic,OPTVAL_CLASSIC,,,,Klasický,Klassisch,,Klasika,Clásico,,Perinteinen,Classique,Klasszikus,,,,,Klasyczne,Clássico,,Clasic,,
 Advanced,OPTVAL_ADVANCED,,,,Pokročilý,Erweitert,,Altnivela,Avanzado,,Kehittynyt,Avancé,Haladó,,,,,Zaawansowane,Avançado,,Avansat,,
 CD Music Emulation,SNDMNU_CDEMU,,,,Emulace CD hudby,CD-Musik-Emulation,,,Emulación de Música de CD,,CD-musiikin emulaatio,Emulation audio CD,CD zene emuláció,,,,,Emulacja odtwarzania muzyki z płyty,Emulação de música de CD,,Emulare CD muzică,,
@@ -396,18 +396,18 @@ Scroll Mode: OFF,SCROLL MODE: OFF,,,,Režim skrolování: VYP,Scrollmodus: Aus,,
 Brightness Level: Six,BRIGHTNESS LEVEL: SIX,,,,Úroveň světla: Šest,Helligkeitsstufe: Sechs,,,Nivel de brillo: Seis,,Kirkkaustaso: kuusi,Niv. luminosité : six,Fényerő szint: Hat,Livello luminosità: 6,輝度レベル: ６,,,Jasność: 6,Claridade: seis,,Nivel Luminozitate: Șase,Уровень яркости: шесть,
 Brightness Level: Seven,BRIGHTNESS LEVEL: SEVEN,,,,Úroveň světla: Sedm,Helligkeitsstufe: Sieben,,,Nivel de brillo: Siete,,Kirkkaustaso: seitsemän,Niv. luminosité : sept,Fényerő szintt: Hét,Livello luminosità: 7,輝度レベル: ７,,,Jasność 7,Claridade: sete,,Nivel Luminozitate: Șapte,Уровень яркости: семь,
 Brightness Level: Eight,BRIGHTNESS LEVEL: EIGHT,,,,Úroveň světla: Osm,Helligkeitsstufe: Acht,,,Nivel de brillo: Ocho,,Kirkkaustaso: kahdeksan,Niv. luminosité : huit,Fényerő szint: Nyolc,Livello luminosità: 8,輝度レベル: ８,,,Jasność: 8,Claridade: oito,,Nivel Luminozitate: Opt,Уровень яркости: восемь,
-Register Cosmo Today!,REGISTER COSMO TODAY!,,,,Zaregistruj Cosmo již dnes!,Registriere Cosmo Jetzt!,,,¡Regístrate hoy en Cosmo!,,Rekisteröi Cosmo tänään!,Abonne-toi à Cosmo !,Regisztráld a Cosmo-t még ma!,Registra cosmo oggi!,コスモを今すぐ登録しよう！,,,Zarejestruj Cosmo Już Dziś!,Registre Cosmo hoje mesmo!,,Înregistrează pe Cosmo Azi!,Зарегистрируйте cosmo сегодня!,
+Register Cosmo Today!,REGISTER COSMO TODAY!,,,,Pořiď si předplatné Cosmo již dnes!,Registriere Cosmo Jetzt!,,,¡Regístrate hoy en Cosmo!,,Rekisteröi Cosmo tänään!,Abonne-toi à Cosmo !,Regisztráld a Cosmo-t még ma!,Registra cosmo oggi!,コスモを今すぐ登録しよう！,,,Zarejestruj Cosmo Już Dziś!,Registre Cosmo hoje mesmo!,,Înregistrează pe Cosmo Azi!,Зарегистрируйте cosmo сегодня!,
 All Locks Toggled,ALL LOCKS TOGGLED,,,,Všechny zámky přepnuty,Alle Schlösser geöffnet,,,Todos los Cierres Activados/Desactivados,,Kaikki lukot kytketty toiseen asentoon,Tous verrous activés,Minden Zár Átkapcsolva,Tutte le serrature azionate,すべてのロックを解放した,,,Wszystkie przełączniki włączone,Todas as trancas ativadas,,Toate Încuietorile Comutate,Все замки переключены,
 Night Vision Goggles,NIGHT VISION GOGGLES,,,,Brýle pro noční vidění,Nachtsichtgerät,,,Gafas visión nocturna,,Pimeänäkölasit,Lunettes vison de nuit,Éjjellátó Szemüveg,Visore notturno,暗視ゴーグル,,,Gogle Noktowizyjne,Óculos de visão noturna,,Ochelari Infraroși,Очки ночного видения,
-"We're Gonna Fry Your Ass, Nukem!","WE'RE GONNA FRY YOUR ASS, NUKEM!",,,,"Tvá prdel pozná středověk, Nukeme!","Wir machen dich fertig, Nukem!",,,"¡Te vamos a freír el culo, Nukem!",,"Käristämme perseesi, Nukem!","On va frire ton cul, Nukem !","El lesz intézve a segged, Nukem!","Ti friggeremo il culo, Nukem!",てめえのケツを燃やしてやるぜ、NUKEM！,,,Skopiemy ci dupsko Nukem!,"Vamos fritar seu traseiro, Nukem!",,"O să te prăjim, Nukem!","Мы поджарим твою задницу, Nukem!",
+"We're Gonna Fry Your Ass, Nukem!","WE'RE GONNA FRY YOUR ASS, NUKEM!",,,,"Upečeme ti prdel, Nukeme!","Wir machen dich fertig, Nukem!",,,"¡Te vamos a freír el culo, Nukem!",,"Käristämme perseesi, Nukem!","On va frire ton cul, Nukem !","El lesz intézve a segged, Nukem!","Ti friggeremo il culo, Nukem!",てめえのケツを燃やしてやるぜ、NUKEM！,,,Skopiemy ci dupsko Nukem!,"Vamos fritar seu traseiro, Nukem!",,"O să te prăjim, Nukem!","Мы поджарим твою задницу, Nukem!",
 Screen Saved,SCREEN SAVED,,,,Obrázek uložen,Screenshot gespeichert,,,Imagen guardada,,Näyttö tallennettu,Écran sauvegardé,Képernyőkép Mentve,Schermata salvata,スクリーンをセーブ,,,Zdjęcie zrobione,Tela capturada,,Captură Salvată,Снимок сохранен,
 Got Used Armor,GOT USED ARMOR,,,,Nalezeno použité brnění,Gebrauchte Rüstung erhalten,,,Tienes blindaje usado,,Kulunut panssari otettu,Armure Usée récupérée,Kaptál Használt Páncélt,Hai armatura usata,中古アーマーを入手した,,,Zdobyto zużyty pancerz,Pegou armadura usada,,Ridicat Armură Folosită,Получена подержанная броня,
 Pirates Suck!,PIRATES SUCK!,,,,Piráti jsou na prd!,Piraten sind doof!,,,¡Los piratas apestan!,,Piraatit ovat syvältä!,"Les pirates, ça craint !",Leszophatnak a kalózok!,I pirati fanno schifo!,海賊は最低だ！,,,Piraci są do dupy!,Piratas não são de nada!,,Pirații sunt Jalnici!,Пираты — дерьмо!,
 Night Vision ON,NIGHT VISION ON,,,,Noční vidění ZAP,Nachtsichtgerät: An,,,Visión nocturna ACTIVADO,,Pimeänäkö käytössä,Vision de nuit : ON,Éjjellátó BE,Visione notturna sì,暗視 オン,,,Noktowizor Włączony,Visão noturna lig.,,Ochelari Infraroșii PORNIȚI,Ночное видение вкл,
 Night Vision OFF,NIGHT VISION OFF,,,,Noční vidění VYP,Nachtsichtgerät: Aus,,,Visión nocturna DESACTIVADO,,Pimeänäkö pois käytöstä,Vision de nuit : OFF,Éjellátó KI,Visione notturna no,暗視 オフ,,,Noktowizor Wyłączony,Visão noturna desl.,,Ochelari Infraroșii OPRIȚI,Ночное видение откл,
 You're Burning!,YOU'RE BURNING!,,,,Hoříš!,Du brennst!,,,¡Estás ardiendo!,,Palat!,Tu crames !,Felgyulladtál!,Stai bruciando!,プレイヤーが燃えている！,,,Palisz Się!,Você está queimando!,,Arzi!,Ты горишь!,
-View Mode OFF,VIEW MODE OFF,,,,,Ansichtsmodus: Aus,,,Modo 3ª persona DESACTIVADO,,Katselutila pois päältä,Vue objective : OFF,Nézegető Mód KI,Modalità visione: no,ビューモード オフ,,,Widok: Wyłączony,Modo visão desl.,,Modul Vizualizare OPRIT,Режим наблюдения откл,
-View Mode ON,VIEW MODE ON,,,,,Ansichtsmodus: An,,,Modo 3ª persona ACTIVADO,,Katselutila päällä,Vue objective : ON,Nézegető Mód BE,Modalità visione: sì,ビューモード オン,,,Widok: Włączony,Modo visão lig.,,Modul Vizualizare PORNIT,Режим наблюдения вкл,
+View Mode OFF,VIEW MODE OFF,,,,Zobrazení VYP,Ansichtsmodus: Aus,,,Modo 3ª persona DESACTIVADO,,Katselutila pois päältä,Vue objective : OFF,Nézegető Mód KI,Modalità visione: no,ビューモード オフ,,,Widok: Wyłączony,Modo visão desl.,,Modul Vizualizare OPRIT,Режим наблюдения откл,
+View Mode ON,VIEW MODE ON,,,,Zobrazení ZAP,Ansichtsmodus: An,,,Modo 3ª persona ACTIVADO,,Katselutila päällä,Vue objective : ON,Nézegető Mód BE,Modalità visione: sì,ビューモード オン,,,Widok: Włączony,Modo visão lig.,,Modul Vizualizare PORNIT,Режим наблюдения вкл,
 Show Map: ON,SHOW MAP: ON,,,,Zobrazení mapy: ZAP,Karte Zeigen: An,,,Ver mapa ACTIVADO,,Kartta: PÄÄLLÄ,Affich. carte : ON,Térkép Mutatása: BE,Mostra mappa: sì,マップの表示： オン,,,Mapa: Włączona,Mapa: lig.,,Afișare hartă: PORNITĂ,Показать карту: вкл,
 Clipping: ON,CLIPPING: ON,,,,Kolize: ZAP,Clipping: An,,,Fantasma DESACTIVADO,,Seinänläpikulku: PÄÄLLÄ,Passe-muraille : OFF,Clipping: BE,Clipping: sì,クリッピング： オン,,,Przenikanie: Włączone,Clipping: lig.,,Coliziune: ACTIVĂ,Сквозь стены: откл,
 Clipping: OFF,CLIPPING: OFF,,,,Kolize: VYP,Clipping: Aus,,,Fantasma ACTIVADO,,Seinänläpikulku: POIS PÄÄLLÄ,Passe-muraille : ON,Clipping: KI,Clipping: no,クリッピング： オフ,,,Przenikanie: Wyłączone,Clipping: desl.,,Coliziune: OPRITĂ,Сквозь стены: вкл,
@@ -436,7 +436,7 @@ Triple Poison Shooter!,TRIPLE POISON SHOOTER!,,,,Jedomet!,Giftschleuder,,,¡Disp
 Pineapple!,PINEAPPLE!,,,,Ananas!,Ananas,,,¡Piña!,,Ananas!,Ananas!,Ananász!,,,,,Ananas!,Abacaxi!,,Ananas!,,
 Coconut Launcher!,COCONUT LAUNCHER!,,,,Kokosopal!,Kokosnusswerfer,,,¡Lanzacocos!,,Kookoslaukaisin!,Lance-Coco!,Kókuszlövő!,,,,,Wyrzutnia Kokosów!,Lança-Côcos!,,Aruncător de Nuci de Cocos!,,
 Super Soak'em!,SUPER SOAK'EM!,,,,,,,,¡Super Soak'em!,,,,Szuper Áztató!,,,,,Śmigus-Dyngus!,Super Jato d'Água!,,Super Udător!,,
-Voodoo Trip Bomb!,VOODOO TRIP BOMB!,,,,Voodoo nástražná mina!,Voodoomine,,,¡Mina Vudú!,,Voodooansapommi!,Bombe Vaudou!,Voodoo Akna!,,,,,Mina Voodoo!,Armadilha Vudu!,,Mină Laser Voodoo!,,
+Voodoo Trip Bomb!,VOODOO TRIP BOMB!,,,,Nástražná voodoo mina!,Voodoomine,,,¡Mina Vudú!,,Voodooansapommi!,Bombe Vaudou!,Voodoo Akna!,,,,,Mina Voodoo!,Armadilha Vudu!,,Mină Laser Voodoo!,,
 Ice Crusher!,ICE CRUSHER!,,,,Drtič na led!,Eiszerkleinerer,,,¡Triturador de hielo!,,Jäänmurskain!,Broyeur à Glace!,Jégtörő!,,,,,Lodziarka!,Triturador de Gelo!,,Spărgător de Gheață!,,
 Voodoo Ring!,VOODOO RING!,,,,Voodoo prsten!,Voodooring,,,¡Anillo Vudú!,,Voodoosormus!,Anneau Vaudou!,Voodoo Gyűrű!,,,,,Pierścień Voodoo!,Anel Vudu!,,Inel Voodoo!,,
 Single Banana: +10,SINGLE BANANA: +10,,,,Jeden banán: +10,Eine Banane: +10,,,Una banana: +10,,Banaani: +10,Banane: +10,Egy Banán: +10,,,,,Jeden Banan: +10,Uma Banana: +10,,Banană: +10,,
@@ -468,9 +468,9 @@ Shrapnel City,SHRAPNEL CITY,,,,Šrapnelové město,Schrapnell-City,,,Ciudad Metr
 The Birth,THE BIRTH,,,,Zrození,Die Geburt,,,El Nacimiento,,Synty,La Naissance,A Születés,La Nascita,誕生,,,Narodziny,O Nascimento,,Nașterea,Рождение,
 Alien World Order,#Episode5Name,,,,Vetřelecký světový řád,Außerirdische Weltordnung,,,Orden Mundial Alienígena,,Muukalaisten maailmanjärjestys,Domination Extra-Terrestre,Űrlény Világrend,Ordine Del Mondo Alieno,宇宙人の世界秩序,,,Kosmiczny Porządek,Ordem Mundial Alienígena,,Noul Ordin Extraterestru,Инопланетный Строй,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Piece Of Cake,PIECE OF CAKE,,,,Lehký jak facka,Kinderspiel,,Peco Da Kuko,Pan Comido,,Helppo nakki,À l'aise,Gyerekjáték,Gioco Da Ragazzi,どうってことねえ,,,Bułka z Masłem,Moleza,,Floare la Ureche,Раз Плюнуть,
+Piece Of Cake,PIECE OF CAKE,,,,Pohodička,Kinderspiel,,Peco Da Kuko,Pan Comido,,Helppo nakki,À l'aise,Gyerekjáték,Gioco Da Ragazzi,どうってことねえ,,,Bułka z Masłem,Moleza,,Floare la Ureche,Раз Плюнуть,
 Let's Rock,LET'S ROCK,,,,Jdem na to,Zeit für Action,,Ni Roku,Dale Caña,,Antaa palaa,Ça va chauffer,Durr Bele,Diamoci Dentro,やってやろうぜ,,,Dajmy Czadu,Detonando,,Să-i dăm Drumul,Зажигаем,
-Come Get Some,COME GET SOME,,,,Tak pojďte,Jetzt setzt es was,,Venigu,Venid A Por Mí,,Täältä pesee,Viens prendre ta raclée,Adok Én Nektek,Venite a Prenderle,かかってきやがれ,,,Żryj to,Pode Vir,,Ia De-Aici,Выкуси,
+Come Get Some,COME GET SOME,,,,Pojďte si pro mě,Jetzt setzt es was,,Venigu,Venid A Por Mí,,Täältä pesee,Viens prendre ta raclée,Adok Én Nektek,Venite a Prenderle,かかってきやがれ,,,Żryj to,Pode Vir,,Ia De-Aici,Выкуси,
 Damn I'm Good,DAMN I'M GOOD,,,,Jsem sakra dobrej,Bin verdammt gut,,Damne Mi Bonas,Soy el Puto Amo,,Hitto oon hyvä,"Putain, Je suis trop fort",De Jó Vagyok,Sono Troppo Forte,さすが俺様だぜ,,,Niezły Jestem,Sou Demais,,Mamă ce Bun Sunt,Я Чертовски Хорош,
 ,,,,,,,,,,,,,,,,,,,,,,,
 Hollywood Holocaust,HOLLYWOOD HOLOCAUST,,,,Hollywoodský masakr,Hollywood-Massenvernichtung,,,Holocausto Hollywoodiense,,Hollywood-holokausti,Holocauste À Hollywood,Hollywood Holokauszt,Olocausto a Hollywood,ハリウッド・ホロコースト,,,Holocaust w Hollywood,Holocausto em Hollywood,,Dezastru la Hollywood,Голливудский Холокост,
@@ -482,7 +482,7 @@ Launch Facility,LAUNCH FACILITY,,,,Odpalovací středisko,Raketenanlage,,,Instal
 Faces Of Death,FACES OF DEATH,1978 film title,,,Tváře smrti,Gesichter des Todes,,,Rostros de Muerte,,Kuoleman kasvot,Visages de la Mort,A Halál 1000 Arca,I Volti della Morte,死者達の顔,,,Oblicza Śmierci,Faces da Morte,,Fețele Morții,Лики Смерти,
 User Map,USER MAP,,,,Uživatelská mapa,Benutzerkarte,,,Mapa de Usuario,,Oma taso,Carte Joueur,Egyéni Pálya,Mappa Utente,ユーザーマップ,,,Mapa Użytkownika,Mapa de Usuário,,Hartă Utilizatori,Карта Пользователя,
 Void Zone,VOID ZONE,,,,Oblast ničeho,Zone der Leere,,,Zona de Vacío,,Tyhjiöalue,Zone Néant,Űr Zóna,Il Vuoto,ボイドゾーン,,,Próżnia,Zona Morta,,Zona Vidului,Вакуум,
-Roach Condo,ROACH CONDO,,,,Švabín,Kakerlakenbude,,,Piso de Cucarachas,,Torakka-asuntola,Hôtel à Cafards,Csótány Lakás,Condominio per Blatte,ゴキブリ・マンション,,,Dom Karaluchów,Apê Pulguento,,Complexul Gândacilor,Квартира с Тараканами,
+Roach Condo,ROACH CONDO,,,,Dům švábů,Kakerlakenbude,,,Piso de Cucarachas,,Torakka-asuntola,Hôtel à Cafards,Csótány Lakás,Condominio per Blatte,ゴキブリ・マンション,,,Dom Karaluchów,Apê Pulguento,,Complexul Gândacilor,Квартира с Тараканами,
 Antiprofit,ANTIPROFIT,,,,Protivýdělek,Antiprofit,,,Antibeneficio,,Antituotto,Anti-Profit,,Antiprofitto,反営利,,,Anty-zysk,Antilucro,,,Невыгодное Положение,
 ,,,,,,,,,,,,,,,,,,,,,,,
 Spaceport,SPACEPORT,,,,Kosmodrom,Raumhafen,,,Cosmódromo,,Avaruustelakka,Spatioport,Űrállomás,Porto Spaziale,スペースポート,,,Port Kosmiczny,Espaçoporto,,Portul Spațial,Космопорт,
@@ -493,13 +493,13 @@ Occupied Territory,OCCUPIED TERRITORY,,,,Okupované území,Besatzungsgebiet,,,T
 Tiberius Station,TIBERIUS STATION,,,,Stanice Tiberius,Tiberius-Station,,,Estación de Tiberio,,Tiberius-asema,Station Tiberius,Tibérius Állomás,Stazione Tiberius,チベリウス・ステーション,,,Stacja Tyberius,Estação Tiberius,,Stația Tiberius,Станция Тиберия,
 Lunar Reactor,LUNAR REACTOR,,,,Měsíční reaktor,Mondreaktor,,,Reactor Lunar,,Kuureaktori,Réacteur Lunaire,Lunáris Reaktor,Reattore Lunare,ルナ・リアクター,,,Księżycowy Reaktor,Reator Lunar,,Reactorul Selenar,Лунный Реактор,
 Dark Side,DARK SIDE,,,,Odvrácená strana,Die Dunkle Seite,,,Lado Oscuro,,Pimeä puoli,Face Cachée,Sötét Oldal,Lato Oscuro,ダークサイド,,,Ciemna Strona,Lado Escuro,,Zona Întunecată,Темная Сторона,
-Overlord,OVERLORD,,,,Vládce,Überfürst,,,Cacique,,Yliherra,Seigneur Suprême,Feljebbvaló,Leader,オーバーロード,,,Pan i Władca,Soberano,,Supralordul,Владыка,
+Overlord,OVERLORD,,,,Vládce,Überfürst,,,Cacique,,Yliherra,Seigneur Suprême,Feljebbvaló,Leader,オーバーロード,,,Suweren,Soberano,,Supralordul,Владыка,
 Spin Cycle,SPIN CYCLE,,,,Otáčka,Schleudergang,,,Ciclo de Centrifugado,,Kiertojakso,Cycle Giratoire,Centrifugális Erő,Ciclo Rotante,スピンサイクル,,,Cykl Obrotu,Ciclo de Centrifugação,,Ciclu de Rotație,Цикл Вращения,
 Lunatic Fringe,LUNATIC FRINGE,,,,Pokraj šílenství,Am Rande Des Wahnsinns,,,Fleco Lunático,,Kuuhulluuden partaalla,Mal Luné,Szélsőségek,Frangia Estremista,ルナティック・フリンジ,,,Księżycowe Szaleństwo,Fronteira Lunática,,Marginea Lunii,Лунная Грань,
 ,,,,,,,,,,,,,,,,,,,,,,,
 Raw Meat,RAW MEAT,,,,Syrové maso,Rohes Fleisch,,,Carne Cruda,,Raakaa lihaa,Viande Crue,Színhús,Carne Cruda,生肉,,,Samo Mięcho,Carne Crua,,Carne Crudă,Сырое Мясо,
-Bank Roll,BANK ROLL,,,,Jmění,Geldbündel,,,Fajo de Billetes,,Tukku rahaa,Cagnotte,KP Kivét,Conto in Banca,バンク・ロール,,,Wielka Kasa,Grana Alta,,Banca,Банк,
-Flood Zone,FLOOD ZONE,,,,Zaplavená oblast,Überflutungsgebiet,,,Zona de Inundación,,Tulva-alue,Zone Inondable,Árvíz Övezet,Alluvione,洪水ゾーン,,,Zalana Strefa,Zona de Inundação,,Zona Inundată,Затопленная Местность,
+Bank Roll,BANK ROLL,,,,Jmění,Geldbündel,,,Fajo de Billetes,,Tukku rahaa,Cagnotte,KP Kivét,Conto in Banca,バンク・ロール,,,Skok na Kasę,Grana Alta,,Banca,Банк,
+Flood Zone,FLOOD ZONE,,,,Zaplavená oblast,Überflutungsgebiet,,,Zona de Inundación,,Tulva-alue,Zone Inondable,Árvíz Övezet,Alluvione,洪水ゾーン,,,Powódź,Zona de Inundação,,Zona Inundată,Затопленная Местность,
 L.A. Rumble,L.A. RUMBLE,,,,Rvačka v L.A.,Zoff In L.A.,,,Pelea en L.A.,,Losin ryminä,Séisme à L.A.,L.A. Morajlás,Rissa a L.A.,ロサンゼルス・ランブル,,,Rzeź w L.A.,Revolta em L.A.,,Vuiet în L.A.,Переполох В Лос-Анджелесе,
 Movie Set,MOVIE SET,,,,Filmové studio,Filmset,,,Escenario de Película,,Kuvauspaikalla,Plateau De Cinéma,Film Díszlet,Set Cinematografico,映画のセット,,,Plan Filmowy,Estúdio de Cinema,,Platoul de Filmare,Съемочная Площадка,
 Rabid Transit,RABID TRANSIT,,,,Vzteklá jízda,Wilder Ritt,,,Transporte Rabioso,,Joukkohulluliikenne,Transit Enragé,Megvadult Átszállás,Transito Furioso,過激なトランジット,,,Szybka Jazda,Condução Precária,,Transport cu Rabie,Безумная Поездочка,
@@ -509,9 +509,9 @@ Stadium,STADIUM,,,,Stadion,Stadion,,,Estadio,,Stadion,Stade,Stadion,Stadio,ス�
 Tier Drops,TIER DROPS,,,,Pád z patra,Etagenflennen,,,Tuberías,,Tasonpudotukset,Butins annexes,Könnycseppek,Livelli al Contrario,ティアドロップ,,,Poziom Niżej,Lágrimas,,Scădere de Nivel,Дело Труба,
 Freeway,FREEWAY,,,,Dálnice,Autobahn,,,Pasadizo,,Moottoritie,Autoroute,Autópálya,Via Libera,フリーウェイ,,,Ekspresówka,Avenida,,Autostrada,Автострада,
 ,,,,,,,,,,,,,,,,,,,,,,,
-It's Impossible,IT'S IMPOSSIBLE,,,,Je to nemožné,Es ist unmöglich,,,Es Imposible,,Mahdotonta,Impossible,Lehetetlen,Impossibile,不可能だ,,,Niemożliwe!,Impossível,,E Imposibil,Невыполнимая Миссия,
+It's Impossible,IT'S IMPOSSIBLE,,,,Je to nemožné,Es ist unmöglich,,,Es Imposible,,Mahdotonta,Impossible,Lehetetlen,Impossibile,不可能だ,,,To Niemożliwe,Impossível,,E Imposibil,Невыполнимая Миссия,
 Duke-Burger,DUKE-BURGER,,,,,Duke-Burger,,,Burger Duke,,,,,,DUKEバーガー,,,,Duke-Burguer,,,Duke-Бургер,
-Shop-N-Bag,SHOP-N-BAG,,,,Supermarket,Einkaufen Und Eintüten,,,Bolsa de La Compra,,Osta ja kosta,,Vedd-és-Vidd,Compra e Vai,ショップNバッグ,,,Zakupy,Pague E Leve,,Supermarket,Супермаркет,
+Shop-N-Bag,SHOP-N-BAG,,,,Supermarket,Einkaufen Und Eintüten,,,Bolsa de La Compra,,Osta ja kosta,,Vedd-és-Vidd,Compra e Vai,ショップNバッグ,,,Czas na Zakupy,Pague E Leve,,Supermarket,Супермаркет,
 Babe Land,BABE LAND,,,,Buchtokraj,,,,Nenaslandia,,Beibimaa,,Maca Mező,Terra Delle Pupe,ベイブ・ランド,,,Kraina Lasek,Gatalândia,,Tărâmul Gagicilor,Парк Развлечений,
 Pigsty,PIGSTY,,,,Prasečín,Saustall,,,Porqueriza,,Sikolätti,Porcherie,Disznóól,Porcile,豚小屋,,,Chlewnia,Tiras,,Cocina de Porci,Свинарник,
 Going Postal,GOING POSTAL,,,,Jde se vraždit,Völlig durchgedreht,,,Oficina de Correos,,Tikittävä kirjeaikapommi,Complètement Timbré,Megtébolyulás,Via Posta,無差別殺人,,,Piekło Pocztowe,Pelo Correio,,Scrisoare pentru Tine,Вам Письмо,
@@ -526,7 +526,7 @@ Red Ruckus,#E5L2,,,,Rudý rozruch,Roter Krawall,,,Jaleo Rojo,,Punainen hälinä,
 Bloody Hell,#E5L3,,,,K čertu,Zur Hölle,,,Infierno Sangriento,,Hurmehorna,Bon Sang,Angol Őrület,Inferno di Sangue,なんてこった,,,Kurczę Blaszka,Inferno Sangrento,,Lumea Interlopă,В Сердце Преисподней,
 Mirage Barrage,#E5L4,,,,Fata záplava,Trügerischer Prügelhagel,,,Descarga Milagrosa,,Kangastuskangistus,Barrage Mirage,Megtévesztő Zárótűz,Sbarramento Miraggio,ミラージュ・バラージ,,,Fatamorgana,Barragem de Miragem,,Barajul Miraj,Опасный Мираж,
 Tour De Nukem,#E5L5,,,,,Tour De Nukem,,,Tour de Nukem,,,,,Tour de Nukem,ツール・ド・NUKEM,,,,Tour de Nukem,,Tur de Nukem,Nukem-Турне,
-Golden Carnage,#E5L6,,,,Zlaté ničení,Goldene Verwüstung,,,Matanza en el Puente,,Kultainen verilöyly,Carnage En Or,Vágóhíd a Hídon,Carneficina d'oro,黄金の大虐殺,,,Rzeź na Moście,Massacre Dourado,,Masacrul de Aur,Золотая Бойня,
+Golden Carnage,#E5L6,,,,Zlatý amok,Goldene Verwüstung,,,Matanza en el Puente,,Kultainen verilöyly,Carnage En Or,Vágóhíd a Hídon,Carneficina d'oro,黄金の大虐殺,,,Rzeź na Moście,Massacre Dourado,,Masacrul de Aur,Золотая Бойня,
 Hollywood Inferno,#E5L7,,,,Hollywoodské inferno,Hollywood-Inferno,,,Infierno Hollywoodiense,,Hollywood-inferno,Enfer à Hollywood,Hollywood Infernó,Inferno a Hollywood,ハリウッド・インフェルノ,,,Piekło w Hollywood,Inferno em Hollywood,,Infern la Hollywood,Голливудские Ужасы,
 Prima Arena,#E5L8,,,,Velká aréna,Superarena,,,Primera Arena,,Priima-areena,,,,プリマ・アリーナ,,,Koloseum,,,Arena Prima,Прима Арена,
 ,,Duke Caribbean,,,,,,,,,,,,,,,,,,,,,
@@ -560,7 +560,7 @@ Capitol Punishment,CAPITOL PUNISHMENT,,,,Trest v Kapitolu,Kapitole Bestrafung,,,
 Metro Mayhem,METRO MAYHEM,,,,Poprask v podzemce,U-Bahn Chaos,,,Alboroto en el Metro,,Metrometakka,Massacre au Métro,Földalatti Felfordulás,,,,,Zamęt w Metrze,Briga no Metrô,,Agitație la Metrou,,
 Brown Water,BROWN WATER,,,,Hnědá voda,Braunes Wasser,,,Agua Marrón,,Ruskeaa vettä,Eau Brune,Barna Víz,,,,,Brązowa Woda,Água Imunda,,Papură,,
 Dread October,DREAD OCTOBER,,,,Říjnový běs,Ekliger Oktober,,,Octubre Espantoso,,Kauhistuksen kanapurkki,Octobre Rouge,Vadászat a Nyugtalan Októberre,,,,,Czerwony Październik,Outubro Terrível,,Înfiorătorul Octombrie,,
-Nuke Proof,NUKE PROOF,,,,Stupeň atomu,Atombombensicher,,,A Prueba de Bombas,,Atomipomminvarma,Anti-Nucléaire,Bombabiztos,,,,,Kuloodporny,Prova Atômica,,Rezistent la Bombe Atomice,,
+Nuke Proof,NUKE PROOF,,,,Stupeň atomu,Atombombensicher,,,A Prueba de Bombas,,Atomipomminvarma,Anti-Nucléaire,Bombabiztos,,,,,Bunkier Atomowy,Prova Atômica,,Rezistent la Bombe Atomice,,
 Top Secret,TOP SECRET,,,,Přísně tajné,Staatsgeheimnis,,,Alto Secreto,,Huippusalainen,,Szigorúan Bizalmas,,,,,Ściśle Tajne,Ultrassecreto,,,,
 ,,Nuclear Winter,,,,,,,,,,,,,,,,,,,,,
 Nuclear Winter,NUCLEAR WINTER,,,,Jaderná zima,Nuklearer Winter,,Nuklea Vintro,Invierno Nuclear,,Ydintalvi,Hiver Nucléaire,Nukleáris Tél,,,,,Atomowa Zima,Inverno Nuclear,,Iarna Nucleară,,
@@ -668,13 +668,13 @@ Rotten Food,ROTTEN FOOD,,,,Shnilé jídlo,Gammliges Essen,,,Comida podrida,,Pila
 Sniper Rifle!,SNIPER RIFLE!,,,,Odstřelovací puška!,Scharfschützengewehr,,,¡Rifle de francotirador!,,Tarkkuuskivääri!,Fusil de sniper!,Mesterlövész Puska!,,,,,Snajperka!,Fuzil de Precisão!,,Pușcă cu Lunetă!,,
 60mm Mortar,60MM MORTAR,,,,60mm minomet,60mm Mörser,,,Mortero de 60mm,,60 mm kranaatinheitin,Mortier 60mm,60mm-es Mortár,,,,,Moździerz,Morteiro 60mm,,Mortier de 60mm,,
 Ammo For 60mm Mortar!,AMMO FOR 60MM MORTAR!,,,,Munice pro 60mm minomet!,Munition für 60mm Mörser,,,¡Munición para Mortero de 60mm!,,60 mm kranaatinheittimen ammuksia!,Munitions de mortier 60mm!,Muníció 60mm-es Mortárhoz,,,,,Amunicja do Moździerza!,Munição para Morteiro 60mm!,,Muniție pentru Mortier,,
-Shortest  [ 1]  2   3   4   5   6   7   Longest,SHORTEST  [ 1]  2   3   4   5   6   7   LONGEST,,,,,,, ,Más Corto  [ 1]  2   3   4   5   6   7   Más Largo,,Lyhyin  [ 1]  2   3   4   5   6   7   Pisin, +COURT [1] 2 3 4 5 6 7 +LONG,Legrövidebb  [ 1]  2   3   4   5   6   7   Leghosszabb,,,,,Krótki  [ 1]  2   3   4   5   6   7   Długi,Mais curto  [ 1]  2   3   4   5   6   7   Mais Longo,,Cel mai Scurt  [ 1]  2   3   4   5   6   7   Cel mai Lung,,
-Shortest    1 [ 2]  3   4   5   6   7   Longest,SHORTEST    1 [ 2]  3   4   5   6   7   LONGEST,,,,,,,,Más Corto    1 [ 2]  3   4   5   6   7   Más Largo,,Lyhyin   1 [ 2]   3   4   5   6   7   Pisin, +COURT 1 [2] 3 4 5 6 7 +LONG,Legrövidebb   1 [ 2]   3   4   5   6   7   Leghosszabb,,,,,Krótki    1 [ 2]  3   4   5   6   7   Długi,Mais curto    1 [ 2]  3   4   5   6   7   Mais Longo,,Cel mai Scurt    1 [ 2]  3   4   5   6   7   Cel mai Lung,,
-Shortest    1   2 [ 3]  4   5   6   7   Longest,SHORTEST    1   2 [ 3]  4   5   6   7   LONGEST,,,,,,,,Más Corto    1   2 [ 3]  4   5   6   7   Más Largo,,Lyhyin   1  2  [ 3]   4   5   6   7   Pisin, +COURT 1 2 [3] 4 5 6 7 +LONG,Legrövidebb   1  2  [ 3]   4   5   6   7   Leghosszabb,,,,,Krótki    1   2 [ 3]  4   5   6   7   Długi,Mais curto    1   2 [ 3]  4   5   6   7   Mais Longo,,Cel mai Scurt    1   2 [ 3]  4   5   6   7   Cel mai Lung,,
-Shortest    1   2   3 [ 4]  5   6   7   Longest,SHORTEST    1   2   3 [ 4]  5   6   7   LONGEST,,,,,,,,Más Corto    1   2   3 [ 4]  5   6   7   Más Largo,,Lyhyin   1  2   3  [ 4]   5   6   7   Pisin, +COURT 1 2 3 [4] 5 6 7 +LONG,Legrövidebb   1  2   3  [ 4]   5   6   7   Leghosszabb,,,,,Krótki    1   2   3 [ 4]  5   6   7   Długi,Mais curto    1   2   3 [ 4]  5   6   7   Mais Longo,,Cel mai Scurt    1   2   3 [ 4]  5   6   7   Cel mai Lung,,
-Shortest    1   2   3   4 [ 5]  6   7   Longest,SHORTEST    1   2   3   4 [ 5]  6   7   LONGEST,,,,,,,,Más Corto    1   2   3   4 [ 5]  6   7   Más Largo,,Lyhyin   1  2   3   4  [ 5]   6   7   Pisin, +COURT 1 2 3 4 [5] 6 7 +LONG,Legrövidebb   1  2   3   4  [ 5]   6   7   Leghosszabb,,,,,Krótki    1   2   3   4 [ 5]  6   7   Długi,Mais curto    1   2   3   4 [ 5]  6   7   Mais Longo,,Cel mai Scurt    1   2   3   4 [ 5]  6   7   Cel mai Lung,,
-Shortest    1   2   3   4   5 [ 6]  7   Longest,SHORTEST    1   2   3   4   5 [ 6]  7   LONGEST,,,,,,,,Más Corto    1   2   3   4   5 [ 6]  7   Más Largo,,Lyhyin   1  2   3   4   5  [ 6]   7   Pisin, +COURT 1 2 3 4 5 [6] 7 +LONG,Legrövidebb   1  2   3   4   5  [ 6]   7   Leghosszabb,,,,,Krótki    1   2   3   4   5 [ 6]  7   Długi,Mais curto    1   2   3   4   5 [ 6]  7   Mais Longo,,Cel mai Scurt    1   2   3   4   5 [ 6]  7   Cel mai Lung,,
-Shortest    1   2   3   4   5   6 [ 7]  Longest,SHORTEST    1   2   3   4   5   6 [ 7]  LONGEST,,,,,,,,Más Corto    1   2   3   4   5   6 [ 7]  Más Largo,,Lyhyin   1  2   3   4   5   6  [ 7]   Pisin, +COURT 1 2 3 4 5 6 [7] +LONG,Legrövidebb   1  2   3   4   5   6  [ 7]   Leghosszabb,,,,,Krótki    1   2   3   4   5   6 [ 7]  Długi,Mais curto    1   2   3   4   5   6 [ 7]  Mais Longo,,Cel mai Scurt    1   2   3   4   5   6 [ 7]  Cel mai Lung,,
+Shortest  [ 1]  2   3   4   5   6   7   Longest,SHORTEST  [ 1]  2   3   4   5   6   7   LONGEST,,,,Nejkratší [1] 2 3 4 5 6 7 Nejdelší,,, ,Más Corto  [ 1]  2   3   4   5   6   7   Más Largo,,Lyhyin  [ 1]  2   3   4   5   6   7   Pisin, +COURT [1] 2 3 4 5 6 7 +LONG,Legrövidebb  [ 1]  2   3   4   5   6   7   Leghosszabb,,,,,Krótki  [ 1]  2   3   4   5   6   7   Długi,Mais curto  [ 1]  2   3   4   5   6   7   Mais Longo,,Cel mai Scurt  [ 1]  2   3   4   5   6   7   Cel mai Lung,,
+Shortest    1 [ 2]  3   4   5   6   7   Longest,SHORTEST    1 [ 2]  3   4   5   6   7   LONGEST,,,,Nejkratší 1 [2] 3 4 5 6 7 Nejdelší,,,,Más Corto    1 [ 2]  3   4   5   6   7   Más Largo,,Lyhyin   1 [ 2]   3   4   5   6   7   Pisin, +COURT 1 [2] 3 4 5 6 7 +LONG,Legrövidebb   1 [ 2]   3   4   5   6   7   Leghosszabb,,,,,Krótki    1 [ 2]  3   4   5   6   7   Długi,Mais curto    1 [ 2]  3   4   5   6   7   Mais Longo,,Cel mai Scurt    1 [ 2]  3   4   5   6   7   Cel mai Lung,,
+Shortest    1   2 [ 3]  4   5   6   7   Longest,SHORTEST    1   2 [ 3]  4   5   6   7   LONGEST,,,,Nejkratší 1 2 [3] 4 5 6 7 Nejdelší,,,,Más Corto    1   2 [ 3]  4   5   6   7   Más Largo,,Lyhyin   1  2  [ 3]   4   5   6   7   Pisin, +COURT 1 2 [3] 4 5 6 7 +LONG,Legrövidebb   1  2  [ 3]   4   5   6   7   Leghosszabb,,,,,Krótki    1   2 [ 3]  4   5   6   7   Długi,Mais curto    1   2 [ 3]  4   5   6   7   Mais Longo,,Cel mai Scurt    1   2 [ 3]  4   5   6   7   Cel mai Lung,,
+Shortest    1   2   3 [ 4]  5   6   7   Longest,SHORTEST    1   2   3 [ 4]  5   6   7   LONGEST,,,,Nejkratší 1 2 3 [4] 5 6 7 Nejdelší,,,,Más Corto    1   2   3 [ 4]  5   6   7   Más Largo,,Lyhyin   1  2   3  [ 4]   5   6   7   Pisin, +COURT 1 2 3 [4] 5 6 7 +LONG,Legrövidebb   1  2   3  [ 4]   5   6   7   Leghosszabb,,,,,Krótki    1   2   3 [ 4]  5   6   7   Długi,Mais curto    1   2   3 [ 4]  5   6   7   Mais Longo,,Cel mai Scurt    1   2   3 [ 4]  5   6   7   Cel mai Lung,,
+Shortest    1   2   3   4 [ 5]  6   7   Longest,SHORTEST    1   2   3   4 [ 5]  6   7   LONGEST,,,,Nejkratší 1 2 3 4 [5] 6 7 Nejdelší,,,,Más Corto    1   2   3   4 [ 5]  6   7   Más Largo,,Lyhyin   1  2   3   4  [ 5]   6   7   Pisin, +COURT 1 2 3 4 [5] 6 7 +LONG,Legrövidebb   1  2   3   4  [ 5]   6   7   Leghosszabb,,,,,Krótki    1   2   3   4 [ 5]  6   7   Długi,Mais curto    1   2   3   4 [ 5]  6   7   Mais Longo,,Cel mai Scurt    1   2   3   4 [ 5]  6   7   Cel mai Lung,,
+Shortest    1   2   3   4   5 [ 6]  7   Longest,SHORTEST    1   2   3   4   5 [ 6]  7   LONGEST,,,,Nejkratší 1 2 3 4 5 [6] 7 Nejdelší,,,,Más Corto    1   2   3   4   5 [ 6]  7   Más Largo,,Lyhyin   1  2   3   4   5  [ 6]   7   Pisin, +COURT 1 2 3 4 5 [6] 7 +LONG,Legrövidebb   1  2   3   4   5  [ 6]   7   Leghosszabb,,,,,Krótki    1   2   3   4   5 [ 6]  7   Długi,Mais curto    1   2   3   4   5 [ 6]  7   Mais Longo,,Cel mai Scurt    1   2   3   4   5 [ 6]  7   Cel mai Lung,,
+Shortest    1   2   3   4   5   6 [ 7]  Longest,SHORTEST    1   2   3   4   5   6 [ 7]  LONGEST,,,,Nejkratší 1 2 3 4 5 6 [7] Nejdelší,,,,Más Corto    1   2   3   4   5   6 [ 7]  Más Largo,,Lyhyin   1  2   3   4   5   6  [ 7]   Pisin, +COURT 1 2 3 4 5 6 [7] +LONG,Legrövidebb   1  2   3   4   5   6  [ 7]   Leghosszabb,,,,,Krótki    1   2   3   4   5   6 [ 7]  Długi,Mais curto    1   2   3   4   5   6 [ 7]  Mais Longo,,Cel mai Scurt    1   2   3   4   5   6 [ 7]  Cel mai Lung,,
 Rifleman,RIFLEMAN,,,,Střelec,Schütze,,,Fusilero,,Kiväärimies,Fusilier,Lövész,,,,,Strzelec,Fuzileiro,,Pușcas,,
 ,,,,,,,,,,,,,,,,,,,,,,,
 Tour Of Duty I,TOUR OF DUTY I,,,,Mise I,Einsatz I,,,Hora Del Deber I,,Komennus I,,Szolgálati Idő I,,,,,Służba I,Operação Militar I,,Operațiuni Militare I,,
@@ -778,13 +778,13 @@ Explosives,EXPLOSIVES,,,,Výbušniny,Sprengstoff,,,,,Räjähteitä,Explosifs,Rob
 Explosives Placed,EXPLOSIVES PLACED,,,,Výbušniny umístěny,Sprengstoff platziert,,,,,Räjähteet asetettu,Explosifs places,Robbanóanyag Elhelyezve,,,,,Podłożono Materiały Wybuchowe,Explosivos Colocados,,Explozibili Plasați,,
 Can't Pick Up Artillery Ammo,CAN'T PICK UP ARTILLERY AMMO,,,,Nelze sebrat munici pro artilérii,Kann Artilleriemunition nicht nehmen,,,,,Ei voi poimia tykinammuksia,Ne peut pas prendre munitions d'artillerie,Tüzérségi Muníció nem Felvehető,,,,,Nie Można Podnieść Amunicji Artyleryjskiej,Impossível Pegar Munição de Artilharia,,Nu Poți Ridica Muniția pentru Artilerie,,
 Defend This Position Until Further Orders,DEFEND THIS POSITION UNTIL FURTHER ORDERS,,,,Braň tuto pozici a čekej na další rozkazy,Verteidige diese Position bis du neue Befehle erhältst,,,,,"Puolusta tätä asemaa, kunnes toisin määrätään",Défendez la position jusqu'a nouvel ordre,Védd a Pontot a Következő Parancsig,,,,,Broń Tego Punktu aż Dostaniesz Nowe Rozkazy,Defenda Esta Posição Até Novas Ordens,,Apără Poziția Pănâ la Ordine Viitoare,,
-Shortest }{{{{{{ Longest,SHORTEST }{{{{{{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }{{{{{{ Leghosszabb,,,,,Krótki }{{{{{{ Długi,Mais Curto }{{{{{{ Mais Longo,,Cel mai Scurt }{{{{{{ Cel Mai Lung,,
-Shortest }}{{{{{ Longest,SHORTEST }}{{{{{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}{{{{{ Leghosszabb,,,,,Krótki }}{{{{{ Długi,Mais Curto }}{{{{{ Mais Longo,,Cel mai Scurt }}{{{{{ Cel mai Lung,,
-Shortest }}}{{{{ Longest,SHORTEST }}}{{{{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}{{{{ Leghosszabb,,,,,Krótki }}}{{{{ Długi,Mais Curto }}}{{{{ Mais Longo,,Cel mai Scurt }}}{{{{ Cel mai Lung,,
-Shortest }}}}{{{ Longest,SHORTEST }}}}{{{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}{{{ Leghosszabb,,,,,Krótki }}}}{{{ Długi,Mais Curto }}}}{{{ Mais Longo,,Cel mai Scurt }}}}{{{ Cel mai Lung,,
-Shortest }}}}}{{ Longest,SHORTEST }}}}}{{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}{{ Leghosszabb,,,,,Krótki }}}}}{{ Długi,Mais Curto }}}}}{{ Mais Longo,,Cel mai Scurt }}}}}{{ Cel mai Lung,,
-Shortest }}}}}}{ Longest,SHORTEST }}}}}}{ LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}}{ Leghosszabb,,,,,Krótki }}}}}}{ Długi,Mais Curto }}}}}}{ Mais Longo,,Cel mai Scurt }}}}}}{ Cel mai Lung,,
-Shortest }}}}}}} Longest,SHORTEST }}}}}}} LONGEST,,,,,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}}} Leghosszabb,,,,,Krótki }}}}}}} Długi,Mais Curto }}}}}}} Mais Longo,,Cel mai Scurt }}}}}}} Cel mai Lung,,
+Shortest }{{{{{{ Longest,SHORTEST }{{{{{{ LONGEST,,,,Nejkratší }{{{{{{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }{{{{{{ Leghosszabb,,,,,Krótki }{{{{{{ Długi,Mais Curto }{{{{{{ Mais Longo,,Cel mai Scurt }{{{{{{ Cel Mai Lung,,
+Shortest }}{{{{{ Longest,SHORTEST }}{{{{{ LONGEST,,,,Nejkratší }}{{{{{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}{{{{{ Leghosszabb,,,,,Krótki }}{{{{{ Długi,Mais Curto }}{{{{{ Mais Longo,,Cel mai Scurt }}{{{{{ Cel mai Lung,,
+Shortest }}}{{{{ Longest,SHORTEST }}}{{{{ LONGEST,,,,Nejkratší }}}{{{{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}{{{{ Leghosszabb,,,,,Krótki }}}{{{{ Długi,Mais Curto }}}{{{{ Mais Longo,,Cel mai Scurt }}}{{{{ Cel mai Lung,,
+Shortest }}}}{{{ Longest,SHORTEST }}}}{{{ LONGEST,,,,Nejkratší }}}}{{{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}{{{ Leghosszabb,,,,,Krótki }}}}{{{ Długi,Mais Curto }}}}{{{ Mais Longo,,Cel mai Scurt }}}}{{{ Cel mai Lung,,
+Shortest }}}}}{{ Longest,SHORTEST }}}}}{{ LONGEST,,,,Nejkratší }}}}}{{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}{{ Leghosszabb,,,,,Krótki }}}}}{{ Długi,Mais Curto }}}}}{{ Mais Longo,,Cel mai Scurt }}}}}{{ Cel mai Lung,,
+Shortest }}}}}}{ Longest,SHORTEST }}}}}}{ LONGEST,,,,Nejkratší }}}}}}{ Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}}{ Leghosszabb,,,,,Krótki }}}}}}{ Długi,Mais Curto }}}}}}{ Mais Longo,,Cel mai Scurt }}}}}}{ Cel mai Lung,,
+Shortest }}}}}}} Longest,SHORTEST }}}}}}} LONGEST,,,,Nejkratší }}}}}}} Nejdelší,,,,,,Lyhyin }{{{{{{ Pisin,,Legrövidebb }}}}}}} Leghosszabb,,,,,Krótki }}}}}}} Długi,Mais Curto }}}}}}} Mais Longo,,Cel mai Scurt }}}}}}} Cel mai Lung,,
 Engineer,ENGINEER,,,,Technik,Maschinist,,,,,Pioneeri,Ingenieur,Gépész,,,,,Inżynier,Engenheiro,,Inginer,,
 Can't Proceed Without Private Mccurkee!,CAN'T PROCEED WITHOUT PRIVATE McCURKEE!,,,,Bez vojína McCurkeeho dál nemůžeš!,Du kannst ohne McCurkee nicht weiter.,,,,,Ei voi edetä ilman sotamies McCurkeeta!,Vous ne pouvez pas continuer sans McGurkee,Nem Mehetsz Tovább McCurkee közlegény Nélkül!,,,,,Nie Można Iść Dalej Bez Szeregowego McCurkee!,Não Pode Prosseguir Sem o Soldado Mccurkee!,,Nu pot Continua Fără Soldatul McCurkee!,,
 Using A Special Skill...,USING A SPECIAL SKILL...,,,,Použití speciální schopnosti...,Benutze spezielle Fähigkeit,,,,,Käytetään erikoistaitoa...,Utilisation d'une capacite speciale,Speciális Képesség Használata...,,,,,Użyto Specjalnej Umiejętności...,Usando Uma Habilidade Especial...,,Folosesc O Abilitate Specială...,,
@@ -810,9 +810,9 @@ GI,GI,,,,Vojcl,,,,,,Sotilas,,Gyalogos,,,,,Człowiek z Żelaza,Soldado,,Soldat,,
 Paratrooper,PARATROOPER,,,,Paragán,Fallschirmjäger,,,,,Laskuvarjosotilas,Para,Ejtőernyős,,,,,Spadochroniarz,Paraquedista,,Caporal,,
 Veteran,VETERAN,,,,Veterán,,,,,,Sotilas,,Veterán,,,,,Weteran,Veterano,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Atlantic Wall,ATLANTIC WALL,,,,Atlantická zeď,Atlantischer Wall,,,,,Atlantin muuri,Mur atlantique,Atlanti Fal,,,,,Wał Atlantycki,Muralha do Atlântico,,Zidul Atlantic,,
+Atlantic Wall,ATLANTIC WALL,,,,Atlantický val,Atlantischer Wall,,,,,Atlantin muuri,Mur atlantique,Atlanti Fal,,,,,Wał Atlantycki,Muralha do Atlântico,,Zidul Atlantic,,
 Defend,DEFEND,,,,Obrana,Verteidigung,,,,,Puolusta,Defense,Védelem,,,,,Defensywa,Defesa,,Apărare,,
-Hunt For The 88's,HUNT FOR THE 88'S,,,,Lov na osmaosmdesátky,Suche nach den 88ern,,,,,88-tuumaisten jahti,Chasse au 88's,Vadászat a 88-asokra,,,,,Polowanie na 88-ki,Caçando os 88s,,Vânătoare de 88s,,
+Hunt For The 88's,HUNT FOR THE 88'S,,,,Hon na nácky,Suche nach den 88ern,,,,,88-tuumaisten jahti,Chasse au 88's,Vadászat a 88-asokra,,,,,Polowanie na 88-ki,Caçando os 88s,,Vânătoare de 88s,,
 Finding Private McCurkee,FINDING PRIVATE McCURKEE,,,,Najděte vojína McCurkeeho,Suche den Gefreiten McCurkee,,,,,Etsikää sotamies McCurkee,Il faut trouver le soldat McGurkee,McCurkee Közlegény Megkeresése,,,,,Szukanie Szeregowego McCurkee,Em Busca do Soldado McCurkee,,Localizarea Soldatului McCurkee,,
 Saving Private McCurkee,SAVING PRIVATE McCURKEE,,,,Zachraňte vojína McCurkeeho,Rette den Gefreiten McCurkee,,,,,Pelastakaa sotamies McCurkee,Il faut sauver le soldat McGurkee,McCurkee Közlegény Megmentése,,,,,Ratowanie Szeregowego McCurkee,O Resgate do Soldado McCurkee,,Salvarea Soldatlui McCurkee,,
 Mop Up,MOP UP,,,,Úklid,Aufwischen,,,,,Siivoaminen,Nettoyage,Feltakarítás,,,,,Sprzątanie,Operação de Limpeza,,Operațiuni de Curățenie,,
@@ -861,7 +861,7 @@ Turned Off...,TURNED OFF...,,,,Vypnuto...,Abgeschaltet,,,Apagao...,,,,,,,,,Wył�
 Switch Operated Only!,SWITCH OPERATED ONLY!,,,,Ovládáno pouze vypínačem!,Wird mit Schalter bedient!,,,¡Solo va con interruptor!,,,,,,,,,Sterowane Tylko Przez Przełącznik!,Tem Que Usar Interruptor!,,Acționat doar de la Comutator!,,
 Elvis Lives!,ELVIS LIVES!,,,,Elvis žije!,Elvis lebt!,,,¡Elvis vive!,,,,,,,,,Elvis Żyje!,Elvis Tá Vivo!,,Elvis Trăiește!,,
 The King Is Dead!,THE KING IS DEAD!,,,,Král je mrtev!,Der King ist tot!,,,¡El Rey ha muerto!,,,,,,,,,Umarł Król!,O Rei Tá Morto!,,Regele e Mort!,,
-Dee-Lishus Goo Goo Cluster!,DEE-LISHUS GOO GOO CLUSTER!,,,,Šmakulózní hromada slizu!,Leckerer Goo Goo Cluster,,,¡Delisioso montón de moco!,,,,,,,,,Przesłodki Stosik Śluzu!,Eita Docinho Baum!,,Ciorchine!,,
+Dee-Lishus Goo Goo Cluster!,DEE-LISHUS GOO GOO CLUSTER!,,,,Šmakulózní halda slizu!,Leckerer Goo Goo Cluster,,,¡Delisioso montón de moco!,,,,,,,,,Przesłodki Stosik Śluzu!,Eita Docinho Baum!,,Ciorchine!,,
 Wussy Aimin' Device: ON,WUSSY AIMIN' DEVICE: ON,,,,Mířidlo pro slabochy: ZAP,Zielgerät für Weicheier: AN,,,Cacharro de apuntao ACTIVAO,,,,,,,,,Celowanie dla Słabiaków: Włączone,Mira de Amarelão: LIGADA,,Țintire Automată: PORNITĂ,,
 Wussy Aimin' Device: OFF,WUSSY AIMIN' DEVICE: OFF,,,,Mířidlo pro slabochy: VYP,Zielgerät für Weicheier: AUS,,,Cacharro de apuntao DESACTIVAO,,,,,,,,,Celowanie dla Słabiaków: Wyłączone,Mira de Amarelão: DESLIGADA,,Țintire Automată: OPRITĂ,,
 "Hell, I Thought You Was A Killbilly!","HELL, I THOUGHT YOU WAS A KILLBILLY!",,,,"Sakra, já myslel, žes nějakej šílenec!",Und ich dachte du wärst ein Killbilly,,,"¡Coñó, pensaba que eras un matabilly!",,,,,,,,,"Kurde... a Myślałem, że z Ciebie Zabijaka!","Uai, Achava Que Cê Era um Caipira Matador!",,"La Naiba, Credeam Că Ești Meseriaș!",,
@@ -877,7 +877,7 @@ Skeleton Key!,SKELETON KEY!,,,,Kostlivcův klíč!,Schlüssel!,,,¡Llave esquele
 Teat Gun Ammo!,TEAT GUN AMMO !,,,,Munice do ceckopalu!,BH-Munition!,,,¡Munición para Arma de tetas!,,,,,,,,,Amunicja do CyckoStrzału!,Munição pra Arma de Teta !,,Muniție pentru Arma Sân!,,
 Ripsaw Ammo!,RIPSAW AMMO !,,,,Munice do bruskometu!,Spaltsägenblätter!,,,¡Munición para Rebanadora!,,,,,,,,,Ostrza do Piły!,Munição pra Serra Circular !,,Muniție pentru Drujba Circulară!,,
 Cheater! You Used The,CHEATER! YOU USED THE,,,,Podvodníku! Použil jsi,Du Schummler. Du hast dich,,,¡Tramposo! Usaste el,,,,,,,,,Oszust! Użyłeś,Trapaceiro! Você Usou,,Trișorule! Ai Folosit Coduri,,
-Cheat To Come Back Alive,CHEAT TO COME BACK ALIVE,,,,Cheat pro znovuoživení,zurück ins Leben gemogelt!,,,truco para resucitar,,,,,,,,,Kodu By Wrócić do Życia,a Trapaça pra Ressucitar,,Pentru a Reveni la Viață,,
+Cheat To Come Back Alive,CHEAT TO COME BACK ALIVE,,,,cheat pro znovuoživení!,zurück ins Leben gemogelt!,,,truco para resucitar,,,,,,,,,Kodu By Wrócić do Życia,a Trapaça pra Ressucitar,,Pentru a Reveni la Viață,,
 No Savin' Or Loadin' Fer Psyco,NO SAVIN' OR LOADIN' FER PSYCO,,,,Pro psychouše žádný ukládání ani načítání,Psychos laden und speichern nich'!,,,pos te quedas sin cargar ni guardar por flipao,,,,,,,,,Nie Możesz Zapisywać i Wczytywać Wariacie,Psicopata Não Carrega Nem Salva,,Nu Poți Salva sau Încărca,,
 Huntin' Rifle!,HUNTIN' RIFLE!,,,,Lovecká puška!,Jagdgewehr!,,,¡Rifle de caza!,,,,,,,,,Karabin do Polowania!,Rifle de Caça!,,Pușcă de Vânătoare!,,
 Dyn-O-Mite!,DYN-O-MITE!,,,,Dynamit!,Dynamit!,,,¡Dinomita!,,,,,,,,,Dynamit!,Dinamite!,,Dinamită!,,
@@ -900,8 +900,8 @@ Yet Even Another Kind Of Key Required,YET EVEN ANOTHER KIND OF KEY REQUIRED,,,,P
 Yer Weapon Lowered,YER WEAPON LOWERED,,,,Zbraň snížena,Waffe gesenkt,,,Arma bajá,,,,,,,,,Opuściłeś Broń,Arma Abaixada,,Arme Coborâte,,
 Yer Weapon Raised,YER WEAPON RAISED,,,,Zbraň zvednuta,Waffe gehoben,,,Arma levantá,,,,,,,,,Podniosłeś Broń,Arma Apontada,,Arme Ridicate,,
 Vaccum Cleaner Hose Snorkel On!,VACCUM CLEANER HOSE SNORKEL ON!,,,,Šnorchl z vysavače zap.,Schnorchel an,,,¡Esnorquel de aspiradora ACTIVAO!,,,,,,,,,Rurka do Odkurzacza Włączona!,Botando o Esnórquel de Aspirador de Pó ,,Mască de Scufundări Echipată!,,
-Haulin' Ass Mode Off...,HAULIN' ASS MODE OFF...,,,,,Bin doch kein D-Zug!,,,Modo arreando DESACTIVAO,,,,,,,,,Ogarnij się Człowieku...,Pode Andar Tranquilo...,,Mers Calm Oprit...,,
-Haulin' Ass Mode On!!!,HAULIN' ASS MODE ON!!!,,,,,Schwing die Hufe!,,,¡¡¡Modo arreando ACTIVAO!!!,,,,,,,,,Ale Zapierdalam!!!,Sebo nas Canela!!!,,Mers Calm Pornit...,,
+Haulin' Ass Mode Off...,HAULIN' ASS MODE OFF...,,,,Běhací režim Vyp...,Bin doch kein D-Zug!,,,Modo arreando DESACTIVAO,,,,,,,,,Ogarnij się Człowieku...,Pode Andar Tranquilo...,,Mers Calm Oprit...,,
+Haulin' Ass Mode On!!!,HAULIN' ASS MODE ON!!!,,,,Běhací režim Zap!!!,Schwing die Hufe!,,,¡¡¡Modo arreando ACTIVAO!!!,,,,,,,,,Ale Zapierdalam!!!,Sebo nas Canela!!!,,Mers Calm Pornit...,,
 Alien Arm Gun,ALIEN ARM GUN,,,,Mimozemská zbraň,Armgewehr,,,Arma de brazo alien,,,,,,,,,Kosmiczna Ręka,Arma Alienígena,,Braț Extraterestru,,
 Vacuum Cleaner Snorkle,VACUUM CLEANER SNORKLE,,,,Šnorchl z trubky z vysavače,Staubsaugerschnorchel,,,Esnorquel de aspiradora,,,,,,,,,Rurka do Odkurzacza,Esnórquel de Aspirador de Pó,,Mască de Scufundări,,
 Xxx Moonshine,XXX MOONSHINE,,,,XXX pálenka,XXX Schwarzgebrannter,,,Licor Xxx,,,,,,,,,Samogon,Pinga Caseira,,Whiskey Xxx Ilegal,,
@@ -949,68 +949,68 @@ Trainspotting,TRAINSPOTTING,,,,Hledání žíly,Züge suchen,,,,,,,,,,,,Pociąg 
 Mud Alley!,MUD ALLEY!,,,,Bahenice!,Kuhstall,,,,,,,,,,,,Błotna Aleja,Lamaçal!,,Aleea Noroioasă!,,
 The Factory,THE FACTORY,,,,Továrna,Fabrik,,,,,,,,,,,,Fabryka,A Fabrica,,Fabrica,,
 ,,Redneck Rides again,,,,,,,,,,,,,,,,,,,,,
-Got Some Wheels!,GOT SOME WHEELS!,,,,,Habe zwei Räder!,,,,,,,,,,,,Znajdź se parę kółek!,Bora na Motoca,,Am Prins niște Roți!,,
-Ohhhhhhh Noooooooooooo!,OHHHHHHH NOOOOOOOOOOOO!,,,,,Ohhhhhhh neiiiiinnnnnn!,,,,,,,,,,,,Oooooo Nieeeeeeeeeeee!,ARRE ÉÉÉÉGUAAAAAAAAAAA!,,Ohhhhhhh Nuuuuuuuuuuuu!,,
-Now Yer Fucked!!!,NOW YER FUCKED!!!,,,,,Jetzt bist du am Arsch!!!,,,¡¡¡La has cagao!!!,,,,,,,,,Jesteś w Dupie!!!,"Se Fudeu, Campeão!!!",,Ai Belit-o!,,
-Boat Mode Off,BOAT MODE OFF,,,,,Bootmodus aus,,,,,,,,,,,,Tryb Łódki Wyłączony,Modo Barco Desligado,,Modul Barcă Oprit,,
-No More Cheatin',NO MORE CHEATIN',,,,,Kein Mogeln mehr,,,,,,,,,,,,Koniec Oszukiwańska,Chega de Trapaça,,Nu Mai Trișez,,
-Instadrunk!,INSTADRUNK!,,,,,Voll betrunken!,,,,,,,,,,,,Pijak!,Instabêbado!,,Instabeat!,,
-Instasober,INSTASOBER,,,,,Voll nüchtern!,,,,,,,,,,,,Wytrzeźwiałeś!,Instasóbrio,,Instatreaz,,
-Sea Sick Mode On,SEA SICK MODE ON,,,,,Seekrank-Modus an,,,,,,,,,,,,Choroba Morska Włączona,Modo Enjôo Ligado,,Modul Rău de Mare Pornit,,
-Sea Sick Mode Off,SEA SICK MODE OFF,,,,,Seekrank-Modus aus,,,,,,,,,,,,Choroba Morska Wyłączona,Modo Enjôo Desligado,,Modul Rău de Mare Oprit,,
-Motorcycle Gun Ammo!,MOTORCYCLE GUN AMMO!,,,,,Motorradgewehrmunition!,,,,,,,,,,,,Amunicja do Karabinu na Motocyklu!,Munição pra Arma da Moto!,,Muniție pentru Arma Motocicletei!,,
-Got A Boat!,GOT A BOAT!,,,,,Habe ein Boot!,,,,,,,,,,,,Dorwałeś się do Łódki!,Achou um Barco!,,Am o Barcă!,,
-Boat Mode On,BOAT MODE ON,,,,,Bootmodus an,,,,,,,,,,,,Tryb Łódki Wyłączony,Modo Barco Ligado,,Modul Barcă Pornit,,
-Boat Gun Mortars!,BOAT GUN MORTARS!,,,,,Bootwaffenmörser!,,,,,,,,,,,,Moździerze do Łódki!,Morteiro pra Arma do Barco!,,Mortierele Bărcii!,,
-Chicken Mode!!!!!!!!,CHICKEN MODE!!!!!!!!,,,,,Hühnermodus!!!,,,,,,,,,,,,Tryb Kuraka!!!!!!!,Modo Galinha!!!!!!,,Modul Găină!!!!!!,,
-Chicken Crossbow Ammo!!,CHICKEN CROSSBOW AMMO!!,,,,,Hühner-Armbrustmunition!,,,,,,,,,,,,Amunicja do Kurzej Kuszy!!,Munição pra Besta de Galinha!!,,Muniție pentru Arbaleta Găină!!,,
+Got Some Wheels!,GOT SOME WHEELS!,,,,Skočils za volant!,Habe zwei Räder!,,,,,,,,,,,,Znajdź se parę kółek!,Bora na Motoca,,Am Prins niște Roți!,,
+Ohhhhhhh Noooooooooooo!,OHHHHHHH NOOOOOOOOOOOO!,,,,Ale néééééé!,Ohhhhhhh neiiiiinnnnnn!,,,,,,,,,,,,Oooooo Nieeeeeeeeeeee!,ARRE ÉÉÉÉGUAAAAAAAAAAA!,,Ohhhhhhh Nuuuuuuuuuuuu!,,
+Now Yer Fucked!!!,NOW YER FUCKED!!!,,,,A jsi v prdeli!,Jetzt bist du am Arsch!!!,,,¡¡¡La has cagao!!!,,,,,,,,,Jesteś w Dupie!!!,"Se Fudeu, Campeão!!!",,Ai Belit-o!,,
+Boat Mode Off,BOAT MODE OFF,,,,Režim lodi Vyp.,Bootmodus aus,,,,,,,,,,,,Tryb Łódki Wyłączony,Modo Barco Desligado,,Modul Barcă Oprit,,
+No More Cheatin',NO MORE CHEATIN',,,,Už žádný podvádění,Kein Mogeln mehr,,,,,,,,,,,,Koniec Oszukiwańska,Chega de Trapaça,,Nu Mai Trișez,,
+Instadrunk!,INSTADRUNK!,,,,Instakalba!,Voll betrunken!,,,,,,,,,,,,Pijak!,Instabêbado!,,Instabeat!,,
+Instasober,INSTASOBER,,,,Instastřízlivost,Voll nüchtern!,,,,,,,,,,,,Wytrzeźwiałeś!,Instasóbrio,,Instatreaz,,
+Sea Sick Mode On,SEA SICK MODE ON,,,,Mořská nemoc Zap.,Seekrank-Modus an,,,,,,,,,,,,Choroba Morska Włączona,Modo Enjôo Ligado,,Modul Rău de Mare Pornit,,
+Sea Sick Mode Off,SEA SICK MODE OFF,,,,Mořská nemoc Vyp.,Seekrank-Modus aus,,,,,,,,,,,,Choroba Morska Wyłączona,Modo Enjôo Desligado,,Modul Rău de Mare Oprit,,
+Motorcycle Gun Ammo!,MOTORCYCLE GUN AMMO!,,,,Munice pro zbraň na motorce!,Motorradgewehrmunition!,,,,,,,,,,,,Amunicja do Karabinu na Motocyklu!,Munição pra Arma da Moto!,,Muniție pentru Arma Motocicletei!,,
+Got A Boat!,GOT A BOAT!,,,,Dostals loď!,Habe ein Boot!,,,,,,,,,,,,Dorwałeś się do Łódki!,Achou um Barco!,,Am o Barcă!,,
+Boat Mode On,BOAT MODE ON,,,,Režim lodi Zap.,Bootmodus an,,,,,,,,,,,,Tryb Łódki Wyłączony,Modo Barco Ligado,,Modul Barcă Pornit,,
+Boat Gun Mortars!,BOAT GUN MORTARS!,,,,Miny pro lodní minomet!,Bootwaffenmörser!,,,,,,,,,,,,Moździerze do Łódki!,Morteiro pra Arma do Barco!,,Mortierele Bărcii!,,
+Chicken Mode!!!!!!!!,CHICKEN MODE!!!!!!!!,,,,Kuřecí režim!!!,Hühnermodus!!!,,,,,,,,,,,,Tryb Kuraka!!!!!!!,Modo Galinha!!!!!!,,Modul Găină!!!!!!,,
+Chicken Crossbow Ammo!!,CHICKEN CROSSBOW AMMO!!,,,,Munice pro kuřecí kuš!,Hühner-Armbrustmunition!,,,,,,,,,,,,Amunicja do Kurzej Kuszy!!,Munição pra Besta de Galinha!!,,Muniție pentru Arbaleta Găină!!,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Land Of The Lost,LAND OF THE LOST,,,,,Das Land der Verlorenen,,,,,,,,,,,,Zagubieni,Terra dos Perdidos,,Tărâmul Celor Pierduți,,
-Homeward Bound,HOMEWARD BOUND,,,,,Auf dem Weg nach Hause,,,,,,,,,,,,Czas Do Domu,Indo pra Casa,,În Drum Spre Casă,,
+Land Of The Lost,LAND OF THE LOST,,,,Země ztracených,Das Land der Verlorenen,,,,,,,,,,,,Zagubieni,Terra dos Perdidos,,Tărâmul Celor Pierduți,,
+Homeward Bound,HOMEWARD BOUND,,,,Cesta domů,Auf dem Weg nach Hause,,,,,,,,,,,,Czas Do Domu,Indo pra Casa,,În Drum Spre Casă,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Area 69,AREA 69,,,,,,,,,,,,,,,,,Strefa 69,Área 69,,Zona 69,,
+Area 69,AREA 69,,,,Oblast 69,,,,,,,,,,,,,Strefa 69,Área 69,,Zona 69,,
 Camino Del Diablo,CAMINO DEL DIABLO,,,,,,,,,,,,,,,,,,,,,,
 El Peso,EL PESO,,,,,,,,,,,,,,,,,,,,,,
-Jack O' Lope Farm,JACK O' LOPE FARM,,,,,,,,,,,,,,,,,Farma Jackolope'ów,Fazenda Jack O' Lope,,Ferma Jack O' Lope,,
+Jack O' Lope Farm,JACK O' LOPE FARM,,,,Jack o' Lopova farma,,,,,,,,,,,,,Farma Jackolope'ów,Fazenda Jack O' Lope,,Ferma Jack O' Lope,,
 Wako,WAKO,,,,,,,,,,,,,,,,,Świr,,,,,
-"El Peso, Again","EL PESO, AGAIN",,,,,Schon wieder El Peso,,,,,,,,,,,,"El Peso, Znowu","El Peso, De Novo",,"El Peso, Iar",,
-Refinery,REFINERY,,,,,Raffinerie,,,,,,,,,,,,Rafineria,Refinaria,,Rafinăria,,
+"El Peso, Again","EL PESO, AGAIN",,,,Zpátky v El Pesu,Schon wieder El Peso,,,,,,,,,,,,"El Peso, Znowu","El Peso, De Novo",,"El Peso, Iar",,
+Refinery,REFINERY,,,,Rafinérie,Raffinerie,,,,,,,,,,,,Rafineria,Refinaria,,Rafinăria,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Sunny Shores,SUNNY SHORES,,,,,Sonnige Ufer,,,,,,,,,,,,Słoneczne Wybrzeże,Praia Ensolarada,,Țărmurile Însorite,,
-Gamblin' Boat,GAMBLIN' BOAT,,,,,Casinoboot,,,,,,,,,,,,Kasyno na Wodzie,Barco Casino,,Vaporul Cazino,,
-Lummockston,LUMMOCKSTON,,,,,,,,,,,,,,,,,,,,,,
-Disgraceland,DISGRACELAND,,,,,,,,,,,,,,,,,Kraina Hańby,,,Tărâmul Dizgrațios,,
-Moto Madness,MOTO MADNESS,,,,,Motorrad-Wahnsinn,,,,,,,,,,,,Ale Jazda,Moto-Doidera,,Nebunia Moto,,
-Brothel,BROTHEL,,,,,Bordell,,,,,,,,,,,,Burdel,Bordel,,Bordel,,
-Back To Hickston,BACK TO HICKSTON,,,,,Zurück in Hickston,,,,,,,,,,,,Powrót do Hickston,De Volta pra Hickston,,Înapoi la Hickston,,
+Sunny Shores,SUNNY SHORES,,,,Slunečná pobřeží,Sonnige Ufer,,,,,,,,,,,,Słoneczne Wybrzeże,Praia Ensolarada,,Țărmurile Însorite,,
+Gamblin' Boat,GAMBLIN' BOAT,,,,Karbanická loď,Casinoboot,,,,,,,,,,,,Kasyno na Wodzie,Barco Casino,,Vaporul Cazino,,
+Lummockston,LUMMOCKSTON,,,,Tlusťochov,,,,,,,,,,,,,,,,,,
+Disgraceland,DISGRACELAND,,,,Odporný lunapark,,,,,,,,,,,,,Kraina Hańby,,,Tărâmul Dizgrațios,,
+Moto Madness,MOTO MADNESS,,,,Moto-šílenství,Motorrad-Wahnsinn,,,,,,,,,,,,Ale Jazda,Moto-Doidera,,Nebunia Moto,,
+Brothel,BROTHEL,,,,Bordel,Bordell,,,,,,,,,,,,Burdel,Bordel,,Bordel,,
+Back To Hickston,BACK TO HICKSTON,,,,Zpátky do Buranova,Zurück in Hickston,,,,,,,,,,,,Powrót do Hickston,De Volta pra Hickston,,Înapoi la Hickston,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Pipe Dreams,PIPE DREAMS,,,,,Wunschträume,,,,,,,,,,,,Rurociąg,Entrando Pelo Cano,,Vis Ireal,,
-Swamp Buggies,SWAMP BUGGIES,,,,,Im Sumpf,,,,,,,,,,,,Bagnisko,Foi Pro Brejo,,Gândaci de Mlaștină,,
-Square Dancin',SQUARE DANCIN',,,,,,,,,,,,,,,,,Potańcówka,Dança da Quadrilha,,Dansul,,
-Hog Wild,HOG WILD,,,,,Wild wie die Schweine,,,,,,,,,,,,Dzikie Wieprze,Porco Doido,,Porci Sălbatici,,
-Road Rage,ROAD RAGE,,,,,Straßenwut,,,,,,,,,,,,Hulanka na Ulicach,Briga de Trânsito,,Furie la Drum,,
-Snake Canyon,SNAKE CANYON,,,,,Schlangenschlucht,,,,,,,,,,,,Kanion Węży,Desfiladeiro Serpentino,,Canionul Șarpelui,,
-Luck Sore,LUCK SORE,,,,,Glücksspiel,,,,,,,,,,,,Gra w Zielone,Maré de Azar,,Noroc Amar,,
+Pipe Dreams,PIPE DREAMS,,,,Fantazíry,Wunschträume,,,,,,,,,,,,Rurociąg,Entrando Pelo Cano,,Vis Ireal,,
+Swamp Buggies,SWAMP BUGGIES,,,,Močálové buginy,Im Sumpf,,,,,,,,,,,,Bagnisko,Foi Pro Brejo,,Gândaci de Mlaștină,,
+Square Dancin',SQUARE DANCIN',,,,Tanec na náměstí,,,,,,,,,,,,,Potańcówka,Dança da Quadrilha,,Dansul,,
+Hog Wild,HOG WILD,,,,Šílená sviňa,Wild wie die Schweine,,,,,,,,,,,,Dzikie Wieprze,Porco Doido,,Porci Sălbatici,,
+Road Rage,ROAD RAGE,,,,Silniční amok,Straßenwut,,,,,,,,,,,,Hulanka na Ulicach,Briga de Trânsito,,Furie la Drum,,
+Snake Canyon,SNAKE CANYON,,,,Kaňon hadů,Schlangenschlucht,,,,,,,,,,,,Kanion Węży,Desfiladeiro Serpentino,,Canionul Șarpelui,,
+Luck Sore,LUCK SORE,,,,Kasino,Glücksspiel,,,,,,,,,,,,Gra w Zielone,Maré de Azar,,Noroc Amar,,
 ,,Route 66,,,,,,,,,,,,,,,,,,,,,
-Route 66 - Part 1,ROUTE 66 - PART 1,,,,,Route 66 - Teil 1,,,,,,,,,,,,Droga 66 - Ep 1,Rota 66 - Parte 1,,Ruta 66 - Partea 1,,
-Route 66 - Part 2,ROUTE 66 - PART 2,,,,,Route 66 - Teil 2,,,,,,,,,,,,Droga 66 - Ep 2,Rota 66 - Parte 2,,Ruta 66 - Partea 2,,
+Route 66 - Part 1,ROUTE 66 - PART 1,,,,Route 66 - Část 1,Route 66 - Teil 1,,,,,,,,,,,,Droga 66 - Ep 1,Rota 66 - Parte 1,,Ruta 66 - Partea 1,,
+Route 66 - Part 2,ROUTE 66 - PART 2,,,,Route 66 - Část 2,Route 66 - Teil 2,,,,,,,,,,,,Droga 66 - Ep 2,Rota 66 - Parte 2,,Ruta 66 - Partea 2,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Hit The Road,HIT THE ROAD,,,,,Auf Achse,,,,,,,,,,,,W Drogę,Pé na Estrada,,Pleacă la Drum,,
-Carnival Of Terror,CARNIVAL OF TERROR,,,,,Kirmes des Terrors,,,,,,,,,,,,Karnawał Terroru,Festival de Horror,,Carnavalul Terorii,,
-Big Bertha's,BIG BERTHA'S,,,,,,,,,,,,,,,,,Duża Bertha,,,La Big Bertha,,
-Big Billy's Brewery,BIG BILLY'S BREWERY,,,,,Big Billys Brauerei,,,,,,,,,,,,Browar Billy'ego,Cervejaria do Big Billy,,Berăria Marelui Billy,,
-Flea Market,FLEA MARKET,,,,,Flohmarkt,,,,,,,,,,,,Pchli Targ,Mercado das Pulgas,,Târgul de Vechituri,,
-Slaughterhouse,SLAUGHTERHOUSE,,,,,Schlachthaus,,,,,,,,,,,,Rzeźnia,Matadouro,,Abatorul,,
-Fun Park,FUN PARK,,,,,Freizeitpark,,,,,,,,,,,,Lunapark,Parque de Diversões,,Parcul de Distracții,,
+Hit The Road,HIT THE ROAD,,,,Jedeme,Auf Achse,,,,,,,,,,,,W Drogę,Pé na Estrada,,Pleacă la Drum,,
+Carnival Of Terror,CARNIVAL OF TERROR,,,,Karneval hrůzy,Kirmes des Terrors,,,,,,,,,,,,Karnawał Terroru,Festival de Horror,,Carnavalul Terorii,,
+Big Bertha's,BIG BERTHA'S,,,,U Tlusté Berty,,,,,,,,,,,,,Duża Bertha,,,La Big Bertha,,
+Big Billy's Brewery,BIG BILLY'S BREWERY,,,,Pivovar Pupkatého Pepíka,Big Billys Brauerei,,,,,,,,,,,,Browar Billy'ego,Cervejaria do Big Billy,,Berăria Marelui Billy,,
+Flea Market,FLEA MARKET,,,,Bleší trh,Flohmarkt,,,,,,,,,,,,Pchli Targ,Mercado das Pulgas,,Târgul de Vechituri,,
+Slaughterhouse,SLAUGHTERHOUSE,,,,Jatka,Schlachthaus,,,,,,,,,,,,Rzeźnia,Matadouro,,Abatorul,,
+Fun Park,FUN PARK,,,,Lunapark,Freizeitpark,,,,,,,,,,,,Lunapark,Parque de Diversões,,Parcul de Distracții,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Gassin' Up,GASSIN' UP,,,,,Auftanken,,,,,,,,,,,,Czas Zatankować,Enchendo o Tanque,,Popasul,,
-House Of Ill Repute,HOUSE OF ILL REPUTE,,,,,Haus des miesen Rufs,,,,,,,,,,,,Dom o Złej Reputacji,Casa da Mãe Joana,,Casă de Reputație Bolnavă,,
-Mystery Dino Cave,MYSTERY DINO CAVE,,,,,"Geheimnisvolle Dinohöhle
+Gassin' Up,GASSIN' UP,,,,Tankujeme,Auftanken,,,,,,,,,,,,Czas Zatankować,Enchendo o Tanque,,Popasul,,
+House Of Ill Repute,HOUSE OF ILL REPUTE,,,,Dům se špatnou pověstí,Haus des miesen Rufs,,,,,,,,,,,,Dom o Złej Reputacji,Casa da Mãe Joana,,Casă de Reputație Bolnavă,,
+Mystery Dino Cave,MYSTERY DINO CAVE,,,,Tajemná dinosauří jeskyně,"Geheimnisvolle Dinohöhle
 ",,,,,,,,,,,,Jaskinia Dinozaurów,Caverna dos Dinossauros,,Caverna Dinozaurilor,,
-Campy Crystal Lake,CAMPY CRYSTAL LAKE,,,,,,,,,,,,,,,,,Obozowisko w Crystal Lake,Acampamento Crystal Lake,,Tabăra Lacului de Cristal,,
-Bigfoot Convention,BIGFOOT CONVENTION,,,,,,,,,,,,,,,,,Zjazd Wielkich Stóp,Convenção do Pé Grande,,Convenția lui Bigfoot,,
-Hoover Dam,HOOVER DAM,,,,,Hoover Damm,,,,,,,,,,,,Zapora Hoovera,Represa Hoover,,Barajul Hoover,,
-Oddity Museum,ODDITY MUSEUM,,,,,Kuriosiätenmuseum,,,,,,,,,,,,Muzeum Dziwactw,Museu das Bizarrices,,Muzeul Ciudățenilor,,
+Campy Crystal Lake,CAMPY CRYSTAL LAKE,,,,Kýčovité křišťálové jezero,,,,,,,,,,,,,Obozowisko w Crystal Lake,Acampamento Crystal Lake,,Tabăra Lacului de Cristal,,
+Bigfoot Convention,BIGFOOT CONVENTION,,,,Přehlídka Yetiů,,,,,,,,,,,,,Zjazd Wielkich Stóp,Convenção do Pé Grande,,Convenția lui Bigfoot,,
+Hoover Dam,HOOVER DAM,,,,Hooverova přehrada,Hoover Damm,,,,,,,,,,,,Zapora Hoovera,Represa Hoover,,Barajul Hoover,,
+Oddity Museum,ODDITY MUSEUM,,,,Muzeum kuriozit,Kuriosiätenmuseum,,,,,,,,,,,,Muzeum Dziwactw,Museu das Bizarrices,,Muzeul Ciudățenilor,,
 ,,Texts extracted from the source (Duke Nukem),,,,,,,,,,,,,,,,,,,,,
 On (2),TXT_ON2,,,,Zap (2),An (2),,Ŝaltita (2),Activado (2),,Päällä (2),,Be (2),Attivo (2),オン (2),켬 (2),Aan (2),Włączone (2),Ligado (2),,Oprit (2),Вкл. (2),Укљ. (2)
 Loading,TXT_LOADING,,,,Načítání,Laden,,,Cargando,,,Charger,Betöltés,Caricamento,ロード中,,,Ładowanie,Carregando,,Se Încarcă,Загрузка,
@@ -1049,7 +1049,7 @@ Enterin' User Map,TXT_ENTRUM,,,,Vstupuješ do uživ. mapy,Starte Benutzerlevel,,
 Loadin',TXT_LOADIN,,,,Načítání,Laden,,,Cargando,,,Charger,,Caricamento,ロード中,,,Ładowańsko,Tá carregando,,Se Încarcă,Загрузка,
 ,,Blood,,,,,,,,,,,,,,,,,,,,,
 Still Kicking,STILL KICKING,,,,Ještě kope,Bewegt sich noch,,,Todavía en Pie,,,,,,,,,Surowy,Ainda Vivo,,Încă Viu,,
-Pink On The Inside,PINK ON THE INSIDE,,,,Vevnitř růžové,Innen noch rot,,,Rosa por Dentro,,,,,,,,,Niedopieczony,Mal Passado,,Roz pe Dinăuntru,,
+Pink On The Inside,PINK ON THE INSIDE,,,,Vevnitř dorůžova,Innen noch rot,,,Rosa por Dentro,,,,,,,,,Niedopieczony,Mal Passado,,Roz pe Dinăuntru,,
 Lightly Broiled,LIGHTLY BROILED,,,,Zlehka opečené,Leicht gegrillt,,,Ligeramente Asado,,,,,,,,,Lekko Przypieczony,No Ponto,,Ușor Prăjit,,
 Well Done,WELL DONE,,,,Well done,Durchgebraten,,,Bien hecho,,,,,,,,,Dobrze Usmażony,Bem Passado,,Bine Făcut,,
 Extra Crispy,EXTRA CRISPY,,,,Dokřupava,Extra knusprig,,,Extra Crujiente,,,,,,,,,Chrupiący,Extra Crocante,,Extra Crocant,,
@@ -1203,8 +1203,8 @@ You have half armor.,TXTB_HALFARMOR,,,,Máš půl brnění.,Du hast halbe Rüstu
 ,,Blood levels and messages,,,,,,,,,,,,,,,,,,,,,
 The Way of All Flesh,The Way of All Flesh,,Blood,,Cesty všeho pozemského,Der Weg allen Fleisches,,,El Camino de Toda Carne,,,,,,,,,Droga Człowiecza,O Destino de Toda Carne,,Destinul Cărnii,,
 Even Death May Die,Even Death May Die,,Blood,,I smrt může umřít,Sogar der Tod mag sterben,,,Incluso la Muerte Puede Morir,,,,,,,,,Śmierć Też Skona,Até a Morte Pode Morrer,,Până și Moartea va Pieri,,
-Farewell to Arms,Farewell to Arms,,Blood,,Sbohem armádo,Abschied von den Waffen,,,Adiós a los Brazos,,,,,,,,,Pożegnanie z Bronią,Adeus às Armas,,Adio Armelor,,
-Dead Reckoning,Dead Reckoning,,Blood,,Hledání mrtvých,Tödliche Abrechnung,,,Zanjando Cuentas Pendientes,,,,,,,,,Śmiertelne Porachunki,Confronto Mortal,,Socoteala Morților,,
+Farewell to Arms,Farewell to Arms,,Blood,,"Sbohem, armádo",Abschied von den Waffen,,,Adiós a los Brazos,,,,,,,,,Pożegnanie z Bronią,Adeus às Armas,,Adio Armelor,,
+Dead Reckoning,Dead Reckoning,,Blood,,Zúčtování mrtvých,Tödliche Abrechnung,,,Zanjando Cuentas Pendientes,,,,,,,,,Śmiertelne Porachunki,Confronto Mortal,,Socoteala Morților,,
 BloodBath,BloodBath,,Blood,,Krvavá koupel,Blutbad,,,Baño de Sangre,,,,,,,,,Rozlew Krwi,Banho de Sangue,,Baie de Sânge,,
 Post Mortem,Post Mortem,,Blood,,,,,,,,,,,,,,,,,,,,
 Cradle to Grave,Cradle to Grave,,Blood,,Z kolébky do rakve,Von der Wiege zum Grab,,,De la Cuna a la Tumba,,,,,,,,,Od Kołyski aż po Grób,Do Berço à Cova,,Lumânare la Mormânt,,
@@ -1230,7 +1230,7 @@ Dark Carnival,Dark Carnival,,Blood,,Temný karneval,Dunkler Jahrmarkt,,,Carnaval
 This doesn't open from this side.,This doesn't open from this side.,,Blood,,Z této strany se tohle neotevírá.,Das öffnet sich nicht von dieser Seite,,,No se abre desde este lado.,,,,,,,,,To nie otwiera się z tej strony.,Isso não abre deste lado.,,Nu se deschide din partea asta.,,
 You're going to the secret level!,You're going to the secret level!,,Blood,,Jdeš do tajné úrovně!,Du gehst zum Geheimlevel.,,,¡Vas de camino al nivel secreto!,,,,,,,,,Wyruszasz do sekretnego poziomu!,Você está indo para a fase secreta!,,Mergi la nivelul secret!,,
 Congrats! You win a cupie doll!,Congrats! You win a cupie doll!,,Blood,,Gratuluji! Vyhráváš panenku!,Gratulation! Du gewinnst eine Cupie Puppe,,,¡Felicidades! ¡Has ganado una muñequita!,,,,,,,,,Gratulacje! Wygrałeś lalkę!,Parabéns! Você ganhou uma bonequinha!,,Bravo! Ai câștigat o păpușă!,,
-Hallowed Grounds,Hallowed Grounds,,Blood,,Posvěcený pozemek,Gesegneter Grund,,,Tierra Sagrada,,,,,,,,,Poświęcona Ziemia,Solo Sagrado,,Tărâmul Sacru,,
+Hallowed Grounds,Hallowed Grounds,,Blood,,Svěcená půda,Gesegneter Grund,,,Tierra Sagrada,,,,,,,,,Poświęcona Ziemia,Solo Sagrado,,Tărâmul Sacru,,
 The Great Temple,The Great Temple,,Blood,,Velký chrám,Der große Tempel,,,El Gran Templo,,,,,,,,,Wielka Świątynia,O Grande Templo,,Marele Templu,,
 I can't believe you found this!,I can't believe you found this!,,Blood,,"Nemůžu uvěřit, žes tohle našel!","Ich kann nicht glauben, das gefunden zu haben.",,,¡No puedo creer hayas encontrado esto!,,,,,,,,,"Nie wierzę, że ci się udało to znaleźć!",Não acredito que você achou isso!,,Nu îmi vine să cred că ai găsit asta!,,
 "Here, you can have it all.","Here, you can have it all.",,Blood,,"Tady, vem si to všechno.","Hier, du kannst es alles haben.",,,Aquí puedes tenerlo todo.,,,,,,,,,"Masz, bierz wszystko.","Tome, pode ficar com tudo.",,E toată numai a ta.,,
@@ -1251,7 +1251,7 @@ Thin Ice,Thin Ice,,Blood,,Tenký led,Dünnes Eis,,,Hielo Fino,,,,,,,,,Po Cienkim
 Ghost Town,Ghost Town,,Blood,,Město duchů,Geisterstadt,,,Pueblo Fantasma,,,,,,,,,Miasto Duchów,Cidade Fantasma,,Orașul Fantomelor,,
 The Siege,The Siege,,Blood,,Nájezd,Die Belagerung,,,El Asedio,,,,,,,,,Oblężenie,O Cerco,,Năvala,,
 Raw Sewage,Raw Sewage,,Blood,,Surový odpad,Rohe Abwasser,,,Aguas Negras,,,,,,,,,Ścieki,Puro Esgoto,,Cruda Canalizare,,
-The Sick Ward,The Sick Ward,,Blood,,Nemocniční oddělení,Das Krankenhaus,,,El Pabellón de Enfermos,,,,,,,,,Izba Chorych,O Sanatório,,Sanatoriul,,
+The Sick Ward,The Sick Ward,,Blood,,Marodka,Das Krankenhaus,,,El Pabellón de Enfermos,,,,,,,,,Izba Chorych,O Sanatório,,Sanatoriul,,
 Spare Parts,Spare Parts,,Blood,,Náhradní díly,Ersatzteile,,,Piezas de Repuesto,,,,,,,,,Części Zamienne,Peças de Reposição,,Piese pentru Reutilizare,,
 Failsafes disabled.,Failsafes disabled.,,Blood,,Pojistky zneškodněny.,Sicherungen deaktiviert,,,Dispositivos de seguridad desactivados.,,,,,,,,,Bezpieczniki wyłączone.,Travas de segurança desativadas.,,Siguranțe dezactivate.,,
 Disable failsafes first.,Disable failsafes first.,,Blood,,Nejprve zneškodni pojistky.,Du musst erst die Sicherungen deaktivieren,,,Desactive primero los dispositivos de seguridad.,,,,,,,,,Najpierw wyłącz bezpieczniki.,Desative as travas de segurança primeiro.,,Dezactivează siguranțele mai întâi.,,
@@ -1263,7 +1263,7 @@ Breeding Grounds,Breeding Grounds,,Blood,,Chovná pole,Brutgebiet,,,Criaderos,,,
 Charnel House,Charnel House,,Blood,,Karner,Beinhaus,,,Osario,,,,,,,,,Kostnica,Ossuário,,Osuarul,,
 Crystal Lake,Crystal Lake,,Blood,,Křišťálové jezero,,,,Lago de Cristal,,,,,,,,,,Lago de Cristal,,Lacul de Cristal,,
 Fire and Brimstone,Fire and Brimstone,,Blood,,Oheň a síra,Feuer und Schwefel,,,Fuego y Azufre,,,,,,,,,Ogień Piekielny,Fogo e Enxofre,,Foc și Sulf,,
-The Ganglion Depths,The Ganglion Depths,,Blood,,Hloubky ganglionu,Die ganglionischen Tiefen,,,Las Profundidades de los Ganglios,,,,,,,,,Czeluści Nerwowe,Profundezas Ganglionares,,Adâncurile Ganglionilor,,
+The Ganglion Depths,The Ganglion Depths,,Blood,,Hlubiny ganglionu,Die ganglionischen Tiefen,,,Las Profundidades de los Ganglios,,,,,,,,,Czeluści Nerwowe,Profundezas Ganglionares,,Adâncurile Ganglionilor,,
 In the Flesh,In the Flesh,,Blood,,Maso osobně,Im Fleisch,,,En Carne y Hueso,,,,,,,,,Skóra i Kości,Em Carne e Osso,,În Carne și Oase,,
 The Hall of the Epiphany,The Hall of the Epiphany,,Blood,,Chodby zjevení,Die Halle der Erleuchtung,,,El Pasillo de la Epifanía,,,,,,,,,Hala Objawienia,O Salão da Epifania,,Sala Epifaniei,,
 Mall of the Dead,Mall of the Dead,,Blood,,Obchod mrtvých,Einkaufszentrum des Todes,,,El Centro Comercial de los Muertos,,,,,,,,,Market Żywych Trupów,Shopping dos Mortos,,Mall-ul Morților,,
@@ -1276,20 +1276,20 @@ Twin Fortress,Twin Fortress,,Blood,,Dvojitá pevnost,Zwillingsfestung,,,,,,,,,,,
 Midgard,Midgard,,Blood,,,,,,,,,,,,,,,,,,,,
 Fun With Heads,Fun With Heads,,Blood,,Sranda s hlavami,Spaß mit Köpfen,,,,,,,,,,,,Zabawa z Głowami,Cabeceio,,Tango,,
 Monolith Building 11,Monolith Building 11,,Blood,,Monolith budova 11,Monolith Gebäude 11,,,Edificio Monolith 11,,,,,,,,,Budynek Monolith 11,Edifício Monolith 11,,Clădirea Monolith 11,,
-Power!,Power!,,Blood,,Energie!,Energie!,,,¡Poder!,,,,,,,,,Moc!,Energia!,,Energie!,,
+Power!,Power!,,Blood,,Síla!,Energie!,,,¡Poder!,,,,,,,,,Moc!,Energia!,,Energie!,,
 Area 15,Area 15,,Blood,,Oblast 15,Zone 15,,,Área 15,,,,,,,,,Strefa 15,Área 15,,Zona 15,,
 Welcome to Your Life,Welcome to Your Life,,Blood,,Vítej na světě,Willkommen in deinem Leven,,,Bienvenido a tu Vida,,,,,,,,,Witaj w Swoim Życiu,Bem-vindo à Sua Vida,,Bun-Venit la Noua ta Viață,,
 They Are Here,They Are Here,,Blood,,Jsou tu,Sie sind hier,,,Están Aquí,,,,,,,,,Już Tu Są,Estão Aqui,,Sunt Aici,,
 Public Storage,Public Storage,,Blood,,Veřejné skladiště,Öffentliche Lagerung,,,Almacenamiento Público,,,,,,,,,Magazyn,Depósito Público,,Depozitul Public,,
 Aqueducts,Aqueducts,,Blood,,Akvadukty,Aquädukte,,,Acueductos,,,,,,,,,Akwedukty,Aquedutos,,Apeducta,,
-Power restored.,Power restored.,,Blood,,Energie obnovena.,Energie wiederhergestellt.,,,Energía restaurada.,,,,,,,,,Przywrócono zasilanie.,Energia restaurada.,,Energie restaurată.,,
+Power restored.,Power restored.,,Blood,,Síla obnovena.,Energie wiederhergestellt.,,,Energía restaurada.,,,,,,,,,Przywrócono zasilanie.,Energia restaurada.,,Energie restaurată.,,
 The Ruined Temple,The Ruined Temple,,Blood,,Zničený chrám,Die Tempelruine,,,El Templo en Ruinas,,,,,,,,,Zrujnowana Świątynia,As Ruínas do Templo,,Templul Ruinat,,
 Forbidden Rituals,Forbidden Rituals,,Blood,,Zakázané rituály,Verbotene Rituale,,,Rituales Prohíbidos,,,,,,,,,Zakazane Rytuały,Rituais Proibidos,,Rituale Interzise,,
 The Dungeon,The Dungeon,,Blood,,Žalář,Der Kerker,,,La Mazmorra,,,,,,,,,Loch,A Masmorra,,Temnița,,
 You must complete the sequence to open this door.,You must complete the sequence to open this door.,,Blood,,Pro otevření těchto dveří musíš splnit sekvenci.,Du must die Sequenz komplettieren um diese Tür zu öffnen,,,Debes completar la secuencia para abrir esta puerta.,,,,,,,,,"Musisz ukończyć sekwencję, by otworzyć te drzwi.",Você preicsa compeltar a sequência para abrir esta porta.,,Trebuie să termini secvența pentru a deschide ușa.,,
 Part one of three in the sequence has been completed.,Part one of three in the sequence has been completed.,,Blood,,První ze tří částí sekvence byla splněna,Der erste Teil der Sequenz ist komplett,,,La parte uno de tres en la secuencia ha sido completada.,,,,,,,,,Jedna trzecia sekwencji została ukończona.,Parte 1 de 3 da sequência foi completada.,,Partea întâi din trei a secvenței e gata.,,
 Part two of three in the sequence has been completed.,Part two of three in the sequence has been completed.,,Blood,,Druhá ze tří částí sekvence byla splněna,Der zweite Teil der Sequenz ist komplett,,,La parte dos de tres en la secuencia ha sido completada.,,,,,,,,,Dwie trzecie sekwencji zostało ukończone.,Parte 2 de 3 da sequência foi completada.,,Partea a doua din trei a secvenței e gata.,,
-Final part completed.  A door has opened.,Final part completed.  A door has opened.,,Blood,,Poslední částt splněna. Dveře se otevřely.,Sequenz komplett. Eine Tür hat sich geöffnet,,,La parte final ha sido completada. Se ha abierto una puerta.,,,,,,,,,Cała sekwencja ukończona. Drzwi otwarte.,Parte final completada. Uma porta se abriu.,,Ultima parte a secvenței e gata.,,
+Final part completed.  A door has opened.,Final part completed.  A door has opened.,,Blood,,Poslední část splněna. Dveře se otevřely.,Sequenz komplett. Eine Tür hat sich geöffnet,,,La parte final ha sido completada. Se ha abierto una puerta.,,,,,,,,,Cała sekwencja ukończona. Drzwi otwarte.,Parte final completada. Uma porta se abriu.,,Ultima parte a secvenței e gata.,,
 Beauty and the Beast,Beauty and the Beast,,Blood,,Kráska a zvíře,Die Schöne und das Biest,,,La Bella y la Bestia,,,,,,,,,Piękna i Bestia,A Bela e a Fera,,Frumoasa și Bestia,,
 Forgotten Catacombs,Forgotten Catacombs,,Blood,,Zapomenuté katakomby,Vergessene Katakomben,,,Catacumbas Olvidadas,,,,,,,,,Zapomniane Katakumby,Catacumbas Abandonadas,,Catacombele Uitate,,
 Cryptic Passage,Cryptic Passage,,Blood,,Tajemný průchod,Kryptische Passage,,,Pasaje Críptico,,,,,,,,,Ukryta Przełęcz,Passagem Oculta,,Pasajul Criptic,,
@@ -1333,11 +1333,11 @@ You need a GOLD key for this door.,TXTS_DOOR5,,,,Pro otevření potřebuješ ZLA
 You need a SILVER key for this door.,TXTS_DOOR6,,,,Pro otevření potřebuješ STŘÍBRNÝ klíč.,Du brauchst einen SILBERNEN Schlüssel für diese Tür,,,Necesitas una llave de PLATA para esta puerta.,,,,,,,,,Potrzebujesz SREBRNEGO klucza do tych drzwi.,Você precisa de uma chave de PRATA para esta porta.,,Ai nevoie de cheia ARGINTIE pentru ușa asta.,,
 You need a BRONZE key for this door.,TXTS_DOOR7,,,,Pro otevření potřebuješ BRONZOVÝ klíč.,Du brauchst einen BRONZENEN Schlüssel für diese Tür,,,Necesitas una llave de BRONCE para esta puerta.,,,,,,,,,Potrzebujesz BRĄZOWEGO klucza do tych drzwi.,Você precisa de uma chave de BRONZE para esta porta.,,Ai nevoie de cheia de BRONZ pentru ușa asta.,,
 You need a RED key for this door.,TXTS_DOOR8,,,,Pro otevření potřebuješ ČERVENÝ klíč.,Du brauchst einen ROTEN Schlüssel für diese Tür,,,Necesitas una llave ROJA para esta puerta.,,,,,,,,,Potrzebujesz CZERWONEGO klucza do tych drzwi.,Você precisa de uma chave VERMELHA para esta porta.,,Ai nevoie de cheia ROȘIE pentru ușa asta.,,
-You never going to score.,TXTS_COOKIE1,"If these cannot be translated literally, think of something fitting in your language.",,,,Du es nie zu etwas bringen wirst.,,,Nunca vas a marcar.,,,,,,,,,Nigdy nie zaliczysz.,Você nunca vai se dar bem na vida.,,Nu înscrii niciodată.,,
+You never going to score.,TXTS_COOKIE1,"If these cannot be translated literally, think of something fitting in your language.",,,Vy nikdy nezaboduješ.,Du es nie zu etwas bringen wirst.,,,Nunca vas a marcar.,,,,,,,,,Nigdy nie zaliczysz.,Você nunca vai se dar bem na vida.,,Nu înscrii niciodată.,,
 26-31-43-82-16-29,TXTS_COOKIE2,,,,,,,,,,,,,,,,,,,,,,
 "Sorry, you no win this time, try again.",TXTS_COOKIE3,,,,"Promiň, ty dnes nevyhráváte, zkusit znovu.","Schade, du nicht gewinnen dieses Mal, versuch nochmal.",,,"Lo siento, no has ganado esta vez, inténtalo de nuevo.",,,,,,,,,Przepraszać. Ty nie wygrać. Spróbować innym razem.,"Foi mal, você não ganhou desta vez. Tenta de novo.",,"Scuze, nu câștigi acum, vezi data viitoare.",,
-You try harder get along. Be a nice man.,TXTS_COOKIE4,,,,Zkuste lépe žit spolu. Buďte dobré člověk.,"Gib mehr Mühe, netter Mann zu sein.",,,Intenta con más ahínco llevarte bien. Sé un buen hombre.,,,,,,,,,Spróbuj się z innymi dogadać. Bądź miłym człowiekiem.,Vê se tenta se comportar. Seja bom homem.,,Încerci fi de treabă mai mult. Fi drăguț.,,
-"No man is island, except Lo Wang.",TXTS_COOKIE5,,,,,"Kein Mann ist Insel, außer Lo Wang.",,,"Ningún hombre es una isla, excepto Lo Wang.",,,,,,,,,Nikt nie jest samotną wyspą. Z wyjątkiem Lo Wanga.,"Nenhum homem é ilha, exceto Lo Wang.",,"Niciun om nu e insulă, exceptând Lo Wang.",,
+You try harder get along. Be a nice man.,TXTS_COOKIE4,,,,Zkuste lépe žít spolu. Buďte dobré člověk.,"Gib mehr Mühe, netter Mann zu sein.",,,Intenta con más ahínco llevarte bien. Sé un buen hombre.,,,,,,,,,Spróbuj się z innymi dogadać. Bądź miłym człowiekiem.,Vê se tenta se comportar. Seja bom homem.,,Încerci fi de treabă mai mult. Fi drăguț.,,
+"No man is island, except Lo Wang.",TXTS_COOKIE5,,,,"Žádný muž nestojí, jen Lo Wang.","Kein Mann ist Insel, außer Lo Wang.",,,"Ningún hombre es una isla, excepto Lo Wang.",,,,,,,,,Nikt nie jest samotną wyspą. Z wyjątkiem Lo Wanga.,"Nenhum homem é ilha, exceto Lo Wang.",,"Niciun om nu e insulă, exceptând Lo Wang.",,
 There is much death in future.,TXTS_COOKIE6,,,,Budoucnost skýtá mnoho smrti.,Da ist viel Tod in Zukunft.,,,Hay mucha muerte en el futuro.,,,,,,,,,Przed tobą wiele śmierci.,Tem muita morte no futuro.,,Este multă moarte în viitor.,,
 You should kill all business associates.,TXTS_COOKIE7,,,,Měl bys zavraždit všechny obchodní partnery.,Du solltest töten alle Geschäftspartner.,,,Deberías matar a todos los socios de negocios.,,,,,,,,,Powinieneś zabić wszystkich biznesmenów.,Você devia matar todos os parceiros de negócios.,,Ar trebui să ucizi pe toți asociații.,,
 "(c)1997,3DRealms fortune cookie company.",TXTS_COOKIE8,,,,(c) 1997 3DRealms společnost na koláčky štestí.,(c) 1997 3DRealms Glückskeksfabrik,,,"(c)1997,3DRealms compañía de galletas de la suerte.",,,,,,,,,"(c)1997, Ciastkarnia 3D Realms.","(c)1997,3DRealms fábrica de biscoito da sorte.",,"(c)1997,Compania de fursecuri norocoase 3DRealms.",,
@@ -1345,9 +1345,9 @@ Your chi attracts many chicks.,TXTS_COOKIE9,,,,Tvoje buchty přitahují všechny
 Don't you know you the scum of society!?,TXTS_COOKIE10,,,,Ty nevíš že ty jste spodina společnosti!?,"Weißt du nicht, dass du bist Abschaum von Gesellschaft?",,,¡¿No sabes que eres la escoria de la sociedad?!,,,,,,,,,"Wiesz, że jesteś wyrzutkiem społeczeństwa!?",Você não sabia que você é escória da sociedade!?,,Chiar nu cunoști scursurile societății!?,,
 You should not scratch yourself there.,TXTS_COOKIE11,,,,Tam by ses drbat neměl.,Du solltest dich nicht kratzen hier.,,,No deberías rascarte ahí.,,,,,,,,,Nie powinieneś się tam drapać.,Melhor não se coçar aí.,,N-ar trebui să te scarpini acolo.,,
 "Man who stand on toilet, high on pot.",TXTS_COOKIE12,,,,Motozávodník na louce pálí trávu.,"Hast du Frau mit Bart, kann sein ist Mann.",,,"Hombre que está de pie en el váter, con un colocón de porros.",,,,,,,,,Tylko baba może szczać na siedząco.,Homem que deixa cair relógio no vaso tem tempo de merda.,,"Om care stă în picioare pe toaletă, pe droguri.",,
-Man who fart in church sit in own pew.,TXTS_COOKIE13,,,,,Berühmtheit mancher Leute hängt zusammen mit Blödheit der Bewunderer,,,Hombre que se tira pedos en la iglesia se sienta en su propio banco.,,,,,,,,,Kto pierdnął w kościele musi siedzieć sam.,Homem que peida na igreja fica no próprio banco.,,Om care trage vânturi în biserică șade în propria urină.,,
+Man who fart in church sit in own pew.,TXTS_COOKIE13,,,,Chlap kadící v Betlémě dělá kadidlo.,Berühmtheit mancher Leute hängt zusammen mit Blödheit der Bewunderer,,,Hombre que se tira pedos en la iglesia se sienta en su propio banco.,,,,,,,,,Kto pierdnął w kościele musi siedzieć sam.,Homem que peida na igreja fica no próprio banco.,,Om care trage vânturi în biserică șade în propria urină.,,
 Man trapped in pantry has ass in jam.,TXTS_COOKIE14,,,,Instalatér uvězněný v koupelně pokládá kabel.,"Erst wenn Mücke auf deinen Eiern landet, wirst du lösen Probleme ohne Gewalt",,,Hombre atrapado en la despensa tiene el culo atascado.,,,,,,,,,Nie smaruj wacka dżemem.,Homem com um pauzinho passa fome.,,Om blocat în debara e încurcătură.,,
-Baseball wrong.  Man with 4 balls cannot walk.,TXTS_COOKIE15,,,,Baseball je špatný. Chlap se čtyřmi koulemi nemůže chodit.,Baseball falsch. Mann mit 4 Eiern kann nicht laufen.,,,El béisbol se equivoca. Un hombre con 4 bolas no puede caminar.,,,,,,,,,Kurnik to fikcja. Mężczyzna może mieć tylko 2 jaja.,Baseball tá errado. Homem com 4 bolas não caminha.,,Baseball greșit. Om cu patru boașe nu poate merge.,,
+Baseball wrong.  Man with 4 balls cannot walk.,TXTS_COOKIE15,,,,Baseball je špatný. Chlap se čtyřma koulema nemůže chodit.,Baseball falsch. Mann mit 4 Eiern kann nicht laufen.,,,El béisbol se equivoca. Un hombre con 4 bolas no puede caminar.,,,,,,,,,Kurnik to fikcja. Mężczyzna może mieć tylko 2 jaja.,Baseball tá errado. Homem com 4 bolas não caminha.,,Baseball greșit. Om cu patru boașe nu poate merge.,,
 Man who buy drowned cat pay for wet pussy.,TXTS_COOKIE16,,,,"Kdo kupuje utopené kotě, platí za vlhkou číču.",Das frühe Vögeln entspannt den Wurm.,,,Hombre que compra un gato ahogado paga por un coño mojado.,,,,,,,,,Mokry ptaszek może wiele zdziałać.,Homem que compra gato afogado paga por xaninha molhada.,,Om care cumpără pisică înecată plătește păsărica udă.,,
 Fortune Say:,TXTS_FORTUNE,,,,Na papírku je:,Glückskeks sagt:,,,La fortuna te dice:,,,,,,,,,Wróżba Mówi:,Sua Sorte Diz:,,Norocul Zice:,,
 Armor Vest +50,TXTS_INV1,,,,Ochranná vesta +50,Panzerweste +50,,,,,,,,,,,,Tunika +50,Colete +50,,Vestă +50,,
@@ -1391,36 +1391,36 @@ Added Health,TXTS_ADDEDHEALTH,,,,Dáno zdraví,Gesundheit erhalten,,,,,,,,,,,,Da
 Given all keys,TXTS_GIVEKEY,,,,Dány všechny klíče,Alle Schlüssel erhalten,,,,,,,,,,,,Dano wszystkie klucze,Todas as Chaves Recebidas,,Date toate cheile,,
 Key given,TXTS_KEYGIVEN,,,,Dán klíč,Schlüssel erhalten,,,,,,,,,,,,Dano klucz,Chave recebida,,Cheie dată,,
 Key removed,TXTS_KEYREMOVED,,,,Klíč odstraněn,Schlüssel entfernt,,,,,,,,,,,,Usunięto klucz,Chave removida,,Cheie pierdută,,
-You're too skillful to cheat,TXTS_TOOSKILLFUL,,,,Jsi moc dobrý na podvádění,Du bist zu geschickt um zu schummeln,,,,,,,,,,,,Jesteś zbyt dobry by oszukiwać,Você é habilidoso demais para trapacear,,Ești prea priceput pentru a trișa,,
+You're too skillful to cheat,TXTS_TOOSKILLFUL,,,,"Jsi moc dobrý na to, abys podváděl",Du bist zu geschickt um zu schummeln,,,,,,,,,,,,Jesteś zbyt dobry by oszukiwać,Você é habilidoso demais para trapacear,,Ești prea priceput pentru a trișa,,
 Press 'Use' to continue,TXTS_PRESSSPACE,,,,Pro pokračování stiskni 'Použít',Drücke 'Benutzen' um fortzufahren,,,Presione 'Usar' para continuar,,,,,,,,,Wciśnij 'Użyj' by kontynuować,Aperte Espaço para continuar,,Apasă 'Space' pentru a continua,,
 Press 'Use' to restart,TXTS_PRESSSPACER,,,,Pro restart stiskni 'Použít',Drücke 'Benutzen' um neuzustarten,,,Presione 'Usar' para reiniciar,,,,,,,,,Wciśnij 'Użyj' by zacząć ponownie,Aperte ESPAÇO para reiniciar,,Apasă 'Space' pentru restart,,
-%p decided to do the graveyard tour.,TXTS_SUICIDE01,"todo (player.cpp, line 6346ff)",,,,"%p entschied sich, die Friedhofstour zu machen.",,,,,,,,,,,,%p postanawia się przejść po cmentarzu.,%p decidiu visitar o cemitério.,,%p a decis să facă un tur la cimitir.,,
-%p had enough and checked out.,TXTS_SUICIDE02,,,,,%p hatte genug und verschwand.,,,,,,,,,,,,%p ma już dość.,%p teve o bastante e deu o fora.,,%p s-a plictisit și ne-a părăsit.,,
-%p didn't fear the Reaper.,TXTS_SUICIDE03,,,,,%p hatte keine Angst vor dem Tod.,,,,,,,,,,,,%p nie boi się Rozpruwacza.,%p não tinha medo da morte.,,%p nu s-a temut de Spintecător.,,
-%p dialed the 1-800-CYANIDE line.,TXTS_SUICIDE04,,,,,%p wählte 0800-ZYANID.,,,,,,,,,,,,%p dzwoni na Cyjankową Linię.,%p ligou para o número 0800-CIANURETO.,,%p a sunat la linia 1-800-CIANURĂ.,,
-%p wasted himself.,TXTS_SUICIDE05,,,,,%p erledigte sich selbst,,,,,,,,,,,,%p pogrąża się w zatraceniu.,%p se detonou.,,%p s-a irosit.,,
-%p kicked his own ass.,TXTS_SUICIDE06,,,,,%p trat sich selbst in den Hintern.,,,,,,,,,,,,%p postanawia skopać własne dupsko.,%p chutou a própria bunda.,,%p și-a dat bătaie singur.,,
-%p went out in blaze of his own glory.,TXTS_SUICIDE07,,,,,%p ging in Flammen seiner eigenen Herrlichkeit aus.,,,,,,,,,,,,%p staje w ogniu swej chwały.,%p se foi no lampejo de sua própria glória.,,%p a plecat strălucind de propria glorie.,,
-%p killed himself before anyone else could.,TXTS_SUICIDE08,,,,,"%p tötete sich selbst, bevor irgend jemand anderes dies schaffte.",,,,,,,,,,,,%p zabija się zanim ktoś inny to zrobi.,%p se matou antes que qualquer outro pudesse matar.,,%p s-a sinucis înainte să-l prindă cineva.,,
-%p needs shooting lessons.,TXTS_SUICIDE09,,,,,%p braucht Waffentraining.,,,,,,,,,,,,%p musi się nauczyć strzelać.,%p precisa de umas aulas de tiro.,,%p are nevoie de lecții de tir.,,
-%p blew his head off.,TXTS_SUICIDE10,,,,,%p hat sich den Kopf weggepustet.,,,,,,,,,,,,%p wysadza swój zakuty łeb.,%p estourou os próprios miolos.,,%p și-a aruncat capul în aer.,,
-%p did everyone a favor and offed himself,TXTS_SUICIDE11,,,,,%p hat allen einen Gefallen getan und sich selbst verabschiedet.,,,,,,,,,,,,%p wyświadcza innym przysługę i się zabija.,%p fez um favor à todos e se matou.,,%p a făcut tuturor un serviciu și s-a omorât singur.,,
-%p was wasted by %k's %z.,TXTS_MPOBIT01,,,,,%p wurde von %ks %z niedergestreckt.,,,,,,,,,,,,%p ginie przez %z gracza %k.,%p foi aniquilado com %z de %k.,,%p a fost irosit de %k's %z.,,
-%p got his ass kicked by %k's %z.,TXTS_MPOBIT02,,,,,%p wurde von %ks %z in den Arsch getreten.,,,,,,,,,,,,%p ma skopane dupsko przez %z gracza %k.,%p tomou um laço de %z de %k.,,%p a luat bătaie de la %k's %z.,,
-%p bows down before the mighty power of %k.,TXTS_MPOBIT03,,,,,%p machte einen Kniefall vor %ks Macht.,,,,,,,,,,,,%p składa hołd wielkiej mocy gracza %k.,%p se curvou diante do poder supremo de %k.,,%p se închină în fața lui %k.,,
-%p was killed by %k's %z.,TXTS_MPOBIT04,,,,,%p wurde von %ks %z getötet.,,,,,,,,,,,,%p ginie przez %z gracza %k.,%p foi morto com %z de %k.,,%p a fost omorât de %k's %z.,,
-%p got slapped down hard by %k's %z.,TXTS_MPOBIT05,,,,,%p wurde von %ks %z hinweggeblasen.,,,,,,,,,,,,%p dostaje po dupie przez %z gracza %k.,%p levou uns tabefes de %z de %k.,,%p a primit o palmă puternică de la %k's %z.,,
-%p got on his knees before %k.,TXTS_MPOBIT06,,,,,%p machte einen Kniefall vor %k.,,,,,,,,,,,,%p pada na kolana przed %k.,%p se ajoelhou diante de %k.,,%p a îngenunchiat în fața lui %k.,,
-%p was totally out classed by %k's %z.,TXTS_MPOBIT07,,,,,%p wurde von %ks %z deklassiert.,,,,,,,,,,,,%p dostaje zaćmienia umysłu przez %z gracza %k.,%p não teve a menor chance contra %z de %k.,,%p a luat clasă de la %k's %z.,,
-%p got chewed apart by %k's %z.,TXTS_MPOBIT08,,,,,%p wurde von %ks %z zermalmt.,,,,,,,,,,,,%p rozpada się przez %z gracza %k.,%p virou pedacinhos por %z de %k.,,%p a fost mâncat de %k's %z.,,
-%p was retired by %k's %z.,TXTS_MPOBIT09,,,,,%p wurde von %ks %z in den Ruhestand entlassen.,,,,,,,,,,,,%p przechodzi na emeryturę przez %z gracza %k.,%p foi aposentado por %z de %k.,,%p a fost scos la pensie de către %k.,,
-%p was greased by %k's %z.,TXTS_MPOBIT10,,,,,%p wurde von %ks %z eingeseift.,,,,,,,,,,,,%p zmienia się w smalec przez %z gracza %k.,%p virou patê por %z de %k.,,%p a fost făcut pateu de către %k's %z.,,
-%p was humbled lower than dirt by %k.,TXTS_MPOBIT11,,,,,%p wurde von %ks %z erniedrigt.,,,,,,,,,,,,%p doznaje upokorzenia przez gracza %k.,%p foi humilhado até não poder mais por %z de %k.,,%p a fost umilit mai prejos de noroi de %k.,,
-%p beats %k like a red headed step child.,TXTS_MPOBIT12,,,,,%p wurde von %ks %z zu Brei verarbeitet.,,,,,,,,,,,,%p bije %k jak małe dziecko.,%p espancou %k que nem um pobre coitado.,,%p îl bate pe %k de îi sună apa în cap.,,
-%p begs for mercy as %k terminates @[en_ppro] with extreme prejudice.,TXTS_MPOBIT13,,,,,"%p hat um Gnade gebettelt, als %k @[de_ppro] aus dem Verkehr gezogen hat.",,,,,,,,,,,,%p błaga o litość podczas egzekucji porwadzonej przez gracza %k.,%p implorou por piedade enquanto %k acaba com @[en_ppro] com força máxima.,,%p cere îndurare în timp ce %k îl termină pe @[en_ppro] cu prejudiciu maxim.,,
-%p falls before the superior skills of %k.,TXTS_MPOBIT14,,,,,%p wurde von %ks überlegenen Fähigkeiten überwältigt.,,,,,,,,,,,,%p pada na twarz doświadczając niesamowitych zdolności gracza %k.,%p tombou diante das habilidades superiores de %k.,,%p cade în fața aptitudinilor superioare ale lui %k.,,
-%k gives %p a beating @[en_pro] will never forget.,TXTS_MPOBIT15,,,,,%p wurde von %ks %z zu Brei verarbeitet.,,,,,,,,,,,,"%p dostaje takie lanie od gracza %k, którego nigdy nie zapomni.",%k encheu %p de tanta porrada que @[en_pro] nunca vai se esquecer.,,%k îi dă o bătaie lui %p pe care n-o s-o uite niciodată.,,
-%k puts the Smack Dab on %p with the %z.,TXTS_MPOBIT16,,,,,%p wurde von %ks %z in den Arsch getreten.,,,,,,,,,,,,%p dostaje po dupie przez %z gracza %k.,%k deu uma sova em %p com %z.,,%k dansează pe cadavrul lui %p cu %z.,,
+%p decided to do the graveyard tour.,TXTS_SUICIDE01,"todo (player.cpp, line 6346ff)",,,%p se rozhodl@[ao_cs] prohlédnout si hřbitov.,"%p entschied sich, die Friedhofstour zu machen.",,,,,,,,,,,,%p postanawia się przejść po cmentarzu.,%p decidiu visitar o cemitério.,,%p a decis să facă un tur la cimitir.,,
+%p had enough and checked out.,TXTS_SUICIDE02,,,,%p už měl@[ao_cs] dost a rozhodl@[ao_cs] se odejít.,%p hatte genug und verschwand.,,,,,,,,,,,,%p ma już dość.,%p teve o bastante e deu o fora.,,%p s-a plictisit și ne-a părăsit.,,
+%p didn't fear the Reaper.,TXTS_SUICIDE03,,,,%p se nebál@[ao_cs] Smrtky.,%p hatte keine Angst vor dem Tod.,,,,,,,,,,,,%p nie boi się Rozpruwacza.,%p não tinha medo da morte.,,%p nu s-a temut de Spintecător.,,
+%p dialed the 1-800-CYANIDE line.,TXTS_SUICIDE04,,,,%p zavolal@[ao_cs] na linku 800 KYANID.,%p wählte 0800-ZYANID.,,,,,,,,,,,,%p dzwoni na Cyjankową Linię.,%p ligou para o número 0800-CIANURETO.,,%p a sunat la linia 1-800-CIANURĂ.,,
+%p wasted himself.,TXTS_SUICIDE05,,,,%p se zabil@[ao_cs].,%p erledigte sich selbst,,,,,,,,,,,,%p pogrąża się w zatraceniu.,%p se detonou.,,%p s-a irosit.,,
+%p kicked his own ass.,TXTS_SUICIDE06,,,,%p se nakopal@[ao_cs] do prdele.,%p trat sich selbst in den Hintern.,,,,,,,,,,,,%p postanawia skopać własne dupsko.,%p chutou a própria bunda.,,%p și-a dat bătaie singur.,,
+%p went out in blaze of his own glory.,TXTS_SUICIDE07,,,,%p padl@[ao_cs] ve svém vlastním boji.,%p ging in Flammen seiner eigenen Herrlichkeit aus.,,,,,,,,,,,,%p staje w ogniu swej chwały.,%p se foi no lampejo de sua própria glória.,,%p a plecat strălucind de propria glorie.,,
+%p killed himself before anyone else could.,TXTS_SUICIDE08,,,,"%p se zabil@[ao_cs] dřív, než to udělal někdo jiný.","%p tötete sich selbst, bevor irgend jemand anderes dies schaffte.",,,,,,,,,,,,%p zabija się zanim ktoś inny to zrobi.,%p se matou antes que qualquer outro pudesse matar.,,%p s-a sinucis înainte să-l prindă cineva.,,
+%p needs shooting lessons.,TXTS_SUICIDE09,,,,%p potřebuje lekce střelby.,%p braucht Waffentraining.,,,,,,,,,,,,%p musi się nauczyć strzelać.,%p precisa de umas aulas de tiro.,,%p are nevoie de lecții de tir.,,
+%p blew his head off.,TXTS_SUICIDE10,,,,%p si odpálil@[ao_cs] hlavu.,%p hat sich den Kopf weggepustet.,,,,,,,,,,,,%p wysadza swój zakuty łeb.,%p estourou os próprios miolos.,,%p și-a aruncat capul în aer.,,
+%p did everyone a favor and offed himself,TXTS_SUICIDE11,,,,%p prokázal@[ao_cs] všem laskavost a zabil@[ao_cs] se.,%p hat allen einen Gefallen getan und sich selbst verabschiedet.,,,,,,,,,,,,%p wyświadcza innym przysługę i się zabija.,%p fez um favor à todos e se matou.,,%p a făcut tuturor un serviciu și s-a omorât singur.,,
+%p was wasted by %k's %z.,TXTS_MPOBIT01,,,,%p byl@[ao_cs] zničen@[ao_cs] zbr. %z hr. %k.,%p wurde von %ks %z niedergestreckt.,,,,,,,,,,,,%p ginie przez %z gracza %k.,%p foi aniquilado com %z de %k.,,%p a fost irosit de %k's %z.,,
+%p got his ass kicked by %k's %z.,TXTS_MPOBIT02,,,,%p dostal@[ao_cs] na prdel zbr. %z hr. %k.,%p wurde von %ks %z in den Arsch getreten.,,,,,,,,,,,,%p ma skopane dupsko przez %z gracza %k.,%p tomou um laço de %z de %k.,,%p a luat bătaie de la %k's %z.,,
+%p bows down before the mighty power of %k.,TXTS_MPOBIT03,,,,%p se klaní před mocnou silou hráče %k.,%p machte einen Kniefall vor %ks Macht.,,,,,,,,,,,,%p składa hołd wielkiej mocy gracza %k.,%p se curvou diante do poder supremo de %k.,,%p se închină în fața lui %k.,,
+%p was killed by %k's %z.,TXTS_MPOBIT04,,,,%p byl@[ao_cs] zabit@[ao_cs] zbr. %z hr. %k.,%p wurde von %ks %z getötet.,,,,,,,,,,,,%p ginie przez %z gracza %k.,%p foi morto com %z de %k.,,%p a fost omorât de %k's %z.,,
+%p got slapped down hard by %k's %z.,TXTS_MPOBIT05,,,,%p dostal@[ao_cs] přes hubu zbr. %z hr. %k.,%p wurde von %ks %z hinweggeblasen.,,,,,,,,,,,,%p dostaje po dupie przez %z gracza %k.,%p levou uns tabefes de %z de %k.,,%p a primit o palmă puternică de la %k's %z.,,
+%p got on his knees before %k.,TXTS_MPOBIT06,,,,%p poklekl@[ao_cs] před hráčem %k.,%p machte einen Kniefall vor %k.,,,,,,,,,,,,%p pada na kolana przed %k.,%p se ajoelhou diante de %k.,,%p a îngenunchiat în fața lui %k.,,
+%p was totally out classed by %k's %z.,TXTS_MPOBIT07,,,,%p se nemohl@[ao_cs] rovnat zbr. %z hr. %k.,%p wurde von %ks %z deklassiert.,,,,,,,,,,,,%p dostaje zaćmienia umysłu przez %z gracza %k.,%p não teve a menor chance contra %z de %k.,,%p a luat clasă de la %k's %z.,,
+%p got chewed apart by %k's %z.,TXTS_MPOBIT08,,,,%p byl@[ao_cs] rozsekán@[ao_cs] zbr. %z hr. %k.,%p wurde von %ks %z zermalmt.,,,,,,,,,,,,%p rozpada się przez %z gracza %k.,%p virou pedacinhos por %z de %k.,,%p a fost mâncat de %k's %z.,,
+%p was retired by %k's %z.,TXTS_MPOBIT09,,,,%p byl@[ao_cs] poslán@[ao_cs] do důchodu zbr. %z hr. %k.,%p wurde von %ks %z in den Ruhestand entlassen.,,,,,,,,,,,,%p przechodzi na emeryturę przez %z gracza %k.,%p foi aposentado por %z de %k.,,%p a fost scos la pensie de către %k.,,
+%p was greased by %k's %z.,TXTS_MPOBIT10,,,,%p byl@[ao_cs] rozmaštěn@[ao_cs] zbr. %z hr. %k.,%p wurde von %ks %z eingeseift.,,,,,,,,,,,,%p zmienia się w smalec przez %z gracza %k.,%p virou patê por %z de %k.,,%p a fost făcut pateu de către %k's %z.,,
+%p was humbled lower than dirt by %k.,TXTS_MPOBIT11,,,,%p žere hlínu kvůli hráči %k.,%p wurde von %ks %z erniedrigt.,,,,,,,,,,,,%p doznaje upokorzenia przez gracza %k.,%p foi humilhado até não poder mais por %z de %k.,,%p a fost umilit mai prejos de noroi de %k.,,
+%p beats %k like a red headed step child.,TXTS_MPOBIT12,,,,%p se snaží prát s hráčem %k jako rozzlobené děcko.,%p wurde von %ks %z zu Brei verarbeitet.,,,,,,,,,,,,%p bije %k jak małe dziecko.,%p espancou %k que nem um pobre coitado.,,%p îl bate pe %k de îi sună apa în cap.,,
+%p begs for mercy as %k terminates @[en_ppro] with extreme prejudice.,TXTS_MPOBIT13,,,,%p byl@[ao_cs] nelítostně terminován@[ao_cs] hráčem %k.,"%p hat um Gnade gebettelt, als %k @[de_ppro] aus dem Verkehr gezogen hat.",,,,,,,,,,,,%p błaga o litość podczas egzekucji porwadzonej przez gracza %k.,%p implorou por piedade enquanto %k acaba com @[en_ppro] com força máxima.,,%p cere îndurare în timp ce %k îl termină pe @[en_ppro] cu prejudiciu maxim.,,
+%p falls before the superior skills of %k.,TXTS_MPOBIT14,,,,%p padl@[ao_cs] před schopnostmi hráče %k.,%p wurde von %ks überlegenen Fähigkeiten überwältigt.,,,,,,,,,,,,%p pada na twarz doświadczając niesamowitych zdolności gracza %k.,%p tombou diante das habilidades superiores de %k.,,%p cade în fața aptitudinilor superioare ale lui %k.,,
+%k gives %p a beating @[en_pro] will never forget.,TXTS_MPOBIT15,,,,"%p dostal@[ao_cs] od hr. %k nakládačku, jakou nezapomene.",%p wurde von %ks %z zu Brei verarbeitet.,,,,,,,,,,,,"%p dostaje takie lanie od gracza %k, którego nigdy nie zapomni.",%k encheu %p de tanta porrada que @[en_pro] nunca vai se esquecer.,,%k îi dă o bătaie lui %p pe care n-o s-o uite niciodată.,,
+%k puts the Smack Dab on %p with the %z.,TXTS_MPOBIT16,,,,%p byl@[ao_cs] natrvalo uklidněn@[ao_cs] zbr. %z hr. %k.,%p wurde von %ks %z in den Arsch getreten.,,,,,,,,,,,,%p dostaje po dupie przez %z gracza %k.,%k deu uma sova em %p com %z.,,%k dansează pe cadavrul lui %p cu %z.,,
 This only opens in single play.,TXTS_SPONLY,,,,Tato oblast je dostupná pouze v režimu pro jednoho hráče.,Dies öffnet nur im Einzelspielermodus.,,,Esto sólo se abre en el modo de un jugador.,,,,,,,,,To otwiera się tylko w trybie jednoosobowym.,Isso somente abre no modo singleplayer.,,Se deschide doar în modul solo.,,
 You found a secret area!,TXTS_SECRET,,,,Našel jsi tajnou oblast!,Du hast ein Geheimlevel gefunden.,,,¡Encontraste un área secreta!,,,,,,,,,Znalazłeś sekret!,Você encontrou uma área secreta!,,Ai găsit un secret!,,
 Zombie,Zombie,,ShadowWarrior,,,,,,Zombi,,,,,,,,,Zombi,Zumbi,,Zombi,,
@@ -1475,7 +1475,7 @@ Monastery,TXTS_MAP09,,,,Klášter,Kloster,,,Monasterio,,,,,,,,,Klasztor,Mosteiro
 Raider of the Lost Wang,TXTS_MAP10,,,,Dobyvatel ztraceného Wanga,Jäger des verlorenen Wang,,,,,,,,,,,,Poszukiwacz Zaginionego Wanga,Caçadores do Wang Perdido,,Nava Pierdutului Wang,,
 Sumo Sky Palace,TXTS_MAP11,,,,Nebeský palác suma,Sumo Himmelspalast,,,Palacio Celestial de Sumo,,,,,,,,,Podniebny Pałac Sumo,Palácio Celestial do Sumo,,Palatul Celest Sumo,,
 Bath House,TXTS_MAP12,,,,Lázně,Badehaus,,,Saunas,,,,,,,,,Łaźnie,Casa de Banho,,Casa de Baie,,
-Unfriendly Skies,TXTS_MAP13,,,,Nepřátelské nebe,Unfreundlicher Himmel,,,,,,,,,,,,Wróg Na Horyzoncie,Céus Nada Amigáveis,,Orizonturi Ostile,,
+Unfriendly Skies,TXTS_MAP13,,,,Nevlídné nebe,Unfreundlicher Himmel,,,,,,,,,,,,Wróg Na Horyzoncie,Céus Nada Amigáveis,,Orizonturi Ostile,,
 Crude Oil,TXTS_MAP14,,,,Surová ropa,Rohöl,,,,,,,,,,,,Ropa,Puro Petróleo,,Ulei Nerafinat,,
 Coolie Mines,TXTS_MAP15,,,,Důl kuliů,Kuli Minen,,,,,,,,,,,,Kopalnie Kulisów,Minas dos Coolies,,Minele Coolie,,
 Subpen 7,TXTS_MAP16,,,,Ponorkový bunkr 7,Gebäude 7,,,,,,,,,,,,Baza 7,Base de Submarinos 7,,Baza de Submarine 7,,
@@ -1484,71 +1484,71 @@ Floating Fortress,TXTS_MAP18,,,,Létající pevnost,Schwebende Festung,,,Fortale
 Water Torture,TXTS_MAP19,,,,Vodní mučení,Wasserfolter,,,,,,,,,,,,Wodna Tortura,Tortura d'Água,,Tortura Apei,,
 Stone Rain,TXTS_MAP20,,,,Prší kamení,Steinregen,,,,,,,,,,,,Deszcz Kamieni,Chuva de Pedra,,Ploaia de Pietre,,
 Shanghai Shipwreck,TXTS_MAP21,,,,Šanghajský vrak,Shanghai Schiffbruch,,,,,,,,,,,,Wrak w Szanghaju,Naufrágio em Xangai,,Naufragiul din Shanghai,,
-Auto Maul,TXTS_MAP22,,,,,Autoverwertung,,,,,,,,,,,,Warsztat,Autopeças,,Pecos Auto,,
-Heavy Metal (DM only),TXTS_MAP23,,,,,Heavy Metal (Nur DM),,,,,,,,,,,,Heavy Metal (tylko DM),Heavy Metal (somente DM),,Metal Greu (doar DM),,
-Ripper Valley (DM only),TXTS_MAP24,,,,,Rippertal (Nur DM),,,,,,,,,,,,Aleja Rozpruwaczy (tylko DM),Vale dos Rippers (somente DM),,Valea Ripperilor (doar DM),,
-House of Wang (DM only),TXTS_MAP25,,,,,Wangs Haus (Nur DM),,,,,,,,,,,,Dom Wanga (tylko DM),Casa do Wang (somente DM),,Casa lui Wang (doar DM),,
-Lo Wang Rally (DM only),TXTS_MAP26,,,,,Lo Wang Rallye (Nur DM),,,,,,,,,,,,Zlot Wangów (tylko DM),Rally do Lo Wang (somente DM),,Raliul Lo Wang (doar DM),,
-Ruins of the Ronin (CTF),TXTS_MAP27,,,,,Ruinen der Ronin (CTF),,,,,,,,,,,,Ruiny Ronina (Przejmij Flagę),Ruinas do Ronin (CTF),,Ruinele Roninului (CTF),,
-Killing Fields (CTF),TXTS_MAP28,,,,,Schlachtfelder (CTF),,,,,,,,,,,,Pola Śmierci (Przejmij Flagę),Campos de Execução (CTF),,Câmpiile de Execuție (CTF),,
-Chinatown,TXTS_W_MAP01,Wanton Destruction,,,,,,,,,,,,,,,,,,,Cartierul Chinezesc,,
-Monastery,TXTS_W_MAP02,,,,,Kloster,,,,,,,,,,,,Klasztor,Mosteiro,,Mănăstirea,,
-Trolley Yard,TXTS_W_MAP03,,,,,Straßenbahndepot,,,,,,,,,,,,Zajezdnia Tramwajowa,Estação de Bondes,,Gara Troleelor,,
-Restaurant,TXTS_W_MAP04,,,,,,,,,,,,,,,,,Restauracja,Restaurante,,Restaurantul,,
-Skyscraper,TXTS_W_MAP05,,,,,Wolkenkratzer,,,Rascacielos,,,,,,,,,Wieżowiec,Arranha-céu,,Zgârie-Norul,,
-Airplane,TXTS_W_MAP06,,,,,Flugzeug,,,,,,,,,,,,Samolot,Aeronave,,Avionul,,
-Military Base,TXTS_W_MAP07,,,,,Militärbasis,,,,,,,,,,,,Baza Wojskowa,Base Militar,,Baza Militară,,
-Train,TXTS_W_MAP08,,,,,Zug,,,Tren,,,,,,,,,Pociąg,Trêm,,Trenul,,
-Auto Factory,TXTS_W_MAP09,,,,,Autofabrik,,,,,,,,,,,,Fabryka Samochodów,Fábrica de Automóveis,,Fabrica Automotivă,,
-Skyline,TXTS_W_MAP10,,,,,,,,,,,,,,,,,Horyzont,Horizonte Urbano,,Orizontul Urban,,
-Redwood Forest,TXTS_W_MAP11,,,,,Redwoodwald,,,,,,,,,,,,Las Sekwoi,Floresta de Sequóias,,Pădurea Redwood,,
+Auto Maul,TXTS_MAP22,,,,Autosalón smrti,Autoverwertung,,,,,,,,,,,,Warsztat,Autopeças,,Pecos Auto,,
+Heavy Metal (DM only),TXTS_MAP23,,,,Heavy metal (pouze DM),Heavy Metal (Nur DM),,,,,,,,,,,,Heavy Metal (tylko DM),Heavy Metal (somente DM),,Metal Greu (doar DM),,
+Ripper Valley (DM only),TXTS_MAP24,,,,Údolí drásačů (pouze DM),Rippertal (Nur DM),,,,,,,,,,,,Aleja Rozpruwaczy (tylko DM),Vale dos Rippers (somente DM),,Valea Ripperilor (doar DM),,
+House of Wang (DM only),TXTS_MAP25,,,,Wangův dům (pouze DM),Wangs Haus (Nur DM),,,,,,,,,,,,Dom Wanga (tylko DM),Casa do Wang (somente DM),,Casa lui Wang (doar DM),,
+Lo Wang Rally (DM only),TXTS_MAP26,,,,Rally Lo Wang (pouze DM),Lo Wang Rallye (Nur DM),,,,,,,,,,,,Zlot Wangów (tylko DM),Rally do Lo Wang (somente DM),,Raliul Lo Wang (doar DM),,
+Ruins of the Ronin (CTF),TXTS_MAP27,,,,Róninovy trosky (CTF),Ruinen der Ronin (CTF),,,,,,,,,,,,Ruiny Ronina (Przejmij Flagę),Ruinas do Ronin (CTF),,Ruinele Roninului (CTF),,
+Killing Fields (CTF),TXTS_MAP28,,,,Popravčí pole (CTF),Schlachtfelder (CTF),,,,,,,,,,,,Pola Śmierci (Przejmij Flagę),Campos de Execução (CTF),,Câmpiile de Execuție (CTF),,
+Chinatown,TXTS_W_MAP01,Wanton Destruction,,,Čínské město,,,,,,,,,,,,,,,,Cartierul Chinezesc,,
+Monastery,TXTS_W_MAP02,,,,Svatyně,Kloster,,,,,,,,,,,,Klasztor,Mosteiro,,Mănăstirea,,
+Trolley Yard,TXTS_W_MAP03,,,,Tramvajové depo,Straßenbahndepot,,,,,,,,,,,,Zajezdnia Tramwajowa,Estação de Bondes,,Gara Troleelor,,
+Restaurant,TXTS_W_MAP04,,,,Restaurace,,,,,,,,,,,,,Restauracja,Restaurante,,Restaurantul,,
+Skyscraper,TXTS_W_MAP05,,,,Mrakodrap,Wolkenkratzer,,,Rascacielos,,,,,,,,,Wieżowiec,Arranha-céu,,Zgârie-Norul,,
+Airplane,TXTS_W_MAP06,,,,Letadlo,Flugzeug,,,,,,,,,,,,Samolot,Aeronave,,Avionul,,
+Military Base,TXTS_W_MAP07,,,,Vojenská základna,Militärbasis,,,,,,,,,,,,Baza Wojskowa,Base Militar,,Baza Militară,,
+Train,TXTS_W_MAP08,,,,Vlak,Zug,,,Tren,,,,,,,,,Pociąg,Trêm,,Trenul,,
+Auto Factory,TXTS_W_MAP09,,,,Automobilka,Autofabrik,,,,,,,,,,,,Fabryka Samochodów,Fábrica de Automóveis,,Fabrica Automotivă,,
+Skyline,TXTS_W_MAP10,,,,Výhled,,,,,,,,,,,,,Horyzont,Horizonte Urbano,,Orizontul Urban,,
+Redwood Forest,TXTS_W_MAP11,,,,Rudý les,Redwoodwald,,,,,,,,,,,,Las Sekwoi,Floresta de Sequóias,,Pădurea Redwood,,
 The Docks,TXTS_W_MAP12,,,,Přístav,Die Docks,,La Havenoj,Los Muelles,,Satamat,Les Docks,A Kikötő,Il Molo,埠頭,항구,De dokken,Doki,As Docas,,Docul,Доки,Лука
-Waterfight (DM only),TXTS_W_MAP13,,,,,Wasserkampf (Nur DM),,,,,,,,,,,,Walka w Wodzie (tylko DM),Confronto Aquático (somente DM),,Confruntarea Acvatică (doar DM),,
-Wanton DM 1 (DM only),TXTS_W_MAP14,,,,,Wanton DM 1 (Nur DM),,,,,,,,,,,,Bezmyślny Deathmatch 1 (tylko DM),Matança Total 1 (somente DM),,Wanton DM 1 (doar DM),,
-Wanton DM2 (DM only),TXTS_W_MAP15,,,,,Wanton DM2 (Nur DM),,,,,,,,,,,,Bezmyślny Deathmatch 2 (tylko DM),Matança Total 2 (somente DM),,Wanton DM 2 (doar DM),,
-Wanton CTF (CTF),TXTS_W_MAP16,,,,,,,,,,,,,,,,,Bezmyślne Flagi (Przejmij Flagę),CTF Total (CTF),,Wanton CTF (CTF),,
-Wanton Destruction,TXTS_W_EP,,,,,Mutwillige Zerstörung,,,,,,,,,,,,Bezmyślna Przemoc,Destruição Total,,Distrugere Totală,,
-Home Sweet Home,TXTS_T_MAP05,Twin Dragon,,,,"Trautes Heim, Glück allein",,,"Hogar, Dulce Hogar",,,,,,,,,Nie Ma To Jak W Domu,Lar Doce Lar,,Casă Dulce Casă,,
-City of Dispair,TXTS_T_MAP06,,,,,Stadt der Verzweiflung,,,,,,,,,,,,Miasto Rozpaczy,Cidade do Desespero,,Orașul Disperării,,
-Emergency Room,TXTS_T_MAP07,,,,,Notaufnahme,,,,,,,,,,,,Ostry Dyżur,Sala de Emergência,,Salonul de Urgență,,
-Hide and Seek,TXTS_T_MAP08,,,,,Versteckspiel,,,,,,,,,,,,Zabawa W Chowanego,Esconde-Esconde,,De-a v-ați Ascunselea,,
-Warehouse Madness,TXTS_T_MAP09,,,,,Lagerhauswahnsinn,,,,,,,,,,,,Szaleństwo W Magazynie,Insanidade no Depósito,,Nebunie la Depozit,,
-Weapons Research Center,TXTS_T_MAP10,,,,,Waffenforschung,,,,,,,,,,,,Centrum Wytwarzania Broni,Centro de Pesquisa de Armamentos,,Centrul de Cercetare al Armelor,,
-Toxic Waste Facility,TXTS_T_MAP11,,,,,Giftabfallbeseitigung,,,,,,,,,,,,Fabryka Toksyn,Indústria Tóxica,,Fabrica de Deșeuri Toxice,,
-Silver Bullet,TXTS_T_MAP12,,,,,Silberkugel,,,,,,,,,,,,Srebrna Kula,Bala de Prata,,Glonțul de Argint,,
-Fishing Village,TXTS_T_MAP13,,,,,Fischerdorf,,,,,,,,,,,,Wioska Rybacka,Vila de Pescadores,,Satul Pescarilor,,
-Secret Garden,TXTS_T_MAP14,,,,,Geheimer Garten,,,,,,,,,,,,Tajemniczy Ogród,Jardim Secreto,,Grădina Secretă,,
-Hung Lo's Fortress,TXTS_T_MAP15,,,,,Hung Los Festung,,,Fortaleza de Hung Lo,,,,,,,,,Forteca Hung Lo,Fortaleza de Hung Lo,,Fortăreața lui Hung Lo,,
-Hung Lo's Palace,TXTS_T_MAP20,,,,,Hung Los Palast,,,Palacio de Hung Lo,,,,,,,,,Pałac Hung Lo,Palácio de Hung Lo,,Palatul lui Hung Lo,,
-Prison Camp,TXTS_T_MAP21,,,,,Gefangenenlager,,,Campo de Prisioneros,,,,,,,,,Obóz Dla Jeńców,Campo de Prisioneiros,,Tabăra Prizonierilor,,
-Ninja Training Camp (DM),TXTS_T_MAP23,,,,,,,,,,,,,,,,,Obóz Treningowy (DM),Campo de Treinamento Ninja (DM),,Tabăra de Antrenamente Ninja (DM),,
-The Morgue/Mortuary (DM),TXTS_T_MAP24,,,,,Die Leichenhalle (DM),,,,,,,,,,,,Kostnica (DM),Necrotério (DM),,Morga (DM),,
-Island Caves (DM),TXTS_T_MAP25,,,,,Inselhöhlen (DM),,,,,,,,,,,,Jaskinie Na Wyspie (DM),Cavernas da Ilha (DM),,Cavernele Insulei (DM),,
-Twin Dragon,TXTS_T_TITLE,,,,,Zwillingsdrache,,,,,,,,,,,,Bratni Smok,Dragão Gêmeo,,Dragonul Geamăn,,
-Lo Wang is waiting for other players...,TXTS_NETWAIT1,currently unused,,,,,,,Lo Wang está esperando por otros jugadores...,,,,,,,,,Lo Wang czeka na innych graczy...,Lo Wang está esperando os outros jogadores...,,Lo Wang așteaptă restul jucătorilor...,,
-They are afraid!,TXTS_NETWAIT2,currently unused,,,,,,,¡Están asustados!,,,,,,,,,Boją się!,Eles estão com medo!,,Sunt lași!,,
+Waterfight (DM only),TXTS_W_MAP13,,,,Vodní bitva (pouze DM),Wasserkampf (Nur DM),,,,,,,,,,,,Walka w Wodzie (tylko DM),Confronto Aquático (somente DM),,Confruntarea Acvatică (doar DM),,
+Wanton DM 1 (DM only),TXTS_W_MAP14,,,,Zběsilý DM 1 (pouze DM),Wanton DM 1 (Nur DM),,,,,,,,,,,,Bezmyślny Deathmatch 1 (tylko DM),Matança Total 1 (somente DM),,Wanton DM 1 (doar DM),,
+Wanton DM2 (DM only),TXTS_W_MAP15,,,,Zběsilý DM 2 (pouze DM),Wanton DM2 (Nur DM),,,,,,,,,,,,Bezmyślny Deathmatch 2 (tylko DM),Matança Total 2 (somente DM),,Wanton DM 2 (doar DM),,
+Wanton CTF (CTF),TXTS_W_MAP16,,,,Zběsilý CTF (CTF),,,,,,,,,,,,,Bezmyślne Flagi (Przejmij Flagę),CTF Total (CTF),,Wanton CTF (CTF),,
+Wanton Destruction,TXTS_W_EP,,,,Zběsilý dranc,Mutwillige Zerstörung,,,,,,,,,,,,Bezmyślna Przemoc,Destruição Total,,Distrugere Totală,,
+Home Sweet Home,TXTS_T_MAP05,Twin Dragon,,,"Domov, sladký domov","Trautes Heim, Glück allein",,,"Hogar, Dulce Hogar",,,,,,,,,Nie Ma To Jak W Domu,Lar Doce Lar,,Casă Dulce Casă,,
+City of Dispair,TXTS_T_MAP06,,,,Město beznaděje,Stadt der Verzweiflung,,,,,,,,,,,,Miasto Rozpaczy,Cidade do Desespero,,Orașul Disperării,,
+Emergency Room,TXTS_T_MAP07,,,,Ambulantní příjem,Notaufnahme,,,,,,,,,,,,Ostry Dyżur,Sala de Emergência,,Salonul de Urgență,,
+Hide and Seek,TXTS_T_MAP08,,,,Hra na schovávanou,Versteckspiel,,,,,,,,,,,,Zabawa W Chowanego,Esconde-Esconde,,De-a v-ați Ascunselea,,
+Warehouse Madness,TXTS_T_MAP09,,,,Skladištní šílenství,Lagerhauswahnsinn,,,,,,,,,,,,Szaleństwo W Magazynie,Insanidade no Depósito,,Nebunie la Depozit,,
+Weapons Research Center,TXTS_T_MAP10,,,,Výzkumné centrum zbraní,Waffenforschung,,,,,,,,,,,,Centrum Wytwarzania Broni,Centro de Pesquisa de Armamentos,,Centrul de Cercetare al Armelor,,
+Toxic Waste Facility,TXTS_T_MAP11,,,,Zařízení pro toxický odpad,Giftabfallbeseitigung,,,,,,,,,,,,Fabryka Toksyn,Indústria Tóxica,,Fabrica de Deșeuri Toxice,,
+Silver Bullet,TXTS_T_MAP12,,,,Stříbrná kulka,Silberkugel,,,,,,,,,,,,Srebrna Kula,Bala de Prata,,Glonțul de Argint,,
+Fishing Village,TXTS_T_MAP13,,,,Rybářská osada,Fischerdorf,,,,,,,,,,,,Wioska Rybacka,Vila de Pescadores,,Satul Pescarilor,,
+Secret Garden,TXTS_T_MAP14,,,,Tajná zahrada,Geheimer Garten,,,,,,,,,,,,Tajemniczy Ogród,Jardim Secreto,,Grădina Secretă,,
+Hung Lo's Fortress,TXTS_T_MAP15,,,,Dlou Čurova pevnost,Hung Los Festung,,,Fortaleza de Hung Lo,,,,,,,,,Forteca Hung Lo,Fortaleza de Hung Lo,,Fortăreața lui Hung Lo,,
+Hung Lo's Palace,TXTS_T_MAP20,,,,Dlou Čurův palác,Hung Los Palast,,,Palacio de Hung Lo,,,,,,,,,Pałac Hung Lo,Palácio de Hung Lo,,Palatul lui Hung Lo,,
+Prison Camp,TXTS_T_MAP21,,,,Vězeňský tábor,Gefangenenlager,,,Campo de Prisioneros,,,,,,,,,Obóz Dla Jeńców,Campo de Prisioneiros,,Tabăra Prizonierilor,,
+Ninja Training Camp (DM),TXTS_T_MAP23,,,,Cvičební tábor ninjů (DM),,,,,,,,,,,,,Obóz Treningowy (DM),Campo de Treinamento Ninja (DM),,Tabăra de Antrenamente Ninja (DM),,
+The Morgue/Mortuary (DM),TXTS_T_MAP24,,,,Márnice (DM),Die Leichenhalle (DM),,,,,,,,,,,,Kostnica (DM),Necrotério (DM),,Morga (DM),,
+Island Caves (DM),TXTS_T_MAP25,,,,Ostrovní jeskyně (DM),Inselhöhlen (DM),,,,,,,,,,,,Jaskinie Na Wyspie (DM),Cavernas da Ilha (DM),,Cavernele Insulei (DM),,
+Twin Dragon,TXTS_T_TITLE,,,,Dračí dvojče,Zwillingsdrache,,,,,,,,,,,,Bratni Smok,Dragão Gêmeo,,Dragonul Geamăn,,
+Lo Wang is waiting for other players...,TXTS_NETWAIT1,currently unused,,,Lo Wang čeká na ostatní hráče...,,,,Lo Wang está esperando por otros jugadores...,,,,,,,,,Lo Wang czeka na innych graczy...,Lo Wang está esperando os outros jogadores...,,Lo Wang așteaptă restul jucătorilor...,,
+They are afraid!,TXTS_NETWAIT2,currently unused,,,Oni se bojí!,,,,¡Están asustados!,,,,,,,,,Boją się!,Eles estão com medo!,,Sunt lași!,,
 ,,Exhumed,,,,,,,,,,,,,,,,,,,,,
-Training,TXT_EX_MAP00,,,,,,,,Entrenamiento,,,,,,,,,Trening,Treinamento,,Antrenament,,
-Abu Simbel,TXT_EX_MAP01,,,,,,,,,,,,,,,,,,,,,,
-Dendur,TXT_EX_MAP02,,,,,,,,,,,,,,,,,,,,,,
-Kalabsh,TXT_EX_MAP03,,,,,,,,,,,,,,,,,,,,,,
-El Subua,TXT_EX_MAP04,,,,,,,,,,,,,,,,,,,,,,
-El Derr,TXT_EX_MAP05,,,,,,,,,,,,,,,,,,,,,,
-Abu Ghurab,TXT_EX_MAP06,,,,,,,,,,,,,,,,,,,,,,
-Philae,TXT_EX_MAP07,,,,,,,,,,,,,,,,,File,Filas,,,,
-El Kab,TXT_EX_MAP08,,,,,,,,,,,,,,,,,,Elcabe,,,,
-Aswan,TXT_EX_MAP09,,,,,Assuan,,,Asuán,,,,,,,,,Asuan,Assuã,,,,
-Set Boss,TXT_EX_MAP10,,,,,,,,,,,,,,,,,Bóg Set,,,,,
-Qubbet el Hawa,TXT_EX_MAP11,,,,,,,,,,,,,,,,,,,,,,
-Abydos,TXT_EX_MAP12,,,,,,,,,,,,,,,,,,Abidos,,,,
-Edufu,TXT_EX_MAP13,,,,,,,,,,,,,,,,,,,,,,
-West Bank,TXT_EX_MAP14,,,,,Westufer,,,,,,,,,,,,Zachodni Brzeg,Margem Ocidental,,Banca Occidentală,,
+Training,TXT_EX_MAP00,,,,Výcvik,,,,Entrenamiento,,,,,,,,,Trening,Treinamento,,Antrenament,,
+Abu Simbel,TXT_EX_MAP01,,,,Abú Simbel,,,,,,,,,,,,,,,,,,
+Dendur,TXT_EX_MAP02,,,,Dendúr,,,,,,,,,,,,,,,,,,
+Kalabsh,TXT_EX_MAP03,,,,Kalabš,,,,,,,,,,,,,,,,,,
+El Subua,TXT_EX_MAP04,,,,es-Sebua,,,,,,,,,,,,,,,,,,
+El Derr,TXT_EX_MAP05,,,,el-Derr,,,,,,,,,,,,,,,,,,
+Abu Ghurab,TXT_EX_MAP06,,,,Abú Ghrajb,,,,,,,,,,,,,,,,,,
+Philae,TXT_EX_MAP07,,,,Pilak,,,,,,,,,,,,,File,Filas,,,,
+El Kab,TXT_EX_MAP08,,,,el-Káb,,,,,,,,,,,,,,Elcabe,,,,
+Aswan,TXT_EX_MAP09,,,,Asuán,Assuan,,,Asuán,,,,,,,,,Asuan,Assuã,,,,
+Set Boss,TXT_EX_MAP10,,,,Souboj se Sutechem,,,,,,,,,,,,,Bóg Set,,,,,
+Qubbet el Hawa,TXT_EX_MAP11,,,,Kubet el-Hawa,,,,,,,,,,,,,,,,,,
+Abydos,TXT_EX_MAP12,,,,Abýdos,,,,,,,,,,,,,,Abidos,,,,
+Edufu,TXT_EX_MAP13,,,,Edfu,,,,,,,,,,,,,,,,,,
+West Bank,TXT_EX_MAP14,,,,Západní břeh,Westufer,,,,,,,,,,,,Zachodni Brzeg,Margem Ocidental,,Banca Occidentală,,
 Luxor,TXT_EX_MAP15,,,,,,,,,,,,,,,,,Luksor,,,,,
 Karnak,TXT_EX_MAP16,,,,,,,,,,,,,,,,,,Carnaque,,,,
-Saqqara,TXT_EX_MAP17,,,,,,,,,,,,,,,,,Sakkara,Sacara,,,,
-Mittrahn,TXT_EX_MAP18,,,,,,,,,,,,,,,,,,,,,,
-Kilmaatikahn Boss,TXT_EX_MAP19,,,,,,,,,,,,,,,,,Kilmaatykańska Królowa,Kilmaatikahn,,,,
-Alien Mothership,TXT_EX_MAP20,,,,,Außerirdisches Mutterschiff,,,,,,,,,,,,Statek Obcych,Nave-Mãe Alienígena,,Nava Mamă,,
+Saqqara,TXT_EX_MAP17,,,,Sakkára,,,,,,,,,,,,,Sakkara,Sacara,,,,
+Mittrahn,TXT_EX_MAP18,,,,Mitrán,,,,,,,,,,,,,,,,,,
+Kilmaatikahn Boss,TXT_EX_MAP19,,,,Souboj s Kilmátichanou,,,,,,,,,,,,,Kilmaatykańska Królowa,Kilmaatikahn,,,,
+Alien Mothership,TXT_EX_MAP20,,,,Mimozemská loď,Außerirdisches Mutterschiff,,,,,,,,,,,,Statek Obcych,Nave-Mãe Alienígena,,Nava Mamă,,
 Level 21,TXT_EX_MAP21,No names exist for the MP levels,,,,,,,,,,,,,,,,Poziom 21,Fase 21,,Nivelul 21,,
 Level 22,TXT_EX_MAP22,,,,,,,,,,,,,,,,,Poziom 22,Fase 22,,Nivelul 22,,
 Level 23,TXT_EX_MAP23,,,,,,,,,,,,,,,,,Poziom 23,Fase 23,,Nivelul 23,,
@@ -1562,7 +1562,7 @@ Level 30,TXT_EX_MAP30,,,,,,,,,,,,,,,,,Poziom 30,Fase 30,,Nivelul 30,,
 Level 31,TXT_EX_MAP31,,,,,,,,,,,,,,,,,Poziom 31,Fase 31,,Nivelul 31,,
 Level 32,TXT_EX_MAP32,,,,,,,,,,,,,,,,,Poziom 32,Fase 32,,Nivelul 32,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Incoming Message,TXT_EX_LASTLEVEL1,,,,,Eingehende Nachricht,,Envena Mesaĝo,,,,,,,,,,Uwaga Wiadomość,Recebendo Mensagem,,Mesaj în Așteptare,,
+Incoming Message,TXT_EX_LASTLEVEL1,,,,Příchozí zpráva,Eingehende Nachricht,,Envena Mesaĝo,,,,,,,,,,Uwaga Wiadomość,Recebendo Mensagem,,Mesaj în Așteptare,,
 "Our latest scans show
 that the alien craft is
 powering up, apparently
@@ -1575,7 +1575,17 @@ big hole in our fine planet.
 A squad is trying to dismantle
 it right now, but no luck so
 far, and time is running out.
-",TXT_EX_LASTLEVEL2,,,,,"Unsere neuesten Scans zeigen,
+",TXT_EX_LASTLEVEL2,,,,"Poslední průzkumy ukazují,
+že mimozemské plavidlo
+začíná startovat, očividně
+za účelem odletu.
+Špatná zpráva je, že tu nechali
+zařízení, které s největší
+pravděpodobností odpálí velkou
+díru do naší krásné planety.
+Tým se momentálně snaží tuto
+bombu zneškodnit, ale zatím
+bezúspěšně - a čas vyprchává.","Unsere neuesten Scans zeigen,
 dass das außerirdische Schiff
 sufsteigt, anscheinend um die
 Erde zu verlassen.
@@ -1630,7 +1640,17 @@ take out the control panels and
 the central power source.  This
 is the big one buddy, best of
 luck... For all of us.
-",TXT_EX_LASTLEVEL3,,,,,"Begib dich an Bord dieses 
+",TXT_EX_LASTLEVEL3,,,,"Dostaň se na palubu té lodi
+dřív než odletí a poté najdi
+a odstřel všechny napájecí
+věže. Tím získáš přístup do
+řídící místnosti. Tam musíš
+zničit ovládácí panely a
+centrální zdroj napájení.
+Tohle je ono, kamaráde.
+Hodně štěstí a zlom vaz,
+za nás za všechny.
+","Begib dich an Bord dieses 
 Schiffes bevor es startet und
 zerstöre alle Energietürme um
 in den Kontrollraum einzudringen.
@@ -1720,7 +1740,18 @@ chaos will prevail. I am
 being torn between worlds
 and this insidious
 experiment must be stopped.
-",TXT_EX_CINEMA1,Level 1,,,,"Eine böse Kraft, die als Kilmaat
+",TXT_EX_CINEMA1,Level 1,,,"Zlá síla, známá jako Kilmát,
+oblehla svatost mého paláce
+a hrozí kořeném mé samotné
+existence. Tyto síly mě chtějí
+zotročit oživením mé zachovalé
+mrtvoly. Ochránil jsem své
+tělo genetickým klíčem.
+Pokud se ti toto nezdaří, nebudu
+moci ochránit civilizaci a
+zkáza zvítězí. Jsem roztrháván
+napříč světy a tento ďábelský
+experiment musí skončit.","Eine böse Kraft, die als Kilmaat
 bekannt ist, hat die Heiligkeit
 meines Palastes belagert und
 zieht an den Wurzeln meiner
@@ -1784,7 +1815,12 @@ your hands. Find the
 gauntlet and cross the Aswan
 High Dam to defeat the evil
 beast Set.
-",TXT_EX_CINEMA2,After Level 4,,,,"Ich habe in El Kab einen
+",TXT_EX_CINEMA2,After Level 4,,,"V el-Kábu jsem ukryl tajemnou
+rukavici, která ti umožní využít
+mé síly skrz tvé ruce. Najdi
+ji, přejdi Vysokou Asuánskou
+přehradu a poraž Sutecha,
+zlou bestii.","Ich habe in El Kab einen
 mystischen Handschuh
 versteckt, der meine Energie
 durch deine Hände leiten wird.
@@ -1813,7 +1849,11 @@ restless with your progress.
 Seek out a temple in this
 citadel where I will provide
 more information.
-",TXT_EX_CINEMA3,After Level 10,,,,"Du den halben Weg geschafft, 
+",TXT_EX_CINEMA3,After Level 10,,,"Jsi napůl cesty k naplnění
+svého osudu. Kilmátu se tvůj
+postup nelíbí a je neklidný.
+Najdi v této citadele chrám,
+kde ti poskytnu další informace.","Du den halben Weg geschafft, 
 um dein Schicksal zu erfüllen.
 Die Kilmaat werden durch deine
 Aktionen unruhig.
@@ -1840,7 +1880,11 @@ No mortal has even conquered
 their own fear, much less
 entered mortal battle and
 taken his life.
-",TXT_EX_CINEMA4,Before Level 11,,,,"Set war ein beeindruckender Feind.
+",TXT_EX_CINEMA4,Before Level 11,,,"Sutech byl hrozivým nepřítelem.
+Žádný smrtelník ještě neporazil
+vlastní strach, natožpak aby
+se s ním ve smrtelném souboji
+střetl a zahubil jej.","Set war ein beeindruckender Feind.
 Kein Sterblicher hat je seine
 eigene Angst besiegt, geschweige
 denn den tödlichen Kampf
@@ -1872,7 +1916,18 @@ and insect intent on slaying
 you.  Prepare yourself for
 battle as she will be waiting
 for you at the Luxor temple. 
-",TXT_EX_CINEMA5,In Level 11,,,,"Die Kilmaat-Rasse hat ihre
+",TXT_EX_CINEMA5,In Level 11,,,"Kilmátové pokračují ve svých
+nestvůrných pokusech s cílem
+rozluštit klíč k oživení
+mé mrtvoly. Tvé vítězství
+nad Sutechem tě nezpomalilo
+tolik, jak měli v plánu.
+Právě teď berou život otrokyni,
+aby stvořili další odpornou
+obludnost, kombinujíce člověka
+a hmyz s cílem tě zneškodnit.
+Připrav se na bitvu; bestie
+tě bude čekat v Luxorském chrámu.","Die Kilmaat-Rasse hat ihre
 monströsen Tier-Mensch-
 Experimente fortgesetzt,
 um den Schlüssel zur Animation
@@ -1936,7 +1991,16 @@ against you. Arrogance is
 her weakness, and if you can
 defeat Kilmaatikhan, the
 battle will be won.
-",TXT_EX_CINEMA6,After Level 15,,,,"Es war gute Arbeit, Selkis zu
+",TXT_EX_CINEMA6,After Level 15,,,"Tvé vítězství nad Selket
+bylo dobré. Podařilo se ti
+odvrátit pozornost Kilmátů,
+kteří dočasně ustali se svými
+pokusy oživit mé tělo.
+Mimozemská královna Kilmátichana
+vůči tobě teď chová osobní nenávist.
+Arogance je její slabá stránka a,
+pokud se ti Kilmátichanu podaří
+porazit, tato bitva bude dokončena.","Es war gute Arbeit, Selkis zu
 besiegen. Du hast die Kilmaat
 mit deiner Anwesenheit
 abgelenkt und sie haben die
@@ -1982,7 +2046,11 @@ destroyed the Earth and all
 of its inhabitants.  All that
 remains is a smoldering hunk
 of rock.
-",TXT_EX_CINEMA7,Bad ending,,,,"Die Kilmaat sind vernichtet.
+",TXT_EX_CINEMA7,Bad ending,,,"Kilmáti byli zničeni.
+Tvá neopatrnost ale zničila
+Zemi a všechen život na ní.
+Vše, co zbylo, je doutnající
+kus kamene.","Die Kilmaat sind vernichtet.
 Dummerweise hat deine
 Sorglosigkeit zur Zerstörung
 der Erde und all ihrer
@@ -2010,7 +2078,13 @@ from destruction.
  
 Your bravery and heroism
 are legendary.
-",TXT_EX_CINEMA8,After Level 20,,,,"Die Klimaat sind geschlagen
+",TXT_EX_CINEMA8,After Level 20,,,"Kilmáti byli zničení a
+tys vlastnoručně zachránil
+Zemi před jejím zničením.
+
+
+Tvá odvaha a hrdinství
+jsou legendární.","Die Klimaat sind geschlagen
 und du alleine hast die
 Erde vor der Zerstörung
 berwahrt.
@@ -2043,35 +2117,35 @@ Acțiunile tale eroice și curajul tău
 sunt legendare.",,
 "LOBOTOMY SOFTWARE, INC.,",TXT_EX_COPYRIGHT1,,,,,,,,,,,,,,,,,,,,,,
 "3D ENGINE BY 3D REALMS,",TXT_EX_COPYRIGHT2,,,,,,,,,,,,,,,,,,,,,,
-Life Blood,TXT_EX_PICKUP1,,,,,Lebensblut,,,,,,,,,,,,Krew Życia,Sangue da Vida,,Sângele Vieții,,
-Life,TXT_EX_PICKUP2,,,,,Leben,,,,,,,,,,,,Życie,Vida,,Viață,,
-Venom,TXT_EX_PICKUP3,,,,,Gift,,,,,,,,,,,,Jad,Veneno,,Venin,,
-You're Losing Your Grip,TXT_EX_PICKUP4,,,,,Du verlierst den Verstand,,,,,,,,,,,,Tracisz Rozum,Você Está Perdendo o Controle,,Îți Pierzi Controlul,,
-Full Life,TXT_EX_PICKUP5,,,,,Volles Leben,,,,,,,,,,,,Pełne Życie,Vida Cheia,,Viață Plină,,
-Invincibility,TXT_EX_PICKUP6,,,,,Unverwundbarkeit,,,,,,,,,,,,Nietykalność,Invencibilidade,,Invincibilitate,,
-Invisibility,TXT_EX_PICKUP7,,,,,Unsichtbarkeit,,,,,,,,,,,,Niewidzialność,Invisibilidade,,Invizibilitate,,
-Torch,TXT_EX_PICKUP8,,,,,Fackel,,,,,,,,,,,,Pochodnia,Tocha,,Torță,,
-Sobek Mask,TXT_EX_PICKUP9,,,,,Sobekmaske,,,,,,,,,,,,Maska Sobeka,Máscara de Sobeque,,Mască Sobek,,
-Increased Weapon Power!,TXT_EX_PICKUP10,,,,,Erhöhe Waffenkraft,,,,,,,,,,,,Wzmocnienie Broni!,Potência de Arma Aumentada!,,Eficacitate Arme Crescută!,,
-The Map!,TXT_EX_PICKUP11,,,,,Die Karte!,,,,,,,,,,,,Mapa!,O Mapa!,,Harta!,,
-An Extra Life!,TXT_EX_PICKUP12,,,,,Ein Extraleben,,,,,,,,,,,,Dodatkowe Życie!,Uma Vida Extra!,,O Viață Extra!,,
+Life Blood,TXT_EX_PICKUP1,,,,Krev života,Lebensblut,,,,,,,,,,,,Krew Życia,Sangue da Vida,,Sângele Vieții,,
+Life,TXT_EX_PICKUP2,,,,Život,Leben,,,,,,,,,,,,Życie,Vida,,Viață,,
+Venom,TXT_EX_PICKUP3,,,,Jed,Gift,,,,,,,,,,,,Jad,Veneno,,Venin,,
+You're Losing Your Grip,TXT_EX_PICKUP4,,,,Ztrácíš kontrolu,Du verlierst den Verstand,,,,,,,,,,,,Tracisz Rozum,Você Está Perdendo o Controle,,Îți Pierzi Controlul,,
+Full Life,TXT_EX_PICKUP5,,,,Plný život,Volles Leben,,,,,,,,,,,,Pełne Życie,Vida Cheia,,Viață Plină,,
+Invincibility,TXT_EX_PICKUP6,,,,Nesmrtelnost,Unverwundbarkeit,,,,,,,,,,,,Nietykalność,Invencibilidade,,Invincibilitate,,
+Invisibility,TXT_EX_PICKUP7,,,,Neviditelnost,Unsichtbarkeit,,,,,,,,,,,,Niewidzialność,Invisibilidade,,Invizibilitate,,
+Torch,TXT_EX_PICKUP8,,,,Pochodeň,Fackel,,,,,,,,,,,,Pochodnia,Tocha,,Torță,,
+Sobek Mask,TXT_EX_PICKUP9,,,,Maska Sobka,Sobekmaske,,,,,,,,,,,,Maska Sobeka,Máscara de Sobeque,,Mască Sobek,,
+Increased Weapon Power!,TXT_EX_PICKUP10,,,,Zvýšená síla zbraní!,Erhöhe Waffenkraft,,,,,,,,,,,,Wzmocnienie Broni!,Potência de Arma Aumentada!,,Eficacitate Arme Crescută!,,
+The Map!,TXT_EX_PICKUP11,,,,Mapa!,Die Karte!,,,,,,,,,,,,Mapa!,O Mapa!,,Harta!,,
+An Extra Life!,TXT_EX_PICKUP12,,,,Extra život!,Ein Extraleben,,,,,,,,,,,,Dodatkowe Życie!,Uma Vida Extra!,,O Viață Extra!,,
 .357 Magnum!,TXT_EX_PICKUP13,,,,,,,,,,,,,,,,,,,,Magnum .357!,,
-Grenade,TXT_EX_PICKUP14,,,,,Granate,,,,,,,,,,,,Granat,Granada,,Grenadă,,
-M-60,TXT_EX_PICKUP15,,,,,,,,,,,,,,,,,,,,,,
-Flame Thrower!,TXT_EX_PICKUP16,,,,,Flammenwerfer,,,,,,,,,,,,Miotacz Ognia!,Lança-chamas!,,Aruncător de Flăcări,,
-Cobra Staff!,TXT_EX_PICKUP17,,,,,Kobrastab,,,,,,,,,,,,Laska Kobry!,Cajado da Cobra!,,Toiag Cobră!,,
-The Eye Of Ra Gauntlet!,TXT_EX_PICKUP18,,,,,Handschuh des Auges des Ra,,,,,,,,,,,,Bransoleta Boga Ra!,Braçadeira do Olho de Rá!,,Mănușa Ochiului lui Ra!,,
-Speed Loader,TXT_EX_PICKUP19,,,,,Schnellader,,,,,,,,,,,,Naboje do Magnum,Carregador Automático,,Muniție,,
-Ammo,TXT_EX_PICKUP20,,,,,Munition,,,,,,,,,,,,Amunicja,Munição,,Muniție,,
-Fuel,TXT_EX_PICKUP21,,,,,Benzin,,,,,,,,,,,,Paliwo,Combustível,,Combustibil,,
-Cobra!,TXT_EX_PICKUP22,,,,,Kobra!,,,,,,,,,,,,Kobra!,,,Cobră!,,
-Raw Energy,TXT_EX_PICKUP23,,,,,Rohenergie,,,,,,,,,,,,Surowa Energia,Energia Pura,,Energie Pură,,
-Power Key,TXT_EX_PICKUP24,,,,,Energieschlüssel,,,,,,,,,,,,Klucz Siły,Chave do Poder,,Cheia Puterii,,
-Time Key,TXT_EX_PICKUP25,,,,,Zeitschlüssel,,,,,,,,,,,,Klucz Czasu,Chave do Tempo,,Cheia Timpului,,
-War Key,TXT_EX_PICKUP26,,,,,Kriegsschlüssel,,,,,,,,,,,,Klucz Wojny,Chave da Guerra,,Cheia Războiului,,
-Earth Key,TXT_EX_PICKUP27,,,,,Erdschlüssel,,,,,,,,,,,,Klucz Ziemi,Chave da Terra,,Cheia Pământului,,
-Magic,TXT_EX_PICKUP28,,,,,Msgie,,,,,,,,,,,,Magia,Magia,,Magie,,
-Location Preserved,TXT_EX_PICKUP29,,,,,Position gespeichert,,,,,,,,,,,,Pozycja Zapisana,Local Preservado,,Locație Memorată,,
+Grenade,TXT_EX_PICKUP14,,,,Granát,Granate,,,,,,,,,,,,Granat,Granada,,Grenadă,,
+M-60,TXT_EX_PICKUP15,,,,M60,,,,,,,,,,,,,,,,,,
+Flame Thrower!,TXT_EX_PICKUP16,,,,Plamenomet!,Flammenwerfer,,,,,,,,,,,,Miotacz Ognia!,Lança-chamas!,,Aruncător de Flăcări,,
+Cobra Staff!,TXT_EX_PICKUP17,,,,Hůl kobry!,Kobrastab,,,,,,,,,,,,Laska Kobry!,Cajado da Cobra!,,Toiag Cobră!,,
+The Eye Of Ra Gauntlet!,TXT_EX_PICKUP18,,,,Rukavice očí Reových!,Handschuh des Auges des Ra,,,,,,,,,,,,Bransoleta Boga Ra!,Braçadeira do Olho de Rá!,,Mănușa Ochiului lui Ra!,,
+Speed Loader,TXT_EX_PICKUP19,,,,Rychlonabíječ,Schnellader,,,,,,,,,,,,Naboje do Magnum,Carregador Automático,,Muniție,,
+Ammo,TXT_EX_PICKUP20,,,,Munice,Munition,,,,,,,,,,,,Amunicja,Munição,,Muniție,,
+Fuel,TXT_EX_PICKUP21,,,,Palivo,Benzin,,,,,,,,,,,,Paliwo,Combustível,,Combustibil,,
+Cobra!,TXT_EX_PICKUP22,,,,Kobra!,Kobra!,,,,,,,,,,,,Kobra!,,,Cobră!,,
+Raw Energy,TXT_EX_PICKUP23,,,,Surová energie,Rohenergie,,,,,,,,,,,,Surowa Energia,Energia Pura,,Energie Pură,,
+Power Key,TXT_EX_PICKUP24,,,,Klíč síly,Energieschlüssel,,,,,,,,,,,,Klucz Siły,Chave do Poder,,Cheia Puterii,,
+Time Key,TXT_EX_PICKUP25,,,,Klíč času,Zeitschlüssel,,,,,,,,,,,,Klucz Czasu,Chave do Tempo,,Cheia Timpului,,
+War Key,TXT_EX_PICKUP26,,,,Klíč války,Kriegsschlüssel,,,,,,,,,,,,Klucz Wojny,Chave da Guerra,,Cheia Războiului,,
+Earth Key,TXT_EX_PICKUP27,,,,Klíč země,Erdschlüssel,,,,,,,,,,,,Klucz Ziemi,Chave da Terra,,Cheia Pământului,,
+Magic,TXT_EX_PICKUP28,,,,Magie,Magie,,,,,,,,,,,,Magia,Magia,,Magie,,
+Location Preserved,TXT_EX_PICKUP29,,,,Lokace uchována,Position gespeichert,,,,,,,,,,,,Pozycja Zapisana,Local Preservado,,Locație Memorată,,
 "Pick up a copy of Exhumed
 today to continue the adventure!
 More levels, nastier creatures
@@ -2080,7 +2154,15 @@ Kilmaat await you in the full
 version of the game.
 Twenty levels, plus 12 network
 play levels can be yours!
-",TXT_EX_SHAREWARE,,,,,"Besorge dir noch heute die
+",TXT_EX_SHAREWARE,,,,"Pro pokračování si ještě dnes
+kup kopii Exhumed!
+Víc levelů, odpornějších
+příšer a Kilmátových zlovolností
+na tebe čeká v plné verzi hry.
+Dvacet levelů a dvanáct
+multiplayerových levelů 
+mohou být tvoje!
+","Besorge dir noch heute die
 Vollversion um weiterzuspielen!
 Mehr Level, fiesere Kreaturen und
 Untaten der Kilmaat warten auf
@@ -2092,7 +2174,7 @@ Więcej poziomów, groźniejszych
 potworów i innych maszkar Kilmaatu
 czeka na ciebie w pełnej wersji gry.
 Dwadzieścia poziomów oraz
-12 poziomów dla trybu sieciowego
+12 aren dla trybu sieciowego
 mogą być twoje!","Adquira uma cópia de Exhumed
 hoje mesmo para continuar
 a aventura! Mais fases, criaturas
@@ -2108,34 +2190,36 @@ așteaptă în versiunea completă a
 jocului. Douăzeci de nivele, plus
 doisprezece nivele de joc online
 pot fi numai ale tale!",,
-"Hi Sweetie, I love you",TXT_EX_SWEETIE,,,,,"Hallo, ich liebe dich",,,,,,,,,,,,"Cześć Skarbie, kocham cię","Oi, querida, te amo",,"Bună Dragule, te iubesc",,
-Flashes toggled,TXT_EX_FLASHES,,,,,Blitze umgeschaltet,,,,,,,,,,,,Miganie Przełączone,Flashes ligados,,Orbitoare comutate,,
-Full Map,TXT_EX_FULLMAP,,,,,Volle Karte,,,,,,,,,,,,Pełna Mapa,Mapa completo,,Hartă Completă,,
-Slip mode ON,TXT_EX_SLIPON,,,,,Schlüpfmodus an,,,,,,,,,,,,Tryb Poślizgu WŁĄCZONY,Modo escorregadio ATIVADO,,Modul fără Coliziune PORNIT,,
-Slip mode OFF,TXT_EX_SLIPOFF,,,,,Schlüpfmodus aus,,,,,,,,,,,,Tryb Poślizgu WYŁĄCZONY,Modo escorregadio DESATIVADO,,Modul fără Coliziune OPRIT,,
-Snake Cam Enabled,TXT_EX_SNAKEON,,,,,Schlangenkamera an,,,,,,,,,,,,Wężowa Kamera Włączona,Câmera da Cobra Ativada,,Cameră Șarpe Activată,,
-Snake Cam Disabled,TXT_EX_SNAKEOFF,,,,,Schlangenkamera aus,,,,,,,,,,,,Wężowa Kamera Wyłączona,Câmera da Cobra Desativada,,Cameră Șarpe Dezactivată,,
-Hand,TXT_EX_USEINV1,,,,,Handschuh des Auges des Ra,,,,,,,,,,,,Ręka,Mão,,Mână,,
-Eye,TXT_EX_USEINV2,,,,,Auge,,,,,,,,,,,,Oko,Olho,,Ochi,,
-Sobek Mask,TXT_EX_USEINV3,,,,,Sobekmaske,,,,,,,,,,,,Maska Sobeka,Máscara,,Mască Sobek,,
-Heart,TXT_EX_USEINV4,,,,,Herz,,,,,,,,,,,,Serce,Coração,,Inimă,,
-Torch,TXT_EX_USEINV5,,,,,Fackel,,,,,,,,,,,,Pochodnia,Tocha,,Torță,,
-Scarab,TXT_EX_USEINV6,,,,,Skarabäus,,,,,,,,,,,,Skarabeusz,Escaravelho,,Scarabeu,,
-Deity mode ON for player,TXT_EX_DEITYON,,,,,Gottmodus AN,,,,,,,,,,,,Tryb Bóstwa WŁĄCZONY,Modo divino LIGADO para jogador,,Modul Zeu ACTIVAT,,
-Deity mode OFF for player,TXT_EX_DEITYOFF,,,,,Gottmodus AUS,,,,,,,,,,,,Tryb Bóstwa WYŁĄCZONY,Modo divino DESLIGADO para jogador,,Modul Zeu DEZACTIVAT,,
-All weapons loaded for player,TXT_EX_WEAPONS,,,,,Alle Waffen geladen,,,,,,,,,,,,Dano graczowi wszystkie bronie,Todas as armas carregadas para jogador,,Toate armele pentru jucător,,
-All keys loaded for player,TXT_EX_KEYS,,,,,Alle Schlüssel geladen,,,,,,,,,,,,Dano graczowi wszystkie klucze,Todas as chaves dadas para jogador,,Toate cheile pentru jucător,,
-All items loaded for player,TXT_EX_ITEMS,,,,,Alle Gegenstände geladen,,,,,,,,,,,,Dano graczowi wszystkie przedmioty,Todos os itens dados para jogador,,Toate obiectele pentru jucător,,
+"Hi Sweetie, I love you",TXT_EX_SWEETIE,,,,"Ahoj, zlato, miluju tě.","Hallo, ich liebe dich",,,,,,,,,,,,"Cześć Skarbie, kocham cię","Oi, querida, te amo",,"Bună Dragule, te iubesc",,
+Flashes toggled,TXT_EX_FLASHES,,,,Blikání přepnuto,Blitze umgeschaltet,,,,,,,,,,,,Miganie Przełączone,Flashes ligados,,Orbitoare comutate,,
+Full Map,TXT_EX_FULLMAP,,,,Plná mapa,Volle Karte,,,,,,,,,,,,Pełna Mapa,Mapa completo,,Hartă Completă,,
+Slip mode ON,TXT_EX_SLIPON,,,,Noclip ZAP.,Schlüpfmodus an,,,,,,,,,,,,Tryb Poślizgu WŁĄCZONY,Modo escorregadio ATIVADO,,Modul fără Coliziune PORNIT,,
+Slip mode OFF,TXT_EX_SLIPOFF,,,,Noclip VYP.,Schlüpfmodus aus,,,,,,,,,,,,Tryb Poślizgu WYŁĄCZONY,Modo escorregadio DESATIVADO,,Modul fără Coliziune OPRIT,,
+Snake Cam Enabled,TXT_EX_SNAKEON,,,,Hadí pohled zap.,Schlangenkamera an,,,,,,,,,,,,Wężowa Kamera Włączona,Câmera da Cobra Ativada,,Cameră Șarpe Activată,,
+Snake Cam Disabled,TXT_EX_SNAKEOFF,,,,Hadí pohled vyp.,Schlangenkamera aus,,,,,,,,,,,,Wężowa Kamera Wyłączona,Câmera da Cobra Desativada,,Cameră Șarpe Dezactivată,,
+Hand,TXT_EX_USEINV1,,,,Ruka,Handschuh des Auges des Ra,,,,,,,,,,,,Ręka,Mão,,Mână,,
+Eye,TXT_EX_USEINV2,,,,Oko,Auge,,,,,,,,,,,,Oko,Olho,,Ochi,,
+Sobek Mask,TXT_EX_USEINV3,,,,Maska Sobkova,Sobekmaske,,,,,,,,,,,,Maska Sobeka,Máscara,,Mască Sobek,,
+Heart,TXT_EX_USEINV4,,,,Srdce,Herz,,,,,,,,,,,,Serce,Coração,,Inimă,,
+Torch,TXT_EX_USEINV5,,,,Pochodeň,Fackel,,,,,,,,,,,,Pochodnia,Tocha,,Torță,,
+Scarab,TXT_EX_USEINV6,,,,Skarab,Skarabäus,,,,,,,,,,,,Skarabeusz,Escaravelho,,Scarabeu,,
+Deity mode ON for player,TXT_EX_DEITYON,,,,Nesmrtelnost ZAP.,Gottmodus AN,,,,,,,,,,,,Tryb Bóstwa WŁĄCZONY,Modo divino LIGADO para jogador,,Modul Zeu ACTIVAT,,
+Deity mode OFF for player,TXT_EX_DEITYOFF,,,,Nesmrtelnost VYP.,Gottmodus AUS,,,,,,,,,,,,Tryb Bóstwa WYŁĄCZONY,Modo divino DESLIGADO para jogador,,Modul Zeu DEZACTIVAT,,
+All weapons loaded for player,TXT_EX_WEAPONS,,,,Přidány všechny zbraně,Alle Waffen geladen,,,,,,,,,,,,Dano graczowi wszystkie bronie,Todas as armas carregadas para jogador,,Toate armele pentru jucător,,
+All keys loaded for player,TXT_EX_KEYS,,,,Přidány všechny klíče,Alle Schlüssel geladen,,,,,,,,,,,,Dano graczowi wszystkie klucze,Todas as chaves dadas para jogador,,Toate cheile pentru jucător,,
+All items loaded for player,TXT_EX_ITEMS,,,,Přidány všechny předměty,Alle Gegenstände geladen,,,,,,,,,,,,Dano graczowi wszystkie przedmioty,Todos os itens dados para jogador,,Toate obiectele pentru jucător,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Easy,SKILL_EASY,,,,Snadný,Einfach,,Facila,Facil,,Helppo,Facile,Könnyű,Facile,イージー,쉬움,Gemakkelijk,Łatwy,Fácil,,Ușor,Лёгкий,
+Easy,SKILL_EASY,,,,Snadná,Einfach,,Facila,Facil,,Helppo,Facile,Könnyű,Facile,イージー,쉬움,Gemakkelijk,Łatwy,Fácil,,Ușor,Лёгкий,
 Medium,SKILL_NORMAL,,,,Střední,Mittel,,Meza,Medio,,Keskivaikea,Moyen,Normál,Medio,ミディアム,중간,Middel,Średni,Médio,,Mediu,Средний,
-Hard,SKILL_HARD,,,,Obtížný,Schwer,,Malfacila,Difícil,,Vaikea,Difficile,Nehéz,Difficile,ハード,어려움,Moeilijk,Trudny,Difícil,,Greu,Тяжёлый,
-Very Hard,SKILL_VERY_HARD,,,,Velmi obtížné,Sehr schwer,,Tre Malfacila,Muy difícil,,Erittäin vaikea,Très difficile,Nagyon nehéz,Molto difficile,ベリーハード,아주 어려윰,Zeer moeilijk,Bardzo Trudny,Muito difícil,,Foarte Greu,Очень тяжёлый,
+Hard,SKILL_HARD,,,,Obtížná,Schwer,,Malfacila,Difícil,,Vaikea,Difficile,Nehéz,Difficile,ハード,어려움,Moeilijk,Trudny,Difícil,,Greu,Тяжёлый,
+Very Hard,SKILL_VERY_HARD,,,,Velmi obtížná,Sehr schwer,,Tre Malfacila,Muy difícil,,Erittäin vaikea,Très difficile,Nagyon nehéz,Molto difficile,ベリーハード,아주 어려윰,Zeer moeilijk,Bardzo Trudny,Muito difícil,,Foarte Greu,Очень тяжёлый,
 ,,New additions,,,,,,,,,,,,,,,,,,,,,
-Show text screen at exit,DSPLYMNU_SHOWENDOOM, ,,,,Textbildschirm beim Verlassen,,,Mostrar pantalla de texto al salir,,,,,,,,,Pokaż wiadomość wyjścia,Exibir tela de texto ao sair,,Afișează meniul text la ieșire,,
+Show text screen at exit,DSPLYMNU_SHOWENDOOM, ,,,Při odchodu zobrazit textovou obrazovku,Textbildschirm beim Verlassen,,,Mostrar pantalla de texto al salir,,,,,,,,,Pokaż wiadomość wyjścia,Exibir tela de texto ao sair,,Afișează meniul text la ieșire,,
 ,,,,,,,,,,,,,,,,,,,,,,,
 ,,Compatibility Flags,,,,,,,,,,,,,,,,,,,,,
-Enemy Behavior,ENEMY_BEHAVIOR,,,,,,,,,,,,,,,,,,Comportamento dos Inimigos,,Comportament inamici,,
-Default,OPTVAL_DEFAULT,,,,,,,,,,,,,,,,,,Padrão,,Standard,,
-Original,OPTVAL_OLD,,,,,,,,,,,,,,,,,,,,,,
+Enemy Behavior,ENEMY_BEHAVIOR,,,,Chování nepřátel,Gegnerverhalten,,,,,,,,,,,,Zachowanie Przeciwników,Comportamento dos Inimigos,,Comportament inamici,,
+Default,OPTVAL_DEFAULT,,,,Výchozí,Standard,,,,,,,,,,,,Domyślne,Padrão,,Standard,,
+Original,OPTVAL_OLD,,,,Původní,,,,,,,,,,,,,Oryginalne,,,,,
 Explosions Behavior,EXPLOS_BEHAVIOR,,,,Chování při výbuchu,Explosionsverhalten,,,Comportamiento de explosiones,,Räjähdykset Käyttäytyminen,Comportement des explosions,Robbanások Viselkedés,,,,,Zachowanie wybuchów,Comportamento das Explosões,,Comportament explozii,,
+Torch is lit,TXT_EX_TORCHLIT,,,,Pochodeň plane,Die Fackel leuchtet,,,,,,,,,,,,Rozpalono pochodnię,Tocha acesa,,Torța e aprinsă,,
+Torch is out,TXT_EX_TORCHOUT,,,,Pochodeň vyhasla,Die Fackel ist erloschen,,,,,,,,,,,,Pochodnia zgasła,Tocha apagada,,Torța e stinsă,,

@@ -1053,6 +1053,11 @@ OptionValue "Multisample"
 	32, "$OPTVAL_32X"
 }
 
+OptionValue "Precision"
+{
+	0, "$OPTVAL_SPEED"
+	1, "$OPTVAL_QUALITY"
+}
 
 OptionMenu "VideoOptions" protected
 {
@@ -1087,6 +1092,7 @@ OptionMenu "VideoOptions" protected
 	}
 	StaticText ""
 	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
+	Option "$GLPREFMNU_RENDERQUALITY",			gl_seamless,					"Precision"
 
 	StaticText ""
 	Option "$GLTEXMNU_TEXFILTER",		gl_texture_filter,				"FilterModes"
@@ -1700,7 +1706,7 @@ OptionString "LanguageOptions"
 	"auto", "Auto"
 	"default", "English (US)"
 	"eng", "English (UK)"
-	//"cs", "Česky (Czech)"
+	"cs", "Česky (Czech)"
 	"de", "Deutsch (German)"
 	//"es", "Español (España) (Castilian Spanish)"
 	//"esm", "Español (Latino) (Latin American Spanish)"
