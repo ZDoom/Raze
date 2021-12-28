@@ -2057,7 +2057,7 @@ inline uint8_t& SP_TAG9(DSWActor* actor) { return MSB_VAR(actor->spr.owner); }
 inline uint8_t& SP_TAG10(DSWActor* actor) { return LSB_VAR(actor->spr.owner); }
 inline int8_t& SP_TAG11(DSWActor* actor) { return actor->spr.shade; }
 inline uint8_t& SP_TAG12(DSWActor* actor) { return actor->spr.pal; }
-inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(actor->spr.xoffset + (actor->spr.yoffset << 8)); }
+inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(uint8_t(actor->spr.xoffset) + (actor->spr.yoffset << 8)); }
 inline void SET_SP_TAG13(DSWActor* actor, int val) { actor->spr.xoffset = uint8_t(val); actor->spr.yoffset = uint8_t(val >> 8); }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
