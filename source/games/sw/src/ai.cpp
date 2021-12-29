@@ -374,7 +374,7 @@ TARGETACTOR:
             if (itActor == actor || !itActor->hasU())
                 continue;
 
-            if (TEST(itActor->user.Flags, SPR_SUICIDE | SPR_DEAD))
+            if ((itActor->user.Flags & (SPR_SUICIDE | SPR_DEAD)))
                 continue;
 
             DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);

@@ -17423,7 +17423,7 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
 
 bool TestDontStickSector(sectortype* hit_sect)
 {
-    if (TEST(hit_sect->extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
+    if ((hit_sect->extra & (SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT)))
         return true;
 
     return false;

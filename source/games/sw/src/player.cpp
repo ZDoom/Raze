@@ -2573,7 +2573,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         {
             for(auto& wal : wallsofsector(*sectp))
             {
-                if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY) == WALLFX_LOOP_OUTER)
+                if (wal.extra && (wal.extra & (WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY)) == WALLFX_LOOP_OUTER)
                 {
                     x[count] = wal.pos.X;
                     y[count] = wal.pos.Y;
@@ -5940,7 +5940,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
 
     DoPlayerDeathZrange(pp);
 
-    if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+    if ((pp->Flags & (PF_JUMPING|PF_FALLING)))
     {
         if ((pp->Flags & PF_JUMPING))
         {
@@ -5977,7 +5977,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
 
     DoPlayerDeathZrange(pp);
 
-    if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+    if ((pp->Flags & (PF_JUMPING|PF_FALLING)))
     {
         if ((pp->Flags & PF_JUMPING))
         {
@@ -6045,7 +6045,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 
     DoPlayerDeathZrange(pp);
 
-    if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+    if ((pp->Flags & (PF_JUMPING|PF_FALLING)))
     {
         if ((pp->Flags & PF_JUMPING))
         {
@@ -6097,7 +6097,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
 
     DoPlayerDeathZrange(pp);
 
-    if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+    if ((pp->Flags & (PF_JUMPING|PF_FALLING)))
     {
         if ((pp->Flags & PF_JUMPING))
         {
@@ -6439,7 +6439,7 @@ void ChopsCheck(PLAYERp pp)
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.avel || pp->input.horz ||
-            TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
+            (pp->Flags & (PF_CLIMBING | PF_FALLING | PF_DIVING)))
         {
             // Hit a input key or other reason to stop chops
             //if (pp->Chops && pp->Chops->State != pp->Chops->State->RetractState)

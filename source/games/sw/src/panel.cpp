@@ -6580,7 +6580,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         }
 
         // shading
-        if (psp->State && TEST(psp->State->flags, psf_ShadeHalf|psf_ShadeNone))
+        if (psp->State && (psp->State->flags & (psf_ShadeHalf|psf_ShadeNone)))
         {
             if ((psp->State->flags & psf_ShadeNone))
                 shade = 0;

@@ -1612,13 +1612,13 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (TEST(sop->flags, SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE))
+        if ((sop->flags & (SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE)))
             goto PlayerPart;
 
         // move all walls in sectors
         for(auto& wal : wallsofsector(*sectp))
         {
-            if (TEST(wal.extra, WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE))
+            if ((wal.extra & (WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE)))
                 continue;
 
             if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
@@ -2227,7 +2227,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     else
     {
         // Update the points so there will be no warping
-        if (TEST(sop->flags, SOBJ_UPDATE|SOBJ_UPDATE_ONCE) ||
+        if ((sop->flags & (SOBJ_UPDATE|SOBJ_UPDATE_ONCE)) ||
             sop->vel ||
             (sop->ang != sop->ang_tgt) ||
             GlobSpeedSO)

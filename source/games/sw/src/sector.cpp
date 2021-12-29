@@ -2672,7 +2672,7 @@ void DoSector(void)
         }
 
         // force sync SOs to be updated regularly
-        if ((sync_flag = TEST(sop->flags, SOBJ_SYNC1|SOBJ_SYNC2)) != 0)
+        if ((sync_flag = (sop->flags & (SOBJ_SYNC1|SOBJ_SYNC2))) != 0)
         {
             if (sync_flag == SOBJ_SYNC1)
                 MoveSectorObjects(sop, synctics);

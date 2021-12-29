@@ -1508,7 +1508,7 @@ void SpriteSetupPost(void)
             if (jActor->spr.picnum == ST1)
                 continue;
 
-            if (TEST(jActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR))
+            if ((jActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR)))
                 continue;
 
             if (jActor->hasU())
