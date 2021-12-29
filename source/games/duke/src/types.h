@@ -58,18 +58,6 @@ public:
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;
-	void ClearContent() override
-	{
-		Super::ClearContent();
-		temp_sect = actorstayput = nullptr;
-		temp_actor = seek_actor = nullptr;
-		ownerActor = nullptr;
-		hitOwnerActor = nullptr;
-		cgg = spriteextra = 0;
-		attackertype = ang = extra = movflag = tempang = dispicnum = timetosleep = 0;
-		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
-		memset(temp_data, 0, sizeof(temp_data));
-	}
 
 	// This once was stored in the owner field of the sprite
 	inline DDukeActor* GetOwner()

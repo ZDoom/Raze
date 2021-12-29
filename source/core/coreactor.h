@@ -26,14 +26,6 @@ public:
 	DCoreActor& operator=(const DCoreActor& other) = delete;
 
 	virtual void Serialize(FSerializer& arc);
-	// This may only be called when all actor lists are clean.
-	virtual void ClearContent()
-	{
-		link_stat = MAXSTATUS;
-		link_sector = nullptr;
-		prevStat = nextStat = prevSect = nextSect = nullptr;
-		spr = {};
-	}
 
 	virtual void BeginPlay() {}
 	void OnDestroy() override;

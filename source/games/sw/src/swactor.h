@@ -20,12 +20,6 @@ public:
 	DSWActor() = default;
 	DSWActor& operator=(const DSWActor& other) = default;
 
-	void ClearContent()
-	{
-		Super::ClearContent();
-		clearUser();
-		tempwall = nullptr;
-	}
 	bool hasU() { return hasUser; }
 
 

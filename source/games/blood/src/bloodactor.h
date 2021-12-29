@@ -42,27 +42,6 @@ public:
 
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
-	void ClearContent() override
-	{
-		dudeSlope = 0;
-		hit = {};
-		dudeExtra = {};
-		spriteMass = {};
-		genDudeExtra = {};
-		prevmarker = nullptr;
-		ownerActor = nullptr;
-		basePoint = {};
-		xspr = {};
-		hasx = false;
-		interpolated = false;
-		xvel = yvel = zvel = 0;
-		explosionhackflag = false;
-		interpolated = false;
-		condition[0] = {};
-		condition[1] = {};
-		cumulDamage = 0;
-		Super::ClearContent();
-	}
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 
