@@ -98,7 +98,7 @@ static void eelThinkTarget(DBloodActor* actor)
 	{
 		pDudeExtraE->thinkTime = 0;
 		actor->xspr.goalAng += 256;
-        POINT3D* pTarget = &actor->basePoint;
+		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
 		aiNewState(actor, &eelTurn);
 		return;
@@ -125,7 +125,7 @@ static void eelThinkTarget(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
-                aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)
@@ -171,7 +171,7 @@ static void eelThinkPonder(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -223,8 +223,8 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int dx = actor->xvel;
-    int dy = actor->yvel;
+	int dx = actor->xvel;
+	int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -232,9 +232,9 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = -0x8000;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = -0x8000;
 }
 
 static void eelMoveDodgeDown(DBloodActor* actor)
@@ -248,8 +248,8 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int dx = actor->xvel;
-    int dy = actor->yvel;
+	int dx = actor->xvel;
+	int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -257,9 +257,9 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = 0x44444;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = 0x44444;
 }
 
 static void eelThinkChase(DBloodActor* actor)
@@ -272,7 +272,7 @@ static void eelThinkChase(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -336,16 +336,16 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void eelMoveSwoop(DBloodActor* actor)
@@ -365,14 +365,14 @@ static void eelMoveSwoop(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = 0x22222;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = 0x22222;
 }
 
 static void eelMoveAscend(DBloodActor* actor)
@@ -392,14 +392,14 @@ static void eelMoveAscend(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = -0x8000;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = -0x8000;
 }
 
 void eelMoveToCeil(DBloodActor* actor)

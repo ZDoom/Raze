@@ -750,10 +750,10 @@ static TArray<GrpEntry> SetupGame()
 				groupno = pick;
 			}
 		}
-        else if (groups.Size() == 1)
-        {
-            groupno = 0;
-        }
+		else if (groups.Size() == 1)
+		{
+			groupno = 0;
+		}
 	}
 
 	if (groupno == -1) return TArray<GrpEntry>();

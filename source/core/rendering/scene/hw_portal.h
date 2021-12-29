@@ -145,14 +145,14 @@ public:
 	BoundingRect boundingBox;
 	int planesused = 0;
 
-    HWPortal(FPortalSceneState *s, bool local = false) : mState(s), boundingBox(false)
-    {
-    }
-    virtual ~HWPortal() {}
-    virtual int ClipSeg(walltype *seg, const DVector3 &viewpos) { return PClip_Inside; }
-    virtual int ClipSector(sectortype *sub) { return PClip_Inside; }
-    virtual int ClipPoint(const DVector2 &pos) { return PClip_Inside; }
-    virtual walltype *ClipLine() { return nullptr; }
+	HWPortal(FPortalSceneState *s, bool local = false) : mState(s), boundingBox(false)
+	{
+	}
+	virtual ~HWPortal() {}
+	virtual int ClipSeg(walltype *seg, const DVector3 &viewpos) { return PClip_Inside; }
+	virtual int ClipSector(sectortype *sub) { return PClip_Inside; }
+	virtual int ClipPoint(const DVector2 &pos) { return PClip_Inside; }
+	virtual walltype *ClipLine() { return nullptr; }
 	virtual void * GetSource() const = 0;	// GetSource MUST be implemented!
 	virtual const char *GetName() = 0;
 	virtual bool AllowSSAO() { return true; }
@@ -212,14 +212,14 @@ struct FPortalSceneState
 
 extern FPortalSceneState portalState;
 
-    
+	
 class HWScenePortalBase : public HWPortal
 {
 protected:
-    HWScenePortalBase(FPortalSceneState *state) : HWPortal(state, false)
-    {
-        
-    }
+	HWScenePortalBase(FPortalSceneState *state) : HWPortal(state, false)
+	{
+		
+	}
 public:
 	void ClearClipper(HWDrawInfo *di, Clipper *clipper);
 	virtual bool NeedDepthBuffer() { return true; }

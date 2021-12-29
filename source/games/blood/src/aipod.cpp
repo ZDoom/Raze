@@ -101,7 +101,7 @@ void podAttack(int, DBloodActor* actor)
 		break;
 	}
 	for (int i = 0; i < 4; i++)
-        fxSpawnPodStuff(actor, 240);
+		fxSpawnPodStuff(actor, 240);
 }
 
 void sub_70284(int, DBloodActor* actor)
@@ -180,7 +180,7 @@ static void aiPodChase(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));

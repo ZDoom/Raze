@@ -129,9 +129,9 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-            x2 += (actor->xvel * t) >> 12;
-            y2 += (actor->yvel * t) >> 12;
-            z2 += (actor->zvel * t) >> 8;
+			x2 += (actor->xvel * t) >> 12;
+			y2 += (actor->yvel * t) >> 12;
+			z2 += (actor->zvel * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
 		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
@@ -177,13 +177,13 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 	// allow to fire missile in non-player targets
 	if (target->IsPlayerActor() || gModernMap) {
-            actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-            actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+		actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+		actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
 	}
 #else
 	if (target->IsPlayerActor()) {
-            actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-            actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+		actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+		actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
 	}
 #endif
 
@@ -207,7 +207,7 @@ static void gargThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		actor->xspr.goalAng += 256;
-        POINT3D* pTarget = &actor->basePoint;
+		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
 		aiNewState(actor, &gargoyleTurn);
 		return;
@@ -234,7 +234,7 @@ static void gargThinkTarget(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
-                aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)
@@ -285,8 +285,8 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int dx = actor->xvel;
-    int dy = actor->yvel;
+	int dx = actor->xvel;
+	int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -294,9 +294,9 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = -0x1d555;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = -0x1d555;
 }
 
 static void gargMoveDodgeDown(DBloodActor* actor)
@@ -313,8 +313,8 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int dx = actor->xvel;
-    int dy = actor->yvel;
+	int dx = actor->xvel;
+	int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -322,9 +322,9 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = 0x44444;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = 0x44444;
 }
 
 static void gargThinkChase(DBloodActor* actor)
@@ -341,7 +341,7 @@ static void gargThinkChase(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -375,7 +375,7 @@ static void gargThinkChase(DBloodActor* actor)
 				case kDudeGargoyleFlesh:
 					if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
 					{
-                        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -400,7 +400,7 @@ static void gargThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 					{
-                        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -434,7 +434,7 @@ static void gargThinkChase(DBloodActor* actor)
 				case kDudeGargoyleStone:
 					if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
 					{
-                        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -459,7 +459,7 @@ static void gargThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 					{
-                        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -539,16 +539,16 @@ static void gargMoveForward(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void gargMoveSlow(DBloodActor* actor)
@@ -574,20 +574,20 @@ static void gargMoveSlow(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 = nAccel >> 1;
 	t2 >>= 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-            actor->zvel = 0x44444;
+		actor->zvel = 0x44444;
 		break;
 	case kDudeGargoyleStone:
-            actor->zvel = 0x35555;
+		actor->zvel = 0x35555;
 		break;
 	}
 }
@@ -615,19 +615,19 @@ static void gargMoveSwoop(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-            actor->zvel = t1;
+		actor->zvel = t1;
 		break;
 	case kDudeGargoyleStone:
-            actor->zvel = t1;
+		actor->zvel = t1;
 		break;
 	}
 }
@@ -655,19 +655,19 @@ static void gargMoveFly(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-            actor->zvel = -t1;
+		actor->zvel = -t1;
 		break;
 	case kDudeGargoyleStone:
-            actor->zvel = -t1;
+		actor->zvel = -t1;
 		break;
 	}
 }

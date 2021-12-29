@@ -53,12 +53,12 @@ struct FRenderViewpoint
 
 enum SectorRenderFlags
 {
-    // This is used to merge several subsectors into a single draw item
-    SSRF_RENDERFLOOR = 1,
-    SSRF_RENDERCEILING = 2,
-    SSRF_RENDERALL = 7,
-    SSRF_PROCESSED = 8,
-    SSRF_SEEN = 16,
+	// This is used to merge several subsectors into a single draw item
+	SSRF_RENDERFLOOR = 1,
+	SSRF_RENDERCEILING = 2,
+	SSRF_RENDERALL = 7,
+	SSRF_PROCESSED = 8,
+	SSRF_SEEN = 16,
 };
 
 enum EPortalClip
@@ -117,7 +117,7 @@ struct HWDrawInfo
 	FVector2 geoofs;
 
 private:
-    bool inview;
+	bool inview;
 	sectortype *currentsector;
 
 	void WorkerThread();
@@ -177,10 +177,10 @@ public:
 
 	void DrawPlayerSprites(bool hudModelStep, FRenderState &state);
 
-    //void AddSubsectorToPortal(FSectorPortalGroup *portal, sectortype *sub);
-    
-    void AddWall(HWWall *w);
-    void AddMirrorSurface(HWWall *w);
+	//void AddSubsectorToPortal(FSectorPortalGroup *portal, sectortype *sub);
+	
+	void AddWall(HWWall *w);
+	void AddMirrorSurface(HWWall *w);
 	void AddFlat(HWFlat *flat);
 	void AddSprite(HWSprite *sprite, bool translucent);
 

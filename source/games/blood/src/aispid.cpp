@@ -70,7 +70,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+		int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			dz += target->spr.pos.Z - actor->spr.pos.Z;
@@ -121,9 +121,9 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
-                actor->xvel = IntToFixed(dx);
-                actor->yvel = IntToFixed(dy);
-                actor->zvel = IntToFixed(dz);
+			actor->xvel = IntToFixed(dx);
+			actor->yvel = IntToFixed(dy);
+			actor->zvel = IntToFixed(dz);
 			break;
 		}
 	}
@@ -191,7 +191,7 @@ static void spidThinkChase(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));

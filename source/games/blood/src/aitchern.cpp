@@ -119,8 +119,8 @@ void sub_71BD4(int, DBloodActor* actor)
 			}
 		}
 	}
-    actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
-    actFireMissile(actor, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
+	actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
+	actFireMissile(actor, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
 void sub_720AC(int, DBloodActor* actor)
@@ -191,8 +191,8 @@ void sub_720AC(int, DBloodActor* actor)
 			}
 		}
 	}
-    actFireMissile(actor, 350, 0, aim.dx, aim.dy, -aim.dz, kMissileFireballTchernobog);
-    actFireMissile(actor, -350, 0, ax, ay, az, kMissileFireballTchernobog);
+	actFireMissile(actor, 350, 0, aim.dx, aim.dy, -aim.dz, kMissileFireballTchernobog);
+	actFireMissile(actor, -350, 0, ax, ay, az, kMissileFireballTchernobog);
 }
 
 static void sub_72580(DBloodActor* actor)
@@ -288,7 +288,7 @@ static void sub_72934(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));

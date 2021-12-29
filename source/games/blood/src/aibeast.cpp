@@ -101,13 +101,13 @@ void StompSeqCallback(int, DBloodActor* actor)
 	{
 		if (actor != actor2)
 		{
-            if (actor2->hasX())
+			if (actor2->hasX())
 			{
 				if (actor2->spr.type == kDudeBeast)
 					continue;
 				if (actor2->spr.flags & 32)
 					continue;
-                if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
+				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
 				{
 					int top, bottom;
 					GetActorExtents(actor, &top, &bottom);
@@ -211,7 +211,7 @@ static void beastThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -245,7 +245,7 @@ static void beastThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = nDist == 0? 0 : DivScale(target->spr.pos.Z - actor->spr.pos.Z, nDist, 10);
+				actor->dudeSlope = nDist == 0 ? 0 : DivScale(target->spr.pos.Z - actor->spr.pos.Z, nDist, 10);
 				if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (target->spr.flags & 2)
 					&& target->IsPlayerActor() && Chance(0x8000))
 				{
@@ -351,7 +351,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -408,8 +408,8 @@ static void beastMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
-    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.ang), 30);
-    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
+	actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.ang), 30);
+	actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
 }
 
 static void sub_628A0(DBloodActor* actor)
@@ -431,16 +431,16 @@ static void sub_628A0(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_62AE0(DBloodActor* actor)
@@ -468,14 +468,14 @@ static void sub_62AE0(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = -dz;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = -dz;
 }
 
 static void sub_62D7C(DBloodActor* actor)
@@ -503,14 +503,14 @@ static void sub_62D7C(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
-    int vx = actor->xvel;
-    int vy = actor->yvel;
+	int vx = actor->xvel;
+	int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel = dz;
+	actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->zvel = dz;
 }
 
 END_BLD_NS

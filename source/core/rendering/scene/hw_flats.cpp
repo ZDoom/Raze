@@ -290,7 +290,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 
 	dynlightindex = -1;
 
-    const auto &vp = di->Viewpoint;
+	const auto &vp = di->Viewpoint;
 
 	float florz, ceilz;
 	PlanesAtPoint(frontsector, float(vp.Pos.X) * 16.f, float(vp.Pos.Y) * -16.f, &ceilz, &florz);

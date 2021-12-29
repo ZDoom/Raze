@@ -100,9 +100,9 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 		if (tt1.at10)
 		{
 			int t = DivScale(nDist, tt1.at10, 12);
-            x2 += (actor2->xvel * t) >> 12;
-            y2 += (actor2->yvel * t) >> 12;
-            z2 += (actor2->zvel * t) >> 8;
+			x2 += (actor2->xvel * t) >> 12;
+			y2 += (actor2->yvel * t) >> 12;
+			z2 += (actor2->zvel * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
 		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
@@ -137,11 +137,11 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	}
 	switch (actor->spr.type) {
 	case kDudeCerberusTwoHead:
-            actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
-            actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+		actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+		actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
 		break;
 	case kDudeCerberusOneHead:
-            actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+		actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
 		break;
 	}
 }
@@ -177,9 +177,9 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 		if (tt1.at10)
 		{
 			int t = DivScale(nDist, tt1.at10, 12);
-            x2 += (actor->xvel * t) >> 12;
-            y2 += (actor->yvel * t) >> 12;
-            z2 += (actor->zvel * t) >> 8;
+			x2 += (actor->xvel * t) >> 12;
+			y2 += (actor->yvel * t) >> 12;
+			z2 += (actor->zvel * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
 		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
@@ -216,11 +216,11 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	}
 	switch (actor->spr.type) {
 	case kDudeCerberusTwoHead:
-            actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
-            actFireMissile(actor, -350, 0, ax, ay, az, kMissileFlameHound);
+		actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
+		actFireMissile(actor, -350, 0, ax, ay, az, kMissileFlameHound);
 		break;
 	case kDudeCerberusOneHead:
-            actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
+		actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
 		break;
 	}
 }
@@ -244,7 +244,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		actor->xspr.goalAng += 256;
-        POINT3D* pTarget = &actor->basePoint;
+		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
 		if (actor->spr.type == kDudeCerberusTwoHead)
 			aiNewState(actor, &cerberus139890);
@@ -274,7 +274,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
-                aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)
@@ -340,7 +340,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));

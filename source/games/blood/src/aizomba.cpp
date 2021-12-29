@@ -112,7 +112,7 @@ static void zombaThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -162,7 +162,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -209,8 +209,8 @@ static void myThinkTarget(DBloodActor* actor)
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		PLAYER* pPlayer = &gPlayer[p];
-        auto owneractor = actor->GetOwner();
-        if (owneractor == nullptr || owneractor == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+		auto owneractor = actor->GetOwner();
+		if (owneractor == nullptr || owneractor == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;
 		int x = pPlayer->actor->spr.pos.X;
 		int y = pPlayer->actor->spr.pos.Y;
@@ -226,7 +226,7 @@ static void myThinkTarget(DBloodActor* actor)
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 		{
-            aiSetTarget(actor, pPlayer->actor);
+			aiSetTarget(actor, pPlayer->actor);
 			aiActivateDude(actor);
 		}
 		else if (nDist < pDudeInfo->hearDist)

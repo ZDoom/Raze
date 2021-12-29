@@ -708,7 +708,7 @@ SortNode * HWDrawList::DoSort(HWDrawInfo *di, SortNode * head)
 void HWDrawList::Sort(HWDrawInfo *di)
 {
 	reverseSort = false;
-    SortZ = di->Viewpoint.Pos.Z;
+	SortZ = di->Viewpoint.Pos.Z;
 	MakeSortList();
 	sorted = DoSort(di, SortNodes[SortNodeStart]);
 }

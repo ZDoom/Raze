@@ -66,7 +66,7 @@ struct HWDrawList
 	TArray<HWSprite*> sprites;
 	TArray<HWDrawItem> drawitems;
 	int SortNodeStart;
-    float SortZ;
+	float SortZ;
 	SortNode * sorted;
 	bool reverseSort;
 	

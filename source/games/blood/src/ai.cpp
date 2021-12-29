@@ -48,7 +48,7 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 	if (actor->spr.statnum == kStatDude && actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-        if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
+		if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
 			return true;
 	}
 	return false;
@@ -150,10 +150,10 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 		return false;
 	int floorZ = getflorzofslopeptr(pSector, x, y);
 	auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
-    bool Underwater = 0; 
-    bool Water = 0; 
-    bool Depth = 0; 
-    bool Crusher = 0;
+	bool Underwater = 0; 
+	bool Water = 0; 
+	bool Depth = 0; 
+	bool Crusher = 0;
 	if (pXSector)
 	{
 		if (pXSector->Underwater)
@@ -303,8 +303,8 @@ void aiMoveForward(DBloodActor* actor)
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (abs(nAng) > 341)
 		return;
-    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.ang), 30);
-    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
+	actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.ang), 30);
+	actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
 }
 
 //---------------------------------------------------------------------------
@@ -339,8 +339,8 @@ void aiMoveDodge(DBloodActor* actor)
 	{
 		int nCos = Cos(actor->spr.ang);
 		int nSin = Sin(actor->spr.ang);
-        int dx = actor->xvel;
-        int dy = actor->yvel;
+		int dx = actor->xvel;
+		int dy = actor->yvel;
 		int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 		int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 		if (actor->xspr.dodgeDir > 0)
@@ -348,8 +348,8 @@ void aiMoveDodge(DBloodActor* actor)
 		else
 			t2 -= pDudeInfo->sideSpeed;
 
-        actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
-        actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+		actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+		actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 }
 
@@ -983,7 +983,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			// for enemies in patrol mode
 			if (aiInPatrolState(actor->xspr.aiState))
 			{
-                aiPatrolStop(actor, source, actor->xspr.dudeAmbush);
+				aiPatrolStop(actor, source, actor->xspr.dudeAmbush);
 
 				PLAYER* pPlayer = getPlayerById(source->spr.type);
 				if (!pPlayer) return nDamage;
@@ -997,11 +997,11 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						if (((100 * actor->xspr.health) / fullHp) <= 75)
 						{
 							actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
-                            RecoilDude(actor);
+							RecoilDude(actor);
 						}
 					}
 
-                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, actor->GetIndex());
+					DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, actor->GetIndex());
 				}
 
 				return nDamage;
@@ -1506,7 +1506,7 @@ void aiThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
@@ -1523,7 +1523,7 @@ void aiThinkTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-                aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1552,7 +1552,7 @@ void aiLookForTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
@@ -1568,7 +1568,7 @@ void aiLookForTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-                aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1936,22 +1936,22 @@ void aiInitSprite(DBloodActor* actor)
 
 			// make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-            if (actor->GetTarget() == nullptr || actor->GetTarget()->spr.type != kMarkerPath) 
-            {
-                actor->SetTarget(nullptr);
-                aiPatrolSetMarker(actor);
+			if (actor->GetTarget() == nullptr || actor->GetTarget()->spr.type != kMarkerPath) 
+			{
+				actor->SetTarget(nullptr);
+				aiPatrolSetMarker(actor);
 			}
 
-            if (stateTimer > 0) 
-            {
-                if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
-                else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
-                else aiPatrolState(actor, kAiStatePatrolWaitL);
+			if (stateTimer > 0) 
+			{
+				if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+				else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+				else aiPatrolState(actor, kAiStatePatrolWaitL);
 				actor->xspr.stateTimer = stateTimer; // restore state timer
 			}
-            else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
-            else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
-            else aiPatrolState(actor, kAiStatePatrolMoveL);
+			else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+			else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+			else aiPatrolState(actor, kAiStatePatrolMoveL);
 		}
 	}
 #endif

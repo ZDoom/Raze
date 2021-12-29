@@ -25,140 +25,140 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 enum DAMAGE_TYPE {
-    kDamageFall = 0,
-    kDamageBurn,
-    kDamageBullet,
-    kDamageExplode,
-    kDamageDrown,
-    kDamageSpirit,
-    kDamageTesla,
-    kDamageMax = 7,
+	kDamageFall = 0,
+	kDamageBurn,
+	kDamageBullet,
+	kDamageExplode,
+	kDamageDrown,
+	kDamageSpirit,
+	kDamageTesla,
+	kDamageMax = 7,
 };
 
 enum VECTOR_TYPE {
-    kVectorTine = 0,
-    kVectorShell,
-    kVectorBullet,
-    kVectorTommyAP,
-    kVectorShellAP,
-    kVectorTommyRegular,
-    kVectorBatBite,
-    kVectorBoneelBite,
-    kVectorGillBite,
-    kVectorBeastSlash,
-    kVectorAxe,
-    kVectorCleaver,
-    kVectorGhost,
-    kVectorGargSlash,
-    kVectorCerberusHack,
-    kVectorHoundBite,
-    kVectorRatBite,
-    kVectorSpiderBite,
-    VECTOR_TYPE_18,
-    VECTOR_TYPE_19,
-    kVectorTchernobogBurn,
-    kVectorVoodoo10,
-    #ifdef NOONE_EXTENSIONS
-    kVectorGenDudePunch,
-    #endif
-    kVectorMax,
+	kVectorTine = 0,
+	kVectorShell,
+	kVectorBullet,
+	kVectorTommyAP,
+	kVectorShellAP,
+	kVectorTommyRegular,
+	kVectorBatBite,
+	kVectorBoneelBite,
+	kVectorGillBite,
+	kVectorBeastSlash,
+	kVectorAxe,
+	kVectorCleaver,
+	kVectorGhost,
+	kVectorGargSlash,
+	kVectorCerberusHack,
+	kVectorHoundBite,
+	kVectorRatBite,
+	kVectorSpiderBite,
+	VECTOR_TYPE_18,
+	VECTOR_TYPE_19,
+	kVectorTchernobogBurn,
+	kVectorVoodoo10,
+	#ifdef NOONE_EXTENSIONS
+	kVectorGenDudePunch,
+	#endif
+	kVectorMax,
 };
 
 struct THINGINFO
 {
-    int16_t startHealth;
-    int16_t mass;
-    uint8_t clipdist;
-    int16_t flags;
-    int32_t elastic; // elasticity
-    int32_t dmgResist; // damage resistance
-    ESpriteFlags cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal;
-    uint8_t xrepeat; // xrepeat
-    uint8_t yrepeat; // yrepeat
-    int dmgControl[kDamageMax]; // damage
+	int16_t startHealth;
+	int16_t mass;
+	uint8_t clipdist;
+	int16_t flags;
+	int32_t elastic; // elasticity
+	int32_t dmgResist; // damage resistance
+	ESpriteFlags cstat;
+	int16_t picnum;
+	int8_t shade;
+	uint8_t pal;
+	uint8_t xrepeat; // xrepeat
+	uint8_t yrepeat; // yrepeat
+	int dmgControl[kDamageMax]; // damage
 };
 
 struct AMMOITEMDATA
 {
-    int16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal;
-    uint8_t xrepeat;
-    uint8_t yrepeat;
-    int16_t count;
-    uint8_t type;
-    uint8_t weaponType;
+	int16_t cstat;
+	int16_t picnum;
+	int8_t shade;
+	uint8_t pal;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+	int16_t count;
+	uint8_t type;
+	uint8_t weaponType;
 };
 
 struct WEAPONITEMDATA
 {
-    int16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal;
-    uint8_t xrepeat;
-    uint8_t yrepeat;
-    int16_t type;
-    int16_t ammoType;
-    int16_t count;
+	int16_t cstat;
+	int16_t picnum;
+	int8_t shade;
+	uint8_t pal;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+	int16_t type;
+	int16_t ammoType;
+	int16_t count;
 };
 
 struct ITEMDATA
 {
-    int16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal;
-    uint8_t xrepeat;
-    uint8_t yrepeat;
-    int16_t packSlot;
+	int16_t cstat;
+	int16_t picnum;
+	int8_t shade;
+	uint8_t pal;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+	int16_t packSlot;
 };
 
 struct MissileType
 {
-    int16_t picnum;
-    int velocity;
-    int angleOfs;
-    uint8_t xrepeat;
-    uint8_t yrepeat;
-    int8_t shade;
-    uint8_t clipDist;
+	int16_t picnum;
+	int velocity;
+	int angleOfs;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+	int8_t shade;
+	uint8_t clipDist;
 };
 
 struct EXPLOSION
 {
-    uint8_t repeat;
-    uint8_t dmg;
-    uint8_t dmgRng;
-    int radius;
-    int dmgType;
-    int burnTime;
-    int ticks;
-    int quakeEffect;
-    int flashEffect;
+	uint8_t repeat;
+	uint8_t dmg;
+	uint8_t dmgRng;
+	int radius;
+	int dmgType;
+	int burnTime;
+	int ticks;
+	int quakeEffect;
+	int flashEffect;
 };
 
 struct SURFHIT {
-    FX_ID fx1;
-    FX_ID fx2;
-    FX_ID fx3;
-    int fxSnd;
+	FX_ID fx1;
+	FX_ID fx2;
+	FX_ID fx3;
+	int fxSnd;
 };
 
 struct VECTORDATA {
-    DAMAGE_TYPE dmgType;
-    int dmg; // damage
-    int impulse;
-    int maxDist;
-    int fxChance;
-    int burnTime; // burn
-    int bloodSplats; // blood splats
-    int splatChance; // blood splat chance
-    SURFHIT surfHit[15];
+	DAMAGE_TYPE dmgType;
+	int dmg; // damage
+	int impulse;
+	int maxDist;
+	int fxChance;
+	int burnTime; // burn
+	int bloodSplats; // blood splats
+	int splatChance; // blood splat chance
+	SURFHIT surfHit[15];
 };
 
 extern const AMMOITEMDATA gAmmoItemData[];
@@ -173,27 +173,27 @@ const int gDudeDrag = 0x2a00;
 
 template<typename T> bool IsPlayerSprite(T const * const pSprite)
 {
-    return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
+	return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
 }
 
 template<typename T> bool IsDudeSprite(T const * const pSprite)
 {
-    return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
+	return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
 }
 
 template<typename T> bool IsItemSprite(T const * const pSprite)
 {
-    return pSprite->type >= kItemBase && pSprite->type < kItemMax;
+	return pSprite->type >= kItemBase && pSprite->type < kItemMax;
 }
 
 template<typename T> bool IsWeaponSprite(T const * const pSprite)
 {
-    return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
+	return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
 }
 
 template<typename T> bool IsAmmoSprite(T const * const pSprite)
 {
-    return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
+	return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
 }
 
 

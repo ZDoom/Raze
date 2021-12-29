@@ -183,42 +183,42 @@ inline double RenderY(int y)
 
 inline double WallStartX(int wallnum)
 {
-    return wall[wallnum].pos.X * (1 / 16.);
+	return wall[wallnum].pos.X * (1 / 16.);
 }
 
 inline double WallStartY(int wallnum)
 {
-    return wall[wallnum].pos.Y * (1 / -16.);
+	return wall[wallnum].pos.Y * (1 / -16.);
 }
 
 inline double WallEndX(int wallnum)
 {
-    return wall[wallnum].point2Wall()->pos.X * (1 / 16.);
+	return wall[wallnum].point2Wall()->pos.X * (1 / 16.);
 }
 
 inline double WallEndY(int wallnum)
 {
-    return wall[wallnum].point2Wall()->pos.Y * (1 / -16.);
+	return wall[wallnum].point2Wall()->pos.Y * (1 / -16.);
 }
 
 inline double WallStartX(const walltype* wallnum)
 {
-    return wallnum->pos.X * (1 / 16.);
+	return wallnum->pos.X * (1 / 16.);
 }
 
 inline double WallStartY(const walltype* wallnum)
 {
-    return wallnum->pos.Y * (1 / -16.);
+	return wallnum->pos.Y * (1 / -16.);
 }
 
 inline DVector2 WallStart(const walltype* wallnum)
 {
-    return { WallStartX(wallnum), WallStartY(wallnum) };
+	return { WallStartX(wallnum), WallStartY(wallnum) };
 }
 
 inline double WallEndX(const walltype* wallnum)
 {
-    return wallnum->point2Wall()->pos.X * (1 / 16.);
+	return wallnum->point2Wall()->pos.X * (1 / 16.);
 }
 
 inline double WallEndY(const walltype* wallnum)
@@ -228,28 +228,28 @@ inline double WallEndY(const walltype* wallnum)
 
 inline DVector2 WallEnd(const walltype* wallnum)
 {
-    return { WallEndX(wallnum), WallEndY(wallnum) };
+	return { WallEndX(wallnum), WallEndY(wallnum) };
 }
 
 inline DVector2 WallDelta(const walltype* wallnum)
 {
-    return WallEnd(wallnum) - WallStart(wallnum);
+	return WallEnd(wallnum) - WallStart(wallnum);
 }
 
 inline double PointOnLineSide(double x, double y, double linex, double liney, double deltax, double deltay)
 {
-    return (x - linex) * deltay - (y - liney) * deltax;
+	return (x - linex) * deltay - (y - liney) * deltax;
 }
 
 inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
 {
-    return (pos.X - WallStartX(line)) * WallDelta(line).Y - (pos.Y - WallStartY(line)) * WallDelta(line).X;
+	return (pos.X - WallStartX(line)) * WallDelta(line).Y - (pos.Y - WallStartY(line)) * WallDelta(line).X;
 }
 
 template<class T>
 inline double PointOnLineSide(const TVector2<T>& pos, const TVector2<T>& linestart, const TVector2<T>& lineend)
 {
-    return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
+	return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
 }
 
 extern int numshades;
@@ -257,14 +257,14 @@ extern int numshades;
 // Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
 inline int shadeToLight(int shade)
 {
-    shade = clamp(shade, 0, numshades - 1);
-    int light = Scale(numshades - 1 - shade, 255, numshades - 1);
-    return PalEntry(255, light, light, light);
+	shade = clamp(shade, 0, numshades - 1);
+	int light = Scale(numshades - 1 - shade, 255, numshades - 1);
+	return PalEntry(255, light, light, light);
 }
 
 inline void copyfloorpal(spritetype* spr, const sectortype* sect)
 {
-    if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
+	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
 }
 
 inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
@@ -274,17 +274,17 @@ inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
 
 inline void spriteSetSlope(spritetype* spr, int heinum)
 {
-    if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
-    {
-        spr->xoffset = heinum & 255;
-        spr->yoffset = (heinum >> 8) & 255;
-        spr->cstat = (spr->cstat & ~CSTAT_SPRITE_ALIGNMENT_MASK) | (heinum != 0 ? CSTAT_SPRITE_ALIGNMENT_SLOPE : CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    }
+	if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
+	{
+		spr->xoffset = heinum & 255;
+		spr->yoffset = (heinum >> 8) & 255;
+		spr->cstat = (spr->cstat & ~CSTAT_SPRITE_ALIGNMENT_MASK) | (heinum != 0 ? CSTAT_SPRITE_ALIGNMENT_SLOPE : CSTAT_SPRITE_ALIGNMENT_FLOOR);
+	}
 }
 
 inline int spriteGetSlope(const spritetype* spr)
 {
-    return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
+	return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }
 
 // same stuff, different flag...
@@ -305,24 +305,24 @@ inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
 
 inline int I_GetBuildTime()
 {
-    return I_GetTime(120);
+	return I_GetTime(120);
 }
 
 inline int32_t getangle(walltype* wal)
 {
-    return getangle(
-        wal->point2Wall()->pos.X - wal->pos.X,
-        wal->point2Wall()->pos.Y - wal->pos.Y);
+	return getangle(
+		wal->point2Wall()->pos.X - wal->pos.X,
+		wal->point2Wall()->pos.Y - wal->pos.Y);
 }
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
 {
-    return TArrayView<walltype>(sec->firstWall(), sec->wallnum);
+	return TArrayView<walltype>(sec->firstWall(), sec->wallnum);
 }
 
 inline TArrayView<walltype> wallsofsector(int sec)
 {
-    return wallsofsector(&sector[sec]);
+	return wallsofsector(&sector[sec]);
 }
 
 // these are mainly meant as refactoring aids to mark function calls to work on.

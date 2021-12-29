@@ -64,14 +64,14 @@ extern TArray<walltype> wall;
 // Names taken from DukeGDX
 enum EHitBits
 {
-    kHitNone = 0,
-    kHitTypeMask = 0xC000,
-    kHitTypeMaskSW = 0x1C000, // SW has one more relevant bit
-    kHitIndexMask = 0x3FFF,
-    kHitSector = 0x4000,
-    kHitWall = 0x8000,
-    kHitSprite = 0xC000,
-    kHitVoid = 0x10000,      // SW only
+	kHitNone = 0,
+	kHitTypeMask = 0xC000,
+	kHitTypeMaskSW = 0x1C000, // SW has one more relevant bit
+	kHitIndexMask = 0x3FFF,
+	kHitSector = 0x4000,
+	kHitWall = 0x8000,
+	kHitSprite = 0xC000,
+	kHitVoid = 0x10000,      // SW only
 
 
 };
@@ -83,7 +83,7 @@ struct HitInfoBase
 	vec3_t hitpos;
 	sectortype* hitSector;
 	walltype* hitWall;
-    DCoreActor* hitActor;
+	DCoreActor* hitActor;
 
 	void clearObj()
 	{

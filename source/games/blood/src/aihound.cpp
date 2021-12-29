@@ -64,7 +64,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-    actFireMissile(actor, 0, 0, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileFlameHound);
+	actFireMissile(actor, 0, 0, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)
@@ -104,7 +104,7 @@ static void houndThinkChase(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
-	
+
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
