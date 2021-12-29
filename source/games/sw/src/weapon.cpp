@@ -5140,7 +5140,7 @@ int ActorPain(DSWActor* actor)
 
 int ActorPainPlasma(DSWActor* actor)
 {
-    if (!TEST(actor->user.Flags, SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT))
+    if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT)))
     {
         if (actor->user.ActorActionSet && actor->user.ActorActionSet->Pain)
         {
@@ -7091,7 +7091,7 @@ int DoFlamesDamageTest(DSWActor* actor)
             if (actor == itActor)
                 continue;
 
-            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
+            if (!(itActor->spr.cstat & (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN)))
                 continue;
 
             if (actor->spr.cstat & (CSTAT_SPRITE_INVISIBLE))
@@ -7238,7 +7238,7 @@ int DoExpDamageTest(DSWActor* actor)
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
-                if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
+                if (!(itActor->spr.cstat & (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN)))
                     continue;
 
                 // Second parameter MUST have blocking bits set or cansee won't work
@@ -8389,7 +8389,7 @@ int DoGrenade(DSWActor* actor)
     }
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE|SPR_UNDERWATER))
+    if (!(actor->user.Flags & (SPR_BOUNCE|SPR_UNDERWATER)))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);

@@ -1802,7 +1802,7 @@ PlayerPart:
                 //pp->posz -= Z(24);
                 DoPlayerZrange(pp);
 
-                if (!TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
+                if (!(pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING)))
                 {
                     pp->pos.Z = pp->loz - PLAYER_HEIGHT;
                     pp->actor->spr.pos.Z = pp->loz;
@@ -3567,7 +3567,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     if (actor->user.coll.type != kHitNone)
     {
-        if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+        if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
             ActorLeaveTrack(actor);
     }
 

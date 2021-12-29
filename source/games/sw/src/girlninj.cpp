@@ -788,7 +788,7 @@ int GirlNinjaJumpActionFunc(DSWActor* actor)
         return 0;
     }
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
     {
         InitActorDecide(actor);
     }
@@ -800,10 +800,10 @@ int NullGirlNinja(DSWActor* actor)
 {
     if (actor->user.WaitTics > 0) actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (actor->user.Flags & (SPR_SLIDING) && !(actor->user.Flags & SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (actor->user.Flags & (SPR_SLIDING) && !(actor->user.Flags & SPR_CLIMBING) && !(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
         DoActorSlide(actor);
 
-    if (!(actor->user.Flags & SPR_CLIMBING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (!(actor->user.Flags & SPR_CLIMBING) && !(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);

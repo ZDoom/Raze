@@ -1314,7 +1314,7 @@ int DoActorMoveJump(DSWActor* actor)
 
     move_actor(actor, nx, ny, 0L);
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
     {
         InitActorDecide(actor);
     }
@@ -1452,7 +1452,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 
 #if 1
         // look directly ahead for a ledge
-        if (!TEST(actor->user.Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD))
+        if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD)))
         {
             actor->spr.ang = new_ang;
             if (DropAhead(actor, actor->user.lo_step))

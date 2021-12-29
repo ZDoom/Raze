@@ -1057,7 +1057,7 @@ STATEp sg_PlayerNinjaFly[] =
 
 void DoPlayerSpriteThrow(PLAYERp pp)
 {
-    if (!TEST(pp->Flags, PF_DIVING|PF_FLYING|PF_CRAWLING))
+    if (!(pp->Flags & (PF_DIVING|PF_FLYING|PF_CRAWLING)))
     {
         if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->actor->user.Rot != sg_PlayerNinjaSword)
             NewStateGroup(pp->actor, sg_PlayerNinjaSword);
@@ -1588,7 +1588,7 @@ void SlipSlope(PLAYERp pp)
 
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
-    bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && pp->cursector && TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE);
+    bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE);
     pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
@@ -4309,7 +4309,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
     // Don't draw bar from other players
     if (pp != Player+myconnectindex) return;
 
-    if (!TEST(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA)) return;
+    if (!(pp->Flags & (PF_DIVING|PF_DIVING_IN_LAVA))) return;
 
     meterunit = PLAYER_DIVE_TIME / 30;
     if (meterunit > 0)
@@ -4317,7 +4317,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
     else
         return;
 
-    if (metertics <= 0 && !TEST(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA))
+    if (metertics <= 0 && !(pp->Flags & (PF_DIVING|PF_DIVING_IN_LAVA)))
     {
         return;
     }
@@ -5684,7 +5684,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
         }
     }
 
-    if (!TEST(pp->Flags, PF_JUMPING|PF_FALLING))
+    if (!(pp->Flags & (PF_JUMPING|PF_FALLING)))
         NewStateGroup(pp->actor, sg_PlayerHead);
 }
 
@@ -6059,7 +6059,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_FALL_VALUE, 3);
         }
 
-        if (!TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+        if (!(pp->Flags & (PF_JUMPING|PF_FALLING)))
         {
             if (!(plActor->user.Flags & SPR_BOUNCE))
             {
@@ -6111,7 +6111,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 3);
         }
 
-        if (!TEST(pp->Flags,PF_JUMPING|PF_FALLING))
+        if (!(pp->Flags & (PF_JUMPING|PF_FALLING)))
         {
             if (!(plActor->user.Flags & SPR_BOUNCE))
             {

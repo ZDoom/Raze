@@ -513,7 +513,7 @@ int DoBloodSpray(DSWActor* actor)
 
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER))
+    if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)))
     {
 
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->spr.sector(),
@@ -715,7 +715,7 @@ int DoPhosphorus(DSWActor* actor)
 
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
+    if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
 
         auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->spr.sector(),
@@ -939,7 +939,7 @@ int DoChemBomb(DSWActor* actor)
     }
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
+    if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);

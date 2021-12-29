@@ -917,10 +917,10 @@ int NullZombie(DSWActor* actor)
     if (actor->user.WaitTics > 0)
         actor->user.WaitTics -= ACTORMOVETICS;
 
-    if (actor->user.Flags & (SPR_SLIDING) && !TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (actor->user.Flags & (SPR_SLIDING) && !(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
         DoActorSlide(actor);
 
-    if (!TEST(actor->user.Flags, SPR_JUMPING|SPR_FALLING))
+    if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
         KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);

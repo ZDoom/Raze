@@ -304,7 +304,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     loz = ownerActor->user.loz;
     if (ownerActor->user.lowActor)
     {
-        if (!TEST(ownerActor->user.lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (!(ownerActor->user.lowActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR)))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }
@@ -1488,7 +1488,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         }
     }
 
-    if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
+    if (!(pp->Flags & (PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE)))
     {
         if (cl_viewbob)
         {
