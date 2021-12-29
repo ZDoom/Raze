@@ -343,7 +343,24 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 	return dx * dx + dy * dy;
 }
 
-inline double SquareDistToWall(double px, double py, const walltype* wal) 
+inline DVector2 NearestPointLine(double px, double py, const walltype* wal)
+{
+	double lx1 = wal->pos.X;
+	double ly1 = wal->pos.Y;
+	double lx2 = wal->point2Wall()->pos.X;
+	double ly2 = wal->point2Wall()->pos.Y;
+
+	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
+
+	if (wall_length == 0) return { lx1, ly1 };
+
+	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
+	double xx = lx1 + t * (lx2 - lx1);
+	double yy = ly1 + t * (ly2 - ly1);
+	return { xx, yy };
+}
+
+inline double SquareDistToWall(double px, double py, const walltype* wal, DVector2* point = nullptr) 
 {
 	double lx1 = wal->pos.X;
 	double ly1 = wal->pos.Y;
@@ -356,7 +373,10 @@ inline double SquareDistToWall(double px, double py, const walltype* wal)
 
 	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
 	t = clamp(t, 0., 1.);
-	return SquareDist(px, py, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1));
+	double xx = lx1 + t * (lx2 - lx1);
+	double yy = ly1 + t * (ly2 - ly1);
+	if (point) *point = { xx, yy };
+	return SquareDist(px, py, xx, yy);
 }
 
 inline void alignceilslope(sectortype* sect, int x, int y, int z)

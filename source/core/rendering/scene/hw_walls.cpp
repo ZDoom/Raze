@@ -48,89 +48,34 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 //
 //==========================================================================
 
-static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const n)
+static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
-	auto w = wal->pos;
-	auto d = wal->point2Wall()->pos - w;
-	auto pos = spr->pos;
+	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
 
-	// avoid the math below for orthogonal walls. Here we allow only sprites that exactly match the line's coordinate and orientation
-	if (d.X == 0 && d.Y == 0)
-	{
-		// line has no length.
-		// In Blood's E1M1 this gets triggered for wall 522.
-		return 1;
-	}
-	else if (d.X == 0)
-	{
-		// line is vertical.
-		if (abs(pos.X - w.X) <= 1 && (spr->ang & 0x3ff) == 0)
-		{
-			*n = pos.vec2;
-			return 0;
-		}
-		return 1;
-	}
-	else if (d.Y == 0)
-	{
-		// line is horizontal.
-		if (abs(pos.Y - w.Y) <= 1 && (spr->ang & 0x3ff) == 0x200)
-		{
-			*n = pos.vec2;
-			return 0;
-		}
-		return 1;
-	}
-
-
-	int64_t i = d.X * ((int64_t)pos.X - w.X) + d.Y * ((int64_t)pos.Y - w.Y);
-
-
-	if (i < 0)
-		return 1;
-
-	int64_t j = (int64_t)d.X * d.X + (int64_t)d.Y * d.Y;
-
-	if (i > j)
-		return 1;
-
-	i = ((i << 15) / j) << 15;
-
-	n->X = w.X + ((d.X * i) >> 30);
-	n->Y = w.Y + ((d.Y * i) >> 30);
-
-	return 0;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-static int IsOnWall(tspritetype* tspr, int height)
-{
-	int dist = 3;
 	auto sect = tspr->sector();
-	vec2_t n;
 	walltype* closest = nullptr;
 
 	int topz = (tspr->pos.Z - ((height * tspr->yrepeat) << 2));
 	for(auto& wal : wallsofsector(sect))
 	{
-		if ((wal.nextsector == -1 || (wal.cstat & CSTAT_WALL_1WAY) ||  ((wal.nextSector()->ceilingz > topz) ||
-			wal.nextSector()->floorz < tspr->pos.Z)) && !GetClosestPointOnWall(tspr, &wal, &n))
-		{
-			int const dst = abs(tspr->pos.X - n.X) + abs(tspr->pos.Y - n.Y);
+		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
+		auto d = wal.delta();
+		int walang = getangle(d.X, d.Y);
+		int deltaang = abs(walang - tspr->ang) & 2047;
+		const int maxangdelta = 1;
 
-			if (dst <= dist)
+		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
+		if (deltaang >= 512 - maxangdelta && deltaang <= 512 + maxangdelta)
+		{
+			double wdist = SquareDistToWall(tspr->pos.X, tspr->pos.Y, &wal, &outpos);
+			if (wdist <= maxdistsq)
 			{
-				dist = dst;
 				closest = &wal;
 			}
 		}
 	}
-	return closest == nullptr? -1 : dist;
+	// todo: cache this in the sprite to avoid recalculation.
+	return closest;
 }
 
 //==========================================================================
@@ -238,7 +183,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 	else if (!(rflags & RWF_TRANS))
 	{
 		auto oldbias = state.GetDepthBias();
-		if (walldist >= 0) state.SetDepthBias(-1, glseg.x1 == glseg.x2 || glseg.y1 == glseg.y2? -129 : -192);
+		if (walldist) state.SetDepthBias(-1, -129);
 		else state.ClearDepthBias();
 		RenderWall(di, state, rflags);
 		state.SetDepthBias(oldbias);
@@ -1150,7 +1095,20 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
 	}
 
-	walldist = IsOnWall(spr, height);
+	DVector2 vec;
+	walldist = IsOnWall(spr, height, vec);
+	wallpoint = { float(vec.X * (1 / 16.f)), float(vec.Y * (-1 / 16.f)) };
+	if (walldist)
+	{
+		// project the sprite right onto the wall.
+		auto v1 = NearestPointLine(pos[0].X, pos[0].Y, walldist);
+		auto v2 = NearestPointLine(pos[1].X, pos[1].Y, walldist);
+		glseg.x1 = v1.X * (1 / 16.f);
+		glseg.y1 = v1.Y * (1 / -16.f);
+		glseg.x2 = v2.X * (1 / 16.f);
+		glseg.y2 = v2.Y * (1 / -16.f);
+
+	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)
 		topofs = -topofs;
