@@ -398,13 +398,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->spr.xvel += (actor->spr.extra << 2);
 						}
 						
-						if (act2->spr.picnum == PODFEM1 || act2->spr.picnum == FEM1 ||
-							act2->spr.picnum == FEM2 || act2->spr.picnum == FEM3 ||
-							act2->spr.picnum == FEM4 || act2->spr.picnum == FEM5 ||
-							act2->spr.picnum == FEM6 || act2->spr.picnum == FEM7 ||
-							act2->spr.picnum == FEM8 || act2->spr.picnum == FEM9 ||
-							act2->spr.picnum == FEM10 || act2->spr.picnum == STATUE ||
-							act2->spr.picnum == STATUEFLASH || act2->spr.picnum == SPACEMARINE || act2->spr.picnum == QUEBALL || act2->spr.picnum == STRIPEBALL)
+						if (gs.actorinfo[act2->spr.picnum].flags & SFLAG_HITRADIUSCHECK)
 							fi.checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->extra = 0;

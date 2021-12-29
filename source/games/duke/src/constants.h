@@ -311,6 +311,7 @@ enum sflags_t
 	SFLAG_INTERNAL_BADGUY  = 0x08000000, // a separate flag is needed for the internal ones because SFLAG_BADGUY has additional semantics.
 	SFLAG_KILLCOUNT        = 0x10000000,
 	SFLAG_NOCANSEECHECK    = 0x20000000,
+	SFLAG_HITRADIUSCHECK   = 0x40000000,
 };
 
 enum

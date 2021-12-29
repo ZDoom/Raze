@@ -198,6 +198,14 @@ void initactorflags_r()
 		DOLPHIN2,
 		TOUGHGAL });
 
+	setflag(SFLAG_HITRADIUSCHECK, {
+		STATUEFLASH,
+		BOWLINGPIN,
+		QUEBALL,
+		STRIPEBALL
+		});
+
+
 	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
 
 	gs.weaponsandammosprites[0] = RPGSPRITE;

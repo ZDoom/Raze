@@ -224,6 +224,25 @@ void initactorflags_d()
 		GREENSLIME + 7,
 		});
 
+	setflag(SFLAG_HITRADIUSCHECK, {
+		PODFEM1 ,
+		FEM1,
+		FEM2,   
+		FEM3,
+		FEM4,   
+		FEM5,
+		FEM6,    
+		FEM7,
+		FEM8,  
+		FEM9,
+		FEM10,   
+		STATUE,
+		STATUEFLASH,
+		SPACEMARINE,
+		QUEBALL,
+		STRIPEBALL
+		});
+
 	gs.actorinfo[ORGANTIC].aimoffset = 32 << 8;
 	gs.actorinfo[ROTATEGUN].aimoffset = 32 << 8;
 
