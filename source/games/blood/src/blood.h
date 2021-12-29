@@ -60,19 +60,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 struct INIDESCRIPTION {
-    const char *pzName;
-    const char *pzFilename;
-    const char **pzArts;
-    int nArts;
+	const char* pzName;
+	const char* pzFilename;
+	const char** pzArts;
+	int nArts;
 };
 
 struct INICHAIN {
-    INICHAIN *pNext;
-    char zName[BMAX_PATH];
-    INIDESCRIPTION *pDescription;
+	INICHAIN* pNext;
+	char zName[BMAX_PATH];
+	INIDESCRIPTION* pDescription;
 };
 
-extern INICHAIN *pINIChain;
+extern INICHAIN* pINIChain;
 
 extern int gNetPlayers;
 extern int blood_globalflags;
@@ -104,12 +104,12 @@ void PolymostAllocFakeSector();
 
 inline bool DemoRecordStatus(void)
 {
-    return false;
+	return false;
 }
 
 inline bool VanillaMode()
 {
-    return false;
+	return false;
 }
 void sndPlaySpecialMusicOrNothing(int nMusic);
 
@@ -136,7 +136,7 @@ struct GameInterface : public ::GameInterface
 	void Startup() override;
 	void Render() override;
 	const char* GenericCheat(int player, int cheat) override;
-	void NewGame(MapRecord *sng, int skill, bool) override;
+	void NewGame(MapRecord* sng, int skill, bool) override;
 	void NextLevel(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;

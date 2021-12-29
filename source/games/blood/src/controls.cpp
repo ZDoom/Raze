@@ -37,40 +37,46 @@ static InputPacket gInput;
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
 void doslopetilting(PLAYER* pPlayer, double const scaleAdjust);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
-    if (paused || M_Active())
-    {
-        gInput = {};
-        return;
-    }
+	if (paused || M_Active())
+	{
+		gInput = {};
+		return;
+	}
 
-    PLAYER* pPlayer = &gPlayer[myconnectindex];
-    InputPacket input {};
+	PLAYER* pPlayer = &gPlayer[myconnectindex];
+	InputPacket input{};
 
-    ApplyGlobalInput(gInput, hidInput);
-    processMovement(&input, &gInput, hidInput, scaleAdjust);
+	ApplyGlobalInput(gInput, hidInput);
+	processMovement(&input, &gInput, hidInput, scaleAdjust);
 
-    if (!SyncInput() && gamestate == GS_LEVEL)
-    {
-        // Perform unsynchronised angle/horizon if not dead.
-        if (gView->actor->xspr.health != 0)
-        {
-            pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
-            pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);
-            doslopetilting(pPlayer, scaleAdjust);
-        }
+	if (!SyncInput() && gamestate == GS_LEVEL)
+	{
+		// Perform unsynchronised angle/horizon if not dead.
+		if (gView->actor->xspr.health != 0)
+		{
+			pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
+			pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);
+			doslopetilting(pPlayer, scaleAdjust);
+		}
 
-        pPlayer->angle.processhelpers(scaleAdjust);
-        pPlayer->horizon.processhelpers(scaleAdjust);
-        UpdatePlayerSpriteAngle(pPlayer);
-    }
+		pPlayer->angle.processhelpers(scaleAdjust);
+		pPlayer->horizon.processhelpers(scaleAdjust);
+		UpdatePlayerSpriteAngle(pPlayer);
+	}
 
-    if (packet)
-    {
-        *packet = gInput;
-        gInput = {};
-    }
+	if (packet)
+	{
+		*packet = gInput;
+		gInput = {};
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -81,7 +87,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
 void GameInterface::clearlocalinputstate()
 {
-    gInput = {};
+	gInput = {};
 }
 
 END_BLD_NS

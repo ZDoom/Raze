@@ -71,6 +71,12 @@ IMPLEMENT_POINTER(xspr.burnSource)
 IMPLEMENT_POINTER(xspr.target)
 IMPLEMENT_POINTERS_END
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t DBloodActor::PropagateMark()
 {
 	condition[0].Mark();
@@ -109,6 +115,12 @@ int16_t startang;
 sectortype* startsector;
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void QuitGame(void)
 {
 	throw CExitEvent(0);
@@ -123,6 +135,12 @@ void EndLevel(void)
 	ambKillAll();
 	seqKillAll();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 {
@@ -152,6 +170,12 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 	}
 	return spawns;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PropagateMarkerReferences(void)
 {
@@ -193,6 +217,12 @@ void PropagateMarkerReferences(void)
 		DeleteSprite(actor);
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void StartLevel(MapRecord* level, bool newgame)
 {
@@ -329,6 +359,12 @@ void StartLevel(MapRecord* level, bool newgame)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void NewLevel(MapRecord *sng, int skill, bool newgame)
 {
 	if (skill != -1) gGameOptions.nDifficulty = skill;
@@ -354,6 +390,12 @@ int GameInterface::GetCurrentSkill()
 	return gGameOptions.nDifficulty;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::Ticker()
 {
@@ -436,6 +478,12 @@ void GameInterface::Ticker()
 	else r_NoInterpolate = true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::DrawBackground()
 {
 	twod->ClearScreen();
@@ -460,6 +508,12 @@ static void SetTileNames()
 
 
 void ReadAllRFS();
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::loadPalette(void)
 {
@@ -529,6 +583,12 @@ void GameInterface::loadPalette(void)
 	paletteloaded = PALETTE_SHADE | PALETTE_TRANSLUC | PALETTE_MAIN;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::app_init()
 {
 	GC::AddMarkerFunc(markgcroots);
@@ -567,6 +627,12 @@ void GameInterface::app_init()
 	gViewIndex = myconnectindex;
 	gMe = gView = &gPlayer[myconnectindex];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gameInit()
 {
@@ -607,6 +673,12 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 extern  IniFile* BloodINI;
 void GameInterface::FreeGameData()
 {
@@ -634,6 +706,12 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
 	return new GameInterface;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 enum
 {

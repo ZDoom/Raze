@@ -121,12 +121,12 @@ public:
 		return spr.type >= kItemAmmoBase && spr.type < kItemAmmoMax;
 	}
 
-	bool isActive() 
+	bool isActive()
 	{
 		if (!hasX())
 			return false;
 
-		switch (xspr.aiState->stateType) 
+		switch (xspr.aiState->stateType)
 		{
 		case kAiStateIdle:
 		case kAiStateGenIdle:
