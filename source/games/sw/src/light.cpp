@@ -136,7 +136,7 @@ void DoLightingMatch(short match, short state)
             if (state == -1)
                 state = !TEST_BOOL1(itActor);
 
-            if (state == ON)
+            if (state == 1)
             {
                 SET_BOOL1(itActor);
                 itActor->spr.shade = -LIGHT_MaxBright(itActor);
@@ -163,7 +163,7 @@ void DoLightingMatch(short match, short state)
             if (state == -1)
                 state = !TEST_BOOL1(itActor);
 
-            if (state == ON)
+            if (state == 1)
             {
                 // allow fade or flicker
                 SET_BOOL1(itActor);
@@ -186,7 +186,7 @@ void DoLightingMatch(short match, short state)
             //if (state == -1)
             //    state = !TEST_BOOL1(itActor);
 
-            if (state == ON)
+            if (state == 1)
             {
                 if (LIGHT_Dir(itActor) == 1)
                 {
@@ -214,7 +214,7 @@ void DoLightingMatch(short match, short state)
             if (state == -1)
                 state = !TEST_BOOL1(itActor);
 
-            if (state == ON)
+            if (state == 1)
             {
                 // allow fade or flicker
                 SET_BOOL1(itActor);

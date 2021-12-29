@@ -741,7 +741,7 @@ int DoSumoDeathMelt(DSWActor* actor)
     InitChemBomb(actor);
     actor->user.ID = 0;
 
-    DoMatchEverything(nullptr, actor->spr.lotag, ON);
+    DoMatchEverything(nullptr, actor->spr.lotag, 1);
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.

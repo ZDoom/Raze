@@ -148,11 +148,11 @@ short DoSOevent(short match, short state)
                 else
                 {
                     SET_BOOL3(me_act);
-                    state = ON;
+                    state = 1;
                 }
             }
 
-            if (state == ON)
+            if (state == 1)
             {
                 spin_adj = (int)SP_TAG3(me_act);
                 vel_adj = SP_TAG7(me_act);

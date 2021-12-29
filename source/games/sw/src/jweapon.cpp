@@ -1962,7 +1962,7 @@ int DoCarryFlag(DSWActor* actor)
                 if (fown != nullptr)
                 {
                     if (fown->spr.lotag)      // Trigger everything if there is a lotag
-                        DoMatchEverything(nullptr, fown->spr.lotag, ON);
+                        DoMatchEverything(nullptr, fown->spr.lotag, 1);
                 }
                 if (!TEST_BOOL1(fown))
                 {
@@ -1974,7 +1974,7 @@ int DoCarryFlag(DSWActor* actor)
                         if (fown->user.filler >= SP_TAG5(fown))
                         {
                             fown->user.filler = 0;
-                            DoMatchEverything(nullptr, SP_TAG6(fown), ON);
+                            DoMatchEverything(nullptr, SP_TAG6(fown), 1);
                         }
                     }
                 }
@@ -2092,7 +2092,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
         if (actor->user.flagOwnerActor != nullptr)
         {
             if (fown->spr.lotag)              // Trigger everything if there is a lotag
-                DoMatchEverything(nullptr, fown->spr.lotag, ON);
+                DoMatchEverything(nullptr, fown->spr.lotag, 1);
             fown->user.WaitTics = 0;           // Tell it to respawn
         }
         if (!TEST_BOOL1(fown))
@@ -2105,7 +2105,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
                 if (fown->user.filler >= SP_TAG5(fown))
                 {
                     fown->user.filler = 0;
-                    DoMatchEverything(nullptr, SP_TAG6(fown), ON);
+                    DoMatchEverything(nullptr, SP_TAG6(fown), 1);
                 }
             }
         }

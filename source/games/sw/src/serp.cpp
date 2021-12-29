@@ -794,7 +794,7 @@ int DoSerpMove(DSWActor* actor)
 
 int DoDeathSpecial(DSWActor* actor)
 {
-    DoMatchEverything(nullptr, actor->spr.lotag, ON);
+    DoMatchEverything(nullptr, actor->spr.lotag, 1);
 
     if (!SW_SHAREWARE)
     {

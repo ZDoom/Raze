@@ -751,7 +751,7 @@ int PachinkoCheckWin(DSWActor* actor)
         // Do a possible combo switch
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, actor->spr.hitag))
         {
-            DoMatchEverything(Player+myconnectindex, actor->spr.hitag, ON);
+            DoMatchEverything(Player+myconnectindex, actor->spr.hitag, 1);
         }
 
         ActorCoughItem(actor); // I WON! I WON!

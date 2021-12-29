@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamefuncs.h"
 #include "coreactor.h"
 
-#include "mytypes.h"
 #include "sounds.h"
 #include "gamecvars.h"
 #include "raze_sound.h"
@@ -59,6 +58,10 @@ class DSWActor;
 using HitInfo = THitInfo<DSWActor>;
 using Collision = TCollision<DSWActor>;
 
+constexpr int BIT(int shift)
+{
+    return 1 << shift;
+}
 
 typedef struct
 {
