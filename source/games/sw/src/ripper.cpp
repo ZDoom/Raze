@@ -1108,7 +1108,7 @@ int DoRipperQuickJump(DSWActor* actor)
     DSWActor* low = actor->user.lowActor;
     if (low)
     {
-        if (TEST(low->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((low->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             NewStateGroup(actor, sg_RipperJumpAttack);
             // move past the first state

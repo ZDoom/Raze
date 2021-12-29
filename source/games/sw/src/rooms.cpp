@@ -136,7 +136,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     if (hit.hitWall != nullptr)
     {
         // hitscan warping
-        if (TEST(hit.hitWall->cstat, CSTAT_WALL_WARP_HITSCAN))
+        if ((hit.hitWall->cstat & CSTAT_WALL_WARP_HITSCAN))
         {
             // back it up a bit to get a correct warp location
             hit.hitpos.X -= xvect>>9;
@@ -168,9 +168,9 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     // make sure it hit JUST a sector before doing a check
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
-        if (TEST(hit.hitSector->extra, SECTFX_WARP_SECTOR))
+        if ((hit.hitSector->extra & SECTFX_WARP_SECTOR))
         {
-            if (TEST(hit.hitSector->firstWall()->cstat, CSTAT_WALL_WARP_HITSCAN))
+            if ((hit.hitSector->firstWall()->cstat & CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
                 sectortype* newsect = nullptr;
@@ -335,10 +335,10 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             if (FAF_ConnectFloor(hit_sector))
             {
                 // rippers were dying through the floor in $rock
-                if (TEST(hit_sector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
+                if ((hit_sector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
                     break;
 
-                if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
+                if ((hit_sector->extra & SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
                     z_amt = GetZadjustment(hit_sector, FLOOR_Z_ADJUST);
@@ -367,7 +367,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(hit_sector->floorstat, CSTAT_SECTOR_SKY))
+            if ((hit_sector->floorstat & CSTAT_SECTOR_SKY))
             {
                 *loz += PlaxFloorGlobZadjust;
             }
@@ -388,7 +388,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             // don't jack with connect sectors
             if (FAF_ConnectCeiling(hit_sector))
             {
-                if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
+                if ((hit_sector->extra & SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
                     z_amt = GetZadjustment(hit_sector, CEILING_Z_ADJUST);
@@ -417,7 +417,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(hit_sector->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit_sector->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 *hiz -= PlaxCeilGlobZadjust;
             }

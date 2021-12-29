@@ -798,7 +798,7 @@ void SpawnSwordBlur(PANEL_SPRITEp psp)
     nsp->picndx = -1;
     nsp->picnum = psp->picndx;
 
-    if (TEST(psp->State->flags, psf_Xflip))
+    if ((psp->State->flags & psf_Xflip))
         nsp->flags |= (PANF_XFLIP);
 
     nsp->rotate_ang = psp->rotate_ang;
@@ -943,7 +943,7 @@ void InitWeaponSword(PLAYERp pp)
         return;
 
     // needed for death sequence when the SWORD was your weapon when you died
-    if (pp->Wpn[WPN_SWORD] && TEST(pp->Wpn[WPN_SWORD]->flags, PANF_DEATH_HIDE))
+    if (pp->Wpn[WPN_SWORD] && (pp->Wpn[WPN_SWORD]->flags & PANF_DEATH_HIDE))
     {
         pp->Wpn[WPN_SWORD]->flags &= ~(PANF_DEATH_HIDE);
         pp->Flags &= ~(PF_WEAPON_RETRACT|PF_WEAPON_DOWN);
@@ -1340,7 +1340,7 @@ void InitWeaponStar(PLAYERp pp)
     }
 
     // needed for death sequence when the STAR was your weapon when you died
-    if (pp->Wpn[WPN_STAR] && TEST(pp->Wpn[WPN_STAR]->flags, PANF_DEATH_HIDE))
+    if (pp->Wpn[WPN_STAR] && (pp->Wpn[WPN_STAR]->flags & PANF_DEATH_HIDE))
     {
         pp->Wpn[WPN_STAR]->flags &= ~(PANF_DEATH_HIDE);
         pp->Flags &= ~(PF_WEAPON_RETRACT);
@@ -1741,7 +1741,7 @@ void pSpawnUziClip(PANEL_SPRITEp gun)
 
     PlaySound(DIGI_REMOVECLIP, gun->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler|v3df_follow);
 
-    if (TEST(gun->flags, PANF_XFLIP))
+    if ((gun->flags & PANF_XFLIP))
     {
         New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x - UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
         New->flags |= (PANF_XFLIP);
@@ -1769,7 +1769,7 @@ void pSpawnUziReload(PANEL_SPRITEp oclip)
     nclip = pSpawnSprite(oclip->PlayerP, ps_UziReload, PRI_BACK, oclip->x, UZI_RELOAD_YOFF);
     nclip->flags |= PANF_WEAPON_SPRITE;
 
-    if (TEST(oclip->flags, PANF_XFLIP))
+    if ((oclip->flags & PANF_XFLIP))
         nclip->flags |= PANF_XFLIP;
 
     // move Reload in oposite direction of clip
@@ -1798,7 +1798,7 @@ void pUziReload(PANEL_SPRITEp nclip)
     gun->x -= pspCosVel(gun);
     gun->y += pspSinVel(gun);
 
-    if (TEST(nclip->flags, PANF_XFLIP))
+    if ((nclip->flags & PANF_XFLIP))
     {
         if (nclip->x < gun->x)
         {
@@ -1969,14 +1969,14 @@ void InitWeaponUzi(PLAYERp pp)
         }
         else
         // Is player toggling between one and two uzi's?
-        if (pp->CurWpn->sibling && TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY) && pp->WpnUziType == 0)
+        if (pp->CurWpn->sibling && (pp->Wpn[WPN_UZI]->flags & PANF_PRIMARY) && pp->WpnUziType == 0)
         {
             if (!(pp->CurWpn->flags & PANF_RELOAD))
                 InitWeaponUzi2(pp->Wpn[WPN_UZI]);
         }
 
         // if actually picked an uzi up and don't currently have double uzi
-        if (pp->Flags & (PF_PICKED_UP_AN_UZI) && !TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY))
+        if (pp->Flags & (PF_PICKED_UP_AN_UZI) && !(pp->Wpn[WPN_UZI]->flags & PANF_PRIMARY))
         {
             pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
 
@@ -2388,7 +2388,7 @@ void SpawnUziShell(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    if (psp->State && TEST(psp->State->flags, psf_Xflip))
+    if (psp->State && (psp->State->flags & psf_Xflip))
     {
         // LEFT side
         pp->UziShellLeftAlt = !pp->UziShellLeftAlt;
@@ -2408,7 +2408,7 @@ void pUziShell(PANEL_SPRITEp psp)
 {
     psp->backupx();
 
-    if (psp->State && TEST(psp->State->flags, psf_Xflip))
+    if (psp->State && (psp->State->flags & psf_Xflip))
     {
         psp->x -= 3 * synctics;
     }
@@ -2848,7 +2848,7 @@ void pShotgunRest(PANEL_SPRITEp psp)
     if (pWeaponHideKeys(psp, ps_ShotgunHide))
         return;
 
-    if (psp->PlayerP->WpnShotgunType == 1 && ammo > 0 && ((ammo % 4) != 0) && lastammo != ammo && TEST(psp->flags, PANF_REST_POS))
+    if (psp->PlayerP->WpnShotgunType == 1 && ammo > 0 && ((ammo % 4) != 0) && lastammo != ammo && (psp->flags & PANF_REST_POS))
     {
         force = true;
     }
@@ -3641,7 +3641,7 @@ void pHotheadRest(PANEL_SPRITEp psp)
         {
             psp->flags &= ~(PANF_UNHIDE_SHOOT);
 
-            //if (TEST(psp->PlayerP->Flags,PF_DIVING))
+            //if ((psp->PlayerP->Flags & PF_DIVING))
             //    return;
 
             if (!WeaponOK(psp->PlayerP))
@@ -5568,7 +5568,7 @@ void SpawnFistBlur(PANEL_SPRITEp psp)
     nsp->picndx = -1;
     nsp->picnum = psp->picndx;
 
-    if (TEST(psp->State->flags, psf_Xflip))
+    if ((psp->State->flags & psf_Xflip))
         nsp->flags |= (PANF_XFLIP);
 
     nsp->rotate_ang = psp->rotate_ang;
@@ -6329,7 +6329,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
         }
     }
 
-    if (cl_weaponsway && TEST(psp->flags, PANF_BOB))
+    if (cl_weaponsway && (psp->flags & PANF_BOB))
     {
         // //
         // sin_xxx moves the weapon left-right
@@ -6518,7 +6518,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         if (psp->flags & (PANF_INVISIBLE))
             continue;
 
-        if (psp->State && TEST(psp->State->flags, psf_Invisible))
+        if (psp->State && (psp->State->flags & psf_Invisible))
             continue;
 
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
@@ -6534,7 +6534,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
 
                 if (pal != PALETTE_DEFAULT)
                 {
-                    if (sectp->hasU() && TEST(sectp->flags, SECTFU_DONT_COPY_PALETTE))
+                    if (sectp->hasU() && (sectp->flags & SECTFU_DONT_COPY_PALETTE))
                         pal = PALETTE_DEFAULT;
                 }
 
@@ -6562,7 +6562,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
 
             // !FRANK - this was moved from BELOW this IF statement
             // if it doesn't have a picflag or its in the view
-            if (sectp && sectp->hasU() && TEST(sectp->flags, SECTFU_DONT_COPY_PALETTE))
+            if (sectp && sectp->hasU() && (sectp->flags & SECTFU_DONT_COPY_PALETTE))
                 pal = 0;
         }
 
@@ -6574,7 +6574,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         if (psp->flags & (PANF_CORNER))
             flags |= (RS_TOPLEFT);
 
-        if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))
+        if ((psp->State && (psp->State->flags & psf_Xflip)) || (psp->flags & PANF_XFLIP))
         {
             flags |= (RS_XFLIPHUD);
         }
@@ -6582,9 +6582,9 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         // shading
         if (psp->State && TEST(psp->State->flags, psf_ShadeHalf|psf_ShadeNone))
         {
-            if (TEST(psp->State->flags, psf_ShadeNone))
+            if ((psp->State->flags & psf_ShadeNone))
                 shade = 0;
-            else if (TEST(psp->State->flags, psf_ShadeHalf))
+            else if ((psp->State->flags & psf_ShadeHalf))
                 shade /= 2;
         }
 
@@ -6622,7 +6622,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
             case BLOODYFIST3_SWING0:
             case BLOODYFIST3_SWING1:
             case BLOODYFIST3_SWING2:
-                if (TEST(flags, RS_XFLIPHUD) && x > 160)
+                if ((flags & RS_XFLIPHUD) && x > 160)
                     x = 65;
                 else if (!(flags & RS_XFLIPHUD) && x < 160)
                     x = 345;
@@ -6646,7 +6646,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
             else
                 continue;
 
-            if (TEST(psp->over[i].flags, psf_ShadeNone))
+            if ((psp->over[i].flags & psf_ShadeNone))
                 overlay_shade = 0;
 
             if (picnum)
@@ -6695,7 +6695,7 @@ void pNextState(PANEL_SPRITEp psp)
     // Transition to the next state
     psp->State = psp->State->NextState;
 
-    if (TEST(psp->State->flags, psf_QuickCall))
+    if ((psp->State->flags & psf_QuickCall))
     {
         (*psp->State->Animator)(psp);
         psp->State = psp->State->NextState;
@@ -6707,7 +6707,7 @@ void pStatePlusOne(PANEL_SPRITEp psp)
     psp->tics = 0;
     psp->State++;
 
-    if (TEST(psp->State->flags, psf_QuickCall))
+    if ((psp->State->flags & psf_QuickCall))
     {
         (*psp->State->Animator)(psp);
         psp->State = psp->State->NextState;

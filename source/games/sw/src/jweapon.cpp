@@ -389,7 +389,7 @@ int DoBloodSpray(DSWActor* actor)
             short wall_ang;
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 SpawnMidSplash(actor);
@@ -581,7 +581,7 @@ int DoPhosphorus(DSWActor* actor)
 
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -589,7 +589,7 @@ int DoPhosphorus(DSWActor* actor)
             }
             else
             {
-                if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
+                if ((hitActor->spr.extra & SPRX_BURNABLE))
                 {
                     if (!hitActor->hasU())
                         SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
@@ -788,7 +788,7 @@ int DoChemBomb(DSWActor* actor)
 
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -1013,7 +1013,7 @@ int DoCaltrops(DSWActor* actor)
 
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -1537,7 +1537,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     if (!actor->hasU()) return;
 
     // Forget about burnable sprites
-    if (TEST(actor->spr.extra, SPRX_BURNABLE))
+    if ((actor->spr.extra & SPRX_BURNABLE))
         return;
 
     if (actor != nullptr)
@@ -2142,7 +2142,7 @@ int DoFlag(DSWActor* actor)
         SetCarryFlag(actor);
 
         // check to see if sprite is player or enemy
-        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
             actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);

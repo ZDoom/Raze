@@ -1154,11 +1154,11 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             if (skip_targets != 2) // Used for spriteinfo mode
             {
-                if (skip_targets && TEST(itActor->user.Flags, SPR_TARGETED))
+                if (skip_targets && (itActor->user.Flags & SPR_TARGETED))
                     continue;
 
                 // don't pick a dead player
-                if (itActor->user.PlayerP && TEST(itActor->user.PlayerP->Flags, PF_DEAD))
+                if (itActor->user.PlayerP && (itActor->user.PlayerP->Flags & PF_DEAD))
                     continue;
             }
 
@@ -1411,7 +1411,7 @@ void DoPlayerSetWadeDepth(PLAYERp pp)
     else
         return;
 
-    if (TEST(sectp->extra, SECTFX_SINK))
+    if ((sectp->extra & SECTFX_SINK))
     {
         // make sure your even in the water
         if (pp->pos.Z + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
@@ -1431,7 +1431,7 @@ void DoPlayerHeight(PLAYERp pp)
 
 void DoPlayerJumpHeight(PLAYERp pp)
 {
-    if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_DYNAMIC_AREA))
+    if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_DYNAMIC_AREA))
     {
         if (pp->pos.Z + PLAYER_HEIGHT > pp->loz)
         {
@@ -1588,8 +1588,8 @@ void SlipSlope(PLAYERp pp)
 
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
-    bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE);
-    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
+    bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
+    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -2132,7 +2132,7 @@ void DoPlayerMove(PLAYERp pp)
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
-    if (pp->insector() && TEST(pp->cursector->extra, SECTFX_DYNAMIC_AREA))
+    if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
         if (pp->Flags & (PF_FLYING|PF_JUMPING|PF_FALLING))
         {
@@ -2160,7 +2160,7 @@ void DoPlayerSectorUpdatePreMove(PLAYERp pp)
     if (sect == nullptr)
         return;
 
-    if (TEST(pp->cursector->extra, SECTFX_DYNAMIC_AREA))
+    if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
         updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &sect);
         if (sect == nullptr)
@@ -2377,7 +2377,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     {
         if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
         {
-            if (TEST(actor->spr.extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
+            if ((actor->spr.extra & SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
 
             if (actor->spr.statnum == STAT_MISSILE)
@@ -2386,7 +2386,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (actor->spr.picnum == ST1)
                 continue;
 
-            if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if ((actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
                 if (!(actor->user.Flags & SPR_DEAD) && !(actor->spr.extra & SPRX_BREAKABLE))
                     continue;
@@ -2485,7 +2485,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (actor->spr.pos.Z < sop->crush_z + Z(40))
                 continue;
 
-            if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if ((actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
                 if (actor->spr.statnum == STAT_ENEMY)
                 {
@@ -3024,7 +3024,7 @@ void DoPlayerFall(PLAYERp pp)
 
             PlayerSectorBound(pp, Z(1));
 
-            if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
+            if (sectp->hasU() && ((sectp->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
             {
                 PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
             }
@@ -3426,7 +3426,7 @@ bool PlayerFallTest(PLAYERp pp, int player_height)
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
             labs(pp->lo_sectp->floorheinum) > 3000 &&
-            TEST(pp->lo_sectp->floorstat, CSTAT_SECTOR_SLOPE) &&
+            (pp->lo_sectp->floorstat & CSTAT_SECTOR_SLOPE) &&
             pp->lo_sectp == pp->lastcursector)
         {
             return false;
@@ -3473,7 +3473,7 @@ void DoPlayerCrawl(PLAYERp pp)
         }
     }
 
-    if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_CURRENT))
+    if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_CURRENT))
     {
         DoPlayerCurrent(pp);
     }
@@ -3504,7 +3504,7 @@ void DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (pp->insector() && TEST(pp->cursector->extra, SECTFX_DYNAMIC_AREA))
+    if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
         pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
@@ -3699,7 +3699,7 @@ bool PlayerOnLadder(PLAYERp pp)
             int cstat = hit.actor()->spr.cstat;
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
-            if (TEST(cstat, CSTAT_SPRITE_BLOCK) &&
+            if ((cstat & CSTAT_SPRITE_BLOCK) &&
                 !(cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 return false;
@@ -3760,7 +3760,7 @@ int PlayerInDiveArea(PLAYERp pp)
     else
         return false;
 
-    if (TEST(sectp->extra, SECTFX_DIVE_AREA))
+    if ((sectp->extra & SECTFX_DIVE_AREA))
     {
         CheckFootPrints(pp);
         return true;
@@ -4004,7 +4004,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     SWStatIterator it(STAT_DIVE_AREA);
     while (over_act = it.Next())
     {
-        if (TEST(over_act->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((over_act->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             over_act->spr.sector()->hasU() &&
             over_act->spr.sector()->number == sectu->number)
         {
@@ -4020,7 +4020,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     it.Reset(STAT_UNDERWATER);
     while (under_act = it.Next())
     {
-        if (TEST(under_act->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((under_act->spr.sector()->extra & SECTFX_UNDERWATER) &&
             under_act->spr.sector()->hasU() &&
             under_act->spr.sector()->number == sectu->number)
         {
@@ -4074,7 +4074,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     SWStatIterator it(STAT_UNDERWATER);
     while (under_act = it.Next())
     {
-        if (TEST(under_act->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((under_act->spr.sector()->extra & SECTFX_UNDERWATER) &&
             under_act->spr.sector()->hasU() &&
             under_act->spr.sector()->number == sectu->number)
         {
@@ -4090,7 +4090,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     it.Reset(STAT_DIVE_AREA);
     while (over_act = it.Next())
     {
-        if (TEST(over_act->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((over_act->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             over_act->spr.sector()->hasU() &&
             over_act->spr.sector()->number == sectu->number)
         {
@@ -4137,7 +4137,7 @@ void DoPlayerDivePalette(PLAYERp pp)
 {
     if (pp != Player + screenpeek) return;
 
-    if ((pp->DeathType == PLAYER_DEATH_DROWN || TEST((Player+screenpeek)->Flags, PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
+    if ((pp->DeathType == PLAYER_DEATH_DROWN || ((Player+screenpeek)->Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
     {
         SetFadeAmt(pp,-1005,210); // Dive color , org color 208
     }
@@ -4220,7 +4220,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 
     CheckFootPrints(pp);
 
-    if (TEST(pp->lo_sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((pp->lo_sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         pp->Flags |= (PF_DIVING_IN_LAVA);
         plActor->user.DamageTics = 0;
@@ -4371,7 +4371,7 @@ void DoPlayerDive(PLAYERp pp)
     }
 
     // underwater current
-    if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_CURRENT))
+    if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_CURRENT))
     {
         DoPlayerCurrent(pp);
     }
@@ -4436,7 +4436,7 @@ void DoPlayerDive(PLAYERp pp)
 
     // Only get so close to the ceiling
     // if its a dive sector without a match or a UNDER2 sector with CANT_SURFACE set
-    if (sectu && (sectu->number == 0 || TEST(sectu->flags, SECTFU_CANT_SURFACE)))
+    if (sectu && (sectu->number == 0 || (sectu->flags & SECTFU_CANT_SURFACE)))
     {
         // for room over room water the hiz will be the top rooms ceiling
         if (pp->pos.Z < pp->hiz + pp->ceiling_dist)
@@ -4526,7 +4526,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
     DSWActor* plActor = pp->actor;
 
     // landed on a paralax floor
-    if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, CSTAT_SECTOR_SKY))
+    if (pp->lo_sectp && (pp->lo_sectp->floorstat & CSTAT_SECTOR_SKY))
     {
         PlayerUpdateHealth(pp, -plActor->user.Health);
         PlayerCheckDeath(pp, nullptr);
@@ -4658,7 +4658,7 @@ void DoPlayerWade(PLAYERp pp)
         {
             if (pp->KeyPressBits & SB_OPEN)
             {
-                if (TEST(pp->cursector->extra, SECTFX_OPERATIONAL))
+                if ((pp->cursector->extra & SECTFX_OPERATIONAL))
                 {
                     pp->KeyPressBits &= ~SB_OPEN;
                     DoPlayerBeginOperate(pp);
@@ -4723,7 +4723,7 @@ void DoPlayerWade(PLAYERp pp)
         return;
     }
 
-    if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_CURRENT))
+    if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_CURRENT))
     {
         DoPlayerCurrent(pp);
     }
@@ -4794,7 +4794,7 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
     pp->DoPlayerAction = DoPlayerOperateVehicle;
 
     // temporary set to get weapons down
-    if (TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
+    if ((pp->sop->flags & SOBJ_HAS_WEAPON))
         pp->Flags |= (PF_WEAPON_DOWN);
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
@@ -4813,7 +4813,7 @@ void DoPlayerBeginOperateTurret(PLAYERp pp)
     pp->DoPlayerAction = DoPlayerOperateTurret;
 
     // temporary set to get weapons down
-    if (TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
+    if ((pp->sop->flags & SOBJ_HAS_WEAPON))
         pp->Flags |= (PF_WEAPON_DOWN);
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
@@ -4879,7 +4879,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     if (sop->controller)
         return;
 
-    if (TEST(sop->flags, SOBJ_REMOTE_ONLY))
+    if ((sop->flags & SOBJ_REMOTE_ONLY))
         return;
 
     if (!sop)
@@ -5260,7 +5260,7 @@ void DoPlayerDeathFall(PLAYERp pp)
         // adjust player height by jump speed
         pp->pos.Z += pp->jump_speed;
 
-        if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
+        if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
         {
             loz = pp->lo_sectp->floorz;
         }
@@ -5805,7 +5805,7 @@ void DoPlayerHeadDebris(PLAYERp pp)
 {
     SECTORp sectp = pp->cursector;
 
-    if (TEST(sectp->extra, SECTFX_SINK))
+    if ((sectp->extra & SECTFX_SINK))
     {
         DoPlayerSpriteBob(pp, Z(8), Z(4), 3);
     }
@@ -5942,7 +5942,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
 
     if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
     {
-        if (TEST(pp->Flags,PF_JUMPING))
+        if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
@@ -5950,7 +5950,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
                 DoJump(pp->actor);
         }
 
-        if (TEST(pp->Flags,PF_FALLING))
+        if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
@@ -5979,7 +5979,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
 
     if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
     {
-        if (TEST(pp->Flags,PF_JUMPING))
+        if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
@@ -5987,7 +5987,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
                 DoJump(pp->actor);
         }
 
-        if (TEST(pp->Flags,PF_FALLING))
+        if ((pp->Flags & PF_FALLING))
         {
             pp->pos.Z += Z(2);
             if (MoveSkip2 == 0)
@@ -6014,7 +6014,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
+    if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
     {
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->actor, sg_PlayerHead);
@@ -6047,13 +6047,13 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 
     if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
     {
-        if (TEST(pp->Flags,PF_JUMPING))
+        if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 4);
         }
 
-        if (TEST(pp->Flags,PF_FALLING))
+        if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_FALL_VALUE, 3);
@@ -6099,13 +6099,13 @@ void DoPlayerDeathExplode(PLAYERp pp)
 
     if (TEST(pp->Flags,PF_JUMPING|PF_FALLING))
     {
-        if (TEST(pp->Flags,PF_JUMPING))
+        if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 4);
         }
 
-        if (TEST(pp->Flags,PF_FALLING))
+        if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 3);
@@ -6235,13 +6235,13 @@ void DoPlayerRun(PLAYERp pp)
             {
                 if ((pp->KeyPressBits & SB_OPEN) && pp->insector())
                 {
-                    if (TEST(pp->cursector->extra, SECTFX_OPERATIONAL))
+                    if ((pp->cursector->extra & SECTFX_OPERATIONAL))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                         DoPlayerBeginOperate(pp);
                         return;
                     }
-                    else if (TEST(pp->cursector->extra, SECTFX_TRIGGER))
+                    else if ((pp->cursector->extra & SECTFX_TRIGGER))
                     {
                         auto sActor = FindNearSprite(pp->actor, STAT_TRIGGER);
                         if (sActor && SP_TAG5(sActor) == TRIGGER_TYPE_REMOTE_SO)
@@ -6304,7 +6304,7 @@ void DoPlayerRun(PLAYERp pp)
         return;
     }
 
-    if (TEST(pp->cursector->extra, SECTFX_DYNAMIC_AREA))
+    if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
         pp->pos.Z = pp->loz - PLAYER_HEIGHT;
     }
@@ -6321,25 +6321,25 @@ void PlayerStateControl(DSWActor* actor)
     actor->user.Tics += synctics;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= TEST(actor->user.State->Tics, SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
     {
 
         // Set Tics
-        actor->user.Tics -= TEST(actor->user.State->Tics, SF_TICS_MASK);
+        actor->user.Tics -= (actor->user.State->Tics & SF_TICS_MASK);
 
         // Transition to the next state
         actor->user.State = actor->user.State->NextState;
 
         // !JIM! Added this so I can do quick calls in player states!
         // Need this in order for floor blood and footprints to not get called more than once.
-        while (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+        while ((actor->user.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
             (*actor->user.State->Animator)(actor);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+            if ((actor->user.State->Tics & SF_QUICK_CALL))
                 actor->user.State = actor->user.State->NextState;
         }
 
@@ -6356,7 +6356,7 @@ void PlayerStateControl(DSWActor* actor)
         actor->spr.picnum = actor->user.State->Pic;
 
     // Call the correct animator
-    if (TEST(actor->user.State->Tics, SF_PLAYER_FUNC))
+    if ((actor->user.State->Tics & SF_PLAYER_FUNC))
         if (actor->user.State->Animator)
             (*actor->user.State->Animator)(actor);
 

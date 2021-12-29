@@ -510,7 +510,7 @@ void InventoryTimer(PLAYERp pp)
     for (id = InventoryData; id->Name; id++, inv++)
     {
         // if timed and active
-        if (TEST(id->Flags, INVF_TIMED) && pp->InventoryActive[inv])
+        if ((id->Flags & INVF_TIMED) && pp->InventoryActive[inv])
         {
             // dec tics
             pp->InventoryTics[inv] -= synctics;
@@ -539,7 +539,7 @@ void InventoryTimer(PLAYERp pp)
         // every time the player is in an AUTO_USE situation.
         // This code will decrement the timer and set the Item to InActive
         // EVERY SINGLE TIME.  Relies on the USE function getting called!
-        if (TEST(id->Flags, INVF_AUTO_USE) && pp->InventoryActive[inv])
+        if ((id->Flags & INVF_AUTO_USE) && pp->InventoryActive[inv])
         {
             pp->InventoryTics[inv] -= synctics;
             if (pp->InventoryTics[inv] <= 0)

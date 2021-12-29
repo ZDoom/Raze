@@ -365,7 +365,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
 TARGETACTOR:
     // this is only for Zombies right now
     // zombie target other actors
-    if (!found && TEST(actor->user.Flags2, SPR2_DONT_TARGET_OWNER))
+    if (!found && (actor->user.Flags2 & SPR2_DONT_TARGET_OWNER))
     {
         near_dist = MAX_ACTIVE_RANGE;
         SWStatIterator it(STAT_ENEMY);
@@ -539,7 +539,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         if ((dist < CloseRangeDist(actor, actor->user.targetActor) && ICanSee) ||
             (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
         {
-            if ((actor->user.ID == COOLG_RUN_R0 && TEST(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 action = ChooseAction(actor->user.Personality->Evasive);
             else
                 action = ChooseAction(actor->user.Personality->CloseRange);
@@ -548,7 +548,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         }
 
         // if player is facing me and I'm being attacked
-        if (Facing(actor, actor->user.targetActor) && TEST(actor->user.Flags, SPR_ATTACKED) && ICanSee)
+        if (Facing(actor, actor->user.targetActor) && (actor->user.Flags & SPR_ATTACKED) && ICanSee)
         {
             // if I'm a target - at least one missile comming at me
             if (actor->user.Flags & (SPR_TARGETED))
@@ -561,7 +561,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
                     action = InitActorDuck;
                 else
                 {
-                    if ((actor->user.ID == COOLG_RUN_R0 && TEST(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                    if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                         action = ChooseAction(actor->user.Personality->Evasive);
                     else
                         action = ChooseAction(actor->user.Personality->Battle);
@@ -573,7 +573,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
             // fighting
             else
             {
-                if ((actor->user.ID == COOLG_RUN_R0 && TEST(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                     action = ChooseAction(actor->user.Personality->Evasive);
                 else
                     action = ChooseAction(actor->user.Personality->Battle);
@@ -585,7 +585,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
         // if player is NOT facing me he is running or unaware of actor
         else if (ICanSee)
         {
-            if ((actor->user.ID == COOLG_RUN_R0 && TEST(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 action = ChooseAction(actor->user.Personality->Evasive);
             else
                 action = ChooseAction(actor->user.Personality->Offense);
@@ -1093,7 +1093,7 @@ int InitActorAttack(DSWActor* actor)
             return 0;
     }
 
-    if (TEST(actor->user.targetActor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT))
+    if ((actor->user.targetActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT))
     {
         InitActorRunAway(actor);
         return 0;
@@ -1115,7 +1115,7 @@ int InitActorAttack(DSWActor* actor)
     // if the guy you are after is dead, look for another and
     // reposition
     if (actor->user.targetActor->hasU() && actor->user.targetActor->user.PlayerP &&
-        TEST(actor->user.targetActor->user.PlayerP->Flags, PF_DEAD))
+        (actor->user.targetActor->user.PlayerP->Flags & PF_DEAD))
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1567,7 +1567,7 @@ int InitActorReposition(DSWActor* actor)
     rnum = RANDOM_P2(8<<8)>>8;
     dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y);
 
-    if (dist < PlayerDist[rnum] || TEST(actor->user.Flags, SPR_RUN_AWAY))
+    if (dist < PlayerDist[rnum] || (actor->user.Flags & SPR_RUN_AWAY))
     {
         rnum = RANDOM_P2(8<<8)>>8;
         ang = FindNewAngle(actor, AWAY, AwayDist[rnum]);

@@ -979,7 +979,7 @@ int DoBunnyQuickJump(DSWActor* actor)
 
         if (hitActor->user.ShellNum <= 0 && hitActor->user.WaitTics <= 0 && actor->user.WaitTics <= 0)
         {
-            if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
                 PLAYERp pp = nullptr;
 

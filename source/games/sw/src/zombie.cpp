@@ -808,7 +808,7 @@ void SpawnZombie2(DSWActor* actor)
     if (ownerActor == nullptr)
         return;
 
-    if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
+    if (sectu && ((sectp->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
         return;
 
     if (SectorIsUnderwaterArea(actor->spr.sector()))
@@ -859,7 +859,7 @@ int DoZombieMove(DSWActor* actor)
     DSWActor* tActor = actor->user.targetActor;
     if (tActor && tActor->hasU())
     {
-        if (TEST(tActor->user.Flags, PF_DEAD))
+        if ((tActor->user.Flags & PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 
@@ -910,7 +910,7 @@ int NullZombie(DSWActor* actor)
     DSWActor* tActor = actor->user.targetActor;
     if (tActor && tActor->hasU())
     {
-        if (TEST(tActor->user.Flags, PF_DEAD))
+        if ((tActor->user.Flags & PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 

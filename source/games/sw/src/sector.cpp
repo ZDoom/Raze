@@ -404,12 +404,12 @@ void SectorSetup(void)
         //
         // ///////////////////////////////////
 
-        if (TEST(sectp->extra, SECTFX_SINK))
+        if ((sectp->extra & SECTFX_SINK))
         {
             SectorLiquidSet(sectp);
         }
 
-        if (TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
+        if ((sectp->floorstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
             if (sectp->floorpicnum != FAF_PLACE_MIRROR_PIC)
@@ -418,7 +418,7 @@ void SectorSetup(void)
             }
         }
 
-        if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SKY))
+        if ((sectp->ceilingstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
             if (sectp->ceilingpicnum != FAF_PLACE_MIRROR_PIC)
@@ -479,7 +479,7 @@ void SectorSetup(void)
             {
             case 0:
                 swf->flags |= (SINE_FLOOR);
-                if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
+                if ((sectp->floorstat & CSTAT_SECTOR_SLOPE))
                 {
                     swf->flags |= (SINE_SLOPED);
                 }
@@ -1067,7 +1067,7 @@ void DoStopSoundSpotMatch(short match)
 
 bool TestKillSectorObject(SECTOR_OBJECTp sop)
 {
-    if (TEST(sop->flags, SOBJ_KILLABLE))
+    if ((sop->flags & SOBJ_KILLABLE))
     {
         KillMatchingCrackSprites(sop->match_event);
         // get new sectnums
@@ -2283,7 +2283,7 @@ void PlayerOperateEnv(PLAYERp pp)
     SECTORp sectp = pp->cursector;
     if (pp->insector() && sectp->hasU() && sectp->damage)
     {
-        if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
+        if ((sectp->flags & SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             PlayerTakeSectorDamage(pp);
         }
@@ -2311,7 +2311,7 @@ void PlayerOperateEnv(PLAYERp pp)
     {
         OperateTripTrigger(pp);
 
-        if (pp->insector() && TEST(pp->cursector->extra, SECTFX_WARP_SECTOR))
+        if (pp->insector() && (pp->cursector->extra & SECTFX_WARP_SECTOR))
         {
             if (!(pp->Flags2 & PF2_TELEPORTED))
             {
@@ -2339,13 +2339,13 @@ void DoSineWaveFloor(void)
 
             swf->sintable_ndx = NORM_ANGLE(swf->sintable_ndx + (synctics << swf->speed_shift));
 
-            if (TEST(flags, SINE_FLOOR))
+            if ((flags & SINE_FLOOR))
             {
                 newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
                 swf->sectp->setfloorz(newz);
             }
 
-            if (TEST(flags, SINE_CEILING))
+            if ((flags & SINE_CEILING))
             {
                 newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
                 swf->sectp->setceilingz(newz);
@@ -2372,7 +2372,7 @@ void DoSineWaveFloor(void)
             if (!(sect->floorstat & CSTAT_SECTOR_SLOPE))
                 continue;
 
-            if (TEST(flags, SINE_SLOPED))
+            if ((flags & SINE_SLOPED))
             {
                 WALLp wal;
                 if (sect->wallnum == 4)

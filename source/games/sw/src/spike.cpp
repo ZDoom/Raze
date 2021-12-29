@@ -255,7 +255,7 @@ void MoveSpritesWithSpike(sectortype* sect)
         if (actor->hasU())
             continue;
 
-        if (TEST(actor->spr.extra, SPRX_STAY_PUT_VATOR))
+        if ((actor->spr.extra & SPRX_STAY_PUT_VATOR))
             continue;
 
         getzsofslopeptr(sect, actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
@@ -342,7 +342,7 @@ int DoSpike(DSWActor* actor)
             SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
-                if (actor->hasU() && TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (actor->hasU() && (actor->spr.cstat & CSTAT_SPRITE_BLOCK) && (actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 {
                     ReverseSpike(actor);
                     found = true;

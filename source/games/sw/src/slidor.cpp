@@ -501,7 +501,7 @@ int DoSlidor(DSWActor* actor)
             SWSectIterator it(actor->spr.sector());
             while (auto itActor = it.Next())
             {
-                if (itActor->hasU() && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (itActor->hasU() && (itActor->spr.cstat & CSTAT_SPRITE_BLOCK) && (itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
                     ReverseSlidor(actor);

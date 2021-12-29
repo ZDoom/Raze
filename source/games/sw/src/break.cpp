@@ -477,7 +477,7 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
         wallp->extra |= (WALLFX_DONT_STICK);
     }
 
-    if (wallp->overpicnum > 0 && TEST(wallp->cstat, CSTAT_WALL_MASKED))
+    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
     {
         break_info = FindWallBreakInfo(wallp->overpicnum);
         if (break_info)
@@ -504,7 +504,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
     {
 
         // use certain sprites own blocking for determination
-        if (TEST(break_info->flags, BF_OVERRIDE_BLOCK))
+        if ((break_info->flags & BF_OVERRIDE_BLOCK))
         {
             // if not blocking then skip this code
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
@@ -513,7 +513,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
             }
         }
 
-        if (TEST(break_info->flags, BF_BURN))
+        if ((break_info->flags & BF_BURN))
             actor->spr.extra |= (SPRX_BURNABLE);
         else
             actor->spr.extra |= (SPRX_BREAKABLE);
@@ -563,13 +563,13 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
 
         if (nwp->lotag == TAG_WALL_BREAK &&
             nwp->overpicnum > 0 &&
-            TEST(nwp->cstat, CSTAT_WALL_MASKED))
+            (nwp->cstat & CSTAT_WALL_MASKED))
         {
             nwp->lotag = 0;
         }
     }
 
-    if (wallp->overpicnum > 0 && TEST(wallp->cstat, CSTAT_WALL_MASKED))
+    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
         break_info = FindWallBreakInfo(wallp->overpicnum);
     else
         break_info = FindWallBreakInfo(wallp->picnum);
@@ -598,7 +598,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
     }
 
     // change the wall
-    if (wallp->overpicnum > 0 && TEST(wallp->cstat, CSTAT_WALL_MASKED))
+    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
     {
         if (break_info->breaknum == -1)
         {
@@ -947,9 +947,9 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
     SpawnShrap(breakActor, nullptr, -1, break_info);
 
     // kill it or change the pic
-    if (TEST(break_info->flags, BF_KILL) || break_info->breaknum == -1)
+    if ((break_info->flags & BF_KILL) || break_info->breaknum == -1)
     {
-        if (TEST(break_info->flags, BF_FIRE_FALL))
+        if ((break_info->flags & BF_FIRE_FALL))
             SpawnBreakFlames(breakActor);
 
         breakActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);

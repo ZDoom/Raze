@@ -120,7 +120,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
 
     if (ownerActor->user.RotNum == 5)
     {
-        if (TEST(ownerActor->user.Flags, SPR_XFLIP_TOGGLE))
+        if ((ownerActor->user.Flags & SPR_XFLIP_TOGGLE))
         {
             if (rotation <= 4)
             {
@@ -231,7 +231,7 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
     {
         auto hitactor = florhit.actor();
 
-        if (TEST(hitactor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if ((hitactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             return loz;
@@ -373,7 +373,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
         return;
     }
 
-    if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+    if ((tsp->extra & SPRX_PLAYER_OR_ENEMY))
     {
         z_amt_per_pixel = IntToFixed((int)-ownerActor->user.jump_speed * ACTORMOVETICS)/tsp->xvel;
     }
@@ -401,7 +401,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
     xrepeat = tsp->xrepeat;
     yrepeat = tsp->yrepeat;
 
-    switch (TEST(ownerActor->user.Flags2, SPR2_BLUR_TAPER))
+    switch ((ownerActor->user.Flags2 & SPR2_BLUR_TAPER))
     {
     case 0:
         repeat_adj = 0;
@@ -635,7 +635,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
         {
             if (tsp->statnum != STAT_DEFAULT)
             {
-                if (TEST(tActor->user.Flags, SPR_SKIP4))
+                if ((tActor->user.Flags & SPR_SKIP4))
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
@@ -643,7 +643,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     }
                 }
 
-                if (TEST(tActor->user.Flags, SPR_SKIP2))
+                if ((tActor->user.Flags & SPR_SKIP2))
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
@@ -660,7 +660,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     tsp->pos.Z = floorz;
             }
 
-            if (r_shadows && TEST(tActor->user.Flags, SPR_SHADOW))
+            if (r_shadows && (tActor->user.Flags & SPR_SHADOW))
             {
                 DoShadows(tsprite, spritesortcnt, tsp, viewz, camang);
             }
@@ -716,7 +716,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
-                    if (tsectp->hasU() && TEST(tsectp->flags, SECTFU_DONT_COPY_PALETTE))
+                    if (tsectp->hasU() && (tsectp->flags & SECTFU_DONT_COPY_PALETTE))
                     {
                         pal = PALETTE_DEFAULT;
                         nosectpal = true;
@@ -830,7 +830,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             tsp->shade = int8_t(newshade);
         }
 
-        if (TEST(tsectp->ceilingstat, CSTAT_SECTOR_SKY))
+        if ((tsectp->ceilingstat & CSTAT_SECTOR_SKY))
         {
             newshade = tsp->shade;
             newshade += tsectp->ceilingshade;
@@ -856,7 +856,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             tsp->shade = -128;
         }
 
-        if (pp->NightVision && TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
+        if (pp->NightVision && (tsp->extra & SPRX_PLAYER_OR_ENEMY))
         {
             if (tActor->hasU() && tActor->user.ID == TRASHCAN) continue; // Don't light up trashcan
 
@@ -866,7 +866,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
         if (tActor->hasU() && tActor->user.PlayerP)
         {
-            if (TEST(tActor->user.Flags2, SPR2_VIS_SHADING))
+            if ((tActor->user.Flags2 & SPR2_VIS_SHADING))
             {
                 if (Player[screenpeek].actor != tActor)
                 {
@@ -925,7 +925,7 @@ void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
                 tsp->pos.Y = atsp->pos.Y;
                 // statnum is priority - draw this ALWAYS first at 0
                 // statnum is priority - draw this ALWAYS last at MAXSTATUS
-                if (TEST(atsp->extra, SPRX_BURNABLE))
+                if ((atsp->extra & SPRX_BURNABLE))
                 {
                     atsp->statnum = 1;
                     tsp->statnum = 0;
@@ -1095,7 +1095,7 @@ void DrawCrosshair(PLAYERp pp)
 {
     if (!(CameraTestMode))
     {
-        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
@@ -1588,7 +1588,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         DrawText(twod, font, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
-    if (!CommEnabled && TEST(pp->Flags, PF_DEAD))
+    if (!CommEnabled && (pp->Flags & PF_DEAD))
     {
         if (ReloadPrompt)
         {

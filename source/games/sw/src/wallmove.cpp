@@ -45,7 +45,7 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist,
     short startwall,endwall;
     SECTORp *sectp;
 
-    if (!actor->hasU() || TEST(sop->flags, SOBJ_SPRITE_OBJ))
+    if (!actor->hasU() || (sop->flags & SOBJ_SPRITE_OBJ))
         return;
 
     wallcount = 0;
@@ -104,7 +104,7 @@ int DoWallMove(DSWActor* actor)
         {
             found = true;
 
-            if (TEST(wal.extra, WALLFX_SECTOR_OBJECT))
+            if ((wal.extra & WALLFX_SECTOR_OBJECT))
             {
                 SECTOR_OBJECTp sop;
                 sop = DetectSectorObjectByWall(&wal);

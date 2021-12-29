@@ -698,7 +698,7 @@ void KillActor(DSWActor* actor)
 
         // if missile is heading for the sprite, the missile need to know
         // that it is already dead
-        if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             static int8_t MissileStats[] = {STAT_MISSILE, STAT_MISSILE_SKIP4};
 
@@ -901,7 +901,7 @@ DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, in
 
 void PicAnimOff(short picnum)
 {
-    short anim_type = TEST(picanm[picnum].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
+    short anim_type = (picanm[picnum].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
 
     ASSERT(picnum >= 0 && picnum < MAXTILES);
 
@@ -914,7 +914,7 @@ void PicAnimOff(short picnum)
 bool IconSpawn(DSWActor* actor)
 {
     // if multi item and not a modem game
-    if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
+    if ((actor->spr.extra & SPRX_MULTI_ITEM))
     {
         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
             return false;
@@ -937,7 +937,7 @@ bool ActorTestSpawn(DSWActor* actor)
     }
 
     // Countermeasure for mods that leave the lower skills unpopulated.
-    int spawnskill = TEST(actor->spr.extra, SPRX_SKILL);
+    int spawnskill = (actor->spr.extra & SPRX_SKILL);
     if (MinEnemySkill > 0 && spawnskill == MinEnemySkill) spawnskill = 0;
 
     // Skill ranges from -1 (No Monsters) to 3.
@@ -1618,7 +1618,7 @@ void SpriteSetup(void)
         if (actor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // if multi item and not a modem game
-            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
+            if ((actor->spr.extra & SPRX_MULTI_ITEM))
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
@@ -1919,7 +1919,7 @@ void SpriteSetup(void)
 
                 case SPAWN_ITEMS:
                 {
-                    if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
+                    if ((actor->spr.extra & SPRX_MULTI_ITEM))
                     {
                         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                         {
@@ -1995,7 +1995,7 @@ void SpriteSetup(void)
                     SpawnUser(actor, 0, nullptr);
 
                     // vator already set - ceiling AND floor vator
-                    if (TEST(sectp->extra, SECTFX_VATOR))
+                    if ((sectp->extra & SECTFX_VATOR))
                     {
                         sectp->u_defined = true;
                         sectp->flags |= (SECTFU_VATOR_BOTH);
@@ -2439,13 +2439,13 @@ void SpriteSetup(void)
                 {
                     SetSectorWallBits(actor->spr.sector(), WALLFX_DONT_STICK, false, true);
 
-                    if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
+                    if ((sectp->floorstat & CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG5(actor) = sectp->floorheinum;
                         sectp->setfloorslope(0);
                     }
 
-                    if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SLOPE))
+                    if ((sectp->ceilingstat & CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG6(actor) = sectp->ceilingheinum;
                         sectp->setceilingslope(0);
@@ -2839,7 +2839,7 @@ KeyMain:
         case 1852:
         case 2470:
 
-            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
+            if ((actor->spr.extra & SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
                     KillActor(actor);
@@ -3402,7 +3402,7 @@ NUKE_REPLACEMENT:
         case BREAK_BOTTLE2:
         case BREAK_MUSHROOM:
 
-            //if (TEST(actor->spr.extra, SPRX_BREAKABLE))
+            //if ((actor->spr.extra & SPRX_BREAKABLE))
             //    break;
 
             SpawnUser(actor, actor->spr.picnum, nullptr);
@@ -3447,7 +3447,7 @@ NUKE_REPLACEMENT:
         case 553:
         case 554:
         {
-            if (TEST(actor->spr.extra, SPRX_MULTI_ITEM))
+            if ((actor->spr.extra & SPRX_MULTI_ITEM))
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
@@ -4537,7 +4537,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     Collision ceilhit, florhit;
 
     // look only at the center point for a floor sprite
-    auto save_cstat = TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK);
+    auto save_cstat = (actor->spr.cstat & CSTAT_SPRITE_BLOCK);
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     FAFgetzrangepoint(x, y, z - (ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
     actor->spr.cstat |= (save_cstat);
@@ -4554,7 +4554,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
         auto hsp = florhit.actor();
 
         // if its a floor sprite and not too far down
-        if (TEST(hsp->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
+        if ((hsp->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
             (labs(loz - z) <= min_height))
         {
             return false;
@@ -5423,7 +5423,7 @@ KeyMain:
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetWeapon(actor);
 
-            if (pp->WpnFlags & (BIT(WPN_UZI)) && TEST(pp->Flags, PF_TWO_UZI))
+            if (pp->WpnFlags & (BIT(WPN_UZI)) && (pp->Flags & PF_TWO_UZI))
                 break;
             // flag to help with double uzi powerup - simpler but kludgy
             pp->Flags |= (PF_PICKED_UP_AN_UZI);
@@ -5957,11 +5957,11 @@ int  StateControl(DSWActor* actor)
         actor->user.Tics += ACTORMOVETICS;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= TEST(actor->user.State->Tics, SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
     {
-        StateTics = TEST(actor->user.State->Tics, SF_TICS_MASK);
+        StateTics = (actor->user.State->Tics & SF_TICS_MASK);
 
-        if (TEST(actor->user.State->Tics, SF_TIC_ADJUST))
+        if ((actor->user.State->Tics & SF_TIC_ADJUST))
         {
             ASSERT(actor->user.Attrib);
             ASSERT(actor->user.speed < MAX_SPEED);
@@ -5977,7 +5977,7 @@ int  StateControl(DSWActor* actor)
         actor->user.State = actor->user.State->NextState;
 
         // Look for flags embedded into the Tics variable
-        while (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+        while ((actor->user.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
             (*actor->user.State->Animator)(actor);
@@ -5989,7 +5989,7 @@ int  StateControl(DSWActor* actor)
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if (TEST(actor->user.State->Tics, SF_QUICK_CALL))
+            if ((actor->user.State->Tics & SF_QUICK_CALL))
                 actor->user.State = actor->user.State->NextState;
         }
 
@@ -6006,7 +6006,7 @@ int  StateControl(DSWActor* actor)
     {
         ASSERT(actor->user.State);
         // Set picnum to the correct pic
-        if (TEST(actor->user.State->Tics, SF_WALL_STATE))
+        if ((actor->user.State->Tics & SF_WALL_STATE))
         {
             ASSERT(actor->user.WallP);
             actor->user.WallP->picnum = actor->user.State->Pic;
@@ -6316,7 +6316,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     if (FAF_ConnectArea(actor->spr.sector()))
         SetActorZ(actor, &actor->spr.pos);
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_WARP_SECTOR))
+    if ((actor->spr.sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
         if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
@@ -6502,7 +6502,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (FAF_ConnectArea(actor->spr.sector()))
         SetActorZ(actor, &actor->spr.pos);
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_WARP_SECTOR))
+    if ((actor->spr.sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 
@@ -6522,7 +6522,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(actor->spr.sector()->ceilingstat, CSTAT_SECTOR_SKY))
+    if (retval.type != kHitNone && (actor->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY))
     {
         if (actor->spr.pos.Z < actor->spr.sector()->ceilingz)
         {
@@ -6530,7 +6530,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(actor->spr.sector()->floorstat, CSTAT_SECTOR_SKY))
+    if (retval.type != kHitNone && (actor->spr.sector()->floorstat & CSTAT_SECTOR_SKY))
     {
         if (actor->spr.pos.Z > actor->spr.sector()->floorz)
         {
@@ -6633,7 +6633,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         return retval;
     }
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_WARP_SECTOR))
+    if ((actor->spr.sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 

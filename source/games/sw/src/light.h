@@ -42,7 +42,7 @@ inline int8_t LIGHT_MaxBright(DSWActor* a) { return int8_t(SP_TAG5(a)); }
 inline int8_t LIGHT_MaxDark(DSWActor* sp) { return int8_t(SP_TAG6(sp)); }
 inline uint8_t& LIGHT_ShadeInc(DSWActor* sp) { return SP_TAG7(sp); }
 
-inline bool LIGHT_Dir(DSWActor* sp) { return (!!(TEST(sp->spr.extra, SPRX_BOOL10))); }
+inline bool LIGHT_Dir(DSWActor* sp) { return (!!((sp->spr.extra & SPRX_BOOL10))); }
 inline void LIGHT_DirChange(DSWActor* sp) { sp->spr.extra ^= SPRX_BOOL10; }
 
 int8_t& LIGHT_FloorShade(DSWActor* a) { return a->spr.xoffset; }

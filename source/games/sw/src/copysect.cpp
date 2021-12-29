@@ -180,7 +180,7 @@ void CopySectorMatch(int match)
                         ChangeActorSect(itActor, dsectp);
 
                         // check to see if it moved on to a sector object
-                        if (TEST(dsectp->extra, SECTFX_SECTOR_OBJECT))
+                        if ((dsectp->extra & SECTFX_SECTOR_OBJECT))
                         {
                             SECTOR_OBJECTp sop;
 

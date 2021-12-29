@@ -123,7 +123,7 @@ short DoSOevent(short match, short state)
 
         if (sop->match_event == match)
         {
-            if (TEST(sop->flags, SOBJ_WAIT_FOR_EVENT))
+            if ((sop->flags & SOBJ_WAIT_FOR_EVENT))
             {
                 if (sop->save_vel > 0 || sop->save_spin_speed > 0)
                 {
@@ -353,7 +353,7 @@ void MorphTornado(SECTOR_OBJECTp sop)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (floorz)
             if (sop->morph_z > TOR_LOW)
@@ -445,7 +445,7 @@ void MorphFloor(SECTOR_OBJECTp sop)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp, mx, my, floorz + sop->morph_z);
         }
@@ -460,7 +460,7 @@ void SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp, x, y, z);
         }
@@ -475,7 +475,7 @@ void SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignceilslope(*sectp, x, y, z);
         }
@@ -490,7 +490,7 @@ void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp, x, y, z);
             alignceilslope(*sectp, x, y, z);

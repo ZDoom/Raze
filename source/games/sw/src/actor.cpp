@@ -316,7 +316,7 @@ int DoActorSectorDamage(DSWActor* actor)
 
     if (sectp->hasU() && sectp->damage)
     {
-        if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
+        if ((sectp->flags & SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             if ((actor->user.DamageTics -= synctics) < 0)
             {
@@ -405,9 +405,9 @@ int DoActorDebris(DSWActor* actor)
         break;
     }
 
-    if (TEST(sectp->extra, SECTFX_SINK))
+    if ((sectp->extra & SECTFX_SINK))
     {
-        if (TEST(sectp->extra, SECTFX_CURRENT))
+        if ((sectp->extra & SECTFX_CURRENT))
         {
             DoDebrisCurrent(actor);
         }
@@ -503,7 +503,7 @@ void KeepActorOnFloor(DSWActor* actor)
     else
         depth = 0;
 
-    if (TEST(sectp->extra, SECTFX_SINK) &&
+    if ((sectp->extra & SECTFX_SINK) &&
         depth > 35 &&
         actor->user.ActorActionSet && actor->user.ActorActionSet->Swim)
     {

@@ -139,7 +139,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
             continue;
 
         // Skip if already someone on this track
-        if (TEST(t->flags, TF_TRACK_OCCUPIED))
+        if ((t->flags & TF_TRACK_OCCUPIED))
         {
             continue;
         }
@@ -773,7 +773,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             sop->zorig_floor[sop->num_sectors] = sect->floorz;
             sop->zorig_ceiling[sop->num_sectors] = sect->ceilingz;
 
-            if (TEST(sect->extra, SECTFX_SINK))
+            if ((sect->extra & SECTFX_SINK))
                 sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
 
             // lowest and highest floorz's
@@ -804,7 +804,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             if (wal.lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
                 sop->morph_wall_point = &wal;
 
-            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
                 FoundOutsideLoop = true;
 
             // each wall has this set - for collision detection
@@ -928,7 +928,7 @@ cont:
 
     // for SPRITE OBJECT sprites, set the actor->user.sz value to the difference
     // between the zmid and the actor->spr.z
-    if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
+    if ((sop->flags & SOBJ_SPRITE_OBJ))
     {
         int zmid = -9999999;
 
@@ -1365,7 +1365,7 @@ SECTOR_OBJECTp PlayerOnObject(sectortype* match)
 
         for (j = 0; j < sop->num_sectors; j++)
         {
-            if (sop->sectp[j] == match && TEST(match->extra, SECTFX_OPERATIONAL))
+            if (sop->sectp[j] == match && (match->extra & SECTFX_OPERATIONAL))
             {
                 return sop;
             }
@@ -1534,7 +1534,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     pp->pos.X += nx;
     pp->pos.Y += ny;
 
-    if (TEST(sop->flags, SOBJ_DONT_ROTATE))
+    if ((sop->flags & SOBJ_DONT_ROTATE))
     {
         UpdatePlayerSprite(pp);
         return;
@@ -1607,7 +1607,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
 
     // setting floorz if need be
-    if (TEST(sop->flags, SOBJ_ZMID_FLOOR))
+    if ((sop->flags & SOBJ_ZMID_FLOOR))
         sop->zmid = sop->mid_sector->floorz;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -1621,7 +1621,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
             if (TEST(wal.extra, WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE))
                 continue;
 
-            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {
                 dragpoint(&wal, wal.pos.X + nx, wal.pos.Y + ny);
             }
@@ -1632,18 +1632,18 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             rot_ang = delta_ang;
 
-            if (TEST(wal.extra, WALLFX_LOOP_REVERSE_SPIN))
+            if ((wal.extra & WALLFX_LOOP_REVERSE_SPIN))
                 rot_ang = -delta_ang;
 
-            if (TEST(wal.extra, WALLFX_LOOP_SPIN_2X))
+            if ((wal.extra & WALLFX_LOOP_SPIN_2X))
                 rot_ang = NORM_ANGLE(rot_ang * 2);
 
-            if (TEST(wal.extra, WALLFX_LOOP_SPIN_4X))
+            if ((wal.extra & WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
             rotatepoint(sop->pmid.vec2, wal.pos, rot_ang, &rxy);
 
-            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {
                 dragpoint(&wal, rxy.X, rxy.Y);
             }
@@ -1666,7 +1666,7 @@ PlayerPart:
             if (!pp->lo_sectp)
                 continue;
 
-            if (TEST(pp->lo_sectp->extra, SECTFX_NO_RIDE))
+            if ((pp->lo_sectp->extra & SECTFX_NO_RIDE))
             {
                 continue;
             }
@@ -1705,7 +1705,7 @@ PlayerPart:
         actor->spr.pos.Y = sop->ymid - actor->user.sy;
 
         // sprites z update
-        if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
+        if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
             actor->spr.pos.Z = sop->zmid - actor->user.sz;
@@ -1730,15 +1730,15 @@ PlayerPart:
 
         if (actor->user.Flags & (SPR_ON_SO_SECTOR))
         {
-            if (TEST(sop->flags, SOBJ_DONT_ROTATE))
+            if ((sop->flags & SOBJ_DONT_ROTATE))
                 continue;
 
             // IS part of a sector, sprite can do things based on the
             // current sector it is in
-            if (TEST(actor->spr.sector()->firstWall()->extra, WALLFX_LOOP_DONT_SPIN))
+            if ((actor->spr.sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            if (TEST(actor->spr.sector()->firstWall()->extra, WALLFX_LOOP_REVERSE_SPIN))
+            if ((actor->spr.sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, -delta_ang, &actor->spr.pos.vec2);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang - delta_ang);
@@ -1767,7 +1767,7 @@ PlayerPart:
 
         actor->user.oangdiff += getincangle(oldang, actor->spr.ang);
 
-        if (TEST(actor->spr.extra, SPRX_BLADE))
+        if ((actor->spr.extra & SPRX_BLADE))
         {
             DoBladeDamage(sop->so_actors[i]);
         }
@@ -1788,7 +1788,7 @@ PlayerPart:
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction
-            if TEST(pp->Flags, PF_CRAWLING)
+            if (pp->Flags & PF_CRAWLING)
             {
                 // move up some for really fast moving plats
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
@@ -1836,7 +1836,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
             // move all walls in sectors back to the original position
             for (auto& wal : wallsofsector(*sectp))
             {
-                if (!(wal.extra && TEST(wal.extra, WALLFX_DONT_MOVE)))
+                if (!(wal.extra && (wal.extra & WALLFX_DONT_MOVE)))
                 {
                     dx = x = sop->xmid - sop->xorig[wallcount];
                     dy = y = sop->ymid - sop->yorig[wallcount];
@@ -1864,7 +1864,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
                         }
                     }
 
-                    if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
+                    if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
                     {
                         dragpoint(&wal, dx, dy);
                     }
@@ -1979,7 +1979,7 @@ SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
             for (auto& wal : wallsofsector(*sectp))
             {
                 // if outer wall check the NEXTWALL also
-                if (TEST(wal.extra, WALLFX_LOOP_OUTER))
+                if ((wal.extra & WALLFX_LOOP_OUTER))
                 {
                     if (wal.twoSided() && wph == wal.nextWall())
                         return sop;
@@ -2009,10 +2009,10 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
             // move all walls in sectors back to the original position
             for (auto& wal : wallsofsector(*sectp))
             {
-                if (TEST(wal.extra, WALLFX_DONT_MOVE))
+                if ((wal.extra & WALLFX_DONT_MOVE))
                     continue;
 
-                if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
+                if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
                 {
                     dragpoint(&wal, nx, ny);
                 }
@@ -2039,27 +2039,27 @@ void MoveZ(SECTOR_OBJECTp sop)
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
-    if (TEST(sop->flags, SOBJ_MOVE_VERTICAL))
+    if ((sop->flags & SOBJ_MOVE_VERTICAL))
     {
         i = AnimGetGoal (ANIM_SopZ, int(sop - SectorObject), nullptr);
         if (i < 0)
             sop->flags &= ~(SOBJ_MOVE_VERTICAL);
     }
 
-    if (TEST(sop->flags, SOBJ_ZDIFF_MODE))
+    if ((sop->flags & SOBJ_ZDIFF_MODE))
     {
         return;
     }
 
     // move all floors
-    if (TEST(sop->flags, SOBJ_ZDOWN))
+    if ((sop->flags & SOBJ_ZDOWN))
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
@@ -2068,7 +2068,7 @@ void MoveZ(SECTOR_OBJECTp sop)
 
         sop->flags &= ~(SOBJ_ZDOWN);
     }
-    else if (TEST(sop->flags, SOBJ_ZUP))
+    else if ((sop->flags & SOBJ_ZUP))
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
@@ -2092,7 +2092,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sectp[i] != nullptr; i++)
     {
-        if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
+        if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_SINK_DEST))
         {
             srcsect = sop->sectp[i];
             break;
@@ -2167,7 +2167,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
 
     if (sop->track >= SO_OPERATE_TRACK_START)
     {
-        if (TEST(sop->flags, SOBJ_UPDATE_ONCE))
+        if ((sop->flags & SOBJ_UPDATE_ONCE))
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
             RefreshPoints(sop, 0, 0, false);
@@ -2219,7 +2219,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
         GlobSpeedSO += delta_ang;
     }
 
-    if (TEST(sop->flags, SOBJ_DYNAMIC))
+    if ((sop->flags & SOBJ_DYNAMIC))
     {
         // trick tricks
         RefreshPoints(sop, nx, ny, true);
@@ -2373,7 +2373,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0; sop->sectp[i] != nullptr; i++)
             {
-                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
+                if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_SINK_DEST))
                 {
                     dest_sector = sop->sectp[i];
                     break;
@@ -2388,7 +2388,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_SINK))
+                if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_SINK))
                     continue;
 
                 ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->floorz, tpoint->tag_high);
@@ -2510,7 +2510,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         // calculate a new angle to the target
         sop->ang_moving = sop->ang_tgt = getangle(tpoint->x - sop->xmid, tpoint->y - sop->ymid);
 
-        if (TEST(sop->flags, SOBJ_ZDIFF_MODE))
+        if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
             short i;
 
@@ -2529,7 +2529,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             // take absolute value and convert to pixels (divide by 256)
             sop->z_rate = PIXZ(labs(sop->z_rate));
 
-            if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
+            if ((sop->flags & SOBJ_SPRITE_OBJ))
             {
                 // only modify zmid for sprite_objects
                 AnimSet(ANIM_SopZ, int(sop - SectorObject), nullptr, dz, sop->z_rate);
@@ -2548,7 +2548,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
     {
 
         // make velocity approach the target velocity
-        if (TEST(sop->flags, SOBJ_SPEED_UP))
+        if ((sop->flags & SOBJ_SPEED_UP))
         {
             if ((sop->vel += (locktics << sop->vel_rate)) >= sop->vel_tgt)
             {
@@ -2556,7 +2556,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 sop->flags &= ~(SOBJ_SPEED_UP);
             }
         }
-        else if (TEST(sop->flags, SOBJ_SLOW_DOWN))
+        else if ((sop->flags & SOBJ_SLOW_DOWN))
         {
             if ((sop->vel -= (locktics << sop->vel_rate)) <= sop->vel_tgt)
             {
@@ -2599,7 +2599,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);

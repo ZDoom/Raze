@@ -293,7 +293,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
             }
         }
 
-        if (TEST(actor->spr.extra, SPRX_STAY_PUT_VATOR))
+        if ((actor->spr.extra & SPRX_STAY_PUT_VATOR))
             continue;
 
         if (both)
@@ -459,7 +459,7 @@ int DoVator(DSWActor* actor)
                     }
                 }
 
-                if (itActor->hasU() && TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK) && TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (itActor->hasU() && (itActor->spr.cstat & CSTAT_SPRITE_BLOCK) && (itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
                     ReverseVator(actor);

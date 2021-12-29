@@ -174,22 +174,22 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
     if (!SyncInput())
     {
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
+        if ((pp->Flags2 & PF2_INPUT_CAN_AIM))
         {
             DoPlayerHorizon(pp, input.horz, scaleAdjust);
         }
 
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
+        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_GENERAL))
         {
             DoPlayerTurn(pp, input.avel, scaleAdjust);
         }
 
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
+        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_VEHICLE))
         {
             DoPlayerTurnVehicle(pp, input.avel, pp->pos.Z + Z(10), labs(pp->pos.Z + Z(10) - pp->sop->floor_loz));
         }
 
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
+        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_TURRET))
         {
             DoPlayerTurnTurret(pp, input.avel);
         }

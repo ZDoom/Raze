@@ -2644,7 +2644,7 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
         // can be hit by SO only
         if (SP_TAG7(hitActor) == 4)
         {
-            if (TEST(weapActor->user.Flags2, SPR2_SO_MISSILE))
+            if ((weapActor->user.Flags2 & SPR2_SO_MISSILE))
             {
                 DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
                 return true;
@@ -2753,7 +2753,7 @@ int DoLavaErupt(DSWActor* actor)
         TRAVERSE_CONNECT(pnum)
         {
             pp = Player + pnum;
-            if (pp->insector() && TEST(pp->cursector->extra, SECTFX_TRIGGER))
+            if (pp->insector() && (pp->cursector->extra & SECTFX_TRIGGER))
             {
                 SWSectIterator it(pp->cursector);
                 while (auto itActor = it.Next())
@@ -3171,7 +3171,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         shrap_amt = breakinfo->shrap_amt;
         goto AutoShrap;
     }
-    else if (TEST(parentActor->spr.extra, SPRX_BREAKABLE))
+    else if ((parentActor->spr.extra & SPRX_BREAKABLE))
     {
         // if no user
         if (!parentActor->hasU())
@@ -3801,7 +3801,7 @@ int DoVomit(DSWActor* actor)
 
     if (actor->user.coll.type == kHitSprite)
     {
-        if (TEST(actor->user.coll.actor()->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((actor->user.coll.actor()->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             DoDamage(actor->user.coll.actor(), actor);
         }
@@ -4165,7 +4165,7 @@ bool VehicleMoveHit(DSWActor* actor)
     {
         SECTORp sectp = actor->user.coll.hitSector;
 
-        if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
+        if ((sectp->extra & SECTFX_SECTOR_OBJECT))
         {
             // shouldn't ever really happen
         }
@@ -4177,13 +4177,13 @@ bool VehicleMoveHit(DSWActor* actor)
     {
         auto hitActor = actor->user.coll.actor();
 
-        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+        if ((hitActor->spr.extra & SPRX_BREAKABLE))
         {
             HitBreakSprite(hitActor, actor->user.ID);
             return true;
         }
 
-        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             if (hitActor != GetOwner(ctrlr))
             {
@@ -4207,7 +4207,7 @@ bool VehicleMoveHit(DSWActor* actor)
     {
         auto wph = actor->user.coll.hitWall;
 
-        if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
+        if ((wph->extra & WALLFX_SECTOR_OBJECT))
         {
             // sector object collision
             if ((hsop = DetectSectorObjectByWall(wph)))
@@ -4286,7 +4286,7 @@ bool WeaponMoveHit(DSWActor* actor)
         }
 
 
-        if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
+        if ((sectp->extra & SECTFX_SECTOR_OBJECT))
         {
             if ((sop = DetectSectorObject(sectp)))
             {
@@ -4295,7 +4295,7 @@ bool WeaponMoveHit(DSWActor* actor)
             }
         }
 
-        if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SKY) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
+        if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
         {
             if (labs(actor->spr.pos.Z - sectp->ceilingz) < ActorSizeZ(actor))
             {
@@ -4313,13 +4313,13 @@ bool WeaponMoveHit(DSWActor* actor)
 
         ASSERT(hitActor->spr.extra != -1);
 
-        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+        if ((hitActor->spr.extra & SPRX_BREAKABLE))
         {
             HitBreakSprite(hitActor, actor->user.ID);
             return true;
         }
 
-        if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+        if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
             // make sure you didn't hit the Owner of the missile
             if (hitActor != GetOwner(actor))
@@ -4369,7 +4369,7 @@ bool WeaponMoveHit(DSWActor* actor)
                 return true;
         }
 
-        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+        if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
         {
             if (hitActor->spr.lotag || hitActor->spr.hitag)
             {
@@ -4388,7 +4388,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
         ASSERT(wph->extra != -1);
 
-        if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
+        if ((wph->extra & WALLFX_SECTOR_OBJECT))
         {
             if ((sop = DetectSectorObjectByWall(wph)))
             {
@@ -4426,7 +4426,7 @@ bool WeaponMoveHit(DSWActor* actor)
                     return true;
             }
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 if (hitActor->spr.lotag || hitActor->spr.hitag)
                 {
@@ -4477,7 +4477,7 @@ int DoFireballFlames(DSWActor* actor)
 
         actor->spr.pos.Z = ActorZOfMiddle(attach);
 
-        if (TEST(attach->spr.extra, SPRX_BURNABLE))
+        if ((attach->spr.extra & SPRX_BURNABLE))
         {
             if ((actor->user.Counter2 & 1) == 0)
             {
@@ -5085,7 +5085,7 @@ int SopCheckKill(SECTOR_OBJECTp sop)
 {
     bool killed = false;
 
-    if (TEST(sop->flags, SOBJ_BROKEN))
+    if ((sop->flags & SOBJ_BROKEN))
         return false;
 
     // does not have damage
@@ -5348,7 +5348,7 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
             auto own = GetOwner(weapActor);
             if (own)
                 pp->KillerActor = own;
-            else if (TEST(weapActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            else if ((weapActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 pp->KillerActor = weapActor;
         }
 
@@ -5483,16 +5483,16 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     ASSERT(actor->hasU());
 
     // don't hit a dead player
-    if (actor->user.PlayerP && TEST(actor->user.PlayerP->Flags, PF_DEAD))
+    if (actor->user.PlayerP && (actor->user.PlayerP->Flags & PF_DEAD))
     {
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         return 0;
     }
 
-    if (!weapActor || !weapActor->hasU() || TEST(actor->user.Flags, SPR_SUICIDE))
+    if (!weapActor || !weapActor->hasU() || (actor->user.Flags & SPR_SUICIDE))
         return 0;
 
-    if (TEST(weapActor->user.Flags, SPR_SUICIDE))
+    if ((weapActor->user.Flags & SPR_SUICIDE))
         return 0;
 
     if (actor->user.Attrib && RANDOM_P2(1024) > 850)
@@ -7276,7 +7276,7 @@ int DoExpDamageTest(DSWActor* actor)
             if (FAFcansee(itActor, ActorZOfMiddle(itActor), actor, actor->spr.pos.Z))
                 continue;
 
-            if (TEST(itActor->spr.extra, SPRX_BREAKABLE))
+            if ((itActor->spr.extra & SPRX_BREAKABLE))
             {
                 HitBreakSprite(itActor, actor->user.ID);
                 break_count++;
@@ -8002,7 +8002,7 @@ int DoPlasma(DSWActor* actor)
         {
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto hcstat = hitActor->spr.cstat;
 
@@ -8234,7 +8234,7 @@ int DoGrenade(DSWActor* actor)
                     DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             }
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -8445,7 +8445,7 @@ int DoVulcanBoulder(DSWActor* actor)
 
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hitActor->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -8617,7 +8617,7 @@ int DoMineStuck(DSWActor* actor)
         ASSERT(attachActor->hasU());
 
         // Is it attached to a dead actor? Blow it up if so.
-        if (TEST(attachActor->user.Flags, SPR_DEAD) && actor->user.Counter2 < MINE_DETONATE_STATE)
+        if ((attachActor->user.Flags & SPR_DEAD) && actor->user.Counter2 < MINE_DETONATE_STATE)
         {
             actor->user.Counter2 = MINE_DETONATE_STATE;
             actor->user.WaitTics = SEC(1)/2;
@@ -8816,7 +8816,7 @@ int DoMine(DSWActor* actor)
             if (hitActor->hasU() && hitActor->user.Health <= 0) return false;    // JBF: added null check
 
             // check to see if sprite is player or enemy
-            if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
                 PLAYERp pp;
 
@@ -8844,11 +8844,11 @@ int DoMine(DSWActor* actor)
             }
             else
             {
-                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+                if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
                 {
                     actor->user.Flags2 |= (SPR2_ATTACH_WALL);
                 }
-                else if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+                else if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
@@ -8882,11 +8882,11 @@ int DoMine(DSWActor* actor)
 
             actor->user.Flags2 |= (SPR2_ATTACH_WALL);
 
-            if (TEST(hit_wall->extra, WALLFX_SECTOR_OBJECT))
+            if ((hit_wall->extra & WALLFX_SECTOR_OBJECT))
             {
             }
 
-            if (TEST(hit_wall->extra, WALLFX_DONT_STICK))
+            if ((hit_wall->extra & WALLFX_DONT_STICK))
             {
                 SpawnMineExp(actor);
                 KillActor(actor);
@@ -8909,7 +8909,7 @@ int DoMine(DSWActor* actor)
                 actor->user.Flags2 |= (SPR2_ATTACH_CEILING);
 
 
-            if (TEST(hit_sect->extra, SECTFX_SECTOR_OBJECT))
+            if ((hit_sect->extra & SECTFX_SECTOR_OBJECT))
             {
                 SpawnMineExp(actor);
                 KillActor(actor);
@@ -9707,7 +9707,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     if (enemyActor != nullptr)
     {
         // test for already burned
-        if (TEST(enemyActor->spr.extra, SPRX_BURNABLE) && enemyActor->spr.shade > 40)
+        if ((enemyActor->spr.extra & SPRX_BURNABLE) && enemyActor->spr.shade > 40)
             return;
 
         if (!enemyActor->hasU())
@@ -9721,7 +9721,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         {
             int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
 
-            if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
+            if ((enemyActor->spr.extra & SPRX_BURNABLE))
                 return;
 
             if (flameActor->user.Counter >= GetRepeatFromHeight(flameActor, sizez))
@@ -9762,7 +9762,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     if (enemyActor != nullptr)
     {
         // large flame for trees and such
-        if (TEST(enemyActor->spr.extra, SPRX_BURNABLE))
+        if ((enemyActor->spr.extra & SPRX_BURNABLE))
         {
             int sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) >> 2);
             actorNew->user.Counter = GetRepeatFromHeight(actorNew, sizez);
@@ -9931,7 +9931,7 @@ void SpawnBoltExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
 
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
@@ -9962,7 +9962,7 @@ int SpawnBunnyExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
 
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return -1;
 
     PlaySound(DIGI_BUNNYDIE3, actor, v3df_none);
@@ -9980,7 +9980,7 @@ void SpawnTankShellExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
 
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
@@ -10048,7 +10048,7 @@ void SpawnNuclearExp(DSWActor* actor)
     short rnd_rng;
 
     ASSERT(actor->hasU());
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_NUCLEAREXP, actor, v3df_dontpan | v3df_doppler);
@@ -10124,7 +10124,7 @@ void SpawnTracerExp(DSWActor* actor)
     DSWActor* expActor;
 
     ASSERT(actor->hasU());
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return ;
 
     if (actor->user.ID == BOLT_THINMAN_R1)
@@ -10157,7 +10157,7 @@ void SpawnTracerExp(DSWActor* actor)
 void SpawnMicroExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return ;
 
     auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_MicroExp, actor->spr.sector(),
@@ -10324,7 +10324,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     int dx,dy,dz;
 
     ASSERT(actor->hasU());
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
 
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
@@ -10423,7 +10423,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 void SpawnMineExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
-    if (actor->hasU() && TEST(actor->user.Flags, SPR_SUICIDE))
+    if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
 
     change_actor_stat(actor, STAT_MISSILE);
@@ -10608,7 +10608,7 @@ int DoFireball(DSWActor* actor)
             {
                 auto hitActor = actor->user.coll.actor();
 
-                if (TEST(hitActor->spr.extra, SPRX_BURNABLE))
+                if ((hitActor->spr.extra & SPRX_BURNABLE))
                 {
                     if (!hitActor->hasU())
                         SpawnUser(hitActor, hitActor->spr.picnum, nullptr);
@@ -10653,7 +10653,7 @@ int DoFindGround(DSWActor* actor)
     {
         auto florActor = florhit.actor();
 
-        if (TEST(florActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if ((florActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             actor->user.lowActor = florActor;
@@ -10705,7 +10705,7 @@ int DoFindGroundPoint(DSWActor* actor)
     {
         auto florActor = florhit.actor();
 
-        if (TEST(florActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if ((florActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             actor->user.lowActor = florActor;
@@ -10774,7 +10774,7 @@ int DoNapalm(DSWActor* actor)
         {
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto hcstat = hitActor->spr.cstat;
 
@@ -11946,13 +11946,13 @@ int InitSwordAttack(PLAYERp pp)
                         return 0;
                 }
 
-                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+                if ((hitActor->spr.extra & SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hitActor, 0);
                 }
 
                 // hit a switch?
-                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+                if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hitActor);
                 }
@@ -11963,7 +11963,7 @@ int InitSwordAttack(PLAYERp pp)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+                    if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -12127,13 +12127,13 @@ int InitFistAttack(PLAYERp pp)
                         return 0;
                 }
 
-                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+                if ((hitActor->spr.extra & SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hitActor,0);
                 }
 
                 // hit a switch?
-                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+                if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hitActor);
                 }
@@ -12157,7 +12157,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+                    if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -12794,7 +12794,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
         if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
-            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
         else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
@@ -12806,7 +12806,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -12835,7 +12835,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
                 return 0;
         }
 
-        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+        if ((hitActor->spr.extra & SPRX_BREAKABLE))
         {
             HitBreakSprite(hit.actor(),0);
             return 0;
@@ -12845,7 +12845,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
             return 0;
 
         // hit a switch?
-        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+        if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hit.actor());
         }
@@ -12929,7 +12929,7 @@ int InitShotgun(PLAYERp pp)
                 hit.hitpos.Z += Z(16);
                 cstat |= (CSTAT_SPRITE_YFLIP);
 
-                if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
+                if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                     continue;
 
                 if (SectorIsUnderwaterArea(hit.hitSector))
@@ -12941,7 +12941,7 @@ int InitShotgun(PLAYERp pp)
             }
             else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
             {
-                if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
                     SpawnSplashXY(hit.hitpos.X,hit.hitpos.Y,hit.hitpos.Z,hit.hitSector);
 
@@ -12960,7 +12960,7 @@ int InitShotgun(PLAYERp pp)
         {
             if (hit.hitWall->twoSided())
             {
-                if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+                if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                 {
                     if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                     {
@@ -13001,7 +13001,7 @@ int InitShotgun(PLAYERp pp)
                     continue;
             }
 
-            if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+            if ((hitActor->spr.extra & SPRX_BREAKABLE))
             {
                 HitBreakSprite(hitActor,0);
                 continue;
@@ -13011,7 +13011,7 @@ int InitShotgun(PLAYERp pp)
                 continue;
 
             // hit a switch?
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+            if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
             {
                 ShootableSwitch(hitActor);
             }
@@ -13890,7 +13890,7 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 
     xoff = (int) tileLeftOffset(wactor->spr.picnum) + (int) wactor->spr.xoffset;
 
-    if (TEST(wactor->spr.cstat, CSTAT_SPRITE_XFLIP))
+    if ((wactor->spr.cstat & CSTAT_SPRITE_XFLIP))
         xoff = -xoff;
 
     // x delta
@@ -15055,7 +15055,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
     short id;
 
     // hit a NPC or PC?
-    if (TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+    if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
     {
         // spawn a red splotch
         // !FRANK! this if was incorrect - its not who is HIT, its who is SHOOTING
@@ -15267,7 +15267,7 @@ int InitUzi(PLAYERp pp)
             hit.hitpos.Z += Z(16);
             cstat |= (CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
 
             if (SectorIsUnderwaterArea(hit.hitSector))
@@ -15279,7 +15279,7 @@ int InitUzi(PLAYERp pp)
         }
         else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
         {
-            if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
                 SpawnSplashXY(hit.hitpos.X,hit.hitpos.Y,hit.hitpos.Z,hit.hitSector);
 
@@ -15299,7 +15299,7 @@ int InitUzi(PLAYERp pp)
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -15342,7 +15342,7 @@ int InitUzi(PLAYERp pp)
                 return 0;
         }
 
-        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE) && HitBreakSprite(hitActor,0))
+        if ((hitActor->spr.extra & SPRX_BREAKABLE) && HitBreakSprite(hitActor,0))
         {
             return 0;
         }
@@ -15351,7 +15351,7 @@ int InitUzi(PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+        if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hitActor);
         }
@@ -15756,12 +15756,12 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             hit.hitpos.Z += Z(16);
             cstat |= (CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
         else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
         {
-            if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
                 SpawnSplashXY(hit.hitpos.X,hit.hitpos.Y,hit.hitpos.Z,hit.hitSector);
                 return 0;
@@ -15784,7 +15784,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             return 0;
         }
 
-        if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+        if ((hitActor->spr.extra & SPRX_BREAKABLE))
         {
             HitBreakSprite(hit.actor(), 0);
             return 0;
@@ -15794,7 +15794,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+        if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
         {
             ShootableSwitch(hit.actor());
         }
@@ -16137,12 +16137,12 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     hit.hitpos.Z += Z(16);
                     cstat |= (CSTAT_SPRITE_YFLIP);
 
-                    if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
+                    if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                         continue;
                 }
                 else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
                 {
-                    if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                    if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
                         SpawnSplashXY(hit.hitpos.X,hit.hitpos.Y,hit.hitpos.Z,hit.hitSector);
                         continue;
@@ -16155,7 +16155,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+                    if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -16184,7 +16184,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                         continue;
                 }
 
-                if (TEST(hitActor->spr.extra, SPRX_BREAKABLE))
+                if ((hitActor->spr.extra & SPRX_BREAKABLE))
                 {
                     HitBreakSprite(hit.actor(), 0);
                     continue;
@@ -16194,7 +16194,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
 
                 // hit a switch?
-                if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
+                if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (hitActor->spr.lotag || hitActor->spr.hitag))
                 {
                     ShootableSwitch(hit.actor());
                 }
@@ -16288,7 +16288,7 @@ int InitEnemyUzi(DSWActor* actor)
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
+            if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -16808,7 +16808,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
     SWStatIterator it(STAT_DIVE_AREA);
     while (overActor = it.Next())
     {
-        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((overActor->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->spr.sector()->hasU() &&
             overActor->spr.sector()->number == sectu->number)
         {
@@ -16824,7 +16824,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
     it.Reset(STAT_UNDERWATER);
     while (underActor = it.Next())
     {
-        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((underActor->spr.sector()->extra & SECTFX_UNDERWATER) &&
             underActor->spr.sector()->hasU() &&
             underActor->spr.sector()->number == sectu->number)
         {
@@ -16877,7 +16877,7 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
     SWStatIterator it(STAT_UNDERWATER);
     while (underActor = it.Next())
     {
-        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((underActor->spr.sector()->extra & SECTFX_UNDERWATER) &&
             underActor->spr.sector()->hasU() &&
             underActor->spr.sector()->number == sectu->number)
         {
@@ -16893,7 +16893,7 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
     it.Reset(STAT_DIVE_AREA);
     while (overActor = it.Next())
     {
-        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((overActor->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->spr.sector()->hasU() &&
             overActor->spr.sector()->number == sectu->number)
         {
@@ -16943,7 +16943,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     SWStatIterator it(STAT_DIVE_AREA);
     while (overActor = it.Next())
     {
-        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((overActor->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->spr.sector()->hasU() &&
             overActor->spr.sector()->number == sectu->number)
         {
@@ -16959,7 +16959,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     it.Reset(STAT_UNDERWATER);
     while (underActor = it.Next())
     {
-        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((underActor->spr.sector()->extra & SECTFX_UNDERWATER) &&
             underActor->spr.sector()->hasU() &&
             underActor->spr.sector()->number == sectu->number)
         {
@@ -17013,7 +17013,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     SWStatIterator it(STAT_UNDERWATER);
     while (underActor = it.Next())
     {
-        if (TEST(underActor->spr.sector()->extra, SECTFX_UNDERWATER) &&
+        if ((underActor->spr.sector()->extra & SECTFX_UNDERWATER) &&
             underActor->spr.sector()->hasU() &&
             underActor->spr.sector()->number == sectu->number)
         {
@@ -17033,7 +17033,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     it.Reset(STAT_DIVE_AREA);
     while (overActor = it.Next())
     {
-        if (TEST(overActor->spr.sector()->extra, SECTFX_DIVE_AREA) &&
+        if ((overActor->spr.sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->spr.sector()->hasU() &&
             overActor->spr.sector()->number == sectu->number)
         {
@@ -17081,10 +17081,10 @@ int SpawnSplash(DSWActor* actor)
     if (Prediction)
         return 0;
 
-    if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
+    if (sectu && ((sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;
 
-    if (sectu && TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
+    if (sectu && (sectp->floorstat & CSTAT_SECTOR_SKY))
         return 0;
 
     PlaySound(DIGI_SPLASH1, actor, v3df_none);
@@ -17094,7 +17094,7 @@ int SpawnSplash(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.loz, actor->spr.ang, 0);
 
-    if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (sectu && (sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
 
     actorNew->spr.xrepeat = 45;
@@ -17109,15 +17109,15 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
     if (Prediction)
         return 0;
 
-    if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
+    if (sectp->hasU() && ((sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;
 
-    if (sectp->hasU() && TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
+    if (sectp->hasU() && (sectp->floorstat & CSTAT_SECTOR_SKY))
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectp, hit_x, hit_y, hit_z, 0, 0);
 
-    if (sectp->hasU() && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (sectp->hasU() && (sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
 
     actorNew->spr.xrepeat = 45;
@@ -17411,11 +17411,11 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
     }
 
 
-    if (TEST(hit_wall->extra, WALLFX_DONT_STICK))
+    if ((hit_wall->extra & WALLFX_DONT_STICK))
         return true;
 
     // if blocking red wallo
-    if (TEST(hit_wall->cstat, CSTAT_WALL_BLOCK) && hit_wall->twoSided())
+    if ((hit_wall->cstat & CSTAT_WALL_BLOCK) && hit_wall->twoSided())
         return true;
 
     return false;
@@ -17524,16 +17524,16 @@ int QueueFloorBlood(DSWActor* actor)
     DSWActor* spawnedActor = nullptr;
 
 
-    if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
+    if ((sectp->extra & SECTFX_SINK)||(sectp->extra & SECTFX_CURRENT))
         return -1;   // No blood in water or current areas
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return -1;   // No blood underwater!
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
     if (TestDontStickSector(actor->spr.sector()))
@@ -17602,28 +17602,28 @@ int QueueFootPrint(DSWActor* actor)
     SECTORp sectp = actor->spr.sector();
 
 
-    if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
+    if ((sectp->extra & SECTFX_SINK)||(sectp->extra & SECTFX_CURRENT))
         return -1;   // No blood in water or current areas
 
     if (actor->user.PlayerP)
     {
-        if (TEST(actor->user.PlayerP->Flags, PF_DIVING))
+        if ((actor->user.PlayerP->Flags & PF_DIVING))
             Found = true;
 
         // Stupid masked floor stuff!  Damn your weirdness!
-        if (TEST(actor->user.PlayerP->cursector->ceilingstat, CSTAT_SECTOR_SKY))
+        if ((actor->user.PlayerP->cursector->ceilingstat & CSTAT_SECTOR_SKY))
             Found = true;
-        if (TEST(actor->user.PlayerP->cursector->floorstat, CSTAT_SECTOR_SKY))
+        if ((actor->user.PlayerP->cursector->floorstat & CSTAT_SECTOR_SKY))
             Found = true;
     }
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || Found || SpriteInDiveArea(actor))
         return -1;   // No prints underwater!
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
     if (TestDontStickSector(actor->spr.sector()))
@@ -17900,13 +17900,13 @@ int DoWallBlood(DSWActor* actor)
 // This is the FAST queue, it doesn't call any animator functions or states
 void QueueGeneric(DSWActor* actor, short pic)
 {
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         KillActor(actor);
         return;
     }
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         KillActor(actor);
         return;
@@ -17979,13 +17979,13 @@ int DoShellShrap(DSWActor* actor)
     }
 
     // Get rid of shell if they fall in non-divable liquid areas
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         KillActor(actor);
         return 0;
     }
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         KillActor(actor);
         return 0;
@@ -18278,7 +18278,7 @@ int ShrapKillSprite(DSWActor* actor)
 
 bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
 {
-    if (TEST(break_info->flags, BF_TOUGH))
+    if ((break_info->flags & BF_TOUGH))
     {
         switch (ID)
         {
@@ -18335,7 +18335,7 @@ int DoItemFly(DSWActor* actor)
             short wall_ang;
             auto hit_sprite = actor->user.coll.actor();
 
-            if (TEST(hit_sprite->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if ((hit_sprite->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hit_sprite->spr.ang);
                 WallBounce(actor, wall_ang);
@@ -18388,12 +18388,12 @@ void QueueLoWangs(DSWActor* actor)
 {
     DSWActor* spawnedActor;
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         return;
     }
 
-    if (TEST(actor->spr.sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if ((actor->spr.sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         return;
     }

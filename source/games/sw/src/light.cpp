@@ -71,7 +71,7 @@ void SectorLightShade(DSWActor* actor, short intensity)
                 wal.pal = actor->spr.pal;
             wallcount++;
 
-            if (TEST(actor->spr.extra, SPRX_BOOL5))
+            if ((actor->spr.extra & SPRX_BOOL5))
             {
                 if (wal.twoSided())
                 {
