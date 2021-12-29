@@ -31,12 +31,12 @@ BEGIN_BLD_NS
 // I don't think we still need these.
 enum
 {
-    DICT_LOAD = 0,
-    DICT_LOCK = 0,
-    
-    kMaxCmdLineDefines = 5,
-    kMaxDefines        = 1000,
-    kMaxParseLevels    = 5
+	DICT_LOAD = 0,
+	DICT_LOCK = 0,
+
+	kMaxCmdLineDefines = 5,
+	kMaxDefines = 1000,
+	kMaxParseLevels = 5
 };
 static int nCmdDefines = 0;
 static int nDefines = 0;
@@ -53,86 +53,86 @@ char scriptBuffer[256];
 
 struct define_t
 {
-    FString _text;
-    int   _value;
+	FString _text;
+	int   _value;
 };
 
 define_t gCmdDefines[kMaxCmdLineDefines];
 
-void addMemoryResource(char *fileName, char flags, int ID);
+void addMemoryResource(char* fileName, char flags, int ID);
 
 struct tag_t {
-    const char *_value;
-    uint8_t _index;
+	const char* _value;
+	uint8_t _index;
 };
 
 enum eTags
 {
-    kTag0,
-    kTagEnd,
-    kTagString,
-    kTagConstant,
-    kTag4, // string constant?
-    kTagComma,
-    kTagSemiColon,
-    kTagColon,
-    kTagEquals,
-    kTagHash,
-    kTagComment,
-    kTagInclude,
-    kTagResource,
-    kTagAs,
-    kTagPreload,
-    kTagPrelock,
-    kTagData,
-    kTagLoad,
-    kTagEmit,
-    kTagIfDef,
-    kTagEndif,
-    kTagElse
+	kTag0,
+	kTagEnd,
+	kTagString,
+	kTagConstant,
+	kTag4, // string constant?
+	kTagComma,
+	kTagSemiColon,
+	kTagColon,
+	kTagEquals,
+	kTagHash,
+	kTagComment,
+	kTagInclude,
+	kTagResource,
+	kTagAs,
+	kTagPreload,
+	kTagPrelock,
+	kTagData,
+	kTagLoad,
+	kTagEmit,
+	kTagIfDef,
+	kTagEndif,
+	kTagElse
 };
 
 tag_t tags[] =
 {
-    { ",", kTagComma },
-    { ";", kTagSemiColon },
-    { ":", kTagColon },
-    { "=", kTagEquals },
-    { "#", kTagHash },
-    { "//", kTagComment },
-    { "INCLUDE", kTagInclude },
-    { "RESOURCE", kTagResource },
-    { "AS", kTagAs },
-    { "PRELOAD", kTagPreload },
-    { "PRELOCK", kTagPrelock },
-    { "DATA", kTagData },
-    { "LOAD", kTagLoad },
-    { "EMIT", kTagEmit },
-    { "%ifdef", kTagIfDef },
-    { "%endif", kTagEndif },
-    { "%else", kTagElse }
+	{ ",", kTagComma },
+	{ ";", kTagSemiColon },
+	{ ":", kTagColon },
+	{ "=", kTagEquals },
+	{ "#", kTagHash },
+	{ "//", kTagComment },
+	{ "INCLUDE", kTagInclude },
+	{ "RESOURCE", kTagResource },
+	{ "AS", kTagAs },
+	{ "PRELOAD", kTagPreload },
+	{ "PRELOCK", kTagPrelock },
+	{ "DATA", kTagData },
+	{ "LOAD", kTagLoad },
+	{ "EMIT", kTagEmit },
+	{ "%ifdef", kTagIfDef },
+	{ "%endif", kTagEndif },
+	{ "%else", kTagElse }
 };
 
 const int kTagCount = sizeof(tags) / sizeof(tag_t);
 
-int qsort_compar(const void *a, const void *b)
+int qsort_compar(const void* a, const void* b)
 {
-    return stricmp((const char*)a, (const char*)b);
+	return stricmp((const char*)a, (const char*)b);
 }
 
 void SortTags()
 {
-    qsort(tags, kTagCount, sizeof(tag_t), qsort_compar);
+	qsort(tags, kTagCount, sizeof(tag_t), qsort_compar);
 }
 
-void AddCmdDefine(char *text, int value)
+void AddCmdDefine(char* text, int value)
 {
-    assert(nCmdDefines < kMaxCmdLineDefines);
+	assert(nCmdDefines < kMaxCmdLineDefines);
 
 	gCmdDefines[nCmdDefines]._text = text;
-    gCmdDefines[nCmdDefines]._value = value;
+	gCmdDefines[nCmdDefines]._value = value;
 
-    nCmdDefines++;
+	nCmdDefines++;
 }
 
 //---------------------------------------------------------------------------
@@ -141,47 +141,47 @@ void AddCmdDefine(char *text, int value)
 //
 //---------------------------------------------------------------------------
 
-static void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
+static void SplitPath(const char* pzPath, char* pzDirectory, char* pzFile, char* pzType)
 {
-    int const nLength = (int)strlen(pzPath);
-    const char *pDot = NULL;
-    for (int i = nLength-1; i >= 0; i--)
-    {
-        if (pzPath[i] == '/' || pzPath[i] == '\\')
-        {
-            strncpy(pzDirectory, pzPath, i);
-            pzDirectory[i] = 0;
-            if (!pDot)
-            {
-                strcpy(pzFile, pzPath+i+1);
-                strcpy(pzType, "");
-            }
-            else
-            {
-                strncpy(pzFile, pzPath+i+1, pDot-(pzPath+i+1));
-                pzFile[pDot-(pzPath+i+1)] = 0;
-                strcpy(pzType, pDot+1);
-            }
-           
-            return;
-        }
-        else if (pzPath[i] == '.')
-        {
-            pDot = pzPath+i;
-        }
-    }
-    strcpy(pzDirectory, "/");
-    if (!pDot)
-    {
-        strcpy(pzFile, pzPath);
-        strcpy(pzType, "");
-    }
-    else
-    {
-        strncpy(pzFile, pzPath, pDot-pzPath);
-        pzFile[pDot-pzPath] = 0;
-        strcpy(pzType, pDot+1);
-    }
+	int const nLength = (int)strlen(pzPath);
+	const char* pDot = NULL;
+	for (int i = nLength - 1; i >= 0; i--)
+	{
+		if (pzPath[i] == '/' || pzPath[i] == '\\')
+		{
+			strncpy(pzDirectory, pzPath, i);
+			pzDirectory[i] = 0;
+			if (!pDot)
+			{
+				strcpy(pzFile, pzPath + i + 1);
+				strcpy(pzType, "");
+			}
+			else
+			{
+				strncpy(pzFile, pzPath + i + 1, pDot - (pzPath + i + 1));
+				pzFile[pDot - (pzPath + i + 1)] = 0;
+				strcpy(pzType, pDot + 1);
+			}
+
+			return;
+		}
+		else if (pzPath[i] == '.')
+		{
+			pDot = pzPath + i;
+		}
+	}
+	strcpy(pzDirectory, "/");
+	if (!pDot)
+	{
+		strcpy(pzFile, pzPath);
+		strcpy(pzType, "");
+	}
+	else
+	{
+		strncpy(pzFile, pzPath, pDot - pzPath);
+		pzFile[pDot - pzPath] = 0;
+		strcpy(pzType, pDot + 1);
+	}
 }
 
 
@@ -197,26 +197,26 @@ struct RFS
 {
 private:
 	TArray<char> buffer;
-    char *_ptr;         // [0]
-    char _curChar;      // [4]
-    char *_pUnknown2;   // [5]  - some sort of pointer into _ptr?
-    char *_pStartLine;  // [9]
-    char *_pEnd;        // [13]
-    char *_pMark;       // [17]
-    char _unknown6;     // [21]
-    int  _unknown7;     // [22]
-    int  _curLine;      // [26]
-    char _fileName[BMAX_PATH]; // [30]
+	char* _ptr;         // [0]
+	char _curChar;      // [4]
+	char* _pUnknown2;   // [5]  - some sort of pointer into _ptr?
+	char* _pStartLine;  // [9]
+	char* _pEnd;        // [13]
+	char* _pMark;       // [17]
+	char _unknown6;     // [21]
+	int  _unknown7;     // [22]
+	int  _curLine;      // [26]
+	char _fileName[BMAX_PATH]; // [30]
 
 public:
-    int Open(int lumpnum);
-    void Close();
-    void Increment();
-    void SkipBeyondValue(char value);
-    uint8_t GetNextTag();
-    void ScriptError(const char *message);
-    void SetMark();
-    void UnsetMark();
+	int Open(int lumpnum);
+	void Close();
+	void Increment();
+	void SkipBeyondValue(char value);
+	uint8_t GetNextTag();
+	void ScriptError(const char* message);
+	void SetMark();
+	void UnsetMark();
 };
 
 //---------------------------------------------------------------------------
@@ -227,29 +227,29 @@ public:
 
 int RFS::Open(int lumpnum)
 {
-    auto hFile = fileSystem.OpenFileReader(lumpnum);
-    if (!hFile.isOpen()) {
-        Printf("BARF: Error opening file %d", lumpnum);
-        return 1;
-    }
+	auto hFile = fileSystem.OpenFileReader(lumpnum);
+	if (!hFile.isOpen()) {
+		Printf("BARF: Error opening file %d", lumpnum);
+		return 1;
+	}
 
 	int fileSize = (int)hFile.GetLength();
-	buffer.Resize(fileSize+1);
-    _ptr = buffer.Data();
-    if (_ptr == NULL) {
-        Printf("BARF: Not enough memory to read %d", lumpnum);
-        return 1;
-    }
+	buffer.Resize(fileSize + 1);
+	_ptr = buffer.Data();
+	if (_ptr == NULL) {
+		Printf("BARF: Not enough memory to read %d", lumpnum);
+		return 1;
+	}
 
-    hFile.Read(_ptr, fileSize);
-    buffer[fileSize] = '\n';
+	hFile.Read(_ptr, fileSize);
+	buffer[fileSize] = '\n';
 
-    _curLine = 0;
-    _pUnknown2 = _ptr;
-    _curChar = '\n';
-    _pEnd = &_ptr[fileSize];
+	_curLine = 0;
+	_pUnknown2 = _ptr;
+	_curChar = '\n';
+	_pEnd = &_ptr[fileSize];
 
-    return 0;
+	return 0;
 }
 
 void RFS::Close()
@@ -264,18 +264,18 @@ void RFS::Close()
 
 void RFS::Increment()
 {
-    if (_curChar == '\n') {
-        _curLine++;
-        _pStartLine = _pUnknown2;
-    }
+	if (_curChar == '\n') {
+		_curLine++;
+		_pStartLine = _pUnknown2;
+	}
 
-    if (_pUnknown2 >= _pEnd) {
-        _curChar = 0;
-    }
-    else {
-        _curChar = *_pUnknown2; // grabs the next char
-        _pUnknown2++; // increment pointer into char data
-    }
+	if (_pUnknown2 >= _pEnd) {
+		_curChar = 0;
+	}
+	else {
+		_curChar = *_pUnknown2; // grabs the next char
+		_pUnknown2++; // increment pointer into char data
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -286,24 +286,24 @@ void RFS::Increment()
 
 void RFS::SkipBeyondValue(char nVal)
 {
-    while (_curChar && _curChar != nVal) {
-        Increment();
-    }
+	while (_curChar && _curChar != nVal) {
+		Increment();
+	}
 }
 
 void RFS::SetMark()
 {
-    _pMark = _pUnknown2;
-    _unknown6 = _curChar;
-    _unknown7 = _curLine;
+	_pMark = _pUnknown2;
+	_unknown6 = _curChar;
+	_unknown7 = _curLine;
 }
 
 // inverse of the above function
 void RFS::UnsetMark()
 {
-    _pUnknown2 = _pMark;
-    _curChar = _unknown6;
-    _curLine = _unknown7;
+	_pUnknown2 = _pMark;
+	_curChar = _unknown6;
+	_curLine = _unknown7;
 }
 
 //---------------------------------------------------------------------------
@@ -312,35 +312,35 @@ void RFS::UnsetMark()
 //
 //---------------------------------------------------------------------------
 
-void RFS::ScriptError(const char *message)
+void RFS::ScriptError(const char* message)
 {
-    // TODO
-    TArray<char> msg;
+	// TODO
+	TArray<char> msg;
 
-    char *p = _pStartLine;
-    while (*p != '\n')
-    {
-        if (isprint(*p))
-            msg.Push(*p);
-        else
-            msg.Push(' ');
-        p++;
-    }
+	char* p = _pStartLine;
+	while (*p != '\n')
+	{
+		if (isprint(*p))
+			msg.Push(*p);
+		else
+			msg.Push(' ');
+		p++;
+	}
 
-    msg.Push('\n');
+	msg.Push('\n');
 
-    p = _pStartLine;
+	p = _pStartLine;
 
-    while (p < _pMark)
-    {
-        msg.Push(' ');
-        p++;
-    }
+	while (p < _pMark)
+	{
+		msg.Push(' ');
+		p++;
+	}
 
-    msg.Push('^');
-    msg.Push(0);
+	msg.Push('^');
+	msg.Push(0);
 
-    Printf("Error in %s line %d: %s\n\n%s", _fileName, _curLine, message, msg.Data());
+	Printf("Error in %s line %d: %s\n\n%s", _fileName, _curLine, message, msg.Data());
 }
 
 //---------------------------------------------------------------------------
@@ -351,188 +351,188 @@ void RFS::ScriptError(const char *message)
 
 uint8_t RFS::GetNextTag()
 {
-    // skip any space characters
-    do {
-        Increment();
-    } while (isspace(_curChar));
+	// skip any space characters
+	do {
+		Increment();
+	} while (isspace(_curChar));
 
-    if (_curChar == '\0') {
-        return kTagEnd;
-    }
+	if (_curChar == '\0') {
+		return kTagEnd;
+	}
 
-    SetMark();
+	SetMark();
 
-    // Path A
-    if (_curChar == '"')
-    {
-        Increment();
+	// Path A
+	if (_curChar == '"')
+	{
+		Increment();
 
-        int i = 0;
+		int i = 0;
 
-        // section 1
-        while (1) {
+		// section 1
+		while (1) {
 
-            if (_curChar == '\0' || _curChar == '"') {
-                scriptBuffer[i] = '\0';
-                return kTagString;
-            }
+			if (_curChar == '\0' || _curChar == '"') {
+				scriptBuffer[i] = '\0';
+				return kTagString;
+			}
 
-            if (i == 256) {
-                ScriptError("String exceeds maximum string length");
-                break;
-            }
+			if (i == 256) {
+				ScriptError("String exceeds maximum string length");
+				break;
+			}
 
-            scriptBuffer[i] = _curChar;
-            i++;
-            Increment();
-        }
+			scriptBuffer[i] = _curChar;
+			i++;
+			Increment();
+		}
 
-        // section 2
-        while (1)
-        {
-            if (_curChar == '\0' || _curChar == '"') {
-                return kTag0;
-            }
+		// section 2
+		while (1)
+		{
+			if (_curChar == '\0' || _curChar == '"') {
+				return kTag0;
+			}
 
-            Increment();
-        }
-    }
-    else
-    {
-        scriptValue = 0;
-        bool isNegative = false; // or 'isSigned' ?
+			Increment();
+		}
+	}
+	else
+	{
+		scriptValue = 0;
+		bool isNegative = false; // or 'isSigned' ?
 
-        // is it a negative number?
-        if (_curChar == '-')
-        {
-            Increment();
+		// is it a negative number?
+		if (_curChar == '-')
+		{
+			Increment();
 
-            isNegative = true;
+			isNegative = true;
 
-            if (!isdigit(_curChar)) {
-                UnsetMark();
-            }
-        }
+			if (!isdigit(_curChar)) {
+				UnsetMark();
+			}
+		}
 
-        if (isdigit(_curChar))
-        {
-            // left path
-            if (_curChar == '0')
-            {
-                Increment();
+		if (isdigit(_curChar))
+		{
+			// left path
+			if (_curChar == '0')
+			{
+				Increment();
 
-                // handle a hex value
-                if (toupper(_curChar) == 'X')
-                {
-                    // orange loop
-                    while (1)
-                    {
-                        Increment();
-                        if (!isxdigit(_curChar)) { // isxdigit() checks for a hex value
-                            break;
-                        }
+				// handle a hex value
+				if (toupper(_curChar) == 'X')
+				{
+					// orange loop
+					while (1)
+					{
+						Increment();
+						if (!isxdigit(_curChar)) { // isxdigit() checks for a hex value
+							break;
+						}
 
-                        // hex version of atoi?
-                        scriptValue *= 16;
-                        if (!isdigit(_curChar)) {
-                            scriptValue += toupper(_curChar) - 55;
-                        }
-                        else {
-                            scriptValue += _curChar - '0';
-                        }
+						// hex version of atoi?
+						scriptValue *= 16;
+						if (!isdigit(_curChar)) {
+							scriptValue += toupper(_curChar) - 55;
+						}
+						else {
+							scriptValue += _curChar - '0';
+						}
 
-                        SetMark();
-                    }
+						SetMark();
+					}
 
-                    UnsetMark();
-                    if (isNegative) {
-                        scriptValue = -scriptValue;
-                    }
+					UnsetMark();
+					if (isNegative) {
+						scriptValue = -scriptValue;
+					}
 
-                    return kTagConstant;
-                }
+					return kTagConstant;
+				}
 
-                UnsetMark();
-            }
+				UnsetMark();
+			}
 
-            // the loop
-            while (isdigit(_curChar))
-            {
-                // atoi implementation
-                scriptValue = scriptValue * 10 + _curChar - '0';
-                SetMark();
-                Increment();
-            }
+			// the loop
+			while (isdigit(_curChar))
+			{
+				// atoi implementation
+				scriptValue = scriptValue * 10 + _curChar - '0';
+				SetMark();
+				Increment();
+			}
 
-            UnsetMark();
-            if (isNegative) {
-                scriptValue = -scriptValue;
-            }
+			UnsetMark();
+			if (isNegative) {
+				scriptValue = -scriptValue;
+			}
 
-            return kTagConstant;
-        }
-        else
-        {
-            // BLUEISH PATH
-            int ebp = 0; // v11
-            int i = 0;
+			return kTagConstant;
+		}
+		else
+		{
+			// BLUEISH PATH
+			int ebp = 0; // v11
+			int i = 0;
 
-            // blue loop #1
-            while (1)
-            {
-                scriptBuffer[ebp] = _curChar;
-                ebp++;
-                int eax = -1;
+			// blue loop #1
+			while (1)
+			{
+				scriptBuffer[ebp] = _curChar;
+				ebp++;
+				int eax = -1;
 
-                // blue loop #2
-                for (i = 0; i < kTagCount; i++)
-                {
-                    //if (eax >= 0) {
-                    if (eax == 0) {
-                        break;
-                    }
+				// blue loop #2
+				for (i = 0; i < kTagCount; i++)
+				{
+					//if (eax >= 0) {
+					if (eax == 0) {
+						break;
+					}
 
-                    // eax = strnicmp(tags[i]._value, scriptBuffer, ebp);
-                    eax = strnicmp(scriptBuffer, tags[i]._value, ebp);
+					// eax = strnicmp(tags[i]._value, scriptBuffer, ebp);
+					eax = strnicmp(scriptBuffer, tags[i]._value, ebp);
 
-                    //if (eax >= 0) {
-                    if (eax == 0) {
-                        break;
-                    }
-                }
+					//if (eax >= 0) {
+					if (eax == 0) {
+						break;
+					}
+				}
 
-                if (eax > 0 || i == kTagCount) {
-                    break;
-                }
+				if (eax > 0 || i == kTagCount) {
+					break;
+				}
 
-                if (eax == 0 && (int)strlen(tags[i]._value) == ebp)
-                {
-                    scriptBuffer[ebp] = 0;
-                    return tags[i]._index;
-                }
+				if (eax == 0 && (int)strlen(tags[i]._value) == ebp)
+				{
+					scriptBuffer[ebp] = 0;
+					return tags[i]._index;
+				}
 
-                Increment();
-            }
+				Increment();
+			}
 
-            UnsetMark();
+			UnsetMark();
 
-            i = 0;
+			i = 0;
 
-            while (isalnum(_curChar))
-            {
-                scriptBuffer[i] = _curChar;
-                SetMark();
-                i++;
-                Increment();
-            }
+			while (isalnum(_curChar))
+			{
+				scriptBuffer[i] = _curChar;
+				SetMark();
+				i++;
+				Increment();
+			}
 
-            UnsetMark();
-            scriptBuffer[i] = 0;
-            return kTag4;
-        }
-    }
+			UnsetMark();
+			scriptBuffer[i] = 0;
+			return kTag4;
+		}
+	}
 
-    //	qAssert(1==0); // TODO - what to return here
+	//	qAssert(1==0); // TODO - what to return here
 }
 
 //---------------------------------------------------------------------------
@@ -543,442 +543,442 @@ uint8_t RFS::GetNextTag()
 
 void ParseScript(int lumpnum)
 {
-    char text[256];
-    char char256_1[256];
-    char char256_2[256];
-    char fileName[BMAX_PATH];
-    char inp[BMAX_PATH];
-    //char zScriptDirectory[BMAX_PATH], zTemp1[BMAX_PATH], zTemp2[BMAX_PATH];
+	char text[256];
+	char char256_1[256];
+	char char256_2[256];
+	char fileName[BMAX_PATH];
+	char inp[BMAX_PATH];
+	//char zScriptDirectory[BMAX_PATH], zTemp1[BMAX_PATH], zTemp2[BMAX_PATH];
 
-    //SplitPath(scriptFileName, zScriptDirectory, zTemp1, zTemp2);
+	//SplitPath(scriptFileName, zScriptDirectory, zTemp1, zTemp2);
 
-    RFS rfs;
+	RFS rfs;
 
-    // AddExtension(name, ".RFS");
-    if (rfs.Open(lumpnum))
-    {
-        return;
-    }
+	// AddExtension(name, ".RFS");
+	if (rfs.Open(lumpnum))
+	{
+		return;
+	}
 
-    gParseLevel = 0;
-    dword_44CE0[0] = 0;
+	gParseLevel = 0;
+	dword_44CE0[0] = 0;
 
-    bool parsing = true;
+	bool parsing = true;
 
-    while (parsing)
-    {
-        // START LOOP. to be fixed later
-        START:
+	while (parsing)
+	{
+		// START LOOP. to be fixed later
+	START:
 
-        uint8_t tag = rfs.GetNextTag();
+		uint8_t tag = rfs.GetNextTag();
 
-        switch (tag)
-        {
-            default:
-            {
-                break;
-            }
-            case kTagEnd:
-            {
-                parsing = false;
-                break;
-            }
-            case kTagComment:
-            {
-                // skip to next line
-                rfs.SkipBeyondValue('\n');
-                break;
-            }
-            case kTagEmit: // minty/light green colour
-            {
-                tag = rfs.GetNextTag();
-                if (tag != kTag4)
-                {
-                    rfs.ScriptError("Symbol name expected");
-                    rfs.SkipBeyondValue(';');
-                    break;
-                }
-                else
-                {
-                    strcpy(char256_2, scriptBuffer);
-                    tag = rfs.GetNextTag();
-                    if (tag != kTagEquals)
-                    {
-                        rfs.ScriptError("Missing '='");
-                        rfs.SkipBeyondValue(';');
-                        break;
-                    }
-
-                    tag = rfs.GetNextTag();
-                    if (tag != kTagConstant)
-                    {
-                        rfs.ScriptError("Constant expected");
-                        rfs.SkipBeyondValue(';');
-                        break;
-                    }
-                    else
-                    {
-                        //AddDefine(char256_2, scriptValue);
-                        rfs.SkipBeyondValue('\n');
-                    }
-                }
-                [[fallthrough]];
-            }
-            case kTagResource: // really light blue..
-            {
-                if (kTagString != rfs.GetNextTag()) {
-                    rfs.ScriptError("String constant exected");
-                    rfs.SkipBeyondValue('\n');
-                    break;
-                }
-
-                strcpy(inp, scriptBuffer);
-                uint8_t nFlags = 0;
-                int ID = 0;
-                bool isDefine = false;
-
-                tag = rfs.GetNextTag();
-                if (tag == kTagAs)
-                {
-                    tag = rfs.GetNextTag();
-                    if (tag == kTag4)
-                    {
-                        strcpy(text, scriptBuffer);
-
-                        if (rfs.GetNextTag() != kTagEquals)
-                        {
-                            rfs.ScriptError("Missing '='");
-                            rfs.SkipBeyondValue(';');
-                            break;
-                        }
-
-                        isDefine = true;
-                        tag = rfs.GetNextTag();
-                    }
-
-                    if (tag != kTagConstant)
-                    {
-                        rfs.ScriptError("Constant expected");
-                        rfs.SkipBeyondValue(';');
-                        break;
-                    }
-
-                    if (isDefine) {
-                        //AddDefine(text, scriptValue);
-                    }
-
-                    ID = scriptValue;
-                    tag = rfs.GetNextTag();
-                }
-
-                //if (!bNoEncrypt) {
-                //	nFlags |= kResFlagIsEncrypted;
-                //}
-
-                while (tag == kTagComma)
-                {
-                    tag = rfs.GetNextTag();
-
-                    if (tag == kTagPreload) {
-                        nFlags |= DICT_LOAD;
-                    }
-                    else if (tag == kTagPrelock) {
-                        nFlags |= DICT_LOCK;
-                    }
-                    else {
-                        rfs.ScriptError("Unrecognized flag");
-                        rfs.SkipBeyondValue(';');
-                        goto START; // FIXME
-                    }
-
-                    tag = rfs.GetNextTag();
-                }
-
-                if (tag != kTagSemiColon)
-                {
-                    rfs.ScriptError("';' expected");
-                    rfs.SkipBeyondValue(';');
-                    break;
-                }
-
-                if (dword_44CE0[gParseLevel] == 0) 
+		switch (tag)
+		{
+		default:
+		{
+			break;
+		}
+		case kTagEnd:
+		{
+			parsing = false;
+			break;
+		}
+		case kTagComment:
+		{
+			// skip to next line
+			rfs.SkipBeyondValue('\n');
+			break;
+		}
+		case kTagEmit: // minty/light green colour
+		{
+			tag = rfs.GetNextTag();
+			if (tag != kTag4)
+			{
+				rfs.ScriptError("Symbol name expected");
+				rfs.SkipBeyondValue(';');
+				break;
+			}
+			else
+			{
+				strcpy(char256_2, scriptBuffer);
+				tag = rfs.GetNextTag();
+				if (tag != kTagEquals)
 				{
-					// In the RFS files I have seen the outermost directory is not part of what goes into the file system.
-					auto inp1 = strpbrk(inp, "/\\");
-					if (!inp1 || !fileSystem.CreatePathlessCopy(inp1 + 1, ID, nFlags))
+					rfs.ScriptError("Missing '='");
+					rfs.SkipBeyondValue(';');
+					break;
+				}
+
+				tag = rfs.GetNextTag();
+				if (tag != kTagConstant)
+				{
+					rfs.ScriptError("Constant expected");
+					rfs.SkipBeyondValue(';');
+					break;
+				}
+				else
+				{
+					//AddDefine(char256_2, scriptValue);
+					rfs.SkipBeyondValue('\n');
+				}
+			}
+			[[fallthrough]];
+		}
+		case kTagResource: // really light blue..
+		{
+			if (kTagString != rfs.GetNextTag()) {
+				rfs.ScriptError("String constant exected");
+				rfs.SkipBeyondValue('\n');
+				break;
+			}
+
+			strcpy(inp, scriptBuffer);
+			uint8_t nFlags = 0;
+			int ID = 0;
+			bool isDefine = false;
+
+			tag = rfs.GetNextTag();
+			if (tag == kTagAs)
+			{
+				tag = rfs.GetNextTag();
+				if (tag == kTag4)
+				{
+					strcpy(text, scriptBuffer);
+
+					if (rfs.GetNextTag() != kTagEquals)
 					{
-						// GDX spports this so we should, too.
-						fileSystem.CreatePathlessCopy(inp, ID, nFlags);
+						rfs.ScriptError("Missing '='");
+						rfs.SkipBeyondValue(';');
+						break;
 					}
-                }
 
-                break;
-            }
-            case kTagIfDef: // purplish colour
-            {
-                tag = rfs.GetNextTag();
-                if (tag != kTag4)
-                {
-                    rfs.ScriptError("Parameter error in ifdef");
-                    rfs.SkipBeyondValue('\n');
-                    break;
-                }
-                else
-                {
-                    rfs.SetMark();
-                    strcpy(char256_1, scriptBuffer);
+					isDefine = true;
+					tag = rfs.GetNextTag();
+				}
 
-                    bool bGotDefine = false;
+				if (tag != kTagConstant)
+				{
+					rfs.ScriptError("Constant expected");
+					rfs.SkipBeyondValue(';');
+					break;
+				}
 
-                    // check if this was defined via command prompt arguments
-                    for (int i = 0; i < nCmdDefines; i++)
-                    {
-                        if (stricmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
-                            bGotDefine = true;
-                            break;
-                        }
-                    }
+				if (isDefine) {
+					//AddDefine(text, scriptValue);
+				}
 
-                    // loc_11FC3:
-                    gParseLevel++;
-                    assert(gParseLevel < kMaxParseLevels);
+				ID = scriptValue;
+				tag = rfs.GetNextTag();
+			}
 
-                    if (bGotDefine) {
-                        dword_44CE0[gParseLevel] = dword_44CE0[gParseLevel - 1];
-                    }
-                    else {
-                        dword_44CE0[gParseLevel] = 1;
-                    }
-                }
-                break;
-            }
-            case kTagElse: // pinky colour
-            {
-                if (gParseLevel)
-                {
-                    // loc_12066:
-                    if (dword_44CE0[gParseLevel - 1] == 0) {
-                        if (dword_44CE0[gParseLevel] == 0) {
-                            dword_44CE0[gParseLevel] = 1;
-                        }
+			//if (!bNoEncrypt) {
+			//	nFlags |= kResFlagIsEncrypted;
+			//}
 
-                        rfs.SkipBeyondValue('\n');
-                        break;
-                    }
-                }
-                else {
-                    rfs.ScriptError("Unexpected else");
-                    rfs.SkipBeyondValue('\n');
-                    break;
-                }
-                break;
-            }
-            case kTagEndif: // poo coloured
-            {
-                if (gParseLevel) {
-                    gParseLevel--;
-                    rfs.SkipBeyondValue('\n');
-                    break;
-                }
-                else
-                {
-                    rfs.ScriptError("Unexpected Endif");
-                    rfs.SkipBeyondValue('\n');
-                    break;
-                }
-            }
-            case kTagHash: // gold colour
-            {
-                tag = rfs.GetNextTag();
-                if (tag == kTagInclude)
-                {
-                    tag = rfs.GetNextTag();
-                    if (tag != kTagString)
-                    {
-                        rfs.ScriptError("String constant exected");
-                        // why no SkipBeyondValue?
-                        break;
-                    }
-                    else
-                    {
-                        // too dangerous if we want to cumulatively collect all RFS files
-                        //fileSystem.Rehash();
-                        //ParseScript(scriptBuffer);
-                    }
-                }
-                break;
-            }
-            case kTagData: // eg:        data "AMB1.SFX" as 1:	80, 0x10000, 0x0, 1, -1, "amb1";
-            {
-                // green coloured section
-                if (rfs.GetNextTag() != kTagString) {
-                    rfs.ScriptError("String constant expected");
-                    rfs.SkipBeyondValue(';');
-                    break;
-                }
+			while (tag == kTagComma)
+			{
+				tag = rfs.GetNextTag();
 
-                // eg strcpy(fileName, "AMB1.SFX");
-                strcpy(fileName, scriptBuffer);
+				if (tag == kTagPreload) {
+					nFlags |= DICT_LOAD;
+				}
+				else if (tag == kTagPrelock) {
+					nFlags |= DICT_LOCK;
+				}
+				else {
+					rfs.ScriptError("Unrecognized flag");
+					rfs.SkipBeyondValue(';');
+					goto START; // FIXME
+				}
 
-                uint8_t nFlags = 0;
-                int ID = 0;
+				tag = rfs.GetNextTag();
+			}
 
-                bool isDefine = false;
+			if (tag != kTagSemiColon)
+			{
+				rfs.ScriptError("';' expected");
+				rfs.SkipBeyondValue(';');
+				break;
+			}
 
-                tag = rfs.GetNextTag();
+			if (dword_44CE0[gParseLevel] == 0)
+			{
+				// In the RFS files I have seen the outermost directory is not part of what goes into the file system.
+				auto inp1 = strpbrk(inp, "/\\");
+				if (!inp1 || !fileSystem.CreatePathlessCopy(inp1 + 1, ID, nFlags))
+				{
+					// GDX spports this so we should, too.
+					fileSystem.CreatePathlessCopy(inp, ID, nFlags);
+				}
+			}
 
-                // process an ID section
-                if (tag == kTagAs)
-                {
-                    tag = rfs.GetNextTag();
-                    if (tag == kTag4)
-                    {
-                        strcpy(fileName, scriptBuffer);
+			break;
+		}
+		case kTagIfDef: // purplish colour
+		{
+			tag = rfs.GetNextTag();
+			if (tag != kTag4)
+			{
+				rfs.ScriptError("Parameter error in ifdef");
+				rfs.SkipBeyondValue('\n');
+				break;
+			}
+			else
+			{
+				rfs.SetMark();
+				strcpy(char256_1, scriptBuffer);
 
-                        tag = rfs.GetNextTag();
-                        if (tag != kTagEquals) {
-                            rfs.ScriptError("Missing '='");
-                            rfs.SkipBeyondValue(';');
-                            break;
-                        }
+				bool bGotDefine = false;
 
-                        isDefine = true;
-                        tag = rfs.GetNextTag();
-                    }
+				// check if this was defined via command prompt arguments
+				for (int i = 0; i < nCmdDefines; i++)
+				{
+					if (stricmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
+						bGotDefine = true;
+						break;
+					}
+				}
 
-                    if (tag != kTagConstant)
-                    {
-                        rfs.ScriptError("Constant Expected");
-                        rfs.SkipBeyondValue(';');
-                        break;
-                    }
-                    else {
-                        //if (isDefine) {
-                        //    AddDefine(fileName, scriptValue);
-                        //}
+				// loc_11FC3:
+				gParseLevel++;
+				assert(gParseLevel < kMaxParseLevels);
 
-                        ID = scriptValue;
-                        tag = rfs.GetNextTag();
-                    }
-                }
+				if (bGotDefine) {
+					dword_44CE0[gParseLevel] = dword_44CE0[gParseLevel - 1];
+				}
+				else {
+					dword_44CE0[gParseLevel] = 1;
+				}
+			}
+			break;
+		}
+		case kTagElse: // pinky colour
+		{
+			if (gParseLevel)
+			{
+				// loc_12066:
+				if (dword_44CE0[gParseLevel - 1] == 0) {
+					if (dword_44CE0[gParseLevel] == 0) {
+						dword_44CE0[gParseLevel] = 1;
+					}
 
-                if (tag == kTagComma)
-                {
-                    // process all sections on this line that are comma separated
-                    while (1)
-                    {
-                        tag = rfs.GetNextTag();
-                        if (tag == kTagPreload)
-                        {
-                            nFlags |= DICT_LOAD;
-                            tag = rfs.GetNextTag();
+					rfs.SkipBeyondValue('\n');
+					break;
+				}
+			}
+			else {
+				rfs.ScriptError("Unexpected else");
+				rfs.SkipBeyondValue('\n');
+				break;
+			}
+			break;
+		}
+		case kTagEndif: // poo coloured
+		{
+			if (gParseLevel) {
+				gParseLevel--;
+				rfs.SkipBeyondValue('\n');
+				break;
+			}
+			else
+			{
+				rfs.ScriptError("Unexpected Endif");
+				rfs.SkipBeyondValue('\n');
+				break;
+			}
+		}
+		case kTagHash: // gold colour
+		{
+			tag = rfs.GetNextTag();
+			if (tag == kTagInclude)
+			{
+				tag = rfs.GetNextTag();
+				if (tag != kTagString)
+				{
+					rfs.ScriptError("String constant exected");
+					// why no SkipBeyondValue?
+					break;
+				}
+				else
+				{
+					// too dangerous if we want to cumulatively collect all RFS files
+					//fileSystem.Rehash();
+					//ParseScript(scriptBuffer);
+				}
+			}
+			break;
+		}
+		case kTagData: // eg:        data "AMB1.SFX" as 1:	80, 0x10000, 0x0, 1, -1, "amb1";
+		{
+			// green coloured section
+			if (rfs.GetNextTag() != kTagString) {
+				rfs.ScriptError("String constant expected");
+				rfs.SkipBeyondValue(';');
+				break;
+			}
 
-                            if (tag == kTagComma) {
-                                continue;
-                            }
-                        }
-                        else if (tag == kTagPrelock)
-                        {
-                            nFlags |= DICT_LOCK;
-                            tag = rfs.GetNextTag();
+			// eg strcpy(fileName, "AMB1.SFX");
+			strcpy(fileName, scriptBuffer);
 
-                            if (tag == kTagComma) {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            rfs.ScriptError("Unrecognized flag");
-                            rfs.SkipBeyondValue(';');
-                            goto START; // FIXME
-                        }
-                    }
-                }
+			uint8_t nFlags = 0;
+			int ID = 0;
 
-                // loc_12471:
-                if (tag != kTagColon) // marked orange in IDA
-                {
-                while (1)
-                {
-                    if (tag == kTagPreload)
-                    {
-                        nFlags |= DICT_LOAD;
-                        tag = rfs.GetNextTag();
+			bool isDefine = false;
 
-                        if (tag == kTagColon) {
-                            break;
-                        }
-                    }
-                    else if (tag == kTagPrelock)
-                    {
-                        nFlags |= DICT_LOCK;
-                        tag = rfs.GetNextTag();
+			tag = rfs.GetNextTag();
 
-                        if (tag == kTagColon) {
-                            break;
-                        }
-                    }
-                    else {
-                        rfs.ScriptError("':' expected");
-                        rfs.SkipBeyondValue(';');
-                        goto START; // FIXME
-                    }
-                }
-                }
+			// process an ID section
+			if (tag == kTagAs)
+			{
+				tag = rfs.GetNextTag();
+				if (tag == kTag4)
+				{
+					strcpy(fileName, scriptBuffer);
 
-                nBytes = 0;
+					tag = rfs.GetNextTag();
+					if (tag != kTagEquals) {
+						rfs.ScriptError("Missing '='");
+						rfs.SkipBeyondValue(';');
+						break;
+					}
 
-                // yellow loop
-                while (1)
-                {
-                    tag = rfs.GetNextTag();
+					isDefine = true;
+					tag = rfs.GetNextTag();
+				}
 
-                    switch (tag)
-                    {
-                    case kTagString:
-                    {
-                        memcpy(&buffer[nBytes], scriptBuffer, strlen(scriptBuffer) + 1);
-                        nBytes += (int)strlen(scriptBuffer) + 1;
-                        break;
-                    }
-                    case kTagConstant:
-                    {
-                        memcpy(&buffer[nBytes], &scriptValue, sizeof(scriptValue));
-                        nBytes += sizeof(scriptValue);
-                        break;
-                    }
-                    default:
-                    {
-                        rfs.ScriptError("Constant expected");
-                        rfs.SkipBeyondValue(';');
-                        goto START; // FIXME
-                    }
-                    }
+				if (tag != kTagConstant)
+				{
+					rfs.ScriptError("Constant Expected");
+					rfs.SkipBeyondValue(';');
+					break;
+				}
+				else {
+					//if (isDefine) {
+					//    AddDefine(fileName, scriptValue);
+					//}
 
-                    tag = rfs.GetNextTag();
-                    if (tag != kTagComma) {
-                        break;
-                    }
-                }
+					ID = scriptValue;
+					tag = rfs.GetNextTag();
+				}
+			}
 
-                if (tag != kTagSemiColon) {
-                    rfs.ScriptError("Semicolon expected");
-                    rfs.SkipBeyondValue(';');
-                    break;
-                }
-                else
-                {
-                    if (dword_44CE0[gParseLevel] == 0) {
-                        addMemoryResource(fileName, nFlags, ID);
-                    }
-                }
-                break;
-            }
-        }
-    }
+			if (tag == kTagComma)
+			{
+				// process all sections on this line that are comma separated
+				while (1)
+				{
+					tag = rfs.GetNextTag();
+					if (tag == kTagPreload)
+					{
+						nFlags |= DICT_LOAD;
+						tag = rfs.GetNextTag();
 
-    //CreateHeader();
-    rfs.Close();
+						if (tag == kTagComma) {
+							continue;
+						}
+					}
+					else if (tag == kTagPrelock)
+					{
+						nFlags |= DICT_LOCK;
+						tag = rfs.GetNextTag();
+
+						if (tag == kTagComma) {
+							continue;
+						}
+					}
+					else
+					{
+						rfs.ScriptError("Unrecognized flag");
+						rfs.SkipBeyondValue(';');
+						goto START; // FIXME
+					}
+				}
+			}
+
+			// loc_12471:
+			if (tag != kTagColon) // marked orange in IDA
+			{
+				while (1)
+				{
+					if (tag == kTagPreload)
+					{
+						nFlags |= DICT_LOAD;
+						tag = rfs.GetNextTag();
+
+						if (tag == kTagColon) {
+							break;
+						}
+					}
+					else if (tag == kTagPrelock)
+					{
+						nFlags |= DICT_LOCK;
+						tag = rfs.GetNextTag();
+
+						if (tag == kTagColon) {
+							break;
+						}
+					}
+					else {
+						rfs.ScriptError("':' expected");
+						rfs.SkipBeyondValue(';');
+						goto START; // FIXME
+					}
+				}
+			}
+
+			nBytes = 0;
+
+			// yellow loop
+			while (1)
+			{
+				tag = rfs.GetNextTag();
+
+				switch (tag)
+				{
+				case kTagString:
+				{
+					memcpy(&buffer[nBytes], scriptBuffer, strlen(scriptBuffer) + 1);
+					nBytes += (int)strlen(scriptBuffer) + 1;
+					break;
+				}
+				case kTagConstant:
+				{
+					memcpy(&buffer[nBytes], &scriptValue, sizeof(scriptValue));
+					nBytes += sizeof(scriptValue);
+					break;
+				}
+				default:
+				{
+					rfs.ScriptError("Constant expected");
+					rfs.SkipBeyondValue(';');
+					goto START; // FIXME
+				}
+				}
+
+				tag = rfs.GetNextTag();
+				if (tag != kTagComma) {
+					break;
+				}
+			}
+
+			if (tag != kTagSemiColon) {
+				rfs.ScriptError("Semicolon expected");
+				rfs.SkipBeyondValue(';');
+				break;
+			}
+			else
+			{
+				if (dword_44CE0[gParseLevel] == 0) {
+					addMemoryResource(fileName, nFlags, ID);
+				}
+			}
+			break;
+		}
+		}
+	}
+
+	//CreateHeader();
+	rfs.Close();
 }
 
 //---------------------------------------------------------------------------
@@ -989,13 +989,13 @@ void ParseScript(int lumpnum)
 
 void addMemoryResource(char* filePath, char flags, int ID)
 {
-    char zDirectory[BMAX_PATH];
-    char zFilename[BMAX_PATH];
-    char zType[BMAX_PATH];
+	char zDirectory[BMAX_PATH];
+	char zFilename[BMAX_PATH];
+	char zType[BMAX_PATH];
 
-    SplitPath(filePath, zDirectory, zFilename, zType);
+	SplitPath(filePath, zDirectory, zFilename, zType);
 
-    fileSystem.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
+	fileSystem.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
 }
 
 
@@ -1007,17 +1007,17 @@ void addMemoryResource(char* filePath, char flags, int ID)
 
 void ReadAllRFS()
 {
-    bool found = false;
-    auto numf = fileSystem.GetNumEntries();
-    for (int i = 0; i < numf; i++)
-    {
-        auto rl = fileSystem.GetResourceType(i);
-        if (!stricmp(rl, "RFS"))
-        {
-            ParseScript(i);
-            found = true;
-        }
-    }
-    if (found) fileSystem.InitHashChains();
+	bool found = false;
+	auto numf = fileSystem.GetNumEntries();
+	for (int i = 0; i < numf; i++)
+	{
+		auto rl = fileSystem.GetResourceType(i);
+		if (!stricmp(rl, "RFS"))
+		{
+			ParseScript(i);
+			found = true;
+		}
+	}
+	if (found) fileSystem.InitHashChains();
 }
 END_BLD_NS

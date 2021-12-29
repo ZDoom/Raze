@@ -72,7 +72,7 @@ static int GetBucketChannel(EventObject* pBucket)
 	if (pBucket->isActor())
 	{
 		auto pActor = pBucket->actor();
-		return pActor? pActor->xspr.rxID : 0;
+		return pActor ? pActor->xspr.rxID : 0;
 	}
 
 	Printf(PRINT_HIGH, "Unexpected rxBucket %s", pBucket->description().GetChars());
@@ -157,7 +157,7 @@ static void SortRXBucket(int nCount)
 				}
 				break;
 			}
-			EventObject * middle = pArray + nCount / 2;
+			EventObject* middle = pArray + nCount / 2;
 			if (nCount > 29)
 			{
 				EventObject* first = pArray;
@@ -280,7 +280,7 @@ void evInit(TArray<DBloodActor*>& actors)
 	memset(rxBucket, 0, sizeof(rxBucket));
 
 	// add all the tags to the bucket array
-	for(auto& sect: sector)
+	for (auto& sect : sector)
 	{
 		if (sect.hasX() && sect.xs().rxID > 0)
 		{
@@ -290,7 +290,7 @@ void evInit(TArray<DBloodActor*>& actors)
 		}
 	}
 
-	for(auto& wal: wall)
+	for (auto& wal : wall)
 	{
 		if (wal.hasX() && wal.xw().rxID > 0)
 		{
@@ -389,7 +389,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		else viewSetSystemMessage("Invalid Total-Secrets command by %s", eob.description().GetChars());
 		break;
 	case kChannelSecretFound:
-		{
+	{
 		int nIndex = -1;
 		if (eob.isActor() && eob.actor()) nIndex = eob.actor()->GetIndex() + 3 * 65536;	// the hint system needs the sprite index.
 		else if (eob.isSector()) nIndex = eob.rawindex() + 6 * 65536;
@@ -451,28 +451,28 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 	}
 
 #ifdef NOONE_EXTENSIONS
-	if (gModernMap) 
+	if (gModernMap)
 	{
 		// allow to send commands on player sprites
 		PLAYER* pPlayer = NULL;
-		if (playerRXRngIsFine(rxId)) 
+		if (playerRXRngIsFine(rxId))
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
 				trMessageSprite(pPlayer->actor, event);
 		}
-		else if (rxId == kChannelAllPlayers) 
+		else if (rxId == kChannelAllPlayers)
 		{
-			for (int i = 0; i < kMaxPlayers; i++) 
+			for (int i = 0; i < kMaxPlayers; i++)
 			{
 				if ((pPlayer = getPlayerById(i)) != nullptr)
 					trMessageSprite(pPlayer->actor, event);
 			}
-            return;
+			return;
 		}
 
 	}
 #endif
-	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
+	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++)
 	{
 		auto eo = rxBucket[i];
 		if (!event.event_isObject(eo))
@@ -510,13 +510,13 @@ void evPost_(EventObject& eob, unsigned int nDelta, COMMAND_ID command)
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(eob) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(eob) ? kCmdOff : kCmdOn;
-	EVENT evn = {eob, (int8_t)command, 0, PlayClock + (int)nDelta };
+	EVENT evn = { eob, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 void evPost_(const EventObject& eob, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = {eob, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = { eob, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
@@ -649,8 +649,8 @@ void evProcess(unsigned int time)
 			if (event.target.isActor()) trMessageSprite(event.target.actor(), event);
 			else if (event.target.isSector()) trMessageSector(event.target.sector(), event);
 			else if (event.target.isWall()) trMessageWall(event.target.wall(), event);
-			}
 		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -669,21 +669,21 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EventObject& w, Ev
 		{
 		case 0:
 		{
-			DBloodActor* a = arc.isWriting()? w.actor() : nullptr;
+			DBloodActor* a = arc.isWriting() ? w.actor() : nullptr;
 			arc("actor", a);
 			if (arc.isReading()) w = EventObject(a);
 			break;
 		}
 		case 1:
 		{
-			auto s = arc.isWriting()? w.sector() : nullptr;
+			auto s = arc.isWriting() ? w.sector() : nullptr;
 			arc("sector", s);
 			if (arc.isReading()) w = EventObject(s);
 			break;
 		}
 		case 2:
 		{
-			auto s = arc.isWriting()? w.wall() : nullptr;
+			auto s = arc.isWriting() ? w.wall() : nullptr;
 			arc("wall", s);
 			if (arc.isReading()) w = EventObject(s);
 			break;

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-void GameInterface::LevelCompleted(MapRecord *map, int skill)
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
 	// Save the player state before taking down anything.
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
@@ -63,7 +63,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	ShowIntermission(currentLevel, map, &info, [=](bool)
 		{
 			soundEngine->StopAllChannels();
-			gameaction = map? ga_nextlevel : ga_creditsmenu;
+			gameaction = map ? ga_nextlevel : ga_creditsmenu;
 		});
 }
 

@@ -35,7 +35,7 @@ enum
 	kAttrRespawn = 0x0010,
 	kAttrFree = 0x0020,
 	kAttrSmoke = 0x0100, // receives tsprite smoke/steam 
-	};
+};
 
 
 #pragma pack(push, 1)
@@ -44,63 +44,63 @@ struct AISTATE;
 
 
 struct MAPSIGNATURE {
-    char signature[4];
-    int16_t version;
+	char signature[4];
+	int16_t version;
 };
 
-struct MAPHEADER  {
-    int32_t x; // x
-    int32_t y; // y
-    int32_t z; // z
-    int16_t ang; // ang
-    int16_t sect; // sect
-    int16_t pskybits; // pskybits
-    int32_t visibility; // visibility
-    int32_t mattid; // song id, Matt
-    uint8_t parallax; // parallaxtype
-    int32_t revision; // map revision
-    int16_t numsectors; // numsectors
-    int16_t numwalls; // numwalls
-    int16_t numsprites; // numsprites
+struct MAPHEADER {
+	int32_t x; // x
+	int32_t y; // y
+	int32_t z; // z
+	int16_t ang; // ang
+	int16_t sect; // sect
+	int16_t pskybits; // pskybits
+	int32_t visibility; // visibility
+	int32_t mattid; // song id, Matt
+	uint8_t parallax; // parallaxtype
+	int32_t revision; // map revision
+	int16_t numsectors; // numsectors
+	int16_t numwalls; // numwalls
+	int16_t numsprites; // numsprites
 };
 
 struct MAPHEADER2 {
-    char name[64];
-    int numxsprites; // xsprite size
-    int numxwalls; // xwall size
-    int numxsectors; // xsector size
-    uint8_t pad[52];
+	char name[64];
+	int numxsprites; // xsprite size
+	int numxwalls; // xwall size
+	int numxsectors; // xsector size
+	uint8_t pad[52];
 };
 
 #pragma pack(pop)
 
 extern int gVisibility;
-extern const char *gItemText[];
-extern const char *gAmmoText[];
-extern const char *gWeaponText[];
+extern const char* gItemText[];
+extern const char* gAmmoText[];
+extern const char* gWeaponText[];
 extern int gSkyCount;
 
-void GetSpriteExtents(spritetypebase const * const pSprite, int *top, int *bottom)
+void GetSpriteExtents(spritetypebase const* const pSprite, int* top, int* bottom)
 {
-    *top = *bottom = pSprite->pos.Z;
-    if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
-    {
-        int height = tileHeight(pSprite->picnum);
-        int center = height / 2 + tileTopOffset(pSprite->picnum);
-        *top -= (pSprite->yrepeat << 2)*center;
-        *bottom += (pSprite->yrepeat << 2)*(height - center);
-    }
+	*top = *bottom = pSprite->pos.Z;
+	if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
+	{
+		int height = tileHeight(pSprite->picnum);
+		int center = height / 2 + tileTopOffset(pSprite->picnum);
+		*top -= (pSprite->yrepeat << 2) * center;
+		*bottom += (pSprite->yrepeat << 2) * (height - center);
+	}
 }
 
 struct BloodSpawnSpriteDef : public SpawnSpriteDef
 {
-    TArray<XSPRITE> xspr;
+	TArray<XSPRITE> xspr;
 };
 
 DBloodActor* InsertSprite(sectortype* pSector, int nStat);
 int DeleteSprite(DBloodActor* actor);
 
-unsigned int dbReadMapCRC(const char *pPath);
+unsigned int dbReadMapCRC(const char* pPath);
 void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites);
 
 

@@ -39,18 +39,18 @@ class EventObject
 		DBloodActor* ActorP;
 		uint64_t index;
 	};
-	
+
 public:
 	EventObject() = default;
 	explicit EventObject(std::nullptr_t) { index = -1; }
 	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); }
-	explicit EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
+	explicit EventObject(sectortype* sect) { index = (sectnum(sect) << 8) | Sector; }
 	explicit EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
 
-	bool isActor() const { return (index&7) == Actor; }
-	bool isSector() const { return (index&7) == Sector; }
-	bool isWall() const { return (index&7) == Wall; }
-	
+	bool isActor() const { return (index & 7) == Actor; }
+	bool isSector() const { return (index & 7) == Sector; }
+	bool isWall() const { return (index & 7) == Wall; }
+
 	DBloodActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
 	sectortype* sector() { assert(isSector()); return &::sector[index >> 8]; }
 	walltype* wall() { assert(isWall()); return &::wall[index >> 8]; }
@@ -117,50 +117,50 @@ extern EventObject rxBucket[];
 extern unsigned short bucketHead[];
 
 enum COMMAND_ID {
-kCmdOff                     = 0,
-kCmdOn                      = 1,
-kCmdState                   = 2,
-kCmdToggle                  = 3,
-kCmdNotState                = 4,
-kCmdLink                    = 5,
-kCmdLock                    = 6,
-kCmdUnlock                  = 7,
-kCmdToggleLock              = 8,
-kCmdStopOff                 = 9,
-kCmdStopOn                  = 10,
-kCmdStopNext                = 11,
-kCmdCounterSector           = 12,
-kCmdCallback                = 20,
-kCmdRepeat                  = 21,
+	kCmdOff = 0,
+	kCmdOn = 1,
+	kCmdState = 2,
+	kCmdToggle = 3,
+	kCmdNotState = 4,
+	kCmdLink = 5,
+	kCmdLock = 6,
+	kCmdUnlock = 7,
+	kCmdToggleLock = 8,
+	kCmdStopOff = 9,
+	kCmdStopOn = 10,
+	kCmdStopNext = 11,
+	kCmdCounterSector = 12,
+	kCmdCallback = 20,
+	kCmdRepeat = 21,
 
 
-kCmdSpritePush              = 30,
-kCmdSpriteImpact            = 31,
-kCmdSpritePickup            = 32,
-kCmdSpriteTouch             = 33,
-kCmdSpriteSight             = 34,
-kCmdSpriteProximity         = 35,
-kCmdSpriteExplode           = 36,
+	kCmdSpritePush = 30,
+	kCmdSpriteImpact = 31,
+	kCmdSpritePickup = 32,
+	kCmdSpriteTouch = 33,
+	kCmdSpriteSight = 34,
+	kCmdSpriteProximity = 35,
+	kCmdSpriteExplode = 36,
 
-kCmdSectorPush              = 40,
-kCmdSectorImpact            = 41,
-kCmdSectorEnter             = 42,
-kCmdSectorExit              = 43,
+	kCmdSectorPush = 40,
+	kCmdSectorImpact = 41,
+	kCmdSectorEnter = 42,
+	kCmdSectorExit = 43,
 
-kCmdWallPush                = 50,
-kCmdWallImpact              = 51,
-kCmdWallTouch               = 52,
+	kCmdWallPush = 50,
+	kCmdWallImpact = 51,
+	kCmdWallTouch = 52,
 #ifdef NOONE_EXTENSIONS
-kCmdSectorMotionPause       = 13,   // stops motion of the sector
-kCmdSectorMotionContinue    = 14,   // continues motion of the sector
-kCmdDudeFlagsSet            = 15,   // copy dudeFlags from sprite to dude
-kCmdModernUse               = 53,   // used by most of modern types
+	kCmdSectorMotionPause = 13,   // stops motion of the sector
+	kCmdSectorMotionContinue = 14,   // continues motion of the sector
+	kCmdDudeFlagsSet = 15,   // copy dudeFlags from sprite to dude
+	kCmdModernUse = 53,   // used by most of modern types
 #endif
 
-kCmdNumberic                = 64, // 64: 0, 65: 1 and so on up to 255
-kCmdModernFeaturesEnable    = 100, // must be in object with kChannelMapModernize RX / TX
-kCmdModernFeaturesDisable   = 200, // must be in object with kChannelMapModernize RX / TX
-kCmdNumbericMax             = 255,
+	kCmdNumberic = 64, // 64: 0, 65: 1 and so on up to 255
+	kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapModernize RX / TX
+	kCmdModernFeaturesDisable = 200, // must be in object with kChannelMapModernize RX / TX
+	kCmdNumbericMax = 255,
 };
 
 enum SSType
@@ -175,11 +175,11 @@ enum SSType
 };
 
 inline bool playerRXRngIsFine(int rx) {
-    return (rx >= kChannelPlayer0 && rx < kChannelPlayer7);
+	return (rx >= kChannelPlayer0 && rx < kChannelPlayer7);
 }
 
 inline bool channelRangeIsFine(int channel) {
-    return (channel >= kChannelUser && channel < kChannelUserMax);
+	return (channel >= kChannelUser && channel < kChannelUserMax);
 }
 
 struct EVENT
@@ -214,19 +214,19 @@ struct EVENT
 		return target.isWall();
 	}
 
-	DBloodActor* getActor() 
+	DBloodActor* getActor()
 	{
 		assert(isActor());
 		return target.actor();
 	}
 
-	sectortype* getSector() 
+	sectortype* getSector()
 	{
 		assert(isSector());
 		return target.sector();
 	}
 
-	walltype* getWall() 
+	walltype* getWall()
 	{
 		assert(isWall());
 		return target.wall();

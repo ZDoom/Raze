@@ -59,6 +59,12 @@ static struct {
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void drawElement(int x, int y, int tile, double scale = 1, int flipx = 0, int flipy = 0, int pin = 0, int basepal = 0, double alpha = 1)
 {
 	int flags = RS_TOPLEFT;
@@ -66,9 +72,15 @@ static void drawElement(int x, int y, int tile, double scale = 1, int flipx = 0,
 	if (flipy) flags |= RS_YFLIPHUD;
 	if (pin == -1) flags |= RS_ALIGN_L;
 	else if (pin == 1) flags |= RS_ALIGN_R;
-	hud_drawsprite(x, y, int(scale*65536), 0, tile, 0, basepal, flags, alpha);
+	hud_drawsprite(x, y, int(scale * 65536), 0, tile, 0, basepal, flags, alpha);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void viewBurnTime(int gScale)
 {
@@ -86,8 +98,13 @@ static void viewBurnTime(int gScale)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double smoothratio)
+void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
 	double look_anghalf = gView->angle.look_anghalf(smoothratio);
 
@@ -116,7 +133,7 @@ void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, doubl
 		{
 			cY += (-2048. / 128.);
 		}
-		int nShade = pSector->floorshade; 
+		int nShade = pSector->floorshade;
 		int nPalette = 0;
 		if (gView->actor->spr.sector()->hasX()) {
 			sectortype* pViewSect = gView->actor->spr.sector();
