@@ -38,6 +38,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+int gSkyCount;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 {
     auto act = static_cast<DBloodActor*>(::InsertActor(RUNTIME_CLASS(DBloodActor), pSector, nStat));
@@ -59,9 +66,13 @@ int DeleteSprite(DBloodActor* actor)
 
 
 bool gModernMap = false;
-unsigned int gStatCount[kMaxStatus + 1];
-
 int gVisibility;
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void dbCrypt(char *pPtr, int nLength, int nKey)
 {
@@ -72,14 +83,15 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
     }
 }
 
-bool drawtile2048, encrypted;
 
-MAPHEADER2 byte_19AE44;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 unsigned int dbReadMapCRC(const char *pPath)
 {
-    encrypted = 0;
-
     FString mapname = pPath;
     DefaultExtension(mapname, ".map");
     auto fr = fileSystem.OpenFileReader(mapname);
@@ -102,7 +114,6 @@ unsigned int dbReadMapCRC(const char *pPath)
     }
     else if ((ver & 0xff00) == 0x700)
     {
-        encrypted = 1;
     }
     else
     {
@@ -112,15 +123,21 @@ unsigned int dbReadMapCRC(const char *pPath)
     return fr.ReadInt32();
 }
 
-int gMapRev, gMattId, gSkyCount;
-//char byte_19AE44[128];
-const int nXSectorSize = 60;
-const int nXSpriteSize = 56;
-const int nXWallSize = 24;
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** ppSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites)
 {
+    const int nXSectorSize = 60;
+    const int nXSpriteSize = 56;
+    const int nXWallSize = 24;
+
+    MAPHEADER2 xheader;
+    int gMapRev, gMattId;
+
     int16_t tpskyoff[256];
     ClearAutomap();
 #ifdef NOONE_EXTENSIONS
@@ -146,7 +163,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     {
         I_Error("%s: Map file corrupted", mapname.GetChars());
     }
-    encrypted = 0;
+    bool encrypted = 0;
     if ((LittleShort(header.version) & 0xff00) == 0x700) {
         encrypted = 1;
 
@@ -189,15 +206,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     gMattId = mapHeader.mattid;
     if (encrypted)
     {
-        if (mapHeader.mattid == 0x7474614d || mapHeader.mattid == 0x4d617474)
-        {
-            drawtile2048 = 1;
-        }
-        else if (!mapHeader.mattid)
-        {
-            drawtile2048 = 0;
-        }
-        else
+        if (!(mapHeader.mattid == 0x7474614d || mapHeader.mattid == 0x4d617474 || !mapHeader.mattid))
         {
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
@@ -216,16 +225,16 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 
     if (encrypted)
     {
-        fr.Read(&byte_19AE44, 128);
-        dbCrypt((char*)&byte_19AE44, 128, wall.Size());
+        fr.Read(&xheader, 128);
+        dbCrypt((char*)&xheader, 128, wall.Size());
 
-        byte_19AE44.numxsprites = LittleLong(byte_19AE44.numxsprites);
-        byte_19AE44.numxwalls = LittleLong(byte_19AE44.numxwalls);
-        byte_19AE44.numxsectors = LittleLong(byte_19AE44.numxsectors);
+        xheader.numxsprites = LittleLong(xheader.numxsprites);
+        xheader.numxwalls = LittleLong(xheader.numxwalls);
+        xheader.numxsectors = LittleLong(xheader.numxsectors);
     }
     else
     {
-        memset(&byte_19AE44, 0, 128);
+        memset(&xheader, 0, 128);
     }
     gSkyCount = 1 << mapHeader.pskybits;
     fr.Read(tpskyoff, gSkyCount * sizeof(tpskyoff[0]));
@@ -290,7 +299,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             else
             {
-                nCount = byte_19AE44.numxsectors;
+                nCount = xheader.numxsectors;
             }
             assert(nCount <= nXSectorSize);
             fr.Read(pBuffer, nCount);
@@ -415,7 +424,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             else
             {
-                nCount = byte_19AE44.numxwalls;
+                nCount = xheader.numxwalls;
             }
             assert(nCount <= nXWallSize);
             fr.Read(pBuffer, nCount);
@@ -507,7 +516,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             else
             {
-                nCount = byte_19AE44.numxsprites;
+                nCount = xheader.numxsprites;
             }
             assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);
@@ -604,15 +613,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         *pCRC = nCRC;
     if (encrypted)
     {
-        if (gMattId == 0x7474614d || gMattId == 0x4d617474)
-        {
-            drawtile2048 = 1;
-        }
-        else if (!gMattId)
-        {
-            drawtile2048 = 0;
-        }
-        else
+        if (!(gMattId == 0x7474614d || gMattId == 0x4d617474 || !gMattId))
         {
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
@@ -677,7 +678,12 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 
 END_BLD_NS
 
+//---------------------------------------------------------------------------
+//
 // only used by the backup loader.
+//
+//---------------------------------------------------------------------------
+
 void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
 {
     Blood::BloodSpawnSpriteDef sprites;

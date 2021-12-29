@@ -74,14 +74,11 @@ struct MAPHEADER2 {
 
 #pragma pack(pop)
 
-extern bool drawtile2048, encrypted;
-extern MAPHEADER2 byte_19AE44;
-
 extern int gVisibility;
-extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
+extern int gSkyCount;
 
 void GetSpriteExtents(spritetypebase const * const pSprite, int *top, int *bottom)
 {

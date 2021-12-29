@@ -150,16 +150,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
     if (nFx < 0 || nFx >= kFXMax)
         return nullptr;
     FXDATA *pFX = &gFXData[nFx];
-    if (gStatCount[1] == 512)
-    {
-        BloodStatIterator it(kStatFX);
-        auto iactor = it.Next();
-        while (iactor && (iactor->spr.flags & 32))
-            iactor = it.Next();
-        if (!iactor)
-            return nullptr;
-        destroy(iactor);
-    }
+
     auto actor = actSpawnSprite(pSector, x, y, z, 1, 0);
 
     actor->spr.type = nFx;

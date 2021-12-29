@@ -661,7 +661,6 @@ void SerializeState(FSerializer& arc)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			("hitinfo", gHitInfo)
-			.Array("statcount", gStatCount, kMaxStatus + 1)
 			("fogmode", gFogMode)
 #ifdef NOONE_EXTENSIONS
 			("modern", gModernMap)
