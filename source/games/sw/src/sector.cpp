@@ -1121,7 +1121,7 @@ void KillMatchingCrackSprites(short match)
     {
         if (actor->spr.hitag == match)
         {
-            if (TEST(SP_TAG8(actor), BIT(2)))
+            if (SP_TAG8(actor) & (1 << 2))
                 continue;
 
             KillActor(actor);
