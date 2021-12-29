@@ -46,22 +46,22 @@ enum EGameFlag
 };
 
 struct GAMEOPTIONS {
-    uint8_t nGameType;
-    uint8_t nDifficulty;
-    uint8_t nMonsterSettings;
-    int uGameFlags;
-    int uNetGameFlags;
+	uint8_t nGameType;
+	uint8_t nDifficulty;
+	uint8_t nMonsterSettings;
+	int uGameFlags;
+	int uNetGameFlags;
 	uint8_t nWeaponSettings;
 	uint8_t nItemSettings;
 	uint8_t nRespawnSettings;
 	uint8_t nTeamSettings;
-    int nMonsterRespawnTime;
-    int nWeaponRespawnTime;
-    int nItemRespawnTime;
-    int nSpecialRespawnTime;
-    int weaponsV10x;
-    bool bFriendlyFire;
-    bool bKeepKeysOnRespawn;
+	int nMonsterRespawnTime;
+	int nWeaponRespawnTime;
+	int nItemRespawnTime;
+	int nSpecialRespawnTime;
+	int weaponsV10x;
+	bool bFriendlyFire;
+	bool bKeepKeysOnRespawn;
 };
 
 #pragma pack(pop)
@@ -74,9 +74,9 @@ extern bool bINIOverride;
 extern MapRecord* gNextLevel;
 extern bool gGameStarted;
 
-void levelInitINI(const char *pzIni);
-void CheckSectionAbend(const char *pzSection);
-void CheckKeyAbend(const char *pzSection, const char *pzKey);
+void levelInitINI(const char* pzIni);
+void CheckSectionAbend(const char* pzSection);
+void CheckKeyAbend(const char* pzSection, const char* pzKey);
 void levelLoadDefaults(void);
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);

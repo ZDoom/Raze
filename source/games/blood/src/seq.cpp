@@ -351,7 +351,7 @@ void SEQINST::Update()
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
 			if (actor->spr.sector()->upperLink) break; // don't play surface sound for stacked sectors
-			int surf = tileGetSurfType(actor->spr.sector()->floorpicnum); 
+			int surf = tileGetSurfType(actor->spr.sector()->floorpicnum);
 			if (!surf) break;
 			static int surfSfxMove[15][4] = {
 				/* {snd1, snd2, gameVolume, myVolume} */
@@ -704,7 +704,7 @@ void seqProcess(int nTicks)
 							{
 								evKillActor(actor);
 								if ((actor->spr.hitag & kAttrRespawn) != 0 && (actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax))
-								evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+									evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
 								else DeleteSprite(actor);	// safe to not use actPostSprite here
 							}
 						}
@@ -747,8 +747,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 			("timecounter", w.timeCounter)
 			("frameindex", w.frameIndex)
 			("target", w.target);
-			
-			arc.EndObject();
+
+		arc.EndObject();
 	}
 	return arc;
 }

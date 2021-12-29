@@ -39,7 +39,7 @@ BEGIN_BLD_NS
 void validateLinks();
 
 // All AI states for assigning an index.
-static AISTATE* allAIStates[] =
+static AISTATE* const allAIStates[] =
 {
 	nullptr,
 	&genIdle,
@@ -391,6 +391,12 @@ static AISTATE* allAIStates[] =
 	&zombieFTeslaRecoil,
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
 	unsigned i = 0;
@@ -456,6 +462,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 	return arc;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DBloodActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
@@ -464,9 +476,9 @@ void DBloodActor::Serialize(FSerializer& arc)
 		("zvel", zvel)
 		("hasx", hasx);
 
-		// The rest is only relevant if the actor has an xsprite.
+	// The rest is only relevant if the actor has an xsprite.
 	if (hasX())
-		{
+	{
 		arc("xsprite", xspr)
 			("dudeslope", dudeSlope)
 			("dudeextra", dudeExtra)
@@ -476,22 +488,28 @@ void DBloodActor::Serialize(FSerializer& arc)
 			("owneractor", ownerActor);
 
 #ifdef NOONE_EXTENSIONS
-			if (gModernMap)
-			{
+		if (gModernMap)
+		{
 			arc("spritemass", spriteMass)
 				("prevmarker", prevmarker)
 				.Array("conditions", condition, 2);
-				
 
-				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-				if (spr.type == kDudeModernCustom || spr.type == kDudeModernCustomBurning)
-				{
+
+			// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
+			if (spr.type == kDudeModernCustom || spr.type == kDudeModernCustomBurning)
+			{
 				arc("gendudeextra", genDudeExtra);
-				}
 			}
+		}
 #endif
-			}
+	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def)
 {
@@ -519,6 +537,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* d
 	}
 	return arc;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def)
 {
@@ -573,6 +597,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 	return arc;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRITE* def)
 {
 	static XSPRITE nul;
@@ -623,6 +653,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 	return arc;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, GAMEOPTIONS& w, GAMEOPTIONS* def)
 {
 	if (arc.BeginObject(keyname))
@@ -646,6 +682,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GAMEOPTIONS& w, GA
 	}
 	return arc;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SerializeState(FSerializer& arc)
 {
@@ -690,18 +732,24 @@ void SerializeView(FSerializer& arc);
 void SerializeNNExts(FSerializer& arc);
 void SerializeMirrors(FSerializer& arc);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isWriting())
 	{
-		}
+	}
 	else
 	{
 		sndKillAllSounds();
 		sfxKillAllSounds();
 		ambKillAll();
 		seqKillAll();
-		}
+	}
 	SerializeState(arc);
 	SerializeActor(arc);
 	SerializePlayers(arc);

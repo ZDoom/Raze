@@ -32,24 +32,24 @@ unsigned int randSeed = 1;
 
 unsigned int qrand(void)
 {
-    if (randSeed&0x80000000)
-        randSeed = ((randSeed<<1)^0x20000004)|0x1;
-    else
-        randSeed = randSeed<<1;
-    return randSeed&0x7fff;
+	if (randSeed & 0x80000000)
+		randSeed = ((randSeed << 1) ^ 0x20000004) | 0x1;
+	else
+		randSeed = randSeed << 1;
+	return randSeed & 0x7fff;
 }
 
 int wRandSeed = 1;
 
 int wrand(void)
 {
-    wRandSeed = (wRandSeed*1103515245)+12345;
-    return FixedToInt(wRandSeed)&0x7fff;
+	wRandSeed = (wRandSeed * 1103515245) + 12345;
+	return FixedToInt(wRandSeed) & 0x7fff;
 }
 
 void wsrand(int seed)
 {
-    wRandSeed = seed;
+	wRandSeed = seed;
 }
 
 

@@ -36,281 +36,309 @@ void fxPrecache();
 void gibPrecache();
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void tilePrecacheTile(int nTile, int nType, int palette)
 {
-    int n = 1;
-    switch (picanm[nTile].extra & 7)
-    {
-    case 0:
-        n = 1;
-        break;
-    case 1:
-        n = 5;
-        break;
-    case 2:
-        n = 8;
-        break;
-    case 3:
-        n = 2;
-        break;
-    }
-    while (n--)
-    {
-        if (picanm[nTile].sf & PICANM_ANIMTYPE_MASK)
-        {
-            for (int frame = picanm[nTile].num; frame >= 0; frame--)
-            {
-                int tile;
-                if ((picanm[nTile].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-                    tile = nTile - frame;
-                else
-                    tile = nTile + frame;
+	int n = 1;
+	switch (picanm[nTile].extra & 7)
+	{
+	case 0:
+		n = 1;
+		break;
+	case 1:
+		n = 5;
+		break;
+	case 2:
+		n = 8;
+		break;
+	case 3:
+		n = 2;
+		break;
+	}
+	while (n--)
+	{
+		if (picanm[nTile].sf & PICANM_ANIMTYPE_MASK)
+		{
+			for (int frame = picanm[nTile].num; frame >= 0; frame--)
+			{
+				int tile;
+				if ((picanm[nTile].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
+					tile = nTile - frame;
+				else
+					tile = nTile + frame;
 
-                markTileForPrecache(tile, palette);
-            }
-        }
-        else
-        {
-            markTileForPrecache(nTile, palette);
-        }
-        nTile += 1 + picanm[nTile].num;
-    }
+				markTileForPrecache(tile, palette);
+			}
+		}
+		else
+		{
+			markTileForPrecache(nTile, palette);
+		}
+		nTile += 1 + picanm[nTile].num;
+	}
 }
 
 
 // To do: This needs to handle the sprite palettes as well to properly precache the needed content.
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void viewPrecacheTiles()
 {
-    tilePrecacheTile(2173, 0, 0);
-    tilePrecacheTile(2200, 0, 0);
-    tilePrecacheTile(2201, 0, 0);
-    tilePrecacheTile(2202, 0, 0);
-    tilePrecacheTile(2207, 0, 0);
-    tilePrecacheTile(2208, 0, 0);
-    tilePrecacheTile(2209, 0, 0);
-    tilePrecacheTile(2229, 0, 0);
-    tilePrecacheTile(2260, 0, 0);
-    tilePrecacheTile(2559, 0, 0);
-    tilePrecacheTile(2169, 0, 0);
-    tilePrecacheTile(2578, 0, 0);
-    tilePrecacheTile(2586, 0, 0);
-    tilePrecacheTile(2602, 0, 0);
-    for (int i = 0; i < 10; i++)
-    {
-        tilePrecacheTile(2190 + i, 0, 0);
-        tilePrecacheTile(2230 + i, 0, 0);
-        tilePrecacheTile(2240 + i, 0, 0);
-        tilePrecacheTile(2250 + i, 0, 0);
-        tilePrecacheTile(kSBarNumberHealth + i, 0, 0);
-        tilePrecacheTile(kSBarNumberAmmo + i, 0, 0);
-        tilePrecacheTile(kSBarNumberInv + i, 0, 0);
-        tilePrecacheTile(kSBarNumberArmor1 + i, 0, 0);
-        tilePrecacheTile(kSBarNumberArmor2 + i, 0, 0);
-        tilePrecacheTile(kSBarNumberArmor3 + i, 0, 0);
-    }
-    /*
-    for (int i = 0; i < 5; i++)
-    {
-        tilePrecacheTile(gPackIcons[i], 0);
-        tilePrecacheTile(gPackIcons2[i].nTile, 0);
-    }
-    */
-    for (int i = 0; i < 6; i++)
-    {
-        tilePrecacheTile(2220 + i, 0, 0);
-        tilePrecacheTile(2552 + i, 0, 0);
-    }
+	tilePrecacheTile(2173, 0, 0);
+	tilePrecacheTile(2200, 0, 0);
+	tilePrecacheTile(2201, 0, 0);
+	tilePrecacheTile(2202, 0, 0);
+	tilePrecacheTile(2207, 0, 0);
+	tilePrecacheTile(2208, 0, 0);
+	tilePrecacheTile(2209, 0, 0);
+	tilePrecacheTile(2229, 0, 0);
+	tilePrecacheTile(2260, 0, 0);
+	tilePrecacheTile(2559, 0, 0);
+	tilePrecacheTile(2169, 0, 0);
+	tilePrecacheTile(2578, 0, 0);
+	tilePrecacheTile(2586, 0, 0);
+	tilePrecacheTile(2602, 0, 0);
+	for (int i = 0; i < 10; i++)
+	{
+		tilePrecacheTile(2190 + i, 0, 0);
+		tilePrecacheTile(2230 + i, 0, 0);
+		tilePrecacheTile(2240 + i, 0, 0);
+		tilePrecacheTile(2250 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberHealth + i, 0, 0);
+		tilePrecacheTile(kSBarNumberAmmo + i, 0, 0);
+		tilePrecacheTile(kSBarNumberInv + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor1 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor2 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor3 + i, 0, 0);
+	}
+	/*
+	for (int i = 0; i < 5; i++)
+	{
+		tilePrecacheTile(gPackIcons[i], 0);
+		tilePrecacheTile(gPackIcons2[i].nTile, 0);
+	}
+	*/
+	for (int i = 0; i < 6; i++)
+	{
+		tilePrecacheTile(2220 + i, 0, 0);
+		tilePrecacheTile(2552 + i, 0, 0);
+	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-
-void PrecacheDude(DBloodActor *actor)
+void PrecacheDude(DBloodActor* actor)
 {
-    int palette = actor->spr.pal;
-    DUDEINFO *pDudeInfo = getDudeInfo(actor->spr.type);
-    seqPrecacheId(pDudeInfo->seqStartID  , palette);
-    seqPrecacheId(pDudeInfo->seqStartID+5, palette);
-    seqPrecacheId(pDudeInfo->seqStartID+1, palette);
-    seqPrecacheId(pDudeInfo->seqStartID+2, palette);
-    switch (actor->spr.type)
-    {
-    case kDudeCultistTommy:
-    case kDudeCultistShotgun:
-    case kDudeCultistTesla:
-    case kDudeCultistTNT:
-        seqPrecacheId(pDudeInfo->seqStartID+6 , palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7 , palette);
-        seqPrecacheId(pDudeInfo->seqStartID+8 , palette);
-        seqPrecacheId(pDudeInfo->seqStartID+9 , palette);
-        seqPrecacheId(pDudeInfo->seqStartID+13, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+14, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+15, palette);
-        break;
-    case kDudeZombieButcher:
-    case kDudeGillBeast:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+10, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+11, palette);
-        break;
-    case kDudeGargoyleStatueFlesh:
-    case kDudeGargoyleStatueStone:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette); //???
-        [[fallthrough]];
-    case kDudeGargoyleFlesh:
-    case kDudeGargoyleStone:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
-        break;
-    case kDudePhantasm:
-    case kDudeHellHound:
-    case kDudeSpiderBrown:
-    case kDudeSpiderRed:
-    case kDudeSpiderBlack:
-    case kDudeSpiderMother:
-    case kDudeTchernobog:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
-        break;
-    case kDudeCerberusTwoHead:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        [[fallthrough]];
-    case kDudeHand:
-    case kDudeBoneEel:
-    case kDudeBat:
-    case kDudeRat:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        break;
-    case kDudeCultistBeast:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        break;
-    case kDudeZombieAxeBuried:
-        seqPrecacheId(pDudeInfo->seqStartID+12, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
-        [[fallthrough]];
-    case kDudeZombieAxeLaying:
-        seqPrecacheId(pDudeInfo->seqStartID+10, palette);
-        [[fallthrough]];
-    case kDudeZombieAxeNormal:
-        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+11, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+13, palette);
-        seqPrecacheId(pDudeInfo->seqStartID+14, palette);
-        break;
-    }
+	int palette = actor->spr.pal;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	seqPrecacheId(pDudeInfo->seqStartID, palette);
+	seqPrecacheId(pDudeInfo->seqStartID + 5, palette);
+	seqPrecacheId(pDudeInfo->seqStartID + 1, palette);
+	seqPrecacheId(pDudeInfo->seqStartID + 2, palette);
+	switch (actor->spr.type)
+	{
+	case kDudeCultistTommy:
+	case kDudeCultistShotgun:
+	case kDudeCultistTesla:
+	case kDudeCultistTNT:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 13, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 14, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 15, palette);
+		break;
+	case kDudeZombieButcher:
+	case kDudeGillBeast:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 10, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 11, palette);
+		break;
+	case kDudeGargoyleStatueFlesh:
+	case kDudeGargoyleStatueStone:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette); //???
+		[[fallthrough]];
+	case kDudeGargoyleFlesh:
+	case kDudeGargoyleStone:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		break;
+	case kDudePhantasm:
+	case kDudeHellHound:
+	case kDudeSpiderBrown:
+	case kDudeSpiderRed:
+	case kDudeSpiderBlack:
+	case kDudeSpiderMother:
+	case kDudeTchernobog:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		break;
+	case kDudeCerberusTwoHead:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		[[fallthrough]];
+	case kDudeHand:
+	case kDudeBoneEel:
+	case kDudeBat:
+	case kDudeRat:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		break;
+	case kDudeCultistBeast:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		break;
+	case kDudeZombieAxeBuried:
+		seqPrecacheId(pDudeInfo->seqStartID + 12, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		[[fallthrough]];
+	case kDudeZombieAxeLaying:
+		seqPrecacheId(pDudeInfo->seqStartID + 10, palette);
+		[[fallthrough]];
+	case kDudeZombieAxeNormal:
+		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 11, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 13, palette);
+		seqPrecacheId(pDudeInfo->seqStartID + 14, palette);
+		break;
+	}
 }
 
-void PrecacheThing(DBloodActor* actor) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void PrecacheThing(DBloodActor* actor)
 {
-    int palette = actor->spr.pal;
-    switch (actor->spr.type) {
-        case kThingGlassWindow: // worthless...
-        case kThingFluorescent:
-            seqPrecacheId(12, palette);
-            break;
-        case kThingSpiderWeb:
-            seqPrecacheId(15, palette);
-            break;
-        case kThingMetalGrate:
-            seqPrecacheId(21, palette);
-            break;
-        case kThingFlammableTree:
-            seqPrecacheId(25, palette);
-            seqPrecacheId(26, palette);
-            break;
-        case kTrapMachinegun:
-            seqPrecacheId(38, palette);
-            seqPrecacheId(40, palette);
-            seqPrecacheId(28, palette);
-            break;
-        case kThingObjectGib:
-        //case kThingObjectExplode: weird that only gib object is precached and this one is not
-            break;
-    }
-    tilePrecacheTile(actor->spr.picnum, -1, palette);
+	int palette = actor->spr.pal;
+	switch (actor->spr.type) {
+	case kThingGlassWindow: // worthless...
+	case kThingFluorescent:
+		seqPrecacheId(12, palette);
+		break;
+	case kThingSpiderWeb:
+		seqPrecacheId(15, palette);
+		break;
+	case kThingMetalGrate:
+		seqPrecacheId(21, palette);
+		break;
+	case kThingFlammableTree:
+		seqPrecacheId(25, palette);
+		seqPrecacheId(26, palette);
+		break;
+	case kTrapMachinegun:
+		seqPrecacheId(38, palette);
+		seqPrecacheId(40, palette);
+		seqPrecacheId(28, palette);
+		break;
+	case kThingObjectGib:
+		//case kThingObjectExplode: weird that only gib object is precached and this one is not
+		break;
+	}
+	tilePrecacheTile(actor->spr.picnum, -1, palette);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PreloadCache()
 {
-    if (!r_precache) return;
-    int skyTile = -1;
-    // Fonts
-    for(auto& sect: sector)
-    {
-        tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
-        tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
-        if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
-            skyTile = sect.ceilingpicnum;
-    }
-    for(auto& wal : wall)
-    {
-        tilePrecacheTile(wal.picnum, 0, wal.pal);
-        if (wal.overpicnum >= 0)
-            tilePrecacheTile(wal.overpicnum, 0, wal.pal);
-    }
-    BloodSpriteIterator it;
-    while (auto actor = it.Next())
-    {
-        switch (actor->spr.statnum)
-        {
-        case kStatDude:
-            PrecacheDude(actor);
-            break;
-        case kStatThing:
-            PrecacheThing(actor);
-            break;
-        default:
-            tilePrecacheTile(actor->spr.picnum, -1, actor->spr.pal);
-            break;
-        }
-    }
+	if (!r_precache) return;
+	int skyTile = -1;
+	// Fonts
+	for (auto& sect : sector)
+	{
+		tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
+		tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
+		if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
+			skyTile = sect.ceilingpicnum;
+	}
+	for (auto& wal : wall)
+	{
+		tilePrecacheTile(wal.picnum, 0, wal.pal);
+		if (wal.overpicnum >= 0)
+			tilePrecacheTile(wal.overpicnum, 0, wal.pal);
+	}
+	BloodSpriteIterator it;
+	while (auto actor = it.Next())
+	{
+		switch (actor->spr.statnum)
+		{
+		case kStatDude:
+			PrecacheDude(actor);
+			break;
+		case kStatThing:
+			PrecacheThing(actor);
+			break;
+		default:
+			tilePrecacheTile(actor->spr.picnum, -1, actor->spr.pal);
+			break;
+		}
+	}
 
-    // Precache common SEQs
-    for (int i = 0; i < 100; i++)
-    {
-        seqPrecacheId(i, 0);
-    }
+	// Precache common SEQs
+	for (int i = 0; i < 100; i++)
+	{
+		seqPrecacheId(i, 0);
+	}
 
-    tilePrecacheTile(1147, -1, 0); // water drip
-    tilePrecacheTile(1160, -1, 0); // blood drip
+	tilePrecacheTile(1147, -1, 0); // water drip
+	tilePrecacheTile(1160, -1, 0); // blood drip
 
-    // Player SEQs
-    seqPrecacheId(dudeInfo[31].seqStartID+6, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+7, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+8, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+9, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+10, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+14, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+15, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+12, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+16, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+17, 0);
-    seqPrecacheId(dudeInfo[31].seqStartID+18, 0);
+	// Player SEQs
+	seqPrecacheId(dudeInfo[31].seqStartID + 6, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 7, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 8, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 9, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 10, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 14, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 15, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 12, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 16, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 17, 0);
+	seqPrecacheId(dudeInfo[31].seqStartID + 18, 0);
 
-    if (skyTile > -1 && skyTile < kMaxTiles)
-    {
-        for (int i = 1; i < gSkyCount; i++)
-            tilePrecacheTile(skyTile+i, 0, 0);
-    }
+	if (skyTile > -1 && skyTile < kMaxTiles)
+	{
+		for (int i = 1; i < gSkyCount; i++)
+			tilePrecacheTile(skyTile + i, 0, 0);
+	}
 
-    WeaponPrecache();
-    viewPrecacheTiles();
-    fxPrecache();
-    gibPrecache();
+	WeaponPrecache();
+	viewPrecacheTiles();
+	fxPrecache();
+	gibPrecache();
 
-    I_GetEvent();
-    precacheMarkedTiles();
+	I_GetEvent();
+	precacheMarkedTiles();
 }
 
 END_BLD_NS

@@ -32,26 +32,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 enum BUSYID {
-    BUSYID_0 = 0,
-    BUSYID_1,
-    BUSYID_2,
-    BUSYID_3,
-    BUSYID_4,
-    BUSYID_5,
-    BUSYID_6,
-    BUSYID_7,
+	BUSYID_0 = 0,
+	BUSYID_1,
+	BUSYID_2,
+	BUSYID_3,
+	BUSYID_4,
+	BUSYID_5,
+	BUSYID_6,
+	BUSYID_7,
 };
 
 struct BUSY {
-    sectortype* sect;
-    int delta;
-    int busy;
-    int/*BUSYID*/ type;
+	sectortype* sect;
+	int delta;
+	int busy;
+	int/*BUSYID*/ type;
 };
 
 extern TArray<BUSY> gBusy;
 
-void trTriggerSector(sectortype *pSector, int command);
+void trTriggerSector(sectortype* pSector, int command);
 void trMessageSector(sectortype* pSector, EVENT event);
 void trTriggerWall(walltype*, int command);
 void trMessageWall(walltype* pWall, EVENT& event);

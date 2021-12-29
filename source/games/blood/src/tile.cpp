@@ -42,6 +42,12 @@ uint8_t surfType[kMaxTiles];
 int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::LoadGameTextures()
 {
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
@@ -70,6 +76,12 @@ void GameInterface::LoadGameTextures()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int tileGetSurfType(int hit)
 {
     return surfType[hit];
@@ -89,6 +101,12 @@ int tileGetSurfType(CollisionBase& hit)
         return surfType[hit.hitActor->spr.picnum];
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::SetTileProps(int tile, int surf, int vox, int shade)
 {

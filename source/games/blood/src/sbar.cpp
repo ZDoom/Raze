@@ -43,45 +43,57 @@ CVAR(Bool, hud_ctf_vanilla, false, CVAR_ARCHIVE)
 
 BEGIN_BLD_NS
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void UpdateFrame(void)
 {
-    auto tex = tileGetTexture(kBackTile);
-    int width = twod->GetWidth();
-    int height = twod->GetHeight();
+	auto tex = tileGetTexture(kBackTile);
+	int width = twod->GetWidth();
+	int height = twod->GetHeight();
 
-    twod->AddFlatFill(0, 0, width, windowxy1.Y - 3, tex);
-    twod->AddFlatFill(0, windowxy2.Y + 4, width, height, tex);
-    twod->AddFlatFill(0, windowxy1.Y - 3, windowxy1.X - 3, windowxy2.Y + 4, tex);
-    twod->AddFlatFill(windowxy2.X + 4, windowxy1.Y - 3, width, windowxy2.Y + 4, tex);
+	twod->AddFlatFill(0, 0, width, windowxy1.Y - 3, tex);
+	twod->AddFlatFill(0, windowxy2.Y + 4, width, height, tex);
+	twod->AddFlatFill(0, windowxy1.Y - 3, windowxy1.X - 3, windowxy2.Y + 4, tex);
+	twod->AddFlatFill(windowxy2.X + 4, windowxy1.Y - 3, width, windowxy2.Y + 4, tex);
 
-    twod->AddFlatFill(windowxy1.X - 3, windowxy1.Y - 3, windowxy1.X, windowxy2.Y + 1, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(windowxy1.X, windowxy1.Y - 3, windowxy2.X + 4, windowxy1.Y, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(windowxy2.X + 1, windowxy1.Y, windowxy2.X + 4, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
-    twod->AddFlatFill(windowxy1.X - 3, windowxy2.Y + 1, windowxy2.X + 1, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
+	twod->AddFlatFill(windowxy1.X - 3, windowxy1.Y - 3, windowxy1.X, windowxy2.Y + 1, tex, 0, 1, 0xff545454);
+	twod->AddFlatFill(windowxy1.X, windowxy1.Y - 3, windowxy2.X + 4, windowxy1.Y, tex, 0, 1, 0xff545454);
+	twod->AddFlatFill(windowxy2.X + 1, windowxy1.Y, windowxy2.X + 4, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
+	twod->AddFlatFill(windowxy1.X - 3, windowxy2.Y + 1, windowxy2.X + 1, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void UpdateStatusBar()
 {
-    if (automapMode == am_off && hud_size <= Hud_Stbar)
-    {
-        UpdateFrame();
-    }
-    SummaryInfo sum;
-    if (gGameOptions.nGameType == 3)
-    {
-        sum.kills = gView ? gView->fragCount : 0;
-        sum.maxkills = -3;
-    }
-    else
-    {
-        sum.kills = gKillMgr.Kills;
-        sum.maxkills = gKillMgr.TotalKills;
-    }
-    sum.secrets = gSecretMgr.Founds;
-    sum.supersecrets = gSecretMgr.Super;
-    sum.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
-    sum.time = Scale(PlayClock, 1000, 120);
-    UpdateStatusBar(&sum);
+	if (automapMode == am_off && hud_size <= Hud_Stbar)
+	{
+		UpdateFrame();
+	}
+	SummaryInfo sum;
+	if (gGameOptions.nGameType == 3)
+	{
+		sum.kills = gView ? gView->fragCount : 0;
+		sum.maxkills = -3;
+	}
+	else
+	{
+		sum.kills = gKillMgr.Kills;
+		sum.maxkills = gKillMgr.TotalKills;
+	}
+	sum.secrets = gSecretMgr.Founds;
+	sum.supersecrets = gSecretMgr.Super;
+	sum.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
+	sum.time = Scale(PlayClock, 1000, 120);
+	UpdateStatusBar(&sum);
 }
 
 
