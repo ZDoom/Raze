@@ -3652,7 +3652,13 @@ bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
         case 30: return Chance((0x10000 * arg3) / kPercFull);                                   // check chance
         case 31: return condCmp(nnExtRandom(arg1, arg2), arg1, arg2, cmpOp);
         /*----------------------------------------------------------------------------------------------------------------------------------*/
-        case 47: return condCmp(gStatCount[ClipRange(arg3, 0, kMaxStatus)], arg1, arg2, cmpOp); // compare counter of specific statnum sprites
+        case 47: 
+        {
+            BloodStatIterator it(ClipRange(arg3, 0, kMaxStatus));
+            int c = 0;
+            while (it.Next()) c++;
+            return condCmp(c, arg1, arg2, cmpOp); // compare counter of specific statnum sprites
+        }
         case 48: return condCmp(Numsprites, arg1, arg2, cmpOp);                                 // compare counter of total sprites
     }
 
