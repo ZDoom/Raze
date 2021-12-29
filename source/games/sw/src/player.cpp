@@ -1170,7 +1170,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (skip_targets != 2) // Used for spriteinfo mode
             {
                 // don't set off mine
-                if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+                if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                     continue;
             }
 
@@ -1575,7 +1575,7 @@ void SlipSlope(PLAYERp pp)
 
     auto sectu = pp->cursector;
 
-    if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE))
+    if (!(sectu->flags & SECTFU_SLIDE_SECTOR) || !(pp->cursector->floorstat & CSTAT_SECTOR_SLOPE))
         return;
 
     ang = getangle(pp->cursector->firstWall()->delta());
@@ -2019,7 +2019,7 @@ void DoPlayerMove(PLAYERp pp)
     pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
     friction = pp->friction;
-    if (!TEST(pp->Flags, PF_SWIMMING) && pp->WadeDepth)
+    if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
     {
         friction -= pp->WadeDepth * 100L;
     }
@@ -2388,7 +2388,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 
             if (TEST(actor->spr.extra, SPRX_PLAYER_OR_ENEMY))
             {
-                if (!TEST(actor->user.Flags, SPR_DEAD) && !TEST(actor->spr.extra, SPRX_BREAKABLE))
+                if (!(actor->user.Flags & SPR_DEAD) && !(actor->spr.extra & SPRX_BREAKABLE))
                     continue;
             }
 
@@ -2516,7 +2516,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     int j,k;
     short startwall,endwall;
 
-    bool RectClip = !!TEST(sop->flags, SOBJ_RECT_CLIP);
+    bool RectClip = !!(sop->flags & SOBJ_RECT_CLIP);
 
     if (Prediction)
         return;
@@ -2636,7 +2636,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     VehicleMoveHit(actor);
                 }
 
-                if (!TEST(sop->flags, SOBJ_NO_QUAKE))
+                if (!(sop->flags & SOBJ_NO_QUAKE))
                 {
                     SetPlayerQuake(pp);
                 }
@@ -2686,7 +2686,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                 VehicleMoveHit(actor);
                 pp->slide_xvect = -pp->xvect<<1;
                 pp->slide_yvect = -pp->yvect<<1;
-                if (!TEST(sop->flags, SOBJ_NO_QUAKE))
+                if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
             }
 
@@ -3488,7 +3488,7 @@ void DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (!TEST(pp->Flags, PF_PLAYER_MOVED))
+    if (!(pp->Flags & PF_PLAYER_MOVED))
     {
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
     }
@@ -3700,7 +3700,7 @@ bool PlayerOnLadder(PLAYERp pp)
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
             if (TEST(cstat, CSTAT_SPRITE_BLOCK) &&
-                !TEST(cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+                !(cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 return false;
             }
@@ -4137,7 +4137,7 @@ void DoPlayerDivePalette(PLAYERp pp)
 {
     if (pp != Player + screenpeek) return;
 
-    if ((pp->DeathType == PLAYER_DEATH_DROWN || TEST((Player+screenpeek)->Flags, PF_DIVING)) && !TEST(pp->Flags, PF_DIVING_IN_LAVA))
+    if ((pp->DeathType == PLAYER_DEATH_DROWN || TEST((Player+screenpeek)->Flags, PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
     {
         SetFadeAmt(pp,-1005,210); // Dive color , org color 208
     }
@@ -5831,7 +5831,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
                 break;
 
             // don't set off mine
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, plActor->spr.pos.X, plActor->spr.pos.Y, dist, a, b, c);
@@ -5887,7 +5887,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
             auto hitActor = plActor->user.coll.actor();
 
-            if (!TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (!(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
                 break;
 
 
@@ -6061,7 +6061,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 
         if (!TEST(pp->Flags,PF_JUMPING|PF_FALLING))
         {
-            if (!TEST(plActor->user.Flags, SPR_BOUNCE))
+            if (!(plActor->user.Flags & SPR_BOUNCE))
             {
                 DoPlayerDeathBounce(pp);
                 return;
@@ -6113,7 +6113,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
 
         if (!TEST(pp->Flags,PF_JUMPING|PF_FALLING))
         {
-            if (!TEST(plActor->user.Flags, SPR_BOUNCE))
+            if (!(plActor->user.Flags & SPR_BOUNCE))
             {
                 DoPlayerDeathBounce(pp);
                 return;
@@ -6491,7 +6491,7 @@ void PlayerGlobal(PLAYERp pp)
     if (pp->Flags & (PF_RECOIL))
         DoPlayerRecoil(pp);
 
-    if (!TEST(pp->Flags, PF_CLIP_CHEAT))
+    if (!(pp->Flags & PF_CLIP_CHEAT))
     {
         if (pp->hi_sectp && pp->lo_sectp)
         {

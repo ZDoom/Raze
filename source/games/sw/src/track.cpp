@@ -135,7 +135,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         tp = t->TrackPoint;
 
         // Skip if high tag is not ONE of the track type we are looking for
-        if (!TEST(t->ttflags, track_type))
+        if (!(t->ttflags & track_type))
             continue;
 
         // Skip if already someone on this track
@@ -905,7 +905,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 so_setspriteinterpolation(sop, itActor);
 
 
-                if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
+                if (!(sop->flags & SOBJ_SPRITE_OBJ))
                 {
                     // determine if sprite is on a SO sector - set flag if
                     // true
@@ -1519,7 +1519,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // if player has NOT moved and player is NOT riding
     // set up the player for riding
-    if (!TEST(pp->Flags, PF_PLAYER_MOVED) && !TEST(pp->Flags, PF_PLAYER_RIDING))
+    if (!(pp->Flags & PF_PLAYER_MOVED) && !(pp->Flags & PF_PLAYER_RIDING))
     {
         pp->Flags |= (PF_PLAYER_RIDING);
 
@@ -1686,7 +1686,7 @@ PlayerPart:
         if (!actor) continue;
 
         // if its a player sprite || NOT attached
-        if (!actor->hasU() || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        if (!actor->hasU() || actor->user.PlayerP || !(actor->user.Flags & SPR_SO_ATTACHED))
             continue;
 
         // move the player
@@ -1752,7 +1752,7 @@ PlayerPart:
         }
         else
         {
-            if (!TEST(sop->flags, SOBJ_DONT_ROTATE))
+            if (!(sop->flags & SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
                 rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, delta_ang, &actor->spr.pos.vec2);
@@ -1831,7 +1831,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
     int j;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
+        if (!(sop->flags & SOBJ_SPRITE_OBJ))
         {
             // move all walls in sectors back to the original position
             for (auto& wal : wallsofsector(*sectp))
@@ -1843,7 +1843,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 
                     if (dynamic && sop->scale_type)
                     {
-                        if (!TEST(wal.extra, WALLFX_DONT_SCALE))
+                        if (!(wal.extra & WALLFX_DONT_SCALE))
                         {
                             ang = NORM_ANGLE(getangle(x - sop->xmid, y - sop->ymid));
 
@@ -2004,7 +2004,7 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
     // move all points to nx,ny
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
+        if (!(sop->flags & SOBJ_SPRITE_OBJ))
         {
             // move all walls in sectors back to the original position
             for (auto& wal : wallsofsector(*sectp))
@@ -2138,7 +2138,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     SWSectIterator it(destsect);
     while (auto actor = it.Next())
     {
-        if (!actor->hasU() || actor->user.PlayerP || !TEST(actor->user.Flags, SPR_SO_ATTACHED))
+        if (!actor->hasU() || actor->user.PlayerP || !(actor->user.Flags & SPR_SO_ATTACHED))
             continue;
 
         // move sprite WAY down in water
@@ -2567,7 +2567,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
     }
 
     // calculate a new x and y
-    if (sop->vel && !TEST(sop->flags,SOBJ_MOVE_VERTICAL))
+    if (sop->vel && !(sop->flags & SOBJ_MOVE_VERTICAL))
     {
         *nx = ((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14;
         *ny = ((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14;

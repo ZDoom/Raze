@@ -49,7 +49,7 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
     if (Prediction)
         return false;
 
-    if (sect== nullptr || !TEST(sect->extra, SECTFX_WARP_SECTOR))
+    if (sect== nullptr || !(sect->extra & SECTFX_WARP_SECTOR))
         return false;
 
     SWStatIterator it(STAT_WARP);
@@ -205,7 +205,7 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
 {
     *sp_warp = nullptr;
 
-    if (!sect || !TEST(sect->extra, SECTFX_WARP_SECTOR))
+    if (!sect || !(sect->extra & SECTFX_WARP_SECTOR))
         return false;
 
     SWStatIterator it(STAT_WARP);

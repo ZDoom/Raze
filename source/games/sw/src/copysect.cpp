@@ -136,7 +136,7 @@ void CopySectorMatch(int match)
                 while (auto itActor = itsec.Next())
                 {
                     // kill anything not invisible
-                    if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                    if (!(itActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                     {
                         if (itActor->hasU())
                         {

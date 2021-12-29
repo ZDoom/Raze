@@ -456,7 +456,7 @@ JS_ProcessEchoSpot()
             reverb_set = true;
         }
     }
-    if (!TEST(pp->Flags, PF_DIVING) && !reverb_set && pp->Reverb <= 0)
+    if (!(pp->Flags & PF_DIVING) && !reverb_set && pp->Reverb <= 0)
         COVER_SetReverb(0);
 }
 

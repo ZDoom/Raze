@@ -1613,7 +1613,7 @@ int InitActorReposition(DSWActor* actor)
 
 
     actor->user.ActorActionFunc = DoActorReposition;
-    if (!TEST(actor->user.Flags, SPR_SWIMMING))
+    if (!(actor->user.Flags & SPR_SWIMMING))
         NewStateGroup(actor, actor->user.ActorActionSet->Run);
 
     (*actor->user.ActorActionFunc)(actor);

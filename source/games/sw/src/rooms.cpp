@@ -196,7 +196,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
         if (abs(hit.hitpos.Z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectFloor(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z + Z(12), &newsector);
                 plax_found = true;
@@ -204,7 +204,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         }
         else if (labs(hit.hitpos.Z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectCeiling(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z - Z(12), &newsector);
                 plax_found = true;
@@ -301,7 +301,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
 
 int GetZadjustment(sectortype* sect, short hitag)
 {
-    if (sect == nullptr || !TEST(sect->extra, SECTFX_Z_ADJUST))
+    if (sect == nullptr || !(sect->extra & SECTFX_Z_ADJUST))
         return 0;
 
     SWStatIterator it(STAT_ST1);
@@ -354,7 +354,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
                 break;
             }
 
-            if (!TEST(hit_sector->extra, SECTFX_Z_ADJUST))
+            if (!(hit_sector->extra & SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
@@ -404,7 +404,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
                 break;
             }
 
-            if (!TEST(hit_sector->extra, SECTFX_Z_ADJUST))
+            if (!(hit_sector->extra & SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
@@ -484,7 +484,7 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
         getzrange(npos, uppersect, hiz,  *ceilhit, &foo1, foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
+    else if (FAF_ConnectFloor(sect) && !(sect->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
     {
         auto lowersect = sect;
         int newz = *loz + Z(2);
@@ -544,7 +544,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
+    else if (FAF_ConnectFloor(sect) && !(sect->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
     {
         auto lowersect = sect;
         int newz = *loz + Z(2);

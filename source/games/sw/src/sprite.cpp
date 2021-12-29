@@ -5875,7 +5875,7 @@ void ProcessActiveVars(DSWActor* actor)
 {
     const int TIME_TILL_INACTIVE = (4 * 120);
 
-    if (!TEST(actor->user.Flags, SPR_ACTIVE))
+    if (!(actor->user.Flags & SPR_ACTIVE))
     {
         // if actor has been unaware for more than a few seconds
         actor->user.inactive_time += ACTORMOVETICS;
@@ -6151,7 +6151,7 @@ void SpriteControl(void)
                 continue;
         }
 
-        if (!TEST(actor->user.Flags, SPR_ACTIVE))
+        if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
         actor->user.ActorActionFunc(actor);
@@ -6168,7 +6168,7 @@ void SpriteControl(void)
                 continue;
         }
 
-        if (!TEST(actor->user.Flags, SPR_ACTIVE))
+        if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
         actor->user.ActorActionFunc(actor);
@@ -6185,7 +6185,7 @@ void SpriteControl(void)
                 continue;
         }
 
-        if (!TEST(actor->user.Flags, SPR_ACTIVE))
+        if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
         actor->user.ActorActionFunc(actor);
@@ -6202,7 +6202,7 @@ void SpriteControl(void)
                 continue;
         }
 
-        if (!TEST(actor->user.Flags, SPR_ACTIVE))
+        if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
         actor->user.ActorActionFunc(actor);

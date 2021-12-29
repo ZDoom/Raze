@@ -735,7 +735,7 @@ int DoActorStopFall(DSWActor* actor)
 
 
     // don't stand on face or wall sprites - jump again
-    if (actor->user.lowActor && !TEST(actor->user.lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+    if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         //actor->spr.ang = NORM_ANGLE(actor->spr.ang + (RANDOM_P2(64<<8)>>8) - 32);
         actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024 + (RANDOM_P2(512<<8)>>8));

@@ -261,7 +261,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
 {
     bool both = false;
     if ( sect->hasU())
-        both = !!TEST(sect->flags, SECTFU_VATOR_BOTH);
+        both = !!(sect->flags & SECTFU_VATOR_BOTH);
 
     SWSectIterator it(sect);
     while (auto actor = it.Next())

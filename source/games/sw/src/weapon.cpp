@@ -2773,7 +2773,7 @@ int DoLavaErupt(DSWActor* actor)
             return 0;
     }
 
-    if (!TEST(actor->user.Flags, SPR_ACTIVE))
+    if (!(actor->user.Flags & SPR_ACTIVE))
     {
         // inactive
         if ((actor->user.WaitTics -= synctics) <= 0)
@@ -4786,7 +4786,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
              actor->user.ID == WASHGIRL_R0) && weapActor->hasU() && weapActor->user.ID == NINJA_RUN_R0 && weapActor->user.PlayerP)
         {
             PLAYERp pp = weapActor->user.PlayerP;
-            if (pp && !TEST(pp->Flags, PF_DIVING))  // JBF: added null test
+            if (pp && !(pp->Flags & PF_DIVING))  // JBF: added null test
                 pp->Bloody = true;
             PlaySound(DIGI_TOILETGIRLSCREAM, actor, v3df_none);
         }
@@ -4845,7 +4845,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     else
                         PlayerSound(DIGI_CANBEONLYONE, v3df_follow|v3df_dontpan,pp);
                 }
-                if (!TEST(pp->Flags, PF_DIVING))
+                if (!(pp->Flags & PF_DIVING))
                     pp->Bloody = true;
             }
 
@@ -5034,7 +5034,7 @@ int ActorHealth(DSWActor* actor, short amt)
                 if (actor->user.Flags2 & (SPR2_DYING)) return true;
                 if (actor->user.Flags & (SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return true;
 
-                if (!TEST(actor->user.Flags2, SPR2_DYING))
+                if (!(actor->user.Flags2 & SPR2_DYING))
                 {
                     short rnd;
 
@@ -7019,7 +7019,7 @@ int DoDamageTest(DSWActor* actor)
             if (actor == itActor)
                 continue;
 
-            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(itActor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
             // !JIM! Put in a cansee so that you don't take damage through walls and such
@@ -7346,7 +7346,7 @@ int DoMineExpMine(DSWActor* actor)
         if (itActor == actor)
             continue;
 
-        if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN))
+        if (!(itActor->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN))
             continue;
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
@@ -7410,7 +7410,7 @@ int DoStar(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (actor->user.coll.type != kHitNone && !TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (actor->user.coll.type != kHitNone && !(actor->user.Flags & SPR_UNDERWATER))
     {
         switch (actor->user.coll.type)
         {
@@ -8002,7 +8002,7 @@ int DoPlasma(DSWActor* actor)
         {
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto hcstat = hitActor->spr.cstat;
 
@@ -8134,14 +8134,14 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     // detect the ceiling and the hit_wall
     if (actor->spr.pos.Z < ((hiz+loz) >> 1))
     {
-        if (!TEST(hit_sector->ceilingstat, CSTAT_SECTOR_SLOPE))
+        if (!(hit_sector->ceilingstat & CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
             slope = hit_sector->ceilingheinum;
     }
     else
     {
-        if (!TEST(hit_sector->floorstat, CSTAT_SECTOR_SLOPE))
+        if (!(hit_sector->floorstat & CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
             slope = hit_sector->floorheinum;
@@ -8582,10 +8582,10 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (actor == itActor)
                 continue;
 
-            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(itActor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             if (itActor->user.ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
@@ -8629,7 +8629,7 @@ int DoMineStuck(DSWActor* actor)
     }
 
     // not activated yet
-    if (!TEST(actor->user.Flags, SPR_ACTIVE))
+    if (!(actor->user.Flags & SPR_ACTIVE))
     {
         if ((actor->user.WaitTics -= (MISSILEMOVETICS*2)) > 0)
             return false;
@@ -9044,7 +9044,7 @@ int DoEMPBurst(DSWActor* actor)
     }
 
     // not activated yet
-    if (!TEST(actor->user.Flags, SPR_ACTIVE))
+    if (!(actor->user.Flags & SPR_ACTIVE))
     {
         // activate it
         actor->user.WaitTics = SEC(7);
@@ -9507,7 +9507,7 @@ int DoUziBullet(DSWActor* actor)
             actorNew->spr.clipdist = 128 >> 2;
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
-            if (!TEST(actor->user.Flags, SPR_UNDERWATER))
+            if (!(actor->user.Flags & SPR_UNDERWATER))
             {
                 actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, actorNew->spr.sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y, actorNew->spr.pos.Z, 0, 0);
                 actorNew->spr.shade = -40;
@@ -9603,7 +9603,7 @@ int DoElectro(DSWActor* actor)
             {
                 auto hitActor = actor->user.coll.actor();
 
-                if (!TEST(hitActor->spr.extra, SPRX_PLAYER_OR_ENEMY) || hitActor->user.ID == SKULL_R0 || hitActor->user.ID == BETTY_R0)
+                if (!(hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY) || hitActor->user.ID == SKULL_R0 || hitActor->user.ID == BETTY_R0)
                     SpawnShrap(actor, nullptr);
                 break;
             }
@@ -10774,7 +10774,7 @@ int DoNapalm(DSWActor* actor)
         {
             auto hitActor = actor->user.coll.actor();
 
-            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !TEST(hitActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(hitActor->spr.cstat, CSTAT_SPRITE_BLOCK) && !(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto hcstat = hitActor->spr.cstat;
 
@@ -11350,7 +11350,7 @@ int DoSerpRing(DSWActor* actor)
         DSWActor* tActor = own->user.targetActor;
         if (!tActor->hasU() ||
             !tActor->user.PlayerP ||
-            !TEST(tActor->user.PlayerP->Flags, PF_DEAD))
+            !(tActor->user.PlayerP->Flags & PF_DEAD))
         {
             actor->user.targetActor = own->user.targetActor;
             DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a,b,c);
@@ -11866,7 +11866,7 @@ int InitSwordAttack(PLAYERp pp)
             if (itActor->user.PlayerP == pp)
                 break;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             dist = Distance(pp->pos.X, pp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
@@ -12034,7 +12034,7 @@ int InitFistAttack(PLAYERp pp)
             if (itActor->user.PlayerP == pp)
                 break;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             dist = Distance(pp->pos.X, pp->pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
@@ -12329,7 +12329,7 @@ int InitSumoStompAttack(DSWActor* actor)
             if (itActor != actor->user.targetActor)
                 break;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
@@ -13927,7 +13927,7 @@ int DoBladeDamage(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
@@ -13964,7 +13964,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
@@ -14007,7 +14007,7 @@ int InitCoolgBash(DSWActor* actor)
                 break;
 
             // don't set off mine
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
@@ -17317,7 +17317,7 @@ int DoBubble(DSWActor* actor)
         }
     }
 
-    if (!TEST(actor->user.Flags, SPR_UNDERWATER))
+    if (!(actor->user.Flags & SPR_UNDERWATER))
     {
         if ((actor->user.WaitTics -= MISSILEMOVETICS) <= 0)
         {

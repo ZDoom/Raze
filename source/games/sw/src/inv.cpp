@@ -473,7 +473,7 @@ void InventoryKeys(PLAYERp pp)
 	            // switches you to this inventory item
 	            pp->InventoryNum = i;
 
-	            if (InventoryData[pp->InventoryNum].Init && !TEST(pp->Flags, PF_CLIMBING))
+	            if (InventoryData[pp->InventoryNum].Init && !(pp->Flags & PF_CLIMBING))
 	            {
 	                if (pp->InventoryAmount[pp->InventoryNum])
 	                {

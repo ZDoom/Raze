@@ -455,7 +455,7 @@ int WeaponOperate(PLAYERp pp)
         case SO_TURRET_MGUN:
         // case SO_SPEED_BOAT:
 
-            if (!TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
+            if (!(pp->sop->flags & SOBJ_HAS_WEAPON))
                 break;
 
             if (pp->input.actions & SB_FIRE)
@@ -1669,7 +1669,7 @@ void pUziOverlays(PANEL_SPRITEp psp, short mode)
 #define UZI_CHAMBERRELOAD_XOFF 14
 #define UZI_CHAMBERRELOAD_YOFF -100
 
-    if (!TEST(psp->flags, PANF_SECONDARY)) return;
+    if (!(psp->flags & PANF_SECONDARY)) return;
 
     if (psp->over[0].xoff == -1)
     {
@@ -1971,7 +1971,7 @@ void InitWeaponUzi(PLAYERp pp)
         // Is player toggling between one and two uzi's?
         if (pp->CurWpn->sibling && TEST(pp->Wpn[WPN_UZI]->flags, PANF_PRIMARY) && pp->WpnUziType == 0)
         {
-            if (!TEST(pp->CurWpn->flags, PANF_RELOAD))
+            if (!(pp->CurWpn->flags & PANF_RELOAD))
                 InitWeaponUzi2(pp->Wpn[WPN_UZI]);
         }
 
@@ -1980,7 +1980,7 @@ void InitWeaponUzi(PLAYERp pp)
         {
             pp->Flags &= ~(PF_PICKED_UP_AN_UZI);
 
-            if (!TEST(pp->CurWpn->flags, PANF_RELOAD))
+            if (!(pp->CurWpn->flags & PANF_RELOAD))
                 InitWeaponUzi2(pp->Wpn[WPN_UZI]);
         }
         return;
@@ -2170,7 +2170,7 @@ void pUziHide(PANEL_SPRITEp psp)
             if (pWeaponUnHideKeys(psp, psp->PresentState))
                 pSetState(psp->sibling, psp->sibling->PresentState);
         }
-        else if (!TEST(psp->flags, PANF_SECONDARY))
+        else if (!(psp->flags & PANF_SECONDARY))
         {
             pWeaponUnHideKeys(psp, psp->PresentState);
         }
@@ -2198,7 +2198,7 @@ void pUziRest(PANEL_SPRITEp psp)
             return;
         }
     }
-    else if (!TEST(psp->flags, PANF_SECONDARY))
+    else if (!(psp->flags & PANF_SECONDARY))
     {
         if (pWeaponHideKeys(psp, ps_UziHide))
             return;
@@ -3546,7 +3546,7 @@ void pHotheadRestTest(PANEL_SPRITEp psp)
     {
         if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
-            //if (!TEST(psp->PlayerP->Flags,PF_DIVING))
+            //if (!(psp->PlayerP->Flags & PF_DIVING))
             {
                 if (!WeaponOK(psp->PlayerP))
                     return;
@@ -6126,7 +6126,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 
     if (psp->flags & (PANF_WEAPON_HIDE))
     {
-        if (!TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
+        if (!(psp->PlayerP->Flags & PF_WEAPON_DOWN))
         {
             psp->flags &= ~(PANF_WEAPON_HIDE);
             pSetState(psp, state);
@@ -6409,7 +6409,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         pal = uint8_t(psp->pal);
 
         if (DrawBeforeView)
-            if (!TEST(psp->flags, PANF_DRAW_BEFORE_VIEW))
+            if (!(psp->flags & PANF_DRAW_BEFORE_VIEW))
                 continue;
 
         if (psp->flags & (PANF_SUICIDE))
@@ -6553,7 +6553,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
 
             if (psp->PlayerP->Flags & (PF_VIEW_FROM_OUTSIDE))
             {
-                if (!TEST(psp->PlayerP->Flags, PF_VIEW_OUTSIDE_WEAPON))
+                if (!(psp->PlayerP->Flags & PF_VIEW_OUTSIDE_WEAPON))
                     continue;
             }
 
@@ -6624,7 +6624,7 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
             case BLOODYFIST3_SWING2:
                 if (TEST(flags, RS_XFLIPHUD) && x > 160)
                     x = 65;
-                else if (!TEST(flags, RS_XFLIPHUD) && x < 160)
+                else if (!(flags & RS_XFLIPHUD) && x < 160)
                     x = 345;
                 break;
             default:

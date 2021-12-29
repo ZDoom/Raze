@@ -507,7 +507,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
         if (TEST(break_info->flags, BF_OVERRIDE_BLOCK))
         {
             // if not blocking then skip this code
-            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
             {
                 return (BREAK_INFOp)(-1);
             }
@@ -924,7 +924,7 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
     {
         if (break_info->breaknum != -1)
         {
-            if (!TEST(break_info->flags, BF_LEAVE_BREAK))
+            if (!(break_info->flags & BF_LEAVE_BREAK))
             {
                 breakActor->spr.extra &= ~(SPRX_BREAKABLE);
                 breakActor->spr.cstat &= ~(CSTAT_SPRITE_BREAKABLE);

@@ -715,7 +715,7 @@ int DoPhosphorus(DSWActor* actor)
 
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
 
         auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->spr.sector(),
@@ -783,7 +783,7 @@ int DoChemBomb(DSWActor* actor)
         {
             short wall_ang;
 
-            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
             auto hitActor = actor->user.coll.actor();
@@ -797,7 +797,7 @@ int DoChemBomb(DSWActor* actor)
             else
             {
                 // Canister pops when first smoke starts out
-                if (actor->user.WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                if (actor->user.WaitTics == CHEMTICS && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 {
                     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                     PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -824,7 +824,7 @@ int DoChemBomb(DSWActor* actor)
                 break;
             }
 
-            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+            if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
             int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
@@ -855,7 +855,7 @@ int DoChemBomb(DSWActor* actor)
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
                         {
-                            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                            if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
@@ -866,7 +866,7 @@ int DoChemBomb(DSWActor* actor)
                         else
                         {
                             // Canister pops when first smoke starts out
-                            if (actor->user.WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                            if (actor->user.WaitTics == CHEMTICS && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                             {
                                 PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                                 PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -901,7 +901,7 @@ int DoChemBomb(DSWActor* actor)
 
                     if (!(actor->user.Flags & SPR_BOUNCE))
                     {
-                        if (!TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                        if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                             PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
@@ -913,7 +913,7 @@ int DoChemBomb(DSWActor* actor)
                     else
                     {
                         // Canister pops when first smoke starts out
-                        if (actor->user.WaitTics == CHEMTICS && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+                        if (actor->user.WaitTics == CHEMTICS && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                         {
                             PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                             PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
@@ -939,7 +939,7 @@ int DoChemBomb(DSWActor* actor)
     }
 
     // if you haven't bounced or your going slow do some puffs
-    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+    if (!TEST(actor->user.Flags, SPR_BOUNCE | SPR_UNDERWATER) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
@@ -1433,7 +1433,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (dist > 16384)           // Flash radius
                 continue;
 
-            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
             if (!FAFcanseeOfs(itActor, 0, actor, - ActorSizeZ(actor)))
@@ -1492,7 +1492,7 @@ int InitFlashBomb(DSWActor* actor)
             if (dist > 16384)           // Flash radius
                 continue;
 
-            if (!TEST(actor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
             if (!FAFcanseeOfs(itActor, 0, actor, -ActorSizeZ(actor)))
@@ -1891,10 +1891,10 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             if (actor == itActor)
                 continue;
 
-            if (!TEST(itActor->spr.cstat, CSTAT_SPRITE_BLOCK))
+            if (!(itActor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!TEST(itActor->spr.extra, SPRX_PLAYER_OR_ENEMY))
+            if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
             if (!FAFcansee(itActor, actor))
@@ -1928,7 +1928,7 @@ int DoCarryFlag(DSWActor* actor)
     }
 
     // not activated yet
-    if (!TEST(actor->user.Flags, SPR_ACTIVE))
+    if (!(actor->user.Flags & SPR_ACTIVE))
     {
         if ((actor->user.WaitTics -= (MISSILEMOVETICS * 2)) > 0)
             return false;

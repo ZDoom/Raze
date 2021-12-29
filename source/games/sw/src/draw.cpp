@@ -761,7 +761,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
         if (tActor->hasU() && tActor->user.PlayerP)
         {
             // Shadow spell
-            if (!TEST(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT))
+            if (!(tsp->cstat & CSTAT_SPRITE_TRANSLUCENT))
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
@@ -870,7 +870,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             {
                 if (Player[screenpeek].actor != tActor)
                 {
-                    if (!TEST(tActor->user.PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
+                    if (!(tActor->user.PlayerP->Flags & PF_VIEW_FROM_OUTSIDE))
                     {
                         tsp->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
                     }
@@ -1003,7 +1003,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
             auto hitactor = hit.actor();
 
             // if you hit a sprite that's not a wall sprite - try again
-            if (!TEST(hitactor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (!(hitactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto flag_backup = hitactor->spr.cstat;
                 hitactor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);

@@ -605,7 +605,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     int bound;
 
     // If blocking bits get unset, just die
-    if (!TEST(actor->spr.cstat,CSTAT_SPRITE_BLOCK) || !TEST(actor->spr.cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
+    if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK) || !(actor->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN))
     {
         InitBloodSpray(actor, true, 105);
         InitBloodSpray(actor, true, 105);
@@ -856,7 +856,7 @@ int DoCoolgMove(DSWActor* actor)
         (*actor->user.ActorActionFunc)(actor);
     }
 
-    if (RANDOM_P2(1024) < 32 && !TEST(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE))
+    if (RANDOM_P2(1024) < 32 && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
         InitCoolgDrip(actor);
 
     DoCoolgMatchPlayerZ(actor);

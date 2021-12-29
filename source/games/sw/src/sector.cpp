@@ -1991,7 +1991,7 @@ bool NearThings(PLAYERp pp)
         if (hit.hitWall != nullptr)
         {
             // Near a plain old vanilla wall.  Can't do anything but grunt.
-            if (!TEST(hit.hitWall->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
+            if (!(hit.hitWall->extra & WALLFX_DONT_STICK) && pp == Player+myconnectindex)
             {
                 if (StdRandomRange(1000) > 970)
                     PlayerSound(DIGI_HITTINGWALLS, v3df_follow|v3df_dontpan,pp);
@@ -2287,7 +2287,7 @@ void PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((ActorZOfBottom(pp->actor) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((ActorZOfBottom(pp->actor) >= sectp->floorz) && !(pp->Flags & PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
@@ -2313,7 +2313,7 @@ void PlayerOperateEnv(PLAYERp pp)
 
         if (pp->insector() && TEST(pp->cursector->extra, SECTFX_WARP_SECTOR))
         {
-            if (!TEST(pp->Flags2, PF2_TELEPORTED))
+            if (!(pp->Flags2 & PF2_TELEPORTED))
             {
                 DoPlayerWarpTeleporter(pp);
             }
@@ -2369,7 +2369,7 @@ void DoSineWaveFloor(void)
         for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
         {
             auto sect = swf->sectp;
-            if (!TEST(sect->floorstat, CSTAT_SECTOR_SLOPE))
+            if (!(sect->floorstat & CSTAT_SECTOR_SLOPE))
                 continue;
 
             if (TEST(flags, SINE_SLOPED))

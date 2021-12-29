@@ -197,7 +197,7 @@ static void WeaponCheat(int player)
 {
     auto p = &Player[player];
 
-    if (!TEST(p->Flags, PF_TWO_UZI))
+    if (!(p->Flags & PF_TWO_UZI))
     {
         p->Flags |= PF_TWO_UZI | PF_PICKED_UP_AN_UZI;
     }
