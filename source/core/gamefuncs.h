@@ -138,7 +138,8 @@ void vertexscan(walltype* startwall, func mark)
 	while (true)
 	{
 		auto thelastwall = wal->lastWall();
-		if (!thelastwall->twoSided()) break;
+		// thelastwall can be null here if the map is bogus.
+		if (!thelastwall || !thelastwall->twoSided()) break;
 
 		wal = thelastwall->nextWall();
 		if (walbitmap.Check(wall.IndexOf(wal))) break;
