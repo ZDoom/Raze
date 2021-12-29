@@ -862,7 +862,7 @@ int UserBreakSprite(DSWActor* breakActor)
     {
         DoMatchEverything(nullptr, match_extra, -1);
         //DoSpawnSpotsForKill(match_extra);
-        DoLightingMatch(match_extra, OFF);
+        DoLightingMatch(match_extra, 0);
 
         if (SP_TAG8(actor) == 0)
         {

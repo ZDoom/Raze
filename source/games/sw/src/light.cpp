@@ -193,7 +193,7 @@ void DoLightingMatch(short match, short state)
                     LIGHT_DirChange(itActor);
                 }
             }
-            else if (state == OFF)
+            else if (state == 0)
             {
                 if (LIGHT_Dir(itActor) == 0)
                 {
@@ -255,7 +255,7 @@ void DoLighting(void)
     while (auto itActor = it.Next())
     {
         // on/off test
-        if (TEST_BOOL1(itActor) == OFF)
+        if (TEST_BOOL1(itActor) == 0)
             continue;
 
         switch (LIGHT_Type(itActor))

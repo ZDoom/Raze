@@ -143,7 +143,7 @@ short DoSOevent(short match, short state)
                 if (TEST_BOOL3(me_act))
                 {
                     RESET_BOOL3(me_act);
-                    state = OFF;
+                    state = 0;
                 }
                 else
                 {
@@ -157,7 +157,7 @@ short DoSOevent(short match, short state)
                 spin_adj = (int)SP_TAG3(me_act);
                 vel_adj = SP_TAG7(me_act);
             }
-            else if (state == OFF)
+            else if (state == 0)
             {
                 spin_adj = -(int)SP_TAG3(me_act);
                 vel_adj = -SP_TAG7(me_act);
