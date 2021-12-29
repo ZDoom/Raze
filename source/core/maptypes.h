@@ -391,7 +391,7 @@ struct walltype
 	sectortype* nextSector() const;
 	sectortype* sectorp() const;
 	walltype* nextWall() const;
-	walltype* lastWall() const;
+	walltype* lastWall(bool fast  = true) const;
 	walltype* point2Wall() const;
 	vec2_t delta() const { return point2Wall()->pos - pos; }
 	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
@@ -671,10 +671,10 @@ inline sectortype* walltype::sectorp() const
 	return &::sector[sector]; // cannot be -1 in a proper map.
 }
 
-inline walltype* walltype::lastWall() const
+inline walltype* walltype::lastWall(bool fast) const
 {
 	int index = wall.IndexOf(this);
-	if (index > 0 && wall[index - 1].point2 == index) return &wall[index - 1];
+	if (fast && index > 0 && wall[index - 1].point2 == index) return &wall[index - 1];
 
 	int check = index;
 	for (int i = 0; i < 16384; i++)	// don't run endlessly in case of malformed sectors.

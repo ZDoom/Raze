@@ -763,14 +763,27 @@ void setWallSectors()
 		i++;
 	}
 
-	for (unsigned i = 1; i < wall.Size() - 1; i++)
+	// 
+	for (unsigned ii = 1; ii < wall.Size() - 1; ii++)
 	{
 		// two maps in RRRA have this error. Delete one of those 2 walls.
-		if (wall[i].point2 == wall[i + 1].point2)
+		if (wall[ii].point2 == wall[ii + 1].point2)
 		{
-			wall[i].nextwall = -1;
-			wall[i].nextsector = -1;
-			wall[i].point2 = i;
+			auto w1 = wall[ii].lastWall(false);
+			auto w2 = wall[ii + 1].lastWall(false);
+			// Neutralize the bad one of the two walls.
+			if (w1 == nullptr)
+			{
+				wall[ii].nextwall = -1;
+				wall[ii].nextsector = -1;
+				wall[ii].point2 = ii;
+			}
+			else if (w2 == nullptr)
+			{
+				wall[ii+1].nextwall = -1;
+				wall[ii+1].nextsector = -1;
+				wall[ii+1].point2 = ii;
+			}
 		}
 	}
 
