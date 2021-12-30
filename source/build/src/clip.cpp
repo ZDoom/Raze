@@ -1219,11 +1219,11 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
 
 // intp: point of currently best (closest) intersection
-int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
+int32_t try_facespr_intersect(DCoreActor* spr, vec3_t const in,
                               int32_t vx, int32_t vy, int32_t vz,
                               vec3_t * const intp, int32_t strictly_smaller_than_p)
 {
-    vec3_t const sprpos = spr->pos;
+    vec3_t const sprpos = spr->spr.pos;
 
     int32_t const topt = vx * (sprpos.X - in.X) + vy * (sprpos.Y - in.Y);
 
@@ -1235,7 +1235,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     vec3_t        newpos = { 0, 0, in.Z + Scale(vz, topt, bot) };
     int32_t       siz;
-    int32_t const z1 = sprpos.Z + spriteheightofsptr(spr, &siz, 1);
+    int32_t const z1 = sprpos.Z + spriteheightofsptr(&spr->spr, &siz, 1);
 
     if (newpos.Z < z1 - siz || newpos.Z > z1)
         return 0;
@@ -1244,7 +1244,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
     vec2_t  const off  = { Scale(vx, topu, bot), Scale(vy, topu, bot) };
     int32_t const dist = off.X * off.X + off.Y * off.Y;
 
-    siz = tileWidth(spr->picnum) * spr->xrepeat;
+    siz = tileWidth(spr->spr.picnum) * spr->spr.xrepeat;
 
     if (dist > MulScale(siz, siz, 7)) return 0;
 
@@ -1420,7 +1420,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             {
             case 0:
             {
-                if (try_facespr_intersect(spr, *sv, vx, vy, vz, &hitinfo.hitpos, 0))
+                if (try_facespr_intersect(actor, *sv, vx, vy, vz, &hitinfo.hitpos, 0))
                 {
                     hitinfo.hitSector = sec;
                     hitinfo.hitWall = nullptr;
