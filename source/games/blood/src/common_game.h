@@ -560,27 +560,6 @@ inline int QRandom2(int a1)
 	return MulScale(qrand(), a1, 14) - a1;
 }
 
-template<class T>
-inline void SetBitString(T* pArray, int nIndex)
-{
-	static_assert(sizeof(T) == 1, "Bit array element too large");
-	pArray[nIndex >> 3] |= 1 << (nIndex & 7);
-}
-
-template<class T>
-inline void ClearBitString(T* pArray, int nIndex)
-{
-	static_assert(sizeof(T) == 1, "Bit array element too large");
-	pArray[nIndex >> 3] &= ~(1 << (nIndex & 7));
-}
-
-template<class T>
-inline bool TestBitString(T* pArray, int nIndex)
-{
-	static_assert(sizeof(T) == 1, "Bit array element too large");
-	return !!(pArray[nIndex >> 3] & (1 << (nIndex & 7)));
-}
-
 // This is to override the namepace prioritization without altering the actual calls.
 inline int scale(int a, int b, int c)
 {
