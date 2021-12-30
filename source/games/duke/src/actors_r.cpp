@@ -1822,7 +1822,7 @@ void movetransports_r(void)
 									act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
 									act2->spr.ang = Owner->spr.ang;
 
-									act2->spr.backupang();
+									act2->backupang();
 
 									auto beam = spawn(act, TRANSPORTERBEAM);
 									if (beam) S_PlayActorSound(TELEPORTER, beam);
@@ -1845,7 +1845,7 @@ void movetransports_r(void)
 								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 								act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
 
-								act2->spr.backupz();
+								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
 							}
@@ -1855,7 +1855,7 @@ void movetransports_r(void)
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
 
-							act2->spr.backupz();
+							act2->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
 
@@ -1865,7 +1865,7 @@ void movetransports_r(void)
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->floorz - ll;
 
-							act2->spr.backupz();
+							act2->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
 
@@ -1877,7 +1877,7 @@ void movetransports_r(void)
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
 
-							act2->spr.backupz();
+							act2->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
 
@@ -1891,7 +1891,7 @@ void movetransports_r(void)
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->floorz - ll2;
 
-							act2->spr.backupz();
+							act2->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
 
@@ -3756,7 +3756,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->spr.opos.X != actor->spr.pos.X) || (actor->spr.opos.Y != actor->spr.pos.Y))
 		{
-			actor->spr.backupvec2();
+			actor->backupvec2();
 			SetActor(actor, actor->spr.pos);
 		}
 		if (badguy(actor) && actor->spr.extra <= 0)

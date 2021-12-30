@@ -223,7 +223,7 @@ void BuildSnake(int nPlayer, int zVal)
             pActor->spr.hitag = 0;
             pActor->spr.extra = -1;
             pActor->spr.lotag = runlist_HeadRun() + 1;
-            pActor->spr.backuppos();
+            pActor->backuppos();
 
             SnakeList[nSnake].pSprites[i] = pActor;
 

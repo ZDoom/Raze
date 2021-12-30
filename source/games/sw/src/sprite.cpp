@@ -849,7 +849,7 @@ void SpawnUser(DSWActor* actor, short id, STATEp state)
     actor->user.motion_blur_num = 0;
     actor->user.motion_blur_dist = 256;
 
-    actor->spr.backuppos();
+    actor->backuppos();
     actor->user.oz = actor->spr.opos.Z;
 
     actor->user.active_range = MIN_ACTIVE_RANGE;
@@ -6340,7 +6340,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
 void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
-    actor->spr.backuppos();
+    actor->backuppos();
     actor->user.oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
@@ -6348,7 +6348,7 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 
 void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
-    actor->spr.backuppos();
+    actor->backuppos();
     actor->user.oz = actor->spr.opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);

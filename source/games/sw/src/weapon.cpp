@@ -10261,13 +10261,13 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     {
         // move with sector its on
         expActor->spr.pos.Z = actor->sector()->floorz - actor->user.pos.Z;
-        expActor->spr.backupz();
+        expActor->backupz();
     }
     else
     {
         // move with the mid sector
         expActor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
-        expActor->spr.backupz();
+        expActor->backupz();
     }
 
     expActor->user.pos.X = actor->user.pos.X;
@@ -10309,7 +10309,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     }
 
     SpawnExpZadjust(actor, expActor, Z(50), Z(10));
-    expActor->spr.backuppos();
+    expActor->backuppos();
 }
 
 int SpawnGrenadeSmallExp(DSWActor* actor)
@@ -10417,7 +10417,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
         }
     }
 
-    expActor->spr.backupz();
+    expActor->backupz();
 }
 
 void SpawnMineExp(DSWActor* actor)
@@ -10815,7 +10815,7 @@ int DoNapalm(DSWActor* actor)
         DoFindGroundPoint(expActor);
         MissileWaterAdjust(expActor);
         expActor->spr.pos.Z = expActor->user.loz;
-        expActor->spr.backupz();
+        expActor->backupz();
 
         if (actor->user.Flags & (SPR_UNDERWATER))
             expActor->user.Flags |= SPR_UNDERWATER;
@@ -11089,7 +11089,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     actor->spr.zvel = oldzvel;
 
     // update for interpolation
-    actor->spr.backuppos();
+    actor->backuppos();
 
     return retval;
 }
@@ -11130,7 +11130,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     actor->spr.zvel = oldzvel;
 
     // update for interpolation
-    actor->spr.backuppos();
+    actor->backuppos();
 
     return retval;
 }
@@ -11274,7 +11274,7 @@ void InitSpellRing(PLAYERp pp)
 
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
 
-        actorNew->spr.backuppos();
+        actorNew->backuppos();
 
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -12678,7 +12678,7 @@ int InitStar(PLAYERp pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->spr.backuppos();
+    actorNew->backuppos();
 
     for (size_t i = 0; i < countof(dang); i++)
     {
@@ -12715,7 +12715,7 @@ int InitStar(PLAYERp pp)
         actorNew2->user.change.Y = MOVEy(actorNew2->spr.xvel, actorNew2->spr.ang);
         actorNew2->user.change.Z = zvel;
 
-        actorNew2->spr.backuppos();
+        actorNew2->backuppos();
     }
 
     return 0;
@@ -16636,7 +16636,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
     actor->spr.xvel = old_xvel;
     actor->spr.clipdist = old_clipdist;
 
-    actor->spr.backuppos();
+    actor->backuppos();
     return 0;
 }
 
@@ -16992,7 +16992,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     actor->spr.pos.Z = underActor->sector()->ceilingz + actor->user.ceiling_dist+Z(1);
 
-    actor->spr.backuppos();
+    actor->backuppos();
 
     return true;
 }
@@ -17067,7 +17067,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     MissileWaterAdjust(actor);
 
 
-    actor->spr.backuppos();
+    actor->backuppos();
 
     return true;
 }

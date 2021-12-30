@@ -404,7 +404,7 @@ void moveplayers(void)
 				act->spr.pos.X = p->opos.X;
 				act->spr.pos.Y = p->opos.Y;
 				act->spr.pos.Z = p->opos.Z + gs.playerheight;
-				act->spr.backupz();
+				act->backupz();
 				act->spr.ang = p->angle.oang.asbuild();
 				SetActor(act, act->spr.pos);
 			}
@@ -1052,7 +1052,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 			else
 			{
 				actor->spr.pos.Z = actor->temp_data[0];
-				actor->spr.backupz();
+				actor->backupz();
 				actor->temp_data[1] = 48 + (krand() & 31);
 			}
 		}
@@ -2903,7 +2903,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					a2->spr.backupvec2();
+					a2->backupvec2();
 				}
 			}
 		}
@@ -3067,7 +3067,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					a2->spr.backupvec2();
+					a2->backupvec2();
 				}
 			}
 		}
@@ -3847,7 +3847,7 @@ void handle_se17(DDukeActor* actor)
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR)
 		{
-			act1->spr.backupz();
+			act1->backupz();
 			act1->spr.pos.Z += q;
 		}
 
@@ -3915,7 +3915,7 @@ void handle_se17(DDukeActor* actor)
 				act3->spr.pos.Y += act2->spr.pos.Y - actor->spr.pos.Y;
 				act3->spr.pos.Z = act2->sector()->floorz - (sc->floorz - act3->spr.pos.Z);
 
-				act3->spr.backupz();
+				act3->backupz();
 
 				ChangeActorSect(act3, act2->sector());
 				SetActor(act3, act3->spr.pos);
@@ -5201,7 +5201,7 @@ void recordoldspritepos()
 		DukeStatIterator it(statNum);
 		while (auto ac = it.Next())
 		{
-			ac->spr.backuploc();
+			ac->backuploc();
 		}
 	}
 }

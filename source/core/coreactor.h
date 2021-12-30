@@ -42,6 +42,42 @@ public:
 		return spr.time; 
 	}	
 
+	void backupx()
+	{
+		spr.opos.X = spr.pos.X;
+	}
+
+	void backupy()
+	{
+		spr.opos.Y = spr.pos.Y;
+	}
+
+	void backupz()
+	{
+		spr.opos.Z = spr.pos.Z;
+	}
+
+	void backupvec2()
+	{
+		spr.opos.vec2 = spr.pos.vec2;
+	}
+
+	void backuppos()
+	{
+		spr.opos = spr.pos;
+	}
+
+	void backupang()
+	{
+		spr.oang = spr.ang;
+	}
+
+	void backuploc()
+	{
+		backuppos();
+		backupang();
+	}
+
 	sectortype* sector() const
 	{
 		return spr.sectp;

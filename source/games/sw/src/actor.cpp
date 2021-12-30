@@ -515,7 +515,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz;
-                actor->spr.backupz();
+                actor->backupz();
                 return;
             }
 
@@ -526,7 +526,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
             // are swimming
             actor->user.oz = actor->spr.pos.Z = actor->user.loz - Z(depth);
-            actor->spr.backupz();
+            actor->backupz();
         }
         else
         {
@@ -535,7 +535,7 @@ void KeepActorOnFloor(DSWActor* actor)
             {
                 NewStateGroup(actor, actor->user.ActorActionSet->Swim);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz - Z(depth);
-                actor->spr.backupz();
+                actor->backupz();
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             }
@@ -544,7 +544,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
                 actor->user.oz = actor->spr.pos.Z = actor->user.loz;
-                actor->spr.backupz();
+                actor->backupz();
             }
         }
 
@@ -559,7 +559,7 @@ void KeepActorOnFloor(DSWActor* actor)
     if (actor->user.Flags & (SPR_MOVED))
     {
         actor->user.oz = actor->spr.pos.Z = actor->user.loz;
-        actor->spr.backupz();
+        actor->backupz();
     }
     else
     {
@@ -569,7 +569,7 @@ void KeepActorOnFloor(DSWActor* actor)
                           &ceilz, &ctrash, &florz, &ftrash);
 
         actor->user.oz = actor->spr.pos.Z = florz;
-        actor->spr.backupz();
+        actor->backupz();
     }
 #endif
 

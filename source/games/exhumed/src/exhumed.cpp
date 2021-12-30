@@ -268,7 +268,7 @@ void GameMove(void)
 	ExhumedSpriteIterator it;
     while (auto ac = it.Next())
     {
-		ac->spr.backuploc();
+		ac->backuploc();
     }
 
     if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)

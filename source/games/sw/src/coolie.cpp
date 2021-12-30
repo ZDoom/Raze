@@ -457,7 +457,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     {
         actor->spr.pos.Z += Z(depth);
         actor->user.loz = actor->spr.pos.Z;
-        actor->spr.backupz();
+        actor->backupz();
     }
 
     if (!action)

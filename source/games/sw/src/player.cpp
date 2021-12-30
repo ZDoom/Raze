@@ -1396,7 +1396,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         break;
     }
 
-    ppActor->spr.backuppos();
+    ppActor->backuppos();
 }
 
 void DoPlayerSetWadeDepth(PLAYERp pp)
@@ -1451,14 +1451,14 @@ void DoPlayerCrawlHeight(PLAYERp pp)
 void UpdatePlayerSpriteAngle(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
-    plActor->spr.backupang();
+    plActor->backupang();
     plActor->spr.ang = pp->angle.ang.asbuild();
 
     plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
-        plActor->spr.backupang();
+        plActor->backupang();
         plActor->spr.ang = pp->angle.ang.asbuild();
     }
 }
@@ -6396,7 +6396,7 @@ void MoveSkipSavePos(void)
             while (auto actor = it.Next())
             {
                 if (!actor->hasU()) continue;
-                actor->spr.backuppos();
+                actor->backuppos();
                 actor->user.oz = actor->spr.opos.Z;
             }
         }
@@ -6413,7 +6413,7 @@ void MoveSkipSavePos(void)
             while (auto actor = it.Next())
             {
                 if (!actor->hasU()) continue;
-                actor->spr.backuppos();
+                actor->backuppos();
                 actor->user.oz = actor->spr.opos.Z;
             }
         }
@@ -6423,7 +6423,7 @@ void MoveSkipSavePos(void)
     // back up all sprite angles.
     while (auto actor = it.Next())
     {
-        actor->spr.backupang();
+        actor->backupang();
     }
 }
 

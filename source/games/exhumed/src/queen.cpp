@@ -463,7 +463,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.shade = -12;
     pActor2->spr.picnum = 1;
     pActor2->spr.ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
-    pActor2->spr.backuppos();
+    pActor2->backuppos();
 
     if (!nVal)
     {

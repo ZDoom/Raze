@@ -1024,7 +1024,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     pActor->spr.pos.X = pStartWall->pos.X;
     pActor->spr.pos.Y = pStartWall->pos.Y;
     pActor->spr.pos.Z = pSector->floorz;
-    pActor->spr.backuppos();
+    pActor->backuppos();
 
     SlideData[nSlide].nRunC = 0;
 
@@ -1253,7 +1253,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
             }
         }
     }
-    pActor->spr.backuppos();
+    pActor->backuppos();
     return nTrap;
 }
 
@@ -1407,7 +1407,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     pSpark->spr.lotag = runlist_HeadRun() + 1;
     pSpark->spr.clipdist = 1;
     pSpark->spr.hitag = 0;
-    pSpark->spr.backuppos();
+    pSpark->backuppos();
 
     //	GrabTimeSlot(3);
 
@@ -1602,7 +1602,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x250000);
-    pActor->spr.backuppos();
+    pActor->backuppos();
 
     return pActor;
 }
@@ -1847,7 +1847,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
             pActor->nIndex2 = -nHitag;
         }
     }
-    pActor->spr.backuppos();
+    pActor->backuppos();
 
     return pActor;
 }

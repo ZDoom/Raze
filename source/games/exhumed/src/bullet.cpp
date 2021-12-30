@@ -702,7 +702,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBullet->nRunRec2 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->nDoubleDamage = nDoubleDamage;
     pBulletActor->spr.pos.Z += nZOffset;
-    pBulletActor->spr.backuppos();
+    pBulletActor->backuppos();
 
     int var_18 = 0;
 

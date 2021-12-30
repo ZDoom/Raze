@@ -91,7 +91,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
-    pActor->spr.backuppos();
+    pActor->backuppos();
 
     // CHECKME - where is hitag set otherwise?
     if (pActor->spr.statnum < 900) {

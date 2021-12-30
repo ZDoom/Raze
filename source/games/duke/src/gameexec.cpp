@@ -2248,7 +2248,7 @@ int ParseState::parse(void)
 			g_ac->spr.pos.X = ps[g_p].bobpos.X = ps[g_p].opos.X = ps[g_p].pos.X;
 			g_ac->spr.pos.Y = ps[g_p].bobpos.Y = ps[g_p].opos.Y = ps[g_p].pos.Y;
 			g_ac->spr.pos.Z = ps[g_p].opos.Z = ps[g_p].pos.Z;
-			g_ac->spr.backuppos();
+			g_ac->backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z + gs.playerheight });
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;

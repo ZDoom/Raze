@@ -78,7 +78,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	act->spr.clipdist = 0;
 	act->spr.pal = 0;
 	act->spr.lotag = 0;
-	act->spr.backuploc();
+	act->backuploc();
 
 	act->ovel.X = 0;
 	act->ovel.Y = 0;
@@ -141,7 +141,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 	act->timetosleep = 0;
 	act->extra = -1;
 
-	act->spr.backuppos();
+	act->backuppos();
 
 	act->SetOwner(act);
 	act->SetHitOwner(act);

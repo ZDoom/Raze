@@ -59,7 +59,7 @@ DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
     pActor->spr.hitag = -1;
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
-    pActor->spr.backuppos();
+    pActor->backuppos();
 
 //	GrabTimeSlot(3);
 

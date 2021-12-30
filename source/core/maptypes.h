@@ -490,42 +490,6 @@ struct spritetypebase
 	{
 		return interpolatedangle(oang, ang, smoothratio, 16);
 	}
-
-	void backupx()
-	{
-		opos.X = pos.X;
-	}
-
-	void backupy()
-	{
-		opos.Y = pos.Y;
-	}
-
-	void backupz()
-	{
-		opos.Z = pos.Z;
-	}
-
-	void backupvec2()
-	{
-		opos.vec2 = pos.vec2;
-	}
-
-	void backuppos()
-	{
-		opos = pos;
-	}
-
-	void backupang()
-	{
-		oang = ang;
-	}
-
-	void backuploc()
-	{
-		backuppos();
-		backupang();
-	}
 };
 
 

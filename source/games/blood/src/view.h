@@ -175,7 +175,7 @@ inline void viewBackupSpriteLoc(DBloodActor* actor)
 {
 	if (!actor->interpolated)
 	{
-		actor->spr.backuploc();
+		actor->backuploc();
 		actor->interpolated = true;
 	}
 }
