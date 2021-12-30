@@ -3183,15 +3183,15 @@ void DoPlayerClimb(PLAYERp pp)
                     pp->pos.X = pp->LadderPosition.X;
             }
 
-            if (pp->pos.Y != pp->ly)
+            if (pp->pos.Y != pp->LadderPosition.Y)
             {
-                if (pp->pos.Y < pp->ly)
+                if (pp->pos.Y < pp->LadderPosition.Y)
                     pp->pos.Y += ADJ_AMT;
-                else if (pp->pos.Y > pp->ly)
+                else if (pp->pos.Y > pp->LadderPosition.Y)
                     pp->pos.Y -= ADJ_AMT;
 
-                if (labs(pp->pos.Y - pp->ly) <= ADJ_AMT)
-                    pp->pos.Y = pp->ly;
+                if (labs(pp->pos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
+                    pp->pos.Y = pp->LadderPosition.Y;
             }
 
             // sprite
@@ -3347,7 +3347,7 @@ void DoPlayerClimb(PLAYERp pp)
             // the sprite
 
             pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
-            pp->ly = lActor->spr.pos.Y + ny * 5;
+            pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
 
             pp->angle.settarget(lActor->spr.ang + 1024);
         }
@@ -3729,7 +3729,7 @@ bool PlayerOnLadder(PLAYERp pp)
     // the sprite
 
     pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
-    pp->ly = lActor->spr.pos.Y + ny * 5;
+    pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
 
     pp->angle.settarget(lActor->spr.ang + 1024);
 
@@ -7119,7 +7119,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, RevolveDeltaAng)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, pnum)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, LadderSector)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, lx)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, ly)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, ly)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, JumpDuration)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WadeDepth)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, bob_amt)

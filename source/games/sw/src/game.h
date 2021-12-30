@@ -671,7 +671,6 @@ struct PLAYERstruct
 
     sectortype* LadderSector;
     vec3_t LadderPosition; // ladder x and y
-    int ly; // ladder x and y
     int16_t JumpDuration;
     int16_t WadeDepth;
     int16_t bob_amt;
