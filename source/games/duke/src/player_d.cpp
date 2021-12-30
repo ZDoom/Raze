@@ -1917,7 +1917,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 	{
 		p->jumping_counter = 0;
 		if (p->poszv < 0)
-			p->vel.X = p->posyv = 0;
+			p->vel.X = p->vel.Y = 0;
 		p->poszv = 128;
 		p->pos.Z = cz + (4 << 8);
 	}
@@ -2784,7 +2784,7 @@ void processinput_d(int snum)
 		{
 			j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
 			p->vel.X -= bcos(j, 4);
-			p->posyv -= bsin(j, 4);
+			p->vel.Y -= bsin(j, 4);
 		}
 	}
 
@@ -2829,7 +2829,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->vel.X = p->posyv = pact->spr.xvel = 0;
+		p->vel.X = p->vel.Y = pact->spr.xvel = 0;
 
 		fi.doincrements(p);
 
@@ -2877,7 +2877,7 @@ void processinput_d(int snum)
 	{
 		doubvel = 0;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 	}
 	else if (SyncInput())
 	{
@@ -2928,7 +2928,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	if (p->vel.X || p->posyv || sb_fvel || sb_svel)
+	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -2971,7 +2971,7 @@ void processinput_d(int snum)
 			doubvel <<= 1;
 
 		p->vel.X += ((sb_fvel * doubvel) << 6);
-		p->posyv += ((sb_svel * doubvel) << 6);
+		p->vel.Y += ((sb_svel * doubvel) << 6);
 
 		bool check;
 
@@ -2980,31 +2980,31 @@ void processinput_d(int snum)
 		if (check)
 		{
 			p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x2000, 16);
-			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1400, 16);
-				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
 				p->vel.X = MulScale(p->vel.X, gs.playerfriction, 16);
-				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
+				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction, 16);
 			}
 		}
 
-		if (abs(p->vel.X) < 2048 && abs(p->posyv) < 2048)
-			p->vel.X = p->posyv = 0;
+		if (abs(p->vel.X) < 2048 && abs(p->vel.Y) < 2048)
+			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
 		{
 			p->vel.X =
 				MulScale(p->vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
-			p->posyv =
-				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+			p->vel.Y =
+				MulScale(p->vel.Y, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 
@@ -3020,12 +3020,12 @@ HORIZONLY:
 	if (ud.clipping)
 	{
 		p->pos.X += p->vel.X >> 14;
-		p->pos.Y += p->posyv >> 14;
+		p->pos.Y += p->vel.Y >> 14;
 		updatesector(p->pos.X, p->pos.Y, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->vel.X, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32 << 8;

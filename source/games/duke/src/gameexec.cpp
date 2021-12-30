@@ -408,8 +408,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSYV:
-		if (bSet) ps[iPlayer].posyv = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].posyv, sActor, sPlayer);
+		if (bSet) ps[iPlayer].vel.Y = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].vel.Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZV:
@@ -2276,7 +2276,7 @@ int ParseState::parse(void)
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
-			ps[g_p].vel.X = ps[g_p].posyv = 0;
+			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
 			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildang(0);
 
 			ps[g_p].falling_counter = 0;
@@ -2474,7 +2474,7 @@ int ParseState::parse(void)
 		insptr++;
 		forceplayerangle(g_p);
 		ps[g_p].vel.X -= ps[g_p].angle.ang.bcos(7);
-		ps[g_p].posyv -= ps[g_p].angle.ang.bsin(7);
+		ps[g_p].vel.Y -= ps[g_p].angle.ang.bsin(7);
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2483,7 +2483,7 @@ int ParseState::parse(void)
 		else
 		{
 			ps[g_p].vel.X -= ps[g_p].angle.ang.bcos(10);
-			ps[g_p].posyv -= ps[g_p].angle.ang.bsin(10);
+			ps[g_p].vel.Y -= ps[g_p].angle.ang.bsin(10);
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}

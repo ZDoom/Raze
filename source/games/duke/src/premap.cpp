@@ -149,7 +149,7 @@ void resetplayerstats(int snum)
 	p->jumping_counter   = 0;
 	p->hard_landing      = 0;
 	p->vel.X             = 0;                           //!!
-	p->posyv             = 0;
+	p->vel.Y             = 0;
 	p->poszv             = 0;
 	p->fric.X            = 0;
 	p->fric.Y            = 0;

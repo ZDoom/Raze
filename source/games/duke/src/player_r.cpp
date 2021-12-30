@@ -1324,7 +1324,7 @@ int doincrements_r(struct player_struct* p)
 			p->noise_radius = 16384;
 			madenoise(screenpeek);
 			p->vel.X += p->angle.ang.bcos(4);
-			p->posyv += p->angle.ang.bsin(4);
+			p->vel.Y += p->angle.ang.bsin(4);
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -1799,7 +1799,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 
 		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
@@ -1808,7 +1808,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		velAdjustment = rng == 0 ? -10 : 10;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
 		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -2043,7 +2043,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 
 		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
@@ -2274,7 +2274,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 	{
 		p->jumping_counter = 0;
 		if (p->poszv < 0)
-			p->vel.X = p->posyv = 0;
+			p->vel.X = p->vel.Y = 0;
 		p->poszv = 128;
 		p->pos.Z = cz + (4 << 8);
 	}
@@ -2799,7 +2799,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (psectlotag != 857)
 			{
 				p->vel.X -= p->angle.ang.bcos(4);
-				p->posyv -= p->angle.ang.bsin(4);
+				p->vel.Y -= p->angle.ang.bsin(4);
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -2899,13 +2899,13 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if (psectlotag != 857)
 				{
 					p->vel.X -= p->angle.ang.bcos(5);
-					p->posyv -= p->angle.ang.bsin(5);
+					p->vel.Y -= p->angle.ang.bsin(5);
 				}
 			}
 			else if (psectlotag != 857)
 			{
 				p->vel.X -= p->angle.ang.bcos(4);
-				p->posyv -= p->angle.ang.bsin(4);
+				p->vel.Y -= p->angle.ang.bsin(4);
 			}
 		}
 
@@ -2993,7 +2993,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if (psectlotag != 857)
 				{
 					p->vel.X -= p->angle.ang.bcos(4);
-					p->posyv -= p->angle.ang.bsin(4);
+					p->vel.Y -= p->angle.ang.bsin(4);
 				}
 				checkavailweapon(p);
 
@@ -3134,7 +3134,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.X -= p->angle.ang.bcos(4);
-			p->posyv -= p->angle.ang.bsin(4);
+			p->vel.Y -= p->angle.ang.bsin(4);
 			p->horizon.addadjustment(20);
 			p->recoil += 20;
 		}
@@ -3184,7 +3184,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic < 30)
 		{
 			p->vel.X += p->angle.ang.bcos(4);
-			p->posyv += p->angle.ang.bsin(4);
+			p->vel.Y += p->angle.ang.bsin(4);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -3475,7 +3475,7 @@ void processinput_r(int snum)
 		{
 			int j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
 			p->vel.X -= bcos(j, 4);
-			p->posyv -= bsin(j, 4);
+			p->vel.Y -= bsin(j, 4);
 		}
 		if (clz.actor()->spr.picnum == LADDER)
 		{
@@ -3545,7 +3545,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->vel.X = p->posyv = pact->spr.xvel = 0;
+		p->vel.X = p->vel.Y = pact->spr.xvel = 0;
 
 		fi.doincrements(p);
 
@@ -3608,7 +3608,7 @@ void processinput_r(int snum)
 	{
 		doubvel = 0;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 	}
 	else if (SyncInput())
 	{
@@ -3641,7 +3641,7 @@ void processinput_r(int snum)
 		}
 	}
 
-	if (p->vel.X || p->posyv || sb_fvel || sb_svel)
+	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -3691,24 +3691,24 @@ void processinput_r(int snum)
 			doubvel <<= 1;
 
 		p->vel.X += ((sb_fvel * doubvel) << 6);
-		p->posyv += ((sb_svel * doubvel) << 6);
+		p->vel.Y += ((sb_svel * doubvel) << 6);
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
 			p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x2000, 16);
-			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1400, 16);
-				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
 				p->vel.X = MulScale(p->vel.X, gs.playerfriction, 16);
-				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
+				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction, 16);
 			}
 		}
 
@@ -3730,7 +3730,7 @@ void processinput_r(int snum)
 			else
 			{
 				p->vel.X = MulScale(p->vel.X, gs.playerfriction, 16);
-				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
+				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction, 16);
 			}
 		}
 		else
@@ -3742,7 +3742,7 @@ void processinput_r(int snum)
 					if (p->on_ground)
 					{
 						p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1800, 16);
-						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x1800, 16);
 					}
 				}
 				else
@@ -3751,19 +3751,19 @@ void processinput_r(int snum)
 					else
 					{
 						p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1800, 16);
-						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x1800, 16);
 					}
 			}
 
-		if (abs(p->vel.X) < 2048 && abs(p->posyv) < 2048)
-			p->vel.X = p->posyv = 0;
+		if (abs(p->vel.X) < 2048 && abs(p->vel.Y) < 2048)
+			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
 		{
 			p->vel.X =
 				MulScale(p->vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
-			p->posyv =
-				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+			p->vel.Y =
+				MulScale(p->vel.Y, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 
@@ -3779,12 +3779,12 @@ HORIZONLY:
 	if (ud.clipping)
 	{
 		p->pos.X += p->vel.X >> 14;
-		p->pos.Y += p->posyv >> 14;
+		p->pos.Y += p->vel.Y >> 14;
 		updatesector(p->pos.X, p->pos.Y, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->vel.X, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32 << 8;
@@ -4039,7 +4039,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 		p->curr_weapon = MOTORCYCLE_WEAPON;
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 		p->horizon.horiz = q16horiz(0);
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
@@ -4080,9 +4080,9 @@ void OffMotorcycle(struct player_struct *p)
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 		p->vel.X -= p->angle.ang.bcos(7);
-		p->posyv -= p->angle.ang.bsin(7);
+		p->vel.Y -= p->angle.ang.bsin(7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
@@ -4119,7 +4119,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 		p->curr_weapon = BOAT_WEAPON;
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 		p->horizon.horiz = q16horiz(0);
 	}
 }
@@ -4147,9 +4147,9 @@ void OffBoat(struct player_struct *p)
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
 		p->vel.X = 0;
-		p->posyv = 0;
+		p->vel.Y = 0;
 		p->vel.X -= p->angle.ang.bcos(7);
-		p->posyv -= p->angle.ang.bsin(7);
+		p->vel.Y -= p->angle.ang.bsin(7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)

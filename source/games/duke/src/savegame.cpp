@@ -126,7 +126,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("bobposy", w.bobposy)
 			("pyoff", w.pyoff)
 			("posxv", w.vel.X)
-			("posyv", w.posyv)
+			("posyv", w.vel.Y)
 			("poszv", w.poszv)
 			("last_pissed_time", w.last_pissed_time)
 			("truefz", w.truefz)
