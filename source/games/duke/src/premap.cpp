@@ -150,7 +150,7 @@ void resetplayerstats(int snum)
 	p->hard_landing      = 0;
 	p->vel.X             = 0;                           //!!
 	p->vel.Y             = 0;
-	p->poszv             = 0;
+	p->vel.Z             = 0;
 	p->fric.X            = 0;
 	p->fric.Y            = 0;
 	p->somethingonplayer =nullptr;

@@ -413,8 +413,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSZV:
-		if (bSet) ps[iPlayer].poszv = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].poszv, sActor, sPlayer);
+		if (bSet) ps[iPlayer].vel.Z = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].vel.Z, sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_PISSED_TIME:
@@ -2414,7 +2414,7 @@ int ParseState::parse(void)
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
-			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
+			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].vel.Z > 2048 )
 					j = 1;
 			else if( (l& pjumping) && ps[g_p].jumping_counter > 348 )
 					j = 1;

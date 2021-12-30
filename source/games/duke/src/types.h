@@ -205,7 +205,7 @@ struct player_struct
 	int exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	int invdisptime;
 	int bobposx, bobposy, pyoff, opyoff;
-	int poszv, last_pissed_time, truefz, truecz;
+	int last_pissed_time, truefz, truecz;
 	int player_par, visibility;
 	int bobcounter;
 	int randomflamex, crack_time;

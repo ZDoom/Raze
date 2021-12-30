@@ -2126,7 +2126,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 				{
 					p->VBumpTarget = 80;
 					p->moto_bump_fast = 1;
-					p->poszv -= xs_CRoundToInt(gs.gravity * (p->MotoSpeed / 16.));
+					p->vel.Z -= xs_CRoundToInt(gs.gravity * (p->MotoSpeed / 16.));
 					p->MotoOnGround = 0;
 					if (S_CheckActorSoundPlaying(pact, 188))
 						S_StopSound(188, pact);
@@ -2134,23 +2134,23 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 				}
 				else
 				{
-					p->poszv += gs.gravity - 80 + int(120 - p->MotoSpeed);
+					p->vel.Z += gs.gravity - 80 + int(120 - p->MotoSpeed);
 					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
 						S_PlayActorSound(190, pact);
 				}
 			}
 			else
-				p->poszv += (gs.gravity + 80); // (TICSPERFRAME<<6);
+				p->vel.Z += (gs.gravity + 80); // (TICSPERFRAME<<6);
 
-			if (p->poszv >= (4096 + 2048)) p->poszv = (4096 + 2048);
-			if (p->poszv > 2400 && p->falling_counter < 255)
+			if (p->vel.Z >= (4096 + 2048)) p->vel.Z = (4096 + 2048);
+			if (p->vel.Z > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if ((p->pos.Z + p->poszv) >= (fz - (i << 8))) // hit the ground
+			if ((p->pos.Z + p->vel.Z) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2175,7 +2175,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->poszv > 2048)
+					else if (p->vel.Z > 2048)
 					{
 						if (p->OnMotorcycle)
 						{
@@ -2186,7 +2186,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 						}
 						else S_PlayActorSound(DUKE_LAND, pact);
 					}
-					else if (p->poszv > 1024 && p->OnMotorcycle)
+					else if (p->vel.Z > 1024 && p->OnMotorcycle)
 					{
 						S_PlayActorSound(DUKE_LAND, pact);
 						p->TurbCount = 12;
@@ -2201,8 +2201,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		p->falling_counter = 0;
 		S_StopSound(-1, pact, CHAN_VOICE);
 
-		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
-			p->hard_landing = p->poszv >> 10;
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > (6144 >> 1))
+			p->hard_landing = p->vel.Z >> 10;
 
 		p->on_ground = 1;
 
@@ -2213,8 +2213,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			int k = ((fz - (i << 8)) - p->pos.Z) >> 1;
 			if (abs(k) < 256) k = 0;
 			p->pos.Z += k;
-			p->poszv -= 768;
-			if (p->poszv < 0) p->poszv = 0;
+			p->vel.Z -= 768;
+			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
@@ -2222,7 +2222,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			if (p->on_warping_sector == 0 && p->pos.Z > fz - (16 << 8))
 			{
 				p->pos.Z = fz - (16 << 8);
-				p->poszv >>= 1;
+				p->vel.Z >>= 1;
 			}
 		}
 
@@ -2252,11 +2252,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			if (psectlotag == ST_1_ABOVE_WATER && p->jumping_counter > 768)
 			{
 				p->jumping_counter = 0;
-				p->poszv = -512;
+				p->vel.Z = -512;
 			}
 			else
 			{
-				p->poszv -= bsin(2048 - 128 + p->jumping_counter) / 12;
+				p->vel.Z -= bsin(2048 - 128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -2264,18 +2264,18 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		else
 		{
 			p->jumping_counter = 0;
-			p->poszv = 0;
+			p->vel.Z = 0;
 		}
 	}
 
-	p->pos.Z += p->poszv;
+	p->pos.Z += p->vel.Z;
 
 	if (p->pos.Z < (cz + (4 << 8)))
 	{
 		p->jumping_counter = 0;
-		if (p->poszv < 0)
+		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
-		p->poszv = 128;
+		p->vel.Z = 128;
 		p->pos.Z = cz + (4 << 8);
 	}
 }
@@ -2302,36 +2302,36 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 
 	if ((actions & SB_JUMP) && !p->OnMotorcycle)
 	{
-		if (p->poszv > 0) p->poszv = 0;
-		p->poszv -= 348;
-		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
+		if (p->vel.Z > 0) p->vel.Z = 0;
+		p->vel.Z -= 348;
+		if (p->vel.Z < -(256 * 6)) p->vel.Z = -(256 * 6);
 	}
 	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
 	{
-		if (p->poszv < 0) p->poszv = 0;
-		p->poszv += 348;
-		if (p->poszv > (256 * 6)) p->poszv = (256 * 6);
+		if (p->vel.Z < 0) p->vel.Z = 0;
+		p->vel.Z += 348;
+		if (p->vel.Z > (256 * 6)) p->vel.Z = (256 * 6);
 	}
 	else
 	{
-		if (p->poszv < 0)
+		if (p->vel.Z < 0)
 		{
-			p->poszv += 256;
-			if (p->poszv > 0)
-				p->poszv = 0;
+			p->vel.Z += 256;
+			if (p->vel.Z > 0)
+				p->vel.Z = 0;
 		}
-		if (p->poszv > 0)
+		if (p->vel.Z > 0)
 		{
-			p->poszv -= 256;
-			if (p->poszv < 0)
-				p->poszv = 0;
+			p->vel.Z -= 256;
+			if (p->vel.Z < 0)
+				p->vel.Z = 0;
 		}
 	}
 
-	if (p->poszv > 2048)
-		p->poszv >>= 1;
+	if (p->vel.Z > 2048)
+		p->vel.Z >>= 1;
 
-	p->pos.Z += p->poszv;
+	p->pos.Z += p->vel.Z;
 
 	if (p->pos.Z > (fz - (15 << 8)))
 		p->pos.Z += ((fz - (15 << 8)) - p->pos.Z) >> 1;
@@ -2339,7 +2339,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->pos.Z < (cz + (4 << 8)))
 	{
 		p->pos.Z = cz + (4 << 8);
-		p->poszv = 0;
+		p->vel.Z = 0;
 	}
 
 	if (p->scuba_on && (krand() & 255) < 8)

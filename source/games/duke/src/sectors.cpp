@@ -351,7 +351,7 @@ void doanimations(void)
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].pos.Z += v;
-							ps[p].poszv = 0;
+							ps[p].vel.Z = 0;
 						}
 
 			DukeSectIterator it(dasectp);
