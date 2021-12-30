@@ -1960,7 +1960,7 @@ void movetransports_d(void)
 							ps[p].opos.Z = ps[p].pos.Z;
 
 							auto pa = ps[p].GetActor();
-							pa->spr.opos = ps[p].pos;
+							pa->opos = ps[p].pos;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -3707,7 +3707,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (actor->temp_data[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->spr.opos.X != actor->spr.pos.X) || (actor->spr.opos.Y != actor->spr.pos.Y))
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
 			actor->backupvec2();
 			SetActor(actor, actor->spr.pos);
@@ -3814,7 +3814,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != COMMANDER)
 			{
-				if (actor->spr.opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
 					if ((actor->temp_data[0] & 1) || ps[playernum].actorsqu == actor) return;
 					else daxvel <<= 1;

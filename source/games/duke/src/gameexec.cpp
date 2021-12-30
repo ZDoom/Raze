@@ -1329,16 +1329,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->ovel.Y, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSX:
-		if (bSet) act->spr.opos.X = lValue;
-		else SetGameVarID(lVar2, act->spr.opos.X, sActor, sPlayer);
+		if (bSet) act->opos.X = lValue;
+		else SetGameVarID(lVar2, act->opos.X, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSY:
-		if (bSet) act->spr.opos.Y = lValue;
-		else SetGameVarID(lVar2, act->spr.opos.Y, sActor, sPlayer);
+		if (bSet) act->opos.Y = lValue;
+		else SetGameVarID(lVar2, act->opos.Y, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSZ:
-		if (bSet) act->spr.opos.Z = lValue;
-		else SetGameVarID(lVar2, act->spr.opos.Z, sActor, sPlayer);
+		if (bSet) act->opos.Z = lValue;
+		else SetGameVarID(lVar2, act->opos.Z, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
 		if (bSet) act->temp_data[0] = lValue;

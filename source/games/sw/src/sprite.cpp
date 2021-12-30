@@ -846,7 +846,7 @@ void SpawnUser(DSWActor* actor, short id, STATEp state)
     actor->user.motion_blur_dist = 256;
 
     actor->backuppos();
-    actor->user.oz = actor->spr.opos.Z;
+    actor->user.oz = actor->opos.Z;
 
     actor->user.active_range = MIN_ACTIVE_RANGE;
 
@@ -2057,7 +2057,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->spr.opos.Z = sectp->floorz;
+                        actor->user.oz = actor->opos.Z = sectp->floorz;
                     }
                     else
                     {
@@ -2077,7 +2077,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->spr.opos.Z = sectp->ceilingz;
+                        actor->user.oz = actor->opos.Z = sectp->ceilingz;
                     }
 
 
@@ -2259,7 +2259,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->spr.opos.Z = actor->user.zclip;
+                        actor->user.oz = actor->opos.Z = actor->user.zclip;
                     }
                     else
                     {
@@ -2277,7 +2277,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->spr.opos.Z = actor->user.zclip;
+                        actor->user.oz = actor->opos.Z = actor->user.zclip;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
@@ -6337,7 +6337,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     actor->backuppos();
-    actor->user.oz = actor->spr.opos.Z;
+    actor->user.oz = actor->opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
@@ -6345,7 +6345,7 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     actor->backuppos();
-    actor->user.oz = actor->spr.opos.Z;
+    actor->user.oz = actor->opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }

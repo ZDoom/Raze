@@ -841,7 +841,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 itActor->user.RotNum = 0;
 
                 itActor->backuppos();
-                itActor->user.oz = itActor->spr.opos.Z;
+                itActor->user.oz = itActor->opos.Z;
 
                 switch (itActor->spr.statnum)
                 {

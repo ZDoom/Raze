@@ -20,6 +20,9 @@ public:
 	spriteext_t sprext;
 	spritesmooth_t spsmooth;
 
+	vec3_t opos;
+	int16_t oang;
+
 	DCoreActor() = default;
 	virtual ~DCoreActor() = default;
 	DCoreActor(const DCoreActor& other) = delete;				// we also do not want to allow copies.
@@ -44,17 +47,17 @@ public:
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(spr.opos.X, spr.pos.X, smoothratio, scale);
+		return interpolatedvalue(opos.X, spr.pos.X, smoothratio, scale);
 	}
 
 	int32_t interpolatedy(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(spr.opos.Y, spr.pos.Y, smoothratio, scale);
+		return interpolatedvalue(opos.Y, spr.pos.Y, smoothratio, scale);
 	}
 
 	int32_t interpolatedz(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(spr.opos.Z, spr.pos.Z, smoothratio, scale);
+		return interpolatedvalue(opos.Z, spr.pos.Z, smoothratio, scale);
 	}
 
 	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
@@ -78,37 +81,37 @@ public:
 
 	int16_t interpolatedang(double const smoothratio)
 	{
-		return interpolatedangle(spr.oang, spr.ang, smoothratio, 16);
+		return interpolatedangle(oang, spr.ang, smoothratio, 16);
 	}
 
 	void backupx()
 	{
-		spr.opos.X = spr.pos.X;
+		opos.X = spr.pos.X;
 	}
 
 	void backupy()
 	{
-		spr.opos.Y = spr.pos.Y;
+		opos.Y = spr.pos.Y;
 	}
 
 	void backupz()
 	{
-		spr.opos.Z = spr.pos.Z;
+		opos.Z = spr.pos.Z;
 	}
 
 	void backupvec2()
 	{
-		spr.opos.vec2 = spr.pos.vec2;
+		opos.vec2 = spr.pos.vec2;
 	}
 
 	void backuppos()
 	{
-		spr.opos = spr.pos;
+		opos = spr.pos;
 	}
 
 	void backupang()
 	{
-		spr.oang = spr.ang;
+		oang = spr.ang;
 	}
 
 	void backuploc()

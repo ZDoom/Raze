@@ -8398,7 +8398,7 @@ int DoGrenade(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 40;
         actorNew->spr.yrepeat = 40;
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -9247,7 +9247,7 @@ int DoRail(DSWActor* actor)
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = 10;
             actorNew->spr.yrepeat = 10;
-            actorNew->spr.opos = actor->spr.opos;
+            actorNew->opos = actor->opos;
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -9340,7 +9340,7 @@ int DoRocket(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 40;
         actorNew->spr.yrepeat = 40;
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -9429,7 +9429,7 @@ int DoMicro(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 20;
         actorNew->spr.yrepeat = 20;
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         actorNew->spr.zvel = actor->spr.zvel;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);

@@ -416,7 +416,7 @@ struct walltype
 
 struct spritetypebase
 {
-	vec3_t pos, opos;
+	vec3_t pos;
 
 	sectortype* sectp;
 
@@ -424,7 +424,6 @@ struct spritetypebase
 	int16_t picnum;
 	int16_t statnum;
 	int16_t ang;
-	int16_t oang;
 	int16_t xvel;
 	int16_t yvel;
 	union { int16_t zvel, inittype; }; // inittype, type and flags are for Blood.
@@ -452,9 +451,6 @@ struct spritetype : public spritetypebase
 {
 	int16_t owner;
 	int16_t detail;
-	int16_t wall;	// wall and wdist are for Polymost only.
-	int8_t wdist;
-
 };
 
 //=============================================================================
@@ -471,7 +467,6 @@ struct tspritetype : public spritetypebase
 	void copyfrom(spritetype* spr)
 	{
 		pos = spr->pos;
-		opos = spr->opos;
 		cstat = spr->cstat;
 		picnum = spr->picnum;
 		shade = spr->shade;
@@ -485,7 +480,6 @@ struct tspritetype : public spritetypebase
 		sectp = spr->sectp;
 		statnum = spr->statnum;
 		ang = spr->ang;
-		oang = spr->oang;
 		xvel = spr->xvel;
 		yvel = spr->yvel;
 		zvel = spr->zvel;

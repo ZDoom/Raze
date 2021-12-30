@@ -6397,7 +6397,7 @@ void MoveSkipSavePos(void)
             {
                 if (!actor->hasU()) continue;
                 actor->backuppos();
-                actor->user.oz = actor->spr.opos.Z;
+                actor->user.oz = actor->opos.Z;
             }
         }
     }
@@ -6414,7 +6414,7 @@ void MoveSkipSavePos(void)
             {
                 if (!actor->hasU()) continue;
                 actor->backuppos();
-                actor->user.oz = actor->spr.opos.Z;
+                actor->user.oz = actor->opos.Z;
             }
         }
     }

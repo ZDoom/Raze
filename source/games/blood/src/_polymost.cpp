@@ -50,9 +50,9 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->statnum = kStatDecoration;
                 pTSprite->ownerActor = actor;
                 pTSprite->flags = actor->spr.hitag | 0x200;
-                pTSprite->pos.X = dx + interpolatedvalue(actor->spr.opos.X, actor->spr.pos.X, interpolation);
-                pTSprite->pos.Y = dy + interpolatedvalue(actor->spr.opos.Y, actor->spr.pos.Y, interpolation);
-                pTSprite->pos.Z = dz + interpolatedvalue(actor->spr.opos.Z, actor->spr.pos.Z, interpolation);
+                pTSprite->pos.X = dx + interpolatedvalue(actor->opos.X, actor->spr.pos.X, interpolation);
+                pTSprite->pos.Y = dy + interpolatedvalue(actor->opos.Y, actor->spr.pos.Y, interpolation);
+                pTSprite->pos.Z = dz + interpolatedvalue(actor->opos.Z, actor->spr.pos.Z, interpolation);
                 pTSprite->ang = actor->interpolatedang(interpolation);
 
                 int nAnim = 0;

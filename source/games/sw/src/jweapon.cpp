@@ -298,7 +298,7 @@ void SpawnMidSplash(DSWActor* actor)
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
     actorNew->spr.yrepeat = 70-RandomRange(20);
-    actorNew->spr.opos = actor->spr.opos;
+    actorNew->opos = actor->opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -321,7 +321,7 @@ void SpawnFloorSplash(DSWActor* actor)
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
     actorNew->spr.yrepeat = 70-RandomRange(20);
-    actorNew->spr.opos = actor->spr.opos;
+    actorNew->opos = actor->opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -523,7 +523,7 @@ int DoBloodSpray(DSWActor* actor)
         actorNew->spr.shade = -12;
         actorNew->spr.xrepeat = 40-RandomRange(30);
         actorNew->spr.yrepeat = 40-RandomRange(30);
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -726,7 +726,7 @@ int DoPhosphorus(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 12 + RandomRange(10);
         actorNew->spr.yrepeat = 12 + RandomRange(10);
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -948,7 +948,7 @@ int DoChemBomb(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 40;
         actorNew->spr.yrepeat = 40;
-        actorNew->spr.opos = actor->spr.opos;
+        actorNew->opos = actor->opos;
         // !Frank - dont do translucent
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         // actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);
