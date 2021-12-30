@@ -328,7 +328,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 			("PresentState", w.PresentState)
 			("ActionState", w.ActionState)
 			("RestState", w.RestState)
-			("ox", w.ox)
+			("ox", w.opos.X)
 			("oy", w.oy)
 			("x", w.pos.X)
 			("y", w.pos.Y)
@@ -366,7 +366,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 	}
 	if (arc.isReading())
 	{
-		w.ox = w.pos.X;
+		w.opos.X = w.pos.X;
 		w.oy = w.pos.Y;
 	}
 	return arc;

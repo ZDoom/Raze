@@ -106,7 +106,7 @@ struct PANEL_SPRITEstruct
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
     // Do not change the order of this line
-    DVector2 pos;
+    DVector2 pos, opos;
     double xorig;
     double yorig;                            // Do not change the order of this
     // line
@@ -131,10 +131,10 @@ struct PANEL_SPRITEstruct
     short WeaponType; // remember my own weapon type for weapons with secondary function
 
     // Weapon interpolation variables.
-    double ox, oy;
+    double oy;
 
     // Inline helpers.
-    void backupx() { ox = pos.X; };
+    void backupx() { opos.X = pos.X; };
     void backupy() { oy = pos.Y; };
     void backupcoords() { backupx(); backupy(); };
     void backupbobx() { xorig = pos.X; };
