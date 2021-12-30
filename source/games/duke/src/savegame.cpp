@@ -117,7 +117,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("fricx", w.fric.X)
 			("fricy", w.fric.Y)
 			("exitx", w.exit.X)
-			("exity", w.exity)
+			("exity", w.exit.Y)
 			("numloogs", w.numloogs)
 			("loogcnt", w.loogcnt)
 			.Array("loogiex", w.loogiex, w.numloogs)

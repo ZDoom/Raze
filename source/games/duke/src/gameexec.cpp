@@ -301,8 +301,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_EXITY:
-		if (bSet) ps[iPlayer].exity = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].exity, sActor, sPlayer);
+		if (bSet) ps[iPlayer].exit.Y = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].exit.Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_LOOGIEX:
