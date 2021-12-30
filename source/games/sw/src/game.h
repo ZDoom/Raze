@@ -628,7 +628,7 @@ struct PLAYERstruct
     SECTORp hi_sectp, lo_sectp;
 
     int circle_camera_dist;
-    int six,siy,siz; // save player interp position for PlayerSprite
+    vec3_t si; // save player interp position for PlayerSprite
     int16_t siang;
 
     int xvect, yvect;

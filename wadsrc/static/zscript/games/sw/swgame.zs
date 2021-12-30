@@ -194,7 +194,6 @@ struct SWPlayer native
     native int hiz,loz;
     native int ceiling_dist,floor_dist;
     native int circle_camera_dist;
-    native int six,siy,siz; // save player interp position for PlayerSprite
     native int16 siang;
 
     native int xvect, yvect;

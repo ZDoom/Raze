@@ -345,7 +345,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int v
     else if (!testnewrenderer)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(tSpr->pos.X - Player[screenpeek].six, tSpr->pos.Y - Player[screenpeek].siy);
+        int look = getangle(tSpr->pos.X - Player[screenpeek].si.X, tSpr->pos.Y - Player[screenpeek].si.Y);
         tSpr->pos.X += bcos(look, -9);
         tSpr->pos.Y += bsin(look, -9);
     }
@@ -776,16 +776,16 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        tsp->pos.X = pp->six + MOVEx(128 + 80, tsp->ang);
-                        tsp->pos.Y = pp->siy + MOVEy(128 + 80, tsp->ang);
+                        tsp->pos.X = pp->si.X + MOVEx(128 + 80, tsp->ang);
+                        tsp->pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->ang);
                     }
                     else
                     {
-                        tsp->pos.X = pp->six;
-                        tsp->pos.Y = pp->siy;
+                        tsp->pos.X = pp->si.X;
+                        tsp->pos.Y = pp->si.Y;
                     }
 
-                    tsp->pos.Z = tsp->pos.Z + pp->siz;
+                    tsp->pos.Z = tsp->pos.Z + pp->si.Z;
                     tsp->ang = pp->siang;
                     //continue;
                 }
@@ -1445,9 +1445,9 @@ void drawscreen(PLAYERp pp, double smoothratio)
         updatesectorz(tx, ty, tz, &tsect);
     }
 
-    pp->six = tx;
-    pp->siy = ty;
-    pp->siz = tz - pp->pos.Z;
+    pp->si.X = tx;
+    pp->si.Y = ty;
+    pp->si.Z = tz - pp->pos.Z;
     pp->siang = tang.asbuild();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
