@@ -471,7 +471,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 void DBloodActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
-	arc("xvel", xvel)
+	arc("xvel", vel.X)
 		("yvel", yvel)
 		("zvel", zvel)
 		("hasx", hasx);

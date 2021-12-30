@@ -208,11 +208,11 @@ void CFX::fxProcess(void)
 		assert(actor->spr.type < kFXMax);
 		FXDATA* pFXData = &gFXData[actor->spr.type];
 		actAirDrag(actor, pFXData->drag);
-		actor->spr.pos.X += actor->xvel >> 12;
+		actor->spr.pos.X += actor->vel.X >> 12;
 		actor->spr.pos.Y += actor->yvel >> 12;
 		actor->spr.pos.Z += actor->zvel >> 8;
 		// Weird...
-		if (actor->xvel || (actor->yvel && actor->spr.pos.Z >= actor->spr.sector()->floorz))
+		if (actor->vel.X || (actor->yvel && actor->spr.pos.Z >= actor->spr.sector()->floorz))
 		{
 			updatesector(actor->spr.pos.X, actor->spr.pos.Y, &pSector);
 			if (pSector == nullptr)
@@ -236,7 +236,7 @@ void CFX::fxProcess(void)
 				ChangeActorSect(actor, pSector);
 			}
 		}
-		if (actor->xvel || actor->yvel || actor->zvel)
+		if (actor->vel.X || actor->yvel || actor->zvel)
 		{
 			int32_t floorZ, ceilZ;
 			getzsofslopeptr(pSector, actor->spr.pos.X, actor->spr.pos.Y, &ceilZ, &floorZ);
@@ -279,7 +279,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	if (bloodactor)
 	{
 		bloodactor->spr.ang = 1024;
-		bloodactor->xvel = Random2(0x6aaaa);
+		bloodactor->vel.X = Random2(0x6aaaa);
 		bloodactor->yvel = Random2(0x6aaaa);
 		bloodactor->zvel = -(int)Random(0x10aaaa) - 100;
 		evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
@@ -309,7 +309,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 	if (spawnactor)
 	{
 		spawnactor->spr.ang = 1024;
-		spawnactor->xvel = Random2(0x6aaaa);
+		spawnactor->vel.X = Random2(0x6aaaa);
 		spawnactor->yvel = Random2(0x6aaaa);
 		spawnactor->zvel = -(int)Random(0x10aaaa) - 100;
 		evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
@@ -335,7 +335,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 			pBrass->spr.ang = Random(2047);
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
 		int nAngle = actor->spr.ang + Random2(56) + 512;
-		pBrass->xvel = MulScale(nDist, Cos(nAngle), 30);
+		pBrass->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pBrass->yvel = MulScale(nDist, Sin(nAngle), 30);
 		pBrass->zvel = actor->zvel - (0x20000 + (Random2(40) << 18) / 120);
 	}
@@ -360,7 +360,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 			pShell->spr.ang = Random(2047);
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
 		int nAngle = actor->spr.ang + Random2(56) + 512;
-		pShell->xvel = MulScale(nDist, Cos(nAngle), 30);
+		pShell->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pShell->yvel = MulScale(nDist, Sin(nAngle), 30);
 		pShell->zvel = actor->zvel - (0x20000 + (Random2(20) << 18) / 120);
 	}

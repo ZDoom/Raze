@@ -300,13 +300,13 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 				pFX->spr.pal = actor->spr.pal;
 			if (pVel)
 			{
-				pFX->xvel = pVel->vx + Random2(pGFX->atd);
+				pFX->vel.X = pVel->vx + Random2(pGFX->atd);
 				pFX->yvel = pVel->vy + Random2(pGFX->atd);
 				pFX->zvel = pVel->vz - Random(pGFX->at11);
 			}
 			else
 			{
-				pFX->xvel = Random2((pGFX->atd << 18) / 120);
+				pFX->vel.X = Random2((pGFX->atd << 18) / 120);
 				pFX->yvel = Random2((pGFX->atd << 18) / 120);
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
@@ -381,13 +381,13 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 			gibactor->spr.picnum = pGThing->Kills;
 		if (pVel)
 		{
-			gibactor->xvel = pVel->vx + Random2(pGThing->atc);
+			gibactor->vel.X = pVel->vx + Random2(pGThing->atc);
 			gibactor->yvel = pVel->vy + Random2(pGThing->atc);
 			gibactor->zvel = pVel->vz - Random(pGThing->at10);
 		}
 		else
 		{
-			gibactor->xvel = Random2((pGThing->atc << 18) / 120);
+			gibactor->vel.X = Random2((pGThing->atc << 18) / 120);
 			gibactor->yvel = Random2((pGThing->atc << 18) / 120);
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
@@ -464,13 +464,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVel
 				pGib->spr.pal = pWall->pal;
 			if (!pVel)
 			{
-				pGib->xvel = Random2((pGFX->atd << 18) / 120);
+				pGib->vel.X = Random2((pGFX->atd << 18) / 120);
 				pGib->yvel = Random2((pGFX->atd << 18) / 120);
 				pGib->zvel = -(int)Random((pGFX->at11 << 18) / 120);
 			}
 			else
 			{
-				pGib->xvel = Random2((pVel->vx << 18) / 120);
+				pGib->vel.X = Random2((pVel->vx << 18) / 120);
 				pGib->yvel = Random2((pVel->vy << 18) / 120);
 				pGib->zvel = -(int)Random((pVel->vz << 18) / 120);
 			}

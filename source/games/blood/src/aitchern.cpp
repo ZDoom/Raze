@@ -84,7 +84,7 @@ void sub_71BD4(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->xvel * t) >> 12;
+			x2 += (actor->vel.X * t) >> 12;
 			y2 += (actor->yvel * t) >> 12;
 			z2 += (actor->zvel * t) >> 8;
 		}
@@ -156,7 +156,7 @@ void sub_720AC(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->xvel * t) >> 12;
+			x2 += (actor->vel.X * t) >> 12;
 			y2 += (actor->yvel * t) >> 12;
 			z2 += (actor->zvel * t) >> 8;
 		}

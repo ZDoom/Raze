@@ -846,7 +846,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->throwPower = 0;
 	pPlayer->deathTime = 0;
 	pPlayer->nextWeapon = kWeapNone;
-	actor->xvel = actor->yvel = actor->zvel = 0;
+	actor->vel.X = actor->yvel = actor->zvel = 0;
 	pInput->avel = 0;
 	pInput->actions = 0;
 	pInput->fvel = 0;
@@ -1444,7 +1444,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				if (nMass)
 				{
 					int t2 = DivScale(0xccccc, nMass, 8);
-					hitactor->xvel += MulScale(x, t2, 16);
+					hitactor->vel.X += MulScale(x, t2, 16);
 					hitactor->yvel += MulScale(y, t2, 16);
 					hitactor->zvel += MulScale(z, t2, 16);
 				}
@@ -1593,14 +1593,14 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->frontAccel, forward, 8);
 			else
 				forward = MulScale(pPosture->backAccel, forward, 8);
-			actor->xvel += MulScale(forward, x, 30);
+			actor->vel.X += MulScale(forward, x, 30);
 			actor->yvel += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
 		{
 			int strafe = pInput->svel;
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
-			actor->xvel += MulScale(strafe, y, 30);
+			actor->vel.X += MulScale(strafe, y, 30);
 			actor->yvel -= MulScale(strafe, x, 30);
 		}
 	}
@@ -1620,7 +1620,7 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->backAccel, forward, 8);
 			if (actor->xspr.height)
 				forward = MulScale(forward, speed, 16);
-			actor->xvel += MulScale(forward, x, 30);
+			actor->vel.X += MulScale(forward, x, 30);
 			actor->yvel += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
@@ -1629,7 +1629,7 @@ void ProcessInput(PLAYER* pPlayer)
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
 			if (actor->xspr.height)
 				strafe = MulScale(strafe, speed, 16);
-			actor->xvel += MulScale(strafe, y, 30);
+			actor->vel.X += MulScale(strafe, y, 30);
 			actor->yvel -= MulScale(strafe, x, 30);
 		}
 	}
@@ -1757,7 +1757,7 @@ void ProcessInput(PLAYER* pPlayer)
 				spawned->spr.ang = (pPlayer->actor->spr.ang + 1024) & 2047;
 				int x = bcos(pPlayer->actor->spr.ang);
 				int y = bsin(pPlayer->actor->spr.ang);
-				spawned->xvel = pPlayer->actor->xvel + MulScale(0x155555, x, 14);
+				spawned->vel.X = pPlayer->actor->vel.X + MulScale(0x155555, x, 14);
 				spawned->yvel = pPlayer->actor->yvel + MulScale(0x155555, y, 14);
 				spawned->zvel = pPlayer->actor->zvel;
 			}
@@ -1857,7 +1857,7 @@ void playerProcess(PLAYER* pPlayer)
 		}
 	}
 	ProcessInput(pPlayer);
-	int nSpeed = approxDist(actor->xvel, actor->yvel);
+	int nSpeed = approxDist(actor->vel.X, actor->yvel);
 	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel, 0x7000);
 	int dz = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ - pPlayer->zView;
 	if (dz > 0)
@@ -2168,7 +2168,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 				int top, bottom;
 				GetActorExtents(pActor, &top, &bottom);
 				CGibPosition gibPos(pActor->spr.pos.X, pActor->spr.pos.Y, top);
-				CGibVelocity gibVel(pActor->xvel >> 1, pActor->yvel >> 1, -0xccccc);
+				CGibVelocity gibVel(pActor->vel.X >> 1, pActor->yvel >> 1, -0xccccc);
 				GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
 				GibSprite(pActor, GIBTYPE_7, NULL, NULL);
 				fxSpawnBlood(pActor, nDamage << 4);
