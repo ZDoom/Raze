@@ -1271,8 +1271,8 @@ void DoPlayerTeleportPause(PLAYERp pp)
 void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
-    pp->pos.X = pp->opos.X = pp->oldposx = pos->X;
-    pp->pos.Y = pp->opos.Y = pp->oldposy = pos->Y;
+    pp->pos.X = pp->opos.X = pp->oldpos.X = pos->X;
+    pp->pos.Y = pp->opos.Y = pp->oldpos.Y = pos->Y;
 
     //getzsofslopeptr(actor->spr.sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
@@ -1285,8 +1285,8 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
 
 void DoPlayerTeleportToOffset(PLAYERp pp)
 {
-    pp->opos.X = pp->oldposx = pp->pos.X;
-    pp->opos.Y = pp->oldposy = pp->pos.Y;
+    pp->opos.X = pp->oldpos.X = pp->pos.X;
+    pp->opos.Y = pp->oldpos.Y = pp->pos.Y;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1599,7 +1599,7 @@ void DoPlayerBob(PLAYERp pp)
 
     dist = 0;
 
-    dist = Distance(pp->pos.X, pp->pos.Y, pp->oldposx, pp->oldposy);
+    dist = Distance(pp->pos.X, pp->pos.Y, pp->oldpos.X, pp->oldpos.Y);
 
     if (dist > 512)
         dist = 0;
@@ -1935,9 +1935,9 @@ void PlayerCheckValidMove(PLAYERp pp)
     {
         static int count = 0;
 
-        pp->pos.X = pp->oldposx;
-        pp->pos.Y = pp->oldposy;
-        pp->pos.Z = pp->oldposz;
+        pp->pos.X = pp->oldpos.X;
+        pp->pos.Y = pp->oldpos.Y;
+        pp->pos.Z = pp->oldpos.Z;
         pp->cursector = pp->lastcursector;
 
         // if stuck here for more than 10 seconds
@@ -1999,9 +1999,9 @@ void DoPlayerMove(PLAYERp pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->oldposx = pp->pos.X;
-    pp->oldposy = pp->pos.Y;
-    pp->oldposz = pp->pos.Z;
+    pp->oldpos.X = pp->pos.X;
+    pp->oldpos.Y = pp->pos.Y;
+    pp->oldpos.Z = pp->pos.Z;
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -6720,8 +6720,8 @@ void InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->oldposx = 0;
-        pp->oldposy = 0;
+        pp->oldpos.X = 0;
+        pp->oldpos.Y = 0;
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
         pp->Kills = 0;
@@ -7109,9 +7109,9 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_horizoff)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ohorizoff)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposx)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposy)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposz)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposx)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposy)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposz)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Revolve.X)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Revolve.Y)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, RevolveDeltaAng)

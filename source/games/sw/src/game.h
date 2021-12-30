@@ -602,7 +602,7 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    vec3_t pos, opos;
+    vec3_t pos, opos, oldpos;
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -659,7 +659,6 @@ struct PLAYERstruct
     int16_t recoil_ndx;
     fixed_t recoil_ohorizoff, recoil_horizoff;
 
-    int oldposx,oldposy,oldposz;
     vec3_t Revolve;
     int16_t RevolveDeltaAng;
     binangle RevolveAng;
