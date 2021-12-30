@@ -66,7 +66,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			act->spr.hitag == floor1->hitag
 			)
 		{
-			auto sect = act->spr.sector();
+			auto sect = act->sector();
 			// repurpose otherwise unused fields in sectortype as temporary storage.
 			if (k == tag + 0)
 			{
@@ -100,7 +100,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			act->spr.hitag == floor1->hitag
 			)
 		{
-			auto sect = act->spr.sector();
+			auto sect = act->sector();
 			if (k == tag + 0)
 			{
 				sect->setfloorz(sect->Flag, true);
@@ -143,7 +143,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursector == act->spr.sector())
+			if (ps[screenpeek].cursector == act->sector())
 				SE40_Draw(tag, &act->spr, x, y, z, a, h, smoothratio);
 			break;
 		}

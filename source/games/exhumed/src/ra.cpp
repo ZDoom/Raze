@@ -87,7 +87,7 @@ void BuildRa(int nPlayer)
 {
     auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    auto pActor = insertActor(pPlayerActor->spr.sector(), 203);
+    auto pActor = insertActor(pPlayerActor->sector(), 203);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xvel = 0;
@@ -141,8 +141,8 @@ void MoveRaToEnemy(int nPlayer)
         }
         else
         {
-            if (pActor->spr.sector() != pTarget->spr.sector()) {
-                ChangeActorSect(pActor, pTarget->spr.sector());
+            if (pActor->sector() != pTarget->sector()) {
+                ChangeActorSect(pActor, pTarget->sector());
             }
         }
     }
@@ -167,8 +167,8 @@ void MoveRaToEnemy(int nPlayer)
     pActor->spr.pos.Y = pTarget->spr.pos.Y;
     pActor->spr.pos.Z = pTarget->spr.pos.Z - GetActorHeight(pTarget);
 
-    if (pActor->spr.sector() != pTarget->spr.sector()) {
-        ChangeActorSect(pActor, pTarget->spr.sector());
+    if (pActor->sector() != pTarget->sector()) {
+        ChangeActorSect(pActor, pTarget->sector());
     }
 }
 

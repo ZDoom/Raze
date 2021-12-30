@@ -112,7 +112,7 @@ void CopySectorMatch(int match)
     SWStatIterator it(STAT_COPY_DEST);
     while (auto dActor = it.Next())
     {
-        dsectp = dActor->spr.sector();
+        dsectp = dActor->sector();
 
         if (match != dActor->spr.lotag)
             continue;
@@ -123,7 +123,7 @@ void CopySectorMatch(int match)
             if (SP_TAG2(sActor) == SP_TAG2(dActor) &&
                 SP_TAG3(sActor) == SP_TAG3(dActor))
             {
-                ssectp = sActor->spr.sector();
+                ssectp = sActor->sector();
 
                 // !!!!!AAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH
                 // Don't kill anything you don't have to
@@ -165,8 +165,8 @@ void CopySectorMatch(int match)
                         // move sprites from source to dest - use center offset
 
                         // get center of src and dest sect
-                        SectorMidPoint(sActor->spr.sector(), &sx, &sy, &trash);
-                        SectorMidPoint(dActor->spr.sector(), &dx, &dy, &trash);
+                        SectorMidPoint(sActor->sector(), &sx, &sy, &trash);
+                        SectorMidPoint(dActor->sector(), &dx, &dy, &trash);
 
                         // get offset
                         src_xoff = sx - itActor->spr.pos.X;
@@ -185,7 +185,7 @@ void CopySectorMatch(int match)
                             SECTOR_OBJECTp sop;
 
                             // find and add sprite to SO
-                            sop = DetectSectorObject(itActor->spr.sector());
+                            sop = DetectSectorObject(itActor->sector());
                             AddSpriteToSectorObject(itActor, sop);
 
                             // update sprites postions so they aren't in the

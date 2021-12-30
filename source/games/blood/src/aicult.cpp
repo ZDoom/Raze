@@ -274,7 +274,7 @@ static void cultThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
@@ -282,7 +282,7 @@ static void cultThinkChase(DBloodActor* actor)
 				actor->dudeSlope = nDist == 0 ? 0 : DivScale(target->spr.pos.Z - actor->spr.pos.Z, nDist, 10);
 				switch (actor->spr.type) {
 				case kDudeCultistTommy:
-					if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(target->spr.sector())
+					if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(target->sector())
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
@@ -350,7 +350,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistShotgun:
-					if (nDist < 0x2c00 && nDist > 0x1400 && !TargetNearExplosion(target->spr.sector())
+					if (nDist < 0x2c00 && nDist > 0x1400 && !TargetNearExplosion(target->sector())
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
@@ -418,7 +418,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistTesla:
-					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->spr.sector())
+					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->sector())
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
@@ -530,7 +530,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					break;
 				case kDudeCultistBeast:
-					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->spr.sector())
+					if (nDist < 0x1e00 && nDist > 0xe00 && !TargetNearExplosion(target->sector())
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{

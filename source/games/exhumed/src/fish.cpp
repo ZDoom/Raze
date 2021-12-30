@@ -42,7 +42,7 @@ static actionSeq FishSeq[] = {
 
 void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
-    auto pChunkActor = insertActor(pActor->spr.sector(), 99);
+    auto pChunkActor = insertActor(pActor->sector(), 99);
 
     pChunkActor->nCount = anim + 40;
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
@@ -96,11 +96,11 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector());
+            BuildBlood(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector());
         }
     }
 
-    int FloorZ = pActor->spr.sector()->floorz;
+    int FloorZ = pActor->sector()->floorz;
 
     if (FloorZ <= pActor->spr.pos.Z)
     {
@@ -163,7 +163,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->spr.clipdist = 80;
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
@@ -311,7 +311,7 @@ void AIFish::Tick(RunListEvent* ev)
 
     int nAction = pActor->nAction;
 
-    if (!(pActor->spr.sector()->Flag & kSectUnderwater))
+    if (!(pActor->sector()->Flag & kSectUnderwater))
     {
         Gravity(pActor);
     }
@@ -422,12 +422,12 @@ void AIFish::Tick(RunListEvent* ev)
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
     int z = pActor->spr.pos.Z;
-    auto pSector =pActor->spr.sector();
+    auto pSector =pActor->sector();
 
     // loc_2EF54
     Collision coll = movesprite(pActor, pActor->spr.xvel << 13, pActor->spr.yvel << 13, pActor->spr.zvel << 2, 0, 0, CLIPMASK0);
 
-    if (!(pActor->spr.sector()->Flag & kSectUnderwater))
+    if (!(pActor->sector()->Flag & kSectUnderwater))
     {
         ChangeActorSect(pActor, pSector);
         pActor->spr.pos.X = x;

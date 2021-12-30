@@ -939,7 +939,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = actor->spr.ang - 256 + (krand() & 511) + 1024;
-			EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -969,7 +969,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = actor->spr.pos.Z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = actor->spr.ang - 1024;
-			EGS(actor->spr.sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			EGS(actor->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -1102,7 +1102,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					{
 						if (wl.twoSided()) wl.nextSector()->lotag = 0;
 					}
-					act->spr.sector()->lotag = 0;
+					act->sector()->lotag = 0;
 					S_StopSound(act->spr.lotag);
 					S_PlayActorSound(400, act);
 					deletesprite(act);
@@ -2072,7 +2072,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		targ->spr.picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+			EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
 		proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
@@ -2164,7 +2164,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				auto spawned = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				auto spawned = EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 				if (spawned) spawned->spr.pal = 8;
 			}
 
@@ -2197,7 +2197,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -2323,7 +2323,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
+			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -2601,7 +2601,7 @@ void checksectors_r(int snum)
 
 		if (p->newOwner == nullptr && near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			if (isanunderoperator(p->GetActor()->sector()->lotag))
-				near.hitSector = p->GetActor()->spr.sector();
+				near.hitSector = p->GetActor()->sector();
 
 		if (near.hitSector && (near.hitSector->lotag & 16384))
 			return;
@@ -2772,7 +2772,7 @@ void checksectors_r(int snum)
 						return;
 				}
 				if (haskey(near.hitSector, snum))
-					operatesectors(p->GetActor()->spr.sector(), p->GetActor());
+					operatesectors(p->GetActor()->sector(), p->GetActor());
 				else
 				{
 					if (neartagsprite && neartagsprite->spriteextra > 3)

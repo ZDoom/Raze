@@ -269,7 +269,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					int y = target->spr.pos.Y;
 					int z = target->spr.pos.Z;
 					int nDist = approxDist(x - actor->spr.pos.X, y - actor->spr.pos.Y);
-					if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->spr.sector(), x, y, z, target->spr.sector()))
+					if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->sector(), x, y, z, target->sector()))
 					{
 						int t = DivScale(nDist, 0x1aaaaa, 12);
 						x += (target->vel.X * t) >> 12;
@@ -1535,17 +1535,17 @@ void OperateTeleport(sectortype* pSector)
 				pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 			else
 				pPlayer = NULL;
-			if (bPlayer || !SectorContainsDudes(destactor->spr.sector()))
+			if (bPlayer || !SectorContainsDudes(destactor->sector()))
 			{
 				if (!(gGameOptions.uNetGameFlags & 2))
 				{
-					TeleFrag(pXSector->actordata, destactor->spr.sector());
+					TeleFrag(pXSector->actordata, destactor->sector());
 				}
 				actor->spr.pos.X = destactor->spr.pos.X;
 				actor->spr.pos.Y = destactor->spr.pos.Y;
-				actor->spr.pos.Z += destactor->spr.sector()->floorz - pSector->floorz;
+				actor->spr.pos.Z += destactor->sector()->floorz - pSector->floorz;
 				actor->spr.ang = destactor->spr.ang;
-				ChangeActorSect(actor, destactor->spr.sector());
+				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
 				actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
 				actor->interpolated = false;
@@ -2381,7 +2381,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenDripBlood: {
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		actSpawnThing(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, bottom, (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+		actSpawnThing(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, bottom, (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
 		break;
 	}
 	case kGenSound:
@@ -2406,7 +2406,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenBubbleMulti: {
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, top, 0);
+		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, top, 0);
 		break;
 	}
 	}

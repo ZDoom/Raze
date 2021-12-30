@@ -89,7 +89,7 @@ int callsound(sectortype* sn, DDukeActor* whatsprite)
 						act->temp_actor = whatsprite;
 					}
 
-					if ((act->spr.sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
+					if ((act->sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
 						act->temp_data[0] = 1;
 				}
 			}
@@ -122,13 +122,13 @@ int check_activator_motion(int lotag)
 		if (act->spr.lotag == lotag)
 		{
 			for (int j = animatecnt - 1; j >= 0; j--)
-				if (act->spr.sector() == animatesect[j])
+				if (act->sector() == animatesect[j])
 					return(1);
 
 			DukeStatIterator it1(STAT_EFFECTOR);
 			while (auto act2 = it1.Next())
 			{
-				if (act->spr.sector() == act2->spr.sector())
+				if (act->sector() == act2->sector())
 					switch (act2->spr.lotag)
 					{
 					case SE_11_SWINGING_DOOR:
@@ -448,7 +448,7 @@ int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int
 
 bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 
 	// See if the sector exists
 
@@ -597,7 +597,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	}
 	if (!a2) return;
 
-	if (actor->spr.sector() == sptr)
+	if (actor->sector() == sptr)
 	{
 		if (activatewarpelevators(a2, -1))
 			activatewarpelevators(a2, 1);
@@ -818,7 +818,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.sector() == sptr && !act2->temp_data[4])
+		if (act2->spr.lotag == SE_11_SWINGING_DOOR && act2->sector() == sptr && !act2->temp_data[4])
 		{
 			break;
 		}
@@ -870,7 +870,7 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->spr.lotag == 15 && act2->spr.sector() == sptr)
+		if (act2->spr.lotag == 15 && act2->sector() == sptr)
 		{
 			break;
 		}
@@ -908,7 +908,7 @@ static void handle_st27(sectortype* sptr, DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->spr.lotag & 0xff) == 20 && act2->spr.sector() == sptr) //Bridge
+		if ((act2->spr.lotag & 0xff) == 20 && act2->sector() == sptr) //Bridge
 		{
 
 			sptr->lotag ^= 0x8000;

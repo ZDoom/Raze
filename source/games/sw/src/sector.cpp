@@ -695,7 +695,7 @@ int OperateSector(sectortype* sect, short player_is_operating)
         SWSectIterator it(sect);
         while (auto actor = it.Next())
         {
-            auto fsect = actor->spr.sector();
+            auto fsect = actor->sector();
 
             if (fsect->hasU() && fsect->stag == SECT_LOCK_DOOR)
                 return false;
@@ -846,7 +846,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
 
     // spawn explosion
     auto exp = SpawnSectorExp(actor);
@@ -877,7 +877,7 @@ void DoExplodeSector(short match)
         if (!actor->hasU())
             SpawnUser(actor, 0, nullptr);
 
-        sectp = actor->spr.sector();
+        sectp = actor->sector();
 
         sectp->addceilingz(-Z(SP_TAG4(actor)));
 
@@ -893,7 +893,7 @@ void DoExplodeSector(short match)
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
         {
-            SectorExp(actor, actor->spr.sector(), orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
+            SectorExp(actor, actor->sector(), orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
         }
 
         // don't need it any more
@@ -1247,7 +1247,7 @@ void DoChangorMatch(short match)
     SWStatIterator it(STAT_CHANGOR);
     while (auto actor = it.Next())
     {
-        auto sectp = actor->spr.sector();
+        auto sectp = actor->sector();
 
         if (SP_TAG2(actor) != match)
             continue;
@@ -1385,7 +1385,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (ActorSizeZ(actor) >> 1), actor->spr.sector()))
+        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (ActorSizeZ(actor) >> 1), actor->sector()))
             return false;
     }
 
@@ -2593,7 +2593,7 @@ void DoPanning(void)
     SWStatIterator it(STAT_FLOOR_PAN);
     while (auto actor = it.Next())
     {
-        sectp = actor->spr.sector();
+        sectp = actor->sector();
 
         nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 20);
         ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 20);
@@ -2605,7 +2605,7 @@ void DoPanning(void)
     it.Reset(STAT_CEILING_PAN);
     while (auto actor = it.Next())
     {
-        sectp = actor->spr.sector();
+        sectp = actor->sector();
 
         nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 20);
         ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 20);

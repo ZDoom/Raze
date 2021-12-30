@@ -799,8 +799,8 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 
 void SpawnZombie2(DSWActor* actor)
 {
-    auto sectu = actor->spr.sector();
-    SECTORp sectp = actor->spr.sector();
+    auto sectu = actor->sector();
+    SECTORp sectp = actor->sector();
 
     auto ownerActor = GetOwner(actor);
 
@@ -810,19 +810,19 @@ void SpawnZombie2(DSWActor* actor)
     if (sectu && ((sectp->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
         return;
 
-    if (SectorIsUnderwaterArea(actor->spr.sector()))
+    if (SectorIsUnderwaterArea(actor->sector()))
         return;
 
-    if (FAF_ConnectArea(actor->spr.sector()))
+    if (FAF_ConnectArea(actor->sector()))
     {
-        auto newsect = actor->spr.sector();
+        auto newsect = actor->sector();
         updatesectorz(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z + Z(10), &newsect);
         if (SectorIsUnderwaterArea(newsect))
             return;
     }
 
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
     actorNew->user.Counter3 = 0;
     SetOwner(ownerActor, actorNew);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;

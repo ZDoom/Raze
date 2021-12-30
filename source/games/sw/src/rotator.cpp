@@ -163,7 +163,7 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
             if (firstVator == nullptr)
                 firstVator = actor;
 
-            auto sect = actor->spr.sector();
+            auto sect = actor->sector();
 
             if (pp && sect->hasU() && sect->stag == SECT_LOCK_DOOR && sect->number)
             {
@@ -209,7 +209,7 @@ bool TestRotatorMatchActive(short match)
 
 void DoRotatorSetInterp(DSWActor* actor)
 {
-    for(auto& wal : wallsofsector(actor->spr.sector()))
+    for(auto& wal : wallsofsector(actor->sector()))
     {
         StartInterpolation(&wal, Interp_Wall_X);
         StartInterpolation(&wal, Interp_Wall_Y);
@@ -225,7 +225,7 @@ void DoRotatorSetInterp(DSWActor* actor)
 
 void DoRotatorStopInterp(DSWActor* actor)
 {
-    for (auto& wal : wallsofsector(actor->spr.sector()))
+    for (auto& wal : wallsofsector(actor->sector()))
     {
         StopInterpolation(&wal, Interp_Wall_X);
         StopInterpolation(&wal, Interp_Wall_Y);
@@ -340,7 +340,7 @@ int DoRotator(DSWActor* actor)
 
     // move points
     ndx = 0;
-    for(auto& wal : wallsofsector(actor->spr.sector()))
+    for(auto& wal : wallsofsector(actor->sector()))
     {
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->spr.pos.vec2, orig, r->pos, &nxy);

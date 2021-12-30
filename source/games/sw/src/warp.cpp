@@ -55,7 +55,7 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
     SWStatIterator it(STAT_WARP);
     while (auto actor = it.Next())
     {
-        if (actor->spr.sector() == sect)
+        if (actor->sector() == sect)
         {
             // skip - don't teleport
             if (SP_TAG10(actor) == 1)
@@ -184,7 +184,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
                 *z += z_adj;
 
                 // get new sector
-                *sect = actor->spr.sector();
+                *sect = actor->sector();
                 updatesector(*x, *y, sect);
 
                 return actor;
@@ -211,7 +211,7 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
     SWStatIterator it(STAT_WARP);
     while (auto actor = it.Next())
     {
-        if (actor->spr.sector() == sect)
+        if (actor->sector() == sect)
         {
             // skip - don't teleport
             if (SP_TAG10(actor) == 1)

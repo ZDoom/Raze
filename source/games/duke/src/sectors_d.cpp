@@ -1110,7 +1110,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				auto spawned = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				auto spawned = EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 				spawned->spr.pal = 8;
 			}
 
@@ -1125,7 +1125,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+			EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		deletesprite(targ);
 		break;
@@ -1134,8 +1134,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case FANSPRITE:
 		targ->spr.picnum = FANSPRITEBROKE;
 		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		if (targ->spr.sector()->floorpicnum == FANSHADOW)
-			targ->spr.sector()->floorpicnum = FANSHADOWBROKE;
+		if (targ->sector()->floorpicnum == FANSHADOW)
+			targ->sector()->floorpicnum = FANSHADOWBROKE;
 
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
@@ -1155,7 +1155,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -1311,7 +1311,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
+			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -1420,9 +1420,9 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 						targ->spr.ang = (proj->spr.ang + 1024) & 2047;
 					targ->spr.xvel = -(proj->spr.extra << 2);
-					auto sp = targ->spr.sector();
+					auto sp = targ->sector();
 					pushmove(&targ->spr.pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
-					if (sp != targ->spr.sector() && sp != nullptr)
+					if (sp != targ->sector() && sp != nullptr)
 						ChangeActorSect(targ, sp);
 				}
 
@@ -1655,7 +1655,7 @@ void checksectors_d(int snum)
 
 		if (p->newOwner == nullptr && near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			if (isanunderoperator(p->GetActor()->sector()->lotag))
-				near.hitSector = p->GetActor()->spr.sector();
+				near.hitSector = p->GetActor()->sector();
 
 		if (near.hitSector && (near.hitSector->lotag & 16384))
 			return;

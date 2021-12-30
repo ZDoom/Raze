@@ -299,7 +299,7 @@ void DoSpiritHead()
             pSpiritSpr->spr.shade--;
         if (--dimSectCount < 0) 
         {
-            DimSector(pSpiritSpr->spr.sector());
+            DimSector(pSpiritSpr->sector());
             dimSectCount = 5;
         }
 
@@ -425,8 +425,8 @@ void DoSpiritHead()
 
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
-                AddGlow(pSpiritSpr->spr.sector(), 20);
-                AddFlash(pSpiritSpr->spr.sector(), pSpiritSpr->spr.pos.X, pSpiritSpr->spr.pos.Y, pSpiritSpr->spr.pos.Z, 128);
+                AddGlow(pSpiritSpr->sector(), 20);
+                AddFlash(pSpiritSpr->sector(), pSpiritSpr->spr.pos.X, pSpiritSpr->spr.pos.Y, pSpiritSpr->spr.pos.Z, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
                 CopyHeadToWorkTile(kTileRamsesNormal);

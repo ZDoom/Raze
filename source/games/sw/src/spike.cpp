@@ -86,14 +86,14 @@ bool SpikeSwitch(short match, short setting)
 
 void SetSpikeActive(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-        StartInterpolation(actor->spr.sector(), Interp_Sect_Ceilingheinum);
+        StartInterpolation(actor->sector(), Interp_Sect_Ceilingheinum);
     else
-        StartInterpolation(actor->spr.sector(), Interp_Sect_Floorheinum);
+        StartInterpolation(actor->sector(), Interp_Sect_Floorheinum);
 
-    InterpSectorSprites(actor->spr.sector(), true);
+    InterpSectorSprites(actor->sector(), true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
@@ -112,7 +112,7 @@ void SetSpikeActive(DSWActor* actor)
 
 void SetSpikeInactive(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StopInterpolation(sectp, Interp_Sect_Ceilingheinum);
@@ -232,9 +232,9 @@ void SpikeAlign(DSWActor* actor)
     if ((int8_t)SP_TAG7(actor) < 0)
     {
         if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-            alignceilslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            alignceilslope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
         else
-            alignflorslope(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            alignflorslope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
     }
     else
     {
@@ -275,7 +275,7 @@ int DoSpike(DSWActor* actor)
     lptr = &actor->user.zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(actor->spr.sector());
+    MoveSpritesWithSpike(actor->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
@@ -339,7 +339,7 @@ int DoSpike(DSWActor* actor)
         {
             bool found = false;
 
-            SWSectIterator it(actor->spr.sector());
+            SWSectIterator it(actor->sector());
             while (auto itActor = it.Next())
             {
                 if (actor->hasU() && (actor->spr.cstat & CSTAT_SPRITE_BLOCK) && (actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
@@ -359,8 +359,8 @@ int DoSpike(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == actor->spr.sector() ||
-                        pp->hi_sectp == actor->spr.sector())
+                    if (pp->lo_sectp == actor->sector() ||
+                        pp->hi_sectp == actor->sector())
                     {
                         ReverseSpike(actor);
                         found = true;
@@ -380,7 +380,7 @@ int DoSpikeAuto(DSWActor* actor)
     lptr = &actor->user.zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(actor->spr.sector());
+    MoveSpritesWithSpike(actor->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished

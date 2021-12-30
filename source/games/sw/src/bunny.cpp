@@ -1003,7 +1003,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(2<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1018,7 +1018,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(3<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->spr.sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1112,7 +1112,7 @@ void BunnyHatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
-        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         actorNew->spr.clear();
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
@@ -1169,7 +1169,7 @@ void BunnyHatch(DSWActor* actor)
 DSWActor* BunnyHatch2(DSWActor* actor)
 {
 
-    auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
+    auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
     actorNew->spr.clear();
     actorNew->spr.pos.X = actor->spr.pos.X;
     actorNew->spr.pos.Y = actor->spr.pos.Y;
@@ -1272,7 +1272,7 @@ int DoBunnyMove(DSWActor* actor)
 
     if (RandomRange(1000) > 985 && actor->spr.pal != PALETTE_PLAYER1 && actor->user.track < 0)
     {
-        switch (actor->spr.sector()->floorpicnum)
+        switch (actor->sector()->floorpicnum)
         {
         case 153:
         case 154:
@@ -1329,7 +1329,7 @@ int DoBunnyEat(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    switch (actor->spr.sector()->floorpicnum)
+    switch (actor->sector()->floorpicnum)
     {
     case 153:
     case 154:

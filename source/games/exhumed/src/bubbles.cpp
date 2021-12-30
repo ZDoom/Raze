@@ -89,7 +89,7 @@ void AIBubble::Tick(RunListEvent* ev)
 
     pActor->spr.pos.Z += pActor->spr.zvel;
 
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
 
     if (pActor->spr.pos.Z <= pSector->ceilingz)
     {
@@ -124,7 +124,7 @@ void DoBubbleMachines()
         {
             pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
-            BuildBubble(pActor->spr.pos, pActor->spr.sector());
+            BuildBubble(pActor->spr.pos, pActor->sector());
         }
     }
 }

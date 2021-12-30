@@ -50,7 +50,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         ChangeActorStat(pActor, 120);
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
-        z = pActor->spr.sector()->floorz;
+        z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
     }
 
@@ -65,7 +65,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.zvel = 0;
     pActor->spr.xrepeat = 87;
     pActor->spr.yrepeat = 96;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.ang = nAngle;
@@ -97,7 +97,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
 void BuildSoul(DExhumedActor* pSet)
 {
-    auto pActor = insertActor(pSet->spr.sector(), 0);
+    auto pActor = insertActor(pSet->sector(), 0);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.shade = -127;
@@ -115,7 +115,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.pos.X = pSet->spr.pos.X;
     pActor->spr.pos.Y = pSet->spr.pos.Y;
 
-    pActor->spr.pos.Z = (RandomSize(8) << 8) + 8192 + pActor->spr.sector()->ceilingz - GetActorHeight(pActor);
+    pActor->spr.pos.Z = (RandomSize(8) << 8) + 8192 + pActor->sector()->ceilingz - GetActorHeight(pActor);
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -158,7 +158,7 @@ void AISoul::Tick(RunListEvent* ev)
         pActor->spr.pos.X = pSet->spr.pos.X;
         pActor->spr.pos.Y = pSet->spr.pos.Y;
         pActor->spr.pos.Z = pSet->spr.pos.Z - (GetActorHeight(pSet) >> 1);
-        ChangeActorSect(pActor, pSet->spr.sector());
+        ChangeActorSect(pActor, pSet->sector());
         return;
     }
 }
@@ -272,7 +272,7 @@ void AISet::Tick(RunListEvent* ev)
 
     auto nMov = MoveCreature(pActor);
 
-	auto sect = pActor->spr.sector();
+	auto sect = pActor->sector();
     pushmove(&pActor->spr.pos, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
     pActor->setsector(sect);
 

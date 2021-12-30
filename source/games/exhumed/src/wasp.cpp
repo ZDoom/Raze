@@ -58,7 +58,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
 
     pActor->spr.shade = -12;
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 70;
 
     if (bEggWasp)
@@ -211,7 +211,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         pTarget = pActor->pTarget;
 
-        if (pTarget && (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTarget->spr.sector()->Flag & kSectUnderwater)))
+        if (pTarget && (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTarget->sector()->Flag & kSectUnderwater)))
         {
             // goto pink
             pActor->pTarget = nullptr;
@@ -332,7 +332,7 @@ void AIWasp::Tick(RunListEvent* ev)
     }
     case 5:
     {
-        auto pSector =pActor->spr.sector();
+        auto pSector =pActor->sector();
 
         pActor->spr.pos.Z += pActor->spr.zvel;
 

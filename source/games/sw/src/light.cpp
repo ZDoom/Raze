@@ -45,15 +45,15 @@ void SectorLightShade(DSWActor* actor, short intensity)
     if (!TEST_BOOL2(actor))
     {
         if (!TEST_BOOL6(actor))
-            actor->spr.sector()->floorpal = actor->spr.pal;
-        actor->spr.sector()->floorshade = LIGHT_FloorShade(actor) + intensity;     // floor change
+            actor->sector()->floorpal = actor->spr.pal;
+        actor->sector()->floorshade = LIGHT_FloorShade(actor) + intensity;     // floor change
     }
 
     if (!TEST_BOOL3(actor))
     {
         if (!TEST_BOOL6(actor))
-            actor->spr.sector()->ceilingpal = actor->spr.pal;
-        actor->spr.sector()->ceilingshade = LIGHT_CeilingShade(actor) + intensity;   // ceiling change
+            actor->sector()->ceilingpal = actor->spr.pal;
+        actor->sector()->ceilingshade = LIGHT_CeilingShade(actor) + intensity;   // ceiling change
     }
 
     // change wall
@@ -63,7 +63,7 @@ void SectorLightShade(DSWActor* actor, short intensity)
         wall_shade = actor->user.WallShade.Data();
         int wallcount = 0;
 
-        for(auto &wal : wallsofsector(actor->spr.sector()))
+        for(auto &wal : wallsofsector(actor->sector()))
         {
             base_shade = wall_shade[wallcount];
             wal.shade = base_shade + intensity;

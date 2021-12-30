@@ -1234,7 +1234,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
         return nTrap;
     }
 
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
 
     for(auto& wal : wallsofsector(pSector))
     {
@@ -1356,7 +1356,7 @@ int BuildFireBall(DExhumedActor* nSprite, int a, int b)
 
 DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
-    auto pSpark = insertActor(pActor->spr.sector(), 0);
+    auto pSpark = insertActor(pActor->sector(), 0);
 
     pSpark->spr.pos.X = pActor->spr.pos.X;
     pSpark->spr.pos.Y = pActor->spr.pos.Y;
@@ -1637,7 +1637,7 @@ void KillCreatures()
 
 void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
-	auto pSector = pActor->spr.sector();
+	auto pSector = pActor->sector();
 
 	for(auto& wal : wallsofsector(pSector))
     {
@@ -1764,7 +1764,7 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    auto pSector =pActor->spr.sector();
+    auto pSector =pActor->sector();
 
     if (pSector->extra == -1) {
         return;
@@ -1826,7 +1826,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
             pActor->nFrame = RandomSize(4) % (SeqSize[pActor->nIndex] - 1);
         }
 
-        auto  pActor2 = insertActor(pActor->spr.sector(), 0);
+        auto  pActor2 = insertActor(pActor->sector(), 0);
         pActor->pTarget = pActor2;
         pActor->nIndex2 = -1;
 
@@ -1928,7 +1928,7 @@ void AIObject::Tick(RunListEvent* ev)
         int var_18;
 
         // red branch
-        if ((nStat == kStatExplodeTarget) || (pActor->spr.pos.Z < pActor->spr.sector()->floorz))
+        if ((nStat == kStatExplodeTarget) || (pActor->spr.pos.Z < pActor->sector()->floorz))
         {
             var_18 = 36;
         }
@@ -1937,8 +1937,8 @@ void AIObject::Tick(RunListEvent* ev)
             var_18 = 34;
         }
 
-        AddFlash(pActor->spr.sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
-        BuildAnim(nullptr, var_18, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.sector()->floorz, pActor->spr.sector(), 240, 4);
+        AddFlash(pActor->sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
+        BuildAnim(nullptr, var_18, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->sector()->floorz, pActor->sector(), 240, 4);
 
         //				int edi = nSprite | 0x4000;
 
@@ -1971,7 +1971,7 @@ void AIObject::Tick(RunListEvent* ev)
             pActor->nHealth = 120;
 
             pActor->spr.pos = pActor->pTarget->spr.pos;
-            ChangeActorSect(pActor, pActor->pTarget->spr.sector());
+            ChangeActorSect(pActor, pActor->pTarget->sector());
             return;
         }
     }
@@ -2103,7 +2103,7 @@ void DoDrips()
             if (!pActor) continue;
             int nSeqOffset = SeqOffsets[kSeqDrips];
 
-            if (!(pActor->spr.sector()->Flag & kSectLava)) {
+            if (!(pActor->sector()->Flag & kSectLava)) {
                 nSeqOffset++;
             }
 

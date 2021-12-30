@@ -420,12 +420,12 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             case 999:
             {
-                AddFlicker(pActor->spr.sector(), nSpeed);
+                AddFlicker(pActor->sector(), nSpeed);
                 break;
             }
             case 998:
             {
-                AddGlow(pActor->spr.sector(), nSpeed);
+                AddGlow(pActor->sector(), nSpeed);
                 break;
             }
             case 118: // Anubis with drum
@@ -570,7 +570,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 99: // underwater type 2
             {
-                auto pSector =pActor->spr.sector();
+                auto pSector =pActor->sector();
                 pSector->pAbove = &sector[nHitag];
                 pSector->Flag |= kSectUnderwater;
 
@@ -579,7 +579,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 98:
             {
-                auto pSector = pActor->spr.sector();
+                auto pSector = pActor->sector();
                 pSector->pBelow = &sector[nHitag];
                 SnapSectors(pSector, pSector->pBelow, 1);
 
@@ -588,7 +588,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 97:
             {
-                AddSectorBob(pActor->spr.sector(), nHitag, 1);
+                AddSectorBob(pActor->sector(), nHitag, 1);
 
                 DeleteActor(pActor);
                 return;
@@ -600,7 +600,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     nDamage = 1;
                 }
 
-                auto pSector =pActor->spr.sector();
+                auto pSector =pActor->sector();
 
                 pSector->Damage = nDamage;
                 pSector->Flag |= kSectLava;
@@ -610,14 +610,14 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 95:
             {
-                AddSectorBob(pActor->spr.sector(), nHitag, 0);
+                AddSectorBob(pActor->sector(), nHitag, 0);
 
                 DeleteActor(pActor);
                 return;
             }
             case 94: // water
             {
-                auto pSector = pActor->spr.sector();
+                auto pSector = pActor->sector();
                 pSector->Depth = nHitag << 8;
 
                 DeleteActor(pActor);
@@ -636,7 +636,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case 79:
             case 89:
             {
-                auto pSector = pActor->spr.sector();
+                auto pSector = pActor->sector();
                 pSector->Speed = nSpeed;
                 pSector->Flag |= pActor->spr.ang;
 
@@ -645,14 +645,14 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 88:
             {
-                AddFlow(pActor->spr.sector(), nSpeed, 0, pActor->spr.ang);
+                AddFlow(pActor->sector(), nSpeed, 0, pActor->spr.ang);
 
                 DeleteActor(pActor);
                 return;
             }
             case 80: // underwater
             {
-                auto pSector = pActor->spr.sector();
+                auto pSector = pActor->sector();
                 pSector->Flag |= kSectUnderwater;
 
                 DeleteActor(pActor);
@@ -660,9 +660,9 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 78:
             {
-                AddFlow(pActor->spr.sector(), nSpeed, 1, pActor->spr.ang);
+                AddFlow(pActor->sector(), nSpeed, 1, pActor->spr.ang);
 
-                auto pSector = pActor->spr.sector();
+                auto pSector = pActor->sector();
                 pSector->Flag |= 0x8000;
 
                 DeleteActor(pActor);

@@ -47,7 +47,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     {
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
-        z = pActor->spr.sector()->floorz;
+        z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
 
         ChangeActorStat(pActor, 119);
@@ -62,7 +62,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.xrepeat = 64;
     pActor->spr.yrepeat = 64;
     pActor->spr.picnum = 1;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.ang = nAngle;

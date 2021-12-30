@@ -292,7 +292,7 @@ int DoWallBloodDrip(DSWActor* actor)
 
 void SpawnMidSplash(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
 
     actorNew->spr.shade = -12;
@@ -315,7 +315,7 @@ void SpawnMidSplash(DSWActor* actor)
 
 void SpawnFloorSplash(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
     actorNew->spr.shade = -12;
@@ -359,7 +359,7 @@ int DoBloodSpray(DSWActor* actor)
         // special stuff for blood worm
         actor->spr.pos.Z += (actor->user.change.Z >> 1);
 
-        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
+        getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
         // pretend like we hit a sector
         if (actor->spr.pos.Z >= fz)
         {
@@ -437,7 +437,7 @@ int DoBloodSpray(DSWActor* actor)
             }
             else
             {
-                if (FAF_Sector(bldActor->spr.sector()) || FAF_ConnectArea(bldActor->spr.sector()))
+                if (FAF_Sector(bldActor->sector()) || FAF_ConnectArea(bldActor->sector()))
                 {
                     KillActor(actor);
                     return 0;
@@ -475,7 +475,7 @@ int DoBloodSpray(DSWActor* actor)
                     actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                 // underwater
 
-                if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
+                if (actor->user.lo_sectp && actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed))
                     actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                 // shallow water
 
@@ -516,7 +516,7 @@ int DoBloodSpray(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)))
     {
 
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->spr.sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         SetOwner(actor, actorNew);
@@ -679,7 +679,7 @@ int DoPhosphorus(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
+                    if (actor->user.lo_sectp && actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -718,7 +718,7 @@ int DoPhosphorus(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
 
-        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->spr.sector(),
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
@@ -895,7 +895,7 @@ int DoChemBomb(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
+                    if (actor->user.lo_sectp && actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -941,7 +941,7 @@ int DoChemBomb(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->spr.sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 100);
 
         SetOwner(actor, actorNew);
@@ -1101,7 +1101,7 @@ int DoCaltrops(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (actor->user.lo_sectp && actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed))
+                    if (actor->user.lo_sectp && actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1170,7 +1170,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (actor->user.Flags & (SPR_UNDERWATER))
         return -1;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
 
     SetOwner(GetOwner(actor), actorNew);
@@ -1316,7 +1316,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1358,7 +1358,7 @@ int InitChemBomb(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1572,7 +1572,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
         }
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
     if (actor->user.flameActor != nullptr)
@@ -1686,7 +1686,7 @@ int InitCaltrops(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->sector(),
                     nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1730,7 +1730,7 @@ int InitPhosphorus(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->spr.sector(),
+    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->sector(),
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
@@ -1806,7 +1806,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         nz = ActorZOfTop(actor)-20;
 
         // Spawn a shot
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->spr.sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->sector(),
                         nx, ny, nz, ang, vel*2);
 
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1956,7 +1956,7 @@ int DoCarryFlag(DSWActor* actor)
                 actor->user.WaitTics = SEC(1) / 2;
             }
             // if in score box, score.
-            if (attached->spr.sector()->hitag == 9000 && attached->spr.sector()->lotag == attached->spr.pal
+            if (attached->sector()->hitag == 9000 && attached->sector()->lotag == attached->spr.pal
                 && attached->spr.pal != actor->spr.pal)
             {
                 if (fown != nullptr)
@@ -2086,7 +2086,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     }
 
     // if in score box, score.
-    if (attached->spr.sector()->hitag == 9000 && attached->spr.sector()->lotag == attached->spr.pal
+    if (attached->sector()->hitag == 9000 && attached->sector()->lotag == attached->spr.pal
         && attached->spr.pal != actor->spr.pal)
     {
         if (actor->user.flagOwnerActor != nullptr)
@@ -2183,7 +2183,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->spr.sector(), nx, ny, nz, actor->spr.ang, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), nx, ny, nz, actor->spr.ang, 64);
 
     actorNew->spr.zvel = -(velocity);
 

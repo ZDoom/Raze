@@ -1274,7 +1274,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
     pp->pos.X = pp->opos.X = pp->oldpos.X = pos->X;
     pp->pos.Y = pp->opos.Y = pp->oldpos.Y = pos->Y;
 
-    //getzsofslopeptr(actor->spr.sector(), pp->posx, pp->posy, &cz, &fz);
+    //getzsofslopeptr(actor->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
     pp->pos.Z = pp->opos.Z = pos->Z - PLAYER_HEIGHT;
@@ -1303,7 +1303,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     nx += actor->spr.pos.X;
     ny += actor->spr.pos.Y;
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          nx, ny, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
@@ -1321,7 +1321,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
@@ -1683,7 +1683,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     ASSERT(act_over->hasU());
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = act_over->spr.sector()->floorz; // - Z(pp->WadeDepth);
+    water_level_z = act_over->sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
     above_water = (ActorZOfBottom(act_over) <= water_level_z);
@@ -1713,7 +1713,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     DSWActor* act_under = pp->PlayerUnderActor;
 
     act_under->spr.pos = act_under->spr.pos;
-    ChangeActorSect(pp->PlayerUnderActor, act_under->spr.sector());
+    ChangeActorSect(pp->PlayerUnderActor, act_under->sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
 
@@ -1722,7 +1722,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     zdiff = ActorZOfBottom(act_over) - water_level_z;
 
     // add diff to ceiling
-    act_under->spr.pos.Z = act_under->spr.sector()->ceilingz + zdiff;
+    act_under->spr.pos.Z = act_under->sector()->ceilingz + zdiff;
 
     act_under->user.State = act_over->user.State;
     act_under->user.Rot = act_over->user.Rot;
@@ -1868,7 +1868,7 @@ void DoPlayerZrange(PLAYERp pp)
         auto fsp = floorColl.actor();
         if (fsp->spr.statnum == STAT_ENEMY && floorColl.actor()->user.ID == ZOMBIE_RUN_R0)
         {
-            pp->lo_sectp = fsp->spr.sector();
+            pp->lo_sectp = fsp->sector();
             pp->loz = fsp->spr.pos.Z;
             pp->lowActor = nullptr;
         }
@@ -3927,9 +3927,9 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
         SWStatIterator it(STAT_DIVE_AREA);
         while (auto actor = it.Next())
         {
-            if (inside(x, y, actor->spr.sector()))
+            if (inside(x, y, actor->sector()))
             {
-                sf[found] = actor->spr.sector();
+                sf[found] = actor->sector();
                 found++;
                 PRODUCTION_ASSERT(found <= 2);
             }
@@ -3944,9 +3944,9 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
                 if (actor->spr.lotag == 0)
                     continue;
 
-                if (inside(x, y, actor->spr.sector()))
+                if (inside(x, y, actor->sector()))
                 {
-                    sf[found] = actor->spr.sector();
+                    sf[found] = actor->sector();
                     found++;
                     PRODUCTION_ASSERT(found <= 2);
                 }
@@ -4003,9 +4003,9 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     SWStatIterator it(STAT_DIVE_AREA);
     while (over_act = it.Next())
     {
-        if ((over_act->spr.sector()->extra & SECTFX_DIVE_AREA) &&
-            over_act->spr.sector()->hasU() &&
-            over_act->spr.sector()->number == sectu->number)
+        if ((over_act->sector()->extra & SECTFX_DIVE_AREA) &&
+            over_act->sector()->hasU() &&
+            over_act->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4019,9 +4019,9 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     it.Reset(STAT_UNDERWATER);
     while (under_act = it.Next())
     {
-        if ((under_act->spr.sector()->extra & SECTFX_UNDERWATER) &&
-            under_act->spr.sector()->hasU() &&
-            under_act->spr.sector()->number == sectu->number)
+        if ((under_act->sector()->extra & SECTFX_UNDERWATER) &&
+            under_act->sector()->hasU() &&
+            under_act->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4038,8 +4038,8 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     pp->pos.X = under_act->spr.pos.X - plActor->user.pos.X;
     pp->pos.Y = under_act->spr.pos.Y - plActor->user.pos.Y;
 
-    auto over  = over_act->spr.sector();
-    auto under = under_act->spr.sector();
+    auto over  = over_act->sector();
+    auto under = under_act->sector();
 
     if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under) == 2)
     {
@@ -4048,7 +4048,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     else
         pp->setcursector(over);
 
-    pp->pos.Z = under_act->spr.sector()->ceilingz + Z(6);
+    pp->pos.Z = under_act->sector()->ceilingz + Z(6);
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
@@ -4073,9 +4073,9 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     SWStatIterator it(STAT_UNDERWATER);
     while (under_act = it.Next())
     {
-        if ((under_act->spr.sector()->extra & SECTFX_UNDERWATER) &&
-            under_act->spr.sector()->hasU() &&
-            under_act->spr.sector()->number == sectu->number)
+        if ((under_act->sector()->extra & SECTFX_UNDERWATER) &&
+            under_act->sector()->hasU() &&
+            under_act->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4089,9 +4089,9 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     it.Reset(STAT_DIVE_AREA);
     while (over_act = it.Next())
     {
-        if ((over_act->spr.sector()->extra & SECTFX_DIVE_AREA) &&
-            over_act->spr.sector()->hasU() &&
-            over_act->spr.sector()->number == sectu->number)
+        if ((over_act->sector()->extra & SECTFX_DIVE_AREA) &&
+            over_act->sector()->hasU() &&
+            over_act->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4108,15 +4108,15 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     pp->pos.X = over_act->spr.pos.X - plActor->user.pos.X;
     pp->pos.Y = over_act->spr.pos.Y - plActor->user.pos.Y;
 
-    auto over = over_act->spr.sector();
-    auto under = under_act->spr.sector();
+    auto over = over_act->sector();
+    auto under = under_act->sector();
 
     if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under))
     {
         pp->setcursector(over);
     }
 
-    pp->pos.Z = over_act->spr.sector()->floorz - Z(2);
+    pp->pos.Z = over_act->sector()->floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
@@ -5712,7 +5712,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(killer->spr.pos.X, killer->spr.pos.Y, ActorZOfTop(killer), killer->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+        if (FAFcansee(killer->spr.pos.X, killer->spr.pos.Y, ActorZOfTop(killer), killer->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
         {
             pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(killer->spr.pos.X - pp->pos.X, killer->spr.pos.Y - pp->pos.Y)) >> 4);
         }
@@ -5912,7 +5912,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
     pp->pos.X = plActor->spr.pos.X;
     pp->pos.Y = plActor->spr.pos.Y;
-    pp->setcursector(plActor->spr.sector());
+    pp->setcursector(plActor->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
@@ -6861,7 +6861,7 @@ void PlayerSpawnPosition(PLAYERp pp)
 
     pp->pos = pp->opos = spawn_sprite->spr.pos;
     pp->angle.ang = pp->angle.oang = buildang(spawn_sprite->spr.ang);
-    pp->setcursector(spawn_sprite->spr.sector());
+    pp->setcursector(spawn_sprite->sector());
 
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     // if too close to the floor - stand up

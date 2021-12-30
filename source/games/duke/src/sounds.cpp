@@ -269,14 +269,14 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	{
 		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
-		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999 && (actor->spr.sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
+		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999 && (actor->sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
 			sndist = DivScale(sndist, actor->spr.hitag + 1, 14);
 	}
 
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (24 << 8), actor->spr.sector()))
+	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (24 << 8), actor->sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 
@@ -322,7 +322,7 @@ void S_GetCamera(vec3_t** c, int32_t* ca, sectortype** cs)
 	else
 	{
 		if (c) *c =  &ud.cameraactor->spr.pos;
-		if (cs) *cs = ud.cameraactor->spr.sector();
+		if (cs) *cs = ud.cameraactor->sector();
 		if (ca) *ca = ud.cameraactor->spr.ang;
 	}
 }
@@ -561,7 +561,7 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
-		if (S_IsAmbientSFX(actor) && actor->spr.sector()->lotag < 3)  // ST_2_UNDERWATER
+		if (S_IsAmbientSFX(actor) && actor->sector()->lotag < 3)  // ST_2_UNDERWATER
 			actor->temp_data[0] = 0;
 	}
 }

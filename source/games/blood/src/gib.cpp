@@ -271,7 +271,7 @@ int ChanceToCount(int a1, int a2)
 
 void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pVel)
 {
-	auto pSector = actor->spr.sector();
+	auto pSector = actor->sector();
 	if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
 		return;
 	CGibPosition gPos(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
@@ -353,7 +353,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 
 	if (pGThing->chance == 65536 || Chance(pGThing->chance))
 	{
-		auto pSector = actor->spr.sector();
+		auto pSector = actor->sector();
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		int x, y, z;

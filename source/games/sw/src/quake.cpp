@@ -54,7 +54,7 @@ inline uint8_t& QUAKE_Zamt(DSWActor* actor) { return SP_TAG3(actor); }
 
 void CopyQuakeSpotToOn(DSWActor* actor)
 {
-    auto actorNew = insertActor(actor->spr.sector(), STAT_QUAKE_SPOT);
+    auto actorNew = insertActor(actor->sector(), STAT_QUAKE_SPOT);
 
     actorNew->spr = actor->spr;
     actorNew->spr.cstat = 0;
@@ -248,13 +248,13 @@ bool SetQuake(PLAYERp pp, short tics, short amt)
 
 int SetExpQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 4, 20000); // !JIM! was 8, 40000
+    SpawnQuake(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
 int SetGunQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 8, 40000);
+    SpawnQuake(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  40, 8, 40000);
     return 0;
 }
 
@@ -266,19 +266,19 @@ int SetPlayerQuake(PLAYERp pp)
 
 int SetNuclearQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 400, 8, 64000);
+    SpawnQuake(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 400, 8, 64000);
     return 0;
 }
 
 int SetSumoQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  120, 4, 20000);
+    SpawnQuake(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  120, 4, 20000);
     return 0;
 }
 
 int SetSumoFartQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  60, 4, 4000);
+    SpawnQuake(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z,  60, 4, 4000);
     return 0;
 }
 

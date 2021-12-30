@@ -155,7 +155,7 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
                     continue;
             }
 
-            auto sect = actor->spr.sector();
+            auto sect = actor->sector();
 
             if (pp && sect->hasU() && sect->stag == SECT_LOCK_DOOR && sect->number)
             {
@@ -200,7 +200,7 @@ bool TestSlidorMatchActive(short match)
 
 void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
-    auto sect = actor->spr.sector();
+    auto sect = actor->sector();
 
     // this code is just weird.
     auto startWall = sect->firstWall();
@@ -252,7 +252,7 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 
 int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
-    auto sect = actor->spr.sector();
+    auto sect = actor->sector();
 
     // this code is just weird.
     auto startWall = sect->firstWall();
@@ -374,7 +374,7 @@ int DoSlidorInstantClose(DSWActor* actor)
 {
     int diff;
 
-    auto startwall = actor->spr.sector()->firstWall();
+    auto startwall = actor->sector()->firstWall();
     auto wal = startwall;
 
     do
@@ -498,7 +498,7 @@ int DoSlidor(DSWActor* actor)
         {
             bool found = false;
 
-            SWSectIterator it(actor->spr.sector());
+            SWSectIterator it(actor->sector());
             while (auto itActor = it.Next())
             {
                 if (itActor->hasU() && (itActor->spr.cstat & CSTAT_SPRITE_BLOCK) && (itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
@@ -520,8 +520,8 @@ int DoSlidor(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == actor->spr.sector() ||
-                        pp->hi_sectp == actor->spr.sector())
+                    if (pp->lo_sectp == actor->sector() ||
+                        pp->hi_sectp == actor->sector())
                     {
                         ReverseSlidor(actor);
 

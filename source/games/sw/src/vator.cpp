@@ -91,14 +91,14 @@ bool VatorSwitch(short match, short setting)
 
 void SetVatorActive(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-        StartInterpolation(actor->spr.sector(), Interp_Sect_Ceilingz);
+        StartInterpolation(actor->sector(), Interp_Sect_Ceilingz);
     else
-        StartInterpolation(actor->spr.sector(), Interp_Sect_Floorz);
+        StartInterpolation(actor->sector(), Interp_Sect_Floorz);
 
-    InterpSectorSprites(actor->spr.sector(), true);
+    InterpSectorSprites(actor->sector(), true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(actor), 1, SOUND_OBJECT_TYPE);
@@ -117,14 +117,14 @@ void SetVatorActive(DSWActor* actor)
 
 void SetVatorInactive(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-        StopInterpolation(actor->spr.sector(), Interp_Sect_Ceilingz);
+        StopInterpolation(actor->sector(), Interp_Sect_Ceilingz);
     else
-        StopInterpolation(actor->spr.sector(), Interp_Sect_Floorz);
+        StopInterpolation(actor->sector(), Interp_Sect_Floorz);
 
-    InterpSectorSprites(actor->spr.sector(), false);
+    InterpSectorSprites(actor->sector(), false);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(actor), 2, SOUND_OBJECT_TYPE);
@@ -142,7 +142,7 @@ void DoVatorOperate(PLAYERp pp, sectortype* sect)
     {
         if (actor->spr.statnum == STAT_VATOR && SP_TAG1(actor) == SECT_VATOR && SP_TAG3(actor) == 0)
         {
-            auto fsect = actor->spr.sector();
+            auto fsect = actor->sector();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -196,7 +196,7 @@ void DoVatorMatch(PLAYERp pp, short match)
             }
 
             // lock code
-            auto fsect = actor->spr.sector();
+            auto fsect = actor->sector();
             if (pp && fsect->hasU() && fsect->stag == SECT_LOCK_DOOR && fsect->number)
             {
                 int key_num = fsect->number;
@@ -358,7 +358,7 @@ int DoVatorMove(DSWActor* actor, int *lptr)
 
 int DoVator(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
     int *lptr;
     int amt;
 
@@ -372,13 +372,13 @@ int DoVator(DSWActor* actor)
     {
         lptr = sectp->ceilingzptr();
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
         lptr = sectp->floorzptr();
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -445,7 +445,7 @@ int DoVator(DSWActor* actor)
             int i;
             bool found = false;
 
-            SWSectIterator it(actor->spr.sector());
+            SWSectIterator it(actor->sector());
             while (auto itActor = it.Next())
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
@@ -478,8 +478,8 @@ int DoVator(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == actor->spr.sector() ||
-                        pp->hi_sectp == actor->spr.sector())
+                    if (pp->lo_sectp == actor->sector() ||
+                        pp->hi_sectp == actor->sector())
                     {
                         ReverseVator(actor);
 
@@ -491,7 +491,7 @@ int DoVator(DSWActor* actor)
         }
         else
         {
-            SWSectIterator it(actor->spr.sector());
+            SWSectIterator it(actor->sector());
             while (auto itActor = it.Next())
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
@@ -515,7 +515,7 @@ int DoVator(DSWActor* actor)
 
 int DoVatorAuto(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
     int *lptr;
     int amt;
 
@@ -523,13 +523,13 @@ int DoVatorAuto(DSWActor* actor)
     {
         lptr = sectp->ceilingzptr();
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
         lptr = sectp->floorzptr();
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished

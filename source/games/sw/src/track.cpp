@@ -249,7 +249,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
-        if (track_sect && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(16), actor->spr.sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
+        if (track_sect && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(16), actor->sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
         {
             return short(near_track - &Track[0]);
         }
@@ -299,7 +299,7 @@ void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
 
 DSWActor* TrackClonePoint(DSWActor* actor)
 {
-    auto actorNew = insertActor(actor->spr.sector(), actor->spr.statnum);
+    auto actorNew = insertActor(actor->sector(), actor->spr.statnum);
 
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
@@ -911,10 +911,10 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     // true
                     for (j = 0; j < sop->num_sectors; j++)
                     {
-                        if (sop->sectp[j] == itActor->spr.sector())
+                        if (sop->sectp[j] == itActor->sector())
                         {
                             itActor->user.Flags |= (SPR_ON_SO_SECTOR);
-                            itActor->user.pos.Z = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
+                            itActor->user.pos.Z = itActor->sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }
                     }
@@ -1716,7 +1716,7 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.pos.Z;
+                actor->spr.pos.Z = actor->sector()->floorz - actor->user.pos.Z;
             }
             else
             {
@@ -1735,10 +1735,10 @@ PlayerPart:
 
             // IS part of a sector, sprite can do things based on the
             // current sector it is in
-            if ((actor->spr.sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
+            if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            if ((actor->spr.sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
+            if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, -delta_ang, &actor->spr.pos.vec2);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang - delta_ang);
@@ -3027,7 +3027,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             {
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-                FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(24), actor->spr.sector(),      // Start position
+                FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - Z(24), actor->sector(),      // Start position
                            bcos(actor->spr.ang),    // X vector of 3D ang
                            bsin(actor->spr.ang),    // Y vector of 3D ang
                            0,                // Z vector of 3D ang
@@ -3130,7 +3130,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
-            neartag({ actor->spr.pos.X, actor->spr.pos.Y, z[i] }, actor->spr.sector(), actor->spr.ang, near, 1024, NTAG_SEARCH_LO_HI);
+            neartag({ actor->spr.pos.X, actor->spr.pos.Y, z[i] }, actor->sector(), actor->spr.ang, near, 1024, NTAG_SEARCH_LO_HI);
 
             if (near.actor() != nullptr && near.hitpos.X < 1024)
             {
@@ -3306,7 +3306,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
-            actor->spr.pos.Z = actor->spr.sector()->floorz;
+            actor->spr.pos.Z = actor->sector()->floorz;
             actor->spr.zvel = 0;
         }
         else
@@ -3347,7 +3347,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->spr.sector(), actor->spr.ang, near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->spr.ang, near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {

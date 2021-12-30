@@ -174,7 +174,7 @@ int hits(DDukeActor* actor)
 	if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(actor->spr.pos, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan(actor->spr.pos, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
 }
 
@@ -194,7 +194,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (actor->spr.picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - zoff }, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
@@ -346,7 +346,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 									a = (abs(Scale(act->spr.pos.Z - actor->spr.pos.Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (32 << 8), actor->spr.sector());
+								cans = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (32 << 8), actor->sector());
 
 								if (a && cans)
 								{
@@ -500,7 +500,7 @@ void footprints(int snum)
 		if ((p->cursector->floorstat & CSTAT_SECTOR_SLOPE) != 2)
 		{
 			int j = -1;
-			DukeSectIterator it(actor->spr.sector());
+			DukeSectIterator it(actor->sector());
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
@@ -999,7 +999,7 @@ int haskey(sectortype* sectp, int snum)
 
 void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel;
 	HitInfo hit{};
 

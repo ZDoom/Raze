@@ -140,16 +140,16 @@ void AIAnim::Tick(RunListEvent* ev)
             pActor->spr.pos.Y = pIgniter->spr.pos.Y;
             pActor->spr.pos.Z = pIgniter->spr.pos.Z;
 
-            if (pIgniter->spr.sector() != pActor->spr.sector())
+            if (pIgniter->sector() != pActor->sector())
             {
-                if (!pIgniter->spr.sector())
+                if (!pIgniter->sector())
                 {
                     DestroyAnim(pActor);
                     return;
                 }
                 else
                 {
-                    ChangeActorSect(pActor, pIgniter->spr.sector());
+                    ChangeActorSect(pActor, pIgniter->sector());
                 }
             }
 
@@ -230,7 +230,7 @@ void AIAnim::Draw(RunListEvent* ev)
 
 void BuildExplosion(DExhumedActor* pActor)
 {
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
 
     int edx = 36;
 
@@ -238,12 +238,12 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pActor->spr.pos.Z == pActor->spr.sector()->floorz)
+    else if (pActor->spr.pos.Z == pActor->sector()->floorz)
     {
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* pActor, sectortype* pSector)

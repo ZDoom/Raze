@@ -364,7 +364,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
 
-	auto sec = spr.sector();
+	auto sec = spr.sectp;
 	if ((sec->ceilingstat & CSTAT_SECTOR_SKY) > 0)
 		spr.pal = sec->ceilingpal;
 	else

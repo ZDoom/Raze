@@ -929,7 +929,7 @@ int InitRipperHang(DSWActor* actor)
     {
         tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->spr.sector(),  // Start position
+        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -1172,7 +1172,7 @@ void RipperHatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_RIPPERS; i++)
     {
-        auto actorNew = insertActor(actor->spr.sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
 		actorNew->spr.clear();
         ClearOwner(actorNew);
         actorNew->spr.pos.X = actor->spr.pos.X;

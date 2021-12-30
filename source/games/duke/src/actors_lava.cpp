@@ -128,8 +128,8 @@ void addtorch(DDukeActor* actor)
 	if (torchcnt >= 64)
 		I_Error("Too many torch effects");
 
-	torchsector[torchcnt] = actor->spr.sector();
-	torchsectorshade[torchcnt] = actor->spr.sector()->floorshade;
+	torchsector[torchcnt] = actor->sector();
+	torchsectorshade[torchcnt] = actor->sector()->floorshade;
 	torchtype[torchcnt] = actor->spr.lotag;
 	torchcnt++;
 }
@@ -139,8 +139,8 @@ void addlightning(DDukeActor* actor)
 	if (lightnincnt >= 64)
 		I_Error("Too many lightnin effects");
 
-	lightninsector[lightnincnt] = actor->spr.sector();
-	lightninsectorshade[lightnincnt] = actor->spr.sector()->floorshade;
+	lightninsector[lightnincnt] = actor->sector();
+	lightninsectorshade[lightnincnt] = actor->sector()->floorshade;
 	lightnincnt++;
 }
 

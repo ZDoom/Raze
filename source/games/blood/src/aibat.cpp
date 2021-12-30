@@ -101,13 +101,13 @@ static void batThinkTarget(DBloodActor* actor)
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
 			int z = pPlayer->actor->spr.pos.Z;
-			auto pSector = pPlayer->actor->spr.sector();
+			auto pSector = pPlayer->actor->sector();
 			int dx = x - actor->spr.pos.X;
 			int dy = y - actor->spr.pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->spr.sector()))
+			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -174,7 +174,7 @@ static void batThinkPonder(DBloodActor* actor)
 		int height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z, pTarget->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector()))
+		if (cansee(pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z, pTarget->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
 			if (height2 - height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -281,12 +281,12 @@ static void batThinkChase(DBloodActor* actor)
 		int height2 = (pDudeInfo->eyeHeight * pTarget->spr.yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z, pTarget->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector()))
+		if (cansee(pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z, pTarget->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				int floorZ = getflorzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y);
+				int floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if (height2 - height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
 					aiNewState(actor, &batBite);
 				else if ((height2 - height > 0x5000 || floorZ - bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
@@ -411,7 +411,7 @@ void batMoveToCeil(DBloodActor* actor)
 		aiNewState(actor, &batIdle);
 	}
 	else
-		aiSetTarget(actor, x, y, actor->spr.sector()->ceilingz);
+		aiSetTarget(actor, x, y, actor->sector()->ceilingz);
 }
 
 END_BLD_NS

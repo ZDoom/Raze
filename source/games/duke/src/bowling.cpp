@@ -39,7 +39,7 @@ void ballreturn(DDukeActor *ball)
 	DukeStatIterator it(STAT_BOWLING);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == RRTILE281 && ball->spr.sector() == act->spr.sector())
+		if (act->spr.picnum == RRTILE281 && ball->sector() == act->sector())
 		{
 			DukeStatIterator it2(STAT_BOWLING);
 			while (auto act2 = it2.Next())

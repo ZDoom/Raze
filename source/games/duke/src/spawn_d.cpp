@@ -43,7 +43,7 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
-	auto sectp = act->spr.sector();
+	auto sectp = act->sector();
 
 	if (isWorldTour())
 	{
@@ -52,7 +52,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BOSS2STAYPUT:
 		case BOSS3STAYPUT:
 		case BOSS5STAYPUT:
-			act->actorstayput = act->spr.sector();
+			act->actorstayput = act->sector();
 			[[fallthrough]];
 		case FIREFLY:
 		case BOSS5:
@@ -157,13 +157,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		if (actj)
 		{
-			if (actj->spr.sector()->lotag == 2)
+			if (actj->sector()->lotag == 2)
 			{
-				act->spr.pos.Z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
+				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
-			else if (actj->spr.sector()->lotag == 1)
-				act->spr.pos.Z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+			else if (actj->sector()->lotag == 1)
+				act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -296,7 +296,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if (act->spr.picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
 		{
-			int fz = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+			int fz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (fz != act->spr.pos.Z)
 				act->spr.pos.Z = fz;
 			act->spr.pos.Z -= 200;
@@ -640,7 +640,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+			int x = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.pos.Z > x - (12 << 8))
 				act->spr.pos.Z = x - (12 << 8);
 		}
@@ -663,7 +663,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
 			act->spr.zvel = 128;
-			if (act->spr.sector()->lotag != 2)
+			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		ChangeActorStat(act, STAT_DUMMYPLAYER);
@@ -786,7 +786,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PIGCOPDIVE:
 	case COMMANDERSTAYPUT:
 	case BOSS4STAYPUT:
-		act->actorstayput = act->spr.sector();
+		act->actorstayput = act->sector();
 		[[fallthrough]];
 	case BOSS1:
 	case BOSS2:
@@ -917,7 +917,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case ACTIVATOR:
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 		if (act->spr.picnum == ACTIVATORLOCKED)
-			act->spr.sector()->lotag |= 16384;
+			act->sector()->lotag |= 16384;
 		ChangeActorStat(act, 8);
 		break;
 

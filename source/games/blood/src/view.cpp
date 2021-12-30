@@ -491,7 +491,7 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 {
 	int bobWidth, bobHeight;
 
-	pSector = gView->actor->spr.sector();
+	pSector = gView->actor->sector();
 #if 0
 	if (numplayers > 1 && gView == gMe && gPrediction && gMe->actor->xspr.health > 0)
 	{

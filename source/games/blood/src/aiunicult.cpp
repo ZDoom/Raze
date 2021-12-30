@@ -519,8 +519,8 @@ static void unicultThinkChase(DBloodActor* actor)
 	int losAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 	int eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 
-	if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(),
-		actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - eyeAboveZ, actor->spr.sector()))
+	if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(),
+		actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - eyeAboveZ, actor->sector()))
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -580,8 +580,8 @@ static void unicultThinkChase(DBloodActor* actor)
 						}
 
 						int ldist = aiFightGetTargetDist(target, pDudeInfo, actLeech);
-						if (ldist > 3 || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(),
-							actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.sector()) || actLeech->GetTarget() == nullptr)
+						if (ldist > 3 || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(),
+							actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->sector()) || actLeech->GetTarget() == nullptr)
 						{
 							aiGenDudeNewState(actor, &genDudeThrow2);
 							genDudeThrow2.nextState = &genDudeDodgeShortL;
@@ -726,7 +726,7 @@ static void unicultThinkChase(DBloodActor* actor)
 			{
 				int nType = curWeapon - kTrapExploder;
 				const EXPLOSION* pExpl = &explodeInfo[nType];
-				if (CheckProximity(actor, target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pExpl->radius >> 1))
+				if (CheckProximity(actor, target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), pExpl->radius >> 1))
 				{
 					actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
 					if (doExplosion(actor, nType) && actor->xspr.health > 0)
@@ -1348,7 +1348,7 @@ bool playGenDudeSound(DBloodActor* actor, int mode)
 
 bool spriteIsUnderwater(DBloodActor* actor, bool oldWay)
 {
-	return (IsUnderwaterSector(actor->spr.sector())
+	return (IsUnderwaterSector(actor->sector())
 		|| (oldWay && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)));
 }
 
@@ -1400,7 +1400,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 {
 	if (actLeech != nullptr)
 	{
-		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->spr.sector(), actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.ang);
+		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.ang);
 		if (effectactor != nullptr)
 		{
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -1791,7 +1791,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			int x = actTarget->spr.pos.X; int y = actTarget->spr.pos.Y; int z = actTarget->spr.pos.Z;
 			int nDist = approxDist(x - actor->spr.pos.X, y - actor->spr.pos.Y);
 
-			if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->spr.sector(), x, y, z, actTarget->spr.sector()))
+			if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->sector(), x, y, z, actTarget->sector()))
 			{
 				int t = DivScale(nDist, 0x1aaaaa, 12);
 				x += (actTarget->vel.X * t) >> 12;
@@ -1831,7 +1831,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 
 bool doExplosion(DBloodActor* actor, int nType)
 {
-	auto actExplosion = actSpawnSprite(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, kStatExplosion, true);
+	auto actExplosion = actSpawnSprite(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, kStatExplosion, true);
 	if (!actExplosion->hasX())
 		return false;
 
@@ -2481,10 +2481,10 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
 		// make sure dudes aren't in the floor or ceiling
 		int zTop, zBot; GetActorExtents(actor, &zTop, &zBot);
-		if (!(actor->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY))
-			actor->spr.pos.Z += ClipLow(actor->spr.sector()->ceilingz - zTop, 0);
-		if (!(actor->spr.sector()->floorstat & CSTAT_SECTOR_SKY))
-			actor->spr.pos.Z += ClipHigh(actor->spr.sector()->floorz - zBot, 0);
+		if (!(actor->sector()->ceilingstat & CSTAT_SECTOR_SKY))
+			actor->spr.pos.Z += ClipLow(actor->sector()->ceilingz - zTop, 0);
+		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
+			actor->spr.pos.Z += ClipHigh(actor->sector()->floorz - zBot, 0);
 
 		actor->spr.clipdist = ClipRange((actor->spr.xrepeat + actor->spr.yrepeat) >> 1, 4, 120);
 		if (propId) break;

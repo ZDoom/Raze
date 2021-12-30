@@ -99,14 +99,14 @@ void VisViewChange(PLAYERp pp, int *vis)
             x = own->spr.pos.X;
             y = own->spr.pos.Y;
             z = own->spr.pos.Z;
-            sectp = own->spr.sector();
+            sectp = own->sector();
         }
         else
         {
             x = actor->spr.pos.X;
             y = actor->spr.pos.Y;
             z = actor->spr.pos.Z;
-            sectp = actor->spr.sector();
+            sectp = actor->sector();
         }
 
         // save off the brightest vis that you can see
@@ -125,10 +125,10 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
     DSWActor* actorNew = nullptr;
     if (parentActor != nullptr)
     {
-        if (parentActor->spr.sector()->floorpal == PALETTE_FOG)
+        if (parentActor->sector()->floorpal == PALETTE_FOG)
             return;
 
-        if (parentActor->spr.sector()->floorpal == PALETTE_DIVE_LAVA)
+        if (parentActor->sector()->floorpal == PALETTE_DIVE_LAVA)
             return;
 
         // kill any others with the same parent
@@ -141,7 +141,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
             }
         }
 
-        actorNew = insertActor(parentActor->spr.sector(), STAT_VIS_ON);
+        actorNew = insertActor(parentActor->sector(), STAT_VIS_ON);
         SetOwner(parentActor, actorNew);
 
 

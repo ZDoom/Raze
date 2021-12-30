@@ -420,17 +420,17 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     int bound;
 
-    if (FAF_ConnectArea(actor->spr.sector()))
+    if (FAF_ConnectArea(actor->sector()))
     {
         if (actor->user.hi_sectp)
         {
-            actor->user.hiz = actor->spr.sector()->ceilingz + Z(16);
-            actor->user.hi_sectp = actor->spr.sector();
+            actor->user.hiz = actor->sector()->ceilingz + Z(16);
+            actor->user.hi_sectp = actor->sector();
         }
         else
         {
-            if (actor->user.hiz < actor->spr.sector()->ceilingz + Z(16))
-                actor->user.hiz = actor->spr.sector()->ceilingz + Z(16);
+            if (actor->user.hiz < actor->sector()->ceilingz + Z(16))
+                actor->user.hiz = actor->sector()->ceilingz + Z(16);
         }
     }
 

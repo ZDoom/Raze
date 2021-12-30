@@ -642,7 +642,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                             }
                             else
                             {
-                                drawroomstotile(camactor->spr.pos.X, camactor->spr.pos.Y, camactor->spr.pos.Z, buildang(SP_TAG5(camactor)), camhoriz, camactor->spr.sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(camactor->spr.pos.X, camactor->spr.pos.Y, camactor->spr.pos.Z, buildang(SP_TAG5(camactor)), camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }

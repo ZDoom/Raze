@@ -165,7 +165,7 @@ void IgniteSprite(DExhumedActor* pActor)
 {
     pActor->spr.hitag += 2;
 
-    auto pAnimActor = BuildAnim(nullptr, 38, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), 40, 20);
+    auto pAnimActor = BuildAnim(nullptr, 38, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), 40, 20);
 
     if (pAnimActor)
     {
@@ -318,7 +318,7 @@ int MoveBullet(int nBullet)
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
     int z = pActor->spr.pos.Z; // ebx
-    int nSectFlag = pActor->spr.sector()->Flag;
+    int nSectFlag = pActor->sector()->Flag;
 
     int x2, y2, z2;
 
@@ -377,7 +377,7 @@ MOVEEND:
             x2 = pActor->spr.pos.X;
             y2 = pActor->spr.pos.Y;
             z2 = pActor->spr.pos.Z;
-            pHitSect = pActor->spr.sector();
+            pHitSect = pActor->sector();
 
 #if 0
             // Original code. This was producing some beautiful undefined behavior in the first case because the index can be anything, not just a wall.
@@ -417,7 +417,7 @@ MOVEEND:
         nVal = coll.type || coll.exbits? 1:0;
 
         // pSprite's sector may have changed since we set nSectFlag ?
-        int nFlagVal = nSectFlag ^ pActor->spr.sector()->Flag;
+        int nFlagVal = nSectFlag ^ pActor->sector()->Flag;
         if (nFlagVal & kSectUnderwater)
         {
             DestroyBullet(nBullet);
@@ -426,7 +426,7 @@ MOVEEND:
 
         if (nVal == 0 && nType != 15 && nType != 3)
         {
-            AddFlash(pActor->spr.sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 0);
+            AddFlash(pActor->sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 0);
 
             if (pActor->spr.pal != 5) {
                 pActor->spr.pal = 1;
@@ -443,7 +443,7 @@ MOVEEND:
             x2 = hitactor->spr.pos.X;
             y2 = hitactor->spr.pos.Y;
             z2 = hitactor->spr.pos.Z - (GetActorHeight(hitactor) >> 1);
-            pHitSect = hitactor->spr.sector();
+            pHitSect = hitactor->sector();
         }
         else
         {
@@ -454,7 +454,7 @@ MOVEEND:
                 dz = -bsin(pBullet->nPitch, 3);
             else
                 dz = -pBullet->nPitch * 512;
-            hitscan(startPos, pActor->spr.sector(), { bcos(pActor->spr.ang), bsin(pActor->spr.ang), dz }, hit, CLIPMASK1);
+            hitscan(startPos, pActor->sector(), { bcos(pActor->spr.ang), bsin(pActor->spr.ang), dz }, hit, CLIPMASK1);
             x2 = hit.hitpos.X;
             y2 = hit.hitpos.Y;
             z2 = hit.hitpos.Z;
@@ -554,7 +554,7 @@ HITSPRITE:
 
                     nRadialBullet = -1;
 
-                    AddFlash(pActor->spr.sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
+                    AddFlash(pActor->sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
                 }
             }
         }
@@ -587,14 +587,14 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.nType = nType;
                 sBullet.nDoubleDamage = nDoubleDamage;
 
-                sBullet.pActor = insertActor(pActor->spr.sector(), 200);
+                sBullet.pActor = insertActor(pActor->sector(), 200);
                 sBullet.pActor->spr.ang = nAngle;
 
                 int nHeight = GetActorHeight(pTarget);
 
-				assert(pTarget->spr.sector());
+				assert(pTarget->sector());
 
-                BulletHitsSprite(&sBullet, pActor, pTarget, pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - (nHeight >> 1), pTarget->spr.sector());
+                BulletHitsSprite(&sBullet, pActor, pTarget, pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - (nHeight >> 1), pTarget->sector());
                 DeleteActor(sBullet.pActor);
                 return nullptr;
             }
@@ -618,7 +618,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     }
     else
     {
-        pSector = pActor->spr.sector();
+        pSector = pActor->sector();
     }
 
     auto pBulletActor = insertActor(pSector, 200);
@@ -706,7 +706,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     int var_18 = 0;
 
-    pSector = pBulletActor->spr.sector();
+    pSector = pBulletActor->sector();
 
     while (pBulletActor->spr.pos.Z < pSector->ceilingz)
     {
@@ -827,7 +827,7 @@ void AIBullet::Tick(RunListEvent* ev)
 
     if (nFlag & 0x80)
     {
-        BuildAnim(nullptr, 45, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.xrepeat, 0);
+        BuildAnim(nullptr, 45, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.xrepeat, 0);
     }
 
     BulletList[nBullet].nFrame++;

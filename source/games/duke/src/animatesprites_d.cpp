@@ -175,7 +175,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->pos = h->spr.interpolatedvec3(smoothratio);
 		}
 
-		auto sectp = h->spr.sector();
+		auto sectp = h->sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
 		t4 = h->temp_data[4];
@@ -401,7 +401,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				goto PALONLY;
 			}
 
-			if (ps[p].on_crane == nullptr && (h->spr.sector()->lotag & 0x7ff) != 1)
+			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				l = h->spr.pos.Z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)

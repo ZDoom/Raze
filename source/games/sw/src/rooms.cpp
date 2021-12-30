@@ -311,7 +311,7 @@ int GetZadjustment(sectortype* sect, short hitag)
     SWStatIterator it(STAT_ST1);
     while (auto itActor = it.Next())
     {
-        if (itActor->spr.hitag == hitag && itActor->spr.sector() == sect)
+        if (itActor->spr.hitag == hitag && itActor->sector() == sect)
         {
             return Z(itActor->spr.lotag);
         }
@@ -568,23 +568,23 @@ void SetupMirrorTiles(void)
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
+        if (actor->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC;
-            actor->spr.sector()->ceilingstat |= (CSTAT_SECTOR_SKY);
+            actor->sector()->ceilingpicnum = FAF_MIRROR_PIC;
+            actor->sector()->ceilingstat |= (CSTAT_SECTOR_SKY);
         }
 
-        if (actor->spr.sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
+        if (actor->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC;
-            actor->spr.sector()->floorstat |= (CSTAT_SECTOR_SKY);
+            actor->sector()->floorpicnum = FAF_MIRROR_PIC;
+            actor->sector()->floorstat |= (CSTAT_SECTOR_SKY);
         }
 
-        if (actor->spr.sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
-            actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC+1;
+        if (actor->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
+            actor->sector()->ceilingpicnum = FAF_MIRROR_PIC+1;
 
-        if (actor->spr.sector()->floorpicnum == FAF_PLACE_MIRROR_PIC+1)
-            actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC+1;
+        if (actor->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC+1)
+            actor->sector()->floorpicnum = FAF_MIRROR_PIC+1;
     }
 }
 
@@ -787,7 +787,7 @@ short FindViewSectorInScene(sectortype* cursect, short level)
     {
         if (actor->spr.hitag == level)
         {
-            if (cursect == actor->spr.sector())
+            if (cursect == actor->sector())
             {
                 // ignore case if sprite is pointing up
                 if (actor->spr.ang == 1536)

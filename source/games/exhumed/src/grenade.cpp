@@ -145,7 +145,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     int var_28, var_20;
 
     int nPlayer = pActor->spr.owner;
-    auto pGrenadeSect = pActor->spr.sector();
+    auto pGrenadeSect = pActor->sector();
 
     pActor->nFrame = 1;
 
@@ -181,7 +181,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         pActor->spr.pos.X = bcos(nAngle, -5) + pPlayerActor->spr.pos.X;
         pActor->spr.pos.Y = bsin(nAngle, -5) + pPlayerActor->spr.pos.Y;
 
-        ChangeActorSect(pActor, pPlayerActor->spr.sector());
+        ChangeActorSect(pActor, pPlayerActor->sector());
 
         if (!PlayerList[nPlayer].invincibility) {
             PlayerList[nPlayer].nHealth = 1;
@@ -196,8 +196,8 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnim(nullptr, var_28, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), var_20, 4);
-    AddFlash(pActor->spr.sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
+    BuildAnim(nullptr, var_28, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), var_20, 4);
+    AddFlash(pActor->sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
 
     DestroyGrenade(pActor);
 }
@@ -294,7 +294,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         {
             if (zVel)
             {
-                if (pActor->spr.sector()->Damage > 0)
+                if (pActor->sector()->Damage > 0)
                 {
                     ExplodeGrenade(pActor);
                     return;

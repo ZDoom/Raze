@@ -894,7 +894,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	{
 		viewInitializePrediction();
 	}
-	if (IsUnderwaterSector(actor->spr.sector()))
+	if (IsUnderwaterSector(actor->sector()))
 	{
 		pPlayer->posture = 1;
 		pPlayer->actor->xspr.medium = kMediumWater;
@@ -1235,7 +1235,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 		return 1;
 	}
 
-	sfxPlay3DSound(plActor->spr.pos.X, plActor->spr.pos.Y, plActor->spr.pos.Z, pickupSnd, plActor->spr.sector());
+	sfxPlay3DSound(plActor->spr.pos.X, plActor->spr.pos.Y, plActor->spr.pos.Z, pickupSnd, plActor->sector());
 	return 1;
 }
 
@@ -1371,7 +1371,7 @@ void CheckPickUp(PLAYER* pPlayer)
 	int x = plActor->spr.pos.X;
 	int y = plActor->spr.pos.Y;
 	int z = plActor->spr.pos.Z;
-	auto pSector = plActor->spr.sector();
+	auto pSector = plActor->sector();
 	BloodStatIterator it(kStatItem);
 	while (auto itemactor = it.Next())
 	{
@@ -1395,9 +1395,9 @@ void CheckPickUp(PLAYER* pPlayer)
 		if (approxDist(dx, dy) > 48)
 			continue;
 		GetActorExtents(itemactor, &top, &bottom);
-		if (cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, itemactor->spr.pos.Z, itemactor->spr.sector())
-			|| cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, top, itemactor->spr.sector())
-			|| cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, bottom, itemactor->spr.sector()))
+		if (cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, itemactor->spr.pos.Z, itemactor->sector())
+			|| cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, top, itemactor->sector())
+			|| cansee(x, y, z, pSector, itemactor->spr.pos.X, itemactor->spr.pos.Y, bottom, itemactor->sector()))
 			PickUp(pPlayer, itemactor);
 	}
 }
@@ -1481,8 +1481,8 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 		}
 		}
 	}
-	out->hitSector = plActor->spr.sector();
-	if (plActor->spr.sector()->hasX() && plActor->spr.sector()->xs().Push)
+	out->hitSector = plActor->sector();
+	if (plActor->sector()->hasX() && plActor->sector()->xs().Push)
 		return 6;
 	return -1;
 }
@@ -1509,7 +1509,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 	auto plActor = pPlayer->actor;
 	int const florhit = pPlayer->actor->hit.florhit.type;
 	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->horizon.calcviewpitch(plActor->spr.pos.vec2, buildang(plActor->spr.ang), va, plActor->spr.sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->spr.sector(), scaleAdjust);
+	pPlayer->horizon.calcviewpitch(plActor->spr.pos.vec2, buildang(plActor->spr.ang), va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
@@ -1842,14 +1842,14 @@ void playerProcess(PLAYER* pPlayer)
 	int dw = actor->spr.clipdist << 2;
 	if (!gNoClip)
 	{
-		auto pSector = actor->spr.sector();
+		auto pSector = actor->sector();
 		if (pushmove(&actor->spr.pos, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
 			actDamageSprite(actor, actor, kDamageFall, 500 << 4);
-		if (actor->spr.sector() != pSector)
+		if (actor->sector() != pSector)
 		{
 			if (pSector == nullptr)
 			{
-				pSector = actor->spr.sector();
+				pSector = actor->sector();
 				actDamageSprite(actor, actor, kDamageFall, 500 << 4);
 			}
 			else
@@ -1921,10 +1921,10 @@ void playerProcess(PLAYER* pPlayer)
 	if (pPlayer->posture == 1)
 	{
 		pPlayer->isUnderwater = 1;
-		auto link = actor->spr.sector()->lowerLink;
+		auto link = actor->sector()->lowerLink;
 		if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
 		{
-			if (getceilzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y) > pPlayer->zView)
+			if (getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y) > pPlayer->zView)
 				pPlayer->isUnderwater = 0;
 		}
 	}
@@ -2254,8 +2254,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 	if (nDeathSeqID != 16)
 	{
 		powerupClear(pPlayer);
-		if (pActor->spr.sector()->hasX() && pActor->spr.sector()->xs().Exit)
-			trTriggerSector(pActor->spr.sector(), kCmdSectorExit);
+		if (pActor->sector()->hasX() && pActor->sector()->xs().Exit)
+			trTriggerSector(pActor->sector(), kCmdSectorExit);
 		pActor->spr.flags |= 7;
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{

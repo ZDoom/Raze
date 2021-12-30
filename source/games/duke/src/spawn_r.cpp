@@ -37,7 +37,7 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
-	auto sectp = act->spr.sector();
+	auto sectp = act->sector();
 
 	switch (act->spr.picnum)
 	{
@@ -210,13 +210,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		if (actj)
 		{
-			if (actj->spr.sector()->lotag == 2)
+			if (actj->sector()->lotag == 2)
 			{
-				act->spr.pos.Z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
+				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
-			else if (actj->spr.sector()->lotag == 1)
-				act->spr.pos.Z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+			else if (actj->sector()->lotag == 1)
+				act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -649,7 +649,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+			int x = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.pos.Z > x - (12 << 8))
 				act->spr.pos.Z = x - (12 << 8);
 		}
@@ -664,7 +664,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
 			act->spr.zvel = 128;
-			if (act->spr.sector()->lotag != 2)
+			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		ChangeActorStat(act, 13);
@@ -785,7 +785,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MINIONSTAYPUT:
 	case COOTSTAYPUT:
 	rrra_stayput:
-		act->actorstayput = act->spr.sector();
+		act->actorstayput = act->sector();
 		[[fallthrough]];
 	case BOULDER:
 	case BOULDER1:
@@ -1319,7 +1319,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = 16;
 			break;
 		}
-		act->spr.shade = act->spr.sector()->floorshade;
+		act->spr.shade = act->sector()->floorshade;
 		break;
 	case WATERFOUNTAIN:
 		act->spr.lotag = 1;

@@ -585,7 +585,7 @@ void resetpspritevars(int g)
 		po[numplayersprites].opos.Y = act->spr.pos.Y;
 		po[numplayersprites].opos.Z = act->spr.pos.Z;
 		po[numplayersprites].oa = act->spr.ang;
-		po[numplayersprites].os = act->spr.sector();
+		po[numplayersprites].os = act->sector();
 
 		numplayersprites++;
 		if (j >= 0)
@@ -842,7 +842,7 @@ static void SpawnPortals()
 					{
 						if (processedTags.Find(act->spr.hitag) == processedTags.Size())
 						{
-							sectortype* s1 = act->spr.sector(), *s2 = act2->spr.sector();
+							sectortype* s1 = act->sector(), *s2 = act2->sector();
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s1->portalflags = PORTAL_SECTOR_CEILING;
 							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.pos.X - act->spr.pos.X, act2->spr.pos.Y - act->spr.pos.Y, act->spr.hitag);

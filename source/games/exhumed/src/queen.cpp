@@ -249,7 +249,7 @@ void DestroyEgg(int nEgg)
 
     if (QueenEgg[nEgg].nAction != 4)
     {
-        BuildAnim(nullptr, 34, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.xrepeat, 4);
+        BuildAnim(nullptr, 34, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.xrepeat, 4);
     }
     else
     {
@@ -395,7 +395,7 @@ void BuildTail()
     int x = head->spr.pos.X;
     int y = head->spr.pos.X;
     int z = head->spr.pos.X;
-    auto pSector =head->spr.sector();
+    auto pSector =head->sector();
 
     int i;
 
@@ -415,7 +415,7 @@ void BuildTail()
         pTailActor->spr.xrepeat = 80;
         pTailActor->spr.yrepeat = 80;
         pTailActor->spr.picnum = 1;
-        pTailActor->spr.pal = pTailActor->spr.sector()->ceilingpal;
+        pTailActor->spr.pal = pTailActor->sector()->ceilingpal;
         pTailActor->spr.xoffset = 0;
         pTailActor->spr.yoffset = 0;
         pTailActor->spr.pos.Z = z;
@@ -447,7 +447,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
-    auto pSector =pActor->spr.sector();
+    auto pSector =pActor->sector();
     int nFloorZ = pSector->floorz;
     int nAngle = pActor->spr.ang;
 
@@ -654,7 +654,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), pActor->spr.ang, true);
+            auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.ang, true);
             pActor->spr.pos.Z = pWaspSprite->spr.pos.Z;
 
             DestroyEgg(nEgg);
@@ -708,7 +708,7 @@ void BuildQueenHead(int nQueen)
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
     int nAngle = pActor->spr.ang;
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
     int z = pSector->floorz;
 
     auto pActor2 = insertActor(pSector, 121);
@@ -926,8 +926,8 @@ void AIQueenHead::Tick(RunListEvent* ev)
         MoveQX[nQHead] = pActor->spr.pos.X;
         MoveQY[nQHead] = pActor->spr.pos.Y;
         MoveQZ[nQHead] = pActor->spr.pos.Z;
-        assert(pActor->spr.sector());
-        MoveQS[nQHead] = pActor->spr.sector();
+        assert(pActor->sector());
+        MoveQS[nQHead] = pActor->sector();
         MoveQA[nQHead] = pActor->spr.ang;
 
         nHd = nQHead;
@@ -944,7 +944,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             DExhumedActor* pTActor = tailspr[i];
             if (pTActor)
             {
-                if (headSect != pTActor->spr.sector())
+                if (headSect != pTActor->sector())
                 {
                     assert(headSect);
                     ChangeActorSect(pTActor, headSect);
@@ -978,7 +978,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     int x = pActor->spr.pos.X;
                     int y = pActor->spr.pos.Y;
                     int z = pActor->spr.pos.Z;
-                    auto pSector =pActor->spr.sector();
+                    auto pSector =pActor->sector();
                     int nAngle = RandomSize(11) & kAngleMask;
 
                     pActor->spr.xrepeat = 127 - QueenHead.nIndex2;
@@ -1122,7 +1122,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         ChangeActorStat(pActor, 121);
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
-        z = pActor->spr.sector()->floorz;
+        z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
     }
 
@@ -1474,7 +1474,7 @@ void AIQueen::Damage(RunListEvent* ev)
                 QueenList[nQueen].nHealth = 4000;
                 QueenList[nQueen].nAction = 7;
 
-                BuildAnim(nullptr, 36, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - 7680, pActor->spr.sector(), pActor->spr.xrepeat, 4);
+                BuildAnim(nullptr, 36, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - 7680, pActor->sector(), pActor->spr.xrepeat, 4);
                 break;
             case 2:
                 QueenList[nQueen].nHealth = 4000;

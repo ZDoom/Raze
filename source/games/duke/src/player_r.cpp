@@ -85,7 +85,7 @@ void incur_damage_r(struct player_struct* p)
 
 static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel;
 	HitInfo hit{};
 
@@ -111,7 +111,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			if (effector->spr.sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
+			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
@@ -125,7 +125,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				{
 					nz = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan({ nx, ny, nz }, effector->GetOwner()->spr.sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
 			}
 		}
@@ -204,7 +204,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel = 0;
 	HitInfo hit{};
 
@@ -267,7 +267,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			if (effector->spr.sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
+			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
@@ -281,7 +281,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				{
 					nz = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan({ nx, ny, nz }, effector->GetOwner()->spr.sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
 			}
 		}
@@ -459,7 +459,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	int vel = 0, zvel;
 	int scount;
 
@@ -599,7 +599,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -751,7 +751,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	int vel = 0, zvel;
 	int scount;
 
@@ -830,7 +830,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	int sx, sy, sz, vel, zvel, x;
 
 
-	auto const sect = actor->spr.sector();
+	auto const sect = actor->sector();
 	zvel = 0;
 
 	if (actor->spr.picnum == TILE_APLAYER)
@@ -3622,7 +3622,7 @@ void processinput_r(int snum)
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
-		int j = pact->spr.sector()->floorpicnum;
+		int j = pact->sector()->floorpicnum;
 		k = 0;
 
 		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
@@ -3892,7 +3892,7 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psectp = pact->spr.sector();
+		psectp = pact->sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
 			auto act = barrier_cast<DDukeActor*>(psectp->hitagactor);
@@ -3909,7 +3909,7 @@ HORIZONLY:
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector != pact->spr.sector())
+	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
 	int j;
@@ -3926,9 +3926,9 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(pact->spr.sector()->lotag & 0x8000) && (isanunderoperator(pact->spr.sector()->lotag) ||
-				isanearoperator(pact->spr.sector()->lotag)))
-				fi.activatebysector(pact->spr.sector(), pact);
+			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
+				isanearoperator(pact->sector()->lotag)))
+				fi.activatebysector(pact->sector(), pact);
 			if (j)
 			{
 				quickkill(p);

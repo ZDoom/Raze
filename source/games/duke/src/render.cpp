@@ -115,7 +115,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				if (!testnewrenderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
-					renderDrawRoomsQ16(camera->spr.pos.X, camera->spr.pos.Y, camera->spr.pos.Z, ang.asq16(), IntToFixed(camera->spr.shade), camera->spr.sector(), false); // why 'shade'...?
+					renderDrawRoomsQ16(camera->spr.pos.X, camera->spr.pos.Y, camera->spr.pos.Z, ang.asq16(), IntToFixed(camera->spr.shade), camera->sector(), false); // why 'shade'...?
 					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->spr.pos.X, camera->spr.pos.Y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
@@ -123,7 +123,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				{
 					auto cstat = camera->spr.cstat;
 					camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-					render_camtex(camera, camera->spr.pos, camera->spr.sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
+					render_camtex(camera, camera->spr.pos, camera->sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
 					camera->spr.cstat = cstat;
 				}
 				display_mirror = 0;
@@ -295,7 +295,7 @@ void displayrooms(int snum, double smoothratio)
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->spr.sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
 		act->spr.cstat = cstat;
 
 	}
@@ -361,7 +361,7 @@ void displayrooms(int snum, double smoothratio)
 			cposx = act->spr.pos.X;
 			cposy = act->spr.pos.Y;
 			cposz = act->spr.pos.Z;
-			sect = act->spr.sector();
+			sect = act->sector();
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
 			viewer = act;

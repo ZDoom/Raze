@@ -64,7 +64,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pActor->spr.zvel = 0;
     pActor->spr.xrepeat = 42;
     pActor->spr.yrepeat = 42;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.ang = nAngle;
@@ -104,8 +104,8 @@ void CheckMummyRevive(DExhumedActor* pActor)
 
             if (x <= 20 && y <= 20)
             {
-                if (cansee(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - 8192, pActor->spr.sector(),
-                          pOther->spr.pos.X, pOther->spr.pos.Y, pOther->spr.pos.Z - 8192, pOther->spr.sector()))
+                if (cansee(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - 8192, pActor->sector(),
+                          pOther->spr.pos.X, pOther->spr.pos.Y, pOther->spr.pos.Z - 8192, pOther->sector()))
                 {
                     pOther->spr.cstat = 0;
                     pOther->nAction = 6;
@@ -208,8 +208,8 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 if (RandomBit() && pTarget)
                 {
-                    if (cansee(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - GetActorHeight(pActor), pActor->spr.sector(),
-                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - GetActorHeight(pActor), pActor->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->sector()))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
@@ -450,7 +450,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->spr.pos.Z = pActor->spr.sector()->floorz;
+        pActor->spr.pos.Z = pActor->sector()->floorz;
     }
     else
     {

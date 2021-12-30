@@ -125,7 +125,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		sizy = 7;
 	}
 
-	auto spawned = EGS(actor->spr.sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
+	auto spawned = EGS(actor->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
 	if (spawned)
 	{
 		spawned->spr.extra += (krand() & 7);
@@ -176,7 +176,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
 			sa = (short)(actor->spr.ang + (krand() & 31) - 16);
 
-		if (actor->spr.sector()->lotag == 2 && (krand() % 5) == 0)
+		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
 	else
@@ -186,7 +186,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 			vel = (int)((((512 - (1024
 				- abs(abs(getangle(sx - ps[p].opos.X, sy - ps[p].opos.Y) - sa) - 1024)))
 				* 0.001953125f) * ps[p].GetActor()->spr.xvel) + 400);
-		if (actor->spr.sector()->lotag == 2 && (krand() % 5) == 0)
+		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
 
@@ -201,7 +201,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	spawned->spr.pos.X = sx + bsin(sa + 630) / 448;
 	spawned->spr.pos.Y = sy + bsin(sa + 112) / 448;
 	spawned->spr.pos.Z = sz - 256;
-	spawned->setsector(actor->spr.sector());
+	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	spawned->spr.ang = sa;
 	spawned->spr.xrepeat = 2;
@@ -230,7 +230,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 
 static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel;
 	HitInfo hit{};
 
@@ -316,7 +316,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel = 0;
 	HitInfo hit{};
 
@@ -565,7 +565,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	sectortype* sect = actor->spr.sector();
+	sectortype* sect = actor->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -676,7 +676,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -842,7 +842,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 
 static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	auto sectp = actor->spr.sector();
+	auto sectp = actor->sector();
 	int zvel;
 	int j;
 	HitInfo hit{};
@@ -912,7 +912,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	int zvel;
 	int k;
 	HitInfo hit{};
@@ -1018,7 +1018,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 
 
-	auto sect = actor->spr.sector();
+	auto sect = actor->sector();
 	zvel = 0;
 
 	if (actor->spr.picnum == TILE_APLAYER)
@@ -2891,9 +2891,9 @@ void processinput_d(int snum)
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
-		j = pact->spr.sector()->floorpicnum;
+		j = pact->sector()->floorpicnum;
 
-		if (j == PURPLELAVA || pact->spr.sector()->ceilingpicnum == PURPLELAVA)
+		if (j == PURPLELAVA || pact->sector()->ceilingpicnum == PURPLELAVA)
 		{
 			if (p->boot_amount > 0)
 			{
@@ -3053,7 +3053,7 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psectp = pact->spr.sector();
+		psectp = pact->sector();
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
@@ -3069,7 +3069,7 @@ HORIZONLY:
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector != pact->spr.sector())
+	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
 	if (ud.clipping == 0)
@@ -3080,9 +3080,9 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(pact->spr.sector()->lotag & 0x8000) && (isanunderoperator(pact->spr.sector()->lotag) ||
-				isanearoperator(pact->spr.sector()->lotag)))
-				fi.activatebysector(pact->spr.sector(), pact);
+			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
+				isanearoperator(pact->sector()->lotag)))
+				fi.activatebysector(pact->sector(), pact);
 			if (j)
 			{
 				quickkill(p);

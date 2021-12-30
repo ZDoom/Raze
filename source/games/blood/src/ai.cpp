@@ -144,7 +144,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	}
 	x += MulScale(nRange, Cos(nAngle), 30);
 	y += MulScale(nRange, Sin(nAngle), 30);
-	auto pSector = actor->spr.sector();
+	auto pSector = actor->sector();
 	assert(pSector);
 	if (!FindSector(x, y, z, &pSector))
 		return false;
@@ -570,7 +570,7 @@ void aiActivateDude(DBloodActor* actor)
 	case kDudeGillBeast:
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-		XSECTOR* pXSector = actor->spr.sector()->hasX()? &actor->spr.sector()->xs() : nullptr;
+		XSECTOR* pXSector = actor->sector()->hasX()? &actor->sector()->xs() : nullptr;
 
 		pDudeExtraE->thinkTime = 0;
 		pDudeExtraE->active = 1;
@@ -1405,7 +1405,7 @@ void RecoilDude(DBloodActor* actor)
 			aiNewState(actor, &eelRecoil);
 			break;
 		case kDudeGillBeast: {
-			XSECTOR* pXSector = actor->spr.sector()->hasX() ? &actor->spr.sector()->xs() : nullptr;
+			XSECTOR* pXSector = actor->sector()->hasX() ? &actor->sector()->xs() : nullptr;
 
 			aiPlay3DSound(actor, 1702, AI_SFX_PRIORITY_2, -1);
 			if (pXSector && pXSector->Underwater)
@@ -1511,13 +1511,13 @@ void aiThinkTarget(DBloodActor* actor)
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
 			int z = pPlayer->actor->spr.pos.Z;
-			auto pSector = pPlayer->actor->spr.sector();
+			auto pSector = pPlayer->actor->sector();
 			int dx = x - actor->spr.pos.X;
 			int dy = y - actor->spr.pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->spr.sector()))
+			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -1557,13 +1557,13 @@ void aiLookForTarget(DBloodActor* actor)
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
 			int z = pPlayer->actor->spr.pos.Z;
-			auto pSector = pPlayer->actor->spr.sector();
+			auto pSector = pPlayer->actor->sector();
 			int dx = x - actor->spr.pos.X;
 			int dy = y - actor->spr.pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->spr.sector()))
+			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -1582,7 +1582,7 @@ void aiLookForTarget(DBloodActor* actor)
 		if (actor->xspr.state)
 		{
 			const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-			GetClosestSpriteSectors(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, 400, nullptr, newSectCheckMethod);
+			GetClosestSpriteSectors(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, 400, nullptr, newSectCheckMethod);
 
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())
@@ -1684,7 +1684,7 @@ void aiInit(void)
 
 void aiInitSprite(DBloodActor* actor)
 {
-	XSECTOR* pXSector = actor->spr.sector()->hasX() ? &actor->spr.sector()->xs() : nullptr;
+	XSECTOR* pXSector = actor->sector()->hasX() ? &actor->sector()->xs() : nullptr;
 
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;

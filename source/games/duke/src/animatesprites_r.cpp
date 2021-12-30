@@ -107,7 +107,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		default:
 			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 			{
-				if (h->spr.sector()->shadedsector == 1 && h->spr.statnum != 1)
+				if (h->sector()->shadedsector == 1 && h->spr.statnum != 1)
 				{
 					h->spr.shade = 16;
 					t->shade = 16;
@@ -158,7 +158,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->pos = h->spr.interpolatedvec3(smoothratio);
 		}
 
-		auto sectp = h->spr.sector();
+		auto sectp = h->sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
 		t4 = h->temp_data[4];
@@ -444,7 +444,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				goto PALONLY;
 			}
 
-			if (ps[p].on_crane == nullptr && (h->spr.sector()->lotag & 0x7ff) != 1)
+			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				l = h->spr.pos.Z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
@@ -582,7 +582,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		stuff:
 			if (t->pal == 6) t->shade = -120;
 
-			if (h->spr.sector()->shadedsector == 1)
+			if (h->sector()->shadedsector == 1)
 				t->shade = 16;
 			[[fallthrough]];
 

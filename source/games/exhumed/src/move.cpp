@@ -239,7 +239,7 @@ void clipwall()
 
 int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 {
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
     int z = pActor->spr.pos.Z;
 
     int z2;
@@ -310,7 +310,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 
 Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
 {
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
     assert(pSector);
 
     overridesect = pSector;
@@ -341,9 +341,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     // loc_151E7:
-    while (ebp > pActor->spr.sector()->floorz && pActor->spr.sector()->pBelow != nullptr)
+    while (ebp > pActor->sector()->floorz && pActor->sector()->pBelow != nullptr)
     {
-        ChangeActorSect(pActor, pActor->spr.sector()->pBelow);
+        ChangeActorSect(pActor, pActor->sector()->pBelow);
     }
 
     if (pSect2 != pSector)
@@ -363,9 +363,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < pActor->spr.sector()->ceilingz) && (pActor->spr.sector()->pAbove != nullptr))
+        while ((ebp < pActor->sector()->ceilingz) && (pActor->sector()->pAbove != nullptr))
         {
-            ChangeActorSect(pActor, pActor->spr.sector()->pAbove);
+            ChangeActorSect(pActor, pActor->sector()->pAbove);
         }
     }
 
@@ -373,12 +373,12 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
     vec3_t pos = pActor->spr.pos;
     pos.Z -= 256;
-    getzrange(pos, pActor->spr.sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
+    getzrange(pos, pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
 
     int mySprfloor = sprfloor;
 
     if (loHit.type != kHitSprite) {
-        mySprfloor += pActor->spr.sector()->Depth;
+        mySprfloor += pActor->sector()->Depth;
     }
 
     if (ebp > mySprfloor)
@@ -419,11 +419,11 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
             else
             {
                 // Path B
-                if (pActor->spr.sector()->pBelow == nullptr)
+                if (pActor->sector()->pBelow == nullptr)
                 {
                     nRet.exbits |= kHitAux2;
 
-                    int nSectDamage = pActor->spr.sector()->Damage;
+                    int nSectDamage = pActor->sector()->Damage;
 
                     if (nSectDamage != 0)
                     {
@@ -450,7 +450,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pActor->spr.sector()->pAbove == nullptr))
+        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
         {
             ebp = sprceiling + height;
             nRet.exbits |= kHitAux1;
@@ -499,7 +499,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int nClipDist = (int8_t)pActor->spr.clipdist << 2;
 
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
     assert(pSector);
 
     int floorZ = pSector->floorz;
@@ -512,7 +512,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist);
 
-    pSector = pActor->spr.sector(); // modified in movespritez so re-grab this variable
+    pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
     if (pActor->spr.statnum == 100)
     {
@@ -545,7 +545,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         nRet = coll;
     }
 
-    if ((pSector != pActor->spr.sector()) && pSector != nullptr)
+    if ((pSector != pActor->sector()) && pSector != nullptr)
     {
         if (nRet.exbits & kHitAux2) {
             dz = 0;
@@ -562,7 +562,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
             if (pActor->spr.pal < 5 && !pActor->spr.hitag)
             {
-                pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+                pActor->spr.pal = pActor->sector()->ceilingpal;
             }
         }
     }
@@ -572,7 +572,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
 void Gravity(DExhumedActor* pActor)
 {
-    if (pActor->spr.sector()->Flag & kSectUnderwater)
+    if (pActor->sector()->Flag & kSectUnderwater)
     {
         if (pActor->spr.statnum != 100)
         {
@@ -624,11 +624,11 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
     int z = pActor->spr.pos.Z;
-    auto pSectorPre = pActor->spr.sector();
+    auto pSectorPre = pActor->sector();
 
     auto ecx = MoveCreature(pActor);
 
-    auto pSector =pActor->spr.sector();
+    auto pSector =pActor->sector();
 
     if (pSector != pSectorPre)
     {
@@ -698,7 +698,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
     int x = pActor->spr.pos.X;
     int y = pActor->spr.pos.Y;
-    auto pSector =pActor->spr.sector();
+    auto pSector =pActor->sector();
 
     int z = pActor->spr.pos.Z - GetActorHeight(pActor);
 
@@ -722,7 +722,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
             {
                 int v10 = abs(pPlayerActor->spr.pos.Y - y);
 
-                if (v10 < nDistance && cansee(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z - 7680, pPlayerActor->spr.sector(), x, y, z, pSector))
+                if (v10 < nDistance && cansee(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z - 7680, pPlayerActor->sector(), x, y, z, pSector))
                 {
                     break;
                 }
@@ -1081,7 +1081,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     inity = pActor->spr.pos.Y;
     initz = pActor->spr.pos.Z;
     inita = pActor->spr.ang;
-    initsectp = pActor->spr.sector();
+    initsectp = pActor->sector();
 }
 
 void SetQuake(DExhumedActor* pActor, int nVal)
@@ -1239,7 +1239,7 @@ void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
     auto pActor = PlayerList[nPlayer].pActor;
     int height = GetActorHeight(pActor) >> 1;
 
-    *sectnum = pActor->spr.sector();
+    *sectnum = pActor->sector();
     *pos = pActor->spr.pos;
     pos->Z -= height;
 
@@ -1358,7 +1358,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     }
     pActor->spr.pos = pSrc->spr.pos;
 
-    ChangeActorSect(pActor, pSrc->spr.sector());
+    ChangeActorSect(pActor, pSrc->sector());
 
     pActor->spr.cstat = CSTAT_SPRITE_YCENTER;
     pActor->spr.shade = -12;
@@ -1399,7 +1399,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    auto pSector = pActor->spr.sector();
+    auto pSector = pActor->sector();
     pActor->spr.pal = pSector->ceilingpal;
 
     auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
@@ -1407,7 +1407,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     if (pActor->spr.pos.Z >= pSector->floorz)
     {
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
-        pSector = pActor->spr.sector();
+        pSector = pActor->sector();
 
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;

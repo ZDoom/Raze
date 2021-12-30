@@ -135,8 +135,8 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 		}
 		int nShade = pSector->floorshade;
 		int nPalette = 0;
-		if (gView->actor->spr.sector()->hasX()) {
-			sectortype* pViewSect = gView->actor->spr.sector();
+		if (gView->actor->sector()->hasX()) {
+			sectortype* pViewSect = gView->actor->sector();
 			XSECTOR* pXSector = &pViewSect->xs();
 			if (pXSector->color)
 				nPalette = pViewSect->floorpal;

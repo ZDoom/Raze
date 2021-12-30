@@ -46,7 +46,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
         ChangeActorStat(pActor, 105);
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
-        z = pActor->spr.sector()->floorz;
+        z = pActor->sector()->floorz;
         angle = pActor->spr.ang;
     }
 
@@ -58,7 +58,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 60;
     pActor->spr.ang = angle;
     pActor->spr.xrepeat = 40;

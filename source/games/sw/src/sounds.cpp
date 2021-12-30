@@ -380,7 +380,7 @@ static void UpdateAmbients()
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYERp pp = Player + screenpeek;
-            if (!FAFcansee(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, spot->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+            if (!FAFcansee(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
             {
                 sdist = 255;
             }
@@ -558,7 +558,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, spot->spr.sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly

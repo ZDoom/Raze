@@ -39,7 +39,7 @@ static actionSeq LavadudeSeq[] = {
 
 DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
-    auto pLimbActor = insertActor(pActor->spr.sector(), 118);
+    auto pLimbActor = insertActor(pActor->sector(), 118);
 
     pLimbActor->spr.pos.X = pActor->spr.pos.X;
     pLimbActor->spr.pos.Y = pActor->spr.pos.Y;
@@ -107,7 +107,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     }
     else
     {
-        pSector = pActor->spr.sector();
+        pSector = pActor->sector();
         nAngle = pActor->spr.ang;
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
@@ -285,11 +285,11 @@ void AILavaDude::Tick(RunListEvent* ev)
         int x = pActor->spr.pos.X;
         int y = pActor->spr.pos.Y;
         int z = pActor->spr.pos.Z;
-        auto pSector =pActor->spr.sector();
+        auto pSector =pActor->sector();
 
         auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, 0, 0, 0, CLIPMASK0);
 
-        if (pSector != pActor->spr.sector())
+        if (pSector != pActor->sector())
         {
             ChangeActorSect(pActor, pSector);
             pActor->spr.pos.X = x;

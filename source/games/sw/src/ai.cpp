@@ -254,7 +254,7 @@ int CanHitPlayer(DSWActor* actor)
     else
         return false;
 
-    FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, zhs, actor->spr.sector(),
+    FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, zhs, actor->sector(),
                xvect,
                yvect,
                zvect,
@@ -438,7 +438,7 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag({ actor->spr.pos.X, actor->spr.pos.Y, z[i] }, actor->spr.sector(), actor->spr.ang, near, 1024, NTAG_SEARCH_LO_HI);
+        neartag({ actor->spr.pos.X, actor->spr.pos.Y, z[i] }, actor->sector(), actor->spr.ang, near, 1024, NTAG_SEARCH_LO_HI);
     }
 
     if (near.hitSector != nullptr && near.hitpos.X < 1024)
@@ -1348,7 +1348,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     highActor = actor->user.highActor;
     lo_sectp = actor->user.lo_sectp;
     hi_sectp = actor->user.hi_sectp;
-    ssp = actor->spr.sector();
+    ssp = actor->sector();
 
     // do the move
     actor->spr.ang = ang;

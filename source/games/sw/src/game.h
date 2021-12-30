@@ -2124,12 +2124,12 @@ inline int GetRepeatFromHeight(DSWActor* sp, int zh)
 
 inline bool SpriteInDiveArea(DSWActor* a)
 {
-    return (a->spr.sector()->extra & SECTFX_DIVE_AREA) ? true : false;
+    return (a->sector()->extra & SECTFX_DIVE_AREA) ? true : false;
 }
 
 inline bool SpriteInUnderwaterArea(DSWActor* a)
 {
-    return (a->spr.sector()->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2)) ? true : false;
+    return (a->sector()->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2)) ? true : false;
 }
 
 

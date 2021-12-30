@@ -671,16 +671,16 @@ int NullZilla(DSWActor* actor)
 #if 0
     if (actor->user.State == s_ZillaDie)
     {
-        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, &actor->user.hiz, &actor->user.loz);
-        actor->user.lo_sectp = actor->spr.sector();
-        actor->user.hi_sectp = actor->spr.sector();
+        getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.y, &actor->user.hiz, &actor->user.loz);
+        actor->user.lo_sectp = actor->sector();
+        actor->user.hi_sectp = actor->sector();
         actor->spr.z = actor->user.loz;
     }
 #endif
 
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
-    actor->user.lo_sectp = actor->spr.sector();
-    actor->user.hi_sectp = actor->spr.sector();
+    getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    actor->user.lo_sectp = actor->sector();
+    actor->user.hi_sectp = actor->sector();
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
     actor->spr.pos.Z = actor->user.loz;
@@ -747,9 +747,9 @@ int DoZillaDeathMelt(DSWActor* actor)
     }
 
     //KeepActorOnFloor(actor);
-    getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
-    actor->user.lo_sectp = actor->spr.sector();
-    actor->user.hi_sectp = actor->spr.sector();
+    getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    actor->user.lo_sectp = actor->sector();
+    actor->user.hi_sectp = actor->sector();
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
     actor->spr.pos.Z = actor->user.loz;

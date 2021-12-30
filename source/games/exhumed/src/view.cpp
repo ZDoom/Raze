@@ -91,7 +91,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
     bestTarget = nullptr;
 
-    auto pSector =pPlayerActor->spr.sector();
+    auto pSector =pPlayerActor->sector();
 
     int nAngle = (2048 - pPlayerActor->spr.ang) & kAngleMask;
 
@@ -171,7 +171,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
     {
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - GetActorHeight(targ), targ->spr.sector()))
+        if (!cansee(x, y, z, pSector, targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - GetActorHeight(targ), targ->sector()))
         {
             bestTarget = nullptr;
         }
@@ -220,7 +220,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerX = pActor->spr.pos.X;
         playerY = pActor->spr.pos.Y;
         playerZ = pActor->spr.pos.Z;
-        pSector = pActor->spr.sector();
+        pSector = pActor->sector();
         nAngle = buildang(pActor->spr.ang);
         rotscrnang = buildang(0);
 
@@ -284,7 +284,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = pPlayerActor->spr.sector()->floorz;
+        int floorZ = pPlayerActor->sector()->floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;

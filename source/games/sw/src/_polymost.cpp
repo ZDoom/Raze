@@ -11,7 +11,7 @@ int ViewSectorInScene(sectortype* cursect, int level)
     {
         if (actor->spr.hitag == level)
         {
-            if (cursect == actor->spr.sector())
+            if (cursect == actor->sector())
             {
                 // ignore case if sprite is pointing up
                 if (actor->spr.ang == 1536)
@@ -97,19 +97,19 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         if (SP_TAG3(actor) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(actor) = actor->spr.sector()->ceilingpicnum;
-            actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
-            SP_TAG4(actor) = actor->spr.sector()->ceilingstat;
-            actor->spr.sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
+            SP_TAG5(actor) = actor->sector()->ceilingpicnum;
+            actor->sector()->ceilingpicnum = SP_TAG2(actor);
+            SP_TAG4(actor) = actor->sector()->ceilingstat;
+            actor->sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            SP_TAG5(actor) = actor->spr.sector()->floorpicnum;
-            actor->spr.sector()->floorpicnum = SP_TAG2(actor);
-            SP_TAG4(actor) = actor->spr.sector()->floorstat;
-            actor->spr.sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
+            SP_TAG5(actor) = actor->sector()->floorpicnum;
+            actor->sector()->floorpicnum = SP_TAG2(actor);
+            SP_TAG4(actor) = actor->sector()->floorstat;
+            actor->sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 
@@ -127,15 +127,15 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         if (SP_TAG3(actor) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            actor->spr.sector()->ceilingpicnum = SP_TAG5(actor);
-            actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
+            actor->sector()->ceilingpicnum = SP_TAG5(actor);
+            actor->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
+            actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            actor->spr.sector()->floorpicnum = SP_TAG5(actor);
-            actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
+            actor->sector()->floorpicnum = SP_TAG5(actor);
+            actor->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
+            actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 }
@@ -274,7 +274,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
-                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, actor->spr.sector(), true);
+                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, actor->sector(), true);
                         analyzesprites(pm_tsprite, pm_spritesortcnt, dx, dy, dz, false);
                         renderDrawMasks();
                     }
@@ -313,8 +313,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 void SW_FloorPortalHack(DSWActor* actor, int z, int match)
 {
     // move ceiling multiple of 128 so that the wall tile will line up
-    int pix_diff = labs(z - actor->spr.sector()->ceilingz) >> 8;
-    int newz = actor->spr.sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
+    int pix_diff = labs(z - actor->sector()->ceilingz) >> 8;
+    int newz = actor->sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
     SWStatIterator it(STAT_FAF);
     while (actor = it.Next())
@@ -325,17 +325,17 @@ void SW_FloorPortalHack(DSWActor* actor, int z, int match)
             if (actor->spr.hitag == VIEW_LEVEL1)
             {
                 // save it off
-                save.sect[save.zcount] = actor->spr.sector();
-                save.zval[save.zcount] = actor->spr.sector()->ceilingz;
-                save.pic[save.zcount] = actor->spr.sector()->ceilingpicnum;
-                save.slope[save.zcount] = actor->spr.sector()->ceilingheinum;
+                save.sect[save.zcount] = actor->sector();
+                save.zval[save.zcount] = actor->sector()->ceilingz;
+                save.pic[save.zcount] = actor->sector()->ceilingpicnum;
+                save.slope[save.zcount] = actor->sector()->ceilingheinum;
 
-                actor->spr.sector()->setceilingz(newz, true);
+                actor->sector()->setceilingz(newz, true);
 
                 // don't change FAF_MIRROR_PIC - ConnectArea
-                if (actor->spr.sector()->ceilingpicnum != FAF_MIRROR_PIC)
-                    actor->spr.sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
-                actor->spr.sector()->setceilingslope(0);
+                if (actor->sector()->ceilingpicnum != FAF_MIRROR_PIC)
+                    actor->sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
+                actor->sector()->setceilingslope(0);
 
                 save.zcount++;
                 PRODUCTION_ASSERT(save.zcount < ZMAX);
@@ -346,8 +346,8 @@ void SW_FloorPortalHack(DSWActor* actor, int z, int match)
 
 void SW_CeilingPortalHack(DSWActor* actor, int z, int match)
 {
-    int pix_diff = labs(z - actor->spr.sector()->floorz) >> 8;
-    int newz = actor->spr.sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
+    int pix_diff = labs(z - actor->sector()->floorz) >> 8;
+    int newz = actor->sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
 
     SWStatIterator it(STAT_FAF);
     while (actor = it.Next())
@@ -358,16 +358,16 @@ void SW_CeilingPortalHack(DSWActor* actor, int z, int match)
             if (actor->spr.hitag == VIEW_LEVEL2)
             {
                 // save it off
-                save.sect[save.zcount] = actor->spr.sector();
-                save.zval[save.zcount] = actor->spr.sector()->floorz;
-                save.pic[save.zcount] = actor->spr.sector()->floorpicnum;
-                save.slope[save.zcount] = actor->spr.sector()->floorheinum;
+                save.sect[save.zcount] = actor->sector();
+                save.zval[save.zcount] = actor->sector()->floorz;
+                save.pic[save.zcount] = actor->sector()->floorpicnum;
+                save.slope[save.zcount] = actor->sector()->floorheinum;
 
-                actor->spr.sector()->setfloorz(newz, true);
+                actor->sector()->setfloorz(newz, true);
                 // don't change FAF_MIRROR_PIC - ConnectArea
-                if (actor->spr.sector()->floorpicnum != FAF_MIRROR_PIC)
-                    actor->spr.sector()->floorpicnum = FAF_MIRROR_PIC + 1;
-                actor->spr.sector()->setfloorslope(0);
+                if (actor->sector()->floorpicnum != FAF_MIRROR_PIC)
+                    actor->sector()->floorpicnum = FAF_MIRROR_PIC + 1;
+                actor->sector()->setfloorslope(0);
 
                 save.zcount++;
                 PRODUCTION_ASSERT(save.zcount < ZMAX);

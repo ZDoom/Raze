@@ -55,7 +55,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
 
         x = ap->spr.pos.X;
         y = ap->spr.pos.Y;
-        z = ap->spr.sector()->floorz;
+        z = ap->sector()->floorz;
         nAngle = ap->spr.ang;
     }
 
@@ -67,7 +67,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     ap->spr.shade = -12;
     ap->spr.yoffset = 0;
     ap->spr.picnum = 1;
-    ap->spr.pal = ap->spr.sector()->ceilingpal;
+    ap->spr.pal = ap->sector()->ceilingpal;
     ap->spr.clipdist = 60;
     ap->spr.ang = nAngle;
     ap->spr.xrepeat = 40;
@@ -217,8 +217,8 @@ void AIAnubis::Tick(RunListEvent* ev)
 
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(ap->spr.pos.X, ap->spr.pos.Y, ap->spr.pos.Z - GetActorHeight(ap), ap->spr.sector(),
-                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(ap->spr.pos.X, ap->spr.pos.Y, ap->spr.pos.Z - GetActorHeight(ap), ap->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->sector()))
                     {
                         ap->spr.xvel = 0;
                         ap->spr.yvel = 0;
@@ -397,11 +397,11 @@ void AIAnubis::Damage(RunListEvent* ev)
             {
                 if (nAction >= 6 && nAction <= 10)
                 {
-                    auto pDrumActor = insertActor(ap->spr.sector(), kStatAnubisDrum);
+                    auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
 
                     pDrumActor->spr.pos.X = ap->spr.pos.X;
                     pDrumActor->spr.pos.Y = ap->spr.pos.Y;
-                    pDrumActor->spr.pos.Z = pDrumActor->spr.sector()->floorz;
+                    pDrumActor->spr.pos.Z = pDrumActor->sector()->floorz;
                     pDrumActor->spr.xrepeat = 40;
                     pDrumActor->spr.yrepeat = 40;
                     pDrumActor->spr.shade = -64;
@@ -425,7 +425,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             ap->spr.xvel = 0;
             ap->spr.yvel = 0;
             ap->spr.zvel = 0;
-            ap->spr.pos.Z = ap->spr.sector()->floorz;
+            ap->spr.pos.Z = ap->sector()->floorz;
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;

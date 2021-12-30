@@ -52,7 +52,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
         ChangeActorStat(pActor, 104);
         x = pActor->spr.pos.X;
         y = pActor->spr.pos.Y;
-        z = pActor->spr.sector()->floorz;
+        z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
     }
 
@@ -65,7 +65,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->spr.picnum = 1;
-    pActor->spr.pal = pActor->spr.sector()->ceilingpal;
+    pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.ang = nAngle;
@@ -397,7 +397,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 HitInfo hit{};
 
-                hitscan({ x, y, z }, pActor->spr.sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
+                hitscan({ x, y, z }, pActor->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
 
                 if (hit.hitWall)
                 {

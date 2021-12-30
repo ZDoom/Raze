@@ -67,7 +67,7 @@ inline int checkcursectnums(sectortype* se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->spr.sector() == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->sector() == se ) return i;
 	return -1;
 }
 

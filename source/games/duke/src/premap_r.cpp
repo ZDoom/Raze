@@ -508,7 +508,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 						if (act1->spr.picnum == RRTILE66)
 							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
-								childsectnum = act1->spr.sector();
+								childsectnum = act1->sector();
 								deletesprite(act1);
 							}
 					}
@@ -543,17 +543,17 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			break;
 
 		case GPSPEED:
-			ac->spr.sector()->extra = ac->spr.lotag;
+			ac->sector()->extra = ac->spr.lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sector = ac->spr.sector();
+			cyclers[numcyclers].sector = ac->sector();
 			cyclers[numcyclers].lotag = ac->spr.lotag;
 			cyclers[numcyclers].shade1 = ac->spr.shade;
-			cyclers[numcyclers].shade2 = ac->spr.sector()->floorshade;
+			cyclers[numcyclers].shade2 = ac->sector()->floorshade;
 			cyclers[numcyclers].hitag = ac->spr.hitag;
 			cyclers[numcyclers].state = (ac->spr.ang == 1536);
 			numcyclers++;
@@ -571,7 +571,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			break;
 
 		case RRTILE68:
-			ac->spr.sector()->shadedsector = 1;
+			ac->sector()->shadedsector = 1;
 			deletesprite(ac);
 			break;
 
@@ -604,21 +604,21 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				I_Error("Too many geometry effects");
 			if (actor->spr.hitag == 0)
 			{
-				geosector[geocnt] = actor->spr.sector();
+				geosector[geocnt] = actor->sector();
 				for (auto actor2 : actors)
 				{
 					if (actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->spr.picnum == RRTILE19)
 					{
 						if (actor2->spr.hitag == 1)
 						{
-							geosectorwarp[geocnt] = actor2->spr.sector();
+							geosectorwarp[geocnt] = actor2->sector();
 							geox[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
 							geoy[geocnt] = actor->spr.pos.Y - actor2->spr.pos.Y;
 							//geoz[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 						if (actor2->spr.hitag == 2)
 						{
-							geosectorwarp2[geocnt] = actor2->spr.sector();
+							geosectorwarp2[geocnt] = actor2->sector();
 							geox2[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
 							geoy2[geocnt] = actor->spr.pos.Y - actor2->spr.pos.Y;
 							//geoz2[geocnt] = actor->spr.z - actor2->spr.z;
@@ -650,7 +650,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				deletesprite(actor);
 			if (actor->spr.picnum == RRTILE34)
 			{
-				actor->spr.sector()->keyinfo = uint8_t(actor->spr.lotag);
+				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
 				deletesprite(actor);
 			}
 		}

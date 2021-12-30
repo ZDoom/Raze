@@ -44,7 +44,7 @@ public:
 
 	sectortype* sector() const
 	{
-		return spr.sector();
+		return spr.sectp;
 	}
 
 	bool insector() const

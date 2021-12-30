@@ -284,7 +284,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 void DoDebrisCurrent(DSWActor* actor)
 {
     int nx, ny;
-    auto sectp = actor->spr.sector();
+    auto sectp = actor->sector();
 
     //actor->spr.clipdist = (256+128)>>2;
 
@@ -309,7 +309,7 @@ void DoDebrisCurrent(DSWActor* actor)
 
 int DoActorSectorDamage(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
 
     if (actor->user.Health <= 0)
         return false;
@@ -383,7 +383,7 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoActorDebris(DSWActor* actor)
 {
-    SECTORp sectp = actor->spr.sector();
+    SECTORp sectp = actor->sector();
     int nx, ny;
 
     // This was move from DoActorDie so actor's can't be walked through until they are on the floor
@@ -397,9 +397,9 @@ int DoActorDebris(DSWActor* actor)
         KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
-        getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
-        actor->user.lo_sectp = actor->spr.sector();
-        actor->user.hi_sectp = actor->spr.sector();
+        getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+        actor->user.lo_sectp = actor->sector();
+        actor->user.hi_sectp = actor->sector();
         actor->user.lowActor = nullptr;
         actor->user.highActor = nullptr;
         break;
@@ -426,7 +426,7 @@ int DoActorDebris(DSWActor* actor)
             }
         }
 
-        if (actor->spr.sector()->hasU() && FixedToInt(actor->spr.sector()->depth_fixed) > 10) // JBF: added null check
+        if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 10) // JBF: added null check
         {
             actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 3)) & 1023;
             actor->spr.pos.Z = actor->user.loz - MulScale(Z(2), bsin(actor->user.WaitTics), 14);
@@ -476,7 +476,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 200);
 
         SetOwner(actor, spawned);
     }
@@ -491,7 +491,7 @@ void KeepActorOnFloor(DSWActor* actor)
     SECTORp sectp;
     int depth;
 
-    sectp = actor->spr.sector();
+    sectp = actor->sector();
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
 
@@ -565,7 +565,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         int ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(),
+        FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
         actor->user.oz = actor->spr.pos.Z = florz;

@@ -295,17 +295,17 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		else switch (ac->spr.picnum)
 		{
 		case GPSPEED:
-			ac->spr.sector()->extra = ac->spr.lotag;
+			ac->sector()->extra = ac->spr.lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sector = ac->spr.sector();
+			cyclers[numcyclers].sector = ac->sector();
 			cyclers[numcyclers].lotag = ac->spr.lotag;
 			cyclers[numcyclers].shade1 = ac->spr.shade;
-			cyclers[numcyclers].shade2 = ac->spr.sector()->floorshade;
+			cyclers[numcyclers].shade2 = ac->sector()->floorshade;
 			cyclers[numcyclers].hitag = ac->spr.hitag;
 			cyclers[numcyclers].state = (ac->spr.ang == 1536);
 			numcyclers++;

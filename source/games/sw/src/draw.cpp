@@ -456,8 +456,8 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
         {
             if (itActor1->spr.lotag == match)
             {
-                auto sect1 = itActor->spr.sector();
-                auto sect2 = itActor1->spr.sector();
+                auto sect1 = itActor->sector();
+                auto sect2 = itActor1->sector();
 
                 SWSectIterator it2(sect1);
                 while (auto itActor2 = it.Next())
@@ -478,7 +478,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     newTSpr->pos.X = itActor1->spr.pos.X - xoff;
                     newTSpr->pos.Y = itActor1->spr.pos.Y - yoff;
                     newTSpr->pos.Z = itActor1->spr.pos.Z - zoff;
-                    newTSpr->sectp = itActor1->spr.sector();
+                    newTSpr->sectp = itActor1->sector();
                 }
 
                 it2.Reset(sect2);
@@ -495,7 +495,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 
                     auto off = itActor1->spr.pos - newTSpr->pos;
                     newTSpr->pos = itActor->spr.pos - off;
-                    newTSpr->sectp = itActor->spr.sector();
+                    newTSpr->sectp = itActor->sector();
                 }
             }
         }
@@ -654,7 +654,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                int32_t const floorz = getflorzofslopeptr(tActor->spr.sector(), tActor->spr.pos.X, tActor->spr.pos.Y);
+                int32_t const floorz = getflorzofslopeptr(tActor->sector(), tActor->spr.pos.X, tActor->spr.pos.Y);
                 if (tActor->spr.pos.Z > floorz)
                     tsp->pos.Z = floorz;
             }
@@ -1115,8 +1115,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
             ang_test = getincangle(ang.asbuild(), actor->spr.ang) < actor->spr.lotag;
 
             FAFcansee_test =
-                (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), *tx, *ty, *tz + ActorSizeZ(pp->actor), pp->cursector));
+                (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), *tx, *ty, *tz + ActorSizeZ(pp->actor), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1168,7 +1168,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     *tx = actor->spr.pos.X;
                     *ty = actor->spr.pos.Y;
                     *tz = actor->spr.pos.Z;
-                    *tsect = actor->spr.sector();
+                    *tsect = actor->sector();
 
                     found_camera = true;
                     break;
@@ -1214,7 +1214,7 @@ void PreDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SLOPE);
+        actor->sector()->floorstat &= ~(CSTAT_SECTOR_SLOPE);
     }
 }
 
@@ -1224,7 +1224,7 @@ void PostDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        actor->spr.sector()->floorstat |= (CSTAT_SECTOR_SLOPE);
+        actor->sector()->floorstat |= (CSTAT_SECTOR_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
@@ -1240,7 +1240,7 @@ void PreDrawStackedWater(void)
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto itActor = it.Next())
     {
-        SWSectIterator it2(itActor->spr.sector());
+        SWSectIterator it2(itActor->sector());
         while (auto itActor2 = it2.Next())
         {
             if (itActor2->hasU())
@@ -1333,19 +1333,19 @@ void UpdateWallPortalState()
         if (SP_TAG3(actor) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(actor) = actor->spr.sector()->ceilingpicnum;
-            actor->spr.sector()->ceilingpicnum = SP_TAG2(actor);
-            SP_TAG4(actor) = actor->spr.sector()->ceilingstat;
-            actor->spr.sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
+            SP_TAG5(actor) = actor->sector()->ceilingpicnum;
+            actor->sector()->ceilingpicnum = SP_TAG2(actor);
+            SP_TAG4(actor) = actor->sector()->ceilingstat;
+            actor->sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            SP_TAG5(actor) = actor->spr.sector()->floorpicnum;
-            actor->spr.sector()->floorpicnum = SP_TAG2(actor);
-            SP_TAG4(actor) = actor->spr.sector()->floorstat;
-            actor->spr.sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
-            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
+            SP_TAG5(actor) = actor->sector()->floorpicnum;
+            actor->sector()->floorpicnum = SP_TAG2(actor);
+            SP_TAG4(actor) = actor->sector()->floorstat;
+            actor->sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
+            actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 
@@ -1359,15 +1359,15 @@ void RestorePortalState()
         if (SP_TAG3(actor) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            actor->spr.sector()->ceilingpicnum = SP_TAG5(actor);
-            actor->spr.sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            actor->spr.sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
+            actor->sector()->ceilingpicnum = SP_TAG5(actor);
+            actor->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
+            actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            actor->spr.sector()->floorpicnum = SP_TAG5(actor);
-            actor->spr.sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
-            actor->spr.sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
+            actor->sector()->floorpicnum = SP_TAG5(actor);
+            actor->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
+            actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }
     }
 }

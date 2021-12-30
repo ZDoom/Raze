@@ -107,7 +107,7 @@ void sub_71BD4(int, DBloodActor* actor)
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
-				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
+				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
@@ -179,7 +179,7 @@ void sub_720AC(int, DBloodActor* actor)
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
-				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
+				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
@@ -229,13 +229,13 @@ static void sub_725A4(DBloodActor* actor)
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
 			int z = pPlayer->actor->spr.pos.Z;
-			auto pSector = pPlayer->actor->spr.sector();
+			auto pSector = pPlayer->actor->sector();
 			int dx = x - actor->spr.pos.X;
 			int dy = y - actor->spr.pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->spr.sector()))
+			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -307,7 +307,7 @@ static void sub_72934(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector()))
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

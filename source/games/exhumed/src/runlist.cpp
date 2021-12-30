@@ -1644,11 +1644,11 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             cansee(pRadialActor->spr.pos.X,
                 pRadialActor->spr.pos.Y,
                 pRadialActor->spr.pos.Z - 512,
-                pRadialActor->spr.sector(),
+                pRadialActor->sector(),
                 pActor->spr.pos.X,
                 pActor->spr.pos.Y,
                 pActor->spr.pos.Z - 8192,
-                pActor->spr.sector()))
+                pActor->sector()))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;
 
@@ -1729,7 +1729,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         {
             // Do a taunt
             auto pPlayerActor = PlayerList[nPlayer].pActor;
-            auto pSector = pPlayerActor->spr.sector();
+            auto pSector = pPlayerActor->sector();
 
             if (!(pSector->Flag & kSectUnderwater))
             {

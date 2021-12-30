@@ -627,8 +627,8 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;
-		if ((actor->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = actor->spr.sector()->ceilingshade;
-		else shade = actor->spr.sector()->floorshade;
+		if ((actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = actor->sector()->ceilingshade;
+		else shade = actor->sector()->floorshade;
 		shade += actor->spr.shade;
 		PalEntry color = shadeToLight(shade);
 		FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];

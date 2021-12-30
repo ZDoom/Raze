@@ -472,7 +472,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 			int angle = getangle(x2 - x, y2 - y);
 			if (abs(((angle - plActor->spr.ang + 1024) & 2047) - 1024) > pWeaponTrack->angleRange)
 				continue;
-			if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->spr.sector(), x2, y2, z2, actor->spr.sector()))
+			if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), x2, y2, z2, actor->sector()))
 				pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
 			// Inlined?
 			int dz = (lz - z2) >> 8;
@@ -484,7 +484,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 			DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 			int center = (actor->spr.yrepeat * pDudeInfo->aimHeight) << 2;
 			int dzCenter = (z2 - center) - z;
-			if (cansee(x, y, z, plActor->spr.sector(), x2, y2, z2, actor->spr.sector()))
+			if (cansee(x, y, z, plActor->sector(), x2, y2, z2, actor->sector()))
 			{
 				nClosest = nDist2;
 				aim.dx = bcos(angle);
@@ -522,7 +522,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				int angle = getangle(dx, dy);
 				if (abs(((angle - plActor->spr.ang + 1024) & 2047) - 1024) > pWeaponTrack->thingAngle)
 					continue;
-				if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
+				if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
 					pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
 				// Inlined?
 				int dz2 = (lz - z2) >> 8;
@@ -531,7 +531,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				int nDist2 = ksqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
 				if (nDist2 >= nClosest)
 					continue;
-				if (cansee(x, y, z, plActor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector()))
+				if (cansee(x, y, z, plActor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(angle);
@@ -2996,7 +2996,7 @@ void teslaHit(DBloodActor* missileactor, int a2)
 	int y = missileactor->spr.pos.Y;
 	int z = missileactor->spr.pos.Z;
 	int nDist = 300;
-	auto pSector = missileactor->spr.sector();
+	auto pSector = missileactor->sector();
 	auto owneractor = missileactor->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
