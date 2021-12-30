@@ -3704,7 +3704,7 @@ AutoShrap:
                 shrap_bounce = false;
                 actor->spr.pos.Z -= Z(4);
                 shrap_xsize = actor->user.pos.X = 12 + (RANDOM_P2(32<<8)>>8);
-                shrap_ysize = actor->user.sy = 12 + (RANDOM_P2(32<<8)>>8);
+                shrap_ysize = actor->user.pos.Y = 12 + (RANDOM_P2(32<<8)>>8);
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
 
                 nx = bcos(actor->spr.ang, -6);
@@ -3720,7 +3720,7 @@ AutoShrap:
                 actor->spr.pos.Z -= Z(4);
                 //actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 shrap_xsize = actor->user.pos.X = 5 + (RANDOM_P2(4<<8)>>8);
-                shrap_ysize = actor->user.sy = 5 + (RANDOM_P2(4<<8)>>8);
+                shrap_ysize = actor->user.pos.Y = 5 + (RANDOM_P2(4<<8)>>8);
                 break;
             }
 
@@ -3774,7 +3774,7 @@ int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     actor->spr.xrepeat = actor->user.pos.X + MulScale(12, bcos(actor->user.Counter), 14);
-    actor->spr.yrepeat = actor->user.sy + MulScale(12, bsin(actor->user.Counter), 14);
+    actor->spr.yrepeat = actor->user.pos.Y + MulScale(12, bsin(actor->user.Counter), 14);
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
@@ -3795,7 +3795,7 @@ int DoVomit(DSWActor* actor)
         actor->spr.pos.Z = actor->user.loz;
         actor->user.WaitTics = 60;
         actor->user.pos.X = actor->spr.xrepeat;
-        actor->user.sy = actor->spr.yrepeat;
+        actor->user.pos.Y = actor->spr.yrepeat;
         return 0;
     }
 
@@ -10209,7 +10209,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
     actor->user.Flags |= (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
 
     actor->user.pos.X = sop->xmid - actor->spr.pos.X;
-    actor->user.sy = sop->ymid - actor->spr.pos.Y;
+    actor->user.pos.Y = sop->ymid - actor->spr.pos.Y;
     actor->user.sz = sop->mid_sector->floorz - actor->spr.pos.Z;
 
     actor->user.sang = actor->spr.ang;
@@ -10271,7 +10271,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     }
 
     expActor->user.pos.X = actor->user.pos.X;
-    expActor->user.sy = actor->user.sy;
+    expActor->user.pos.Y = actor->user.pos.Y;
     expActor->user.sz = actor->user.sz;
 }
 
@@ -17189,7 +17189,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->spr.xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat;
     actorNew->user.pos.X = actorNew->spr.xrepeat;
-    actorNew->user.sy = actorNew->spr.yrepeat;
+    actorNew->user.pos.Y = actorNew->spr.yrepeat;
     actorNew->user.ceiling_dist = Z(1);
     actorNew->user.floor_dist = Z(1);
     actorNew->spr.shade = actor->spr.sector()->floorshade - 10;
@@ -17285,16 +17285,16 @@ int DoBubble(DSWActor* actor)
         actor->spr.zvel = 768;
 
     actor->user.pos.X += 1;
-    actor->user.sy += 1;
+    actor->user.pos.Y += 1;
 
     if (actor->user.pos.X > 32)
     {
         actor->user.pos.X = 32;
-        actor->user.sy = 32;
+        actor->user.pos.Y = 32;
     }
 
     actor->spr.xrepeat = actor->user.pos.X + (RANDOM_P2(8 << 8) >> 8) - 4;
-    actor->spr.yrepeat = actor->user.sy + (RANDOM_P2(8 << 8) >> 8) - 4;
+    actor->spr.yrepeat = actor->user.pos.Y + (RANDOM_P2(8 << 8) >> 8) - 4;
 
     if (actor->spr.pos.Z < actor->spr.sector()->ceilingz)
     {

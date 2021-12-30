@@ -882,7 +882,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
 
                 itActor->user.pos.X = sop->xmid - itActor->spr.pos.X;
-                itActor->user.sy = sop->ymid - itActor->spr.pos.Y;
+                itActor->user.pos.Y = sop->ymid - itActor->spr.pos.Y;
                 itActor->user.sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
@@ -1702,7 +1702,7 @@ PlayerPart:
         }
 
         actor->spr.pos.X = sop->xmid - actor->user.pos.X;
-        actor->spr.pos.Y = sop->ymid - actor->user.sy;
+        actor->spr.pos.Y = sop->ymid - actor->user.pos.Y;
 
         // sprites z update
         if ((sop->flags & SOBJ_SPRITE_OBJ))
@@ -3379,8 +3379,8 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             bos_z = ActorZOfBottom(actor);
             if (bos_z > actor->user.loz)
             {
-                actor->user.sy = (bos_z - actor->spr.pos.Z);
-                actor->spr.pos.Z -= actor->user.sy;
+                actor->user.pos.Y = (bos_z - actor->spr.pos.Z);
+                actor->spr.pos.Z -= actor->user.pos.Y;
             }
 
             //
@@ -3539,7 +3539,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->spr.pos.Z += actor->user.sy;
+                actor->spr.pos.Z += actor->user.pos.Y;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
                 actor->user.ActorActionFunc = NinjaJumpActionFunc;

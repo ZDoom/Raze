@@ -3206,15 +3206,15 @@ void DoPlayerClimb(PLAYERp pp)
                     plActor->spr.pos.X = plActor->user.pos.X;
             }
 
-            if (plActor->spr.pos.Y != plActor->user.sy)
+            if (plActor->spr.pos.Y != plActor->user.pos.Y)
             {
-                if (plActor->spr.pos.Y < plActor->user.sy)
+                if (plActor->spr.pos.Y < plActor->user.pos.Y)
                     plActor->spr.pos.Y += ADJ_AMT;
-                else if (plActor->spr.pos.Y > plActor->user.sy)
+                else if (plActor->spr.pos.Y > plActor->user.pos.Y)
                     plActor->spr.pos.Y -= ADJ_AMT;
 
-                if (labs(plActor->spr.pos.Y - plActor->user.sy) <= ADJ_AMT)
-                    plActor->spr.pos.Y = plActor->user.sy;
+                if (labs(plActor->spr.pos.Y - plActor->user.pos.Y) <= ADJ_AMT)
+                    plActor->spr.pos.Y = plActor->user.pos.Y;
             }
         }
     }
@@ -4032,11 +4032,11 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     // get the offset from the sprite
     plActor->user.pos.X = over_act->spr.pos.X - pp->pos.X;
-    plActor->user.sy = over_act->spr.pos.Y - pp->pos.Y;
+    plActor->user.pos.Y = over_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
     pp->pos.X = under_act->spr.pos.X - plActor->user.pos.X;
-    pp->pos.Y = under_act->spr.pos.Y - plActor->user.sy;
+    pp->pos.Y = under_act->spr.pos.Y - plActor->user.pos.Y;
 
     auto over  = over_act->spr.sector();
     auto under = under_act->spr.sector();
@@ -4102,11 +4102,11 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     // get the offset from the under sprite
     plActor->user.pos.X = under_act->spr.pos.X - pp->pos.X;
-    plActor->user.sy = under_act->spr.pos.Y - pp->pos.Y;
+    plActor->user.pos.Y = under_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
     pp->pos.X = over_act->spr.pos.X - plActor->user.pos.X;
-    pp->pos.Y = over_act->spr.pos.Y - plActor->user.sy;
+    pp->pos.Y = over_act->spr.pos.Y - plActor->user.pos.Y;
 
     auto over = over_act->spr.sector();
     auto under = under_act->spr.sector();

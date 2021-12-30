@@ -1057,7 +1057,7 @@ struct USER
     int16_t wait_active_check;  // for enemy checking of player
     int16_t inactive_time; // length of time actor has been unaware of his tgt
     vec3_t pos;
-    int  sy,sz;
+    int  sz;
     int16_t sang;
     uint8_t spal;  // save off default palette number
 
