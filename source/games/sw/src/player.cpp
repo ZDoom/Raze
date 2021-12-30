@@ -3956,7 +3956,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 
     if (!found)
     {
-        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
+        I_Error("GetOverlapSector2 x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
     }
 
     PRODUCTION_ASSERT(found != 0);
