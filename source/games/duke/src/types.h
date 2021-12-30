@@ -37,7 +37,8 @@ public:
 	short attackertype, ang, extra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
-	int floorz, ceilingz, lastvx, lastvy, aflags;
+	vec2_t ovel;
+	int floorz, ceilingz, ovel.X, lastvy, aflags;
 	union
 	{
 		int saved_ammo;

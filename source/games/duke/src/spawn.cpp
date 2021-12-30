@@ -80,7 +80,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	act->spr.lotag = 0;
 	act->spr.backuploc();
 
-	act->lastvx = 0;
+	act->ovel.X = 0;
 	act->lastvy = 0;
 
 	act->timetosleep = 0;
@@ -152,7 +152,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 	act->floorz = act->spr.sector()->floorz;
 	act->ceilingz = act->spr.sector()->ceilingz;
 
-	act->lastvx = 0;
+	act->ovel.X = 0;
 	act->lastvy = 0;
 	act->actorstayput = nullptr;
 
@@ -1031,7 +1031,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				else if (actor->spr.sector()->floorpal == 7) j = 456;
 				else j = 75;
 			}
-			actor->lastvx = j;
+			actor->ovel.X = j;
 		}
 		[[fallthrough]];
 		case SE_30_TWO_WAY_TRAIN:

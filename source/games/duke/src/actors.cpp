@@ -2808,8 +2808,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		{
 			if (statstate)
 			{
-				if (!S_CheckSoundPlaying(actor->lastvx))
-					S_PlayActorSound(actor->lastvx, actor);
+				if (!S_CheckSoundPlaying(actor->ovel.X))
+					S_PlayActorSound(actor->ovel.X, actor);
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
@@ -2825,7 +2825,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		}
 
 		if (actor->spr.xvel <= 64 && statstate)
-			S_StopSound(actor->lastvx, actor);
+			S_StopSound(actor->ovel.X, actor);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
@@ -5038,7 +5038,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		auto Owner = actor->GetOwner();
 		if (Owner->spr.picnum == TILE_APLAYER)
-			goalang = getangle(actor->lastvx - actor->spr.pos.X, actor->lastvy - actor->spr.pos.Y);
+			goalang = getangle(actor->ovel.X - actor->spr.pos.X, actor->lastvy - actor->spr.pos.Y);
 		else
 			goalang = getangle(Owner->spr.pos.X - actor->spr.pos.X, Owner->spr.pos.Y - actor->spr.pos.Y);
 

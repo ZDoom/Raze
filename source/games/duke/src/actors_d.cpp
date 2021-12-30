@@ -1014,7 +1014,7 @@ static void movetripbomb(DDukeActor *actor)
 		DDukeActor* hit;
 		x = hitasprite(actor, &hit);
 
-		actor->lastvx = x;
+		actor->ovel.X = x;
 
 		actor->spr.ang = l;
 
@@ -1081,7 +1081,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->spr.pos.Z += (3 << 8);
 		SetActor(actor, actor->spr.pos);
 
-		if (actor->lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
+		if (actor->ovel.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
 			actor->temp_data[2] = 13;
 			S_PlayActorSound(LASERTRIP_ARMING, actor);

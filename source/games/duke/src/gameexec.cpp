@@ -1321,8 +1321,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->ceilingz, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
-		if (bSet) act->lastvx = lValue;
-		else SetGameVarID(lVar2, act->lastvx, sActor, sPlayer);
+		if (bSet) act->ovel.X = lValue;
+		else SetGameVarID(lVar2, act->ovel.X, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVY:
 		if (bSet) act->lastvy = lValue;
@@ -1496,13 +1496,13 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// search around for target player
 		// also modifies 'target' x&y if found.
-		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy);
+		j = furthestcanseepoint(actor, tosee, &actor->ovel.X, &actor->lastvy);
 	}
 	else
 	{
 		// else, they did see it.
 		// save where we were looking..
-		actor->lastvx = tosee->spr.pos.X;
+		actor->ovel.X = tosee->spr.pos.X;
 		actor->lastvy = tosee->spr.pos.Y;
 	}
 
@@ -3151,7 +3151,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		ang = getangle(g_ac->lastvx - g_ac->spr.pos.X, g_ac->lastvy - g_ac->spr.pos.Y);
+		ang = getangle(g_ac->ovel.X - g_ac->spr.pos.X, g_ac->lastvy - g_ac->spr.pos.Y);
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}
