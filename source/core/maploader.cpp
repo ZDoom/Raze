@@ -280,7 +280,7 @@ void validateSprite(spritetype& spr, int sectnum, int index)
 	}
 	if (bugged)
 	{
-		spr.clear();
+		spr = {};
 		spr.statnum = MAXSTATUS;
 		sectnum = -1;
 	}

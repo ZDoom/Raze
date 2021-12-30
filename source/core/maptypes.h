@@ -455,17 +455,6 @@ struct spritetype : public spritetypebase
 	int16_t wall;	// wall and wdist are for Polymost only.
 	int8_t wdist;
 
-	void clear()
-	{
-		auto sect = sectp;
-		int stat = statnum;
-		int save = time;    // this may not be cleared ever!!!
-		memset(this, 0, sizeof(*this));
-		time = save;
-		sectp = sect;
-		statnum = stat;
-	}
-
 };
 
 //=============================================================================

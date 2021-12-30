@@ -756,11 +756,7 @@ void KillActor(DSWActor* actor)
         {
             SetSuicide(actor->user.flameActor);
         }
-        actor->clearUser();
     }
-
-    // shred your garbage
-    actor->spr.clear();
     actor->Destroy();
 }
 

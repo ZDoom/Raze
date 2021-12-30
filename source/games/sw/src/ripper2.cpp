@@ -1198,7 +1198,6 @@ void Ripper2Hatch(DSWActor* actor)
     for (int i = 0; i < MAX_RIPPER2S; i++)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-        actorNew->spr.clear();
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
 

@@ -476,7 +476,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 			dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev * sizeof(spritetypedisk)) | 0x7474614d);
 		}
 		auto pSprite = &sprites.sprites[i];
-		pSprite->clear();
+		*pSprite = {};
 		pSprite->pos.X = LittleLong(load.x);
 		pSprite->pos.Y = LittleLong(load.y);
 		pSprite->pos.Z = LittleLong(load.z);
