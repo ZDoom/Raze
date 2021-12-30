@@ -196,21 +196,21 @@ void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, f
 //
 //==========================================================================
 
-int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
+int getceilzofslopeptr(const sectortype* sec, int dax, int day)
 {
 	float z;
 	calcSlope(sec, dax, day, &z, nullptr);
 	return int(z);
 }
 
-int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
+int getflorzofslopeptr(const sectortype* sec, int dax, int day)
 {
 	float z;
 	calcSlope(sec, dax, day, nullptr, &z);
 	return int(z);
 }
 
-void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t* ceilz, int32_t* florz)
+void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
 {
 	float c, f;
 	calcSlope(sec, dax, day, &c, &f);

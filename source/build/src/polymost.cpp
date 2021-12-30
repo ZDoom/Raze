@@ -981,12 +981,12 @@ skip: ;
 static int32_t global_cf_z;
 static float global_cf_xpanning, global_cf_ypanning, global_cf_heinum;
 static int32_t global_cf_shade, global_cf_pal, global_cf_fogpal;
-static float (*global_getzofslope_func)(usectorptr_t, float, float);
+static float (*global_getzofslope_func)(const sectortype*, float, float);
 
 static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0, float ryp1, float x0, float x1,
                                             float y0, float y1, int32_t sectnum, bool have_floor)
 {
-    auto const sec = (usectorptr_t)&sector[sectnum];
+    auto const sec = &sector[sectnum];
 
     // comments from floor code:
             //(singlobalang/-16384*(sx-ghalfx) + 0*(sy-ghoriz) + (cosviewingrangeglobalang/16384)*ghalfx)*d + globalposx    = u*16
@@ -1124,7 +1124,7 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
         py[0] = y0;
         py[1] = y1;
-        py[2] = double(global_getzofslope_func((usectorptr_t)sec, oxy.X, oxy.Y) - globalposz) * oy2 + ghoriz;
+        py[2] = double(global_getzofslope_func(sec, oxy.X, oxy.Y) - globalposz) * oy2 + ghoriz;
 
         FVector3 oxyz[2] = { { (float)(py[1] - py[2]), (float)(py[2] - py[0]), (float)(py[0] - py[1]) },
                             { (float)(px[2] - px[1]), (float)(px[0] - px[2]), (float)(px[1] - px[0]) } };
@@ -1244,21 +1244,21 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     return 0;
 }
 
-static float fgetceilzofslope(usectorptr_t sec, float dax, float day)
+static float fgetceilzofslope(const sectortype* sec, float dax, float day)
 {
     float z;
     calcSlope(sec, dax, day, &z, nullptr);
     return z;
 }
 
-static float fgetflorzofslope(usectorptr_t sec, float dax, float day)
+static float fgetflorzofslope(const sectortype* sec, float dax, float day)
 {
     float z;
     calcSlope(sec, dax, day, nullptr, &z);
     return z;
 }
 
-static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *florz)
+static void fgetzsofslope(const sectortype* sec, float dax, float day, float* ceilz, float *florz)
 {
     calcSlope(sec, dax, day, ceilz, florz);
 }
@@ -1467,7 +1467,7 @@ static void polymost_drawalls(int32_t const bunch)
     drawpoly_blend = 0;
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
-    auto const sec = (usectorptr_t)&sector[sectnum];
+    auto const sec = &sector[sectnum];
     float const fglobalang = FixedToFloat(qglobalang);
 
     polymost_outputGLDebugMessage(3, "polymost_drawalls(bunch:%d)", bunch);
@@ -1480,7 +1480,7 @@ static void polymost_drawalls(int32_t const bunch)
         auto const wal = &wall[wallnum];
         auto const wal2 = wal->point2Wall();
         int32_t const nextsectnum = wal->nextsector;
-        auto const nextsec = nextsectnum>=0 ? (usectorptr_t)&sector[nextsectnum] : NULL;
+        auto const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
         FVector2 walpos = { (float)(wal->pos.X-globalposx), (float)(wal->pos.Y-globalposy) };
@@ -1536,10 +1536,10 @@ static void polymost_drawalls(int32_t const bunch)
 
         float cz, fz;
 
-        fgetzsofslope((usectorptr_t)sec,n0.X,n0.Y,&cz,&fz);
+        fgetzsofslope(sec,n0.X,n0.Y,&cz,&fz);
         float const cy0 = (cz-globalposz)*ryp0 + ghoriz, fy0 = (fz-globalposz)*ryp0 + ghoriz;
 
-        fgetzsofslope((usectorptr_t)sec,n1.X,n1.Y,&cz,&fz);
+        fgetzsofslope(sec,n1.X,n1.Y,&cz,&fz);
         float const cy1 = (cz-globalposz)*ryp1 + ghoriz, fy1 = (fz-globalposz)*ryp1 + ghoriz;
 
         xtex2.d = (ryp0 - ryp1)*gxyaspect / (x0 - x1);
@@ -1676,10 +1676,10 @@ static void polymost_drawalls(int32_t const bunch)
 
         if (nextsectnum >= 0)
         {
-            fgetzsofslope((usectorptr_t)&sector[nextsectnum],n0.X,n0.Y,&cz,&fz);
+            fgetzsofslope(&sector[nextsectnum],n0.X,n0.Y,&cz,&fz);
             float const ocy0 = (cz-globalposz)*ryp0 + ghoriz;
             float const ofy0 = (fz-globalposz)*ryp0 + ghoriz;
-            fgetzsofslope((usectorptr_t)&sector[nextsectnum],n1.X,n1.Y,&cz,&fz);
+            fgetzsofslope(&sector[nextsectnum],n1.X,n1.Y,&cz,&fz);
             float const ocy1 = (cz-globalposz)*ryp1 + ghoriz;
             float const ofy1 = (fz-globalposz)*ryp1 + ghoriz;
 
@@ -2296,9 +2296,9 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     auto const wal2 = wal->point2Wall();
     if (wal->nextwall == -1) return;
     int32_t const sectnum = wal->nextWall()->nextsector;
-    auto const sec = (usectorptr_t)&sector[sectnum];
+    auto const sec = &sector[sectnum];
 
-    auto const nsec = (usectorptr_t)wal->nextSector();
+    auto const nsec = wal->nextSector();
 
     polymost_outputGLDebugMessage(3, "polymost_drawmaskwallinternal(wallIndex:%d)", wallIndex);
 
@@ -2655,7 +2655,7 @@ void polymost_drawsprite(int32_t snum)
     if (bad_tspr(tspr))
         return;
 
-    usectorptr_t sec;
+    const sectortype* sec;
 
     auto actor = tspr->ownerActor;
 
@@ -2696,7 +2696,7 @@ void polymost_drawsprite(int32_t snum)
     drawpoly_alpha = actor->sprext.alpha;
     drawpoly_blend = tspr->blend;
 
-    sec = (usectorptr_t)tspr->sector();
+    sec = tspr->sector();
 
     while (!(actor->sprext.flags & SPREXT_NOTMD))
     {

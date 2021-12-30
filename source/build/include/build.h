@@ -88,7 +88,6 @@ enum {
 
 #include "maptypes.h"
 
-using usectorptr_t = sectortype const *;
 using tspriteptr_t = tspritetype *;
 
 
@@ -322,16 +321,15 @@ inline sectortype* safenextsectorneighborzptr(sectortype* sectp, int refz, int t
     return sect == nullptr ? sectp : sect;
 }
 
-int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-void   getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day,
-                       int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
+int getceilzofslopeptr(const sectortype* sec, int dax, int day) ATTRIBUTE((nonnull(1)));
+int getflorzofslopeptr(const sectortype* sec, int dax, int day) ATTRIBUTE((nonnull(1)));
+void getzsofslopeptr(const sectortype* sec, int dax, int day, int *ceilz, int *florz) ATTRIBUTE((nonnull(1,4,5)));
 
 inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
-    getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.X, closest.Y, ceilz, florz);
+    getzsofslopeptr(&sector[sectnum], closest.X, closest.Y, ceilz, florz);
 }
 
 void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);

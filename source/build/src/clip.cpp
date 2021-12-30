@@ -229,7 +229,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
 {
 	assert(validSectorIndex(dasect) && validSectorIndex(nextsect));
 
-    auto const sec2 = (usectorptr_t)&sector[nextsect];
+    auto const sec2 = &sector[nextsect];
 
     switch (enginecompatibility_mode)
     {
@@ -260,7 +260,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     if (daz2 <= dacz2)
         return 1;
 
-    auto const sec = (usectorptr_t)&sector[dasect];
+    auto const sec = &sector[dasect];
 
     int32_t daz  = sec->floorz;
     int32_t dacz = sec->ceilingz;
@@ -498,7 +498,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         ////////// Walls //////////
 
-        auto const sec       = (usectorptr_t)&sector[dasect];
+        auto const sec       = &sector[dasect];
         int const  startwall = sec->wallptr;
         int const  endwall   = startwall + sec->wallnum;
         auto       wal       = &wall[startwall];
@@ -945,7 +945,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
             const walltype* wal;
             int32_t startwall, endwall;
 
-            auto sec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
+            auto sec = &sector[clipsectorlist[clipsectcnt]];
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
             else
@@ -1060,7 +1060,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
     {
         ////////// Walls //////////
 
-        auto const startsec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
+        auto const startsec = &sector[clipsectorlist[clipsectcnt]];
 
         for(auto&wal : wallsofsector(startsec))
         {
