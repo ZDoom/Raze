@@ -254,7 +254,7 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int dx = actor->vel.X;
-	int dy = actor->yvel;
+	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int vsi = ((t1 * 15) >> 12) / 2;
 	int v8 = 341;
@@ -304,7 +304,7 @@ void aiMoveForward(DBloodActor* actor)
 	if (abs(nAng) > 341)
 		return;
 	actor->vel.X += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.ang), 30);
-	actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
+	actor->vel.Y += MulScale(pDudeInfo->frontSpeed, Sin(actor->spr.ang), 30);
 }
 
 //---------------------------------------------------------------------------
@@ -340,7 +340,7 @@ void aiMoveDodge(DBloodActor* actor)
 		int nCos = Cos(actor->spr.ang);
 		int nSin = Sin(actor->spr.ang);
 		int dx = actor->vel.X;
-		int dy = actor->yvel;
+		int dy = actor->vel.Y;
 		int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 		int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 		if (actor->xspr.dodgeDir > 0)
@@ -349,7 +349,7 @@ void aiMoveDodge(DBloodActor* actor)
 			t2 -= pDudeInfo->sideSpeed;
 
 		actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-		actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+		actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 }
 

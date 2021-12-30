@@ -54,7 +54,7 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 		if (pFX)
 		{
 			pFX->vel.X = actor->vel.X + Random2(-dx);
-			pFX->yvel = actor->yvel + Random2(-dy);
+			pFX->vel.Y = actor->vel.Y + Random2(-dy);
 			pFX->zvel = actor->zvel - Random(0x1aaaa);
 		}
 	}
@@ -87,7 +87,7 @@ void Remove(DBloodActor* actor, sectortype*) // 1
 void FlareBurst(DBloodActor* actor, sectortype*) // 2
 {
 	if (!actor) return;
-	int nAngle = getangle(actor->vel.X, actor->yvel);
+	int nAngle = getangle(actor->vel.X, actor->vel.Y);
 	int nRadius = 0x55555;
 	for (int i = 0; i < 8; i++)
 	{
@@ -109,7 +109,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		}
 		RotateVector(&dx, &dy, nAngle);
 		spawnedactor->vel.X += dx;
-		spawnedactor->yvel += dy;
+		spawnedactor->vel.Y += dy;
 		spawnedactor->zvel += dz;
 		evPostActor(spawnedactor, 960, kCallbackRemove);
 	}
@@ -129,7 +129,7 @@ void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
-		pFX->yvel = actor->yvel + Random2(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
 		pFX->zvel = actor->zvel - Random(0x1aaaa);
 	}
 	evPostActor(actor, 4, kCallbackFXFlareSpark);
@@ -148,7 +148,7 @@ void fxFlareSparkLite(DBloodActor* actor, sectortype*) // 4
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
-		pFX->yvel = actor->yvel + Random2(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
 		pFX->zvel = actor->zvel - Random(0x1aaaa);
 	}
 	evPostActor(actor, 12, kCallbackFXFlareSparkLite);
@@ -170,7 +170,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2(0x11111);
-		pFX->yvel = actor->yvel + Random2(0x11111);
+		pFX->vel.Y = actor->vel.Y + Random2(0x11111);
 		pFX->zvel = actor->zvel - 0x6aaaa;
 	}
 	if (actor->xspr.data1 > 0)
@@ -200,7 +200,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	{
 		pFX->spr.ang = 0;
 		pFX->vel.X = actor->vel.X >> 8;
-		pFX->yvel = actor->yvel >> 8;
+		pFX->vel.Y = actor->vel.Y >> 8;
 		pFX->zvel = actor->zvel >> 8;
 	}
 	evPostActor(actor, 6, kCallbackFXBloodSpurt);
@@ -219,7 +219,7 @@ void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2(0x10000);
-		pFX->yvel = actor->yvel + Random2(0x10000);
+		pFX->vel.Y = actor->vel.Y + Random2(0x10000);
 		pFX->zvel = actor->zvel - Random(0x1aaaa);
 	}
 	evPostActor(actor, 3, kCallbackFXArcSpark);
@@ -244,7 +244,7 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 		if (pFX)
 		{
 			pFX->vel.X = actor->vel.X;
-			pFX->yvel = actor->yvel;
+			pFX->vel.Y = actor->vel.Y;
 			pFX->zvel = actor->zvel;
 		}
 	}
@@ -291,7 +291,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 		actor->spr.type = actor->spr.inittype;
 		actor->SetOwner(nullptr);
 		actor->spr.flags &= ~kHitagRespawn;
-		actor->vel.X = actor->yvel = actor->zvel = 0;
+		actor->vel.X = actor->vel.Y = actor->zvel = 0;
 		actor->xspr.respawnPending = 0;
 		actor->xspr.burnTime = 0;
 		actor->xspr.isTriggered = 0;
@@ -368,7 +368,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 			if (pFX)
 			{
 				pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
-				pFX->yvel = actor->yvel + Random2(0x1aaaa);
+				pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
 				pFX->zvel = actor->zvel + Random2(0x1aaaa);
 			}
 		}
@@ -398,7 +398,7 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 		if (pFX)
 		{
 			pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
-			pFX->yvel = actor->yvel + Random2(0x1aaaa);
+			pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
 			pFX->zvel = actor->zvel + Random2(0x1aaaa);
 		}
 	}
@@ -495,7 +495,7 @@ void fxTeslaAlt(DBloodActor* actor, sectortype*) // 15
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
-		pFX->yvel = actor->yvel + Random2(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
 		pFX->zvel = actor->zvel - Random(0x1aaaa);
 	}
 	evPostActor(actor, 3, kCallbackFXTeslaAlt);
@@ -525,7 +525,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 	if (actor->zvel == 0) sleeveStopBouncing(actor);
 	else if (zv > 0) {
-		actFloorBounceVector((int*)&actor->vel.X, (int*)&actor->yvel, &zv, actor->spr.sector(), 0x9000);
+		actFloorBounceVector((int*)&actor->vel.X, (int*)&actor->vel.Y, &zv, actor->spr.sector(), 0x9000);
 		actor->zvel = zv;
 		if (actor->spr.sector()->velFloor == 0 && abs(actor->zvel) < 0x20000) {
 			sleeveStopBouncing(actor);
@@ -556,7 +556,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 void sleeveStopBouncing(DBloodActor* actor)
 {
-	actor->vel.X = actor->yvel = actor->zvel = 0;
+	actor->vel.X = actor->vel.Y = actor->zvel = 0;
 	if (actor->hasX()) seqKill(actor);
 	sfxKill3DSound(actor, -1, -1);
 
@@ -627,7 +627,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 	{
 		pFX->spr.ang = 0;
 		pFX->vel.X = actor->vel.X >> 8;
-		pFX->yvel = actor->yvel >> 8;
+		pFX->vel.Y = actor->vel.Y >> 8;
 		pFX->zvel = actor->zvel >> 8;
 	}
 	evPostActor(actor, 6, kCallbackFXPodBloodSpray);
@@ -714,7 +714,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 	actor->spr.ang = actor2->spr.ang;
 	ChangeActorSect(actor, actor2->spr.sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
-	actor->vel.X = actor->yvel = actor->zvel = 0;
+	actor->vel.X = actor->vel.Y = actor->zvel = 0;
 	viewBackupSpriteLoc(actor);
 	if (pPlayer)
 	{

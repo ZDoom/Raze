@@ -472,7 +472,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
 	arc("xvel", vel.X)
-		("yvel", yvel)
+		("yvel", vel.Y)
 		("zvel", zvel)
 		("hasx", hasx);
 

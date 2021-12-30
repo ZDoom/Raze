@@ -210,7 +210,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int dx = actor->vel.X;
-	int dy = actor->yvel;
+	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -219,7 +219,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	actor->zvel = -0x52aaa;
 }
 
@@ -235,7 +235,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int dx = actor->vel.X;
-	int dy = actor->yvel;
+	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -244,7 +244,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	actor->zvel = 0x44444;
 }
 
@@ -327,7 +327,7 @@ static void batMoveForward(DBloodActor* actor)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int vx = actor->vel.X;
-	int vy = actor->yvel;
+	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
@@ -335,7 +335,7 @@ static void batMoveForward(DBloodActor* actor)
 	else
 		t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void batMoveSwoop(DBloodActor* actor)
@@ -359,12 +359,12 @@ static void batMoveSwoop(DBloodActor* actor)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int vx = actor->vel.X;
-	int vy = actor->yvel;
+	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	actor->zvel = 0x44444;
 }
 
@@ -389,12 +389,12 @@ static void batMoveFly(DBloodActor* actor)
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
 	int vx = actor->vel.X;
-	int vy = actor->yvel;
+	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	actor->zvel = -0x2d555;
 }
 

@@ -301,13 +301,13 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 			if (pVel)
 			{
 				pFX->vel.X = pVel->vx + Random2(pGFX->atd);
-				pFX->yvel = pVel->vy + Random2(pGFX->atd);
+				pFX->vel.Y = pVel->vy + Random2(pGFX->atd);
 				pFX->zvel = pVel->vz - Random(pGFX->at11);
 			}
 			else
 			{
 				pFX->vel.X = Random2((pGFX->atd << 18) / 120);
-				pFX->yvel = Random2((pGFX->atd << 18) / 120);
+				pFX->vel.Y = Random2((pGFX->atd << 18) / 120);
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
 				case 16:
@@ -382,13 +382,13 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 		if (pVel)
 		{
 			gibactor->vel.X = pVel->vx + Random2(pGThing->atc);
-			gibactor->yvel = pVel->vy + Random2(pGThing->atc);
+			gibactor->vel.Y = pVel->vy + Random2(pGThing->atc);
 			gibactor->zvel = pVel->vz - Random(pGThing->at10);
 		}
 		else
 		{
 			gibactor->vel.X = Random2((pGThing->atc << 18) / 120);
-			gibactor->yvel = Random2((pGThing->atc << 18) / 120);
+			gibactor->vel.Y = Random2((pGThing->atc << 18) / 120);
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case 16:
@@ -465,13 +465,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVel
 			if (!pVel)
 			{
 				pGib->vel.X = Random2((pGFX->atd << 18) / 120);
-				pGib->yvel = Random2((pGFX->atd << 18) / 120);
+				pGib->vel.Y = Random2((pGFX->atd << 18) / 120);
 				pGib->zvel = -(int)Random((pGFX->at11 << 18) / 120);
 			}
 			else
 			{
 				pGib->vel.X = Random2((pVel->vx << 18) / 120);
-				pGib->yvel = Random2((pVel->vy << 18) / 120);
+				pGib->vel.Y = Random2((pVel->vy << 18) / 120);
 				pGib->zvel = -(int)Random((pVel->vz << 18) / 120);
 			}
 		}

@@ -273,7 +273,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					{
 						int t = DivScale(nDist, 0x1aaaaa, 12);
 						x += (target->vel.X * t) >> 12;
-						y += (target->yvel * t) >> 12;
+						y += (target->vel.Y * t) >> 12;
 						int angBak = actor->spr.ang;
 						actor->spr.ang = getangle(x - actor->spr.pos.X, y - actor->spr.pos.Y);
 						int dx = bcos(actor->spr.ang);
@@ -1547,7 +1547,7 @@ void OperateTeleport(sectortype* pSector)
 				actor->spr.ang = destactor->spr.ang;
 				ChangeActorSect(actor, destactor->spr.sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
-				actor->vel.X = actor->yvel = actor->zvel = 0;
+				actor->vel.X = actor->vel.Y = actor->zvel = 0;
 				actor->interpolated = false;
 				viewBackupSpriteLoc(actor);
 				if (pPlayer)

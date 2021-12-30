@@ -220,7 +220,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	if (actor->GetTarget() == nullptr) return;
 
 	int dx, dy, dz;
-	actor->vel.X = actor->yvel = 0;
+	actor->vel.X = actor->vel.Y = 0;
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int dispersion = pExtra->baseDispersion;
@@ -488,7 +488,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 
 	// so i use fake velocity with fixed value and pass it as argument.
 	int xvelocity = actor->vel.X;
-	int yvelocity = actor->yvel;
+	int yvelocity = actor->vel.Y;
 	if (inAttack(actor->xspr.aiState))
 		xvelocity = yvelocity = ClipLow(actor->spr.clipdist >> 1, 1);
 
@@ -728,7 +728,7 @@ static void unicultThinkChase(DBloodActor* actor)
 				const EXPLOSION* pExpl = &explodeInfo[nType];
 				if (CheckProximity(actor, target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pExpl->radius >> 1))
 				{
-					actor->vel.X = actor->yvel = actor->zvel = 0;
+					actor->vel.X = actor->vel.Y = actor->zvel = 0;
 					if (doExplosion(actor, nType) && actor->xspr.health > 0)
 						actDamageSprite(actor, actor, kDamageExplode, 65535);
 				}
@@ -1130,7 +1130,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		int nCos = Cos(actor->spr.ang);
 		int nSin = Sin(actor->spr.ang);
 		int vx = actor->vel.X;
-		int vy = actor->yvel;
+		int vy = actor->vel.Y;
 		int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 		int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 		if (actor->GetTarget() == nullptr)
@@ -1138,7 +1138,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		else
 			t1 += nAccel >> 1;
 		actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-		actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+		actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 	else
 	{
@@ -1154,7 +1154,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 		int frontSpeed = actor->genDudeExtra.moveSpeed;
 		actor->vel.X += MulScale(cos, frontSpeed, 30);
-		actor->yvel += MulScale(sin, frontSpeed, 30);
+		actor->vel.Y += MulScale(sin, frontSpeed, 30);
 	}
 }
 
@@ -1795,7 +1795,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			{
 				int t = DivScale(nDist, 0x1aaaaa, 12);
 				x += (actTarget->vel.X * t) >> 12;
-				y += (actTarget->yvel * t) >> 12;
+				y += (actTarget->vel.Y * t) >> 12;
 				int angBak = actor->spr.ang;
 				actor->spr.ang = getangle(x - actor->spr.pos.X, y - actor->spr.pos.Y);
 				int dx = bcos(actor->spr.ang);
