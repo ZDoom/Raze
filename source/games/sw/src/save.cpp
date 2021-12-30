@@ -802,7 +802,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("Attach", w.attachActor, def->attachActor)
 			("PlayerP", w.PlayerP, def->PlayerP)
 			("Sibling", w.Sibling, def->Sibling)
-			("xchange", w.xchange, def->xchange)
+			("xchange", w.change.X, def->change.X)
 			("ychange", w.ychange, def->ychange)
 			("zchange", w.zchange, def->zchange)
 			("z_tgt", w.z_tgt, def->z_tgt)

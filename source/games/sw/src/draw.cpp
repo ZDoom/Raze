@@ -1252,7 +1252,7 @@ void PreDrawStackedWater(void)
                     continue;
 
                 // code so that a copied sprite will not make another copy
-                if (itActor2->user.xchange == -989898)
+                if (itActor2->user.change.X == -989898)
                     continue;
 
                 auto actorNew = ConnectCopySprite(&itActor2->spr);
@@ -1261,7 +1261,7 @@ void PreDrawStackedWater(void)
                     // spawn a user
                     actorNew->allocUser();
 
-                    actorNew->user.xchange = -989898;
+                    actorNew->user.change.X = -989898;
 
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image

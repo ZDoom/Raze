@@ -1000,7 +1000,8 @@ struct USER
     //
 
     // precalculated vectors
-    int xchange,ychange,zchange;
+    vec3_t change;
+    int ychange,zchange;
 
     int  z_tgt;
 
