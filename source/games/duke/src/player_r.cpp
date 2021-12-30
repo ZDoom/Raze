@@ -3563,7 +3563,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(pact->spr.xvel);
 
-	pact->spr.xvel = clamp(ksqrt((p->pos.X - p->bobposx) * (p->pos.X - p->bobposx) + (p->pos.Y - p->bobposy) * (p->pos.Y - p->bobposy)), 0, 512);
+	pact->spr.xvel = clamp(ksqrt((p->pos.X - p->bobpos.X) * (p->pos.X - p->bobpos.X) + (p->pos.Y - p->bobposy) * (p->pos.Y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));

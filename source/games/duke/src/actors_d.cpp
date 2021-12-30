@@ -1929,7 +1929,7 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
+							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
 							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
 							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
 

@@ -771,7 +771,7 @@ void player_struct::backuppos(bool noclipping)
 	}
 
 	opos.Z = pos.Z;
-	bobposx = pos.X;
+	bobpos.X = pos.X;
 	bobposy = pos.Y;
 	opyoff = pyoff;
 }
@@ -1079,7 +1079,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, psectlotag)
 DEFINE_FIELD_X(DukePlayer, player_struct, numloogs)
 DEFINE_FIELD_X(DukePlayer, player_struct, loogcnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
-DEFINE_FIELD_X(DukePlayer, player_struct, bobposx)
+//DEFINE_FIELD_X(DukePlayer, player_struct, bobposx)
 DEFINE_FIELD_X(DukePlayer, player_struct, bobposy)
 //DEFINE_FIELD_X(DukePlayer, player_struct, oposx)
 //DEFINE_FIELD_X(DukePlayer, player_struct, oposy)

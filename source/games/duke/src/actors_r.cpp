@@ -1601,7 +1601,7 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
+							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
 							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
 							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - (gs.playerheight - (4 << 8));
 
@@ -2446,7 +2446,7 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTILE297)
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
-						ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = act2->spr.pos.X;
+						ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = act2->spr.pos.X;
 						ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = act2->spr.pos.Y;
 						ps[p].opos.Z = ps[p].pos.Z = act2->spr.pos.Z - (36 << 8);
 						auto pact = ps[p].GetActor();

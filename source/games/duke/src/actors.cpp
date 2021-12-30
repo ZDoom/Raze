@@ -2694,7 +2694,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 				vec2_t res;
 				rotatepoint(Owner->spr.pos.vec2, ps[p].pos.vec2, (q * l), &res);
 
-				ps[p].bobposx += res.X - ps[p].pos.X;
+				ps[p].bobpos.X += res.X - ps[p].pos.X;
 				ps[p].bobposy += res.Y - ps[p].pos.Y;
 
 				ps[p].pos.vec2 = res;
@@ -2871,7 +2871,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					ps[p].pos.X += m;
 					ps[p].pos.Y += x;
 
-					ps[p].bobposx += m;
+					ps[p].bobpos.X += m;
 					ps[p].bobposy += x;
 
 					ps[p].angle.addadjustment(q);
@@ -3046,7 +3046,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					ps[p].opos.Y = ps[p].pos.Y;
 				}
 
-				ps[p].bobposx += l;
+				ps[p].bobpos.X += l;
 				ps[p].bobposy += x;
 			}
 
@@ -3177,7 +3177,7 @@ void handle_se02(DDukeActor* actor)
 				ps[p].pos.X += m;
 				ps[p].pos.Y += x;
 
-				ps[p].bobposx += m;
+				ps[p].bobpos.X += m;
 				ps[p].bobposy += x;
 			}
 
@@ -3898,7 +3898,7 @@ void handle_se17(DDukeActor* actor)
 				act3->floorz = act2->spr.sector()->floorz;
 				act3->ceilingz = act2->spr.sector()->ceilingz;
 
-				ps[p].bobposx = ps[p].opos.X = ps[p].pos.X;
+				ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X;
 				ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y;
 				ps[p].opos.Z = ps[p].pos.Z;
 

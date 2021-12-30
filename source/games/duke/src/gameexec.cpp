@@ -368,8 +368,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_BOBPOSX:
-		if (bSet) ps[iPlayer].bobposx = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].bobposx, sActor, sPlayer);
+		if (bSet) ps[iPlayer].bobpos.X = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].bobpos.X, sActor, sPlayer);
 		break;
 
 	case PLAYER_BOBPOSY:
@@ -2245,7 +2245,7 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->spr.pos.X = ps[g_p].bobposx = ps[g_p].opos.X = ps[g_p].pos.X;
+			g_ac->spr.pos.X = ps[g_p].bobpos.X = ps[g_p].opos.X = ps[g_p].pos.X;
 			g_ac->spr.pos.Y = ps[g_p].bobposy = ps[g_p].opos.Y = ps[g_p].pos.Y;
 			g_ac->spr.pos.Z = ps[g_p].opos.Z = ps[g_p].pos.Z;
 			g_ac->spr.backuppos();
