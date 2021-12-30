@@ -1173,7 +1173,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 				for (int x = 0; x < j; x++)
 				{
 					ps[p].loogie[x].X = krand() % 320;
-					ps[p].loogiey[x] = krand() % 200;
+					ps[p].loogie[x].Y = krand() % 200;
 				}
 			}
 		}
