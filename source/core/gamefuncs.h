@@ -287,7 +287,7 @@ inline int spriteGetSlope(DCoreActor* actor)
 // same stuff, different flag...
 inline int tspriteGetSlope(const tspritetype* spr)
 {
-	return !(spr->cstat2 & CSTAT2_SPRITE_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
+	return !(spr->clipdist & TSPR_SLOPESPRITE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }
 
 inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)

@@ -584,7 +584,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
-        tsp->cstat2 = pTSprite->cstat2;
+        tsp->clipdist = pTSprite->clipdist;
         tsp->statnum = esi;
 
         if (ChunkFlag[nBase] & 1)

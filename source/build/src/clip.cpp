@@ -594,6 +594,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             auto const spr = &actor->spr;
             const int32_t cstat = spr->cstat;
 
+            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if ((cstat&dasprclipmask) == 0)
                 continue;
 

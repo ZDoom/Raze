@@ -127,7 +127,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		auto vp = ret.first;
 		float x = !(Sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 		float y = !(Sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
-		if (Sprite->cstat2 & CSTAT2_SPRITE_SLOPE)
+		if (Sprite->clipdist & TSPR_SLOPESPRITE)
 		{
 
 			int posx = int(di->Viewpoint.Pos.X * 16.f);

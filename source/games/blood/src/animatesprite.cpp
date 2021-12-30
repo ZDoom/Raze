@@ -691,7 +691,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			int const nVoxel = tiletovox[pTSprite->picnum];
 
 			if (nVoxel != -1 && (picanm[nRootTile].extra & 7) == 7)
-				pTSprite->cstat2 |= CSTAT2_SPRITE_MDLROTATE; // per-sprite rotation setting.
+				pTSprite->clipdist |= TSPR_MDLROTATE; // per-sprite rotation setting.
 		}
 
 		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sprext.flags & SPREXT_NOTMD))
@@ -706,7 +706,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 				pTSprite->xoffset += tileLeftOffset(nAnimTile);
 
 				if ((picanm[nRootTile].extra & 7) == 7)
-					pTSprite->cstat2 |= CSTAT2_SPRITE_MDLROTATE; // per-sprite rotation setting.
+					pTSprite->clipdist |= TSPR_MDLROTATE; // per-sprite rotation setting.
 			}
 		}
 

@@ -92,13 +92,6 @@ enum {
 int32_t getwalldist(vec2_t const in, int const wallnum);
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
-// using the clipdist field
-enum
-{
-    TSPR_FLAGS_MDHACK = 1u<<0u,
-    TSPR_FLAGS_DRAW_LAST = 1u<<1u,
-};
-
 EXTERN int32_t guniqhudid;
 
 struct usermaphack_t 

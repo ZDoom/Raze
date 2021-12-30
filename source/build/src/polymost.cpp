@@ -2702,7 +2702,7 @@ void polymost_drawsprite(int32_t snum)
         off = { (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
                 (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
 
-        if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
+        if (!(tspr->clipdist & TSPR_SLOPESPRITE))
         {
             off.X += tspr->xoffset;
             off.Y += tspr->yoffset;
@@ -3821,7 +3821,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspritetype* const tspr, bool rotate)
     if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
         return 0;
 
-    if ((tspr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
+    if ((tspr->clipdist & TSPR_MDLROTATE) || rotate)
     {
         int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
         tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.

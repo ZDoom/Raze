@@ -165,12 +165,19 @@ DEFINE_TFLAGS_OPERATORS(ESpriteFlags)
 
 enum ESpriteBits2
 {
-	CSTAT2_SPRITE_MDLROTATE = 1,   // Only for tsprites: rotate if this is a model or voxel.
-	CSTAT2_SPRITE_NOFIND = 2,      // Invisible to neartag and hitscan
-	CSTAT2_SPRITE_MAPPED = 4,      // sprite was mapped for automap
-	CSTAT2_SPRITE_SLOPE = 8,       // Only for tsprites: render as sloped sprite
-
+	CSTAT2_SPRITE_NOFIND = 1,      // Invisible to neartag and hitscan
+	CSTAT2_SPRITE_MAPPED = 2,      // sprite was mapped for automap
 };
+
+// tsprite flags use the otherwise unused clipdist field.
+enum ETSprFlags
+{
+	TSPR_FLAGS_MDHACK = 1,		// Currently unused: set for model shadows
+	TSPR_FLAGS_DRAW_LAST = 2,	// Currently unused: checked by Polymost but never set.
+	TSPR_MDLROTATE = 4,			// rotate if this is a model or voxel.
+	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
+};
+
 
 //=============================================================================
 //
@@ -443,7 +450,6 @@ struct spritetypebase
 
 	// extensions not from the binary map format.
 	int time;
-	uint16_t cstat2;
 };
 
 
@@ -451,6 +457,7 @@ struct spritetype : public spritetypebase
 {
 	int16_t owner;
 	int16_t detail;
+	uint16_t cstat2;
 };
 
 //=============================================================================
@@ -471,7 +478,7 @@ struct tspritetype : public spritetypebase
 		picnum = spr->picnum;
 		shade = spr->shade;
 		pal = spr->pal;
-		clipdist = spr->clipdist;
+		clipdist = 0;
 		blend = spr->blend;
 		xrepeat = spr->xrepeat;
 		yrepeat = spr->yrepeat;
@@ -487,14 +494,13 @@ struct tspritetype : public spritetypebase
 		hitag = spr->hitag;
 		extra = spr->extra;
 		time = spr->time;
-		cstat2 = spr->cstat2;
 		ownerActor = nullptr;
 
 		// need to copy the slope sprite flag around because for tsprites the bit combination means 'voxel'.
 		if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
 		{
 			cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
-			cstat2 |= CSTAT2_SPRITE_SLOPE;
+			clipdist |= TSPR_SLOPESPRITE;
 		}
 
 	}
