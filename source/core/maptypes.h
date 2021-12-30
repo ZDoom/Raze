@@ -445,12 +445,6 @@ struct spritetypebase
 	// extensions not from the binary map format.
 	int time;
 	uint16_t cstat2;
-
-
-	void setpos(const vec3_t& newpos)
-	{
-		pos = newpos;
-	}
 };
 
 

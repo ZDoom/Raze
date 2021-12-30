@@ -445,7 +445,7 @@ void InitSpriteLists()
 void SetActor(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->spr.setpos(*newpos);
+	actor->spr.pos = *newpos;
 	updatesector(newpos->X, newpos->Y, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
@@ -455,7 +455,7 @@ void SetActor(DCoreActor* actor, const vec3_t* newpos)
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->spr.setpos(*newpos);
+	actor->spr.pos = *newpos;
 	updatesectorz(newpos->X, newpos->Y, newpos->Z, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
