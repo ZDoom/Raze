@@ -476,7 +476,7 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 			if (nTopOfs)
 				otherZ -= (nTopOfs * other->spr.yrepeat) << 2;
 			assert(height > 0);
-			int height2 = scale(otherZ - gHitInfo.hitpos.Z, tileHeight(nPicnum), height);
+			int height2 = Scale(otherZ - gHitInfo.hitpos.Z, tileHeight(nPicnum), height);
 			if (!(other->spr.cstat & CSTAT_SPRITE_YFLIP))
 				height2 = tileHeight(nPicnum) - height2;
 			if (height2 >= 0 && height2 < tileHeight(nPicnum))
@@ -485,7 +485,7 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 				width = (width * 3) / 4;
 				int check1 = ((y1 - other->spr.pos.Y) * dx - (x1 - other->spr.pos.X) * dy) / ksqrt(dx * dx + dy * dy);
 				assert(width > 0);
-				int width2 = scale(check1, tileWidth(nPicnum), width);
+				int width2 = Scale(check1, tileWidth(nPicnum), width);
 				int nLeftOfs = tileLeftOffset(nPicnum);
 				width2 += nLeftOfs + tileWidth(nPicnum) / 2;
 				if (width2 >= 0 && width2 < tileWidth(nPicnum))
@@ -724,8 +724,8 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
 	}
 	else if (vv > v8)
 	{
-		t1 = x2 + scale(x3 - x2, v8, vv);
-		t2 = y2 + scale(y3 - y2, v8, vv);
+		t1 = x2 + Scale(x3 - x2, v8, vv);
+		t2 = y2 + Scale(y3 - y2, v8, vv);
 	}
 	else
 	{

@@ -1551,14 +1551,14 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 	if (actor != nullptr && actor->hasX())
 	{
 		int dx = actor->spr.pos.X - x; int dy = actor->spr.pos.Y - y; int dz = (actor->spr.pos.Z - z) >> 4;
-		dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
+		dmg = Scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
 		int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)
 			{
-				int t = scale(dmg, size, actor->spriteMass.mass);
+				int t = Scale(dmg, size, actor->spriteMass.mass);
 
 				actor->xvel += MulScale(t, dx, 16);
 				actor->yvel += MulScale(t, dy, 16);
@@ -1843,7 +1843,7 @@ void debrisMove(int listIndex)
 
 	int nDrag = 0x2a00;
 	if (actor->xspr.height > 0)
-		nDrag -= scale(nDrag, actor->xspr.height, 0x100);
+		nDrag -= Scale(nDrag, actor->xspr.height, 0x100);
 
 	actor->xvel -= mulscale16r(actor->xvel, nDrag);
 	actor->yvel -= mulscale16r(actor->yvel, nDrag);

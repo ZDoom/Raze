@@ -92,7 +92,7 @@ static void viewBurnTime(int gScale)
 		int nScale = burnTable[i].nScale;
 		if (gScale < 600)
 		{
-			nScale = scale(nScale, gScale, 600);
+			nScale = Scale(nScale, gScale, 600);
 		}
 		drawElement(burnTable[i].nX, burnTable[i].nY, nTile, nScale / 65536.);
 	}

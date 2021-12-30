@@ -560,12 +560,6 @@ inline int QRandom2(int a1)
 	return MulScale(qrand(), a1, 14) - a1;
 }
 
-// This is to override the namepace prioritization without altering the actual calls.
-inline int scale(int a, int b, int c)
-{
-	return ::Scale(a, b, c);
-}
-
 inline int scale(int a1, int a2, int a3, int a4, int a5)
 {
 	return a4 + (a5 - a4) * (a1 - a2) / (a3 - a2);

@@ -2545,7 +2545,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 	int dz = (actor->spr.pos.Z - z) >> 4;
 	int dist2 = 0x40000 + dx * dx + dy * dy + dz * dz;
 	assert(dist2 > 0);
-	damage = scale(0x40000, damage, dist2);
+	damage = Scale(0x40000, damage, dist2);
 
 	if (actor->spr.flags & kPhysMove)
 	{
@@ -2573,7 +2573,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		if (mass > 0)
 		{
 			int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
-			int t = scale(damage, size, mass);
+			int t = Scale(damage, size, mass);
 			actor->xvel += MulScale(t, dx, 16);
 			actor->yvel += MulScale(t, dy, 16);
 			actor->zvel += MulScale(t, dz, 16);
@@ -4130,7 +4130,7 @@ static void actTouchFloor(DBloodActor* actor, sectortype* pSector)
 		if (pXSector->data) nDamage = ClipRange(pXSector->data, 0, 1000);
 		else nDamage = 1000;
 
-		actDamageSprite(actor, actor, nDamageType, scale(4, nDamage, 120) << 4);
+		actDamageSprite(actor, actor, nDamageType, Scale(4, nDamage, 120) << 4);
 	}
 	if (tileGetSurfType(pSector->floorpicnum) == kSurfLava)
 	{
@@ -5200,7 +5200,7 @@ void MoveDude(DBloodActor* actor)
 			return;
 		int nDrag = gDudeDrag;
 		if (actor->xspr.height > 0)
-			nDrag -= scale(gDudeDrag, actor->xspr.height, 0x100);
+			nDrag -= Scale(gDudeDrag, actor->xspr.height, 0x100);
 		actor->xvel -= mulscale16r(actor->xvel, nDrag);
 		actor->yvel -= mulscale16r(actor->yvel, nDrag);
 
@@ -5318,7 +5318,7 @@ int MoveMissile(DBloodActor* actor)
 			pos.X -= MulScale(Cos(nAngle), 16, 30);
 			pos.Y -= MulScale(Sin(nAngle), 16, 30);
 			int nVel = approxDist(actor->xvel, actor->yvel);
-			vz -= scale(0x100, actor->zvel, nVel);
+			vz -= Scale(0x100, actor->zvel, nVel);
 			updatesector(pos.X, pos.Y, &pSector);
 			pSector2 = pSector;
 		}
