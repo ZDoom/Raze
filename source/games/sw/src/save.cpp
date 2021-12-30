@@ -838,7 +838,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("motion_blur_num", w.motion_blur_num, def->motion_blur_num)
 			("wait_active_check", w.wait_active_check, def->wait_active_check)
 			("inactive_time", w.inactive_time, def->inactive_time)
-			("sx", w.sx, def->sx)
+			("sx", w.pos.X, def->pos.X)
 			("sy", w.sy, def->sy)
 			("sz", w.sz, def->sz)
 			("sang", w.sang, def->sang)

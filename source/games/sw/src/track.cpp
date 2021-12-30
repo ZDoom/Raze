@@ -881,7 +881,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 }
 
 
-                itActor->user.sx = sop->xmid - itActor->spr.pos.X;
+                itActor->user.pos.X = sop->xmid - itActor->spr.pos.X;
                 itActor->user.sy = sop->ymid - itActor->spr.pos.Y;
                 itActor->user.sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
@@ -1701,7 +1701,7 @@ PlayerPart:
             }
         }
 
-        actor->spr.pos.X = sop->xmid - actor->user.sx;
+        actor->spr.pos.X = sop->xmid - actor->user.pos.X;
         actor->spr.pos.Y = sop->ymid - actor->user.sy;
 
         // sprites z update

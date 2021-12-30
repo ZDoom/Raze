@@ -3195,15 +3195,15 @@ void DoPlayerClimb(PLAYERp pp)
             }
 
             // sprite
-            if (plActor->spr.pos.X != plActor->user.sx)
+            if (plActor->spr.pos.X != plActor->user.pos.X)
             {
-                if (plActor->spr.pos.X < plActor->user.sx)
+                if (plActor->spr.pos.X < plActor->user.pos.X)
                     plActor->spr.pos.X += ADJ_AMT;
-                else if (plActor->spr.pos.X > plActor->user.sx)
+                else if (plActor->spr.pos.X > plActor->user.pos.X)
                     plActor->spr.pos.X -= ADJ_AMT;
 
-                if (labs(plActor->spr.pos.X - plActor->user.sx) <= ADJ_AMT)
-                    plActor->spr.pos.X = plActor->user.sx;
+                if (labs(plActor->spr.pos.X - plActor->user.pos.X) <= ADJ_AMT)
+                    plActor->spr.pos.X = plActor->user.pos.X;
             }
 
             if (plActor->spr.pos.Y != plActor->user.sy)
@@ -4031,11 +4031,11 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    plActor->user.sx = over_act->spr.pos.X - pp->pos.X;
+    plActor->user.pos.X = over_act->spr.pos.X - pp->pos.X;
     plActor->user.sy = over_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = under_act->spr.pos.X - plActor->user.sx;
+    pp->pos.X = under_act->spr.pos.X - plActor->user.pos.X;
     pp->pos.Y = under_act->spr.pos.Y - plActor->user.sy;
 
     auto over  = over_act->spr.sector();
@@ -4101,11 +4101,11 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    plActor->user.sx = under_act->spr.pos.X - pp->pos.X;
+    plActor->user.pos.X = under_act->spr.pos.X - pp->pos.X;
     plActor->user.sy = under_act->spr.pos.Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = over_act->spr.pos.X - plActor->user.sx;
+    pp->pos.X = over_act->spr.pos.X - plActor->user.pos.X;
     pp->pos.Y = over_act->spr.pos.Y - plActor->user.sy;
 
     auto over = over_act->spr.sector();
