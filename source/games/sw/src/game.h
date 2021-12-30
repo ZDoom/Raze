@@ -664,7 +664,6 @@ struct PLAYERstruct
 
     int oldposx,oldposy,oldposz;
     vec3_t Revolve;
-    int RevolveY;
     int16_t RevolveDeltaAng;
     binangle RevolveAng;
 

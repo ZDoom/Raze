@@ -734,7 +734,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         {
             pp->RevolveAng = pp->angle.ang;
             pp->Revolve.X = pp->pos.X;
-            pp->RevolveY = pp->posy;
+            pp->Revolve.Y = pp->pos.Y;
             pp->RevolveDeltaAng = 0;
             pp->Flags |= (PF_PLAYER_RIDING);
 
@@ -1525,7 +1525,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
         pp->RevolveAng = pp->angle.ang;
         pp->Revolve.X = pp->pos.X;
-        pp->RevolveY = pp->pos.Y;
+        pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = 0;
@@ -1549,7 +1549,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
         pp->Revolve.X = pp->pos.X;
-        pp->RevolveY = pp->pos.Y;
+        pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = 0;
@@ -1560,7 +1560,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
         // Move saved x&y variables
         pp->Revolve.X += nx;
-        pp->RevolveY += ny;
+        pp->Revolve.Y += ny;
 
         // Last known angle is now adjusted by the delta angle
         pp->RevolveAng = pp->angle.ang - buildang(pp->RevolveDeltaAng);

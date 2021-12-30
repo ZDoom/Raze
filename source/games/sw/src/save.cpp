@@ -493,7 +493,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("oldposy", w.oldposy)
 			("oldposz", w.oldposz)
 			("revolvex", w.Revolve.X)
-			("revolvey", w.RevolveY)
+			("revolvey", w.Revolve.Y)
 			("RevolveDeltaAng", w.RevolveDeltaAng)
 			("RevolveAng", w.RevolveAng)
 			("PlayerSprite", w.actor)
