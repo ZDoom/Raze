@@ -1712,10 +1712,10 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 
     DSWActor* act_under = pp->PlayerUnderActor;
 
-    act_under->spr.pos = act_under->spr.pos;
-    ChangeActorSect(pp->PlayerUnderActor, act_under->sector());
+    act_under->spr.pos = act_over->spr.pos;
+    ChangeActorSect(act_under, act_over->sector());
 
-    SpriteWarpToUnderwater(pp->PlayerUnderActor);
+    SpriteWarpToUnderwater(act_under);
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level
@@ -1727,8 +1727,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     act_under->user.State = act_over->user.State;
     act_under->user.Rot = act_over->user.Rot;
     act_under->user.StateStart = act_over->user.StateStart;
-
-    act_under->spr.picnum = act_under->spr.picnum;
+    act_under->spr.picnum = act_over->spr.picnum;
 }
 
 
