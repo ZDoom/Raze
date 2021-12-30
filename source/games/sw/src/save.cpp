@@ -339,7 +339,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 			("vel", w.vel)
 			("vel_adj", w.vel_adj)
 			("xorig", w.bobpos.X)
-			("yorig", w.yorig)
+			("yorig", w.bobpos.Y)
 			("flags", w.flags)
 			("priority", w.priority)
 			("scale", w.scale)

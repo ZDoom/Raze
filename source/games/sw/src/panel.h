@@ -105,15 +105,11 @@ struct PANEL_SPRITEstruct
     PANEL_SPRITEp sibling;
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
-    // Do not change the order of this line
     DVector2 pos, opos, bobpos;
-    double yorig;                            // Do not change the order of this
-    // line
 
     PANEL_SPRITE_OVERLAY over[8];
     PANEL_SPRITE_FUNCp PanelSpriteFunc;
-    short ID;                           // id for finding sprite types on the
-    // list
+    short ID;                           // id for finding sprite types on the list
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
     short vel, vel_adj;
@@ -134,8 +130,8 @@ struct PANEL_SPRITEstruct
     void backupy() { opos.Y = pos.Y; };
     void backupcoords() { opos = pos; };
     void backupbobx() { bobpos.X = pos.X; };
-    void backupboby() { yorig = pos.Y; };
-    void backupbobcoords() { backupbobx(); backupboby(); };
+    void backupboby() { bobpos.Y = pos.Y; };
+    void backupbobcoords() { bobpos = pos; };
 };
 
 typedef struct

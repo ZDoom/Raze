@@ -1164,11 +1164,11 @@ void pSwordRest(PANEL_SPRITEp psp)
     if (pWeaponHideKeys(psp, ps_SwordHide))
         return;
 
-    psp->yorig += synctics;
+    psp->bobpos.Y += synctics;
 
-    if (psp->yorig > SWORD_YOFF)
+    if (psp->bobpos.Y > SWORD_YOFF)
     {
-        psp->yorig = SWORD_YOFF;
+        psp->bobpos.Y = SWORD_YOFF;
     }
 
     pSwordBobSetup(psp);
@@ -2421,7 +2421,7 @@ void pUziShell(PANEL_SPRITEp psp)
     psp->sin_ndx = (psp->sin_ndx + (synctics << psp->sin_arc_speed) + 1024) & 1023;
 
     // get height
-    psp->opos.Y = psp->pos.Y = psp->yorig;
+    psp->opos.Y = psp->pos.Y = psp->bobpos.Y;
     psp->pos.Y += psp->sin_amt * -bsinf(psp->sin_ndx, -14);
 
     // if off of the screen kill them
@@ -4460,11 +4460,11 @@ void pHeartRest(PANEL_SPRITEp psp)
     if (pWeaponHideKeys(psp, ps_HeartHide))
         return;
 
-    psp->yorig += synctics;
+    psp->bobpos.Y += synctics;
 
-    if (psp->yorig > HEART_YOFF)
+    if (psp->bobpos.Y > HEART_YOFF)
     {
-        psp->yorig = HEART_YOFF;
+        psp->bobpos.Y = HEART_YOFF;
     }
 
     pHeartBobSetup(psp);
@@ -4493,11 +4493,11 @@ void pHeartRest(PANEL_SPRITEp psp)
 
 void pHeartAction(PANEL_SPRITEp psp)
 {
-    psp->yorig -= synctics;
+    psp->bobpos.Y -= synctics;
 
-    if (psp->yorig < 200)
+    if (psp->bobpos.Y < 200)
     {
-        psp->yorig = 200;
+        psp->bobpos.Y = 200;
     }
 
     pHeartBobSetup(psp);
@@ -4506,15 +4506,15 @@ void pHeartAction(PANEL_SPRITEp psp)
 
 void pHeartActionBlood(PANEL_SPRITEp psp)
 {
-    psp->yorig -= synctics;
+    psp->bobpos.Y -= synctics;
 
-    if (psp->yorig < 200)
+    if (psp->bobpos.Y < 200)
     {
-        psp->yorig = 200;
+        psp->bobpos.Y = 200;
     }
 
     psp->backupy();
-    psp->pos.Y = psp->yorig;
+    psp->pos.Y = psp->bobpos.Y;
 
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
@@ -6019,11 +6019,11 @@ void pFistRest(PANEL_SPRITEp psp)
     if (pWeaponHideKeys(psp, ps_FistHide))
         return;
 
-    psp->yorig += synctics;
+    psp->bobpos.Y += synctics;
 
-    if (psp->yorig > FIST_YOFF)
+    if (psp->bobpos.Y > FIST_YOFF)
     {
-        psp->yorig = FIST_YOFF;
+        psp->bobpos.Y = FIST_YOFF;
     }
 
     pFistBobSetup(psp);
@@ -6086,11 +6086,11 @@ void pFistRetract(PANEL_SPRITEp psp)
 
 void pFistBlock(PANEL_SPRITEp psp)
 {
-    psp->yorig += synctics;
+    psp->bobpos.Y += synctics;
 
-    if (psp->yorig > FIST_YOFF)
+    if (psp->bobpos.Y > FIST_YOFF)
     {
-        psp->yorig = FIST_YOFF;
+        psp->bobpos.Y = FIST_YOFF;
     }
 
     pFistBobSetup(psp);
@@ -6358,7 +6358,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
     psp->backupcoords();
 
     psp->pos.X = psp->bobpos.X + xdiff;
-    psp->pos.Y = psp->yorig + ydiff + UziRecoilYadj;
+    psp->pos.Y = psp->bobpos.Y + ydiff + UziRecoilYadj;
 }
 
 
