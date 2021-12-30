@@ -844,8 +844,8 @@ static void SpawnPortals()
 						{
 							sectortype* s1 = act->sector(), *s2 = act2->sector();
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
-							s1->portalflags = PORTAL_SECTOR_CEILING;
-							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.pos.X - act->spr.pos.X, act2->spr.pos.Y - act->spr.pos.Y, act->spr.hitag);
+							s2->portalflags = PORTAL_SECTOR_CEILING;
+							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.pos.X - act->spr.pos.X, act2->spr.pos.Y - act->spr.pos.Y, act->spr.hitag);
 							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->spr.pos.X - act2->spr.pos.X, act->spr.pos.Y - act2->spr.pos.Y, act->spr.hitag);
 							processedTags.Push(act->spr.hitag);
 						}
