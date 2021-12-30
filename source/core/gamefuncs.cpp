@@ -331,9 +331,9 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 	}
 }
 
-void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
+void GetFlatSpritePosition(DCoreActor* actor, vec2_t pos, vec2_t* out, bool render)
 {
-	TGetFlatSpritePosition(spr, pos, out, nullptr, spriteGetSlope(spr), render);
+	TGetFlatSpritePosition(&actor->spr, pos, out, nullptr, spriteGetSlope(actor), render);
 }
 
 void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz, bool render)

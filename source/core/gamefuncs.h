@@ -3,6 +3,7 @@
 #include "gamecontrol.h"
 #include "binaryangle.h"
 #include "build.h"
+#include "coreactor.h"
 
 // breadth first search, this gets used multiple times throughout the engine, mainly for iterating over sectors.
 // Only works on indices, this has no knowledge of the actual objects being looked at.
@@ -163,7 +164,7 @@ int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
 void setWallSectors();
 void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
-void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
+void GetFlatSpritePosition(DCoreActor* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz = nullptr, bool render = false);
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
@@ -273,19 +274,19 @@ inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
 	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
 }
 
-inline void spriteSetSlope(spritetype* spr, int heinum)
+inline void spriteSetSlope(DCoreActor* actor, int heinum)
 {
-	if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
+	if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
-		spr->xoffset = heinum & 255;
-		spr->yoffset = (heinum >> 8) & 255;
-		spr->cstat = (spr->cstat & ~CSTAT_SPRITE_ALIGNMENT_MASK) | (heinum != 0 ? CSTAT_SPRITE_ALIGNMENT_SLOPE : CSTAT_SPRITE_ALIGNMENT_FLOOR);
+		actor->spr.xoffset = heinum & 255;
+		actor->spr.yoffset = (heinum >> 8) & 255;
+		actor->spr.cstat = (actor->spr.cstat & ~CSTAT_SPRITE_ALIGNMENT_MASK) | (heinum != 0 ? CSTAT_SPRITE_ALIGNMENT_SLOPE : CSTAT_SPRITE_ALIGNMENT_FLOOR);
 	}
 }
 
-inline int spriteGetSlope(const spritetype* spr)
+inline int spriteGetSlope(DCoreActor* actor)
 {
-	return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
+	return ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(actor->spr.xoffset) + (uint8_t(actor->spr.yoffset) << 8);
 }
 
 // same stuff, different flag...

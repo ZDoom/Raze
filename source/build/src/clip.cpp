@@ -133,14 +133,14 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     return (v2.X >= v2.Y) << 1;
 }
 
-static int32_t spriteGetZOfSlope(const spritetype* spr, int32_t dax, int32_t day)
+static int32_t spriteGetZOfSlope(DCoreActor* actor, int32_t dax, int32_t day)
 {
-    int16_t const heinum = spriteGetSlope(spr);
+    int16_t const heinum = spriteGetSlope(actor);
     if (heinum == 0)
-        return spr->pos.Z;
+        return actor->spr.pos.Z;
 
-    int const j = DMulScale(bsin(spr->ang + 1024), day - spr->pos.Y, -bsin(spr->ang + 512), dax - spr->pos.X, 4);
-    return spr->pos.Z + MulScale(heinum, j, 18);
+    int const j = DMulScale(bsin(actor->spr.ang + 1024), day - actor->spr.pos.Y, -bsin(actor->spr.ang + 512), dax - actor->spr.pos.X, 4);
+    return actor->spr.pos.Z + MulScale(heinum, j, 18);
 }
 
 
@@ -662,8 +662,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK)) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
                 {
-                    heinum = spriteGetSlope(spr);
-                    sz = spriteGetZOfSlope(spr, pos->X, pos->Y);
+                    heinum = spriteGetSlope(actor);
+                    sz = spriteGetZOfSlope(actor, pos->X, pos->Y);
                 }
                 else
                 {
@@ -1176,7 +1176,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     case CSTAT_SPRITE_ALIGNMENT_SLOPE:
                     {
                         if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = spr->pos.Z; 
-                        else daz = spriteGetZOfSlope(spr, pos.X, pos.Y);
+                        else daz = spriteGetZOfSlope(actor, pos.X, pos.Y);
                         daz2 = daz;
 
                         if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.Z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
@@ -1184,7 +1184,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                         vec2_t v2, v3, v4;
                         get_floorspr_points(actor, pos.X, pos.Y, &v1.X, &v2.X, &v3.X, &v4.X,
-                                            &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(spr));
+                                            &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(actor));
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
                                             MulScale(bsin(spr->ang - 256), walldist + 4, 14) };
@@ -1490,7 +1490,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                                    &y1, &y2, &y3, &y4, spriteGetSlope(spr));
+                                    &y1, &y2, &y3, &y4, spriteGetSlope(actor));
 
                 if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
                     hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
@@ -1501,7 +1501,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
             {
                 int32_t x3, y3, x4, y4;
-                int32_t const heinum = spriteGetSlope(spr);
+                int32_t const heinum = spriteGetSlope(actor);
                 int32_t const dax = (heinum * sintable[(spr->ang + 1024) & 2047]) << 1;
                 int32_t const day = (heinum * sintable[(spr->ang + 512) & 2047]) << 1;
                 int32_t const j = (vz << 8) - DMulScale(dax, vy, -day, vx, 15);
@@ -1520,7 +1520,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                    &y1, &y2, &y3, &y4, spriteGetSlope(spr));
+                    &y1, &y2, &y3, &y4, spriteGetSlope(actor));
 
                 if (get_floorspr_clipyou({ x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 }))
                     hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);

@@ -553,7 +553,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 	TArray<FVector4> vertices;
-	TArray<spritetype*> floorsprites;
+	TArray<DCoreActor*> floorsprites;
 
 
 	for (int i = (int)sector.Size() - 1; i >= 0; i--)
@@ -572,7 +572,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			{
 				if ((act->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP))
 					continue; // upside down
-				floorsprites.Push(&act->spr);
+				floorsprites.Push(act);
 			}
 		}
 
@@ -605,18 +605,18 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	}
 	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(spritetype*), [](const void* a, const void* b)
 		{
-			auto A = *(spritetype**)a;
-			auto B = *(spritetype**)b;
-			if (A->pos.Z != B->pos.Z) return B->pos.Z - A->pos.Z;
-			return A->time - B->time; // ensures stable sort.
+			auto A = *(DCoreActor**)a;
+			auto B = *(DCoreActor**)b;
+			if (A->spr.pos.Z != B->spr.pos.Z) return B->spr.pos.Z - A->spr.pos.Z;
+			return A->spr.time - B->spr.time; // ensures stable sort.
 		});
 
 	vertices.Resize(4);
-	for (auto spr : floorsprites)
+	for (auto actor : floorsprites)
 	{
-		if (!gFullMap && !(spr->cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
+		if (!gFullMap && !(actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		vec2_t pp[4];
-		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);
+		GetFlatSpritePosition(actor, actor->spr.pos.vec2, pp, true);
 
 		for (unsigned j = 0; j < 4; j++)
 		{
@@ -627,21 +627,21 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;
-		if ((spr->sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = spr->sector()->ceilingshade;
-		else shade = spr->sector()->floorshade;
-		shade += spr->shade;
+		if ((actor->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = actor->spr.sector()->ceilingshade;
+		else shade = actor->spr.sector()->floorshade;
+		shade += actor->spr.shade;
 		PalEntry color = shadeToLight(shade);
 		FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];
 		float alpha = 1;
-		if (spr->cstat & CSTAT_SPRITE_TRANSLUCENT)
+		if (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)
 		{
-			rs = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANS_FLIP));
-			alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+			rs = GetRenderStyle(0, !!(actor->spr.cstat & CSTAT_SPRITE_TRANS_FLIP));
+			alpha = GetAlphaFromBlend((actor->spr.cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 			color.a = uint8_t(alpha * 255);
 		}
 
-		int translation = TRANSLATION(Translation_Remap + curbasepal, spr->pal);
-		int picnum = spr->picnum;
+		int translation = TRANSLATION(Translation_Remap + curbasepal, actor->spr.pal);
+		int picnum = actor->spr.picnum;
 		gotpic.Set(picnum);
 		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs,

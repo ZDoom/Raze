@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "build.h"
+#include "maptypes.h"
 
 class DCoreActor : public DObject
 {

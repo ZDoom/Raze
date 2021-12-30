@@ -4316,7 +4316,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 0: return condCmp((objActor->spr.ang & 2047), arg1, arg2, cmpOp);
 		case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
 		case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
-		case 7: return condCmp(spriteGetSlope(&objActor->spr), arg1, arg2, cmpOp);
+		case 7: return condCmp(spriteGetSlope(objActor), arg1, arg2, cmpOp);
 		case 10: return condCmp(objActor->spr.clipdist, arg1, arg2, cmpOp);
 		case 15:
 			if (!objActor->GetOwner()) return false;
@@ -6339,7 +6339,7 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 		break;
 	}
 
-	spriteSetSlope(&actor->spr, slope);
+	spriteSetSlope(actor, slope);
 	if (forcez) actor->spr.pos.Z = z;
 }
 
@@ -6474,7 +6474,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			}
 			break;
 		default:
-			spriteSetSlope(&objActor->spr, slope);
+			spriteSetSlope(objActor, slope);
 			break;
 		}
 	}

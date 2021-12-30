@@ -92,39 +92,6 @@ enum {
 int32_t getwalldist(vec2_t const in, int const wallnum);
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
-enum
-{
-    SPREXT_NOTMD = 1,
-    SPREXT_NOMDANIM = 2,
-    SPREXT_AWAY1 = 4,
-    SPREXT_AWAY2 = 8,
-    SPREXT_TSPRACCESS = 16,
-    SPREXT_TEMPINVISIBLE = 32,
-};
-
-struct spriteext_t
-{
-    uint32_t mdanimtims;
-    int16_t mdanimcur;
-    int16_t angoff, pitch, roll;
-    vec3_t pivot_offset, position_offset;
-    uint8_t flags;
-    float alpha;
-};
-
-struct spritesmooth_t
-{
-    float smoothduration;
-    int16_t mdcurframe, mdoldframe;
-    int16_t mdsmooth;
-};
-
-struct SpawnSpriteDef
-{
-    TArray<spritetype> sprites;
-    TArray<spriteext_t> sprext;
-};
-
 // using the clipdist field
 enum
 {
