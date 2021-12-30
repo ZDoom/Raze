@@ -631,8 +631,8 @@ struct PLAYERstruct
     vec3_t si; // save player interp position for PlayerSprite
     int16_t siang;
 
-    vec2_t vect;
-    int oxvect, oyvect;
+    vec2_t vect, ovect;
+    int oyvect;
     int friction;
     int slide_xvect, slide_yvect;
     int16_t slide_ang;
