@@ -344,7 +344,7 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
-int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
+int32_t spriteheightofsptr(DCoreActor* spr, int32_t *height, int32_t alsotileyofs);
 
 int videoCaptureScreen();
 
