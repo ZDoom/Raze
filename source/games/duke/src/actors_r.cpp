@@ -1381,7 +1381,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (FindDistance2D(proj->spr.pos.vec2 - proj->temp_actor->spr.pos.vec2) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (!proj->spr.insector()) // || (isRR() && proj->spr.sector()->filler == 800))
+	if (!proj->insector()) // || (isRR() && proj->spr.sector()->filler == 800))
 	{
 		deletesprite(proj);
 		return;
@@ -2807,7 +2807,7 @@ void moveactors_r(void)
 	{
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( act->spr.xrepeat == 0 || !act->spr.insector())
+		if( act->spr.xrepeat == 0 || !act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -3075,7 +3075,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		t = &act->temp_data[0];
 		auto sectp = act->spr.sector();
 
-		if (!act->spr.insector() || act->spr.xrepeat == 0) 
+		if (!act->insector() || act->spr.xrepeat == 0) 
 		{
 			deletesprite(act);
 			continue;

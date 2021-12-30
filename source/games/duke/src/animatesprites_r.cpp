@@ -116,8 +116,8 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			}
 		}
 
-		if (t->insector())
-			t->shade = clamp<int>(t->sector()->ceilingstat & CSTAT_SECTOR_SKY ? h->spr.shade : t->sector()->floorshade, -127, 127);
+		if (t->sectp != nullptr)
+			t->shade = clamp<int>(t->sectp->ceilingstat & CSTAT_SECTOR_SKY ? h->spr.shade : t->sectp->floorshade, -127, 127);
 	}
 
 

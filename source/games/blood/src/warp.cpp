@@ -217,7 +217,7 @@ int CheckLink(DBloodActor* actor)
 		{
 			aLower = aUpper->GetOwner();
 			assert(aLower);
-			assert(aLower->spr.insector());
+			assert(aLower->insector());
 			ChangeActorSect(actor, aLower->spr.sector());
 			actor->spr.pos.X += aLower->spr.pos.X - aUpper->spr.pos.X;
 			actor->spr.pos.Y += aLower->spr.pos.Y - aUpper->spr.pos.Y;
@@ -242,7 +242,7 @@ int CheckLink(DBloodActor* actor)
 		{
 			aUpper = aLower->GetOwner();
 			assert(aUpper);
-			assert(aUpper->spr.insector());
+			assert(aUpper->insector());
 			ChangeActorSect(actor, aUpper->spr.sector());
 			actor->spr.pos.X += aUpper->spr.pos.X - aLower->spr.pos.X;
 			actor->spr.pos.Y += aUpper->spr.pos.Y - aLower->spr.pos.Y;
@@ -280,7 +280,7 @@ int CheckLink(int* x, int* y, int* z, sectortype** pSector)
 		{
 			aLower = aUpper->GetOwner();
 			assert(aLower);
-			assert(aLower->spr.insector());
+			assert(aLower->insector());
 			*pSector = aLower->spr.sector();
 			*x += aLower->spr.pos.X - aUpper->spr.pos.X;
 			*y += aLower->spr.pos.Y - aUpper->spr.pos.Y;

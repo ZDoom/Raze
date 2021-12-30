@@ -713,7 +713,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			actor->xspr.Proximity = false;
 
 		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
-		if (actor->spr.insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
+		if (actor->insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
 			if (actor->spr.pos.Z == actor->spr.sector()->floorz) actor->spr.pos.Z--;
 			else if (actor->spr.pos.Z == actor->spr.sector()->ceilingz) actor->spr.pos.Z++;
 		}
@@ -1127,7 +1127,7 @@ void nnExtProcessSuperSprites()
 			}
 
 		}
-		else if (windactor->spr.insector())
+		else if (windactor->insector())
 		{
 			sectortype* pSect = windactor->spr.sector();
 			XSECTOR* pXSector = (pSect->hasX()) ? &pSect->xs() : nullptr;
@@ -3094,7 +3094,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			break;
 		case 3:
 		case 4:
-			if (!actor->spr.insector()) pos = top;
+			if (!actor->insector()) pos = top;
 			else pos = (sourceactor->xspr.data4 == 3) ? actor->spr.sector()->floorz : actor->spr.sector()->ceilingz;
 			break;
 		default:
@@ -3498,7 +3498,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 	case OBJ_SPRITE:
 	{
 		if (sourceactor->xspr.data2 <= 0) seqKill(iactor);
-		else if (iactor->spr.insector())
+		else if (iactor->insector())
 		{
 			if (sourceactor->xspr.data3 > 0)
 			{
@@ -3522,7 +3522,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					break;
 				case 5:
 				case 6:
-					if (!iactor->spr.insector()) spawned->spr.pos.Z = top;
+					if (!iactor->insector()) spawned->spr.pos.Z = top;
 					else spawned->spr.pos.Z = (sourceactor->xspr.data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
 					break;
 				}
@@ -4323,7 +4323,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			else if (PUSH) condPush(aCond, objActor->GetOwner());
 			return true;
 		case 20: // stays in a sector?
-			if (!objActor->spr.insector()) return false;
+			if (!objActor->insector()) return false;
 			else if (PUSH) condPush(aCond, objActor->spr.sector());
 			return true;
 		case 25:
@@ -5454,7 +5454,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			[[fallthrough]];
 		case kCmdRepeat:
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
-			else if (actor->xspr.data1 == 0 && actor->spr.insector()) useSpriteDamager(actor, OBJ_SECTOR, actor->spr.sector(), nullptr);
+			else if (actor->xspr.data1 == 0 && actor->insector()) useSpriteDamager(actor, OBJ_SECTOR, actor->spr.sector(), nullptr);
 			else if (actor->xspr.data1 >= 666 && actor->xspr.data1 < 669) useSpriteDamager(actor, -1, nullptr, nullptr);
 			else
 			{
@@ -6462,7 +6462,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 		case 1:
 		case 2:
 		case 3:
-			if (!objActor->spr.insector()) break;
+			if (!objActor->insector()) break;
 			switch (sourceactor->xspr.data4)
 			{
 			case 1: sprite2sectorSlope(objActor, objActor->spr.sector(), 0, flag2); break;
@@ -8080,7 +8080,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 						if (pPlayer->actor != emitterActor && emitterActor->GetOwner() != actor)
 						{
 
-							if (!emitterActor->spr.insector()) return false;
+							if (!emitterActor->insector()) return false;
 							searchsect = emitterActor->spr.sector();
 						}
 					}
@@ -8860,7 +8860,7 @@ void callbackGenDudeUpdate(DBloodActor* actor, sectortype*) // 24
 void clampSprite(DBloodActor* actor, int which)
 {
 	int zTop, zBot;
-	if (actor->spr.insector())
+	if (actor->insector())
 	{
 		GetActorExtents(actor, &zTop, &zBot);
 		if (which & 0x01)

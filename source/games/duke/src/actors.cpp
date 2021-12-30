@@ -516,7 +516,7 @@ void moveplayers(void)
 			}
 		}
 
-		if (act->spr.insector())
+		if (act->insector())
 		{
 			if (act->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)
 				act->spr.shade += (act->spr.sector()->ceilingshade - act->spr.shade) >> 1;
@@ -2139,7 +2139,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	if ((krand() & 3) == 0)
 		SetActor(actor, actor->spr.pos);
 
-	if (!actor->spr.insector())
+	if (!actor->insector())
 	{
 		deletesprite(actor);
 		return false;
@@ -2200,7 +2200,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (callsetsprite) SetActor(actor, actor->spr.pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
-	if (!actor->spr.insector())
+	if (!actor->insector())
 	{
 		deletesprite(actor);
 		return false;
@@ -2263,7 +2263,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		}
 		if (actor->temp_data[2] == 0)
 		{
-			if (!actor->spr.insector())
+			if (!actor->insector())
 			{
 				deletesprite(actor);
 				return false;
@@ -2392,7 +2392,7 @@ void shell(DDukeActor* actor, bool morecheck)
 
 	ssp(actor, CLIPMASK0);
 
-	if (!actor->spr.insector() || morecheck)
+	if (!actor->insector() || morecheck)
 	{
 		deletesprite(actor);
 		return;
@@ -2445,7 +2445,7 @@ void glasspieces(DDukeActor* actor)
 	makeitfall(actor);
 
 	if (actor->spr.zvel > 4096) actor->spr.zvel = 4096;
-	if (!actor->spr.insector())
+	if (!actor->insector())
 	{
 		deletesprite(actor);
 		return;

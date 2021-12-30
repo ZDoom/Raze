@@ -3620,7 +3620,7 @@ void processinput_r(int snum)
 		p->angle.applyinput(sb_avel, &actions);
 	}
 
-	if (p->spritebridge == 0 && pact->spr.insector())
+	if (p->spritebridge == 0 && pact->insector())
 	{
 		int j = pact->spr.sector()->floorpicnum;
 		k = 0;

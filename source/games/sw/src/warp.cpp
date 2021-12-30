@@ -172,7 +172,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
             // exp: WARP_CEILING or WARP_CEILING_PLANE
             if (actor->spr.hitag == to_tag)
             {
-                if (!actor->spr.insector())
+                if (!actor->insector())
                     return nullptr;
 
                 // determine new x,y,z position

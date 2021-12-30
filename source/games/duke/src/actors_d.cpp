@@ -1676,7 +1676,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (FindDistance2D(proj->spr.pos.vec2 - proj->temp_actor->spr.pos.vec2) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (!proj->spr.insector())
+	if (!proj->insector())
 	{
 		deletesprite(proj);
 		return;
@@ -2633,7 +2633,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	movesprite_ex(actor, MulScale(xvel, bcos(actor->spr.ang), 14),
 		MulScale(xvel, bsin(actor->spr.ang), 14), actor->spr.zvel, CLIPMASK1, coll);
 
-	if (!actor->spr.insector())
+	if (!actor->insector())
 	{
 		deletesprite(actor);
 		return;
@@ -3138,7 +3138,7 @@ void moveexplosions_d(void)  // STATNUM 5
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
-		if (!act->spr.insector() || act->spr.xrepeat == 0) 
+		if (!act->insector() || act->spr.xrepeat == 0) 
 		{
 			deletesprite(act);
 			continue;

@@ -49,7 +49,7 @@ public:
 
 	bool insector() const
 	{
-		return spr.insector();
+		return spr.sectp != nullptr;
 	}
 
 };

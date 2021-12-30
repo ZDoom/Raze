@@ -3160,7 +3160,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         return 0;
 
     // Don't spawn shrapnel in invalid sectors gosh dern it!
-    if (!parentActor->spr.insector())
+    if (!parentActor->insector())
     {
         return 0;
     }
@@ -5178,7 +5178,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
     if (goal != nullptr)
     {
         // attempt to see if it was killed
-        ASSERT(goal->spr.insector());
+        ASSERT(goal->insector());
         if (goal->hasU())
             goal->user.Flags &= ~(SPR_TARGETED);
     }
@@ -11202,7 +11202,7 @@ int DoRing(DSWActor* actor)
 
     SetActor(actor, &actor->spr.pos);
 
-    ASSERT(actor->spr.insector());
+    ASSERT(actor->insector());
 
     getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
 
@@ -11330,7 +11330,7 @@ int DoSerpRing(DSWActor* actor)
 
     SetActor(actor, &actor->spr.pos);
 
-    ASSERT(actor->spr.insector());
+    ASSERT(actor->insector());
 
     getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
 

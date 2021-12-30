@@ -3513,7 +3513,7 @@ int ActorCoughItem(DSWActor* actor)
     switch (actor->user.ID)
     {
     case SAILORGIRL_R0:
-        ASSERT(actor->spr.insector());
+        ASSERT(actor->insector());
         actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
@@ -3554,7 +3554,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(actor->spr.insector());
+        ASSERT(actor->insector());
         actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
@@ -3582,7 +3582,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(actor->spr.insector());
+        ASSERT(actor->insector());
         actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
@@ -3613,7 +3613,7 @@ int ActorCoughItem(DSWActor* actor)
             if (RANDOM_P2(1024) > 200)
                 return 0;
 
-            ASSERT(actor->spr.insector());
+            ASSERT(actor->insector());
             actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
@@ -3675,7 +3675,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 512)
             return 0;
 
-        ASSERT(actor->spr.insector());
+        ASSERT(actor->insector());
         actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
@@ -3733,7 +3733,7 @@ int ActorCoughItem(DSWActor* actor)
     case PACHINKO3:
     case PACHINKO4:
 
-        ASSERT(actor->spr.insector());
+        ASSERT(actor->insector());
         actorNew = insertActor(actor->spr.sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
@@ -4643,7 +4643,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
                          actor->user.ceiling_dist, actor->user.floor_dist, cliptype, ACTORMOVETICS);
 
-    ASSERT(actor->spr.insector());
+    ASSERT(actor->insector());
 
     // try and determine whether you moved > lo_step in the z direction
     if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING)))

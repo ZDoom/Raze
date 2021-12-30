@@ -424,7 +424,7 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, CGibPosition* pPos, CGibVel
 	assert(actor != NULL);
 	assert(nGibType >= 0 && nGibType < kGibMax);
 
-	if (!actor->spr.insector())
+	if (!actor->insector())
 		return;
 	GIBLIST* pGib = &gibList[nGibType];
 	for (int i = 0; i < pGib->Kills; i++)

@@ -1523,7 +1523,7 @@ void OperateTeleport(sectortype* pSector)
 	assert(destactor != nullptr);
 	assert(destactor->spr.statnum == kStatMarker);
 	assert(destactor->spr.type == kMarkerWarpDest);
-	assert(destactor->spr.insector());
+	assert(destactor->insector());
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{

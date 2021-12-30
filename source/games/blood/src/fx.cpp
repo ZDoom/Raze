@@ -268,7 +268,7 @@ void CFX::fxProcess(void)
 
 void fxSpawnBlood(DBloodActor* actor, int)
 {
-	if (!actor->spr.insector())
+	if (!actor->insector())
 		return;
 	auto pSector = actor->spr.sector();
 	if (!FindSector(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, &pSector))
@@ -294,7 +294,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 
 void fxSpawnPodStuff(DBloodActor* actor, int)
 {
-	if (!actor->spr.insector())
+	if (!actor->insector())
 		return;
 	auto pSector = actor->spr.sector();
 	if (!FindSector(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, &pSector))

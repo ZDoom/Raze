@@ -5881,7 +5881,7 @@ static void actCheckExplosion()
 				{
 					if (gPhysSpritesList[i] == nullptr) continue;
 					DBloodActor* physactor = gPhysSpritesList[i];
-					if (!physactor->spr.insector() || (physactor->spr.flags & kHitagFree) != 0) continue;
+					if (!physactor->insector() || (physactor->spr.flags & kHitagFree) != 0) continue;
 
 					if (!CheckSector(sectorMap, physactor) || !CheckProximity(physactor, x, y, z, pSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
@@ -5895,7 +5895,7 @@ static void actCheckExplosion()
 					if (gImpactSpritesList[i] == nullptr) continue;
 
 					DBloodActor* impactactor = gImpactSpritesList[i];
-					if (!impactactor->hasX() || !impactactor->spr.insector() || (impactactor->spr.flags & kHitagFree) != 0)	continue;
+					if (!impactactor->hasX() || !impactactor->insector() || (impactactor->spr.flags & kHitagFree) != 0)	continue;
 
 					if (!CheckSector(sectorMap, impactactor) || !CheckProximity(impactactor, x, y, z, pSector, radius))
 						continue;
