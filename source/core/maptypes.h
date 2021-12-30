@@ -629,11 +629,6 @@ inline sectortype* spritetypebase::sector() const
 	return sectp;
 }
 
-inline int spritetypebase::sectno() const
-{
-	return sectp? ::sector.IndexOf(sectp) : -1;
-}
-
 inline sectortype* walltype::nextSector() const
 {
 	return !validSectorIndex(nextsector)? nullptr :  &::sector[nextsector];

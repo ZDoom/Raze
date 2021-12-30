@@ -119,7 +119,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     while (auto actor = it.Next())
     {
         // manually set gotpic
-        if (gotsector[actor->spr.sectno()])
+        if (gotsector[actor->sectno()])
         {
             gotpic.Set(FAF_MIRROR_PIC);
         }

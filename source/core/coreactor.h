@@ -58,6 +58,12 @@ public:
 		spr.sectp = sect;
 	}
 
+	int sectno() const
+	{
+		return spr.sectp ? ::sector.IndexOf(spr.sectp) : -1;
+	}
+
+
 };
 
 // holds pointers to the game-side actors.

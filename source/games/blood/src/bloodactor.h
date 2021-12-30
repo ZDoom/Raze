@@ -158,7 +158,7 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 
 inline bool CheckSector(const BitArray& bits, DBloodActor* act)
 {
-	return bits[act->spr.sectno()];
+	return bits[act->sectno()];
 }
 
 inline bool IsTargetTeammate(DBloodActor* pSource, DBloodActor* pTarget)

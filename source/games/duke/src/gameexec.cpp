@@ -1041,7 +1041,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iSector = sActor->spr.sectno();
+		iSector = sActor->sectno();
 	}
 	else
 	{
@@ -1232,7 +1232,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_SECTNUM: // made read only because this is not safe.
 		if (!bSet) /*changespritesect(iActor, lValue);
-		else*/ SetGameVarID(lVar2, act->spr.sectno(), sActor, sPlayer);
+		else*/ SetGameVarID(lVar2, act->sectno(), sActor, sPlayer);
 		break;
 	case ACTOR_STATNUM: 
 		if (!bSet) /*changespritestat(iActor, lValue);

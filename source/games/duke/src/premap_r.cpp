@@ -506,7 +506,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					while(auto act1 = itt.Next())
 					{
 						if (act1->spr.picnum == RRTILE66)
-							if (act1->spr.lotag == act->spr.sectno()) // bad map format design... Should have used a tag instead...
+							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = act1->spr.sector();
 								deletesprite(act1);

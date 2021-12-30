@@ -855,7 +855,7 @@ static void SpawnPortals()
 							{
 								if (p.type == PORTAL_SECTOR_FLOOR && p.dz == act->spr.hitag)
 								{
-									p.targets.Push(act2->spr.sectno());
+									p.targets.Push(act2->sectno());
 								}
 							}
 						}
@@ -868,7 +868,7 @@ static void SpawnPortals()
 				{
 					if (p.type == PORTAL_SECTOR_CEILING && p.dz == act->spr.hitag)
 					{
-						p.targets.Push(act->spr.sectno());
+						p.targets.Push(act->sectno());
 					}
 				}
 			}
