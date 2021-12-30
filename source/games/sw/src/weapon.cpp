@@ -8623,7 +8623,7 @@ int DoMineStuck(DSWActor* actor)
             actor->user.WaitTics = SEC(1)/2;
         }
 
-        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - actor->user.sz };
+        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - actor->user.pos.Z };
         SetActorZ(actor, &pos);
         actor->spr.pos.Z = attachActor->spr.pos.Z - (ActorSizeZ(attachActor) >> 1);
     }
@@ -8822,7 +8822,7 @@ int DoMine(DSWActor* actor)
 
                 // attach weapon to sprite
                 SetAttach(hitActor, actor);
-                actor->user.sz = hitActor->spr.pos.Z - actor->spr.pos.Z;
+                actor->user.pos.Z = hitActor->spr.pos.Z - actor->spr.pos.Z;
 
                 auto own = GetOwner(actor);
                 if (own && own->hasU())
@@ -9038,7 +9038,7 @@ int DoEMPBurst(DSWActor* actor)
     DSWActor* attachActor = actor->user.attachActor;
     if (attachActor != nullptr)
     {
-        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - actor->user.sz };
+        vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - actor->user.pos.Z };
         SetActorZ(actor, &pos);
         actor->spr.ang = NORM_ANGLE(attachActor->spr.ang+1024);
     }
@@ -10210,7 +10210,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 
     actor->user.pos.X = sop->xmid - actor->spr.pos.X;
     actor->user.pos.Y = sop->ymid - actor->spr.pos.Y;
-    actor->user.sz = sop->mid_sector->floorz - actor->spr.pos.Z;
+    actor->user.pos.Z = sop->mid_sector->floorz - actor->spr.pos.Z;
 
     actor->user.sang = actor->spr.ang;
 }
@@ -10260,19 +10260,19 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     if (actor->user.Flags & (SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        expActor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.sz;
+        expActor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.pos.Z;
         expActor->spr.backupz();
     }
     else
     {
         // move with the mid sector
-        expActor->spr.pos.Z = sop->mid_sector->floorz - actor->user.sz;
+        expActor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
         expActor->spr.backupz();
     }
 
     expActor->user.pos.X = actor->user.pos.X;
     expActor->user.pos.Y = actor->user.pos.Y;
-    expActor->user.sz = actor->user.sz;
+    expActor->user.pos.Z = actor->user.pos.Z;
 }
 
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
@@ -11260,7 +11260,7 @@ void InitSpellRing(PLAYERp pp)
         actorNew->spr.yrepeat = 32;
         actorNew->spr.zvel = 0;
 
-        actorNew->user.sz = Z(20);
+        actorNew->user.pos.Z = Z(20);
         actorNew->user.Dist = RING_INNER_DIST;
         actorNew->user.Counter = max_missiles;
         actorNew->user.Counter2 = 0;
@@ -11303,8 +11303,8 @@ int DoSerpRing(DSWActor* actor)
     actor->spr.pos.Y = own->spr.pos.Y;
 
     actor->spr.pos.Z += actor->spr.zvel;
-    if (actor->spr.pos.Z > own->spr.pos.Z - actor->user.sz)
-        actor->spr.pos.Z = own->spr.pos.Z - actor->user.sz;
+    if (actor->spr.pos.Z > own->spr.pos.Z - actor->user.pos.Z)
+        actor->spr.pos.Z = own->spr.pos.Z - actor->user.pos.Z;
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
@@ -11539,7 +11539,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.pal = 0;
 
         actorNew->spr.pos.Z = ActorZOfTop(actor) - Z(20);
-        actorNew->user.sz = Z(50);
+        actorNew->user.pos.Z = Z(50);
 
         // ang around the serp is now slide_ang
         actorNew->user.slide_ang = actorNew->spr.ang;
@@ -12297,7 +12297,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->user.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actorNew->user.Counter = RANDOM_P2(2048);
-    actorNew->user.sz = actorNew->spr.pos.Z;
+    actorNew->user.pos.Z = actorNew->spr.pos.Z;
     actorNew->user.Health = 100;
 
     // defaults do change the statnum

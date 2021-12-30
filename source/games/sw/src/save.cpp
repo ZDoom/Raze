@@ -840,7 +840,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("inactive_time", w.inactive_time, def->inactive_time)
 			("sx", w.pos.X, def->pos.X)
 			("sy", w.pos.Y, def->pos.Y)
-			("sz", w.sz, def->sz)
+			("sz", w.pos.Z, def->pos.Z)
 			("sang", w.sang, def->sang)
 			("spal", w.spal, def->spal)
 			//("ret", w.coll, def->coll) // is this needed?

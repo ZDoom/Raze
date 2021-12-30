@@ -364,7 +364,7 @@ void EelCommon(DSWActor* actor)
     actor->user.floor_dist = Z(16);
     actor->user.ceiling_dist = Z(20);
 
-    actor->user.sz = actor->spr.pos.Z;
+    actor->user.pos.Z = actor->spr.pos.Z;
 
     actor->spr.xrepeat = 35;
     actor->spr.yrepeat = 27;
@@ -436,7 +436,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.sz;
+    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.pos.Z;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(64)); // put a random amount
@@ -444,9 +444,9 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         if (zdiff > 0)
             // manipulate the z midpoint
-            actor->user.sz += 160 * ACTORMOVETICS;
+            actor->user.pos.Z += 160 * ACTORMOVETICS;
         else
-            actor->user.sz -= 160 * ACTORMOVETICS;
+            actor->user.pos.Z -= 160 * ACTORMOVETICS;
     }
 
     const int EEL_BOB_AMT = (Z(4));
@@ -464,16 +464,16 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.lowActor->spr.pos.X, actor->user.lowActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.sz;
+            bound = actor->user.pos.Z;
         else
             bound = loz - actor->user.floor_dist;
     }
     else
         bound = loz - actor->user.floor_dist - EEL_BOB_AMT;
 
-    if (actor->user.sz > bound)
+    if (actor->user.pos.Z > bound)
     {
-        actor->user.sz = bound;
+        actor->user.pos.Z = bound;
     }
 
     // upper bound
@@ -481,29 +481,29 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.highActor->spr.pos.X, actor->user.highActor->spr.pos.Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.sz;
+            bound = actor->user.pos.Z;
         else
             bound = hiz + actor->user.ceiling_dist;
     }
     else
         bound = hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
 
-    if (actor->user.sz < bound)
+    if (actor->user.pos.Z < bound)
     {
-        actor->user.sz = bound;
+        actor->user.pos.Z = bound;
     }
 
-    actor->user.sz = min(actor->user.sz, loz - actor->user.floor_dist);
-    actor->user.sz = max(actor->user.sz, hiz + actor->user.ceiling_dist);
+    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.floor_dist);
+    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.ceiling_dist);
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.sz + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14);
+    actor->spr.pos.Z = actor->user.pos.Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14);
 
     bound = actor->user.hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
     if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        actor->spr.pos.Z = actor->user.sz = bound + EEL_BOB_AMT;
+        actor->spr.pos.Z = actor->user.pos.Z = bound + EEL_BOB_AMT;
     }
 
     return 0;

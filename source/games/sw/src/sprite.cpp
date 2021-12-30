@@ -2046,7 +2046,7 @@ void SpriteSetup(void)
                     if (floor_vator)
                     {
                         // start off
-                        actor->user.sz = sectp->floorz;
+                        actor->user.pos.Z = sectp->floorz;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2055,7 +2055,7 @@ void SpriteSetup(void)
 
                             // start in the on position
                             sectp->addfloorz(amt);
-                            actor->user.z_tgt = actor->user.sz;
+                            actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, false); // floor
                         }
@@ -2066,7 +2066,7 @@ void SpriteSetup(void)
                     else
                     {
                         // start off
-                        actor->user.sz = sectp->ceilingz;
+                        actor->user.pos.Z = sectp->ceilingz;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2075,7 +2075,7 @@ void SpriteSetup(void)
 
                             // starting in the on position
                             sectp->addceilingz(amt);
-                            actor->user.z_tgt = actor->user.sz;
+                            actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->spr.sector(), amt, true); // ceiling
                         }
@@ -2252,13 +2252,13 @@ void SpriteSetup(void)
                         actor->user.zclip = floorz;
 
                         // start off
-                        actor->user.sz = actor->user.zclip;
+                        actor->user.pos.Z = actor->user.zclip;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // start in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.sz;
+                            actor->user.z_tgt = actor->user.pos.Z;
                             SpikeAlign(actor);
                         }
 
@@ -2270,13 +2270,13 @@ void SpriteSetup(void)
                         actor->user.zclip = ceilingz;
 
                         // start off
-                        actor->user.sz = actor->user.zclip;
+                        actor->user.pos.Z = actor->user.zclip;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.sz;
+                            actor->user.z_tgt = actor->user.pos.Z;
                             SpikeAlign(actor);
                         }
 
@@ -4625,7 +4625,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        actor->spr.pos.Z = actor->user.sz;
+        actor->spr.pos.Z = actor->user.pos.Z;
     }
 
     // save off x,y values
@@ -5853,7 +5853,7 @@ KeyMain:
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->actor, actorNew);
-            actorNew->user.sz = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
+            actorNew->user.pos.Z = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
             SetOwner(pp->actor, actorNew);  // Player now owns the flag

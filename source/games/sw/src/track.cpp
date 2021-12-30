@@ -883,7 +883,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 itActor->user.pos.X = sop->xmid - itActor->spr.pos.X;
                 itActor->user.pos.Y = sop->ymid - itActor->spr.pos.Y;
-                itActor->user.sz = sop->mid_sector->floorz - itActor->spr.pos.Z;
+                itActor->user.pos.Z = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
@@ -914,7 +914,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         if (sop->sectp[j] == itActor->spr.sector())
                         {
                             itActor->user.Flags |= (SPR_ON_SO_SECTOR);
-                            itActor->user.sz = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
+                            itActor->user.pos.Z = itActor->spr.sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }
                     }
@@ -948,7 +948,7 @@ cont:
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{
             auto actor = sop->so_actors[i];
-            actor->user.sz = sop->zmid - actor->spr.pos.Z;
+            actor->user.pos.Z = sop->zmid - actor->spr.pos.Z;
         }
     }
 }
@@ -1708,7 +1708,7 @@ PlayerPart:
         if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->spr.pos.Z = sop->zmid - actor->user.sz;
+            actor->spr.pos.Z = sop->zmid - actor->user.pos.Z;
         }
         else
         {
@@ -1716,12 +1716,12 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.sz;
+                actor->spr.pos.Z = actor->spr.sector()->floorz - actor->user.pos.Z;
             }
             else
             {
                 // move with the mid sector
-                actor->spr.pos.Z = sop->mid_sector->floorz - actor->user.sz;
+                actor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
             }
         }
 
@@ -2142,7 +2142,7 @@ void CallbackSOsink(ANIMp ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.sz - ActorSizeZ(actor) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.pos.Z - ActorSizeZ(actor) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -3365,9 +3365,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
             // destination z for climbing
             if (wal->twoSided())
-                actor->user.sz = wal->nextSector()->floorz;
+                actor->user.pos.Z = wal->nextSector()->floorz;
             else
-                actor->user.sz = wal->sectorp()->ceilingz; // don't crash on bad setups.
+                actor->user.pos.Z = wal->sectorp()->ceilingz; // don't crash on bad setups.
 
             DoActorZrange(actor);
 
@@ -3529,7 +3529,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
-            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.sz)
+            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.pos.Z)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 
