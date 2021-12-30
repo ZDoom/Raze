@@ -651,7 +651,6 @@ struct PLAYERstruct
 
     void setcursector(sectortype* s) { cursector = s; }
     bool insector() const { return cursector != nullptr; }
-    fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;

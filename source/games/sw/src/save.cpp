@@ -478,7 +478,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("camera_check_time_delay", w.camera_check_time_delay)
 			("cursectnum", w.cursector)
 			("lastcursectnum", w.lastcursector)
-			("turn180_target", w.turn180_target)
 			("hvel", w.hvel)
 			("tilt", w.tilt)
 			("tilt_dest", w.tilt_dest)
