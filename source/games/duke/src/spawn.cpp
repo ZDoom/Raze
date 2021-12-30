@@ -482,7 +482,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	act->temp_data[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[act->temp_data[4]];
-	apt.x = act->spr.pos.X;
+	apt.pos.X = act->spr.pos.X;
 	apt.y = act->spr.pos.Y;
 	apt.z = act->spr.pos.Z;
 	apt.poleactor = nullptr;

@@ -67,7 +67,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, Crane
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.x)
+		arc("x", w.pos.X)
 			("y", w.y)
 			("z", w.z)
 			("polex", w.polex)
