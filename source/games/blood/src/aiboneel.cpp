@@ -152,7 +152,7 @@ static void eelThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.targetY - actor->spr.pos.Y;
+	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -330,7 +330,7 @@ static void eelMoveForward(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.ang = (actor->spr.ang + 256) & 2047;
 	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.targetY - actor->spr.pos.Y;
+	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x399)
 		return;
@@ -359,7 +359,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	if (abs(nAng) > 341)
 		return;
 	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.targetY - actor->spr.pos.Y;
+	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
@@ -386,7 +386,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	if (abs(nAng) > 341)
 		return;
 	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.targetY - actor->spr.pos.Y;
+	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;

@@ -420,7 +420,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	}
 
 	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.targetY - actor->spr.pos.Y;
+	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 
 	aiChooseDirection(actor, nAngle);
@@ -1123,7 +1123,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		if (actor->GetTarget() == nullptr)
 			actor->spr.ang = (actor->spr.ang + 256) & 2047;
 		int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-		int dy = actor->xspr.targetY - actor->spr.pos.Y;
+		int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
 		int nDist = approxDist(dx, dy);
 		if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 			return;

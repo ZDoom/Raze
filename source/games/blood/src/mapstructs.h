@@ -101,7 +101,6 @@ struct XSPRITE {
 	TObjPtr<DBloodActor*> target;           // target sprite
 	TObjPtr<DBloodActor*> burnSource;
 
-	int32_t targetY;          // target y
 	int32_t targetZ;          // target z
 	vec3_t TargetPos;
 	int32_t sysData1;            // used to keep here various system data, so user can't change it in map editor
