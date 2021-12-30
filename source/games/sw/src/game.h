@@ -1001,7 +1001,7 @@ struct USER
 
     // precalculated vectors
     vec3_t change;
-    int ychange,zchange;
+    int zchange;
 
     int  z_tgt;
 
