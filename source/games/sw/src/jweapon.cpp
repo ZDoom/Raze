@@ -307,7 +307,7 @@ void SpawnMidSplash(DSWActor* actor)
 
     actorNew->user.change.X = 0;
     actorNew->user.change.Y = 0;
-    actorNew->user.zchange = 0;
+    actorNew->user.change.Z = 0;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -330,7 +330,7 @@ void SpawnFloorSplash(DSWActor* actor)
 
     actorNew->user.change.X = 0;
     actorNew->user.change.Y = 0;
-    actorNew->user.zchange = 0;
+    actorNew->user.change.Z = 0;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -346,18 +346,18 @@ int DoBloodSpray(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20;  // These are STAT_SKIIP4 now, so * 2
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
     else
     {
         actor->user.Counter += 20;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
 
     if (actor->spr.xvel <= 2)
     {
         // special stuff for blood worm
-        actor->spr.pos.Z += (actor->user.zchange >> 1);
+        actor->spr.pos.Z += (actor->user.change.Z >> 1);
 
         getzsofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
         // pretend like we hit a sector
@@ -371,7 +371,7 @@ int DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.zchange,
+        actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
                               actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
     }
 
@@ -502,7 +502,7 @@ int DoBloodSpray(DSWActor* actor)
             else
             // hit something above
             {
-                actor->user.zchange = -actor->user.zchange;
+                actor->user.change.Z = -actor->user.change.Z;
                 ScaleSpriteVector(actor, 32000);       // was 22000
             }
             break;
@@ -534,7 +534,7 @@ int DoBloodSpray(DSWActor* actor)
 
         actorNew->user.change.X = actor->user.change.X;
         actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.zchange = actor->user.zchange;
+        actorNew->user.change.Z = actor->user.change.Z;
 
         ScaleSpriteVector(actorNew, 20000);
 
@@ -553,15 +553,15 @@ int DoPhosphorus(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20*2;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
     else
     {
         actor->user.Counter += 20*2;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.zchange,
+    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
                           actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
@@ -651,7 +651,7 @@ int DoPhosphorus(DSWActor* actor)
                         {
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
-                            actor->user.zchange /= 6;
+                            actor->user.change.Z /= 6;
                             actor->user.coll.setNone();
                             actor->user.Counter = 0;
                         }
@@ -688,9 +688,9 @@ int DoPhosphorus(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.zchange = -actor->user.zchange;
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
-                        actor->user.zchange /= 6;
+                        actor->user.change.Z /= 6;
                     }
                     else
                     {
@@ -703,7 +703,7 @@ int DoPhosphorus(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.zchange = -actor->user.zchange;
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
@@ -737,7 +737,7 @@ int DoPhosphorus(DSWActor* actor)
 
         actorNew->user.change.X = actor->user.change.X;
         actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.zchange = actor->user.zchange;
+        actorNew->user.change.Z = actor->user.change.Z;
 
         actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER3;   // RED
 
@@ -757,15 +757,15 @@ int DoChemBomb(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
     else
     {
         actor->user.Counter += 20;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.zchange,
+    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
                           actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
@@ -859,7 +859,7 @@ int DoChemBomb(DSWActor* actor)
                                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                             actor->user.Flags |= (SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
-                            actor->user.zchange /= 6;
+                            actor->user.change.Z /= 6;
                             actor->user.coll.setNone();
                             actor->user.Counter = 0;
                         }
@@ -906,9 +906,9 @@ int DoChemBomb(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.zchange = -actor->user.zchange;
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
-                        actor->user.zchange /= 6;
+                        actor->user.change.Z /= 6;
                     }
                     else
                     {
@@ -929,7 +929,7 @@ int DoChemBomb(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.zchange = -actor->user.zchange;
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
@@ -956,7 +956,7 @@ int DoChemBomb(DSWActor* actor)
 
         actorNew->user.change.X = actor->user.change.X;
         actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.zchange = actor->user.zchange;
+        actorNew->user.change.Z = actor->user.change.Z;
 
         actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER6;
 
@@ -986,15 +986,15 @@ int DoCaltrops(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
     else
     {
         actor->user.Counter += 70;
-        actor->user.zchange += actor->user.Counter;
+        actor->user.change.Z += actor->user.Counter;
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.zchange,
+    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
                           actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
@@ -1111,7 +1111,7 @@ int DoCaltrops(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.zchange = -actor->user.zchange;
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 1000);    // Was 18000
                     }
                     else
@@ -1126,7 +1126,7 @@ int DoCaltrops(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.zchange = -actor->user.zchange;
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 1000);        // was 22000
                 }
             }
@@ -1292,7 +1292,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
     actorNew->user.change.X += pp->vect.X >> 14;
@@ -1339,7 +1339,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // Smoke will come out for this many seconds
     actorNew->user.WaitTics = CHEMTICS;
@@ -1385,7 +1385,7 @@ int InitChemBomb(DSWActor* actor)
     {
         actorNew->user.change.X = 0;
         actorNew->user.change.Y = 0;
-        actorNew->user.zchange = 0;
+        actorNew->user.change.Z = 0;
         actorNew->spr.xvel = actorNew->spr.yvel = actorNew->spr.zvel = 0;
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 40*120;
@@ -1394,7 +1394,7 @@ int InitChemBomb(DSWActor* actor)
     {
         actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
         actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        actorNew->user.zchange = actorNew->spr.zvel >> 1;
+        actorNew->user.change.Z = actorNew->spr.zvel >> 1;
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 3*120;
     }
@@ -1664,7 +1664,7 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
     actorNew->user.change.X += pp->vect.X >> 14;
@@ -1709,7 +1709,7 @@ int InitCaltrops(DSWActor* actor)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = actorNew->spr.zvel >> 1;
+    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
@@ -1758,7 +1758,7 @@ int InitPhosphorus(DSWActor* actor)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = (actorNew->spr.zvel >> 1);
+    actorNew->user.change.Z = (actorNew->spr.zvel >> 1);
 
     return 0;
 }
@@ -1831,7 +1831,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
         actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-        actorNew->user.zchange = actorNew->spr.zvel >> 1;
+        actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
         if (!GlobalSkipZrange)
             DoActorZrange(actorNew);
@@ -2247,7 +2247,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.zchange = actorNew->spr.zvel;
+    actorNew->user.change.Z = actorNew->spr.zvel;
 
     actorNew->user.jump_speed = 200;
     actorNew->user.jump_speed += RandomRange(400);

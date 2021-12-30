@@ -804,7 +804,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("Sibling", w.Sibling, def->Sibling)
 			("xchange", w.change.X, def->change.X)
 			("ychange", w.change.Y, def->change.Y)
-			("zchange", w.zchange, def->zchange)
+			("zchange", w.change.Z, def->change.Z)
 			("z_tgt", w.z_tgt, def->z_tgt)
 			("vel_tgt", w.vel_tgt, def->vel_tgt)
 			("vel_rate", w.vel_rate, def->vel_rate)

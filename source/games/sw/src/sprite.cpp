@@ -3501,7 +3501,7 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
 
         actor->user.change.X = MOVEx(actor->spr.xvel, actor->spr.ang);
         actor->user.change.Y = MOVEy(actor->spr.xvel, actor->spr.ang);
-        actor->user.zchange = actor->spr.zvel;
+        actor->user.change.Z = actor->spr.zvel;
     }
 }
 
