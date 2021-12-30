@@ -577,8 +577,8 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->pos = pTSprite->interpolatedvec3(gInterpolate);
-			pTSprite->ang = pTSprite->interpolatedang(gInterpolate);
+			pTSprite->pos = owneractor->interpolatedvec3(gInterpolate);
+			pTSprite->ang = owneractor->interpolatedang(gInterpolate);
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {

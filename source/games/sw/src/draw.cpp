@@ -638,7 +638,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->pos = tsp->interpolatedvec3(smr4, 18);
+                        tsp->pos = tActor->interpolatedvec3(smr4, 18);
                     }
                 }
 
@@ -646,7 +646,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->pos = tsp->interpolatedvec3(smr2, 17);
+                        tsp->pos = tActor->interpolatedvec3(smr2, 17);
                     }
                 }
             }
@@ -1660,8 +1660,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 k = actor->spr.statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
                 {
-                    sprx = actor->spr.interpolatedx(smoothratio);
-                    spry = actor->spr.interpolatedy(smoothratio);
+                    sprx = actor->interpolatedx(smoothratio);
+                    spry = actor->interpolatedy(smoothratio);
                 }
 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
@@ -1678,7 +1678,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->spr.ang : actor->spr.interpolatedang(smoothratio)) - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->spr.ang : actor->interpolatedang(smoothratio)) - cang) & 2047;
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;

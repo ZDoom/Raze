@@ -78,8 +78,8 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
         if (pTSprite->ownerActor)
         {
             // interpolate sprite position
-            pTSprite->pos = pTSprite->interpolatedvec3(smoothratio);
-            pTSprite->ang = pTSprite->interpolatedang(smoothratio);
+            pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio);
+            pTSprite->ang = pTSprite->ownerActor->interpolatedang(smoothratio);
         }
     }
 
@@ -240,9 +240,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        playerX = pPlayerActor->spr.interpolatedx(smoothRatio);
-        playerY = pPlayerActor->spr.interpolatedy(smoothRatio);
-        playerZ = pPlayerActor->spr.interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
+        playerX = pPlayerActor->interpolatedx(smoothRatio);
+        playerY = pPlayerActor->interpolatedy(smoothRatio);
+        playerZ = pPlayerActor->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(playerX, playerY, &pSector);

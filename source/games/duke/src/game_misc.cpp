@@ -549,7 +549,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		auto act = ps[p].GetActor();
-		auto spos = act->spr.interpolatedvec2(smoothratio);
+		auto spos = act->interpolatedvec2(smoothratio);
 
 		ox = mx - cposx;
 		oy = my - cposy;
@@ -558,7 +558,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		int xx = xdim / 2. + x1 / 4096.;
 		int yy = ydim / 2. + y1 / 4096.;
 
-		daang = ((!SyncInput() ? act->spr.ang : act->spr.interpolatedang(smoothratio)) - cang) & 2047;
+		daang = ((!SyncInput() ? act->spr.ang : act->interpolatedang(smoothratio)) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{

@@ -172,7 +172,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 		else if (h->spr.picnum != CRANEPOLE)
 		{
-			t->pos = h->spr.interpolatedvec3(smoothratio);
+			t->pos = h->interpolatedvec3(smoothratio);
 		}
 
 		auto sectp = h->sector();

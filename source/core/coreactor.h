@@ -42,6 +42,45 @@ public:
 		return spr.time; 
 	}	
 
+	int32_t interpolatedx(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvalue(spr.opos.X, spr.pos.X, smoothratio, scale);
+	}
+
+	int32_t interpolatedy(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvalue(spr.opos.Y, spr.pos.Y, smoothratio, scale);
+	}
+
+	int32_t interpolatedz(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvalue(spr.opos.Z, spr.pos.Z, smoothratio, scale);
+	}
+
+	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale)
+		};
+	}
+
+	vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale),
+			interpolatedz(smoothratio, scale)
+		};
+	}
+
+	int16_t interpolatedang(double const smoothratio)
+	{
+		return interpolatedangle(spr.oang, spr.ang, smoothratio, 16);
+	}
+
 	void backupx()
 	{
 		spr.opos.X = spr.pos.X;

@@ -451,45 +451,6 @@ struct spritetypebase
 	{
 		pos = newpos;
 	}
-
-	int32_t interpolatedx(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedvalue(opos.X, pos.X, smoothratio, scale);
-	}
-
-	int32_t interpolatedy(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedvalue(opos.Y, pos.Y, smoothratio, scale);
-	}
-
-	int32_t interpolatedz(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedvalue(opos.Z, pos.Z, smoothratio, scale);
-	}
-
-	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
-	{
-		return
-		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale)
-		};
-	}
-
-	vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
-	{
-		return
-		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale),
-			interpolatedz(smoothratio, scale)
-		};
-	}
-
-	int16_t interpolatedang(double const smoothratio)
-	{
-		return interpolatedangle(oang, ang, smoothratio, 16);
-	}
 };
 
 

@@ -110,7 +110,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = camsprite->GetOwner();
-				auto ang = buildang(camera->spr.interpolatedang(smoothratio));
+				auto ang = buildang(camera->interpolatedang(smoothratio));
 				display_mirror = 1; // should really be 'display external view'.
 				if (!testnewrenderer)
 				{
@@ -356,7 +356,7 @@ void displayrooms(int snum, double smoothratio)
 		if (p->newOwner != nullptr)
 		{
 			auto act = p->newOwner;
-			cang = buildang(act->spr.interpolatedang(smoothratio));
+			cang = buildang(act->interpolatedang(smoothratio));
 			choriz = buildhoriz(act->spr.shade);
 			cposx = act->spr.pos.X;
 			cposy = act->spr.pos.Y;
