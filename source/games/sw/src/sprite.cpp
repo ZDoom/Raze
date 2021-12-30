@@ -1641,10 +1641,10 @@ void SpriteSetup(void)
                 actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);;
             }
 
-            if (SP_TAG8(actor) & (1 << 0))
+            if (SP_TAG8(actor) & BIT(0))
                 actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-            if (SP_TAG8(actor) & (1 << 1))
+            if (SP_TAG8(actor) & BIT(1))
                 actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
 
             change_actor_stat(actor, STAT_SPRITE_HIT_MATCH);
@@ -4955,7 +4955,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
         if (actor->user.Flags2 & (SPR2_NEVER_RESPAWN))
             return true;
 
-        if (pp->WpnGotOnceFlags & (1 << WPN))
+        if (pp->WpnGotOnceFlags & BIT(WPN))
             return false;
 
         return true;
@@ -4967,7 +4967,7 @@ bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
             return true;
 
         // No Respawn - can't get a weapon again if you already got it
-        if (gNet.NoRespawn && (pp->WpnGotOnceFlags & (1 << WPN)))
+        if (gNet.NoRespawn && (pp->WpnGotOnceFlags & BIT(WPN)))
             return false;
 
         return true;

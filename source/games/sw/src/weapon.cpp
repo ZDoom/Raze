@@ -8230,7 +8230,7 @@ int DoGrenade(DSWActor* actor)
             // special case so grenade can ring gong
             if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (SP_TAG8(hitActor) & (1 << 3))
+                if (SP_TAG8(hitActor) & BIT(3))
                     DoMatchEverything(nullptr, hitActor->spr.hitag, -1);
             }
 

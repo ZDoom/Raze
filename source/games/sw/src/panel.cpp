@@ -349,8 +349,8 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     if (pp->WpnAmmo[WeaponNum] <= 0)
     {
         // star and mine
-        if (WeaponIsAmmo & (1 << WeaponNum))
-            pp->WpnFlags &= ~(1 << WeaponNum);
+        if (WeaponIsAmmo & BIT(WeaponNum))
+            pp->WpnFlags &= ~BIT(WeaponNum);
 
         pp->WpnAmmo[WeaponNum] = 0;
     }
