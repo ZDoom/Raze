@@ -227,8 +227,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			// RR from here on
 			("stairs", w.stairs)
 			("detonate_count", w.detonate_count)
-			("noise_x", w.noise_x)
-			("noise_y", w.noise_y)
+			("noise.X", w.noise.X)
+			("noise.Y", w.noise.Y)
 			("noise_radius", w.noise_radius)
 			("drink_timer", w.drink_timer)
 			("eat_timer", w.eat_timer)

@@ -170,8 +170,8 @@ void resetplayerstats(int snum)
 	p->fist_incs = 0;
 	p->knee_incs         = 0;
 	p->stairs = 0;
-	p->noise_x = 0;
-	p->noise_y = 0;
+	p->noise.X = 0;
+	p->noise.Y = 0;
 	p->donoise = 0;
 	p->noise_radius = 0;
 	if (isRR() && ud.multimode > 1 && ud.coop != 1)
@@ -442,8 +442,8 @@ void resetprestat(int snum,int g)
 
 	p->stairs = 0;
 	//if (!isRRRA()) p->fogtype = 0;
-	p->noise_x = 131072;
-	p->noise_y = 131072;
+	p->noise.X = 131072;
+	p->noise.Y = 131072;
 	p->donoise = 0;
 	p->noise_radius = 0;
 

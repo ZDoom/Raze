@@ -35,8 +35,8 @@ int madenoise(int snum)
 	player_struct *p;
 	p = &ps[snum];
 	p->donoise = 1;
-	p->noise_x = p->pos.X;
-	p->noise_y = p->pos.Y;
+	p->noise.X = p->pos.X;
+	p->noise.Y = p->pos.Y;
 	return 1;
 }
 
@@ -52,8 +52,8 @@ int wakeup(DDukeActor* actor, int snum)
 
 	radius = p->noise_radius;
 
-	if (p->noise_x - radius < actor->spr.pos.X && p->noise_x + radius > actor->spr.pos.X
-		&& p->noise_y - radius < actor->spr.pos.Y && p->noise_y + radius > actor->spr.pos.Y)
+	if (p->noise.X - radius < actor->spr.pos.X && p->noise.X + radius > actor->spr.pos.X
+		&& p->noise.Y - radius < actor->spr.pos.Y && p->noise.Y + radius > actor->spr.pos.Y)
 		return 1;
 	return 0;
 }
