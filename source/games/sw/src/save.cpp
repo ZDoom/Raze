@@ -392,10 +392,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 		arc("cursectnum", w.cursectp)
 			("lastcursectnum", w.lastcursectp)
 			("pang", w.pang)
-			("xvect", w.xvect)
-			("yvect", w.yvect)
-			("slide_xvect", w.slide_xvect)
-			("slide_yvect", w.slide_yvect)
+			("xvect", w.vect.X)
+			("yvect", w.vect.Y)
+			("slide_xvect", w.slide_vect.X)
+			("slide_yvect", w.slide_vect.Y)
 			("x", w.posx)
 			("y", w.posy)
 			("z", w.posz)
@@ -404,8 +404,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 	}
 	if (arc.isReading())
 	{
-		w.oxvect = w.xvect;
-		w.oyvect = w.yvect;
+		w.ovect.Y = w.vect.X;
+		w.ovect.Y = w.vect.Y;
 	}
 	return arc;
 }

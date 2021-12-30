@@ -5053,12 +5053,12 @@ void PlayerToRemote(PLAYERp pp)
     pp->remote.posy = pp->pos.Y;
     pp->remote.posz = pp->pos.Z;
 
-    pp->remote.xvect = pp->vect.X;
-    pp->remote.yvect = pp->vect.Y;
-    pp->remote.oxvect = pp->ovect.X;
-    pp->remote.oyvect = pp->ovect.Y;
-    pp->remote.slide_xvect = pp->slide_vect.X;
-    pp->remote.slide_yvect = pp->slide_vect.Y;
+    pp->remote.vect.X = pp->vect.X;
+    pp->remote.vect.Y = pp->vect.Y;
+    pp->remote.ovect.Y = pp->ovect.X;
+    pp->remote.ovect.Y = pp->ovect.Y;
+    pp->remote.slide_vect.X = pp->slide_vect.X;
+    pp->remote.slide_vect.Y = pp->slide_vect.Y;
 }
 
 void RemoteToPlayer(PLAYERp pp)
@@ -5070,12 +5070,12 @@ void RemoteToPlayer(PLAYERp pp)
     pp->pos.Y = pp->remote.posy;
     pp->pos.Z = pp->remote.posz;
 
-    pp->vect.X = pp->remote.xvect;
-    pp->vect.Y = pp->remote.yvect;
-    pp->ovect.X = pp->remote.oxvect;
-    pp->ovect.Y = pp->remote.oyvect;
-    pp->slide_vect.X = pp->remote.slide_xvect;
-    pp->slide_vect.Y = pp->remote.slide_yvect;
+    pp->vect.X = pp->remote.vect.X;
+    pp->vect.Y = pp->remote.vect.Y;
+    pp->ovect.X = pp->remote.ovect.Y;
+    pp->ovect.Y = pp->remote.ovect.Y;
+    pp->slide_vect.X = pp->remote.slide_vect.X;
+    pp->slide_vect.Y = pp->remote.slide_vect.Y;
 }
 
 void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
@@ -5095,12 +5095,12 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
 
 void PlayerRemoteInit(PLAYERp pp)
 {
-    pp->remote.xvect        = 0;
-    pp->remote.yvect        = 0;
-    pp->remote.oxvect       = 0;
-    pp->remote.oyvect       = 0;
-    pp->remote.slide_xvect  = 0;
-    pp->remote.slide_yvect  = 0;
+    pp->remote.vect.X        = 0;
+    pp->remote.vect.Y        = 0;
+    pp->remote.ovect.Y       = 0;
+    pp->remote.ovect.Y       = 0;
+    pp->remote.slide_vect.X  = 0;
+    pp->remote.slide_vect.Y  = 0;
 }
 
 void DoPlayerStopOperate(PLAYERp pp)

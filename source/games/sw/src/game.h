@@ -594,7 +594,7 @@ typedef struct
 {
     sectortype* cursectp, * lastcursectp;
     int pang;
-    int xvect,yvect,oxvect,oyvect,slide_xvect,slide_yvect;
+    vec2_t vect, ovect, slide_vect;
     int posx,posy,posz;
     SECTOR_OBJECTp sop_control;
 } REMOTE_CONTROL, *REMOTE_CONTROLp;
