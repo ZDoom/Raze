@@ -500,7 +500,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 			actk->spr.yrepeat = 128;
 
 			apt.pole.X = actk->spr.pos.X;
-			apt.poley = actk->spr.pos.Y;
+			apt.pole.Y = actk->spr.pos.Y;
 
 			actk->spr.pos = act->spr.pos;
 			actk->spr.shade = act->spr.shade;

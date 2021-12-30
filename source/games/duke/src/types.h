@@ -165,7 +165,6 @@ struct CraneDef
 {
 	vec3_t pos;
 	vec2_t pole;
-	int pole.X, poley;
 	TObjPtr<DDukeActor*> poleactor;
 };
 

@@ -648,8 +648,8 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				actor->spr.ang = getangle(cpt.pole.X - actor->spr.pos.X, cpt.poley - actor->spr.pos.Y);
-				SetActor(a2, { cpt.pole.X, cpt.poley, a2->spr.pos.Z });
+				actor->spr.ang = getangle(cpt.pole.X - actor->spr.pos.X, cpt.pole.Y - actor->spr.pos.Y);
+				SetActor(a2, { cpt.pole.X, cpt.pole.Y, a2->spr.pos.Z });
 				actor->temp_data[0]++;
 				return;
 			}
