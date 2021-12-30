@@ -306,8 +306,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOGIEX:
-		if (bSet) ps[iPlayer].loogiex[lParm2] = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].loogiex[lParm2], sActor, sPlayer);
+		if (bSet) ps[iPlayer].loogie[lParm2].X = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].loogie[lParm2].X, sActor, sPlayer);
 		break;
 
 	case PLAYER_LOOGIEY:

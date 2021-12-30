@@ -76,7 +76,7 @@ void displayloogie(player_struct* p)
 		z = 4096 + ((p->loogcnt + i) << 9);
 		x = -getavel(p->GetPlayerNum()) + bsinf((p->loogcnt + i) << 6, -10);
 
-		hud_drawsprite((p->loogiex[i] + x), (200 + p->loogiey[i] - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
+		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogiey[i] - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
 	}
 }
 
