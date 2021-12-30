@@ -264,11 +264,6 @@ inline int shadeToLight(int shade)
 	return PalEntry(255, light, light, light);
 }
 
-inline void copyfloorpal(spritetype* spr, const sectortype* sect)
-{
-	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
-}
-
 inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
 {
 	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;

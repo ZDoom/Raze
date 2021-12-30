@@ -1337,8 +1337,6 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;
     int32_t i, k, daz;
 
-    const spritetype* curspr = NULL;
-    // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype >> 16);
 
@@ -1365,7 +1363,6 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             auto wal2 = wal->point2Wall();
 
             auto const  nextsect = wal->nextSector();
-            if (curspr && !wal->twoSided()) continue;
 
             x1 = wal->pos.X; y1 = wal->pos.Y; x2 = wal2->pos.X; y2 = wal2->pos.Y;
 
@@ -1376,22 +1373,20 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             if (abs(intx-sv->X)+abs(inty-sv->Y) >= abs((hitinfo.hitpos.X)-sv->X)+abs((hitinfo.hitpos.Y)-sv->Y))
                 continue;
 
-            if (!curspr)
+            if ((!wal->twoSided()) || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
             {
-                if ((!wal->twoSided()) || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
-                {
-                    hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                    continue;
-                }
-
-                int32_t daz2;
-                getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
-                if (intz <= daz || intz >= daz2)
-                {
-                    hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                    continue;
-                }
+                hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
+                continue;
             }
+
+            int32_t daz2;
+            getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
+            if (intz <= daz || intz >= daz2)
+            {
+                hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
+                continue;
+            }
+
             search.Add(nextsect);
         }
 

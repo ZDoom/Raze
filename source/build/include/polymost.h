@@ -21,12 +21,6 @@ void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid);
 void polymost_initosdfuncs(void);
-void polymost_drawrooms(void);
-void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);
-void polymost_completeMirror();
-
-int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
-int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);
 
 void polymost_glreset(void);
 void polymost_scansector(int32_t sectnum);

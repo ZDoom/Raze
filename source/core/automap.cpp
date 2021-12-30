@@ -603,7 +603,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 				LegacyRenderStyles[STYLE_Translucent], windowxy1.X, windowxy1.Y, windowxy2.X + 1, windowxy2.Y + 1);
 		}
 	}
-	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(spritetype*), [](const void* a, const void* b)
+	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(DCoreActor*), [](const void* a, const void* b)
 		{
 			auto A = *(DCoreActor**)a;
 			auto B = *(DCoreActor**)b;

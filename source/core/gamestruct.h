@@ -12,7 +12,6 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 
 class FSerializer;
 struct FRenderViewpoint;
-struct spritetype;
 struct sectortype;
 struct tspritetype;
 class DCoreActor;

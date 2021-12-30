@@ -182,7 +182,6 @@ public:
 		//HWHorizonInfo * horizon;	// for horizon information
 		PortalDesc * portal;			// stacked sector portals
 		const int * planemirror;	// for plane mirrors
-		spritetype* teleport;	// SW's teleport-views
 	};
 
 	unsigned int vertindex;
