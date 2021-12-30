@@ -99,7 +99,7 @@ tspritetype* viewInsertTSprite(tspritetype* tsprite, int& spritesortcnt, sectort
 	pTSprite->ownerActor = nullptr;
 	pTSprite->type = -spritesortcnt;
 	pTSprite->statnum = nStatnum;
-	pTSprite->setsector(pSector);
+	pTSprite->sectp = pSector;
 	spritesortcnt++;
 	if (parentTSprite)
 	{
@@ -301,7 +301,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 			pNSprite->pos.Z = pTSprite->pos.Z;
 			assert(pSector);
 			FindSector(pNSprite->pos.X, pNSprite->pos.Y, pNSprite->pos.Z, &pSector);
-			pNSprite->setsector(pSector);
+			pNSprite->sectp = pSector;
 			pNSprite->ownerActor = pTSprite->ownerActor;
 			pNSprite->picnum = pTSprite->picnum;
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;

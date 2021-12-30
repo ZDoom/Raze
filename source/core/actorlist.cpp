@@ -236,7 +236,7 @@ static void AddSectTail(DCoreActor *actor, sectortype* sect)
 	else sect->firstEntry = actor;
 	sect->lastEntry = actor;
 	assert(ValidateSectList(sect));
-	actor->spr.setsector(sect);
+	actor->setsector(sect);
 	actor->link_sector = sect;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(tail);
@@ -260,7 +260,7 @@ static void AddSectHead(DCoreActor *actor, sectortype* sect)
 	else sect->lastEntry = actor;
 	sect->firstEntry = actor;
 	assert(ValidateSectList(sect));
-	actor->spr.setsector(sect);
+	actor->setsector(sect);
 	actor->link_sector = sect;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(head);
@@ -297,7 +297,7 @@ static void RemoveActorSect(DCoreActor* actor)
 	assert(ValidateSectList(actor->link_sector, actor));
 
 	actor->nextSect = actor->prevSect = nullptr;
-	actor->spr.setsector(nullptr);
+	actor->setsector(nullptr);
 	actor->link_sector = nullptr;
 	GC::WriteBarrier(prev);
 	GC::WriteBarrier(next);
@@ -316,7 +316,7 @@ static void InsertActorSect(DCoreActor* actor, sectortype* sector, bool tail)
 	if (!sector)
 	{
 		actor->link_sector = nullptr;
-		actor->spr.setsector(nullptr);
+		actor->setsector(nullptr);
 		return;
 	}
 	if (isSafe() || tail) AddSectTail(actor, sector);

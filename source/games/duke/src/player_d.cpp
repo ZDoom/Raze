@@ -201,7 +201,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	spawned->spr.pos.X = sx + bsin(sa + 630) / 448;
 	spawned->spr.pos.Y = sy + bsin(sa + 112) / 448;
 	spawned->spr.pos.Z = sz - 256;
-	spawned->spr.setsector(actor->spr.sector());
+	spawned->setsector(actor->spr.sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	spawned->spr.ang = sa;
 	spawned->spr.xrepeat = 2;
@@ -1065,7 +1065,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			auto k = spawn(actor, atwith);
 			if (k)
 			{
-				k->spr.setsector(sect);
+				k->setsector(sect);
 				k->spr.pos.X = sx;
 				k->spr.pos.Y = sy;
 				k->spr.pos.Z = sz;

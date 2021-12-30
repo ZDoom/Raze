@@ -52,6 +52,12 @@ public:
 		return spr.sectp != nullptr;
 	}
 
+	void setsector(sectortype* sect)
+	{
+		// place for asserts.
+		spr.sectp = sect;
+	}
+
 };
 
 // holds pointers to the game-side actors.

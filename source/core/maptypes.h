@@ -529,8 +529,6 @@ struct spritetypebase
 
 	sectortype* sector() const;
 	int sectno() const;
-	void setsector(sectortype*);
-	void setsector(int);
 };
 
 
@@ -634,18 +632,6 @@ inline sectortype* spritetypebase::sector() const
 inline int spritetypebase::sectno() const
 {
 	return sectp? ::sector.IndexOf(sectp) : -1;
-}
-
-inline void spritetypebase::setsector(sectortype* sect)
-{
-	// place for asserts.
-	sectp = sect;
-}
-
-inline void spritetypebase::setsector(int sec)
-{
-	// place for asserts.
-	sectp = validSectorIndex(sec)? &::sector[sec] : nullptr;
 }
 
 inline sectortype* walltype::nextSector() const

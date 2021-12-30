@@ -280,11 +280,11 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int v
         return;
     }
 
-    tsp->setsector(sect);
+    tsp->sectp = sect;
     *tSpr = *tsp;
     // shadow is ALWAYS draw last - status is priority
     tSpr->statnum = MAXSTATUS;
-    tSpr->setsector(sect);
+    tSpr->sectp = sect;
 
     if ((tsp->yrepeat >> 2) > 4)
     {
@@ -478,7 +478,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     newTSpr->pos.X = itActor1->spr.pos.X - xoff;
                     newTSpr->pos.Y = itActor1->spr.pos.Y - yoff;
                     newTSpr->pos.Z = itActor1->spr.pos.Z - zoff;
-                    newTSpr->setsector(itActor1->spr.sector());
+                    newTSpr->sectp = itActor1->spr.sector();
                 }
 
                 it2.Reset(sect2);
@@ -495,7 +495,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 
                     auto off = itActor1->spr.pos - newTSpr->pos;
                     newTSpr->pos = itActor->spr.pos - off;
-                    newTSpr->setsector(itActor->spr.sector());
+                    newTSpr->sectp = itActor->spr.sector();
                 }
             }
         }

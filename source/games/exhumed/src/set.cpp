@@ -274,7 +274,7 @@ void AISet::Tick(RunListEvent* ev)
 
 	auto sect = pActor->spr.sector();
     pushmove(&pActor->spr.pos, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
-    pActor->spr.setsector(sect);
+    pActor->setsector(sect);
 
     if (pActor->spr.zvel > 4000)
     {

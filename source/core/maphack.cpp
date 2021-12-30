@@ -148,7 +148,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 			{
 				if (currentsprite != -1 && validateSprite())
 				{
-					sprites.sprites[currentsprite].setsector(sc.Number);
+					sprites.sprites[currentsprite].sectp = &sector[sc.Number];
 				}
 			}
 		}

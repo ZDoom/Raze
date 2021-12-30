@@ -284,7 +284,7 @@ void validateSprite(spritetype& spr, int sectnum, int index)
 		spr.statnum = MAXSTATUS;
 		sectnum = -1;
 	}
-	spr.setsector(sectnum);
+	spr.sectp = &sector[sectnum];
 }
 
 static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
