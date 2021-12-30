@@ -60,7 +60,7 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->bobposx = p->opos.X = p->pos.X = po[i].ox;
+	p->bobposx = p->opos.X = p->pos.X = po[i].opos.X;
 	p->bobposy = p->opos.Y = p->pos.Y = po[i].oy;
 	p->opos.Z = p->pos.Z = po[i].oz;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
@@ -581,7 +581,7 @@ void resetpspritevars(int g)
 			firsty = ps[0].pos.Y;
 		}
 
-		po[numplayersprites].ox = act->spr.pos.X;
+		po[numplayersprites].opos.X = act->spr.pos.X;
 		po[numplayersprites].oy = act->spr.pos.Y;
 		po[numplayersprites].oz = act->spr.pos.Z;
 		po[numplayersprites].oa = act->spr.ang;

@@ -93,7 +93,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_orig& w, pl
 {
 	if (arc.BeginObject(keyname))
 	{
-	  arc("ox", w.ox)
+	  arc("ox", w.opos.X)
 		("oy", w.oy)
 		("oz", w.oz)
 		("oa", w.oa)
