@@ -96,7 +96,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
             pos[i].Z = z;
 
             // move the box
-            clipmove(pos[i], &pp->cursector, pp->vect.X, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
+            clipmove(pos[i], &pp->cursector, pp->vect.X, pp->vect.Y, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
 
             // save the dist moved
             dist = ksqrt(SQ(pos[i].X - opos[i].X) + SQ(pos[i].Y - opos[i].Y));
@@ -195,14 +195,14 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     for (i = 0; i < 4; i++)
     {
         xy[i].X = qx[i] + (pp->vect.X>>14);
-        xy[i].Y = qy[i] + (pp->yvect>>14);
+        xy[i].Y = qy[i] + (pp->vect.Y>>14);
     }
 
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
         pp->pos.X += (pp->vect.X>>14);
-        pp->pos.Y += (pp->yvect>>14);
+        pp->pos.Y += (pp->vect.Y>>14);
         return true;
     }
 
@@ -213,12 +213,12 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].X = qx[i] - (pp->yvect>>15);
+            xy[i].X = qx[i] - (pp->vect.Y>>15);
             xy[i].Y = qy[i] + (pp->vect.X>>15);
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->pos.X -= (pp->yvect>>15);
+            pp->pos.X -= (pp->vect.Y>>15);
             pp->pos.Y += (pp->vect.X>>15);
         }
 
@@ -229,12 +229,12 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].X = qx[i] + (pp->yvect>>15);
+            xy[i].X = qx[i] + (pp->vect.Y>>15);
             xy[i].Y = qy[i] - (pp->vect.X>>15);
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->pos.X += (pp->yvect>>15);
+            pp->pos.X += (pp->vect.Y>>15);
             pp->pos.Y -= (pp->vect.X>>15);
         }
 

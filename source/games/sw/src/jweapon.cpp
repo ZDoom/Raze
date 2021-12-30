@@ -1296,7 +1296,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     // adjust xvel according to player velocity
     actorNew->user.xchange += pp->vect.X >> 14;
-    actorNew->user.ychange += pp->yvect >> 14;
+    actorNew->user.ychange += pp->vect.Y >> 14;
 
     // Smoke will come out for this many seconds
     actorNew->user.WaitTics = CHEMTICS;
@@ -1668,7 +1668,7 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     // adjust xvel according to player velocity
     actorNew->user.xchange += pp->vect.X >> 14;
-    actorNew->user.ychange += pp->yvect >> 14;
+    actorNew->user.ychange += pp->vect.Y >> 14;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
