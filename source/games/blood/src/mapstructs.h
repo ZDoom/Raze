@@ -254,7 +254,6 @@ struct XWALL {
 
 	uint8_t command;           // Cmd
 	vec3_t panVel;
-	int8_t panYVel;           // panY
 	uint8_t key;               // Key
 };
 

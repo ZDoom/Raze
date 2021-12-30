@@ -314,7 +314,7 @@ void DoSectorPanning(void)
 		if (pXWall->panAlways || pXWall->busy)
 		{
 			int psx = pXWall->panVel.X << 10;
-			int psy = pXWall->panYVel << 10;
+			int psy = pXWall->panVel.Y << 10;
 			if (!pXWall->panAlways && (pXWall->busy & 0xffff))
 			{
 				psx = MulScale(psx, pXWall->busy, 16);
@@ -371,7 +371,7 @@ void InitSectorFX(void)
 		if (wal.hasX())
 		{
 			XWALL* pXWall = &wal.xw();
-			if (pXWall->panVel.X || pXWall->panYVel)
+			if (pXWall->panVel.X || pXWall->panVel.Y)
 			{
 				wallPanList.Push(&wal);
 				if (pXWall->panVel.X) StartInterpolation(&wal, Interp_Wall_PanX);
