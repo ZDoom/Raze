@@ -1930,7 +1930,7 @@ void movetransports_d(void)
 							}
 
 							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
-							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
+							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
 							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
 
 							ChangeActorSect(act2, Owner->sector());

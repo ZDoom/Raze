@@ -2695,7 +2695,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 				rotatepoint(Owner->spr.pos.vec2, ps[p].pos.vec2, (q * l), &res);
 
 				ps[p].bobpos.X += res.X - ps[p].pos.X;
-				ps[p].bobposy += res.Y - ps[p].pos.Y;
+				ps[p].bobpos.Y += res.Y - ps[p].pos.Y;
 
 				ps[p].pos.vec2 = res;
 
@@ -2872,7 +2872,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					ps[p].pos.Y += x;
 
 					ps[p].bobpos.X += m;
-					ps[p].bobposy += x;
+					ps[p].bobpos.Y += x;
 
 					ps[p].angle.addadjustment(q);
 
@@ -3047,7 +3047,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				}
 
 				ps[p].bobpos.X += l;
-				ps[p].bobposy += x;
+				ps[p].bobpos.Y += x;
 			}
 
 			if (po[p].os == actor->spr.sector())
@@ -3178,7 +3178,7 @@ void handle_se02(DDukeActor* actor)
 				ps[p].pos.Y += x;
 
 				ps[p].bobpos.X += m;
-				ps[p].bobposy += x;
+				ps[p].bobpos.Y += x;
 			}
 
 		DukeSectIterator it(actor->sector());
@@ -3899,7 +3899,7 @@ void handle_se17(DDukeActor* actor)
 				act3->ceilingz = act2->spr.sector()->ceilingz;
 
 				ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X;
-				ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y;
+				ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y;
 				ps[p].opos.Z = ps[p].pos.Z;
 
 				ps[p].truefz = act3->floorz;
