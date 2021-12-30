@@ -70,7 +70,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, Crane
 		arc("x", w.pos.X)
 			("y", w.pos.Y)
 			("z", w.pos.Z)
-			("polex", w.polex)
+			("polex", w.pole.X)
 			("poley", w.poley)
 			("pole", w.poleactor)
 			.EndObject();

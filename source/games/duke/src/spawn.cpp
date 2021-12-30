@@ -499,7 +499,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 			actk->spr.xrepeat = 48;
 			actk->spr.yrepeat = 128;
 
-			apt.polex = actk->spr.pos.X;
+			apt.pole.X = actk->spr.pos.X;
 			apt.poley = actk->spr.pos.Y;
 
 			actk->spr.pos = act->spr.pos;
