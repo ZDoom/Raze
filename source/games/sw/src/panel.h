@@ -130,13 +130,10 @@ struct PANEL_SPRITEstruct
     short kill_tics;
     short WeaponType; // remember my own weapon type for weapons with secondary function
 
-    // Weapon interpolation variables.
-    double oy;
-
     // Inline helpers.
     void backupx() { opos.X = pos.X; };
-    void backupy() { oy = pos.Y; };
-    void backupcoords() { backupx(); backupy(); };
+    void backupy() { opos.Y = pos.Y; };
+    void backupcoords() { opos = pos; };
     void backupbobx() { xorig = pos.X; };
     void backupboby() { yorig = pos.Y; };
     void backupbobcoords() { backupbobx(); backupboby(); };
