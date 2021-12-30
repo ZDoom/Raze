@@ -117,7 +117,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 			int t = DivScale(nDist, tt.at10, 12);
 			x2 += (actor->vel.X * t) >> 12;
 			y2 += (actor->vel.Y * t) >> 12;
-			z2 += (actor->zvel * t) >> 8;
+			z2 += (actor->vel.Z * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
 		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
@@ -275,7 +275,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = -0x1d555;
+	actor->vel.Z = -0x1d555;
 }
 
 static void ghostMoveDodgeDown(DBloodActor* actor)
@@ -303,7 +303,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = 0x44444;
+	actor->vel.Z = 0x44444;
 }
 
 static void ghostThinkChase(DBloodActor* actor)
@@ -480,7 +480,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->zvel = 0x44444;
+		actor->vel.Z = 0x44444;
 		break;
 	}
 }
@@ -517,7 +517,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->zvel = t1;
+		actor->vel.Z = t1;
 		break;
 	}
 }
@@ -554,7 +554,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->zvel = -t1;
+		actor->vel.Z = -t1;
 		break;
 	}
 }

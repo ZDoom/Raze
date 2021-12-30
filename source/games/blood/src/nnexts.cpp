@@ -1014,7 +1014,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		case kStatFree:
 			continue;
 		case kStatFX:
-			if (actor->zvel) break;
+			if (actor->vel.Z) break;
 			continue;
 		case kStatThing:
 		case kStatDude:
@@ -1028,16 +1028,16 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (maxZfound && actor->spr.pos.Z <= maxZ)
 		{
 			zdiff = actor->spr.pos.Z - maxZ;
-			if (actor->zvel < 0) actor->zvel += MulScale(actor->zvel >> 4, zdiff, 16);
+			if (actor->vel.Z < 0) actor->vel.Z += MulScale(actor->vel.Z >> 4, zdiff, 16);
 			continue;
 
 		}
 
 		val = -MulScale(factor * 64, 0x10000, 16);
-		if (actor->zvel >= 0) actor->zvel += val;
-		else actor->zvel = val;
+		if (actor->vel.Z >= 0) actor->vel.Z += val;
+		else actor->vel.Z = val;
 
-		actor->spr.pos.Z += actor->zvel >> 12;
+		actor->spr.pos.Z += actor->vel.Z >> 12;
 
 	}
 
@@ -1322,7 +1322,7 @@ void nnExtProcessSuperSprites()
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X || debrisactor->vel.Y || debrisactor->zvel || debrisactor->spr.sector()->velFloor || debrisactor->spr.sector()->velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X || debrisactor->vel.Y || debrisactor->vel.Z || debrisactor->spr.sector()->velFloor || debrisactor->spr.sector()->velCeil)
 				debrisMove(i);
 
 			if (debrisactor->vel.X || debrisactor->vel.Y)
@@ -1332,7 +1332,7 @@ void nnExtProcessSuperSprites()
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
-				if (debrisactor->zvel > 0x100) debrisBubble(debrisactor);
+				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
 				if (ang == debrisactor->xspr.goalAng)
 				{
 					debrisactor->xspr.goalAng = (debrisactor->spr.ang + Random3(kAng60)) & 2047;
@@ -1562,7 +1562,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 
 				actor->vel.X += MulScale(t, dx, 16);
 				actor->vel.Y += MulScale(t, dy, 16);
-				actor->zvel += MulScale(t, dz, 16);
+				actor->vel.Z += MulScale(t, dz, 16);
 			}
 
 			if (thing)
@@ -1597,7 +1597,7 @@ void debrisBubble(DBloodActor* actor)
 		if (pFX) {
 			pFX->vel.X = actor->vel.X + Random2(0x1aaaa);
 			pFX->vel.Y = actor->vel.Y + Random2(0x1aaaa);
-			pFX->zvel = actor->zvel + Random2(0x1aaaa);
+			pFX->vel.Z = actor->vel.Z + Random2(0x1aaaa);
 		}
 
 	}
@@ -1687,8 +1687,8 @@ void debrisMove(int listIndex)
 	if (pSector->hasX())
 		uwater = pSector->xs().Underwater;
 
-	if (actor->zvel)
-		actor->spr.pos.Z += actor->zvel >> 8;
+	if (actor->vel.Z)
+		actor->spr.pos.Z += actor->vel.Z >> 8;
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -1704,7 +1704,7 @@ void debrisMove(int listIndex)
 
 		if (pSector->lowerLink) cz += (cz < 0) ? 0x500 : -0x500;
 		if (top > cz && (!(actor->xspr.physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-			actor->zvel -= DivScale((bottom - ceilZ) >> 6, mass, 8);
+			actor->vel.Z -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
 		if (fz < bottom)
 			vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1712,14 +1712,14 @@ void debrisMove(int listIndex)
 		if (vc)
 		{
 			actor->spr.pos.Z += ((vc << 2) >> 1) >> 8;
-			actor->zvel += vc;
+			actor->vel.Z += vc;
 		}
 
 	}
 	else if ((actor->xspr.physAttr & kPhysGravity) && bottom < floorZ)
 	{
 		actor->spr.pos.Z += 455;
-		actor->zvel += 58254;
+		actor->vel.Z += 58254;
 
 	}
 
@@ -1758,17 +1758,17 @@ void debrisMove(int listIndex)
 	if (floorZ <= bottom) {
 
 		actor->hit.florhit = floorColl;
-		int v30 = actor->zvel - actor->spr.sector()->velFloor;
+		int v30 = actor->vel.Z - actor->spr.sector()->velFloor;
 
 		if (v30 > 0)
 		{
 			actor->xspr.physAttr |= kPhysFalling;
 			actFloorBounceVector(&actor->vel.X, &actor->vel.Y, &v30, actor->spr.sector(), tmpFraction);
-			actor->zvel = v30;
+			actor->vel.Z = v30;
 
-			if (abs(actor->zvel) < 0x10000)
+			if (abs(actor->vel.Z) < 0x10000)
 			{
-				actor->zvel = actor->spr.sector()->velFloor;
+				actor->vel.Z = actor->spr.sector()->velFloor;
 				actor->xspr.physAttr &= ~kPhysFalling;
 			}
 
@@ -1783,7 +1783,7 @@ void debrisMove(int listIndex)
 					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->spr.sector(), pFX->spr.pos.X, pFX->spr.pos.Y, pFX->spr.pos.Z, 0)) == NULL) continue;
 					pFX2->vel.X = Random2(0x6aaaa);
 					pFX2->vel.Y = Random2(0x6aaaa);
-					pFX2->zvel = -(int)Random(0xd5555);
+					pFX2->vel.Z = -(int)Random(0xd5555);
 				}
 				break;
 			case kSurfWater:
@@ -1792,7 +1792,7 @@ void debrisMove(int listIndex)
 			}
 
 		}
-		else if (actor->zvel == 0)
+		else if (actor->vel.Z == 0)
 		{
 			actor->xspr.physAttr &= ~kPhysFalling;
 		}
@@ -1808,8 +1808,8 @@ void debrisMove(int listIndex)
 	{
 		actor->hit.ceilhit = moveHit = ceilColl;
 		actor->spr.pos.Z += ClipLow(ceilZ - top, 0);
-		if (actor->zvel <= 0 && (actor->xspr.physAttr & kPhysFalling))
-			actor->zvel = MulScale(-actor->zvel, 0x2000, 16);
+		if (actor->vel.Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
+			actor->vel.Z = MulScale(-actor->vel.Z, 0x2000, 16);
 
 	}
 	else
@@ -2594,7 +2594,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 					else flags &= ~(kPhysGravity | kPhysFalling);
 
 					targetactor->spr.flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
-					targetactor->vel.X = targetactor->vel.Y = targetactor->zvel = 0;
+					targetactor->vel.X = targetactor->vel.Y = targetactor->vel.Z = 0;
 					targetactor->xspr.restState = targetactor->xspr.state;
 
 				}
@@ -2707,7 +2707,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				{
 
 					if (oldFlags == 0)
-						targetactor->vel.X = targetactor->vel.Y = targetactor->zvel = 0;
+						targetactor->vel.X = targetactor->vel.Y = targetactor->vel.Z = 0;
 
 					if (nIndex != -1)
 					{
@@ -2725,7 +2725,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
 						// set random goal ang for swimming so they start turning
-						if ((flags & kPhysDebrisSwim) && !targetactor->vel.X && !targetactor->vel.Y && !targetactor->zvel)
+						if ((flags & kPhysDebrisSwim) && !targetactor->vel.X && !targetactor->vel.Y && !targetactor->vel.Z)
 							targetactor->xspr.goalAng = (targetactor->spr.ang + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
@@ -2743,7 +2743,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				{
 
 					targetactor->xspr.physAttr = flags;
-					targetactor->vel.X = targetactor->vel.Y = targetactor->zvel = 0;
+					targetactor->vel.X = targetactor->vel.Y = targetactor->vel.Z = 0;
 					if (targetactor->spr.lotag >= kThingBase && targetactor->spr.lotag < kThingMax)
 						ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
 				}
@@ -3037,7 +3037,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 
 	if (sourceactor->xspr.data3 == 1)
-		actor->vel.X = actor->vel.Y = actor->zvel = 0;
+		actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
 
 	viewBackupSpriteLoc(actor);
 
@@ -4329,10 +4329,10 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 25:
 			switch (arg1)
 			{
-			case 0: return (objActor->vel.X || objActor->vel.Y || objActor->zvel);
+			case 0: return (objActor->vel.X || objActor->vel.Y || objActor->vel.Z);
 			case 1: return (objActor->vel.X);
 			case 2: return (objActor->vel.Y);
-			case 3: return (objActor->zvel);
+			case 3: return (objActor->vel.Z);
 			}
 			break;
 		case 30:
@@ -6216,7 +6216,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 			int velocity = sourceactor->xspr.data2 << 12;
 			missileactor->vel.X = MulScale(velocity, dx, 14);
 			missileactor->vel.Y = MulScale(velocity, dy, 14);
-			missileactor->zvel = MulScale(velocity, dz, 14);
+			missileactor->vel.Z = MulScale(velocity, dz, 14);
 		}
 
 		// add bursting for missiles
@@ -6442,12 +6442,12 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			if (iactor->hasX() && iactor->xspr.physAttr > 0)
 			{
 				iactor->xspr.physAttr |= kPhysFalling;
-				iactor->zvel++;
+				iactor->vel.Z++;
 			}
 			else if ((iactor->spr.statnum == kStatThing || iactor->spr.statnum == kStatDude) && (iactor->spr.flags & kPhysGravity))
 			{
 				iactor->spr.flags |= kPhysFalling;
-				iactor->zvel++;
+				iactor->vel.Z++;
 			}
 		}
 	}
@@ -7795,7 +7795,7 @@ void aiPatrolMove(DBloodActor* actor)
 	if (pExtra->flying || spriteIsUnderwater(actor))
 	{
 		goalAng >>= 1;
-		actor->zvel = dz;
+		actor->vel.Z = dz;
 		if (actor->spr.flags & kPhysGravity)
 			actor->spr.flags &= ~kPhysGravity;
 	}
@@ -8176,8 +8176,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			{
 				DBloodActor* act = pPlayer->actor;
 				itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-				if (act && itCanHear && nDist < feelDist && (act->vel.X || act->vel.Y || act->zvel))
-					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->vel.X) + abs(act->vel.Y) + abs(act->zvel))) >> 6, 0)), 0);
+				if (act && itCanHear && nDist < feelDist && (act->vel.X || act->vel.Y || act->vel.Z))
+					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->vel.X) + abs(act->vel.Y) + abs(act->vel.Z))) >> 6, 0)), 0);
 			}
 
 			if (seeDist)
@@ -8416,7 +8416,7 @@ void aiPatrolThink(DBloodActor* actor)
 		if (actor->xspr.stateTimer > 0 || markeractor->xspr.data1 == markeractor->xspr.data2)
 		{
 			if (pExtra->flying)
-				actor->zvel = Random2(0x8000);
+				actor->vel.Z = Random2(0x8000);
 
 			// turn while waiting
 			if (markeractor->spr.flags & kModernTypeFlag16)
@@ -8832,7 +8832,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		RotateVector(&dx, &dy, nAngle);
 		burstactor->vel.X += dx;
 		burstactor->vel.Y += dy;
-		burstactor->zvel += dz;
+		burstactor->vel.Z += dz;
 		evPostActor(burstactor, 960, kCallbackRemove);
 	}
 	evPostActor(actor, 0, kCallbackRemove);

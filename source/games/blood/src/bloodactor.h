@@ -20,7 +20,6 @@ class DBloodActor : public DCoreActor
 public:
 	int dudeSlope;
 	vec3_t vel;
-	int zvel;
 	bool hasx;
 	XSPRITE xspr;
 	SPRITEHIT hit;

@@ -123,7 +123,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 		case kDudeSpiderBlack:
 			actor->vel.X = IntToFixed(dx);
 			actor->vel.Y = IntToFixed(dy);
-			actor->zvel = IntToFixed(dz);
+			actor->vel.Z = IntToFixed(dz);
 			break;
 		}
 	}

@@ -302,7 +302,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 			{
 				pFX->vel.X = pVel->vx + Random2(pGFX->atd);
 				pFX->vel.Y = pVel->vy + Random2(pGFX->atd);
-				pFX->zvel = pVel->vz - Random(pGFX->at11);
+				pFX->vel.Z = pVel->vz - Random(pGFX->at11);
 			}
 			else
 			{
@@ -311,23 +311,23 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
 				case 16:
-					pFX->zvel = Random2((pGFX->at11 << 18) / 120);
+					pFX->vel.Z = Random2((pGFX->at11 << 18) / 120);
 					break;
 				default:
 					if (dz2 < dz1 && dz2 < 0x4000)
 					{
-						pFX->zvel = 0;
+						pFX->vel.Z = 0;
 					}
 					else if (dz2 > dz1 && dz1 < 0x4000)
 					{
-						pFX->zvel = -(int)Random((abs(pGFX->at11) << 18) / 120);
+						pFX->vel.Z = -(int)Random((abs(pGFX->at11) << 18) / 120);
 					}
 					else
 					{
 						if ((pGFX->at11 << 18) / 120 < 0)
-							pFX->zvel = -(int)Random((abs(pGFX->at11) << 18) / 120);
+							pFX->vel.Z = -(int)Random((abs(pGFX->at11) << 18) / 120);
 						else
-							pFX->zvel = Random2((pGFX->at11 << 18) / 120);
+							pFX->vel.Z = Random2((pGFX->at11 << 18) / 120);
 					}
 					break;
 				}
@@ -383,7 +383,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 		{
 			gibactor->vel.X = pVel->vx + Random2(pGThing->atc);
 			gibactor->vel.Y = pVel->vy + Random2(pGThing->atc);
-			gibactor->zvel = pVel->vz - Random(pGThing->at10);
+			gibactor->vel.Z = pVel->vz - Random(pGThing->at10);
 		}
 		else
 		{
@@ -392,20 +392,20 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case 16:
-				gibactor->zvel = Random2((pGThing->at10 << 18) / 120);
+				gibactor->vel.Z = Random2((pGThing->at10 << 18) / 120);
 				break;
 			default:
 				if (dz2 < dz1 && dz2 < 0x4000)
 				{
-					gibactor->zvel = 0;
+					gibactor->vel.Z = 0;
 				}
 				else if (dz2 > dz1 && dz1 < 0x4000)
 				{
-					gibactor->zvel = -(int)Random((pGThing->at10 << 18) / 120);
+					gibactor->vel.Z = -(int)Random((pGThing->at10 << 18) / 120);
 				}
 				else
 				{
-					gibactor->zvel = Random2((pGThing->at10 << 18) / 120);
+					gibactor->vel.Z = Random2((pGThing->at10 << 18) / 120);
 				}
 				break;
 			}
@@ -466,13 +466,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVel
 			{
 				pGib->vel.X = Random2((pGFX->atd << 18) / 120);
 				pGib->vel.Y = Random2((pGFX->atd << 18) / 120);
-				pGib->zvel = -(int)Random((pGFX->at11 << 18) / 120);
+				pGib->vel.Z = -(int)Random((pGFX->at11 << 18) / 120);
 			}
 			else
 			{
 				pGib->vel.X = Random2((pVel->vx << 18) / 120);
 				pGib->vel.Y = Random2((pVel->vy << 18) / 120);
-				pGib->zvel = -(int)Random((pVel->vz << 18) / 120);
+				pGib->vel.Z = -(int)Random((pVel->vz << 18) / 120);
 			}
 		}
 	}

@@ -210,7 +210,7 @@ void CFX::fxProcess(void)
 		actAirDrag(actor, pFXData->drag);
 		actor->spr.pos.X += actor->vel.X >> 12;
 		actor->spr.pos.Y += actor->vel.Y >> 12;
-		actor->spr.pos.Z += actor->zvel >> 8;
+		actor->spr.pos.Z += actor->vel.Z >> 8;
 		// Weird...
 		if (actor->vel.X || (actor->vel.Y && actor->spr.pos.Z >= actor->spr.sector()->floorz))
 		{
@@ -236,7 +236,7 @@ void CFX::fxProcess(void)
 				ChangeActorSect(actor, pSector);
 			}
 		}
-		if (actor->vel.X || actor->vel.Y || actor->zvel)
+		if (actor->vel.X || actor->vel.Y || actor->vel.Z)
 		{
 			int32_t floorZ, ceilZ;
 			getzsofslopeptr(pSector, actor->spr.pos.X, actor->spr.pos.Y, &ceilZ, &floorZ);
@@ -256,7 +256,7 @@ void CFX::fxProcess(void)
 				continue;
 			}
 		}
-		actor->zvel += pFXData->gravity;
+		actor->vel.Z += pFXData->gravity;
 	}
 }
 
@@ -281,7 +281,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 		bloodactor->spr.ang = 1024;
 		bloodactor->vel.X = Random2(0x6aaaa);
 		bloodactor->vel.Y = Random2(0x6aaaa);
-		bloodactor->zvel = -(int)Random(0x10aaaa) - 100;
+		bloodactor->vel.Z = -(int)Random(0x10aaaa) - 100;
 		evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
 	}
 }
@@ -311,7 +311,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		spawnactor->spr.ang = 1024;
 		spawnactor->vel.X = Random2(0x6aaaa);
 		spawnactor->vel.Y = Random2(0x6aaaa);
-		spawnactor->zvel = -(int)Random(0x10aaaa) - 100;
+		spawnactor->vel.Z = -(int)Random(0x10aaaa) - 100;
 		evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
 	}
 }
@@ -337,7 +337,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 		int nAngle = actor->spr.ang + Random2(56) + 512;
 		pBrass->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pBrass->vel.Y = MulScale(nDist, Sin(nAngle), 30);
-		pBrass->zvel = actor->zvel - (0x20000 + (Random2(40) << 18) / 120);
+		pBrass->vel.Z = actor->vel.Z - (0x20000 + (Random2(40) << 18) / 120);
 	}
 }
 
@@ -362,7 +362,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 		int nAngle = actor->spr.ang + Random2(56) + 512;
 		pShell->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pShell->vel.Y = MulScale(nDist, Sin(nAngle), 30);
-		pShell->zvel = actor->zvel - (0x20000 + (Random2(20) << 18) / 120);
+		pShell->vel.Z = actor->vel.Z - (0x20000 + (Random2(20) << 18) / 120);
 	}
 }
 

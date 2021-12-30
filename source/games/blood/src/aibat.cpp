@@ -220,7 +220,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = -0x52aaa;
+	actor->vel.Z = -0x52aaa;
 }
 
 static void batMoveDodgeDown(DBloodActor* actor)
@@ -245,7 +245,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = 0x44444;
+	actor->vel.Z = 0x44444;
 }
 
 static void batThinkChase(DBloodActor* actor)
@@ -365,7 +365,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = 0x44444;
+	actor->vel.Z = 0x44444;
 }
 
 static void batMoveFly(DBloodActor* actor)
@@ -395,7 +395,7 @@ static void batMoveFly(DBloodActor* actor)
 	t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = -0x2d555;
+	actor->vel.Z = -0x2d555;
 }
 
 void batMoveToCeil(DBloodActor* actor)

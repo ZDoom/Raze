@@ -473,7 +473,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 	Super::Serialize(arc);
 	arc("xvel", vel.X)
 		("yvel", vel.Y)
-		("zvel", zvel)
+		("zvel", vel.Z)
 		("hasx", hasx);
 
 	// The rest is only relevant if the actor has an xsprite.

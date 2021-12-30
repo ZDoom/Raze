@@ -475,7 +475,7 @@ static void sub_62AE0(DBloodActor* actor)
 	t1 += nAccel;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = -dz;
+	actor->vel.Z = -dz;
 }
 
 static void sub_62D7C(DBloodActor* actor)
@@ -510,7 +510,7 @@ static void sub_62D7C(DBloodActor* actor)
 	t1 += nAccel >> 1;
 	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
 	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel = dz;
+	actor->vel.Z = dz;
 }
 
 END_BLD_NS

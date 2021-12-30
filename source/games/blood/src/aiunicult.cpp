@@ -728,7 +728,7 @@ static void unicultThinkChase(DBloodActor* actor)
 				const EXPLOSION* pExpl = &explodeInfo[nType];
 				if (CheckProximity(actor, target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pExpl->radius >> 1))
 				{
-					actor->vel.X = actor->vel.Y = actor->zvel = 0;
+					actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
 					if (doExplosion(actor, nType) && actor->xspr.health > 0)
 						actDamageSprite(actor, actor, kDamageExplode, 65535);
 				}
