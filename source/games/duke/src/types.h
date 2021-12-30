@@ -23,8 +23,7 @@ struct STATUSBARTYPE
 
 struct FireProj
 {
-	int x, y, z;
-	int xv, yv, zv;
+	vec3_t pos, vel;
 };
 
 class DDukeActor : public DCoreActor

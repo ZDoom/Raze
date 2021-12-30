@@ -51,12 +51,12 @@ static FSerializer& Serialize(FSerializer& arc, const char* key, FireProj& p, Fi
 {
 	if (arc.BeginObject(key))
 	{
-		arc("x", p.x)
-			("y", p.y)
-			("z", p.z)
-			("xv", p.xv)
-			("yv", p.yv)
-			("zv", p.zv)
+		arc("x", p.pos.X)
+			("y", p.pos.Y)
+			("z", p.pos.Z)
+			("xv", p.vel.X)
+			("yv", p.vel.Y)
+			("zv", p.vel.Z)
 			.EndObject();
 	}
 	return arc;
