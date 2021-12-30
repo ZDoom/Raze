@@ -30,7 +30,7 @@ static int32_t curextra=MAXTILES;
 #define MIN_CACHETIME_PRINT 10
 
 using namespace Polymost;
-int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
+int32_t polymost_voxdraw(voxmodel_t* m, tspritetype* const tspr, bool rotate);
 
 static int32_t addtileP(int32_t ,int32_t tile,int32_t pallet)
 {
@@ -399,7 +399,7 @@ FGameTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
+static void updateanimation(md2model_t *m, tspritetype* tspr, uint8_t lpal)
 {
     if (m->numframes < 2)
     {
@@ -1073,7 +1073,7 @@ static void      md3postload_common(md3model_t *m)
 }
 
 
-void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, float mat[16])
+void md3_vox_calcmat_common(tspritetype* tspr, const FVector3 *a0, float f, float mat[16])
 {
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
@@ -1127,7 +1127,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
 }
 
-static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
+static int32_t polymost_md3draw(md3model_t *m, tspritetype* tspr)
 {
     FVector3 m0, m1, a0;
     md3xyzn_t *v0, *v1;
@@ -1508,7 +1508,7 @@ static mdmodel_t *mdload(const char *filnam)
 }
 
 
-int32_t polymost_mddraw(tspriteptr_t tspr)
+int32_t polymost_mddraw(tspritetype* tspr)
 {
     if (maxmodelverts > allocmodelverts)
     {

@@ -47,12 +47,36 @@ int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
 
+inline int32_t bad_tspr(tspritetype* tspr)
+{
+    return (tspr->ownerActor == nullptr || (unsigned)tspr->picnum >= MAXTILES);
+}
+
+inline void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
+{
+    globalposx = x, fglobalposx = (float)x;
+    globalposy = y, fglobalposy = (float)y;
+    globalposz = z, fglobalposz = (float)z;
+}
+
+
+inline int widthBits(int num)
+{
+    return sizeToBits(tileWidth(num));
+}
+
+inline int heightBits(int num)
+{
+    return sizeToBits(tileHeight(num));
+}
+
+
 
 void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, float* pflorz);
 
 int skiptile = -1;
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap = 0);
-int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
+int32_t polymost_voxdraw(voxmodel_t* m, tspritetype* const tspr, bool rotate);
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 
@@ -76,7 +100,7 @@ static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 static int16_t numscans, numbunches;
 static int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int16_t sectorborder[256];
-static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
+static tspritetype* tspriteptr[MAXSPRITESONSCREEN + 1];
 tspritetype pm_tsprite[MAXSPRITESONSCREEN];
 int pm_spritesortcnt;
 
@@ -2634,7 +2658,7 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
     return rv;
 }
 
-static inline float tspriteGetZOfSlopeFloat(tspriteptr_t const tspr, float dax, float day)
+static inline float tspriteGetZOfSlopeFloat(tspritetype* const tspr, float dax, float day)
 {
     int16_t const heinum = tspriteGetSlope(tspr);
     if (heinum == 0)
@@ -3787,7 +3811,7 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 }
 
 //Draw voxel model as perfect cubes
-int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
+int32_t polymost_voxdraw(voxmodel_t* m, tspritetype* const tspr, bool rotate)
 {
     float f, g, k0, zoff;
 

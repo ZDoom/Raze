@@ -336,7 +336,7 @@ inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const w
 	return res;
 }
 
-inline tspriteptr_t renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
+inline tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
 {
 	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
 	auto tspr = &tsprite[spritesortcnt++];

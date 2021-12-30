@@ -32,28 +32,5 @@ extern int32_t hitallsprites;
 
 int32_t animateoffs(int tilenum, int fakevar);
 
-inline int32_t bad_tspr(tspriteptr_t tspr)
-{
-    return (tspr->ownerActor == nullptr || (unsigned)tspr->picnum >= MAXTILES);
-}
-
-inline void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
-{
-    globalposx = x, fglobalposx = (float)x;
-    globalposy = y, fglobalposy = (float)y;
-    globalposz = z, fglobalposz = (float)z;
-}
-
-
-inline int widthBits(int num)
-{
-    return sizeToBits(tileWidth(num));
-}
-
-inline int heightBits(int num)
-{
-    return sizeToBits(tileHeight(num));
-}
-
 
 #endif	/* ENGINE_PRIV_H */

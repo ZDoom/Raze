@@ -182,8 +182,8 @@ EXTERN mdmodel_t **models;
 FGameTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
 void mdinit(void);
 void freeallmodels(void);
-int32_t polymost_mddraw(tspriteptr_t tspr);
-EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, float mat[16]);
+int32_t polymost_mddraw(tspritetype* tspr);
+EXTERN void md3_vox_calcmat_common(tspritetype* tspr, const FVector3 *a0, float f, float mat[16]);
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;

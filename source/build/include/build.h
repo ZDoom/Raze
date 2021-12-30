@@ -87,11 +87,6 @@ enum {
 };
 
 #include "maptypes.h"
-
-using tspriteptr_t = tspritetype *;
-
-
-
 #include "clip.h"
 
 int32_t getwalldist(vec2_t const in, int const wallnum);
