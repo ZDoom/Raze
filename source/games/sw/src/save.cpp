@@ -396,9 +396,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 			("yvect", w.vect.Y)
 			("slide_xvect", w.slide_vect.X)
 			("slide_yvect", w.slide_vect.Y)
-			("x", w.posx)
-			("y", w.posy)
-			("z", w.posz)
+			("x", w.pos.X)
+			("y", w.pos.Y)
+			("z", w.pos.Z)
 			("sop_control", w.sop_control)
 			.EndObject();
 	}

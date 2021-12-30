@@ -595,7 +595,7 @@ typedef struct
     sectortype* cursectp, * lastcursectp;
     int pang;
     vec2_t vect, ovect, slide_vect;
-    int posx,posy,posz;
+    vec3_t pos;
     SECTOR_OBJECTp sop_control;
 } REMOTE_CONTROL, *REMOTE_CONTROLp;
 
