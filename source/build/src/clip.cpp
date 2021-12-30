@@ -67,25 +67,25 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
 
 // x1, y1: in/out
 // rest x/y: out
-static inline void get_floorspr_points(spritetype const * const spr, int32_t px, int32_t py,
+static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
                                        int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                        int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4, int heinum = 0)
 {
-    const int32_t tilenum = spr->picnum;
-    const int32_t cosang = bcos(spr->ang);
-    const int32_t sinang = bsin(spr->ang);
+    const int32_t tilenum = spr->spr.picnum;
+    const int32_t cosang = bcos(spr->spr.ang);
+    const int32_t sinang = bsin(spr->spr.ang);
 
     vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
-    vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
+    vec2_t const repeat = { spr->spr.xrepeat, spr->spr.yrepeat };
 
-    vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
+    vec2_t adjofs = { tileLeftOffset(tilenum) + spr->spr.xoffset, tileTopOffset(tilenum) + spr->spr.yoffset };
 
     int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
 
-    if (spr->cstat & CSTAT_SPRITE_XFLIP)
+    if (spr->spr.cstat & CSTAT_SPRITE_XFLIP)
         adjofs.X = -adjofs.X;
 
-    if (spr->cstat & CSTAT_SPRITE_YFLIP)
+    if (spr->spr.cstat & CSTAT_SPRITE_YFLIP)
         adjofs.Y = -adjofs.Y;
 
     vec2_t const center = { ((span.X >> 1) + adjofs.X) * repeat.X, ((span.Y >> 1) + adjofs.Y) * repeat.Y };
@@ -680,7 +680,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     rxi[0] = p1.X;
                     ryi[0] = p1.Y;
 
-                    get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                    get_floorspr_points(actor, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3], heinum);
 
                     vec2_t v = { MulScale(bcos(spr->ang - 256), walldist, 14),
@@ -1183,7 +1183,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                             continue;
 
                         vec2_t v2, v3, v4;
-                        get_floorspr_points((uspriteptr_t) spr, pos.X, pos.Y, &v1.X, &v2.X, &v3.X, &v4.X,
+                        get_floorspr_points(actor, pos.X, pos.Y, &v1.X, &v2.X, &v3.X, &v4.X,
                                             &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(spr));
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
@@ -1337,7 +1337,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;
     int32_t i, k, daz;
 
-    uspriteptr_t curspr = NULL;
+    const spritetype* curspr = NULL;
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype >> 16);
@@ -1489,7 +1489,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.hitpos.X)-sv->X)+abs((hitinfo.hitpos.Y)-sv->Y))
                     continue;
 
-                get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
+                get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
                                     &y1, &y2, &y3, &y4, spriteGetSlope(spr));
 
                 if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
@@ -1519,7 +1519,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (abs(intx - sv->X) + abs(inty - sv->Y) > abs((hitinfo.hitpos.X) - sv->X) + abs((hitinfo.hitpos.Y) - sv->Y))
                     continue;
 
-                get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
+                get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
                     &y1, &y2, &y3, &y4, spriteGetSlope(spr));
 
                 if (get_floorspr_clipyou({ x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 }))
