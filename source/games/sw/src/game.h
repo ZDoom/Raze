@@ -663,7 +663,8 @@ struct PLAYERstruct
     fixed_t recoil_ohorizoff, recoil_horizoff;
 
     int oldposx,oldposy,oldposz;
-    int RevolveX, RevolveY;
+    vec3_t Revolve;
+    int RevolveY;
     int16_t RevolveDeltaAng;
     binangle RevolveAng;
 

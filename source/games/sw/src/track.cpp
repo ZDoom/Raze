@@ -733,7 +733,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         if (pp->posx > xlow && pp->posx < xhigh && pp->posy > ylow && pp->posy < yhigh)
         {
             pp->RevolveAng = pp->angle.ang;
-            pp->RevolveX = pp->posx;
+            pp->Revolve.X = pp->pos.X;
             pp->RevolveY = pp->posy;
             pp->RevolveDeltaAng = 0;
             pp->Flags |= (PF_PLAYER_RIDING);
@@ -1524,7 +1524,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
-        pp->RevolveX = pp->pos.X;
+        pp->Revolve.X = pp->pos.X;
         pp->RevolveY = pp->pos.Y;
 
         // set the delta angle to 0 when moving
@@ -1548,7 +1548,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
-        pp->RevolveX = pp->pos.X;
+        pp->Revolve.X = pp->pos.X;
         pp->RevolveY = pp->pos.Y;
 
         // set the delta angle to 0 when moving
@@ -1559,7 +1559,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // Player is NOT moving
 
         // Move saved x&y variables
-        pp->RevolveX += nx;
+        pp->Revolve.X += nx;
         pp->RevolveY += ny;
 
         // Last known angle is now adjusted by the delta angle
@@ -1569,7 +1569,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng = NORM_ANGLE(pp->RevolveDeltaAng + GlobSpeedSO);
 
-    rotatepoint(sop->pmid.vec2, *(vec2_t *)&pp->RevolveX, pp->RevolveDeltaAng, &pp->pos.vec2);
+    rotatepoint(sop->pmid.vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng, &pp->pos.vec2);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
