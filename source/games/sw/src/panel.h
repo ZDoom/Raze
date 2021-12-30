@@ -108,7 +108,7 @@ struct PANEL_SPRITEstruct
     // Do not change the order of this line
     DVector2 pos;
     double xorig;
-    double y, yorig;                            // Do not change the order of this
+    double yorig;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -135,10 +135,10 @@ struct PANEL_SPRITEstruct
 
     // Inline helpers.
     void backupx() { ox = pos.X; };
-    void backupy() { oy = y; };
+    void backupy() { oy = pos.Y; };
     void backupcoords() { backupx(); backupy(); };
     void backupbobx() { xorig = pos.X; };
-    void backupboby() { yorig = y; };
+    void backupboby() { yorig = pos.Y; };
     void backupbobcoords() { backupbobx(); backupboby(); };
 };
 

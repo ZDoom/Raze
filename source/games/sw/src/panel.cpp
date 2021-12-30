@@ -123,7 +123,7 @@ PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
         if (psp->priority > pri)
             return nullptr;
 
-        if (psp->pos.X == x && psp->y == y && psp->priority == pri)
+        if (psp->pos.X == x && psp->pos.Y == y && psp->priority == pri)
         {
             return psp;
         }
@@ -143,7 +143,7 @@ PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pr
         if (psp->priority > pri)
             return nullptr;
 
-        if (psp->ID == id && psp->pos.X == x && psp->y == y && psp->priority == pri)
+        if (psp->ID == id && psp->pos.X == x && psp->pos.Y == y && psp->priority == pri)
         {
             return psp;
         }
@@ -786,7 +786,7 @@ void SpawnSwordBlur(PANEL_SPRITEp psp)
     if (psp->PlayerP->SwordAng > 200)
         return;
 
-    nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->pos.X, psp->y);
+    nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->pos.X, psp->pos.Y);
 
     nsp->flags |= (PANF_WEAPON_SPRITE);
     nsp->ang = psp->ang;
@@ -884,9 +884,9 @@ PANEL_STATE ps_RetractSword[] =
 void SpecialUziRetractFunc(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y += 4 * synctics;
+    psp->pos.Y += 4 * synctics;
 
-    if (psp->y >= 200 + tileHeight(psp->picnum))
+    if (psp->pos.Y >= 200 + tileHeight(psp->picnum))
     {
         pKillSprite(psp);
     }
@@ -955,7 +955,7 @@ void InitWeaponSword(PLAYERp pp)
     if (!pp->Wpn[WPN_SWORD])
     {
         psp = pp->Wpn[WPN_SWORD] = pSpawnSprite(pp, ps_PresentSword, PRI_MID, SWORD_XOFF, SWORD_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -1003,11 +1003,11 @@ void pSwordPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics * pspPresentRetractScale(psp->picndx, 136);
+    psp->pos.Y -= 3 * synctics * pspPresentRetractScale(psp->picndx, 136);
 
-    if (psp->y < SWORD_YOFF)
+    if (psp->pos.Y < SWORD_YOFF)
     {
-        psp->oy = psp->y = SWORD_YOFF;
+        psp->oy = psp->pos.Y = SWORD_YOFF;
         psp->backupboby();
         pSetState(psp, psp->RestState);
     }
@@ -1024,7 +1024,7 @@ void pSwordSlide(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 24 * synctics;
 }
@@ -1038,7 +1038,7 @@ void pSwordSlideDown(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp, ang);
-    psp->y -= pspSinVel(psp, ang);
+    psp->pos.Y -= pspSinVel(psp, ang);
 
     psp->vel += 20 * synctics;
 
@@ -1053,7 +1053,7 @@ void pSwordSlideDown(PANEL_SPRITEp psp)
                 // continue to next state to swing right
                 pStatePlusOne(psp);
                 psp->ox = psp->pos.X = SWORDR_XOFF;
-                psp->oy = psp->y = SWORD_YOFF;
+                psp->oy = psp->pos.Y = SWORD_YOFF;
                 psp->backupboby();
                 psp->ang = 1024;
                 psp->PlayerP->SwordAng = SwordAngTable[RandomRange(SIZ(SwordAngTable))];
@@ -1066,7 +1066,7 @@ void pSwordSlideDown(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->pos.X = SWORD_XOFF;
-        psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
+        psp->oy = psp->pos.Y = SWORD_YOFF + tileHeight(psp->picndx);
         psp->backupboby();
     }
 }
@@ -1082,7 +1082,7 @@ void pSwordSlideR(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X -= pspCosVel(psp);
-    psp->y += pspSinVel(psp);
+    psp->pos.Y += pspSinVel(psp);
 
     psp->vel += 24 * synctics;
 }
@@ -1096,7 +1096,7 @@ void pSwordSlideDownR(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X -= pspCosVel(psp, ang);
-    psp->y += pspSinVel(psp, ang);
+    psp->pos.Y += pspSinVel(psp, ang);
 
     psp->vel += 24 * synctics;
 
@@ -1111,7 +1111,7 @@ void pSwordSlideDownR(PANEL_SPRITEp psp)
                 // back to action state
                 pStatePlusOne(psp);
                 psp->ox = psp->pos.X = SWORD_XOFF + 80;
-                psp->oy = psp->y = SWORD_YOFF;
+                psp->oy = psp->pos.Y = SWORD_YOFF;
                 psp->backupboby();
                 psp->PlayerP->SwordAng = SwordAngTable[RandomRange(SIZ(SwordAngTable))];
                 psp->ang = 1024;
@@ -1124,7 +1124,7 @@ void pSwordSlideDownR(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->pos.X = SWORD_XOFF;
-        psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
+        psp->oy = psp->pos.Y = SWORD_YOFF + tileHeight(psp->picndx);
         psp->backupboby();
     }
 }
@@ -1146,11 +1146,11 @@ void pSwordHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= SWORD_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= SWORD_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = SWORD_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = SWORD_YOFF + tileHeight(picnum);
         psp->ox = psp->pos.X = SWORD_XOFF;
 
         pWeaponUnHideKeys(psp, psp->PresentState);
@@ -1211,9 +1211,9 @@ void pSwordRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics * pspPresentRetractScale(picnum, 136);
+    psp->pos.Y += 3 * synctics * pspPresentRetractScale(picnum, 136);
 
-    if (psp->y >= SWORD_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= SWORD_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_SWORD] = nullptr;
@@ -1351,7 +1351,7 @@ void InitWeaponStar(PLAYERp pp)
     if (!pp->Wpn[WPN_STAR])
     {
         psp = pp->Wpn[WPN_STAR] = pSpawnSprite(pp, ps_PresentStar, PRI_MID, STAR_XOFF, STAR_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -1392,14 +1392,14 @@ void pStarPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < STAR_YOFF)
+    if (psp->pos.Y < STAR_YOFF)
     {
-        psp->oy = psp->y = STAR_YOFF;
+        psp->oy = psp->pos.Y = STAR_YOFF;
     }
 
-    if (psp->y <= STAR_YOFF)
+    if (psp->pos.Y <= STAR_YOFF)
     {
         pSetState(psp, psp->RestState);
     }
@@ -1434,11 +1434,11 @@ void pStarHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= STAR_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= STAR_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = STAR_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = STAR_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -1491,9 +1491,9 @@ void pStarRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= STAR_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= STAR_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
 
@@ -1709,12 +1709,12 @@ void pUziOverlays(PANEL_SPRITEp psp, short mode)
 
 void pUziEjectDown(PANEL_SPRITEp gun)
 {
-    gun->oy = gun->y;
-    gun->y += 5 * synctics;
+    gun->oy = gun->pos.Y;
+    gun->pos.Y += 5 * synctics;
 
-    if (gun->y > 260)
+    if (gun->pos.Y > 260)
     {
-        gun->oy = gun->y = 260;
+        gun->oy = gun->pos.Y = 260;
         pStatePlusOne(gun);
     }
 }
@@ -1724,12 +1724,12 @@ void pUziEjectUp(PANEL_SPRITEp gun)
 
     pUziOverlays(gun, CHAMBER_RELOAD);
 
-    gun->oy = gun->y;
-    gun->y -= 5 * synctics;
+    gun->oy = gun->pos.Y;
+    gun->pos.Y -= 5 * synctics;
 
-    if (gun->y < UZI_RELOAD_YOFF)
+    if (gun->pos.Y < UZI_RELOAD_YOFF)
     {
-        gun->oy = gun->y = UZI_RELOAD_YOFF;
+        gun->oy = gun->pos.Y = UZI_RELOAD_YOFF;
         pStatePlusOne(gun);
     }
 }
@@ -1743,14 +1743,14 @@ void pSpawnUziClip(PANEL_SPRITEp gun)
 
     if ((gun->flags & PANF_XFLIP))
     {
-        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->pos.X - UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
+        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->pos.X - UZI_CLIP_XOFF, gun->pos.Y + UZI_CLIP_YOFF);
         New->flags |= (PANF_XFLIP);
         New->ang = NORM_ANGLE(1024 + 256 + 22);
         New->ang = NORM_ANGLE(New->ang + 512);
     }
     else
     {
-        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->pos.X + UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
+        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->pos.X + UZI_CLIP_XOFF, gun->pos.Y + UZI_CLIP_YOFF);
         New->ang = NORM_ANGLE(1024 + 256 - 22);
     }
 
@@ -1787,16 +1787,16 @@ void pUziReload(PANEL_SPRITEp nclip)
     nclip->vel += 14 * synctics;
 
     nclip->ox = nclip->pos.X;
-    nclip->oy = nclip->y;
+    nclip->oy = nclip->pos.Y;
 
     nclip->pos.X += pspCosVel(nclip);
-    nclip->y -= pspSinVel(nclip);
+    nclip->pos.Y -= pspSinVel(nclip);
 
     gun->ox = gun->pos.X;
-    gun->oy = gun->y;
+    gun->oy = gun->pos.Y;
 
     gun->pos.X -= pspCosVel(gun);
-    gun->y += pspSinVel(gun);
+    gun->pos.Y += pspSinVel(gun);
 
     if ((nclip->flags & PANF_XFLIP))
     {
@@ -1805,7 +1805,7 @@ void pUziReload(PANEL_SPRITEp nclip)
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->ox = nclip->pos.X = gun->pos.X - UZI_CLIP_XOFF;
-            nclip->oy = nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->oy = nclip->pos.Y = gun->pos.Y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang - 128 - 64);
             // go to retract phase
@@ -1819,7 +1819,7 @@ void pUziReload(PANEL_SPRITEp nclip)
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->ox = nclip->pos.X = gun->pos.X + UZI_CLIP_XOFF;
-            nclip->oy = nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->oy = nclip->pos.Y = gun->pos.Y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang + 128 + 64);
             // go to retract phase
@@ -1840,14 +1840,14 @@ void pUziReloadRetract(PANEL_SPRITEp nclip)
     nclip->backupcoords();
 
     nclip->pos.X -= xadj;
-    nclip->y += yadj;
+    nclip->pos.Y += yadj;
 
     gun->backupcoords();
 
     gun->pos.X -= xadj;
-    gun->y += yadj;
+    gun->pos.Y += yadj;
 
-    if (gun->y > UZI_RELOAD_YOFF + tileHeight(gun->picndx))
+    if (gun->pos.Y > UZI_RELOAD_YOFF + tileHeight(gun->picndx))
     {
         pSetState(gun, ps_UziDoneReload);
         pKillSprite(nclip);
@@ -1902,26 +1902,26 @@ void pUziClip(PANEL_SPRITEp oclip)
 {
 
     oclip->ox = oclip->pos.X;
-    oclip->oy = oclip->y;
+    oclip->oy = oclip->pos.Y;
 
     oclip->pos.X += pspCosVel(oclip);
-    oclip->y -= pspSinVel(oclip);
+    oclip->pos.Y -= pspSinVel(oclip);
 
-    if (oclip->y > UZI_RELOAD_YOFF)
+    if (oclip->pos.Y > UZI_RELOAD_YOFF)
     {
         PANEL_SPRITEp gun = oclip->sibling;
 
         // as synctics gets bigger, oclip->x can be way off
         // when clip goes off the screen - recalc oclip->x from scratch
         // so it will end up the same for all synctic values
-        for (oclip->pos.X = oclip->ox, oclip->y = oclip->oy; oclip->y < UZI_RELOAD_YOFF; )
+        for (oclip->pos.X = oclip->ox, oclip->pos.Y = oclip->oy; oclip->pos.Y < UZI_RELOAD_YOFF; )
         {
             oclip->pos.X += oclip->vel * bcosf(oclip->ang, -22);
-            oclip->y -= oclip->vel * bsinf(oclip->ang, -22);
+            oclip->pos.Y -= oclip->vel * bsinf(oclip->ang, -22);
         }
 
         oclip->ox = oclip->pos.X;
-        oclip->oy = oclip->y = UZI_RELOAD_YOFF;
+        oclip->oy = oclip->pos.Y = UZI_RELOAD_YOFF;
 
         gun->vel = 800;
         gun->ang = NORM_ANGLE(oclip->ang + 1024);
@@ -1955,7 +1955,7 @@ void InitWeaponUzi(PLAYERp pp)
     if (!pp->Wpn[WPN_UZI])
     {
         psp = pp->Wpn[WPN_UZI] = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 + UZI_XOFF, UZI_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -2031,8 +2031,8 @@ PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     pp->WpnUziType = 0; // 0 is up, 1 is retract
 
     New = pSpawnSprite(pp, ps_PresentUzi2, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    New->y += tileHeight(New->picndx);
-    New->oy = New->y;
+    New->pos.Y += tileHeight(New->picndx);
+    New->oy = New->pos.Y;
     uzi_orig->sibling = New;
 
     // Set up the New weapon variables
@@ -2056,8 +2056,8 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
     PLAYERp pp = uzi_orig->PlayerP;
 
     New = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    New->y += tileHeight(New->picndx);
-    New->oy = New->y;
+    New->pos.Y += tileHeight(New->picndx);
+    New->oy = New->pos.Y;
 
     New->flags |= (PANF_XFLIP);
 
@@ -2082,18 +2082,18 @@ void pUziPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
     if (psp->PlayerP->WpnUziType)
     {
         psp->PlayerP->WpnReloadState = 2;
     }
 
-    if (psp->y < UZI_YOFF)
+    if (psp->pos.Y < UZI_YOFF)
     {
         psp->flags &= ~(PANF_RELOAD);
 
-        psp->oy = psp->y = UZI_YOFF;
+        psp->oy = psp->pos.Y = UZI_YOFF;
         psp->backupx();
         psp->backupbobcoords();
         pSetState(psp, psp->RestState);
@@ -2107,13 +2107,13 @@ void pUziPresentReload(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 5 * synctics;
+    psp->pos.Y -= 5 * synctics;
 
     psp->PlayerP->WpnReloadState = 2;
 
-    if (psp->y < UZI_YOFF)
+    if (psp->pos.Y < UZI_YOFF)
     {
-        psp->oy = psp->y = UZI_YOFF;
+        psp->oy = psp->pos.Y = UZI_YOFF;
         psp->backupx();
         psp->backupbobcoords();
         pSetState(psp, psp->RestState);
@@ -2159,11 +2159,11 @@ void pUziHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= 200 + tileHeight(picnum))
+    if (psp->pos.Y >= 200 + tileHeight(picnum))
     {
-        psp->oy = psp->y = 200 + tileHeight(picnum);
+        psp->oy = psp->pos.Y = 200 + tileHeight(picnum);
 
         if (psp->flags & (PANF_PRIMARY) && psp->PlayerP->WpnUziType != 1)
         {
@@ -2313,9 +2313,9 @@ void pUziRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= 200 + tileHeight(picnum))
+    if (psp->pos.Y >= 200 + tileHeight(picnum))
     {
         // if in the reload phase and its retracting then get rid of uzi
         // no matter whether it is PRIMARY/SECONDARY/neither.
@@ -2421,8 +2421,8 @@ void pUziShell(PANEL_SPRITEp psp)
     psp->sin_ndx = (psp->sin_ndx + (synctics << psp->sin_arc_speed) + 1024) & 1023;
 
     // get height
-    psp->oy = psp->y = psp->yorig;
-    psp->y += psp->sin_amt * -bsinf(psp->sin_ndx, -14);
+    psp->oy = psp->pos.Y = psp->yorig;
+    psp->pos.Y += psp->sin_amt * -bsinf(psp->sin_ndx, -14);
 
     // if off of the screen kill them
     if (psp->pos.X > 330 || psp->pos.X < -10)
@@ -2474,7 +2474,7 @@ void pShotgunShell(PANEL_SPRITEp psp)
 
     psp->pos.X += psp->xspeed * (1. / FRACUNIT);
 
-    if (psp->pos.X > 320 || psp->pos.X < 0 || psp->y > 200)
+    if (psp->pos.X > 320 || psp->pos.X < 0 || psp->pos.Y > 200)
     {
         pKillSprite(psp);
         return;
@@ -2613,7 +2613,7 @@ void InitWeaponShotgun(PLAYERp pp)
     if (!pp->Wpn[pp->WeaponType])
     {
         psp = pp->Wpn[pp->WeaponType] = pSpawnSprite(pp, ps_PresentShotgun, PRI_MID, SHOTGUN_XOFF, SHOTGUN_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -2656,7 +2656,7 @@ void pShotgunRecoilDown(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -2674,13 +2674,13 @@ void pShotgunRecoilUp(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
-    if (psp->y < SHOTGUN_YOFF)
+    if (psp->pos.Y < SHOTGUN_YOFF)
     {
-        psp->oy = psp->y = SHOTGUN_YOFF;
+        psp->oy = psp->pos.Y = SHOTGUN_YOFF;
         psp->ox = psp->pos.X = SHOTGUN_XOFF;
 
         pShotgunSetRecoil(psp);
@@ -2696,13 +2696,13 @@ void pShotgunReloadDown(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= SHOTGUN_YOFF + (tileHeight(picnum)/2))
+    if (psp->pos.Y >= SHOTGUN_YOFF + (tileHeight(picnum)/2))
     {
         PlaySound(DIGI_ROCKET_UP, psp->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-        psp->oy = psp->y = SHOTGUN_YOFF + (tileHeight(picnum)/2);
+        psp->oy = psp->pos.Y = SHOTGUN_YOFF + (tileHeight(picnum)/2);
 
         pStatePlusOne(psp);
     }
@@ -2712,15 +2712,15 @@ void pShotgunReloadUp(PANEL_SPRITEp psp)
 {
     psp->ox = psp->pos.X = SHOTGUN_XOFF;
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
     psp->PlayerP->WpnReloadState = 2;
 
-    if (psp->y < SHOTGUN_YOFF)
+    if (psp->pos.Y < SHOTGUN_YOFF)
     {
         PlaySound(DIGI_SHOTGUN_UP, psp->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-        psp->oy = psp->y = SHOTGUN_YOFF;
+        psp->oy = psp->pos.Y = SHOTGUN_YOFF;
 
         pStatePlusOne(psp);
         psp->flags &= ~(PANF_BOB);
@@ -2739,11 +2739,11 @@ void pShotgunPresent(PANEL_SPRITEp psp)
     ///
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < SHOTGUN_YOFF)
+    if (psp->pos.Y < SHOTGUN_YOFF)
     {
-        psp->oy = psp->y = SHOTGUN_YOFF;
+        psp->oy = psp->pos.Y = SHOTGUN_YOFF;
         psp->backupboby();
         pSetState(psp, psp->RestState);
     }
@@ -2809,11 +2809,11 @@ void pShotgunHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= SHOTGUN_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= SHOTGUN_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = SHOTGUN_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = SHOTGUN_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -2938,9 +2938,9 @@ void pShotgunRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= SHOTGUN_YOFF + tileHeight(picnum) + 50)
+    if (psp->pos.Y >= SHOTGUN_YOFF + tileHeight(picnum) + 50)
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
@@ -3085,7 +3085,7 @@ void InitWeaponRail(PLAYERp pp)
     if (!pp->Wpn[pp->WeaponType])
     {
         psp = pp->Wpn[pp->WeaponType] = pSpawnSprite(pp, ps_PresentRail, PRI_MID, RAIL_XOFF, RAIL_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -3126,7 +3126,7 @@ void pRailRecoilDown(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -3144,13 +3144,13 @@ void pRailRecoilUp(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
-    if (psp->y < RAIL_YOFF)
+    if (psp->pos.Y < RAIL_YOFF)
     {
-        psp->oy = psp->y = RAIL_YOFF;
+        psp->oy = psp->pos.Y = RAIL_YOFF;
         psp->ox = psp->pos.X = RAIL_XOFF;
 
         pRailSetRecoil(psp);
@@ -3171,11 +3171,11 @@ void pRailPresent(PANEL_SPRITEp psp)
     ///
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < RAIL_YOFF)
+    if (psp->pos.Y < RAIL_YOFF)
     {
-        psp->oy = psp->y = RAIL_YOFF;
+        psp->oy = psp->pos.Y = RAIL_YOFF;
         psp->backupboby();
         pSetState(psp, psp->RestState);
     }
@@ -3198,11 +3198,11 @@ void pRailHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= RAIL_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= RAIL_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = RAIL_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = RAIL_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -3295,9 +3295,9 @@ void pRailRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= RAIL_YOFF + tileHeight(picnum) + 50)
+    if (psp->pos.Y >= RAIL_YOFF + tileHeight(picnum) + 50)
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
@@ -3506,7 +3506,7 @@ void InitWeaponHothead(PLAYERp pp)
     if (!pp->Wpn[WPN_HOTHEAD])
     {
         psp = pp->Wpn[WPN_HOTHEAD] = pSpawnSprite(pp, ps_PresentHothead, PRI_MID, HOTHEAD_XOFF, HOTHEAD_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -3576,11 +3576,11 @@ void pHotheadPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < HOTHEAD_YOFF)
+    if (psp->pos.Y < HOTHEAD_YOFF)
     {
-        psp->oy = psp->y = HOTHEAD_YOFF;
+        psp->oy = psp->pos.Y = HOTHEAD_YOFF;
         psp->backupboby();
         pSetState(psp, psp->RestState);
         //pSetState(psp, HotheadTurnStates[psp->PlayerP->WpnFlameType]);
@@ -3606,10 +3606,10 @@ void pHotheadHide(PANEL_SPRITEp psp)
     psp->backupx();
     psp->pos.X += 3 * synctics;
 
-    if (psp->pos.X >= HOTHEAD_XOFF + tileWidth(picnum) || psp->y >= HOTHEAD_YOFF + tileHeight(picnum))
+    if (psp->pos.X >= HOTHEAD_XOFF + tileWidth(picnum) || psp->pos.Y >= HOTHEAD_YOFF + tileHeight(picnum))
     {
         psp->ox = psp->pos.X = HOTHEAD_XOFF;
-        psp->oy = psp->y = HOTHEAD_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = HOTHEAD_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -3699,9 +3699,9 @@ void pHotheadRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= HOTHEAD_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= HOTHEAD_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_HOTHEAD] = nullptr;
@@ -3768,8 +3768,8 @@ void pOnFire(PANEL_SPRITEp psp)
     if (plActor->user.flameActor == nullptr)
     {
         // take flames down and kill them
-        psp->y += 1;
-        if (psp->y > ON_FIRE_Y_BOT)
+        psp->pos.Y += 1;
+        if (psp->pos.Y > ON_FIRE_Y_BOT)
         {
             pKillSprite(psp);
             return;
@@ -3778,9 +3778,9 @@ void pOnFire(PANEL_SPRITEp psp)
     else
     {
         // bring flames up
-        psp->y -= 2;
-        if (psp->y < ON_FIRE_Y_TOP)
-            psp->oy = psp->y = ON_FIRE_Y_TOP;
+        psp->pos.Y -= 2;
+        if (psp->pos.Y < ON_FIRE_Y_TOP)
+            psp->oy = psp->pos.Y = ON_FIRE_Y_TOP;
     }
 }
 
@@ -3914,7 +3914,7 @@ void InitWeaponMicro(PLAYERp pp)
     if (!pp->Wpn[WPN_MICRO])
     {
         psp = pp->Wpn[WPN_MICRO] = pSpawnSprite(pp, ps_PresentMicro, PRI_MID, MICRO_XOFF, MICRO_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -3959,7 +3959,7 @@ void pMicroRecoilDown(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -3977,13 +3977,13 @@ void pMicroRecoilUp(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
-    if (psp->y < MICRO_YOFF)
+    if (psp->pos.Y < MICRO_YOFF)
     {
-        psp->oy = psp->y = MICRO_YOFF;
+        psp->oy = psp->pos.Y = MICRO_YOFF;
         psp->ox = psp->pos.X = MICRO_XOFF;
 
         pMicroSetRecoil(psp);
@@ -4006,11 +4006,11 @@ void pMicroPresent(PANEL_SPRITEp psp)
     ///
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < MICRO_YOFF)
+    if (psp->pos.Y < MICRO_YOFF)
     {
-        psp->oy = psp->y = MICRO_YOFF;
+        psp->oy = psp->pos.Y = MICRO_YOFF;
         psp->backupboby();
         if (pp->WpnRocketType == 2 && !pp->NukeInitialized)
         {
@@ -4039,11 +4039,11 @@ void pMicroHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= MICRO_YOFF + tileHeight(picnum) + 20)
+    if (psp->pos.Y >= MICRO_YOFF + tileHeight(picnum) + 20)
     {
-        psp->oy = psp->y = MICRO_YOFF + tileHeight(picnum) + 20;
+        psp->oy = psp->pos.Y = MICRO_YOFF + tileHeight(picnum) + 20;
         psp->ox = psp->pos.X = MICRO_XOFF;
 
         pWeaponUnHideKeys(psp, psp->PresentState);
@@ -4245,9 +4245,9 @@ void pMicroRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= MICRO_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= MICRO_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_MICRO] = nullptr;
@@ -4382,7 +4382,7 @@ void InitWeaponHeart(PLAYERp pp)
     if (!pp->Wpn[WPN_HEART])
     {
         psp = pp->Wpn[WPN_HEART] = pSpawnSprite(pp, ps_PresentHeart, PRI_MID, 160 + 10, HEART_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -4416,11 +4416,11 @@ void pHeartPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < HEART_YOFF)
+    if (psp->pos.Y < HEART_YOFF)
     {
-        psp->oy = psp->y = HEART_YOFF;
+        psp->oy = psp->pos.Y = HEART_YOFF;
         psp->backupboby();
         pSetState(psp, psp->RestState);
     }
@@ -4443,11 +4443,11 @@ void pHeartHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= HEART_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= HEART_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = HEART_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = HEART_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -4514,7 +4514,7 @@ void pHeartActionBlood(PANEL_SPRITEp psp)
     }
 
     psp->backupy();
-    psp->y = psp->yorig;
+    psp->pos.Y = psp->yorig;
 
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
@@ -4542,9 +4542,9 @@ void pHeartRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= HEART_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= HEART_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_HEART] = nullptr;
@@ -4613,8 +4613,8 @@ void SpawnHeartBlood(PANEL_SPRITEp psp)
         blood = pSpawnSprite(pp, hsp->state[RANDOM_P2(2<<8)>>8], PRI_BACK, 0, 0);
         blood->pos.X = psp->pos.X + hsp->xoff;
         blood->ox = blood->pos.X;
-        blood->y = psp->y + hsp->yoff;
-        blood->oy = blood->y;
+        blood->pos.Y = psp->pos.Y + hsp->yoff;
+        blood->oy = blood->pos.Y;
         blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         blood->flags |= (PANF_WEAPON_SPRITE);
 
@@ -4648,8 +4648,8 @@ void SpawnSmallHeartBlood(PANEL_SPRITEp psp)
         blood = pSpawnSprite(pp, hsp->state[RANDOM_P2(2<<8)>>8], PRI_BACK, 0, 0);
         blood->pos.X = psp->pos.X + hsp->xoff;
         blood->ox = blood->pos.X;
-        blood->y = psp->y + hsp->yoff;
-        blood->oy = blood->y;
+        blood->pos.Y = psp->pos.Y + hsp->yoff;
+        blood->oy = blood->pos.Y;
         blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         blood->flags |= (PANF_WEAPON_SPRITE);
 
@@ -4674,7 +4674,7 @@ void pHeartBlood(PANEL_SPRITEp psp)
     psp->backupx();
     psp->pos.X += psp->xspeed * (1. / FRACUNIT);
 
-    if (psp->pos.X > 320 || psp->pos.X < 0 || psp->y > 200)
+    if (psp->pos.X > 320 || psp->pos.X < 0 || psp->pos.Y > 200)
     {
         pKillSprite(psp);
         return;
@@ -4709,7 +4709,7 @@ int DoPanelJump(PANEL_SPRITEp psp)
 
     // adjust height by jump speed
     psp->backupy();
-    psp->y += psp->jump_speed * synctics * (1. / FRACUNIT);
+    psp->pos.Y += psp->jump_speed * synctics * (1. / FRACUNIT);
 
     return 0;
 }
@@ -4735,7 +4735,7 @@ int DoPanelFall(PANEL_SPRITEp psp)
 
     // adjust player height by jump speed
     psp->backupy();
-    psp->y += psp->jump_speed * synctics * (1. / FRACUNIT);
+    psp->pos.Y += psp->jump_speed * synctics * (1. / FRACUNIT);
 
     return 0;
 }
@@ -4817,7 +4817,7 @@ void pGrenadePresentSetup(PANEL_SPRITEp psp)
 {
     psp->rotate_ang = 1800;
     psp->backupcoords();
-    psp->y += 34;
+    psp->pos.Y += 34;
     psp->pos.X -= 45;
     psp->ang = 256 + 128;
     psp->vel = 680;
@@ -4838,7 +4838,7 @@ void InitWeaponGrenade(PLAYERp pp)
     if (!pp->Wpn[WPN_GRENADE])
     {
         psp = pp->Wpn[WPN_GRENADE] = pSpawnSprite(pp, ps_PresentGrenade, PRI_MID, GRENADE_XOFF, GRENADE_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -4876,7 +4876,7 @@ void pGrenadeRecoilDown(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -4897,13 +4897,13 @@ void pGrenadeRecoilUp(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
-    if (psp->y < GRENADE_YOFF)
+    if (psp->pos.Y < GRENADE_YOFF)
     {
-        psp->oy = psp->y = GRENADE_YOFF;
+        psp->oy = psp->pos.Y = GRENADE_YOFF;
         psp->ox = psp->pos.X = GRENADE_XOFF;
 
         pGrenadeSetRecoil(psp);
@@ -4921,18 +4921,18 @@ void pGrenadePresent(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += pspCosVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->rotate_ang = NORM_ANGLE(psp->rotate_ang + (6 * synctics));
 
     if (psp->rotate_ang < 1024)
         psp->rotate_ang = 0;
 
-    if (psp->y < GRENADE_YOFF)
+    if (psp->pos.Y < GRENADE_YOFF)
     {
         pGrenadeSetRecoil(psp);
         psp->ox = psp->pos.X = GRENADE_XOFF;
-        psp->oy = psp->y = GRENADE_YOFF;
+        psp->oy = psp->pos.Y = GRENADE_YOFF;
         psp->rotate_ang = 0;
         psp->backupboby();
         pSetState(psp, psp->RestState);
@@ -4956,11 +4956,11 @@ void pGrenadeHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= GRENADE_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= GRENADE_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = GRENADE_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = GRENADE_YOFF + tileHeight(picnum);
         psp->ox = psp->pos.X = GRENADE_XOFF;
 
         pGrenadePresentSetup(psp);
@@ -5014,9 +5014,9 @@ void pGrenadeRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= GRENADE_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= GRENADE_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_GRENADE] = nullptr;
@@ -5100,7 +5100,7 @@ void InitWeaponMine(PLAYERp pp)
     if (!pp->Wpn[WPN_MINE])
     {
         psp = pp->Wpn[WPN_MINE] = pSpawnSprite(pp, ps_PresentMine, PRI_MID, MINE_XOFF, MINE_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -5138,13 +5138,13 @@ void pMineUpSound(PANEL_SPRITEp psp)
 void pMineLower(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y += 4 * synctics;
+    psp->pos.Y += 4 * synctics;
 
-    if (psp->y > MINE_YOFF + tileHeight(psp->picndx))
+    if (psp->pos.Y > MINE_YOFF + tileHeight(psp->picndx))
     {
         if (!WeaponOK(psp->PlayerP))
             return;
-        psp->oy = psp->y = MINE_YOFF + tileHeight(psp->picndx);
+        psp->oy = psp->pos.Y = MINE_YOFF + tileHeight(psp->picndx);
         pStatePlusOne(psp);
     }
 }
@@ -5152,11 +5152,11 @@ void pMineLower(PANEL_SPRITEp psp)
 void pMineRaise(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y -= 4 * synctics;
+    psp->pos.Y -= 4 * synctics;
 
-    if (psp->y < MINE_YOFF)
+    if (psp->pos.Y < MINE_YOFF)
     {
-        psp->oy = psp->y = MINE_YOFF;
+        psp->oy = psp->pos.Y = MINE_YOFF;
         pStatePlusOne(psp);
     }
 }
@@ -5167,11 +5167,11 @@ void pMinePresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < MINE_YOFF)
+    if (psp->pos.Y < MINE_YOFF)
     {
-        psp->oy = psp->y = MINE_YOFF;
+        psp->oy = psp->pos.Y = MINE_YOFF;
         psp->rotate_ang = 0;
         psp->backupboby();
         pSetState(psp, psp->RestState);
@@ -5195,11 +5195,11 @@ void pMineHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= MINE_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= MINE_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = MINE_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = MINE_YOFF + tileHeight(picnum);
         psp->ox = psp->pos.X = MINE_XOFF;
 
         pWeaponUnHideKeys(psp, psp->PresentState);
@@ -5250,9 +5250,9 @@ void pMineRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= MINE_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= MINE_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_MINE] = nullptr;
@@ -5360,7 +5360,7 @@ void InitChops(PLAYERp pp)
     if (!pp->Chops)
     {
         psp = pp->Chops = pSpawnSprite(pp, ps_ChopsAttack1, PRI_MID, CHOPS_XOFF, CHOPS_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -5400,11 +5400,11 @@ void pChopsClick(PANEL_SPRITEp psp)
 void pChopsUp(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < CHOPS_YOFF)
+    if (psp->pos.Y < CHOPS_YOFF)
     {
-        psp->oy = psp->y = CHOPS_YOFF;
+        psp->oy = psp->pos.Y = CHOPS_YOFF;
         pStatePlusOne(psp);
     }
 }
@@ -5412,11 +5412,11 @@ void pChopsUp(PANEL_SPRITEp psp)
 void pChopsDown(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y > CHOPS_YOFF+110)
+    if (psp->pos.Y > CHOPS_YOFF+110)
     {
-        psp->oy = psp->y = CHOPS_YOFF+110;
+        psp->oy = psp->pos.Y = CHOPS_YOFF+110;
         pSetState(psp, ps_ChopsWait);
     }
 }
@@ -5424,11 +5424,11 @@ void pChopsDown(PANEL_SPRITEp psp)
 void pChopsDownSlow(PANEL_SPRITEp psp)
 {
     psp->backupy();
-    psp->y += 1 * synctics;
+    psp->pos.Y += 1 * synctics;
 
-    if (psp->y > CHOPS_YOFF+110)
+    if (psp->pos.Y > CHOPS_YOFF+110)
     {
-        psp->oy = psp->y = CHOPS_YOFF+110;
+        psp->oy = psp->pos.Y = CHOPS_YOFF+110;
         pSetState(psp, ps_ChopsWait);
     }
 }
@@ -5438,11 +5438,11 @@ void pChopsShake(PANEL_SPRITEp psp)
     psp->backupcoords();
 
     psp->pos.X += (RANDOM_P2(4<<8) * (1. / 256.)) - 2;
-    psp->y += (RANDOM_P2(4<<8) * (1. / 256.)) - 2;
+    psp->pos.Y += (RANDOM_P2(4<<8) * (1. / 256.)) - 2;
 
-    if (psp->y < CHOPS_YOFF)
+    if (psp->pos.Y < CHOPS_YOFF)
     {
-        psp->oy = psp->y = CHOPS_YOFF;
+        psp->oy = psp->pos.Y = CHOPS_YOFF;
     }
 }
 
@@ -5473,9 +5473,9 @@ void pChopsRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 6 * synctics;
+    psp->pos.Y += 6 * synctics;
 
-    if (psp->y >= CHOPS_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= CHOPS_YOFF + tileHeight(picnum))
     {
         if (RandomRange(1000) > 800)
             PlayerSound(DIGI_GETTINGSTIFF,v3df_follow|v3df_dontpan,psp->PlayerP);
@@ -5556,7 +5556,7 @@ void SpawnFistBlur(PANEL_SPRITEp psp)
     if (psp->PlayerP->FistAng > 200)
         return;
 
-    nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->pos.X, psp->y);
+    nsp = pSpawnSprite(psp->PlayerP, nullptr, PRI_BACK, psp->pos.X, psp->pos.Y);
 
     nsp->flags |= (PANF_WEAPON_SPRITE);
     nsp->ang = psp->ang;
@@ -5735,7 +5735,7 @@ void InitWeaponFist(PLAYERp pp)
     if (!pp->Wpn[WPN_FIST])
     {
         psp = pp->Wpn[WPN_FIST] = pSpawnSprite(pp, ps_PresentFist, PRI_MID, FIST_XOFF, FIST_YOFF);
-        psp->y += tileHeight(psp->picndx);
+        psp->pos.Y += tileHeight(psp->picndx);
         psp->backupy();
     }
 
@@ -5780,11 +5780,11 @@ void pFistPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->pos.Y -= 3 * synctics;
 
-    if (psp->y < FIST_YOFF)
+    if (psp->pos.Y < FIST_YOFF)
     {
-        psp->oy = psp->y = FIST_YOFF;
+        psp->oy = psp->pos.Y = FIST_YOFF;
         psp->backupboby();
 
         rnd = RandomRange(1000);
@@ -5814,7 +5814,7 @@ void pFistSlide(PANEL_SPRITEp psp)
     psp->backupy();
 
     //psp->x += pspSinVel(psp);
-    psp->y -= pspSinVel(psp);
+    psp->pos.Y -= pspSinVel(psp);
 
     psp->vel += 68 * synctics;
 }
@@ -5830,17 +5830,17 @@ void pFistSlideDown(PANEL_SPRITEp psp)
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
     {
-        psp->y -= pspSinVel(psp, ang);
+        psp->pos.Y -= pspSinVel(psp, ang);
     }
     else
     {
         psp->pos.X -= pspSinVel(psp, ang);
-        psp->y -= pspSinVel(psp, ang) * synctics;
+        psp->pos.Y -= pspSinVel(psp, ang) * synctics;
     }
 
     psp->vel += 48 * synctics;
 
-    if (psp->y > 440)
+    if (psp->pos.Y > 440)
     {
         // if still holding down the fire key - continue swinging
         if (psp->PlayerP->input.actions & SB_FIRE)
@@ -5863,7 +5863,7 @@ void pFistSlideDown(PANEL_SPRITEp psp)
                     pSetState(psp, psp->ActionState);
 
                     psp->ox = psp->pos.X = FIST_XOFF;
-                    psp->oy = psp->y = FIST_YOFF;
+                    psp->oy = psp->pos.Y = FIST_YOFF;
                     psp->backupboby();
                     psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                     psp->ang = 1024;
@@ -5879,7 +5879,7 @@ void pFistSlideDown(PANEL_SPRITEp psp)
                 }
 
                 psp->ox = psp->pos.X = FISTR_XOFF+100;
-                psp->oy = psp->y = FIST_YOFF;
+                psp->oy = psp->pos.Y = FIST_YOFF;
                 psp->backupboby();
                 psp->ang = 1024;
                 psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
@@ -5892,7 +5892,7 @@ void pFistSlideDown(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->pos.X = FIST_XOFF;
-        psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
+        psp->oy = psp->pos.Y = FIST_YOFF + tileHeight(psp->picndx);
         psp->backupboby();
     }
 }
@@ -5909,7 +5909,7 @@ void pFistSlideR(PANEL_SPRITEp psp)
     psp->backupy();
 
     //psp->x += pspSinVel(psp);
-    psp->y += pspSinVel(psp);
+    psp->pos.Y += pspSinVel(psp);
 
     psp->vel += 68 * synctics;
 }
@@ -5925,17 +5925,17 @@ void pFistSlideDownR(PANEL_SPRITEp psp)
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
     {
-        psp->y -= pspSinVel(psp, ang);
+        psp->pos.Y -= pspSinVel(psp, ang);
     }
     else
     {
         psp->pos.X -= pspSinVel(psp, ang);
-        psp->y -= pspSinVel(psp, ang) * synctics;
+        psp->pos.Y -= pspSinVel(psp, ang) * synctics;
     }
 
     psp->vel += 48 * synctics;
 
-    if (psp->y > 440)
+    if (psp->pos.Y > 440)
     {
         // if still holding down the fire key - continue swinging
         if (psp->PlayerP->input.actions & SB_FIRE)
@@ -5951,7 +5951,7 @@ void pFistSlideDownR(PANEL_SPRITEp psp)
                     pSetState(psp, psp->ActionState);
 
                     psp->ox = psp->pos.X = FISTR_XOFF+100;
-                    psp->oy = psp->y = FIST_YOFF;
+                    psp->oy = psp->pos.Y = FIST_YOFF;
                     psp->backupboby();
                     psp->ang = 1024;
                     psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
@@ -5967,7 +5967,7 @@ void pFistSlideDownR(PANEL_SPRITEp psp)
                 }
 
                 psp->ox = psp->pos.X = FIST_XOFF;
-                psp->oy = psp->y = FIST_YOFF;
+                psp->oy = psp->pos.Y = FIST_YOFF;
                 psp->backupboby();
                 psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                 psp->ang = 1024;
@@ -5980,7 +5980,7 @@ void pFistSlideDownR(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->pos.X = FIST_XOFF;
-        psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
+        psp->oy = psp->pos.Y = FIST_YOFF + tileHeight(psp->picndx);
         psp->backupboby();
     }
 }
@@ -6002,11 +6002,11 @@ void pFistHide(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= FIST_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= FIST_YOFF + tileHeight(picnum))
     {
-        psp->oy = psp->y = FIST_YOFF + tileHeight(picnum);
+        psp->oy = psp->pos.Y = FIST_YOFF + tileHeight(picnum);
 
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
@@ -6074,9 +6074,9 @@ void pFistRetract(PANEL_SPRITEp psp)
     int picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->pos.Y += 3 * synctics;
 
-    if (psp->y >= FIST_YOFF + tileHeight(picnum))
+    if (psp->pos.Y >= FIST_YOFF + tileHeight(picnum))
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[WPN_FIST] = nullptr;
@@ -6259,7 +6259,7 @@ PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, dou
     psp->PlayerP = pp;
 
     psp->ox = psp->pos.X = x;
-    psp->oy = psp->y = y;
+    psp->oy = psp->pos.Y = y;
     pSetState(psp, state);
     if (state == nullptr)
         psp->picndx = -1;
@@ -6358,7 +6358,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
     psp->backupcoords();
 
     psp->pos.X = psp->xorig + xdiff;
-    psp->y = psp->yorig + ydiff + UziRecoilYadj;
+    psp->pos.Y = psp->yorig + ydiff + UziRecoilYadj;
 }
 
 
@@ -6393,13 +6393,13 @@ void pDisplaySprites(PLAYERp pp, double smoothratio)
         if (cl_hudinterpolation)
         {
             x = interpolatedvaluef(psp->ox, psp->pos.X, smoothratio);
-            y = interpolatedvaluef(psp->oy, psp->y, smoothratio);
+            y = interpolatedvaluef(psp->oy, psp->pos.Y, smoothratio);
 
         }
         else
         {
             x = psp->pos.X;
-            y = psp->y;
+            y = psp->pos.Y;
         }
 
         x -= look_anghalf;
