@@ -95,7 +95,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_orig& w, pl
 	{
 	  arc("ox", w.opos.X)
 		("oy", w.opos.Y)
-		("oz", w.oz)
+		("oz", w.opos.Z)
 		("oa", w.oa)
 		("os", w.os)
 		.EndObject();
