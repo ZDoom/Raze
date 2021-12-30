@@ -5038,7 +5038,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		auto Owner = actor->GetOwner();
 		if (Owner->spr.picnum == TILE_APLAYER)
-			goalang = getangle(actor->ovel.X - actor->spr.pos.X, actor->lastvy - actor->spr.pos.Y);
+			goalang = getangle(actor->ovel.X - actor->spr.pos.X, actor->ovel.Y - actor->spr.pos.Y);
 		else
 			goalang = getangle(Owner->spr.pos.X - actor->spr.pos.X, Owner->spr.pos.Y - actor->spr.pos.Y);
 

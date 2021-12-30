@@ -1325,8 +1325,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->ovel.X, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVY:
-		if (bSet) act->lastvy = lValue;
-		else SetGameVarID(lVar2, act->lastvy, sActor, sPlayer);
+		if (bSet) act->ovel.Y = lValue;
+		else SetGameVarID(lVar2, act->ovel.Y, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSX:
 		if (bSet) act->spr.opos.X = lValue;
@@ -1496,14 +1496,14 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// search around for target player
 		// also modifies 'target' x&y if found.
-		j = furthestcanseepoint(actor, tosee, &actor->ovel.X, &actor->lastvy);
+		j = furthestcanseepoint(actor, tosee, &actor->ovel.X, &actor->ovel.Y);
 	}
 	else
 	{
 		// else, they did see it.
 		// save where we were looking..
 		actor->ovel.X = tosee->spr.pos.X;
-		actor->lastvy = tosee->spr.pos.Y;
+		actor->ovel.Y = tosee->spr.pos.Y;
 	}
 
 	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))
@@ -3151,7 +3151,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		ang = getangle(g_ac->ovel.X - g_ac->spr.pos.X, g_ac->lastvy - g_ac->spr.pos.Y);
+		ang = getangle(g_ac->ovel.X - g_ac->spr.pos.X, g_ac->ovel.Y - g_ac->spr.pos.Y);
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}

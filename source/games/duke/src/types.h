@@ -38,7 +38,7 @@ public:
 	short tempang, dispicnum;
 	short timetosleep;
 	vec2_t ovel;
-	int floorz, ceilingz, ovel.X, lastvy, aflags;
+	int floorz, ceilingz, aflags;
 	union
 	{
 		int saved_ammo;
