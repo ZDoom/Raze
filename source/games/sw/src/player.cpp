@@ -1245,7 +1245,7 @@ void DoPlayerResetMovement(PLAYERp pp)
 {
     pp->vect.X = pp->ovect.X = 0;
     pp->vect.Y = pp->ovect.Y = 0;
-    pp->slide_xvect = 0;
+    pp->slide_vect.X = 0;
     pp->slide_yvect = 0;
     pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
@@ -1885,17 +1885,17 @@ void DoPlayerSlide(PLAYERp pp)
 
     int push_ret;
 
-    if ((pp->slide_xvect|pp->slide_yvect) == 0)
+    if ((pp->slide_vect.X|pp->slide_yvect) == 0)
         return;
 
     if (pp->sop)
         return;
 
-    pp->slide_xvect  = MulScale(pp->slide_xvect, PLAYER_SLIDE_FRICTION, 16);
+    pp->slide_vect.X  = MulScale(pp->slide_vect.X, PLAYER_SLIDE_FRICTION, 16);
     pp->slide_yvect  = MulScale(pp->slide_yvect, PLAYER_SLIDE_FRICTION, 16);
 
-    if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
-        pp->slide_xvect = pp->slide_yvect = 0;
+    if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_yvect) < 12800)
+        pp->slide_vect.X = pp->slide_yvect = 0;
 
     push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -1911,7 +1911,7 @@ void DoPlayerSlide(PLAYERp pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_xvect, pp->slide_yvect, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_yvect, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
@@ -2683,7 +2683,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
             if (vel > 13000)
             {
                 VehicleMoveHit(actor);
-                pp->slide_xvect = -pp->vect.X<<1;
+                pp->slide_vect.X = -pp->vect.X<<1;
                 pp->slide_yvect = -pp->vect.Y<<1;
                 if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
@@ -5057,7 +5057,7 @@ void PlayerToRemote(PLAYERp pp)
     pp->remote.yvect = pp->vect.Y;
     pp->remote.oxvect = pp->ovect.X;
     pp->remote.oyvect = pp->ovect.Y;
-    pp->remote.slide_xvect = pp->slide_xvect;
+    pp->remote.slide_xvect = pp->slide_vect.X;
     pp->remote.slide_yvect = pp->slide_yvect;
 }
 
@@ -5074,7 +5074,7 @@ void RemoteToPlayer(PLAYERp pp)
     pp->vect.Y = pp->remote.yvect;
     pp->ovect.X = pp->remote.oxvect;
     pp->ovect.Y = pp->remote.oyvect;
-    pp->slide_xvect = pp->remote.slide_xvect;
+    pp->slide_vect.X = pp->remote.slide_xvect;
     pp->slide_yvect = pp->remote.slide_yvect;
 }
 
@@ -5088,7 +5088,7 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
     pp->pos.Y = rsp->spr.pos.Y;
     pp->pos.Z = sect->floorz - PLAYER_HEIGHT;
 
-    pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_xvect = pp->slide_yvect = 0;
+    pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_yvect = 0;
 
     UpdatePlayerSprite(pp);
 }
@@ -5511,7 +5511,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
-    pp->slide_xvect = pp->slide_yvect = 0;
+    pp->slide_vect.X = pp->slide_yvect = 0;
     pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));
@@ -7091,7 +7091,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, siang)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oxvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oyvect)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, friction)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_xvect)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_xvect)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_yvect)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_ang)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_dec)

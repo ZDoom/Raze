@@ -468,7 +468,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("xvect", w.vect.X)
 			("yvect", w.vect.Y)
 			("friction", w.friction)
-			("slide_xvect", w.slide_xvect)
+			("slide_xvect", w.slide_vect.X)
 			("slide_yvect", w.slide_yvect)
 			("slide_ang", w.slide_ang)
 			("slide_dec", w.slide_dec)
