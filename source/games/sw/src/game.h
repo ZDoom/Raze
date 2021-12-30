@@ -631,7 +631,8 @@ struct PLAYERstruct
     vec3_t si; // save player interp position for PlayerSprite
     int16_t siang;
 
-    int xvect, yvect;
+    vec2_t vect;
+    int yvect;
     int oxvect, oyvect;
     int friction;
     int slide_xvect, slide_yvect;
@@ -2139,7 +2140,7 @@ inline bool SpriteInUnderwaterArea(DSWActor* a)
 // just determine if the player is moving
 inline bool PLAYER_MOVING(PLAYERp pp)
 {
-	return (pp->xvect | pp->yvect);
+	return (pp->vect.X | pp->yvect);
 }
 
 inline void PlaySound(int num, DSWActor* actor, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)

@@ -465,7 +465,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("siy", w.si.Y)
 			("siz", w.si.Z)
 			("siang", w.siang)
-			("xvect", w.xvect)
+			("xvect", w.vect.X)
 			("yvect", w.yvect)
 			("friction", w.friction)
 			("slide_xvect", w.slide_xvect)
@@ -583,7 +583,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 		w.opos.Y = w.pos.X;
 		w.opos.Z = w.pos.X;
 		w.oz_speed = w.z_speed;
-		w.oxvect = w.xvect;
+		w.oxvect = w.vect.X;
 		w.oyvect = w.yvect;
 		w.obob_z = w.bob_z;
 		w.input = {};

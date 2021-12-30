@@ -196,7 +196,7 @@ struct SWPlayer native
     native int circle_camera_dist;
     native int16 siang;
 
-    native int xvect, yvect;
+    native int yvect;
     native int oxvect, oyvect;
     native int friction;
     native int slide_xvect, slide_yvect;

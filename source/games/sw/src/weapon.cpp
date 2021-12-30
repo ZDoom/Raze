@@ -16448,7 +16448,7 @@ int InitGrenade(PLAYERp pp)
     if (!auto_aim)
     {
         // adjust xvel according to player velocity
-        actorNew->user.xchange += pp->xvect>>14;
+        actorNew->user.xchange += pp->vect.X>>14;
         actorNew->user.ychange += pp->yvect>>14;
     }
 
@@ -16560,13 +16560,13 @@ int InitMine(PLAYERp pp)
     actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
 
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
+    dot = DOT_PRODUCT_2D(pp->vect.X, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
     // don't adjust for strafing
     if (labs(dot) > 10000)
     {
         // adjust xvel according to player velocity
-        actorNew->user.xchange += pp->xvect>>13;
+        actorNew->user.xchange += pp->vect.X>>13;
         actorNew->user.ychange += pp->yvect>>13;
     }
 

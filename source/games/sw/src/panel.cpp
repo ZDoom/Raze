@@ -6312,7 +6312,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
 {
     double xdiff = 0, ydiff = 0;
 
-    double bobvel = fFindDistance2D(psp->PlayerP->xvect, psp->PlayerP->yvect) * (1. / 32768.);
+    double bobvel = fFindDistance2D(psp->PlayerP->vect.X, psp->PlayerP->yvect) * (1. / 32768.);
     bobvel = bobvel + (bobvel * (1. / 4.));
     bobvel = min(bobvel, 128.);
 
