@@ -689,7 +689,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			actor->xspr.Proximity = actor->xspr.Push = actor->xspr.Vector = actor->xspr.triggerOn = false;
 			actor->xspr.state = actor->xspr.restState = 0;
 
-			actor->xspr.TargetPos.X = actor->xspr.TargetPos.Y = actor->xspr.targetZ = actor->xspr.sysData2 = -1;
+			actor->xspr.TargetPos.X = actor->xspr.TargetPos.Y = actor->xspr.TargetPos.Z = actor->xspr.sysData2 = -1;
 			actor->SetTarget(nullptr);
 			ChangeActorStat(actor, kStatModernCondition);
 			auto oldStat = actor->spr.cstat;
@@ -3010,7 +3010,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		int x = actor->xspr.TargetPos.X;
 		int y = actor->xspr.TargetPos.Y;
-		int z = actor->xspr.targetZ;
+		int z = actor->xspr.TargetPos.Z;
 		auto target = actor->GetTarget();
 
 		aiInitSprite(actor);
@@ -3019,7 +3019,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			actor->xspr.TargetPos.X = x;
 			actor->xspr.TargetPos.Y = y;
-			actor->xspr.targetZ = z;
+			actor->xspr.TargetPos.Z = z;
 			actor->SetTarget(target);
 			aiActivateDude(actor);
 		}
@@ -6826,7 +6826,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 				auto pMate = pMateTargetActor->GetTarget();
 				actor->xspr.TargetPos.X = pMate->spr.pos.X;
 				actor->xspr.TargetPos.Y = pMate->spr.pos.Y;
-				actor->xspr.targetZ = pMate->spr.pos.Z;
+				actor->xspr.TargetPos.Z = pMate->spr.pos.Z;
 				if (!isActive(actor))
 					aiActivateDude(actor);
 				return;
@@ -7720,7 +7720,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		else
 		{
 			aiInitSprite(actor);
-			aiSetTarget(actor, actor->xspr.TargetPos.X, actor->xspr.TargetPos.Y, actor->xspr.targetZ);
+			aiSetTarget(actor, actor->xspr.TargetPos.X, actor->xspr.TargetPos.Y, actor->xspr.TargetPos.Z);
 		}
 
 		actor->xspr.dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again

@@ -403,7 +403,7 @@ void batMoveToCeil(DBloodActor* actor)
 	int x = actor->spr.pos.X;
 	int y = actor->spr.pos.Y;
 	int z = actor->spr.pos.Z;
-	if (z - actor->xspr.targetZ < 0x1000)
+	if (z - actor->xspr.TargetPos.Z < 0x1000)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->thinkTime = 0;

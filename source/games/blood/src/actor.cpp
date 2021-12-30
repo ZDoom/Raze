@@ -3970,7 +3970,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				missileActor->xspr.targetZ = missileActor->spr.pos.Z - actorHit->spr.pos.Z;
+				missileActor->xspr.TargetPos.Z = missileActor->spr.pos.Z - actorHit->spr.pos.Z;
 				missileActor->xspr.goalAng = getangle(missileActor->spr.pos.X - actorHit->spr.pos.X, missileActor->spr.pos.Y - actorHit->spr.pos.Y) - actorHit->spr.ang;
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
@@ -6149,7 +6149,7 @@ void actCheckFlares()
 		{
 			int x = target->spr.pos.X + mulscale30r(Cos(actor->xspr.goalAng + target->spr.ang), target->spr.clipdist * 2);
 			int y = target->spr.pos.Y + mulscale30r(Sin(actor->xspr.goalAng + target->spr.ang), target->spr.clipdist * 2);
-			int z = target->spr.pos.Z + actor->xspr.targetZ;
+			int z = target->spr.pos.Z + actor->xspr.TargetPos.Z;
 			vec3_t pos = { x, y, z };
 			SetActor(actor, &pos);
 			actor->vel.X = target->vel.X;
