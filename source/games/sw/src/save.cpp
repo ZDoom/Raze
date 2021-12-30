@@ -500,7 +500,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("PlayerUnderSprite", w.PlayerUnderActor)
 			("pnum", w.pnum)
 			("LadderSector", w.LadderSector)
-			("lx", w.lx)
+			("lx", w.LadderPosition.X)
 			("ly", w.ly)
 			("JumpDuration", w.JumpDuration)
 			("WadeDepth", w.WadeDepth)

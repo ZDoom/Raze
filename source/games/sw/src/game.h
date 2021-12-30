@@ -670,7 +670,8 @@ struct PLAYERstruct
     int16_t pnum; // carry along the player number
 
     sectortype* LadderSector;
-    int lx,ly; // ladder x and y
+    vec3_t LadderPosition; // ladder x and y
+    int ly; // ladder x and y
     int16_t JumpDuration;
     int16_t WadeDepth;
     int16_t bob_amt;
