@@ -757,9 +757,9 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (actor->spr.xvel < 192)
 			actor->spr.xvel += 8;
-		actor->spr.ang = getangle(cpt.pos.X - actor->spr.pos.X, cpt.y - actor->spr.pos.Y);
+		actor->spr.ang = getangle(cpt.pos.X - actor->spr.pos.X, cpt.pos.Y - actor->spr.pos.Y);
 		ssp(actor, CLIPMASK0);
-		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.y) * (actor->spr.pos.Y - cpt.y)) < (128 * 128))
+		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (128 * 128))
 			actor->temp_data[0]++;
 	}
 
