@@ -444,7 +444,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 			pXWall->restState = bitReader.readUnsigned(1);
 			pXWall->interruptable = bitReader.readUnsigned(1);
 			pXWall->panAlways = bitReader.readUnsigned(1);
-			pXWall->panXVel = bitReader.readSigned(8);
+			pXWall->panVel.X = bitReader.readSigned(8);
 			pXWall->panYVel = bitReader.readSigned(8);
 			pXWall->decoupled = bitReader.readUnsigned(1);
 			pXWall->triggerOnce = bitReader.readUnsigned(1);

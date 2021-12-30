@@ -253,7 +253,7 @@ struct XWALL {
 	uint16_t waitTime;         // waitTime
 
 	uint8_t command;           // Cmd
-	int8_t panXVel;           // panX
+	vec3_t panVel;
 	int8_t panYVel;           // panY
 	uint8_t key;               // Key
 };

@@ -530,7 +530,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* d
 			("busytime", w.busyTime, def->busyTime)
 			("waittime", w.waitTime, def->waitTime)
 			("command", w.command, def->command)
-			("panxvel", w.panXVel, def->panXVel)
+			("panxvel", w.panVel.X, def->panVel.X)
 			("panyvel", w.panYVel, def->panYVel)
 			("key", w.key, def->key)
 			.EndObject();

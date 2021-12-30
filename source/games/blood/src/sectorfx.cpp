@@ -313,7 +313,7 @@ void DoSectorPanning(void)
 		XWALL* pXWall = &pWall->xw();
 		if (pXWall->panAlways || pXWall->busy)
 		{
-			int psx = pXWall->panXVel << 10;
+			int psx = pXWall->panVel.X << 10;
 			int psy = pXWall->panYVel << 10;
 			if (!pXWall->panAlways && (pXWall->busy & 0xffff))
 			{
@@ -371,11 +371,11 @@ void InitSectorFX(void)
 		if (wal.hasX())
 		{
 			XWALL* pXWall = &wal.xw();
-			if (pXWall->panXVel || pXWall->panYVel)
+			if (pXWall->panVel.X || pXWall->panYVel)
 			{
 				wallPanList.Push(&wal);
-				if (pXWall->panXVel) StartInterpolation(&wal, Interp_Wall_PanX);
-				if (pXWall->panXVel) StartInterpolation(&wal, Interp_Wall_PanY);
+				if (pXWall->panVel.X) StartInterpolation(&wal, Interp_Wall_PanX);
+				if (pXWall->panVel.X) StartInterpolation(&wal, Interp_Wall_PanY);
 			}
 		}
 	}
