@@ -584,7 +584,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 		w.opos.Z = w.pos.X;
 		w.oz_speed = w.z_speed;
 		w.ovect.X = w.vect.X;
-		w.oyvect = w.vect.Y;
+		w.ovect.Y = w.vect.Y;
 		w.obob_z = w.bob_z;
 		w.input = {};
 		w.lastinput = {};

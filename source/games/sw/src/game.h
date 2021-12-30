@@ -632,7 +632,6 @@ struct PLAYERstruct
     int16_t siang;
 
     vec2_t vect, ovect;
-    int oyvect;
     int friction;
     int slide_xvect, slide_yvect;
     int16_t slide_ang;

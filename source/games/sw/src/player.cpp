@@ -1244,7 +1244,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 void DoPlayerResetMovement(PLAYERp pp)
 {
     pp->vect.X = pp->ovect.X = 0;
-    pp->vect.Y = pp->oyvect = 0;
+    pp->vect.Y = pp->ovect.Y = 0;
     pp->slide_xvect = 0;
     pp->slide_yvect = 0;
     pp->drive_avel = 0;
@@ -2012,7 +2012,7 @@ void DoPlayerMove(PLAYERp pp)
     DoPlayerSlide(pp);
 
     pp->ovect.X = pp->vect.X;
-    pp->oyvect = pp->vect.Y;
+    pp->ovect.Y = pp->vect.Y;
 
     pp->vect.X += ((pp->input.fvel*synctics*2)<<6);
     pp->vect.Y += ((pp->input.svel*synctics*2)<<6);
@@ -2030,13 +2030,13 @@ void DoPlayerMove(PLAYERp pp)
     {
         // do a bit of weighted averaging
         pp->vect.X = (pp->vect.X + (pp->ovect.X*1))/2;
-        pp->vect.Y = (pp->vect.Y + (pp->oyvect*1))/2;
+        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
         pp->vect.X = (pp->vect.X + (pp->ovect.X*2))/3;
-        pp->vect.Y = (pp->vect.Y + (pp->oyvect*2))/3;
+        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*2))/3;
     }
 
     if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
@@ -2537,7 +2537,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         pp->Flags |= (PF_PLAYER_MOVED);
 
     pp->ovect.X = pp->vect.X;
-    pp->oyvect = pp->vect.Y;
+    pp->ovect.Y = pp->vect.Y;
 
     if (sop->drive_speed)
     {
@@ -2546,7 +2546,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
         // does sliding/momentum
         pp->vect.X = (pp->vect.X + (pp->ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
-        pp->vect.Y = (pp->vect.Y + (pp->oyvect*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
@@ -2557,7 +2557,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         pp->vect.Y  = MulScale(pp->vect.Y, TANK_FRICTION, 16);
 
         pp->vect.X = (pp->vect.X + (pp->ovect.X*1))/2;
-        pp->vect.Y = (pp->vect.Y + (pp->oyvect*1))/2;
+        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*1))/2;
     }
 
     if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
@@ -2643,7 +2643,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 12000)
             {
-                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->oyvect = 0;
+                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = 0;
             }
         }
     }
@@ -2691,7 +2691,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 12000)
             {
-                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->oyvect = 0;
+                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = 0;
             }
         }
     }
@@ -5056,7 +5056,7 @@ void PlayerToRemote(PLAYERp pp)
     pp->remote.xvect = pp->vect.X;
     pp->remote.yvect = pp->vect.Y;
     pp->remote.oxvect = pp->ovect.X;
-    pp->remote.oyvect = pp->oyvect;
+    pp->remote.oyvect = pp->ovect.Y;
     pp->remote.slide_xvect = pp->slide_xvect;
     pp->remote.slide_yvect = pp->slide_yvect;
 }
@@ -5073,7 +5073,7 @@ void RemoteToPlayer(PLAYERp pp)
     pp->vect.X = pp->remote.xvect;
     pp->vect.Y = pp->remote.yvect;
     pp->ovect.X = pp->remote.oxvect;
-    pp->oyvect = pp->remote.oyvect;
+    pp->ovect.Y = pp->remote.oyvect;
     pp->slide_xvect = pp->remote.slide_xvect;
     pp->slide_yvect = pp->remote.slide_yvect;
 }
@@ -5088,7 +5088,7 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
     pp->pos.Y = rsp->spr.pos.Y;
     pp->pos.Z = sect->floorz - PLAYER_HEIGHT;
 
-    pp->vect.X = pp->vect.Y = pp->ovect.X = pp->oyvect = pp->slide_xvect = pp->slide_yvect = 0;
+    pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_xvect = pp->slide_yvect = 0;
 
     UpdatePlayerSprite(pp);
 }
@@ -7089,7 +7089,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, siang)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, xvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, yvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oxvect)
-DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oyvect)
+//DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oyvect)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, friction)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_xvect)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_yvect)
