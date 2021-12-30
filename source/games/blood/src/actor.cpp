@@ -5557,7 +5557,7 @@ static void actCheckProximity()
 			case kThingBloodBits:
 			case kThingBloodChunks:
 			case kThingZombieHead:
-				if (actor->xspr.locked && PlayClock >= actor->xspr.targetX) actor->xspr.locked = 0;
+				if (actor->xspr.locked && PlayClock >= actor->xspr.TargetPos.X) actor->xspr.locked = 0;
 				break;
 			}
 
@@ -6360,7 +6360,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 318;
-		actor->xspr.targetX = PlayClock + 180;
+		actor->xspr.TargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -6373,7 +6373,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 318;
-		actor->xspr.targetX = PlayClock + 180;
+		actor->xspr.TargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -7012,7 +7012,7 @@ void DudeToGibCallback1(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.targetX = PlayClock;
+	actor->xspr.TargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 
@@ -7027,7 +7027,7 @@ void DudeToGibCallback2(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.targetX = PlayClock;
+	actor->xspr.TargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 

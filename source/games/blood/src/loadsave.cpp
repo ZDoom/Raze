@@ -623,7 +623,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("data2", w.data2, def->data2)
 			("data3", w.data3, def->data3)
 			("data4", w.data4, def->data4)
-			("targetX", w.targetX, def->targetX)
+			("targetX", w.TargetPos.X, def->TargetPos.X)
 			("targetY", w.targetY, def->targetY)
 			("targetZ", w.targetZ, def->targetZ)
 			("target", w.target, def->target)

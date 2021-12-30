@@ -179,7 +179,7 @@ static void beastThinkGoto(DBloodActor* actor)
 	auto pSector = actor->spr.sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -330,7 +330,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -403,7 +403,7 @@ static void beastMoveForward(DBloodActor* actor)
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x400 && Random(64) < 32)
@@ -424,7 +424,7 @@ static void sub_628A0(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.ang = (actor->spr.ang + 256) & 2047;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Random(64) < 32 && nDist <= 0x400)
@@ -460,7 +460,7 @@ static void sub_62AE0(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int dz = z2 - z;
 	int nDist = approxDist(dx, dy);
@@ -495,7 +495,7 @@ static void sub_62D7C(DBloodActor* actor)
 		actor->spr.ang = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int dz = (z2 - z) << 3;
 	int nDist = approxDist(dx, dy);

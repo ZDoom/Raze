@@ -64,7 +64,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int tx = actor->xspr.targetX - actor->spr.pos.X;
+	int tx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int ty = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(tx, ty);
 	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
@@ -91,7 +91,7 @@ static void zombaThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -266,7 +266,7 @@ static void entryAIdle(DBloodActor* actor)
 static void entryEStand(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 1100, -1, 0);
-	actor->spr.ang = getangle(actor->xspr.targetX - actor->spr.pos.X, actor->xspr.targetY - actor->spr.pos.Y);
+	actor->spr.ang = getangle(actor->xspr.TargetPos.X - actor->spr.pos.X, actor->xspr.targetY - actor->spr.pos.Y);
 }
 
 END_BLD_NS

@@ -364,7 +364,7 @@ void aiActivateDude(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->xspr.state)
 	{
-		aiChooseDirection(actor, getangle(actor->xspr.targetX - actor->spr.pos.X, actor->xspr.targetY - actor->spr.pos.Y));
+		aiChooseDirection(actor, getangle(actor->xspr.TargetPos.X - actor->spr.pos.X, actor->xspr.targetY - actor->spr.pos.Y));
 		actor->xspr.state = 1;
 	}
 	switch (actor->spr.type)
@@ -916,7 +916,7 @@ void aiActivateDude(DBloodActor* actor)
 void aiSetTarget(DBloodActor* actor, int x, int y, int z)
 {
 	actor->SetTarget(nullptr);
-	actor->xspr.targetX = x;
+	actor->xspr.TargetPos.X = x;
 	actor->xspr.targetY = y;
 	actor->xspr.targetZ = z;
 }
@@ -934,7 +934,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
-			actor->xspr.targetX = target->spr.pos.X;
+			actor->xspr.TargetPos.X = target->spr.pos.X;
 			actor->xspr.targetY = target->spr.pos.Y;
 			actor->xspr.targetZ = target->spr.pos.Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2);
 		}
@@ -1706,7 +1706,7 @@ void aiInitSprite(DBloodActor* actor)
 		{
 			stateTimer = actor->xspr.stateTimer;
 			pTargetMarker = actor->GetTarget();
-			targetX = actor->xspr.targetX;
+			targetX = actor->xspr.TargetPos.X;
 			targetY = actor->xspr.targetY;
 			targetZ = actor->xspr.targetZ;
 		}
@@ -1926,7 +1926,7 @@ void aiInitSprite(DBloodActor* actor)
 			if (pTargetMarker)
 			{
 				actor->SetTarget(pTargetMarker);
-				actor->xspr.targetX = targetX;
+				actor->xspr.TargetPos.X = targetX;
 				actor->xspr.targetY = targetY;
 				actor->xspr.targetZ = targetZ;
 			}

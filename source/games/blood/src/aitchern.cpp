@@ -264,7 +264,7 @@ static void sub_72850(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);

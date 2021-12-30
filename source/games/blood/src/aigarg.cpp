@@ -263,7 +263,7 @@ static void gargThinkGoto(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -532,7 +532,7 @@ static void gargMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.ang = (actor->spr.ang + 256) & 2047;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
@@ -567,7 +567,7 @@ static void gargMoveSlow(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
@@ -608,7 +608,7 @@ static void gargMoveSwoop(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
@@ -648,7 +648,7 @@ static void gargMoveFly(DBloodActor* actor)
 		actor->spr.ang = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x400)

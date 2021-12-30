@@ -689,7 +689,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			actor->xspr.Proximity = actor->xspr.Push = actor->xspr.Vector = actor->xspr.triggerOn = false;
 			actor->xspr.state = actor->xspr.restState = 0;
 
-			actor->xspr.targetX = actor->xspr.targetY = actor->xspr.targetZ = actor->xspr.sysData2 = -1;
+			actor->xspr.TargetPos.X = actor->xspr.targetY = actor->xspr.targetZ = actor->xspr.sysData2 = -1;
 			actor->SetTarget(nullptr);
 			ChangeActorStat(actor, kStatModernCondition);
 			auto oldStat = actor->spr.cstat;
@@ -3008,7 +3008,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
 	if (actor->spr.statnum == kStatDude && actor->IsDudeActor() && !actor->IsPlayerActor())
 	{
-		int x = actor->xspr.targetX;
+		int x = actor->xspr.TargetPos.X;
 		int y = actor->xspr.targetY;
 		int z = actor->xspr.targetZ;
 		auto target = actor->GetTarget();
@@ -3017,7 +3017,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
 		if (target != nullptr)
 		{
-			actor->xspr.targetX = x;
+			actor->xspr.TargetPos.X = x;
 			actor->xspr.targetY = y;
 			actor->xspr.targetZ = z;
 			actor->SetTarget(target);
@@ -6824,7 +6824,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 			{
 				actor->SetTarget(pMateTargetActor);
 				auto pMate = pMateTargetActor->GetTarget();
-				actor->xspr.targetX = pMate->spr.pos.X;
+				actor->xspr.TargetPos.X = pMate->spr.pos.X;
 				actor->xspr.targetY = pMate->spr.pos.Y;
 				actor->xspr.targetZ = pMate->spr.pos.Z;
 				if (!isActive(actor))
@@ -7640,7 +7640,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		while (auto nextactor = it.Next())
 		{
 			if (nextactor == targetactor || !nextactor->hasX()) continue;
-			else if (actor->xspr.targetX >= 0 && nextactor == prevactor && node)
+			else if (actor->xspr.TargetPos.X >= 0 && nextactor == prevactor && node)
 			{
 				if (targetactor->xspr.data2 == prevactor->xspr.data1)
 					continue;
@@ -7691,7 +7691,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		actor->xspr.unused1 &= ~kDudeFlagCrouch; // reset the crouch status
 		actor->xspr.unused2 = kPatrolMoveForward; // reset path direction
 		actor->prevmarker = nullptr;
-		actor->xspr.targetX = -1; // reset the previous marker index
+		actor->xspr.TargetPos.X = -1; // reset the previous marker index
 		if (actor->xspr.health <= 0)
 			return;
 
@@ -7720,7 +7720,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		else
 		{
 			aiInitSprite(actor);
-			aiSetTarget(actor, actor->xspr.targetX, actor->xspr.targetY, actor->xspr.targetZ);
+			aiSetTarget(actor, actor->xspr.TargetPos.X, actor->xspr.targetY, actor->xspr.targetZ);
 		}
 
 		actor->xspr.dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again

@@ -151,7 +151,7 @@ static void eelThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -329,7 +329,7 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.ang = (actor->spr.ang + 256) & 2047;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x399)
@@ -358,7 +358,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x8000) && nDist <= 0x399)
@@ -385,7 +385,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
 	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x399)
