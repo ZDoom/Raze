@@ -633,7 +633,6 @@ struct PLAYERstruct
 
     vec2_t vect, ovect, slide_vect;
     int friction;
-    int slide_yvect;
     int16_t slide_ang;
     int slide_dec;
     float drive_avel;

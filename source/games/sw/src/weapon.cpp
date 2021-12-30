@@ -5242,14 +5242,14 @@ int PlayerDamageSlide(PLAYERp pp, int damage, short ang)
     {
         //nudge
         pp->slide_vect.X = MOVEx(16, ang)<<15;
-        pp->slide_yvect = MOVEy(16, ang)<<15;
+        pp->slide_vect.Y = MOVEy(16, ang)<<15;
         return true;
     }
     else if (damage <= 20)
     {
         //bigger nudge
         pp->slide_vect.X = MOVEx(64, ang)<<15;
-        pp->slide_yvect = MOVEy(64, ang)<<15;
+        pp->slide_vect.Y = MOVEy(64, ang)<<15;
         return true;
     }
     else
@@ -5257,7 +5257,7 @@ int PlayerDamageSlide(PLAYERp pp, int damage, short ang)
         slide_vel = (damage * 6);
 
         pp->slide_vect.X = MOVEx(slide_vel, ang)<<15;
-        pp->slide_yvect = MOVEy(slide_vel, ang)<<15;
+        pp->slide_vect.Y = MOVEy(slide_vel, ang)<<15;
 
         return true;
     }

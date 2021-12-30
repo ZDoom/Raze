@@ -197,7 +197,6 @@ struct SWPlayer native
     native int16 siang;
 
     native int friction;
-    native int slide_yvect;
     native int16 slide_ang;
     native int slide_dec;
     native float drive_avel;
