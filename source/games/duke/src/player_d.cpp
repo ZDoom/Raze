@@ -1917,7 +1917,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 	{
 		p->jumping_counter = 0;
 		if (p->poszv < 0)
-			p->posxv = p->posyv = 0;
+			p->vel.X = p->posyv = 0;
 		p->poszv = 128;
 		p->pos.Z = cz + (4 << 8);
 	}
@@ -2783,7 +2783,7 @@ void processinput_d(int snum)
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < (84 << 8))
 		{
 			j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
-			p->posxv -= bcos(j, 4);
+			p->vel.X -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
 	}
@@ -2829,7 +2829,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->posxv = p->posyv = pact->spr.xvel = 0;
+		p->vel.X = p->posyv = pact->spr.xvel = 0;
 
 		fi.doincrements(p);
 
@@ -2876,7 +2876,7 @@ void processinput_d(int snum)
 	if (movementBlocked(p))
 	{
 		doubvel = 0;
-		p->posxv = 0;
+		p->vel.X = 0;
 		p->posyv = 0;
 	}
 	else if (SyncInput())
@@ -2928,7 +2928,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	if (p->posxv || p->posyv || sb_fvel || sb_svel)
+	if (p->vel.X || p->posyv || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -2970,7 +2970,7 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->posxv += ((sb_fvel * doubvel) << 6);
+		p->vel.X += ((sb_fvel * doubvel) << 6);
 		p->posyv += ((sb_svel * doubvel) << 6);
 
 		bool check;
@@ -2979,30 +2979,30 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike(p->curr_weapon, snum) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->posxv = MulScale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x2000, 16);
 			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1400, 16);
 				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->vel.X = MulScale(p->vel.X, gs.playerfriction, 16);
 				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
-		if (abs(p->posxv) < 2048 && abs(p->posyv) < 2048)
-			p->posxv = p->posyv = 0;
+		if (abs(p->vel.X) < 2048 && abs(p->posyv) < 2048)
+			p->vel.X = p->posyv = 0;
 
 		if (shrunk)
 		{
-			p->posxv =
-				MulScale(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+			p->vel.X =
+				MulScale(p->vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 			p->posyv =
 				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
@@ -3019,13 +3019,13 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->pos.X += p->posxv >> 14;
+		p->pos.X += p->vel.X >> 14;
 		p->pos.Y += p->posyv >> 14;
 		updatesector(p->pos.X, p->pos.Y, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->vel.X, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32 << 8;

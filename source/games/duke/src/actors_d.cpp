@@ -759,11 +759,11 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					case SEENINE:
 					case OOZFILTER:
 					case EXPLODINGBARREL:
-						ps[p].posxv += actor->extra * bcos(actor->ang, 2);
+						ps[p].vel.X += actor->extra * bcos(actor->ang, 2);
 						ps[p].posyv += actor->extra * bsin(actor->ang, 2);
 						break;
 					default:
-						ps[p].posxv += actor->extra * bcos(actor->ang, 1);
+						ps[p].vel.X += actor->extra * bcos(actor->ang, 1);
 						ps[p].posyv += actor->extra * bsin(actor->ang, 1);
 						break;
 				}
@@ -1985,7 +1985,7 @@ void movetransports_d(void)
 						ps[p].opos.Z = ps[p].pos.Z =
 						Owner->sector()->ceilingz + (7 << 8);
 
-						ps[p].posxv = 4096 - (krand() & 8192);
+						ps[p].vel.X = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
 
 					}
@@ -3699,7 +3699,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		int newx, newy;
 
-		newx = ps[playernum].pos.X + (ps[playernum].posxv / 768);
+		newx = ps[playernum].pos.X + (ps[playernum].vel.X / 768);
 		newy = ps[playernum].pos.Y + (ps[playernum].posyv / 768);
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
@@ -3805,12 +3805,12 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 				if (xvel < 512)
 				{
-					ps[playernum].posxv = 0;
+					ps[playernum].vel.X = 0;
 					ps[playernum].posyv = 0;
 				}
 				else
 				{
-					ps[playernum].posxv = MulScale(ps[playernum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[playernum].vel.X = MulScale(ps[playernum].vel.X, gs.playerfriction - 0x2000, 16);
 					ps[playernum].posyv = MulScale(ps[playernum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}

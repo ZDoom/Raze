@@ -683,11 +683,11 @@ int ifhitbyweapon_r(DDukeActor *actor)
 				case EXPLODINGBARREL:
 				case TRIPBOMBSPRITE:
 				case RPG2:
-					ps[p].posxv += actor->extra * bcos(actor->ang, 2);
+					ps[p].vel.X += actor->extra * bcos(actor->ang, 2);
 					ps[p].posyv += actor->extra * bsin(actor->ang, 2);
 					break;
 				default:
-					ps[p].posxv += actor->extra * bcos(actor->ang, 1);
+					ps[p].vel.X += actor->extra * bcos(actor->ang, 1);
 					ps[p].posyv += actor->extra * bsin(actor->ang, 1);
 					break;
 				}
@@ -3744,7 +3744,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		int newx, newy;
 
-		newx = ps[pnum].pos.X + (ps[pnum].posxv / 768);
+		newx = ps[pnum].pos.X + (ps[pnum].vel.X / 768);
 		newy = ps[pnum].pos.Y + (ps[pnum].posyv / 768);
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
@@ -3854,12 +3854,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 				if (xvel < 512)
 				{
-					ps[pnum].posxv = 0;
+					ps[pnum].vel.X = 0;
 					ps[pnum].posyv = 0;
 				}
 				else
 				{
-					ps[pnum].posxv = MulScale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].vel.X = MulScale(ps[pnum].vel.X, gs.playerfriction - 0x2000, 16);
 					ps[pnum].posyv = MulScale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
