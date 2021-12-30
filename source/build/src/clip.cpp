@@ -110,8 +110,8 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
 {
     int const r = walldist << 1;
 
-    auto const wal1 = (uwallptr_t)&wall[wallnum];
-    auto const wal2 = (uwallptr_t)wal1->point2Wall();
+    auto const wal1 = &wall[wallnum];
+    auto const wal2 = wal1->point2Wall();
 
     vec2_t const v1 = { wal1->pos.X + walldist - vect->X, wal1->pos.Y + walldist - vect->Y };
     vec2_t       v2 = { wal2->pos.X + walldist - vect->X, wal2->pos.Y + walldist - vect->Y };
@@ -501,11 +501,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         auto const sec       = (usectorptr_t)&sector[dasect];
         int const  startwall = sec->wallptr;
         int const  endwall   = startwall + sec->wallnum;
-        auto       wal       = (uwallptr_t)&wall[startwall];
+        auto       wal       = &wall[startwall];
 
         for (int j=startwall; j<endwall; j++, wal++)
         {
-            auto const wal2 = (uwallptr_t)wal->point2Wall();
+            auto const wal2 = wal->point2Wall();
 
             if ((wal->pos.X < clipMin.X && wal2->pos.X < clipMin.X) || (wal->pos.X > clipMax.X && wal2->pos.X > clipMax.X) ||
                 (wal->pos.Y < clipMin.Y && wal2->pos.Y < clipMin.Y) || (wal->pos.Y > clipMax.Y && wal2->pos.Y > clipMax.Y))
@@ -942,7 +942,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
         do
         {
-            uwallptr_t wal;
+            const walltype* wal;
             int32_t startwall, endwall;
 
             auto sec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
@@ -953,7 +953,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
             int i;
 
-            for (i=startwall, wal=(uwallptr_t)&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
+            for (i=startwall, wal=&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
                 if (clipinsidebox(&vect->vec2, i, walldist-4) == 1)
                 {
                     int j = 0;
@@ -1281,8 +1281,8 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
 
     if (stat&2)
     {
-        auto const wal  = (uwallptr_t)sec->firstWall();
-        auto const wal2 = (uwallptr_t)wal->point2Wall();
+        auto const wal  = sec->firstWall();
+        auto const wal2 = wal->point2Wall();
         int32_t j, dax=wal2->pos.X-wal->pos.X, day=wal2->pos.Y-wal->pos.Y;
 
         i = ksqrt(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;

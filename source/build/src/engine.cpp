@@ -480,11 +480,11 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
 
     while (auto sec = search.GetNext())
     {
-        uwallptr_t wal;
+        const walltype* wal;
         int cnt;
-        for (cnt=sec->wallnum,wal=(uwallptr_t)sec->firstWall(); cnt>0; cnt--,wal++)
+        for (cnt=sec->wallnum,wal=sec->firstWall(); cnt>0; cnt--,wal++)
         {
-            auto const wal2 = (uwallptr_t)wal->point2Wall();
+            auto const wal2 = wal->point2Wall();
             const int32_t x31 = wal->pos.X-x1, x34 = wal->pos.X-wal2->pos.X;
             const int32_t y31 = wal->pos.Y-y1, y34 = wal->pos.Y-wal2->pos.Y;
 
@@ -551,7 +551,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
         for (auto& w : wallsofsector(dasect))
         {
             auto wal = &w;
-            auto const wal2 = (uwallptr_t)wal->point2Wall();
+            auto const wal2 = wal->point2Wall();
             const auto nextsect = wal->nextSector();
 
             const int32_t x1 = wal->pos.X, y1 = wal->pos.Y, x2 = wal2->pos.X, y2 = wal2->pos.Y;

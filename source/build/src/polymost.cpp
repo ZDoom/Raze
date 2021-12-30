@@ -1477,8 +1477,8 @@ static void polymost_drawalls(int32_t const bunch)
     {
         int32_t const wallnum = thewall[z];
 
-        auto const wal = (uwallptr_t)&wall[wallnum];
-        auto const wal2 = (uwallptr_t)wal->point2Wall();
+        auto const wal = &wall[wallnum];
+        auto const wal2 = wal->point2Wall();
         int32_t const nextsectnum = wal->nextsector;
         auto const nextsec = nextsectnum>=0 ? (usectorptr_t)&sector[nextsectnum] : NULL;
 
@@ -1712,12 +1712,12 @@ static void polymost_drawalls(int32_t const bunch)
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat) & CSTAT_SECTOR_SKY)))
             {
-                uwallptr_t nwal;
+                const walltype* nwal;
 
                 if (!(wal->cstat & CSTAT_WALL_BOTTOM_SWAP)) nwal = wal;
                 else
                 {
-                    nwal = (uwallptr_t)&wall[wal->nextwall];
+                    nwal = &wall[wal->nextwall];
                     otex.u += (float)(nwal->xpan_ - wal->xpan_) * otex.d;
                     xtex.u += (float)(nwal->xpan_ - wal->xpan_) * xtex.d;
                     ytex.u += (float)(nwal->xpan_ - wal->xpan_) * ytex.d;
@@ -1905,12 +1905,12 @@ void polymost_scansector(int32_t sectnum)
 
         DVector2 p2 = { 0, 0 };
 
-        uwallptr_t wal;
+        const walltype* wal;
 
         int z;
-        for (z=startwall,wal=(uwallptr_t)&wall[z]; z<endwall; z++,wal++)
+        for (z=startwall,wal=&wall[z]; z<endwall; z++,wal++)
         {
-            auto const wal2 = (uwallptr_t)wal->point2Wall();
+            auto const wal2 = wal->point2Wall();
 
             DVector2 const fp1 = { double(wal->pos.X - globalposx), double(wal->pos.Y - globalposy) };
             DVector2 const fp2 = { double(wal2->pos.X - globalposx), double(wal2->pos.Y - globalposy) };
@@ -2292,8 +2292,8 @@ void polymost_drawrooms()
 
 static void polymost_drawmaskwallinternal(int32_t wallIndex)
 {
-    auto const wal = (uwallptr_t)&wall[wallIndex];
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
+    auto const wal = &wall[wallIndex];
+    auto const wal2 = wal->point2Wall();
     if (wal->nextwall == -1) return;
     int32_t const sectnum = wal->nextWall()->nextsector;
     auto const sec = (usectorptr_t)&sector[sectnum];

@@ -88,7 +88,6 @@ enum {
 
 #include "maptypes.h"
 
-using uwallptr_t   = walltype const *;
 using usectorptr_t = sectortype const *;
 using tspriteptr_t = tspritetype *;
 
