@@ -157,7 +157,7 @@ struct user_defs
 struct player_orig
 {
 	vec3_t opos;
-	int oy, oz;
+	int oz;
 	short oa;
 	sectortype* os;
 };
