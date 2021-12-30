@@ -745,7 +745,7 @@ void movecrane(DDukeActor *actor, int crane)
 			if ((sectp->floorz - actor->spr.pos.Z) > 8192)
 				actor->spr.picnum++;
 
-		if (actor->spr.pos.Z < cpt.z)
+		if (actor->spr.pos.Z < cpt.pos.Z)
 		{
 			actor->temp_data[0]++;
 			actor->spr.xvel = 0;

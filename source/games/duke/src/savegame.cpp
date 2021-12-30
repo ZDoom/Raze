@@ -69,7 +69,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, Crane
 	{
 		arc("x", w.pos.X)
 			("y", w.pos.Y)
-			("z", w.z)
+			("z", w.pos.Z)
 			("polex", w.polex)
 			("poley", w.poley)
 			("pole", w.poleactor)
