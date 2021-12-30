@@ -6357,7 +6357,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition)
     // Back up current coordinates for interpolating.
     psp->backupcoords();
 
-    psp->pos.X = psp->xorig + xdiff;
+    psp->pos.X = psp->bobpos.X + xdiff;
     psp->pos.Y = psp->yorig + ydiff + UziRecoilYadj;
 }
 

@@ -338,7 +338,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 			("picnum", w.picnum)
 			("vel", w.vel)
 			("vel_adj", w.vel_adj)
-			("xorig", w.xorig)
+			("xorig", w.bobpos.X)
 			("yorig", w.yorig)
 			("flags", w.flags)
 			("priority", w.priority)

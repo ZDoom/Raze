@@ -106,8 +106,7 @@ struct PANEL_SPRITEstruct
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
     // Do not change the order of this line
-    DVector2 pos, opos;
-    double xorig;
+    DVector2 pos, opos, bobpos;
     double yorig;                            // Do not change the order of this
     // line
 
@@ -134,7 +133,7 @@ struct PANEL_SPRITEstruct
     void backupx() { opos.X = pos.X; };
     void backupy() { opos.Y = pos.Y; };
     void backupcoords() { opos = pos; };
-    void backupbobx() { xorig = pos.X; };
+    void backupbobx() { bobpos.X = pos.X; };
     void backupboby() { yorig = pos.Y; };
     void backupbobcoords() { backupbobx(); backupboby(); };
 };
