@@ -150,7 +150,7 @@ struct DukePlayer
 	native int16 psectlotag;
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
-	native int exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
+	native int exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	native int invdisptime;
 	native int bobposx, bobposy, pyoff, opyoff;
 	native int last_pissed_time, truefz, truecz;

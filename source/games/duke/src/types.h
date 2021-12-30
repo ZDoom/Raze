@@ -187,7 +187,7 @@ struct player_struct
 	PalEntry pals;
 
 	// this was a global variable originally.
-	vec2_t fric;
+	vec2_t fric, exit;
 
 	// weapon drawer variables and their interpolation counterparts.
 	int weapon_sway;
@@ -201,7 +201,7 @@ struct player_struct
 	short psectlotag;
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
-	int exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
+	int exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	int invdisptime;
 	int bobposx, bobposy, pyoff, opyoff;
 	int last_pissed_time, truefz, truecz;

@@ -116,7 +116,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("pals", w.pals)
 			("fricx", w.fric.X)
 			("fricy", w.fric.Y)
-			("exitx", w.exitx)
+			("exitx", w.exit.X)
 			("exity", w.exity)
 			("numloogs", w.numloogs)
 			("loogcnt", w.loogcnt)
