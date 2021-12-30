@@ -682,7 +682,7 @@ void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 }
 
 
-void DoAutoSize(tspriteptr_t tspr)
+void DoAutoSize(tspritetype* tspr)
 {
     if (!bAutoSize)
         return;
@@ -831,7 +831,7 @@ void DoAutoSize(tspriteptr_t tspr)
 // Rotation angles for sprites
 short rotang = 0;
 
-void JAnalyzeSprites(tspriteptr_t tspr)
+void JAnalyzeSprites(tspritetype* tspr)
 {
     rotang += 4;
     if (rotang > 2047)

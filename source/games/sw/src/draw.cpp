@@ -83,7 +83,7 @@ void SW_InitMultiPsky(void)
 
 
 #if 1
-void ShadeSprite(tspriteptr_t tsp)
+void ShadeSprite(tspritetype* tsp)
 {
     // set shade of sprite
     tsp->shade = tsp->sector()->floorshade - 25;
@@ -104,7 +104,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
     int rotation;
 
-    tspriteptr_t tsp = &tsprite[tSpriteNum];
+    tspritetype* tsp = &tsprite[tSpriteNum];
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int angle2;
 
@@ -171,7 +171,7 @@ directions was not standardized.
 
 int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
-    tspriteptr_t tsp = &tsprite[tSpriteNum];
+    tspritetype* tsp = &tsprite[tSpriteNum];
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int StateOffset, Rotation;
 
@@ -204,7 +204,7 @@ int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, i
     return 0;
 }
 
-int DoShadowFindGroundPoint(tspriteptr_t tspr)
+int DoShadowFindGroundPoint(tspritetype* tspr)
 {
     // USES TSPRITE !!!!!
     auto ownerActor = static_cast<DSWActor*>(tspr->ownerActor);
@@ -258,9 +258,9 @@ int DoShadowFindGroundPoint(tspriteptr_t tspr)
     return loz;
 }
 
-void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
+void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int viewz, int camang)
 {
-    tspriteptr_t tSpr = &tsprite[spritesortcnt];
+    tspritetype* tSpr = &tsprite[spritesortcnt];
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
     int view_dist = 0;
@@ -415,7 +415,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
 
     for (i = 0; i < ownerActor->user.motion_blur_num; i++)
     {
-        tspriteptr_t tSpr = &tsprite[spritesortcnt];
+        tspritetype* tSpr = &tsprite[spritesortcnt];
         *tSpr = *tsp;
         tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP;
 
@@ -468,7 +468,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     if (itActor2->spr.picnum == ST1)
                         continue;
 
-                    tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
+                    tspritetype* newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
                     xoff = itActor->spr.pos.X - newTSpr->pos.X;
@@ -490,7 +490,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     if (itActor2->spr.picnum == ST1)
                         continue;
 
-                    tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
+                    tspritetype* newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
                     auto off = itActor1->spr.pos - newTSpr->pos;
@@ -502,7 +502,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
     }
 }
 
-void DoStarView(tspriteptr_t tsp, DSWActor* tActor, int viewz)
+void DoStarView(tspritetype* tsp, DSWActor* tActor, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
@@ -605,7 +605,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        tspriteptr_t tsp = &tsprite[tSpriteNum];
+        tspritetype* tsp = &tsprite[tSpriteNum];
         auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
         auto tsectp = tsp->sector();
 
@@ -886,7 +886,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
 
 #if 1
-tspriteptr_t get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* actor)
+tspritetype* get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* actor)
 {
     int tSpriteNum;
 
@@ -907,13 +907,13 @@ void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
     {
         auto actor = static_cast<DSWActor*>(tsprite[tSpriteNum].ownerActor);
         if (!actor) continue;    // JBF: verify this is safe
-        tspriteptr_t tsp = &tsprite[tSpriteNum];
+        tspritetype* tsp = &tsprite[tSpriteNum];
 
         if (actor->hasU())
         {
             if (actor->user.ID == FIREBALL_FLAMES && actor->user.attachActor != nullptr)
             {
-                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, actor->user.attachActor);
+                tspritetype* const atsp = get_tsprite(tsprite, spritesortcnt, actor->user.attachActor);
 
                 if (!atsp)
                 {
