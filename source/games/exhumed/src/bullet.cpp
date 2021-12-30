@@ -762,8 +762,8 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                     int nPlayer = GetPlayerFromActor(pTarget);
                     if (nPlayer > -1)
                     {
-                        x += PlayerList[nPlayer].nPlayerDX * 15;
-                        y += PlayerList[nPlayer].nPlayerDY * 15;
+                        x += PlayerList[nPlayer].nPlayerD.X * 15;
+                        y += PlayerList[nPlayer].nPlayerD.Y * 15;
                     }
                 }
 

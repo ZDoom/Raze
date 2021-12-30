@@ -386,8 +386,8 @@ void RestartPlayer(int nPlayer)
 
 	nTemperature[nPlayer] = 0;
 
-	plr->nYDamage = 0;
-	plr->nXDamage = 0;
+	plr->nDamage.Y = 0;
+	plr->nDamage.X = 0;
 
 	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
 	plr->nBreathTimer = 90;
@@ -923,8 +923,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (bUnderwater)
     {
-        PlayerList[nPlayer].nXDamage /= 2;
-        PlayerList[nPlayer].nYDamage /= 2;
+        PlayerList[nPlayer].nDamage.X /= 2;
+        PlayerList[nPlayer].nDamage.Y /= 2;
     }
 
     // Trigger Ramses?
@@ -969,8 +969,8 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (bTouchFloor)
         {
             // Damage stuff..
-            PlayerList[nPlayer].nXDamage /= 2;
-            PlayerList[nPlayer].nYDamage /= 2;
+            PlayerList[nPlayer].nDamage.X /= 2;
+            PlayerList[nPlayer].nDamage.Y /= 2;
 
             if (nPlayer == nLocalPlayer)
             {
@@ -1158,8 +1158,8 @@ sectdone:
     // loc_1ADAF
     PlayerList[nPlayer].pPlayerViewSect = pViewSect;
 
-    PlayerList[nPlayer].nPlayerDX = pPlayerActor->spr.pos.X - spr_x;
-    PlayerList[nPlayer].nPlayerDY = pPlayerActor->spr.pos.Y - spr_y;
+    PlayerList[nPlayer].nPlayerD.X = pPlayerActor->spr.pos.X - spr_x;
+    PlayerList[nPlayer].nPlayerD.Y = pPlayerActor->spr.pos.Y - spr_y;
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
@@ -2554,8 +2554,8 @@ sectdone:
 
     if (!PlayerList[nPlayer].nHealth)
     {
-        PlayerList[nPlayer].nYDamage = 0;
-        PlayerList[nPlayer].nXDamage = 0;
+        PlayerList[nPlayer].nDamage.Y = 0;
+        PlayerList[nPlayer].nDamage.X = 0;
 
         if (PlayerList[nPlayer].eyelevel >= -2816)
         {
@@ -2645,11 +2645,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("deathtype", w.nDeathType)
             ("score", w.nPlayerScore)
             ("color", w.nPlayerColor)
-            ("dx", w.nPlayerDX)
-            ("dy", w.nPlayerDY)
+            ("dx", w.nPlayerD.X)
+            ("dy", w.nPlayerD.Y)
             ("pistolclip", w.nPistolClip)
-            ("xdamage", w.nXDamage)
-            ("ydamage", w.nYDamage)
+            ("xdamage", w.nDamage.X)
+            ("ydamage", w.nDamage.Y)
             ("dopplesprite", w.pDoppleSprite)
             ("oldweapon", w.nPlayerOldWeapon)
             ("clip", w.nPlayerClip)

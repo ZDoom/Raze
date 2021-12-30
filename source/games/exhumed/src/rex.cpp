@@ -350,8 +350,8 @@ void AIRex::Tick(RunListEvent* ev)
                     if (pHitActor->spr.statnum == 100)
                     {
                         auto nPlayer = GetPlayerFromActor(nMov.actor());
-                        PlayerList[nPlayer].nXDamage += (xVel << 4);
-                        PlayerList[nPlayer].nYDamage += (yVel << 4);
+                        PlayerList[nPlayer].nDamage.X += (xVel << 4);
+                        PlayerList[nPlayer].nDamage.Y += (yVel << 4);
                         pHitActor->spr.zvel = -3584;
                     }
                     else
