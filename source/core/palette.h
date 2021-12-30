@@ -22,7 +22,7 @@ enum
     MAXBASEPALS = 256,
     MAXPALOOKUPS = 256,
     MAXBLENDTABS = 256,
-    
+
     RESERVEDPALS = 4, // don't forget to increment this when adding reserved pals
     DETAILPAL   = (MAXPALOOKUPS - 1),
     GLOWPAL     = (MAXPALOOKUPS - 2),

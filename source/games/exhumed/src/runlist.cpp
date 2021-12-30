@@ -616,7 +616,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
                 closest (next) ceiling starting at the given z-coordinate (thez).
             */
             auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
-            
+
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
 
@@ -635,7 +635,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         case 2: // Floor Doom door
         {
             auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
-            
+
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->ceilingz, nextSectorP->floorz);
 
@@ -1334,7 +1334,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             }
 
             auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
-            
+
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
 

@@ -161,7 +161,7 @@ void drawMapTitle()
 {
 	if (!hud_showmapname || levelTextTime <= 0 || M_Active())
 		return;
-	
+
 	double alpha = levelTextTime > 16? 1.0 : levelTextTime / 16.;
 	if (alpha > 0)
 	{

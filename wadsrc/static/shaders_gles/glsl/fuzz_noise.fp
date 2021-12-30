@@ -4,7 +4,7 @@ vec4 ProcessTexel()
 {
 	vec2 texCoord = vTexCoord.st;
 	vec4 basicColor = getTexel(texCoord);
-	
+
 	texCoord.x = float( int(texCoord.x * 128.0) ) / 128.0;
 	texCoord.y = float( int(texCoord.y * 128.0) ) / 128.0;
 

@@ -617,7 +617,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
 			if (actor->spr.lotag != SE_23_ONE_WAY_TELEPORT && actors)
 			{
-				
+
 				for(auto act2 : *actors)
 				{
 					if (act2->spr.statnum < MAXSTATUS && act2->spr.picnum == SECTOREFFECTOR && (act2->spr.lotag == SE_7_TELEPORT || act2->spr.lotag == SE_23_ONE_WAY_TELEPORT) && 
@@ -924,7 +924,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 					sectp->hitagactor = actor;
 				}
 
-				
+
 				bool found = false;
 				if (actors) for(auto act2 : *actors)
 				{
@@ -1175,7 +1175,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		}
 		return;
 	}
-	
+
 	int x1 = wal->pos.X;
 	int y1 = wal->pos.Y;
 

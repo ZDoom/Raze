@@ -9,7 +9,7 @@
 function(enable_precompiled_headers PRECOMPILED_HEADER SOURCE_VARIABLE_NAME)
   if(MSVC)
     set(files ${${SOURCE_VARIABLE_NAME}})
-    
+
     # Generate precompiled header translation unit
     get_filename_component(pch_basename ${PRECOMPILED_HEADER} NAME_WE)
     set(pch_abs ${CMAKE_CURRENT_SOURCE_DIR}/${PRECOMPILED_HEADER})
@@ -28,7 +28,7 @@ function(enable_precompiled_headers PRECOMPILED_HEADER SOURCE_VARIABLE_NAME)
         FILE(WRITE ${pch_unity} "${pch_content}")
     endif()
     set_source_files_properties(${pch_unity}  PROPERTIES COMPILE_FLAGS "/Yc\"${pch_abs}\"")
-    
+
     # Update properties of source files to use the precompiled header.
     # Additionally, force the inclusion of the precompiled header at beginning of each source file.
     foreach(source_file ${files} )
@@ -38,7 +38,7 @@ function(enable_precompiled_headers PRECOMPILED_HEADER SOURCE_VARIABLE_NAME)
         "/Yu\"${pch_abs}\" /FI\"${pch_abs}\""
       )
     endforeach(source_file)
-    
+
     # Finally, update the source file collection to contain the precompiled header translation unit
     set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${pch_unity} PARENT_SCOPE)
   endif(MSVC)

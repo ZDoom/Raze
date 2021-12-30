@@ -350,7 +350,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
     }
 
     static int32_t skyzbufferhack_pass = 0;
-    
+
     if (flatskyrender && skyzbufferhack_pass == 0)
     {
         polymost_flatskyrender(dpxy, n, method|DAMETH_SKY, tilesize);
@@ -709,7 +709,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
             firstnode = i;
             continue;
         }
-        
+
         if (n0.X >= dm1.X)
             break;
 
@@ -1281,7 +1281,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         xys[i].X = v.x * r + ghalfx;
         xys[i].Y = v.y * r + ghalfy;
     }
-    
+
     float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
@@ -1575,7 +1575,7 @@ static void polymost_drawalls(int32_t const bunch)
             xtex.d = (ryp0-ryp1)*gxyaspect / (x0-x1);
             ytex.d = 0;
             otex.d = ryp0*gxyaspect - xtex.d*x0;
-        
+
             xtex.u = ytex.u = otex.u = 0;
             xtex.v = ytex.v = otex.v = 0;
             polymost_domost(x0, fy0, x1, fy1);
@@ -1622,13 +1622,13 @@ static void polymost_drawalls(int32_t const bunch)
         global_cf_ypanning = sec->ceilingypan_, 
             global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &fgetceilzofslope;
-        
+
         if (globalpicnum >= r_rortexture && globalpicnum < r_rortexture + r_rortexturerange && r_rorphase == 0)
         {
             xtex.d = (ryp0-ryp1)*gxyaspect / (x0-x1);
             ytex.d = 0;
             otex.d = ryp0*gxyaspect - xtex.d*x0;
-        
+
             xtex.u = ytex.u = otex.u = 0;
             xtex.v = ytex.v = otex.v = 0;
             polymost_domost(x1, cy1, x0, cy0);

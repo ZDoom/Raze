@@ -273,7 +273,7 @@ void fakedomovethings(void)
 
 				 if(shrunk) j = 512;
 				 else j = 2048;
-				 
+
 				 if ((sb_snum&1) && !(p->OnMotorcycle || p->OnBoat))
 							myz -= j;
 				 if ((sb_snum&(1<<1)) && !(p->OnMotorcycle || p->OnBoat))

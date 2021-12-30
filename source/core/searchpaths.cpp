@@ -212,7 +212,7 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 TArray<FString> CollectSearchPaths()
 {
 	TArray<FString> searchpaths;
-	
+
 	if (GameConfig->SetSection("GameSearch.Directories"))
 	{
 		const char *key;
@@ -396,7 +396,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 {
 	TArray<GrpInfo> groups;
 	TMap<FString, int> FlagMap;
-	
+
 	FlagMap.Insert("GAMEFLAG_DUKE", GAMEFLAG_DUKE);
 	FlagMap.Insert("GAMEFLAG_NAM", GAMEFLAG_NAM);
 	FlagMap.Insert("GAMEFLAG_NAPALM", GAMEFLAG_NAPALM);
@@ -421,7 +421,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FScanner sc;
 	auto mem = fr.Read();
 	sc.OpenMem(fn, (const char *)mem.Data(), mem.Size());
-	
+
 	while (sc.GetToken())
 	{
 		sc.TokenMustBe(TK_Identifier);
@@ -666,7 +666,7 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 //
 //
 //==========================================================================
-					
+
 void GetCRC(FileEntry *entry, TArray<FileEntry> &CRCCache)
 {
 	for (auto &ce : CRCCache)
@@ -909,7 +909,7 @@ TArray<GrpEntry> GrpScan()
 	{
 		SaveCRCs(cachedCRCs);
 	}
-	
+
 	return foundGames;
 }
 

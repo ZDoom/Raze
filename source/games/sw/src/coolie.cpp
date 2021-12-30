@@ -375,7 +375,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     unsigned int wpn;
     int wpn_cnt;
     int depth = 0;
- 
+
     switch (actor->user.ID)
     {
     case PACHINKO1:

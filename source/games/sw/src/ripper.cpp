@@ -1049,7 +1049,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
-	
+
     if (coll.type != kHitNone)
         actor->spr.ang = NORM_ANGLE((actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else

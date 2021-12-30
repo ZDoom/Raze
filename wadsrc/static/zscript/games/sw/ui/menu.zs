@@ -36,16 +36,16 @@ class SWMenuDelegate : RazeMenuDelegate
 		int h = texid.isValid() && texsize.Y < 40? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
-	
+
 	override bool DrawSelector(ListMenuDescriptor desc)
 	{
 		let item = desc.mItems[desc.mSelectedItem];
 		let x = item.GetX();
 		let y = item.GetY();
-		
+
 
 		let tex = TexMan.CheckForTexture("YINYANG");
-		
+
 		x -= TexMan.GetSize(tex) / 4 + 2;
 		y += 4;
 
@@ -104,17 +104,17 @@ class ListMenuItemSWTextItem : ListMenuItemTextItem
 		Super.Init(desc, text, hotkey, child, param);
 		if (child == 'none') mEnabled = -1;
 	}
-	
+
 	override bool Selectable()
 	{
 		return super.Selectable() && mFont == BigFont;
 	}
-	
+
 	void InitDirect(double x, double y, int height, String hotkey, String text, Font font, int color, int color2, Name child, int param = 0)
 	{
 		Super.InitDirect(x, y, height, hotkey, text, font, color, color2, child, param);
 	}
-	
+
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		let gamefont = generic_ui ? NewSmallFont : mFont == SmallFont? Raze.PickSmallFont() : mFont == BigFont? Raze.PickBigFont() : mFont;

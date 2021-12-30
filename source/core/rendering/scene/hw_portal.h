@@ -212,13 +212,13 @@ struct FPortalSceneState
 
 extern FPortalSceneState portalState;
 
-	
+
 class HWScenePortalBase : public HWPortal
 {
 protected:
 	HWScenePortalBase(FPortalSceneState *state) : HWPortal(state, false)
 	{
-		
+
 	}
 public:
 	void ClearClipper(HWDrawInfo *di, Clipper *clipper);
@@ -402,7 +402,7 @@ protected:
 	virtual const char *GetName();
 
 public:
-	
+
 	HWHorizonPortal(FPortalSceneState *state, HWHorizonInfo * pt, FRenderViewpoint &vp, bool local = false);
 };
 #endif

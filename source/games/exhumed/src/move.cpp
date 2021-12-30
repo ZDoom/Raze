@@ -290,7 +290,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
             }
         }
     }
-    
+
 
     if (z2 < pActor->spr.pos.Z)
     {

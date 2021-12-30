@@ -10,7 +10,7 @@ void main()
 {
 	float fogdist;
 	float fogfactor;
-	
+
 	//
 	// calculate fog factor
 	//
@@ -24,7 +24,7 @@ void main()
 	}
 #endif
 	fogfactor = exp2 (uFogDensity * fogdist);
-	
+
 	gl_FragColor = vec4(uFogColor.rgb, 1.0 - fogfactor);
 }
 

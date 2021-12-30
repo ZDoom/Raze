@@ -65,7 +65,7 @@ private:
     char *_13;
 
     char fileName[BMAX_PATH]; // watcom maxpath
-    
+
     void LoadRes(void *);
     void Load();
 };

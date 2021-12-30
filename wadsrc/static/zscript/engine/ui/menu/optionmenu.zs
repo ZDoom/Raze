@@ -65,7 +65,7 @@ class OptionMenuDescriptor : MenuDescriptor native
 		mIndent = 0;
 		mDontDim = 0;
 	}
-	
+
 	//=============================================================================
 	//
 	//
@@ -133,7 +133,7 @@ class OptionMenu : Menu
 		}
 	}
 
-	
+
 	//=============================================================================
 	//
 	//
@@ -149,7 +149,7 @@ class OptionMenu : Menu
 		}
 		return NULL;
 	}
-	
+
 
 	//=============================================================================
 	//
@@ -260,7 +260,7 @@ class OptionMenu : Menu
 			do
 			{
 				++mDesc.mSelectedItem;
-				
+
 				if (CanScrollDown && mDesc.mSelectedItem == VisBottom)
 				{
 					mDesc.mScrollPos++;
@@ -356,7 +356,7 @@ class OptionMenu : Menu
 		return true;
 	}
 
-	
+
 	//=============================================================================
 	//
 	//
@@ -393,7 +393,7 @@ class OptionMenu : Menu
 		return Super.MouseEvent(type, x, y);
 	}
 
-	
+
 	//=============================================================================
 	//
 	//
@@ -408,7 +408,7 @@ class OptionMenu : Menu
 			mDesc.mItems[i].Ticker();
 		}
 	}
-	
+
 	//=============================================================================
 	//
 	//
@@ -509,12 +509,12 @@ class OptionMenu : Menu
 	{
 		mFocusControl = OptionMenuItem(fc);
 	}
-	
+
 	override bool CheckFocus(MenuItemBase fc)
 	{
 		return mFocusControl == fc;
 	}
-	
+
 	override void ReleaseFocus()
 	{
 		mFocusControl = NULL;

@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 class SWDRealmsScreen : SkippableScreenJob
 {
 	const DREALMSPAL = 1;
-	 
+
 	ScreenJob Init()
 	{
 		Super.Init(fadein | fadeout);
@@ -351,7 +351,7 @@ class SWLoadScreen : ScreenJob
 	{
 		if (fadestate == visible) jobstate = finished;
 	}
-	 
+
 	override void Draw(double sr)
 	{
 		Screen.DrawTexture(TexMan.CheckForTexture("TITLE_PIC", TexMan.Type_Any), true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);

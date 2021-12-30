@@ -772,7 +772,7 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 		auto p1 = tilePtr(tilenum1);
 		auto p2 = tileData(tilenum2);
 		if (p2 == nullptr) return;	// Error: Destination is not writable.
-		
+
 		int x1 = sx1;
 		int x2 = sx2;
 		for (int i=0; i<xsiz; i++)
@@ -787,7 +787,7 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 					if (src != TRANSPARENT_INDEX)
 						p2[x2 * ysiz2 + y2] = src;
 				}
-				
+
 				y1++;
 				y2++;
 				if (y1 >= ysiz1) y1 = 0;

@@ -370,7 +370,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	}
 	if (!curLevel) return 0;
 	if (!formenu) currentLevel = curLevel;
-		
+
 
 	if (savever < savesig.minsavever)
 	{
@@ -853,7 +853,7 @@ static int nextquicksave = -1;
 		 BackupSaveGame = fn;
 	 }
  }
- 
+
  //---------------------------------------------------------------------------
  //
  //

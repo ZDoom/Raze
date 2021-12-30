@@ -2057,7 +2057,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
-        
+
         if (nti_cnt >= count)
             return;
 

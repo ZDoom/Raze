@@ -125,15 +125,15 @@
 "#Episode2Name" = "$$LUNAR APOCALYPSE";
 "#Episode3Name" = "$$SHRAPNEL CITY";
 "#Episode4Name" = "$$THE BIRTH";
-	
+
 "#SelectSkill"		= "$$SELECT SKILL";
 "#EasySkill"		= "$$PIECE OF CAKE";
 "#MediumSkill"		= "$$LET'S ROCK";
 "#HardSkill"		= "$$COME GET SOME";
 "#ImpossibleSkill"	= "$$DAMN, I'M GOOD";
-	
+
 //Level Names:	Level Names:
-	
+
 "#E1L1" = "$$HOLLYWOOD HOLOCAUST";
 "#E1L2" = "$$RED LIGHT DISTRICT";
 "#E1L3" = "$$DEATH ROW";
@@ -145,7 +145,7 @@
 "#E1L9" = "$$VOID ZONE";
 "#E1L10" = "$$ROACH CONDO";
 "#E1L11" = "$$ANTIPROFIT";
-	
+
 "#E2L1" = "$$SPACEPORT";
 "#E2L2" = "$$INCUBATOR";
 "#E2L3" = "$$WARP FACTOR";
@@ -157,7 +157,7 @@
 "#E2L9" = "$$OVERLORD";
 "#E2L10" = "$$SPIN CYCLE";
 "#E2L11" = "$$LUNATIC FRINGE";
-	
+
 "#E3L1" = "$$RAW MEAT";
 "#E3L2" = "$$BANK ROLL";
 "#E3L3" = "$$FLOOD ZONE";
@@ -169,7 +169,7 @@
 "#E3L9" = "$$STADIUM";
 "#E3L10" = "$$TIER DROPS";
 "#E3L11" = "$$FREEWAY";
-	
+
 "#E4L1" = "$$IT'S IMPOSSIBLE";
 "#E4L2" = "$$DUKE-BURGER";
 "#E4L3" = "$$SHOP-N-BAG";

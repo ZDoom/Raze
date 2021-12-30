@@ -710,7 +710,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		walltype* wal = &wl;
 
-		
+
 		if (wal->overpicnum == MIRROR && (wal->cstat & CSTAT_WALL_1WAY) != 0)
 		{
 			auto sectp = wal->nextSector();

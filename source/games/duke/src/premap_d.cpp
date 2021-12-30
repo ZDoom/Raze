@@ -178,7 +178,7 @@ static void cachespritenum(DDukeActor* actor)
 static void cachegoodsprites(void)
 {
 	int i;
-	
+
 	tloadtile(BOTTOMSTATUSBAR);
 	if (ud.multimode > 1)
 	{

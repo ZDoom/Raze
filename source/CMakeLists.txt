@@ -313,7 +313,7 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
 		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
 	endif()
-	
+
 	if(${CMAKE_SYSTEM_NAME} MATCHES "NetBSD")
 		set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ljemalloc")
 	endif()
@@ -473,7 +473,7 @@ set( PLAT_WIN32_SOURCES
 if (HAVE_VULKAN)
 	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/win32vulkanvideo.cpp )
 endif()
-	
+
 # todo: implement an actual crash catcher for ARM
 # for now this is purely experimental
 if (NOT ${TARGET_ARCHITECTURE} MATCHES "arm" )
@@ -609,7 +609,7 @@ file( GLOB HEADER_FILES
 	core/input/*.h
 	core/rendering/*.h
 	core/rendering/scene/*.h
-	
+
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
 	common/audio/music/*.h*
@@ -757,7 +757,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/view.cpp
 	games/blood/src/warp.cpp
 	games/blood/src/weapon.cpp
-	
+
 	# Duke
 	games/duke/src/actors.cpp
 	games/duke/src/actors_d.cpp
@@ -801,7 +801,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/spawn.cpp
 	games/duke/src/spawn_d.cpp
 	games/duke/src/spawn_r.cpp
-	
+
 	# Shadow Warrior
 	games/sw/src/actor.cpp
 	games/sw/src/ai.cpp
@@ -864,7 +864,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/sw/src/weapon.cpp
 	games/sw/src/zilla.cpp
 	games/sw/src/zombie.cpp
-	
+
 	# Exhumed
 	games/exhumed/src/2d.cpp
 	games/exhumed/src/anims.cpp
@@ -915,8 +915,8 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/trigdat.cpp
 	games/exhumed/src/view.cpp
 	games/exhumed/src/wasp.cpp
-	
-	
+
+
 )
 
 set( VM_JIT_SOURCES
@@ -946,7 +946,7 @@ set( FASTMATH_SOURCES
 
 	gitinfo.cpp
 )
-	
+
 #Vulkan stuff must go into a separate list because it needs to be disabled for some platforms
 set (VULKAN_SOURCES
 	common/rendering/vulkan/system/vk_device.cpp
@@ -1216,7 +1216,7 @@ set (PCH_SOURCES
 	common/menu/menudef.cpp
 	common/menu/savegamemanager.cpp
 	common/statusbar/base_sbar.cpp
-	
+
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
 	common/rendering/r_thread.cpp
@@ -1276,7 +1276,7 @@ set (PCH_SOURCES
 	core/menu/loadsavemenu.cpp
 	core/menu/usermap.cpp
 	core/menu/razemenu.cpp
-	
+
 	#Duke is split because Duke and RR need different constants.
 	games/duke/all.cpp
 	games/duke/all_d.cpp
@@ -1284,7 +1284,7 @@ set (PCH_SOURCES
 	games/exhumed/all.cpp
 	games/blood/all.cpp
 	games/sw/all.cpp
-	
+
 )
 
 if( ${HAVE_VM_JIT} )

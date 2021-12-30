@@ -162,7 +162,7 @@ void MoveRaToEnemy(int nPlayer)
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         pTarget = PlayerList[nPlayer].pActor;
     }
-	
+
     pActor->spr.pos.X = pTarget->spr.pos.X;
     pActor->spr.pos.Y = pTarget->spr.pos.Y;
     pActor->spr.pos.Z = pTarget->spr.pos.Z - GetActorHeight(pTarget);

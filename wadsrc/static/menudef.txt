@@ -219,7 +219,7 @@ ImageScroller "HelpMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		
+
 		ImageItem "TEXTSTORY"
 		ImageItem "F1HELP"
 		ifgame(RedneckRides)
@@ -379,7 +379,7 @@ ImageScroller "CreditsMenu"
 		ImageItem "TilePIELogo"
 	}
 }
-	
+
 //-------------------------------------------------------------------------------------------
 //
 // Base definition for load game menu. Only the configurable part is done here
@@ -405,7 +405,7 @@ ListMenu "SaveGameMenu"
 	Class "SaveMenu"	// uses its own implementation
 	CaptionItem "$MNU_SAVEGAME"
 }
-	
+
 //-------------------------------------------------------------------------------------------
 //
 // Base definition for user map menu. Only the configurable part is done here
@@ -418,7 +418,7 @@ ListMenu "UsermapMenu"
 	Class "UsermapMenu"	// uses its own implementation
 	CaptionItem "$MNU_USERMAP"
 }
-	
+
 //-------------------------------------------------------------------------------------------
 //
 // The generic options menus start here
@@ -488,7 +488,7 @@ OptionMenu "OptionsMenu" protected
 	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
 	//Command "$OPTMNU_CONSOLE",			"menuconsole"
 }	
-	
+
 //-------------------------------------------------------------------------------------------
 //
 // Controls Menu
@@ -547,7 +547,7 @@ OptionMenu "ActionControlsMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_MOUSELOOK"        , "+mouse_aiming"
 	Control    "$CNTRLMNU_MLOOKTOGGLE"		, "togglemouseaim"
-	
+
 	Control    "$CNTRLMNU_AIMUP"           , "+aim_up"
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
@@ -638,7 +638,7 @@ OptionMenu "InventoryControlsMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_NEXTITEM"     , "invnext"
 	Control    "$CNTRLMNU_PREVIOUSITEM" , "invprev"
-	
+
 	// Item numbers here are are defined by the games' internal order.
 	ifgame(Duke)
 	{
@@ -1062,7 +1062,7 @@ OptionValue "Precision"
 OptionMenu "VideoOptions" protected
 {
 	Title "$DSPLYMNU_TITLE"
-	
+
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$RENDER_OPTIONS", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
@@ -1438,7 +1438,7 @@ OptionMenu AdvSoundOptions protected
 	Option "$ADVSNDMNU_LOOKUPMUS",			"mus_extendedlookup", "OnOff"
 	Option "$ADVSNDMNU_LOOKUPSND",			"snd_extendedlookup", "OnOff"
 	StaticText " "
-	
+
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
 	StaticText " "
 	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
@@ -1988,7 +1988,7 @@ OptionMenu "EngineCredits1a"
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits1b"
 	StaticText "Raze QA", 1
-	
+
 	StaticText "sinisterseed                        ", 0
 	StaticText "Major Cooke       Dynamo            ", 0
 	StaticText "Nash Muhandes     Martin Howe       ", 0
@@ -2043,7 +2043,7 @@ OptionMenu "EngineCredits2a"
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
 }
-	
+
 OptionMenu "EngineCredits2b"
 {
 	title "$MNU_CREDITS"
@@ -2054,14 +2054,14 @@ OptionMenu "EngineCredits2b"
 	StaticText "MaxED             Kinsie            ", 0
 	StaticText "Maxi Clouds                         ", 0
 }
-	
+
 OptionMenu "EngineCredits3"
 {
 	title "$MNU_CREDITS"
 	//Submenu " ---->", "EngineCredits"	// This creates a circular dependency which makes the search tool crash.
 	StaticText "The EDuke32 team thanks the following people", 1
 	StaticText "for their contributions:", 1
-	
+
 	StaticText "Alexey Skrybykin  Bioman            Brandon Bergren  ", 0
 	StaticText "Charlie Honig     Dan Gaskill       David Koenig     ", 0
 	StaticText "Ed Coolidge       Emile Belanger    Fox              ", 0
@@ -2074,4 +2074,4 @@ OptionMenu "EngineCredits3"
 	StaticText "Ryan Gordon       Stephen Anthony   tueidj           ", 0
 	StaticText "Pär \"Parkar\" Karlsson", 0
 }
-	
+

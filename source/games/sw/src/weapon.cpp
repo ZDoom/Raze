@@ -5161,7 +5161,7 @@ int ActorPainPlasma(DSWActor* actor)
 int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
     assert(weapActor != nullptr);
-       
+
     // Attack the player that is attacking you
     // Only if hes still alive
     auto own = GetOwner(weapActor);
@@ -7142,7 +7142,7 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
 
     int wall_ang;
     int hit_x,hit_y,hit_z;
-    
+
 
     // limit radius
     if (radius > 2000)
@@ -7639,7 +7639,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
     int zh;
     short ang2tgt, delta_ang;
 
-    
+
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
 
@@ -9203,7 +9203,7 @@ int DoRail(DSWActor* actor)
                 if (actor->user.coll.type == kHitSprite)
                 {
                     auto hitActor = actor->user.coll.actor();
- 
+
                     if (hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY)
                     {
                         auto cstat_save = hitActor->spr.cstat;
@@ -9818,7 +9818,7 @@ int SpawnBreakFlames(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 16;
     actorNew->user.Counter = 48; // max flame size
-  
+
     actorNew->spr.shade = -40;
     if (actor->hasU())
         actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
@@ -9853,7 +9853,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
     actorNew->spr.xrepeat = 32;
     actorNew->spr.yrepeat = 32;
-    
+
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -9909,7 +9909,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->spr.sector(),
                             actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
-    
+
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 16;
@@ -13151,7 +13151,7 @@ int InitRail(PLAYERp pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
-    
+
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
@@ -14287,7 +14287,7 @@ int InitEnemyRocket(DSWActor* actor)
         SetOwner(GetOwner(actor), actorNew);
     else
         SetOwner(actor, actorNew);
-    
+
     actorNew->spr.yrepeat = 28;
     actorNew->spr.xrepeat = 28;
     actorNew->spr.shade = -15;
@@ -16746,7 +16746,7 @@ int InitEnemyFireball(DSWActor* actor)
         actorNew->spr.xrepeat = 20;
         actorNew->spr.yrepeat = 20;
         actorNew->spr.shade = -40;
-        
+
         SetOwner(actor, actorNew);
         actorNew->spr.zvel = 0;
         actorNew->spr.clipdist = 16>>2;

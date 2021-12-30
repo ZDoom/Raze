@@ -2600,7 +2600,7 @@ int ParseState::parse(void)
 			break;	// out of switch
 		}
 		DPrintf(DMSG_NOTIFY, "ADDLOGVAR: ");
-			
+
 		if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_READONLY)
 		{
 			DPrintf(DMSG_NOTIFY, " (read-only)");
@@ -2646,7 +2646,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	}
-		
+
 	case concmd_addvarvar:
 	{	int i;
 		insptr++;

@@ -173,7 +173,7 @@ static void S_AddSNDINFO (int lump)
 				sc.MustGetString();
 				FName nm = sc.String;
 				FScanner::SavedPos save = sc.SavePos();
-				
+
 				sc.SetCMode(true);
 				sc.MustGetString();
 				MidiDeviceSetting devset;

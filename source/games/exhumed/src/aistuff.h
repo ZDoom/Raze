@@ -307,7 +307,7 @@ struct RA
 {
 	TObjPtr<DExhumedActor*> pActor;
     TObjPtr<DExhumedActor*> pTarget;
-	
+
     int16_t nAction;
     int16_t nFrame;
     int16_t nRun;

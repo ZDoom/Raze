@@ -675,7 +675,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 	}
 
 	int lastvoxid = nextvoxid++;
-	
+
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -723,7 +723,7 @@ void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(f)) return;
 	lookups.setPaletteTint(pal, r, g, b, 0, 0, 0, f);
 }
- 
+
 //===========================================================================
 //
 //

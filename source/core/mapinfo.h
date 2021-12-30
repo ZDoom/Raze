@@ -152,7 +152,7 @@ struct MapRecord
 	int ex_ramses_cdtrack = -1; // this is not music, it is the actual dialogue!
 	FString ex_ramses_pup;
 	FString ex_ramses_text;
-	
+
 	const char* LabelName() const
 	{
 		if (flags & MI_USERMAP) return GStrings("MNU_USERMAP");
@@ -181,7 +181,7 @@ struct MapRecord
 		if (num < 0 || num>= MAX_MESSAGES) return "";
 		return GStrings(messages[num]);
 	}
-	
+
 	void AddMessage(int num, const FString &msg)
 	{
 		messages[num] = msg;

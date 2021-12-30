@@ -3,7 +3,7 @@ tilesmallfont
 	ignoreoffsets
 	kerning 2
 	spacewidth 10
-	
+
 	! #00514
 	"\"" #00515
 	# #00516
@@ -105,7 +105,7 @@ tilebigfont
 	ignoreoffsets
 	kerning 6
 	spacewidth 10
-	
+
 	! #00696
 	"\"" #00714
 	% #00701

@@ -166,7 +166,7 @@ void IgniteSprite(DExhumedActor* pActor)
     pActor->spr.hitag += 2;
 
     auto pAnimActor = BuildAnim(nullptr, 38, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->spr.sector(), 40, 20);
-    
+
     if (pAnimActor)
     {
         pAnimActor->pTarget = pActor;

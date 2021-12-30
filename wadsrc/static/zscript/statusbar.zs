@@ -22,7 +22,7 @@ class RazeStatusBar : StatusBarCore
 	virtual void Init()
 	{
 	}
-	
+
 	virtual void Tick() {}
 	virtual void Reset() {}
 	virtual void UpdateStatusBar(SummaryInfo info) {}
@@ -78,7 +78,7 @@ class RazeStatusBar : StatusBarCore
 		y3 = y;
 
 		String text;
-		
+
 		text = String.Format("%sT: %s%d:%02d", info.letterColor, info.standardColor, stats.time / 60000, (stats.time % 60000) / 1000);
 		drawStatText(info.statFont, 2 * hud_statscale, y3, text, scale);
 
@@ -143,7 +143,7 @@ class RazeStatusBar : StatusBarCore
 
 
 
-			
+
 		double y;
 		if (am_nameontop)
 		{

@@ -9,10 +9,10 @@ enum EInterpolationType
 	Interp_Sect_Ceilingz,
 	Interp_Sect_Floorheinum,
 	Interp_Sect_Ceilingheinum,
-	
+
 	Interp_Wall_X,
 	Interp_Wall_Y,
-	
+
 	Interp_Pan_First,
 	// order of the following 4 flags must match the corresponding sector flags.
 	Interp_Sect_FloorPanX = Interp_Pan_First,

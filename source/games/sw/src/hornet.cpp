@@ -340,7 +340,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 {
     int zdiff,zdist;
     int loz,hiz;
-    
+
     int bound;
 
     // actor does a sine wave about actor->user.sz - this is the z mid point

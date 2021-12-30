@@ -278,7 +278,7 @@ void GameInterface::app_init()
     LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
- 
+
     SetTileNames();
     userConfig.AddDefs.reset();
     InitFX();

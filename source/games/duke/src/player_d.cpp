@@ -737,7 +737,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
 	if (!spawned) return;
-		
+
 	spawned->spr.extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
 		spawned->temp_actor = aimed;
@@ -886,7 +886,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 					- lLifetimeVar;
 				}
 			}
-			
+
 			// this originally used the sprite index as tag to link the laser segments.
 			// This value is never used again to reference an actor by index. Decouple this for robustness.
 			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
@@ -897,7 +897,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
 			bomb->temp_data[5] = bomb->spr.ang = getangle(-delta.X, -delta.Y) - 512;
-			
+
 			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 		}

@@ -980,7 +980,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	gotpic.Zero();
 
 	auto actorlist = spawnactors(sprites);
-	
+
 	if (isRR()) prelevel_r(gamemode, actorlist);
 	else prelevel_d(gamemode, actorlist);
 

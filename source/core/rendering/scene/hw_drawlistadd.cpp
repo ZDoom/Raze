@@ -119,7 +119,7 @@ void HWDrawInfo::AddSprite(HWSprite *sprite, bool translucent)
 	int list;
 	if (translucent || sprite->modelframe == 0) list = GLDL_TRANSLUCENT;
 	else list = GLDL_MODELS;
-	
+
 	auto newsprt = drawlists[list].NewSprite();
 	*newsprt = *sprite;
 }

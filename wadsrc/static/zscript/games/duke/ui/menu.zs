@@ -51,7 +51,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		int h = texid.isValid() && texsize.Y < 40? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
-	
+
 	//----------------------------------------------------------------------------
 	//
 	//
@@ -69,7 +69,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		let pe = color(255, light, light, light);
 		Screen.DrawTexture(TexMan.CheckForTexture(picname), false, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true);
 	}
-	
+
 	override bool DrawSelector(ListMenuDescriptor desc)
 	{
 		int cursorOffset = 110;
@@ -79,7 +79,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		DrawCursor(160 - cursorOffset, ymid, cursorScale, true);
 		return true;
 	}
-	
+
 	//----------------------------------------------------------------------------
 	//
 	// not used for any localized content.
@@ -103,7 +103,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		Screen.DrawText(SmallFont, Font.CR_UNTRANSLATED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200);
 	}
 
-	
+
 }
 
 //----------------------------------------------------------------------------
@@ -115,12 +115,12 @@ class DukeMenuDelegate : RazeMenuDelegate
 class ListMenuItemDukeLogo : ListMenuItem
 {
 	const x = 160;
-	
+
 	void Init(ListMenuDescriptor desc)
 	{
 		Super.Init(0, 0);
 	}
-	
+
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		if (gameinfo.gametype & GAMEFLAG_RRRA)
@@ -142,7 +142,7 @@ class ListMenuItemDukeLogo : ListMenuItem
 				Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), false, x + 100, 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true);
 			}
 		}
-		
+
 	}
 }
 
@@ -159,12 +159,12 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 		Super.Init(desc, text, hotkey, child, param);
 		mColorSelected = 0;
 	}
-	
+
 	void InitDirect(double x, double y, int height, String hotkey, String text, Font font, int color, int color2, Name child, int param = 0)
 	{
 		Super.InitDirect(x, y, height, hotkey, text, font, color, color2, child, param);
 	}
-	
+
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		let font = Raze.PickBigFont();
@@ -188,7 +188,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 		Screen.DrawText(font, trans? Font.CR_NATIVEPAL : Font.CR_UNTRANSLATED, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, 
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
 	}
-	
+
 }
 
 //----------------------------------------------------------------------------
@@ -199,12 +199,12 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 
 class ImageScrollerPageDukeCredits1 : ImageScrollerPage
 {
-	
+
 	void Init(ImageScrollerDescriptor desc)
 	{
 		Super.Init();
 	} 
-	
+
 	override void Drawer(bool selected)
 	{
 		int m, l;
@@ -269,12 +269,12 @@ class ImageScrollerPageDukeCredits1 : ImageScrollerPage
 
 class ImageScrollerPageDukeCredits2 : ImageScrollerPage
 {
-	
+
 	void Init(ImageScrollerDescriptor desc)
 	{
 		Super.Init();
 	} 
-	
+
 	override void Drawer(bool selected)
 	{
 		int m, l;
@@ -322,12 +322,12 @@ class ImageScrollerPageDukeCredits2 : ImageScrollerPage
 
 class ImageScrollerPageDukeCredits3 : ImageScrollerPage
 {
-	
+
 	void Init(ImageScrollerDescriptor desc)
 	{
 		Super.Init();
 	} 
-	
+
 	override void Drawer(bool selected)
 	{
 		let VOLUMEONE = gameinfo.gametype & GAMEFLAG_SHAREWARE;
@@ -356,6 +356,6 @@ class PlayerMenu : OptionMenu
 		DrawPlayerSprite((mDesc.mSelectedItem == 3));
 		Super.Drawer();
 	}
-	
+
 	native static void DrawPlayerSprite(int sel);
 }

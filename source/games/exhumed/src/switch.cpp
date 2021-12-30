@@ -45,7 +45,7 @@ struct Switch
     int16_t nWait;
     int16_t nRunPtr;
     int16_t nRun2;
-    
+
     int16_t nRun3;
     uint16_t nKeyMask;
 };

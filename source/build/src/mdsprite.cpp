@@ -1089,7 +1089,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, floa
     mat[0] = k4*k6 + k5*k7; mat[4] = 0; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
 
     mat[1] = 0; mat[5] = 1; mat[ 9] = 0; mat[13] = 0;
-    
+
     k6 = gcosang2; 
     k7 = gsinang2;
     mat[2] = k4*k6 + k5*k7; 
@@ -1347,7 +1347,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         auto tex = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi, &exact);
         if (!tex)
             continue;
-		
+
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetFade(tspr->sector()->floorpal);
         GLInterface.SetTexture(tex, palid, CLAMP_XY);
@@ -1414,7 +1414,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetCull(Cull_None);
 
     GLInterface.SetIdentityMatrix(Matrix_Model);
-    
+
     globalnoeffect=0;
     return 1;
 }
@@ -1449,7 +1449,7 @@ static void md3free(md3model_t *m)
     }
     M_Free(m->head.tags);
     M_Free(m->head.frames);
-	
+
     M_Free(m->muladdframes);
 
     M_Free(m->indexes);
@@ -1540,7 +1540,7 @@ void updateModelInterpolation()
 	// sigh...
 	omdtims = mdtims;
 	mdtims = I_msTime();
-	
+
     TSpriteIterator<DCoreActor> it;
     while (auto actor = it.Next())
     {

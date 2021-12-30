@@ -301,7 +301,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 				texname = "AMMO_ICON" .. i;
 				format = String.Format("%d", p.ammo_amount[i+1]);
 			}
-			
+
 			DrawImage(texname, (18 + i * 32, top - 6.5), DI_ITEM_OFFSETS, scale:(sbscale, sbscale));
 
 			if (format.Length())
@@ -389,7 +389,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 			p.drink_amt = 100;
 			p.drunkang = 400;
 		}
-		
+
 		DrawImageRotated("GUTMETER", (256, top + 15), DI_ITEM_RELCENTER, p.drunkang * -Raze.BAngToDegree, 1, (scale, scale));
 		DrawImageRotated("GUTMETER", (292, top + 15), DI_ITEM_RELCENTER, p.eatang * -Raze.BAngToDegree, 1, (scale, scale));
 

@@ -1909,7 +1909,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     {
 		DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
-        
+
         // not a part of the so anymore
         actor->user.Flags &= ~(SPR_SO_ATTACHED);
 
@@ -2404,7 +2404,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             // for lowering the whirlpool in level 1
             SECTORp *sectp;
             int i;
-            
+
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
                 if ((*sectp)->hasU())

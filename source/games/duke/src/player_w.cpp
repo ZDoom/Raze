@@ -110,10 +110,10 @@ void DoSpawn(struct player_struct *p, int snum)
 {
 	if(!aplWeaponSpawn(p->curr_weapon, snum))
 		return;
-		
+
 	auto j = spawn(p->GetActor(), aplWeaponSpawn(p->curr_weapon, snum));
 	if (!j) return;
-	
+
 	if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
 		// like shotgun shells
@@ -131,7 +131,7 @@ void DoSpawn(struct player_struct *p, int snum)
 		j->spr.pos.Z += (3<<8);
 		ssp(j,CLIPMASK0);
 	}
-		
+
 }
 
 //---------------------------------------------------------------------------

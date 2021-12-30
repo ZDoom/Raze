@@ -2,7 +2,7 @@
 class ExhumedMenuDelegate : RazeMenuDelegate
 {
 	double zoomsize;	// this is the only persistent place where it can be conveniently stored.
-	
+
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
 		let font = Raze.PickBigFont();

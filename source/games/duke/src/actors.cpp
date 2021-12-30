@@ -1965,7 +1965,7 @@ void camera(DDukeActor *actor)
 				return;
 			}
 		}
-		
+
 		if (actor->spr.hitag > 0)
 		{
 			// alias our temp_data array indexes.
@@ -3209,7 +3209,7 @@ void handle_se03(DDukeActor *actor)
 
 	if (actor->temp_data[4] == 0) return;
 	int x;
-		
+
 	findplayer(actor, &x);
 
 	int palvals = actor->palvals;
@@ -4864,7 +4864,7 @@ void makeitfall(DDukeActor* actor)
 			c = gs.gravity/6;
 		else c = gs.gravity;
 	}
-	
+
 	if (isRRRA())
 	{
 		c = adjustfall(actor, c); // this accesses sprite indices and cannot be in shared code. Should be done better.

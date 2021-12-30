@@ -11,7 +11,7 @@ enum ESoundFlags
 	CHAN_5 = 5,
 	CHAN_6 = 6,
 	CHAN_7 = 7,
-	
+
 	// modifier flags
 	CHAN_LISTENERZ = 8,
 	CHAN_MAYBE_LOCAL = 16,
@@ -194,7 +194,7 @@ struct System native
 	native static bool SoundEnabled();
 	native static bool MusicEnabled();
 	native static double GetTimeFrac();
-	
+
 	static bool specialKeyEvent(InputEvent ev)
 	{
 		if (ev.type == InputEvent.Type_KeyDown || ev.type == InputEvent.Type_KeyUp)
@@ -216,7 +216,7 @@ struct MusPlayingInfo native
 	native int baseorder;
 	native bool loop;
 	native voidptr handle;
-	
+
 };
 
 struct TexMan
@@ -252,7 +252,7 @@ struct TexMan
 		ForceLookup = 128,
 		NoAlias = 256
 	};
-	
+
 	enum ETexReplaceFlags
 	{
 		NOT_BOTTOM			= 1,
@@ -475,7 +475,7 @@ struct Font native
 		CR_TEAL,
 		NUM_TEXT_COLORS
 	};
-	
+
 	const TEXTCOLOR_BRICK			= "\034A";
 	const TEXTCOLOR_TAN				= "\034B";
 	const TEXTCOLOR_GRAY			= "\034C";
@@ -509,7 +509,7 @@ struct Font native
 
 	const TEXTCOLOR_CHAT			= "\034*";
 	const TEXTCOLOR_TEAMCHAT		= "\034!";
-	
+
 
 	native int GetCharWidth(int code);
 	native int StringWidth(String code);
@@ -591,7 +591,7 @@ class Object native
 	private native static void BuiltinRandomSeed(voidptr rng, int seed);
 	private native static Class<Object> BuiltinNameToClass(Name nm, Class<Object> filter);
 	private native static Object BuiltinClassCast(Object inptr, Class<Object> test);
-	
+
 	native static uint MSTime();
 	native vararg static void ThrowAbortException(String fmt, ...);
 

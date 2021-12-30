@@ -127,20 +127,20 @@ void ambInit(void)
     while (DBloodActor* actor = it.Next())
     {
         if (!actor->hasX()) continue;
-        
+
         if (actor->xspr.data1 >= actor->xspr.data2) continue;
-        
+
         int i; AMB_CHANNEL *pChannel = ambChannels;
         for (i = 0; i < nAmbChannels; i++, pChannel++)
             if (actor->xspr.data3 == pChannel->check) break;
-        
+
         if (i == nAmbChannels) {
-            
+
             if (i >= kMaxAmbChannel) {
                 actor->spr.owner = -1;
                 continue;
             }
-                    
+
             int nSFX = actor->xspr.data3;
             auto snd = soundEngine->FindSoundByResID(nSFX);
             if (!snd) {

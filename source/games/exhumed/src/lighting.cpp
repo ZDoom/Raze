@@ -611,7 +611,7 @@ void DoFlickers()
     for (int i = 0; i < nFlickerCount; i++)
     {
         auto pSector = sFlicker[i].pSector;
- 
+
         unsigned int eax = (sFlicker[i].nMask & 1);
         unsigned int edx = (sFlicker[i].nMask & 1) << 31;
         unsigned int ebp = sFlicker[i].nMask >> 1;

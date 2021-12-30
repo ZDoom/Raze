@@ -19,11 +19,11 @@ class FGameTexture;
 
 struct mdmodel_t
 {
- 
+
     int32_t mdnum, shadeoff;
 	float scale, bscale, zadd, yoffset;
 	FGameTexture *texture;
-	
+
 	int32_t flags;
 };
 

@@ -234,7 +234,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
 	numdips = 0;
-	
+
 	if (act)
 	{
 		lotag = act->spr.lotag;
@@ -1610,7 +1610,7 @@ void checksectors_d(int snum)
 					S_PlayActorSound(hitscanwall->lotag, pact);
 					return;
 				}
-			
+
 			if (hitscanwall != nullptr && (hitscanwall->cstat & CSTAT_WALL_MASKED))
 				if (hitscanwall->lotag)
 					return;

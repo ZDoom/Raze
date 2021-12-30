@@ -237,7 +237,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 void so_setspriteinterpolation(SECTOR_OBJECTp sop, DSWActor* actor)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
- 
+
     so_setpointinterpolation(interp, soi_sprx, actor);
     so_setpointinterpolation(interp, soi_spry, actor);
     if (!interp->hasvator)

@@ -1296,7 +1296,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
     int nx, ny;
-    
+
     nx = MOVEx(512, actor->spr.ang);
     ny = MOVEy(512, actor->spr.ang);
 
@@ -1320,7 +1320,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    
+
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->spr.sector(),
                          actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
@@ -1340,7 +1340,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
     auto ppActor = pp->actor;
     short pnum;
     DSWActor* act_warp;
-    
+
 #if 0
     TAG 2 = match
             TAG 3 = Type
@@ -1823,7 +1823,7 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     actor->spr.ang = pp->angle.ang.asbuild();
 }
- 
+
 void DoPlayerZrange(PLAYERp pp)
 {
     Collision ceilhit, florhit;

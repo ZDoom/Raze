@@ -11,12 +11,12 @@ class BloodMenuDelegate : RazeMenuDelegate
 	{
 		return BloodScreen.DrawCaption(title, y, drawit);	// this ignores the passed font intentionally.
 	}
-	
+
 	override bool DrawSelector(ListMenuDescriptor desc)
 	{
 		return true;	// do not draw any selector.
 	}
-	
+
 }
 
 //-------------------------------------------------------------------------------------------
@@ -49,12 +49,12 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 	{
 		Super.Init(desc, text, hotkey, child, param);
 	}
-	
+
 	void InitDirect(double x, double y, int height, String hotkey, String text, Font font, int color, int color2, Name child, int param = 0)
 	{
 		Super.InitDirect(x, y, height, hotkey, text, font, color, color2, child, param);
 	}
-	
+
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		int shade = Selectable()? 32: 48;
@@ -63,13 +63,13 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 		int xpos = mXpos - gamefont.StringWidth(mText) / 2;
 		int cr = generic_ui? Font.CR_GRAY : Font.CR_NATIVEPAL;
 		int trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);
-		
+
 		if (selected) shade = 32 - ((MSTime() * 120 / 1000) & 63);
 
 		Screen.DrawText(gamefont, Font.CR_UNTRANSLATED, xpos+1, mYpos+1, mText, DTA_Color, 0xff000000, DTA_FullscreenScale, FSMode_Fit320x200);
 		Screen.DrawText(gamefont, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Raze.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
 	}
-	
+
 }
 
 
@@ -77,7 +77,7 @@ class ImageScrollerPageQavDrawer : ImageScrollerPage
 {
 	String qavn;
 	voidptr qav;
-	
+
 	void Init(ImageScrollerDescriptor desc, String qavname)
 	{
 		Super.Init();
@@ -100,7 +100,7 @@ class ImageScrollerPageQavDrawer : ImageScrollerPage
 	{
 		qav = LoadQav(qavn);
 	}
-	
+
 	override void OnEndPage()
 	{
 		if (qav) DestroyQav(qav);

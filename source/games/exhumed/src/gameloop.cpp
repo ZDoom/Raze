@@ -120,9 +120,9 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 	{
 		nBestLevel = map->levelNumber - 1;
 	}
-	
+
 	STAT_NewLevel(currentLevel->labelName);
-	
+
 }
 
 //---------------------------------------------------------------------------

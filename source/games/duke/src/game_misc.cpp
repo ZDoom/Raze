@@ -177,7 +177,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 	b = clamp(b/255.f, 0.f, 0.25f);
 	a = clamp(a/255.f, 0.f, 0.25f);
 
-	
+
 	float a2, a3;
 
 	if (a <= 0)
@@ -190,7 +190,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 	v_blend[2] = v_blend[2]*a3 + b*(1-a3);
 	v_blend[3] = a2;
 }
- 
+
 //---------------------------------------------------------------------------
 //
 //

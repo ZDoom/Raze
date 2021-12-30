@@ -1562,7 +1562,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 {
     int x = 0;
     int y = 0;
-	
+
 	for(auto& wal : wallsofsector(pSector))
     {
         x += wal.pos.X;

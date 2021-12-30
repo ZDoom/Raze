@@ -71,7 +71,7 @@ void GameInterface::Ticker()
 
 		global_random = krand();
 		movedummyplayers();//ST 13
-		
+
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			if (playrunning())
@@ -85,7 +85,7 @@ void GameInterface::Ticker()
 				fi.checksectors(i);
 			}
 		}
-		
+
 		fi.think();
 
 		if ((everyothertime & 1) == 0)

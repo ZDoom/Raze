@@ -832,10 +832,10 @@ void FMapInfoParser::ParseMapDefinition(MapRecord &info)
 					success = true;
 					return false;  // break
 				}
-				
+
 				return true;  // continue
 			});
-			
+
 			if (!success)
 			{
 				if (!ParseCloseBrace())
@@ -1158,7 +1158,7 @@ void SetLevelNum (MapRecord *info, int num)
 {
 	for (auto& map : mapList)
 	{
-		
+
 		if (map->levelNumber == num)
 			map->levelNumber = 0;
 	}

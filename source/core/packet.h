@@ -74,7 +74,7 @@ struct InputPacket
     float avel;
     float horz;
     ESyncBits actions;
-	
+
 
     int getNewWeapon() const
     {

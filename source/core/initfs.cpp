@@ -353,7 +353,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		D_AddConfigFiles(Files, file, "*.grp", GameConfig);
 		lastpos += len + 1;
 	}
-	
+
 	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
 		D_AddFile(Files, file, true, -1, GameConfig);

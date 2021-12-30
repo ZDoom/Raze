@@ -19,7 +19,7 @@
 #define END_PS_NS }
 
 #else
-	
+
 #define BEGIN_DUKE_NS
 #define END_DUKE_NS
 

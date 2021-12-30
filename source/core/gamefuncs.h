@@ -14,7 +14,7 @@ class BFSSearch
 	unsigned bitpos;
 	unsigned startpos;
 	unsigned curpos;
-	
+
 public:
 	enum { EOL = ~0u };
 	BFSSearch(unsigned datasize, unsigned startnode)
@@ -23,7 +23,7 @@ public:
 		unsigned bitsize = (datasize + 31) >> 5;
 		store.Reserve(bitsize);
 		memset(&store[bitpos], 0, bitsize*4);
-		
+
 		startpos = store.Size();
 		curpos = startpos;
 		Set(startnode);
@@ -39,12 +39,12 @@ public:
 		store.Reserve(bitsize);
 		memset(&store[bitpos], 0, bitsize * 4);
 	}
-	
+
 	~BFSSearch()
 	{
 		store.Clamp(bitpos);
 	}
-	
+
 	bool Check(unsigned index) const
 	{
 		return !!(store[bitpos + (index >> 5)] & (1 << (index & 31)));
@@ -71,7 +71,7 @@ public:
 	{
 		curpos = startpos;
 	}
-	
+
 	void Add(unsigned elem)
 	{
 		if (!Check(elem))
@@ -85,7 +85,7 @@ public:
 class BFSSectorSearch : public BFSSearch
 {
 public:
-	
+
 	BFSSectorSearch(const sectortype* startnode) : BFSSearch(sector.Size(), sector.IndexOf(startnode))
 	{
 	}
@@ -367,7 +367,7 @@ inline double SquareDistToWall(double px, double py, const walltype* wal, DVecto
 	double ly1 = wal->pos.Y;
 	double lx2 = wal->point2Wall()->pos.X;
 	double ly2 = wal->point2Wall()->pos.Y;
-	
+
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 
 	if (wall_length == 0) return SquareDist(px, py, lx1, ly1);

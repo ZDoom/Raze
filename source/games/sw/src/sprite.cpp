@@ -731,7 +731,7 @@ void KillActor(DSWActor* actor)
                         ClearOwner(itActor);
                     }
 
-                    
+
                     if (itActor->hasU() && itActor->user.attachActor == actor)
                     {
                         itActor->user.attachActor = nullptr;
@@ -4341,7 +4341,7 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
     if (sect == nullptr)
     {
         *ceilz = 0x80000000;
-        
+
         *florz = 0x7fffffff;
         florhit->invalidate();
         return;
@@ -5004,7 +5004,7 @@ int DoGet(DSWActor* actor)
     bool can_see;
 
     // For flag stuff
-    
+
     // Invisiblility is only used for DeathMatch type games
     // Sprites stays invisible for a period of time and is un-gettable
     // then "Re-Spawns" by becomming visible.  Its never actually killed.

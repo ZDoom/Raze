@@ -242,7 +242,7 @@ static IntRect System_GetSceneRect()
 	int viewwidth = viewright - windowxy1.X;
 
 	int renderheight;
-	
+
 	if (viewheight == screen->GetHeight()) renderheight = viewheight;
 	else renderheight = (viewwidth * screen->GetHeight() / screen->GetWidth()) & ~7;
 
@@ -632,7 +632,7 @@ void SetDefaultStrings()
 		gSkillNames[3] = "$WELL DONE";
 		gSkillNames[4] = "$EXTRA CRISPY";
 	}
-	
+
 	//Set a few quotes which are used for common handling of a few status messages
 	quoteMgr.InitializeQuote(23, "$MESSAGES: ON");
 	quoteMgr.InitializeQuote(24, "$MESSAGES: OFF");
@@ -1016,7 +1016,7 @@ int RunGame()
 	TileFiles.AddArt(addArt);
 
 	inputState.ClearAllInput();
-	
+
 	if (!GameConfig->IsInitialized())
 	{
 		CONFIG_ReadCombatMacros();
@@ -1343,7 +1343,7 @@ CCMD(taunt)
 	{
 		int taunt = atoi(argv[1]);
 		int mode = atoi(argv[2]);
-		
+
 		// In a ZDoom-style protocol this should be sent:
 		// Net_WriteByte(DEM_TAUNT);
 		// Net_WriteByte(taunt);

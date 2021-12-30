@@ -47,7 +47,7 @@ struct UsermapDirectory native
 {
 	native readonly String dirname;
 	native readonly UsermapDirectory parent;
-	
+
 	native static UsermapDirectory ReadData();
 	native int GetNumEntries();
 	native int GetNumDirectories();
@@ -83,7 +83,7 @@ class UsermapMenu : ListMenu
 	int listboxLeft;
 	int listboxTop;
 	int listboxWidth;
-	
+
 	int listboxRows;
 	int listboxHeight;
 	int listboxRight;
@@ -96,9 +96,9 @@ class UsermapMenu : ListMenu
 
 	bool mEntering;
 	double FontScale;
-	
+
 	int numparent, numdirs, numentries;
-	
+
 	BrokenLines BrokenComment;
 	Array<int> selects;
 
@@ -119,13 +119,13 @@ class UsermapMenu : ListMenu
 		SetSize();
 		SetWindows();
 	}
-	
+
 	private void SetWindows()
 	{
 		bool aspect43 = true;
 		int Width43 = screen.GetHeight() * 4 / 3;
 		int Left43 = (screen.GetWidth() - Width43) / 2;
-		
+
 		double wScale = Width43 / 640.;
 
 		previewLeft = Left43 + int(20 * wScale);
@@ -135,7 +135,7 @@ class UsermapMenu : ListMenu
 
 		FontScale = max(screen.GetHeight() / 480, 1);
 		rowHeight = int(max((NewConsoleFont.GetHeight() + 1) * FontScale, 1));
-		
+
 		listboxLeft = previewLeft + previewWidth + int(20*wScale);
 		listboxTop = previewTop;
 		listboxWidth = Width43 + Left43 - listboxLeft - int(30 * wScale);
@@ -151,7 +151,7 @@ class UsermapMenu : ListMenu
 		commentRows = commentHeight / rowHeight;
 	}
 
-	
+
 	//=============================================================================
 	//
 	//
@@ -163,7 +163,7 @@ class UsermapMenu : ListMenu
 		let framecolor = Color(255, 80, 80, 80);
 		Screen.DrawLineFrame(framecolor, left, top, width, height, screen.GetHeight() / 240);
 	}
-	
+
 	void SetSize()
 	{
 		numparent = (currentDir.parent != null);
@@ -182,7 +182,7 @@ class UsermapMenu : ListMenu
 		SetWindows();
 		DrawFrame(previewLeft, previewTop, previewWidth, previewHeight);
 		screen.Dim(0, 0.6, previewLeft, previewTop, previewWidth, previewHeight);
-		
+
 		if (Selected >= numparent + numdirs)
 		{
 			let entry = currentDir.GetEntry(Selected - numparent - numdirs);
@@ -200,12 +200,12 @@ class UsermapMenu : ListMenu
 			screen.DrawText(NewConsoleFont, Font.CR_ORANGE, commentLeft / FontScale, (commentTop + rowHeight * i) / FontScale, BrokenComment.StringAt(i),
 				DTA_VirtualWidthF, screen.GetWidth() / FontScale, DTA_VirtualHeightF, screen.GetHeight() / FontScale, DTA_KeepRatio, true);
 		}
-		
+
 
 		// Draw file area
 		DrawFrame (listboxLeft, listboxTop, listboxWidth, listboxHeight);
 		screen.Dim(0, 0.6, listboxLeft, listboxTop, listboxWidth, listboxHeight);
-		
+
 		/*
 		if (NumTotalEntries == 0)
 		{
@@ -223,7 +223,7 @@ class UsermapMenu : ListMenu
 		{
 			int colr;
 			String texttoprint;
-			
+
 			if (j < numparent)
 			{
 				colr = Font.CR_YELLOW;
@@ -252,7 +252,7 @@ class UsermapMenu : ListMenu
 			}
 
 			screen.SetClipRect(listboxLeft, listboxTop+rowHeight*i, listboxRight, listboxTop+rowHeight*(i+1));
-			
+
 			if (j == Selected)
 			{
 				screen.Clear (listboxLeft, listboxTop+rowHeight*i, listboxRight, listboxTop+rowHeight*(i+1), Color(255,0,0,255));
@@ -288,7 +288,7 @@ class UsermapMenu : ListMenu
 			UpdateComment();
 		}
 	}
-	
+
 	//=============================================================================
 	//
 	//
@@ -386,7 +386,7 @@ class UsermapMenu : ListMenu
 				StartMap(entry);
 			}
 			return true;
-			
+
 		case MKEY_Back:
 			if (selects.Size() > 0)
 			{
@@ -398,7 +398,7 @@ class UsermapMenu : ListMenu
 			return Super.MenuEvent(mkey, fromcontroller);
 		}
 	}
-	
+
 	//=============================================================================
 	//
 	//
@@ -431,8 +431,8 @@ class UsermapMenu : ListMenu
 
 		return Super.MouseEvent(type, x, y);
 	}
-	
-	
+
+
 	//=============================================================================
 	//
 	//
@@ -463,6 +463,6 @@ class UsermapMenu : ListMenu
 		return Super.OnUIEvent(ev);
 	}
 
-	
+
 }
 

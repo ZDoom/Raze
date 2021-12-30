@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].maxDist. What were they thinking... 
-	
+
 	// Tine
 	{
 		kDamageBullet,
@@ -61,7 +61,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-   
+
 	// Shell
 	{
 		kDamageBullet,
@@ -88,7 +88,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 	// Bullet
 	{
 		kDamageBullet,
@@ -116,7 +116,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_5, FX_NONE, -1,
 
 	},
-	
+
 	// Tommy AP
 	{
 		kDamageBullet,
@@ -143,7 +143,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 	// Shell AP
 	{
 		kDamageBullet,
@@ -170,7 +170,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 	// Tommy regular
 	{
 		kDamageBullet,
@@ -197,7 +197,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 	// Bat bite
 	{
 		kDamageBullet,
@@ -224,7 +224,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_NONE, FX_NONE, -1,
 	},
-	
+
 	// Eel bite
 	{
 		kDamageBullet,
@@ -251,7 +251,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_NONE, FX_NONE, -1,
 	},
-	
+
 	// Gill bite
 	{
 		kDamageBullet,
@@ -278,7 +278,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_NONE, FX_NONE, -1,
 	},
-	
+
 			// Beast slash
 	{
 		kDamageExplode,
@@ -305,7 +305,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_NONE, FX_NONE, -1,
 	},
-	
+
 			// Axe
 	{
 		kDamageBullet,
@@ -332,7 +332,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 			// Cleaver
 	{
 		kDamageBullet,
@@ -359,7 +359,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_5, FX_NONE, -1,
 	},
-	
+
 			// Phantasm slash
 	{
 		kDamageBullet,
@@ -548,7 +548,7 @@ VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].max
 		FX_NONE, FX_NONE, FX_NONE, -1,
 		FX_NONE, FX_NONE, FX_NONE, -1,
 	},
-	
+
 	{
 		(DAMAGE_TYPE)-1,
 		0,

@@ -421,14 +421,14 @@ int ExpandTics (int low)
 	int mt = maketic / ticdup;
 
 	delta = low - (mt&0xff);
-		
+
 	if (delta >= -64 && delta <= 64)
 		return (mt&~0xff) + low;
 	if (delta > 64)
 		return (mt&~0xff) - 256 + low;
 	if (delta < -64)
 		return (mt&~0xff) + 256 + low;
-				
+
 	I_Error ("ExpandTics: strange value %i at maketic %i", low, maketic);
 	return 0;
 }
@@ -480,7 +480,7 @@ void HSendPacket (int node, int len)
 					node,
 					ExpandTics(netbuffer[1]),
 					numtics, realretrans, len);
-			
+
 			for (i = 0; i < len; i++)
 				fprintf (debugfile, "%c%2x", i==k?'|':' ', ((uint8_t *)netbuffer)[i]);
 		}
@@ -583,7 +583,7 @@ bool HGetPacket (void)
 		InBuffer.Push(store);
 		doomcom.remotenode = -1;
 	}
-	
+
 	if (doomcom.remotenode == -1)
 	{
 		bool gotmessage = false;
@@ -606,7 +606,7 @@ bool HGetPacket (void)
 		return false;
 	}
 #endif
-		
+
 	if (debugfile)
 	{
 		int i, k, realretrans;
@@ -648,7 +648,7 @@ bool HGetPacket (void)
 					doomcom.remotenode,
 					ExpandTics(netbuffer[1]),
 					numtics, realretrans, doomcom.datalength);
-			
+
 			for (i = 0; i < doomcom.datalength; i++)
 				fprintf (debugfile, "%c%2x", i==k?'|':' ', ((uint8_t *)netbuffer)[i]);
 			if (numtics)
@@ -769,7 +769,7 @@ void GetPackets (void)
 	int k;
 	uint8_t playerbytes[MAXNETNODES];
 	int numplayers;
-								 
+
 	while ( HGetPacket() )
 	{
 		if (netbuffer[0] & NCMD_SETUP)
@@ -782,7 +782,7 @@ void GetPackets (void)
 			}
 			continue;			// extra setup packet
 		}
-						
+
 		netnode = doomcom.remotenode;
 		netconsole = playerfornode[netnode] & ~PL_DRONE;
 
@@ -877,9 +877,9 @@ void GetPackets (void)
 		// Figure out what the rest of the bytes are
 		realstart = ExpandTics (netbuffer[1]);
 		realend = (realstart + numtics);
-		
+
 		nodeforplayer[netconsole] = netnode;
-		
+
 		// check for retransmit request
 		if (resendcount[netnode] <= 0 && (netbuffer[0] & NCMD_RETRANSMIT))
 		{
@@ -892,11 +892,11 @@ void GetPackets (void)
 		{
 			resendcount[netnode]--;
 		}
-		
+
 		// check for out of order / duplicated packet			
 		if (realend == nettics[netnode])
 			continue;
-						
+
 		if (realend < nettics[netnode])
 		{
 			if (debugfile)
@@ -904,7 +904,7 @@ void GetPackets (void)
 						 realstart, numtics);
 			continue;
 		}
-		
+
 		// check for a missed packet
 		if (realstart > nettics[netnode])
 		{
@@ -991,7 +991,7 @@ void NetUpdate (void)
 		D_ProcessEvents ();
 		if (pauseext || (maketic - gametic) / ticdup >= BACKUPTICS/2-1)
 			break;			// can't hold any more
-		
+
 		//Printf ("mk:%i ",maketic);
 		G_BuildTiccmd (&localcmds[maketic % LOCALCMDTICS]);
 		maketic++;
@@ -1346,7 +1346,7 @@ void NetUpdate (void)
 						totalavg = lastaverage;
 					}
 				}
-					
+
 				mastertics = nettics[nodeforplayer[Net_Arbitrator]] + totalavg;
 			}
 			if (nettics[0] <= mastertics)
@@ -1766,7 +1766,7 @@ bool D_CheckNetGame (void)
 
 	if (!batchrun) Printf (PRINT_NONOTIFY, "player %i of %i (%i nodes)\n",
 			myconnectindex+1, doomcom.numplayers, doomcom.numnodes);
-	
+
 	return true;
 }
 

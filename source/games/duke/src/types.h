@@ -48,7 +48,7 @@ public:
 	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
-	
+
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
 	TArray<GameVarValue> uservars;
@@ -172,7 +172,7 @@ struct CraneDef
 struct player_struct 
 {
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
-	
+
 	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
 	vec3_t pos, opos;
 

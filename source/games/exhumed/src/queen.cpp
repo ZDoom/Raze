@@ -755,7 +755,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 {
     DExhumedActor* pActor = QueenHead.pActor;
     if (!pActor) return;
-    
+
     int nAction = QueenHead.nAction;
     int nHd;
     int var_14 = 0;

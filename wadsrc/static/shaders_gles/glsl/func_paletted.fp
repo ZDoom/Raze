@@ -18,10 +18,10 @@ vec4 ProcessTexel()
 	float coordX = vTexCoord.x;
 	float coordY = vTexCoord.y;
 	vec2 newCoord;
-	
+
 	// z is the depth in view space, positive going into the screen
 	float z = abs(pixelpos.w);
-	
+
 #ifdef NPOT_EMULATION
 	// Coordinate adjustment for NPOT textures. It is somehow fitting that Build games exploited this texture wrapping quirk of the software rendering engine...
 #if (DEF_NPOT_EMULATION == 1)
@@ -69,7 +69,7 @@ vec4 ProcessTexel()
 	palettedColor.a = floor(color.a + 0.999);
 
 	color = palettedColor;
-	
+
 	//if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
 	// This replaces the above line to avoid the branch and the discard.. Seems to look the same but could be unforeseen issues.
 	float alpha = step(uAlphaThreshold, color.a);

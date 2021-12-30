@@ -313,12 +313,12 @@ int ConCompiler::getkeyword(const char* text)
 {
 	ptrdiff_t min = 0;
 	ptrdiff_t max = countof(cmdList) - 1;
-	
+
 	while (min <= max)
 	{
 		auto mid = (min + max) >> 1;
 		const int comp = strcmp(text, cmdList[mid].cmd);
-		
+
 		if (comp == 0)
 		{
 			return cmdList[mid].instr;
@@ -1218,7 +1218,7 @@ int ConCompiler::parsecommand()
 				while (keyword() == -1)
 				{
 					transnum(LABEL_DEFINE);
-					
+
 					j |= popscriptvalue();
 				}
 				appendscriptvalue(j);
@@ -1451,7 +1451,7 @@ int ConCompiler::parsecommand()
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-	
+
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		return 0;
 
@@ -1782,7 +1782,7 @@ int ConCompiler::parsecommand()
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Quote number exceeds limit of %d.\n", fn, line_number, MAXQUOTES);
 			errorcount++;
 		}
-		
+
 		i = 0;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 

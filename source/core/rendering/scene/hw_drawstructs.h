@@ -160,7 +160,7 @@ public:
 	float alpha;
 
 	FRenderStyle RenderStyle;
-	
+
 	float ViewDistance;
 	float visibility;
 	walltype* walldist;
@@ -287,7 +287,7 @@ public:
 	void PutFlat(HWDrawInfo* di, int whichplane);
 	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int sectionnum, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
 	void ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* sector);
-	
+
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);
 	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent);
 };

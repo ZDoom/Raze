@@ -38,7 +38,7 @@ source as it is released.
 #include "dukeactor.h"
 
 BEGIN_DUKE_NS 
-  
+
 inline static double getavel(int snum)
 {
 	return PlayerInputAngVel(snum) * (2048. / 360.);

@@ -95,7 +95,7 @@ void UpdateStatusBar()
     if (pp->cookieTime > 0)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164
-        
+
         if (hud_textfont || !SmallFont2->CanPrint(pp->cookieQuote))
         {
             int x = 320 - SmallFont->StringWidth(pp->cookieQuote) / 2;

@@ -112,9 +112,9 @@ inline double bcosf(const double ang, const int shift = 0)
 class binangle
 {
 	uint32_t value;
-	
+
 	constexpr binangle(uint32_t v) : value(v) {}
-	
+
 	friend constexpr binangle bamang(uint32_t v);
 	friend constexpr binangle q16ang(uint32_t v);
 	friend constexpr binangle buildang(uint32_t v);
@@ -125,7 +125,7 @@ class binangle
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
 
 	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
-	
+
 public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
@@ -143,7 +143,7 @@ public:
 	constexpr int32_t signedbam() const { return tosigned(); }
 	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }
 	constexpr double signeddeg() const { return AngleToFloat(tosigned()); }
-	
+
 	double fsin() const { return g_sin(asrad()); }
 	double fcos() const { return g_cos(asrad()); }
 	double ftan() const { return g_tan(asrad()); }
@@ -240,9 +240,9 @@ inline constexpr double BAMToPitch(int32_t bam) { return bam * (90. / 0x80000000
 class fixedhoriz
 {
 	fixed_t value;
-	
+
 	constexpr fixedhoriz(fixed_t v) : value(v) {}
-	
+
 	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
 	friend fixedhoriz buildfhoriz(double v);
@@ -250,7 +250,7 @@ class fixedhoriz
 	friend fixedhoriz bamhoriz(int32_t v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval);
-	
+
 public:
 	fixedhoriz() = default;
 	fixedhoriz(const fixedhoriz &other) = default;
@@ -261,7 +261,7 @@ public:
 	constexpr fixed_t asq16() const { return value; }
 	double aspitch() const { return HorizToPitch(value); }
 	int32_t asbam() const { return PitchToBAM(aspitch()); }
-	
+
 	bool operator< (fixedhoriz other) const
 	{
 		return value < other.value;
@@ -302,7 +302,7 @@ public:
 		value -= other.value;
 		return *this;
 	}
-	
+
 	constexpr fixedhoriz operator- () const
 	{
 		return fixedhoriz(-value);

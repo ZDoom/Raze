@@ -464,7 +464,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                 if (decodeMap.nSize)
                 {
                     int i = 0;
-    
+
                     for (uint32_t y = 0; y < nHeight; y += 8)
                     {
                         for (uint32_t x = 0; x < nWidth; x += 8)

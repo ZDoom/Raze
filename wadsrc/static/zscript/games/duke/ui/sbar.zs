@@ -68,7 +68,7 @@ class DukeCommonStatusBar : RazeStatusBar
 		auto tex = tileGetTexture(TILE_FRAGBAR);
 		for (int y = 0; y < 32; y += 8)
 			DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
-			
+
 		for (i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			m initext(21 + (73 * (i & 3)), 2 + ((i & 28) << 1), &ud.user_name[i][0], ps[i].GetActor().s.pal, 2 + 8 + 16 + 128);

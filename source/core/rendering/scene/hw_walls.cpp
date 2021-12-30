@@ -392,7 +392,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		tcs[LORGT].v = 1.f - tcs[LORGT].v;
 	}
 
-	
+
 	if (!screen->BuffersArePersistent())
 	{
 		/*
@@ -721,7 +721,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 
 	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
 	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
-	 
+
 	auto setv = [=](float hl, float hr, float frac) -> float
 	{
 		float h = hl + (hr - hl) * frac;

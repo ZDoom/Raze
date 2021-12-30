@@ -1259,7 +1259,7 @@ sectdone:
 
                 PlayerList[nPlayer].nBreathTimer = 1;
             }
-            
+
             PlayerList[nPlayer].nBreathTimer--;
             if (PlayerList[nPlayer].nBreathTimer <= 0)
             {

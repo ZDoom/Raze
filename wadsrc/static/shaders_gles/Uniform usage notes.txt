@@ -37,12 +37,12 @@ uTextureMode
 	TEXF_Brightmap = 0x10000,
 	TEXF_Detailmap = 0x20000,
 	TEXF_Glowmap = 0x40000,
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 uPalLightLevels
 
 0xFF = 
@@ -66,11 +66,11 @@ gl_lightmode:
 	5, "$OPTVAL_BUILD"
 	8, "$OPTVAL_SOFTWARE"
 	16, "$OPTVAL_VANILLA"
-	
 
 
 
-	
+
+
 uTextureAddColor.a -> blendflags
 0x7 = 
 (USES all)

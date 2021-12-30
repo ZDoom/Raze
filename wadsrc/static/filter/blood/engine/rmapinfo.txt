@@ -11,7 +11,7 @@ cutscenes
 	{
 		function = BloodCutscenes.BuildLoading
 	}
-	
+
 }
 
 gameinfo

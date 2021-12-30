@@ -137,7 +137,7 @@ enum ESpriteBits // names mostly from SW.
 	CSTAT_SPRITE_ALIGNMENT_SLAB		= 48,			//             11 = either voxel or slope sprite, depending on the situation
 	CSTAT_SPRITE_ALIGNMENT_SLOPE	= 48,
 	CSTAT_SPRITE_ALIGNMENT_MASK		= 48,
-	
+
 	CSTAT_SPRITE_ONE_SIDE			= 64,			//   bit 6: 1 = 1-sided sprite, 0 = normal                           "1"
 	CSTAT_SPRITE_YCENTER			= 128,			//   bit 7: 1 = Real centered centering, 0 = foot center             "C"
 	CSTAT_SPRITE_BLOCK_HITSCAN		= 256,			//   bit 8: 1 = Blocking sprite (use with hitscan / cliptype 1)      "H"
@@ -202,7 +202,7 @@ struct sectortype
 
 	// Fields were reordered by size, some also enlarged.
 	DCoreActor* firstEntry, * lastEntry;
-	
+
 	int32_t wallptr;
 #ifdef SECTOR_HACKJOB
 	// Debug hack job for finding all places where ceilingz and floorz get written to.
@@ -233,7 +233,7 @@ struct sectortype
 
 #endif
 
-	
+
 	// panning byte fields were promoted to full floats to enable panning interpolation.
 	float ceilingxpan_;
 	float ceilingypan_;
@@ -250,7 +250,7 @@ struct sectortype
 	union { int16_t lotag, type; }; // type is for Blood.
 	int16_t hitag;
 	int16_t extra;
-	
+
 	int8_t ceilingshade;
 	uint8_t ceilingpal;
 	int8_t floorshade;
@@ -348,32 +348,32 @@ struct sectortype
 struct walltype
 {
 	vec2_t pos;
-	
+
 	int32_t point2;
 	int32_t nextwall;
 	int32_t sector;	// Build never had this...
 	int32_t nextsector;
-	
+
 	// Again, panning fields extended for interpolation.
 	float xpan_;
 	float ypan_;
-	
+
 	EWallFlags cstat;
 	int16_t picnum;
 	int16_t overpicnum;
 	union { int16_t lotag, type; }; // type is for Blood
 	int16_t hitag;
 	int16_t extra;
-	
+
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
 	uint8_t yrepeat;
-	
+
 	// extensions not from the binary map format.
 	binangle clipangle;
 	int length; // cached value to avoid calling sqrt repeatedly.
-	
+
 	uint16_t portalnum;
 	uint8_t portalflags;
 	uint8_t lengthflags;
@@ -417,9 +417,9 @@ struct walltype
 struct spritetypebase
 {
 	vec3_t pos, opos;
-	
+
 	sectortype* sectp;
-	
+
 	ESpriteFlags cstat;
 	int16_t picnum;
 	int16_t statnum;
@@ -432,7 +432,7 @@ struct spritetypebase
 	union { int16_t hitag, flags; };
 	int16_t extra;
 	int16_t detail;
-	
+
 	int8_t shade;
 	uint8_t pal;
 	uint8_t clipdist;

@@ -17,9 +17,9 @@ class FSerializer;
 class Quotes
 {
 	FString quotes[MAXQUOTES];
-	
+
 	void MakeStringLabel(FString &quote);
-	
+
 public:
 
 	void InitializeQuote(int num, const char *text, bool fromscript = false);
@@ -28,12 +28,12 @@ public:
 	{
 		return GStrings.localize(quotes[num]);
 	}
-	
+
 	const char *GetRawQuote(int num)
 	{
 		return quotes[num];
 	}
-	
+
 	void CopyQuote(int dst, int src)
 	{
 		quotes[dst] = quotes[src];

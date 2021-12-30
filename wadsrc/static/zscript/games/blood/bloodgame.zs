@@ -29,9 +29,9 @@ struct Blood native
 	native static void sndStartSampleNamed(String sname, int volume, int channel);
 	native static TextureID PowerupIcon(int pwup);
 	native static BloodPlayer GetViewPlayer();
-	
+
 	// These are just dummies to make the MP statusbar code compile.
-	
+
 	static void GetPlayers(Array<BloodPlayer> players)
 	{
 		players.Clear();

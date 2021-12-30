@@ -25,7 +25,7 @@ Original Source: 1996 - Todd Replogle
 Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
- 
+
 #include "ns.h"
 #include "global.h"
 #include "sounds.h"
@@ -164,7 +164,7 @@ bool isablockdoor(int dapic)
 		case RRTILE3827:
 		case RRTILE3837:
 			return true;
-			
+
 		case RRTILE1996:
 		case RRTILE2382:
 		case RRTILE2961:
@@ -2539,11 +2539,11 @@ void checksectors_r(int snum)
 						return;
 					}
 			}
-			
+
 			if ((hitscanwall->cstat & CSTAT_WALL_MASKED))
 				if (hitscanwall->lotag)
 					return;
-			
+
 		}
 		if (isRRRA())
 		{

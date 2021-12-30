@@ -517,7 +517,7 @@ void GameInterface::app_init()
     InitFX();
     seq_LoadSequences();
     InitStatus();
-    
+
     resettiming();
     GrabPalette();
 

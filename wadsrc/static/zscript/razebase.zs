@@ -79,7 +79,7 @@ struct MapRecord native
 		FORCEEOG = 1,
 		USERMAP = 2,
 	}
-	
+
 	native readonly int parTime;
 	native readonly int designerTime;
 	native readonly String fileName;
@@ -97,7 +97,7 @@ struct MapRecord native
 
 	//native readonly String messages[MAX_MESSAGES];
 	native readonly String author;
-	
+
 	String GetLabelName()
 	{
 		if (flags & USERMAP) return StringTable.Localize("$MNU_USERMAP");
@@ -135,7 +135,7 @@ struct Raze
 {
 	const kAngleMask	= 0x7FF;
 	const BAngToDegree = 360. / 2048.;
-	
+
 	native static Color shadeToLight(int shade);
 	native static String PlayerName(int i);
 	native static int bsin(int angle, int shift = 0);
@@ -190,18 +190,18 @@ struct Raze
 	{
 		return gameinfo.gametype & GAMEFLAG_BLOOD;
 	}
-	
+
 	// Dont know yet how to best export this, so for now these are just placeholders as MP is not operational anyway.
 	static int playerPalette(int i)
 	{
 		return 0;
 	}
-	
+
 	static int playerFrags(int i, int j)
 	{
 		return 0;
 	}
-	
+
 	static int playerFraggedSelf(int i)
 	{
 		return 0;
@@ -212,7 +212,7 @@ struct Raze
 		// todo: reimplement this in a game independent fashion based on GZDoom's code.
 		// Right now, with no MP support there is no need, though.
 	}
-	
+
 }
 
 /*
@@ -228,5 +228,5 @@ class RazeMenuDelegate : MenuDelegateBase
 	native override void PlaySound(name sname);
 	// This is native for security reasons. Having a script call to open the console could be subject to abuse.
 	native override void MenuDismissed();
-	
+
 }

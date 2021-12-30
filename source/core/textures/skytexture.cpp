@@ -44,14 +44,14 @@
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap, int remap)
 {
 	FString synthname;
-	
-	
+
+
 	if ((lognumtiles == 0 && remap == 0) || lognumtiles > 4) 
 	{
 		// no special handling - let the old code do its job as-is
 		return nullptr;
 	}
-	
+
 	int numtiles = 1 << lognumtiles;
 	synthname.Format("Sky%04x%02x", basetile, remap);
 	for(int i = 0; i < numtiles; i++)
@@ -60,7 +60,7 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 	};
 	auto tex = TexMan.FindGameTexture(synthname);
 	if (tex) return tex;
-	
+
 	TArray<TexPartBuild> build(numtiles, true);
 	int tilewidth = tileWidth(basetile);
 	for(int i = 0; i < numtiles; i++)

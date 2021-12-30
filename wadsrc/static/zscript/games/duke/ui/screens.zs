@@ -190,7 +190,7 @@ class Episode1End1 : SkippableScreenJob
 		Super.Init(fadein | fadeout);
 		return self;
 	}
-	
+
 
 	override void OnTick()
 	{
@@ -201,7 +201,7 @@ class Episode1End1 : SkippableScreenJob
 		static const int boss_time[] = { 0, 220, 260, 290, 320, 350, 350 };
 		static const int boss_time2[] = { 120, 260, 290, 320, 350, 380, 380 };
 		static const String boss_tile[] = { "VICTORY4", "VICTORY5", "VICTORY6", "VICTORY7", "VICTORY8", "VICTORY9", "VICTORY9" };
-		
+
 		int currentclock = ticks * 120 / GameTicRate;
 
 		bossani.SetInvalid();
@@ -761,7 +761,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 			if (cluster != null) basetex = cluster.InterBackground;
 		}
 		if (basetex.length() == 0) basetex = "BONUSPIC01";
-		
+
 		lastmapname = level.DisplayName();
 		texBg = TexMan.CheckForTexture(basetex);
 		return self;
@@ -960,7 +960,7 @@ class RRRAEndOfGame : SkippableScreenJob
 class DukeLoadScreen : ScreenJob
 {
 	MapRecord rec;
-	
+
 	ScreenJob Init(MapRecord maprec)
 	{
 		Super.Init(fadein);
@@ -972,11 +972,11 @@ class DukeLoadScreen : ScreenJob
 	{
 		if (fadestate == visible) jobstate = finished;
 	}
-	
+
 	override void Draw(double sr)
 	{
 		Screen.DrawTexture(TexMan.CheckForTexture("LOADSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
-		
+
 		if (!Raze.IsRR())
 		{
 			Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING", 0);

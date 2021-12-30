@@ -13,12 +13,12 @@ struct Exhumed native
 	native static ExhumedPlayer GetViewPlayer();
 	native static int GetPistolClip();
 	native static int GetPlayerClip();
-	
+
 	static void DrawAbs(String img, int x, int y, int shade = 0)
 	{
 	    Screen.DrawTexture(TexMan.CheckForTexture(img, TexMan.Type_Any), false, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, Raze.shadeToLight(shade));
 	}
-	
+
 	static void DrawRel(String img, int x, int y, int shade = 0)
 	{
 		let tex = TexMan.CheckForTexture(img, TexMan.Type_Any);
@@ -65,7 +65,7 @@ struct ExhumedPlayer native
 
 	//PlayerHorizon horizon;
 	//PlayerAngle angle;
-	
+
 	native bool IsUnderwater();
 	native int GetAngle();
 }

@@ -113,7 +113,7 @@ void AIRoach::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
- 
+
     ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }

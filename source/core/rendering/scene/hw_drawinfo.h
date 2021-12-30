@@ -123,7 +123,7 @@ private:
 	void WorkerThread();
 
 	void UnclipSubsector(sectortype *sub);
-	
+
 	void AddLine(walltype *seg, bool portalclip);
 	void AddLines(sectortype* sector);
 	void AddSpecialPortalLines(sectortype * sector, walltype* line);
@@ -178,7 +178,7 @@ public:
 	void DrawPlayerSprites(bool hudModelStep, FRenderState &state);
 
 	//void AddSubsectorToPortal(FSectorPortalGroup *portal, sectortype *sub);
-	
+
 	void AddWall(HWWall *w);
 	void AddMirrorSurface(HWWall *w);
 	void AddFlat(HWFlat *flat);

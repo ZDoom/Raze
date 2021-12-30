@@ -6,12 +6,12 @@ class GameScreen : Object ui
 	{
 		return false;
 	}
-	
+
 	virtual bool Tick(int framenum)
 	{
 		return false;
 	}
-	
+
 	virtual void Draw()
 	{
 	}

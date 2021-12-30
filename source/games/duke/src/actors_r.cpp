@@ -222,7 +222,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	if (actor->spr.xrepeat >= 11 || !(actor->spr.picnum == RPG || ((isRRRA()) && actor->spr.picnum == RPG2)))
 	{
 		BFSSectorSearch search(actor->spr.sector());
-	
+
 		while (auto dasectp = search.GetNext())
 		{
 			if (((dasectp->ceilingz - actor->spr.pos.Z) >> 8) < r)
@@ -239,7 +239,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitceiling(dasectp);
 				}
 			}
-			
+
 			for (auto& wal : wallsofsector(dasectp))
 			{
 				if ((abs(wal.pos.X - actor->spr.pos.X) + abs(wal.pos.Y - actor->spr.pos.Y)) < r)
@@ -613,7 +613,7 @@ void movefta_r(void)
 //
 //---------------------------------------------------------------------------
 
-																		  
+
 DDukeActor* ifhitsectors_r(sectortype* sect)
 {
 	DukeStatIterator it(STAT_MISC);
@@ -2792,7 +2792,7 @@ void moveactors_r(void)
 	int x;
 	int p;
 	Collision coll;
-	
+
 	dojaildoor();
 	moveminecart();
 
@@ -2814,7 +2814,7 @@ void moveactors_r(void)
 		}
 
 		auto sectp = act->spr.sector();
-		
+
 		switch(act->spr.picnum)
 		{
 			case RESPAWNMARKERRED:
@@ -3021,7 +3021,7 @@ void moveactors_r(void)
 			case HEAVYHBOMB:
 				heavyhbomb(act);
 				continue;
-				
+
 			case REACTORBURNT:
 			case REACTOR2BURNT:
 				continue;
@@ -3068,7 +3068,7 @@ void moveexplosions_r(void)  // STATNUM 5
 	int p;
 	int x, * t;
 
-	
+
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
@@ -3238,7 +3238,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case DUKELEG:
 			if (!jibs(act, JIBS6, false, true, true, act->spr.picnum == DUKELEG || act->spr.picnum == DUKETORSO || act->spr.picnum == DUKEGUN,
 				isRRRA() && (act->spr.picnum == RRTILE2465 || act->spr.picnum == RRTILE2560))) continue;
-			
+
 			if (act->spr.sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->spr.sector()->floorz - (8 << 8))
 				{
@@ -3429,11 +3429,11 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_0_ROTATING_SECTOR:
 			handle_se00(act, -1);
 			break;
-			
+
 		case SE_1_PIVOT: //Nothing for now used as the pivot
 			handle_se01(act);
 			break;
-			
+
 		case SE_6_SUBWAY:
 			handle_se06_r(act);
 			break;
@@ -3477,7 +3477,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_11_SWINGING_DOOR:
 			handle_se11(act);
 			break;
-			
+
 		case SE_12_LIGHT_SWITCH:
 			handle_se12(act);
 			break;
@@ -3485,11 +3485,11 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_47_LIGHT_SWITCH:
 			if (isRRRA()) handle_se12(act, 1);
 			break;
-			
+
 		case SE_48_LIGHT_SWITCH:
 			if (isRRRA()) handle_se12(act, 2);
 			break;
-			
+
 
 		case SE_13_EXPLOSIVE:
 			handle_se13(act);

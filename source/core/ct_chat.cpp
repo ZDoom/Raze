@@ -232,7 +232,7 @@ void CT_Drawer (void)
 		int scale = active_con_scale(drawer);
 		int screen_width = twod->GetWidth() / scale;
 		int screen_height= twod->GetHeight() / scale;
-		
+
 		y = screen_height - displayfont->GetHeight()-2;
 		auto res = gi->GetReservedScreenSpace(hud_size);
 

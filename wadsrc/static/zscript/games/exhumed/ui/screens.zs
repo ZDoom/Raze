@@ -43,7 +43,7 @@ class LmfPlayer : SkippableScreenJob
 		fn = filename;
 		return self;
 	}
-	
+
 	override void Start()
 	{
 		decoder = LMFDecoder.Create(fn);
@@ -269,7 +269,7 @@ class MapScreen : ScreenJob
 	int x;
 	int delta;
 	int nIdleSeconds;
-	
+
 	int curYPos, destYPos;
 	int nLevel, nLevelNew, nLevelBest;
 
@@ -330,7 +330,7 @@ class MapScreen : ScreenJob
 				}
 				return true;
 			}
-		
+
 			if (key == InputEvent.KEY_DOWNARROW || key == InputEvent.KEY_PAD_DPAD_DOWN || key == InputEvent.Key_kpad_2 || binding ~== "+move_backward")
 			{
 				if (curYPos == destYPos && nLevelNew > 0)
@@ -384,7 +384,7 @@ class MapScreen : ScreenJob
 		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 
 		int tileY = curYPos;
-		
+
 		// Draw the background screens
 		for (int i = 0; i < 10; i++)
 		{
@@ -392,12 +392,12 @@ class MapScreen : ScreenJob
 			Exhumed.DrawAbs(tex, x, tileY);
 			tileY -= 200;
 		}
-		
+
 		// for each level - drawing the 'level completed' on-fire smoke markers
 		for (int i = 0; i < 20; i++)
 		{
 			int screenY = (i >> 1) * -200;
-			
+
 			if (nLevelBest >= i) // check if the player has finished this level
 			{
 				for (int j = 0; j < MapLevelFires[i * FIRE_SIZE]; j++)
@@ -407,29 +407,29 @@ class MapScreen : ScreenJob
 					int nFireType = MapLevelFires[elem + FIRE_TYPE];
 					int x = MapLevelFires[elem + FIRE_XOFS];
 					int y = MapLevelFires[elem + FIRE_YOFS];
-					
+
 					String nTile = String.Format("MAPFIRE_%d%d", nFireType+1, nFireFrame+1);
 					int smokeX = x + FireTilesX[nFireType*3 + nFireFrame];
 					int smokeY = y + FireTilesY[nFireType*3 + nFireFrame] + curYPos + screenY;
-					
+
 					// Use rotatesprite to trim smoke in widescreen
 					Exhumed.DrawAbs(nTile, smokeX, smokeY);
 					// Todo: mask out the sides of the screen if the background is not widescreen.
 				}
 			}
-			
+
 			int t = (((currentclock & 16) >> 4));
-			
+
 			String nTile = String.Format("MapPlaque%d_%02d", t+1, i+1);
-			
+
 			int nameX = mapPlaqueX[i];
 			int nameY = mapPlaqueY[i] + curYPos + screenY;
-			
+
 			// Draw level name plaque
 			Exhumed.DrawAbs(nTile, nameX, nameY);
-			
+
 			int shade = 96;
-			
+
 			if (nLevelNew == i)
 			{
 				shade = (Raze.bsin(16 * currentclock) + 31) >> 8;
@@ -438,11 +438,11 @@ class MapScreen : ScreenJob
 			{
 				shade = 31;
 			}
-			
+
 			int textY = nameY + MapPlaqueTextY[i];
 			int textX = nameX + MapPlaqueTextX[i];
 			nTile = String.Format("MapPlaqueText_%02d", i+1);
-			
+
 			// draw the text, alternating between red and black
 			Exhumed.DrawAbs(nTile, textX, textY, shade);
 		}
@@ -475,7 +475,7 @@ class Cinema : SkippableScreenJob
 		cdtrack = cdtrk;
 		return self;
 	}
-	
+
 	override void Start()
 	{
 		System.StopAllSounds();

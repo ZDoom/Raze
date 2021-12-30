@@ -78,7 +78,7 @@ void Clipper::RemoveRange(ClipNode * range, bool free)
 		if (range->prev) range->prev->next = range->next;
 		if (range->next) range->next->prev = range->prev;
 	}
-	
+
 	if (free) Free(range);
 	ValidateList();
 }
@@ -188,14 +188,14 @@ void Clipper::Clear(binangle rangestart)
 {
 	ClipNode *node = cliphead;
 	ClipNode *temp;
-	
+
 	while (node != nullptr)
 	{
 		temp = node;
 		node = node->next;
 		Free(temp);
 	}
-	
+
 	cliphead = nullptr;
 
 	if (visibleStart.asbam() != 0 || visibleEnd.asbam() != 0)
@@ -220,9 +220,9 @@ bool Clipper::IsRangeVisible(int startAngle, int endAngle)
 {
 	ClipNode *ci;
 	ci = cliphead;
-	
+
 	if (endAngle == 0 && ci && ci->start==0) return false;
-	
+
 	while (ci != nullptr && ci->start < endAngle)
 	{
 		if (startAngle >= ci->start && endAngle <= ci->end && ci->topclip <= ci->bottomclip)
@@ -231,7 +231,7 @@ bool Clipper::IsRangeVisible(int startAngle, int endAngle)
 		}
 		ci = ci->next;
 	}
-	
+
 	return true;
 }
 
@@ -393,7 +393,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 			// existing range is part of new one.
 			//
 			//-----------------------------------------------------------------------------
-			
+
 			if (node->start >= start && node->end <= end)
 			{
 				if (node->topclip > node->bottomclip) // shortcut the common case where the old node is already closed.
@@ -438,7 +438,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 
 				float mtopclip = topclip, mbottomclip = bottomclip;
 				mergeClip(node, mtopclip, mbottomclip, viewz);
-			
+
 				// existing range is a more narrow window on both sides, we're done.
 				if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
 				{
@@ -456,14 +456,14 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 				node = node->next;
 			}
 		}
-		
+
 		// at this point we know that overlaps can only be at one side because all full overlaps have been resolved already.
 		// so what follows can at most intersect two other nodes - one at the left and one at the right
 		node = cliphead;
 		while (node != nullptr && node->start <= end)
 		{
 			auto next = node->next;	// get this before making any edits.
-		
+
 			//-----------------------------------------------------------------------------
 			//
 			// node overlaps the start of the new range
@@ -561,7 +561,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 			}
 			node = next;
 		}
-		
+
 		// cliphead *can* be null here if a sole existing older range got removed because this one covers it entirely.
 		if (cliphead)
 		{
@@ -617,7 +617,7 @@ void Clipper::RemoveClipRange(int start, int end)
 				node = node->next;
 			}
 		}
-		
+
 		//check to see if range overlaps a range (or possibly 2)
 		node = cliphead;
 		while (node != nullptr)

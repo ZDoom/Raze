@@ -789,7 +789,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         }
 
         vec2_t vec = goal;
-        
+
         if ((hitwall = cliptrace(pos->vec2, &vec)) >= 0)
         {
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
@@ -984,7 +984,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                             closest = { dax, day };
                         }
-                       
+
                         j = cliptestsector(clipsectorlist[clipsectcnt], wal->nextsector, flordist, ceildist, closest, vect->Z);
                     }
 

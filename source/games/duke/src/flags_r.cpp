@@ -73,7 +73,7 @@ void initactorflags_r()
 		COOTSTAYPUT,
 		SHARK,
 		VIXEN});
-			
+
 	if (isRRRA()) setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
 		SBSWIPE,
 		BIKERB,

@@ -2,7 +2,7 @@ tilesmallfont
 {
 	ignoreoffsets
 	spacewidth 4
-	
+
 	! #04097
 	"\"" #04098
 	# #04099
@@ -294,7 +294,7 @@ digifont
 {
 	ignoreoffsets
 	spacewidth 4
-	
+
 	! #04481
 	"\"" #04482
 	$ #04484

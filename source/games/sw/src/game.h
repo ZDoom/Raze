@@ -603,7 +603,7 @@ struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
     vec3_t pos, opos;
-    
+
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
@@ -643,7 +643,7 @@ struct PLAYERstruct
     int16_t circle_camera_ang;
     int16_t camera_check_time_delay;
 
-    
+
     sectortype
         * cursector,
         * lastcursector,
@@ -1026,7 +1026,7 @@ struct USER
     // Only have a place for actors
     //
 
-    
+
 
     // scaling
     int16_t scale_speed;
@@ -1147,35 +1147,35 @@ enum
     SPR_FALLING             = BIT(6), // Actor is falling
     SPR_CLIMBING            = BIT(7), // Actor is falling
     SPR_DEAD               = BIT(8), // Actor is dying
-    
+
     SPR_ZDIFF_MODE          = BIT(10), // For following tracks at different z heights
     SPR_SPEED_UP            = BIT(11), // For following tracks at different speeds
     SPR_SLOW_DOWN           = BIT(12), // For following tracks at different speeds
     SPR_DONT_UPDATE_ANG     = BIT(13), // For tracks - don't update the angle for a while
-    
+
     SPR_SO_ATTACHED         = BIT(14), // sprite is part of a sector object
     SPR_SUICIDE             = BIT(15), // sprite is set to kill itself
-    
+
     SPR_RUN_AWAY            = BIT(16), // sprite is in "Run Away" track mode.
     SPR_FIND_PLAYER         = BIT(17), // sprite is in "Find Player" track mode.
-    
+
     SPR_SWIMMING            = BIT(18), // Actor is swimming
     SPR_WAIT_FOR_PLAYER     = BIT(19), // Track Mode - Actor is waiting for player to come close
     SPR_WAIT_FOR_TRIGGER    = BIT(20), // Track Mode - Actor is waiting for player to trigger
     SPR_SLIDING             = BIT(21), // Actor is sliding
     SPR_ON_SO_SECTOR        = BIT(22), // sprite is on a sector object sector
-    
+
     SPR_SHADE_DIR           = BIT(23), // sprite is on a sector object sector
     SPR_XFLIP_TOGGLE        = BIT(24), // sprite rotation xflip bit
     SPR_NO_SCAREDZ          = BIT(25), // not afraid of falling
-    
+
     SPR_SET_POS_DONT_KILL   = BIT(26), // Don't kill sprites in MissileSetPos
     SPR_SKIP2               = BIT(27), // 20 moves ps
     SPR_SKIP4               = BIT(28), // 10 moves ps
-    
+
     SPR_BOUNCE              = BIT(29), // For shrapnel types that can bounce once
     SPR_UNDERWATER          = BIT(30), // For missiles etc
-    
+
     SPR_SHADOW              = BIT(31), // Sprites that have shadows
 
     // User->Flags2 flags
@@ -1221,7 +1221,7 @@ enum
     SECTFX_DIVE_AREA             = BIT(7), // Diving area
     SECTFX_UNDERWATER            = BIT(8), // Underwater area
     SECTFX_UNDERWATER2           = BIT(9), // Underwater area
-                             
+
     SECTFX_LIQUID_MASK           = (BIT(10)|BIT(11)), // only valid for sectors with depth
     SECTFX_LIQUID_NONE           = (0),
     SECTFX_LIQUID_LAVA           = BIT(10),
@@ -1460,7 +1460,7 @@ struct SECTOR_OBJECTstruct
         struct { int xmid, ymid, zmid; };  // midpoints of the sector object
         vec3_t pmid;
     };
-    
+
 	TObjPtr<DSWActor*> so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	TObjPtr<DSWActor*> match_event_actor; // spritenum of the match event sprite
 

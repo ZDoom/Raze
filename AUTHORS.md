@@ -3,20 +3,20 @@
 
 ### Raze special thanks:
   * sinisterseed, Rachael, dpJudas, Enjay, Nash Muhandes
-  
+
 ### EDuke32 engine:
   * TerminX, Hendricks266, pogokeen, Plagman
   * Helixhorned
-  
+
 ### JFDuke3D by:
   * JonoF
-  
+
 ### Uses BUILD Engine technology by:
   * Ken Silverman
-  
+
 ### NBlood programming:
   * Nuke.YKT, NoOne, sirlemonhead
-  
+
 ### NBlood special thanks:
   * NY00123, MetHy, Striker, oasiz, Mblackwell, Zombie, Marphy Black, SAmik37, meleemario
 
@@ -34,7 +34,7 @@
 
 ### Widescreen graphics:
   * James Manning, fgsfds, Dzierzan, Phredreeke, MaxED, Kinsie, Maxi Clouds
-  
+
 ### Exhumed BigFont
   * Dynamo
 

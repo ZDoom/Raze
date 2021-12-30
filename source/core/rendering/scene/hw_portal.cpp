@@ -174,7 +174,7 @@ void HWPortal::DrawPortalStencil(FRenderState &state, int pass)
 	if (mPrimIndices.Size() == 0)
 	{
 		mPrimIndices.Resize(2 * lines.Size());
-		
+
 		for (unsigned int i = 0; i < lines.Size(); i++)
 		{
 			mPrimIndices[i * 2] = lines[i].vertindex;
@@ -208,7 +208,7 @@ void HWPortal::DrawPortalStencil(FRenderState &state, int pass)
 		}
 
 	}
-	
+
 	for (unsigned int i = 0; i < mPrimIndices.Size(); i += 2)
 	{
 		state.Draw(DT_TriangleFan, mPrimIndices[i], mPrimIndices[i + 1], i == 0);
@@ -243,7 +243,7 @@ void HWPortal::SetupStencil(HWDrawInfo *di, FRenderState &state, bool usestencil
 	Clocker c(PortalAll);
 
 	rendered_portals++;
-	
+
 	if (usestencil)
 	{
 		// Create stencil
@@ -253,20 +253,20 @@ void HWPortal::SetupStencil(HWDrawInfo *di, FRenderState &state, bool usestencil
 		state.EnableTexture(false);
 		state.ResetColor();
 		state.SetDepthFunc(DF_Less);
-			
+
 		if (NeedDepthBuffer())
 		{
 			state.SetDepthMask(false);							// don't write to Z-buffer!
-				
+
 			DrawPortalStencil(state, STP_Stencil);
-				
+
 			// Clear Z-buffer
 			state.SetStencil(1, SOP_Keep); // draw sky into stencil. This stage doesn't modify the stencil.
 			state.SetDepthMask(true);							// enable z-buffer again
 			state.SetDepthRange(1, 1);
 			state.SetDepthFunc(DF_Always);
 			DrawPortalStencil(state, STP_DepthClear);
-				
+
 			// set normal drawing mode
 			state.EnableTexture(true);
 			state.SetDepthRange(0, 1);
@@ -278,7 +278,7 @@ void HWPortal::SetupStencil(HWDrawInfo *di, FRenderState &state, bool usestencil
 		{
 			// No z-buffer is needed therefore we can skip all the complicated stuff that is involved
 			// Note: We must draw the stencil with z-write enabled here because there is no second pass!
-				
+
 			state.SetDepthMask(true);
 			DrawPortalStencil(state, STP_AllInOne);
 			state.SetStencil(1, SOP_Keep); // draw sky into stencil. This stage doesn't modify the stencil.
@@ -289,8 +289,8 @@ void HWPortal::SetupStencil(HWDrawInfo *di, FRenderState &state, bool usestencil
 			state.SetDepthMask(false);							// don't write to Z-buffer!
 		}
 		screen->stencilValue++;
-		
-		
+
+
 	}
 	else
 	{
@@ -320,12 +320,12 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 
 	if (usestencil)
 	{
-		
+
 		state.SetColorMask(false);						// no graphics
 		state.SetEffect(EFF_NONE);
 		state.ResetColor();
 		state.EnableTexture(false);
-		
+
 		if (needdepth)
 		{
 			// first step: reset the depth buffer to max. depth
@@ -337,20 +337,20 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 		{
 			state.EnableDepthTest(true);
 		}
-		
+
 		// second step: restore the depth buffer to the previous values and reset the stencil
 		state.SetDepthFunc(DF_LEqual);
 		state.SetDepthRange(0, 1);
 		state.SetStencil(0, SOP_Decrement);
 		DrawPortalStencil(state, STP_DepthRestore);
 		state.SetDepthFunc(DF_Less);
-		
-		
+
+
 		state.EnableTexture(true);
 		state.SetEffect(EFF_NONE);
 		state.SetColorMask(true);
 		screen->stencilValue--;
-		
+
 		// restore old stencil op.
 		state.SetStencil(0, SOP_Keep);
 	}
@@ -365,10 +365,10 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 			state.EnableDepthTest(true);
 			state.SetDepthMask(true);
 		}
-		
+
 		// This draws a valid z-buffer into the stencil's contents to ensure it
 		// doesn't get overwritten by the level's geometry.
-		
+
 		state.ResetColor();
 		state.SetDepthFunc(DF_LEqual);
 		state.SetDepthRange(0, 1);
@@ -631,7 +631,7 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
-	
+
 	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->pos.X - origx, origin->pos.Y - origy);
@@ -683,7 +683,7 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
-	
+
 	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->pos.X - origx, origin->pos.Y - origy);

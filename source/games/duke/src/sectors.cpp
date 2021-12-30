@@ -527,7 +527,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	for (int j = 0; j < 2; j++)
 	{
 		auto wal = wallfind[j];
-		
+
 		//find what direction door should open by averaging the
 		//  2 neighboring points of wallfind[0] & wallfind[1].
 		auto prevwall = wal - 1;
@@ -813,7 +813,7 @@ static void handle_st22(sectortype* sptr, DDukeActor* actor)
 static void handle_st23(sectortype* sptr, DDukeActor* actor)
 {
 	int q = 0;
-	
+
 	DukeStatIterator it(STAT_EFFECTOR);
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
@@ -875,7 +875,7 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 			break;
 		}
 	}
-	
+
 	if (act2 == nullptr)
 		return;
 

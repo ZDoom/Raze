@@ -244,12 +244,12 @@ class MoviePlayerJob : SkippableScreenJob
 		empty.Push(int(soundname));
 		return CreateWithSoundInfo(filename, empty, flags, frametime);
 	}
-	
+
 	virtual void DrawFrame()
 	{
 		let tex = player.GetTexture();
 		let size = TexMan.GetScaledSize(tex);
-		
+
 		if (!(flag & MoviePlayer.FIXEDVIEWPORT) || (size.x <= 320 && size.y <= 200) || size.x >= 640 || size.y >= 480)
 		{
 			Screen.DrawTexture(tex, false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false);
@@ -533,7 +533,7 @@ class ScreenJobRunner : Object
 		if (snd > 0) sounds.Pushv(1, snd);
 		Append(MoviePlayerJob.CreateWithSoundInfo(fn, sounds, 0, framerate));
 	}
-	
+
 	//==========================================================================
 	//
 	// This also gets used by the title loop.
@@ -572,7 +572,7 @@ class ScreenJobRunner : Object
 		}
 		y = hudheight * 0.9 - height;
 		if (y < 0) y = 0;
-		
+
 		Screen.Dim(0, 0.5f, int(x * hscale), int(y * vscale), int(w * hscale), int(height * vscale));
 		x += 20;
 		y += 10;
@@ -662,7 +662,7 @@ class TextTypeOnOverlay
 	bool usesDefault;
 	int mTicker;
 	int mTextDelay;
-	
+
 	//==========================================================================
 	//
 	//
@@ -676,7 +676,7 @@ class TextTypeOnOverlay
 
 		tt.Split(lines, "\n");
 		mLineCount = lines.Size();
-		
+
 		mText = "";
 		for (int i = 0; i < lines.Size(); i++)
 		{
@@ -727,7 +727,7 @@ class TextTypeOnOverlay
 		mTextColor = cr;
 		mPalette = pal;
 	}
-	
+
 	//==========================================================================
 	//
 	//

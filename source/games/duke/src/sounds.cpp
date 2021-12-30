@@ -387,7 +387,7 @@ void GameInterface::UpdateSounds(void)
 	vec3_t* c;
 	int32_t ca;
 	sectortype* cs;
-	
+
 	if (isRR() && !Mus_IsPlaying() && !paused && gamestate == GS_LEVEL)
 		S_PlayRRMusic(); 
 
@@ -522,7 +522,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 {
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
-	
+
 	sndnum = GetReplacementSound(sndnum);
 
 	int userflags = S_GetUserFlags(sndnum);

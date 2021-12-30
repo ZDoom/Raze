@@ -1972,7 +1972,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         actor->spr.extra |= (SPRX_BREAKABLE);
         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
-        
+
         ChangeState(actor, actor->user.StateEnd);
         actor->spr.xvel = 0;
         //actor->user.jump_speed = -300;

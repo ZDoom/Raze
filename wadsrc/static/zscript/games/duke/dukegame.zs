@@ -35,7 +35,7 @@ struct Duke native
 		MUS_BRIEFING = 1,
 		MUS_LOADING = 2,
 	};
-	
+
 	enum EPalette
 	{
 		BASEPAL = 0,
@@ -69,20 +69,20 @@ struct Duke native
 	native static DukePlayer GetViewPlayer();
 	native static int MaxPlayerHealth();
 	native static int MaxAmmoAmount(int weap);
-	
+
 	static void PlayBonusMusic()
 	{
 		if (System.MusicEnabled())
 			PlaySound(DukeSnd.BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 	}
-	
+
 	//==========================================================================
 	//
 	// wrappers around DrawText to allow easier reuse of the old code.
 	// The vertical displacements are to have the same positioning as with the original code.
 	//
 	//==========================================================================
-		
+
 	static void BigText(double x, double y, String text, int align = -1, double alpha = 1.)
 	{
 		let myfont = Raze.PickBigFont();

@@ -106,14 +106,14 @@ class SWStatusBar : RazeStatusBar
 		let siz = TexMan.GetScaledSize(img);
 		return int(siz.Y);
 	}
- 
+
 	int tileWidth(String tex)
 	{
 		let img = TexMan.CheckForTexture(tex, TexMan.TYPE_Any);
 		let siz = TexMan.GetScaledSize(img);
 		return int(siz.X);
 	}
- 
+
 	//---------------------------------------------------------------------------
 	//
 	// 
@@ -583,7 +583,7 @@ class SWStatusBar : RazeStatusBar
 		DisplayPanelNumber(PANEL_ARMOR_BOX_X + PANEL_ARMOR_XOFF, PANEL_BOX_Y + PANEL_ARMOR_YOFF, pp.Armor);
 		if (wnum != SW.WPN_FIST && wnum != SW.WPN_SWORD) DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp.WpnAmmo[wnum]);
 		PlayerUpdateWeaponSummaryAll(pp);
-		
+
 		/*
 		if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
 			DisplayKeys(pp, PANEL_KEYS_BOX_X, PANEL_BOX_Y);

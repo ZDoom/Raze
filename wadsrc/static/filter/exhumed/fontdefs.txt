@@ -4,7 +4,7 @@ tilesmallfont
 	kerning 1
 	minluminosity 0
 	spacewidth 4
-	
+
 	! #03549
 	"\"" #03553
 	, #03551
@@ -57,7 +57,7 @@ smallfont2
 	kerning 1
 	minluminosity 0
 	spacewidth 4
-	
+
 	! #03651
 	, #03653
 	. #03650

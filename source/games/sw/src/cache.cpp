@@ -136,7 +136,7 @@ void SetupPreCache(void)
 {
 	precacheMap();
 
-	   
+
 	// actors cache ranges are called from SpriteSetup
 	// only caches the actor if its on the level
 

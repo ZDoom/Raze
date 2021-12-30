@@ -110,7 +110,7 @@ CCMD(secret)
 		}
 	}
 }
- 
+
 void SECRET_Serialize(FSerializer &arc)
 {
 	if (arc.BeginObject("secrets"))

@@ -204,7 +204,7 @@ public:
 	FRestorableTile(FImageSource* base)
 	{
 		Base = base;
-		
+
 		CopySize(*base);
 		ResizeImage(Width, Height);
 		Reload();

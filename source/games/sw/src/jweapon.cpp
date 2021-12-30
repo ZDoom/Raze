@@ -2248,7 +2248,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->user.xchange = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.ychange = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
     actorNew->user.zchange = actorNew->spr.zvel;
-    
+
     actorNew->user.jump_speed = 200;
     actorNew->user.jump_speed += RandomRange(400);
     actorNew->user.jump_speed = -actorNew->user.jump_speed;

@@ -1079,7 +1079,7 @@ void PrintSpriteInfo(PLAYERp pp)
             Printf("COUNTER:%d, ", actor->user.Counter);
             Printf("COUNTER2:%d\n", actor->user.Counter);
         }
-        
+
         {
             Printf("POSX:%d, ", actor->spr.pos.X);
             Printf("POSY:%d, ", actor->spr.pos.Y);
@@ -1470,7 +1470,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
-        
+
         if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio))
         {
             tz += 8448;

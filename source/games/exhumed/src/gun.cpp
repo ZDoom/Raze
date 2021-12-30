@@ -58,7 +58,7 @@ void SerializeGun(FSerializer& arc)
         arc.Array("temperature", nTemperature, kMaxPlayers)
             ("isred", isRed)
             .EndObject();
-            
+
     }
 }
 

@@ -408,7 +408,7 @@ void StartChunk (int id, uint8_t **stream)
 void FinishChunk (uint8_t **stream)
 {
 	int len;
-	
+
 	if (!lenspot)
 		return;
 

@@ -72,7 +72,7 @@ int LoadPaletteLookups()
 
         hFile.Read(buffer, 256*64);
         lookups.setTable(i, buffer);
-        
+
         bGreenPal = 0;
 
         // These 3 tables do not have normal gradients. The others work without adjustment.

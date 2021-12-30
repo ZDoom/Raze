@@ -174,7 +174,7 @@ class MvePlayer : public MoviePlayer
 {
 	InterplayDecoder decoder;
 	bool failed = false;
-	
+
 public:
 	bool isvalid() { return !failed; }
 

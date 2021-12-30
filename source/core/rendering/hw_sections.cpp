@@ -217,7 +217,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 	visited.Zero();
 
 	TArray<int> thisloop;
-	
+
 	int count = 0;
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
@@ -225,14 +225,14 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 		int last = first + sector[i].wallnum;
 		sectors.Reserve(1);
 		sectors.Last().bugged = 0;
-		
+
 		for (int w = first; w < last; w++)
 		{
 			if (visited[w]) continue;
 			thisloop.Clear();
 			thisloop.Push(w);
 			visited.Set(w);
-			
+
 			for (int ww = wall[w].point2; ww != w; ww = wall[ww].point2)
 			{
 				if (ww < first || ww >= last)

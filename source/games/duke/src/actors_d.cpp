@@ -264,7 +264,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.xrepeat < 11))
 	{
 		BFSSectorSearch search(actor->spr.sector());
-	
+
 		while (auto dasectp = search.GetNext())
 		{
 			if (((dasectp->ceilingz - actor->spr.pos.Z) >> 8) < r)
@@ -300,9 +300,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			}
 		}
 	}
-	
+
 	int q = -(16 << 8) + (krand() & ((32 << 8) - 1));
-	
+
 	auto Owner = actor->GetOwner();
 	for (int x = 0; x < 7; x++)
 	{
@@ -315,13 +315,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				{
 					continue;
 				}
-				
+
 				if (actor->spr.picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && act2->spr.picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && act2->spr.picnum == BOSS5)))
 				{
 					continue;
 				}
 			}
-			
+
 			if (x == 0 || x >= 5 || AFLAMABLE(act2->spr.picnum))
 			{
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
@@ -342,15 +342,15 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				{
 					continue;
 				}
-				
+
 				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
 				int d = dist(actor, act2);
 				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
-				
+
 				if (d < r && cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z - (8 << 8), act2->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (12 << 8), actor->spr.sector()))
 				{
 					act2->ang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
-					
+
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
 					else if (!isWorldTour())
@@ -373,7 +373,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						else
 							act2->attackertype = FLAMETHROWERFLAME;
 					}
-					
+
 					if (actor->spr.picnum != SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != LAVAPOOL))
 					{
 						if (d < r / 3)
@@ -391,29 +391,29 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							if (hp2 == hp1) hp2++;
 							act2->extra = hp1 + (krand() % (hp2 - hp1));
 						}
-						
+
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
 							if (act2->spr.xvel < 0) act2->spr.xvel = 0;
 							act2->spr.xvel += (actor->spr.extra << 2);
 						}
-						
+
 						if (gs.actorinfo[act2->spr.picnum].flags & SFLAG_HITRADIUSCHECK)
 							fi.checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->extra = 0;
-					
+
 					if (act2->spr.picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
 						if (act2->spr.picnum == APLAYER)
 						{
 							int p = act2->spr.yvel;
-							
+
 							if (isWorldTour() && act2->attackertype == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
 								ps[p].numloogs = -1 - actor->spr.yvel;
 							}
-							
+
 							if (ps[p].newOwner != nullptr)
 							{
 								clearcamera(&ps[p]);
@@ -725,7 +725,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 				if (ud.god && actor->attackertype != SHRINKSPARK) return -1;
 
 				p = actor->spr.yvel;
-				
+
 				if (hitowner &&
 					hitowner->spr.picnum == APLAYER &&
 					ud.coop == 1 &&
@@ -1875,12 +1875,12 @@ void movetransports_d(void)
 {
 	int warpspriteto;
 	int ll;
-	
+
 	DukeStatIterator iti(STAT_TRANSPORT);
 	while (auto act = iti.Next())
 	{
 		auto Owner = act->GetOwner();
-		
+
 		if (Owner == act)
 		{
 			continue;
@@ -1889,22 +1889,22 @@ void movetransports_d(void)
 		auto sectp = act->spr.sector();
 		int sectlotag = sectp->lotag;
 		int onfloorz = act->temp_data[4];
-		
+
 		if (act->temp_data[0] > 0) act->temp_data[0]--;
-		
+
 		DukeSectIterator itj(act->sector());
 		while (auto act2 = itj.Next()) 
 		{
 			switch (act2->spr.statnum)
 			{
 			case STAT_PLAYER:
-				
+
 				if (act2->GetOwner())
 				{
 					int p = act2->PlayerIndex();
-					
+
 					ps[p].on_warping_sector = 1;
-					
+
 					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
@@ -1914,64 +1914,64 @@ void movetransports_d(void)
 								spawn(act, TRANSPORTERBEAM);
 								S_PlayActorSound(TELEPORTER, act);
 							}
-							
+
 							for (int k = connecthead; k >= 0; k = connectpoint2[k])
 							if (ps[k].cursector == Owner->sector())
 							{
 								ps[k].frag_ps = p;
 								ps[k].GetActor()->spr.extra = 0;
 							}
-							
+
 							ps[p].angle.ang = buildang(Owner->spr.ang);
-							
+
 							if (Owner->GetOwner() != Owner)
 							{
 								act->temp_data[0] = 13;
 								Owner->temp_data[0] = 13;
 								ps[p].transporter_hold = 13;
 							}
-							
+
 							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
 							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
 							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
-							
+
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->spr.sector());
-							
+
 							if (act->spr.pal == 0)
 							{
 								auto k = spawn(Owner, TRANSPORTERBEAM);
 								if (k) S_PlayActorSound(TELEPORTER, k);
 							}
-							
+
 							break;
 						}
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
-					
+
 					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].pos.Z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
 							ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
-							
+
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].pos.Z = Owner->spr.pos.Z - 6144;
 							else ps[p].pos.Z = Owner->spr.pos.Z + 6144;
 							ps[p].opos.Z = ps[p].pos.Z;
-							
+
 							auto pa = ps[p].GetActor();
 							pa->spr.opos = ps[p].pos;
-							
+
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
-							
+
 							break;
 						}
-					
+
 					int k = 0;
-					
+
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
@@ -1984,12 +1984,12 @@ void movetransports_d(void)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].opos.Z = ps[p].pos.Z =
 						Owner->sector()->ceilingz + (7 << 8);
-						
+
 						ps[p].posxv = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
-						
+
 					}
-					
+
 					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
 					{
 						k = 1;
@@ -1999,29 +1999,29 @@ void movetransports_d(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
-						
+
 						ps[p].opos.Z = ps[p].pos.Z =
 						Owner->sector()->floorz - (7 << 8);
-						
+
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
 					}
-					
+
 					if (k == 1)
 					{
 						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
 						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
-						
+
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
 						SetActor(ps[p].GetActor(), { ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z + gs.playerheight });
-						
+
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
-						
+
 						if (sectlotag == 1)
 							for (int l = 0; l < 9; l++)
 						{
@@ -2031,7 +2031,7 @@ void movetransports_d(void)
 					}
 				}
 				break;
-				
+
 			case STAT_ACTOR:
 				switch (act2->spr.picnum)
 				{
@@ -2054,17 +2054,17 @@ void movetransports_d(void)
 			case STAT_MISC:
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
-				
+
 				ll = abs(act2->spr.zvel);
-				
+
 				{
 					warpspriteto = 0;
 					if (ll && sectlotag == 2 && act2->spr.pos.Z < (sectp->ceilingz + ll))
 						warpspriteto = 1;
-					
+
 					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll))
 						warpspriteto = 1;
-					
+
 					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 4096))
 					{
 						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->temp_data[0] > 0 && act2->spr.statnum != STAT_MISC)
@@ -2074,7 +2074,7 @@ void movetransports_d(void)
 						}
 						warpspriteto = 1;
 					}
-					
+
 					if (warpspriteto) switch (act2->spr.picnum)
 					{
 					case TRANSPORTERSTAR:
@@ -2104,7 +2104,7 @@ void movetransports_d(void)
 					case WATERBUBBLE:
 						//if( rnd(192) && a2->s.picnum == WATERBUBBLE)
 						// break;
-						
+
 						if (sectlotag > 0)
 						{
 							auto k = spawn(act2, WATERSPLASH2);
@@ -2115,7 +2115,7 @@ void movetransports_d(void)
 								ssp(k, CLIPMASK0);
 							}
 						}
-						
+
 						switch (sectlotag)
 						{
 						case 0:
@@ -2127,24 +2127,24 @@ void movetransports_d(void)
 									act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 									act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
 									act2->spr.ang = Owner->spr.ang;
-									
+
 									act2->spr.backupang();
-									
+
 									if (act->spr.pal == 0)
 									{
 										auto k = spawn(act, TRANSPORTERBEAM);
 										if (k) S_PlayActorSound(TELEPORTER, k);
-										
+
 										k = spawn(Owner, TRANSPORTERBEAM);
 										if (k) S_PlayActorSound(TELEPORTER, k);
 									}
-									
+
 									if (Owner && Owner->GetOwner() == Owner)
 									{
 										act->temp_data[0] = 13;
 										Owner->temp_data[0] = 13;
 									}
-									
+
 									ChangeActorSect(act2, Owner->sector());
 								}
 							}
@@ -2153,9 +2153,9 @@ void movetransports_d(void)
 								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 								act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
-								
+
 								act2->spr.backupz();
-								
+
 								ChangeActorSect(act2, Owner->sector());
 							}
 							break;
@@ -2163,29 +2163,29 @@ void movetransports_d(void)
 							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-							
+
 							act2->spr.backupz();
-							
+
 							ChangeActorSect(act2, Owner->sector());
-							
+
 							break;
 						case 2:
 							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
 							act2->spr.pos.Z = Owner->sector()->floorz - ll;
-							
+
 							act2->spr.backupz();
-							
+
 							ChangeActorSect(act2, Owner->sector());
-							
+
 							break;
 						}
-						
+
 						break;
 					}
 				}
 				break;
-				
+
 			}
 		}
 	BOLT:;
@@ -2916,7 +2916,7 @@ void moveactors_d(void)
 	int x;
 	int p;
 	unsigned int k;
-	
+
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
@@ -3136,7 +3136,7 @@ void moveexplosions_d(void)  // STATNUM 5
 {
 	int p;
 	int x;
-	
+
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
@@ -3153,7 +3153,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FIREFLYFLYINGEFFECT:
 			if (isWorldTour()) fireflyflyingeffect(act);
 			continue;
-			
+
 		case NEON1:
 		case NEON2:
 		case NEON3:
@@ -3460,7 +3460,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	int l;
 
 	clearfriction();
-	
+
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
@@ -3470,11 +3470,11 @@ void moveeffectors_d(void)   //STATNUM 3
 		case SE_0_ROTATING_SECTOR:
 			handle_se00(act, LASERLINE);
 			break;
-			
+
 		case SE_1_PIVOT: //Nothing for now used as the pivot
 			handle_se01(act);
 			break;
-			
+
 		case SE_6_SUBWAY:
 			handle_se06_d(act);
 			break;
@@ -3519,7 +3519,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		case SE_11_SWINGING_DOOR:
 			handle_se11(act);
 			break;
-			
+
 		case SE_12_LIGHT_SWITCH:
 			handle_se12(act);
 			break;

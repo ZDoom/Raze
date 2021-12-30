@@ -261,7 +261,7 @@ bool IniFile::FindKey(const char *key)
         anotherNode = curNode;
         curNode = curNode->next;
     }
-    
+
     return false;
 }
 

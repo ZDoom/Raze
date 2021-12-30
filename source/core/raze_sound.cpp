@@ -98,7 +98,7 @@ FString NoiseDebug(SoundEngine *engine)
 	int ch = 0;
 
 	FString out;
-	
+
 	out.Format("*** SOUND DEBUG INFO ***\nListener: %3.2f %2.3f %2.3f\n"
 		"x     y     z     vol   dist  chan  pri   flags       aud   pos   name\n", listener.X, listener.Y, listener.Z);
 

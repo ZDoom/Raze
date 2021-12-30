@@ -73,7 +73,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		case ChooseSound:
 			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
-			
+
 		case CloseSound:
 		case BackSound:
 			PlaySound(DIGI_STARCLINK, v3df_dontpan, CHAN_BODY, CHANF_UI);
@@ -94,7 +94,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
     PLAYERp pp = Player + screenpeek;
     int handle = 0;
     int zero = 0;
-	
+
     CameraTestMode = false;
 	StopAmbientSound();
 

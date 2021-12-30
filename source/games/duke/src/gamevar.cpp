@@ -346,7 +346,7 @@ GameVarValue GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 	{
 		return aGameVars[id].lValue;
 	}
-	
+
 }
 
 //---------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void SetGameVarID(int id, GameVarValue lValue, DDukeActor* sActor, int sPlayer)
 	{
 		aGameVars[id].lValue=lValue;
 	}
-	
+
 }
 
 void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
@@ -456,7 +456,7 @@ int GetGameValuePtr(char *szGameLabel)
 	}
 	I_FatalError("%s was overridden to something other than a player gamevar.", szGameLabel);
 	return -1;
-	
+
 }
 
 //---------------------------------------------------------------------------
@@ -1186,7 +1186,7 @@ void AddSystemVars()
 
 	AddGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-	
+
 	AddGameVar("WEAPON", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("WORKSLIKE", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("RETURN", 0, GAMEVAR_FLAG_SYSTEM);
@@ -1258,6 +1258,6 @@ void SetupGameVarsForActor(DDukeActor* actor)
 		}
 	}
 }
-	
+
 
 END_DUKE_NS

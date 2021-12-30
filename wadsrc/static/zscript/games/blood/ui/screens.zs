@@ -273,7 +273,7 @@ class BloodLoadScreen : ScreenJob
 	{
 		if (fadestate == visible) jobstate = finished;
 	}
-	
+
 	override void Draw(double sr) 
 	{
 		BloodScreen.DrawBackground();

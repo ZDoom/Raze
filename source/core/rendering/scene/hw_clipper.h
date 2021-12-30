@@ -11,7 +11,7 @@
 class ClipNode
 {
 	friend class Clipper;
-	
+
 	ClipNode *prev, *next;
 	int start, end;
 	float topclip, bottomclip;
@@ -73,7 +73,7 @@ private:
 	void ValidateList();
 
 public:
-    
+
 	void SetVisibleRange(angle_t a1, angle_t a2)
 	{
 		if (a2 != 0xffffffff)
