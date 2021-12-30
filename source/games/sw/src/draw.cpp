@@ -86,7 +86,7 @@ void SW_InitMultiPsky(void)
 void ShadeSprite(tspritetype* tsp)
 {
     // set shade of sprite
-    tsp->shade = tsp->sector()->floorshade - 25;
+    tsp->shade = tsp->sectp->floorshade - 25;
 
     if (tsp->shade > -3)
         tsp->shade = -3;
@@ -221,7 +221,7 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
 
     save_cstat = tspr->cstat;
     tspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(tspr->pos.X, tspr->pos.Y, tspr->pos.Z, tspr->sector(), &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(tspr->pos.X, tspr->pos.Y, tspr->pos.Z, tspr->sectp, &hiz, &ceilhit, &loz, &florhit);
     tspr->cstat = save_cstat;
 
     switch (florhit.type)
@@ -270,7 +270,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int v
 
     if (!ownerActor->hasU()) return;
 
-    auto sect = tsp->sector();
+    auto sect = tsp->sectp;
     // make sure its the correct sector
     // DoShadowFindGroundPoint calls FAFgetzrangepoint and this is sensitive
     updatesector(tsp->pos.X, tsp->pos.Y, &sect);
@@ -555,29 +555,29 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
     sectortype* newsector;
     int testz;
 
-    if (FAF_ConnectCeiling(tsp->sector()))
+    if (FAF_ConnectCeiling(tsp->sectp))
     {
-        newsector = tsp->sector();
+        newsector = tsp->sectp;
         testz = GetSpriteZOfTop(tsp) - Z(10);
 
-        if (testz < tsp->sector()->ceilingz)
+        if (testz < tsp->sectp->ceilingz)
             updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
 
-        if (newsector != nullptr && newsector != tsp->sector())
+        if (newsector != nullptr && newsector != tsp->sectp)
         {
             return CopySprite(tsp, newsector);
         }
     }
 
-    if (FAF_ConnectFloor(tsp->sector()))
+    if (FAF_ConnectFloor(tsp->sectp))
     {
-        newsector = tsp->sector();
+        newsector = tsp->sectp;
         testz = GetSpriteZOfBottom(tsp) + Z(10);
 
-        if (testz > tsp->sector()->floorz)
+        if (testz > tsp->sectp->floorz)
             updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
 
-        if (newsector != nullptr && newsector != tsp->sector())
+        if (newsector != nullptr && newsector != tsp->sectp)
         {
             return CopySprite(tsp, newsector);
         }
@@ -607,7 +607,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     {
         tspritetype* tsp = &tsprite[tSpriteNum];
         auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
-        auto tsectp = tsp->sector();
+        auto tsectp = tsp->sectp;
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -807,7 +807,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             }
         }
 
-        if (OverlapDraw && FAF_ConnectArea(tsp->sector()) && tsp->ownerActor)
+        if (OverlapDraw && FAF_ConnectArea(tsp->sectp) && tsp->ownerActor)
         {
             ConnectCopySprite(tsp);
         }

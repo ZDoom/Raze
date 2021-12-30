@@ -103,9 +103,9 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
     {
         auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
 
-        if (pTSprite->sector() != nullptr)
+        if (pTSprite->sectp != nullptr)
         {
-            sectortype *pTSector = pTSprite->sector();
+            sectortype *pTSector = pTSprite->sectp;
             int nSectShade = (pTSector->ceilingstat & CSTAT_SECTOR_SKY) ? pTSector->ceilingshade : pTSector->floorshade;
             int nShade = pTSprite->shade + nSectShade + 6;
             pTSprite->shade = clamp(nShade, -128, 127);

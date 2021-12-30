@@ -526,9 +526,6 @@ struct spritetypebase
 		backuppos();
 		backupang();
 	}
-
-	sectortype* sector() const;
-	int sectno() const;
 };
 
 
@@ -622,11 +619,6 @@ inline bool validSectorIndex(int sectnum)
 inline bool validWallIndex(int wallnum)
 {
 	return (unsigned)wallnum < wall.Size();
-}
-
-inline sectortype* spritetypebase::sector() const
-{
-	return sectp;
 }
 
 inline sectortype* walltype::nextSector() const

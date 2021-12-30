@@ -435,7 +435,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 
-				if (t->sector()->lotag == 2) k += 1795 - 1405;
+				if (t->sectp->lotag == 2) k += 1795 - 1405;
 				else if ((h->floorz - h->spr.pos.Z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
@@ -609,7 +609,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 
 		case WATERBUBBLE:
-			if (t->sector()->floorpicnum == FLOORSLIME)
+			if (t->sectp->floorpicnum == FLOORSLIME)
 			{
 				t->pal = 7;
 				break;
@@ -814,7 +814,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case FIRE:
 		case BURNING:
 			if (OwnerAc && OwnerAc->spr.picnum != TREE1 && OwnerAc->spr.picnum != TREE2)
-				t->pos.Z = t->sector()->floorz;
+				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:
@@ -969,7 +969,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 
 		h->dispicnum = t->picnum;
-		if (t->sector()->floorpicnum == MIRROR)
+		if (t->sectp->floorpicnum == MIRROR)
 			t->xrepeat = t->yrepeat = 0;
 	}
 }

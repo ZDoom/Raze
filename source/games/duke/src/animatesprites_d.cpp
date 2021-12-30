@@ -132,7 +132,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 
 		if (t->sectp != nullptr)
-			t->shade = clamp<int>(t->sectp->ceilingstat & CSTAT_SECTOR_SKY ? t->sector()->ceilingshade : t->sectp->floorshade, -127, 127);
+			t->shade = clamp<int>(t->sectp->ceilingstat & CSTAT_SECTOR_SKY ? t->sectp->ceilingshade : t->sectp->floorshade, -127, 127);
 	}
 
 
@@ -392,7 +392,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 
-				if (t->sector()->lotag == 2) k += 1795 - 1405;
+				if (t->sectp->lotag == 2) k += 1795 - 1405;
 				else if ((h->floorz - h->spr.pos.Z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
@@ -479,7 +479,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 
 		case WATERBUBBLE:
-			if (t->sector()->floorpicnum == FLOORSLIME)
+			if (t->sectp->floorpicnum == FLOORSLIME)
 			{
 				t->pal = 7;
 				break;
@@ -628,7 +628,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		{
 		case LASERLINE:
 			if (!OwnerAc) break;
-			if (t->sector()->lotag == 2) t->pal = 8;
+			if (t->sectp->lotag == 2) t->pal = 8;
 			t->pos.Z = OwnerAc->spr.pos.Z - (3 << 8);
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
@@ -659,7 +659,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case BURNING2:
 			if (!OwnerAc) break;
 			if (OwnerAc->spr.picnum != TREE1 && OwnerAc->spr.picnum != TREE2)
-				t->pos.Z = t->sector()->floorz;
+				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
 		case COOLEXPLOSION1:
@@ -743,7 +743,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 
 		h->dispicnum = t->picnum;
-		if (t->sector()->floorpicnum == MIRROR)
+		if (t->sectp->floorpicnum == MIRROR)
 			t->xrepeat = t->yrepeat = 0;
 	}
 }

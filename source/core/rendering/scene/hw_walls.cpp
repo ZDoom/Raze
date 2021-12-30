@@ -52,7 +52,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
 	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
 
-	auto sect = tspr->sector();
+	auto sect = tspr->sectp;
 	walltype* closest = nullptr;
 
 	int topz = (tspr->pos.Z - ((height * tspr->yrepeat) << 2));

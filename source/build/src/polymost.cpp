@@ -2594,7 +2594,7 @@ void polymost_completeMirror()
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4;
-    auto const sect = tspr->sector();
+    auto const sect = tspr->sectp;
     vec2_t n;
     walltype* closest = nullptr;
 
@@ -2689,10 +2689,10 @@ void polymost_drawsprite(int32_t snum)
     globalpicnum = tspr->picnum;
     globalshade = tspr->shade;
     globalpal = tspr->pal;
-    globalfloorpal = tspr->sector()->floorpal;
+    globalfloorpal = tspr->sectp->floorpal;
     globalorientation = tspr->cstat;
 
-    GLInterface.SetVisibility(sectorVisibility(tspr->sector()));
+    GLInterface.SetVisibility(sectorVisibility(tspr->sectp));
 
     vec2_t off = { 0, 0 };
 
@@ -2720,7 +2720,7 @@ void polymost_drawsprite(int32_t snum)
     drawpoly_alpha = actor->sprext.alpha;
     drawpoly_blend = tspr->blend;
 
-    sec = tspr->sector();
+    sec = tspr->sectp;
 
     while (!(actor->sprext.flags & SPREXT_NOTMD))
     {
@@ -2861,16 +2861,16 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing and not sloped
-            if (!(tspr->sector()->ceilingstat & (CSTAT_SECTOR_SKY|CSTAT_SECTOR_SLOPE)))
+            if (!(tspr->sectp->ceilingstat & (CSTAT_SECTOR_SKY|CSTAT_SECTOR_SLOPE)))
             {
-                s0.Y = ((float) (tspr->sector()->ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
+                s0.Y = ((float) (tspr->sectp->ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[0].Y < s0.Y)
                     pxy[0].Y = pxy[1].Y = s0.Y;
             }
 
-            if (!(tspr->sector()->floorstat & (CSTAT_SECTOR_SKY | CSTAT_SECTOR_SLOPE)))
+            if (!(tspr->sectp->floorstat & (CSTAT_SECTOR_SKY | CSTAT_SECTOR_SLOPE)))
             {
-                s0.Y = ((float) (tspr->sector()->floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
+                s0.Y = ((float) (tspr->sectp->floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[2].Y > s0.Y)
                     pxy[2].Y = pxy[3].Y = s0.Y;
             }
@@ -3013,20 +3013,20 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing
-            if (!(tspr->sector()->ceilingstat & CSTAT_SECTOR_SKY))
+            if (!(tspr->sectp->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (tspr->sector()->ceilingz > pos.Z - (float)((tspr->yrepeat * tsiz.Y) << 2))
+                if (tspr->sectp->ceilingz > pos.Z - (float)((tspr->yrepeat * tsiz.Y) << 2))
                 {
-                    sc0 = (float)(tspr->sector()->ceilingz - globalposz) * ryp0 + ghoriz;
-                    sc1 = (float)(tspr->sector()->ceilingz - globalposz) * ryp1 + ghoriz;
+                    sc0 = (float)(tspr->sectp->ceilingz - globalposz) * ryp0 + ghoriz;
+                    sc1 = (float)(tspr->sectp->ceilingz - globalposz) * ryp1 + ghoriz;
                 }
             }
-            if (!(tspr->sector()->floorstat & CSTAT_SECTOR_SKY))
+            if (!(tspr->sectp->floorstat & CSTAT_SECTOR_SKY))
             {
-                if (tspr->sector()->floorz < pos.Z)
+                if (tspr->sectp->floorz < pos.Z)
                 {
-                    sf0 = (float)(tspr->sector()->floorz - globalposz) * ryp0 + ghoriz;
-                    sf1 = (float)(tspr->sector()->floorz - globalposz) * ryp1 + ghoriz;
+                    sf0 = (float)(tspr->sectp->floorz - globalposz) * ryp0 + ghoriz;
+                    sf1 = (float)(tspr->sectp->floorz - globalposz) * ryp1 + ghoriz;
                 }
             }
 
@@ -3052,7 +3052,7 @@ void polymost_drawsprite(int32_t snum)
         break;
 
         case 2:  // Floor sprite
-            GLInterface.SetVisibility(sectorVisibility(tspr->sector()) * (4.f/5.f)); // No idea why this uses a different visibility setting...
+            GLInterface.SetVisibility(sectorVisibility(tspr->sectp) * (4.f/5.f)); // No idea why this uses a different visibility setting...
 
             if ((globalorientation & 64) != 0
                 && (globalposz > tspriteGetZOfSlope(tspr, globalposx, globalposy)) == (!(globalorientation & 8)))
@@ -3939,7 +3939,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspritetype* const tspr, bool rotate)
     GLInterface.SetMatrix(Matrix_Model, mat);
 
     GLInterface.SetPalswap(globalpal);
-    GLInterface.SetFade(tspr->sector()->floorpal);
+    GLInterface.SetFade(tspr->sectp->floorpal);
 
     auto tex = TexMan.GetGameTexture(m->model->GetPaletteTexture());
     GLInterface.SetTexture(tex, TRANSLATION(Translation_Remap + curbasepal, globalpal), CLAMP_NOFILTER_XY, true);

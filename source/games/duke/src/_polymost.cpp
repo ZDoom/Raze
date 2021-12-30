@@ -88,7 +88,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	offx = x - floor1->pos.X;
 	offy = y - floor1->pos.Y;
 
-	renderDrawRoomsQ16(floor2->pos.X + offx, floor2->pos.Y + offy, z, a.asq16(), h.asq16(), floor2->sector(), false);
+	renderDrawRoomsQ16(floor2->pos.X + offx, floor2->pos.Y + offy, z, a.asq16(), h.asq16(), floor2->sectp, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, offx + floor2->pos.X, offy + floor2->pos.Y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 

@@ -301,14 +301,14 @@ void HWDrawInfo::DispatchSprites()
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tilenum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, tspr->sector(), voxrotate[num])) 
+					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, tspr->sectp, voxrotate[num])) 
 						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
 				{
 					HWSprite hwsprite;
 					int num = tilenum;
-					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, tspr->sector(), voxrotate[num]);
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, tspr->sectp, voxrotate[num]);
 					continue;
 				}
 			}
@@ -330,21 +330,21 @@ void HWDrawInfo::DispatchSprites()
 		case CSTAT_SPRITE_ALIGNMENT_FACING:
 		{
 			HWSprite sprite;
-			sprite.Process(this, tspr, tspr->sector(), false);
+			sprite.Process(this, tspr, tspr->sectp, false);
 			break;
 		}
 
 		case CSTAT_SPRITE_ALIGNMENT_WALL:
 		{
 			HWWall wall;
-			wall.ProcessWallSprite(this, tspr, tspr->sector());
+			wall.ProcessWallSprite(this, tspr, tspr->sectp);
 			break;
 		}
 
 		case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 		{
 			HWFlat flat;
-			flat.ProcessFlatSprite(this, tspr, tspr->sector());
+			flat.ProcessFlatSprite(this, tspr, tspr->sectp);
 			break;
 		}
 
