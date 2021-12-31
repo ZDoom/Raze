@@ -370,7 +370,7 @@ ACTOR_ACTION_SET CoolieActionSet =
 };
 
 // later. This is used by multiple enemies.
-void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person)
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITYp person)
 {
     unsigned int wpn;
     int wpn_cnt;

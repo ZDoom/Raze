@@ -46,7 +46,7 @@ void DoRotatorStopInterp(DSWActor*);
 
 void ReverseRotator(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
 
     r = actor->user.rotator.Data();
 
@@ -90,7 +90,7 @@ bool RotatorSwitch(short match, short setting)
 
 void SetRotatorActive(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
 
     r = actor->user.rotator.Data();
 
@@ -241,7 +241,7 @@ void DoRotatorStopInterp(DSWActor* actor)
 
 int DoRotator(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
     short ndx,w,startwall,endwall;
     DSWActor* pivot = nullptr;
     vec2_t nxy;

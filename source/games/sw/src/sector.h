@@ -30,7 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 void SectorSetup(void);
-DOOR_AUTO_CLOSEp SetDoorAutoClose(short SectorNum, short Type);
+DOOR_AUTO_CLOSE* SetDoorAutoClose(short SectorNum, short Type);
 void DoDragging(void);
 int MoveDoorVert(short door_sector, short dir, short door_speed);
 int MoveDoorUp(short door_sector, short auto_close, short door_speed);

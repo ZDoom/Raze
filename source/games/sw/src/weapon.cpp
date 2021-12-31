@@ -7623,7 +7623,7 @@ int DoPlasmaDone(DSWActor* actor)
 
 DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 {
-    TARGET_SORTp ts;
+    TARGET_SORT* ts;
 
     DoPickTarget(actor, aware_range, false);
 
@@ -13654,7 +13654,7 @@ int InitMicro(PLAYERp pp)
     DSWActor* actor = pp->actor;
     int nx, ny, nz, dist;
     short i,ang;
-    TARGET_SORTp ts = TargetSort;
+    TARGET_SORT* ts = TargetSort;
     DSWActor* picked = nullptr;
 
     nx = pp->pos.X;
@@ -15415,7 +15415,7 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
     DSWActor* plActor = pp->actor;
     int nx, ny, nz, dist;
     short i,ang;
-    TARGET_SORTp ts = TargetSort;
+    TARGET_SORT* ts = TargetSort;
     DSWActor* picked = nullptr;
 
     if (SW_SHAREWARE) return false; // JBF: verify

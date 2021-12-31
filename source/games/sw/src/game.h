@@ -855,7 +855,8 @@ enum
     MAX_ACTOR_CLOSE_ATTACK = 2,
     MAX_ACTOR_ATTACK = 6,
 };
-typedef struct
+
+struct ACTOR_ACTION_SET
 {
     STATEp *Stand;
     STATEp *Run;
@@ -884,7 +885,7 @@ typedef struct
     STATEp *Special[2];
     STATEp *Duck;
     STATEp *Dive;
-} ACTOR_ACTION_SET,*ACTOR_ACTION_SETp;
+};
 
 struct ROTATOR
 {
@@ -913,8 +914,6 @@ struct ROTATOR
     }
 
 };
-
-using ROTATORp = ROTATOR*;
 
 //
 // User Extension record
@@ -945,7 +944,7 @@ struct USER
     STATEp *StateFallOverride; // a bit kludgy - override std fall state
 
     ANIMATORp ActorActionFunc;
-    ACTOR_ACTION_SETp ActorActionSet;
+    ACTOR_ACTION_SET* ActorActionSet;
     PERSONALITYp Personality;
     ATTRIBUTEp Attrib;
     SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
@@ -1191,12 +1190,6 @@ enum
 };
 
 
-typedef struct
-{
-    int16_t high;
-} RANGE,*RANGEp;
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Sector Stuff - Sector Objects and Tracks
@@ -1242,11 +1235,10 @@ enum
 };
 
 #define MAKE_STAG_ENUM
-enum stag_id
+enum STAG_ID
 {
 #include "stag.h"
 };
-typedef enum stag_id STAG_ID;
 #undef MAKE_STAG_ENUM
 
 
@@ -1291,19 +1283,19 @@ enum ShrapType
 # define CallocMem(size, num) M_Calloc(size, num)
 # define FreeMem(ptr) M_Free(ptr)
 
-typedef struct TARGET_SORT
+struct TARGET_SORT
 {
     DSWActor* actor;
     int16_t dang;
     int dist;
     int weight;
-} *TARGET_SORTp;
+};
 
 enum { MAX_TARGET_SORT = 16 };
 extern TARGET_SORT TargetSort[MAX_TARGET_SORT];
 extern unsigned TargetSortCount;
 
-enum DoorType
+enum DOOR_TYPE
 {
     OPERATE_TYPE,
     DOOR_HORIZ_TYPE,
@@ -1312,30 +1304,28 @@ enum DoorType
     DOOR_ROTATE_TYPE
 };
 
-typedef enum DoorType DOOR_TYPE;
-
-typedef struct
+struct DOOR_AUTO_CLOSE
 {
     DOOR_TYPE Type;
     int Sector;
     int16_t Speed;
     int16_t TimeOut;
-} DOOR_AUTO_CLOSE, *DOOR_AUTO_CLOSEp;
+};
 
-typedef struct
+struct SWING
 {
     int origx[17], origy[17];
     int sector;
     int16_t angopen, angclosed, angopendir, sang, anginc;
-} SWING;
+};
 
-typedef struct SINE_WAVE_FLOOR
+struct SINE_WAVE_FLOOR
 {
     sectortype* sectp;
     int floor_origz, ceiling_origz, range;
     int16_t sintable_ndx, speed_shift;
     uint8_t flags;
-} *SINE_WAVE_FLOORp;
+};
 
 enum
 {
@@ -1346,12 +1336,12 @@ enum
 
 extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
-typedef struct SINE_WALL
+struct SINE_WALL
 {
     walltype* wallp;
     int orig_xy, range;
     int16_t sintable_ndx, speed_shift, type;
-} *SINE_WALLp;
+};
 
 extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
@@ -1373,9 +1363,7 @@ enum
 
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
 
-typedef void ANIM_CALLBACK (ANIMp, void *);
-typedef ANIM_CALLBACK *ANIM_CALLBACKp;
-typedef void *ANIM_DATAp;
+typedef void (*ANIM_CALLBACKp) (ANIMp, void *);
 
 enum
 {
@@ -1694,7 +1682,7 @@ int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
-void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person);
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITYp person);
 
 void getzrangepoint(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
 Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);

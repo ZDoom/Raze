@@ -250,7 +250,7 @@ void WallSetup(void)
         {
             walltype* wall_num;
             int cnt, num_points, type, tag_end;
-            SINE_WALLp sw;
+            SINE_WALL* sw;
             int range = 250, speed = 3, peak = 0;
 
             tag_end = wal.lotag + 2;
@@ -541,7 +541,7 @@ void SectorSetup(void)
 
             // setup the sintable_ndx based on the actual number of
             // sectors (swf_ndx)
-            for (swf = &SineWaveFloor[NextSineWave][0], cnt = 0; swf->sectp != 0 && swf < (SINE_WAVE_FLOORp)&SineWaveFloor[SIZ(SineWaveFloor)]; swf++, cnt++)
+            for (swf = &SineWaveFloor[NextSineWave][0], cnt = 0; swf->sectp != 0 && swf < (SINE_WAVE_FLOOR*)&SineWaveFloor[SIZ(SineWaveFloor)]; swf++, cnt++)
             {
                 if (peak_dist)
                     swf->sintable_ndx = cnt * (2048 / peak_dist);

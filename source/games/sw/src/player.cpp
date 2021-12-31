@@ -1133,7 +1133,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     int16_t* shp;
     int ezh, ezhl, ezhm;
     unsigned ndx;
-    TARGET_SORTp ts;
+    TARGET_SORT* ts;
     int ang_weight, dist_weight;
 
     // !JIM! Watch out for max_delta_ang of zero!

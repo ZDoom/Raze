@@ -182,7 +182,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, STATEp*& w, STATEp
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATEp));
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SETp& w, ACTOR_ACTION_SETp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SET*& w, ACTOR_ACTION_SET** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ACTOR_ACTION_SET));
 }

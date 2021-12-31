@@ -41,7 +41,7 @@ BEGIN_SW_NS
 
 void ReverseSlidor(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
 
     r = actor->user.rotator.Data();
 
@@ -86,7 +86,7 @@ bool SlidorSwitch(short match, short setting)
 
 void SetSlidorActive(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
 
     r = actor->user.rotator.Data();
 
@@ -412,7 +412,7 @@ int DoSlidorInstantClose(DSWActor* actor)
 
 int DoSlidor(DSWActor* actor)
 {
-    ROTATORp r;
+    ROTATOR* r;
     int old_pos;
     bool kill = false;
 

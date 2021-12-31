@@ -41,29 +41,24 @@ typedef enum
 } BOT_Actions;
 
 // Linked lists containing node trees that are chosen based on desired actions
-struct NODEstruct;
-typedef struct NODEstruct NODE, *NODEp;
 
-struct NODEstruct
+struct NODE
 {
-    NODEp p, l, r;              // Pointers to tree nodes
+    NODE* p,* l,* r;              // Pointers to tree nodes
     int goalx, goaly, goalz;   // x,y,z point bot wants to get to
     BOT_Actions action;         // Action to take if this node is reached
     int tics;                  // Optionally stay in this node for x tics.
 };
 
-struct NODETREEstruct;
-typedef struct NODETREEstruct NODETREE, *NODETREEp;
-
-struct NODETREEstruct
+struct NODETREE
 {
-    NODEp tree;             // This is the node tree used to navigate to goal
+    NODE* tree;             // This is the node tree used to navigate to goal
     bool Locked;            // If list is locked, a bot is using/modifying it and
     // other bots cannot modify it while it's locked
 };
 
 // Bots main action variables
-typedef struct BOT_BRAIN
+struct BOT_BRAIN
 {
     int16_t tgt_inv;      // Inventory item it wants to use
     int16_t tgt_weapon;   // weapon in wants to activate and use
@@ -72,7 +67,7 @@ typedef struct BOT_BRAIN
     int16_t tgt_sector;   // Sector it wants to get to
     int16_t tgt_wall;     // Wall it wants to touch
     BOT_Actions action; // Bot's current action
-} BotBrain, *BotBrain_p;
+};
 
 // NOTE:
 // The following arrays should be saved off with save games!
