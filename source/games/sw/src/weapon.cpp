@@ -314,7 +314,7 @@ STATE s_RailPuff[3][17] =
 };
 
 
-STATEp sg_RailPuff[] =
+STATE* sg_RailPuff[] =
 {
     &s_RailPuff[0][0],
     &s_RailPuff[1][0],
@@ -507,7 +507,7 @@ STATE s_CrossBolt[5][1] =
     }
 };
 
-STATEp sg_CrossBolt[] =
+STATE* sg_CrossBolt[] =
 {
     &s_CrossBolt[0][0],
     &s_CrossBolt[1][0],
@@ -645,7 +645,7 @@ STATE s_Grenade[5][1] =
 };
 
 
-STATEp sg_Grenade[] =
+STATE* sg_Grenade[] =
 {
     &s_Grenade[0][0],
     &s_Grenade[1][0],
@@ -741,7 +741,7 @@ STATE s_Meteor[5][4] =
 };
 
 
-STATEp sg_Meteor[] =
+STATE* sg_Meteor[] =
 {
     &s_Meteor[0][0],
     &s_Meteor[1][0],
@@ -801,7 +801,7 @@ STATE s_MirvMeteor[5][4] =
 };
 
 
-STATEp sg_MirvMeteor[] =
+STATE* sg_MirvMeteor[] =
 {
     &s_MirvMeteor[0][0],
     &s_MirvMeteor[1][0],
@@ -858,7 +858,7 @@ STATE s_SerpMeteor[5][4] =
 };
 
 
-STATEp sg_SerpMeteor[] =
+STATE* sg_SerpMeteor[] =
 {
     &s_SerpMeteor[0][0],
     &s_SerpMeteor[1][0],
@@ -907,7 +907,7 @@ STATE s_Spear[5][1] =
     }
 };
 
-STATEp sg_Spear[] =
+STATE* sg_Spear[] =
 {
     s_Spear[0],
     s_Spear[1],
@@ -951,7 +951,7 @@ STATE s_Rocket[5][1] =
     }
 };
 
-STATEp sg_Rocket[] =
+STATE* sg_Rocket[] =
 {
     &s_Rocket[0][0],
     &s_Rocket[1][0],
@@ -995,7 +995,7 @@ STATE s_BunnyRocket[5][1] =
     }
 };
 
-STATEp sg_BunnyRocket[] =
+STATE* sg_BunnyRocket[] =
 {
     &s_BunnyRocket[0][0],
     &s_BunnyRocket[1][0],
@@ -1026,7 +1026,7 @@ STATE s_Rail[5][1] =
     }
 };
 
-STATEp sg_Rail[] =
+STATE* sg_Rail[] =
 {
     &s_Rail[0][0],
     &s_Rail[1][0],
@@ -1094,7 +1094,7 @@ STATE s_Micro[5][1] =
     }
 };
 
-STATEp sg_Micro[] =
+STATE* sg_Micro[] =
 {
     &s_Micro[0][0],
     &s_Micro[1][0],
@@ -1123,7 +1123,7 @@ STATE s_MicroMini[5][1] =
     }
 };
 
-STATEp sg_MicroMini[] =
+STATE* sg_MicroMini[] =
 {
     &s_MicroMini[0][0],
     &s_MicroMini[1][0],
@@ -1160,7 +1160,7 @@ STATE s_BoltThinMan[5][1] =
     }
 };
 
-STATEp sg_BoltThinMan[] =
+STATE* sg_BoltThinMan[] =
 {
     &s_BoltThinMan[0][0],
     &s_BoltThinMan[1][0],
@@ -1191,7 +1191,7 @@ STATE s_BoltSeeker[5][1] =
     }
 };
 
-STATEp sg_BoltSeeker[] =
+STATE* sg_BoltSeeker[] =
 {
     &s_BoltSeeker[0][0],
     &s_BoltSeeker[1][0],
@@ -1890,7 +1890,7 @@ STATE s_Fireball[5][4] =
     }
 };
 
-STATEp sg_Fireball[] =
+STATE* sg_Fireball[] =
 {
     s_Fireball[0],
     s_Fireball[1],
@@ -1937,7 +1937,7 @@ STATE s_Ring[5][4] =
     }
 };
 
-STATEp sg_Ring[] =
+STATE* sg_Ring[] =
 {
     s_Ring[0],
     s_Ring[1],
@@ -3532,7 +3532,7 @@ AutoShrap:
         break;
     case NINJA_Head_R0:
     {
-        extern STATEp sg_PlayerHeadHurl[];
+        extern STATE* sg_PlayerHeadHurl[];
 
         if (parentActor->user.Rot == sg_PlayerHeadHurl)
         {
@@ -5035,8 +5035,8 @@ int ActorHealth(DSWActor* actor, short amt)
             {
             case NINJA_RUN_R0:
             {
-                extern STATEp sg_NinjaGrabThroat[];
-                extern STATEp sg_NinjaHariKari[];
+                extern STATE* sg_NinjaGrabThroat[];
+                extern STATE* sg_NinjaHariKari[];
 
                 if (actor->user.Flags2 & (SPR2_DYING)) return true;
                 if (actor->user.Flags & (SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return true;
@@ -11371,7 +11371,7 @@ int DoSerpRing(DSWActor* actor)
                 // if (valid sector and can see target)
                 if (sect != nullptr && CanSeePlayer(actor))
                 {
-                    extern STATEp sg_SkullJump[];
+                    extern STATE* sg_SkullJump[];
                     actor->user.ID = SKULL_R0;
                     actor->spr.ang = getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y);
                     actor->spr.xvel = dist>>5;
@@ -11520,7 +11520,7 @@ int InitSerpRing(DSWActor* actor)
 
     extern STATE s_SkullExplode[];
     extern STATE s_SkullRing[5][1];
-    extern STATEp sg_SkullRing[];
+    extern STATE* sg_SkullRing[];
 
     max_missiles = 12;
 
@@ -12258,7 +12258,7 @@ int InitSumoSkull(DSWActor* actor)
 {
     extern STATE s_SkullExplode[];
     extern STATE s_SkullWait[5][1];
-    extern STATEp sg_SkullWait[];
+    extern STATE* sg_SkullWait[];
     extern ATTRIBUTE SkullAttrib;
 
 

@@ -165,7 +165,7 @@ STATE s_ZillaRun[5][6] =
     }
 };
 
-STATEp sg_ZillaRun[] =
+STATE* sg_ZillaRun[] =
 {
     &s_ZillaRun[0][0],
     &s_ZillaRun[1][0],
@@ -200,7 +200,7 @@ STATE s_ZillaStand[5][1] =
     }
 };
 
-STATEp sg_ZillaStand[] =
+STATE* sg_ZillaStand[] =
 {
     &s_ZillaStand[0][0],
     &s_ZillaStand[1][0],
@@ -241,7 +241,7 @@ STATE s_ZillaPain[5][2] =
     }
 };
 
-STATEp sg_ZillaPain[] =
+STATE* sg_ZillaPain[] =
 {
     &s_ZillaPain[0][0],
     &s_ZillaPain[1][0],
@@ -343,7 +343,7 @@ STATE s_ZillaRail[5][14] =
     }
 };
 
-STATEp sg_ZillaRail[] =
+STATE* sg_ZillaRail[] =
 {
     &s_ZillaRail[0][0],
     &s_ZillaRail[1][0],
@@ -410,7 +410,7 @@ STATE s_ZillaRocket[5][7] =
     }
 };
 
-STATEp sg_ZillaRocket[] =
+STATE* sg_ZillaRocket[] =
 {
     &s_ZillaRocket[0][0],
     &s_ZillaRocket[1][0],
@@ -528,7 +528,7 @@ STATE s_ZillaUzi[5][17] =
 };
 
 
-STATEp sg_ZillaUzi[] =
+STATE* sg_ZillaUzi[] =
 {
     s_ZillaUzi[0],
     s_ZillaUzi[1],
@@ -560,7 +560,7 @@ STATE s_ZillaDie[] =
     {ZILLA_DEAD, ZILLA_DIE_RATE, DoActorDebris, &s_ZillaDie[8]}
 };
 
-STATEp sg_ZillaDie[] =
+STATE* sg_ZillaDie[] =
 {
     s_ZillaDie
 };
@@ -570,7 +570,7 @@ STATE s_ZillaDead[] =
     {ZILLA_DEAD, ZILLA_DIE_RATE, DoActorDebris, &s_ZillaDead[0]},
 };
 
-STATEp sg_ZillaDead[] =
+STATE* sg_ZillaDead[] =
 {
     s_ZillaDead
 };

@@ -154,7 +154,7 @@ STATE s_EelRun[5][4] =
     }
 };
 
-STATEp sg_EelRun[] =
+STATE* sg_EelRun[] =
 {
     &s_EelRun[0][0],
     &s_EelRun[1][0],
@@ -189,7 +189,7 @@ STATE s_EelStand[5][1] =
     }
 };
 
-STATEp sg_EelStand[] =
+STATE* sg_EelStand[] =
 {
     &s_EelStand[0][0],
     &s_EelStand[1][0],
@@ -256,7 +256,7 @@ STATE s_EelAttack[5][7] =
     }
 };
 
-STATEp sg_EelAttack[] =
+STATE* sg_EelAttack[] =
 {
     &s_EelAttack[0][0],
     &s_EelAttack[1][0],
@@ -285,7 +285,7 @@ STATE s_EelDie[] =
     {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[5]},
 };
 
-STATEp sg_EelDie[] =
+STATE* sg_EelDie[] =
 {
     s_EelDie
 };
@@ -296,33 +296,33 @@ STATE s_EelDead[] =
     {EEL_DEAD, EEL_DIE_RATE, DoActorDebris, &s_EelDead[0]},
 };
 
-STATEp sg_EelDead[] =
+STATE* sg_EelDead[] =
 {
     s_EelDead
 };
 
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 

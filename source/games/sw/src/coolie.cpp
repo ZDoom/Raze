@@ -157,7 +157,7 @@ STATE s_CoolieRun[5][4] =
     }
 };
 
-STATEp sg_CoolieRun[] =
+STATE* sg_CoolieRun[] =
 {
     &s_CoolieRun[0][0],
     &s_CoolieRun[1][0],
@@ -212,7 +212,7 @@ STATE s_CoolieCharge[5][4] =
     }
 };
 
-STATEp sg_CoolieCharge[] =
+STATE* sg_CoolieCharge[] =
 {
     &s_CoolieCharge[0][0],
     &s_CoolieCharge[1][0],
@@ -246,7 +246,7 @@ STATE s_CoolieStand[5][6] =
     }
 };
 
-STATEp sg_CoolieStand[] =
+STATE* sg_CoolieStand[] =
 {
     &s_CoolieStand[0][0],
     &s_CoolieStand[1][0],
@@ -288,7 +288,7 @@ STATE s_CooliePain[5][1] =
     }
 };
 
-STATEp sg_CooliePain[] =
+STATE* sg_CooliePain[] =
 {
     &s_CooliePain[0][0],
     &s_CooliePain[1][0],
@@ -326,7 +326,7 @@ STATE s_CoolieDie[] =
     {COOLIE_DEAD_NOHEAD, COOLIE_DIE_RATE, DoActorDebris, &s_CoolieDie[12]}
 };
 
-STATEp sg_CoolieDie[] =
+STATE* sg_CoolieDie[] =
 {
     s_CoolieDie
 };
@@ -336,7 +336,7 @@ STATE s_CoolieDead[] =
     {COOLIE_DEAD, COOLIE_DIE_RATE, DoActorDebris, &s_CoolieDead[0]},
 };
 
-STATEp sg_CoolieDead[] =
+STATE* sg_CoolieDead[] =
 {
     s_CoolieDead
 };

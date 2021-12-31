@@ -366,8 +366,6 @@ enum dam
 
 // Forward declarations
 struct STATE;
-typedef STATE* STATEp;
-
 struct PANEL_STATE;
 struct PLAYER;
 struct PERSONALITY;
@@ -389,7 +387,7 @@ struct STATE
     int       Tics;
     ANIMATORp Animator;
 
-    STATEp   NextState;
+    STATE*   NextState;
 };
 
 //
@@ -836,33 +834,33 @@ enum
 
 struct ACTOR_ACTION_SET
 {
-    STATEp *Stand;
-    STATEp *Run;
-    STATEp *Jump;
-    STATEp *Fall;
-    STATEp *Crawl;
-    STATEp *Swim;
-    STATEp *Fly;
-    STATEp *Rise;
-    STATEp *Sit;
-    STATEp *Look;
-    STATEp *Climb;
-    STATEp *Pain;
-    STATEp *Death1;
-    STATEp *Death2;
-    STATEp *Dead;
-    STATEp *DeathJump;
-    STATEp *DeathFall;
+    STATE* *Stand;
+    STATE* *Run;
+    STATE* *Jump;
+    STATE* *Fall;
+    STATE* *Crawl;
+    STATE* *Swim;
+    STATE* *Fly;
+    STATE* *Rise;
+    STATE* *Sit;
+    STATE* *Look;
+    STATE* *Climb;
+    STATE* *Pain;
+    STATE* *Death1;
+    STATE* *Death2;
+    STATE* *Dead;
+    STATE* *DeathJump;
+    STATE* *DeathFall;
 
-    STATEp *CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
+    STATE* *CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
     int16_t  CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
 
-    STATEp *Attack[MAX_ACTOR_ATTACK];
+    STATE* *Attack[MAX_ACTOR_ATTACK];
     int16_t  AttackPercent[MAX_ACTOR_ATTACK];
 
-    STATEp *Special[2];
-    STATEp *Duck;
-    STATEp *Dive;
+    STATE* *Special[2];
+    STATE* *Duck;
+    STATE* *Dive;
 };
 
 struct ROTATOR
@@ -915,11 +913,11 @@ struct USER
     TArray<int8_t> WallShade;
 
     walltype* WallP; // operate on wall instead of sprite
-    STATEp State;
-    STATEp *Rot;
-    STATEp StateStart;
-    STATEp StateEnd;
-    STATEp *StateFallOverride; // a bit kludgy - override std fall state
+    STATE* State;
+    STATE* *Rot;
+    STATE* StateStart;
+    STATE* StateEnd;
+    STATE* *StateFallOverride; // a bit kludgy - override std fall state
 
     ANIMATORp ActorActionFunc;
     ACTOR_ACTION_SET* ActorActionSet;
@@ -1589,9 +1587,9 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 
-int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
+int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
 void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);
-void SpawnUser(DSWActor* actor, short id, STATEp state);
+void SpawnUser(DSWActor* actor, short id, STATE* state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
 

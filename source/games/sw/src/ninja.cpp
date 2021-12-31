@@ -280,7 +280,7 @@ STATE s_NinjaRun[5][6] =
 };
 #endif
 
-STATEp sg_NinjaRun[] =
+STATE* sg_NinjaRun[] =
 {
     s_NinjaRun[0],
     s_NinjaRun[1],
@@ -317,7 +317,7 @@ STATE s_NinjaStand[5][1] =
 };
 
 
-STATEp sg_NinjaStand[] =
+STATE* sg_NinjaStand[] =
 {
     s_NinjaStand[0],
     s_NinjaStand[1],
@@ -339,32 +339,32 @@ STATE s_NinjaRise[5][3] =
     {
         {NINJA_KNEEL_R0 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[0][1]},
         {NINJA_STAND_R0 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[0][2]},
-        {0, 0, nullptr, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R1 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[1][1]},
         {NINJA_STAND_R1 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[1][2]},
-        {0, 0, nullptr, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R2 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[2][1]},
         {NINJA_STAND_R2 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[2][2]},
-        {0, 0, nullptr, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R3 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[3][1]},
         {NINJA_STAND_R3 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[3][2]},
-        {0, 0, nullptr, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R4 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[4][1]},
         {NINJA_STAND_R4 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[4][2]},
-        {0, 0, nullptr, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
 };
 
 
-STATEp sg_NinjaRise[] =
+STATE* sg_NinjaRise[] =
 {
     s_NinjaRise[0],
     s_NinjaRise[1],
@@ -417,7 +417,7 @@ STATE s_NinjaCrawl[5][4] =
 };
 
 
-STATEp sg_NinjaCrawl[] =
+STATE* sg_NinjaCrawl[] =
 {
     s_NinjaCrawl[0],
     s_NinjaCrawl[1],
@@ -474,7 +474,7 @@ STATE s_NinjaKneelCrawl[5][5] =
 };
 
 
-STATEp sg_NinjaKneelCrawl[] =
+STATE* sg_NinjaKneelCrawl[] =
 {
     s_NinjaKneelCrawl[0],
     s_NinjaKneelCrawl[1],
@@ -517,7 +517,7 @@ STATE s_NinjaDuck[5][2] =
 };
 
 
-STATEp sg_NinjaDuck[] =
+STATE* sg_NinjaDuck[] =
 {
     s_NinjaDuck[0],
     s_NinjaDuck[1],
@@ -553,7 +553,7 @@ STATE s_NinjaSit[5][1] =
 };
 
 
-STATEp sg_NinjaSit[] =
+STATE* sg_NinjaSit[] =
 {
     s_NinjaSit[0],
     s_NinjaSit[1],
@@ -589,7 +589,7 @@ STATE s_NinjaCeiling[5][1] =
 };
 
 
-STATEp sg_NinjaCeiling[] =
+STATE* sg_NinjaCeiling[] =
 {
     s_NinjaCeiling[0],
     s_NinjaCeiling[1],
@@ -632,7 +632,7 @@ STATE s_NinjaJump[5][2] =
 };
 
 
-STATEp sg_NinjaJump[] =
+STATE* sg_NinjaJump[] =
 {
     s_NinjaJump[0],
     s_NinjaJump[1],
@@ -675,7 +675,7 @@ STATE s_NinjaFall[5][2] =
 };
 
 
-STATEp sg_NinjaFall[] =
+STATE* sg_NinjaFall[] =
 {
     s_NinjaFall[0],
     s_NinjaFall[1],
@@ -722,7 +722,7 @@ STATE s_NinjaSwim[5][3] =
 };
 
 
-STATEp sg_NinjaSwim[] =
+STATE* sg_NinjaSwim[] =
 {
     s_NinjaSwim[0],
     s_NinjaSwim[1],
@@ -774,7 +774,7 @@ STATE s_NinjaDive[5][4] =
     },
 };
 
-STATEp sg_NinjaDive[] =
+STATE* sg_NinjaDive[] =
 {
     s_NinjaDive[0],
     s_NinjaDive[1],
@@ -825,7 +825,7 @@ STATE s_NinjaClimb[5][4] =
     },
 };
 
-STATEp sg_NinjaClimb[] =
+STATE* sg_NinjaClimb[] =
 {
     s_NinjaClimb[0],
     s_NinjaClimb[1],
@@ -862,7 +862,7 @@ STATE s_NinjaFly[5][1] =
     },
 };
 
-STATEp sg_NinjaFly[] =
+STATE* sg_NinjaFly[] =
 {
     s_NinjaFly[0],
     s_NinjaFly[1],
@@ -904,7 +904,7 @@ STATE s_NinjaPain[5][2] =
     },
 };
 
-STATEp sg_NinjaPain[] =
+STATE* sg_NinjaPain[] =
 {
     s_NinjaPain[0],
     s_NinjaPain[1],
@@ -966,7 +966,7 @@ STATE s_NinjaStar[5][6] =
     },
 };
 
-STATEp sg_NinjaStar[] =
+STATE* sg_NinjaStar[] =
 {
     s_NinjaStar[0],
     s_NinjaStar[1],
@@ -1029,7 +1029,7 @@ STATE s_NinjaMirv[5][6] =
 };
 
 
-STATEp sg_NinjaMirv[] =
+STATE* sg_NinjaMirv[] =
 {
     s_NinjaMirv[0],
     s_NinjaMirv[1],
@@ -1092,7 +1092,7 @@ STATE s_NinjaNapalm[5][6] =
 };
 
 
-STATEp sg_NinjaNapalm[] =
+STATE* sg_NinjaNapalm[] =
 {
     s_NinjaNapalm[0],
     s_NinjaNapalm[1],
@@ -1151,7 +1151,7 @@ STATE s_NinjaRocket[5][5] =
 };
 
 
-STATEp sg_NinjaRocket[] =
+STATE* sg_NinjaRocket[] =
 {
     s_NinjaRocket[0],
     s_NinjaRocket[1],
@@ -1209,7 +1209,7 @@ STATE s_NinjaGrenade[5][5] =
 };
 
 
-STATEp sg_NinjaGrenade[] =
+STATE* sg_NinjaGrenade[] =
 {
     s_NinjaGrenade[0],
     s_NinjaGrenade[1],
@@ -1268,7 +1268,7 @@ STATE s_NinjaFlashBomb[5][5] =
 };
 
 
-STATEp sg_NinjaFlashBomb[] =
+STATE* sg_NinjaFlashBomb[] =
 {
     s_NinjaFlashBomb[0],
     s_NinjaFlashBomb[1],
@@ -1386,7 +1386,7 @@ STATE s_NinjaUzi[5][17] =
 };
 
 
-STATEp sg_NinjaUzi[] =
+STATE* sg_NinjaUzi[] =
 {
     s_NinjaUzi[0],
     s_NinjaUzi[1],
@@ -1421,7 +1421,7 @@ STATE s_NinjaHariKari[] =
     {NINJA_HARI_KARI_R0 + 7,   NINJA_HARI_KARI_FALL_RATE,      NullAnimator,       &s_NinjaHariKari[10]},
 };
 
-STATEp sg_NinjaHariKari[] =
+STATE* sg_NinjaHariKari[] =
 {
     s_NinjaHariKari,
     s_NinjaHariKari,
@@ -1451,7 +1451,7 @@ STATE s_NinjaGrabThroat[] =
     {NINJA_GRAB_THROAT_R0 + 1,   NINJA_GRAB_THROAT_RATE,      NullNinja,       &s_NinjaGrabThroat[0]},
 };
 
-STATEp sg_NinjaGrabThroat[] =
+STATE* sg_NinjaGrabThroat[] =
 {
     s_NinjaGrabThroat,
     s_NinjaGrabThroat,
@@ -1544,54 +1544,54 @@ STATE s_NinjaDeathFall[] =
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
-STATEp sg_NinjaDie[] =
+STATE* sg_NinjaDie[] =
 {
     s_NinjaDie
 };
 
-STATEp sg_NinjaDieSliced[] =
+STATE* sg_NinjaDieSliced[] =
 {
     s_NinjaDieSliced
 };
 
-STATEp sg_NinjaDieSlicedHack[] =
+STATE* sg_NinjaDieSlicedHack[] =
 {
     s_NinjaDieSlicedHack
 };
 
-STATEp sg_NinjaDead[] =
+STATE* sg_NinjaDead[] =
 {
     s_NinjaDead
 };
 
-STATEp sg_NinjaDeathJump[] =
+STATE* sg_NinjaDeathJump[] =
 {
     s_NinjaDeathJump
 };
 
-STATEp sg_NinjaDeathFall[] =
+STATE* sg_NinjaDeathFall[] =
 {
     s_NinjaDeathFall
 };
@@ -1771,13 +1771,13 @@ ACTOR_ACTION_SET NinjaGreenActionSet =
 };
 
 
-extern STATEp sg_PlayerNinjaRun[];
-extern STATEp sg_PlayerNinjaStand[];
-extern STATEp sg_PlayerNinjaJump[];
-extern STATEp sg_PlayerNinjaFall[];
-extern STATEp sg_PlayerNinjaClimb[];
-extern STATEp sg_PlayerNinjaCrawl[];
-extern STATEp sg_PlayerNinjaSwim[];
+extern STATE* sg_PlayerNinjaRun[];
+extern STATE* sg_PlayerNinjaStand[];
+extern STATE* sg_PlayerNinjaJump[];
+extern STATE* sg_PlayerNinjaFall[];
+extern STATE* sg_PlayerNinjaClimb[];
+extern STATE* sg_PlayerNinjaCrawl[];
+extern STATE* sg_PlayerNinjaSwim[];
 ACTOR_ACTION_SET PlayerNinjaActionSet =
 {
     sg_PlayerNinjaStand,

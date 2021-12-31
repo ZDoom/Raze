@@ -79,7 +79,7 @@ extern TObjPtr<DSWActor*> GenericQueue[MAX_GENERIC_QUEUE];
 extern int LoWangsQueueHead;
 extern TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 
-void ChangeState(DSWActor* actor, STATEp statep);
+void ChangeState(DSWActor* actor, STATE* statep);
 void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt);
 SECTOR_OBJECT* DetectSectorObject(sectortype*);
 SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
@@ -202,7 +202,7 @@ int DoFlamesDamageTest(DSWActor*);
 
 struct SHRAP
 {
-    STATEp state;
+    STATE* state;
     short id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel, random_disperse, ang_range;
     // state, id, num, min_jspeed, max_jspeed, min_vel, max_vel, size,
     // random_disperse, ang_range

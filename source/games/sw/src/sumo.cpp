@@ -167,7 +167,7 @@ STATE s_SumoRun[5][4] =
     }
 };
 
-STATEp sg_SumoRun[] =
+STATE* sg_SumoRun[] =
 {
     &s_SumoRun[0][0],
     &s_SumoRun[1][0],
@@ -223,7 +223,7 @@ STATE s_SumoCharge[5][4] =
     }
 };
 
-STATEp sg_SumoCharge[] =
+STATE* sg_SumoCharge[] =
 {
     &s_SumoCharge[0][0],
     &s_SumoCharge[1][0],
@@ -258,7 +258,7 @@ STATE s_SumoStand[5][1] =
     }
 };
 
-STATEp sg_SumoStand[] =
+STATE* sg_SumoStand[] =
 {
     &s_SumoStand[0][0],
     &s_SumoStand[1][0],
@@ -299,7 +299,7 @@ STATE s_SumoPain[5][2] =
     }
 };
 
-STATEp sg_SumoPain[] =
+STATE* sg_SumoPain[] =
 {
     &s_SumoPain[0][0],
     &s_SumoPain[1][0],
@@ -361,7 +361,7 @@ STATE s_SumoFart[5][6] =
     }
 };
 
-STATEp sg_SumoFart[] =
+STATE* sg_SumoFart[] =
 {
     &s_SumoFart[0][0],
     &s_SumoFart[1][0],
@@ -423,7 +423,7 @@ STATE s_SumoClap[5][6] =
     }
 };
 
-STATEp sg_SumoClap[] =
+STATE* sg_SumoClap[] =
 {
     &s_SumoClap[0][0],
     &s_SumoClap[1][0],
@@ -485,7 +485,7 @@ STATE s_SumoStomp[5][6] =
     }
 };
 
-STATEp sg_SumoStomp[] =
+STATE* sg_SumoStomp[] =
 {
     &s_SumoStomp[0][0],
     &s_SumoStomp[1][0],
@@ -525,7 +525,7 @@ STATE s_SumoDie[] =
     {SUMO_DEAD, SUMO_DIE_RATE, DoActorDebris, &s_SumoDie[16]}
 };
 
-STATEp sg_SumoDie[] =
+STATE* sg_SumoDie[] =
 {
     s_SumoDie
 };
@@ -535,7 +535,7 @@ STATE s_SumoDead[] =
     {SUMO_DEAD, SUMO_DIE_RATE, DoActorDebris, &s_SumoDead[0]},
 };
 
-STATEp sg_SumoDead[] =
+STATE* sg_SumoDead[] =
 {
     s_SumoDead
 };

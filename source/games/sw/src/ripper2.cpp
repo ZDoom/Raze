@@ -158,7 +158,7 @@ STATE s_Ripper2Run[5][4] =
 };
 
 
-STATEp sg_Ripper2Run[] =
+STATE* sg_Ripper2Run[] =
 {
     &s_Ripper2Run[0][0],
     &s_Ripper2Run[1][0],
@@ -212,7 +212,7 @@ STATE s_Ripper2RunFast[5][4] =
 };
 
 
-STATEp sg_Ripper2RunFast[] =
+STATE* sg_Ripper2RunFast[] =
 {
     &s_Ripper2RunFast[0][0],
     &s_Ripper2RunFast[1][0],
@@ -248,7 +248,7 @@ STATE s_Ripper2Stand[5][1] =
     },
 };
 
-STATEp sg_Ripper2Stand[] =
+STATE* sg_Ripper2Stand[] =
 {
     s_Ripper2Stand[0],
     s_Ripper2Stand[1],
@@ -322,7 +322,7 @@ STATE s_Ripper2Swipe[5][8] =
 };
 
 
-STATEp sg_Ripper2Swipe[] =
+STATE* sg_Ripper2Swipe[] =
 {
     &s_Ripper2Swipe[0][0],
     &s_Ripper2Swipe[1][0],
@@ -390,7 +390,7 @@ STATE s_Ripper2Kong[5][7] =
 };
 
 
-STATEp sg_Ripper2Kong[] =
+STATE* sg_Ripper2Kong[] =
 {
     &s_Ripper2Kong[0][0],
     &s_Ripper2Kong[1][0],
@@ -434,7 +434,7 @@ STATE s_Ripper2Heart[5][4] =
 };
 
 
-STATEp sg_Ripper2Heart[] =
+STATE* sg_Ripper2Heart[] =
 {
     &s_Ripper2Heart[0][0],
     &s_Ripper2Heart[1][0],
@@ -472,7 +472,7 @@ STATE s_Ripper2Hang[5][4] =
 };
 
 
-STATEp sg_Ripper2Hang[] =
+STATE* sg_Ripper2Hang[] =
 {
     &s_Ripper2Hang[0][0],
     &s_Ripper2Hang[1][0],
@@ -510,7 +510,7 @@ STATE s_Ripper2Pain[5][1] =
     }
 };
 
-STATEp sg_Ripper2Pain[] =
+STATE* sg_Ripper2Pain[] =
 {
     &s_Ripper2Pain[0][0],
     &s_Ripper2Pain[1][0],
@@ -552,7 +552,7 @@ STATE s_Ripper2Jump[5][6] =
 };
 
 
-STATEp sg_Ripper2Jump[] =
+STATE* sg_Ripper2Jump[] =
 {
     &s_Ripper2Jump[0][0],
     &s_Ripper2Jump[1][0],
@@ -590,7 +590,7 @@ STATE s_Ripper2Fall[5][6] =
 };
 
 
-STATEp sg_Ripper2Fall[] =
+STATE* sg_Ripper2Fall[] =
 {
     &s_Ripper2Fall[0][0],
     &s_Ripper2Fall[1][0],
@@ -644,7 +644,7 @@ STATE s_Ripper2JumpAttack[5][6] =
 };
 
 
-STATEp sg_Ripper2JumpAttack[] =
+STATE* sg_Ripper2JumpAttack[] =
 {
     &s_Ripper2JumpAttack[0][0],
     &s_Ripper2JumpAttack[1][0],
@@ -687,7 +687,7 @@ STATE s_Ripper2HangJump[5][6] =
 };
 
 
-STATEp sg_Ripper2HangJump[] =
+STATE* sg_Ripper2HangJump[] =
 {
     &s_Ripper2HangJump[0][0],
     &s_Ripper2HangJump[1][0],
@@ -724,7 +724,7 @@ STATE s_Ripper2HangFall[5][6] =
 };
 
 
-STATEp sg_Ripper2HangFall[] =
+STATE* sg_Ripper2HangFall[] =
 {
     &s_Ripper2HangFall[0][0],
     &s_Ripper2HangFall[1][0],
@@ -770,12 +770,12 @@ STATE s_Ripper2Dead[] =
     {RIPPER2_DEAD, RIPPER2_DEAD_RATE, DoActorDebris, &s_Ripper2Dead[8]},
 };
 
-STATEp sg_Ripper2Die[] =
+STATE* sg_Ripper2Die[] =
 {
     s_Ripper2Die
 };
 
-STATEp sg_Ripper2Dead[] =
+STATE* sg_Ripper2Dead[] =
 {
     s_Ripper2Dead
 };
@@ -791,38 +791,38 @@ STATE s_Ripper2DeathFall[] =
 };
 
 
-STATEp sg_Ripper2DeathJump[] =
+STATE* sg_Ripper2DeathJump[] =
 {
     s_Ripper2DeathJump
 };
 
-STATEp sg_Ripper2DeathFall[] =
+STATE* sg_Ripper2DeathFall[] =
 {
     s_Ripper2DeathFall
 };
 
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 

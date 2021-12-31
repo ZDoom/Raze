@@ -199,7 +199,7 @@ STATE s_BunnyRun[5][6] =
 };
 
 
-STATEp sg_BunnyRun[] =
+STATE* sg_BunnyRun[] =
 {
     &s_BunnyRun[0][0],
     &s_BunnyRun[1][0],
@@ -247,7 +247,7 @@ STATE s_BunnyStand[5][3] =
 };
 
 
-STATEp sg_BunnyStand[] =
+STATE* sg_BunnyStand[] =
 {
     s_BunnyStand[0],
     s_BunnyStand[1],
@@ -290,7 +290,7 @@ STATE s_BunnyScrew[5][2] =
 };
 
 
-STATEp sg_BunnyScrew[] =
+STATE* sg_BunnyScrew[] =
 {
     s_BunnyScrew[0],
     s_BunnyScrew[1],
@@ -364,7 +364,7 @@ STATE s_BunnySwipe[5][8] =
 };
 
 
-STATEp sg_BunnySwipe[] =
+STATE* sg_BunnySwipe[] =
 {
     &s_BunnySwipe[0][0],
     &s_BunnySwipe[1][0],
@@ -403,7 +403,7 @@ STATE s_BunnyHeart[5][4] =
 };
 
 
-STATEp sg_BunnyHeart[] =
+STATE* sg_BunnyHeart[] =
 {
     &s_BunnyHeart[0][0],
     &s_BunnyHeart[1][0],
@@ -440,7 +440,7 @@ STATE s_BunnyPain[5][1] =
     }
 };
 
-STATEp sg_BunnyPain[] =
+STATE* sg_BunnyPain[] =
 {
     &s_BunnyPain[0][0],
     &s_BunnyPain[1][0],
@@ -482,7 +482,7 @@ STATE s_BunnyJump[5][6] =
 };
 
 
-STATEp sg_BunnyJump[] =
+STATE* sg_BunnyJump[] =
 {
     &s_BunnyJump[0][0],
     &s_BunnyJump[1][0],
@@ -520,7 +520,7 @@ STATE s_BunnyFall[5][6] =
 };
 
 
-STATEp sg_BunnyFall[] =
+STATE* sg_BunnyFall[] =
 {
     &s_BunnyFall[0][0],
     &s_BunnyFall[1][0],
@@ -569,7 +569,7 @@ STATE s_BunnyJumpAttack[5][6] =
 };
 
 
-STATEp sg_BunnyJumpAttack[] =
+STATE* sg_BunnyJumpAttack[] =
 {
     &s_BunnyJumpAttack[0][0],
     &s_BunnyJumpAttack[1][0],
@@ -610,12 +610,12 @@ STATE s_BunnyDead[] =
     {BUNNY_DEAD, BUNNY_DEAD_RATE, DoActorDebris, &s_BunnyDead[5]},
 };
 
-STATEp sg_BunnyDie[] =
+STATE* sg_BunnyDie[] =
 {
     s_BunnyDie
 };
 
-STATEp sg_BunnyDead[] =
+STATE* sg_BunnyDead[] =
 {
     s_BunnyDead
 };
@@ -630,38 +630,38 @@ STATE s_BunnyDeathFall[] =
     {BUNNY_DIE + 1, BUNNY_DIE_RATE, DoActorDeathMove, &s_BunnyDeathFall[0]}
 };
 
-STATEp sg_BunnyDeathJump[] =
+STATE* sg_BunnyDeathJump[] =
 {
     s_BunnyDeathJump
 };
 
-STATEp sg_BunnyDeathFall[] =
+STATE* sg_BunnyDeathFall[] =
 {
     s_BunnyDeathFall
 };
 
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 ACTOR_ACTION_SET BunnyActionSet =

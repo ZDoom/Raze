@@ -166,7 +166,7 @@ STATE s_SerpRun[5][4] =
 };
 
 
-STATEp sg_SerpRun[] =
+STATE* sg_SerpRun[] =
 {
     &s_SerpRun[0][0],
     &s_SerpRun[1][0],
@@ -250,7 +250,7 @@ STATE s_SerpSlash[5][10] =
 };
 
 
-STATEp sg_SerpSlash[] =
+STATE* sg_SerpSlash[] =
 {
     &s_SerpSlash[0][0],
     &s_SerpSlash[1][0],
@@ -325,7 +325,7 @@ STATE s_SerpSkullSpell[5][8] =
 };
 
 
-STATEp sg_SerpSkullSpell[] =
+STATE* sg_SerpSkullSpell[] =
 {
     &s_SerpSkullSpell[0][0],
     &s_SerpSkullSpell[1][0],
@@ -400,7 +400,7 @@ STATE s_SerpSpell[5][8] =
 };
 
 
-STATEp sg_SerpSpell[] =
+STATE* sg_SerpSpell[] =
 {
     &s_SerpSpell[0][0],
     &s_SerpSpell[1][0],
@@ -472,7 +472,7 @@ STATE s_SerpMonstSpell[5][8] =
 };
 
 
-STATEp sg_SerpMonstSpell[] =
+STATE* sg_SerpMonstSpell[] =
 {
     &s_SerpMonstSpell[0][0],
     &s_SerpMonstSpell[1][0],
@@ -556,7 +556,7 @@ STATE s_SerpRapidSpell[5][10] =
 };
 
 
-STATEp sg_SerpRapidSpell[] =
+STATE* sg_SerpRapidSpell[] =
 {
     &s_SerpRapidSpell[0][0],
     &s_SerpRapidSpell[1][0],
@@ -593,7 +593,7 @@ STATE s_SerpStand[5][1] =
 };
 
 
-STATEp sg_SerpStand[] =
+STATE* sg_SerpStand[] =
 {
     s_SerpStand[0],
     s_SerpStand[1],
@@ -631,37 +631,37 @@ STATE s_SerpDead[] =
     {SERP_DEAD, SERP_DIE_RATE, DoActorDebris, &s_SerpDead[0]},
 };
 
-STATEp sg_SerpDie[] =
+STATE* sg_SerpDie[] =
 {
     s_SerpDie
 };
 
-STATEp sg_SerpDead[] =
+STATE* sg_SerpDead[] =
 {
     s_SerpDead
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 

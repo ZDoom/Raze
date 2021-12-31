@@ -172,14 +172,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATE*& w, P
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PANEL_STATE));
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, STATEp& w, STATEp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, STATE*& w, STATE** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATE));
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, STATEp*& w, STATEp** def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, STATE**& w, STATE*** def)
 {
-	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATEp));
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATE*));
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SET*& w, ACTOR_ACTION_SET** def)

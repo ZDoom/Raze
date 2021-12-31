@@ -162,7 +162,7 @@ STATE s_CoolgRun[5][4] =
     }
 };
 
-STATEp sg_CoolgRun[] =
+STATE* sg_CoolgRun[] =
 {
     &s_CoolgRun[0][0],
     &s_CoolgRun[1][0],
@@ -197,7 +197,7 @@ STATE s_CoolgStand[5][1] =
     }
 };
 
-STATEp sg_CoolgStand[] =
+STATE* sg_CoolgStand[] =
 {
     &s_CoolgStand[0][0],
     &s_CoolgStand[1][0],
@@ -259,7 +259,7 @@ STATE s_CoolgClub[5][6] =
     }
 };
 
-STATEp sg_CoolgClub[] =
+STATE* sg_CoolgClub[] =
 {
     &s_CoolgClub[0][0],
     &s_CoolgClub[1][0],
@@ -326,7 +326,7 @@ STATE s_CoolgAttack[5][7] =
     }
 };
 
-STATEp sg_CoolgAttack[] =
+STATE* sg_CoolgAttack[] =
 {
     &s_CoolgAttack[0][0],
     &s_CoolgAttack[1][0],
@@ -368,7 +368,7 @@ STATE s_CoolgPain[5][2] =
     },
 };
 
-STATEp sg_CoolgPain[] =
+STATE* sg_CoolgPain[] =
 {
     s_CoolgPain[0],
     s_CoolgPain[1],
@@ -399,7 +399,7 @@ STATE s_CoolgDie[] =
     {COOLG_DIE +    5, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[5]},
 };
 
-STATEp sg_CoolgDie[] =
+STATE* sg_CoolgDie[] =
 {
     s_CoolgDie
 };
@@ -410,7 +410,7 @@ STATE s_CoolgDead[] =
     {COOLG_DEAD, COOLG_DIE_RATE, DoActorDebris, &s_CoolgDead[1]},
 };
 
-STATEp sg_CoolgDead[] =
+STATE* sg_CoolgDead[] =
 {
     s_CoolgDead
 };
@@ -439,32 +439,32 @@ STATE s_CoolgBirth[] =
     {COOLG_BIRTH + 8, 0|SF_QUICK_CALL, DoCoolgBirth, &s_CoolgBirth[10]}
 };
 
-STATEp sg_CoolgBirth[] =
+STATE* sg_CoolgBirth[] =
 {
     s_CoolgBirth
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 

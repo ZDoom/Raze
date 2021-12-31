@@ -150,7 +150,7 @@ STATE s_HornetRun[5][2] =
     }
 };
 
-STATEp sg_HornetRun[] =
+STATE* sg_HornetRun[] =
 {
     &s_HornetRun[0][0],
     &s_HornetRun[1][0],
@@ -191,7 +191,7 @@ STATE s_HornetStand[5][2] =
     }
 };
 
-STATEp sg_HornetStand[] =
+STATE* sg_HornetStand[] =
 {
     &s_HornetStand[0][0],
     &s_HornetStand[1][0],
@@ -218,7 +218,7 @@ STATE s_HornetDie[] =
 #endif
 };
 
-STATEp sg_HornetDie[] =
+STATE* sg_HornetDie[] =
 {
     s_HornetDie
 };
@@ -228,32 +228,32 @@ STATE s_HornetDead[] =
     {HORNET_DEAD, HORNET_DIE_RATE, DoActorDebris, &s_HornetDead[0]},
 };
 
-STATEp sg_HornetDead[] =
+STATE* sg_HornetDead[] =
 {
     s_HornetDead
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 ACTOR_ACTION_SET HornetActionSet =

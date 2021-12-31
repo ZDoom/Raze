@@ -152,7 +152,7 @@ STATE s_ZombieRun[5][4] =
     },
 };
 
-STATEp sg_ZombieRun[] =
+STATE* sg_ZombieRun[] =
 {
     s_ZombieRun[0],
     s_ZombieRun[1],
@@ -188,7 +188,7 @@ STATE s_ZombieStand[5][1] =
     },
 };
 
-STATEp sg_ZombieStand[] =
+STATE* sg_ZombieStand[] =
 {
     s_ZombieStand[0],
     s_ZombieStand[1],
@@ -230,7 +230,7 @@ STATE s_ZombiePain[5][2] =
     },
 };
 
-STATEp sg_ZombiePain[] =
+STATE* sg_ZombiePain[] =
 {
     s_ZombiePain[0],
     s_ZombiePain[1],
@@ -292,7 +292,7 @@ STATE s_ZombieNuke[5][6] =
     },
 };
 
-STATEp sg_ZombieNuke[] =
+STATE* sg_ZombieNuke[] =
 {
     s_ZombieNuke[0],
     s_ZombieNuke[1],
@@ -351,7 +351,7 @@ STATE s_ZombieRocket[5][5] =
 };
 
 
-STATEp sg_ZombieRocket[] =
+STATE* sg_ZombieRocket[] =
 {
     s_ZombieRocket[0],
     s_ZombieRocket[1],
@@ -409,7 +409,7 @@ STATE s_ZombieRail[5][5] =
 };
 
 
-STATEp sg_ZombieRail[] =
+STATE* sg_ZombieRail[] =
 {
     s_ZombieRail[0],
     s_ZombieRail[1],
@@ -467,7 +467,7 @@ STATE s_ZombieGrenade[5][5] =
 };
 
 
-STATEp sg_ZombieGrenade[] =
+STATE* sg_ZombieGrenade[] =
 {
     s_ZombieGrenade[0],
     s_ZombieGrenade[1],
@@ -526,7 +526,7 @@ STATE s_ZombieFlashBomb[5][5] =
 };
 
 
-STATEp sg_ZombieFlashBomb[] =
+STATE* sg_ZombieFlashBomb[] =
 {
     s_ZombieFlashBomb[0],
     s_ZombieFlashBomb[1],
@@ -644,7 +644,7 @@ STATE s_ZombieUzi[5][17] =
 };
 
 
-STATEp sg_ZombieUzi[] =
+STATE* sg_ZombieUzi[] =
 {
     s_ZombieUzi[0],
     s_ZombieUzi[1],
@@ -681,7 +681,7 @@ STATE s_ZombieFall[5][1] =
 };
 
 
-STATEp sg_ZombieFall[] =
+STATE* sg_ZombieFall[] =
 {
     &s_ZombieFall[0][0],
     &s_ZombieFall[1][0],
@@ -691,26 +691,26 @@ STATEp sg_ZombieFall[] =
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 ACTOR_ACTION_SET ZombieActionSet =

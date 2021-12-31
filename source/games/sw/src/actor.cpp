@@ -51,7 +51,7 @@ extern STATE s_DebrisStarFish[];
 extern STATE s_NinjaDieSliced[];
 extern STATE s_NinjaDieSlicedHack[];
 
-extern STATEp sg_NinjaGrabThroat[];
+extern STATE* sg_NinjaGrabThroat[];
 
 
 
@@ -462,7 +462,7 @@ int DoFireFly(DSWActor* actor)
 
 int DoGenerateSewerDebris(DSWActor* actor)
 {
-    static STATEp Debris[] =
+    static STATE* Debris[] =
     {
         s_DebrisNinja,
         s_DebrisRat,

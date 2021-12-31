@@ -162,7 +162,7 @@ STATE s_SkelRun[5][6] =
 };
 
 
-STATEp sg_SkelRun[] =
+STATE* sg_SkelRun[] =
 {
     &s_SkelRun[0][0],
     &s_SkelRun[1][0],
@@ -231,7 +231,7 @@ STATE s_SkelSlash[5][7] =
 };
 
 
-STATEp sg_SkelSlash[] =
+STATE* sg_SkelSlash[] =
 {
     &s_SkelSlash[0][0],
     &s_SkelSlash[1][0],
@@ -299,7 +299,7 @@ STATE s_SkelSpell[5][7] =
 };
 
 
-STATEp sg_SkelSpell[] =
+STATE* sg_SkelSpell[] =
 {
     &s_SkelSpell[0][0],
     &s_SkelSpell[1][0],
@@ -336,7 +336,7 @@ STATE s_SkelPain[5][1] =
     }
 };
 
-STATEp sg_SkelPain[] =
+STATE* sg_SkelPain[] =
 {
     &s_SkelPain[0][0],
     &s_SkelPain[1][0],
@@ -380,7 +380,7 @@ STATE s_SkelTeleport[] =
     {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, DoSkelMove, &s_SkelTeleport[16]},
 };
 
-STATEp sg_SkelTeleport[] =
+STATE* sg_SkelTeleport[] =
 {
     s_SkelTeleport,
     s_SkelTeleport,
@@ -417,7 +417,7 @@ STATE s_SkelStand[5][1] =
 };
 
 
-STATEp sg_SkelStand[] =
+STATE* sg_SkelStand[] =
 {
     s_SkelStand[0],
     s_SkelStand[1],
@@ -444,32 +444,32 @@ STATE s_SkelDie[] =
     {SKEL_DIE + 5, SKEL_DIE_RATE, DoSuicide,   &s_SkelDie[5]},
 };
 
-STATEp sg_SkelDie[] =
+STATE* sg_SkelDie[] =
 {
     s_SkelDie
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 ACTOR_ACTION_SET SkelActionSet =

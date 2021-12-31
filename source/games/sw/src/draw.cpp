@@ -177,8 +177,8 @@ int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, i
 
     if (!ownerActor->hasU()) return 0;
     // don't modify ANY tu vars - back them up!
-    STATEp State = ownerActor->user.State;
-    STATEp StateStart = ownerActor->user.StateStart;
+    STATE* State = ownerActor->user.State;
+    STATE* StateStart = ownerActor->user.StateStart;
 
     if (ownerActor->user.RotNum == 0)
         return 0;

@@ -2159,7 +2159,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 {
     int nx, ny, nz;
     short id=0,velocity=0;    
-    STATEp p=nullptr;
+    STATE* p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
 

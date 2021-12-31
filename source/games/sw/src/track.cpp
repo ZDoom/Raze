@@ -3286,7 +3286,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_ATTACK5:
     case TRACK_ACTOR_ATTACK6:
     {
-        STATEp **ap = &actor->user.ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
+        STATE* **ap = &actor->user.ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
 
 
         if (*ap)

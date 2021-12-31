@@ -149,7 +149,7 @@ STATE s_LavaStand[5][1] =
 };
 
 
-STATEp sg_LavaStand[] =
+STATE* sg_LavaStand[] =
 {
     s_LavaStand[0],
     s_LavaStand[1],
@@ -203,7 +203,7 @@ STATE s_LavaRun[5][4] =
 };
 
 
-STATEp sg_LavaRun[] =
+STATE* sg_LavaRun[] =
 {
     &s_LavaRun[0][0],
     &s_LavaRun[1][0],
@@ -287,7 +287,7 @@ STATE s_LavaThrow[5][10] =
 };
 
 
-STATEp sg_LavaThrow[] =
+STATE* sg_LavaThrow[] =
 {
     &s_LavaThrow[0][0],
     &s_LavaThrow[1][0],
@@ -361,7 +361,7 @@ STATE s_LavaFlame[5][8] =
 };
 
 
-STATEp sg_LavaFlame[] =
+STATE* sg_LavaFlame[] =
 {
     &s_LavaFlame[0][0],
     &s_LavaFlame[1][0],
@@ -389,37 +389,37 @@ STATE s_LavaDead[] =
     {LAVA_DEAD, LAVA_DIE_RATE, DoActorDebris, &s_LavaDead[0]},
 };
 
-STATEp sg_LavaDie[] =
+STATE* sg_LavaDie[] =
 {
     s_LavaDie
 };
 
-STATEp sg_LavaDead[] =
+STATE* sg_LavaDead[] =
 {
     s_LavaDead
 };
 
 /*
-STATEp *Stand[MAX_WEAPONS];
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-STATEp *CloseAttack[2];
-STATEp *Attack[6];
-STATEp *Special[2];
+STATE* *Stand[MAX_WEAPONS];
+STATE* *Run;
+STATE* *Jump;
+STATE* *Fall;
+STATE* *Crawl;
+STATE* *Swim;
+STATE* *Fly;
+STATE* *Rise;
+STATE* *Sit;
+STATE* *Look;
+STATE* *Climb;
+STATE* *Pain;
+STATE* *Death1;
+STATE* *Death2;
+STATE* *Dead;
+STATE* *DeathJump;
+STATE* *DeathFall;
+STATE* *CloseAttack[2];
+STATE* *Attack[6];
+STATE* *Special[2];
 */
 
 

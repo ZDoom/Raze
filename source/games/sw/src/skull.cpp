@@ -72,7 +72,7 @@ STATE s_SkullWait[5][1] =
 };
 
 
-STATEp sg_SkullWait[] =
+STATE* sg_SkullWait[] =
 {
     &s_SkullWait[0][0],
     &s_SkullWait[1][0],
@@ -120,7 +120,7 @@ STATE s_SkullRing[5][1] =
 };
 
 
-STATEp sg_SkullRing[] =
+STATE* sg_SkullRing[] =
 {
     &s_SkullRing[0][0],
     &s_SkullRing[1][0],
@@ -159,7 +159,7 @@ STATE s_SkullJump[5][1] =
 };
 
 
-STATEp sg_SkullJump[] =
+STATE* sg_SkullJump[] =
 {
     &s_SkullJump[0][0],
     &s_SkullJump[1][0],
@@ -201,7 +201,7 @@ STATE s_SkullExplode[] =
     {SKULL_EXPLODE +13, SKULL_EXPLODE_RATE, DoSuicide,    &s_SkullExplode[17]}
 };
 
-STATEp sg_SkullExplode[] =
+STATE* sg_SkullExplode[] =
 {
     s_SkullExplode,
 };
@@ -514,7 +514,7 @@ STATE s_BettyWait[5][3] =
 };
 
 
-STATEp sg_BettyWait[] =
+STATE* sg_BettyWait[] =
 {
     &s_BettyWait[0][0],
     &s_BettyWait[1][0],
@@ -559,7 +559,7 @@ STATE s_BettyJump[5][1] =
 };
 
 
-STATEp sg_BettyJump[] =
+STATE* sg_BettyJump[] =
 {
     &s_BettyJump[0][0],
     &s_BettyJump[1][0],
@@ -586,7 +586,7 @@ STATE s_BettyExplode[] =
     {BETTY_EXPLODE + 0, BETTY_EXPLODE_RATE, DoSuicide, &s_BettyExplode[0]}
 };
 
-STATEp sg_BettyExplode[] =
+STATE* sg_BettyExplode[] =
 {
     s_BettyExplode,
 };

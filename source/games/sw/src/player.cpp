@@ -238,7 +238,7 @@ STATE s_PlayerNinjaRun[5][6] =
 
 };
 
-STATEp sg_PlayerNinjaRun[] =
+STATE* sg_PlayerNinjaRun[] =
 {
     s_PlayerNinjaRun[0],
     s_PlayerNinjaRun[1],
@@ -304,7 +304,7 @@ STATE s_PlayerNinjaRun[5][8] =
     }
 };
 
-STATEp sg_PlayerNinjaRun[] =
+STATE* sg_PlayerNinjaRun[] =
 {
     s_PlayerNinjaRun[0],
     s_PlayerNinjaRun[1],
@@ -340,7 +340,7 @@ STATE s_PlayerNinjaStand[5][1] =
         {PLAYER_NINJA_STAND_R4 + 0, PLAYER_NINJA_STAND_RATE, NullAnimator, &s_PlayerNinjaStand[4][0]},
     },
 };
-STATEp sg_PlayerNinjaStand[] =
+STATE* sg_PlayerNinjaStand[] =
 {
     s_PlayerNinjaStand[0],
     s_PlayerNinjaStand[1],
@@ -352,7 +352,7 @@ STATEp sg_PlayerNinjaStand[] =
 
 #define PLAYER_NINJA_STAR_RATE 12
 
-extern STATEp sg_NinjaRun[];
+extern STATE* sg_NinjaRun[];
 int DoPlayerSpriteReset(DSWActor* actor);
 
 #if 0
@@ -427,7 +427,7 @@ STATE s_PlayerNinjaThrow[5][4] =
 };
 #endif
 
-STATEp sg_PlayerNinjaThrow[] =
+STATE* sg_PlayerNinjaThrow[] =
 {
     s_PlayerNinjaThrow[0],
     s_PlayerNinjaThrow[1],
@@ -479,7 +479,7 @@ STATE s_PlayerNinjaJump[5][4] =
 };
 
 
-STATEp sg_PlayerNinjaJump[] =
+STATE* sg_PlayerNinjaJump[] =
 {
     s_PlayerNinjaJump[0],
     s_PlayerNinjaJump[1],
@@ -522,7 +522,7 @@ STATE s_PlayerNinjaFall[5][2] =
 };
 
 
-STATEp sg_PlayerNinjaFall[] =
+STATE* sg_PlayerNinjaFall[] =
 {
     s_PlayerNinjaFall[0],
     s_PlayerNinjaFall[1],
@@ -573,7 +573,7 @@ STATE s_PlayerNinjaClimb[5][4] =
     },
 };
 
-STATEp sg_PlayerNinjaClimb[] =
+STATE* sg_PlayerNinjaClimb[] =
 {
     s_PlayerNinjaClimb[0],
     s_PlayerNinjaClimb[1],
@@ -635,7 +635,7 @@ STATE s_PlayerNinjaCrawl[5][6] =
 };
 
 
-STATEp sg_PlayerNinjaCrawl[] =
+STATE* sg_PlayerNinjaCrawl[] =
 {
     s_PlayerNinjaCrawl[0],
     s_PlayerNinjaCrawl[1],
@@ -687,7 +687,7 @@ STATE s_PlayerNinjaSwim[5][4] =
 };
 
 
-STATEp sg_PlayerNinjaSwim[] =
+STATE* sg_PlayerNinjaSwim[] =
 {
     s_PlayerNinjaSwim[0],
     s_PlayerNinjaSwim[1],
@@ -756,7 +756,7 @@ STATE s_PlayerHeadFly[5][8] =
     },
 };
 
-STATEp sg_PlayerHeadFly[] =
+STATE* sg_PlayerHeadFly[] =
 {
     s_PlayerHeadFly[0],
     s_PlayerHeadFly[1],
@@ -791,7 +791,7 @@ STATE s_PlayerHead[5][1] =
     },
 };
 
-STATEp sg_PlayerHead[] =
+STATE* sg_PlayerHead[] =
 {
     s_PlayerHead[0],
     s_PlayerHead[1],
@@ -826,7 +826,7 @@ STATE s_PlayerHeadHurl[5][1] =
     },
 };
 
-STATEp sg_PlayerHeadHurl[] =
+STATE* sg_PlayerHeadHurl[] =
 {
     s_PlayerHeadHurl[0],
     s_PlayerHeadHurl[1],
@@ -901,7 +901,7 @@ STATE s_PlayerDeath[5][10] =
     },
 };
 
-STATEp sg_PlayerDeath[] =
+STATE* sg_PlayerDeath[] =
 {
     s_PlayerDeath[0],
     s_PlayerDeath[1],
@@ -953,7 +953,7 @@ STATE s_PlayerNinjaSword[5][4] =
 };
 
 
-STATEp sg_PlayerNinjaSword[] =
+STATE* sg_PlayerNinjaSword[] =
 {
     s_PlayerNinjaSword[0],
     s_PlayerNinjaSword[1],
@@ -1000,7 +1000,7 @@ STATE s_PlayerNinjaPunch[5][4] =
 };
 
 
-STATEp sg_PlayerNinjaPunch[] =
+STATE* sg_PlayerNinjaPunch[] =
 {
     s_PlayerNinjaPunch[0],
     s_PlayerNinjaPunch[1],
@@ -1043,7 +1043,7 @@ STATE s_PlayerNinjaFly[5][4] =
 };
 
 
-STATEp sg_PlayerNinjaFly[] =
+STATE* sg_PlayerNinjaFly[] =
 {
     s_PlayerNinjaFly[0],
     s_PlayerNinjaFly[1],
@@ -6343,7 +6343,7 @@ void PlayerStateControl(DSWActor* actor)
 
         if (!actor->user.State->Pic)
         {
-            NewStateGroup(actor, (STATEp *) actor->user.State->NextState);
+            NewStateGroup(actor, (STATE* *) actor->user.State->NextState);
         }
     }
 

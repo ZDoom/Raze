@@ -202,7 +202,7 @@ STATE s_YellowCard[] =
     {YELLOW_CARD, 100, DoGet, &s_YellowCard[0]}
 };
 
-STATEp s_Key[] =
+STATE* s_Key[] =
 {
     s_RedKey,
     s_BlueKey,
@@ -241,7 +241,7 @@ STATE s_YellowKey[] =
     {YELLOW_KEY + 0, KEY_RATE, DoKey, &s_YellowKey[0]}
 };
 
-STATEp s_Key[] =
+STATE* s_Key[] =
 {
     s_RedKey,
     s_BlueKey,
@@ -279,7 +279,7 @@ STATE s_YellowKeyStatue[] =
     {YELLOW_KEY_STATUE + 0, KEY_RATE, DoSpriteFade, &s_YellowKeyStatue[0]}
 };
 
-STATEp s_KeyStatue[] =
+STATE* s_KeyStatue[] =
 {
     s_RedKeyStatue,
     s_BlueKeyStatue,
@@ -760,7 +760,7 @@ void KillActor(DSWActor* actor)
     actor->Destroy();
 }
 
-void ChangeState(DSWActor* actor, STATEp statep)
+void ChangeState(DSWActor* actor, STATE* statep)
 {
     if (!actor->hasU())
         return;
@@ -816,7 +816,7 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
     }
 }
 
-void SpawnUser(DSWActor* actor, short id, STATEp state)
+void SpawnUser(DSWActor* actor, short id, STATE* state)
 {
     ASSERT(!Prediction);
 
@@ -867,7 +867,7 @@ void SpawnUser(DSWActor* actor, short id, STATEp state)
     actor->user.hi_sectp = actor->sector();
 }
 
-DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, int y, int z, int init_ang, int vel)
+DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, int x, int y, int z, int init_ang, int vel)
 {
     if (sect == nullptr)
         return nullptr;
@@ -4240,7 +4240,7 @@ int SpawnItemsMatch(short match)
     return 0;
 }
 
-int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
+int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 {
     if (!StateGroup)
         return 0;
@@ -5994,7 +5994,7 @@ int  StateControl(DSWActor* actor)
 
         if (!actor->user.State->Pic)
         {
-            NewStateGroup(actor, (STATEp *) actor->user.State->NextState);
+            NewStateGroup(actor, (STATE* *) actor->user.State->NextState);
         }
     }
 
