@@ -309,9 +309,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE_OVERL
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct& w, PANEL_SPRITEstruct* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE& w, PANEL_SPRITE* def)
 {
-	static PANEL_SPRITEstruct nul;
+	static PANEL_SPRITE nul;
 	if (!def)
 	{
 		def = &nul;

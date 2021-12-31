@@ -373,8 +373,8 @@ typedef struct STATEstruct STATE, *STATEp, * *STATEpp;
 //struct PIC_STATEstruct;
 //typedef struct PIC_STATEstruct PIC_STATE, *PIC_STATEp;
 
-struct PANEL_STATEstruct;
-typedef struct PANEL_STATEstruct PANEL_STATE, *PANEL_STATEp;
+struct PANEL_STATE;
+typedef struct PANEL_STATE *PANEL_STATEp;
 
 struct PLAYERstruct;
 typedef struct PLAYERstruct PLAYER, *PLAYERp;
@@ -388,8 +388,8 @@ typedef struct ATTRIBUTEstruct ATTRIBUTE, *ATTRIBUTEp;
 struct SECTOR_OBJECTstruct;
 typedef struct SECTOR_OBJECTstruct SECTOR_OBJECT, *SECTOR_OBJECTp;
 
-struct PANEL_SPRITEstruct;
-typedef struct PANEL_SPRITEstruct PANEL_SPRITE, *PANEL_SPRITEp;
+struct PANEL_SPRITE;
+typedef struct PANEL_SPRITE *PANEL_SPRITEp;
 
 struct ANIMstruct;
 typedef struct ANIMstruct ANIM, *ANIMp;
