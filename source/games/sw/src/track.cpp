@@ -716,7 +716,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     BoundActor = FindBoundSprite(SECT_SO_CENTER);
     if (BoundActor)
     {
-        sop->xmid = BoundActor->spr.pos.X;
+        sop->pmid.X = BoundActor->spr.pos.X;
         sop->ymid = BoundActor->spr.pos.Y;
         sop->zmid = BoundActor->spr.pos.Z;
         KillActor(BoundActor);
@@ -855,12 +855,12 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                         short ang2;
                         sop->clipdist = 0;
                         sop->clipbox_dist[sop->clipbox_num] = itActor->spr.lotag;
-                        sop->clipbox_xoff[sop->clipbox_num] = sop->xmid - itActor->spr.pos.X;
+                        sop->clipbox_xoff[sop->clipbox_num] = sop->pmid.X - itActor->spr.pos.X;
                         sop->clipbox_yoff[sop->clipbox_num] = sop->ymid - itActor->spr.pos.Y;
 
-                        sop->clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->xmid - itActor->spr.pos.X) + SQ(sop->ymid - itActor->spr.pos.Y));
+                        sop->clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->pmid.X - itActor->spr.pos.X) + SQ(sop->ymid - itActor->spr.pos.Y));
 
-                        ang2 = getangle(itActor->spr.pos.X - sop->xmid, itActor->spr.pos.Y - sop->ymid);
+                        ang2 = getangle(itActor->spr.pos.X - sop->pmid.X, itActor->spr.pos.Y - sop->ymid);
                         sop->clipbox_ang[sop->clipbox_num] = getincangle(ang2, sop->ang);
 
                         sop->clipbox_num++;
@@ -881,7 +881,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 }
 
 
-                itActor->user.pos.X = sop->xmid - itActor->spr.pos.X;
+                itActor->user.pos.X = sop->pmid.X - itActor->spr.pos.X;
                 itActor->user.pos.Y = sop->ymid - itActor->spr.pos.Y;
                 itActor->user.pos.Z = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
@@ -1037,14 +1037,14 @@ void SetupSectorObject(sectortype* sectp, short tag)
     case TAG_OBJECT_CENTER - 500:
 
         sop->mid_sector = sectp;
-        SectorMidPoint(sectp, &sop->xmid, &sop->ymid, &sop->zmid);
+        SectorMidPoint(sectp, &sop->pmid.X, &sop->ymid, &sop->zmid);
 
         sop->dir = 1;
         sop->track = sectp->hitag;
 
         // spawn a sprite to make it easier to integrate with sprite routines
         auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp,
-                          sop->xmid, sop->ymid, sop->zmid, 0, 0);
+                          sop->pmid.X, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = actorNew;
         actorNew->user.sop_parent = sop;
         actorNew->user.Flags2 |= (SPR2_SPRITE_FAKE_BLOCK); // for damage test
@@ -1400,7 +1400,7 @@ void PlaceSectorObjectsOnTracks(void)
             // move all walls in sectors
             for (auto& wal : wallsofsector(sop->sectp[j]))
             {
-                sop->xorig[sop->num_walls] = sop->xmid - wal.pos.X;
+                sop->xorig[sop->num_walls] = sop->pmid.X - wal.pos.X;
                 sop->yorig[sop->num_walls] = sop->ymid - wal.pos.Y;
                 sop->num_walls++;
             }
@@ -1420,7 +1420,7 @@ void PlaceSectorObjectsOnTracks(void)
         {
             tpoint = Track[sop->track].TrackPoint;
 
-            dist = Distance((tpoint + j)->x, (tpoint + j)->y, sop->xmid, sop->ymid);
+            dist = Distance((tpoint + j)->x, (tpoint + j)->y, sop->pmid.X, sop->ymid);
 
             if (dist < low_dist)
             {
@@ -1438,7 +1438,7 @@ void PlaceSectorObjectsOnTracks(void)
 
         NextTrackPoint(sop);
 
-        sop->ang = getangle((tpoint + sop->point)->x - sop->xmid, (tpoint + sop->point)->y - sop->ymid);
+        sop->ang = getangle((tpoint + sop->point)->x - sop->pmid.X, (tpoint + sop->point)->y - sop->ymid);
 
         sop->ang_moving = sop->ang_tgt = sop->ang;
     }
@@ -1591,18 +1591,18 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     int i, rot_ang;
     bool PlayerMove = true;
 
-    if (sop->xmid >= MAXSO)
+    if (sop->pmid.X >= MAXSO)
         PlayerMove = false;
 
     // move along little midpoint
-    sop->xmid += nx;
+    sop->pmid.X += nx;
     sop->ymid += ny;
 
-    if (sop->xmid >= MAXSO)
+    if (sop->pmid.X >= MAXSO)
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->spr.pos.X = sop->xmid;
+    sop->sp_child->spr.pos.X = sop->pmid.X;
     sop->sp_child->spr.pos.Y = sop->ymid;
 
 
@@ -1701,7 +1701,7 @@ PlayerPart:
             }
         }
 
-        actor->spr.pos.X = sop->xmid - actor->user.pos.X;
+        actor->spr.pos.X = sop->pmid.X - actor->user.pos.X;
         actor->spr.pos.Y = sop->ymid - actor->user.pos.Y;
 
         // sprites z update
@@ -1761,7 +1761,7 @@ PlayerPart:
 
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
-            if (sop->xmid < MAXSO) // special case for operating SO's
+            if (sop->pmid.X < MAXSO) // special case for operating SO's
                 SetActorZ(sop->so_actors[i], &actor->spr.pos);
         }
 
@@ -1838,14 +1838,14 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
             {
                 if (!(wal.extra && (wal.extra & WALLFX_DONT_MOVE)))
                 {
-                    dx = x = sop->xmid - sop->xorig[wallcount];
+                    dx = x = sop->pmid.X - sop->xorig[wallcount];
                     dy = y = sop->ymid - sop->yorig[wallcount];
 
                     if (dynamic && sop->scale_type)
                     {
                         if (!(wal.extra & WALLFX_DONT_SCALE))
                         {
-                            ang = NORM_ANGLE(getangle(x - sop->xmid, y - sop->ymid));
+                            ang = NORM_ANGLE(getangle(x - sop->pmid.X, y - sop->ymid));
 
                             if (sop->scale_type == SO_SCALE_RANDOM_POINT)
                             {
@@ -2249,7 +2249,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
     // calculate an angle to the target
 
     if (sop->vel)
-        sop->ang_moving = sop->ang_tgt = getangle(tpoint->x - sop->xmid, tpoint->y - sop->ymid);
+        sop->ang_moving = sop->ang_tgt = getangle(tpoint->x - sop->pmid.X, tpoint->y - sop->ymid);
 
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
@@ -2505,10 +2505,10 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
         tpoint = Track[sop->track].TrackPoint + sop->point;
 
         // calculate distance to target poing
-        sop->target_dist = Distance(sop->xmid, sop->ymid, tpoint->x, tpoint->y);
+        sop->target_dist = Distance(sop->pmid.X, sop->ymid, tpoint->x, tpoint->y);
 
         // calculate a new angle to the target
-        sop->ang_moving = sop->ang_tgt = getangle(tpoint->x - sop->xmid, tpoint->y - sop->ymid);
+        sop->ang_moving = sop->ang_tgt = getangle(tpoint->x - sop->pmid.X, tpoint->y - sop->ymid);
 
         if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
@@ -2520,7 +2520,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
             dz = tpoint->z - sop->zdelta;
 
             // find the distance to the target (player)
-            dist = DIST(dx, dy, sop->xmid, sop->ymid);
+            dist = DIST(dx, dy, sop->pmid.X, sop->ymid);
 
             // (velocity * difference between the target and the object)
             // / distance
@@ -2572,7 +2572,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
         *nx = ((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14;
         *ny = ((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14;
 
-        dist = Distance(sop->xmid, sop->ymid, sop->xmid + *nx, sop->ymid + *ny);
+        dist = Distance(sop->pmid.X, sop->ymid, sop->pmid.X + *nx, sop->ymid + *ny);
         sop->target_dist -= dist;
     }
 }
@@ -2614,7 +2614,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int 
     sop->spin_ang = 0;
     sop->ang = newang;
 
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
+    RefreshPoints(sop, newx - sop->pmid.X, newy - sop->ymid, false);
 }
 
 void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy)
@@ -2625,7 +2625,7 @@ void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy)
 void PlaceSectorObject(SECTOR_OBJECT* sop, int newx, int newy)
 {
     so_setinterpolationtics(sop, synctics);
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
+    RefreshPoints(sop, newx - sop->pmid.X, newy - sop->ymid, false);
 }
 
 void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
@@ -2681,7 +2681,7 @@ void KillSectorObject(SECTOR_OBJECT* sop)
     sop->spin_ang = 0;
     sop->ang = sop->ang_tgt;
 
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
+    RefreshPoints(sop, newx - sop->pmid.X, newy - sop->ymid, false);
 }
 
 
@@ -2732,7 +2732,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
 
     auto cursect = sop->op_main_sector; // for sop->vel
     floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
-    pos.X = sop->xmid;
+    pos.X = sop->pmid.X;
     pos.Y = sop->ymid;
     pos.Z = floor_dist;
 
@@ -2746,7 +2746,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos.X - sop->xmid, pos.Y - sop->ymid, true);
+    RefreshPoints(sop, pos.X - sop->pmid.X, pos.Y - sop->ymid, true);
 }
 
 void DoAutoTurretObject(SECTOR_OBJECT* sop)
@@ -2815,7 +2815,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->ang_tgt = getangle(actor->user.targetActor->spr.pos.X - sop->xmid,  actor->user.targetActor->spr.pos.Y - sop->ymid);
+        sop->ang_tgt = getangle(actor->user.targetActor->spr.pos.X - sop->pmid.X,  actor->user.targetActor->spr.pos.Y - sop->ymid);
 
         // get delta to target angle
         delta_ang = getincangle(sop->ang, sop->ang_tgt);
@@ -2838,7 +2838,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->ang, sop->xmid, sop->ymid, 2*synctics);
+        OperateSectorObjectForTics(sop, sop->ang, sop->pmid.X, sop->ymid, 2*synctics);
     }
 }
 

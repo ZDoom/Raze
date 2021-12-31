@@ -601,7 +601,7 @@ void GameInterface::UpdateSounds(void)
         if (TEST_BOOL1(rsp))
             tang = buildang(rsp->spr.ang);
         else
-            tang = bvectangbam(pp->sop_remote->xmid - pp->pos.X, pp->sop_remote->ymid - pp->pos.Y);
+            tang = bvectangbam(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->ymid - pp->pos.Y);
     }
     else tang = pp->angle.ang;
 

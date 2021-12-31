@@ -106,7 +106,7 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     case soi_floor:
         return *sector[index].floorzptr(!write);
     case soi_sox:
-        return SectorObject[index].xmid;
+        return SectorObject[index].pmid.X;
     case soi_soy:
         return SectorObject[index].ymid;
     case soi_soz:

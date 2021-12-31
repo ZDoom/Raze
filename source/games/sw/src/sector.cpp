@@ -379,7 +379,7 @@ void SectorSetup(void)
         SectorObject[ndx].mid_sector = nullptr;
         SectorObject[ndx].op_main_sector = nullptr;
         SectorObject[ndx].morph_wall_point = nullptr;
-        SectorObject[ndx].xmid = INT32_MAX;
+        SectorObject[ndx].pmid.X = INT32_MAX;
     }
 
     memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
@@ -1071,7 +1071,7 @@ bool TestKillSectorObject(SECTOR_OBJECT* sop)
     {
         KillMatchingCrackSprites(sop->match_event);
         // get new sectnums
-        CollapseSectorObject(sop, sop->xmid, sop->ymid);
+        CollapseSectorObject(sop, sop->pmid.X, sop->ymid);
         DoSpawnSpotsForKill(sop->match_event);
         KillSectorObjectSprites(sop);
         return true;
@@ -2659,7 +2659,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->pos.X, pp->pos.Y, sop->xmid, sop->ymid, dist, a, b, c);
+                DISTANCE(pp->pos.X, pp->pos.Y, sop->pmid.X, sop->ymid, dist, a, b, c);
                 if (dist < min_dist)
                     min_dist = dist;
             }

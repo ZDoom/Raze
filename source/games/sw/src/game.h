@@ -1414,7 +1414,7 @@ struct SECTOR_OBJECT
 
     union
     {
-        struct { int xmid, ymid, zmid; };  // midpoints of the sector object
+        struct { int BLAHBLAHX, ymid, zmid; };  // midpoints of the sector object
         vec3_t pmid;
     };
 
@@ -1570,7 +1570,7 @@ enum
     MAXSO = INT32_MAX
 };
 
-inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->xmid == INT32_MAX); }
+inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == INT32_MAX); }
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 

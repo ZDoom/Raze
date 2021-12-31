@@ -636,7 +636,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			.Array("yorig", w.yorig, def->yorig, w.num_walls)
 			("controller", w.controller, def->controller)
 			("child", w.sp_child, def->sp_child)
-			("xmid", w.xmid, def->xmid)
+			("xmid", w.pmid.X, def->pmid.X)
 			("ymid", w.ymid, def->ymid)
 			("zmid", w.zmid, def->zmid)
 			("vel", w.vel, def->vel)
