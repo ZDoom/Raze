@@ -63,7 +63,7 @@ constexpr int BIT(int shift)
     return 1 << shift;
 }
 
-typedef struct
+struct GAME_SET
 {
     // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
@@ -75,7 +75,7 @@ typedef struct
     uint8_t NetTimeLimit;  // Limit time of game
     uint8_t NetColor;      // Chosen color for player
     bool NetNuke;
-} GAME_SET, * GAME_SETp;
+};
 
 extern const GAME_SET gs_defaults;
 extern GAME_SET gs;
@@ -340,8 +340,6 @@ enum Dir8
     NW      = ORD_NW    * DEGREE_45,
 };
 
-typedef enum Dir8 DIR8;
-
 // Auto building enumerations
 
 #define DIGI_ENUM
@@ -367,22 +365,16 @@ enum dam
 
 
 // Forward declarations
-struct STATEstruct;
-typedef struct STATEstruct STATE, *STATEp, * *STATEpp;
-
-//struct PIC_STATEstruct;
-//typedef struct PIC_STATEstruct PIC_STATE, *PIC_STATEp;
+struct STATE;
+typedef STATE* STATEp;
 
 struct PANEL_STATE;
 
 struct PLAYERstruct;
 typedef struct PLAYERstruct PLAYER, *PLAYERp;
 
-struct PERSONALITYstruct;
-typedef struct PERSONALITYstruct PERSONALITY, *PERSONALITYp;
-
-struct ATTRIBUTEstruct;
-typedef struct ATTRIBUTEstruct ATTRIBUTE, *ATTRIBUTEp;
+struct PERSONALITY;
+struct ATTRIBUTE;
 
 struct SECTOR_OBJECTstruct;
 typedef struct SECTOR_OBJECTstruct SECTOR_OBJECT, *SECTOR_OBJECTp;
@@ -400,13 +392,12 @@ typedef ANIMATOR *ANIMATORp;
 typedef void pANIMATOR (PANEL_SPRITEp);
 typedef pANIMATOR *pANIMATORp;
 
-typedef void soANIMATOR (SECTOR_OBJECTp);
-typedef soANIMATOR *soANIMATORp;
+typedef void (*soANIMATORp) (SECTOR_OBJECTp);
 
 typedef sectortype SECTOR, *SECTORp;
 typedef walltype WALL, *WALLp;
 
-struct STATEstruct
+struct STATE
 {
     short     Pic;
     int       Tics;
@@ -432,7 +423,8 @@ enum
 // Jim's MISC declarations from other files
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
+enum  FOOT_TYPE
+{WATER_FOOT, BLOOD_FOOT};
 
 extern FOOT_TYPE FootMode;
 ANIMATOR QueueFloorBlood;                // Weapon.c
@@ -483,7 +475,7 @@ enum
 };
 //#define WEAP_ENTRY(id, init_func, damage_lo, damage_hi, radius)
 
-typedef struct
+struct DAMAGE_DATA
 {
     void (*Init)(PLAYERp);
     int16_t damage_lo;
@@ -494,7 +486,7 @@ typedef struct
     int16_t with_weapon;
     int16_t weapon_pickup;
     int16_t ammo_pickup;
-} DAMAGE_DATA, *DAMAGE_DATAp;
+};
 
 extern DAMAGE_DATA DamageData[];
 
@@ -589,14 +581,14 @@ typedef void (*PLAYER_ACTION_FUNCp)(PLAYERp);
 
 #include "inv.h"
 
-typedef struct
+struct REMOTE_CONTROL
 {
     sectortype* cursectp, * lastcursectp;
     int pang;
     vec2_t vect, ovect, slide_vect;
     vec3_t pos;
     SECTOR_OBJECTp sop_control;
-} REMOTE_CONTROL, *REMOTE_CONTROLp;
+};
 
 struct PLAYERstruct
 {
@@ -945,8 +937,8 @@ struct USER
 
     ANIMATORp ActorActionFunc;
     ACTOR_ACTION_SET* ActorActionSet;
-    PERSONALITYp Personality;
-    ATTRIBUTEp Attrib;
+    PERSONALITY* Personality;
+    ATTRIBUTE* Attrib;
     SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
@@ -1682,7 +1674,7 @@ int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
-void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITYp person);
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* person);
 
 void getzrangepoint(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
 Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);

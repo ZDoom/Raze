@@ -46,7 +46,6 @@ enum conpic_id
 {
 #include "conpic.h"
 };
-typedef enum conpic_id CONPIC_ID;
 #undef MAKE_CONPIC_ENUM
 
 enum PanelSpriteIDs

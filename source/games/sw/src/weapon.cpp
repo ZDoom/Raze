@@ -5273,7 +5273,7 @@ int PlayerDamageSlide(PLAYERp pp, int damage, short ang)
 
 int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 {
-    DAMAGE_DATAp d = &DamageData[DamageNdx];
+    auto d = &DamageData[DamageNdx];
 
     // if ndx does radius
     if (d->radius > 0 && weapActor)

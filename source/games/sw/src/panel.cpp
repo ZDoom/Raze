@@ -6218,7 +6218,7 @@ void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
     for (cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
     {
         // if the next pointer is the end of the list, insert it
-        if ((LIST) cur->Next == (LIST) &pp->PanelSpriteList)
+        if ((List*) cur->Next == (List*) &pp->PanelSpriteList)
         {
             INSERT(cur, psp);
             return;
@@ -6296,7 +6296,7 @@ void pClearSpriteList(PLAYERp pp)
     PANEL_SPRITEp psp=nullptr, next_psp=nullptr;
     auto l = &pp->PanelSpriteList;
 
-    for (psp = l->Next; next_psp = psp->Next, (LIST)psp != (LIST)l; psp = next_psp)
+    for (psp = l->Next; next_psp = psp->Next, (List*)psp != (List*)l; psp = next_psp)
     {
         if (psp->Next == nullptr || psp->Prev == nullptr) return; // this can happen when cleaning up a fatal error.
         pKillSprite(psp);

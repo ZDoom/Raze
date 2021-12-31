@@ -187,12 +187,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SET*&
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ACTOR_ACTION_SET));
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PERSONALITYp& w, PERSONALITYp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PERSONALITY*& w, PERSONALITY** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PERSONALITY));
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTEp& w, ATTRIBUTEp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTE*& w, ATTRIBUTE** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ATTRIBUTE));
 }
@@ -219,7 +219,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEp& w, 
 				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
 				{
 					// special case for pointing to the list head
-					if ((LIST)w == (LIST)&Player[i].PanelSpriteList)
+					if ((List*)w == (List*)&Player[i].PanelSpriteList)
 					{
 						idx = 1000'0000 + i;
 						break;

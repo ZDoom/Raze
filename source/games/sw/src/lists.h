@@ -32,23 +32,22 @@ BEGIN_SW_NS
 
 /********************************************************************/
 
-typedef
-    struct List
+struct List
 {
     struct List *Next;
     struct List *Prev;
-} LISTHEAD, *LIST;
+};
 
 inline void INITLIST(void* listp)
 {
-    LIST list = (LIST)listp;
+    List* list = (List*)listp;
     list->Prev = list->Next = list;
 }
 
 inline void INSERT(void* listp, void* nodepp)
 {
-    LIST list = (LIST)listp;
-    LIST nodep = (LIST)nodepp;
+    List* list = (List*)listp;
+    List* nodep = (List*)nodepp;
     nodep->Prev = list;
     nodep->Next = list->Next;
     list->Next = nodep;
@@ -63,7 +62,7 @@ inline void REMOVE(PANEL_SPRITEp nodep)
 
 inline bool EMPTY(void* listp)
 {
-    LIST list = (LIST)listp;
+    List* list = (List*)listp;
     return list->Next == list;
 }
 

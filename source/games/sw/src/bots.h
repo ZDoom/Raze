@@ -34,11 +34,11 @@ BEGIN_SW_NS
 
 // BOT DEFINITIONS AND STRUCTURES
 
-typedef enum
+enum BOT_Actions
 {
     BOTstand, BOThide, BOTrun, BOTduck, BOTjump, BOTstrafe, BOTshoot, BOTuseinv,
     BOTopen, BOTswimup, BOTswimdown, BOTturn, BOTuserts
-} BOT_Actions;
+};
 
 // Linked lists containing node trees that are chosen based on desired actions
 

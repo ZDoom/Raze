@@ -37,7 +37,7 @@ struct DECISION
 };
 
 // Personality structure
-struct PERSONALITYstruct
+struct PERSONALITY
 {
     DECISION* Battle;
     DECISION* Offense;
@@ -51,15 +51,14 @@ struct PERSONALITYstruct
 
 enum ActorStates { SLOW_SPEED, NORM_SPEED, MID_SPEED, FAST_SPEED, MAX_SPEED};
 
-#define MAXATTRIBSNDS   11
-typedef enum
+enum ATTRIB_SNDS
 {
     attr_ambient, attr_alert, attr_attack, attr_pain, attr_die,
     attr_extra1, attr_extra2, attr_extra3,attr_extra4,attr_extra5,
-    attr_extra6
-} ATTRIB_SNDS;
+    attr_extra6, MAXATTRIBSNDS
+};
 
-struct ATTRIBUTEstruct
+struct ATTRIBUTE
 {
     int16_t Speed[MAX_SPEED];
     int8_t TicAdjust[MAX_SPEED];
