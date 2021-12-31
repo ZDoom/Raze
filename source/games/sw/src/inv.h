@@ -26,37 +26,37 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 enum InventoryNames
 {
-    INVENTORY_MEDKIT,
-    INVENTORY_REPAIR_KIT,
-    INVENTORY_CLOAK,        // de-cloak when firing
-    INVENTORY_NIGHT_VISION,
-    INVENTORY_CHEMBOMB,
-    INVENTORY_FLASHBOMB,
-    INVENTORY_CALTROPS,
-    MAX_INVENTORY
+	INVENTORY_MEDKIT,
+	INVENTORY_REPAIR_KIT,
+	INVENTORY_CLOAK,        // de-cloak when firing
+	INVENTORY_NIGHT_VISION,
+	INVENTORY_CHEMBOMB,
+	INVENTORY_FLASHBOMB,
+	INVENTORY_CALTROPS,
+	MAX_INVENTORY
 };
 
-typedef struct
+struct INVENTORY_DATA
 {
-    const char *Name;
-    void (*Init)(PLAYERp);
-    void (*Stop)(PLAYERp, short);
-    short DecPerSec;
-    short MaxInv;
-    int  Scale;
-    short Flags;
-} INVENTORY_DATA, *INVENTORY_DATAp;
+	const char* Name;
+	void (*Init)(PLAYERp);
+	void (*Stop)(PLAYERp, short);
+	short DecPerSec;
+	short MaxInv;
+	int  Scale;
+	short Flags;
+};
 
-extern INVENTORY_DATA InventoryData[MAX_INVENTORY+1];
+extern INVENTORY_DATA InventoryData[MAX_INVENTORY + 1];
 
 enum EInvFlags
 {
-    INVF_AUTO_USE = 1,
-    INVF_TIMED = 2,
-    INVF_COUNT = 4
+	INVF_AUTO_USE = 1,
+	INVF_TIMED = 2,
+	INVF_COUNT = 4
 };
 
-void PlayerUpdateInventory(PLAYERp pp,short InventoryNum);
+void PlayerUpdateInventory(PLAYERp pp, short InventoryNum);
 void InventoryKeys(PLAYERp pp);
 void UseInventoryRepairKit(PLAYERp pp);
 void InventoryTimer(PLAYERp pp);

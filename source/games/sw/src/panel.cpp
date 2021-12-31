@@ -58,17 +58,12 @@ int InitGrenade(PLAYERp pp);
 int InitMine(PLAYERp pp);
 int InitFistAttack(PLAYERp pp);
 
-#define PANF_UZI_XFLIP (BIT(21))
-
-#define XDIM 320
-#define YDIM 200
-
-typedef struct
+struct PANEL_SHRAP
 {
     short xoff, yoff, skip;
     int lo_jump_speed, hi_jump_speed, lo_xspeed, hi_xspeed;
     PANEL_STATE* state[2];
-} PANEL_SHRAP, *PANEL_SHRAPp;
+};
 
 void PanelInvTestSuicide(PANEL_SPRITEp psp);
 
@@ -4590,7 +4585,7 @@ void SpawnHeartBlood(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
     PANEL_SPRITEp blood;
-    PANEL_SHRAPp hsp;
+    PANEL_SHRAP* hsp;
 
     static PANEL_SHRAP HeartShrap[] =
     {
@@ -4629,7 +4624,7 @@ void SpawnSmallHeartBlood(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
     PANEL_SPRITEp blood;
-    PANEL_SHRAPp hsp;
+    PANEL_SHRAP* hsp;
 
     static PANEL_SHRAP HeartShrap[] =
     {

@@ -493,7 +493,7 @@ void InventoryTimer(PLAYERp pp)
 {
     // called every time through loop
     short inv = 0;
-    INVENTORY_DATAp id;
+    INVENTORY_DATA* id;
 
     // if bar is up
     if (pp->InventoryBarTics)
@@ -569,7 +569,7 @@ void InventoryTimer(PLAYERp pp)
 
 void InventoryUse(PLAYERp pp)
 {
-    INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
+    INVENTORY_DATA* id = &InventoryData[pp->InventoryNum];
 
     if (id->Init)
         (*id->Init)(pp);
@@ -577,7 +577,7 @@ void InventoryUse(PLAYERp pp)
 
 void InventoryStop(PLAYERp pp, short InventoryNum)
 {
-    INVENTORY_DATAp id = &InventoryData[InventoryNum];
+    INVENTORY_DATA* id = &InventoryData[InventoryNum];
 
     if (id->Stop)
         (*id->Stop)(pp, InventoryNum);

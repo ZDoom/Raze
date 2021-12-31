@@ -26,9 +26,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 BEGIN_SW_NS
 
-#define SYNC_TEST 0
-#define MAXSYNCBYTES 16
-
+enum
+{
+    SYNC_TEST = 0,
+    MAXSYNCBYTES = 16
+};
 extern bool PredictionOn;
 extern PLAYER PredictPlayer;
 extern PLAYERp ppp;
@@ -55,7 +57,7 @@ enum MultiGameTypes
 // global net vars
 // not saved in .CFG file
 // used for current game
-typedef struct
+struct gNET
 {
     int32_t KillLimit;
     int32_t TimeLimit;
@@ -67,7 +69,7 @@ typedef struct
     bool AutoAim;
     bool NoRespawn; // for commbat type games
     bool Nuke;
-} gNET,*gNETp;
+};
 
 extern gNET gNet;
 

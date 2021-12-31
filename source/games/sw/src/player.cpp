@@ -7217,7 +7217,7 @@ DEFINE_ACTION_FUNCTION(_SW, InventoryFlags)
 {
     PARAM_PROLOGUE;
     PARAM_INT(inv);
-    INVENTORY_DATAp id = &InventoryData[inv];
+    INVENTORY_DATA* id = &InventoryData[inv];
     ACTION_RETURN_INT(id->Flags);
 }
 
