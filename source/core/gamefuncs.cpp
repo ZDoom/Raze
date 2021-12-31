@@ -402,6 +402,51 @@ void dragpoint(walltype* startwall, int newx, int newy)
 
 //==========================================================================
 //
+// 
+//
+//==========================================================================
+
+tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
+{
+	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
+	auto tspr = &tsprite[spritesortcnt++];
+
+	tspr->pos = actor->spr.pos;
+	tspr->cstat = actor->spr.cstat;
+	tspr->picnum = actor->spr.picnum;
+	tspr->shade = actor->spr.shade;
+	tspr->pal = actor->spr.pal;
+	tspr->clipdist = 0;
+	tspr->blend = actor->spr.blend;
+	tspr->xrepeat = actor->spr.xrepeat;
+	tspr->yrepeat = actor->spr.yrepeat;
+	tspr->xoffset = actor->spr.xoffset;
+	tspr->yoffset = actor->spr.yoffset;
+	tspr->sectp = actor->spr.sectp;
+	tspr->statnum = actor->spr.statnum;
+	tspr->ang = actor->spr.ang;
+	tspr->xvel = actor->spr.xvel;
+	tspr->yvel = actor->spr.yvel;
+	tspr->zvel = actor->spr.zvel;
+	tspr->lotag = actor->spr.lotag;
+	tspr->hitag = actor->spr.hitag;
+	tspr->extra = actor->spr.extra;
+	tspr->time = actor->spr.time;
+	tspr->ownerActor = actor;
+
+	// need to copy the slope sprite flag around because for tsprites the bit combination means 'voxel'.
+	if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
+	{
+		tspr->cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
+		tspr->clipdist |= TSPR_SLOPESPRITE;
+	}
+
+	return tspr;
+}
+
+
+//==========================================================================
+//
 // vector serializers
 //
 //==========================================================================

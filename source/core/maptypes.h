@@ -470,41 +470,6 @@ struct spritetype : public spritetypebase
 struct tspritetype : public spritetypebase
 {
 	DCoreActor* ownerActor;
-
-	void copyfrom(spritetype* spr)
-	{
-		pos = spr->pos;
-		cstat = spr->cstat;
-		picnum = spr->picnum;
-		shade = spr->shade;
-		pal = spr->pal;
-		clipdist = 0;
-		blend = spr->blend;
-		xrepeat = spr->xrepeat;
-		yrepeat = spr->yrepeat;
-		xoffset = spr->xoffset;
-		yoffset = spr->yoffset;
-		sectp = spr->sectp;
-		statnum = spr->statnum;
-		ang = spr->ang;
-		xvel = spr->xvel;
-		yvel = spr->yvel;
-		zvel = spr->zvel;
-		lotag = spr->lotag;
-		hitag = spr->hitag;
-		extra = spr->extra;
-		time = spr->time;
-		ownerActor = nullptr;
-
-		// need to copy the slope sprite flag around because for tsprites the bit combination means 'voxel'.
-		if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
-		{
-			cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
-			clipdist |= TSPR_SLOPESPRITE;
-		}
-
-	}
-
 };
 
 extern TArray<sectortype> sector;
