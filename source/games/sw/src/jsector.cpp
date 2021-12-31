@@ -70,7 +70,7 @@ bool bAutoSize = true;                  // Autosizing on/off
 extern AMB_INFO ambarray[];
 extern short NormalVisibility;
 
-extern ParentalStruct aVoxelArray[MAXTILES];
+extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
 
 // F U N C T I O N S //////////////////////////////////////////////////////////////////////////////
 

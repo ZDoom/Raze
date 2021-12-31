@@ -29,13 +29,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define INVISTILE 6145
-
-typedef struct TILE_INFO_TYPE
+struct TILE_INFO_TYPE
 {
     short Voxel;    // Voxel Number to replace sprites with
     // 0 = Invisible
-} ParentalStruct;
+};
 
 END_SW_NS
 

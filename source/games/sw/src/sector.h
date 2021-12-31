@@ -56,13 +56,13 @@ enum SO_SCALE_TYPE
 
 #define SCALE_POINT_SPEED (4 + RandomRange(8))
 
-typedef struct
+struct NEAR_TAG_INFO
 {
     int dist;
     sectortype* sectp;
     walltype* wallp;
     DSWActor* actor;
-} NEAR_TAG_INFO, *NEAR_TAG_INFOp;
+};
 extern short nti_cnt;
 
 void DoSpawnSpotsForKill(short match);

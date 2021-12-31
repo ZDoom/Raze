@@ -42,13 +42,13 @@ PLAYER PredictPlayer;
 //USER PredictUser;
 PLAYERp ppp = &PredictPlayer;
 
-typedef struct
+struct PREDICT
 {
     int x,y,z;
     binangle ang;
     fixedhoriz horiz;
     short filler;
-} PREDICT, *PREDICTp;
+};
 
 PREDICT Predict[/*MOVEFIFOSIZ*/256];
 int predictmovefifoplc;
@@ -123,7 +123,7 @@ void DoPrediction(PLAYERp ppp)
 void CorrectPrediction(int actualfifoplc)
 {
 #if 0
-    PREDICTp predict = &Predict[actualfifoplc & (MOVEFIFOSIZ-1)];
+    PREDICT* predict = &Predict[actualfifoplc & (MOVEFIFOSIZ-1)];
 
     if (!PredictionOn)
         return;

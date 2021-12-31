@@ -69,7 +69,7 @@ extern bool Voxel;
 bool DrawScreen;
 extern int f_c;
 
-extern ParentalStruct aVoxelArray[MAXTILES];
+extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
 
 void PreDrawStackedWater(void);
 

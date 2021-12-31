@@ -2009,7 +2009,7 @@ bool NearThings(PLAYERp pp)
 
 short nti_cnt;
 
-void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
+void NearTagList(NEAR_TAG_INFO* ntip, PLAYERp pp, int z, int dist, int type, int count)
 {
     short save_lotag, save_hitag;
     HitInfo near;
@@ -2111,7 +2111,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     }
 }
 
-void BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;

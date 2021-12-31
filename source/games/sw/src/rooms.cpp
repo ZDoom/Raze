@@ -44,15 +44,15 @@ void SW_FloorPortalHack(DSWActor* actor, int z, int match);
 void SW_CeilingPortalHack(DSWActor* actor, int z, int match);
 
 
-#define ZMAX 400
-typedef struct
+enum { ZMAX = 400 };
+struct SAVE
 {
     sectortype* sect[ZMAX];
     int32_t zval[ZMAX];
     int16_t pic[ZMAX];
     int16_t zcount;
     int16_t slope[ZMAX];
-} SAVE, *SAVEp;
+};
 
 SAVE save;
 
