@@ -48,7 +48,7 @@
 #include "findfile.h"
 #include "engineerrors.h"
 
-static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
+static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7", ".rff"};
 
 int g_gameType;
 
@@ -797,11 +797,28 @@ TArray<GrpEntry> GrpScan()
 							}
 							if (ok)
 							{
-								// got a match
-								foundGames.Reserve(1);
-								auto& fg = foundGames.Last();
-								fg.FileInfo = *grp;
-								fg.FileName = fe->FileName;
+								auto checkCRC = [&]() ->bool
+								{
+									for (auto& g : allGroups)
+									{
+										if (fe->FileLength == g.size)
+										{
+											GetCRC(fe, cachedCRCs);
+											if (fe->CRCValue == g.CRC)
+												return true;
+										}
+									}
+									return false;
+								};
+
+								if (!checkCRC())	// ignore if the file matches a known entry.
+								{
+									// got a match
+									foundGames.Reserve(1);
+									auto& fg = foundGames.Last();
+									fg.FileInfo = *grp;
+									fg.FileName = fe->FileName;
+								}
 								break;
 							}
 						}
