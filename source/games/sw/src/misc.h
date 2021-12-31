@@ -38,7 +38,7 @@ void PlaceSectorObjectsOnTracks(void);
 void PlaceActorsOnTracks(void);
 void SetupSectorObject(sectortype* sect, short tag);
 void PostSetupSectorObject(void);
-void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator);
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny);
 void KillSectorObjectSprites(SECTOR_OBJECT* sop);
 void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics);

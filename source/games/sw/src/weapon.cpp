@@ -55,7 +55,7 @@ struct MISSILE_PLACEMENT
 void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYER*);
-void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator);
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 ANIMATOR DoBettyBeginDeath;
 ANIMATOR DoSkullBeginDeath;
 ANIMATOR DoRipperGrow;
@@ -11060,7 +11060,7 @@ int DoMirv(DSWActor* actor)
     return false;
 }
 
-bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
+bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 {
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
@@ -11101,7 +11101,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist)
     return retval;
 }
 
-bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
+bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 {
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;

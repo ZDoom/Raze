@@ -33,7 +33,7 @@ BEGIN_SW_NS
 struct DECISION
 {
     int range;
-    ANIMATORp action;
+    ANIMATOR* action;
 };
 
 // Personality structure

@@ -43,7 +43,7 @@ BEGIN_SW_NS
 ANIMATOR InitActorRunToward;
 bool DropAhead(DSWActor* actor, int  min_height);
 
-ANIMATORp ChooseAction(DECISION decision[]);
+ANIMATOR* ChooseAction(DECISION decision[]);
 
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
@@ -130,7 +130,7 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
   goro.c etc.
 */
 
-ANIMATORp ChooseAction(DECISION decision[])
+ANIMATOR* ChooseAction(DECISION decision[])
 {
     // !JIM! Here is an opportunity for some AI, instead of randomness!
     int random_value = RANDOM_P2(1024<<5)>>5;
@@ -163,7 +163,7 @@ int ChooseActionNumber(int16_t decision[])
     }
 }
 
-int DoActorNoise(ANIMATORp Action, DSWActor* actor)
+int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
 {
     if (Action == InitActorAmbientNoise)
     {
@@ -473,10 +473,10 @@ DECISION GenericFlaming[] =
  do anymore and then this routine is called again.
 */
 
-ANIMATORp DoActorActionDecide(DSWActor* actor)
+ANIMATOR* DoActorActionDecide(DSWActor* actor)
 {
     int dist;
-    ANIMATORp action;
+    ANIMATOR* action;
     bool ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
@@ -655,7 +655,7 @@ int InitActorDecide(DSWActor* actor)
 
 int DoActorDecide(DSWActor* actor)
 {
-    ANIMATORp actor_action;
+    ANIMATOR* actor_action;
 
     // See what to do next
     actor_action = DoActorActionDecide(actor);

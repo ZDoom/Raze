@@ -2628,7 +2628,7 @@ void PlaceSectorObject(SECTOR_OBJECT* sop, int newx, int newy)
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
-void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator)
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
 {
     sectortype* *sectp;
 

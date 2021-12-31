@@ -373,11 +373,9 @@ struct ATTRIBUTE;
 struct SECTOR_OBJECT;
 struct PANEL_SPRITE;
 struct ANIM;
-
 class DSWActor;
-typedef int ANIMATOR (DSWActor* actor);
-typedef ANIMATOR *ANIMATORp;
 
+typedef int ANIMATOR (DSWActor* actor);
 typedef void pANIMATOR (PANEL_SPRITE*);
 typedef void (*soANIMATORp) (SECTOR_OBJECT*);
 
@@ -385,7 +383,7 @@ struct STATE
 {
     short     Pic;
     int       Tics;
-    ANIMATORp Animator;
+    ANIMATOR* Animator;
 
     STATE*   NextState;
 };
@@ -919,7 +917,7 @@ struct USER
     STATE* StateEnd;
     STATE* *StateFallOverride; // a bit kludgy - override std fall state
 
-    ANIMATORp ActorActionFunc;
+    ANIMATOR* ActorActionFunc;
     ACTOR_ACTION_SET* ActorActionSet;
     PERSONALITY* Personality;
     ATTRIBUTE* Attrib;
