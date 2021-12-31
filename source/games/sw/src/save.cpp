@@ -637,7 +637,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("controller", w.controller, def->controller)
 			("child", w.sp_child, def->sp_child)
 			("xmid", w.pmid.X, def->pmid.X)
-			("ymid", w.ymid, def->ymid)
+			("ymid", w.pmid.Y, def->pmid.Y)
 			("zmid", w.zmid, def->zmid)
 			("vel", w.vel, def->vel)
 			("vel_tgt", w.vel_tgt, def->vel_tgt)

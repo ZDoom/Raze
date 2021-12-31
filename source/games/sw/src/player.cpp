@@ -1562,7 +1562,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         pp->actor->spr.ang = pp->angle.ang.asbuild();
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->pmid.X, pp->sop->ymid);
+    OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->pmid.X, pp->sop->pmid.Y);
 }
 
 void SlipSlope(PLAYER* pp)
@@ -2577,7 +2577,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                     y[count] = wal.pos.Y;
 
                     ox[count] = sop->pmid.X - sop->xorig[wallcount];
-                    oy[count] = sop->ymid - sop->yorig[wallcount];
+                    oy[count] = sop->pmid.Y - sop->yorig[wallcount];
 
                     count++;
                 }
@@ -4827,7 +4827,7 @@ void FindMainSector(SECTOR_OBJECT* sop)
     if (sop->op_main_sector == nullptr)
     {
         int sx = sop->pmid.X;
-        int sy = sop->ymid;
+        int sy = sop->pmid.Y;
 
         PlaceSectorObject(sop, MAXSO, MAXSO);
 
@@ -4908,7 +4908,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
 
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->pos.X = sop->pmid.X;
-    pp->pos.Y = sop->ymid;
+    pp->pos.Y = sop->pmid.Y;
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
@@ -4993,7 +4993,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->pos.X = sop->pmid.X;
-    pp->pos.Y = sop->ymid;
+    pp->pos.Y = sop->pmid.Y;
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
@@ -5116,7 +5116,7 @@ void DoPlayerStopOperate(PLAYER* pp)
         if (TEST_BOOL1(rsp))
             pp->angle.ang = pp->angle.oang = buildang(rsp->spr.ang);
         else
-            pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->ymid - pp->pos.Y);
+            pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }
 
     if (pp->sop_control)

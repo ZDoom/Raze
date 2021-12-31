@@ -108,7 +108,7 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     case soi_sox:
         return SectorObject[index].pmid.X;
     case soi_soy:
-        return SectorObject[index].ymid;
+        return SectorObject[index].pmid.Y;
     case soi_soz:
         return SectorObject[index].zmid;
     case soi_sprx:

@@ -1071,7 +1071,7 @@ bool TestKillSectorObject(SECTOR_OBJECT* sop)
     {
         KillMatchingCrackSprites(sop->match_event);
         // get new sectnums
-        CollapseSectorObject(sop, sop->pmid.X, sop->ymid);
+        CollapseSectorObject(sop, sop->pmid.X, sop->pmid.Y);
         DoSpawnSpotsForKill(sop->match_event);
         KillSectorObjectSprites(sop);
         return true;
@@ -2659,7 +2659,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->pos.X, pp->pos.Y, sop->pmid.X, sop->ymid, dist, a, b, c);
+                DISTANCE(pp->pos.X, pp->pos.Y, sop->pmid.X, sop->pmid.Y, dist, a, b, c);
                 if (dist < min_dist)
                     min_dist = dist;
             }

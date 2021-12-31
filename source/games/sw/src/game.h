@@ -1414,7 +1414,7 @@ struct SECTOR_OBJECT
 
     union
     {
-        struct { int BLAHBLAHX, ymid, zmid; };  // midpoints of the sector object
+        struct { int BLAHBLAHX, BLAHBLAHY, zmid; };  // midpoints of the sector object
         vec3_t pmid;
     };
 

@@ -1464,7 +1464,7 @@ void drawscreen(PLAYER* pp, double smoothratio)
         if (TEST_BOOL1(ractor))
             tang = buildang(ractor->spr.ang);
         else
-            tang = bvectangbam(pp->sop_remote->pmid.X - tx, pp->sop_remote->ymid - ty);
+            tang = bvectangbam(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
