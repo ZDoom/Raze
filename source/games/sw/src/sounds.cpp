@@ -627,7 +627,7 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
@@ -771,7 +771,7 @@ void Terminate3DSounds(void)
 //
 //==========================================================================
 
-void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
+void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags)
 {
     if (actor->hasU())
         PlaySound(actor->user.Attrib->Sounds[attrib_ndx], actor, flags);
@@ -979,7 +979,7 @@ DEFINE_ACTION_FUNCTION(_SW, PlaySound)
     PARAM_INT(vflags);
     PARAM_INT(channel);
     PARAM_INT(cflags);
-    PlaySound(sound, Voc3D_Flags(vflags), channel, EChanFlags::FromInt(cflags));
+    PlaySound(sound, vflags, channel, EChanFlags::FromInt(cflags));
     return 0;
 }
 

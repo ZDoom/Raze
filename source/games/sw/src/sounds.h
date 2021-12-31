@@ -58,7 +58,6 @@ enum
     // This is mainly used for intermittent sounds
     v3df_nolookup   = 128,   // don't use ambient table lookup
 };
-typedef int Voc3D_Flags;
 
 struct VOCstruct;
 
@@ -66,7 +65,7 @@ void Terminate3DSounds(void);
 
 class DSWActor;
 
-void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags);
+void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags);
 void DeleteNoSoundOwner(DSWActor* actor);
 void DeleteNoFollowSoundOwner(DSWActor*);
 
@@ -86,7 +85,7 @@ struct AMB_INFO
 {
     int16_t name;
     int16_t diginame;
-    Voc3D_Flags ambient_flags;
+    int ambient_flags;
     int maxtics;                       // When tics reaches this number next
     // sound happens
 };
