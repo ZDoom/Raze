@@ -82,7 +82,7 @@ INVENTORY_DATA InventoryData[MAX_INVENTORY+1] =
     {nullptr, nullptr, nullptr, 0, 0, 0, 0}
 };
 
-void PanelInvTestSuicide(PANEL_SPRITEp psp)
+void PanelInvTestSuicide(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_SUICIDE))
     {

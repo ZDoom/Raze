@@ -204,9 +204,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTE*& w, ATT
 //---------------------------------------------------------------------------
 
 // Temporary array to serialize the panel sprites.
-static TArray<PANEL_SPRITEp> pspAsArray;
+static TArray<PANEL_SPRITE*> pspAsArray;
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEp& w, PANEL_SPRITEp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, PANEL_SPRITE** def)
 {
 	unsigned idx = ~0u;
 	if (arc.isWriting())
@@ -237,7 +237,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEp& w, 
 		arc(keyname, ndx);
 
 		if (ndx == ~0u) w = nullptr;
-		else if (ndx >= 1000'0000) w = (PANEL_SPRITEp)&Player[ndx - 1000'0000].PanelSpriteList;
+		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&Player[ndx - 1000'0000].PanelSpriteList;
 		else if ((unsigned)ndx >= pspAsArray.Size())
 			I_Error("Bad panel sprite index in savegame");
 		else w = pspAsArray[ndx];
@@ -260,7 +260,7 @@ void preSerializePanelSprites(FSerializer& arc)
 		pspAsArray.Resize(siz);
 		for (unsigned i = 0; i < siz; i++)
 		{
-			pspAsArray[i] = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
+			pspAsArray[i] = (PANEL_SPRITE*)CallocMem(sizeof(PANEL_SPRITE), 1);
 		}
 	}
 }

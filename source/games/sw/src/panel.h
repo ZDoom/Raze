@@ -59,7 +59,7 @@ struct PANEL_STATE
 {
 	short picndx;                       // for pip stuff in conpic.h
 	int tics;
-	void (*Animator)(PANEL_SPRITEp);    // JBF: return type was long
+	void (*Animator)(PANEL_SPRITE*);    // JBF: return type was long
 	PANEL_STATE* NextState;
 	uint32_t flags;
 	uint8_t xvel;
@@ -92,7 +92,7 @@ enum
 	PANF_DRAW_BEFORE_VIEW = (BIT(30)), // draw before drawrooms
 };
 
-typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITEp);
+typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITE*);
 
 struct PANEL_SPRITE_OVERLAY
 {
@@ -190,14 +190,14 @@ enum
 };
 
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATE* state, uint8_t priority, double x, double y);
-void pSetSuicide(PANEL_SPRITEp psp);
+PANEL_SPRITE* pSpawnSprite(PLAYERp pp, PANEL_STATE* state, uint8_t priority, double x, double y);
+void pSetSuicide(PANEL_SPRITE* psp);
 bool pKillScreenSpiteIDs(PLAYERp pp, short id);
 void PreUpdatePanel(double smoothratio);
 void UpdatePanel(double smoothratio);
 void PlayerUpdateArmor(PLAYERp pp,short value);
 void pToggleCrosshair(void);
-void pKillSprite(PANEL_SPRITEp psp);
+void pKillSprite(PANEL_SPRITE* psp);
 void InitChops(PLAYERp pp);
 void ChopsSetRetract(PLAYERp pp);
 

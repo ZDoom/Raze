@@ -1103,7 +1103,7 @@ int SetVisNorm(void)
     return 0;
 }
 
-void pSetVisNorm(PANEL_SPRITEp psp)
+void pSetVisNorm(PANEL_SPRITE* psp)
 {
 //    SetVisNorm();
 }

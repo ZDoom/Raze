@@ -54,7 +54,7 @@ inline void INSERT(void* listp, void* nodepp)
     nodep->Next->Prev = nodep;
 }
 
-inline void REMOVE(PANEL_SPRITEp nodep)
+inline void REMOVE(PANEL_SPRITE* nodep)
 {
     nodep->Prev->Next = nodep->Next;
     nodep->Next->Prev = nodep->Prev;

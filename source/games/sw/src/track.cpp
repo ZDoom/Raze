@@ -2079,7 +2079,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     }
 }
 
-void CallbackSOsink(ANIMp ap, void *data)
+void CallbackSOsink(ANIM* ap, void *data)
 {
     SECTOR_OBJECTp sop;
     int i, ndx;

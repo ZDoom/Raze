@@ -380,15 +380,13 @@ struct SECTOR_OBJECTstruct;
 typedef struct SECTOR_OBJECTstruct SECTOR_OBJECT, *SECTOR_OBJECTp;
 
 struct PANEL_SPRITE;
-typedef struct PANEL_SPRITE *PANEL_SPRITEp;
-
 struct ANIM;
 
 class DSWActor;
 typedef int ANIMATOR (DSWActor* actor);
 typedef ANIMATOR *ANIMATORp;
 
-typedef void pANIMATOR (PANEL_SPRITEp);
+typedef void pANIMATOR (PANEL_SPRITE*);
 typedef void (*soANIMATORp) (SECTOR_OBJECTp);
 
 struct STATE
@@ -675,15 +673,15 @@ struct PLAYERstruct
 
     struct
     {
-        PANEL_SPRITEp Next, Prev;
+        PANEL_SPRITE* Next, *Prev;
     } PanelSpriteList;
 
     // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
     // The list uses itself as sentinel element despite the type mismatch.
-    PANEL_SPRITEp GetPanelSpriteList()
+    PANEL_SPRITE* GetPanelSpriteList()
     {
         void* p = &PanelSpriteList;
-        return reinterpret_cast<PANEL_SPRITEp>(p);
+        return reinterpret_cast<PANEL_SPRITE*>(p);
     }
 
     // Key stuff
@@ -695,9 +693,9 @@ struct PLAYERstruct
     int WpnFlags;
     int16_t WpnAmmo[MAX_WEAPONS];
     int16_t WpnNum;
-    PANEL_SPRITEp CurWpn;
-    PANEL_SPRITEp Wpn[MAX_WEAPONS];
-    PANEL_SPRITEp Chops;
+    PANEL_SPRITE* CurWpn;
+    PANEL_SPRITE* Wpn[MAX_WEAPONS];
+    PANEL_SPRITE* Chops;
     uint8_t WpnRocketType; // rocket type
     uint8_t WpnRocketHeat; // 5 to 0 range
     uint8_t WpnRocketNuke; // 1, you have it, or you don't
