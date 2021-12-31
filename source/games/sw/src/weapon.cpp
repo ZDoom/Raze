@@ -3037,7 +3037,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
-    static SHRAPp FireballExpShrap[] =
+    static SHRAP* FireballExpShrap[] =
     {
         FireballExpShrap1,
         FireballExpShrap2
@@ -3144,7 +3144,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     int hz[3];
     short dang = 0;
 
-    SHRAPp p = SmallGore;
+    SHRAP* p = SmallGore;
     short shrap_shade = -15;
     short shrap_xsize = 48, shrap_ysize = 48;
     short retval = true;
@@ -3977,7 +3977,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
     short dang = 0;
 
-    SHRAPp p = UziBlood;
+    SHRAP* p = UziBlood;
     short shrap_shade = -15;
     short shrap_xsize = 20, shrap_ysize = 20;
     short retval = true;

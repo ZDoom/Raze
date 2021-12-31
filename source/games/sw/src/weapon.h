@@ -200,13 +200,13 @@ int InitBunnyRocket(PLAYERp pp);
 int GetDamage(DSWActor*, DSWActor*, int DamageNdx);
 int DoFlamesDamageTest(DSWActor*);
 
-typedef struct
+struct SHRAP
 {
     STATEp state;
     short id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel, random_disperse, ang_range;
     // state, id, num, min_jspeed, max_jspeed, min_vel, max_vel, size,
     // random_disperse, ang_range
-} SHRAP, *SHRAPp;
+};
 
 enum ShrapPos
 {

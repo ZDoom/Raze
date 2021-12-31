@@ -1402,10 +1402,10 @@ void PreMapCombineFloors(void)
     int dx, dy;
     short pnum;
 
-    typedef struct
+    struct BOUND_LIST
     {
         DSWActor* offset;
-    } BOUND_LIST;
+    };
 
     BOUND_LIST BoundList[MAX_FLOORS];
 
