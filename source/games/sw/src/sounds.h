@@ -61,14 +61,6 @@ enum
 typedef int Voc3D_Flags;
 
 struct VOCstruct;
-typedef struct VOCstruct VOC_INFO, *VOC_INFOp;
-#if 0
-struct VOC3Dstruct;
-typedef struct VOC3Dstruct VOC3D_INFO, *VOC3D_INFOp;
-#endif
-struct ambientstruct;
-typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
-
 
 void Terminate3DSounds(void);
 
@@ -89,23 +81,8 @@ void StopAmbientSound(void);
 bool PlaySong(const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
 void PlaySoundRTS(int rts_num);
 
-//
-// Standard VOC format information - generally don't need this
-//
-
-typedef struct
-{
-    uint8_t filler[0x1a];
-    uint8_t type;
-    uint32_t length;
-    uint8_t filler2;
-    uint8_t freq;
-    uint8_t pack;
-    uint8_t data[1];
-} *VOC_HDRp;
-
 // Ambient Sound Structure
-struct ambientstruct
+struct AMB_INFO
 {
     int16_t name;
     int16_t diginame;
@@ -120,15 +97,11 @@ enum
     vf_normal = 0,
     vf_loop = 1
 };
-typedef int Voc_Flags;
 
 //
 // Table that describes the voc file and how it will be played
 // Can be easily extended, but you may need to change digi.h
 //
-
-//struct STATEstruct;
-//typedef struct VOCstruct VOC_INFO, *VOC_INFOp;
 
 struct VOCstruct
 {
@@ -140,13 +113,13 @@ struct VOCstruct
     uint8_t priority;                      // priority at which vocs are played
     int16_t voc_num;                      // Backward reference to parent sound
     int voc_distance;                   // Sound's distance effectiveness
-    Voc_Flags voc_flags;                // Various allowable flag settings for voc
+    int voc_flags;                // Various allowable flag settings for voc
     uint16_t lock;                          // locking byte for caching
     uint8_t playing;                       // number of this type of sound currently playing
 };
 
 
-extern VOC_INFO voc[];
+extern VOCstruct voc[];
 
 END_SW_NS
 

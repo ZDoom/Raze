@@ -71,7 +71,7 @@ int PLocked_Sounds[] =
 //
 
 #define DIGI_TABLE
-VOC_INFO voc[] =
+VOCstruct voc[] =
 {
 #include "digi.h"
 };
@@ -237,7 +237,7 @@ void StopAmbientSound(void)
 
 void InitAmbient(int num, DSWActor* actor)
 {
-    VOC_INFOp vp;
+    VOCstruct* vp;
     int pitch = 0;
     short angle, sound_dist;
     int tx, ty, tz;
@@ -786,7 +786,7 @@ void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
 int _PlayerSound(int num, PLAYERp pp)
 {
     int handle;
-    VOC_INFOp vp;
+    VOCstruct* vp;
 
     if (Prediction)
         return 0;

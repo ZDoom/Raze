@@ -67,7 +67,7 @@ bool bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
 bool bAutoSize = true;                  // Autosizing on/off
 
 //extern int chainnumpages;
-extern ambientstruct ambarray[];
+extern AMB_INFO ambarray[];
 extern short NormalVisibility;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
