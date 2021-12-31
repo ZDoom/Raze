@@ -428,7 +428,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 	{
 		int snum, a;
 
-		if (actj->spr.picnum == TILE_APLAYER)
+		if (actj->isPlayer())
 		{
 			snum = actj->spr.yvel;
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune

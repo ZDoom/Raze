@@ -68,7 +68,7 @@ void PlayerColorChanged(void)
 	{
 		pp.palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (pp.GetActor()->spr.picnum == TILE_APLAYER && pp.GetActor()->spr.pal != 1)
+	if (pp.GetActor()->isPlayer() && pp.GetActor()->spr.pal != 1)
 		pp.GetActor()->spr.pal = ud.user_pals[myconnectindex];
 }
 
@@ -171,7 +171,7 @@ int hits(DDukeActor* actor)
 	int zoff;
 	HitInfo hit{};
 
-	if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
+	if (actor->isPlayer()) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
 	hitscan(actor->spr.pos, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
@@ -191,7 +191,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 	if (badguy(actor))
 		zoff = (42 << 8);
-	else if (actor->spr.picnum == TILE_APLAYER) zoff = (39 << 8);
+	else if (actor->isPlayer()) zoff = (39 << 8);
 	else zoff = 0;
 
 	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - zoff }, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
@@ -237,7 +237,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	a = actor->spr.ang;
 
 	// Autoaim from DukeGDX.
-	if (actor->spr.picnum == TILE_APLAYER)
+	if (actor->isPlayer())
 	{
 		auto* plr = &ps[actor->spr.yvel];
 		int autoaim = Autoaim(actor->spr.yvel);
@@ -281,7 +281,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		}
 	}
 	DDukeActor* aimed = nullptr;
-	//	  if(actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].aim_mode) return -1;
+	//	  if(actor->isPlayer() && ps[actor->spr.yvel].aim_mode) return -1;
 
 	if (isRR())
 	{
@@ -290,13 +290,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	}
 	else if (isWW2GI())
 	{
-		gotshrinker = actor->spr.picnum == TILE_APLAYER && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == SHRINKER_WEAPON;
-		gotfreezer = actor->spr.picnum == TILE_APLAYER && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == FREEZE_WEAPON;
 	}
 	else
 	{
-		gotshrinker = actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].curr_weapon == SHRINKER_WEAPON;
-		gotfreezer = actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].curr_weapon == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && ps[actor->spr.yvel].curr_weapon == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && ps[actor->spr.yvel].curr_weapon == FREEZE_WEAPON;
 	}
 
 	smax = 0x7fffffff;
@@ -320,12 +320,12 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			if (act->spr.xrepeat > 0 && act->spr.extra >= 0 && (act->spr.cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
 				if (badguy(act) || k < 2)
 				{
-					if (badguy(act) || act->spr.picnum == TILE_APLAYER)
+					if (badguy(act) || act->isPlayer())
 					{
-						if (act->spr.picnum == TILE_APLAYER &&
+						if (act->isPlayer() &&
 							(isRR() && ud.ffire == 0) &&
 							ud.coop == 1 &&
-							actor->spr.picnum == TILE_APLAYER &&
+							actor->isPlayer() &&
 							actor != act)
 							continue;
 
@@ -342,7 +342,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							sdist = MulScale(dx3, xv, 14) + MulScale(dy3, yv, 14);
 							if (sdist > 512 && sdist < smax)
 							{
-								if (actor->spr.picnum == TILE_APLAYER)
+								if (actor->isPlayer())
 									a = (abs(Scale(act->spr.pos.Z - actor->spr.pos.Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
@@ -394,7 +394,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 						fi.operaterespawns(p->actorsqu->spr.yvel);
 				}
 
-				if (p->actorsqu->spr.picnum == TILE_APLAYER)
+				if (p->actorsqu->isPlayer())
 				{
 					quickkill(&ps[p->actorsqu->spr.yvel]);
 					ps[p->actorsqu->spr.yvel].frag_ps = snum;

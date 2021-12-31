@@ -437,7 +437,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 		if (hit.actor())
 		{
 			fi.checkhitsprite(hit.actor(), spark);
-			if (hit.actor()->spr.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
+			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
 				spark->spr.xrepeat = spark->spr.yrepeat = 0;
 				auto jib = spawn(spark, JIBS6);
@@ -541,7 +541,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 			if (hit.actor())
 			{
 				fi.checkhitsprite(hit.actor(), spark);
-				if (hit.actor()->spr.picnum != TILE_APLAYER)
+				if (!hit.actor()->isPlayer())
 					spawn(spark, SMALLSMOKE);
 				else spark->spr.xrepeat = spark->spr.yrepeat = 0;
 			}
@@ -1000,7 +1000,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 {
 	int l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
-	if (actor->spr.picnum == TILE_APLAYER)
+	if (actor->isPlayer())
 	{
 		p = actor->spr.yvel;
 	}
@@ -1021,7 +1021,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	auto sect = actor->sector();
 	zvel = 0;
 
-	if (actor->spr.picnum == TILE_APLAYER)
+	if (actor->isPlayer())
 	{
 		sx = ps[p].pos.X;
 		sy = ps[p].pos.Y;

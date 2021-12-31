@@ -1325,7 +1325,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	actor->spr.ang = Owner->spr.ang;
 	actor->spr.pos.X = Owner->spr.pos.X;
 	actor->spr.pos.Y = Owner->spr.pos.Y;
-	if (Owner->spr.picnum == TILE_APLAYER)
+	if (Owner->isPlayer())
 		actor->spr.pos.Z = Owner->spr.pos.Z - (34 << 8);
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
@@ -2712,7 +2712,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 			if (act2->spr.statnum != 3 && act2->spr.statnum != 4)
 				if (LASERLINE < 0 || act2->spr.picnum != LASERLINE)
 				{
-					if (act2->spr.picnum == TILE_APLAYER && act2->GetOwner())
+					if (act2->isPlayer() && act2->GetOwner())
 					{
 						continue;
 					}
@@ -3960,7 +3960,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
-						if (a2->spr.picnum == TILE_APLAYER && a2->GetOwner())
+						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z += sc->extra;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
@@ -3997,7 +3997,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
-						if (a2->spr.picnum == TILE_APLAYER && a2->GetOwner())
+						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z -= sc->extra;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
@@ -4689,7 +4689,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
-						if (a2->spr.picnum == TILE_APLAYER && a2->GetOwner())
+						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
 								ps[a2->PlayerIndex()].pos.Z += l;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
@@ -4718,7 +4718,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
-						if (a2->spr.picnum == TILE_APLAYER && a2->GetOwner())
+						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
 								ps[a2->PlayerIndex()].pos.Z += l;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
@@ -4749,7 +4749,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
-					if (a2->spr.picnum == TILE_APLAYER && a2->GetOwner())
+					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
 							ps[a2->PlayerIndex()].pos.Z += l;
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
@@ -4777,7 +4777,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
-					if (a2->spr.picnum ==TILE_APLAYER && a2->GetOwner())
+					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
 							ps[a2->PlayerIndex()].pos.Z -= l;
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
@@ -4825,14 +4825,14 @@ void getglobalz(DDukeActor* actor)
 					ssp(actor, CLIPMASK0);
 				}
 			}
-			else if(lz.actor()->spr.picnum == TILE_APLAYER && badguy(actor) )
+			else if(lz.actor()->isPlayer() && badguy(actor) )
 			{
 				actor->aflags |= SFLAG_NOFLOORSHADOW; 
 				//actor->dispicnum = -4; // No shadows on actors
 				actor->spr.xvel = -256;
 				ssp(actor, CLIPMASK0);
 			}
-			else if(actor->spr.statnum == STAT_PROJECTILE && lz.actor()->spr.picnum == TILE_APLAYER && actor->GetOwner() == actor)
+			else if(actor->spr.statnum == STAT_PROJECTILE && lz.actor()->isPlayer() && actor->GetOwner() == actor)
 			{
 				actor->ceilingz = actor->sector()->ceilingz;
 				actor->floorz	= actor->sector()->floorz;
@@ -4950,7 +4950,7 @@ int furthestangle(DDukeActor *actor, int angs)
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
 
-	if (actor->spr.picnum != TILE_APLAYER)
+	if (!actor->isPlayer())
 		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.ang + 1024);
 
 	for (j = actor->spr.ang; j < (2048 + actor->spr.ang); j += angincs)
@@ -5037,7 +5037,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		else actor->SetOwner(ps[playernum].GetActor());
 
 		auto Owner = actor->GetOwner();
-		if (Owner->spr.picnum == TILE_APLAYER)
+		if (Owner->isPlayer())
 			goalang = getangle(actor->ovel.X - actor->spr.pos.X, actor->ovel.Y - actor->spr.pos.Y);
 		else
 			goalang = getangle(Owner->spr.pos.X - actor->spr.pos.X, Owner->spr.pos.Y - actor->spr.pos.Y);
@@ -5125,14 +5125,14 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		{
 			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT;
 
-			if (badguy(actor) || (actor->spr.picnum == TILE_APLAYER && actor->GetOwner()))
+			if (badguy(actor) || (actor->isPlayer() && actor->GetOwner()))
 			{
 
 				if (actor->spr.zvel > 3084 && actor->spr.extra <= 1)
 				{
 					if (actor->spr.pal != 1 && actor->spr.picnum != DRONE)
 					{
-						if (actor->spr.picnum == TILE_APLAYER && actor->spr.extra > 0)
+						if (actor->isPlayer() && actor->spr.extra > 0)
 							goto SKIPJIBS;
 						if (sphit)
 						{

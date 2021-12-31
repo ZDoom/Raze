@@ -587,7 +587,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st15(sectortype* sptr, DDukeActor* actor)
 {
-	if (actor->spr.picnum != TILE_APLAYER) return;
+	if (!actor->isPlayer()) return;
 
 	DukeSectIterator it(sptr);
 	DDukeActor* a2;

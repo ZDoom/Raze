@@ -329,7 +329,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			if (hit.actor()->spr.picnum == 1930)
 				return;
 			fi.checkhitsprite(hit.actor(), spark);
-			if (hit.actor()->spr.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
+			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto l = spawn(spark, JIBS6);
 				spark->spr.xrepeat = spark->spr.yrepeat = 0;
@@ -436,7 +436,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		if (hit.actor())
 		{
 			fi.checkhitsprite(hit.actor(), spark);
-			if (hit.actor()->spr.picnum != TILE_APLAYER)
+			if (!hit.actor()->isPlayer())
 				spawn(spark, SMALLSMOKE);
 			else spark->spr.xrepeat = spark->spr.yrepeat = 0;
 		}
@@ -833,7 +833,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	auto const sect = actor->sector();
 	zvel = 0;
 
-	if (actor->spr.picnum == TILE_APLAYER)
+	if (actor->isPlayer())
 	{
 		p = actor->spr.yvel;
 

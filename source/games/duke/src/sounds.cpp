@@ -265,7 +265,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	FVector3 sndorg = GetSoundPos(pos);
 	FVector3 campos = GetSoundPos(cam);
 
-	if (actor->spr.picnum != TILE_APLAYER || actor->spr.yvel != screenpeek)
+	if (!actor->isPlayer() || actor->spr.yvel != screenpeek)
 	{
 		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
@@ -442,7 +442,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 
 	if (userflags & SF_TALK)
 	{
-		if (snd_speech == 0 || (ud.multimode > 1 && actor->spr.picnum == TILE_APLAYER && actor->spr.yvel != screenpeek && ud.coop != 1)) return -1;
+		if (snd_speech == 0 || (ud.multimode > 1 && actor->isPlayer() && actor->spr.yvel != screenpeek && ud.coop != 1)) return -1;
 		bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
 			{
 				auto sid = chan->OrgID;

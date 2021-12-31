@@ -97,6 +97,11 @@ public:
 		return spr.yvel;
 	}
 
+	bool isPlayer() const
+	{
+		return spr.picnum == TILE_APLAYER;
+	}
+
 	void Serialize(FSerializer& arc) override;
 
 };

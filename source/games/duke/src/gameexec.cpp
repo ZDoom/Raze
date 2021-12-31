@@ -1567,7 +1567,7 @@ int ParseState::parse(void)
 	case concmd_ifdead:
 	{
 		j = g_ac->spr.extra;
-		if (g_ac->spr.picnum == TILE_APLAYER)
+		if (g_ac->isPlayer())
 			j--;
 		parseifelse(j < 0);
 	}
@@ -1707,7 +1707,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_getlastpal:
 		insptr++;
-		if (g_ac->spr.picnum == TILE_APLAYER)
+		if (g_ac->isPlayer())
 			g_ac->spr.pal = ps[g_ac->spr.yvel].palookup;
 		else
 		{
@@ -1736,12 +1736,12 @@ int ParseState::parse(void)
 	case concmd_pkick:
 		insptr++;
 
-		if (ud.multimode > 1 && g_ac->spr.picnum == TILE_APLAYER)
+		if (ud.multimode > 1 && g_ac->isPlayer())
 		{
 			if (ps[otherp].quick_kick == 0)
 				ps[otherp].quick_kick = 14;
 		}
-		else if (g_ac->spr.picnum != TILE_APLAYER && ps[g_p].quick_kick == 0)
+		else if (!g_ac->isPlayer() && ps[g_p].quick_kick == 0)
 			ps[g_p].quick_kick = 14;
 		break;
 	case concmd_sizeto:
@@ -1757,7 +1757,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_ac->spr.picnum == TILE_APLAYER && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || ((g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
+		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || ((g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_ac->spr.yrepeat) << 1;
 			if (abs(j)) g_ac->spr.yrepeat += Sgn(j);
@@ -2446,7 +2446,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pfacing) )
 			{
-				if (g_ac->spr.picnum == TILE_APLAYER && ud.multimode > 1)
+				if (g_ac->isPlayer() && ud.multimode > 1)
 					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.X - ps[otherp].pos.X, ps[g_p].pos.Y - ps[otherp].pos.Y));
 				else
 					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.X - ps[g_p].pos.X, g_ac->spr.pos.Y - ps[g_p].pos.Y));
@@ -2533,7 +2533,7 @@ int ParseState::parse(void)
 
 	case concmd_spritepal:
 		insptr++;
-		if(g_ac->spr.picnum != TILE_APLAYER)
+		if(!g_ac->isPlayer())
 			g_ac->tempang = g_ac->spr.pal;
 		g_ac->spr.pal = *insptr;
 		insptr++;
