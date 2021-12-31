@@ -382,16 +382,13 @@ typedef struct SECTOR_OBJECTstruct SECTOR_OBJECT, *SECTOR_OBJECTp;
 struct PANEL_SPRITE;
 typedef struct PANEL_SPRITE *PANEL_SPRITEp;
 
-struct ANIMstruct;
-typedef struct ANIMstruct ANIM, *ANIMp;
+struct ANIM;
 
 class DSWActor;
 typedef int ANIMATOR (DSWActor* actor);
 typedef ANIMATOR *ANIMATORp;
 
 typedef void pANIMATOR (PANEL_SPRITEp);
-typedef pANIMATOR *pANIMATORp;
-
 typedef void (*soANIMATORp) (SECTOR_OBJECTp);
 
 struct STATE
@@ -1352,7 +1349,7 @@ enum
 
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
 
-typedef void (*ANIM_CALLBACKp) (ANIMp, void *);
+typedef void (*ANIM_CALLBACKp) (ANIM*, void *);
 
 enum
 {
@@ -2135,7 +2132,7 @@ inline bool FAFcanseeOfs(DSWActor* source, int srcz, DSWActor* dest, int destz)
     return FAFcansee(source->spr.pos.X, source->spr.pos.Y, source->spr.pos.Z + srcz, source->sector(), dest->spr.pos.X, dest->spr.pos.Y, dest->spr.pos.Z + destz, dest->sector());
 }
 
-struct ANIMstruct
+struct ANIM
 {
 	int animtype, animindex;
 	int goal;
