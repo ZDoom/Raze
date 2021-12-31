@@ -67,7 +67,7 @@ typedef struct
 {
     short xoff, yoff, skip;
     int lo_jump_speed, hi_jump_speed, lo_xspeed, hi_xspeed;
-    PANEL_STATEp state[2];
+    PANEL_STATE* state[2];
 } PANEL_SHRAP, *PANEL_SHRAPp;
 
 void PanelInvTestSuicide(PANEL_SPRITEp psp);
@@ -78,7 +78,7 @@ void pWeaponBob(PANEL_SPRITEp psp, short condition);
 void pSuicide(PANEL_SPRITEp psp);
 void pNextState(PANEL_SPRITEp psp);
 void pStatePlusOne(PANEL_SPRITEp psp);
-void pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state);
+void pSetState(PANEL_SPRITEp psp, PANEL_STATE* panel_state);
 void pStateControl(PANEL_SPRITEp psp);
 
 int DoPanelFall(PANEL_SPRITEp psp);
@@ -88,8 +88,8 @@ int DoBeginPanelJump(PANEL_SPRITEp psp);
 void SpawnHeartBlood(PANEL_SPRITEp psp);
 void SpawnUziShell(PANEL_SPRITEp psp);
 
-bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
-bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
+bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATE* state);
+bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATE* state);
 void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
 uint8_t UziRecoilYadj = 0;
@@ -3441,21 +3441,21 @@ PANEL_STATE ps_HotheadTurnNapalm[] =
 };
 
 
-PANEL_STATEp HotheadAttackStates[] =
+PANEL_STATE* HotheadAttackStates[] =
 {
     ps_HotheadAttack,
     ps_HotheadRing,
     ps_HotheadNapalm
 };
 
-PANEL_STATEp HotheadRestStates[] =
+PANEL_STATE* HotheadRestStates[] =
 {
     ps_HotheadRest,
     ps_HotheadRestRing,
     ps_HotheadRestNapalm
 };
 
-PANEL_STATEp HotheadTurnStates[] =
+PANEL_STATE* HotheadTurnStates[] =
 {
     ps_HotheadTurn,
     ps_HotheadTurnRing,
@@ -5338,7 +5338,7 @@ PANEL_STATE ps_ChopsAttack4[] =
     {ID_ChopsRest,  Chops_REST_RATE,    pChopsDown,     &ps_ChopsAttack4[6], 0,0,0},
 };
 
-PANEL_STATEp psp_ChopsAttack[] = {ps_ChopsAttack1, ps_ChopsAttack2, ps_ChopsAttack3, ps_ChopsAttack4};
+PANEL_STATE* psp_ChopsAttack[] = {ps_ChopsAttack1, ps_ChopsAttack2, ps_ChopsAttack3, ps_ChopsAttack4};
 
 PANEL_STATE ps_ChopsWait[] =
 {
@@ -6116,7 +6116,7 @@ void pWeaponForceRest(PLAYERp pp)
     pSetState(pp->CurWpn, pp->CurWpn->RestState);
 }
 
-bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
+bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATE* state)
 {
     // initing the other weapon will take care of this
     if (psp->flags & (PANF_DEATH_HIDE))
@@ -6163,7 +6163,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     return false;
 }
 
-bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
+bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATE* state)
 {
     if (psp->PlayerP->Flags & (PF_DEAD))
     {
@@ -6240,7 +6240,7 @@ void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
 }
 
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double y)
+PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATE* state, uint8_t priority, double x, double y)
 {
     unsigned i;
     PANEL_SPRITEp psp;
@@ -6681,7 +6681,7 @@ void pSpriteControl(PLAYERp pp)
     }
 }
 
-void pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state)
+void pSetState(PANEL_SPRITEp psp, PANEL_STATE* panel_state)
 {
     PRODUCTION_ASSERT(psp);
     psp->tics = 0;

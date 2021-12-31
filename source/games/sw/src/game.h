@@ -374,7 +374,6 @@ typedef struct STATEstruct STATE, *STATEp, * *STATEpp;
 //typedef struct PIC_STATEstruct PIC_STATE, *PIC_STATEp;
 
 struct PANEL_STATE;
-typedef struct PANEL_STATE *PANEL_STATEp;
 
 struct PLAYERstruct;
 typedef struct PLAYERstruct PLAYER, *PLAYERp;

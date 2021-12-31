@@ -61,7 +61,7 @@ struct PANEL_STATE
 	short picndx;                       // for pip stuff in conpic.h
 	int tics;
 	void (*Animator)(PANEL_SPRITEp);    // JBF: return type was long
-	PANEL_STATEp NextState;
+	PANEL_STATE* NextState;
 	uint32_t flags;
 	uint8_t xvel;
 	uint8_t yvel;
@@ -97,7 +97,7 @@ typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITEp);
 
 struct PANEL_SPRITE_OVERLAY
 {
-	PANEL_STATEp State;
+	PANEL_STATE* State;
 	int flags;
 	short tics;
 	short pic;
@@ -109,7 +109,7 @@ struct PANEL_SPRITE
 {
 	PANEL_SPRITE* Next, * Prev;
 	PANEL_SPRITE* sibling;
-	PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
+	PANEL_STATE* State, *RetractState, *PresentState, *ActionState, *RestState;
 	PLAYERp PlayerP;
 	DVector2 pos, opos, bobpos;
 
@@ -142,7 +142,7 @@ struct PANEL_SPRITE
 
 struct PANEL_STATE_TABLE
 {
-	PANEL_STATEp pstate;
+	PANEL_STATE* pstate;
 	short state_size;
 };
 
@@ -191,7 +191,7 @@ enum
 };
 
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double y);
+PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATE* state, uint8_t priority, double x, double y);
 void pSetSuicide(PANEL_SPRITEp psp);
 bool pKillScreenSpiteIDs(PLAYERp pp, short id);
 void PreUpdatePanel(double smoothratio);

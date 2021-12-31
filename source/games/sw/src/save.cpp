@@ -167,7 +167,7 @@ FSerializer& SerializeCodePtr(FSerializer& arc, const char* keyname, void** w)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATEp& w, PANEL_STATEp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATE*& w, PANEL_STATE** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PANEL_STATE));
 }
