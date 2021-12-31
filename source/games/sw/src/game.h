@@ -1387,15 +1387,15 @@ enum
 };
 
 
-typedef struct TRACK_POINT
+struct TRACK_POINT
 {
-    int x,y,z;
+    int x, y, z;
     int16_t ang, tag_low, tag_high, filler;
-} *TRACK_POINTp;
+};
 
-typedef struct TRACK
+struct TRACK
 {
-    TRACK_POINTp TrackPoint;
+    TRACK_POINT* TrackPoint;
     int ttflags;
     int flags;
     int NumPoints;
@@ -1410,23 +1410,23 @@ typedef struct TRACK
         }
     }
 
-    TRACK_POINTp SetTrackSize(unsigned newsize)
+    TRACK_POINT* SetTrackSize(unsigned newsize)
     {
         FreeTrackPoints();
-        TrackPoint = (TRACK_POINTp)M_Calloc((newsize * sizeof(TRACK_POINT)), 1);
+        TrackPoint = (TRACK_POINT*)M_Calloc((newsize * sizeof(TRACK_POINT)), 1);
         return TrackPoint;
     }
 
-}*TRACKp;
+};
 
 // Most track type flags are in tags.h
 
 // Regular track flags
 
-typedef struct
+struct COLOR_MAP
 {
     uint8_t FromRange,ToRange,FromColor,ToColor;
-} COLOR_MAP, *COLOR_MAPp;
+};
 
 enum
 {

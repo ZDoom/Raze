@@ -52,9 +52,9 @@ ANIMATOR NinjaJumpActionFunc;
 int GlobSpeedSO;
 
 // determine if moving down the track will get you closer to the player
-short TrackTowardPlayer(DSWActor* actor, TRACKp t, TRACK_POINTp start_point)
+short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
 {
-    TRACK_POINTp end_point;
+    TRACK_POINT* end_point;
     int end_dist, start_dist;
 
     // determine which end of the Track we are starting from
@@ -79,9 +79,9 @@ short TrackTowardPlayer(DSWActor* actor, TRACKp t, TRACK_POINTp start_point)
 
 }
 
-short TrackStartCloserThanEnd(DSWActor* actor, TRACKp t, TRACK_POINTp start_point)
+short TrackStartCloserThanEnd(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
 {
-    TRACK_POINTp end_point;
+    TRACK_POINT* end_point;
     int end_dist, start_dist;
 
     // determine which end of the Track we are starting from
@@ -120,8 +120,8 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
     int i;
     short end_point[2] = { 0,0 };
 
-    TRACKp t, near_track = nullptr;
-    TRACK_POINTp tp, near_tp = nullptr;
+    TRACK* t, *near_track = nullptr;
+    TRACK_POINT* tp, *near_tp = nullptr;
 
     enum
     {
@@ -281,9 +281,9 @@ void NextActorTrackPoint(DSWActor* actor)
         actor->user.point = Track[actor->user.track].NumPoints - 1;
 }
 
-void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
+void TrackAddPoint(TRACK* t, TRACK_POINT* tp, DSWActor* actor)
 {
-    TRACK_POINTp tpoint = (tp + t->NumPoints);
+    TRACK_POINT* tpoint = (tp + t->NumPoints);
 
     tpoint->x = actor->spr.pos.X;
     tpoint->y = actor->spr.pos.Y;
@@ -316,8 +316,8 @@ DSWActor* TrackClonePoint(DSWActor* actor)
 void QuickJumpSetup(short stat, short lotag, short type)
 {
     int ndx;
-    TRACK_POINTp tp;
-    TRACKp t;
+    TRACK_POINT* tp;
+    TRACK* t;
     DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks
@@ -370,8 +370,8 @@ void QuickJumpSetup(short stat, short lotag, short type)
 void QuickScanSetup(short stat, short lotag, short type)
 {
     int ndx;
-    TRACK_POINTp tp;
-    TRACKp t;
+    TRACK_POINT* tp;
+    TRACK* t;
     DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks
@@ -427,8 +427,8 @@ void QuickScanSetup(short stat, short lotag, short type)
 void QuickExitSetup(short stat, short type)
 {
     int ndx;
-    TRACK_POINTp tp;
-    TRACKp t;
+    TRACK_POINT* tp;
+    TRACK* t;
     DSWActor* start_sprite,* end_sprite;
 
     SWStatIterator it(stat);
@@ -478,8 +478,8 @@ void QuickExitSetup(short stat, short type)
 void QuickLadderSetup(short stat, short lotag, short type)
 {
     int ndx;
-    TRACK_POINTp tp;
-    TRACKp t;
+    TRACK_POINT* tp;
+    TRACK* t;
     DSWActor* start_sprite,* end_sprite;
 
     SWStatIterator it(stat);
@@ -534,9 +534,9 @@ void QuickLadderSetup(short stat, short lotag, short type)
 void TrackSetup(void)
 {
     int ndx;
-    TRACK_POINTp tp;
-    TRACKp t;
-    TRACK_POINTp New;
+    TRACK_POINT* tp;
+    TRACK* t;
+    TRACK_POINT* New;
     int size;
 
     // put points on track
@@ -548,7 +548,7 @@ void TrackSetup(void)
         {
             // for some reason I need at least one record allocated
             // can't remember why at this point
-            Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem(sizeof(TRACK_POINT) * 1, 1);
+            Track[ndx].TrackPoint = (TRACK_POINT*)CallocMem(sizeof(TRACK_POINT) * 1, 1);
             continue;
         }
 
@@ -556,7 +556,7 @@ void TrackSetup(void)
 
         // make the track array rather large.  I'll resize it to correct size
         // later.
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem(sizeof(TRACK_POINT) * 500, 1);
+        Track[ndx].TrackPoint = (TRACK_POINT*)CallocMem(sizeof(TRACK_POINT) * 500, 1);
 
         ASSERT(Track[ndx].TrackPoint != nullptr);
 
@@ -626,7 +626,7 @@ void TrackSetup(void)
         }
 
         size = (Track[ndx].NumPoints + 1) * sizeof(TRACK_POINT);
-        New = (TRACK_POINTp)CallocMem(size, 1);
+        New = (TRACK_POINT*)CallocMem(size, 1);
         memcpy(New, Track[ndx].TrackPoint, size);
         FreeMem(Track[ndx].TrackPoint);
         Track[ndx].TrackPoint = New;
@@ -1386,7 +1386,7 @@ void PlaceSectorObjectsOnTracks(void)
     {
         int low_dist = 999999, dist;
         SECTOR_OBJECTp sop = &SectorObject[i];
-        TRACK_POINTp tpoint = nullptr;
+        TRACK_POINT* tpoint = nullptr;
 
         if (SO_EMPTY(sop))
             continue;
@@ -1449,7 +1449,7 @@ void PlaceSectorObjectsOnTracks(void)
 void PlaceActorsOnTracks(void)
 {
     short j, tag;
-    TRACK_POINTp tpoint = nullptr;
+    TRACK_POINT* tpoint = nullptr;
 
     // place each actor on the track
     SWStatIterator it(STAT_ENEMY);
@@ -2240,7 +2240,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
 
 void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 {
-    TRACK_POINTp tpoint;
+    TRACK_POINT* tpoint;
     int dx, dy, dz;
     int dist;
 
@@ -2897,7 +2897,7 @@ void ActorLeaveTrack(DSWActor* actor)
     actor->user.track = -1;
 }
 
-bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
+bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 {
     switch (tpoint->tag_low)
     {
@@ -3417,7 +3417,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 {
     PLAYERp pp;
 
-    TRACK_POINTp tpoint;
+    TRACK_POINT* tpoint;
     short pnum;
     int nx = 0, ny = 0, nz = 0, dx, dy, dz;
     int dist;
