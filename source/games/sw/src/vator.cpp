@@ -91,7 +91,7 @@ bool VatorSwitch(short match, short setting)
 
 void SetVatorActive(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StartInterpolation(actor->sector(), Interp_Sect_Ceilingz);
@@ -117,7 +117,7 @@ void SetVatorActive(DSWActor* actor)
 
 void SetVatorInactive(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StopInterpolation(actor->sector(), Interp_Sect_Ceilingz);
@@ -358,7 +358,7 @@ int DoVatorMove(DSWActor* actor, int *lptr)
 
 int DoVator(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
     int *lptr;
     int amt;
 
@@ -515,7 +515,7 @@ int DoVator(DSWActor* actor)
 
 int DoVatorAuto(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
     int *lptr;
     int amt;
 

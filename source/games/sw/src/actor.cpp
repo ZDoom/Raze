@@ -309,7 +309,7 @@ void DoDebrisCurrent(DSWActor* actor)
 
 int DoActorSectorDamage(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (actor->user.Health <= 0)
         return false;
@@ -383,7 +383,7 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoActorDebris(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
     int nx, ny;
 
     // This was move from DoActorDie so actor's can't be walked through until they are on the floor
@@ -488,7 +488,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
 
 void KeepActorOnFloor(DSWActor* actor)
 {
-    SECTORp sectp;
+    sectortype* sectp;
     int depth;
 
     sectp = actor->sector();

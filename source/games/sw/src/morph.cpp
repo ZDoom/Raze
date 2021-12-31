@@ -297,7 +297,7 @@ void MorphTornado(SECTOR_OBJECTp sop)
     int mx, my;
     int ceilingz;
     int floorz;
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
     int x,y,sx,sy;
 
@@ -377,7 +377,7 @@ void MorphFloor(SECTOR_OBJECTp sop)
 {
     int mx, my;
     int floorz;
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
     int x,y;
 
@@ -454,7 +454,7 @@ void MorphFloor(SECTOR_OBJECTp sop)
 
 void SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -469,7 +469,7 @@ void SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
 void SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -484,7 +484,7 @@ void SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
 void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)

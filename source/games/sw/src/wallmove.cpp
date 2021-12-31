@@ -43,7 +43,7 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, walltype* find_wallp, int d
     int j,k,wallcount;
     walltype* wp;
     short startwall,endwall;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     if (!actor->hasU() || (sop->flags & SOBJ_SPRITE_OBJ))
         return;

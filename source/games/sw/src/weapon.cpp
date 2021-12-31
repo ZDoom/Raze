@@ -4170,7 +4170,7 @@ bool VehicleMoveHit(DSWActor* actor)
     {
     case kHitSector:
     {
-        SECTORp sectp = actor->user.coll.hitSector;
+        sectortype* sectp = actor->user.coll.hitSector;
 
         if ((sectp->extra & SECTFX_SECTOR_OBJECT))
         {
@@ -4248,7 +4248,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
     case kHitSector:
     {
-        SECTORp sectp;
+        sectortype* sectp;
         SECTOR_OBJECTp sop;
 
         sectp = actor->user.coll.hitSector;
@@ -17053,7 +17053,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 int SpawnSplash(DSWActor* actor)
 {
     auto sectu = actor->sector();
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (Prediction)
         return 0;
@@ -17497,7 +17497,7 @@ STATE s_FloorBlood1[] =
 
 int QueueFloorBlood(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
     DSWActor* spawnedActor = nullptr;
 
 
@@ -17576,7 +17576,7 @@ int QueueFootPrint(DSWActor* actor)
     DSWActor* spawnedActor;
     short rnd_num=0;
     bool Found=false;
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
 
     if ((sectp->extra & SECTFX_SINK)||(sectp->extra & SECTFX_CURRENT))

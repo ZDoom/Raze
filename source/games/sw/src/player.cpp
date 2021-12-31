@@ -1401,7 +1401,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
 
 void DoPlayerSetWadeDepth(PLAYERp pp)
 {
-    SECTORp sectp;
+    sectortype* sectp;
 
     pp->WadeDepth = 0;
 
@@ -2246,7 +2246,7 @@ void DoTankTreads(PLAYERp pp)
 {
     int i;
     int vel;
-    SECTORp *sectp;
+    sectortype* *sectp;
     int j;
     int dot;
     bool reverse = false;
@@ -2360,7 +2360,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 
     SECTOR_OBJECTp sop = pp->sop_control;
     short stat;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     if (MoveSkip4 == 0)
         return;
@@ -2508,7 +2508,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     int wallcount;
     int count=0;
 
-    SECTORp *sectp;
+    sectortype* *sectp;
     SECTOR_OBJECTp sop = pp->sop;
     walltype* wp;
     int j,k;
@@ -3018,7 +3018,7 @@ void DoPlayerFall(PLAYERp pp)
 
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT + recoil_amt))
         {
-            SECTORp sectp = pp->cursector;
+            sectortype* sectp = pp->cursector;
 
             PlayerSectorBound(pp, Z(1));
 
@@ -3745,7 +3745,7 @@ bool DoPlayerTestCrawl(PLAYERp pp)
 
 int PlayerInDiveArea(PLAYERp pp)
 {
-    SECTORp sectp;
+    sectortype* sectp;
 
     if (pp->lo_sectp)
     {
@@ -5801,7 +5801,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
 void DoPlayerHeadDebris(PLAYERp pp)
 {
-    SECTORp sectp = pp->cursector;
+    sectortype* sectp = pp->cursector;
 
     if ((sectp->extra & SECTFX_SINK))
     {

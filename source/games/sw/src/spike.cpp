@@ -86,7 +86,7 @@ bool SpikeSwitch(short match, short setting)
 
 void SetSpikeActive(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StartInterpolation(actor->sector(), Interp_Sect_Ceilingheinum);
@@ -112,7 +112,7 @@ void SetSpikeActive(DSWActor* actor)
 
 void SetSpikeInactive(DSWActor* actor)
 {
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
         StopInterpolation(sectp, Interp_Sect_Ceilingheinum);

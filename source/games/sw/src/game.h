@@ -394,8 +394,6 @@ typedef pANIMATOR *pANIMATORp;
 
 typedef void (*soANIMATORp) (SECTOR_OBJECTp);
 
-typedef sectortype SECTOR, *SECTORp;
-
 struct STATE
 {
     short     Pic;
@@ -615,7 +613,7 @@ struct PLAYERstruct
     int climb_ndx;
     int hiz,loz;
     int ceiling_dist,floor_dist;
-    SECTORp hi_sectp, lo_sectp;
+    sectortype* hi_sectp, *lo_sectp;
 
     int circle_camera_dist;
     vec3_t si; // save player interp position for PlayerSprite
@@ -976,7 +974,7 @@ struct USER
     int hiz,loz;
     int zclip; // z height to move up for clipmove
     int active_range;
-    SECTORp hi_sectp, lo_sectp;
+    sectortype* hi_sectp, *lo_sectp;
 
 
     // if a player's sprite points to player structure

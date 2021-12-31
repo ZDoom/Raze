@@ -864,7 +864,7 @@ void DoExplodeSector(short match)
     short orig_ang;
     int zh;
 
-    SECTORp sectp;
+    sectortype* sectp;
 
     orig_ang = 0; //actor->spr.ang;
 
@@ -1761,7 +1761,7 @@ void OperateTripTrigger(PLAYERp pp)
     if (!pp->insector())
         return;
 
-    SECTORp sectp = pp->cursector;
+    sectortype* sectp = pp->cursector;
 
     // old method
     switch (pp->cursector->lotag)
@@ -2280,7 +2280,7 @@ void PlayerOperateEnv(PLAYERp pp)
     //
     // ////////////////////////////
 
-    SECTORp sectp = pp->cursector;
+    sectortype* sectp = pp->cursector;
     if (pp->insector() && sectp->hasU() && sectp->damage)
     {
         if ((sectp->flags & SECTFU_DAMAGE_ABOVE_SECTOR))
@@ -2587,7 +2587,7 @@ void DoPanning(void)
 {
     int nx, ny;
     int i;
-    SECTORp sectp;
+    sectortype* sectp;
     walltype* wallp;
 
     SWStatIterator it(STAT_FLOOR_PAN);

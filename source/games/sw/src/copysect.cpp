@@ -43,7 +43,7 @@ extern int GlobSpeedSO;
 void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 {
     SECTOR_OBJECTp sop;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     auto dwall = dest_sect->firstWall();
     auto swall = src_sect->firstWall();
@@ -106,7 +106,7 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 
 void CopySectorMatch(int match)
 {
-    SECTORp dsectp,ssectp;
+    sectortype* dsectp, *ssectp;
     int kill;
 
     SWStatIterator it(STAT_COPY_DEST);

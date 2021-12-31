@@ -72,7 +72,7 @@ void precacheMap(void)
 {
 	int i;
 	int j;
-	SECTORp sectp;
+	sectortype* sectp;
 	walltype* wp;
 
 	for(auto& sec: sector)

@@ -4612,7 +4612,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     int x, y, z, loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
-    SECTORp lo_sectp, hi_sectp;
+    sectortype* lo_sectp,* hi_sectp;
     short dist;
     int cliptype = CLIPMASK_ACTOR;
 

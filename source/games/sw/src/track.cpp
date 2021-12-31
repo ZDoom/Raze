@@ -669,7 +669,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     DSWActor* BoundActor = nullptr;
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
-    SECTORp *sectp;
+    sectortype* *sectp;
     DSWActor* child = sop->sp_child;
 
     static const uint8_t StatList[] =
@@ -1587,7 +1587,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     vec2_t rxy;
     int pnum;
     PLAYERp pp;
-    SECTORp *sectp;
+    sectortype* *sectp;
     int i, rot_ang;
     bool PlayerMove = true;
 
@@ -1827,7 +1827,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
     if (dynamic && sop->PreMoveAnimator)
         (*sop->PreMoveAnimator)(sop);
 
-    SECTORp* sectp;
+    sectortype** sectp;
     int j;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -1937,10 +1937,10 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
     }
 }
 
-SECTOR_OBJECTp DetectSectorObject(SECTORp sectph)
+SECTOR_OBJECTp DetectSectorObject(sectortype* sectph)
 {
     short j;
-    SECTORp *sectp;
+    sectortype* *sectp;
     SECTOR_OBJECTp sop;
 
 
@@ -1972,7 +1972,7 @@ SECTOR_OBJECTp DetectSectorObjectByWall(walltype* wph)
         if (SO_EMPTY(sop))
             continue;
 
-        SECTORp* sectp;
+        sectortype** sectp;
         int j;
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
         {
@@ -1998,7 +1998,7 @@ SECTOR_OBJECTp DetectSectorObjectByWall(walltype* wph)
 void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 {
     int j;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     // collapse the SO to a single point
     // move all points to nx,ny
@@ -2029,7 +2029,7 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 void MoveZ(SECTOR_OBJECTp sop)
 {
     short i;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     if (sop->bob_amt)
     {
@@ -2367,7 +2367,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
         case TRACK_SO_SINK:
         {
-            SECTORp *sectp;
+            sectortype* *sectp;
             sectortype* dest_sector = nullptr;
             short i,ndx;
 
@@ -2402,7 +2402,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         case TRACK_SO_FORM_WHIRLPOOL:
         {
             // for lowering the whirlpool in level 1
-            SECTORp *sectp;
+            sectortype* *sectp;
             int i;
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -2581,7 +2581,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy, short locktics)
 {
     int i;
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     if (Prediction)
         return;
@@ -2630,7 +2630,7 @@ void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 {
-    SECTORp *sectp;
+    sectortype* *sectp;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {

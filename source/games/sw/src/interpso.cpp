@@ -185,7 +185,7 @@ static void so_stopdatainterpolation(so_interp *interp, int element, DSWActor* a
 
 void so_addinterpolation(SECTOR_OBJECTp sop)
 {
-    SECTORp *sectp;
+    sectortype* *sectp;
     int32_t startwall, endwall;
     int32_t i;
 

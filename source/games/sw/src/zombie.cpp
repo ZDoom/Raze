@@ -800,7 +800,7 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 void SpawnZombie2(DSWActor* actor)
 {
     auto sectu = actor->sector();
-    SECTORp sectp = actor->sector();
+    sectortype* sectp = actor->sector();
 
     auto ownerActor = GetOwner(actor);
 
