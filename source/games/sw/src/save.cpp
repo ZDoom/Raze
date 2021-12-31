@@ -430,7 +430,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERp& w, PLAYER
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, PLAYERstruct* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
 {
 	if (arc.BeginObject(keyname))
 	{

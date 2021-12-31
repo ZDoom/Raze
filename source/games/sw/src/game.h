@@ -370,12 +370,11 @@ typedef STATE* STATEp;
 
 struct PANEL_STATE;
 
-struct PLAYERstruct;
-typedef struct PLAYERstruct PLAYER, *PLAYERp;
+struct PLAYER;
+typedef PLAYER *PLAYERp;
 
 struct PERSONALITY;
 struct ATTRIBUTE;
-
 struct SECTOR_OBJECT;
 struct PANEL_SPRITE;
 struct ANIM;
@@ -580,7 +579,7 @@ struct REMOTE_CONTROL
     SECTOR_OBJECT* sop_control;
 };
 
-struct PLAYERstruct
+struct PLAYER
 {
     // variable that fit in the sprite or user structure
     vec3_t pos, opos, oldpos;
