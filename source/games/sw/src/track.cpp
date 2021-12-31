@@ -718,7 +718,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     {
         sop->pmid.X = BoundActor->spr.pos.X;
         sop->pmid.Y = BoundActor->spr.pos.Y;
-        sop->zmid = BoundActor->spr.pos.Z;
+        sop->pmid.Z = BoundActor->spr.pos.Z;
         KillActor(BoundActor);
     }
 
@@ -943,12 +943,12 @@ cont:
 
         ASSERT(zmid != -9999999);
 
-        sop->zmid = zmid;
+        sop->pmid.Z = zmid;
 
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{
             auto actor = sop->so_actors[i];
-            actor->user.pos.Z = sop->zmid - actor->spr.pos.Z;
+            actor->user.pos.Z = sop->pmid.Z - actor->spr.pos.Z;
         }
     }
 }
@@ -1037,14 +1037,14 @@ void SetupSectorObject(sectortype* sectp, short tag)
     case TAG_OBJECT_CENTER - 500:
 
         sop->mid_sector = sectp;
-        SectorMidPoint(sectp, &sop->pmid.X, &sop->pmid.Y, &sop->zmid);
+        SectorMidPoint(sectp, &sop->pmid.X, &sop->pmid.Y, &sop->pmid.Z);
 
         sop->dir = 1;
         sop->track = sectp->hitag;
 
         // spawn a sprite to make it easier to integrate with sprite routines
         auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp,
-                          sop->pmid.X, sop->pmid.Y, sop->zmid, 0, 0);
+                          sop->pmid.X, sop->pmid.Y, sop->pmid.Z, 0, 0);
         sop->sp_child = actorNew;
         actorNew->user.sop_parent = sop;
         actorNew->user.Flags2 |= (SPR2_SPRITE_FAKE_BLOCK); // for damage test
@@ -1608,7 +1608,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
 
     // setting floorz if need be
     if ((sop->flags & SOBJ_ZMID_FLOOR))
-        sop->zmid = sop->mid_sector->floorz;
+        sop->pmid.Z = sop->mid_sector->floorz;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -1708,7 +1708,7 @@ PlayerPart:
         if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->spr.pos.Z = sop->zmid - actor->user.pos.Z;
+            actor->spr.pos.Z = sop->pmid.Z - actor->user.pos.Z;
         }
         else
         {
@@ -2524,7 +2524,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
 
             // (velocity * difference between the target and the object)
             // / distance
-            sop->z_rate = (sop->vel * (sop->zmid - dz)) / dist;
+            sop->z_rate = (sop->vel * (sop->pmid.Z - dz)) / dist;
 
             // take absolute value and convert to pixels (divide by 256)
             sop->z_rate = PIXZ(labs(sop->z_rate));

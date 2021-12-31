@@ -4834,7 +4834,7 @@ void FindMainSector(SECTOR_OBJECT* sop)
         // set it to something valid
         sop->op_main_sector = &sector[0];
 
-        updatesectorz(sx, sy, sop->zmid, &sop->op_main_sector);
+        updatesectorz(sx, sy, sop->pmid.Z, &sop->op_main_sector);
 
         PlaceSectorObject(sop, sx, sy);
     }

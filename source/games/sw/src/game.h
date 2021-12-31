@@ -1412,11 +1412,7 @@ struct SECTOR_OBJECT
 
     TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object
 
-    union
-    {
-        struct { int BLAHBLAHX, BLAHBLAHY, zmid; };  // midpoints of the sector object
-        vec3_t pmid;
-    };
+    vec3_t pmid;  // midpoints of the sector object
 
 	TObjPtr<DSWActor*> so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	TObjPtr<DSWActor*> match_event_actor; // spritenum of the match event sprite
@@ -2138,7 +2134,7 @@ struct ANIM
 		case ANIM_Floorz:
             return *sector[animindex].floorzptr(!write);
 		case ANIM_SopZ:
-			return SectorObject[animindex].zmid;
+			return SectorObject[animindex].pmid.Z;
 		case ANIM_Spritez:
             if (animactor == nullptr) return scratch;
 			return animactor->spr.pos.Z;
