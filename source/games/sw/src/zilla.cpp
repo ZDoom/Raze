@@ -576,7 +576,7 @@ STATEp sg_ZillaDead[] =
 };
 
 /*
-typedef struct
+struct
 {
 #define MAX_ACTOR_CLOSE_ATTACK 2
 #define MAX_ACTOR_ATTACK 6

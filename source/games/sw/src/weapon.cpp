@@ -45,6 +45,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+struct MISSILE_PLACEMENT
+{
+    int dist_over, dist_out;
+    short ang;
+};
+
+
 void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYERp);
@@ -11577,12 +11584,6 @@ void InitSpellNapalm(PLAYERp pp)
     unsigned i;
     short ammo;
 
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
-
     static const MISSILE_PLACEMENT mp[] =
     {
         {600 * 6, 400, 512},
@@ -11663,12 +11664,6 @@ int InitEnemyNapalm(DSWActor* actor)
 {
     short dist;
     unsigned i;
-
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
 
     static const MISSILE_PLACEMENT mp[] =
     {
@@ -12192,12 +12187,6 @@ int InitSumoNapalm(DSWActor* actor)
 {
     short dist;
     short ang;
-
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
 
     static const MISSILE_PLACEMENT mp[] =
     {
@@ -12725,12 +12714,6 @@ void InitHeartAttack(PLAYERp pp)
 {
     DSWActor* plActor = pp->actor;
     short i = 0;
-
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
 
     static const MISSILE_PLACEMENT mp[] =
     {
@@ -14407,12 +14390,6 @@ int InitZillaRocket(DSWActor* actor)
 {
     int nx, ny, nz, dist, nang;
     short w, i;
-
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
 
     static const MISSILE_PLACEMENT mp[] =
     {
