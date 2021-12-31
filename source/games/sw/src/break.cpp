@@ -440,20 +440,20 @@ static int CompareBreakInfo(void const * a, void const * b)
     return break_info1->picnum - break_info2->picnum;
 }
 
-int CompareSearchBreakInfo(int *picnum, BREAK_INFOp break_info)
+int CompareSearchBreakInfo(int *picnum, BREAK_INFO* break_info)
     {
     // will return a number less than 0 if picnum < break_info->picnum
     return(*picnum - break_info->picnum);
     }
 
-BREAK_INFOp FindWallBreakInfo(int picnum)
+BREAK_INFO* FindWallBreakInfo(int picnum)
     {
-    return(BREAK_INFOp)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
+    return(BREAK_INFO*)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
     }
 
-BREAK_INFOp FindSpriteBreakInfo(int picnum)
+BREAK_INFO* FindSpriteBreakInfo(int picnum)
     {
-    return(BREAK_INFOp)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
+    return(BREAK_INFO*)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
     }
 
 //////////////////////////////////////////////
@@ -466,9 +466,9 @@ void SortBreakInfo(void)
     qsort(&WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
 
-BREAK_INFOp SetupWallForBreak(WALLp wallp)
+BREAK_INFO* SetupWallForBreak(WALLp wallp)
 {
-    BREAK_INFOp break_info;
+    BREAK_INFO* break_info;
 
     break_info = FindWallBreakInfo(wallp->picnum);
     if (break_info)
@@ -490,10 +490,10 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
     return break_info;
 }
 
-BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
+BREAK_INFO* SetupSpriteForBreak(DSWActor* actor)
 {
     int picnum = actor->spr.picnum;
-    BREAK_INFOp break_info;
+    BREAK_INFO* break_info;
 
     // ignore as a breakable if true
     if (actor->spr.lotag == TAG_SPRITE_HIT_MATCH)
@@ -509,7 +509,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
             // if not blocking then skip this code
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
             {
-                return (BREAK_INFOp)(-1);
+                return (BREAK_INFO*)(-1);
             }
         }
 
@@ -550,7 +550,7 @@ DSWActor* FindBreakSpriteMatch(int match)
 
 int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int type)
 {
-    BREAK_INFOp break_info;
+    BREAK_INFO* break_info;
     WALLp nwp;
 
     wallp->lotag = 0;
@@ -906,7 +906,7 @@ int UserBreakSprite(DSWActor* breakActor)
 
 int AutoBreakSprite(DSWActor* breakActor, int type)
 {
-    BREAK_INFOp break_info;
+    BREAK_INFO* break_info;
 
     break_info = FindSpriteBreakInfo(breakActor->spr.picnum);
 

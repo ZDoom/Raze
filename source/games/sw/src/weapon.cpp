@@ -2818,7 +2818,7 @@ int DoLavaErupt(DSWActor* actor)
 }
 
 
-int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
+int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFO* breakinfo)
 {
     short i;
 
@@ -18276,7 +18276,7 @@ int ShrapKillSprite(DSWActor* actor)
     return 0;
 }
 
-bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
+bool CheckBreakToughness(BREAK_INFO* break_info, int ID)
 {
     if ((break_info->flags & BF_TOUGH))
     {

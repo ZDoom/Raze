@@ -30,23 +30,23 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 // Call functions based on a random range value
-typedef struct
+struct DECISION
 {
     int range;
     ANIMATORp action;
-} DECISION, *DECISIONp;
+};
 
 // Personality structure
 struct PERSONALITYstruct
 {
-    DECISIONp Battle;
-    DECISIONp Offense;
-    DECISIONp Broadcast;
-    DECISIONp Surprised;
-    DECISIONp Evasive;
-    DECISIONp LostTarget;
-    DECISIONp CloseRange;
-    DECISIONp TouchTarget;
+    DECISION* Battle;
+    DECISION* Offense;
+    DECISION* Broadcast;
+    DECISION* Surprised;
+    DECISION* Evasive;
+    DECISION* LostTarget;
+    DECISION* CloseRange;
+    DECISION* TouchTarget;
 };
 
 enum ActorStates { SLOW_SPEED, NORM_SPEED, MID_SPEED, FAST_SPEED, MAX_SPEED};
