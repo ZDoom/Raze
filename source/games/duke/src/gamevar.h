@@ -128,7 +128,7 @@ enum
 };
 
 
-typedef struct
+struct MATTGAMEVAR
 {
 	union
 	{
@@ -141,7 +141,7 @@ typedef struct
 	GameVarValue initValue;	// this is what gets copied to players/actors upon spawn. This is not the same as the default!
 	unsigned int dwFlags;
 	char szLabel[MAXVARLABEL];
-} MATTGAMEVAR;
+};
 
 extern MATTGAMEVAR aGameVars[MAXGAMEVARS];
 extern int iGameVarCount;
