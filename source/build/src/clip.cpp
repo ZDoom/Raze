@@ -78,7 +78,12 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
     vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
     vec2_t const repeat = { spr->spr.xrepeat, spr->spr.yrepeat };
 
-    vec2_t adjofs = { tileLeftOffset(tilenum) + spr->spr.xoffset, tileTopOffset(tilenum) + spr->spr.yoffset };
+    vec2_t adjofs = { tileLeftOffset(tilenum), tileTopOffset(tilenum) };
+    if (heinum == 0)
+    {
+        adjofs.X += spr->spr.xoffset;
+        adjofs.Y += spr->spr.yoffset;
+    }
 
     int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
 

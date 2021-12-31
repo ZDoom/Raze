@@ -282,19 +282,22 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 	int width, height, leftofs, topofs;
 	int ratio = ksqrt(heinum * heinum + 4096 * 4096);
 
+	int xo = heinum ? 0 : spr->xoffset;
+	int yo = heinum ? 0 : spr->yoffset;
+
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
 		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * spr->xrepeat;
 		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * spr->yrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset) * spr->xrepeat;
-		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset) * spr->yrepeat;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + xo) * spr->xrepeat;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + yo) * spr->yrepeat;
 	}
 	else
 	{
 		width = (int)tex->GetDisplayWidth() * spr->xrepeat;
 		height = (int)tex->GetDisplayHeight() * spr->yrepeat;
-		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset) * spr->xrepeat;
-		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset) * spr->yrepeat;
+		leftofs = ((int)tex->GetDisplayLeftOffset() + xo) * spr->xrepeat;
+		topofs = ((int)tex->GetDisplayTopOffset() + yo) * spr->yrepeat;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) leftofs = -leftofs;
