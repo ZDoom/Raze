@@ -395,7 +395,6 @@ typedef pANIMATOR *pANIMATORp;
 typedef void (*soANIMATORp) (SECTOR_OBJECTp);
 
 typedef sectortype SECTOR, *SECTORp;
-typedef walltype WALL, *WALLp;
 
 struct STATE
 {
@@ -928,7 +927,7 @@ struct USER
     // wall vars for lighting
     TArray<int8_t> WallShade;
 
-    WALLp WallP; // operate on wall instead of sprite
+    walltype* WallP; // operate on wall instead of sprite
     STATEp State;
     STATEp *Rot;
     STATEp StateStart;

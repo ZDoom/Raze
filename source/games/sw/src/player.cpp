@@ -2510,7 +2510,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
     SECTORp *sectp;
     SECTOR_OBJECTp sop = pp->sop;
-    WALLp wp;
+    walltype* wp;
     int j,k;
     short startwall,endwall;
 

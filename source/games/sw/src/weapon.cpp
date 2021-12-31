@@ -7427,7 +7427,7 @@ int DoStar(DSWActor* actor)
         case kHitWall:
         {
             short nw,wall_ang;
-            WALLp wph;
+            walltype* wph;
 
             wph = actor->user.coll.hitWall;
 
@@ -8269,7 +8269,7 @@ int DoGrenade(DSWActor* actor)
         case kHitWall:
         {
             short nw,wall_ang;
-            WALLp wph;
+            walltype* wph;
 
             wph = actor->user.coll.hitWall;
 
@@ -8471,7 +8471,7 @@ int DoVulcanBoulder(DSWActor* actor)
         case kHitWall:
         {
             short nw,wall_ang;
-            WALLp wph;
+            walltype* wph;
 
             wph = actor->user.coll.hitWall;
 

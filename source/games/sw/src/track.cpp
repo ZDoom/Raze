@@ -1961,7 +1961,7 @@ SECTOR_OBJECTp DetectSectorObject(SECTORp sectph)
     return nullptr;
 }
 
-SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
+SECTOR_OBJECTp DetectSectorObjectByWall(walltype* wph)
 {
     SECTOR_OBJECTp sop;
 

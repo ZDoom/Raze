@@ -466,7 +466,7 @@ void SortBreakInfo(void)
     qsort(&WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
 
-BREAK_INFO* SetupWallForBreak(WALLp wallp)
+BREAK_INFO* SetupWallForBreak(walltype* wallp)
 {
     BREAK_INFO* break_info;
 
@@ -548,10 +548,10 @@ DSWActor* FindBreakSpriteMatch(int match)
 // WALL
 //
 
-int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int type)
+int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int type)
 {
     BREAK_INFO* break_info;
-    WALLp nwp;
+    walltype* nwp;
 
     wallp->lotag = 0;
     if (wallp->twoSided())
@@ -637,7 +637,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
     return true;
 }
 
-bool UserBreakWall(WALLp wp)
+bool UserBreakWall(walltype* wp)
 {
     int match = wp->hitag;
     const auto block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
@@ -782,7 +782,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
-bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
+bool HitBreakWall(walltype* wp, int hit_x, int hit_y, int hit_z, int ang, int type)
 {
     int match = wp->hitag;
 

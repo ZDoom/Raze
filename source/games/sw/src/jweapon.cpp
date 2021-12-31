@@ -413,7 +413,7 @@ int DoBloodSpray(DSWActor* actor)
         case kHitWall:
         {
             short hit_wall, nw, wall_ang;
-            WALLp wph;
+            walltype* wph;
             short wb;
 
             wph = actor->user.coll.hitWall;
@@ -610,7 +610,7 @@ int DoPhosphorus(DSWActor* actor)
         case kHitWall:
         {
             short hit_wall, nw, wall_ang;
-            WALLp wph;
+            walltype* wph;
 
             wph = actor->user.coll.hitWall;
 

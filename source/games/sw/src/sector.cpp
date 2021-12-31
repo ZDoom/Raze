@@ -112,7 +112,7 @@ void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool s
 
 void WallSetupDontMove(void)
 {
-    WALLp wallp;
+    walltype* wallp;
 
     SWStatIterator it(STAT_WALL_DONT_MOVE_UPPER);
     while (auto iActor = it.Next())
@@ -134,7 +134,7 @@ void WallSetupDontMove(void)
     }
 }
 
-static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
+static void WallSetupLoop(walltype* wp, int16_t lotag, int16_t extra)
 {
     // set first wall
     {
@@ -2374,7 +2374,7 @@ void DoSineWaveFloor(void)
 
             if ((flags & SINE_SLOPED))
             {
-                WALLp wal;
+                walltype* wal;
                 if (sect->wallnum == 4)
                 {
                     //Set wal to the wall on the opposite side of the sector
@@ -2588,7 +2588,7 @@ void DoPanning(void)
     int nx, ny;
     int i;
     SECTORp sectp;
-    WALLp wallp;
+    walltype* wallp;
 
     SWStatIterator it(STAT_FLOOR_PAN);
     while (auto actor = it.Next())

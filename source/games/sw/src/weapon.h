@@ -82,7 +82,7 @@ extern TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
-SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
+SECTOR_OBJECTp DetectSectorObjectByWall(walltype*);
 void ScaleSpriteVector(DSWActor* actor, int scale);
 void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z);
 DSWActor* QueueWallBlood(DSWActor* hit, short ang);

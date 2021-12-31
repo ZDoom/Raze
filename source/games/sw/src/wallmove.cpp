@@ -36,12 +36,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
+SECTOR_OBJECTp DetectSectorObjectByWall(walltype*);
 
-void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist, int *nx, int *ny)
+void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, walltype* find_wallp, int dist, int *nx, int *ny)
 {
     int j,k,wallcount;
-    WALLp wp;
+    walltype* wp;
     short startwall,endwall;
     SECTORp *sectp;
 

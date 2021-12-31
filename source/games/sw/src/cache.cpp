@@ -73,7 +73,7 @@ void precacheMap(void)
 	int i;
 	int j;
 	SECTORp sectp;
-	WALLp wp;
+	walltype* wp;
 
 	for(auto& sec: sector)
 	{
