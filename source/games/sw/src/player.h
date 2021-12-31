@@ -137,7 +137,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp);
 void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(sectortype* sect,short sound_num);
 void DoSpawnTeleporterEffectPlace(DSWActor* sp);
-void FindMainSector(SECTOR_OBJECTp sop);
+void FindMainSector(SECTOR_OBJECT* sop);
 
 END_SW_NS
 

@@ -376,9 +376,7 @@ typedef struct PLAYERstruct PLAYER, *PLAYERp;
 struct PERSONALITY;
 struct ATTRIBUTE;
 
-struct SECTOR_OBJECTstruct;
-typedef struct SECTOR_OBJECTstruct SECTOR_OBJECT, *SECTOR_OBJECTp;
-
+struct SECTOR_OBJECT;
 struct PANEL_SPRITE;
 struct ANIM;
 
@@ -387,7 +385,7 @@ typedef int ANIMATOR (DSWActor* actor);
 typedef ANIMATOR *ANIMATORp;
 
 typedef void pANIMATOR (PANEL_SPRITE*);
-typedef void (*soANIMATORp) (SECTOR_OBJECTp);
+typedef void (*soANIMATORp) (SECTOR_OBJECT*);
 
 struct STATE
 {
@@ -579,7 +577,7 @@ struct REMOTE_CONTROL
     int pang;
     vec2_t vect, ovect, slide_vect;
     vec3_t pos;
-    SECTOR_OBJECTp sop_control;
+    SECTOR_OBJECT* sop_control;
 };
 
 struct PLAYERstruct
@@ -599,8 +597,8 @@ struct PLAYERstruct
     vec3_t lv;
 
     REMOTE_CONTROL remote;
-    SECTOR_OBJECTp sop_remote;
-    SECTOR_OBJECTp sop;  // will either be sop_remote or sop_control
+    SECTOR_OBJECT* sop_remote;
+    SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving
@@ -668,8 +666,8 @@ struct PLAYERstruct
     int Flags, Flags2;
     ESyncBits KeyPressBits;
 
-    SECTOR_OBJECTp sop_control; // sector object pointer
-    SECTOR_OBJECTp sop_riding; // sector object pointer
+    SECTOR_OBJECT* sop_control; // sector object pointer
+    SECTOR_OBJECT* sop_riding; // sector object pointer
 
     struct
     {
@@ -931,7 +929,7 @@ struct USER
     ACTOR_ACTION_SET* ActorActionSet;
     PERSONALITY* Personality;
     ATTRIBUTE* Attrib;
-    SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
+    SECTOR_OBJECT* sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
     // referenced actors
@@ -1412,7 +1410,7 @@ enum
 
 extern TRACK Track[MAX_TRACKS];
 
-struct SECTOR_OBJECTstruct
+struct SECTOR_OBJECT
 {
 
     soANIMATORp PreMoveAnimator;
@@ -1663,7 +1661,7 @@ int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
     return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
 }
 
-short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* person);
@@ -1859,12 +1857,12 @@ void SpikeAlign(DSWActor*);   // spike.c
 
 short DoSectorObjectSetScale(short match);  // morph.c
 short DoSOevent(short match,short state);   // morph.c
-void SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop,int x,int y,int z);    // morph.c
-void SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop,int x,int y,int z);  // morph.c
-void ScaleSectorObject(SECTOR_OBJECTp sop); // morph.c
-void MorphTornado(SECTOR_OBJECTp sop);  // morph.c
-void MorphFloor(SECTOR_OBJECTp sop);    // morph.c
-void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,int *dy);    // morph.c
+void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop,int x,int y,int z);    // morph.c
+void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop,int x,int y,int z);  // morph.c
+void ScaleSectorObject(SECTOR_OBJECT* sop); // morph.c
+void MorphTornado(SECTOR_OBJECT* sop);  // morph.c
+void MorphFloor(SECTOR_OBJECT* sop);    // morph.c
+void ScaleRandomPoint(SECTOR_OBJECT* sop,short k,short ang,int x,int y,int *dx,int *dy);    // morph.c
 
 void CopySectorMatch(int match);  // copysect.c
 
@@ -2138,7 +2136,7 @@ struct ANIM
 	short vel_adj;
 	TObjPtr<DSWActor*> animactor;
 	ANIM_CALLBACKp callback;
-	SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
+	SECTOR_OBJECT* callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
 
 	int& Addr(bool write)
 	{

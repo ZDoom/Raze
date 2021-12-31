@@ -42,7 +42,7 @@ extern int GlobSpeedSO;
 
 void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     sectortype* *sectp;
 
     auto dwall = dest_sect->firstWall();
@@ -182,7 +182,7 @@ void CopySectorMatch(int match)
                         // check to see if it moved on to a sector object
                         if ((dsectp->extra & SECTFX_SECTOR_OBJECT))
                         {
-                            SECTOR_OBJECTp sop;
+                            SECTOR_OBJECT* sop;
 
                             // find and add sprite to SO
                             sop = DetectSectorObject(itActor->sector());

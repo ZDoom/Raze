@@ -41,9 +41,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
-void DoAutoTurretObject(SECTOR_OBJECTp sop);
-void DoTornadoObject(SECTOR_OBJECTp sop);
+void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny);
+void DoAutoTurretObject(SECTOR_OBJECT* sop);
+void DoTornadoObject(SECTOR_OBJECT* sop);
 int PickJumpSpeed(DSWActor*, int pix_height);
 DSWActor* FindNearSprite(DSWActor, short);
 ANIMATOR NinjaJumpActionFunc;
@@ -258,7 +258,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
 }
 
 
-void NextTrackPoint(SECTOR_OBJECTp sop)
+void NextTrackPoint(SECTOR_OBJECT* sop)
 {
     sop->point += sop->dir;
 
@@ -661,7 +661,7 @@ DSWActor* FindBoundSprite(int tag)
 }
 
 
-void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
+void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 {
     int xlow, ylow, xhigh, yhigh;
     int startwall, endwall;
@@ -956,7 +956,7 @@ cont:
 
 void SetupSectorObject(sectortype* sectp, short tag)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     int object_num;
     short j;
 
@@ -968,11 +968,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
     // initialize stuff first time through
     if (sop->num_sectors == -1)
     {
-        void DoTornadoObject(SECTOR_OBJECTp sop);
-        void MorphTornado(SECTOR_OBJECTp sop);
-        void MorphFloor(SECTOR_OBJECTp sop);
-        void ScaleSectorObject(SECTOR_OBJECTp sop);
-        void DoAutoTurretObject(SECTOR_OBJECTp sop);
+        void DoTornadoObject(SECTOR_OBJECT* sop);
+        void MorphTornado(SECTOR_OBJECT* sop);
+        void MorphFloor(SECTOR_OBJECT* sop);
+        void ScaleSectorObject(SECTOR_OBJECT* sop);
+        void DoAutoTurretObject(SECTOR_OBJECT* sop);
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
         memset(sop->so_actors, 0, sizeof(sop->so_actors));
@@ -1338,7 +1338,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
 void PostSetupSectorObject(void)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
@@ -1349,10 +1349,10 @@ void PostSetupSectorObject(void)
 }
 
 
-SECTOR_OBJECTp PlayerOnObject(sectortype* match)
+SECTOR_OBJECT* PlayerOnObject(sectortype* match)
 {
     short i, j;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
 
     // place each sector object on the track
     //for (i = 0; !SO_EMPTY(&SectorObject[i]) && (i < MAX_SECTOR_OBJECTS); i++)
@@ -1385,7 +1385,7 @@ void PlaceSectorObjectsOnTracks(void)
     for (i = 0; i < MAX_SECTOR_OBJECTS; i++)
     {
         int low_dist = 999999, dist;
-        SECTOR_OBJECTp sop = &SectorObject[i];
+        SECTOR_OBJECT* sop = &SectorObject[i];
         TRACK_POINT* tpoint = nullptr;
 
         if (SO_EMPTY(sop))
@@ -1507,7 +1507,7 @@ void PlaceActorsOnTracks(void)
 }
 
 
-void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
+void MovePlayer(PLAYERp pp, SECTOR_OBJECT* sop, int nx, int ny)
 {
     void DoPlayerZrange(PLAYERp pp);
 
@@ -1581,7 +1581,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     UpdatePlayerSprite(pp);
 }
 
-void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
+void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
 {
     int j;
     vec2_t rxy;
@@ -1817,7 +1817,7 @@ PlayerPart:
     }
 }
 
-void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
+void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
 {
     short wallcount = 0, delta_ang_from_orig;
     short ang;
@@ -1901,7 +1901,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
         (*sop->PostMoveAnimator)(sop);
 }
 
-void KillSectorObjectSprites(SECTOR_OBJECTp sop)
+void KillSectorObjectSprites(SECTOR_OBJECT* sop)
 {
     int i;
 
@@ -1924,7 +1924,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     sop->so_actors[0] = nullptr;
 }
 
-void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
+void UpdateSectorObjectSprites(SECTOR_OBJECT* sop)
 {
     int i;
 
@@ -1937,11 +1937,11 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
     }
 }
 
-SECTOR_OBJECTp DetectSectorObject(sectortype* sectph)
+SECTOR_OBJECT* DetectSectorObject(sectortype* sectph)
 {
     short j;
     sectortype* *sectp;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
 
 
     // collapse the SO to a single point
@@ -1961,9 +1961,9 @@ SECTOR_OBJECTp DetectSectorObject(sectortype* sectph)
     return nullptr;
 }
 
-SECTOR_OBJECTp DetectSectorObjectByWall(walltype* wph)
+SECTOR_OBJECT* DetectSectorObjectByWall(walltype* wph)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
 
     // collapse the SO to a single point
     // move all points to nx,ny
@@ -1995,7 +1995,7 @@ SECTOR_OBJECTp DetectSectorObjectByWall(walltype* wph)
 }
 
 
-void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
+void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny)
 {
     int j;
     sectortype* *sectp;
@@ -2026,7 +2026,7 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 }
 
 
-void MoveZ(SECTOR_OBJECTp sop)
+void MoveZ(SECTOR_OBJECT* sop)
 {
     short i;
     sectortype* *sectp;
@@ -2081,14 +2081,14 @@ void MoveZ(SECTOR_OBJECTp sop)
 
 void CallbackSOsink(ANIM* ap, void *data)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     int i, ndx;
     bool found = false;
     int tgt_depth;
     sectortype* srcsect = nullptr;
     sectortype* destsect = nullptr;
 
-    sop = (SECTOR_OBJECTp)data;
+    sop = (SECTOR_OBJECT*)data;
 
     for (i = 0; sop->sectp[i] != nullptr; i++)
     {
@@ -2157,7 +2157,7 @@ void CallbackSOsink(ANIM* ap, void *data)
 }
 
 
-void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
+void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
 {
     int nx, ny;
     short speed;
@@ -2238,7 +2238,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     }
 }
 
-void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
+void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
 {
     TRACK_POINT* tpoint;
     int dx, dy, dz;
@@ -2578,7 +2578,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 }
 
 
-void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy, short locktics)
+void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int newy, short locktics)
 {
     int i;
     sectortype* *sectp;
@@ -2617,18 +2617,18 @@ void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int 
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
-void OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
+void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy)
 {
     OperateSectorObjectForTics(sop, newang, newx, newy, synctics);
 }
 
-void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
+void PlaceSectorObject(SECTOR_OBJECT* sop, int newx, int newy)
 {
     so_setinterpolationtics(sop, synctics);
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
-void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator)
 {
     sectortype* *sectp;
 
@@ -2667,7 +2667,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 }
 
 
-void KillSectorObject(SECTOR_OBJECTp sop)
+void KillSectorObject(SECTOR_OBJECT* sop)
 {
     int newx = MAXSO;
     int newy = MAXSO;
@@ -2685,7 +2685,7 @@ void KillSectorObject(SECTOR_OBJECTp sop)
 }
 
 
-void TornadoSpin(SECTOR_OBJECTp sop)
+void TornadoSpin(SECTOR_OBJECT* sop)
 {
     short delta_ang, speed;
     short locktics = synctics;
@@ -2717,7 +2717,7 @@ void TornadoSpin(SECTOR_OBJECTp sop)
     }
 }
 
-void DoTornadoObject(SECTOR_OBJECTp sop)
+void DoTornadoObject(SECTOR_OBJECT* sop)
 {
     int xvect,yvect;
     // this made them move together more or less - cool!
@@ -2749,7 +2749,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     RefreshPoints(sop, pos.X - sop->xmid, pos.Y - sop->ymid, true);
 }
 
-void DoAutoTurretObject(SECTOR_OBJECTp sop)
+void DoAutoTurretObject(SECTOR_OBJECT* sop)
 {
     DSWActor* actor = sop->sp_child;
     if (!actor) return;

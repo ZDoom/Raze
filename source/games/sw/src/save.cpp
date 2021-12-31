@@ -601,7 +601,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTp& w, SECTOR_OBJECTp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT*& w, SECTOR_OBJECT** def)
 {
 	int ndx = w ? int(w - SectorObject) : -1;
 	arc(keyname, ndx);
@@ -615,9 +615,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTp& w,
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruct& w, SECTOR_OBJECTstruct* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, SECTOR_OBJECT* def)
 {
-	static SECTOR_OBJECTstruct nul;
+	static SECTOR_OBJECT nul;
 	if (!def)
 	{
 		def = &nul;

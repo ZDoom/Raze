@@ -31,17 +31,17 @@ enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
 int ActorFollowTrack(DSWActor*, short locktics);
 void ActorLeaveTrack(DSWActor*);
-void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic);
+void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic);
 void TrackSetup(void);
-void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy);
+void PlaceSectorObject(SECTOR_OBJECT* sop, int newx, int newy);
 void PlaceSectorObjectsOnTracks(void);
 void PlaceActorsOnTracks(void);
 void SetupSectorObject(sectortype* sect, short tag);
 void PostSetupSectorObject(void);
-void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
-void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny);
-void KillSectorObjectSprites(SECTOR_OBJECTp sop);
-void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics);
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator);
+void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny);
+void KillSectorObjectSprites(SECTOR_OBJECT* sop);
+void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics);
 
 #define TEXT_INFO_TIME (3)
 #define TEXT_INFO_Y (40)

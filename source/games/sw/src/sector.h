@@ -73,7 +73,7 @@ void DoSoundSpotStopSound(short match);
 void DoSector(void);
 int AnimateSwitch(DSWActor* actor, int tgt_value);
 void ShootableSwitch(DSWActor*);
-bool TestKillSectorObject(SECTOR_OBJECTp sop);
+bool TestKillSectorObject(SECTOR_OBJECT* sop);
 void WeaponExplodeSectorInRange(DSWActor*);
 
 

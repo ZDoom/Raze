@@ -1065,7 +1065,7 @@ void DoStopSoundSpotMatch(short match)
 }
 
 
-bool TestKillSectorObject(SECTOR_OBJECTp sop)
+bool TestKillSectorObject(SECTOR_OBJECT* sop)
 {
     if ((sop->flags & SOBJ_KILLABLE))
     {
@@ -1082,7 +1082,7 @@ bool TestKillSectorObject(SECTOR_OBJECTp sop)
 
 short DoSectorObjectKillMatch(short match)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
@@ -1656,7 +1656,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     case TAG_ROTATE_SO_SWITCH:
     {
         short so_num;
-        SECTOR_OBJECTp sop;
+        SECTOR_OBJECT* sop;
 
         so_num = actor->spr.hitag;
 
@@ -2556,7 +2556,7 @@ int AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, i
     return j;
 }
 
-short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data)
 {
     ASSERT(anim_ndx < AnimCnt);
 
@@ -2630,7 +2630,7 @@ void DoPanning(void)
 
 void DoSector(void)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     bool riding;
     int sync_flag;
     short pnum;

@@ -72,7 +72,7 @@ static struct so_interp
 void MarkSOInterp()
 {
     int32_t i;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     so_interp* interp;
     so_interp::interp_data* data;
 
@@ -183,7 +183,7 @@ static void so_stopdatainterpolation(so_interp *interp, int element, DSWActor* a
 	}
 }
 
-void so_addinterpolation(SECTOR_OBJECTp sop)
+void so_addinterpolation(SECTOR_OBJECT* sop)
 {
     sectortype* *sectp;
     int32_t startwall, endwall;
@@ -234,7 +234,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
     interp->lasttic = synctics;
 }
 
-void so_setspriteinterpolation(SECTOR_OBJECTp sop, DSWActor* actor)
+void so_setspriteinterpolation(SECTOR_OBJECT* sop, DSWActor* actor)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
 
@@ -245,7 +245,7 @@ void so_setspriteinterpolation(SECTOR_OBJECTp sop, DSWActor* actor)
     so_setspriteanginterpolation(interp, actor);
 }
 
-void so_stopspriteinterpolation(SECTOR_OBJECTp sop, DSWActor *actor)
+void so_stopspriteinterpolation(SECTOR_OBJECT* sop, DSWActor *actor)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
 
@@ -256,7 +256,7 @@ void so_stopspriteinterpolation(SECTOR_OBJECTp sop, DSWActor *actor)
     so_stopdatainterpolation(interp, soi_sprang, actor);
 }
 
-void so_setinterpolationtics(SECTOR_OBJECTp sop, int16_t locktics)
+void so_setinterpolationtics(SECTOR_OBJECT* sop, int16_t locktics)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
 
@@ -267,7 +267,7 @@ void so_setinterpolationtics(SECTOR_OBJECTp sop, int16_t locktics)
 void so_updateinterpolations(void) // Stick at beginning of domovethings
 {
     int32_t i;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     so_interp *interp;
     so_interp::interp_data *data;
     bool interpolating = cl_sointerpolation && !CommEnabled; // If changing from menu
@@ -310,7 +310,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
 void so_dointerpolations(int32_t smoothratio)                      // Stick at beginning of drawscreen
 {
     int32_t i, delta;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     so_interp *interp;
     so_interp::interp_data *data;
 
@@ -412,7 +412,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
 void so_restoreinterpolations(void)                 // Stick at end of drawscreen
 {
     int32_t i;
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     so_interp *interp;
     so_interp::interp_data *data;
 
@@ -436,7 +436,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
 
 void so_serializeinterpolations(FSerializer& arc)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     so_interp* interp;
 
     if (arc.BeginArray("sop_interp"))

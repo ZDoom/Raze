@@ -60,7 +60,7 @@ BEGIN_SW_NS
 
 void pSpriteControl(PLAYERp pp);
 int WeaponOperate(PLAYERp pp);
-SECTOR_OBJECTp PlayerOnObject(sectortype* sect_match);
+SECTOR_OBJECT* PlayerOnObject(sectortype* sect_match);
 void PlayerRemoteReset(PLAYERp pp, sectortype* sect);
 void KillAllPanelInv(PLAYERp pp);
 void DoPlayerDeathDrown(PLAYERp pp);
@@ -161,7 +161,7 @@ void DoPlayerBeginDive(PLAYERp pp);
 void DoPlayerDive(PLAYERp pp);
 void DoPlayerTeleportPause(PLAYERp pp);
 bool PlayerFlyKey(void);
-void OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy);
+void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy);
 void CheckFootPrints(PLAYERp pp);
 bool DoPlayerTestCrawl(PLAYERp pp);
 void DoPlayerDeathFlip(PLAYERp pp);
@@ -1471,7 +1471,7 @@ void DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 
 void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
 {
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
@@ -1499,7 +1499,7 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
 void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 {
     float avel;
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
@@ -1527,7 +1527,7 @@ void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
     binangle new_ang, diff;
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
@@ -2358,7 +2358,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 {
     int testpointinquad(int x, int y, int *qx, int *qy);
 
-    SECTOR_OBJECTp sop = pp->sop_control;
+    SECTOR_OBJECT* sop = pp->sop_control;
     short stat;
     sectortype* *sectp;
 
@@ -2509,7 +2509,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     int count=0;
 
     sectortype* *sectp;
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
     walltype* wp;
     int j,k;
     short startwall,endwall;
@@ -4821,7 +4821,7 @@ void DoPlayerBeginOperateTurret(PLAYERp pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
-void FindMainSector(SECTOR_OBJECTp sop)
+void FindMainSector(SECTOR_OBJECT* sop)
 {
     // find the main sector - only do this once for each sector object
     if (sop->op_main_sector == nullptr)
@@ -4867,7 +4867,7 @@ void DoPlayerOperateMatch(PLAYERp pp, bool starting)
 
 void DoPlayerBeginOperate(PLAYERp pp)
 {
-    SECTOR_OBJECTp sop;
+    SECTOR_OBJECT* sop;
     int cz, fz;
     int i;
 
@@ -4964,7 +4964,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
 
 }
 
-void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
+void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECT* sop)
 {
     int cz, fz;
     int i;

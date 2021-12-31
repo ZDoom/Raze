@@ -41,7 +41,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
 {
     int i;
     vec3_t opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
     short ang;
     short min_ndx = 0;
     int min_dist = 999999;
@@ -120,7 +120,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
 short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
 {
     int i;
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
     int ret;
     int x,y;
     short ang;
@@ -269,7 +269,7 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
 {
     int i;
     vec2_t xy[4];
-    SECTOR_OBJECTp sop = pp->sop;
+    SECTOR_OBJECT* sop = pp->sop;
     short rot_ang;
     int point_num;
 

@@ -641,7 +641,7 @@ void KillActor(DSWActor* actor)
         // adjust sprites attached to sector objects
         if (actor->user.Flags & (SPR_SO_ATTACHED))
         {
-            SECTOR_OBJECTp sop;
+            SECTOR_OBJECT* sop;
             int sn, FoundSpriteNdx = -1;
 
             for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)

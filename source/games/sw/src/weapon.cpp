@@ -55,7 +55,7 @@ struct MISSILE_PLACEMENT
 void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYERp);
-void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATORp animator);
 ANIMATOR DoBettyBeginDeath;
 ANIMATOR DoSkullBeginDeath;
 ANIMATOR DoRipperGrow;
@@ -112,8 +112,8 @@ ANIMATOR SpawnShrapX;
 bool WeaponMoveHit(DSWActor* actor);
 void SpawnMidSplash(DSWActor* actor);
 
-int SopDamage(SECTOR_OBJECTp sop,short amt);
-int SopCheckKill(SECTOR_OBJECTp sop);
+int SopDamage(SECTOR_OBJECT* sop,short amt);
+int SopCheckKill(SECTOR_OBJECT* sop);
 int QueueStar(DSWActor*);
 int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
@@ -4153,9 +4153,9 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
 bool VehicleMoveHit(DSWActor* actor)
 {
-    SECTOR_OBJECTp sop;
-    SECTOR_OBJECTp hsop;
-    bool TestKillSectorObject(SECTOR_OBJECTp);
+    SECTOR_OBJECT* sop;
+    SECTOR_OBJECT* hsop;
+    bool TestKillSectorObject(SECTOR_OBJECT*);
 
     if (actor->user.coll.type == kHitNone)
         return false;
@@ -4249,7 +4249,7 @@ bool WeaponMoveHit(DSWActor* actor)
     case kHitSector:
     {
         sectortype* sectp;
-        SECTOR_OBJECTp sop;
+        SECTOR_OBJECT* sop;
 
         sectp = actor->user.coll.hitSector;
 
@@ -4391,7 +4391,7 @@ bool WeaponMoveHit(DSWActor* actor)
     case kHitWall:
     {
         auto wph = actor->user.coll.hitWall;
-        SECTOR_OBJECTp sop;
+        SECTOR_OBJECT* sop;
 
         ASSERT(wph->extra != -1);
 
@@ -5071,7 +5071,7 @@ int ActorHealth(DSWActor* actor, short amt)
     return true;
 }
 
-int SopDamage(SECTOR_OBJECTp sop, short amt)
+int SopDamage(SECTOR_OBJECT* sop, short amt)
 {
     auto actor = sop->sp_child;
 
@@ -5088,7 +5088,7 @@ int SopDamage(SECTOR_OBJECTp sop, short amt)
     return true;
 }
 
-int SopCheckKill(SECTOR_OBJECTp sop)
+int SopCheckKill(SECTOR_OBJECT* sop)
 {
     bool killed = false;
 
@@ -10192,7 +10192,7 @@ void SpawnMicroExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos.X, expActor->spr.pos.Y, expActor->spr.pos.Z, 16);
 }
 
-void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
+void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 {
     unsigned sn;
 
@@ -10222,7 +10222,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
     actor->user.sang = actor->spr.ang;
 }
 
-void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, bool smallflames)
+void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, bool smallflames)
 {
     unsigned sn;
 
@@ -16025,7 +16025,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wal
     return actorNew;
 }
 
-int InitTurretMgun(SECTOR_OBJECTp sop)
+int InitTurretMgun(SECTOR_OBJECT* sop)
 {
     short daang, i;
     HitInfo hit{};

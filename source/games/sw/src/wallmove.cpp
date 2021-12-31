@@ -36,9 +36,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SECTOR_OBJECTp DetectSectorObjectByWall(walltype*);
+SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
 
-void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, walltype* find_wallp, int dist, int *nx, int *ny)
+void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, int dist, int *nx, int *ny)
 {
     int j,k,wallcount;
     walltype* wp;
@@ -106,7 +106,7 @@ int DoWallMove(DSWActor* actor)
 
             if ((wal.extra & WALLFX_SECTOR_OBJECT))
             {
-                SECTOR_OBJECTp sop;
+                SECTOR_OBJECT* sop;
                 sop = DetectSectorObjectByWall(&wal);
                 ASSERT(sop);
                 SOwallmove(sop, actor, &wal, dist, &nx, &ny);
