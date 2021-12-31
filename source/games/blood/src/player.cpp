@@ -1733,9 +1733,9 @@ void ProcessInput(PLAYER* pPlayer)
 		case 3:
 		{
 			auto act = result.actor();
-			int key = actor->xspr.key;
-			if (actor->xspr.locked && pPlayer == gMe && actor->xspr.lockMsg)
-				trTextOver(actor->xspr.lockMsg);
+			int key = act->xspr.key;
+			if (actor->xspr.locked && pPlayer == gMe && act->xspr.lockMsg)
+				trTextOver(act->xspr.lockMsg);
 			if (!key || pPlayer->hasKey[key])
 				trTriggerSprite(act, kCmdSpritePush);
 			else if (pPlayer == gMe)
