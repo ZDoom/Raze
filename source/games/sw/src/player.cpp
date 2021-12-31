@@ -58,13 +58,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void pSpriteControl(PLAYERp pp);
-int WeaponOperate(PLAYERp pp);
+void pSpriteControl(PLAYER* pp);
+int WeaponOperate(PLAYER* pp);
 SECTOR_OBJECT* PlayerOnObject(sectortype* sect_match);
-void PlayerRemoteReset(PLAYERp pp, sectortype* sect);
-void KillAllPanelInv(PLAYERp pp);
-void DoPlayerDeathDrown(PLAYERp pp);
-void pWeaponForceRest(PLAYERp pp);
+void PlayerRemoteReset(PLAYER* pp, sectortype* sect);
+void KillAllPanelInv(PLAYER* pp);
+void DoPlayerDeathDrown(PLAYER* pp);
+void pWeaponForceRest(PLAYER* pp);
 
 #define SO_DRIVE_SOUND 2
 #define SO_IDLE_SOUND 1
@@ -130,54 +130,54 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 short NormalVisibility;
 
 DSWActor* FindNearSprite(DSWActor*, short stat);
-bool PlayerOnLadder(PLAYERp pp);
-void DoPlayerSlide(PLAYERp pp);
-void DoPlayerBeginSwim(PLAYERp pp);
-void DoPlayerSwim(PLAYERp pp);
-void DoPlayerWade(PLAYERp pp);
-void DoPlayerBeginWade(PLAYERp pp);
-void DoPlayerBeginCrawl(PLAYERp pp);
-void DoPlayerCrawl(PLAYERp pp);
-void DoPlayerRun(PLAYERp pp);
-void DoPlayerBeginRun(PLAYERp pp);
-void DoPlayerFall(PLAYERp pp);
-void DoPlayerBeginFall(PLAYERp pp);
-void DoPlayerJump(PLAYERp pp);
-void DoPlayerBeginJump(PLAYERp pp);
-void DoPlayerForceJump(PLAYERp pp);
-void DoPlayerBeginFly(PLAYERp pp);
-void DoPlayerFly(PLAYERp pp);
-void DoPlayerBeginClimb(PLAYERp pp);
-void DoPlayerClimb(PLAYERp pp);
-void DoPlayerBeginDie(PLAYERp pp);
-void DoPlayerDie(PLAYERp pp);
-// void DoPlayerBeginOperateBoat(PLAYERp pp);
-void DoPlayerBeginOperateVehicle(PLAYERp pp);
-void DoPlayerBeginOperate(PLAYERp pp);
-// void DoPlayerOperateBoat(PLAYERp pp);
-void DoPlayerOperateVehicle(PLAYERp pp);
-void DoPlayerOperateTurret(PLAYERp pp);
-void DoPlayerBeginDive(PLAYERp pp);
-void DoPlayerDive(PLAYERp pp);
-void DoPlayerTeleportPause(PLAYERp pp);
+bool PlayerOnLadder(PLAYER* pp);
+void DoPlayerSlide(PLAYER* pp);
+void DoPlayerBeginSwim(PLAYER* pp);
+void DoPlayerSwim(PLAYER* pp);
+void DoPlayerWade(PLAYER* pp);
+void DoPlayerBeginWade(PLAYER* pp);
+void DoPlayerBeginCrawl(PLAYER* pp);
+void DoPlayerCrawl(PLAYER* pp);
+void DoPlayerRun(PLAYER* pp);
+void DoPlayerBeginRun(PLAYER* pp);
+void DoPlayerFall(PLAYER* pp);
+void DoPlayerBeginFall(PLAYER* pp);
+void DoPlayerJump(PLAYER* pp);
+void DoPlayerBeginJump(PLAYER* pp);
+void DoPlayerForceJump(PLAYER* pp);
+void DoPlayerBeginFly(PLAYER* pp);
+void DoPlayerFly(PLAYER* pp);
+void DoPlayerBeginClimb(PLAYER* pp);
+void DoPlayerClimb(PLAYER* pp);
+void DoPlayerBeginDie(PLAYER* pp);
+void DoPlayerDie(PLAYER* pp);
+// void DoPlayerBeginOperateBoat(PLAYER* pp);
+void DoPlayerBeginOperateVehicle(PLAYER* pp);
+void DoPlayerBeginOperate(PLAYER* pp);
+// void DoPlayerOperateBoat(PLAYER* pp);
+void DoPlayerOperateVehicle(PLAYER* pp);
+void DoPlayerOperateTurret(PLAYER* pp);
+void DoPlayerBeginDive(PLAYER* pp);
+void DoPlayerDive(PLAYER* pp);
+void DoPlayerTeleportPause(PLAYER* pp);
 bool PlayerFlyKey(void);
 void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy);
-void CheckFootPrints(PLAYERp pp);
-bool DoPlayerTestCrawl(PLAYERp pp);
-void DoPlayerDeathFlip(PLAYERp pp);
-void DoPlayerDeathCrumble(PLAYERp pp);
-void DoPlayerDeathExplode(PLAYERp pp);
-void DoPlayerDeathFall(PLAYERp pp);
+void CheckFootPrints(PLAYER* pp);
+bool DoPlayerTestCrawl(PLAYER* pp);
+void DoPlayerDeathFlip(PLAYER* pp);
+void DoPlayerDeathCrumble(PLAYER* pp);
+void DoPlayerDeathExplode(PLAYER* pp);
+void DoPlayerDeathFall(PLAYER* pp);
 
-void PlayerCheckValidMove(PLAYERp pp);
-void PlayerWarpUpdatePos(PLAYERp pp);
-void DoPlayerBeginDiveNoWarp(PLAYERp pp);
-int PlayerCanDiveNoWarp(PLAYERp pp);
-void DoPlayerCurrent(PLAYERp pp);
+void PlayerCheckValidMove(PLAYER* pp);
+void PlayerWarpUpdatePos(PLAYER* pp);
+void DoPlayerBeginDiveNoWarp(PLAYER* pp);
+int PlayerCanDiveNoWarp(PLAYER* pp);
+void DoPlayerCurrent(PLAYER* pp);
 int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under);
-void PlayerToRemote(PLAYERp pp);
-void PlayerRemoteInit(PLAYERp pp);
-void PlayerSpawnPosition(PLAYERp pp);
+void PlayerToRemote(PLAYER* pp);
+void PlayerRemoteInit(PLAYER* pp);
+void PlayerSpawnPosition(PLAYER* pp);
 
 extern short target_ang;
 
@@ -1054,7 +1054,7 @@ STATEp sg_PlayerNinjaFly[] =
 
 /////////////////////////////////////////////////////////////////////////////
 
-void DoPlayerSpriteThrow(PLAYERp pp)
+void DoPlayerSpriteThrow(PLAYER* pp)
 {
     if (!(pp->Flags & (PF_DIVING|PF_FLYING|PF_CRAWLING)))
     {
@@ -1070,7 +1070,7 @@ void DoPlayerSpriteThrow(PLAYERp pp)
 
 int DoPlayerSpriteReset(DSWActor* actor)
 {
-    PLAYERp pp;
+    PLAYER* pp;
 
     if (!actor->user.PlayerP)
         return 0;
@@ -1241,7 +1241,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     return TargetSort[0].actor;
 }
 
-void DoPlayerResetMovement(PLAYERp pp)
+void DoPlayerResetMovement(PLAYER* pp)
 {
     pp->vect.X = pp->ovect.X = 0;
     pp->vect.Y = pp->ovect.Y = 0;
@@ -1251,7 +1251,7 @@ void DoPlayerResetMovement(PLAYERp pp)
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
 
-void DoPlayerTeleportPause(PLAYERp pp)
+void DoPlayerTeleportPause(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -1268,7 +1268,7 @@ void DoPlayerTeleportPause(PLAYERp pp)
     }
 }
 
-void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
+void DoPlayerTeleportToSprite(PLAYER* pp, vec3_t* pos, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
     pp->pos.X = pp->opos.X = pp->oldpos.X = pos->X;
@@ -1283,7 +1283,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* pos, int ang)
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
-void DoPlayerTeleportToOffset(PLAYERp pp)
+void DoPlayerTeleportToOffset(PLAYER* pp)
 {
     pp->opos.X = pp->oldpos.X = pp->pos.X;
     pp->opos.Y = pp->oldpos.Y = pp->pos.Y;
@@ -1335,7 +1335,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
-void DoPlayerWarpTeleporter(PLAYERp pp)
+void DoPlayerWarpTeleporter(PLAYER* pp)
 {
     auto ppActor = pp->actor;
     short pnum;
@@ -1381,7 +1381,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         {
             if (pnum != pp - Player)
             {
-                PLAYERp npp = &Player[pnum];
+                PLAYER* npp = &Player[pnum];
 
                 // if someone already standing there
                 if (npp->cursector == pp->cursector)
@@ -1399,7 +1399,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
     ppActor->backuppos();
 }
 
-void DoPlayerSetWadeDepth(PLAYERp pp)
+void DoPlayerSetWadeDepth(PLAYER* pp)
 {
     sectortype* sectp;
 
@@ -1419,7 +1419,7 @@ void DoPlayerSetWadeDepth(PLAYERp pp)
 }
 
 
-void DoPlayerHeight(PLAYERp pp)
+void DoPlayerHeight(PLAYER* pp)
 {
     int diff;
 
@@ -1428,7 +1428,7 @@ void DoPlayerHeight(PLAYERp pp)
     pp->pos.Z = pp->pos.Z - ((diff >> 2) + (diff >> 3));
 }
 
-void DoPlayerJumpHeight(PLAYERp pp)
+void DoPlayerJumpHeight(PLAYER* pp)
 {
     if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -1440,7 +1440,7 @@ void DoPlayerJumpHeight(PLAYERp pp)
     }
 }
 
-void DoPlayerCrawlHeight(PLAYERp pp)
+void DoPlayerCrawlHeight(PLAYER* pp)
 {
     int diff;
 
@@ -1448,7 +1448,7 @@ void DoPlayerCrawlHeight(PLAYERp pp)
     pp->pos.Z = pp->pos.Z - ((diff >> 2) + (diff >> 3));
 }
 
-void UpdatePlayerSpriteAngle(PLAYERp pp)
+void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     plActor->backupang();
@@ -1463,13 +1463,13 @@ void UpdatePlayerSpriteAngle(PLAYERp pp)
     }
 }
 
-void DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
+void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust)
 {
     pp->angle.applyinput(avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
 
-void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
+void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
@@ -1496,7 +1496,7 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
     }
 }
 
-void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
+void DoPlayerTurnVehicleRect(PLAYER* pp, int *x, int *y, int *ox, int *oy)
 {
     float avel;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1524,7 +1524,7 @@ void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     }
 }
 
-void DoPlayerTurnTurret(PLAYERp pp, float avel)
+void DoPlayerTurnTurret(PLAYER* pp, float avel)
 {
     binangle new_ang, diff;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1565,7 +1565,7 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel)
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->xmid, pp->sop->ymid);
 }
 
-void SlipSlope(PLAYERp pp)
+void SlipSlope(PLAYER* pp)
 {
     short ang;
 
@@ -1585,14 +1585,14 @@ void SlipSlope(PLAYERp pp)
     pp->vect.Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
 }
 
-void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
+void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
     pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
-void DoPlayerBob(PLAYERp pp)
+void DoPlayerBob(PLAYER* pp)
 {
     int dist;
     int amt;
@@ -1630,7 +1630,7 @@ void DoPlayerBob(PLAYERp pp)
     pp->bob_z = MulScale(Z(amt), bsin(pp->bcnt), 14);
 }
 
-void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
+void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
 {
     pp->Flags |= (PF_RECOIL);
 
@@ -1640,7 +1640,7 @@ void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
     pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
 }
 
-void DoPlayerRecoil(PLAYERp pp)
+void DoPlayerRecoil(PLAYER* pp)
 {
     // controls how fast you move through the sin table
     pp->recoil_ndx += pp->recoil_speed;
@@ -1660,7 +1660,7 @@ void DoPlayerRecoil(PLAYERp pp)
 
 
 // for wading
-void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob_speed)
+void DoPlayerSpriteBob(PLAYER* pp, short player_height, short bob_amt, short bob_speed)
 {
 
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
@@ -1670,7 +1670,7 @@ void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob
     pp->actor->spr.pos.Z = (pp->pos.Z + player_height) + pp->bob_amt;
 }
 
-void UpdatePlayerUnderSprite(PLAYERp pp)
+void UpdatePlayerUnderSprite(PLAYER* pp)
 {
     DSWActor* act_over = pp->actor;
 
@@ -1731,7 +1731,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 }
 
 
-void UpdatePlayerSprite(PLAYERp pp)
+void UpdatePlayerSprite(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
     if (!actor) return;
@@ -1823,7 +1823,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     actor->spr.ang = pp->angle.ang.asbuild();
 }
 
-void DoPlayerZrange(PLAYERp pp)
+void DoPlayerZrange(PLAYER* pp)
 {
     Collision ceilhit, florhit;
 
@@ -1878,7 +1878,7 @@ void DoPlayerZrange(PLAYERp pp)
     }
 }
 
-void DoPlayerSlide(PLAYERp pp)
+void DoPlayerSlide(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -1928,7 +1928,7 @@ void DoPlayerSlide(PLAYERp pp)
     }
 }
 
-void PlayerCheckValidMove(PLAYERp pp)
+void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
@@ -1947,7 +1947,7 @@ void PlayerCheckValidMove(PLAYERp pp)
     }
 }
 
-void PlayerSectorBound(PLAYERp pp, int amt)
+void PlayerSectorBound(PLAYER* pp, int amt)
 {
     if (!pp->insector())
         return;
@@ -1973,7 +1973,7 @@ void PlayerSectorBound(PLAYERp pp, int amt)
 
 }
 
-void DoPlayerMove(PLAYERp pp)
+void DoPlayerMove(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
     int friction;
@@ -1985,7 +1985,7 @@ void DoPlayerMove(PLAYERp pp)
     // the player gets pushed by a wall (e.g., on the boat in level 5).
     bool interpolate_ride = pp->sop_riding && (!cl_sointerpolation || CommEnabled);
 
-    void SlipSlope(PLAYERp pp);
+    void SlipSlope(PLAYER* pp);
 
     SlipSlope(pp);
 
@@ -2151,7 +2151,7 @@ void DoPlayerMove(PLAYERp pp)
     }
 }
 
-void DoPlayerSectorUpdatePreMove(PLAYERp pp)
+void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 {
     auto sect = pp->cursector;
 
@@ -2182,7 +2182,7 @@ void DoPlayerSectorUpdatePreMove(PLAYERp pp)
     pp->setcursector(sect);
 }
 
-void DoPlayerSectorUpdatePostMove(PLAYERp pp)
+void DoPlayerSectorUpdatePostMove(PLAYER* pp)
 {
     auto sect = pp->cursector;
     int fz,cz;
@@ -2242,7 +2242,7 @@ void StopSOsound(sectortype* sect)
 }
 
 
-void DoTankTreads(PLAYERp pp)
+void DoTankTreads(PLAYER* pp)
 {
     int i;
     int vel;
@@ -2337,7 +2337,7 @@ void DoTankTreads(PLAYERp pp)
 
 }
 
-void SetupDriveCrush(PLAYERp pp, int *x, int *y)
+void SetupDriveCrush(PLAYER* pp, int *x, int *y)
 {
     int radius = pp->sop_control->clipdist;
 
@@ -2354,7 +2354,7 @@ void SetupDriveCrush(PLAYERp pp, int *x, int *y)
     y[3] = pp->pos.Y + radius;
 }
 
-void DriveCrush(PLAYERp pp, int *x, int *y)
+void DriveCrush(PLAYER* pp, int *x, int *y)
 {
     int testpointinquad(int x, int y, int *qx, int *qy);
 
@@ -2497,7 +2497,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     }
 }
 
-void DoPlayerMoveVehicle(PLAYERp pp)
+void DoPlayerMoveVehicle(PLAYER* pp)
 {
     int z;
     int floor_dist;
@@ -2710,7 +2710,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     DoTankTreads(pp);
 }
 
-void DoPlayerMoveTurret(PLAYERp pp)
+void DoPlayerMoveTurret(PLAYER* pp)
 {
     if (!Prediction)
     {
@@ -2744,7 +2744,7 @@ void DoPlayerMoveTurret(PLAYERp pp)
     }
 }
 
-void DoPlayerBeginJump(PLAYERp pp)
+void DoPlayerBeginJump(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -2774,7 +2774,7 @@ void DoPlayerBeginJump(PLAYERp pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
-void DoPlayerBeginForceJump(PLAYERp pp)
+void DoPlayerBeginForceJump(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -2795,7 +2795,7 @@ void DoPlayerBeginForceJump(PLAYERp pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
-void DoPlayerJump(PLAYERp pp)
+void DoPlayerJump(PLAYER* pp)
 {
     short i;
 
@@ -2880,7 +2880,7 @@ void DoPlayerJump(PLAYERp pp)
 }
 
 
-void DoPlayerForceJump(PLAYERp pp)
+void DoPlayerForceJump(PLAYER* pp)
 {
     short i;
 
@@ -2919,7 +2919,7 @@ void DoPlayerForceJump(PLAYERp pp)
     DoPlayerMove(pp);
 }
 
-void DoPlayerBeginFall(PLAYERp pp)
+void DoPlayerBeginFall(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -2939,7 +2939,7 @@ void DoPlayerBeginFall(PLAYERp pp)
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Fall);
 }
 
-void StackedWaterSplash(PLAYERp pp)
+void StackedWaterSplash(PLAYER* pp)
 {
     if (FAF_ConnectArea(pp->cursector))
     {
@@ -2954,7 +2954,7 @@ void StackedWaterSplash(PLAYERp pp)
     }
 }
 
-void DoPlayerFall(PLAYERp pp)
+void DoPlayerFall(PLAYER* pp)
 {
     short i;
     int recoil_amt;
@@ -3108,7 +3108,7 @@ void DoPlayerFall(PLAYERp pp)
     DoPlayerMove(pp);
 }
 
-void DoPlayerBeginClimb(PLAYERp pp)
+void DoPlayerBeginClimb(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -3128,7 +3128,7 @@ void DoPlayerBeginClimb(PLAYERp pp)
 }
 
 
-void DoPlayerClimb(PLAYERp pp)
+void DoPlayerClimb(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     int climb_amt;
@@ -3354,7 +3354,7 @@ void DoPlayerClimb(PLAYERp pp)
 }
 
 
-int DoPlayerWadeSuperJump(PLAYERp pp)
+int DoPlayerWadeSuperJump(PLAYER* pp)
 {
     HitInfo hit{};
     unsigned i;
@@ -3399,7 +3399,7 @@ bool PlayerFlyKey(void)
     return true;
 }
 
-void DoPlayerBeginCrawl(PLAYERp pp)
+void DoPlayerBeginCrawl(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -3416,7 +3416,7 @@ void DoPlayerBeginCrawl(PLAYERp pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
 }
 
-bool PlayerFallTest(PLAYERp pp, int player_height)
+bool PlayerFallTest(PLAYER* pp, int player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
     if (labs(pp->pos.Z - pp->loz) > player_height + PLAYER_FALL_HEIGHT)
@@ -3440,7 +3440,7 @@ bool PlayerFallTest(PLAYERp pp, int player_height)
 
 const int PLAYER_STANDING_ROOM = Z(68);
 
-void DoPlayerCrawl(PLAYERp pp)
+void DoPlayerCrawl(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -3511,7 +3511,7 @@ void DoPlayerCrawl(PLAYERp pp)
     DoPlayerCrawlHeight(pp);
 }
 
-void DoPlayerBeginFly(PLAYERp pp)
+void DoPlayerBeginFly(PLAYER* pp)
 {
     pp->Flags &= ~(PF_FALLING | PF_JUMPING | PF_CRAWLING);
     pp->Flags |= (PF_FLYING);
@@ -3538,7 +3538,7 @@ int GetSinNdx(int range, int bob_amt)
     return bob_amt * amt;
 }
 
-void PlayerWarpUpdatePos(PLAYERp pp)
+void PlayerWarpUpdatePos(PLAYER* pp)
 {
     if (Prediction)
         return;
@@ -3550,7 +3550,7 @@ void PlayerWarpUpdatePos(PLAYERp pp)
     UpdatePlayerSprite(pp);
 }
 
-bool PlayerCeilingHit(PLAYERp pp, int zlimit)
+bool PlayerCeilingHit(PLAYER* pp, int zlimit)
 {
     if (pp->pos.Z < zlimit)
     {
@@ -3560,7 +3560,7 @@ bool PlayerCeilingHit(PLAYERp pp, int zlimit)
     return false;
 }
 
-bool PlayerFloorHit(PLAYERp pp, int zlimit)
+bool PlayerFloorHit(PLAYER* pp, int zlimit)
 {
     if (pp->pos.Z > zlimit)
     {
@@ -3570,7 +3570,7 @@ bool PlayerFloorHit(PLAYERp pp, int zlimit)
     return false;
 }
 
-void DoPlayerFly(PLAYERp pp)
+void DoPlayerFly(PLAYER* pp)
 {
     if (SectorIsUnderwaterArea(pp->cursector))
     {
@@ -3651,7 +3651,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     return near_fp;
 }
 
-bool PlayerOnLadder(PLAYERp pp)
+bool PlayerOnLadder(PLAYER* pp)
 {
     int nx, ny;
     unsigned i;
@@ -3735,7 +3735,7 @@ bool PlayerOnLadder(PLAYERp pp)
     return true;
 }
 
-bool DoPlayerTestCrawl(PLAYERp pp)
+bool DoPlayerTestCrawl(PLAYER* pp)
 {
     if (labs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM)
         return true;
@@ -3743,7 +3743,7 @@ bool DoPlayerTestCrawl(PLAYERp pp)
     return false;
 }
 
-int PlayerInDiveArea(PLAYERp pp)
+int PlayerInDiveArea(PLAYER* pp)
 {
     sectortype* sectp;
 
@@ -3767,7 +3767,7 @@ int PlayerInDiveArea(PLAYERp pp)
     return false;
 }
 
-int PlayerCanDive(PLAYERp pp)
+int PlayerCanDive(PLAYER* pp)
 {
     if (Prediction)
         return false;
@@ -3793,7 +3793,7 @@ int PlayerCanDive(PLAYERp pp)
     return false;
 }
 
-int PlayerCanDiveNoWarp(PLAYERp pp)
+int PlayerCanDiveNoWarp(PLAYER* pp)
 {
     if (Prediction)
         return false;
@@ -3986,7 +3986,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 }
 
 
-void DoPlayerWarpToUnderwater(PLAYERp pp)
+void DoPlayerWarpToUnderwater(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4057,7 +4057,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     return;
 }
 
-void DoPlayerWarpToSurface(PLAYERp pp)
+void DoPlayerWarpToSurface(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     auto sectu = pp->cursector;
@@ -4131,7 +4131,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 }
 
 
-void DoPlayerDivePalette(PLAYERp pp)
+void DoPlayerDivePalette(PLAYER* pp)
 {
     if (pp != Player + screenpeek) return;
 
@@ -4151,7 +4151,7 @@ void DoPlayerDivePalette(PLAYERp pp)
 }
 
 
-void DoPlayerBeginDive(PLAYERp pp)
+void DoPlayerBeginDive(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4198,7 +4198,7 @@ void DoPlayerBeginDive(PLAYERp pp)
     DoPlayerDive(pp);
 }
 
-void DoPlayerBeginDiveNoWarp(PLAYERp pp)
+void DoPlayerBeginDiveNoWarp(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4244,7 +4244,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     DoPlayerDive(pp);
 }
 
-void DoPlayerStopDiveNoWarp(PLAYERp pp)
+void DoPlayerStopDiveNoWarp(PLAYER* pp)
 {
     if (Prediction)
         return;
@@ -4269,7 +4269,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
     DoPlayerZrange(pp);
 }
 
-void DoPlayerStopDive(PLAYERp pp)
+void DoPlayerStopDive(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -4296,7 +4296,7 @@ void DoPlayerStopDive(PLAYERp pp)
     }
 }
 
-void DoPlayerDiveMeter(PLAYERp pp)
+void DoPlayerDiveMeter(PLAYER* pp)
 {
     short color=0,metertics,meterunit;
     int y;
@@ -4341,7 +4341,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
         DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
 }
 
-void DoPlayerDive(PLAYERp pp)
+void DoPlayerDive(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     auto sectu = pp->cursector;
@@ -4519,7 +4519,7 @@ void DoPlayerDive(PLAYERp pp)
     }
 }
 
-int DoPlayerTestPlaxDeath(PLAYERp pp)
+int DoPlayerTestPlaxDeath(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4534,7 +4534,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
     return false;
 }
 
-void DoPlayerCurrent(PLAYERp pp)
+void DoPlayerCurrent(PLAYER* pp)
 {
     int xvect, yvect;
     auto sectu = pp->cursector;
@@ -4582,7 +4582,7 @@ void DoPlayerCurrent(PLAYERp pp)
     }
 }
 
-void DoPlayerFireOutWater(PLAYERp pp)
+void DoPlayerFireOutWater(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4598,7 +4598,7 @@ void DoPlayerFireOutWater(PLAYERp pp)
     }
 }
 
-void DoPlayerFireOutDeath(PLAYERp pp)
+void DoPlayerFireOutDeath(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4612,7 +4612,7 @@ void DoPlayerFireOutDeath(PLAYERp pp)
     plActor->user.Flags2 |= SPR2_FLAMEDIE;
 }
 
-void DoPlayerBeginWade(PLAYERp pp)
+void DoPlayerBeginWade(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4644,7 +4644,7 @@ void DoPlayerBeginWade(PLAYERp pp)
 }
 
 
-void DoPlayerWade(PLAYERp pp)
+void DoPlayerWade(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4783,7 +4783,7 @@ void DoPlayerWade(PLAYERp pp)
 }
 
 
-void DoPlayerBeginOperateVehicle(PLAYERp pp)
+void DoPlayerBeginOperateVehicle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4802,7 +4802,7 @@ void DoPlayerBeginOperateVehicle(PLAYERp pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
-void DoPlayerBeginOperateTurret(PLAYERp pp)
+void DoPlayerBeginOperateTurret(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -4840,7 +4840,7 @@ void FindMainSector(SECTOR_OBJECT* sop)
     }
 }
 
-void DoPlayerOperateMatch(PLAYERp pp, bool starting)
+void DoPlayerOperateMatch(PLAYER* pp, bool starting)
 {
     if (!pp->sop)
         return;
@@ -4865,7 +4865,7 @@ void DoPlayerOperateMatch(PLAYERp pp, bool starting)
     }
 }
 
-void DoPlayerBeginOperate(PLAYERp pp)
+void DoPlayerBeginOperate(PLAYER* pp)
 {
     SECTOR_OBJECT* sop;
     int cz, fz;
@@ -4964,7 +4964,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
 
 }
 
-void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECT* sop)
+void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 {
     int cz, fz;
     int i;
@@ -5043,7 +5043,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECT* sop)
     PlayerRemoteReset(pp, save_sect);
 }
 
-void PlayerToRemote(PLAYERp pp)
+void PlayerToRemote(PLAYER* pp)
 {
     pp->remote.cursectp = pp->cursector;
     pp->remote.lastcursectp = pp->lastcursector;
@@ -5060,7 +5060,7 @@ void PlayerToRemote(PLAYERp pp)
     pp->remote.slide_vect.Y = pp->slide_vect.Y;
 }
 
-void RemoteToPlayer(PLAYERp pp)
+void RemoteToPlayer(PLAYER* pp)
 {
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
@@ -5077,7 +5077,7 @@ void RemoteToPlayer(PLAYERp pp)
     pp->slide_vect.Y = pp->remote.slide_vect.Y;
 }
 
-void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
+void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
 {
     pp->setcursector(sect);
     pp->lastcursector = pp->cursector;
@@ -5092,7 +5092,7 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
     UpdatePlayerSprite(pp);
 }
 
-void PlayerRemoteInit(PLAYERp pp)
+void PlayerRemoteInit(PLAYER* pp)
 {
     pp->remote.vect.X        = 0;
     pp->remote.vect.Y        = 0;
@@ -5102,7 +5102,7 @@ void PlayerRemoteInit(PLAYERp pp)
     pp->remote.slide_vect.Y  = 0;
 }
 
-void DoPlayerStopOperate(PLAYERp pp)
+void DoPlayerStopOperate(PLAYER* pp)
 {
     pp->Flags &= ~(PF_WEAPON_DOWN);
     DoPlayerResetMovement(pp);
@@ -5130,7 +5130,7 @@ void DoPlayerStopOperate(PLAYERp pp)
     DoPlayerBeginRun(pp);
 }
 
-void DoPlayerOperateTurret(PLAYERp pp)
+void DoPlayerOperateTurret(PLAYER* pp)
 {
     if (pp->input.actions & SB_OPEN)
     {
@@ -5168,7 +5168,7 @@ void DoPlayerOperateTurret(PLAYERp pp)
 
 
 
-void DoPlayerOperateVehicle(PLAYERp pp)
+void DoPlayerOperateVehicle(PLAYER* pp)
 {
     if (pp->input.actions & SB_OPEN)
     {
@@ -5204,7 +5204,7 @@ void DoPlayerOperateVehicle(PLAYERp pp)
     }
 }
 
-void DoPlayerDeathJump(PLAYERp pp)
+void DoPlayerDeathJump(PLAYER* pp)
 {
     short i;
 
@@ -5245,7 +5245,7 @@ void DoPlayerDeathJump(PLAYERp pp)
     }
 }
 
-void DoPlayerDeathFall(PLAYERp pp)
+void DoPlayerDeathFall(PLAYER* pp)
 {
     short i;
     int loz;
@@ -5298,7 +5298,7 @@ const char *SuicideNote[MAX_SUICIDE] =
     "did everyone a favor and offed himself."
 };
 
-char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
+char *KilledPlayerMessage(PLAYER* pp, PLAYER* killer)
 {
     const int MAX_KILL_NOTES = 16;
     short rnd = StdRandomRange(MAX_KILL_NOTES);
@@ -5365,7 +5365,7 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
     return nullptr;
 };
 
-void DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
+void DoPlayerDeathMessage(PLAYER* pp, PLAYER* killer)
 {
     int pnum;
     bool SEND_OK = false;
@@ -5405,7 +5405,7 @@ enum
     PLAYER_DEATH_HORIZ_FALL_VALUE = -50
 };
 
-void DoPlayerBeginDie(PLAYERp pp)
+void DoPlayerBeginDie(PLAYER* pp)
 {
     extern bool ReloadPrompt;
     short bak;
@@ -5413,7 +5413,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
     DSWActor* plActor = pp->actor;
 
-    static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
+    static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYER*) =
     {
         DoPlayerDeathFlip,
         DoPlayerDeathCrumble,
@@ -5613,7 +5613,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     pp->Flags &= ~(PF_HEAD_CONTROL);
 }
 
-void DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
+void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
 {
     if ((pp->horizon.horiz.asbuild() - target) > 1)
     {   
@@ -5626,7 +5626,7 @@ void DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
     }
 }
 
-int DoPlayerDeathTilt(PLAYERp pp, short target, short speed)
+int DoPlayerDeathTilt(PLAYER* pp, short target, short speed)
 {
     if (pp->tilt > target)
     {
@@ -5646,7 +5646,7 @@ int DoPlayerDeathTilt(PLAYERp pp, short target, short speed)
 }
 
 
-void DoPlayerDeathZrange(PLAYERp pp)
+void DoPlayerDeathZrange(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -5659,7 +5659,7 @@ void DoPlayerDeathZrange(PLAYERp pp)
     pp->lo_sectp = plActor->user.lo_sectp;
 }
 
-void DoPlayerDeathHurl(PLAYERp pp)
+void DoPlayerDeathHurl(PLAYER* pp)
 {
     if (numplayers > 1)
     {
@@ -5687,7 +5687,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
 }
 
 
-void DoPlayerDeathFollowKiller(PLAYERp pp)
+void DoPlayerDeathFollowKiller(PLAYER* pp)
 {
     // if it didn't make it to this angle because of a low ceiling or something
     // continue on to it
@@ -5718,7 +5718,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     }
 }
 
-void DoPlayerDeathCheckKeys(PLAYERp pp)
+void DoPlayerDeathCheckKeys(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -5799,7 +5799,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
     }
 }
 
-void DoPlayerHeadDebris(PLAYERp pp)
+void DoPlayerHeadDebris(PLAYER* pp)
 {
     sectortype* sectp = pp->cursector;
 
@@ -5813,7 +5813,7 @@ void DoPlayerHeadDebris(PLAYERp pp)
     }
 }
 
-void DoPlayerDeathCheckKick(PLAYERp pp)
+void DoPlayerDeathCheckKick(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
@@ -5867,7 +5867,7 @@ void DoPlayerDeathCheckKick(PLAYERp pp)
 }
 
 
-void DoPlayerDeathMoveHead(PLAYERp pp)
+void DoPlayerDeathMoveHead(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     int dax,day;
@@ -5931,7 +5931,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     }
 }
 
-void DoPlayerDeathFlip(PLAYERp pp)
+void DoPlayerDeathFlip(PLAYER* pp)
 {
     if (Prediction)
         return;
@@ -5966,7 +5966,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
 
 
 
-void DoPlayerDeathDrown(PLAYERp pp)
+void DoPlayerDeathDrown(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -6005,7 +6005,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
 }
 
 
-void DoPlayerDeathBounce(PLAYERp pp)
+void DoPlayerDeathBounce(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6034,7 +6034,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
 
 
-void DoPlayerDeathCrumble(PLAYERp pp)
+void DoPlayerDeathCrumble(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6086,7 +6086,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
     DoPlayerHeadDebris(pp);
 }
 
-void DoPlayerDeathExplode(PLAYERp pp)
+void DoPlayerDeathExplode(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6139,7 +6139,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
     DoPlayerHeadDebris(pp);
 }
 
-void DoPlayerBeginRun(PLAYERp pp)
+void DoPlayerBeginRun(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6173,7 +6173,7 @@ void DoPlayerBeginRun(PLAYERp pp)
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
-void DoPlayerRun(PLAYERp pp)
+void DoPlayerRun(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6365,7 +6365,7 @@ void MoveSkipSavePos(void)
 {
     int i;
     short pnum;
-    PLAYERp pp;
+    PLAYER* pp;
 
     MoveSkip8 = (MoveSkip8 + 1) & 7;
     MoveSkip4 = (MoveSkip4 + 1) & 3;
@@ -6427,12 +6427,12 @@ void MoveSkipSavePos(void)
 }
 
 
-void PlayerTimers(PLAYERp pp)
+void PlayerTimers(PLAYER* pp)
 {
     InventoryTimer(pp);
 }
 
-void ChopsCheck(PLAYERp pp)
+void ChopsCheck(PLAYER* pp)
 {
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
@@ -6478,7 +6478,7 @@ void ChopsCheck(PLAYERp pp)
     }
 }
 
-void PlayerGlobal(PLAYERp pp)
+void PlayerGlobal(PLAYER* pp)
 {
     // This is the place for things that effect the player no matter what hes
     // doing
@@ -6533,7 +6533,7 @@ void PlayerGlobal(PLAYERp pp)
 void MultiPlayLimits(void)
 {
     short pnum;
-    PLAYERp pp;
+    PLAYER* pp;
     bool Done = false;
 
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
@@ -6577,7 +6577,7 @@ void domovethings(void)
 {
     short i, pnum;
 
-    PLAYERp pp;
+    PLAYER* pp;
     extern int FinishTimer;
 
 
@@ -6619,7 +6619,7 @@ void domovethings(void)
     {
         extern short screenpeek;
         extern bool PlayerTrackingMode;
-        extern PLAYERp GlobPlayerP;
+        extern PLAYER* GlobPlayerP;
 
         pp = Player + pnum;
         GlobPlayerP = pp;
@@ -6697,8 +6697,8 @@ void domovethings(void)
 
 void InitAllPlayers(void)
 {
-    PLAYERp pp;
-    PLAYERp pfirst = Player;
+    PLAYER* pp;
+    PLAYER* pfirst = Player;
     int i;
     extern bool NewGame;
     //int fz,cz;
@@ -6755,9 +6755,9 @@ void InitAllPlayers(void)
     }
 }
 
-int SearchSpawnPosition(PLAYERp pp)
+int SearchSpawnPosition(PLAYER* pp)
 {
-    PLAYERp opp; // other player
+    PLAYER* opp; // other player
     short pos_num;
     short pnum;
     bool blocked;
@@ -6795,7 +6795,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
 bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
-void PlayerSpawnPosition(PLAYERp pp)
+void PlayerSpawnPosition(PLAYER* pp)
 {
     short pnum = short(pp - Player);
     short pos_num = pnum;
@@ -6873,7 +6873,7 @@ void PlayerSpawnPosition(PLAYERp pp)
 
 void InitMultiPlayerInfo(void)
 {
-    PLAYERp pp;
+    PLAYER* pp;
     short pnum;
     unsigned stat;
     int tag;
@@ -6968,7 +6968,7 @@ int DoFootPrints(DSWActor* actor)
     return 0;
 }
 
-void CheckFootPrints(PLAYERp pp)
+void CheckFootPrints(PLAYER* pp)
 {
     if (pp->NumFootPrints <= 0 || FootMode != WATER_FOOT)
     {

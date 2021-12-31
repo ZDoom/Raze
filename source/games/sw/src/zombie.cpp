@@ -769,7 +769,7 @@ int SetupZombie(DSWActor* actor)
     return 0;
 }
 
-void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
+void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
 {
     auto ownerActor = GetOwner(weaponActor);
 

@@ -91,7 +91,7 @@ void UpdateStatusBar()
     ::UpdateStatusBar(&info);
 
 
-    PLAYERp pp = &Player[screenpeek];
+    PLAYER* pp = &Player[screenpeek];
     if (pp->cookieTime > 0)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164

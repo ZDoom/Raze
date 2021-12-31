@@ -379,7 +379,7 @@ static void UpdateAmbients()
 
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
-            PLAYERp pp = Player + screenpeek;
+            PLAYER* pp = Player + screenpeek;
             if (!FAFcansee(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
             {
                 sdist = 255;
@@ -435,7 +435,7 @@ public:
 
     int SoundSourceIndex(FSoundChan* chan) override
     {
-        if (chan->SourceType == SOURCE_Player) return int(PLAYERp(chan->Source) - Player);
+        if (chan->SourceType == SOURCE_Player) return int((PLAYER*)(chan->Source) - Player);
         return 0;
     }
 
@@ -518,7 +518,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        PLAYERp pp = Player + screenpeek;
+        PLAYER* pp = Player + screenpeek;
         FVector3 campos = GetSoundPos(&pp->pos);
         vec3_t *vpos = nullptr;
 
@@ -532,7 +532,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.pos : &((PLAYERp)source)->pos;
+            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.pos : &((PLAYER*)source)->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -591,7 +591,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void GameInterface::UpdateSounds(void)
 {
-    PLAYERp pp = Player + screenpeek;
+    PLAYER* pp = Player + screenpeek;
     SoundListener listener;
 
     binangle tang;
@@ -627,7 +627,7 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, DSWActor* actor, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
@@ -783,7 +783,7 @@ void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
 //
 //==========================================================================
 
-int _PlayerSound(int num, PLAYERp pp)
+int _PlayerSound(int num, PLAYER* pp)
 {
     int handle;
     VOCstruct* vp;
@@ -827,7 +827,7 @@ int _PlayerSound(int num, PLAYERp pp)
     return 0;
 }
 
-void StopPlayerSound(PLAYERp pp, int which)
+void StopPlayerSound(PLAYER* pp, int which)
 {
     soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, which);
 }

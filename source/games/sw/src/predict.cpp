@@ -40,7 +40,7 @@ bool PredictionOn = true;
 bool Prediction = false;
 PLAYER PredictPlayer;
 //USER PredictUser;
-PLAYERp ppp = &PredictPlayer;
+PLAYER* ppp = &PredictPlayer;
 
 struct PREDICT
 {
@@ -53,11 +53,11 @@ struct PREDICT
 PREDICT Predict[/*MOVEFIFOSIZ*/256];
 int predictmovefifoplc;
 
-void DoPlayerSectorUpdatePreMove(PLAYERp);
-void DoPlayerSectorUpdatePostMove(PLAYERp);
+void DoPlayerSectorUpdatePreMove(PLAYER*);
+void DoPlayerSectorUpdatePostMove(PLAYER*);
 
 
-void InitPrediction(PLAYERp pp)
+void InitPrediction(PLAYER* pp)
 {
     if (!PredictionOn)
         return;
@@ -67,7 +67,7 @@ void InitPrediction(PLAYERp pp)
     //PredictUser = *pp->actor->user;
 }
 
-void DoPrediction(PLAYERp ppp)
+void DoPrediction(PLAYER* ppp)
 {
 #if 0
     spritetype spr;

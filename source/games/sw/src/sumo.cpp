@@ -721,7 +721,7 @@ int DoSumoDeathMelt(DSWActor* actor)
 
 void BossHealthMeter(void)
 {
-    PLAYERp pp = Player + myconnectindex;
+    PLAYER* pp = Player + myconnectindex;
     short color=0,metertics,meterunit;
     int y;
     extern bool NoMeters;

@@ -277,7 +277,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
 {
     int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
     int pnum;
-    PLAYERp pp;
+    PLAYER* pp;
     // if actor can still see the player
     int look_height = ActorZOfTop(actor);
     bool found = false;
@@ -393,7 +393,7 @@ TARGETACTOR:
 DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
     int pnum;
-    PLAYERp pp;
+    PLAYER* pp;
 
     TRAVERSE_CONNECT(pnum)
     {

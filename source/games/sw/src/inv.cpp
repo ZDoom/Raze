@@ -44,28 +44,28 @@ BEGIN_SW_NS
 
 extern short NormalVisibility;
 
-void PlayerUpdateInventory(PLAYERp pp, short InventoryNum);
-void InventoryUse(PLAYERp pp);
-void InventoryStop(PLAYERp pp, short InventoryNum);
+void PlayerUpdateInventory(PLAYER* pp, short InventoryNum);
+void InventoryUse(PLAYER* pp);
+void InventoryStop(PLAYER* pp, short InventoryNum);
 
 
 
-void UseInventoryRepairKit(PLAYERp pp);
-void UseInventoryMedkit(PLAYERp pp);
-void UseInventoryRepairKit(PLAYERp pp);
-void UseInventoryCloak(PLAYERp pp);
-void UseInventoryEnvironSuit(PLAYERp pp);
-void UseInventoryNightVision(PLAYERp pp);
-void UseInventoryChemBomb(PLAYERp pp);
-void UseInventoryFlashBomb(PLAYERp pp);
-void UseInventoryCaltrops(PLAYERp pp);
+void UseInventoryRepairKit(PLAYER* pp);
+void UseInventoryMedkit(PLAYER* pp);
+void UseInventoryRepairKit(PLAYER* pp);
+void UseInventoryCloak(PLAYER* pp);
+void UseInventoryEnvironSuit(PLAYER* pp);
+void UseInventoryNightVision(PLAYER* pp);
+void UseInventoryChemBomb(PLAYER* pp);
+void UseInventoryFlashBomb(PLAYER* pp);
+void UseInventoryCaltrops(PLAYER* pp);
 
-void StopInventoryRepairKit(PLAYERp pp, short);
-void StopInventoryMedkit(PLAYERp pp, short);
-void StopInventoryRepairKit(PLAYERp pp, short);
-void StopInventoryCloak(PLAYERp pp, short);
-void StopInventoryEnvironSuit(PLAYERp pp, short);
-void StopInventoryNightVision(PLAYERp pp, short);
+void StopInventoryRepairKit(PLAYER* pp, short);
+void StopInventoryMedkit(PLAYER* pp, short);
+void StopInventoryRepairKit(PLAYER* pp, short);
+void StopInventoryCloak(PLAYER* pp, short);
+void StopInventoryEnvironSuit(PLAYER* pp, short);
+void StopInventoryNightVision(PLAYER* pp, short);
 
 extern PANEL_STATE ps_PanelEnvironSuit[];
 
@@ -90,14 +90,14 @@ void PanelInvTestSuicide(PANEL_SPRITE* psp)
     }
 }
 
-void KillPanelInv(PLAYERp pp, short InventoryNum)
+void KillPanelInv(PLAYER* pp, short InventoryNum)
 {
     ASSERT(InventoryNum < MAX_INVENTORY);
 
     pp->InventoryTics[InventoryNum] = 0;
 }
 
-void KillAllPanelInv(PLAYERp pp)
+void KillAllPanelInv(PLAYER* pp)
 {
     for (int i = 0; i < MAX_INVENTORY; i++)
     {
@@ -111,7 +111,7 @@ void KillAllPanelInv(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void AutoPickInventory(PLAYERp pp)
+void AutoPickInventory(PLAYER* pp)
 {
     int i;
 
@@ -137,7 +137,7 @@ void AutoPickInventory(PLAYERp pp)
     }
 }
 
-void UseInventoryMedkit(PLAYERp pp)
+void UseInventoryMedkit(PLAYER* pp)
 {
     short diff;
     short inv = INVENTORY_MEDKIT;
@@ -184,7 +184,7 @@ void UseInventoryMedkit(PLAYERp pp)
 // CHEMICAL WARFARE CANISTERS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryChemBomb(PLAYERp pp)
+void UseInventoryChemBomb(PLAYER* pp)
 {
     short inv = INVENTORY_CHEMBOMB;
 
@@ -207,7 +207,7 @@ void UseInventoryChemBomb(PLAYERp pp)
 // FLASH BOMBS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryFlashBomb(PLAYERp pp)
+void UseInventoryFlashBomb(PLAYER* pp)
 {
     short inv = INVENTORY_FLASHBOMB;
 
@@ -230,7 +230,7 @@ void UseInventoryFlashBomb(PLAYERp pp)
 // CALTROPS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryCaltrops(PLAYERp pp)
+void UseInventoryCaltrops(PLAYER* pp)
 {
     short inv = INVENTORY_CALTROPS;
 
@@ -254,7 +254,7 @@ void UseInventoryCaltrops(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void UseInventoryRepairKit(PLAYERp pp)
+void UseInventoryRepairKit(PLAYER* pp)
 {
     short inv = INVENTORY_REPAIR_KIT;
 
@@ -282,7 +282,7 @@ void UseInventoryRepairKit(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void UseInventoryCloak(PLAYERp pp)
+void UseInventoryCloak(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
@@ -307,7 +307,7 @@ void UseInventoryCloak(PLAYERp pp)
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 
-void StopInventoryCloak(PLAYERp pp, short InventoryNum)
+void StopInventoryCloak(PLAYER* pp, short InventoryNum)
 {
     DSWActor* plActor = pp->actor;
 
@@ -335,7 +335,7 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-void DoPlayerNightVisionPalette(PLAYERp pp)
+void DoPlayerNightVisionPalette(PLAYER* pp)
 {
     if (pp != Player + screenpeek) return;
 
@@ -358,7 +358,7 @@ void DoPlayerNightVisionPalette(PLAYERp pp)
     }
 }
 
-void UseInventoryNightVision(PLAYERp pp)
+void UseInventoryNightVision(PLAYER* pp)
 {
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -375,7 +375,7 @@ void UseInventoryNightVision(PLAYERp pp)
     PlaySound(DIGI_NIGHTON, pp, v3df_dontpan|v3df_follow);
 }
 
-void StopInventoryNightVision(PLAYERp pp, short InventoryNum)
+void StopInventoryNightVision(PLAYER* pp, short InventoryNum)
 {
     pp->InventoryActive[InventoryNum] = false;
 
@@ -402,7 +402,7 @@ void StopInventoryNightVision(PLAYERp pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-void InventoryKeys(PLAYERp pp)
+void InventoryKeys(PLAYER* pp)
 {
     // scroll SPELLs left
     if (pp->input.actions & SB_INVPREV)
@@ -489,7 +489,7 @@ void InventoryKeys(PLAYERp pp)
     }
 }
 
-void InventoryTimer(PLAYERp pp)
+void InventoryTimer(PLAYER* pp)
 {
     // called every time through loop
     short inv = 0;
@@ -567,7 +567,7 @@ void InventoryTimer(PLAYERp pp)
     }
 }
 
-void InventoryUse(PLAYERp pp)
+void InventoryUse(PLAYER* pp)
 {
     INVENTORY_DATA* id = &InventoryData[pp->InventoryNum];
 
@@ -575,7 +575,7 @@ void InventoryUse(PLAYERp pp)
         (*id->Init)(pp);
 }
 
-void InventoryStop(PLAYERp pp, short InventoryNum)
+void InventoryStop(PLAYER* pp, short InventoryNum)
 {
     INVENTORY_DATA* id = &InventoryData[InventoryNum];
 
@@ -589,7 +589,7 @@ void InventoryStop(PLAYERp pp, short InventoryNum)
 //
 /////////////////////////////////////////////////////////////////
 
-void PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
+void PlayerUpdateInventory(PLAYER* pp, short InventoryNum)
 {
     pp->InventoryNum = InventoryNum;
 

@@ -116,7 +116,7 @@ void SetSlidorInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoSlidorOperate(PLAYERp pp, sectortype* sect)
+void DoSlidorOperate(PLAYER* pp, sectortype* sect)
 {
     short match;
 
@@ -132,7 +132,7 @@ void DoSlidorOperate(PLAYERp pp, sectortype* sect)
 
 // called from switches and triggers
 // returns first vator found
-void DoSlidorMatch(PLAYERp pp, short match, bool manual)
+void DoSlidorMatch(PLAYER* pp, short match, bool manual)
 {
     SWStatIterator it(STAT_SLIDOR);
     while (auto actor = it.Next())
@@ -514,7 +514,7 @@ int DoSlidor(DSWActor* actor)
             if (!found)
             {
                 short pnum;
-                PLAYERp pp;
+                PLAYER* pp;
                 // go ahead and look for players clip box bounds
                 TRAVERSE_CONNECT(pnum)
                 {

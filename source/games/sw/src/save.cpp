@@ -416,7 +416,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERp& w, PLAYERp* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER*& w, PLAYER** def)
 {
 	int ndx = w ? int(w - Player) : -1;
 	arc(keyname, ndx);

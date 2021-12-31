@@ -45,7 +45,7 @@ BEGIN_SW_NS
 //
 //---------------------------------------------------------------------------
 
-void PutStringInfo(PLAYERp pp, const char *string)
+void PutStringInfo(PLAYER* pp, const char *string)
 {
     if (pp-Player == myconnectindex)
         Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s\n", string); // Put it in the console too

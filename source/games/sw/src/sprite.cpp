@@ -89,8 +89,8 @@ ANIMATOR DoSpike, DoSpikeAuto;
 ANIMATOR DoLavaErupt;
 int DoSlidorInstantClose(DSWActor*);
 
-void InitWeaponRocket(PLAYERp);
-void InitWeaponUzi(PLAYERp);
+void InitWeaponRocket(PLAYER*);
+void InitWeaponUzi(PLAYER*);
 
 int MoveSkip4, MoveSkip2, MoveSkip8;
 int MinEnemySkill;
@@ -626,7 +626,7 @@ void KillActor(DSWActor* actor)
 
     if (actor->hasU())
     {
-        PLAYERp pp;
+        PLAYER* pp;
         int pnum;
 
         // doing a MissileSetPos - don't allow killing
@@ -1461,7 +1461,7 @@ void PreMapCombineFloors(void)
 
         TRAVERSE_CONNECT(pnum)
         {
-            PLAYERp pp = &Player[pnum];
+            PLAYER* pp = &Player[pnum];
             auto dasect = pp->cursector;
             search.Rewind();
             while (auto itsect = search.GetNext())
@@ -4929,7 +4929,7 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
     return 0;
 }
 
-void ChoosePlayerGetSound(PLAYERp pp)
+void ChoosePlayerGetSound(PLAYER* pp)
 {
     int choose_snd=0;
 
@@ -4940,7 +4940,7 @@ void ChoosePlayerGetSound(PLAYERp pp)
     PlayerSound(PlayerGetItemVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
 
-bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
+bool CanGetWeapon(PLAYER* pp, DSWActor* actor, int WPN)
 {
     switch (gNet.MultiGameType)
     {
@@ -4994,7 +4994,7 @@ enum
 };
 int DoGet(DSWActor* actor)
 {
-    PLAYERp pp;
+    PLAYER* pp;
     short pnum, key_num;
     int dist, a,b,c;
     bool can_see;
@@ -5887,7 +5887,7 @@ void ProcessActiveVars(DSWActor* actor)
     actor->user.wait_active_check += ACTORMOVETICS;
 }
 
-void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
+void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
 {
     DSWActor* plActor = pp->actor;
     int look_height;
@@ -6029,7 +6029,7 @@ void SpriteControl(void)
 {
     int32_t stat;
     short pnum, CloseToPlayer;
-    PLAYERp pp;
+    PLAYER* pp;
     int tx, ty, tmin, dist;
     short StateTics;
 

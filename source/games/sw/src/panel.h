@@ -109,7 +109,7 @@ struct PANEL_SPRITE
 	PANEL_SPRITE* Next, * Prev;
 	PANEL_SPRITE* sibling;
 	PANEL_STATE* State, *RetractState, *PresentState, *ActionState, *RestState;
-	PLAYERp PlayerP;
+	PLAYER* PlayerP;
 	DVector2 pos, opos, bobpos;
 
 	PANEL_SPRITE_OVERLAY over[8];
@@ -190,16 +190,16 @@ enum
 };
 
 
-PANEL_SPRITE* pSpawnSprite(PLAYERp pp, PANEL_STATE* state, uint8_t priority, double x, double y);
+PANEL_SPRITE* pSpawnSprite(PLAYER* pp, PANEL_STATE* state, uint8_t priority, double x, double y);
 void pSetSuicide(PANEL_SPRITE* psp);
-bool pKillScreenSpiteIDs(PLAYERp pp, short id);
+bool pKillScreenSpiteIDs(PLAYER* pp, short id);
 void PreUpdatePanel(double smoothratio);
 void UpdatePanel(double smoothratio);
-void PlayerUpdateArmor(PLAYERp pp,short value);
+void PlayerUpdateArmor(PLAYER* pp,short value);
 void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITE* psp);
-void InitChops(PLAYERp pp);
-void ChopsSetRetract(PLAYERp pp);
+void InitChops(PLAYER* pp);
+void ChopsSetRetract(PLAYER* pp);
 
 END_SW_NS
 

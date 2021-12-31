@@ -34,10 +34,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust);
-void DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust);
-void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist);
-void DoPlayerTurnTurret(PLAYERp pp, float avel);
+void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust);
+void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust);
+void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist);
+void DoPlayerTurnTurret(PLAYER* pp, float avel);
 
 static InputPacket loc;
 
@@ -76,7 +76,7 @@ enum
 //
 //---------------------------------------------------------------------------
 
-static void processWeapon(PLAYERp const pp)
+static void processWeapon(PLAYER* const pp)
 {
     DSWActor* plActor = pp->actor;
     if (plActor == nullptr) return;
@@ -158,7 +158,7 @@ static void processWeapon(PLAYERp const pp)
 
 void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket *packet)
 {
-    PLAYERp pp = &Player[myconnectindex];
+    PLAYER* pp = &Player[myconnectindex];
 
     if (paused || M_Active() || pp->actor == nullptr)
     {

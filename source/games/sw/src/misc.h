@@ -24,7 +24,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
 
 
 void ProcessVisOn(void);
-void VisViewChange(PLAYERp pp, int* vis);
+void VisViewChange(PLAYER* pp, int* vis);
 void SpawnVis(DSWActor* Parent, sectortype* sect, int x, int y, int z, int amt);
 
 enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
@@ -48,10 +48,10 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics);
 #define TEXT_INFO_YOFF (10)
 inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YOFF)); }
 
-void PutStringInfo(PLAYERp pp, const char* string);
+void PutStringInfo(PLAYER* pp, const char* string);
 
 
-void DoSlidorMatch(PLAYERp pp, short match, bool);
+void DoSlidorMatch(PLAYER* pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(sectortype* sect, bool state);
 
@@ -70,21 +70,21 @@ int DoActorSectorDamage(DSWActor* actor);
 int DoScaleSprite(DSWActor* actor);
 int DoActorStopFall(DSWActor* actor);
 
-void InitPlayerSprite(PLAYERp pp);
+void InitPlayerSprite(PLAYER* pp);
 void InitAllPlayerSprites(void);
 void PlayerPanelSetup(void);
-void PlayerDeathReset(PLAYERp pp);
-void SpawnPlayerUnderSprite(PLAYERp pp);
+void PlayerDeathReset(PLAYER* pp);
+void SpawnPlayerUnderSprite(PLAYER* pp);
 
 void DoQuakeMatch(short match);
 void ProcessQuakeOn(void);
 void ProcessQuakeSpot(void);
-void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
-void DoQuake(PLAYERp pp);
-bool SetQuake(PLAYERp pp, short tics, short amt);
+void QuakeViewChange(PLAYER* pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
+void DoQuake(PLAYER* pp);
+bool SetQuake(PLAYER* pp, short tics, short amt);
 int SetExpQuake(DSWActor*);
 int SetGunQuake(DSWActor*);
-int SetPlayerQuake(PLAYERp mpp);
+int SetPlayerQuake(PLAYER* mpp);
 int SetNuclearQuake(DSWActor*);
 int SetSumoQuake(DSWActor*);
 int SetSumoFartQuake(DSWActor*);

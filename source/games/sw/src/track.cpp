@@ -724,7 +724,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
 #if 0
     // look for players on sector object
-    PLAYERp pp;
+    PLAYER* pp;
     short pnum;
     TRAVERSE_CONNECT(pnum)
     {
@@ -1507,9 +1507,9 @@ void PlaceActorsOnTracks(void)
 }
 
 
-void MovePlayer(PLAYERp pp, SECTOR_OBJECT* sop, int nx, int ny)
+void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
 {
-    void DoPlayerZrange(PLAYERp pp);
+    void DoPlayerZrange(PLAYER* pp);
 
     // make sure your standing on the so
     if (pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING))
@@ -1586,7 +1586,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     int j;
     vec2_t rxy;
     int pnum;
-    PLAYERp pp;
+    PLAYER* pp;
     sectortype* *sectp;
     int i, rot_ang;
     bool PlayerMove = true;
@@ -3415,7 +3415,7 @@ present time.
 
 int ActorFollowTrack(DSWActor* actor, short locktics)
 {
-    PLAYERp pp;
+    PLAYER* pp;
 
     TRACK_POINT* tpoint;
     short pnum;

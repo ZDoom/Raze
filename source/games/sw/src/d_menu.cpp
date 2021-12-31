@@ -91,7 +91,7 @@ bool GameInterface::CanSave()
 
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
-    PLAYERp pp = Player + screenpeek;
+    PLAYER* pp = Player + screenpeek;
     int handle = 0;
     int zero = 0;
 

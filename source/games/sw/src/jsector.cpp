@@ -431,7 +431,7 @@ void
 JS_ProcessEchoSpot()
 {
     int j,dist;
-    PLAYERp pp = Player+screenpeek;
+    PLAYER* pp = Player+screenpeek;
     int16_t reverb;
     bool reverb_set = false;
 
@@ -475,7 +475,7 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
+void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 {
     int j, cnt;
     int dist;
@@ -634,7 +634,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     {
                         if (dist < MAXCAMDIST)
                         {
-                            PLAYERp cp = Player + camplayerview;
+                            PLAYER* cp = Player + camplayerview;
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
@@ -654,11 +654,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
 // Workaround until the camera code can be refactored to process all camera textures that were visible last frame.
 // Need to stash the parameters for later use. This is only used to find the nearest camera.
-static PLAYERp cam_pp;
+static PLAYER* cam_pp;
 static int cam_tx, cam_ty, cam_tz;
 static int oldstat;
 
-void JS_CameraParms(PLAYERp pp, int tx, int ty, int tz)
+void JS_CameraParms(PLAYER* pp, int tx, int ty, int tz)
 {
     cam_pp = pp;
     cam_tx = tx;

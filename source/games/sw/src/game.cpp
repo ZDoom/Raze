@@ -144,7 +144,7 @@ void markgcroots()
 }
 
 
-void pClearSpriteList(PLAYERp pp);
+void pClearSpriteList(PLAYER* pp);
 
 extern int sw_snd_scratch;
 
@@ -539,7 +539,7 @@ void TerminateLevel(void)
 
     TRAVERSE_CONNECT(pnum)
     {
-        PLAYERp pp = &Player[pnum];
+        PLAYER* pp = &Player[pnum];
 
         // Free panel sprites for players
         pClearSpriteList(pp);
@@ -808,7 +808,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 
 GameStats GameInterface::getStats()
 {
-	PLAYERp pp = Player + myconnectindex;
+	PLAYER* pp = Player + myconnectindex;
 	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
 }
 

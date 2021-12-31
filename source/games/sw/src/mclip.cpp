@@ -37,7 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
-Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
+Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
 {
     int i;
     vec3_t opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
@@ -117,7 +117,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
     return min_ret;
 }
 
-short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
+short MultiClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist)
 {
     int i;
     SECTOR_OBJECT* sop = pp->sop;
@@ -186,7 +186,7 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
 
 
 //Ken gives the tank clippin' a try...
-int RectClipMove(PLAYERp pp, int *qx, int *qy)
+int RectClipMove(PLAYER* pp, int *qx, int *qy)
 {
     int i;
     vec2_t xy[4];
@@ -265,7 +265,7 @@ int testpointinquad(int x, int y, int *qx, int *qy)
     return cnt>>31;
 }
 
-short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy)
+short RectClipTurn(PLAYER* pp, short new_ang, int *qx, int *qy, int *ox, int *oy)
 {
     int i;
     vec2_t xy[4];

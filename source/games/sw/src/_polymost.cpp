@@ -140,7 +140,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     }
 }
 
-void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect)
+void polymost_drawscreen(PLAYER* pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect)
 {
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.))), yxaspect);
@@ -166,7 +166,7 @@ void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixe
 
 }
 
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed_t tpq16horiz)
+void JS_DrawMirrors(PLAYER* pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed_t tpq16horiz)
 {
     int j, cnt;
     int dist;

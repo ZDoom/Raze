@@ -80,7 +80,7 @@ void ProcessVisOn(void)
     }
 }
 
-void VisViewChange(PLAYERp pp, int *vis)
+void VisViewChange(PLAYER* pp, int *vis)
 {
     short BrightestVis = NormalVisibility;
     int x,y,z;

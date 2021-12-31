@@ -39,8 +39,8 @@ enum InventoryNames
 struct INVENTORY_DATA
 {
 	const char* Name;
-	void (*Init)(PLAYERp);
-	void (*Stop)(PLAYERp, short);
+	void (*Init)(PLAYER*);
+	void (*Stop)(PLAYER*, short);
 	short DecPerSec;
 	short MaxInv;
 	int  Scale;
@@ -56,7 +56,7 @@ enum EInvFlags
 	INVF_COUNT = 4
 };
 
-void PlayerUpdateInventory(PLAYERp pp, short InventoryNum);
-void InventoryKeys(PLAYERp pp);
-void UseInventoryRepairKit(PLAYERp pp);
-void InventoryTimer(PLAYERp pp);
+void PlayerUpdateInventory(PLAYER* pp, short InventoryNum);
+void InventoryKeys(PLAYER* pp);
+void UseInventoryRepairKit(PLAYER* pp);
+void InventoryTimer(PLAYER* pp);

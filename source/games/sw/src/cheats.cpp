@@ -51,9 +51,9 @@ extern bool FAF_DebugView;
 extern bool ToggleFlyMode;
 
 const char *CheatKeyType;
-void KeysCheat(PLAYERp pp, const char *cheat_string);
+void KeysCheat(PLAYER* pp, const char *cheat_string);
 
-static PLAYERp checkCheat(cheatseq_t* c)
+static PLAYER* checkCheat(cheatseq_t* c)
 {
 	if (::CheckCheatmode(true, true)) return nullptr;
     return &Player[screenpeek];
@@ -131,7 +131,7 @@ bool PrevCheat(cheatseq_t* c)
 
 bool MapCheat(cheatseq_t* c)
 {
-    PLAYERp pp;
+    PLAYER* pp;
     if (!(pp=checkCheat(c))) return false;
     gFullMap = !gFullMap;
     // Need to do this differently. The code here was completely broken.
@@ -142,7 +142,7 @@ bool MapCheat(cheatseq_t* c)
 
 bool WarpCheat(cheatseq_t* c)
 {
-    PLAYERp pp;
+    PLAYER* pp;
     if (!(pp = checkCheat(c))) return false;
     int level_num;
 

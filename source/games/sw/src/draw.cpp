@@ -592,7 +592,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     int tSpriteNum;
     int smr4, smr2;
     static int ang = 0;
-    PLAYERp pp = Player + screenpeek;
+    PLAYER* pp = Player + screenpeek;
     int newshade=0;
 
     const int DART_PIC = 2526;
@@ -942,7 +942,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     HitInfo hit{};
     int i, vx, vy, vz, hx, hy;
     int daang;
-    PLAYERp pp = &Player[screenpeek];
+    PLAYER* pp = &Player[screenpeek];
     binangle ang;
 
     ang = *nang + buildang(pp->circle_camera_ang);
@@ -1041,7 +1041,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
 
 FString GameInterface::GetCoordString()
 {
-    PLAYERp pp = Player + myconnectindex;
+    PLAYER* pp = Player + myconnectindex;
     FString out;
     out.AppendFormat("POSX:%d ", pp->pos.X);
     out.AppendFormat("POSY:%d ", pp->pos.Y);
@@ -1052,7 +1052,7 @@ FString GameInterface::GetCoordString()
 }
 
 
-void PrintSpriteInfo(PLAYERp pp)
+void PrintSpriteInfo(PLAYER* pp)
 {
     const int Y_STEP = 7;
 
@@ -1090,7 +1090,7 @@ void PrintSpriteInfo(PLAYERp pp)
 }
 
 
-void DrawCrosshair(PLAYERp pp)
+void DrawCrosshair(PLAYER* pp)
 {
     if (!(CameraTestMode))
     {
@@ -1098,7 +1098,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binangle *tang, fixedhoriz *thoriz)
+void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binangle *tang, fixedhoriz *thoriz)
 {
     binangle ang;
     bool found_camera = false;
@@ -1285,9 +1285,9 @@ void PreDrawStackedWater(void)
 
 short ScreenSavePic = false;
 
-void DoPlayerDiveMeter(PLAYERp pp);
+void DoPlayerDiveMeter(PLAYER* pp);
 
-void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect);
+void polymost_drawscreen(PLAYER* pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect);
 
 
 void UpdateWallPortalState()
@@ -1372,7 +1372,7 @@ void RestorePortalState()
     }
 }
 
-void drawscreen(PLAYERp pp, double smoothratio)
+void drawscreen(PLAYER* pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
@@ -1384,7 +1384,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
     int quake_z, quake_x, quake_y;
     short quake_ang;
     extern bool FAF_DebugView;
-    PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
+    PLAYER* camerapp;                       // prediction player if prediction is on, else regular player
 
     int const viewingRange = viewingrange;
 

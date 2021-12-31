@@ -62,7 +62,7 @@ double smoothratio;
 void InitNetPlayerOptions(void)
 {
 //    short pnum;
-    PLAYERp pp = Player + myconnectindex;
+    PLAYER* pp = Player + myconnectindex;
 
     strncpy(pp->PlayerName, playername, 31);
 

@@ -2139,7 +2139,7 @@ void InitAllPlayerSprites(void)
 }
 
 
-void PlayerLevelReset(PLAYERp pp)
+void PlayerLevelReset(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -2178,7 +2178,7 @@ void PlayerLevelReset(PLAYERp pp)
     DamageData[actor->user.WeaponNum].Init(pp);
 }
 
-void PlayerDeathReset(PLAYERp pp)
+void PlayerDeathReset(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -2258,7 +2258,7 @@ void PlayerPanelSetup(void)
     }
 }
 
-void PlayerGameReset(PLAYERp pp)
+void PlayerGameReset(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
 
@@ -2317,7 +2317,7 @@ void PlayerGameReset(PLAYERp pp)
 
 extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
-void InitPlayerSprite(PLAYERp pp)
+void InitPlayerSprite(PLAYER* pp)
 {
     int pnum = int(pp - Player);
     extern bool NewGame;
@@ -2386,7 +2386,7 @@ void InitPlayerSprite(PLAYERp pp)
     pp->DeathType = 0;
 }
 
-void SpawnPlayerUnderSprite(PLAYERp pp)
+void SpawnPlayerUnderSprite(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 

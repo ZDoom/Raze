@@ -33,13 +33,13 @@ enum
 };
 extern bool PredictionOn;
 extern PLAYER PredictPlayer;
-extern PLAYERp ppp;
+extern PLAYER* ppp;
 extern short predictangpos[];
 extern int predictmovefifoplc;
 extern bool Prediction;
 
-void InitPrediction(PLAYERp pp);
-void DoPrediction(PLAYERp ppp);
+void InitPrediction(PLAYER* pp);
+void DoPrediction(PLAYER* ppp);
 void CorrectPrediction(int actualfifoplc);
 
 

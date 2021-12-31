@@ -59,7 +59,7 @@ enum
 };
 
 ANIMATOR DoGrating;
-void DoPlayerBeginForceJump(PLAYERp);
+void DoPlayerBeginForceJump(PLAYER*);
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag);
 short LevelSecrets;
@@ -67,19 +67,19 @@ bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
 bool TestSlidorMatchActive(short match);
-int PlayerCheckDeath(PLAYERp, DSWActor*);
-void DoVatorOperate(PLAYERp, sectortype*);
-void DoVatorMatch(PLAYERp pp, short match);
-void DoRotatorOperate(PLAYERp, sectortype*);
-void DoRotatorMatch(PLAYERp pp, short match, bool);
-void DoSlidorOperate(PLAYERp, sectortype*);
-void DoSlidorMatch(PLAYERp pp, short match, bool);
+int PlayerCheckDeath(PLAYER*, DSWActor*);
+void DoVatorOperate(PLAYER*, sectortype*);
+void DoVatorMatch(PLAYER* pp, short match);
+void DoRotatorOperate(PLAYER*, sectortype*);
+void DoRotatorMatch(PLAYER* pp, short match, bool);
+void DoSlidorOperate(PLAYER*, sectortype*);
+void DoSlidorMatch(PLAYER* pp, short match, bool);
 
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
 int DoTrapMatch(short match);
 
-PLAYERp GlobPlayerP;
+PLAYER* GlobPlayerP;
 
 ANIM Anim[MAXANIM];
 short AnimCnt = 0;
@@ -603,7 +603,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 }
 
 
-void DoSpringBoard(PLAYERp pp)
+void DoSpringBoard(PLAYER* pp)
 {
 
     pp->jump_speed = -pp->cursector->hitag;
@@ -684,7 +684,7 @@ short DoSpawnActorTrigger(short match)
 
 int OperateSector(sectortype* sect, short player_is_operating)
 {
-    PLAYERp pp = GlobPlayerP;
+    PLAYER* pp = GlobPlayerP;
 
     // Don't let actors operate locked or secret doors
     if (!player_is_operating)
@@ -1022,7 +1022,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
             if (TEST_BOOL7(actor))
             {
-                PLAYERp pp = GlobPlayerP;
+                PLAYER* pp = GlobPlayerP;
 
                 if (pp)
                 {
@@ -1291,9 +1291,9 @@ void DoChangorMatch(short match)
     }
 }
 
-void DoMatchEverything(PLAYERp pp, short match, short state)
+void DoMatchEverything(PLAYER* pp, short match, short state)
 {
-    PLAYERp bak;
+    PLAYER* bak;
 
     bak = GlobPlayerP;
     GlobPlayerP = pp;
@@ -1367,7 +1367,7 @@ bool ComboSwitchTest(short combo_type, short match)
 // NOTE: switches are always wall sprites
 int OperateSprite(DSWActor* actor, short player_is_operating)
 {
-    PLAYERp pp = nullptr;
+    PLAYER* pp = nullptr;
     short state;
     short key_num=0;
     extern STATE s_Pachinko1Operate[];
@@ -1753,7 +1753,7 @@ int DoTrapMatch(short match)
 }
 
 
-void OperateTripTrigger(PLAYERp pp)
+void OperateTripTrigger(PLAYER* pp)
 {
     if (Prediction)
         return;
@@ -1884,7 +1884,7 @@ void OperateTripTrigger(PLAYERp pp)
     }
 }
 
-void OperateContinuousTrigger(PLAYERp pp)
+void OperateContinuousTrigger(PLAYER* pp)
 {
     if (Prediction)
         return;
@@ -1904,7 +1904,7 @@ void OperateContinuousTrigger(PLAYERp pp)
 }
 
 
-short PlayerTakeSectorDamage(PLAYERp pp)
+short PlayerTakeSectorDamage(PLAYER* pp)
 {
     auto sectu = pp->cursector;
     DSWActor* actor = pp->actor;
@@ -1923,7 +1923,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
 enum { PLAYER_SOUNDEVENT_TAG = 900 };
-bool NearThings(PLAYERp pp)
+bool NearThings(PLAYER* pp)
 {
     HitInfo near;
 
@@ -2009,7 +2009,7 @@ bool NearThings(PLAYERp pp)
 
 short nti_cnt;
 
-void NearTagList(NEAR_TAG_INFO* ntip, PLAYERp pp, int z, int dist, int type, int count)
+void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int count)
 {
     short save_lotag, save_hitag;
     HitInfo near;
@@ -2111,7 +2111,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYERp pp, int z, int dist, int type, int
     }
 }
 
-void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, int z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
@@ -2119,7 +2119,7 @@ void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYERp pp, int z, int dist
 }
 
 
-int DoPlayerGrabStar(PLAYERp pp)
+int DoPlayerGrabStar(PLAYER* pp)
 {
     int i;
 
@@ -2155,7 +2155,7 @@ int DoPlayerGrabStar(PLAYERp pp)
 
 
 
-void PlayerOperateEnv(PLAYERp pp)
+void PlayerOperateEnv(PLAYER* pp)
 {
     bool found;
 
@@ -2635,7 +2635,7 @@ void DoSector(void)
     int sync_flag;
     short pnum;
     int min_dist,dist,a,b,c;
-    PLAYERp pp;
+    PLAYER* pp;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {

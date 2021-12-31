@@ -37,7 +37,7 @@ inline int AngToSprite(DSWActor* actor, DSWActor* other)
     return (getangle(actor->spr.pos.X - other->spr.pos.X, actor->spr.pos.Y - other->spr.pos.Y));
 }
 
-inline int AngToPlayer(PLAYERp player, DSWActor* other)
+inline int AngToPlayer(PLAYER* player, DSWActor* other)
 {
     return (getangle(player->pos.X - other->spr.pos.X, player->pos.Y - other->spr.pos.Y));
 }
@@ -80,14 +80,14 @@ extern int LoWangsQueueHead;
 extern TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeState(DSWActor* actor, STATEp statep);
-void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
+void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt);
 SECTOR_OBJECT* DetectSectorObject(sectortype*);
 SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
 void ScaleSpriteVector(DSWActor* actor, int scale);
 void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z);
 DSWActor* QueueWallBlood(DSWActor* hit, short ang);
 bool SlopeBounce(DSWActor*, bool *hit_wall);
-int SpawnSwordSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
+int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 DSWActor* SpawnBubble(DSWActor*);
 void SpawnFireballExp(DSWActor*);
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor);
@@ -99,7 +99,7 @@ int ShrapKillSprite(DSWActor*);
 bool MissileSetPos(DSWActor*,ANIMATORp DoWeapon,int dist);
 int ActorPain(DSWActor*);
 int SpawnBreakFlames(DSWActor*);
-bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);
+bool PlayerTakeDamage(PLAYER* pp, DSWActor* weapActor);
 const char *DeathString(DSWActor*);
 
 //
@@ -170,7 +170,7 @@ extern short target_ang;
 
 bool SpriteOverlap(short, short);
 
-DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
+DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec);
 int GetOverlapSector(int x, int y, sectortype** over, sectortype** under);
 
@@ -190,12 +190,12 @@ void WallBounce(DSWActor*, short ang);
 #define CALTROPS 2218
 #define PHOSPHORUS 1397
 
-int PlayerInitChemBomb(PLAYERp pp);
+int PlayerInitChemBomb(PLAYER* pp);
 int InitChemBomb(DSWActor*);
-int PlayerInitCaltrops(PLAYERp pp);
+int PlayerInitCaltrops(PLAYER* pp);
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity);
 int SpawnBunnyExp(DSWActor* actor);
-int InitBunnyRocket(PLAYERp pp);
+int InitBunnyRocket(PLAYER* pp);
 
 int GetDamage(DSWActor*, DSWActor*, int DamageNdx);
 int DoFlamesDamageTest(DSWActor*);
@@ -219,12 +219,12 @@ int SetSuicide(DSWActor*);
 void UpdateSinglePlayKills(DSWActor* actor);
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor);
 int InitCoolgDrip(DSWActor*);
-int InitFireball(PLAYERp pp);
-void InitSpellRing(PLAYERp pp);
-void InitSpellNapalm(PLAYERp pp);
+int InitFireball(PLAYER* pp);
+void InitSpellRing(PLAYER* pp);
+void InitSpellNapalm(PLAYER* pp);
 int DoStaticFlamesDamage(DSWActor*);
-int InitUzi(PLAYERp pp);
-int InitSobjGun(PLAYERp pp);
+int InitUzi(PLAYER* pp);
+int InitSobjGun(PLAYER* pp);
 void InitFireballTrap(DSWActor* actor);
 void InitBoltTrap(DSWActor* actor);
 void InitSpearTrap(DSWActor*);
@@ -237,9 +237,9 @@ void SpriteQueueDelete(DSWActor* actor);
 int HelpMissileLateral(DSWActor*, int dist);
 void AddSpriteToSectorObject(DSWActor*,SECTOR_OBJECT* sop);
 void QueueReset(void);
-int PlayerCheckDeath(PLAYERp pp,DSWActor*);
+int PlayerCheckDeath(PLAYER* pp,DSWActor*);
 bool SpriteWarpToUnderwater(DSWActor* actor);
-int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
+int PlayerDamageSlide(PLAYER* pp,int damage,short ang);
 bool VehicleMoveHit(DSWActor*);
 int SpawnSplash(DSWActor*);
 void SpawnMineExp(DSWActor*);
