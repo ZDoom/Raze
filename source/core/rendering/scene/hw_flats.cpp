@@ -399,6 +399,12 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 {
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);
+	bool belowfloor = false;
+	if (sprite->pos.Z > sprite->sectp->floorz)
+	{
+		belowfloor = true;
+		sprite->pos.Z = sprite->sectp->floorz;
+	}
 	z = sprite->pos.Z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 	dynlightindex = -1;
@@ -423,6 +429,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 		fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 
 		SetSpriteTranslucency(sprite, alpha, RenderStyle);
+		if (belowfloor) alpha *= 0.33f;
 
 		PutFlat(di, z > di->Viewpoint.Pos.Z);
 	}
