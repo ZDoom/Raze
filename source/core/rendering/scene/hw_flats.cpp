@@ -121,7 +121,10 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 	{
 		vec2_t pos[4];
 		int ofsz[4];
+		auto cstat = Sprite->cstat;
+		if (Sprite->clipdist & TSPR_SLOPESPRITE) cstat &= ~CSTAT_SPRITE_YFLIP;	// NBlood doesn't y-flip slope sprites.
 		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, ofsz, true);
+		Sprite->cstat = cstat;
 
 		auto ret = screen->mVertexData->AllocVertices(6);
 		auto vp = ret.first;
@@ -129,7 +132,6 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		float y = !(Sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		if (Sprite->clipdist & TSPR_SLOPESPRITE)
 		{
-
 			int posx = int(di->Viewpoint.Pos.X * 16.f);
 			int posy = int(di->Viewpoint.Pos.Y * -16.f);
 			int posz = int(di->Viewpoint.Pos.Z * -256.f);
