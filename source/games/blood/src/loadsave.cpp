@@ -474,7 +474,8 @@ void DBloodActor::Serialize(FSerializer& arc)
 	arc("xvel", vel.X)
 		("yvel", vel.Y)
 		("zvel", vel.Z)
-		("hasx", hasx);
+		("hasx", hasx)
+		("basepoint", basePoint);
 
 	// The rest is only relevant if the actor has an xsprite.
 	if (hasX())
@@ -484,25 +485,25 @@ void DBloodActor::Serialize(FSerializer& arc)
 			("dudeextra", dudeExtra)
 			("explosionflag", explosionhackflag)
 			("spritehit", hit)
-			("basepoint", basePoint)
 			("owneractor", ownerActor);
 
-#ifdef NOONE_EXTENSIONS
-		if (gModernMap)
-		{
-			arc("spritemass", spriteMass)
-				("prevmarker", prevmarker)
-				.Array("conditions", condition, 2);
-
-
-			// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-			if (spr.type == kDudeModernCustom || spr.type == kDudeModernCustomBurning)
-			{
-				arc("gendudeextra", genDudeExtra);
-			}
-		}
-#endif
 	}
+
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+	{
+		arc("spritemass", spriteMass)
+			("prevmarker", prevmarker)
+			.Array("conditions", condition, 2);
+
+
+		// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
+		if (spr.type == kDudeModernCustom || spr.type == kDudeModernCustomBurning)
+		{
+			arc("gendudeextra", genDudeExtra);
+		}
+	}
+#endif
 }
 
 //---------------------------------------------------------------------------
