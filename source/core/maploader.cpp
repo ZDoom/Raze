@@ -414,6 +414,28 @@ void fixSectors()
 	}
 }
 
+void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors)
+{
+
+	if ((unsigned)(*cursectnum) >= numsectors)
+	{
+		sectortype* sect = nullptr;
+		updatesectorz(pos.X, pos.Y, pos.Z, &sect);
+		if (!sect) updatesector(pos.X, pos.Y, &sect);
+		if (sect)
+		{
+			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, *cursectnum, numsectors);
+			*cursectnum = sectnum(sect);
+		}
+		else
+		{
+			I_Error("Unable to start map %s: Start sector %d out of range. Max. sector is %d. No valid location at start spot\n", filename, *cursectnum, numsectors);
+		}
+	}
+
+
+}
+
 void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
 {
 	inputState.ClearAllInput();
@@ -507,6 +529,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 
 	wallbackup = wall;
 	sectorbackup = sector;
+	validateStartSector(filename, *pos, cursectnum, numsectors);
 }
 
 
