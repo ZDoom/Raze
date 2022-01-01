@@ -170,7 +170,7 @@ void QuakeViewChange(PLAYER* pp, int *z_diff, int *x_diff, int *y_diff, short *a
     // find the closest quake - should be a strength value
     DSWActor* actor = nullptr;
     SWStatIterator it(STAT_QUAKE_ON);
-	while (actor = it.Next())
+	while ((actor = it.Next()))
 	{
         dist = FindDistance3D(pp->pos - actor->spr.pos);
 

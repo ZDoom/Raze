@@ -16783,7 +16783,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (overActor = it.Next())
+    while ((overActor = it.Next()))
     {
         if ((overActor->sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->sector()->hasU() &&
@@ -16799,7 +16799,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (underActor = it.Next())
+    while ((underActor = it.Next()))
     {
         if ((underActor->sector()->extra & SECTFX_UNDERWATER) &&
             underActor->sector()->hasU() &&
@@ -16852,7 +16852,7 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (underActor = it.Next())
+    while ((underActor = it.Next()))
     {
         if ((underActor->sector()->extra & SECTFX_UNDERWATER) &&
             underActor->sector()->hasU() &&
@@ -16868,7 +16868,7 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (overActor = it.Next())
+    while ((overActor = it.Next()))
     {
         if ((overActor->sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->sector()->hasU() &&
@@ -16918,7 +16918,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (overActor = it.Next())
+    while ((overActor = it.Next()))
     {
         if ((overActor->sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->sector()->hasU() &&
@@ -16934,7 +16934,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (underActor = it.Next())
+    while ((underActor = it.Next()))
     {
         if ((underActor->sector()->extra & SECTFX_UNDERWATER) &&
             underActor->sector()->hasU() &&
@@ -16988,7 +16988,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (underActor = it.Next())
+    while ((underActor = it.Next()))
     {
         if ((underActor->sector()->extra & SECTFX_UNDERWATER) &&
             underActor->sector()->hasU() &&
@@ -17008,7 +17008,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (overActor = it.Next())
+    while ((overActor = it.Next()))
     {
         if ((overActor->sector()->extra & SECTFX_DIVE_AREA) &&
             overActor->sector()->hasU() &&

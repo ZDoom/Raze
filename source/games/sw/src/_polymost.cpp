@@ -317,7 +317,7 @@ void SW_FloorPortalHack(DSWActor* actor, int z, int match)
     int newz = actor->sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
     SWStatIterator it(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.lotag == match)
         {
@@ -350,7 +350,7 @@ void SW_CeilingPortalHack(DSWActor* actor, int z, int match)
     int newz = actor->sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
 
     SWStatIterator it(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.lotag == match)
         {

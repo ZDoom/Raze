@@ -668,7 +668,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
     SWStatIterator it(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.hitag == VIEW_THRU_CEILING && actor->spr.lotag == match)
         {
@@ -679,7 +679,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
     }
 
     it.Reset(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.lotag == match)
         {
@@ -729,7 +729,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
     SWStatIterator it(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.hitag == VIEW_THRU_FLOOR && actor->spr.lotag == match)
         {
@@ -741,7 +741,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 
 
     it.Reset(STAT_FAF);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         if (actor->spr.lotag == match)
         {

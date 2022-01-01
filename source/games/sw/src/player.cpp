@@ -4000,7 +4000,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     // search for DIVE_AREA "over" sprite for reference point
     SWStatIterator it(STAT_DIVE_AREA);
-    while (over_act = it.Next())
+    while ((over_act = it.Next()))
     {
         if ((over_act->sector()->extra & SECTFX_DIVE_AREA) &&
             over_act->sector()->hasU() &&
@@ -4016,7 +4016,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while (under_act = it.Next())
+    while ((under_act = it.Next()))
     {
         if ((under_act->sector()->extra & SECTFX_UNDERWATER) &&
             under_act->sector()->hasU() &&
@@ -4070,7 +4070,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     // search for UNDERWATER "under" sprite for reference point
     SWStatIterator it(STAT_UNDERWATER);
-    while (under_act = it.Next())
+    while ((under_act = it.Next()))
     {
         if ((under_act->sector()->extra & SECTFX_UNDERWATER) &&
             under_act->sector()->hasU() &&
@@ -4086,7 +4086,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while (over_act = it.Next())
+    while ((over_act = it.Next()))
     {
         if ((over_act->sector()->extra & SECTFX_DIVE_AREA) &&
             over_act->sector()->hasU() &&
