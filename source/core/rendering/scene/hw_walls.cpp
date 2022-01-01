@@ -67,10 +67,29 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
 		if (deltaang >= 512 - maxangdelta && deltaang <= 512 + maxangdelta)
 		{
-			double wdist = SquareDistToWall(tspr->pos.X, tspr->pos.Y, &wal, &outpos);
-			if (wdist <= maxdistsq)
+			// orthogonal lines do not check the actual position so that certain off-sector sprites get handled properly. 
+			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
+			if (d.X == 0)
 			{
-				closest = &wal;
+				if (tspr->pos.X == wal.pos.X)
+				{
+					closest = &wal;
+				}
+			}
+			else if (d.Y == 0)
+			{
+				if (tspr->pos.Y == wal.pos.Y)
+				{
+					closest = &wal;
+				}
+			}
+			else
+			{
+				double wdist = SquareDistToWall(tspr->pos.X, tspr->pos.Y, &wal, &outpos);
+				if (wdist <= maxdistsq)
+				{
+					closest = &wal;
+				}
 			}
 		}
 	}
