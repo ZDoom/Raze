@@ -146,18 +146,17 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             hit.hitpos.Y -= yvect>>9;
 
             // warp to new x,y,z, sectnum
-            sectortype* newsect = nullptr;
-            if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
+            if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &hit.hitSector))
             {
                 // hitscan needs to pass through dest sect
-                ResetWallWarpHitscan(newsect);
+                ResetWallWarpHitscan(hit.hitSector);
 
                 // NOTE: This could be recursive I think if need be
                 auto pos = hit.hitpos;
-                hitscan(pos, newsect, { xvect, yvect, zvect }, hit, startclipmask);
+                hitscan(pos, hit.hitSector, { xvect, yvect, zvect }, hit, startclipmask);
 
                 // reset hitscan block for dest sect
-                SetWallWarpHitscan(newsect);
+                SetWallWarpHitscan(hit.hitSector);
 
                 return;
             }
