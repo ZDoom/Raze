@@ -637,6 +637,7 @@ void KillActor(DSWActor* actor)
         // any Anims attached
         AnimDelete(ANIM_Userz, 0, actor);
         AnimDelete(ANIM_Spritez, 0, actor);
+        StopInterpolation(actor, Interp_Sprite_Z);
 
         // adjust sprites attached to sector objects
         if (actor->user.Flags & (SPR_SO_ATTACHED))

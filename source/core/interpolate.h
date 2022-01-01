@@ -13,6 +13,8 @@ enum EInterpolationType
 	Interp_Wall_X,
 	Interp_Wall_Y,
 
+	Interp_Sprite_Z,
+
 	Interp_Pan_First,
 	// order of the following 4 flags must match the corresponding sector flags.
 	Interp_Sect_FloorPanX = Interp_Pan_First,
@@ -25,6 +27,8 @@ enum EInterpolationType
 
 void StartInterpolation(int index, int type);
 void StopInterpolation(int index, int type);
+void StartInterpolation(DCoreActor* actor, int type);
+void StopInterpolation(DCoreActor* actor, int type);
 void UpdateInterpolations();
 void ClearInterpolations();
 void ClearMovementInterpolations();

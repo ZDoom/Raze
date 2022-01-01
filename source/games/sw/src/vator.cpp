@@ -254,6 +254,11 @@ void InterpSectorSprites(sectortype* sect, bool state)
             if (actor->user.Flags & (SPR_SKIP2) && actor->spr.statnum <= STAT_SKIP2_INTERP_END)
                 continue;
         }
+
+        if (state)
+            StartInterpolation(actor, Interp_Sprite_Z);
+        else
+            StopInterpolation(actor, Interp_Sprite_Z);
     }
 }
 
