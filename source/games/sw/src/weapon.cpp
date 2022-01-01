@@ -7280,7 +7280,7 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            if (FAFcansee(itActor, ActorZOfMiddle(itActor), actor, actor->spr.pos.Z))
+            if (!FAFcansee(itActor, ActorZOfMiddle(itActor), actor, actor->spr.pos.Z))
                 continue;
 
             if ((itActor->spr.extra & SPRX_BREAKABLE))
