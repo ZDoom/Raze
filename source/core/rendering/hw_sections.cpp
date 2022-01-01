@@ -108,7 +108,7 @@ void StripLoop(TArray<vec2_t>& points)
 	for (int p = 0; p < (int)points.Size(); p++)
 	{
 		unsigned prev = p == 0 ? points.Size() - 1 : p - 1;
-		unsigned next = p == points.Size() - 1 ? 0 : p + 1;
+		unsigned next = unsigned(p) == points.Size() - 1 ? 0 : p + 1;
 
 		if (points[next] == points[prev]) // if the two neighboring points are equal, this one dos not contribute to the sector's area.
 		{
