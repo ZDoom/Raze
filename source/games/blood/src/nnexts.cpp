@@ -7820,7 +7820,7 @@ void aiPatrolMove(DBloodActor* actor)
 		auto hitactor = actor->hit.hit.actor();
 		hitactor->xspr.dodgeDir = -1;
 		actor->xspr.dodgeDir = 1;
-		aiMoveDodge(hitactor);
+		aiMoveDodge(actor);
 	}
 	else
 	{
