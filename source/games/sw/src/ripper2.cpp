@@ -1127,7 +1127,7 @@ int DoRipper2QuickJump(DSWActor* actor)
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
 
-    DSWActor* low = actor->user.targetActor;
+    DSWActor* low = actor->user.lowActor;
     if (low)
     {
         if ((low->spr.extra & SPRX_PLAYER_OR_ENEMY))
