@@ -5220,10 +5220,13 @@ int MoveMissile(DBloodActor* actor)
 	auto Owner = actor->GetOwner();
 	int cliptype = -1;
 	ESpriteFlags bakCstat = 0;
-	if (Owner && Owner->IsDudeActor())
+	if (Owner)
 	{
 		bakCstat = Owner->spr.cstat;
-		Owner->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		if (Owner->IsDudeActor())
+		{
+			Owner->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		}
 	}
 	gHitInfo.clearObj();
 	if (actor->spr.type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
