@@ -1095,7 +1095,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
 	}
 
-	DVector2 vec;
+	DVector2 vec{};
 	walldist = IsOnWall(spr, height, vec);
 	wallpoint = { float(vec.X * (1 / 16.f)), float(vec.Y * (-1 / 16.f)) };
 	if (walldist)
