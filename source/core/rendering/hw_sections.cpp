@@ -375,8 +375,8 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 		}
 		if (!collect[i].bugged)	// only try to build a proper set of sections if the sector is not malformed. Otherwise just make a single one of everything.
 		{
-			int wind1count = 0;
-			int windnegcount = 0;
+			unsigned wind1count = 0;
+			unsigned windnegcount = 0;
 			int posplace = -1;
 			for (unsigned l = 0; l < sectloops.Size(); l++)
 			{
