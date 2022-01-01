@@ -4083,7 +4083,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	}
 
 #ifdef NOONE_EXTENSIONS
-	if (gModernMap && actorHit->hasX() && actorHit->xspr.state != actorHit->xspr.restState && actorHit->xspr.Impact)
+	if (gModernMap && actorHit && actorHit->hasX() && actorHit->xspr.state != actorHit->xspr.restState && actorHit->xspr.Impact)
 		trTriggerSprite(actorHit, kCmdSpriteImpact);
 #endif
 	missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
