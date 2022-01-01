@@ -8602,7 +8602,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (FAFcansee(itActor, ActorUpperZ(itActor), actor, actor->spr.pos.Z))
+            if (FAFcansee(itActor, ActorUpperZ(actor), actor, actor->spr.pos.Z))
                 continue;
 
             return true;
