@@ -375,7 +375,7 @@ void InitSectorFX(void)
 			{
 				wallPanList.Push(&wal);
 				if (pXWall->panVel.X) StartInterpolation(&wal, Interp_Wall_PanX);
-				if (pXWall->panVel.X) StartInterpolation(&wal, Interp_Wall_PanY);
+				if (pXWall->panVel.Y) StartInterpolation(&wal, Interp_Wall_PanY);
 			}
 		}
 	}
