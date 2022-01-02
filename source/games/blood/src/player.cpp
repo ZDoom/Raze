@@ -1772,8 +1772,6 @@ void ProcessInput(PLAYER* pPlayer)
 		doslopetilting(pPlayer);
 	}
 
-	// disable synchronised input and input locks if set by game.
-	resetForcedSyncInput();
 	pPlayer->angle.unlockinput();
 	pPlayer->horizon.unlockinput();
 
