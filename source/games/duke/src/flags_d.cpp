@@ -243,6 +243,28 @@ void initactorflags_d()
 		STRIPEBALL
 		});
 
+	setflag(SFLAG2_TRIGGER_IFHITSECTOR, { EXPLOSION2 });
+
+	setflag(SFLAG2_NOVEFTA_MAKESTANDABLE, {
+		RUBBERCAN,
+		EXPLODINGBARREL,
+		WOODENHORSE,
+		HORSEONSIDE,
+		CANWITHSOMETHING,
+		CANWITHSOMETHING2,
+		CANWITHSOMETHING3,
+		CANWITHSOMETHING4,
+		FIREBARREL,
+		FIREVASE,
+		NUKEBARREL,
+		NUKEBARRELDENTED,
+		NUKEBARRELLEAKED,
+		TRIPBOMB
+		});
+
+	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
+	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;
+
 	gs.actorinfo[ORGANTIC].aimoffset = 32 << 8;
 	gs.actorinfo[ROTATEGUN].aimoffset = 32 << 8;
 

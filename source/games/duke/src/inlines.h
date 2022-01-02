@@ -27,9 +27,14 @@ inline int bossguypic(int const tileNum)
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
 }
 
-inline int actorflag(DDukeActor * actor, int mask)
+inline int actorflag(DDukeActor * actor, EDukeFlags1 mask)
 {
 	return (((gs.actorinfo[actor->spr.picnum].flags) & mask) != 0);
+}
+
+inline int actorflag(DDukeActor* actor, EDukeFlags2 mask)
+{
+	return (((gs.actorinfo[actor->spr.picnum].flags2) & mask) != 0);
 }
 
 inline int actorfella(DDukeActor* actor)
@@ -37,11 +42,19 @@ inline int actorfella(DDukeActor* actor)
 	return actorflag(actor, SFLAG_KILLCOUNT);
 }
 
-inline void setflag(int flag, const std::initializer_list<short>& types)
+inline void setflag(EDukeFlags1 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
 		gs.actorinfo[val].flags |= flag;
+	}
+}
+
+inline void setflag(EDukeFlags2 flag, const std::initializer_list<short>& types)
+{
+	for (auto val : types)
+	{
+		gs.actorinfo[val].flags2 |= flag;
 	}
 }
 

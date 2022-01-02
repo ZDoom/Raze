@@ -312,7 +312,23 @@ enum sflags_t
 	SFLAG_KILLCOUNT        = 0x10000000,
 	SFLAG_NOCANSEECHECK    = 0x20000000,
 	SFLAG_HITRADIUSCHECK   = 0x40000000,
+	SFLAG_MOVEFTA_CHECKSEE = 0x80000000,
 };
+
+using EDukeFlags1 = TFlags<sflags_t, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(EDukeFlags1)
+
+enum sflags2_t
+{
+	SFLAG2_NOVEFTA_MAKESTANDABLE = 0x00000001,
+	SFLAG2_TRIGGER_IFHITSECTOR = 0x00000002,
+	SFLAG2_MOVEFTA_WAKEUPCHECK = 0x00000004,
+	SFLAG2_MOVEFTA_CHECKSEEWITHPAL8 = 0x00000008,	// let's hope this can be done better later. For now this was what blocked merging the Duke and RR variants of movefta
+
+};
+
+using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(EDukeFlags2)
 
 enum
 {

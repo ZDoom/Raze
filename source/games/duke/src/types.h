@@ -120,7 +120,8 @@ struct animwalltype
 struct ActorInfo
 {
 	uint32_t scriptaddress;
-	uint32_t flags;
+	EDukeFlags1 flags;
+	EDukeFlags2 flags2;
 	int aimoffset;
 	int falladjustz;
 	int gutsoffset;
