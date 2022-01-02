@@ -613,24 +613,6 @@ void movefta_r(void)
 //
 //---------------------------------------------------------------------------
 
-
-DDukeActor* ifhitsectors_r(sectortype* sect)
-{
-	DukeStatIterator it(STAT_MISC);
-	while (auto a1 = it.Next())
-	{
-		if (a1->spr.picnum == EXPLOSION2 || (a1->spr.picnum == EXPLOSION3 && sect == a1->sector()))
-			return a1;
-	}
-	return nullptr;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int ifhitbyweapon_r(DDukeActor *actor)
 {
 	int p;

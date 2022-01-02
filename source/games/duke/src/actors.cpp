@@ -4030,6 +4030,23 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 //
 //---------------------------------------------------------------------------
 
+DDukeActor* ifhitsectors(sectortype* sect)
+{
+	DukeStatIterator it(STAT_MISC);
+	while (auto a1 = it.Next())
+	{
+		if (actorflag(a1, SFLAG2_TRIGGER_IFHITSECTOR) && sect == a1->sector())
+			return a1;
+	}
+	return nullptr;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void handle_se19(DDukeActor *actor, int BIGFORCE)
 {
 	auto sc = actor->sector();
@@ -4080,7 +4097,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 	}
 	else //Not hit yet
 	{
-		auto hitter = fi.ifhitsectors(actor->sector());
+		auto hitter = ifhitsectors(actor->sector());
 		if (hitter)
 		{
 			FTA(8, &ps[myconnectindex]);

@@ -95,7 +95,6 @@ struct Dispatcher
 	void (*lotsofmail)(DDukeActor *s, int n);
 	void (*lotsofpaper)(DDukeActor *s, int n);
 	void (*guts)(DDukeActor* s, int gtype, int n, int p);
-	DDukeActor* (*ifhitsectors)(sectortype* sectnum);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(DDukeActor* actor, int g_p);
 	bool (*spawnweapondebris)(int picnum, int dnum);
