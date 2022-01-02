@@ -1195,9 +1195,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(actor, zh, itActor, ezh) &&
-                !FAFcansee(actor, zh, itActor, ezhm) &&
-                !FAFcansee(actor, zh, itActor, ezhl)
+            if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezh, itActor->sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhm, itActor->sector()) &&
+                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhl, itActor->sector())
                 )
                 continue;
 

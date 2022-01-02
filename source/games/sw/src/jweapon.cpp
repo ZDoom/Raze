@@ -1436,7 +1436,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcanseeOfs(itActor, 0, actor, - ActorSizeZ(actor)))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->actor, DMG_FLASHBOMB);
@@ -1495,7 +1495,7 @@ int InitFlashBomb(DSWActor* actor)
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcanseeOfs(itActor, 0, actor, -ActorSizeZ(actor)))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1897,7 +1897,7 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            if (!FAFcansee(itActor, actor))
+            if (!FAFcansee(itActor->spr.pos.X, itActor->spr.pos.Y, itActor->spr.pos.Z, itActor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
                 continue;
 
             dist = FindDistance3D(actor->spr.pos - itActor->spr.pos);

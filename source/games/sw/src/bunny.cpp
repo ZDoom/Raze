@@ -908,7 +908,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(actor, look_height, itActor, ActorUpperZ(itActor));
+        ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->sector());
 
         if (ICanSee && dist < near_dist && itActor->user.ID == BUNNY_RUN_R0)
         {

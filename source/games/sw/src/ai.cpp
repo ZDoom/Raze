@@ -219,7 +219,7 @@ bool CanSeePlayer(DSWActor* actor)
     // if actor can still see the player
     int look_height = ActorZOfTop(actor);
 
-    if (actor->user.targetActor && FAFcansee(actor, look_height, actor->user.targetActor, ActorUpperZ(actor->user.targetActor)))
+    if (actor->user.targetActor && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->sector(), actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
         return true;
     else
         return false;
@@ -353,7 +353,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
         DSWActor* plActor = pp->actor;
-        if (dist < near_dist && FAFcansee(actor, look_height, plActor, ActorUpperZ(plActor)))
+        if (dist < near_dist && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->sector(), plActor->spr.pos.X, plActor->spr.pos.Y, ActorUpperZ(plActor), plActor->sector()))
         {
             near_dist = dist;
             actor->user.targetActor = pp->actor;
@@ -379,7 +379,7 @@ TARGETACTOR:
 
             DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(actor, look_height, itActor, ActorUpperZ(itActor)))
+            if (dist < near_dist && FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->sector()))
             {
                 near_dist = dist;
                 actor->user.targetActor = itActor;
