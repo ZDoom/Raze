@@ -55,7 +55,7 @@ double Get(int index, DCoreActor* actor, int type)
 	case Interp_Wall_PanX:				return wall[index].xpan_;
 	case Interp_Wall_PanY:				return wall[index].ypan_;
 
-	case Interp_Sprite_Z:				return actor->spr.pos.Z;
+	case Interp_Sprite_Z:				return actor ? actor->spr.pos.Z : 0;
 	default: return 0;
 	}
 }
@@ -79,7 +79,7 @@ void Set(int index, DCoreActor* actor, int type, double val)
 	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
 	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
                                         
-	case Interp_Sprite_Z:               actor->spr.pos.Z = xs_CRoundToInt(val); break;
+	case Interp_Sprite_Z:               if (actor) actor->spr.pos.Z = xs_CRoundToInt(val); break;
 	}
 }
 
