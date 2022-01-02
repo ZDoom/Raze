@@ -1572,7 +1572,7 @@ void OperatePath(sectortype* pSector, EVENT event)
 	DBloodActor* actor;
 	assert(pSector);
 	auto pXSector = &pSector->xs();
-	if (!pXSector->marker0) return;
+	if (!pXSector->marker0 || !pXSector->marker1) return;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
 	int nId = marker1->xspr.data2;
