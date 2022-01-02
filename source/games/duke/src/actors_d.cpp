@@ -589,107 +589,6 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void movefta_d(void)
-{
-	int x, px, py, sx, sy;
-	int p;
-	sectortype* psect, *ssect;
-	int j;
-
-	DukeStatIterator iti(STAT_ZOMBIEACTOR);
-
-	while (auto act = iti.Next())
-	{
-		p = findplayer(act, &x);
-
-		ssect = psect = act->sector();
-
-		auto pa = ps[p].GetActor();
-		if (pa->spr.extra > 0)
-		{
-			if (x < 30000)
-			{
-				act->timetosleep++;
-				if (act->timetosleep >= (x >> 8))
-				{
-					if (badguy(act))
-					{
-						px = ps[p].opos.X + 64 - (krand() & 127);
-						py = ps[p].opos.Y + 64 - (krand() & 127);
-						updatesector(px, py, &psect);
-						if (psect == nullptr)
-						{
-							continue;
-						}
-						sx = act->spr.pos.X + 64 - (krand() & 127);
-						sy = act->spr.pos.Y + 64 - (krand() & 127);
-						updatesector(px, py, &ssect);
-						if (ssect == nullptr)
-						{
-							continue;
-						}
-
-						int r1 = krand();
-						int r2 = krand();
-						j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
-					}
-					else
-					{
-						int r1 = krand();
-						int r2 = krand();
-						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
-					}
-
-
-					if (j) switch(act->spr.picnum)
-					{
-						case RUBBERCAN:
-						case EXPLODINGBARREL:
-						case WOODENHORSE:
-						case HORSEONSIDE:
-						case CANWITHSOMETHING:
-						case CANWITHSOMETHING2:
-						case CANWITHSOMETHING3:
-						case CANWITHSOMETHING4:
-						case FIREBARREL:
-						case FIREVASE:
-						case NUKEBARREL:
-						case NUKEBARRELDENTED:
-						case NUKEBARRELLEAKED:
-						case TRIPBOMB:
-							if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-								act->spr.shade = act->sector()->ceilingshade;
-							else act->spr.shade = act->sector()->floorshade;
-
-							act->timetosleep = 0;
-							ChangeActorStat(act, STAT_STANDABLE);
-							break;
-
-						default:
-							act->timetosleep = 0;
-							check_fta_sounds_d(act);
-							ChangeActorStat(act, STAT_ACTOR);
-							break;
-					}
-					else act->timetosleep = 0;
-				}
-			}
-			if (badguy(act))
-			{
-				if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-					act->spr.shade = act->sector()->ceilingshade;
-				else act->spr.shade = act->sector()->floorshade;
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -3907,7 +3806,7 @@ void think_d(void)
 	thinktime.Clock();
 	recordoldspritepos();
 
-	movefta_d();			//ST 2
+	movefta();			//ST 2
 	moveweapons_d();		//ST 4
 	movetransports_d();		//ST 9
 	moveplayers();			//ST 10

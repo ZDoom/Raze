@@ -5223,6 +5223,110 @@ void recordoldspritepos()
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+
+void movefta(void)
+{
+	int x, px, py, sx, sy;
+	int canseeme, p;
+	sectortype* psect, * ssect;
+
+	DukeStatIterator it(STAT_ZOMBIEACTOR);
+	while (auto act = it.Next())
+	{
+		p = findplayer(act, &x);
+		canseeme = 0;
+
+		ssect = psect = act->sector();
+
+		if (ps[p].GetActor()->spr.extra > 0)
+		{
+			if (x < 30000)
+			{
+				act->timetosleep++;
+				if (act->timetosleep >= (x >> 8))
+				{
+					if (badguy(act))
+					{
+						px = ps[p].opos.X + 64 - (krand() & 127);
+						py = ps[p].opos.Y + 64 - (krand() & 127);
+						updatesector(px, py, &psect);
+						if (psect == nullptr)
+						{
+							continue;
+						}
+						sx = act->spr.pos.X + 64 - (krand() & 127);
+						sy = act->spr.pos.Y + 64 - (krand() & 127);
+						updatesector(px, py, &ssect);
+						if (ssect == nullptr)
+						{
+							continue;
+						}
+
+						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
+						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
+							(actorflag(act, SFLAG2_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
+							(bcos(act->spr.ang) * (px - sx) + bsin(act->spr.ang) * (py - sy) >= 0))
+						{
+							int r1 = krand();
+							int r2 = krand();
+							canseeme = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
+						}
+					}
+					else
+					{
+						int r1 = krand();
+						int r2 = krand();
+						canseeme = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
+					}
+
+
+					if (canseeme)
+					{
+						if (actorflag(act, SFLAG2_NOVEFTA_MAKESTANDABLE))
+						{
+							if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+								act->spr.shade = act->sector()->ceilingshade;
+							else act->spr.shade = act->sector()->floorshade;
+
+							act->timetosleep = 0;
+							ChangeActorStat(act, STAT_STANDABLE);
+						}
+						else
+						{
+							act->timetosleep = 0;
+							check_fta_sounds_r(act);
+							ChangeActorStat(act, STAT_ACTOR);
+						}
+					}
+					else act->timetosleep = 0;
+				}
+			}
+			if (badguy(act))
+			{
+				if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+					act->spr.shade = act->sector()->ceilingshade;
+				else act->spr.shade = act->sector()->floorshade;
+
+				if (actorflag(act, SFLAG2_MOVEFTA_WAKEUPCHECK))
+				{
+					if (wakeup(act, p))
+					{
+						act->timetosleep = 0;
+						check_fta_sounds_r(act);
+						ChangeActorStat(act, STAT_ACTOR);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 
 END_DUKE_NS

@@ -497,122 +497,6 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 //
 //---------------------------------------------------------------------------
 
-
-void movefta_r(void)
-{
-	int x, px, py, sx, sy;
-	int j, p;
-	sectortype* psect, *ssect;
-
-	DukeStatIterator it(STAT_ZOMBIEACTOR);
-	while(auto act = it.Next())
-	{
-		p = findplayer(act, &x);
-		j = 0;
-
-		ssect = psect = act->sector();
-
-		if (ps[p].GetActor()->spr.extra > 0)
-		{
-			if (x < 30000)
-			{
-				act->timetosleep++;
-				if (act->timetosleep >= (x >> 8))
-				{
-					if (badguy(act))
-					{
-						px = ps[p].opos.X + 64 - (krand() & 127);
-						py = ps[p].opos.Y + 64 - (krand() & 127);
-						updatesector(px, py, &psect);
-						if (psect == nullptr)
-						{
-							continue;
-						}
-						sx = act->spr.pos.X + 64 - (krand() & 127);
-						sy = act->spr.pos.Y + 64 - (krand() & 127);
-						updatesector(px, py, &ssect);
-						if (ssect == nullptr)
-						{
-							continue;
-						}
-
-						if (act->spr.pal == 33 || act->spr.picnum == VIXEN ||  
-							(isRRRA() && (isIn(act->spr.picnum, COOT, COOTSTAYPUT, BIKER, BIKERB, BIKERBV2, CHEER, CHEERB,
-								CHEERSTAYPUT, MINIONBOAT, HULKBOAT, CHEERBOAT, RABBIT, COOTPLAY, BILLYPLAY, MAKEOUT, MAMA)
-								|| (act->spr.picnum == MINION && act->spr.pal == 8)))
-							 || (bcos(act->spr.ang) * (px - sx) + bsin(act->spr.ang) * (py - sy) >= 0))
-						{
-							int r1 = krand();
-							int r2 = krand();
-							j = cansee(sx, sy, act->spr.pos.Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
-						}
-					}
-					else
-					{
-						int r1 = krand();
-						int r2 = krand();
-						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
-					}
-
-
-					if (j) switch (act->spr.picnum)
-					{
-					case RUBBERCAN:
-					case EXPLODINGBARREL:
-					case WOODENHORSE:
-					case HORSEONSIDE:
-					case CANWITHSOMETHING:
-					case FIREBARREL:
-					case FIREVASE:
-					case NUKEBARREL:
-					case NUKEBARRELDENTED:
-					case NUKEBARRELLEAKED:
-						if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-							act->spr.shade = act->sector()->ceilingshade;
-						else act->spr.shade = act->sector()->floorshade;
-
-						act->timetosleep = 0;
-						ChangeActorStat(act, STAT_STANDABLE);
-						break;
-					default:
-#if 0
-						// TRANSITIONAL: RedNukem has this here. Needed?
-						if (actorflag(act, SFLAG_USEACTIVATOR) && sector [act->s.lotag & 16384) break;
-#endif
-						act->timetosleep = 0;
-						check_fta_sounds_r(act);
-						ChangeActorStat(act, STAT_ACTOR);
-						break;
-					}
-					else act->timetosleep = 0;
-				}
-			}
-			if (/*!j &&*/ badguy(act)) // this is like RedneckGDX. j is uninitialized here, i.e. most likely not 0.
-			{
-				if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-					act->spr.shade = act->sector()->ceilingshade;
-				else act->spr.shade = act->sector()->floorshade;
-
-				if (act->spr.picnum == HEN || act->spr.picnum == COW || act->spr.picnum == PIG || act->spr.picnum == DOGRUN || ((isRRRA()) && act->spr.picnum == RABBIT))
-				{
-					if (wakeup(act, p))
-					{
-						act->timetosleep = 0;
-						check_fta_sounds_r(act);
-						ChangeActorStat(act, STAT_ACTOR);
-					}
-				}
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int ifhitbyweapon_r(DDukeActor *actor)
 {
 	int p;
@@ -4202,7 +4086,7 @@ void think_r(void)
 	thinktime.Clock();
 	recordoldspritepos();
 
-	movefta_r();			//ST 2
+	movefta();			//ST 2
 	moveweapons_r();		//ST 4
 	movetransports_r();		//ST 9
 	moveplayers();			//ST 10

@@ -27,6 +27,7 @@ void moveplayers();
 void doanimations();
 void movefx();
 void moveclouds(double smoothratio);
+void movefta();
 
 void RANDOMSCRAP(DDukeActor* i);
 void ms(DDukeActor* i);
