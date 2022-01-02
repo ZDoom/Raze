@@ -6743,14 +6743,14 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(pWall))
 			{
-				x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-				y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-				z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
-				nSurf = surfType[pWall->picnum];
-				assert(nSurf < kSurfMax);
-				if (pVectorData->surfHit[nSurf].fx1 >= 0)
+				int xx = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
+				int yy = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
+				int zz = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
+				int nnSurf = surfType[pWall->picnum];
+				assert(nnSurf < kSurfMax);
+				if (pVectorData->surfHit[nnSurf].fx1 >= 0)
 				{
-					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, pSector, x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nnSurf].fx1, pSector, xx, yy, zz, 0);
 					if (pFX)
 					{
 						pFX->spr.ang = (GetWallAngle(pWall) + 512) & 2047;
@@ -6831,29 +6831,29 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				}
 				if (Chance(pVectorData->fxChance))
 				{
-					t = gVectorData[19].maxDist;
+					int tt = gVectorData[19].maxDist;
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(actor, gHitInfo.hitpos.Z, a4, a5, a6, CLIPMASK1, t) == 0)
+					if (HitScan(actor, gHitInfo.hitpos.Z, a4, a5, a6, CLIPMASK1, tt) == 0)
 					{
-						if (approxDist(gHitInfo.hitpos.X - actor->spr.pos.X, gHitInfo.hitpos.Y - actor->spr.pos.Y) <= t)
+						if (approxDist(gHitInfo.hitpos.X - actor->spr.pos.X, gHitInfo.hitpos.Y - actor->spr.pos.Y) <= tt)
 						{
 							auto pWall = gHitInfo.hitWall;
-							pSector = gHitInfo.hitSector;
+							auto pSector1 = gHitInfo.hitSector;
 							if (actCanSplatWall(pWall))
 							{
-								x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-								y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-								z = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
-								nSurf = surfType[pWall->picnum];
-								pVectorData = &gVectorData[19];
-								FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
-								FX_ID t3 = pVectorData->surfHit[nSurf].fx3;
+								int xx = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
+								int yy = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
+								int zz = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
+								int nnSurf = surfType[pWall->picnum];
+								const VECTORDATA* pVectorData1 = &gVectorData[19];
+								FX_ID t2 = pVectorData1->surfHit[nnSurf].fx2;
+								FX_ID t3 = pVectorData1->surfHit[nnSurf].fx3;
 
 								DBloodActor* pFX = nullptr;
-								if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000))) pFX = gFX.fxSpawnActor(t2, pSector, x, y, z, 0);
-								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, pSector, x, y, z, 0);
+								if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000))) pFX = gFX.fxSpawnActor(t2, pSector1, xx, yy, zz, 0);
+								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, pSector1, xx, yy, zz, 0);
 								if (pFX)
 								{
 									pFX->vel.Z = 0x2222;
