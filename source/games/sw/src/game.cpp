@@ -534,6 +534,12 @@ void TerminateLevel(void)
     SWSpriteIterator it;
     while (auto actor = it.Next())
     {
+        actor->user.targetActor = nullptr;
+        actor->user.flameActor = nullptr;
+    }
+    it.Reset();
+    while (auto actor = it.Next())
+    {
         KillActor(actor);
     }
 
