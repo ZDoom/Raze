@@ -1059,6 +1059,12 @@ OptionValue "Precision"
 	1, "$OPTVAL_QUALITY"
 }
 
+OptionValue "Video Renderers"
+{
+        0, "$OPTVAL_POLYMOST"
+        1, "$OPTVAL_NEWRENDERER"
+}
+
 OptionMenu "VideoOptions" protected
 {
 	Title "$DSPLYMNU_TITLE"
@@ -1093,6 +1099,7 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
 	Option "$GLPREFMNU_RENDERQUALITY",			gl_seamless,					"Precision"
+	Option "$VID_RENDERER",                                            testnewrenderer,                            "Video Renderers"
 
 	StaticText ""
 	Option "$GLTEXMNU_TEXFILTER",		gl_texture_filter,				"FilterModes"
