@@ -530,13 +530,14 @@ void TerminateLevel(void)
         }
     }
 
-    // Kill User memory and delete sprites
+    // clear some pointers KillActor may operate upon.
     SWSpriteIterator it;
     while (auto actor = it.Next())
     {
         actor->user.targetActor = nullptr;
         actor->user.flameActor = nullptr;
     }
+    // Kill User memory and delete sprites
     it.Reset();
     while (auto actor = it.Next())
     {
