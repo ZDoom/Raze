@@ -953,9 +953,9 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			int floorZ = getflorzofslopeptr(pSector, actor->spr.pos.X, actor->spr.pos.Y);
 			if (!(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
 			{
+				viewBackupSpriteLoc(actor);
 				if (v14)
 					RotatePoint((int*)&actor->spr.pos.X, (int*)&actor->spr.pos.Y, v14, v20, v24);
-				viewBackupSpriteLoc(actor);
 				actor->spr.ang = (actor->spr.ang + v14) & 2047;
 				actor->spr.pos.X += v28;
 				actor->spr.pos.Y += v2c;
