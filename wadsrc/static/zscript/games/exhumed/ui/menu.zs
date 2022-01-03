@@ -1,7 +1,8 @@
 
 class ExhumedMenuDelegate : RazeMenuDelegate
 {
-	double zoomsize;	// this is the only persistent place where it can be conveniently stored.
+	double lastzoomsize, zoomsize;	// this is the only persistent place where it can be conveniently stored.
+	int zoomtime;
 
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
@@ -94,14 +95,24 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		let fonth = myfont.GetGlyphHeight("A");
 		int width = myfont.StringWidth(mText);
 		let delegate = ExhumedMenuDelegate(menuDelegate);
-		let zoom = delegate ? delegate.zoomsize : 1.;
+		double zoom = 1.;
+		let now = MSTime();
+		
+		if (delegate && (delegate.zoomsize < 1. || delegate.lastzoomsize < 1.))
+		{
+			zoom = delegate.zoomsize;
+			let span = clamp(now - delegate.zoomtime, 0, 33);
+			zoom -= 0.0625 * (1. - (span / 33.));
+		}			
+		Console.Printf("zoom = %f, now = %d", zoom, now);
 
 
 		let v = TexMan.GetScaledSize(tex);
 		double y = mYpos + v.y / 2;
+		
 
 		int shade;
-		if (selected) shade = Raze.bsin(MSTime() * 16 * 120 / 1000, -9);
+		if (selected) shade = Raze.bsin(now * 16 * 120 / 1000, -9);
 		else if (Selectable()) shade = 0;
 		else shade = 25;
 		let color = Raze.shadeToLight(shade);
@@ -131,8 +142,10 @@ class ExhumedMainMenu : ListMenu
 		let delegate = ExhumedMenuDelegate(menuDelegate);
 		if (!delegate) return;
 		// handle the menu zoom-in. The zoom is stored in the delegate so that it can be accessed by code which does not receive a reference to the menu.
+		delegate.lastzoomsize = delegate.zoomsize;
 		if (delegate.zoomsize < 1.)
 		{
+			delegate.zoomtime = MSTime();
 			delegate.zoomsize += 0.0625;
 			if (delegate.zoomsize >= 1.)
 				delegate.zoomsize = 1.;
