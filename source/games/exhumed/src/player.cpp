@@ -171,6 +171,8 @@ void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++) {
         PlayerList[i].pActor = nullptr;
+        PlayerList[i].pPlayerPushSect = nullptr;
+        PlayerList[i].pPlayerViewSect = nullptr;
     }
 }
 
