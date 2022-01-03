@@ -12810,7 +12810,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
     // hit a sprite?
     if (hit.actor() != nullptr)
     {
-        auto hitActor = actor->user.coll.actor();
+        auto hitActor = hit.actor();
 
         if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
@@ -15750,7 +15750,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     // hit a sprite?
     if (hit.actor() != nullptr)
     {
-        auto hitActor = actor->user.coll.actor();
+        auto hitActor = hit.actor();
         if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
