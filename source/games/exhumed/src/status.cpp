@@ -144,7 +144,6 @@ void StatusMessage(int messageTime, const char* fmt, ...)
 
 void DrawStatusBar()
 {
-    if (nFreeze == 2) return; // Hide when Ramses is talking.
     if (hud_size <= Hud_Stbar)
     {
         UpdateFrame();

@@ -75,16 +75,21 @@ void GameInterface::Render()
 
     double const smoothratio = calc_smoothratio();
 
-    DrawView(smoothratio);
-    DrawStatusBar();
-    DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(smoothratio), 0, 1);
 
-    if (paused && !M_Active())
+
+    DrawView(smoothratio);
+    if (nFreeze != 2) // Hide when Ramses is talking.
     {
-        auto tex = GStrings("TXTB_PAUSED");
-        auto font = PickSmallFont(tex);
-        int nStringWidth = font->StringWidth(tex);
-		DrawText(twod, font, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        DrawStatusBar();
+        DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(smoothratio), 0, 1);
+
+        if (paused && !M_Active())
+        {
+            auto tex = GStrings("TXTB_PAUSED");
+            auto font = PickSmallFont(tex);
+            int nStringWidth = font->StringWidth(tex);
+            DrawText(twod, font, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        }
     }
 
     drawtime.Unclock();
