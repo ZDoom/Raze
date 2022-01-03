@@ -382,8 +382,8 @@ class MapScreen : ScreenJob
 	override void Draw(double smoothratio)
 	{
 		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
-
-		int tileY = curYPos;
+		int myCurYPos = curYPos == destYPos? curYPos : curYPos - int((1. - smoothratio) * delta);
+		int tileY = myCurYPos;
 
 		// Draw the background screens
 		for (int i = 0; i < 10; i++)
@@ -410,7 +410,7 @@ class MapScreen : ScreenJob
 
 					String nTile = String.Format("MAPFIRE_%d%d", nFireType+1, nFireFrame+1);
 					int smokeX = x + FireTilesX[nFireType*3 + nFireFrame];
-					int smokeY = y + FireTilesY[nFireType*3 + nFireFrame] + curYPos + screenY;
+					int smokeY = y + FireTilesY[nFireType*3 + nFireFrame] + myCurYPos + screenY;
 
 					// Use rotatesprite to trim smoke in widescreen
 					Exhumed.DrawAbs(nTile, smokeX, smokeY);
@@ -423,7 +423,7 @@ class MapScreen : ScreenJob
 			String nTile = String.Format("MapPlaque%d_%02d", t+1, i+1);
 
 			int nameX = mapPlaqueX[i];
-			int nameY = mapPlaqueY[i] + curYPos + screenY;
+			int nameY = mapPlaqueY[i] + myCurYPos + screenY;
 
 			// Draw level name plaque
 			Exhumed.DrawAbs(nTile, nameX, nameY);
