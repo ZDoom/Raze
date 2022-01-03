@@ -482,6 +482,7 @@ static cheatseq_t s_CheatInfo[] = {
 	{"SPORK",                 nullptr,          SendGenericCheat, 0, kCheatSpork }, // SPORK (200% health (same effect as getting life seed))
 	{"ONERING",               nullptr,          SendGenericCheat, 0, kCheatOneRing }, // ONERING (Cloak of invisibility power-up)
 	{"MARIO###",              nullptr,          cheatMario }, // MARIO (Warp to level E M, e.g.: MARIO 1 3 will take you to Phantom Express)
+	{"MARIO ###",             nullptr,          cheatMario }, // MARIO (Warp to level E M, e.g.: MARIO 1 3 will take you to Phantom Express)
 	{"CALGON",                nullptr,          cheatCalgon }, // CALGON (Jumps to next level)
 	{"KEVORKIAN",             nullptr,          SendGenericCheat, 0, kCheatKevorkian }, // KEVORKIAN (Does a lot of physical damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "KEVORKIAN APPROVES".)
 	{"MCGEE",                 nullptr,          SendGenericCheat, 0, kCheatMcGee }, // MCGEE (Sets you on fire. Displays the message "YOU'RE FIRED".)

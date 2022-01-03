@@ -55,7 +55,7 @@ double Get(int index, DCoreActor* actor, int type)
 	case Interp_Wall_PanX:				return wall[index].xpan_;
 	case Interp_Wall_PanY:				return wall[index].ypan_;
 
-	case Interp_Sprite_Z:				return actor ? actor->spr.pos.Z : 0;
+	case Interp_Sprite_Z:				return !actor? 0 : actor->spr.pos.Z;
 	default: return 0;
 	}
 }
