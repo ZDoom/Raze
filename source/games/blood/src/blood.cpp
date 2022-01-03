@@ -56,9 +56,6 @@ IMPLEMENT_CLASS(DBloodActor, false, true)
 IMPLEMENT_POINTERS_START(DBloodActor)
 IMPLEMENT_POINTER(prevmarker)
 IMPLEMENT_POINTER(ownerActor)
-IMPLEMENT_POINTER(hit.hit.hitActor)
-IMPLEMENT_POINTER(hit.ceilhit.hitActor)
-IMPLEMENT_POINTER(hit.florhit.hitActor)
 IMPLEMENT_POINTER(genDudeExtra.pLifeLeech)
 IMPLEMENT_POINTER(genDudeExtra.slave[0])
 IMPLEMENT_POINTER(genDudeExtra.slave[1])
@@ -79,6 +76,9 @@ IMPLEMENT_POINTERS_END
 
 size_t DBloodActor::PropagateMark()
 {
+	if (hit.hit.type == kHitSprite) GC::Mark(hit.hit.hitActor);
+	if (hit.ceilhit.type == kHitSprite) GC::Mark(hit.ceilhit.hitActor);
+	if (hit.florhit.type == kHitSprite) GC::Mark(hit.florhit.hitActor);
 	condition[0].Mark();
 	condition[1].Mark();
 	return Super::PropagateMark();
