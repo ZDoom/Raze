@@ -32,6 +32,8 @@
 #include "hw_renderstate.h"
 #include "hw_drawinfo.h"
 
+#define MIN_EQ (0.0005f)
+
 FMemArena RenderDataAllocator(1024*1024);	// Use large blocks to reduce allocation time.
 
 void ResetRenderDataAllocator()
@@ -385,7 +387,51 @@ void HWDrawList::SortSpriteIntoPlane(SortNode * head, SortNode * sort)
 //
 //
 //==========================================================================
-#define MIN_EQ (0.0005f)
+void HWDrawList::SortSlopeIntoPlane(HWDrawInfo* di, SortNode* head, SortNode* sort)
+{
+	HWFlat* fh = flats[drawitems[head->itemindex].index];
+	HWFlat* ss = flats[drawitems[sort->itemindex].index];
+
+	bool ceiling = fh->z > SortZ;
+	auto svp = &di->SlopeSpriteVertices[ss->slopeindex];
+
+	float hiz = -FLT_MAX;
+	float loz = FLT_MAX;
+	for (int i = 0; i < ss->slopecount; i++)
+	{
+		if (svp[i].z < loz) loz = svp[i].z;
+		if (svp[i].z > hiz) hiz = svp[i].z;
+	}
+
+	if ((hiz > fh->z && loz < fh->z))
+	{
+		// We have to split this sprite
+		auto s = NewFlat(true);
+		*s = *ss;
+
+		SortNode* sort2 = SortNodes.GetNew();
+		memset(sort2, 0, sizeof(SortNode));
+		sort2->itemindex = drawitems.Size() - 1;
+
+		head->AddToLeft(sort);
+		head->AddToRight(sort2);
+	}
+	else if ((loz < fh->z && !ceiling) || (hiz > fh->z && ceiling))	// completely on the left side
+	{
+		head->AddToLeft(sort);
+	}
+	else
+	{
+		head->AddToRight(sort);
+	}
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 // Lines start-end and fdiv must intersect.
 inline double CalcIntersectionVertex(HWWall *w1, HWWall * w2)
@@ -579,6 +625,55 @@ void HWDrawList::SortSpriteIntoWall(HWDrawInfo *di, SortNode * head,SortNode * s
 	}
 }
 
+static TArray<float> onside; // static to avoid reallocation.
+void HWDrawList::SortSlopeIntoWall(HWDrawInfo* di, SortNode* head, SortNode* sort)
+{
+	HWWall* wh = walls[drawitems[head->itemindex].index];
+	HWFlat* ss = flats[drawitems[sort->itemindex].index];
+
+	auto svp = &di->SlopeSpriteVertices[ss->slopeindex];
+
+	onside.Resize(ss->slopecount);
+	float hiz = -FLT_MAX;
+	float loz = FLT_MAX;
+	for (int i = 0; i < ss->slopecount; i++)
+	{
+		onside[i] = wh->PointOnSide(svp[i].x, svp[i].y);
+		if (onside[i] < loz) loz = onside[i];
+		if (onside[i] > hiz) hiz = onside[i];
+	}
+
+
+	if (fabs(loz) < MIN_EQ && fabs(hiz) < MIN_EQ)
+	{
+		head->AddToEqual(sort);
+	}
+	else if (loz < MIN_EQ && hiz < MIN_EQ)
+	{
+		head->AddToLeft(sort);
+	}
+	else if (hiz > -MIN_EQ && loz > -MIN_EQ)
+	{
+		head->AddToRight(sort);
+	}
+	else
+	{
+		const bool drawWithXYBillboard = false;//
+
+		// [Nash] has +ROLLSPRITE
+		const bool rotated = false;//
+
+		// Proper splitting should not be necessary here and can be added once a map shows up that needs it.
+		if (fabs(hiz) > fabs(loz))
+		{
+			head->AddToRight(sort);
+		}
+		else
+		{
+			head->AddToLeft(sort);
+		}
+	}
+}
 
 //==========================================================================
 //
@@ -588,8 +683,8 @@ void HWDrawList::SortSpriteIntoWall(HWDrawInfo *di, SortNode * head,SortNode * s
 
 inline int HWDrawList::CompareSprites(SortNode * a,SortNode * b)
 {
-	HWSprite * s1= sprites[drawitems[a->itemindex].index];
-	HWSprite * s2= sprites[drawitems[b->itemindex].index];
+	HWFlatOrSprite* s1 = drawitems[a->itemindex].rendertype == DrawType_SPRITE ? (HWFlatOrSprite*)sprites[drawitems[a->itemindex].index] : flats[drawitems[a->itemindex].index];
+	HWFlatOrSprite* s2 = drawitems[b->itemindex].rendertype == DrawType_SPRITE ? (HWFlatOrSprite*)sprites[drawitems[b->itemindex].index] : flats[drawitems[b->itemindex].index];
 
 	if (s1->depth < s2->depth) return 1;
 	if (s1->depth > s2->depth) return -1;
@@ -659,6 +754,10 @@ SortNode * HWDrawList::DoSort(HWDrawInfo *di, SortNode * head)
 			case DrawType_SPRITE:
 				SortSpriteIntoPlane(head,node);
 				break;
+
+			case DrawType_SLOPE:
+				SortSlopeIntoPlane(di, head, node);
+				break;
 			}
 			node=next;
 		}
@@ -683,6 +782,10 @@ SortNode * HWDrawList::DoSort(HWDrawInfo *di, SortNode * head)
 
 				case DrawType_SPRITE:
 					SortSpriteIntoWall(di, head, node);
+					break;
+
+				case DrawType_SLOPE:
+					SortSlopeIntoWall(di, head, node);
 					break;
 
 				case DrawType_FLAT: break;
@@ -873,10 +976,10 @@ HWWall *HWDrawList::NewWall()
 //
 //
 //==========================================================================
-HWFlat *HWDrawList::NewFlat()
+HWFlat *HWDrawList::NewFlat(bool slopespr)
 {
 	auto flat = (HWFlat*)RenderDataAllocator.Alloc(sizeof(HWFlat));
-	drawitems.Push(HWDrawItem(DrawType_FLAT,flats.Push(flat)));
+	drawitems.Push(HWDrawItem(slopespr? DrawType_SLOPE : DrawType_FLAT,flats.Push(flat)));
 	return flat;
 }
 
@@ -901,6 +1004,7 @@ void HWDrawList::DoDraw(HWDrawInfo *di, FRenderState &state, bool translucent, i
 {
 	switch(drawitems[i].rendertype)
 	{
+	case DrawType_SLOPE:
 	case DrawType_FLAT:
 		{
 			HWFlat * f= flats[drawitems[i].index];

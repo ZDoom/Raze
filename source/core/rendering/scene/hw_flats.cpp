@@ -165,15 +165,27 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				if (minofs < 0 && maxofs <= -ONPLANE_THRESHOLD && minofs >= ONPLANE_THRESHOLD) z -= minofs;
 			}
 		}
+		unsigned svi = di->SlopeSpriteVertices.Reserve(4);
+		auto svp = &di->SlopeSpriteVertices[svi];
+
+		auto& vpt = di->Viewpoint;
+		depth = (float)((Sprite->pos.X * (1/16.f) - vpt.Pos.X) * vpt.TanCos + (Sprite->pos.Y * (1 / -16.f) - vpt.Pos.Y) * vpt.TanSin);
+
+		for (unsigned j = 0; j < 4; j++)
+		{
+			svp->SetVertex(pos[j].X * (1 / 16.f), z + ofsz[j] * (1 / -256.f), pos[j].Y * (1 / -16.f));
+			if (!canvas) svp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - y : y);
+			else svp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
+			svp++;
+		}
+
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
-			int j = indices[i];
-			vp->SetVertex(pos[j].X * (1 / 16.f), z + ofsz[j] * (1 / -256.f), pos[j].Y * (1 / -16.f));
-			if (!canvas) vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - y : y);
-			else vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
-			vp++;
+			*vp++ = di->SlopeSpriteVertices[svi + indices[i]];
 		}
+		slopeindex = svi;
+		slopecount = 4;
 		vertindex = ret.second;
 		vertcount = 6;
 	}

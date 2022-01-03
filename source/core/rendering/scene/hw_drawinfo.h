@@ -110,6 +110,7 @@ struct HWDrawInfo
 	TArray<HWPortal *> Portals;
 	tspritetype tsprite[MAXSPRITESONSCREEN];
 	int spritesortcnt;
+	TArray<FFlatVertex> SlopeSpriteVertices;	// we need to cache these in system memory in case of translucency splits.
 
 	// This is needed by the BSP traverser.
 	bool multithread;

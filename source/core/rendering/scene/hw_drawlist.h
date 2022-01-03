@@ -24,6 +24,7 @@ enum HWDrawItemType
 	DrawType_WALL,
 	DrawType_FLAT,
 	DrawType_SPRITE,
+	DrawType_SLOPE,
 };
 
 struct HWDrawItem
@@ -89,7 +90,7 @@ public:
 	}
 
 	HWWall *NewWall();
-	HWFlat *NewFlat();
+	HWFlat *NewFlat(bool slopespr = false);
 	HWSprite *NewSprite();
 	void Reset();
 	void SortWallsHorz(HWDrawInfo* di);
@@ -103,8 +104,10 @@ public:
 	void SortPlaneIntoPlane(SortNode * head,SortNode * sort);
 	void SortWallIntoPlane(HWDrawInfo* di, SortNode * head,SortNode * sort);
 	void SortSpriteIntoPlane(SortNode * head,SortNode * sort);
+	void SortSlopeIntoPlane(HWDrawInfo* di, SortNode* head, SortNode* sort);
 	void SortWallIntoWall(HWDrawInfo *di, SortNode * head,SortNode * sort);
 	void SortSpriteIntoWall(HWDrawInfo *di, SortNode * head,SortNode * sort);
+	void SortSlopeIntoWall(HWDrawInfo* di, SortNode* head, SortNode* sort);
 	int CompareSprites(SortNode * a,SortNode * b);
 	SortNode * SortSpriteList(SortNode * head);
 	SortNode * DoSort(HWDrawInfo *di, SortNode * head);

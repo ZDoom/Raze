@@ -94,17 +94,19 @@ void HWDrawInfo::AddMirrorSurface(HWWall *w)
 void HWDrawInfo::AddFlat(HWFlat *flat)
 {
 	int list;;
+	bool slopespr = false;
 
 	if (flat->RenderStyle != LegacyRenderStyles[STYLE_Translucent] || flat->alpha < 1.f - FLT_EPSILON || checkTranslucentReplacement(flat->texture->GetID(), flat->palette))
 	{
 		// translucent portals go into the translucent border list.
 		list = flat->Sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;
+		slopespr = (flat->Sprite && flat->Sprite->clipdist & TSPR_SLOPESPRITE);
 	}
 	else
 	{
 		list = flat->Sprite ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
 	}
-	auto newflat = drawlists[list].NewFlat();
+	auto newflat = drawlists[list].NewFlat(slopespr);
 	*newflat = *flat;
 }
 

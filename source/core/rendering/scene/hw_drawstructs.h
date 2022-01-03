@@ -250,18 +250,30 @@ public:
 
 //==========================================================================
 //
+// Common fields needed by the sprite sorter.
+//
+//==========================================================================
+
+class HWFlatOrSprite
+{
+public:
+	float depth;
+	tspritetype* Sprite; // for flat sprites.
+};
+
+//==========================================================================
+//
 // One flat plane in the draw list
 //
 //==========================================================================
 
-class HWFlat
+class HWFlat : public HWFlatOrSprite
 {
 public:
-	int section;
-	sectortype * sec;
-	tspritetype* Sprite; // for flat sprites.
-	FGameTexture *texture;
+	sectortype* sec;
+	FGameTexture* texture;
 
+	int section;
 	float z; // the z position of the flat (only valid for non-sloped planes)
 
 	PalEntry fade;
@@ -271,10 +283,12 @@ public:
 	FRenderStyle RenderStyle;
 	int iboindex;
 	bool stack;
+	uint8_t plane;
+	short slopecount;
 	FVector2 geoofs;
 	//int vboheight;
 
-	int plane;
+	int slopeindex;
 	int vertindex, vertcount;	// this should later use a static vertex buffer, but that'd hinder the development phase, so for now vertex data gets created on the fly.
 	void MakeVertices(HWDrawInfo* di);
 
@@ -298,11 +312,10 @@ public:
 //==========================================================================
 
 
-class HWSprite
+class HWSprite : public HWFlatOrSprite
 {
 public:
 
-	tspritetype* Sprite;
 	PalEntry fade;
 	int shade, palette;
 	float visibility;
@@ -312,7 +325,6 @@ public:
 	voxmodel_t* voxel;
 
 	int index;
-	float depth;
 	int vertexindex;
 
 	float x,y,z;	// needed for sorting!
