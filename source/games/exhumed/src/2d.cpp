@@ -355,8 +355,7 @@ void TextOverlay::ComputeCinemaText()
 void TextOverlay::ReadyCinemaText(const char* nVal)
 {
     FString label = nVal[0] == '$'? GStrings(nVal +1) : nVal;
-    screentext = label.Split("\n");
-    ComputeCinemaText();
+    Create(label, 0);
 }
 
 void TextOverlay::DisplayText()
