@@ -808,6 +808,11 @@ bool HitBreakWall(walltype* wp, int hit_x, int hit_y, int hit_z, int ang, int ty
 
 int KillBreakSprite(DSWActor* breakActor)
 {
+    // Double deletion can easily happen with the break sprite code.
+    if (breakActor->ObjectFlags & OF_EuthanizeMe)
+        return false;
+
+
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
 
