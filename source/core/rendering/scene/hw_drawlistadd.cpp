@@ -104,7 +104,7 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 	}
 	else
 	{
-		list = flat->Sprite ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
+		list = flat->Sprite ? ((flat->Sprite->clipdist & TSPR_SLOPESPRITE)? GLDL_MASKEDSLOPEFLATS : GLDL_MASKEDFLATS) : GLDL_PLAINFLATS;
 	}
 	auto newflat = drawlists[list].NewFlat(slopespr);
 	*newflat = *flat;

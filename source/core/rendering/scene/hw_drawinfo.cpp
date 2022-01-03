@@ -540,6 +540,7 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	state.SetColorMask(true);
 
 	state.SetDepthBias(-1, -128);
+	drawlists[GLDL_MASKEDSLOPEFLATS].DrawFlats(this, state, false);
 	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetDepthMask(true);

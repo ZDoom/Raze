@@ -77,6 +77,7 @@ enum DrawListType
 	GLDL_MASKEDWALLSV,	// vertical wall sprites
 	GLDL_MASKEDWALLSH,  // horizontal wall sprites. These two lists merely exist for easier sorting.
 	GLDL_MASKEDFLATS,
+	GLDL_MASKEDSLOPEFLATS,
 	GLDL_MODELS,
 
 	GLDL_TRANSLUCENT,
