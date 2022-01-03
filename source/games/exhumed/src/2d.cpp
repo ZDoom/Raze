@@ -381,7 +381,7 @@ bool TextOverlay::AdvanceCinemaText(double clock)
 {
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
-        nCrawlY-= (clock - lastclock) / 15.;   // do proper interpolation.
+        nCrawlY-= min(clock - lastclock, 1.5) / 15.;   // do proper interpolation.
         lastclock = clock;
         return true;
     }
