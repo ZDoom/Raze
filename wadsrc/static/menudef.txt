@@ -141,6 +141,7 @@ LISTMENU "IngameMenu"
 		class ExhumedMainMenu
 		Position 160, 65
 		linespacing 22
+		Animated
 		ExhumedLogo
 		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
