@@ -101,15 +101,13 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		if (delegate && (delegate.zoomsize < 1. || delegate.lastzoomsize < 1.))
 		{
 			zoom = delegate.zoomsize;
-			let span = clamp(now - delegate.zoomtime, 0, 33);
-			zoom -= 0.0625 * (1. - (span / 33.));
-		}			
-		Console.Printf("zoom = %f, now = %d", zoom, now);
-
+			double ticms = 1000 / GameTicRate;
+			let span = clamp(now - delegate.zoomtime, 0, ticms);
+			zoom -= 0.0625 * (1. - (span / ticms));
+		}
 
 		let v = TexMan.GetScaledSize(tex);
 		double y = mYpos + v.y / 2;
-		
 
 		int shade;
 		if (selected) shade = Raze.bsin(now * 16 * 120 / 1000, -9);
