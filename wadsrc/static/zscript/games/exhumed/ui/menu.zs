@@ -101,7 +101,7 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		if (delegate && (delegate.zoomsize < 1. || delegate.lastzoomsize < 1.))
 		{
 			zoom = delegate.zoomsize;
-			double ticms = 1000 / GameTicRate;
+			double ticms = 1000. / GameTicRate;
 			let span = clamp(now - delegate.zoomtime, 0, ticms);
 			zoom -= 0.0625 * (1. - (span / ticms));
 		}
