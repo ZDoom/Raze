@@ -2842,6 +2842,7 @@ void processinput_d(int snum)
 
 	checklook(snum,actions);
 	int ii = 40;
+	auto oldpos = p->opos;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3072,25 +3073,31 @@ HORIZONLY:
 	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
-	if (ud.clipping == 0)
-		j = (pushmove(&p->pos, &p->cursector, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
-	else j = 0;
-
-	if (ud.clipping == 0)
+	int retry = 0;
+	while (ud.clipping == 0)
 	{
-		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
+		int blocked;
+		blocked = (pushmove(&p->pos, &p->cursector, 164, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+
+		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || blocked)
 		{
 			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
 				isanearoperator(pact->sector()->lotag)))
 				fi.activatebysector(pact->sector(), pact);
-			if (j)
+			if (blocked)
 			{
+				if (!retry++)
+				{
+					p->pos = p->opos = oldpos;
+					continue;
+				}
 				quickkill(p);
 				return;
 			}
 		}
 		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psectp, pact);
+		break;
 	}
 
 	// center_view

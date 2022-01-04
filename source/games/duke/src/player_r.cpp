@@ -3558,6 +3558,8 @@ void processinput_r(int snum)
 	checklook(snum, actions);
 	p->apply_seasick(1);
 
+	auto oldpos = p->opos;
+
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
@@ -3912,31 +3914,34 @@ HORIZONLY:
 	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
-	int j;
-	if (ud.clipping == 0)
+	int retry = 0;
+	while (ud.clipping == 0)
 	{
+		int blocked;
 		if (pact->spr.clipdist == 64)
-			j = (pushmove(&p->pos, &p->cursector, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			blocked = (pushmove(&p->pos, &p->cursector, 128, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			j = (pushmove(&p->pos, &p->cursector, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
-	}
-	else j = 0;
+			blocked = (pushmove(&p->pos, &p->cursector, 16, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 
-	if (ud.clipping == 0)
-	{
-		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
+		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || blocked)
 		{
 			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
 				isanearoperator(pact->sector()->lotag)))
 				fi.activatebysector(pact->sector(), pact);
-			if (j)
+			if (blocked)
 			{
+				if (!retry++)
+				{
+					p->pos = p->opos = oldpos;
+					continue;
+				}
 				quickkill(p);
 				return;
 			}
 		}
 		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psectp, pact);
+		break;
 	}
 
 	if (ud.clipping == 0 && p->cursector->ceilingz > (p->cursector->floorz - (12 << 8)))
