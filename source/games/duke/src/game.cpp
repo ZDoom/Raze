@@ -275,6 +275,11 @@ static void setupbackdrop()
 		defineSky(212, 65536, 3, pskyoff, 0, 140);
 		defineSky(225, 65536, 3, pskyoff, 0, 140);
 	}
+
+	if (isWW2GI() && (g_gameType & GAMEFLAG_ADDON))
+	{
+		defineSky(1086, 65536, 3, pskyoff, 0, 140);
+	}
 }
 
 //---------------------------------------------------------------------------
