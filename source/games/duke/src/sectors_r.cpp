@@ -2847,8 +2847,6 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 
 	for (auto& wal : wallsofsector(nextsect))
 	{
-		x = wal.pos.X;
-		y = wal.pos.Y;
 		switch (wlwal->lotag)
 		{
 		case 42:
@@ -2857,7 +2855,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		case 43:
 			vertexscan(&wal, [=](walltype* w)
 				{
-					StartInterpolation(w, wlwal->lotag == 41 || wlwal->lotag == 42 ? Interp_Wall_X : Interp_Wall_Y);
+					StartInterpolation(w, wlwal->lotag == 41 || wlwal->lotag == 43 ? Interp_Wall_X : Interp_Wall_Y);
 				});
 			break;
 		}
