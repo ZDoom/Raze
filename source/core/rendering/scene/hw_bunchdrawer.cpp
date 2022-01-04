@@ -76,7 +76,6 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));
-	gotwall.Resize(wall.Size());
 	//blockwall.Resize(wall.Size());
 }
 
@@ -97,6 +96,7 @@ void BunchDrawer::StartScene()
 	gotsector.Zero();
 	gotsection2.Resize(numsections);
 	gotsection2.Zero();
+	gotwall.Resize(wall.Size());
 	gotwall.Zero();
 	sectionstartang.Resize(numsections);
 	sectionendang.Resize(numsections);
