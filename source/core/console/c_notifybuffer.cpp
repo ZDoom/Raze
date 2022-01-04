@@ -79,6 +79,12 @@ CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
 }
 
 
+static FFont* GetNotifyFont()
+{
+	return generic_ui ? NewSmallFont : isWW2GI()? ConFont : SmallFont ? SmallFont : AlternativeSmallFont;
+
+}
+
 void FNotifyBuffer::AddString(int printlevel, FString source)
 {
 	if (!(printlevel & PRINT_NOTIFY) && !con_notify_advanced) return;
@@ -93,7 +99,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 
 	auto screenratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 
-	FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
+	FFont* font = GetNotifyFont();
 	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
 	double fontscale = (generic_ui? 0.7 : NotifyFontScale) * con_notifyscale;
 
@@ -188,7 +194,7 @@ void FNotifyBuffer::Draw()
 	bool canskip = true;
 
 
-	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
+	FFont* font = GetNotifyFont();
 	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
 	double scale = 1 / (nfscale * con_notifyscale);
 
