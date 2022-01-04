@@ -898,7 +898,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wallnum(wal) == 6468)
+	if (wallnum(wal) == 3312)
 	{
 		int a = 0;
 	}
