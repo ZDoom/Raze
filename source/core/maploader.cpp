@@ -341,6 +341,8 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 	spr.extra = fr.ReadInt16();
 	spr.blend = 0;
 	spr.detail = 0;
+	if ((spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
+		spr.cstat &= ~CSTAT_SPRITE_ALIGNMENT_MASK;
 }
 
 static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
@@ -363,6 +365,8 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 	spr.lotag = fr.ReadInt16();
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
+	if ((spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
+		spr.cstat &= ~CSTAT_SPRITE_ALIGNMENT_MASK;
 
 	auto sec = spr.sectp;
 	if ((sec->ceilingstat & CSTAT_SECTOR_SKY) > 0)
