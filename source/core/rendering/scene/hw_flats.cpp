@@ -122,7 +122,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		vec2_t pos[4];
 		int ofsz[4];
 		auto cstat = Sprite->cstat;
-		if (Sprite->clipdist & TSPR_SLOPESPRITE) cstat &= ~CSTAT_SPRITE_YFLIP;	// NBlood doesn't y-flip slope sprites.
+		if (tspriteGetSlope(Sprite)) cstat &= ~CSTAT_SPRITE_YFLIP;	// NBlood doesn't y-flip slope sprites.
 		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, ofsz, true);
 		Sprite->cstat = cstat;
 
