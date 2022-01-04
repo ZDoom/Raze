@@ -2844,6 +2844,25 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	ins = inside(min_x, max_y, sectp);
 	if (!ins)
 		var_C = 0;
+
+	for (auto& wal : wallsofsector(nextsect))
+	{
+		x = wal.pos.X;
+		y = wal.pos.Y;
+		switch (wlwal->lotag)
+		{
+		case 42:
+		case 41:
+		case 40:
+		case 43:
+			vertexscan(&wal, [=](walltype* w)
+				{
+					StartInterpolation(w, wlwal->lotag == 41 || wlwal->lotag == 42 ? Interp_Wall_X : Interp_Wall_Y);
+				});
+			break;
+		}
+	}
+
 	if (var_C)
 	{
 		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
