@@ -5313,6 +5313,7 @@ void movefta(void)
 					act->spr.shade = act->sector()->ceilingshade;
 				else act->spr.shade = act->sector()->floorshade;
 
+				// wakeup is an RR feature, this flag will later allow it to use in Duke, too.
 				if (actorflag(act, SFLAG2_MOVEFTA_WAKEUPCHECK))
 				{
 					if (wakeup(act, p))

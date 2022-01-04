@@ -227,10 +227,14 @@ void initactorflags_r()
 		NUKEBARRELLEAKED 
 		});
 
-	setflag(SFLAG2_MOVEFTA_WAKEUPCHECK, { HEN, COW, PIG, DOGRUN });
+	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
+	for (auto& ainf : gs.actorinfo)
+	{
+		ainf.flags2 |= SFLAG2_MOVEFTA_WAKEUPCHECK;
+	}
+
 	if (isRRRA())
 	{
-		setflag(SFLAG2_MOVEFTA_WAKEUPCHECK, { RABBIT });
 		setflag(SFLAG2_MOVEFTA_CHECKSEEWITHPAL8, { MINION });
 	}
 
