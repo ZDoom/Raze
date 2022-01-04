@@ -82,7 +82,6 @@ CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
 static FFont* GetNotifyFont()
 {
 	return generic_ui ? NewSmallFont : isWW2GI()? ConFont : SmallFont ? SmallFont : AlternativeSmallFont;
-
 }
 
 void FNotifyBuffer::AddString(int printlevel, FString source)
