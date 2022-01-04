@@ -385,11 +385,6 @@ void cacheit_r(void)
 	{
 		tloadtile(sect.floorpicnum, sect.floorpal);
 		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
-		if (sect.ceilingpicnum == LA)
-		{
-			tloadtile(LA + 1);
-			tloadtile(LA + 2);
-		}
 
 		DukeSectIterator it(&sect);
 		while (auto act = it.Next())
