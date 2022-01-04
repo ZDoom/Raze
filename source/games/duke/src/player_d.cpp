@@ -2851,7 +2851,7 @@ void processinput_d(int snum)
 	pact->spr.xvel = clamp(ksqrt((p->pos.X - p->bobpos.X) * (p->pos.X - p->bobpos.X) + (p->pos.Y - p->bobpos.Y) * (p->pos.Y - p->bobpos.Y)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));
+	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
 
 	// Shrinking code
 
