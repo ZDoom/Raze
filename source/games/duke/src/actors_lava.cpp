@@ -31,6 +31,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "serializer.h"
 #include "savegamehelp.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
 
@@ -163,6 +164,7 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* j)
 	jaildooropen[jaildoorcnt] = 0;
 	jaildoordir[jaildoorcnt] = jlt;
 	jaildoorsound[jaildoorcnt] = p3;
+	setsectinterpolate(j);
 	jaildoorcnt++;
 }
 
@@ -178,6 +180,7 @@ void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* chi
 	minecartopen[minecartcnt] = 1;
 	minecartsound[minecartcnt] = p3;
 	minecartchildsect[minecartcnt] = childsectnum;
+	setsectinterpolate(i);
 	minecartcnt++;
 }
 
