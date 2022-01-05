@@ -1,0 +1,3 @@
+// flip inverted keyholes in TD's $shore.map
+sprite 298 clearflags 8
+sprite 307 clearflags 8
