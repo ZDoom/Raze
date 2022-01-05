@@ -376,6 +376,19 @@ inline double SquareDistToWall(double px, double py, const walltype* wal, DVecto
 	return SquareDist(px, py, xx, yy);
 }
 
+inline double SquareDistToLine(double px, double py, double lx1, double ly1, double lx2, double ly2)
+{
+	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
+
+	if (wall_length == 0) return SquareDist(px, py, lx1, ly1);
+
+	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
+	t = clamp(t, 0., 1.);
+	double xx = lx1 + t * (lx2 - lx1);
+	double yy = ly1 + t * (ly2 - ly1);
+	return SquareDist(px, py, xx, yy);
+}
+
 inline void alignceilslope(sectortype* sect, int x, int y, int z)
 {
 	sect->setceilingslope(getslopeval(sect, x, y, z, sect->ceilingz));

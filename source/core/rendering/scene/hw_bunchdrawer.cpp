@@ -389,11 +389,11 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	double x2e = WallStartX(wall2e);
 	double y2e = WallStartY(wall2e);
 
-	double dx = x1e - x1s;
-	double dy = y1e - y1s;
+	double dx1 = x1e - x1s;
+	double dy1 = y1e - y1s;
 
-	double t1 = PointOnLineSide(x2s, y2s, x1s, y1s, dx, dy);
-	double t2 = PointOnLineSide(x2e, y2e, x1s, y1s, dx, dy);
+	double t1 = PointOnLineSide(x2s, y2s, x1s, y1s, dx1, dy1);
+	double t2 = PointOnLineSide(x2e, y2e, x1s, y1s, dx1, dy1);
 	if (t1 == 0)
 	{
 		if (t2 == 0) return(-1);
@@ -403,25 +403,52 @@ int BunchDrawer::WallInFront(int line1, int line2)
 
 	if ((t1 * t2) >= 0)
 	{
-		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx, dy);
+		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx1, dy1);
 		return((t2 * t1) <= 0);
 	}
 
-	dx = x2e - x2s;
-	dy = y2e - y2s;
-	t1 = PointOnLineSide(x1s, y1s, x2s, y2s, dx, dy);
-	t2 = PointOnLineSide(x1e, y1e, x2s, y2s, dx, dy);
-	if (t1 == 0)
+	double dx2 = x2e - x2s;
+	double dy2 = y2e - y2s;
+	double t3 = PointOnLineSide(x1s, y1s, x2s, y2s, dx2, dy2);
+	double t4 = PointOnLineSide(x1e, y1e, x2s, y2s, dx2, dy2);
+	if (t3 == 0)
 	{
-		if (t2 == 0) return(-1);
-		t1 = t2;
+		if (t4 == 0) return(-1);
+		t3 = t4;
 	}
-	if (t2 == 0) t2 = t1;
-	if ((t1 * t2) >= 0)
+	if (t4 == 0) t4 = t3;
+	if ((t3 * t4) >= 0)
 	{
-		t2 = PointOnLineSide(viewx, viewy, x2s, y2s, dx, dy);
-		return((t2 * t1) > 0);
+		t4 = PointOnLineSide(viewx, viewy, x2s, y2s, dx2, dy2);
+		return((t4 * t3) > 0);
 	}
+
+	// If we got here the walls intersect. Most of the time this is just a tiny sliver intruding into the other wall.
+	// If that is the case we can ignore that sliver and pretend it is completely on the other side.
+
+	const double max_dist = 3;
+	const double side_threshold = (max_dist * max_dist) / (16. * 16.);	// we are operating in render coordinate space but want 3 map units tolerance.
+
+	double d1 = SquareDistToLine(x2s, y2s, x1s, y1s, x1e, y1e);
+	if (d1 < side_threshold) t1 = t2; 
+	double d2 = SquareDistToLine(x2e, y2e, x1s, y1s, x1e, y1e);
+	if (d2 < side_threshold) t2 = t1;
+	if ((fabs(d1) < side_threshold) ^ (fabs(d2) < side_threshold)) // only acceptable if only one end of the wall got adjusted.
+	{
+		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx1, dy1);
+		return((t2 * t1) <= 0);
+	}
+
+	double d3 = SquareDistToLine(x1s, y1s, x2s, y2s, x2e, y2e);
+	if (d3 < side_threshold) t1 = t2;
+	double d4 = SquareDistToLine(x1e, y1e, x2s, y2s, x2e, y2e);
+	if (d4 < side_threshold) t2 = t1;
+	if ((fabs(d3) < side_threshold) ^ (fabs(d4) < side_threshold)) // only acceptable if only one end of the wall got adjusted.
+	{
+		t2 = PointOnLineSide(viewx, viewy, x2s, y2s, dx2, dy2);
+		return((t2 * t1) <= 0);
+	}
+
 	return(-2);
 }
 
