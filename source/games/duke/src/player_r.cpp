@@ -3944,7 +3944,7 @@ HORIZONLY:
 		break;
 	}
 
-	if (ud.clipping == 0 && p->cursector->ceilingz > (p->cursector->floorz - (12 << 8)))
+	if (ud.clipping == 0 && (!p->cursector || (p->cursector && p->cursector->ceilingz > (p->cursector->floorz - (12 << 8)))))
 	{
 		quickkill(p);
 		return;
