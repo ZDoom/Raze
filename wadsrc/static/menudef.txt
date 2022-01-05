@@ -284,11 +284,10 @@ ImageScroller "CreditsMenu"
 			DukeCredits2
 			DukeCredits3
 		}
-		animatedtransition
 	}
 	ifgame(Redneck)
 	{
-		TextBackground "MENUSCREEN"
+		// TextBackground "MENUSCREEN"
 		TextBackgroundBrightness 0.5
 		TextFont "SmallFont"
 		TextScale 0.45
@@ -320,7 +319,7 @@ ImageScroller "CreditsMenu"
 	}
 	ifgame(RedneckRides)
 	{
-		TextBackground "MENUSCREEN"
+		// TextBackground "MENUSCREEN"
 		TextBackgroundBrightness 0.5
 		TextFont "SmallFont"
 		TextScale 0.45
