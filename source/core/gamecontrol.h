@@ -34,8 +34,6 @@ extern MapRecord* g_nextmap;
 extern int g_nextskill;	
 extern int g_bossexit;
 
-extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
-
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 

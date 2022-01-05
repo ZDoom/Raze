@@ -129,7 +129,6 @@ int g_bossexit;
 FILE* hashfile;
 
 FStartupInfo GameStartupInfo;
-FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 InputState inputState;
 int ShowStartupWindow(TArray<GrpEntry> &);
