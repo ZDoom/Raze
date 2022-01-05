@@ -3866,10 +3866,11 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
 
     if (!found)
     {
-        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
+        // Contrary to expectations, this *CAN* happen in valid scenarios and therefore should not abort.
+        //I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
+        return 0;
     }
 
-    PRODUCTION_ASSERT(found != 0);
     PRODUCTION_ASSERT(found <= 2);
 
     // the are overlaping - check the z coord
@@ -3955,10 +3956,11 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 
     if (!found)
     {
-        I_Error("GetOverlapSector2 x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
+        // Contrary to expectations, this *CAN* happen in valid scenarios and therefore should not abort.
+        //I_Error("GetOverlapSector2 x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
+        return 0;
     }
 
-    PRODUCTION_ASSERT(found != 0);
     PRODUCTION_ASSERT(found <= 2);
 
     // the are overlaping - check the z coord
