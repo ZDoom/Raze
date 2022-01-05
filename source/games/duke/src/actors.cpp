@@ -4520,7 +4520,7 @@ void handle_se32(DDukeActor *actor)
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->addceilingz((actor->temp_data[1] - sc->ceilingz) * actor->spr.yvel);
+				else sc->addceilingz(Sgn(actor->temp_data[1] - sc->ceilingz) * actor->spr.yvel);
 			}
 			return;
 		}
