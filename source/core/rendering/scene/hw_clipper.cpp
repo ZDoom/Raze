@@ -404,11 +404,10 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					// if the new window is closed, we must remove the old range and insert a closed one, so that it gets merged with its neighbours.
 					if (mtopclip <= mbottomclip)
 					{
-						auto temp = node;
-						node = node->next;
-						RemoveRange(temp);
+						auto prev = node->prev;
+						RemoveRange(node);
 						auto mynode = NewRange(nodestart, nodeend, 0, 0);
-						InsertRange(node->prev, mynode);
+						InsertRange(prev, mynode);
 					}
 					else
 					{
