@@ -603,7 +603,7 @@ int BunchDrawer::FindClosestBunch()
 
 		}
 	}
-	//Printf("picked bunch starting at %d\n", Bunches[closest].startline);
+	//Printf("picked bunch starting at sector %d, wall %d\n", sections[sectionLines[Bunches[closest].startline].section].sector, Bunches[closest].startline);
 	return closest;
 }
 
@@ -680,7 +680,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			if (section->lines[i] >= (int)wall.Size()) inbunch = false;
 			if (!inbunch)
 			{
-				//Printf("Starting bunch:\n\tWall %d\n", section->lines[i]);
+				//Printf("Starting bunch, Sector %d\n\tWall %d\n", section->sector, section->lines[i]);
 				inbunch = StartBunch(sectnum, section->lines[i], walang1, walang2, portal);
 			}
 			else

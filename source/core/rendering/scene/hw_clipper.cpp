@@ -201,10 +201,10 @@ void Clipper::Clear(binangle rangestart)
 	if (visibleStart.asbam() != 0 || visibleEnd.asbam() != 0)
 	{
 		int vstart = int(visibleStart.asbam() - rangestart.asbam());
-		if (vstart > 1) AddClipRange(0, vstart - 1);
+		if (vstart > 1) AddClipRange(0, vstart);
 
 		int vend = int(visibleEnd.asbam() - rangestart.asbam());
-		if (vend > 0 && vend < INT_MAX - 1) AddClipRange(vend + 1, INT_MAX);
+		if (vend > 0 && vend < INT_MAX) AddClipRange(vend, INT_MAX);
 	}
 
 
@@ -396,25 +396,27 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 
 			if (node->start >= start && node->end <= end)
 			{
-				if (node->topclip > node->bottomclip) // shortcut the common case where the old node is already closed.
+				int nodestart = node->start, nodeend = node->end;
+				if (node->topclip > node->bottomclip) // we only need to make adjustments to the old node if it is not closed.
 				{
 					float mtopclip = topclip, mbottomclip = bottomclip;
 					mergeClip(node, mtopclip, mbottomclip, viewz);
-					// if old range is a window, make some adjustments.
-					if (mtopclip <= mbottomclip || (mtopclip <= node->topclip && mbottomclip >= node->bottomclip))
+					// if the new window is closed, we must remove the old range and insert a closed one, so that it gets merged with its neighbours.
+					if (mtopclip <= mbottomclip)
 					{
-						// if the new window is more narrow both on top and bottom, we can remove the old range.
 						auto temp = node;
 						node = node->next;
 						RemoveRange(temp);
-						continue;
+						auto mynode = NewRange(nodestart, nodeend, 0, 0);
+						InsertRange(node->prev, mynode);
 					}
-
-					// in all other cases we must adjust the node, and recursively process both sub-ranges.
-					node->topclip = mtopclip;
-					node->bottomclip = mbottomclip;
+					else
+					{
+						// in all other cases we must adjust the node's top and bottom
+						node->topclip = mtopclip;
+						node->bottomclip = mbottomclip;
+					}
 				}
-				int nodestart = node->start, nodeend = node->end;
 				// At this point it is just easier to recursively add the sub-ranges because we'd have to run the full program on both anyway,
 				// We must ensure the the new ranges' length are > 0.
 				if (start < nodestart) AddWindowRange(start, nodestart, topclip, bottomclip, viewz);
