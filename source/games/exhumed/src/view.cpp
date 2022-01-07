@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "render.h"
 #include <string.h>
 
-EXTERN_CVAR(Bool, testnewrenderer)
+EXTERN_CVAR(Bool, vid_renderer)
 
 BEGIN_PS_NS
 
@@ -353,7 +353,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        if (!testnewrenderer)
+        if (!vid_renderer)
         {
             // this little block of code is Exhumed's entire interface to Polymost.
             int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));

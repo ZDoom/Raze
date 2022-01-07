@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "razefont.h"
 
 
-EXTERN_CVAR(Bool, testnewrenderer)
+EXTERN_CVAR(Bool, vid_renderer)
 BEGIN_BLD_NS
 
 VIEW gPrevView[kMaxPlayers];
@@ -766,7 +766,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (testnewrenderer)
+		if (vid_renderer)
 		{
 			fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
 			auto bakCstat = gView->actor->spr.cstat;

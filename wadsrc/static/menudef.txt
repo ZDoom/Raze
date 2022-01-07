@@ -1059,10 +1059,10 @@ OptionValue "Precision"
 	1, "$OPTVAL_QUALITY"
 }
 
-OptionValue "Video Renderers"
+OptionValue "VideoRenderers"
 {
-        0, "$OPTVAL_POLYMOST"
-        1, "$OPTVAL_NEWRENDERER"
+        0, "Polymost"
+        1, "Raze3D"
 }
 
 OptionMenu "VideoOptions" protected
@@ -1075,6 +1075,8 @@ OptionMenu "VideoOptions" protected
 	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
 	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
 	StaticText ""
+	Option "Renderer",							vid_renderer,					"VideoRenderers"
+	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
@@ -1083,9 +1085,9 @@ OptionMenu "VideoOptions" protected
 	Slider "$DSPLYMNU_AMBIENT_LIGHT",			"r_ambientlight",  				0.5, 4.0, 0.1
 
 	StaticText ""
-	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
+	Option "$DSPLYMNU_VOXELS",					"r_voxels",						"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
+	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",				"OnOff"
 	Option "$GLPREFMNU_ENVIRONMENTMAPMIRROR",	gl_mirror_envmap,				"OnOff"
 	ifnotgame(Blood, Exhumed)
 	{
@@ -1096,14 +1098,14 @@ OptionMenu "VideoOptions" protected
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewvbob",					"OnOff"
 		Option "$DSPLYMNU_VIEWSWAY",				"cl_viewhbob",					"OnOff"
 	}
-	StaticText ""
-	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
-	Option "$GLPREFMNU_RENDERQUALITY",			gl_seamless,					"Precision"
-	Option "$VID_RENDERER",                                            testnewrenderer,                            "Video Renderers"
+	Slider "$DSPLYMNU_FOV",						"r_fov",						60, 130, 10, 1
 
 	StaticText ""
-	Option "$GLTEXMNU_TEXFILTER",		gl_texture_filter,				"FilterModes"
-	Option "$GLTEXMNU_ANISOTROPIC",		gl_texture_filter_anisotropic,				"Anisotropy"
+	Option "$GLPREFMNU_RENDERQUALITY",			gl_seamless,					"Precision"
+
+	StaticText ""
+	Option "$GLTEXMNU_TEXFILTER",				gl_texture_filter,				"FilterModes"
+	Option "$GLTEXMNU_ANISOTROPIC",				gl_texture_filter_anisotropic,	"Anisotropy"
 	StaticText " "
 	Option "$GLPREFMNU_MULTISAMPLE", 			gl_multisample,					"Multisample"
 

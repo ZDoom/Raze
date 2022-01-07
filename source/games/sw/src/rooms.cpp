@@ -708,7 +708,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
     }
 
 
-    if (!testnewrenderer)
+    if (!vid_renderer)
     {
         SW_CeilingPortalHack(actor, z, match);
     }
@@ -769,7 +769,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
         return false;
     }
 
-    if (!testnewrenderer)
+    if (!vid_renderer)
     {
         SW_FloorPortalHack(actor, z, match);
     }
@@ -814,8 +814,8 @@ struct PortalGroup
     // This is very messy because some portals are linked outside the actual portal sectors, so we have to use the complicated original linking logic to find the connection. :?
 void CollectPortals()
 {
-    int t = testnewrenderer;
-    testnewrenderer = true;
+    int t = vid_renderer;
+    vid_renderer = true;
     TArray<PortalGroup> floorportals;
     TArray<PortalGroup> ceilingportals;
     BitArray floordone(sector.Size()), ceilingdone(sector.Size());
@@ -980,7 +980,7 @@ void CollectPortals()
             }
         }
     }
-    testnewrenderer = t;
+    vid_renderer = t;
 }
 
 

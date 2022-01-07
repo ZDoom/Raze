@@ -1270,7 +1270,7 @@ void moveclouds(double smoothratio)
 		cloudy += (float)ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
-			if (!testnewrenderer)
+			if (!vid_renderer)
 			{
 				clouds[i]->setceilingxpan(cloudx);
 				clouds[i]->setceilingypan(cloudy);

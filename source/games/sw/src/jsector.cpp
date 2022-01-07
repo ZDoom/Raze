@@ -46,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_video.h"
 #include "render.h"
 
-EXTERN_CVAR(Bool, testnewrenderer)
+EXTERN_CVAR(Bool, vid_renderer)
 
 BEGIN_SW_NS
 
@@ -412,7 +412,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-            if (!testnewrenderer)
+            if (!vid_renderer)
             {
                 renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursect, false);
                 analyzesprites(pm_tsprite, pm_spritesortcnt, daposx, daposy, daposz, ang.asbuild());

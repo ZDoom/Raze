@@ -56,7 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_draw.h"
 #include "render.h"
 #include "razefont.h"
-EXTERN_CVAR(Bool, testnewrenderer)
+EXTERN_CVAR(Bool, vid_renderer)
 
 extern DCoreActor* wall_to_sprite_actors[8];
 
@@ -342,7 +342,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int v
         tSpr->clipdist |= TSPR_FLAGS_MDHACK;
         tSpr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
     }
-    else if (!testnewrenderer)
+    else if (!vid_renderer)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
         int look = getangle(tSpr->pos.X - Player[screenpeek].si.X, tSpr->pos.Y - Player[screenpeek].si.Y);
@@ -1502,11 +1502,11 @@ void drawscreen(PLAYER* pp, double smoothratio)
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        if (!testnewrenderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
+        if (!vid_renderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
         else JS_CameraParms(pp, tx, ty, tz);  
     }
 
-    if (!testnewrenderer)
+    if (!vid_renderer)
     {
         renderSetRollAngle((float)trotscrnang.asbuildf());
         polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsect);

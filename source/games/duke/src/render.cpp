@@ -42,7 +42,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
 
-EXTERN_CVAR(Bool, testnewrenderer)
+EXTERN_CVAR(Bool, vid_renderer)
 
 BEGIN_DUKE_NS
 
@@ -66,7 +66,7 @@ BEGIN_DUKE_NS
 
 void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {
-	if (!testnewrenderer)
+	if (!vid_renderer)
 	{
 		// do screen rotation.
 		renderSetRollAngle((float)rotscrnang.asbuildf());
@@ -112,7 +112,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				auto camera = camsprite->GetOwner();
 				auto ang = buildang(camera->interpolatedang(smoothratio));
 				display_mirror = 1; // should really be 'display external view'.
-				if (!testnewrenderer)
+				if (!vid_renderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
 					renderDrawRoomsQ16(camera->spr.pos.X, camera->spr.pos.Y, camera->spr.pos.Z, ang.asq16(), IntToFixed(camera->spr.shade), camera->sector(), false); // why 'shade'...?
@@ -281,7 +281,7 @@ void displayrooms(int snum, double smoothratio)
 	DoInterpolations(smoothratio / 65536.);
 
 	setgamepalette(BASEPAL);
-	if (!testnewrenderer) gi->UpdateCameras(smoothratio);	// Only Polymost does this here. The new renderer calls this internally.
+	if (!vid_renderer) gi->UpdateCameras(smoothratio);	// Only Polymost does this here. The new renderer calls this internally.
 
 	if (ud.cameraactor)
 	{
@@ -412,7 +412,7 @@ void displayrooms(int snum, double smoothratio)
 
 		auto cstat = viewer->spr.cstat;
 		if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		if (isRR() && sect->lotag == 848 && !testnewrenderer)
+		if (isRR() && sect->lotag == 848 && !vid_renderer)
 		{
 			renderSetRollAngle((float)rotscrnang.asbuildf());
 			geometryEffect(cposx, cposy, cposz, cang, choriz, sectnum(sect), (int)smoothratio);

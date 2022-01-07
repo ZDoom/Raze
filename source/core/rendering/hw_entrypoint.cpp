@@ -223,11 +223,11 @@ bool writingsavepic;
 FileWriter* savefile;
 int savewidth, saveheight;
 void PM_WriteSavePic(FileWriter* file, int width, int height);
-EXTERN_CVAR(Bool, testnewrenderer);
+EXTERN_CVAR(Bool, vid_renderer);
 
 void WriteSavePic(FileWriter* file, int width, int height)
 {
-	if (!testnewrenderer)
+	if (!vid_renderer)
 	{
 		PM_WriteSavePic(file, width, height);
 		return;
