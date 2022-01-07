@@ -91,7 +91,7 @@ int pm_smoothratio;
 
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
-CVAR(Bool, vid_renderer, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(Bool, vid_renderer, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
 static int16_t thewall[MAXWALLSB];
