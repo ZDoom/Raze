@@ -2892,7 +2892,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->spr.statnum != 10 && a2->sector()->lotag != 2 && a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
+			if (a2->spr.statnum != STAT_PLAYER && a2->sector()->lotag != 2 && 
+				(a2->spr.picnum != SECTOREFFECTOR || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
+					a2->spr.picnum != LOCATORS)
 			{
 				rotatepoint(actor->spr.pos.vec2, a2->spr.pos.vec2, q, &a2->spr.pos.vec2);
 
@@ -4035,7 +4037,7 @@ DDukeActor* ifhitsectors(sectortype* sect)
 	DukeStatIterator it(STAT_MISC);
 	while (auto a1 = it.Next())
 	{
-		if (actorflag(a1, SFLAG2_TRIGGER_IFHITSECTOR) && sect == a1->sector())
+		if (actorflag(a1, SFLAG_TRIGGER_IFHITSECTOR) && sect == a1->sector())
 			return a1;
 	}
 	return nullptr;
@@ -4836,16 +4838,14 @@ void getglobalz(DDukeActor* actor)
 			{
 				if( actor->spr.statnum != STAT_PROJECTILE)
 				{
-					actor->aflags |= SFLAG_NOFLOORSHADOW; 
-					//actor->dispicnum = -4; // No shadows on actors
+					actor->dispicnum = -4; // No shadows on actors
 					actor->spr.xvel = -256;
 					ssp(actor, CLIPMASK0);
 				}
 			}
 			else if(lz.actor()->isPlayer() && badguy(actor) )
 			{
-				actor->aflags |= SFLAG_NOFLOORSHADOW; 
-				//actor->dispicnum = -4; // No shadows on actors
+				actor->dispicnum = -4; // No shadows on actors
 				actor->spr.xvel = -256;
 				ssp(actor, CLIPMASK0);
 			}
@@ -5276,7 +5276,7 @@ void movefta(void)
 
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
 						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
-							(actorflag(act, SFLAG2_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
+							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
 							(bcos(act->spr.ang) * (px - sx) + bsin(act->spr.ang) * (py - sy) >= 0))
 						{
 							int r1 = krand();
@@ -5294,7 +5294,7 @@ void movefta(void)
 
 					if (canseeme)
 					{
-						if (actorflag(act, SFLAG2_MOVEFTA_MAKESTANDABLE))
+						if (actorflag(act, SFLAG_MOVEFTA_MAKESTANDABLE))
 						{
 							if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 								act->spr.shade = act->sector()->ceilingshade;
@@ -5320,7 +5320,7 @@ void movefta(void)
 				else act->spr.shade = act->sector()->floorshade;
 
 				// wakeup is an RR feature, this flag will later allow it to use in Duke, too.
-				if (actorflag(act, SFLAG2_MOVEFTA_WAKEUPCHECK))
+				if (actorflag(act, SFLAG_MOVEFTA_WAKEUPCHECK))
 				{
 					if (wakeup(act, p))
 					{

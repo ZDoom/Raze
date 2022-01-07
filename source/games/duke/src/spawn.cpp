@@ -913,7 +913,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_16_REACTOR://That rotating blocker reactor thing
 		case SE_26://ESCELATOR
 		case SE_30_TWO_WAY_TRAIN://No rotational subways
-
+		{
 			if (actor->spr.lotag == 0)
 			{
 				if (sectp->lotag == 30)
@@ -926,7 +926,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 
 				bool found = false;
-				if (actors) for(auto act2 : *actors)
+				if (actors) for (auto act2 : *actors)
 				{
 					if (act2->spr.statnum < MAXSTATUS)
 						if (act2->spr.picnum == SECTOREFFECTOR &&
@@ -1017,6 +1017,21 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				actor->temp_data[5] = actor->sector()->getfloorslope();
 				actor->sector()->setfloorslope(0);
 			}
+			break;
+		}
+		case SE_49_POINT_LIGHT:
+		case SE_50_SPOT_LIGHT:
+		{
+			DukeSectIterator it(actor->sector());
+			while (auto itActor = it.Next())
+			{
+				if (itActor->spr.picnum == ACTIVATOR || itActor->spr.picnum == ACTIVATORLOCKED)
+					actor->aflags |= AFLAG_USEACTIVATOR;
+			}
+			ChangeActorStat(actor, STAT_LIGHT);
+			break;
+		}
+
 	}
 
 	switch (actor->spr.lotag)

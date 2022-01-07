@@ -31,9 +31,10 @@ class DDukeActor : public DCoreActor
 	DECLARE_CLASS(DDukeActor, DCoreActor)
 	HAS_OBJECT_POINTERS
 public:
+	TObjPtr<DDukeActor*> ownerActor, hitOwnerActor;
+
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	TObjPtr<DDukeActor*> ownerActor, hitOwnerActor;
 	short attackertype, ang, extra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
