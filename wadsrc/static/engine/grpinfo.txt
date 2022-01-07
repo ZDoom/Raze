@@ -411,6 +411,17 @@ grpinfo
 	size 3186656
 	crc 0x1E9516F1
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Zone.15"
+}
+
+grpinfo
+{
+	name "Duke!ZONE II"
+	scriptname "DZ-GAME.CON"
+	size 3186656
+	crc 0x1E9516F1
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE13_CRC
 	gamefilter "Duke.Zone.13"
 }
