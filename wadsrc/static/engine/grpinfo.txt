@@ -413,6 +413,7 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Zone.15"
+	exclepisodes "THE BIRTH"
 }
 
 grpinfo
