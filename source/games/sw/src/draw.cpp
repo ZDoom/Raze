@@ -1450,7 +1450,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     pp->siang = tang.asbuild();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
-    VisViewChange(camerapp, &g_visibility);
+    int vis = g_visibility;
+    VisViewChange(camerapp, &vis);
+    g_relvisibility = vis - g_visibility;
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;

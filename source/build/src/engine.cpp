@@ -146,30 +146,21 @@ int32_t animateoffs(int const tilenum, int fakevar)
     return offs;
 }
 
-static int32_t engineLoadTables(void)
+void engineInit(void)
 {
-    static char tablesloaded = 0;
+    int32_t i;
 
-    if (tablesloaded == 0)
-    {
-        int32_t i;
+    for (i=0; i<=512; i++)
+        sintable[i] = int(sin(i * BAngRadian) * +SINTABLEUNIT);
+    for (i=513; i<1024; i++)
+        sintable[i] = sintable[1024-i];
+    for (i=1024; i<2048; i++)
+        sintable[i] = -sintable[i-1024];
 
-        for (i=0; i<=512; i++)
-            sintable[i] = int(sin(i * BAngRadian) * +SINTABLEUNIT);
-        for (i=513; i<1024; i++)
-            sintable[i] = sintable[1024-i];
-        for (i=1024; i<2048; i++)
-            sintable[i] = -sintable[i-1024];
-
-        for (i=0; i<640; i++)
-            radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
-        for (i=0; i<640; i++)
-            radarang[1279-i] = -radarang[i];
-
-        tablesloaded = 1;
-    }
-
-    return 0;
+    for (i=0; i<640; i++)
+        radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
+    for (i=0; i<640; i++)
+        radarang[1279-i] = -radarang[i];
 }
 
 //
@@ -341,18 +332,6 @@ const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, 
 
     return psky->tileofs;
 }
-
-
-//
-// initengine
-//
-int32_t engineInit(void)
-{
-    engineLoadTables();
-    g_visibility = 512;
-    return 0;
-}
-
 
 //
 // inside

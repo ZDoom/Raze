@@ -563,6 +563,7 @@ void thunder(void)
 	{
 		if (testgotpic(RRTILE2577, true))
 		{
+			g_relvisibility = 0;
 			if (krand() > 65000)
 			{
 				thunderflash = 1;

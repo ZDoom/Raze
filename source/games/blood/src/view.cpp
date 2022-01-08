@@ -739,7 +739,7 @@ void viewDrawScreen(bool sceneonly)
 				break;
 			}
 		}
-		g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0));
+		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0)) - g_visibility;
 		cA += interpolatedangle(buildang(deliriumTurnO), buildang(deliriumTurn), gInterpolate);
 
 		int ceilingZ, floorZ;

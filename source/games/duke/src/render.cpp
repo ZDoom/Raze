@@ -271,7 +271,8 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		p->visibility = ud.const_visibility;
 	}
 
-	g_visibility = p->visibility;
+	g_visibility = ud.const_visibility;
+	g_relvisibility = p->visibility - ud.const_visibility;
 
 	videoSetCorrectedAspect();
 

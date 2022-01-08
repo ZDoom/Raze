@@ -119,7 +119,7 @@ enum {
     PALETTE_TRANSLUC = 1<<2,
 };
 
-EXTERN int32_t g_visibility;
+inline int32_t g_visibility = 512, g_relvisibility = 0;
 
 EXTERN vec2_t windowxy1, windowxy2;
 
@@ -189,8 +189,7 @@ enum {
 EXTERN int32_t enginecompatibility_mode;
 
 
-int32_t    engineInit(void);
-void   engineUnInit(void);
+void engineInit(void);
 
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

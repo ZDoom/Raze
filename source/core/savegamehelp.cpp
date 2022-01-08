@@ -695,6 +695,7 @@ void SerializeMap(FSerializer& arc)
 			("randomseed", randomseed)
 			("numshades", numshades)	// is this really needed?
 			("visibility", g_visibility)
+			("relvisibility", g_relvisibility)
 			("parallaxtype", parallaxtype)
 			("parallaxyo", parallaxyoffs_override)
 			("parallaxys", parallaxyscale_override)
