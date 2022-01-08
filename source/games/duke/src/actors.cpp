@@ -5288,7 +5288,7 @@ void movefta(void)
 
 					if (canseeme)
 					{
-						if (actorflag(act, SFLAG2_NOVEFTA_MAKESTANDABLE))
+						if (actorflag(act, SFLAG2_MOVEFTA_MAKESTANDABLE))
 						{
 							if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 								act->spr.shade = act->sector()->ceilingshade;
