@@ -200,7 +200,7 @@ void HWDrawInfo::ClearBuffers()
 
 angle_t HWDrawInfo::FrustumAngle()
 {
-	float WidescreenRatio = 1.6666f;	// fixme - this is a placeholder.
+	float WidescreenRatio = (float)screen->GetWidth() / screen->GetHeight();
 	float tilt = fabs(Viewpoint.HWAngles.Pitch.Degrees);
 
 	// If the pitch is larger than this you can look all around at a FOV of 90°
