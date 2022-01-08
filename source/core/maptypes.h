@@ -447,9 +447,6 @@ struct spritetypebase
 	uint8_t yrepeat;
 	int8_t xoffset;
 	int8_t yoffset;
-
-	// extensions not from the binary map format.
-	int time;
 };
 
 
@@ -470,6 +467,7 @@ struct spritetype : public spritetypebase
 struct tspritetype : public spritetypebase
 {
 	DCoreActor* ownerActor;
+	int time;
 };
 
 extern TArray<sectortype> sector;

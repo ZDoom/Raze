@@ -353,7 +353,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	InsertActorSect(actor, sector, tail);
 
 	Numsprites++;
-	actor->spr.time = leveltimer++;
+	actor->time = leveltimer++;
 	return actor;
 }
 

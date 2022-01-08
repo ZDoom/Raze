@@ -470,7 +470,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("detail", c.detail, def->detail)
-			("time", c.time, def->time)
 			("cstat2", c.cstat2, def->cstat2)
 			.EndObject();
 	}
@@ -674,6 +673,7 @@ void DCoreActor::Serialize(FSerializer& arc)
 		("prevsect", prevSect)
 		("nextsect", nextSect)
 		("sprite", spr)
+		("time", time)
 		("spriteext", sprext);
 
 	if (arc.isReading()) spsmooth = {};

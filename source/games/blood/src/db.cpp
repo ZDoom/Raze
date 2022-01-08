@@ -501,7 +501,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 		pSprite->detail = load.detail;
 		pSprite->shade = load.shade;
 		pSprite->blend = 0;
-		pSprite->time = i;
 		validateSprite(*pSprite, secno, i);
 
 		if (pSprite->extra > 0)

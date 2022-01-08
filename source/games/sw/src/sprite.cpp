@@ -925,9 +925,7 @@ bool ActorTestSpawn(DSWActor* actor)
     if (actor->spr.statnum == STAT_DEFAULT && actor->spr.lotag == TAG_SPAWN_ACTOR)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-        int t = actorNew->spr.time;  // must be preserved!
         actorNew->spr = actor->spr;
-        actorNew->spr.time = t;
         change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return false;

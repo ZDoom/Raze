@@ -688,7 +688,7 @@ inline int HWDrawList::CompareSprites(SortNode * a,SortNode * b)
 
 	if (s1->depth < s2->depth) return 1;
 	if (s1->depth > s2->depth) return -1;
-	return s1->Sprite->time - s2->Sprite->time;
+	return s2->Sprite->time - s1->Sprite->time;
 }
 
 //==========================================================================

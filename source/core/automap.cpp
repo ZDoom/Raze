@@ -608,7 +608,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			auto A = *(DCoreActor**)a;
 			auto B = *(DCoreActor**)b;
 			if (A->spr.pos.Z != B->spr.pos.Z) return B->spr.pos.Z - A->spr.pos.Z;
-			return A->spr.time - B->spr.time; // ensures stable sort.
+			return A->time - B->time; // ensures stable sort.
 		});
 
 	vertices.Resize(4);

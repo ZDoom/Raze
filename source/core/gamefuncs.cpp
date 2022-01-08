@@ -434,7 +434,7 @@ tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreAct
 	tspr->lotag = actor->spr.lotag;
 	tspr->hitag = actor->spr.hitag;
 	tspr->extra = actor->spr.extra;
-	tspr->time = actor->spr.time;
+	tspr->time = actor->time;
 	tspr->ownerActor = actor;
 
 	// need to copy the slope sprite flag around because for tsprites the bit combination means 'voxel'.

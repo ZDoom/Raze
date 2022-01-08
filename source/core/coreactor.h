@@ -21,6 +21,7 @@ public:
 	spritesmooth_t spsmooth;
 
 	vec3_t opos;
+	int time;
 	int16_t oang;
 
 	DCoreActor() = default;
@@ -42,7 +43,7 @@ public:
 	int GetIndex() const
 	{ 
 		// This is only identical with the sprite index for items spawned at map start.
-		return spr.time; 
+		return time; 
 	}	
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
