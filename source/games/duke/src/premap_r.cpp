@@ -768,10 +768,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		}
 	}
 	thunder_brightness = 0;
-	if (!thunderon)
-	{
-		g_visibility = p->visibility;
-	}
  }
 
 

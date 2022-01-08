@@ -2558,8 +2558,6 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (p->cursector->lotag != 2) 
 			{
 				p->ammo_amount[FLAMETHROWER_WEAPON]--;
-				if (snum == screenpeek)
-					g_visibility = 0;
 				fi.shoot(pact, FIREBALL);
 			}
 			checkavailweapon(p);

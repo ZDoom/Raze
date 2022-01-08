@@ -563,7 +563,6 @@ void thunder(void)
 	{
 		if (testgotpic(RRTILE2577, true))
 		{
-			g_visibility = 256; // this is an engine variable
 			if (krand() > 65000)
 			{
 				thunderflash = 1;
@@ -573,7 +572,6 @@ void thunder(void)
 		}
 		else
 		{
-			g_visibility = p->visibility;
 			brightness = ud.brightness >> 2;
 		}
 	}
@@ -585,7 +583,6 @@ void thunder(void)
 			thunderflash = 0;
 			brightness = ud.brightness >> 2;
 			thunder_brightness = brightness;
-			g_visibility = p->visibility;
 		}
 	}
 	if (!winderflash)
@@ -620,24 +617,6 @@ void thunder(void)
 	{
 		r1 = krand() & 4;
 		brightness += r1;
-		switch (r1)
-		{
-		case 0:
-			g_visibility = 2048;
-			break;
-		case 1:
-			g_visibility = 1024;
-			break;
-		case 2:
-			g_visibility = 512;
-			break;
-		case 3:
-			g_visibility = 256;
-			break;
-		default:
-			g_visibility = 4096;
-			break;
-		}
 		if (brightness > 8)
 			brightness = 0;
 		thunder_brightness = brightness;
