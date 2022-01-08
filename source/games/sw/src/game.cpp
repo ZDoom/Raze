@@ -713,7 +713,7 @@ void GameInterface::Render()
 
     drawtime.Reset();
     drawtime.Clock();
-    drawscreen(Player + screenpeek, smoothratio);
+    drawscreen(Player + screenpeek, smoothratio, false);
     drawtime.Unclock();
 }
 

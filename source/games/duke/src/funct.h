@@ -218,9 +218,10 @@ void OffBoat(player_struct *pl);
 void cameratext(DDukeActor* i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
 
+void drawweapon(double smoothratio);
 void drawoverlays(double smoothratio);
 void drawbackground(void);
-void displayrooms(int32_t playerNum, double smoothratio);
+void displayrooms(int32_t playerNum, double smoothratio, bool sceneonly);
 void setgamepalette(int palid);
 void resetmys();
 void resettimevars();

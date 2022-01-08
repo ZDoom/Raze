@@ -207,6 +207,26 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 	videoSetPalette(palid);
 }
 
+ //---------------------------------------------------------------------------
+ //
+ // draws the weapon sprite and other 2D content that's part of the scene.
+ //
+ //---------------------------------------------------------------------------
+
+ void drawweapon(double smoothratio)
+ {
+	 auto pp = &ps[screenpeek];
+	 if (!isRR() && pp->newOwner != nullptr)
+		 cameratext(pp->newOwner);
+	 else
+	 {
+		 fi.displayweapon(screenpeek, smoothratio);
+		 if (pp->over_shoulder_on == 0)
+			 fi.displaymasks(screenpeek, pp->GetActor()->spr.pal == 1 || !pp->insector() ? 1 : pp->cursector->floorpal, smoothratio);
+	 }
+
+ }
+
 //---------------------------------------------------------------------------
 //
 // draws everything not part of the 3D scene and its weapon sprite.
@@ -242,20 +262,6 @@ void drawoverlays(double smoothratio)
 
 	if (ud.cameraactor == nullptr)
 	{
-		if (automapMode != am_full)
-		{
-			if (!isRR() && pp->newOwner != nullptr)
-				cameratext(pp->newOwner);
-			else
-			{
-				fi.displayweapon(screenpeek, smoothratio);
-				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek, pp->GetActor()->spr.pal == 1 || !pp->insector() ? 1 : pp->cursector->floorpal, smoothratio);
-			}
-			if (!isRR())
-				moveclouds(smoothratio);
-		}
-
 		if (automapMode != am_off)
 		{
 			DoInterpolations(smoothratio / 65536.);

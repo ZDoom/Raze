@@ -57,6 +57,7 @@ EXTERN_CVAR(Bool, cl_capfps)
 PalEntry GlobalMapFog;
 float GlobalFogDensity = 350.f;
 TArray<PortalDesc> allPortals;
+void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 
 #if 0
@@ -138,7 +139,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 		vp = mainvp;
 
 		di->Set3DViewport(RenderState);
-		float flash = 1.f;
+		float flash = 8.f / (r_scenebrightness + 8.f);
 		di->Viewpoint.FieldOfView = fov;	// Set the real FOV for the current scene (it's not necessarily the same as the global setting in r_viewpoint)
 
 		// Stereo mode specific perspective projection
@@ -160,7 +161,9 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 				RenderState.EnableDrawBuffers(1);
 			}
 
-			screen->PostProcessScene(false, CM_DEFAULT, flash, [&]() { });
+			screen->PostProcessScene(false, CM_DEFAULT, flash, []() { 
+				Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
+				});
 			PostProcess.Unclock();
 		}
 		di->EndDrawInfo();

@@ -363,9 +363,13 @@ void DrawView(double smoothRatio, bool sceneonly)
             renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), sectnum(pSector), false);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
+            if (!nFreeze && !sceneonly)
+                DrawWeapons(smoothRatio);
         }
         else
         {
+            if (!nFreeze && !sceneonly)
+                DrawWeapons(smoothRatio);
             render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
         }
 
@@ -432,7 +436,6 @@ void DrawView(double smoothRatio, bool sceneonly)
         {
             if (nSnakeCam < 0)
             {
-                DrawWeapons(smoothRatio);
                 DrawMap(smoothRatio);
             }
             else

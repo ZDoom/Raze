@@ -768,6 +768,7 @@ void viewDrawScreen(bool sceneonly)
 
 		if (vid_renderer)
 		{
+			if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
 			fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
 			auto bakCstat = gView->actor->spr.cstat;
 			gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
@@ -778,6 +779,7 @@ void viewDrawScreen(bool sceneonly)
 		{
 			renderSetRollAngle((float)rotscrnang.asbuildf());
 			render3DViewPolymost(sectnum(pSector), cX, cY, cZ, cA, cH);
+			if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
 		}
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
@@ -786,6 +788,18 @@ void viewDrawScreen(bool sceneonly)
 		Collision c1, c2;
 		GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
 		if (sceneonly) return;
+		double look_anghalf = gView->angle.look_anghalf(gInterpolate);
+		DrawCrosshair(kCrosshairTile, gView->actor->xspr.health >> 4, -look_anghalf, 0, 2);
+#if 0 // This currently does not work. May have to be redone as a hardware effect.
+		if (v4 && gNetPlayers > 1)
+		{
+			DoLensEffect();
+			viewingRange = viewingrange;
+			r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
+			r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
+		}
+#endif
+
 #if 0
 		int tmpSect = nSectnum;
 		if ((vf0 & 0xc000) == 0x4000)
@@ -806,7 +820,6 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 #endif
-		hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
 	}
 	UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
 	if (automapMode != am_off)

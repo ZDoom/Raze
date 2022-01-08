@@ -1806,7 +1806,6 @@ void DebugWriteString(char *string);    // game.c
 void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c
 
-void drawscreen(PLAYER* pp, double smoothratio);    // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
@@ -1908,6 +1907,7 @@ struct GameInterface : public ::GameInterface
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;
+    //void DrawWeapons() override;
     void Startup() override;
     const char *CheckCheatMode() override;
     const char* GenericCheat(int player, int cheat) override;

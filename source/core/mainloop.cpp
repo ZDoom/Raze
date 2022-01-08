@@ -394,6 +394,7 @@ static void GameTicker()
 // Display
 //
 //==========================================================================
+EXTERN_CVAR(Bool, vid_renderer);
 
 void Display()
 {
@@ -456,7 +457,8 @@ void Display()
 	}
 	DrawRateStuff();
 
-	videoShowFrame(1);
+	if (vid_renderer == 0) videoShowFrame(1);
+	else screen->Update();
 }
 
 //==========================================================================

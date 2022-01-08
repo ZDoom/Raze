@@ -225,6 +225,7 @@ struct GameInterface : public ::GameInterface
     void Ticker() override;
     void DrawBackground() override;
     void Render() override;
+    //void DrawWeapons() override;
     void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
     void Startup() override;
     const char* GenericCheat(int player, int cheat) override;

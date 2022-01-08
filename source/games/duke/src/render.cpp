@@ -64,7 +64,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
+void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, double smoothratio, bool sceneonly)
 {
 	if (!vid_renderer)
 	{
@@ -75,10 +75,12 @@ void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z,
 		renderMirror(x, y, z, a, h, smoothratio);
 		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sect, false);
 		fi.animatesprites(pm_tsprite, pm_spritesortcnt, x, y, a.asbuild(), smoothratio);
+		if (!sceneonly) drawweapon(smoothratio);
 		renderDrawMasks();
 	}
 	else
 	{
+		if (!sceneonly) drawweapon(smoothratio);
 		render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio);
 	}
 }
@@ -250,7 +252,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 //
 //---------------------------------------------------------------------------
 
-void displayrooms(int snum, double smoothratio)
+void displayrooms(int snum, double smoothratio, bool sceneonly)
 {
 	int cposx, cposy, cposz, fz, cz;
 	binangle cang, rotscrnang;
@@ -295,7 +297,7 @@ void displayrooms(int snum, double smoothratio)
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly);
 		act->spr.cstat = cstat;
 
 	}
@@ -419,7 +421,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
+			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, smoothratio, sceneonly);
 		}
 		viewer->spr.cstat = cstat;
 	}
@@ -439,7 +441,7 @@ void displayrooms(int snum, double smoothratio)
 
 bool GameInterface::GenerateSavePic()
 {
-	displayrooms(myconnectindex, MaxSmoothRatio);
+	displayrooms(myconnectindex, MaxSmoothRatio, true);
 	return true;
 }
 

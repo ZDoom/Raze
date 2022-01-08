@@ -437,8 +437,6 @@ void videoShowFrame(int32_t w)
 	screen->mVertexData->Reset();
 	screen->mViewpoints->Clear();
 
-	videoSetBrightness(0);	// immediately reset this after rendering so that the value doesn't stick around in the backend.
-
 							// After finishing the frame, reset everything for the next frame. This needs to be done better.
 	if (!w)
 	{

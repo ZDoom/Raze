@@ -148,7 +148,7 @@ void polymost_drawscreen(PLAYER* pp, int tx, int ty, int tz, binangle tang, fixe
     DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsect);
     OverlapDraw = false;
 
-    if (automapMode != am_full)// && !ScreenSavePic)
+    if (automapMode != am_full)
     {
         // TEST this! Changed to camerapp
         //JS_DrawMirrors(camerapp, tx, ty, tz, tang.asq16(), thoriz.asq16());

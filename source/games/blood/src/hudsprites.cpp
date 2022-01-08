@@ -108,8 +108,6 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 {
 	double look_anghalf = gView->angle.look_anghalf(smoothratio);
 
-	DrawCrosshair(kCrosshairTile, gView->actor->xspr.health >> 4, -look_anghalf, 0, 2);
-
 	if (gViewPos == 0)
 	{
 		double looking_arc = gView->angle.looking_arc(smoothratio);
@@ -174,16 +172,6 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 		drawElement(0, 237, 2358, 1, 0, 1, -1);
 		drawElement(320, 237, 2358, 1, 1, 1, 1);
 	}
-
-#if 0 // This currently does not work. May have to be redone as a hardware effect.
-	if (v4 && gNetPlayers > 1)
-	{
-		DoLensEffect();
-		viewingRange = viewingrange;
-		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
-		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
-	}
-#endif
 }
 
 END_BLD_NS

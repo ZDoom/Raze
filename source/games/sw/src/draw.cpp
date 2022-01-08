@@ -1283,8 +1283,6 @@ void PreDrawStackedWater(void)
 }
 
 
-short ScreenSavePic = false;
-
 void DoPlayerDiveMeter(PLAYER* pp);
 
 void polymost_drawscreen(PLAYER* pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect);
@@ -1372,7 +1370,7 @@ void RestorePortalState()
     }
 }
 
-void drawscreen(PLAYER* pp, double smoothratio)
+void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
@@ -1395,7 +1393,7 @@ void drawscreen(PLAYER* pp, double smoothratio)
     int sr = (int)smoothratio;
     pm_smoothratio = sr;
 
-    if (!ScreenSavePic)
+    if (!sceneonly)
     {
         DoInterpolations(smoothratio / 65536.);                      // Stick at beginning of drawscreen
         if (cl_sointerpolation)
@@ -1499,7 +1497,7 @@ void drawscreen(PLAYER* pp, double smoothratio)
         thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
-    if (automapMode != am_full)// && !ScreenSavePic)
+    if (automapMode != am_full)
     {
         // Cameras must be done before the main loop.
         if (!vid_renderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
@@ -1510,23 +1508,23 @@ void drawscreen(PLAYER* pp, double smoothratio)
     {
         renderSetRollAngle((float)trotscrnang.asbuildf());
         polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsect);
+        if (!sceneonly) UpdatePanel(smoothratio);
     }
     else
     {
+        if (!sceneonly) UpdatePanel(smoothratio);
         UpdateWallPortalState();
         render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 
-
-    if (!ScreenSavePic) UpdatePanel(smoothratio);
-
-    // if doing a screen save don't need to process the rest
-    if (ScreenSavePic)
+    if (sceneonly)
     {
         DrawScreen = false;
         return;
     }
+
+    // if doing a screen save don't need to process the rest
 
 
     MarkSectorSeen(pp->cursector);
@@ -1601,9 +1599,7 @@ void drawscreen(PLAYER* pp, double smoothratio)
 
 bool GameInterface::GenerateSavePic()
 {
-    ScreenSavePic = true;
-    drawscreen(Player + myconnectindex, 65536);
-    ScreenSavePic = false;
+    drawscreen(Player + myconnectindex, 65536, true);
     return true;
 }
 
