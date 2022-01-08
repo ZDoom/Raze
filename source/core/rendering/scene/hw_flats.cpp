@@ -222,7 +222,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		else state.SetNormal({ 0, -1, 0 });
 	}
 
-	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	if (translucent)
 	{

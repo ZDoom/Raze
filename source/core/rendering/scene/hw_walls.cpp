@@ -123,7 +123,7 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 	if (gl_fogmode)// && !di->isFullbrightScene())
 	{
 		state.EnableDrawBufferAttachments(false);
-		SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+		SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 		state.SetEffect(EFF_FOGBOUNDARY);
 		state.AlphaFunc(Alpha_GEqual, 0.f);
 		state.SetDepthBias(-1, -128);
@@ -150,7 +150,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	// Use sphere mapping for this
 	state.SetEffect(EFF_SPHEREMAP);
-	SetLightAndFog(state, fade, palette, min<int>(shade, numshades), visibility, alpha);
+	SetLightAndFog(di, state, fade, palette, min<int>(shade, numshades), visibility, alpha);
 	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
 
 	state.SetRenderStyle(STYLE_Add);
@@ -177,7 +177,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 

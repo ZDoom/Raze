@@ -10,6 +10,8 @@
 #include "hw_bunchdrawer.h"
 //#include "r_viewpoint.h"
 
+EXTERN_CVAR(Int, hw_lightmode)
+
 enum EDrawMode
 {
 	DM_MAINVIEW,
@@ -133,6 +135,13 @@ private:
 	//void RenderThings(sectortype * sub, sectortype * sector);
 	//void RenderParticles(sectortype *sub, sectortype *front);
 	void SetColor(FRenderState &state, int sectorlightlevel, int rellight, bool fullbright, const FColormap &cm, float alpha, bool weapon = false);
+	int CalcLightLevel(int lightlevel, int rellight, bool weapon, int blendfactor);
+	PalEntry CalcLightColor(int light, PalEntry pe, int blendfactor);
+	void SetShaderLight(FRenderState& state, float level, float olight);
+	void SetFog(FRenderState& state, int lightlevel, int rellight, bool fullbright, const FColormap* cmap, bool isadditive);
+
+	float GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfogdensity, int blendfactor);
+
 public:
 
 	void SetCameraPos(const DVector3 &pos)
@@ -187,36 +196,22 @@ public:
 	void AddSprite(HWSprite *sprite, bool translucent);
 
 
-	bool isSoftwareLighting() const
-	{
-		return true;// lightmode == ELightMode::ZDoomSoftware || lightmode == ELightMode::DoomSoftware || lightmode == ELightMode::Build;
-	}
-
 	bool isBuildSoftwareLighting() const
 	{
-		return true;// lightmode == ELightMode::Build;
-	}
-
-	bool isDoomSoftwareLighting() const
-	{
-		return false;// lightmode == ELightMode::ZDoomSoftware || lightmode == ELightMode::DoomSoftware;
+		return hw_lightmode == 0;
 	}
 
 	bool isDarkLightMode() const
 	{
-		return false;// lightmode == ELightMode::Doom || lightmode == ELightMode::DoomDark;
+		return hw_lightmode == 2;
 	}
-
-	void SetFallbackLightMode()
-	{
-		//lightmode = ELightMode::Doom;
-	}
-
 };
 
 void CleanSWDrawer();
-//sectortype* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bounds, float fov, float ratio, float fovratio, bool mainview, bool toscreen);
-//void WriteSavePic(player_t* player, FileWriter* file, int width, int height);
-//sectortype* RenderView(player_t* player);
+
+inline int hw_ClampLight(int lightlevel)
+{
+	return clamp(lightlevel, 0, 255);
+}
 
 

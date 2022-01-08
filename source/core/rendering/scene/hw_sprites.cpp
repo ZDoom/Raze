@@ -108,7 +108,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		else RenderStyle.BlendOp = STYLEOP_Fuzz;	// subtractive with models is not going to work.
 	}
 
-	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	if (shade >= numshades) state.SetObjectColor(0xff000000); // make sure that nothing lights this up again.
 

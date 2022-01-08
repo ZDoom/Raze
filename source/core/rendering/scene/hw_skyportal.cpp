@@ -38,11 +38,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	int indexed = hw_int_useindexedcolortextures;
 	hw_int_useindexedcolortextures = false; // this code does not work with indexed textures.
 
-	if (di->isSoftwareLighting())
-	{
-		//di->SetFallbackLightMode();
-		state.SetNoSoftLightLevel();
-	}
+	state.SetNoSoftLightLevel();
 
 	state.ResetColor();
 	state.EnableFog(false);

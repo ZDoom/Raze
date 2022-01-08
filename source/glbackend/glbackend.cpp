@@ -65,7 +65,6 @@ EXTERN_CVAR(Bool, gl_texture)
 static int BufferLock = 0;
 
 TArray<VSMatrix> matrixArray;
-void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 GLInstance GLInterface;
 
