@@ -2446,7 +2446,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			//#endif
 		}
 		else if (!isNam()) p->kickback_pic++;
-		if (isNam() && p->kickback_pic > aplWeaponReload(p->curr_weapon, snum))	// 30)
+		if (isNam() && p->kickback_pic > 30)
 		{
 			// reload now...
 			p->okickback_pic = p->kickback_pic = 0;
