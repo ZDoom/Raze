@@ -198,8 +198,8 @@ class DukeStatusBar : DukeCommonStatusBar
 			{
 				DrawString(numberFont, format, (-3, texty), DI_TEXT_ALIGN_RIGHT, Font.CR_UNTRANSLATED);
 			}
-
-			DrawTexture(img, (-imgX, -1.5), DI_ITEM_RIGHT_BOTTOM, scale:(imgScale, imgScale));
+			if (weapon != 7 || !Raze.isNam())
+				DrawTexture(img, (-imgX, -1.5), DI_ITEM_RIGHT_BOTTOM, scale:(imgScale, imgScale));
 		}
 
 		//
