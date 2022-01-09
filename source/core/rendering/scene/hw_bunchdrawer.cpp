@@ -46,6 +46,7 @@
 #include "hw_sections.h"
 #include "coreactor.h"
 
+//#define DEBUG_CLIPPER
 //==========================================================================
 //
 //
@@ -310,7 +311,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 			if (endAngle > sectionendang[nsection]) sectionendang[nsection] = endAngle;
 		}
 
-		return CL_Draw | CL_Pass;
+		return dontclip? CL_Draw : CL_Draw | CL_Pass;
 	}
 }
 
@@ -389,6 +390,7 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	double x2e = WallStartX(wall2e);
 	double y2e = WallStartY(wall2e);
 
+retry:
 	double dx1 = x1e - x1s;
 	double dy1 = y1e - y1s;
 
@@ -396,7 +398,7 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	double t2 = PointOnLineSide(x2e, y2e, x1s, y1s, dx1, dy1);
 	if (t1 == 0)
 	{
-		if (t2 == 0) return(-1);
+		if (t2 == 0) return -1;
 		t1 = t2;
 	}
 	if (t2 == 0) t2 = t1;
@@ -404,7 +406,7 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	if ((t1 * t2) >= 0)
 	{
 		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx1, dy1);
-		return((t2 * t1) <= 0);
+		return (t2 * t1) <= 0;
 	}
 
 	double dx2 = x2e - x2s;
@@ -413,14 +415,14 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	double t4 = PointOnLineSide(x1e, y1e, x2s, y2s, dx2, dy2);
 	if (t3 == 0)
 	{
-		if (t4 == 0) return(-1);
+		if (t4 == 0) return -1;
 		t3 = t4;
 	}
 	if (t4 == 0) t4 = t3;
 	if ((t3 * t4) >= 0)
 	{
 		t4 = PointOnLineSide(viewx, viewy, x2s, y2s, dx2, dy2);
-		return((t4 * t3) > 0);
+		return (t4 * t3) > 0;
 	}
 
 	// If we got here the walls intersect. Most of the time this is just a tiny sliver intruding into the other wall.
@@ -449,7 +451,47 @@ int BunchDrawer::WallInFront(int line1, int line2)
 		return((t2 * t1) <= 0);
 	}
 
-	return(-2);
+	// let's try some last ditch effort here: compare the longer sections of the two walls from the intersection point.
+	// Only do this if the distance of the smaller one is not too large.
+
+	const double max_overlap = 2 * 2;
+
+	if (max(min(d1, d2), min(d3, d4)) < max_overlap)
+	{
+		// if one of the walls is too short, let colinearBunchInFront decide. This case normally only happens with doors where this will yield the correct result.
+		if ((d1 < max_overlap && d2 < max_overlap) || (d3 < max_overlap && d4 < max_overlap))
+			return -1;
+
+		DVector2 intersect;
+		SquareDistToWall(x1s * 16., y1s * -16., &wall[line2], &intersect);
+		intersect.X *= (1 / 16.);
+		intersect.Y *= (1 / -16.);
+
+		if (d3 < max_overlap)
+		{
+			x1s = intersect.X;
+			y1s = intersect.Y;
+		}
+		else
+		{
+			x1e = intersect.X;
+			y1e = intersect.Y;
+		}
+
+		if (d1 < max_overlap)
+		{
+			x2s = intersect.X;
+			y2s = intersect.Y;
+		}
+		else
+		{
+			x2e = intersect.X;
+			y2e = intersect.Y;
+		}
+		goto retry;
+	}
+
+	return -2;
 }
 
 //==========================================================================
@@ -471,14 +513,12 @@ int BunchDrawer::ColinearBunchInFront(FBunch* b1, FBunch* b2)
 		if (wall1s == -1) continue;
 		int sect1 = wall[wall1s].sector;
 		int nsect1 = wall[wall1s].nextsector;
-		if (nsect1 < 0) continue;
 		for (int j = b2->startline; j <= b2->endline; j++)
 		{
 			int wall2s = sectionLines[j].wall;
 			if (wall2s == -1) continue;
 			int sect2 = wall[wall2s].sector;
 			int nsect2 = wall[wall2s].nextsector;
-			if (nsect2 < 0) continue;
 			if (sect1 == nsect2) return 1; // bunch 2 is in front
 			if (sect2 == nsect1) return 0; // bunch 1 is in front
 		}
@@ -545,8 +585,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 	}
 	if (colinear)
 	{
-		// This should never happen.
-		assert(true);
+		return -2;
 	}
 	// we have no overlap
 	return -1;
@@ -603,7 +642,12 @@ int BunchDrawer::FindClosestBunch()
 
 		}
 	}
-	//Printf("picked bunch starting at sector %d, wall %d\n", sections[sectionLines[Bunches[closest].startline].section].sector, Bunches[closest].startline);
+	/*
+	int nsection = sectionLines[Bunches[closest].startline].section;
+	Printf("\n=====================================\npicked bunch starting at sector %d, wall %d - Range at (%2.3f - %2.3f)\n",
+		sections[nsection].sector, Bunches[closest].startline,
+		bamang(sectionstartang[nsection]).asdeg(), bamang(sectionendang[nsection]).asdeg());
+	*/
 	return closest;
 }
 
