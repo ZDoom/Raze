@@ -238,7 +238,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 				if (ww < first || ww >= last)
 				{
 					Printf("Found wall %d outside sector %d in a loop\n", ww, i);
-					sectors.Last().bugged = ESEctionFlag::Unclosed;
+					sectors.Last().bugged = ESectionFlag::Unclosed;
 					bugged.Insert(i, true);
 					break;
 				}
@@ -259,7 +259,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 							Printf(" %d,", walnum);
 					}
 					Printf("\n");
-					sectors.Last().bugged = ESEctionFlag::Unclosed;
+					sectors.Last().bugged = ESectionFlag::Unclosed;
 					break;
 				}
 				thisloop.Push(ww);
@@ -367,7 +367,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 			builder.sections.Last().bugged = collect[i].bugged;
 			if (last != 1)
 			{
-				builder.sections.Last().bugged = ESEctionFlag::BadWinding; // Todo: Use flags for bugginess.
+				builder.sections.Last().bugged = ESectionFlag::BadWinding; // Todo: Use flags for bugginess.
 				//Printf("Sector %d has wrong winding order\n", i);
 				bugged.Insert(i, true);
 			}
@@ -505,7 +505,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 					Printf("Potential problem at sector %d with %d loops\n", i, sectloops.Size());
 					bugged.Insert(i, true);
 					builder.sections.Reserve(1);
-					builder.sections.Last().bugged = ESEctionFlag::Dumped;	// this will most likely require use of the node builder to triangulate anyway.
+					builder.sections.Last().bugged = ESectionFlag::Dumped;	// this will most likely require use of the node builder to triangulate anyway.
 				}
 				auto& loop = sectloops[a];
 				builder.sections.Last().wallcount += loop.Size() - 1;

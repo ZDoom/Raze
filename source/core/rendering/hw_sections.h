@@ -2,7 +2,7 @@
 
 #include "build.h"
 
-enum ESEctionFlag
+enum ESectionFlag
 {
 	Unclosed = 1,	// at least one unclosed loop
 	Dumped = 2,		// builder was unable to properly construct, so content may not be usable for triangulator.
