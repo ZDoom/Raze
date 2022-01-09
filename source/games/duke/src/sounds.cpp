@@ -233,7 +233,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sndinf[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
 	sndinf[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
-	sfx->NearLimit = 6;
+	sfx->NearLimit = 0;
 	sfx->bTentative = false;
 	sfx->name = std::move(fn);
 	return 0;
