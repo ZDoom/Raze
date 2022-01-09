@@ -1014,7 +1014,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 			else if (actor->spr.lotag == SE_2_EARTHQUAKE)
 			{
-				actor->temp_data[5] = actor->sector()->floorheinum;
+				actor->temp_data[5] = actor->sector()->getfloorslope();
 				actor->sector()->setfloorslope(0);
 			}
 	}

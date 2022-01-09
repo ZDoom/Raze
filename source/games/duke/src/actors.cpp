@@ -3163,8 +3163,8 @@ void handle_se02(DDukeActor* actor)
 			}
 
 			if (abs(sc->floorheinum - actor->temp_data[5]) < 8)
-				sc->floorheinum = actor->temp_data[5];
-			else sc->floorheinum += (Sgn(actor->temp_data[5] - sc->floorheinum) << 4);
+				sc->setfloorslope(actor->temp_data[5]);
+			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
 		}
 
 		int m = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
