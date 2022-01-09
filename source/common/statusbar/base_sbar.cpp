@@ -352,7 +352,7 @@ void DStatusBarCore::SetScale()
 	int horz = HorizontalResolution;
 	int vert = VerticalResolution;
 	double refaspect = horz / double(vert);
-	double screenaspect = w / double(h);
+	double screenaspect = ActiveRatio(w, h);
 
 	if ((horz == 320 && vert == 200) || (horz == 640 && vert == 400))
 	{
