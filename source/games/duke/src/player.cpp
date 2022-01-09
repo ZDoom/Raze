@@ -174,7 +174,7 @@ int hits(DDukeActor* actor)
 	if (actor->isPlayer()) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(actor->spr.pos, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan(actor->spr.pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
 }
 
@@ -191,10 +191,10 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 	if (badguy(actor))
 		zoff = (42 << 8);
-	else if (actor->isPlayer()) zoff = (39 << 8);
+	else if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - zoff }, actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan(actor->spr.pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
