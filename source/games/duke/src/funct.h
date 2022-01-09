@@ -137,7 +137,7 @@ int haskey(sectortype* sect, int snum);
 void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
-int callsound(sectortype* sectnum,DDukeActor* snum);
+int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, int* dist);
 void operatejaildoors(int hitag);

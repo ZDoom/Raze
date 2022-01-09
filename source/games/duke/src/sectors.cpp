@@ -51,7 +51,7 @@ static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wal
 //---------------------------------------------------------------------------
 static bool haltsoundhack;
 
-int callsound(sectortype* sn, DDukeActor* whatsprite)
+int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 {
 	if (!isRRRA() && haltsoundhack)
 	{
@@ -71,7 +71,7 @@ int callsound(sectortype* sn, DDukeActor* whatsprite)
 
 			// Reset if the desired actor isn't playing anything.
 			bool hival = S_IsSoundValid(act->spr.hitag);
-			if (act->temp_data[0] == 1 && !hival)
+			if (act->temp_data[0] == 1 && !hival && !endstate)
 			{
 				if (!S_CheckActorSoundPlaying(act->temp_actor, snum))
 					act->temp_data[0] = 0;
@@ -335,7 +335,7 @@ void doanimations(void)
 					continue;
 
 			if ((dasectp->lotag & 0xff) != ST_22_SPLITTING_DOOR)
-				callsound(dasectp, nullptr);
+				callsound(dasectp, nullptr, true);
 
 			continue;
 		}
@@ -1154,7 +1154,7 @@ void operateactivators(int low, int plnum)
 					}
 				}
 
-				if (k == -1 && (act->sector()->lotag & 0xff) == 22)
+				if (k == -1 && (act->sector()->lotag & 0xff) == SE_22_TEETH_DOOR)
 					k = callsound(act->sector(), act);
 
 				operatesectors(act->sector(), act);
