@@ -412,6 +412,8 @@ void dragpoint(walltype* startwall, int newx, int newy)
 
 tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
 {
+	validateTSpriteSize(tsprite, spritesortcnt);
+
 	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
 	auto tspr = &tsprite[spritesortcnt++];
 

@@ -553,6 +553,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 	int nViewSprites = spritesortcnt;
 	for (int nTSprite = spritesortcnt - 1; nTSprite >= 0; nTSprite--)
 	{
+		validateTSpriteSize(tsprite, spritesortcnt);
 		tspritetype* pTSprite = &tsprite[nTSprite];
 		auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
 		if (owneractor->spr.detail > gDetail)

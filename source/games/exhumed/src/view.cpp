@@ -73,6 +73,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
     myspritesortcnt = &spritesortcnt;
 
     for (int i = 0; i < spritesortcnt; i++) {
+        validateTSpriteSize(tsprite, spritesortcnt);
         pTSprite = &tsprite[i];
 
         if (pTSprite->ownerActor)

@@ -605,6 +605,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
+        validateTSpriteSize(tsprite, spritesortcnt);
         tspritetype* tsp = &tsprite[tSpriteNum];
         auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
         auto tsectp = tsp->sectp;

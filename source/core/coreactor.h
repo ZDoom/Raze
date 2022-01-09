@@ -428,3 +428,7 @@ inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const w
 }
 
 tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor);
+inline void validateTSpriteSize(tspritetype*& tsprite, int& spritesortcnt)
+{
+
+}

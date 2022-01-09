@@ -124,6 +124,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 	//Between drawrooms() and drawmasks() is the perfect time to animate sprites
 	for (j = 0; j < spritesortcnt; j++)
 	{
+		validateTSpriteSize(tsprite, spritesortcnt);
 		t = &tsprite[j];
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
