@@ -5236,6 +5236,12 @@ void movefta(void)
 	int canseeme, p;
 	sectortype* psect, * ssect;
 
+	auto check_fta_sounds = [](DDukeActor* act)
+	{
+		if (isRR()) check_fta_sounds_r(act);
+		else check_fta_sounds_d(act);
+	};
+
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while (auto act = it.Next())
 	{
@@ -5300,7 +5306,7 @@ void movefta(void)
 						else
 						{
 							act->timetosleep = 0;
-							check_fta_sounds_r(act);
+							check_fta_sounds(act);
 							ChangeActorStat(act, STAT_ACTOR);
 						}
 					}
@@ -5319,7 +5325,7 @@ void movefta(void)
 					if (wakeup(act, p))
 					{
 						act->timetosleep = 0;
-						check_fta_sounds_r(act);
+						check_fta_sounds(act);
 						ChangeActorStat(act, STAT_ACTOR);
 					}
 				}
