@@ -85,6 +85,7 @@ DEFINE_TFLAGS_OPERATORS(ESectorFlags)
 enum ESectorExBits
 {
 	SECTOREX_CLOUDSCROLL			= 1,
+	SECTOREX_DRAGGED				= 2,
 };
 
 // Flags for retriangulation

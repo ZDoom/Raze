@@ -400,6 +400,7 @@ void dragpoint(walltype* startwall, int newx, int newy)
 	vertexscan(startwall, [&](walltype* wal)
 	{
 		wal->move(newx, newy);
+		wal->sectorp()->exflags |= SECTOREX_DRAGGED;
 	});
 }
 

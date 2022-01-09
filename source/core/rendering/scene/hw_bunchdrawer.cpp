@@ -250,10 +250,11 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	// check against the maximum possible viewing range of the sector.
 	// Todo: check if this is sufficient or if we really have to do a more costly check against the single visible segments.
 	// Note: These walls may be excluded from the clipper, but not from being drawn!
+	// if sectors got dragged around there may be overlaps which this code does not handle well do it may not run on such sectors.
 	bool dontclip = false;
-	if (sectStartAngle != -1)
+	if (sectStartAngle != -1 && !(wall[line].sectorp()->exflags & SECTOREX_DRAGGED)) 
 	{
-		if (sectStartAngle > endAngle || sectEndAngle < startAngle)
+		if ((sectStartAngle > endAngle || sectEndAngle < startAngle))
 		{
 			dontclip = true;
 		}
