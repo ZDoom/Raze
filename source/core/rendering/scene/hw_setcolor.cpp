@@ -166,14 +166,9 @@ void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int pale
 		if (!fullbright) inverselight /= ShadeDiv;
 		int lightlevel = !fullbright ? clamp(int(255 - inverselight), 0, 255) : 255;
 
-		int rellight = 0;
-		if (g_relvisibility)
-		{
-			rellight = sizeToBits(g_visibility) - sizeToBits(g_visibility + g_relvisibility);
-		}
 		FColormap cm = { 0xffffffff };
-		di->SetColor(state, lightlevel, 32*rellight, fullbright, cm, alpha);
-		di->SetFog(state, lightlevel, visibility * g_visibility * (1.f/512.f), fullbright, &cm, false);
+		di->SetColor(state, lightlevel, di->rellight, fullbright, cm, alpha);
+		di->SetFog(state, lightlevel, visibility * di->visibility, fullbright, &cm, false);
 		return;
 	}
 	// Fog must be done before the texture so that the texture selector can override it.

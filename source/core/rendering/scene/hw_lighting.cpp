@@ -47,7 +47,6 @@ CUSTOM_CVAR(Int, gl_distfog, 70, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 		if (i < 64) l = -32 + i;
 
 		distfogtable[0][i] = (float)((gl_distfog >> 1) + (gl_distfog)*(164 - l) / 164);
-
 		distfogtable[1][i] = 5.f + (float)((gl_distfog >> 1) + (float)((gl_distfog)*(128 - (i >> 1)) / 70));
 	}
 }
@@ -62,27 +61,25 @@ int HWDrawInfo::CalcLightLevel(int lightlevel, int rellight, bool weapon, int bl
 {
 	int light;
 
+	if (numshades == 64)
+	{
+		//lightlevel = clamp(lightlevel * 55 / 50, 0, 255);
+	}
+
 	if (lightlevel <= 0) return 0;
+	rellight = Scale(rellight, lightlevel, 255);
 
 	bool darklightmode = isDarkLightMode();
 
 	if (darklightmode && lightlevel < 192 && !weapon) 
 	{
-		if (lightlevel > 100)
+		if (lightlevel > 90)
 		{
-			light = xs_CRoundToInt(192.f - (192 - lightlevel)* 1.87f);
-			if (light + rellight < 20)
-			{
-				light = 20 + (light + rellight - 20) / 5;
-			}
-			else
-			{
-				light += rellight;
-			}
+			light = int(192.f - (192 - lightlevel)* 1.5f) + rellight;
 		}
 		else
 		{
-			light = (lightlevel + rellight) / 5;
+			light = int((lightlevel + rellight) * 0.444);
 		}
 
 	}
@@ -168,3 +165,13 @@ float HWDrawInfo::GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfog
 	return density;
 }
 
+void HWDrawInfo::SetVisibility()
+{
+	rellight = 0;
+	if (g_relvisibility)
+	{
+		rellight = (sizeToBits(g_visibility) - sizeToBits(g_visibility + g_relvisibility)) * (32 * 32) / numshades;
+	}
+	// g_visibility == 512 is the baseline for 32 shades - this value is size dependent, so with twice the shades the visibility must be twice as high to get the same effect.
+	visibility = g_visibility * (32.f / 512.f) / numshades;
+}

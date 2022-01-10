@@ -135,6 +135,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 		}
 
 		auto di = HWDrawInfo::StartDrawInfo(nullptr, mainvp, nullptr);
+		di->SetVisibility();
 		auto& vp = di->Viewpoint;
 		vp = mainvp;
 

@@ -120,6 +120,9 @@ struct HWDrawInfo
 	bool ingeo;
 	FVector2 geoofs;
 
+	int rellight;
+	float visibility;
+
 private:
 	bool inview;
 	sectortype *currentsector;
@@ -178,6 +181,7 @@ public:
 	void EndDrawScene(FRenderState &state);
 	void Set3DViewport(FRenderState &state);
 	void ProcessScene(bool toscreen);
+	void SetVisibility();
 
 	//void GetDynSpriteLight(AActor *self, float x, float y, float z, FLightNode *node, int portalgroup, float *out);
 	//void GetDynSpriteLight(AActor *thing, particle_t *particle, float *out);
@@ -198,7 +202,7 @@ public:
 
 	bool isBuildSoftwareLighting() const
 	{
-		return hw_lightmode == 0;
+		return hw_lightmode == 0 || hw_int_useindexedcolortextures;
 	}
 
 	bool isDarkLightMode() const
