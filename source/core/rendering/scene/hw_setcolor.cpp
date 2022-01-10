@@ -93,7 +93,7 @@ void HWDrawInfo::SetShaderLight(FRenderState &state, float level, float olight)
 //
 //==========================================================================
 
-void HWDrawInfo::SetFog(FRenderState &state, int lightlevel, int rellight, bool fullbright, const FColormap *cmap, bool isadditive)
+void HWDrawInfo::SetFog(FRenderState &state, int lightlevel, float visibility, bool fullbright, const FColormap *cmap, bool isadditive)
 {
 	PalEntry fogcolor;
 	float fogdensity;
@@ -101,7 +101,7 @@ void HWDrawInfo::SetFog(FRenderState &state, int lightlevel, int rellight, bool 
 	if (cmap != nullptr && !fullbright)
 	{
 		fogcolor = cmap->FadeColor;
-		fogdensity = GetFogDensity(lightlevel, fogcolor, cmap->FogDensity, cmap->BlendFactor);
+		fogdensity = GetFogDensity(lightlevel, fogcolor, cmap->FogDensity, cmap->BlendFactor) * visibility;
 		fogcolor.a = 0;
 	}
 	else
@@ -160,16 +160,20 @@ void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int pale
 
 	if (!di->isBuildSoftwareLighting() && !foggy)
 	{
-		bool fullbright = ShadeDiv < 1 / 1000.f;
+		bool fullbright = ShadeDiv < 1 / 1000.f || g_visibility == 0;
 		float inverselight = shade * 255.f / numshades;
-		if (fullbright) inverselight /= ShadeDiv;
-		int vislight = 10 - sizeToBits(int(visibility));
-		int gvis = -sizeToBits(g_visibility) * 2;
-		int rellight = 10 - sizeToBits(g_visibility + g_relvisibility) - gvis;
+		if (inverselight < 0) fullbright = true;
+		if (!fullbright) inverselight /= ShadeDiv;
 		int lightlevel = !fullbright ? clamp(int(255 - inverselight), 0, 255) : 255;
+
+		int rellight = 0;
+		if (g_relvisibility)
+		{
+			rellight = sizeToBits(g_visibility) - sizeToBits(g_visibility + g_relvisibility);
+		}
 		FColormap cm = { 0xffffffff };
-		di->SetColor(state, lightlevel, rellight, fullbright, cm, alpha);
-		di->SetFog(state, lightlevel/2 + gvis + vislight, rellight, fullbright, &cm, false);
+		di->SetColor(state, lightlevel, 32*rellight, fullbright, cm, alpha);
+		di->SetFog(state, lightlevel, visibility * g_visibility * (1.f/512.f), fullbright, &cm, false);
 		return;
 	}
 	// Fog must be done before the texture so that the texture selector can override it.

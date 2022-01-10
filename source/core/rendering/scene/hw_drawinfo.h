@@ -138,7 +138,7 @@ private:
 	int CalcLightLevel(int lightlevel, int rellight, bool weapon, int blendfactor);
 	PalEntry CalcLightColor(int light, PalEntry pe, int blendfactor);
 	void SetShaderLight(FRenderState& state, float level, float olight);
-	void SetFog(FRenderState& state, int lightlevel, int rellight, bool fullbright, const FColormap* cmap, bool isadditive);
+	void SetFog(FRenderState& state, int lightlevel, float visibility, bool fullbright, const FColormap* cmap, bool isadditive);
 
 	float GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfogdensity, int blendfactor);
 

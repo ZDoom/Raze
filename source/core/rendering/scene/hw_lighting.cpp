@@ -43,26 +43,12 @@ CUSTOM_CVAR(Int, gl_distfog, 70, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	for (int i = 0; i < 256; i++)
 	{
+		int l = i >> 1;
+		if (i < 64) l = -32 + i;
 
-		if (i < 164)
-		{
-			distfogtable[0][i] = (float)((gl_distfog >> 1) + (gl_distfog)*(164 - i) / 164);
-		}
-		else if (i < 230)
-		{
-			distfogtable[0][i] = (float)((gl_distfog >> 1) - (gl_distfog >> 1)*(i - 164) / (230 - 164));
-		}
-		else distfogtable[0][i] = 0;
+		distfogtable[0][i] = (float)((gl_distfog >> 1) + (gl_distfog)*(164 - l) / 164);
 
-		if (i < 128)
-		{
-			distfogtable[1][i] = 6.f + (float)((gl_distfog >> 1) + (gl_distfog)*(128 - i) / 48);
-		}
-		else if (i < 216)
-		{
-			distfogtable[1][i] = (216.f - i) / ((216.f - 128.f)) * gl_distfog / 10;
-		}
-		else distfogtable[1][i] = 0;
+		distfogtable[1][i] = 5.f + (float)((gl_distfog >> 1) + (float)((gl_distfog)*(128 - (i >> 1)) / 70));
 	}
 }
 
