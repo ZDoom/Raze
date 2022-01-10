@@ -30,7 +30,10 @@
 #include "hw_portal.h"
 #include "hw_cvars.h"
 
-CVAR(Int, hw_lightmode, 0, CVAR_ARCHIVE)
+CUSTOM_CVAR(Int, hw_lightmode, 0, CVAR_ARCHIVE) // this is intentionally per game.
+{
+	if (self < 0 || self > 2 || (isExhumed() && self != 0)) self = 0;
+}
 
 //==========================================================================
 //
@@ -160,15 +163,14 @@ void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int pale
 
 	if (!di->isBuildSoftwareLighting() && !foggy)
 	{
-		bool fullbright = ShadeDiv < 1 / 1000.f || g_visibility == 0;
+		bool fullbright = ShadeDiv < 1 / 1000.f || g_visibility == 0 || shade < -numshades;
 		float inverselight = shade * 255.f / numshades;
-		if (inverselight < 0) fullbright = true;
 		if (!fullbright) inverselight /= ShadeDiv;
 		int lightlevel = !fullbright ? clamp(int(255 - inverselight), 0, 255) : 255;
 
 		FColormap cm = { 0xffffffff };
 		di->SetColor(state, lightlevel, di->rellight, fullbright, cm, alpha);
-		di->SetFog(state, lightlevel, visibility * di->visibility, fullbright, &cm, false);
+		di->SetFog(state, 255 - inverselight, visibility * di->visibility, fullbright, &cm, false);
 		return;
 	}
 	// Fog must be done before the texture so that the texture selector can override it.

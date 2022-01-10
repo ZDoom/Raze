@@ -140,7 +140,10 @@ float HWDrawInfo::GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfog
 	else if ((fogcolor.d & 0xffffff) == 0)
 	{
 		// case 2: black fog
-		density = distfogtable[hw_ClampLight(lightlevel)];
+		if (lightlevel > 255)
+			density = max(0.f, distfogtable[255] * (1.f - (lightlevel - 255.f) / 192.f));
+		else
+			density = distfogtable[hw_ClampLight(lightlevel)];
 	}
 #if 0
 	else if (Level->outsidefogdensity != 0 && APART(Level->info->outsidefog) != 0xff && (fogcolor.d & 0xffffff) == (Level->info->outsidefog & 0xffffff))

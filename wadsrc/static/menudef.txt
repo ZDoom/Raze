@@ -1176,6 +1176,20 @@ OptionValue "HqResizeModesNoMMX"
    6, "$OPTVAL_NORMALNX"
 }
 
+OptionValue "FogMode"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_STANDARD"
+	2, "$OPTVAL_RADIAL"
+}
+
+OptionValue "LightModes"
+{
+	0, "$GLPREFMNU_ORIGINAL"
+	1, "$GLPREFMNU_NATURAL"
+	2, "$GLPREFMNU_HIGHCONTRAST"
+}
+
 OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
@@ -1310,8 +1324,14 @@ OptionMenu "RenderOptions"
 	Option "$RENDER_TC", "hw_hightile", "OnOff"
 	Option "$RENDER_CACHE", "r_precache", "OnOff"
 	StaticText ""
-	Option "$RENDER_PALETTEEMU", "hw_useindexedcolortextures", "OnOff"
-	Option "$RENDER_PALINTER", "hw_shadeinterpolate", "OnOff", "hw_useindexedcolortextures"
+	// Exhumed's lighting system does not work with the enhanced modes.
+	ifnotgame(Exhumed)
+	{
+		Option "$GLPREFMNU_SECLIGHTMODE",			"hw_lightmode",					"LightModes"
+	}
+	Option "$GLPREFMNU_FOGMODE",				gl_fogmode,						"FogMode"
+	Option "$RENDER_PALETTEEMU",				"hw_useindexedcolortextures",	"OnOff"
+	Option "$RENDER_PALINTER",					"hw_shadeinterpolate",			"OnOff", "hw_useindexedcolortextures"
 	StaticText ""
 	Option "$RENDER_MODELS", "hw_models", "OnOff"
 }

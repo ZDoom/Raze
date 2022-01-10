@@ -177,6 +177,13 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
+#ifdef _DEBUG
+	if (seg && (wallnum(seg) == 929 || wallnum(seg) == 930))
+	{
+		int a = 0;
+	}
+#endif
+
 	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
@@ -898,7 +905,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wallnum(wal) == 3312)
+	if (wallnum(wal) == 929 || wallnum(wal) == 930)
 	{
 		int a = 0;
 	}
