@@ -139,8 +139,9 @@ void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uni
 		VPUniforms.mViewMatrix.loadIdentity();
 		VPUniforms.mNormalViewMatrix.loadIdentity();
 		//VPUniforms.mViewHeight = viewheight;
-		VPUniforms.mGlobVis = (2 / 65536.f) * (isBuildSoftwareLighting()? g_visibility + g_relvisibility : g_visibility) / r_ambientlight;
-		VPUniforms.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8) | (5 << 16);
+		VPUniforms.mGlobVis = (2 / 65536.f) * (g_visibility + g_relvisibility) / r_ambientlight;
+		VPUniforms.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8);
+		if (isBuildSoftwareLighting()) VPUniforms.mPalLightLevels |= (5 << 16);
 
 		VPUniforms.mClipLine.X = -10000000.0f;
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;

@@ -154,15 +154,25 @@ void HWDrawInfo::SetFog(FRenderState &state, int lightlevel, int rellight, bool 
 
 void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int palette, int shade, float visibility, float alpha)
 {
-	if (!di->isBuildSoftwareLighting())
-	{
-
-		return;
-	}
-	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
 	if (shade == 127) state.SetObjectColor(0xff000000);	// 127 is generally used for shadow objects that must be black, even in foggy areas.
+
+	if (!di->isBuildSoftwareLighting() && !foggy)
+	{
+		bool fullbright = ShadeDiv < 1 / 1000.f;
+		float inverselight = shade * 255.f / numshades;
+		if (fullbright) inverselight /= ShadeDiv;
+		int vislight = 10 - sizeToBits(int(visibility));
+		int gvis = -sizeToBits(g_visibility) * 2;
+		int rellight = 10 - sizeToBits(g_visibility + g_relvisibility) - gvis;
+		int lightlevel = !fullbright ? clamp(int(255 - inverselight), 0, 255) : 255;
+		FColormap cm = { 0xffffffff };
+		di->SetColor(state, lightlevel, rellight, fullbright, cm, alpha);
+		di->SetFog(state, lightlevel/2 + gvis + vislight, rellight, fullbright, &cm, false);
+		return;
+	}
+	// Fog must be done before the texture so that the texture selector can override it.
 
 	// Disable brightmaps if non-black fog is used.
 	if (ShadeDiv >= 1 / 1000.f && foggy)
