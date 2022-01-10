@@ -3328,8 +3328,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     pm_spritesortcnt = 0;
     checkRotatedWalls();
 
-    if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
-
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
     if (!fromoutside)

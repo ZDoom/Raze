@@ -316,8 +316,6 @@ void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sect
 {
 	checkRotatedWalls();
 
-	if (gl_fogmode == 1) gl_fogmode = 2;	// still needed?
-
 	updatesector(position.X, position.Y, &sectnum);
 	if (sectnum < 0) return;
 
