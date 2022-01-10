@@ -145,6 +145,7 @@ void highTileSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
 void MarkMap();
+void BuildFogTable();
 
 DStatusBarCore* StatusBar;
 
@@ -1032,6 +1033,7 @@ int RunGame()
 	for (int i = 1; i <= 255; i++) palindexmap[i] = i;
 	GPalette.Init(MAXPALOOKUPS + 2, palindexmap);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	gi->loadPalette();
+	BuildFogTable();
 	StartScreen->Progress();
 	InitTextures();
 

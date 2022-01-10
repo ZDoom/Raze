@@ -29,7 +29,7 @@
 #include "hw_drawinfo.h"
 
 // externally settable lighting properties
-static float distfogtable[2][256];	// light to fog conversion table for black fog
+static float distfogtable[256];	// light to fog conversion table for black fog
 
 CVAR(Int, hw_weaponlight, 8, CVAR_ARCHIVE);
 
@@ -39,15 +39,16 @@ CVAR(Int, hw_weaponlight, 8, CVAR_ARCHIVE);
 //
 //==========================================================================
 
-CUSTOM_CVAR(Int, gl_distfog, 70, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+void BuildFogTable()
 {
+	const int gl_distfog = 70;
 	for (int i = 0; i < 256; i++)
 	{
 		int l = i >> 1;
 		if (i < 64) l = -32 + i;
 
-		distfogtable[0][i] = (float)((gl_distfog >> 1) + (gl_distfog)*(164 - l) / 164);
-		distfogtable[1][i] = 5.f + (float)((gl_distfog >> 1) + (float)((gl_distfog)*(128 - (i >> 1)) / 70));
+		if (numshades == 64) distfogtable[i] = (float)((gl_distfog >> 1) + (gl_distfog)*(164 - l) / 164);
+		else distfogtable[i] = 5.f + (float)((gl_distfog >> 1) + (float)((gl_distfog)*(128 - (i >> 1)) / 70));
 	}
 }
 
@@ -139,7 +140,7 @@ float HWDrawInfo::GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfog
 	else if ((fogcolor.d & 0xffffff) == 0)
 	{
 		// case 2: black fog
-		density = distfogtable[hw_lightmode != 1][hw_ClampLight(lightlevel)];
+		density = distfogtable[hw_ClampLight(lightlevel)];
 	}
 #if 0
 	else if (Level->outsidefogdensity != 0 && APART(Level->info->outsidefog) != 0xff && (fogcolor.d & 0xffffff) == (Level->info->outsidefog & 0xffffff))
