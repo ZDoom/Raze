@@ -373,19 +373,6 @@ static void GameTicker()
 		break;
 
 	}
-
-	GC::CheckGC();
-	// Do some more aggressive GC maintenance when the game ticker is inactive. 
-	if ((gamestate != GS_LEVEL && gamestate != GS_TITLELEVEL) || paused)
-	{
-		size_t ac = max<size_t>(10, GC::AllocCount);
-		for (size_t cnt = 0; cnt < ac; cnt++)
-		{
-			if (!GC::CheckGC()) break;
-		}
-	}
-
-
 }
 
 
