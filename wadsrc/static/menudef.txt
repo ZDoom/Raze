@@ -1193,10 +1193,10 @@ OptionValue "LightModes"
 OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
-	//Option "$GLPREFMNU_BLOOM",		 			gl_bloom,						"OnOff"
+	Option "$GLPREFMNU_BLOOM",		 			gl_bloom,						"OnOff"
 	Option "$GLPREFMNU_LENS",		 			gl_lens,						"OnOff"
-	//Option "$GLPREFMNU_SSAO",		 			gl_ssao,						"SSAOModes"
-	//Slider "$GLPREFMNU_SSAO_PORTALS",			gl_ssao_portals,				0.0, 4.0, 1.0, 0
+	Option "$GLPREFMNU_SSAO",		 			gl_ssao,						"SSAOModes"
+	Slider "$GLPREFMNU_SSAO_PORTALS",			gl_ssao_portals,				0.0, 4.0, 1.0, 0
 	Option "$GLPREFMNU_FXAA",		 			gl_fxaa,						"FXAAQuality"
 	Option "$GLPREFMNU_DITHER",		 			gl_dither_bpc,					"DitherModes"
 	Option "$GLPREFMNU_TONEMAP", 				gl_tonemap,						"TonemapModes"
