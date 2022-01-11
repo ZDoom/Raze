@@ -419,14 +419,10 @@ int32_t r_scenebrightness = 0;
 
 void videoShowFrame(int32_t w)
 {
-	if (gl_ssao)
-	{
-		screen->AmbientOccludeScene(GLInterface.GetProjectionM5());
-		// To do: the translucent part of the scene should be drawn here, but the render setup in the games is really too broken to do SSAO.
+	int oldssao = gl_ssao;
 
-		//glDrawBuffers(1, buffers);
-	}
-
+	// These two features do not really work with Polymost because the rendered scene does not provide it
+	gl_ssao = 0;
 	float Brightness = 8.f / (r_scenebrightness + 8.f);
 
 	screen->PostProcessScene(false, 0, Brightness, []() {
@@ -436,13 +432,5 @@ void videoShowFrame(int32_t w)
 	screen->mVertexData->Reset();
 	screen->mViewpoints->Clear();
 
-							// After finishing the frame, reset everything for the next frame. This needs to be done better.
-	if (!w)
-	{
-		screen->BeginFrame();
-		bool useSSAO = (gl_ssao != 0);
-		screen->SetSceneRenderTarget(useSSAO);
-		twodpsp.Clear();
-		twod->Clear();
-	}
+	gl_ssao = oldssao;
 }
