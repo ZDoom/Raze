@@ -169,7 +169,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		else
 		{
 			if (z < di->Viewpoint.Pos.Z) normal = { 0,1,0 };
-			normal = { 0, -1, 0 };
+			else normal = { 0, -1, 0 };
 		}
 
 
