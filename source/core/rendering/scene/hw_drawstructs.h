@@ -286,6 +286,7 @@ public:
 	uint8_t plane;
 	short slopecount;
 	FVector2 geoofs;
+	FVector3 normal;
 	//int vboheight;
 
 	int slopeindex;

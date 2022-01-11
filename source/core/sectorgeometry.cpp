@@ -46,7 +46,7 @@ SectionGeometry sectionGeometry;
 
 //==========================================================================
 //
-// CalcPlane fixme - this should be stored in the sector, not be recalculated each frame.
+//
 //
 //==========================================================================
 
@@ -54,31 +54,34 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 {
 	FVector3 pt[3];
 
+	if (plane == 0 && !(sector->floorstat & CSTAT_SECTOR_SLOPE)) return { 0.f, 1.f, 0.f };
+	if (plane == 1 && !(sector->ceilingstat & CSTAT_SECTOR_SLOPE)) return { 0.f, -1.f, 0.f };
+
+
 	auto wal = sector->firstWall();
 	auto wal2 = wal->point2Wall();
 
-	pt[0] = { (float)WallStartX(wal), (float)WallStartY(wal), 0 };
-	pt[1] = { (float)WallEndX(wal), (float)WallEndY(wal), 0 };
-	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Z);
-	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Z);
+	pt[0] = { (float)WallStartX(wal), 0.f, (float)WallStartY(wal)};
+	pt[1] = { (float)WallStartX(wal2), 0.f, (float)WallStartY(wal2)};
+	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
+	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
 
 	if (pt[0].X == pt[1].X)
 	{
-		if (pt[0].Y == pt[1].Y) return { 0.f, 0.f, plane ? -1.f : 1.f };
+		if (pt[0].Z == pt[1].Z) return { 0.f, plane ? -1.f : 1.f, 0.f };
 		pt[2].X = pt[0].X + 4;
-		pt[2].Y = pt[0].Y;
+		pt[2].Z = pt[0].Z;
 	}
 	else
 	{
 		pt[2].X = pt[0].X;
-		pt[2].Y = pt[0].Y + 4;
+		pt[2].Z = pt[0].Z + 4;
 	}
-	PlanesAtPoint(sector, pt[2].X * 16, pt[2].Y * 16, plane ? &pt[2].Z : nullptr, plane ? nullptr : &pt[2].Z);
+	PlanesAtPoint(sector, pt[2].X * 16, pt[2].Z * -16, plane ? &pt[2].Z : nullptr, plane ? nullptr : &pt[2].Y);
 
-	auto normal = (pt[2] - pt[0]) ^ (pt[1] - pt[0]);
-
-	if ((pt[2].Z < 0 && !plane) || (pt[2].Z > 0 && plane)) return -pt[2];
-	return pt[2];
+	auto normal = ((pt[2] - pt[0]) ^ (pt[1] - pt[0])).Unit();
+	if ((normal.Y < 0 && !plane) || (normal.Y > 0 && plane)) return -normal;
+	return normal;
 }
 
 //==========================================================================
@@ -364,7 +367,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 			sec->firstWall()->point2Wall()->pos == sdata.poscompare2[0] &&
 			!(section->dirty & EDirty::FloorDirty) && sdata.planes[plane].vertices.Size() ) return true;
 
-		section->dirty &= EDirty::FloorDirty;
+		section->dirty &= ~EDirty::FloorDirty;
 	}
 	else
 	{
@@ -453,9 +456,9 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
 	}
-	entry.normal = CalcNormal(sectorp, plane);
 	sectorp->setfloorz(fz, true);
 	sectorp->setceilingz(cz, true);
+	entry.normal = CalcNormal(sectorp, plane);
 }
 
 //==========================================================================

@@ -116,6 +116,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		}
 		vertindex = ret.second;
 		vertcount = pIndices->Size();
+		normal = mesh->normal;
 	}
 	else
 	{
@@ -165,6 +166,13 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				if (minofs < 0 && maxofs <= -ONPLANE_THRESHOLD && minofs >= ONPLANE_THRESHOLD) z -= minofs;
 			}
 		}
+		else
+		{
+			if (z < di->Viewpoint.Pos.Z) normal = { 0,1,0 };
+			normal = { 0, -1, 0 };
+		}
+
+
 		unsigned svi = di->SlopeSpriteVertices.Reserve(4);
 		auto svp = &di->SlopeSpriteVertices[svi];
 
@@ -178,7 +186,19 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 			else svp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
 			svp++;
 		}
+		if (Sprite->clipdist & TSPR_SLOPESPRITE)
+		{
+			FVector3 v1 = {
+				di->SlopeSpriteVertices[svi + 1].x - di->SlopeSpriteVertices[svi].x,
+				di->SlopeSpriteVertices[svi + 1].y - di->SlopeSpriteVertices[svi].y,
+				di->SlopeSpriteVertices[svi + 1].z - di->SlopeSpriteVertices[svi].z };
+			FVector3 v2 = {
+				di->SlopeSpriteVertices[svi + 2].x - di->SlopeSpriteVertices[svi].x,
+				di->SlopeSpriteVertices[svi + 2].y - di->SlopeSpriteVertices[svi].y,
+				di->SlopeSpriteVertices[svi + 2].z - di->SlopeSpriteVertices[svi].z };
 
+			normal = (v1 ^ v2).Unit();
+		}
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
@@ -210,18 +230,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 #endif
 
-	if (!Sprite)
-	{
-		TArray<int> *indices;
-		auto mesh = sectionGeometry.get(&sections[section], plane, geoofs, &indices);
-		state.SetNormal(mesh->normal);
-	}
-	else
-	{
-		if (z < di->Viewpoint.Pos.Z) state.SetNormal({ 0,1,0 });
-		else state.SetNormal({ 0, -1, 0 });
-	}
-
+	state.SetNormal(normal);
 	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	if (translucent)
