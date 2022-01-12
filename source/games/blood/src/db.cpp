@@ -672,7 +672,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 	sectionGeometry.SetSize(sections.Size());
 	wallbackup = wall;
 	sectorbackup = sector;
-	validateStartSector(mapname.GetChars(), { *pX, *pY, *pZ }, cursectnum, mapHeader.numsectors);
+	validateStartSector(mapname.GetChars(), { *pX, *pY, *pZ }, cursectnum, mapHeader.numsectors, gModernMap);
 }
 
 

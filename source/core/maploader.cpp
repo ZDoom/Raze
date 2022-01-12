@@ -418,7 +418,7 @@ void fixSectors()
 	}
 }
 
-void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors)
+void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors, bool noabort)
 {
 
 	if ((unsigned)(*cursectnum) >= numsectors)
@@ -426,10 +426,10 @@ void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnu
 		sectortype* sect = nullptr;
 		updatesectorz(pos.X, pos.Y, pos.Z, &sect);
 		if (!sect) updatesector(pos.X, pos.Y, &sect);
-		if (sect)
+		if (sect || noabort)
 		{
 			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, *cursectnum, numsectors);
-			*cursectnum = sectnum(sect);
+			*cursectnum = sect? sectnum(sect) : 0;
 		}
 		else
 		{
