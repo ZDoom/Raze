@@ -47,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "texturemanager.h"
 #include "st_start.h"
 #include "i_interface.h"
+#include "psky.h"
 
 
 
@@ -267,8 +268,7 @@ void GameInterface::app_init()
 
     //Connect();
     SortBreakInfo();
-    parallaxtype = 1;
-    SW_InitMultiPsky();
+    defineSky(DEFAULTPSKY, 1, nullptr);
 
     memset(Track, 0, sizeof(Track));
     memset(Player, 0, sizeof(Player));

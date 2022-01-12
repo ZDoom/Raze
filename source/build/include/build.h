@@ -45,7 +45,6 @@ enum
     MAXVOXELS = 1024,
     MAXSTATUS = 1024,
     // Maximum number of component tiles in a multi-psky:
-    MAXPSKYTILES = 16,
     MAXSPRITESONSCREEN = 4096,
     MAXUNIQHUDID = 256, //Extra slots so HUD models can store animation state without messing game sprites
 
@@ -122,53 +121,6 @@ enum {
 inline int32_t g_visibility = 512, g_relvisibility = 0;
 
 EXTERN vec2_t windowxy1, windowxy2;
-
-// The maximum tile offset ever used in any tiled parallaxed multi-sky.
-#define PSKYOFF_MAX 16
-#define DEFAULTPSKY -1
-
-typedef struct {
-    int tilenum;
-    // The proportion at which looking up/down affects the apparent 'horiz' of
-    // a parallaxed sky, scaled by 65536 (so, a value of 65536 makes it align
-    // with the drawn surrounding scene):
-    int horizfrac;
-
-    // The texel index offset in the y direction of a parallaxed sky:
-    // XXX: currently always 0.
-    int yoffs;
-    int yoffs2;
-
-    int lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
-    int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
-
-    int32_t yscale;
-} psky_t;
-
-// Index of map-global (legacy) multi-sky:
-// New multi-psky
-EXTERN TArray<psky_t> multipskies;
-
-static inline psky_t *getpskyidx(int32_t picnum)
-{
-    for (auto& sky : multipskies)
-        if (picnum == sky.tilenum) return &sky;
-
-    return &multipskies[0];
-}
-
-
-EXTERN psky_t * tileSetupSky(int32_t tilenum);
-psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0, int yoff2 = 0x7fffffff);
-
-// Get properties of parallaxed sky to draw.
-// Returns: pointer to tile offset array. Sets-by-pointer the other three.
-const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale, bool alt = false);
-
-
-EXTERN char parallaxtype;
-EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
-extern int16_t pskybits_override;
 
 // last sprite in the freelist, that is the spritenum for which 
 //   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1

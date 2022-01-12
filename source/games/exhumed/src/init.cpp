@@ -155,18 +155,6 @@ uint8_t LoadLevel(MapRecord* map)
         PlayerList[i].pActor = nullptr;
     }
 
-    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
-
-    pSky->tileofs[0] = 0;
-    pSky->tileofs[1] = 0;
-    pSky->tileofs[2] = 0;
-    pSky->tileofs[3] = 0;
-    pSky->yoffs = 256;
-    pSky->yoffs2 = 256;
-    pSky->lognumtiles = 2;
-    pSky->horizfrac = 65536;
-    pSky->yscale = 65536;
-    parallaxtype = 2;
     g_visibility = 1024;
     flash = 0;
     precache();

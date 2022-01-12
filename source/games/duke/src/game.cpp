@@ -40,6 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "prediction.h"
 #include "gamestate.h"
 #include "razefont.h"
+#include "psky.h"
 
 BEGIN_DUKE_NS
 
@@ -227,58 +228,41 @@ static void genspriteremaps(void)
 
 static void setupbackdrop()
 {
-	static const uint16_t pskyoff[8] = {};
-	static const uint16_t moonoff[8] = { 0, 2, 3, 0, 2, 0, 1, 0 };
-	static const uint16_t orbitoff[8] = { 0, 0, 4, 0, 0, 1, 2, 3 };
-	static const uint16_t laoff[8] = { 1, 2, 1, 3, 4, 0, 2, 3 };
-	static const uint16_t defoff[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-	static const uint16_t defoff1[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
-	static const uint16_t defoff4[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
-	static const uint16_t defoff7[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
+	static const int16_t moonoff[8] = { 0, 2, 3, 0, 2, 0, 1, 0 };
+	static const int16_t orbitoff[8] = { 0, 0, 4, 0, 0, 1, 2, 3 };
+	static const int16_t laoff[8] = { 1, 2, 1, 3, 4, 0, 2, 3 };
+	static const int16_t defoff[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+	static const int16_t defoff1[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
+	static const int16_t defoff4[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
+	static const int16_t defoff7[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 
-	defineSky(DEFAULTPSKY, 32768, 3, pskyoff);
-	defineSky(TILE_CLOUDYOCEAN, 65536, 3, pskyoff);
-	defineSky(TILE_MOONSKY1, 32768, 3, moonoff);
-	defineSky(TILE_BIGORBIT1, 32768, 3, orbitoff);
-	defineSky(TILE_LA, 16384 + 1024, 3, laoff);
+	defineSky(DEFAULTPSKY, 3, nullptr);
+	defineSky(TILE_CLOUDYOCEAN, 3, nullptr);
+	defineSky(TILE_MOONSKY1, 3, moonoff);
+	defineSky(TILE_BIGORBIT1, 3, orbitoff);
+	defineSky(TILE_LA, 3, laoff);
 	if (isWorldTour())
 	{
-		defineSky(5284, 65536, 3, defoff);
-		defineSky(5412, 65536, 3, defoff, 80);
-		defineSky(5420, 65536, 3, defoff, 80);
-		defineSky(5450, 65536, 3, defoff7, 80);
-		defineSky(5540, 65536, 3, defoff, 80);
-		defineSky(5548, 65536, 3, defoff, 80);
-		defineSky(5556, 65536, 3, defoff1, 80);
-		defineSky(5720, 65536, 3, defoff4, 80);
-		defineSky(5814, 65536, 3, defoff, 80);
-	}
-
-	// Ugh... Since we do not know up front which of these tiles are skies we have to set them all...
-	if (isRRRA())
-	{
-		for (int i = 0; i < MAXUSERTILES; i++)
-		{
-			if (tileWidth(i) == 512)
-			{
-				defineSky(i, 32768, 1, pskyoff);
-			}
-			else if (tileWidth(i) == 1024)
-			{
-				defineSky(i, 32768, 0, pskyoff);
-			}
-		}
+		defineSky(5284, 3, defoff);
+		defineSky(5412, 3, defoff, 80);
+		defineSky(5420, 3, defoff, 80);
+		defineSky(5450, 3, defoff7, 80);
+		defineSky(5540, 3, defoff, 80);
+		defineSky(5548, 3, defoff, 80);
+		defineSky(5556, 3, defoff1, 80);
+		defineSky(5720, 3, defoff4, 80);
+		defineSky(5814, 3, defoff, 80);
 	}
 
 	if (isNam())
 	{
-		defineSky(212, 65536, 3, pskyoff, 0, 140);
-		defineSky(225, 65536, 3, pskyoff, 0, 140);
+		defineSky(212, 3, nullptr, 0, 1, 140);
+		defineSky(225, 3, nullptr, 0, 1, 140);
 	}
 
 	if (isWW2GI() && (g_gameType & GAMEFLAG_ADDON))
 	{
-		defineSky(1086, 65536, 3, pskyoff, 0, 140);
+		defineSky(1086, 3, nullptr, 0, 1, 140);
 	}
 }
 

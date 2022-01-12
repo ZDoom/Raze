@@ -1041,6 +1041,7 @@ set (PCH_SOURCES
 	core/secrets.cpp
 	core/savegamehelp.cpp
 	core/precache.cpp
+	core/psky.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/sectorgeometry.cpp

@@ -28,6 +28,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamestruct.h"
 #include "hw_voxels.h"
 #include "coreactor.h"
+#include "psky.h"
 
 #ifdef _MSC_VER
 // just make it shut up. Most of this file will go down the drain anyway soon.
@@ -1307,8 +1308,10 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
     }
 
     float const fglobalang = FixedToFloat(qglobalang);
-    int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
-    int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+    auto sky = getSky(globalpicnum);
+    int32_t dapskybits = sky.lognumtiles, dapyoffs = sky.pmoffset, daptileyscale = sky.scale * 65536;
+    int16_t const * dapskyoff = sky.offsets;
+
     int remap = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff, remap);
     int realskybits = dapskybits;
@@ -1317,7 +1320,8 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         dapskybits = 0;
     }
 
-    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
+    dapyoffs = isDuke() && globalpicnum == 89 ? 17 * 1024 : 32 * 1024;
+    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyoffs*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
     float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
     float vv[2];
@@ -1584,9 +1588,6 @@ static void polymost_drawalls(int32_t const bunch)
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
-        int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
-        int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
-
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
         global_cf_xpanning = sec->floorxpan_;
@@ -1637,8 +1638,6 @@ static void polymost_drawalls(int32_t const bunch)
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
-
-        dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT

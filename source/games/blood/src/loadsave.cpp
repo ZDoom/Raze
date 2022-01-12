@@ -698,8 +698,6 @@ void SerializeState(FSerializer& arc)
 	}
 	if (arc.BeginObject("state"))
 	{
-		psky_t* pSky = tileSetupSky(DEFAULTPSKY);
-
 		arc("visibility", gVisibility)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
@@ -709,12 +707,6 @@ void SerializeState(FSerializer& arc)
 			("modern", gModernMap)
 #endif
 			("cheating", bPlayerCheated)
-			("skyhoriz", pSky->horizfrac)
-			("skyy", pSky->yoffs)
-			("skyy2", pSky->yoffs2)
-			("scale", pSky->yscale)
-			.Array("tileofs", pSky->tileofs, countof(pSky->tileofs))
-			("numtiles", pSky->lognumtiles)
 			("gameoptions", gGameOptions);
 
 		arc.EndObject();

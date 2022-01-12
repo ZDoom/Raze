@@ -29,6 +29,7 @@
 #include "gamefuncs.h"
 #include "build.h"
 #include "cmdlib.h"
+#include "psky.h"
 
 CVAR(Bool,gl_noskyboxes, false, 0)
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap);
@@ -46,39 +47,41 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 	tileUpdatePicnum(&picnum, 0, 0);
 	int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 
-	int32_t dapyscale = 0, dapskybits = 0, dapyoffs = 0, daptileyscale = 0;
 	FGameTexture* skytex = SkyboxReplacement(tileGetTexture(picnum)->GetID(), palette);
 	int realskybits = 0;
 	// todo: check for skybox replacement.
+	SkyDefinition skydef;
 	if (!skytex)
 	{
 		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
-
-		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale, true);
+		skydef = getSky(picnum);
 		int tw = tileWidth(picnum);
-		if ((1 << sizeToBits(tw)) < tw) dapskybits--; // Build math is weird.
 
-		skytex = GetSkyTexture(picnum, dapskybits, dapskyoff, remap);
-		realskybits = dapskybits;
-		if (skytex) dapskybits = 0;
+		skytex = GetSkyTexture(picnum, skydef.lognumtiles, skydef.offsets, remap);
+		realskybits = skydef.lognumtiles;
+		if (skytex) skydef.lognumtiles = 0;
 		else skytex = tileGetTexture(picnum);
+	}
+	else
+	{
+		skydef = {};
+		skydef.scale = 1.f;
 	}
 
 	float xpanning = plane == plane_ceiling ? sector->ceilingxpan_ : sector->floorxpan_;
 	float ypanning = plane == plane_ceiling ? sector->ceilingypan_ : sector->floorypan_;
 
-	// dapyscale is not relvant for a sky dome.
-	sky->y_scale = FixedToFloat(daptileyscale);
+	sky->y_scale = skydef.scale;
 	sky->cloudy = !!(sector->exflags & SECTOREX_CLOUDSCROLL);
 	if (!sky->cloudy)
 	{
-		sky->y_offset = dapyoffs * 1.5;
-		sky->x_offset = xpanning / (1 << (realskybits - dapskybits));
+		sky->y_offset = skydef.baselineofs * 1.5;
+		sky->x_offset = xpanning / (1 << (realskybits - skydef.lognumtiles));
 	}
 	else
 	{
 		sky->y_offset = ypanning;
-		sky->x_offset = 2 * xpanning / (1 << (realskybits - dapskybits));
+		sky->x_offset = 2 * xpanning / (1 << (realskybits - skydef.lognumtiles));
 	}
 
 	PalEntry pe = GlobalMapFog ? GlobalMapFog : lookups.getFade(palette);

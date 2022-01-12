@@ -1867,7 +1867,6 @@ void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar();
 int32_t registerosdcommands(void);
-void SW_InitMultiPsky(void);
 
 extern short LevelSecrets;
 extern int TotalKillable;

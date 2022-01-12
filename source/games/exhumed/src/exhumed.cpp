@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "razemenu.h"
 #include "v_draw.h"
 #include "interpolate.h"
+#include "psky.h"
 
 BEGIN_PS_NS
 
@@ -514,6 +515,7 @@ void GameInterface::app_init()
     }
 
     SetTileNames();
+    defineSky(DEFAULTPSKY, 2, nullptr, 256, 1.f);
 
     InitFX();
     seq_LoadSequences();

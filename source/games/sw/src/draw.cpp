@@ -73,15 +73,6 @@ extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
 
 void PreDrawStackedWater(void);
 
-void SW_InitMultiPsky(void)
-{
-    // default
-    psky_t* const defaultsky = tileSetupSky(DEFAULTPSKY);
-    defaultsky->lognumtiles = 1;
-    defaultsky->horizfrac = 8192;
-}
-
-
 #if 1
 void ShadeSprite(tspritetype* tsp)
 {

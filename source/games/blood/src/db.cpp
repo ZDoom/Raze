@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamefuncs.h"
 #include "hw_sections.h"
 #include "sectorgeometry.h"
+#include "psky.h"
 
 #include "blood.h"
 
@@ -215,7 +216,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 	{
 		I_Error("%s: Corrupted Map file", mapname.GetChars());
 	}
-	parallaxtype = mapHeader.parallax;
 	gMapRev = mapHeader.revision;
 	allocateMapArrays(mapHeader.numwalls, mapHeader.numsectors, mapHeader.numsprites);
 #if 1 // bad, bad hack, just for making Polymost happy...
@@ -242,14 +242,12 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 	{
 		dbCrypt((char*)tpskyoff, gSkyCount * sizeof(tpskyoff[0]), gSkyCount * 2);
 	}
-
-	psky_t* pSky = tileSetupSky(DEFAULTPSKY);
-	pSky->horizfrac = 65536;
-	pSky->lognumtiles = mapHeader.pskybits;
 	for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
 	{
-		pSky->tileofs[i] = LittleShort(tpskyoff[i]);
+		tpskyoff[i] = LittleShort(tpskyoff[i]);
 	}
+
+	defineSky(DEFAULTPSKY, mapHeader.pskybits, tpskyoff);
 
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{

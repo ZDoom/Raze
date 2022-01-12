@@ -415,7 +415,6 @@ void resetprestat(int snum,int g)
 	numanimwalls            = 0;
 	numcyclers              = 0;
 	animatecnt              = 0;
-	parallaxtype            = 0;
 	randomseed              = 17L;
 	paused             = 0;
 	ud.cameraactor =nullptr;

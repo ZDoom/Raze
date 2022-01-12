@@ -52,6 +52,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+// ugly hack stuff.
+int parallaxyscale_override, pskybits_override;
+
 
 int SetupCoolie(DSWActor*);
 int SetupNinja(DSWActor*);
@@ -1807,6 +1810,7 @@ void SpriteSetup(void)
                     pskybits_override = actor->spr.lotag;
                     if (SP_TAG4(actor) > 2048)
                         parallaxyscale_override = SP_TAG4(actor);
+                    defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 65536.f);
                     KillActor(actor);
                     break;
                 }

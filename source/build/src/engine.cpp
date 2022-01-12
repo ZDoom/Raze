@@ -48,7 +48,6 @@ float fydimen, fviewingrange;
 
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
-int16_t pskybits_override = -1;
 static int16_t radarang[1280];
 
 // adapted from build.c
@@ -283,54 +282,6 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     assert((unsigned)t < 65536);
 
     return t;
-}
-
-//
-// multi-pskies
-//
-
-psky_t * tileSetupSky(int32_t const tilenum)
-{
-    for (auto& sky : multipskies)
-        if (tilenum == sky.tilenum)
-        {
-            return &sky;
-        }
-
-    multipskies.Reserve(1);
-    multipskies.Last() = {};
-    multipskies.Last().tilenum = tilenum;
-    multipskies.Last().yscale = 65536;
-    return &multipskies.Last();
-}
-
-psky_t * defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t *tileofs, int yoff, int yoff2)
-{
-    auto sky = tileSetupSky(tilenum);
-    sky->horizfrac = horiz;
-    sky->lognumtiles = lognumtiles;
-    sky->yoffs = yoff;
-    sky->yoffs2 = yoff2 == 0x7fffffff ? yoff : yoff2;
-    memcpy(sky->tileofs, tileofs, 2 << lognumtiles);
-    return sky;
-}
-
-// Get properties of parallaxed sky to draw.
-// Returns: pointer to tile offset array. Sets-by-pointer the other three.
-const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale, bool alt)
-{
-    psky_t const* const psky = getpskyidx(picnum);
-
-    if (dapskybits)
-        *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
-    if (dapyscale)
-        *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
-    if (dapyoffs)
-        *dapyoffs = (alt? psky->yoffs2 : psky->yoffs) + parallaxyoffs_override;
-    if (daptileyscale)
-        *daptileyscale = psky->yscale;
-
-    return psky->tileofs;
 }
 
 //

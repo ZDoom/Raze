@@ -58,6 +58,8 @@ BEGIN_SW_NS
 // This cannot have a namespace declaration
 #include "saveable.h"
 
+extern int parallaxyscale_override, pskybits_override;
+
 /*
 //////////////////////////////////////////////////////////////////////////////
 TO DO
@@ -1128,11 +1130,11 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	pspAsArray.Clear();
     Saveable_Init();
 
-    if (arc.BeginObject("state"))
-    {
-        preSerializePanelSprites(arc);
+	if (arc.BeginObject("state"))
+	{
+		preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
-		arc ("numplayers", numplayers)
+		arc("numplayers", numplayers)
 			.Array("players", Player, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)
@@ -1170,35 +1172,38 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("FinishTimer", FinishTimer)
 			("FinishAnim", FinishAnim)
 			.Array("bosswasseen", bosswasseen, 3)
-			.Array("BossSpriteNum", BossSpriteNum, 3);
-			arc.Array("tracks", Track, countof(Track))
+			.Array("BossSpriteNum", BossSpriteNum, 3)
+			.Array("tracks", Track, countof(Track))
 			("minenemyskill", MinEnemySkill)
-            ;
-        postSerializePanelSprites(arc);
-        arc.EndObject();
-    }
+			("parallaxys", parallaxyscale_override)
+			("pskybits", pskybits_override)
+			;
+		postSerializePanelSprites(arc);
+		arc.EndObject();
+	}
 
 	if (arc.isReading())
-    {
-    DoTheCache();
+	{
+		DoTheCache();
 
-        int SavePlayClock = PlayClock;
-        InitTimingVars();
-        PlayClock = SavePlayClock;
-    InitNetVars();
+		int SavePlayClock = PlayClock;
+		InitTimingVars();
+		PlayClock = SavePlayClock;
+		defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 65536.f);
+		InitNetVars();
 
-    screenpeek = myconnectindex;
+		screenpeek = myconnectindex;
 
-    Mus_ResumeSaved();
-    if (snd_ambience)
-        StartAmbientSound();
+		Mus_ResumeSaved();
+		if (snd_ambience)
+			StartAmbientSound();
 
-    // this is not a new game
-    ShadowWarrior::NewGame = false;
+		// this is not a new game
+		ShadowWarrior::NewGame = false;
 
 		DoPlayerDivePalette(Player + myconnectindex);
 		DoPlayerNightVisionPalette(Player + myconnectindex);
-    InitLevelGlobals();
+		InitLevelGlobals();
 	}
 }
 

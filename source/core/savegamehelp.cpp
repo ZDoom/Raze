@@ -696,10 +696,6 @@ void SerializeMap(FSerializer& arc)
 			("numshades", numshades)	// is this really needed?
 			("visibility", g_visibility)
 			("relvisibility", g_relvisibility)
-			("parallaxtype", parallaxtype)
-			("parallaxyo", parallaxyoffs_override)
-			("parallaxys", parallaxyscale_override)
-			("pskybits", pskybits_override)
 			("numsprites", Numsprites)
 			("gamesetinput", gamesetinput)
 			("allportals", allPortals);

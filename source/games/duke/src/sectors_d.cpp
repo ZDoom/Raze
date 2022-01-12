@@ -1751,7 +1751,6 @@ void checksectors_d(int snum)
 						neartagsprite->spr.yvel = 1;
 						camsprite = neartagsprite;
 
-						// parallaxtype = 2;
 						p->newOwner = acti;
 						return;
 					}
