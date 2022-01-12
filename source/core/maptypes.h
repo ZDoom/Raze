@@ -166,8 +166,9 @@ DEFINE_TFLAGS_OPERATORS(ESpriteFlags)
 
 enum ESpriteBits2
 {
-	CSTAT2_SPRITE_NOFIND = 1,      // Invisible to neartag and hitscan
-	CSTAT2_SPRITE_MAPPED = 2,      // sprite was mapped for automap
+	CSTAT2_SPRITE_NOFIND = 1,		// Invisible to neartag and hitscan
+	CSTAT2_SPRITE_MAPPED = 2,		// sprite was mapped for automap
+	CSTAT2_SPRITE_NOSHADOW = 4,		// cast no shadow.
 };
 
 // tsprite flags use the otherwise unused clipdist field.

@@ -566,15 +566,12 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->spr.picnum == APLAYER && h->GetOwner()))
+		{
 			if (t->statnum != 99 && h->spr.picnum != EXPLOSION2 && h->spr.picnum != HANGLIGHT && h->spr.picnum != DOMELITE)
+			{
 				if (h->spr.picnum != HOTMEAT)
 				{
-					if (h->dispicnum < 0)
-					{
-						h->dispicnum++;
-						continue;
-					}
-					else if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2))
+					if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2) && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 					{
 						int daz;
 
@@ -623,7 +620,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						t->shade = 0;
 					}
 				}
-
+			}
+		}
 
 		switch (h->spr.picnum)
 		{

@@ -4832,20 +4832,21 @@ void getglobalz(DDukeActor* actor)
 		getzrange({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (FOURSLEIGHT) }, actor->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		actor->spr.cstat2 = cc;
 
+		actor->spr.cstat2 &= ~CSTAT2_SPRITE_NOSHADOW;
 		if( lz.type == kHitSprite && (lz.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 )
 		{
 			if( badguy(lz.actor()) && lz.actor()->spr.pal != 1)
 			{
 				if( actor->spr.statnum != STAT_PROJECTILE)
 				{
-					actor->dispicnum = -4; // No shadows on actors
+					actor->spr.cstat2 |= CSTAT2_SPRITE_NOSHADOW; // No shadows on actors
 					actor->spr.xvel = -256;
 					ssp(actor, CLIPMASK0);
 				}
 			}
 			else if(lz.actor()->isPlayer() && badguy(actor) )
 			{
-				actor->dispicnum = -4; // No shadows on actors
+				actor->spr.cstat2 |= CSTAT2_SPRITE_NOSHADOW; // No shadows on actors
 				actor->spr.xvel = -256;
 				ssp(actor, CLIPMASK0);
 			}

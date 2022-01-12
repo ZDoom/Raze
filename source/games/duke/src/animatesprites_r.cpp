@@ -720,15 +720,12 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->shade = -127;
 
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->spr.picnum == APLAYER && h->GetOwner()))
+		{
 			if ((h->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 && t->statnum != 99)
+			{
 				if (h->spr.picnum != EXPLOSION2 && h->spr.picnum != DOMELITE && h->spr.picnum != TORNADO && h->spr.picnum != EXPLOSION3 && (h->spr.picnum != SBMOVE || isRRRA()))
 				{
-					if (h->dispicnum < 0)
-					{
-						h->dispicnum++;
-						continue;
-					}
-					else if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2))
+					if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2) && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 					{
 						int daz;
 
@@ -772,6 +769,9 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							}
 					}
 				}
+			}
+		}
+
 
 
 		switch (h->spr.picnum)
