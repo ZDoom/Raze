@@ -291,7 +291,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		if (portal) clipper->RemoveClipRange(startAngle, endAngle);
 		else
 		{
-			if (topclip < FLT_MAX || bottomclip > -FLT_MAX)
+			if ((topclip < FLT_MAX || bottomclip > -FLT_MAX) && !dontclip)
 			{
 				clipper->AddWindowRange(startAngle, endAngle, topclip, bottomclip, viewz);
 				//Printf("\nWall %d from %2.3f - %2.3f, (%2.3f, %2.3f) (passing)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg(), topclip, bottomclip);
