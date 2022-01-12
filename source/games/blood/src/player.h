@@ -118,9 +118,9 @@ struct PLAYER
 	int                 weaponTimer;
 	int                 weaponState;
 	int                 weaponAmmo;  //rename
-	bool                hasWeapon[14];
-	int                 weaponMode[14];
-	int                 weaponOrder[2][14];
+	bool                hasWeapon[kWeapMax];
+	int                 weaponMode[kWeapMax];
+	int                 weaponOrder[2][kWeapMax];
 	//int               at149[14];
 	int                 ammoCount[12];
 	bool                qavLoop;

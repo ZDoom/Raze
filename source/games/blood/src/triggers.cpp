@@ -239,13 +239,13 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 			{
 				evKillActor(actor);
 				pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8] + actor->xspr.data3, gAmmoInfo[8].max);
-				pPlayer->hasWeapon[9] = 1;
+				pPlayer->hasWeapon[kWeapLifeLeech] = 1;
 				if (pPlayer->curWeapon != kWeapLifeLeech)
 				{
 					if (!VanillaMode() && checkFired6or7(pPlayer)) // if tnt/spray is actively used, do not switch weapon
 						break;
 					pPlayer->weaponState = 0;
-					pPlayer->nextWeapon = 9;
+					pPlayer->nextWeapon = kWeapLifeLeech;
 				}
 			}
 		}

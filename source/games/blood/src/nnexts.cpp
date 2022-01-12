@@ -2228,7 +2228,7 @@ void trPlayerCtrlEraseStuff(int value, PLAYER* pPlayer)
 			if (i < 12) pPlayer->ammoCount[i] = 0;
 		}
 
-		pPlayer->hasWeapon[1] = true;
+		pPlayer->hasWeapon[kWeapPitchFork] = true;
 		pPlayer->curWeapon = kWeapNone;
 		pPlayer->nextWeapon = kWeapPitchFork;
 

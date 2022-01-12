@@ -483,6 +483,7 @@ enum
 	kWeapProximity = 11,
 	kWeapRemote = 12,
 	kWeapBeast = 13,
+	kWeapMax = 14,
 };
 
 // -------------------------------

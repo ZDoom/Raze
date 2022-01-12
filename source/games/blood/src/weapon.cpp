@@ -1795,7 +1795,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 			}
 		}
 		UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
-		pPlayer->hasWeapon[10] = 0;
+		pPlayer->hasWeapon[kWeapVoodooDoll] = 0;
 		pPlayer->weaponState = -1;
 	}
 }
@@ -1816,7 +1816,7 @@ void DropVoodoo(int, PLAYER* pPlayer)
 		evPostActor(spawned, 90, kCallbackDropVoodoo);
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 		UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
-		pPlayer->hasWeapon[10] = 0;
+		pPlayer->hasWeapon[kWeapVoodooDoll] = 0;
 	}
 }
 
@@ -2014,7 +2014,7 @@ void AltFireLifeLeech(int, PLAYER* pPlayer)
 			missile->xspr.data3 = pPlayer->ammoCount[8];
 			pPlayer->ammoCount[8] = 0;
 		}
-		pPlayer->hasWeapon[9] = 0;
+		pPlayer->hasWeapon[kWeapLifeLeech] = 0;
 	}
 }
 

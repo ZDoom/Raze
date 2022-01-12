@@ -921,7 +921,7 @@ void playerReset(PLAYER* pPlayer)
 		pPlayer->hasWeapon[i] = gInfiniteAmmo;
 		pPlayer->weaponMode[i] = 0;
 	}
-	pPlayer->hasWeapon[1] = 1;
+	pPlayer->hasWeapon[kWeapPitchFork] = 1;
 	pPlayer->curWeapon = kWeapNone;
 	pPlayer->qavCallback = -1;
 	pPlayer->newWeapon = kWeapPitchFork;
@@ -2516,7 +2516,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("weaponammo", w.weaponAmmo)
 			.Array("hasweapon", w.hasWeapon, countof(w.hasWeapon))
 			.Array("weaponmode", w.weaponMode, countof(w.weaponMode))
-			.Array("weaponorder", &w.weaponOrder[0][0], 14 * 2)
+			.Array("weaponorder", &w.weaponOrder[0][kWeapNone], +kWeapMax * 2)
 			.Array("ammocount", w.ammoCount, countof(w.ammoCount))
 			("qavloop", w.qavLoop)
 			("qavlastTick", w.qavLastTick)
