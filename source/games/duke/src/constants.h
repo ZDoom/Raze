@@ -316,6 +316,7 @@ enum sflags_t
 	SFLAG_TRIGGER_IFHITSECTOR	= 0x00008000,
 	SFLAG_MOVEFTA_WAKEUPCHECK	= 0x00010000,
 	SFLAG_MOVEFTA_CHECKSEEWITHPAL8 = 0x00020000,	// let's hope this can be done better later. For now this was what blocked merging the Duke and RR variants of movefta
+	SFLAG_NOSHADOW				= 0x00020000,
 
 };
 

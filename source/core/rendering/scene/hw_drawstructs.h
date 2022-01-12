@@ -164,7 +164,6 @@ public:
 	float ViewDistance;
 	float visibility;
 	walltype* walldist;
-	FVector2 wallpoint;
 	short shade, palette;
 
 	PalEntry fade;

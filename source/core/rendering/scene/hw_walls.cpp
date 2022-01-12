@@ -50,6 +50,10 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 
 static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
+	if (tspr->picnum == 164)
+	{
+		return nullptr;
+	}
 	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
 
 	auto sect = tspr->sectp;
@@ -177,13 +181,6 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-#ifdef _DEBUG
-	if (seg && (wallnum(seg) == 929 || wallnum(seg) == 930))
-	{
-		int a = 0;
-	}
-#endif
-
 	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
 	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
@@ -1123,7 +1120,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 
 	DVector2 vec{};
 	walldist = IsOnWall(spr, height, vec);
-	wallpoint = { float(vec.X * (1 / 16.f)), float(vec.Y * (-1 / 16.f)) };
 	if (walldist)
 	{
 		// project the sprite right onto the wall.
