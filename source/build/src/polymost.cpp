@@ -1865,22 +1865,22 @@ static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
     const double x2b2 = dxb2[bunchlast[b2]];
     const double x1b1 = dxb1[b1f];
 
-    if (nexttowardf(x1b1, x2b2) >= x2b2)
+    if (x1b1 >= x2b2)
         return -1;
 
     int b2f = bunchfirst[b2];
     const double x1b2 = dxb1[b2f];
 
-    if (nexttowardf(x1b2, dxb2[bunchlast[b1]]) >= dxb2[bunchlast[b1]])
+    if (x1b2 >= dxb2[bunchlast[b1]])
         return -1;
 
-    if (nexttowardf(x1b1, x1b2) > x1b2)
+    if (x1b1 > x1b2)
     {
-        while (nexttowardf(dxb2[b2f], x1b1) <= x1b1) b2f=bunchp2[b2f];
+        while (dxb2[b2f] <= x1b1) b2f=bunchp2[b2f];
         return wallfront(b1f, b2f);
     }
 
-    while (nexttowardf(dxb2[b1f], x1b2) <= x1b2) b1f=bunchp2[b1f];
+    while (dxb2[b1f] <= x1b2) b1f=bunchp2[b1f];
     return wallfront(b1f, b2f);
 }
 
@@ -1975,7 +1975,7 @@ void polymost_scansector(int32_t sectnum)
             }
 
             //if wall is facing you...
-            if ((p1.Y >= SCISDIST || p2.Y >= SCISDIST) && (nexttoward(p1.X*p2.Y, p2.X*p1.Y) < p2.X*p1.Y))
+            if ((p1.Y >= SCISDIST || p2.Y >= SCISDIST) && (p1.X*p2.Y < p2.X*p1.Y))
             {
                 dxb1[numscans] = (p1.Y >= SCISDIST) ? float(p1.X*ghalfx/p1.Y + ghalfx) : -1e32f;
                 dxb2[numscans] = (p2.Y >= SCISDIST) ? float(p2.X*ghalfx/p2.Y + ghalfx) : 1e32f;
@@ -1989,7 +1989,7 @@ void polymost_scansector(int32_t sectnum)
                 else if (dxb2[numscans] > xbr)
                     dxb2[numscans] = xbr;
 
-                if (nexttowardf(dxb1[numscans], dxb2[numscans]) < dxb2[numscans])
+                if (dxb1[numscans] < dxb2[numscans])
                 {
                     thesector[numscans] = sectnum;
                     thewall[numscans] = z;
@@ -2007,7 +2007,7 @@ void polymost_scansector(int32_t sectnum)
 
         for (intptr_t scan=onumscans; scan<numscans; scan++)
         {
-            if ((wall[thewall[scan]].point2 != thewall[bunchp2[scan]]) || (dxb2[scan] > nexttowardf(dxb1[bunchp2[scan]], dxb2[scan])))
+            if ((wall[thewall[scan]].point2 != thewall[bunchp2[scan]]) || (dxb2[scan] > dxb1[bunchp2[scan]]))
             {
                 bunchfirst[numbunches++] = bunchp2[scan];
                 bunchp2[scan] = -1;
