@@ -169,6 +169,7 @@ enum ESpriteBits2
 	CSTAT2_SPRITE_NOFIND = 1,		// Invisible to neartag and hitscan
 	CSTAT2_SPRITE_MAPPED = 2,		// sprite was mapped for automap
 	CSTAT2_SPRITE_NOSHADOW = 4,		// cast no shadow.
+	CSTAT2_SPRITE_DECAL = 8,		// always attached to a wall.
 };
 
 // tsprite flags use the otherwise unused clipdist field.

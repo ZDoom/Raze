@@ -499,7 +499,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 								DukeSectIterator it(hit.hitWall->nextSector());
 								while (auto l = it.Next())
 								{
-									if (l->spr.statnum == 3 && l->spr.lotag == 13)
+									if (l->spr.statnum == STAT_EFFECTOR && l->spr.lotag == SE_13_EXPLOSIVE)
 										goto SKIPBULLETHOLE;
 								}
 							}
@@ -518,6 +518,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 								auto delta = hit.hitWall->delta();
 								hole->spr.ang = getangle(-delta.X, -delta.Y) + 512;
 								ssp(hole, CLIPMASK0);
+								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
 						}
 
