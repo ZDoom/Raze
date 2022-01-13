@@ -100,7 +100,7 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 	{
 		// translucent portals go into the translucent border list.
 		list = flat->Sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;
-		slopespr = (flat->Sprite && flat->Sprite->clipdist & TSPR_SLOPESPRITE);
+		slopespr = !!(flat->Sprite);//&& flat->Sprite->clipdist& TSPR_SLOPESPRITE);
 	}
 	else
 	{

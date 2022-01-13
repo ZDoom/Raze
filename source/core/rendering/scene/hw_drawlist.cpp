@@ -1169,7 +1169,6 @@ void HWDrawList::DrawSorted(HWDrawInfo *di, FRenderState &state, SortNode * head
 void HWDrawList::DrawSorted(HWDrawInfo *di, FRenderState &state)
 {
 	if (drawitems.Size() == 0) return;
-
 	if (!sorted)
 	{
 		screen->mVertexData->Map();

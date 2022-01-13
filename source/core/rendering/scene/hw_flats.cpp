@@ -218,6 +218,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 //==========================================================================
 void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
+	rendered_flats++;
 	if (screen->BuffersArePersistent() && !Sprite)
 	{
 		MakeVertices(di);
@@ -291,7 +292,6 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 		MakeVertices(di);
 	}
 	di->AddFlat(this);
-	rendered_flats++;
 }
 
 //==========================================================================
