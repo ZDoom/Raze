@@ -992,7 +992,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				}
 
 				actor->SetOwner(nullptr);
-				actor->temp_sect = s;
+				actor->temp_data[0] = sectnum(s);
 
 				if (actor->spr.lotag != SE_30_TWO_WAY_TRAIN)
 					actor->temp_data[3] = actor->spr.hitag;

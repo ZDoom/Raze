@@ -2767,7 +2767,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 	if (actor->GetOwner() == nullptr)
 	{
-		auto NewOwner = LocateTheLocator(actor->temp_data[3], actor->temp_sect);
+		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
 
 		if (NewOwner == nullptr)
 		{
@@ -2785,11 +2785,11 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			if (Owner->spr.hitag & 1)
 				actor->temp_data[4] = sc->extra; //Slow it down
 		actor->temp_data[3]++;
-		auto NewOwner = LocateTheLocator(actor->temp_data[3], actor->temp_sect);
+		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
 		if (NewOwner == nullptr)
 		{
 			actor->temp_data[3] = 0;
-			NewOwner = LocateTheLocator(0, actor->temp_sect);
+			NewOwner = LocateTheLocator(0, &sector[actor->temp_data[0]]);
 		}
 		if (NewOwner) actor->SetOwner(NewOwner);
 	}
@@ -2971,7 +2971,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 	if (Owner == nullptr)
 	{
 		actor->temp_data[3] = !actor->temp_data[3];
-		Owner = LocateTheLocator(actor->temp_data[3], actor->temp_sect);
+		Owner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
 		actor->SetOwner(Owner);
 	}
 	else
@@ -3399,7 +3399,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	actor->spr.pos.Z += actor->spr.zvel;
 	sc->addceilingz(actor->spr.zvel);
-	actor->temp_sect->addceilingz(actor->spr.zvel);
+	sector[actor->temp_data[0]].addceilingz(actor->spr.zvel);
 	ms(actor);
 	SetActor(actor, actor->spr.pos);
 }
@@ -4257,7 +4257,7 @@ void handle_se22(DDukeActor* actor)
 	auto sc = actor->sector();
 	if (actor->temp_data[1])
 	{
-		if (getanimationgoal(anim_ceilingz, actor->temp_sect) >= 0)
+		if (getanimationgoal(anim_ceilingz, &sector[actor->temp_data[0]]) >= 0)
 			sc->addceilingz(sc->extra * 9);
 		else actor->temp_data[1] = 0;
 	}
