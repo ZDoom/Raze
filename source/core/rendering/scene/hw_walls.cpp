@@ -50,10 +50,6 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 
 static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
-	if (tspr->picnum == 164)
-	{
-		return nullptr;
-	}
 	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
 
 	auto sect = tspr->sectp;
