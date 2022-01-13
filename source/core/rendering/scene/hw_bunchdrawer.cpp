@@ -180,7 +180,7 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY)
 	{
 		// save some processing with outside areas - no need to add to the clipper if back sector is higher.
-		if (fs_ceilingheight1 <= bs_floorheight1 && fs_ceilingheight2 <= bs_floorheight2) *bottomclip = -FLT_MAX;
+		/*if (fs_ceilingheight1 <= bs_floorheight1 && fs_ceilingheight2 <= bs_floorheight2)*/ *bottomclip = -FLT_MAX;
 		*topclip = FLT_MAX;
 		return false;
 	}
