@@ -397,6 +397,7 @@ void HWWall::SetupLights(HWDrawInfo *di, FDynLightData &lightdata)
 //==========================================================================
 void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 {
+	rendered_lines++;
 	if (translucent || (texture && texture->GetTranslucency() && type == RENDERWALL_M2S))
 	{
 		flags |= HWF_TRANSLUCENT;

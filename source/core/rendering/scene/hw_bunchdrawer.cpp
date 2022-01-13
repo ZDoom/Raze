@@ -350,7 +350,6 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 					HWWall hwwall;
 					hwwall.Process(di, &wall[ww], &sector[bunch->sectornum], wall[ww].nextsector < 0 ? nullptr : &sector[wall[ww].nextsector]);
-					rendered_lines++;
 
 					SetupWall.Unclock();
 					Bsp.Clock();
@@ -665,11 +664,12 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	bool inbunch;
 
-	SetupSprite.Clock();
 
 	int sectnum = sections[sectionnum].sector;
 	if (!gotsector[sectnum])
 	{
+		Bsp.Unclock();
+		SetupSprite.Clock();
 		gotsector.Set(sectnum);
 		CoreSectIterator it(sectnum);
 		while (auto actor = it.Next())
@@ -691,15 +691,18 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			}
 		}
 		SetupSprite.Unclock();
+		Bsp.Clock();
 	}
 
 	if (automapping)
 		show2dsector.Set(sectnum);
 
+	Bsp.Unclock();
 	SetupFlat.Clock();
 	HWFlat flat;
 	flat.ProcessSector(di, &sector[sectnum], sectionnum);
 	SetupFlat.Unclock();
+	Bsp.Clock();
 
 	//Todo: process subsectors
 	inbunch = false;

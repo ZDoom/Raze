@@ -164,7 +164,9 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 
 			screen->PostProcessScene(false, CM_DEFAULT, flash, []() { 
 				hw_int_useindexedcolortextures = false;
+				PostProcess.Unclock();
 				Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
+				PostProcess.Clock();
 				});
 			PostProcess.Unclock();
 		}
