@@ -905,10 +905,23 @@ void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("yscale")) { int intscale; sc.GetNumber(intscale, true); sky.scale = intscale * (1. / 65536.); }
 		else if (sc.Compare({ "tile", "panel" }))
 		{
-			int panel = 0, offset = 0;
-			sc.GetNumber(panel, true);
-			sc.GetNumber(offset, true);
-			if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.offsets[panel] = offset;
+			if (!sc.CheckString("}"))
+			{
+				int panel = 0, offset = 0;
+				sc.GetNumber(panel, true);
+				sc.GetNumber(offset, true);
+				if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.offsets[panel] = offset;
+			}
+			else
+			{
+				int panel = 0, offset;
+				while (!sc.CheckString("}"))
+				{
+					sc.GetNumber(offset, true);
+					if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.offsets[panel] = offset;
+					panel++;
+				}
+			}
 		}
 	}
 	if (sky.baselineofs == INT_MIN) sky.baselineofs = sky.pmoffset;
