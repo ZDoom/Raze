@@ -264,6 +264,12 @@ static void setupbackdrop()
 	{
 		defineSky(1086, 3, nullptr, 0, 1, 140);
 	}
+
+	// this sky isn't actually placed wrong - it's just so poorly designed that it needs to be shifted down to hide its shortcomings as good as possible.
+	if (isDuke() && (g_gameType & GAMEFLAG_DUKEDC))
+	{
+		defineSky(3708, 3, nullptr, 0, 1, -40);
+	}
 }
 
 //---------------------------------------------------------------------------
