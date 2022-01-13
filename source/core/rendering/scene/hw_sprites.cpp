@@ -69,9 +69,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 
 		state.SetRenderStyle(RenderStyle);
 		state.SetTextureMode(RenderStyle);
-
-		if (texture && (hw_int_useindexedcolortextures || !checkTranslucentReplacement(texture->GetID(), palette))) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
-		else state.AlphaFunc(Alpha_Greater, 0.f);
+		state.AlphaFunc(Alpha_Greater, alphaThreshold);
 
 		if (RenderStyle.BlendOp == STYLEOP_Add && RenderStyle.DestAlpha == STYLEALPHA_One)
 		{
@@ -79,12 +77,14 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		}
 	}
 
+#if 0
 	if (dynlightindex == -1)	// only set if we got no light buffer index. This covers all cases where sprite lighting is used.
 	{
 		float out[3] = {};
 		//di->GetDynSpriteLight(gl_light_sprites ? actor : nullptr, gl_light_particles ? particle : nullptr, out);
 		//state.SetDynLight(out[0], out[1], out[2]);
 	}
+#endif
 
 
 	if (RenderStyle.Flags & STYLEF_FadeToBlack)
@@ -287,7 +287,9 @@ void HWSprite::CreateVertices(HWDrawInfo* di)
 
 inline void HWSprite::PutSprite(HWDrawInfo* di, bool translucent)
 {
-	// That's a lot of checks...
+	if (translucent && texture && (hw_int_useindexedcolortextures || !checkTranslucentReplacement(texture->GetID(), palette))) alphaThreshold = texture->alphaThreshold;
+	else alphaThreshold = 0;
+
 	/*
 	if (modelframe == 1 && gl_light_sprites)
 	{
@@ -297,6 +299,7 @@ inline void HWSprite::PutSprite(HWDrawInfo* di, bool translucent)
 	else*/
 		dynlightindex = -1;
 
+	rendered_sprites++;
 	vertexindex = -1;
 	if (!screen->BuffersArePersistent())
 	{
@@ -435,7 +438,6 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 #endif
 
 	PutSprite(di, true);
-	rendered_sprites++;
 }
 
 
@@ -534,6 +536,5 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	auto vp = di->Viewpoint;
 	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
 	PutSprite(di, spriteHasTranslucency(Sprite));
-	rendered_sprites++;
 	return true;
 }

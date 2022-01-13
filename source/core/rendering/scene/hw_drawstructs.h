@@ -341,6 +341,7 @@ public:
 		VSMatrix rotmat;
 	};
 	int dynlightindex;
+	float alphaThreshold;
 
 	FGameTexture *texture;
 	DRotator Angles;
