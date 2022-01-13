@@ -53,7 +53,7 @@ void HWDrawInfo::AddWall(HWWall *wall)
 		else if (wall->Sprite == nullptr) list = GLDL_MASKEDWALLS;
 		else if (wall->glseg.x1 == wall->glseg.x2) list = GLDL_MASKEDWALLSV;
 		else if (wall->glseg.y1 == wall->glseg.y2) list = GLDL_MASKEDWALLSH;
-		else list = GLDL_MASKEDWALLSS;
+		else list = wall->walldist? GLDL_MASKEDWALLSD : GLDL_MASKEDWALLSS;
 		auto newwall = drawlists[list].NewWall();
 		*newwall = *wall;
 	}

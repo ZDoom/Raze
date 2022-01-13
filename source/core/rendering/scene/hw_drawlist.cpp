@@ -912,6 +912,30 @@ void HWDrawList::SortWallsHorz(HWDrawInfo* di)
 
 //==========================================================================
 //
+// all we need to do here is to group the sprites by wall.
+//
+//==========================================================================
+
+void HWDrawList::SortWallsDiag(HWDrawInfo* di)
+{
+	auto viewx = di->Viewpoint.Pos.X;
+	if (drawitems.Size() > 1)
+	{
+		std::sort(drawitems.begin(), drawitems.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWWall* w1 = walls[a.index];
+				HWWall* w2 = walls[b.index];
+				if (w1->walldist != w2->walldist) return w1->walldist < w2->walldist;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
+				return time1 < time2;
+			});
+
+	}
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================

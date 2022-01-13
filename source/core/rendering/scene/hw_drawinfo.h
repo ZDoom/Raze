@@ -75,7 +75,8 @@ enum DrawListType
 	GLDL_PLAINWALLS,
 	GLDL_PLAINFLATS,
 	GLDL_MASKEDWALLS,
-	GLDL_MASKEDWALLSS,	// arbitrary wall sprites.
+	GLDL_MASKEDWALLSS,	// arbitrary wall sprites, not attached to walls
+	GLDL_MASKEDWALLSD,	// arbitrary wall sprites, attached to walls.
 	GLDL_MASKEDWALLSV,	// vertical wall sprites
 	GLDL_MASKEDWALLSH,  // horizontal wall sprites. These two lists merely exist for easier sorting.
 	GLDL_MASKEDFLATS,
