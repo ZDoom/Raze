@@ -72,16 +72,16 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
 			if (d.X == 0)
 			{
-				if (fabs(tspr->pos.X - wal.pos.X) < maxorthdist);
+				if (fabs(tspr->pos.X - wal.pos.X) < maxorthdist)
 				{
-					closest = &wal;
+					return &wal;
 				}
 			}
 			else if (d.Y == 0)
 			{
-				if (fabs(tspr->pos.Y - wal.pos.Y) < maxorthdist);
+				if (fabs(tspr->pos.Y - wal.pos.Y) < maxorthdist)
 				{
-					closest = &wal;
+					return &wal;
 				}
 			}
 			else
@@ -89,13 +89,12 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 				double wdist = SquareDistToWall(tspr->pos.X, tspr->pos.Y, &wal, &outpos);
 				if (wdist <= maxdistsq)
 				{
-					closest = &wal;
+					return &wal;
 				}
 			}
 		}
 	}
-	// todo: cache this in the sprite to avoid recalculation.
-	return closest;
+	return nullptr;
 }
 
 //==========================================================================
