@@ -252,7 +252,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	// Note: These walls may be excluded from the clipper, but not from being drawn!
 	// if sectors got dragged around there may be overlaps which this code does not handle well do it may not run on such sectors.
 	bool dontclip = false;
-	if (sectStartAngle != -1 && !(wall[line].sectorp()->exflags & SECTOREX_DRAGGED)) 
+	if (sectStartAngle != -1 && (sector[sections[section].sector].exflags & SECTOREX_DRAGGED)) 
 	{
 		if ((sectStartAngle > endAngle || sectEndAngle < startAngle))
 		{
