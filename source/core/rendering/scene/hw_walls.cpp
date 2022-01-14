@@ -50,6 +50,7 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 
 static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
+	const double maxorthdist = 3; // maximum orthogonal distance to be considered an attached sprite.
 	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
 
 	auto sect = tspr->sectp;
@@ -71,14 +72,14 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
 			if (d.X == 0)
 			{
-				if (tspr->pos.X == wal.pos.X)
+				if (fabs(tspr->pos.X - wal.pos.X) < maxorthdist);
 				{
 					closest = &wal;
 				}
 			}
 			else if (d.Y == 0)
 			{
-				if (tspr->pos.Y == wal.pos.Y)
+				if (fabs(tspr->pos.Y - wal.pos.Y) < maxorthdist);
 				{
 					closest = &wal;
 				}
