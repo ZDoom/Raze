@@ -16739,9 +16739,6 @@ int InitEnemyFireball(DSWActor* actor)
 
         if (i == 0)
         {
-            // back up first one
-            lastvel = actorNew->spr.zvel;
-
             // find the distance to the target (player)
             dist = ksqrt(SQ(actorNew->spr.pos.X - targetActor->spr.pos.X) + SQ(actorNew->spr.pos.Y - targetActor->spr.pos.Y));
 
@@ -16752,6 +16749,9 @@ int InitEnemyFireball(DSWActor* actor)
             // distance
             if (dist != 0)
                 actorNew->user.change.Z = actorNew->spr.zvel = (GORO_FIREBALL_VELOCITY * (targ_z - actorNew->spr.pos.Z)) / dist;
+
+            // back up first one
+            lastvel = actorNew->spr.zvel;
         }
         else
         {
