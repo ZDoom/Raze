@@ -294,6 +294,7 @@ void PlayLocalSound(int nSound, int nRate, bool unattached, EChanFlags cflags)
     FSoundChan* chan;
     if (!unattached)
     {
+        if (!(cflags & CHANF_UI) && soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_BODY, nSound + 1)) return;
         soundEngine->StopSound(SOURCE_None, nullptr, CHAN_BODY);
         chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_BODY, cflags, nSound + 1, 1.f, ATTN_NONE, nullptr);
     }

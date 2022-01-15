@@ -751,7 +751,7 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     }
 
     if (bTorch) {
-        PlayLocalSound(StaticSound[kSoundTorchOn], 0);
+        PlayLocalSound(StaticSound[kSoundTorchOn], 0, CHANF_UI);
     }
 
     const char* buf = bTorch ? "TXT_EX_TORCHLIT" : "TXT_EX_TORCHOUT";
