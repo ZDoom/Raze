@@ -2817,6 +2817,11 @@ void processinput_d(int snum)
 		return;
 	}
 
+	if (p->GetActor()->spr.xrepeat < 40 && p->jetpack_on == 0)
+	{
+		p->fistsign += p->GetActor()->spr.xvel;
+	}
+
 	if (p->transporter_hold > 0)
 	{
 		p->transporter_hold--;

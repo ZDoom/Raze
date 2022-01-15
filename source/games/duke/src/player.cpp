@@ -789,6 +789,7 @@ void player_struct::backupweapon()
 	okickback_pic = kickback_pic;
 	orandom_club_frame = random_club_frame;
 	ohard_landing = hard_landing;
+	ofistsign = fistsign;
 }
 
 //---------------------------------------------------------------------------

@@ -204,6 +204,7 @@ struct player_struct
 	short oweapon_pos, okickback_pic, orandom_club_frame;
 	uint8_t hard_landing;
 	uint8_t ohard_landing;
+	int fistsign, ofistsign;
 
 	// Store current psectlotag as determined in processinput() for use with scaling angle aiming.
 	short psectlotag;

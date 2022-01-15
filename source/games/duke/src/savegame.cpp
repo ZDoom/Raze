@@ -273,6 +273,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("actions", w.sync.actions)
 			.Array("frags", w.frags, MAXPLAYERS)
 			("uservars", w.uservars)
+			("fistsign", w.fistsign)
 			.EndObject();
 
 		w.invdisptime = 0;
@@ -280,11 +281,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.opos.Y = w.pos.Y;
 		w.opos.Z = w.pos.Z;
 		w.opyoff = w.pyoff;
-		w.oweapon_sway = w.weapon_sway;
-		w.oweapon_pos = w.weapon_pos;
-		w.okickback_pic = w.kickback_pic;
-		w.orandom_club_frame = w.random_club_frame;
-		w.ohard_landing = w.hard_landing;
+		w.backupweapon();
 		w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 	}
 	return arc;
