@@ -233,7 +233,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sndinf[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
 	sndinf[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
-	sfx->NearLimit = 0;
+	sfx->NearLimit = index == TELEPORTER + 1? 6 : 0; // the teleporter sound cannot be unlimited due to how it gets used.
 	sfx->bTentative = false;
 	sfx->name = std::move(fn);
 	return 0;
