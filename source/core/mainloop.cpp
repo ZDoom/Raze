@@ -195,7 +195,6 @@ static void GameTicker()
 			FX_StopAllSounds();
 			FX_SetReverb(0);
 			gi->LevelCompleted(g_nextmap, g_nextskill);
-			assert(gameaction != ga_nothing);
 			break;
 
 		case ga_nextlevel:

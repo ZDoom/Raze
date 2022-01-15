@@ -160,6 +160,7 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 {
 	completion = completion_;
 	runner = CreateRunner();
+	Printf("Created runner at %p\n", runner);
 	GC::WriteBarrier(runner);
 
 	const char* qname = globalCutscenes.MPSummaryScreen;
@@ -188,6 +189,8 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
 {
+	if (runner != nullptr) 
+		return;	// protection against double exits.
 	if (fromMap == toMap)
 	{
 		// don't show intermission when restarting the same level.
