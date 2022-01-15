@@ -250,29 +250,17 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
         if (wal.twoSided())
             pNextSector = wal.nextSector();
 
-        int ebx = -255;
+        int walldist = -255;
 
         if (!var_18)
         {
-            int x2 = x - average.X;
-            if (x2 < 0) {
-                x2 = -x2;
-            }
-
-            ebx = x2;
-
-            int y2 = y - average.Y;
-            if (y2 < 0) {
-                y2 = -y2;
-            }
-
-            ebx = ((y2 + ebx) >> 4) - 255;
+            walldist = (((int)sqrt(SquareDistToWall(x, y, &wal))) >> 4) - 255;
         }
 
-        if (ebx < 0)
+        if (walldist < 0)
         {
             var_14++;
-            var_28 += ebx;
+            var_28 += walldist;
 
             if (wal.pal < 5)
             {
@@ -289,14 +277,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     wal.pal += 7;
 
-                    ebx += wal.shade;
-                    int eax = ebx;
-
-                    if (ebx < -127) {
-                        eax = -127;
-                    }
-
-                    wal.shade = eax;
+                    wal.shade = max( -127, wal.shade + walldist);
 
                     if (!var_1C && !wal.overpicnum && pNextSector)
                     {
@@ -751,7 +732,7 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     }
 
     if (bTorch) {
-        PlayLocalSound(StaticSound[kSoundTorchOn], 0, CHANF_UI);
+        PlayLocalSound(StaticSound[kSoundTorchOn], 0, false, CHANF_UI);
     }
 
     const char* buf = bTorch ? "TXT_EX_TORCHLIT" : "TXT_EX_TORCHOUT";
