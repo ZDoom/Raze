@@ -45,8 +45,13 @@ struct FActorInfo
 	int DefaultCstat = 0;
 	spritetype defsprite{};	// Due to how the map format works we cannot define defaults for the sprite itself. These must be applied later.
 
+	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.
+	FString PicName;
+	TArray<FString> SpriteSetNames;
+
 	FActorInfo() = default;
 	FActorInfo(const FActorInfo & other) = delete;
+	void ResolveTextures(const char* clsname);
 };
 
 // No objects of this type will be created ever - its only use is to static_cast

@@ -313,11 +313,7 @@ static bool PointerCheck(PType *symtype, PType *checktype)
 DEFINE_PROPERTY(pic, S, CoreActor)
 {
 	PROP_STRING_PARM(str, 0);
-	bag.Info->ActorInfo()->defsprite.picnum = TileFiles.tileForName(str);
-	if (bag.Info->ActorInfo()->defsprite.picnum == -1)
-	{
-		I_Error("Unknown texture name '%s'", str);
-	}
+	bag.Info->ActorInfo()->PicName = str;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;
 }
 
@@ -444,7 +440,7 @@ DEFINE_PROPERTY(clipdist, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(scalex, I, CoreActor)
+DEFINE_PROPERTY(scalex, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	bag.Info->ActorInfo()->defsprite.scale.X = (i);
@@ -454,7 +450,7 @@ DEFINE_PROPERTY(scalex, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(scaley, I, CoreActor)
+DEFINE_PROPERTY(scaley, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	bag.Info->ActorInfo()->defsprite.scale.Y = (i);
@@ -500,13 +496,7 @@ DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, CoreActor)
 	for (int i = 0; i < PROP_PARM_COUNT; ++i)
 	{
 		PROP_STRING_PARM(n, i);
-
-		int picnum = TileFiles.tileForName(n);
-		if (picnum == -1)
-		{
-			I_Error("Unknown texture name '%s'", n);
-		}
-		info->ActorInfo()->SpriteSet.Push(picnum);
+		info->ActorInfo()->SpriteSetNames.Push(n);
 	}
 }
 

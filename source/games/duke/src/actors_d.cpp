@@ -1182,7 +1182,11 @@ void movestandables_d(void)
 			continue;
 		}
 
-
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+			continue;
+		}
 		if (picnum >= CRANE && picnum <= CRANE +3)
 		{
 			movecrane(act, CRANE);

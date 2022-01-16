@@ -1147,13 +1147,14 @@ int RunGame()
 
 	D_CheckNetGame();
 	UpdateGenericUI(ui_generic);
+	PClassActor::StaticInit();
 	MainLoop();
-	return 0; // this is never reached. MainLoop only exits via exception.
+	return 0;
 }
 
 //---------------------------------------------------------------------------
 //
-// The one and only main loop in the entire engine. Yay!
+//
 //
 //---------------------------------------------------------------------------
 

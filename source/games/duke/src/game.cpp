@@ -402,7 +402,7 @@ void GameInterface::app_init()
 
 void CallInitialize(DDukeActor* actor)
 {
-	IFVIRTUALPTR(actor, DDukeActor, initialize)
+	IFVIRTUALPTR(actor, DDukeActor, Initialize)
 	{
 		VMValue val = actor;
 		VMCall(func, &val, 1, nullptr, 0);

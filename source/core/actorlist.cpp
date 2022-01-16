@@ -348,6 +348,35 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
 
 	auto actor = static_cast<DCoreActor*>(type->CreateNew());
+	auto actorinfo = static_cast<PClassActor*>(actor->GetClass())->ActorInfo();
+	if (actorinfo)
+	{
+		actor->spr.cstat = (actor->spr.cstat & ~ESpriteFlags::FromInt(actorinfo->DefaultCstat)) | (actorinfo->defsprite.cstat & ESpriteFlags::FromInt(actorinfo->DefaultCstat));
+
+#define setter(flag, var) if (actorinfo->DefaultFlags & flag) actor->spr.var = actorinfo->defsprite.var;
+
+		if (actorinfo->DefaultFlags & DEFF_STATNUM) stat = actorinfo->defsprite.statnum;
+		setter(DEFF_PICNUM, picnum);
+		setter(DEFF_ANG, angle);
+		setter(DEFF_XVEL, xint);
+		setter(DEFF_YVEL, yint);
+		setter(DEFF_ZVEL, inittype);
+		setter(DEFF_HITAG, hitag);
+		setter(DEFF_LOTAG, lotag);
+		setter(DEFF_EXTRA, extra);
+		setter(DEFF_DETAIL, detail);
+		setter(DEFF_SHADE, shade);
+		setter(DEFF_PAL, pal);
+		setter(DEFF_CLIPDIST, clipdist);
+		setter(DEFF_BLEND, blend);
+		setter(DEFF_XREPEAT, scale.X);
+		setter(DEFF_YREPEAT, scale.Y);
+		setter(DEFF_XOFFSET, xoffset);
+		setter(DEFF_YOFFSET, yoffset);
+		setter(DEFF_OWNER, intowner);
+
+#undef setter
+	}
 	GC::WriteBarrier(actor);
 
 	InsertActorStat(actor, stat, tail);
@@ -488,7 +517,7 @@ double DCoreActor::GetOffsetAndHeight(double& height)
 	return zofs - tileTopOffset(spr.picnum) * yscale;
 }
 
-DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sectp)
+DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)
 DEFINE_FIELD_NAMED(DCoreActor, spr.picnum, picnum)

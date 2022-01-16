@@ -109,6 +109,7 @@ void PClassActor::StaticInit()
 		if (cls->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
 		{
 			AllActorClasses.Push(static_cast<PClassActor*>(cls));
+			static_cast<PClassActor*>(cls)->ActorInfo()->ResolveTextures(cls->TypeName.GetChars());
 		}
 	}
 }
@@ -226,5 +227,28 @@ PClassActor *PClassActor::GetReplacee()
 	PClassActor *Replacee = ActorInfo()->Replacee;
 	if (Replacee == nullptr) return this;
 	return Replacee;
+}
+
+//==========================================================================
+//
+// This can only be done after all data has been set up.
+//
+//==========================================================================
+
+void FActorInfo::ResolveTextures(const char* clsname)
+{
+	SpriteSet.Resize(SpriteSetNames.Size());
+	for (unsigned i = 0; i < SpriteSet.Size(); i++)
+	{
+		SpriteSet[i] = TileFiles.tileForName(SpriteSetNames[i]);
+		if (SpriteSet[i] == -1) Printf("Unknown texture '%s' in sprite set for class %s\n", SpriteSetNames[i].GetChars(), clsname);
+	}
+	if (PicName.IsNotEmpty())
+	{
+		defsprite.picnum = TileFiles.tileForName(PicName);
+		if (defsprite.picnum == -1) Printf("Unknown texture '%s' in pic for class %s\n", PicName.GetChars(), clsname);
+	}
+	SpriteSetNames.Reset();
+	PicName = "";
 }
 

@@ -43,6 +43,11 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
+	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+	{
+		CallInitialize(act);
+		return act;
+	}
 	auto sectp = act->sector();
 
 	if (isWorldTour())

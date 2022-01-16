@@ -411,23 +411,4 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
 }
 
 
-//---------------------------------------------------------------------------
-//
-// Class properties
-//
-//---------------------------------------------------------------------------
-
-//==========================================================================
-//
-//==========================================================================
-DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, DukeActor)
-{
-	for (int i = 0; i < PROP_PARM_COUNT; ++i)
-	{
-		PROP_STRING_PARM(n, i);
-		bag.Info->ActorInfo()->SpriteSet.Push(TileFiles.tileForName(n));
-	}
-}
-
-
 END_DUKE_NS

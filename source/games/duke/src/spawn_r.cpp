@@ -37,6 +37,11 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
+	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+	{
+		CallInitialize(act);
+		return act;
+	}
 	auto sectp = act->sector();
 
 	switch (act->spr.picnum)

@@ -56,12 +56,14 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
 	if (s_pn < 0 || s_pn >= MAXTILES) return nullptr;
-	auto act = static_cast<DDukeActor*>(::InsertActor(RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
+
+	auto info = spawnMap.CheckKey(s_pn);
+	auto act = static_cast<DDukeActor*>(InsertActor(info ? info->Class() : RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
 
 	if (act == nullptr) return nullptr;
 	SetupGameVarsForActor(act);
 
-
+	act->basepicnum = info ? info->param : -1;
 	act->spr.pos = pos;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_shd;
@@ -109,6 +111,13 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spsmooth = {};
 
 	return act;
+}
+
+DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
+{
+	auto actor = CreateActor(whatsectp, pos, s_pn, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
+	if (actor) fi.spawninit(s_ow, actor, nullptr);
+	return actor;
 }
 
 
