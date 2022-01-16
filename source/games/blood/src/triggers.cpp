@@ -2130,7 +2130,7 @@ void trProcessBusy(void)
 	{
 		sect.velCeil = sect.velFloor = 0;
 	}
-	for (int i = gBusy.Size(); i >= 0; i--)
+	for (int i = gBusy.Size()-1; i >= 0; i--)
 	{
 		int nStatus;
 		int oldBusy = gBusy[i].busy;
