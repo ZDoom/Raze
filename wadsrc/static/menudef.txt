@@ -1190,6 +1190,14 @@ OptionValue "LightModes"
 	2, "$GLPREFMNU_HIGHCONTRAST"
 }
 
+OptionValue "SSAOModes"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_LOW"
+	2, "$OPTVAL_MEDIUM"
+	3, "$OPTVAL_HIGH"
+}
+
 OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
