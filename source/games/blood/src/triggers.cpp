@@ -2130,27 +2130,27 @@ void trProcessBusy(void)
 	{
 		sect.velCeil = sect.velFloor = 0;
 	}
-	for (auto& b : backwards(gBusy))
+	for (int i = gBusy.Size(); i >= 0; i--)
 	{
 		int nStatus;
-		int oldBusy = b.busy;
-		b.busy = ClipRange(oldBusy + b.delta * 4, 0, 65536);
+		int oldBusy = gBusy[i].busy;
+		gBusy[i].busy = ClipRange(oldBusy + gBusy[i].delta * 4, 0, 65536);
 #ifdef NOONE_EXTENSIONS
-		if (!gModernMap || !b.sect->xs().unused1) nStatus = gBusyProc[b.type](b.sect, b.busy);
+		if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy);
 		else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
 #else
-		nStatus = gBusyProc[b.type](b.at0, b.at8);
+		nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
 #endif
 		switch (nStatus) {
 		case 1:
-			b.busy = oldBusy;
+			gBusy[i].busy = oldBusy;
 			break;
 		case 2:
-			b.busy = oldBusy;
-			b.delta = -b.delta;
+			gBusy[i].busy = oldBusy;
+			gBusy[i].delta = -gBusy[i].delta;
 			break;
 		case 3:
-			b = gBusy.Last();
+			gBusy[i] = gBusy.Last();
 			gBusy.Pop();
 			break;
 		}
