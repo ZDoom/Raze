@@ -83,6 +83,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadwidescreen, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR (Bool, i_soundinbackground, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR (Bool, i_pauseinbackground, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 // Note: For the automap label there is a separate option "am_textfont".
 CVARD(Bool, hud_textfont, false, CVAR_ARCHIVE, "Use the regular text font as replacement for the tiny 3x5 font for HUD messages whenever possible")
@@ -1247,15 +1249,24 @@ void S_ResumeSound (bool notsfx)
 
 void S_SetSoundPaused(int state)
 {
-	if (state)
+	if (!netgame && (i_pauseinbackground)
+#ifdef 0 //_DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+
+	if ((state || i_soundinbackground) && !pauseext)
 	{
 		if (paused == 0)
 		{
 			S_ResumeSound(true);
-		}
-		if (GSnd != nullptr)
-		{
-			GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
+			if (GSnd != nullptr)
+			{
+				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
+			}
 		}
 	}
 	else
@@ -1265,21 +1276,14 @@ void S_SetSoundPaused(int state)
 			S_PauseSound(false, true);
 			if (GSnd != nullptr)
 			{
-				GSnd->SetInactive(SoundRenderer::INACTIVE_Complete);
+				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
+					SoundRenderer::INACTIVE_Complete :
+					SoundRenderer::INACTIVE_Mute);
 			}
 		}
 	}
-#if 0
-	if (!netgame
-#if 0 //def _DEBUG
-		&& !demoplayback
-#endif
-		)
-	{
-		pauseext = !state;
-	}
-#endif
 }
+
 
 FString G_GetDemoPath()
 {
