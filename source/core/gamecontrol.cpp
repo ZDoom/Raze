@@ -1250,7 +1250,7 @@ void S_ResumeSound (bool notsfx)
 void S_SetSoundPaused(int state)
 {
 	if (!netgame && (i_pauseinbackground)
-#ifdef 0 //_DEBUG
+#if 0 //ifdef _DEBUG
 		&& !demoplayback
 #endif
 		)
