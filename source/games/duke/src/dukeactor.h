@@ -20,6 +20,8 @@ inline int player_struct::GetPlayerNum()
 }
 
 DDukeActor* spawn(DDukeActor* spawner, int type);
+DDukeActor* spawn(DDukeActor* actj, PClassActor* pname);
+
 
 inline int badguy(DDukeActor* pSprite)
 {

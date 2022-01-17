@@ -427,4 +427,14 @@ void CallAction(DDukeActor* actor)
 	}
 }
 
+void CallOnHit(DDukeActor* actor, DDukeActor* hitter)
+{
+	IFVIRTUALPTR(actor, DDukeActor, onHit)
+	{
+		VMValue val[2] = { actor, hitter };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
+
+
 END_DUKE_NS

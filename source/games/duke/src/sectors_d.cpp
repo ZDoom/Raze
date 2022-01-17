@@ -1014,6 +1014,13 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 {
 	int j, k, p;
 
+	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
+	{
+		CallOnHit(targ, proj);
+		return;
+	}
+
+
 	switch (targ->spr.picnum)
 	{
 	case WTGLASS1:

@@ -221,6 +221,24 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 	return nullptr;
 }
 
+DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
+{
+	// still needs work to do.
+#if 0
+	if (actj)
+	{
+		if (pn < 0) return nullptr;
+		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, DVector2(0, 0), nullAngle, 0., 0., actj, 0);
+		if (spawned)
+		{
+			spawned->attackertype = actj->spr.picnum;
+			return fi.spawninit(actj, spawned, nullptr);
+		}
+	}
+#endif
+	return nullptr;
+}
+
 //---------------------------------------------------------------------------
 //
 // 

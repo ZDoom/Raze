@@ -1522,6 +1522,12 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 {
 	int j, k, p;
 
+	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
+	{
+		CallOnHit(targ, proj);
+		return;
+	}
+
 	if (isRRRA()) switch (targ->spr.picnum)
 	{
 	case RRTILE8464:
