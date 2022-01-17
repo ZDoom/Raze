@@ -855,7 +855,7 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 		actor->temp_data[1]++;
 		if ((actor->temp_data[1] & 3) > 0) return;
 
-		if (!isRR() && actor->spr.picnum == tire && actor->temp_data[1] == 32)
+		if (actorflag(actor, SFLAG_FLAMMABLEPOOLEFFECT) && actor->temp_data[1] == 32)
 		{
 			actor->spr.cstat = 0;
 			auto spawned = spawn(actor, pool);
@@ -4416,7 +4416,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 					wallswitchcheck(a2))
 					break;
 
-				if (!(gs.actorinfo[a2->spr.picnum].flags & SFLAG_SE24_NOFLOORCHECK))
+				if (!actorflag(a2, SFLAG_SE24_NOFLOORCHECK))
 				{
 					if (a2->spr.pos.Z > (a2->floorz - (16 << 8)))
 					{

@@ -230,6 +230,7 @@ void initactorflags_r()
 
 	setflag(SFLAG_SE24_NOFLOORCHECK, { CRANE, CRANE1, CRANE2, BARBROKE });
 	setflag(SFLAG_NOINTERPOLATE, { CRANEPOLE });
+	setflag(SFLAG_FALLINGFLAMMABLE, { BOX });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

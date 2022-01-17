@@ -335,7 +335,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						act2->spr.xvel += (act2->spr.extra << 2);
 					}
 
-					if (gs.actorinfo[act2->spr.picnum].flags & SFLAG_HITRADIUSCHECK)
+					if (actorflag(act2, SFLAG_HITRADIUSCHECK))
 						fi.checkhitsprite(act2, actor);
 
 					if (act2->spr.picnum != RADIUSEXPLOSION &&

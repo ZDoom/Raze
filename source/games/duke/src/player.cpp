@@ -329,7 +329,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							actor != act)
 							continue;
 
-						if (gotshrinker && act->spr.xrepeat < 30 && !(gs.actorinfo[act->spr.picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotshrinker && act->spr.xrepeat < 30 && !actorflag(act, SFLAG_SHRINKAUTOAIM)) continue;
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 

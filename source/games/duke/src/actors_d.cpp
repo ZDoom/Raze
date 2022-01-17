@@ -398,7 +398,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->spr.xvel += (actor->spr.extra << 2);
 						}
 
-						if (gs.actorinfo[act2->spr.picnum].flags & SFLAG_HITRADIUSCHECK)
+						if (actorflag(act2, SFLAG_HITRADIUSCHECK))
 							fi.checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->hitextra = 0;
@@ -2359,7 +2359,7 @@ static void greenslime(DDukeActor *actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (gs.actorinfo[a2->spr.picnum].flags & SFLAG_GREENSLIMEFOOD)
+			if (actorflag(a2, SFLAG_GREENSLIMEFOOD))
 			{
 				if (ldist(actor, a2) < 768 && (abs(actor->spr.pos.Z - a2->spr.pos.Z) < 8192)) //Gulp them
 				{

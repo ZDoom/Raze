@@ -60,7 +60,7 @@ inline void setflag(EDukeFlags2 flag, const std::initializer_list<short>& types)
 
 inline bool inventory(DDukeActor* S)
 {
-	return !!(gs.actorinfo[S->spr.picnum].flags & SFLAG_INVENTORY);
+	return actorflag(S, SFLAG_INVENTORY);
 }
 
 inline void settileflag(int flag, const std::initializer_list<short>& types)

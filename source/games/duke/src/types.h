@@ -26,6 +26,17 @@ struct FireProj
 	vec3_t pos, vel;
 };
 
+// Todo - put more state in here
+struct ActorInfo
+{
+	uint32_t scriptaddress;
+	EDukeFlags1 flags;
+	EDukeFlags2 flags2;
+	int aimoffset;
+	int falladjustz;
+	int gutsoffset;
+};
+
 class DDukeActor : public DCoreActor
 {
 	DECLARE_CLASS(DDukeActor, DCoreActor)
@@ -62,6 +73,7 @@ public:
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;
+	const ActorInfo* actorInfo() const;
 
 	// This once was stored in the owner field of the sprite
 	inline DDukeActor* GetOwner()
@@ -118,17 +130,6 @@ struct animwalltype
 {
 	walltype* wall;
 	int tag;
-};
-
-// Todo - put more state in here
-struct ActorInfo
-{
-	uint32_t scriptaddress;
-	EDukeFlags1 flags;
-	EDukeFlags2 flags2;
-	int aimoffset;
-	int falladjustz;
-	int gutsoffset;
 };
 
 // for now just flags not related to actors, may get more info later.
