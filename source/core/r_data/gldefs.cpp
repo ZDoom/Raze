@@ -42,13 +42,14 @@
 #include "stats.h"
 #include "v_text.h"
 //#include "g_levellocals.h"
-//#include "a_dynlight.h"
+#include "a_dynlight.h"
 #include "v_video.h"
 #include "skyboxtexture.h"
 #include "hwrenderer/postprocessing/hw_postprocessshader.h"
 #include "hw_material.h"
 #include "texturemanager.h"
 
+#if 0
 void AddLightDefaults(FLightDefaults *defaults, double attnFactor);
 void AddLightAssociation(const char *actor, const char *frame, const char *light);
 void InitializeActorLights(TArray<FLightAssociation> &LightAssociations);
@@ -56,6 +57,7 @@ void ParseColorization(FScanner& sc);
 
 extern TDeletingArray<FLightDefaults *> LightDefaults;
 extern int AttenuationIsSet;
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -63,7 +65,7 @@ extern int AttenuationIsSet;
 // ParseVavoomSkybox
 //
 //-----------------------------------------------------------------------------
-
+#if 0
 static void ParseVavoomSkybox()
 {
 	int lump = fileSystem.CheckNumForName("SKYBOXES");
@@ -112,7 +114,7 @@ static void ParseVavoomSkybox()
 		}
 	}
 }
-
+#endif
 
 
 //==========================================================================
@@ -292,7 +294,7 @@ class GLDefsParser
 	// The semantics of this are too horrible to comprehend (default detail texture???)
 	// so if this ever gets done, the parser will look different.
 	//==========================================================================
-
+#if 0
 	void ParseDetailTexture()
 	{
 		while (!sc.CheckToken('}'))
@@ -331,7 +333,7 @@ class GLDefsParser
 			}
 		}
 	}
-
+#endif
 	
 	//==========================================================================
 	//
@@ -374,7 +376,7 @@ class GLDefsParser
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void AddLightAssociation(const char *actor, const char *frame, const char *light)
 	{
 		FLightAssociation *temp;
@@ -396,13 +398,13 @@ class GLDefsParser
 
 		LightAssociations.Push(assoc);
 	}
-
+#endif
 	//-----------------------------------------------------------------------------
 	//
 	// Note: The different light type parsers really could use some consolidation...
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParsePointLight()
 	{
 		int type;
@@ -480,20 +482,22 @@ class GLDefsParser
 					sc.ScriptError("Unknown tag: %s\n", sc.String);
 				}
 			}
+#if 0
 			AddLightDefaults(defaults, lightSizeFactor);
+#endif
 		}
 		else
 		{
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParsePulseLight()
 	{
 		int type;
@@ -585,14 +589,14 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseFlickerLight()
 	{
 		int type;
@@ -683,14 +687,14 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseFlickerLight2()
 	{
 		int type;
@@ -786,14 +790,14 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseSectorLight()
 	{
 		int type;
@@ -875,13 +879,13 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseFrame(const FString &name)
 	{
 		int type, startDepth;
@@ -929,13 +933,13 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-
+#endif
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseObject()
 	{
 		int type;
@@ -977,14 +981,14 @@ class GLDefsParser
 			sc.ScriptError("Expected '{'.\n");
 		}
 	}
-	
+#endif	
 
 	//-----------------------------------------------------------------------------
 	//
 	//
 	//
 	//-----------------------------------------------------------------------------
-
+#if 0
 	void ParseGldefSkybox()
 	{
 		int facecount=0;
@@ -1014,13 +1018,13 @@ class GLDefsParser
 		sb->SetSize();
 		TexMan.AddGameTexture(MakeGameTexture(sb, s, ETextureType::Override));
 	}
-
+#endif
 	//===========================================================================
 	// 
 	//	Reads glow definitions from GLDEFS
 	//
 	//===========================================================================
-
+#if 0
 	void ParseGlow()
 	{
 		sc.MustGetStringName("{");
@@ -1081,14 +1085,14 @@ class GLDefsParser
 			}
 		}
 	}
-
+#endif
 
 	//==========================================================================
 	//
 	// Parses a brightmap definition
 	//
 	//==========================================================================
-
+#if 0
 	void ParseBrightmap()
 	{
 		ETextureType type = ETextureType::Any;
@@ -1166,7 +1170,8 @@ class GLDefsParser
 		}	
 		tex->SetDisableFullbright(disable_fullbright);
 	}
-
+#endif
+#if 0
 	void SetShaderIndex(FGameTexture *tex, unsigned index)
 	{
 		auto desc = usershaders[index - FIRST_USER_SHADER];
@@ -1176,13 +1181,13 @@ class GLDefsParser
 		}
 		tex->SetShaderIndex(index);
 	}
-
+#endif
 	//==========================================================================
 	//
 	// Parses a material definition
 	//
 	//==========================================================================
-
+#if 0
 	void ParseMaterial()
 	{
 		ETextureType type = ETextureType::Any;
@@ -1407,7 +1412,7 @@ class GLDefsParser
 		}
 		tex->SetShaderLayers(mlay);
 	}
-
+#endif
 
 	//==========================================================================
 	//
@@ -1501,6 +1506,7 @@ class GLDefsParser
 		}
 		else
 		{
+#if 0	// not ready for this yet
 			ETextureType type = ETextureType::Any;
 
 			if (sc.Compare("texture")) type = ETextureType::Wall;
@@ -1650,9 +1656,10 @@ class GLDefsParser
 				SetShaderIndex(tex, usershaders.Push(desc) + FIRST_USER_SHADER);
 			}
 			tex->SetShaderLayers(mlay);
+#endif
 		}
 	}
-
+#if 0
 	void ParseColorization(FScanner& sc)
 	{
 		TextureManipulation tm = {};
@@ -1714,7 +1721,7 @@ class GLDefsParser
 			TexMan.RemoveTextureManipulation(cname);
 		}
 	}
-	
+#endif	
 
 public:
 	//==========================================================================
@@ -1751,6 +1758,7 @@ public:
 					newscanner.DoParseDefs();
 					break;
 				}
+#if 0
 			case LIGHT_POINT:
 				ParsePointLight();
 				break;
@@ -1772,11 +1780,13 @@ public:
 			case LIGHT_CLEAR:
 				// This has been intentionally removed
 				break;
+#endif
 			case TAG_SHADER:
 				ParseShader();
 				break;
 			case TAG_CLEARSHADERS:
 				break;
+#if 0
 			case TAG_SKYBOX:
 				ParseGldefSkybox();
 				break;
@@ -1810,6 +1820,7 @@ public:
 			case TAG_COLORIZATION:
 				ParseColorization(sc);
 				break;
+#endif
 			default:
 				sc.ScriptError("Error parsing defs.  Unknown tag: %s.\n", sc.String);
 				break;
@@ -1841,7 +1852,9 @@ void LoadGLDefs(const char *defsLump)
 		GLDefsParser sc(workingLump, LightAssociations);
 		sc.DoParseDefs();
 	}
+#if 0
 	InitializeActorLights(LightAssociations);
+#endif
 }
 
 
@@ -1855,9 +1868,13 @@ void ParseGLDefs()
 {
 	const char *defsLump = NULL;
 
+#if 0
 	LightDefaults.DeleteAndClear();
 	AttenuationIsSet = -1;
+#endif
 	//gl_DestroyUserShaders(); function says 'todo'
+#if 0
+	// should we really use a system like this anymore with the advent of filter folders?
 	switch (gameinfo.gametype)
 	{
 	case GAME_Heretic:
@@ -1878,6 +1895,9 @@ void ParseGLDefs()
 	default: // silence GCC
 		break;
 	}
+#endif
+#if 0
 	ParseVavoomSkybox();
+#endif
 	LoadGLDefs(defsLump);
 }
