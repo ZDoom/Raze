@@ -1075,6 +1075,8 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_setcolor.cpp
 	core/rendering/scene/hw_lighting.cpp
 
+	core/r_data/gldefs.cpp
+
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
 
