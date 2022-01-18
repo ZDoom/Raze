@@ -235,6 +235,7 @@ void initactorflags_r()
 	if (isRRRA()) setflag(SFLAG_INFLAME, { RPG2 });
 	setflag(SFLAG_NOFLOORFIRE, { TREE1, TREE2 });
 	setflag(SFLAG_HITRADIUS_FLAG1, { BOX, TREE1, TREE2, TIRE });
+	setflag(SFLAG_HITRADIUS_FLAG2, { QUEBALL, STRIPEBALL, BOWLINGPIN, DUKELYINGDEAD });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

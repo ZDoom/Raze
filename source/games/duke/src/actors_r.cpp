@@ -279,7 +279,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (act2->spr.extra >= 0 && act2 != actor && (badguy(act2) || act2->spr.picnum == QUEBALL || act2->spr.picnum == BOWLINGPIN || act2->spr.picnum == STRIPEBALL || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || act2->spr.picnum == DUKELYINGDEAD))
+			else if (act2->spr.extra >= 0 && act2 != actor && (actorflag(act2, SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
 				if (actor->spr.picnum == MORTER && act2 == Owner)
 				{
