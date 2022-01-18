@@ -4395,7 +4395,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 		{
 			switch (a2->spr.statnum)
 			{
-			case 5:
+			case STAT_MISC:
 				if (testlist(list1, a2->spr.picnum))
 				{
 					a2->spr.xrepeat = a2->spr.yrepeat = 0;
@@ -4407,11 +4407,11 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 				}
 
 				[[fallthrough]];
-			case 6:
+			case STAT_STANDABLE:
 				if (a2->spr.picnum == TRIPBOMB) break;
 				[[fallthrough]];
-			case 1:
-			case 0:
+			case STAT_ACTOR:
+			case STAT_DEFAULT:
 				if (testlist(list2, a2->spr.picnum) ||
 					wallswitchcheck(a2))
 					break;
