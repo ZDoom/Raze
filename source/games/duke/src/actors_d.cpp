@@ -3768,32 +3768,6 @@ void respawnhitag_d(DDukeActor* actor)
 	}
 }
 
-void checktimetosleep_d(DDukeActor *actor)
-{
-	if (actor->spr.statnum == STAT_STANDABLE)
-	{
-		switch (actor->spr.picnum)
-		{
-		case RUBBERCAN:
-		case EXPLODINGBARREL:
-		case WOODENHORSE:
-		case HORSEONSIDE:
-		case CANWITHSOMETHING:
-		case FIREBARREL:
-		case NUKEBARREL:
-		case NUKEBARRELDENTED:
-		case NUKEBARRELLEAKED:
-		case TRIPBOMB:
-		case EGG:
-			if (actor->timetosleep > 1)
-				actor->timetosleep--;
-			else if (actor->timetosleep == 1)
-				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
-			break;
-		}
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // 

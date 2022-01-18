@@ -99,7 +99,6 @@ struct Dispatcher
 	void (*fall)(DDukeActor* actor, int g_p);
 	bool (*spawnweapondebris)(int picnum, int dnum);
 	void (*respawnhitag)(DDukeActor* g_sp);
-	void (*checktimetosleep)(DDukeActor* actor);
 	void (*move)(DDukeActor* i, int g_p, int g_x);
 
 	// player

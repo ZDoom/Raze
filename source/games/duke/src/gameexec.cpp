@@ -3835,15 +3835,15 @@ void execute(DDukeActor *actor,int p,int x)
 				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) goto quit;
 			}
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;
+		}
 
+		if (actor->spr.statnum == STAT_ACTOR || (actor->spr.statnum == STAT_STANDABLE && actorflag(actor, SFLAG_CHECKSLEEP)))
+		{
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
 				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 		}
-
-		else if (actor->spr.statnum == STAT_STANDABLE)
-			fi.checktimetosleep(actor);
 	}
 quit:
 	if (killthesprite) deletesprite(actor);

@@ -5340,5 +5340,4 @@ void movefta(void)
 }
 
 
-
 END_DUKE_NS
