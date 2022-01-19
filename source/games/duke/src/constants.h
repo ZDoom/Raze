@@ -326,7 +326,6 @@ enum sflags_t
 	SFLAG_SE24_REMOVE			= 0x20000000,
 	SFLAG_BLOCK_TRIPBOMB		= 0x40000000,
 	SFLAG_NOFALLER				= 0x80000000,
-
 };
 
 using EDukeFlags1 = TFlags<sflags_t, uint32_t>;
@@ -335,6 +334,8 @@ DEFINE_TFLAGS_OPERATORS(EDukeFlags1)
 enum sflags2_t
 {
 	SFLAG2_USEACTIVATOR = 0x00000001,
+	SFLAG2_NOROTATEWITHSECTOR	= 0x00000002,
+	SFLAG2_SHOWWALLSPRITEONMAP	= 0x00000004,
 };
 
 using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;

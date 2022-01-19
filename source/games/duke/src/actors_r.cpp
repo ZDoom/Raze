@@ -547,7 +547,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 				case SEENINE:
 				case OOZFILTER:
 				case EXPLODINGBARREL:
-				case TRIPBOMBSPRITE:
+				case POWDERKEG:
 				case RPG2:
 					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
 					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
@@ -2475,7 +2475,7 @@ DETONATEB:
 			int m = 0;
 			switch (actor->spr.picnum)
 			{
-			case TRIPBOMBSPRITE: m = gs.tripbombblastradius; break;	// powder keg
+			case POWDERKEG: m = gs.tripbombblastradius; break;	// powder keg
 			case HEAVYHBOMB: m = gs.pipebombblastradius; break;
 			case HBOMBAMMO: m = gs.pipebombblastradius; break;
 			case MORTER: m = gs.morterblastradius; break;
@@ -2864,7 +2864,7 @@ void moveactors_r(void)
 				getglobalz(act);
 				break;
 
-			case TRIPBOMBSPRITE:
+			case POWDERKEG:
 				if (!isRRRA() || (sectp->lotag != 1 && sectp->lotag != 160))
 					if (act->spr.xvel)
 					{
@@ -3289,7 +3289,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		switch (st)
 		{
 		case SE_0_ROTATING_SECTOR:
-			handle_se00(act, -1);
+			handle_se00(act);
 			break;
 
 		case SE_1_PIVOT: //Nothing for now used as the pivot

@@ -631,7 +631,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->pos.Z = OwnerAc->spr.pos.Z - (3 << 8);
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
-			[[fallthrough]];
+			t->shade = -127;
+			break;
 		case EXPLOSION2:
 		case EXPLOSION2BOT:
 		case FREEZEBLAST:

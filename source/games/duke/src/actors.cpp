@@ -2582,7 +2582,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 //
 //---------------------------------------------------------------------------
 
-void handle_se00(DDukeActor* actor, int LASERLINE)
+void handle_se00(DDukeActor* actor)
 {
 	sectortype *sect = actor->sector();
 
@@ -2713,20 +2713,19 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 		DukeSectIterator itp(actor->sector());
 		while (auto act2 = itp.Next())
 		{
-			if (act2->spr.statnum != 3 && act2->spr.statnum != 4)
-				if (LASERLINE < 0 || act2->spr.picnum != LASERLINE)
+			if (act2->spr.statnum != STAT_MISC && act2->spr.statnum != STAT_PROJECTILE && !actorflag(act2, SFLAG2_NOROTATEWITHSECTOR))
+			{
+				if (act2->isPlayer() && act2->GetOwner())
 				{
-					if (act2->isPlayer() && act2->GetOwner())
-					{
-						continue;
-					}
-
-					act2->spr.ang += (l * q);
-					act2->spr.ang &= 2047;
-
-					act2->spr.pos.Z += zchange;
-					rotatepoint(Owner->spr.pos.vec2, act2->spr.pos.vec2, (q* l), &act2->spr.pos.vec2);
+					continue;
 				}
+
+				act2->spr.ang += (l * q);
+				act2->spr.ang &= 2047;
+
+				act2->spr.pos.Z += zchange;
+				rotatepoint(Owner->spr.pos.vec2, act2->spr.pos.vec2, (q* l), &act2->spr.pos.vec2);
+			}
 		}
 
 	}

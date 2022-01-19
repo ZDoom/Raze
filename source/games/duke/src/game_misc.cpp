@@ -444,7 +444,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				if (act->spr.picnum == TILE_LASERLINE)
+				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP))
 				{
 					x1 = sprx;
 					y1 = spry;

@@ -16,7 +16,6 @@ extern int TILE_DRONE;
 extern int TILE_MENUSCREEN;
 extern int TILE_SCREENBORDER;
 extern int TILE_VIEWBORDER;
-extern int TILE_LASERLINE;
 extern int TILE_APLAYERTOP;
 extern int TILE_CAMCORNER;
 extern int TILE_CAMLIGHT;

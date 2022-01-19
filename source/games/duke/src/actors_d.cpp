@@ -928,7 +928,7 @@ static void movetripbomb(DDukeActor *actor)
 
 					ChangeActorSect(actor, curSect);
 
-					// this is a hack to work around the LASERLINE sprite's art tile offset
+					// this is a hack to work around the laser line sprite's art tile offset
 					ChangeActorSect(spawned, curSect);
 				}
 			}
@@ -3340,7 +3340,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		switch (act->spr.lotag)
 		{
 		case SE_0_ROTATING_SECTOR:
-			handle_se00(act, LASERLINE);
+			handle_se00(act);
 			break;
 
 		case SE_1_PIVOT: //Nothing for now used as the pivot
