@@ -891,7 +891,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		shootweapon(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
-	case TRIPBOMBSPRITE:
+	case POWDERKEG:
 	{
 		auto j = spawn(actor, atwith);
 		if (j)
@@ -1495,7 +1495,7 @@ void checkweapons_r(struct player_struct* p)
 {
 	static const uint16_t weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
 			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
-			TRIPBOMBSPRITE, BOWLINGBALLSPRITE, FREEZEBLAST, HEAVYHBOMB };
+			POWDERKEG, BOWLINGBALLSPRITE, FREEZEBLAST, HEAVYHBOMB };
 
 	if (isRRRA())
 	{
@@ -3162,7 +3162,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			EGS(p->cursector,
 				p->pos.X + p->angle.ang.bcos(-6),
 				p->pos.Y + p->angle.ang.bsin(-6),
-				p->pos.Z, TRIPBOMBSPRITE, -16, 9, 9,
+				p->pos.Z, POWDERKEG, -16, 9, 9,
 				p->angle.ang.asbuild(), k * 2, i, pact, 1);
 		}
 		p->kickback_pic++;

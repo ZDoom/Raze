@@ -1123,7 +1123,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case HEATSENSOR:
 	case SHIELD:
 	case AIRTANK:
-	case TRIPBOMBSPRITE:
+	case POWDERKEG:
 	case COWPIE:
 	case HOLODUKE:
 
@@ -1275,7 +1275,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 11;
 			act->spr.yrepeat = 11;
 			break;
-		case TRIPBOMBSPRITE:
+		case POWDERKEG:
 			act->spr.xrepeat = 11;
 			act->spr.yrepeat = 11;
 			act->spr.yvel = 4;

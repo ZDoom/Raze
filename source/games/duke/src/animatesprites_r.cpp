@@ -195,7 +195,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case MONEY:
 		case MONEY + 1:
 			break;
-		case TRIPBOMBSPRITE:
+		case POWDERKEG:
 			continue;
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
@@ -390,7 +390,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				case CHICKEN_WEAPON:        newtspr->picnum = RPGSPRITE; break;
 				case THROWINGDYNAMITE_WEAPON:
 				case DYNAMITE_WEAPON:    newtspr->picnum = HEAVYHBOMB;           break;
-				case POWDERKEG_WEAPON:    newtspr->picnum = TRIPBOMBSPRITE;       break;
+				case POWDERKEG_WEAPON:    newtspr->picnum = POWDERKEG;       break;
 				case BOWLING_WEAPON:     newtspr->picnum = 3437;                 break;
 				case THROWSAW_WEAPON:    newtspr->picnum = SHRINKSPARK;          break;
 				case BUZZSAW_WEAPON:        newtspr->picnum = SHRINKSPARK;          break;
