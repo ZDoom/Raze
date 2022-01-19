@@ -142,6 +142,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 	for (unsigned j = 0; j < tsprites.Size(); j++)  
 	{
 		t = tsprites.get(j);
+
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
 
@@ -178,6 +179,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
 		{
 			t->angle = h->interpolatedangle(interpfrac);
+		}
+
+		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			if (CallAnimate(h, t)) continue;
 		}
 
 		auto sectp = h->sector();

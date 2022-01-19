@@ -117,6 +117,7 @@ void CallInitialize(DDukeActor* actor);
 void CallTick(DDukeActor* actor);
 void CallAction(DDukeActor* actor);
 void CallOnHit(DDukeActor* actor, DDukeActor* hitter);
+bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
 
 
 END_DUKE_NS

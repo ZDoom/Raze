@@ -404,8 +404,8 @@ void CallInitialize(DDukeActor* actor)
 {
 	IFVIRTUALPTR(actor, DDukeActor, Initialize)
 	{
-		VMValue val = actor;
-		VMCall(func, &val, 1, nullptr, 0);
+		VMValue val[2] = { actor };
+		VMCall(func, val, 1, nullptr, 0);
 	}
 }
 
@@ -434,6 +434,19 @@ void CallOnHit(DDukeActor* actor, DDukeActor* hitter)
 		VMValue val[2] = { actor, hitter };
 		VMCall(func, val, 2, nullptr, 0);
 	}
+}
+
+
+bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
+{
+	int nval = false;
+	IFVIRTUALPTR(actor, DDukeActor, animate)
+	{
+		VMReturn ret(& nval);
+		VMValue val[2] = { actor, tspr };
+		VMCall(func, val, 2, &ret, 1);
+	}
+	return nval;
 }
 
 

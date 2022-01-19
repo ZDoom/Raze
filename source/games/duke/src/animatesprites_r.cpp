@@ -161,6 +161,11 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->angle = h->interpolatedangle(interpfrac);
 		}
 
+		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			if (CallAnimate(h, t)) continue;
+		}
+
 		auto sectp = h->sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
