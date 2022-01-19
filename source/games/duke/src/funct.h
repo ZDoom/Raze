@@ -187,7 +187,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 void addspritetodelete(int spnum=0);
 void checkavailinven(struct player_struct* p);
-bool initspriteforspawn(DDukeActor* spn, const std::initializer_list<int> &excludes);
+bool initspriteforspawn(DDukeActor* spn);
 void spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
 int spawnbloodpoolpart1(DDukeActor* acti);

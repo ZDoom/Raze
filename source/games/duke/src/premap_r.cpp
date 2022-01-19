@@ -404,7 +404,7 @@ void cacheit_r(void)
 
 void spriteinit_r(DDukeActor* actor, TArray<DDukeActor*>& actors)
 {
-	bool res = initspriteforspawn(actor, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	bool res = initspriteforspawn(actor);
 	if (res) spawninit_r(nullptr, actor, &actors);
 }
 

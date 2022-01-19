@@ -135,7 +135,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 //
 //---------------------------------------------------------------------------
 
-bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &excludes)
+bool initspriteforspawn(DDukeActor* act)
 {
 	SetupGameVarsForActor(act);
 	act->attackertype = act->spr.picnum;
@@ -160,36 +160,36 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 	act->temp_data[0] = act->temp_data[1] = act->temp_data[2] = act->temp_data[3] = act->temp_data[4] = act->temp_data[5] = 0;
 	act->temp_actor = nullptr;
 
-	if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
-		if (!isIn(act->spr.picnum, excludes) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
+	if (wallswitchcheck(act) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+	{
+		if (act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2 && act->spr.pal)
 		{
-			if (act->spr.shade == 127) return false;
-			if (wallswitchcheck(act) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+			if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 			{
-				if (act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2 && act->spr.pal)
-				{
-					if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
-					{
-						act->spr.xrepeat = act->spr.yrepeat = 0;
-						act->spr.cstat = 0;
-						act->spr.lotag = act->spr.hitag = 0;
-						return false;
-					}
-				}
-				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-				if (act->spr.pal && act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2)
-					act->spr.pal = 0;
-				return false;
-			}
-
-			if (act->spr.hitag)
-			{
-				ChangeActorStat(act, 12);
-				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-				act->spr.extra = gs.impact_damage;
+				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.cstat = 0;
+				act->spr.lotag = act->spr.hitag = 0;
 				return false;
 			}
 		}
+		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		if (act->spr.pal && act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2)
+			act->spr.pal = 0;
+		return false;
+	}
+
+	if (!actorflag(act, SFLAG_NOFALLER) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
+	{
+		if (act->spr.shade == 127) return false;
+
+		if (act->spr.hitag)
+		{
+			ChangeActorStat(act, STAT_FALLER);
+			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+			act->spr.extra = gs.impact_damage;
+			return false;
+		}
+	}
 
 	int s = act->spr.picnum;
 

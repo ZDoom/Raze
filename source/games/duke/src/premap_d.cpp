@@ -266,7 +266,7 @@ void cacheit_d(void)
 //---------------------------------------------------------------------------
 void spriteinit_d(DDukeActor* actor, TArray<DDukeActor*>& actors)
 {
-	bool res = initspriteforspawn(actor, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+	bool res = initspriteforspawn(actor);
 	if (res) spawninit_d(nullptr, actor, &actors);
 }
 

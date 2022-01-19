@@ -239,6 +239,7 @@ void initactorflags_r()
 	setflag(SFLAG_NOTELEPORT, { TRANSPORTERSTAR, TRANSPORTERBEAM, BULLETHOLE, WATERSPLASH2, BURNING, FIRE, MUD });
 	setflag(SFLAG_SE24_NOCARRY, { BULLETHOLE, BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, CRANE, CRANE1, CRANE2, BARBROKE });
 	setflag(SFLAG_SE24_REMOVE, { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3 });
+	setflag(SFLAG_NOFALLER, { CRACK1, CRACK2, CRACK3, CRACK4 });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)
