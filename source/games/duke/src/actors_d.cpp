@@ -1955,113 +1955,105 @@ void movetransports_d(void)
 						warpspriteto = 1;
 					}
 
-					if (warpspriteto) switch (act2->spr.picnum)
+					if (warpspriteto)
 					{
-					case TRANSPORTERSTAR:
-					case TRANSPORTERBEAM:
-					case TRIPBOMB:
-					case BULLETHOLE:
-					case WATERSPLASH2:
-					case BURNING:
-					case BURNING2:
-					case FIRE:
-					case FIRE2:
-					case TOILETWATER:
-					case LASERLINE:
-						continue;
-					case PLAYERONWATER:
-						if (sectlotag == 2)
+						if (actorflag(act2, SFLAG_NOTELEPORT)) continue;
+						switch (act2->spr.picnum)
 						{
-							act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-							break;
-						}
-						[[fallthrough]];
-					default:
-						if (act2->spr.statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
-							break;
-						[[fallthrough]];
-
-					case WATERBUBBLE:
-						//if( rnd(192) && a2->s.picnum == WATERBUBBLE)
-						// break;
-
-						if (sectlotag > 0)
-						{
-							auto k = spawn(act2, WATERSPLASH2);
-							if (k && sectlotag == 1 && act2->spr.statnum == 4)
+						case PLAYERONWATER:
+							if (sectlotag == 2)
 							{
-								k->spr.xvel = act2->spr.xvel >> 1;
-								k->spr.ang = act2->spr.ang;
-								ssp(k, CLIPMASK0);
+								act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+								break;
 							}
-						}
+							[[fallthrough]];
+						default:
+							if (act2->spr.statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+								break;
+							[[fallthrough]];
 
-						switch (sectlotag)
-						{
-						case 0:
-							if (onfloorz)
+						case WATERBUBBLE:
+							//if( rnd(192) && a2->s.picnum == WATERBUBBLE)
+							// break;
+
+							if (sectlotag > 0)
 							{
-								if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
+								auto k = spawn(act2, WATERSPLASH2);
+								if (k && sectlotag == 1 && act2->spr.statnum == 4)
+								{
+									k->spr.xvel = act2->spr.xvel >> 1;
+									k->spr.ang = act2->spr.ang;
+									ssp(k, CLIPMASK0);
+								}
+							}
+
+							switch (sectlotag)
+							{
+							case 0:
+								if (onfloorz)
+								{
+									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
+									{
+										act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+										act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+										act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
+										act2->spr.ang = Owner->spr.ang;
+
+										act2->backupang();
+
+										if (act->spr.pal == 0)
+										{
+											auto k = spawn(act, TRANSPORTERBEAM);
+											if (k) S_PlayActorSound(TELEPORTER, k);
+
+											k = spawn(Owner, TRANSPORTERBEAM);
+											if (k) S_PlayActorSound(TELEPORTER, k);
+										}
+
+										if (Owner && Owner->GetOwner() == Owner)
+										{
+											act->temp_data[0] = 13;
+											Owner->temp_data[0] = 13;
+										}
+
+										ChangeActorSect(act2, Owner->sector());
+									}
+								}
+								else
 								{
 									act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 									act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-									act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
-									act2->spr.ang = Owner->spr.ang;
+									act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
 
-									act2->backupang();
-
-									if (act->spr.pal == 0)
-									{
-										auto k = spawn(act, TRANSPORTERBEAM);
-										if (k) S_PlayActorSound(TELEPORTER, k);
-
-										k = spawn(Owner, TRANSPORTERBEAM);
-										if (k) S_PlayActorSound(TELEPORTER, k);
-									}
-
-									if (Owner && Owner->GetOwner() == Owner)
-									{
-										act->temp_data[0] = 13;
-										Owner->temp_data[0] = 13;
-									}
+									act2->backupz();
 
 									ChangeActorSect(act2, Owner->sector());
 								}
-							}
-							else
-							{
+								break;
+							case 1:
 								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
+								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
 
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
+
+								break;
+							case 2:
+								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+								act2->spr.pos.Z = Owner->sector()->floorz - ll;
+
+								act2->backupz();
+
+								ChangeActorSect(act2, Owner->sector());
+
+								break;
 							}
-							break;
-						case 1:
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							break;
-						case 2:
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->floorz - ll;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
 
 							break;
 						}
-
-						break;
 					}
 				}
 				break;

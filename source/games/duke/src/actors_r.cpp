@@ -1639,135 +1639,131 @@ void movetransports_r(void)
 						warpspriteto = 1;
 					}
 
-					if (warpspriteto) switch (act2->spr.picnum)
+					if (warpspriteto)
 					{
-					case TRANSPORTERSTAR:
-					case TRANSPORTERBEAM:
-					case BULLETHOLE:
-					case WATERSPLASH2:
-					case BURNING:
-					case FIRE:
-					case MUD:
-						continue;
-					case PLAYERONWATER:
-						if (sectlotag == ST_2_UNDERWATER)
+						if (actorflag(act2, SFLAG_NOTELEPORT)) continue;
+						switch (act2->spr.picnum)
 						{
-							act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-							break;
-						}
-						[[fallthrough]];
-					default:
-						if (act2->spr.statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
-							break;
-						[[fallthrough]];
-
-					case WATERBUBBLE:
-						if (rnd(192) && act2->spr.picnum == WATERBUBBLE)
-							break;
-
-						if (sectlotag > 0)
-						{
-							auto spawned = spawn(act2, WATERSPLASH2);
-							if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
+						case PLAYERONWATER:
+							if (sectlotag == ST_2_UNDERWATER)
 							{
-								spawned->spr.xvel = act2->spr.xvel >> 1;
-								spawned->spr.ang = act2->spr.ang;
-								ssp(spawned, CLIPMASK0);
+								act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+								break;
 							}
-						}
+							[[fallthrough]];
+						default:
+							if (act2->spr.statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
+								break;
+							[[fallthrough]];
 
-						switch (sectlotag)
-						{
-						case ST_0_NO_EFFECT:
-							if (onfloorz)
+						case WATERBUBBLE:
+							if (rnd(192) && act2->spr.picnum == WATERBUBBLE)
+								break;
+
+							if (sectlotag > 0)
 							{
-								if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
+								auto spawned = spawn(act2, WATERSPLASH2);
+								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
+								{
+									spawned->spr.xvel = act2->spr.xvel >> 1;
+									spawned->spr.ang = act2->spr.ang;
+									ssp(spawned, CLIPMASK0);
+								}
+							}
+
+							switch (sectlotag)
+							{
+							case ST_0_NO_EFFECT:
+								if (onfloorz)
+								{
+									if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
+									{
+										act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+										act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+										act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
+										act2->spr.ang = Owner->spr.ang;
+
+										act2->backupang();
+
+										auto beam = spawn(act, TRANSPORTERBEAM);
+										if (beam) S_PlayActorSound(TELEPORTER, beam);
+
+										beam = spawn(Owner, TRANSPORTERBEAM);
+										if (beam) S_PlayActorSound(TELEPORTER, beam);
+
+										if (Owner->GetOwner() != Owner)
+										{
+											act->temp_data[0] = 13;
+											Owner->temp_data[0] = 13;
+										}
+
+										ChangeActorSect(act2, Owner->sector());
+									}
+								}
+								else
 								{
 									act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 									act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-									act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
-									act2->spr.ang = Owner->spr.ang;
+									act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
 
-									act2->backupang();
-
-									auto beam = spawn(act, TRANSPORTERBEAM);
-									if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-									beam = spawn(Owner, TRANSPORTERBEAM);
-									if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-									if (Owner->GetOwner() != Owner)
-									{
-										act->temp_data[0] = 13;
-										Owner->temp_data[0] = 13;
-									}
+									act2->backupz();
 
 									ChangeActorSect(act2, Owner->sector());
 								}
-							}
-							else
-							{
+								break;
+							case ST_1_ABOVE_WATER:
 								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
 								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
+								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
 
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
+
+								break;
+							case ST_2_UNDERWATER:
+								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+								act2->spr.pos.Z = Owner->sector()->floorz - ll;
+
+								act2->backupz();
+
+								ChangeActorSect(act2, Owner->sector());
+
+								break;
+
+							case 160:
+								if (!isRRRA()) break;
+								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+								act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
+
+								act2->backupz();
+
+								ChangeActorSect(act2, Owner->sector());
+
+								movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->spr.ang), 14),
+									MulScale(act2->spr.xvel, bsin(act2->spr.ang), 14), 0, CLIPMASK1, coll);
+
+								break;
+							case 161:
+								if (!isRRRA()) break;
+								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
+								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
+								act2->spr.pos.Z = Owner->sector()->floorz - ll2;
+
+								act2->backupz();
+
+								ChangeActorSect(act2, Owner->sector());
+
+								movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->spr.ang), 14),
+									MulScale(act2->spr.xvel, bsin(act2->spr.ang), 14), 0, CLIPMASK1, coll);
+
+								break;
 							}
-							break;
-						case ST_1_ABOVE_WATER:
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							break;
-						case ST_2_UNDERWATER:
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->floorz - ll;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							break;
-
-						case 160:
-							if (!isRRRA()) break;
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->spr.ang), 14),
-								MulScale(act2->spr.xvel, bsin(act2->spr.ang), 14), 0, CLIPMASK1, coll);
-
-							break;
-						case 161:
-							if (!isRRRA()) break;
-							act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-							act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-							act2->spr.pos.Z = Owner->sector()->floorz - ll2;
-
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->spr.ang), 14),
-								MulScale(act2->spr.xvel, bsin(act2->spr.ang), 14), 0, CLIPMASK1, coll);
 
 							break;
 						}
-
-						break;
 					}
 				}
 				break;
