@@ -2031,7 +2031,7 @@ int operateTripbomb(int snum)
 	DukeSectIterator it(hit.hitSector);
 	while ((act = it.Next()))
 	{
-		if (act->spr.picnum == TRIPBOMB &&
+		if (!actorflag(act, SFLAG_BLOCK_TRIPBOMB) &&
 			abs(act->spr.pos.Z - hit.hitpos.Z) < (12 << 8) && ((act->spr.pos.X - hit.hitpos.X) * (act->spr.pos.X - hit.hitpos.X) + (act->spr.pos.Y - hit.hitpos.Y) * (act->spr.pos.Y - hit.hitpos.Y)) < (290 * 290))
 			return 0;
 	}
