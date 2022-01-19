@@ -201,8 +201,6 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case PAPER:
 		case PAPER + 1:
 			break;
-		case TRIPBOMB:
-			continue;
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
 			{
@@ -488,7 +486,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			[[fallthrough]];
 		default:
 
-			if (sectp->floorpal)
+			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
 				copyfloorpal(t, sectp);
 			break;
 		}
