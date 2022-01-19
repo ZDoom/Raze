@@ -725,7 +725,7 @@ void movefallers_d(void)
 			j = fi.ifhitbyweapon(act);
 			if (j >= 0)
 			{
-				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
+				if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
 				{
 					if (act->spr.extra <= 0)
 					{
@@ -984,12 +984,12 @@ static void movecrack(DDukeActor* actor)
 		actor->temp_data[0] = actor->spr.cstat;
 		actor->temp_data[1] = actor->spr.ang;
 		int j = fi.ifhitbyweapon(actor);
-		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
+		if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
 		{
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto a1 = it.Next())
 			{
-				if (actor->spr.hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
+				if (actor->spr.hitag == a1->spr.hitag && actorflag(a1, SFLAG2_BRIGHTEXPLODE))
 					if (a1->spr.shade != -32)
 						a1->spr.shade = -32;
 			}
@@ -1030,7 +1030,7 @@ static void movefireext(DDukeActor* actor)
 		DukeStatIterator it(STAT_STANDABLE);
 		while (auto a1 = it.Next())
 		{
-			if (actor->spr.hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
+			if (actor->spr.hitag == a1->spr.hitag && actorflag(a1, SFLAG2_BRIGHTEXPLODE))
 				if (a1->spr.shade != -32)
 					a1->spr.shade = -32;
 		}
@@ -1233,7 +1233,7 @@ void movestandables_d(void)
 
 		else if (picnum == MASTERSWITCH)
 		{
-			movemasterswitch(act, SEENINE, OOZFILTER);
+			movemasterswitch(act);
 		}
 
 		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)

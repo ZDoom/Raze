@@ -107,7 +107,7 @@ void initactorflags_r()
 		TOUGHGAL });
 
 
-	for (auto &fa : gs.actorinfo)
+	for (auto& fa : gs.actorinfo)
 	{
 		fa.falladjustz = 24 << 8;
 	}
@@ -120,7 +120,7 @@ void initactorflags_r()
 	gs.actorinfo[DRONE].falladjustz = 0;
 
 
-	setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
+	setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, {
 		BOULDER,
 		BOULDER1,
 		EGG,
@@ -145,9 +145,9 @@ void initactorflags_r()
 		COOT,
 		COOTSTAYPUT,
 		SHARK,
-		VIXEN});
+		VIXEN });
 
-	if (isRRRA()) setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
+	if (isRRRA()) setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, {
 		SBSWIPE,
 		BIKERB,
 		BIKERBV2,
@@ -163,14 +163,14 @@ void initactorflags_r()
 		CHEERBOAT,
 		RABBIT,
 		MAMA,
-		UFO1_RRRA});
-	else setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
+		UFO1_RRRA });
+	else setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, {
 		SBMOVE,
 		UFO1_RR,
 		UFO2,
 		UFO3,
 		UFO4,
-		UFO5});
+		UFO5 });
 
 	// Why does the pig count as kill? Let's undo that.
 	gs.actorinfo[PIG].flags &= ~SFLAG_KILLCOUNT;
@@ -178,7 +178,7 @@ void initactorflags_r()
 
 	gs.actorinfo[DRONE].flags |= SFLAG_NOWATERDIP;
 	gs.actorinfo[VIXEN].flags |= SFLAG_NOCANSEECHECK;
-	if (isRRRA()) 
+	if (isRRRA())
 	{
 		setflag(SFLAG_KILLCOUNT, { ROCK, ROCK2 });	//???
 		setflag(SFLAG_NODAMAGEPUSH, { HULK, MAMA, BILLYPLAY, COOTPLAY, MAMACLOUD });
@@ -225,7 +225,7 @@ void initactorflags_r()
 		FIREVASE,
 		NUKEBARREL,
 		NUKEBARRELDENTED,
-		NUKEBARRELLEAKED 
+		NUKEBARRELLEAKED
 		});
 
 	setflag(SFLAG_NOINTERPOLATE, { CRANEPOLE });
@@ -240,6 +240,9 @@ void initactorflags_r()
 	setflag(SFLAG_SE24_NOCARRY, { BULLETHOLE, BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, CRANE, CRANE1, CRANE2, BARBROKE });
 	setflag(SFLAG_SE24_REMOVE, { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3 });
 	setflag(SFLAG_NOFALLER, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	setflag(SFLAG2_EXPLOSIVE, {RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER });
+	if (isRRRA()) setflag(SFLAG2_EXPLOSIVE, { RPG2 });
+	setflag(SFLAG2_BRIGHTEXPLODE, { SEENINE, OOZFILTER });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

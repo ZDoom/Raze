@@ -35,7 +35,7 @@ void movecrane(DDukeActor* i, int crane);
 void movefountain(DDukeActor* i, int fountain);
 void moveflammable(DDukeActor* i, int pool);
 void detonate(DDukeActor* i, int explosion);
-void movemasterswitch(DDukeActor* i, int spectype1, int spectype2);
+void movemasterswitch(DDukeActor* i);
 void movetrash(DDukeActor* i);
 void movewaterdrip(DDukeActor* i, int drip);
 void movedoorshock(DDukeActor* i);

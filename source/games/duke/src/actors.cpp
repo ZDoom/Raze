@@ -955,7 +955,7 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
+void movemasterswitch(DDukeActor *actor)
 {
 	if (actor->spr.yvel == 1)
 	{
@@ -985,7 +985,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 				}
 				else if (effector->spr.statnum == STAT_STANDABLE)
 				{
-					if (effector->spr.picnum == spectype1 || effector->spr.picnum == spectype2) // SEENINE and OOZFILTER
+					if (actorflag(effector, SFLAG2_BRIGHTEXPLODE)) // SEENINE and OOZFILTER
 					{
 						effector->spr.shade = -31;
 					}
