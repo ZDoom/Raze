@@ -3733,31 +3733,6 @@ void LoadActor(DDukeActor *actor, int p, int x)
 			else if (actor->timetosleep == 1)
 				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 		}
-
-		else if (actor->spr.statnum == 6)
-		{
-#if 0
-			switch (actor->s.picnum)
-			{
-			case RUBBERCAN:
-			case EXPLODINGBARREL:
-			case WOODENHORSE:
-			case HORSEONSIDE:
-			case CANWITHSOMETHING:
-			case FIREBARREL:
-			case NUKEBARREL:
-			case NUKEBARRELDENTED:
-			case NUKEBARRELLEAKED:
-			case TRIPBOMB:
-			case EGG:
-				if (actor->timetosleep > 1)
-					actor->timetosleep--;
-				else if (actor->timetosleep == 1)
-					changespritestat(i, 2);
-				break;
-			}
-#endif
-		}
 	}
 
 }

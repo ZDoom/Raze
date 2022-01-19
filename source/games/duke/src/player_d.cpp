@@ -872,7 +872,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 		if (j == 1)
 		{
-			auto bomb = EGS(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			auto bomb = EGS(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, STAT_STANDABLE);
 			if (!bomb) return;
 			if (isWW2GI())
 			{
