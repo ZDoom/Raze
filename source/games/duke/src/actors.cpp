@@ -4383,14 +4383,12 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int shift)
+void handle_se24(DDukeActor *actor, bool scroll, int shift)
 {
-	auto testlist = [](const int16_t* list, int val) { for (int i = 0; list[i] > 0; i++) if (list[i] == val) return true; return false; };
-
 	if (actor->temp_data[4]) return;
 
 	int x = MulScale(actor->spr.yvel, bcos(actor->spr.ang), 18);
-	int l = MulScale(actor->spr.yvel, bsin(actor->spr.ang), 18);
+	int y = MulScale(actor->spr.yvel, bsin(actor->spr.ang), 18);
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -4400,39 +4398,29 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 			switch (a2->spr.statnum)
 			{
 			case STAT_MISC:
-				if (testlist(list1, a2->spr.picnum))
+			case STAT_STANDABLE:
+			case STAT_ACTOR:
+			case STAT_DEFAULT:
+				if (actorflag(a2, SFLAG_SE24_REMOVE))
 				{
 					a2->spr.xrepeat = a2->spr.yrepeat = 0;
 					continue;
 				}
-				if (a2->spr.picnum == LASERLINE)
-				{
-					continue;
-				}
 
-				[[fallthrough]];
-			case STAT_STANDABLE:
-				if (a2->spr.picnum == TRIPBOMB) break;
-				[[fallthrough]];
-			case STAT_ACTOR:
-			case STAT_DEFAULT:
-				if (testlist(list2, a2->spr.picnum) ||
+				if (actorflag(a2, SFLAG_SE24_NOCARRY) ||
 					wallswitchcheck(a2))
-					break;
+					continue;
 
-				if (!actorflag(a2, SFLAG_SE24_NOFLOORCHECK))
+				if (a2->spr.pos.Z > (a2->floorz - (16 << 8)))
 				{
-					if (a2->spr.pos.Z > (a2->floorz - (16 << 8)))
-					{
-						a2->spr.pos.X += x >> shift;
-						a2->spr.pos.Y += l >> shift;
+					a2->spr.pos.X += x >> shift;
+					a2->spr.pos.Y += y >> shift;
 
-						SetActor(a2, a2->spr.pos);
+					SetActor(a2, a2->spr.pos);
 
-						if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
-							if (a2->spr.statnum == STAT_ZOMBIEACTOR)
-								makeitfall(a2);
-					}
+					if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
+						if (a2->spr.statnum == STAT_ZOMBIEACTOR)
+							makeitfall(a2);
 				}
 				break;
 			}
@@ -4446,7 +4434,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 			if (abs(ps[p].pos.Z - ps[p].truefz) < gs.playerheight + (9 << 8))
 			{
 				ps[p].fric.X += x << 3;
-				ps[p].fric.Y += l << 3;
+				ps[p].fric.Y += y << 3;
 			}
 		}
 	}
