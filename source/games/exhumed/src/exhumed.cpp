@@ -464,6 +464,7 @@ void GameInterface::Ticker()
 
         if (EndLevel > 1) EndLevel--;
         PlayerList[nLocalPlayer].pActor->backuppos();
+        PlayerList[nLocalPlayer].ototalvel = PlayerList[nLocalPlayer].totalvel;
         obobangle = bobangle;
         int flash = 7 - abs(EndLevel - 7);
         videoTintBlood(flash * 30, flash * 30, flash * 30);
