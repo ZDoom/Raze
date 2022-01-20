@@ -148,6 +148,7 @@ void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
 void MarkMap();
 void BuildFogTable();
+void ParseGLDefs();
 
 DStatusBarCore* StatusBar;
 
@@ -1063,6 +1064,7 @@ int RunGame()
 	gi->app_init();
 	StartScreen->Progress();
 	G_ParseMapInfo();
+	ParseGLDefs();
 	ReplaceMusics(true);
 	CreateStatusBar();
 	SetDefaultMenuColors();

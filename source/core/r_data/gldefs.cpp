@@ -1799,9 +1799,11 @@ public:
 			case TAG_MATERIAL:
 				ParseMaterial();
 				break;
+#endif
 			case TAG_HARDWARESHADER:
 				ParseHardwareShader();
 				break;
+#if 0
 			case TAG_DETAIL:
 				ParseDetailTexture();
 				break;
