@@ -79,6 +79,7 @@ struct Dispatcher
 	void (*checkhitwall)(DDukeActor* spr, walltype* dawall, const DVector3& pos, int atwith);
 	bool (*checkhitceiling)(sectortype* sn);
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
+	void (*checkhitdefault)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
 	DDukeActor* (*spawninit)(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
 

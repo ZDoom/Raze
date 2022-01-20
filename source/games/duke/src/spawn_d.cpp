@@ -1041,23 +1041,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case SECTOREFFECTOR:
 		spawneffector(act, actors);
-
-		break;
-
-
-	case SEENINE:
-	case OOZFILTER:
-
-		act->spr.shade = -16;
-		if (act->spr.scale.X <= 0.125)
-		{
-			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.scale = DVector2(0, 0);
-		}
-		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.extra = gs.impact_damage << 2;
-		act->SetOwner(act);
-		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case TOILET:

@@ -31,7 +31,6 @@ void movefta();
 
 void clearcameras(int i, player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
-void movecrane(DDukeActor* i, int crane);
 void detonate(DDukeActor* i, int explosion);
 void movemasterswitch(DDukeActor* i);
 void movetrash(DDukeActor* i);
@@ -42,7 +41,6 @@ void movecanwithsomething(DDukeActor* i);
 void bounce(DDukeActor* i);
 void movetongue(DDukeActor* i, int tongue, int jaw);
 void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
-void moveooz(DDukeActor* i, int seenine, int seeninedead, int ooz, int explosion);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 bool respawnmarker(DDukeActor* i, int yellow, int green);
 bool rat(DDukeActor* i, bool makesound);
@@ -133,7 +131,7 @@ void quickkill(player_struct* p);
 int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
-void shootbloodsplat(DDukeActor* i, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
+void shootbloodsplat(DDukeActor* i, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE);
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);

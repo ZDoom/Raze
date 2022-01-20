@@ -1008,7 +1008,7 @@ int haskey(sectortype* sectp, int snum)
 //
 //---------------------------------------------------------------------------
 
-void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
+void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE)
 {
 	auto sectp = actor->sector();
 	double zvel;
@@ -1059,7 +1059,7 @@ void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, 
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);
-					if (actor->spr.picnum == OOZFILTER || actor->spr.picnum == NEWBEAST)
+					if (actorflag(actor, SFLAG2_GREENBLOOD))
 						spawned->spr.pal = 6;
 				}
 			}

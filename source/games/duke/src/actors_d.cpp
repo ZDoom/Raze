@@ -945,11 +945,6 @@ void movestandables_d(void)
 			continue;
 		}
 
-		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
-		{
-			moveooz(act, SEENINE, SEENINEDEAD, OOZFILTER, EXPLOSION2);
-		}
-
 		else if (picnum == MASTERSWITCH)
 		{
 			movemasterswitch(act);

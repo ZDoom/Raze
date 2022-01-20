@@ -24,6 +24,7 @@ class DukeActor : CoreActor native
 	};
 	
 	native void SetSpritesetImage(int index);
+	native int GetSpritesetSize();
 
 	native DukeActor ownerActor, hitOwnerActor;
 	native uint8 cgg;
@@ -76,11 +77,12 @@ class DukeActor : CoreActor native
 	native void lotsofglass(int count);
 	native void makeitfall();
 	native void detonate(name type);
+	native void checkhitdefault(DukeActor proj);
 	
 	virtual void BeginPlay() {}
 	virtual void Initialize() {}
 	virtual void Tick() {}
-	virtual void onHit(DukeActor hitter) {}
+	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
 	virtual void onUse(DukePlayer user) {}
 	virtual bool animate(tspritetype tspr) { return false; }

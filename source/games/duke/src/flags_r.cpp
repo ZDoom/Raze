@@ -251,6 +251,7 @@ void initactorflags_r()
 	setflag(SFLAG2_BREAKMIRRORS, { RADIUSEXPLOSION, RPG, HYDRENT, DYNAMITE, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
 	if (isRRRA()) setflag(SFLAG2_BREAKMIRRORS, { RPG2 });
 	setflag(SFLAG2_CAMERA, { CAMERA1 });
+	setflag(SFLAG2_GREENBLOOD, { OOZFILTER });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

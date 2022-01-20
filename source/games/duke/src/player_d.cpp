@@ -1126,7 +1126,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		shootbloodsplat(actor, p, spos, sang, atwith, BIGFORCE, OOZFILTER, NEWBEAST);
+		shootbloodsplat(actor, p, spos, sang, atwith, BIGFORCE);
 		break;
 
 	case KNEE:

@@ -1513,9 +1513,92 @@ bool checkhitceiling_r(sectortype* sectp)
 //
 //---------------------------------------------------------------------------
 
+void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
+{
+	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
+		return;
+
+	if ((proj->spr.picnum == SHRINKSPARK || proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
+	{
+		if (badguy(targ) == 1)
+		{
+			if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
+			else if (isRRRA() && proj->spr.picnum == RPG2) proj->spr.extra <<= 1;
+
+			if ((targ->spr.picnum != DRONE))
+				if (proj->spr.picnum != FREEZEBLAST)
+					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+				{
+					auto spawned = spawn(proj, JIBS6);
+					if (spawned)
+					{
+						if (proj->spr.pal == 6)
+							spawned->spr.pal = 6;
+						spawned->spr.pos.Z += 4;
+						spawned->vel.X = 1;
+						spawned->spr.scale = DVector2(0.375, 0.375);
+						spawned->spr.angle = DAngle22_5 / 4 - randomAngle(22.5 / 2);
+					}
+				}
+
+			auto Owner = proj->GetOwner();
+
+			if (Owner && Owner->spr.picnum == APLAYER && targ->spr.picnum != DRONE)
+				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
+				{
+					fi.shoot(targ, BLOODSPLAT3);
+					fi.shoot(targ, BLOODSPLAT1);
+					fi.shoot(targ, BLOODSPLAT2);
+					fi.shoot(targ, BLOODSPLAT4);
+				}
+
+			if (targ->spr.statnum == 2)
+			{
+				ChangeActorStat(targ, 1);
+				targ->timetosleep = SLEEPTIME;
+			}
+		}
+
+		if (targ->spr.statnum != 2)
+		{
+			if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+				return;
+
+			targ->attackertype = proj->spr.picnum;
+			targ->hitextra += proj->spr.extra;
+			if (targ->spr.picnum != COW)
+				targ->hitang = proj->spr.angle;
+			targ->SetHitOwner(proj->GetOwner());
+		}
+
+		if (targ->spr.statnum == 10)
+		{
+			auto p = targ->PlayerIndex();
+			if (ps[p].newOwner != nullptr)
+			{
+				ps[p].newOwner = nullptr;
+				ps[p].restorexyz();
+
+				updatesector(ps[p].pos, &ps[p].cursector);
+
+				DukeStatIterator it(STAT_EFFECTOR);
+				while (auto act = it.Next())
+				{
+					if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
+				}
+			}
+			auto Owner = targ->GetHitOwner();
+			if (!Owner || Owner->spr.picnum != APLAYER)
+				if (ud.player_skill >= 3)
+					proj->spr.extra += (proj->spr.extra >> 1);
+		}
+
+	}
+}
+
 void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 {
-	int j, k, p;
+	int j, k;
 
 	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
@@ -2278,85 +2361,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (!targ) break;
 		[[fallthrough]];
 	default:
-		if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
-			break;
-
-		if ((proj->spr.picnum == SHRINKSPARK || proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
-		{
-			if (badguy(targ) == 1)
-			{
-				if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
-				else if (isRRRA() && proj->spr.picnum == RPG2) proj->spr.extra <<= 1;
-
-				if ((targ->spr.picnum != DRONE))
-					if (proj->spr.picnum != FREEZEBLAST)
-						//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
-						{
-							auto spawned = spawn(proj, JIBS6);
-							if (spawned)
-							{
-								if (proj->spr.pal == 6)
-									spawned->spr.pal = 6;
-								spawned->spr.pos.Z += 4;
-								spawned->vel.X = 1;
-								spawned->spr.scale = DVector2(0.375, 0.375);
-								spawned->spr.angle = DAngle22_5/4 - randomAngle(22.5/2);
-							}
-						}
-
-				auto Owner = proj->GetOwner();
-
-				if (Owner && Owner->spr.picnum == APLAYER && targ->spr.picnum != DRONE)
-					if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
-					{
-						fi.shoot(targ, BLOODSPLAT3);
-						fi.shoot(targ, BLOODSPLAT1);
-						fi.shoot(targ, BLOODSPLAT2);
-						fi.shoot(targ, BLOODSPLAT4);
-					}
-
-				if (targ->spr.statnum == 2)
-				{
-					ChangeActorStat(targ, 1);
-					targ->timetosleep = SLEEPTIME;
-				}
-			}
-
-			if (targ->spr.statnum != 2)
-			{
-				if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
-					return;
-
-				targ->attackertype = proj->spr.picnum;
-				targ->hitextra += proj->spr.extra;
-				if (targ->spr.picnum != COW)
-					targ->hitang = proj->spr.angle;
-				targ->SetHitOwner(proj->GetOwner());
-			}
-
-			if (targ->spr.statnum == 10)
-			{
-				p = targ->PlayerIndex();
-				if (ps[p].newOwner != nullptr)
-				{
-					ps[p].newOwner = nullptr;
-					ps[p].restorexyz();
-
-					updatesector(ps[p].pos, &ps[p].cursector);
-
-					DukeStatIterator it(STAT_EFFECTOR);
-					while (auto act = it.Next())
-					{
-						if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
-					}
-				}
-				auto Owner = targ->GetHitOwner();
-				if (!Owner || Owner->spr.picnum != APLAYER)
-					if (ud.player_skill >= 3)
-						proj->spr.extra += (proj->spr.extra >> 1);
-			}
-
-		}
+		checkhitdefault_r(targ, proj);
 		break;
 	}
 }

@@ -1271,21 +1271,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawneffector(act, actors);
 		break;
 
-	case SEENINE:
-	case OOZFILTER:
-
-		act->spr.shade = -16;
-		if (act->spr.scale.X <= 0.125)
-		{
-			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.scale = DVector2(0, 0);
-		}
-		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.extra = gs.impact_damage << 2;
-		act->SetOwner(act);
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
 	case EMPTYBIKE:
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)

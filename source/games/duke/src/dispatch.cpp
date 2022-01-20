@@ -53,6 +53,8 @@ bool checkhitceiling_d(sectortype* sn);
 bool checkhitceiling_r(sectortype* sn);
 void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
 void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
+void checkhitdefault_d(DDukeActor* i, DDukeActor* sn);
+void checkhitdefault_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 
@@ -119,6 +121,7 @@ void SetDispatcher()
 		checkhitwall_d,
 		checkhitceiling_d,
 		checkhitsprite_d,
+		checkhitdefault_d,
 		checksectors_d,
 		spawninit_d,
 
@@ -161,6 +164,7 @@ void SetDispatcher()
 		checkhitwall_r,
 		checkhitceiling_r,
 		checkhitsprite_r,
+		checkhitdefault_r,
 		checksectors_r,
 		spawninit_r,
 

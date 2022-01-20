@@ -138,6 +138,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetSpritesetImage, setSpritesetImage)
 	return 0;
 }
 
+static int getSpritesetSize(DDukeActor* self)
+{
+	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
+	return spriteset.Size();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, GetSpritesetSize, getSpritesetSize)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(getSpritesetSize(self));
+}
+
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getglobalz, getglobalz)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
@@ -332,6 +344,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, detonate, DukeActor_detonate)
 	return 0;
 }
 
+void DukeActor_checkhitdefault(DDukeActor* origin, DDukeActor* proj)
+{
+	fi.checkhitdefault(origin, proj);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitdefault, DukeActor_checkhitdefault)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_OBJECT(proj, DDukeActor);
+	DukeActor_checkhitdefault(self, proj);
+	return 0;
+}
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)

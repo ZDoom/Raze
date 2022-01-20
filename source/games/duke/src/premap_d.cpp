@@ -155,8 +155,6 @@ static void cachespritenum(DDukeActor* actor)
 			maxc = 10;
 			break;
 		case EXPLODINGBARREL:
-		case SEENINE:
-		case OOZFILTER:
 			maxc = 3;
 			break;
 		case NUKEBARREL:
