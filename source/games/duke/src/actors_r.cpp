@@ -536,26 +536,15 @@ int ifhitbyweapon_r(DDukeActor *actor)
 					}
 				}
 
-				int pn = actor->attackertype;
-				if (pn == RPG2 && !isRRRA()) pn = 0; // avoid messing around with gotos.
-				switch (pn)
+				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-				case RADIUSEXPLOSION:
-				case RPG:
-				case HYDRENT:
-				case HEAVYHBOMB:
-				case SEENINE:
-				case OOZFILTER:
-				case EXPLODINGBARREL:
-				case POWDERKEG:
-				case RPG2:
 					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
 					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
-					break;
-				default:
+				}
+				else
+				{
 					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 1);
 					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 1);
-					break;
 				}
 			}
 			else

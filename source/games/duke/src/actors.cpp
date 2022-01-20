@@ -985,7 +985,7 @@ void movemasterswitch(DDukeActor *actor)
 				}
 				else if (effector->spr.statnum == STAT_STANDABLE)
 				{
-					if (actorflag(effector, SFLAG2_BRIGHTEXPLODE)) // SEENINE and OOZFILTER
+					if (actorflag(effector, SFLAG2_BRIGHTEXPLODE)) // _SEENINE_ and _OOZFILTER_
 					{
 						effector->spr.shade = -31;
 					}
@@ -1186,7 +1186,7 @@ void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explo
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto act2 = it.Next())
 			{
-				if (actor->spr.hitag == act2->spr.hitag && (act2->spr.picnum == seenine || act2->spr.picnum == ooz))
+				if (actor->spr.hitag == act2->spr.hitag && actorflag(act2, SFLAG2_BRIGHTEXPLODE))
 					act2->spr.shade = -32;
 			}
 		}

@@ -243,6 +243,10 @@ void initactorflags_r()
 	setflag(SFLAG2_EXPLOSIVE, {RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER });
 	if (isRRRA()) setflag(SFLAG2_EXPLOSIVE, { RPG2 });
 	setflag(SFLAG2_BRIGHTEXPLODE, { SEENINE, OOZFILTER });
+	setflag(SFLAG2_DOUBLEDMGTHRUST, { RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
+	if (isRRRA()) setflag(SFLAG2_DOUBLEDMGTHRUST, { RPG2 });
+	setflag(SFLAG2_BREAKMIRRORS, { RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
+	if (isRRRA()) setflag(SFLAG2_BREAKMIRRORS, { RPG2 });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

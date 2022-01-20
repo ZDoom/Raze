@@ -644,24 +644,14 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 {
 	int j, sn = -1, darkestwall;
 
-	if (wal->overpicnum == MIRROR)
+	if (wal->overpicnum == MIRROR && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
 	{
-		switch (atwith)
-		{
-		case HEAVYHBOMB:
-		case RADIUSEXPLOSION:
-		case RPG:
-		case HYDRENT:
-		case SEENINE:
-		case OOZFILTER:
-		case EXPLODINGBARREL:
-			lotsofglass(spr, wal, 70);
-			wal->cstat &= ~CSTAT_WALL_MASKED;
-			wal->overpicnum = MIRRORBROKE;
-			wal->portalflags = 0;
-			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-			return;
-		}
+		lotsofglass(spr, wal, 70);
+		wal->cstat &= ~CSTAT_WALL_MASKED;
+		wal->overpicnum = MIRRORBROKE;
+		wal->portalflags = 0;
+		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
+		return;
 	}
 
 	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
