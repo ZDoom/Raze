@@ -168,10 +168,6 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		}
 		return false;
 
-	case NAME_CustomSubMenu1:
-		menu = ENamedName(menu.GetIndex() + param);
-		break;
-
 	case NAME_Savegamemenu:
 		if (!gi->CanSave())
 		{
