@@ -9,7 +9,6 @@ extern int TILE_TREE2;
 extern int TILE_TIRE;
 extern int TILE_CONE;
 extern int TILE_W_FORCEFIELD;
-extern int TILE_CAMERA1;
 extern int TILE_SCRAP6;
 extern int TILE_APLAYER;
 extern int TILE_DRONE;

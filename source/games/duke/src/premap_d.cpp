@@ -187,8 +187,6 @@ static void cachegoodsprites(void)
 			tloadtile(i);
 	}
 
-	tloadtile(VIEWSCREEN);
-
 	for(i=FOOTPRINTS;i<FOOTPRINTS+3;i++)
 			tloadtile(i);
 

@@ -211,7 +211,7 @@ void clearcamera(player_struct* ps)
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
 	{
-		if (k->spr.picnum == TILE_CAMERA1)
+		if (actorflag(k, SFLAG2_CAMERA))
 			k->spr.yvel = 0;
 	}
 }

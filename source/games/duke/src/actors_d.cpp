@@ -2203,7 +2203,7 @@ static void greenslime(DDukeActor *actor)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
-				if (ac->spr.picnum == CAMERA1) ac->spr.yvel = 0;
+				if (actorflag(ac, SFLAG2_CAMERA)) ac->spr.yvel = 0;
 			}
 		}
 

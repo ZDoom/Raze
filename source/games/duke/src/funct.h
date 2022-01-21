@@ -29,6 +29,7 @@ void movefx();
 void moveclouds(double smoothratio);
 void movefta();
 
+void clearcameras(int i, player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void ms(DDukeActor* i);
 void movecrane(DDukeActor* i, int crane);

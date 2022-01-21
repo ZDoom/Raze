@@ -2075,7 +2075,7 @@ int ParseState::parse(void)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto actj = it.Next())
 			{
-				if (actj->spr.picnum == TILE_CAMERA1)
+				if (actorflag(actj, SFLAG2_CAMERA))
 					actj->spr.yvel = 0;
 			}
 		}

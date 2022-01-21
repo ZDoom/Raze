@@ -1451,7 +1451,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto itActor = it.Next())
 					{
-						if (itActor->spr.picnum == CAMERA1) itActor->spr.yvel = 0;
+						if (actorflag(itActor, SFLAG2_CAMERA)) itActor->spr.yvel = 0;
 					}
 				}
 
@@ -1489,7 +1489,7 @@ void clearcameras(int i, player_struct* p)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto act = it.Next())
 		{
-			if (act->spr.picnum == CAMERA1) act->spr.yvel = 0;
+			if (actorflag(act, SFLAG2_CAMERA)) act->spr.yvel = 0;
 		}
 	}
 	else if (p->newOwner != nullptr)
@@ -1719,7 +1719,7 @@ void checksectors_d(int snum)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto acti = it.Next())
 				{
-					if (acti->spr.picnum == CAMERA1 && acti->spr.yvel == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
+					if (actorflag(acti, SFLAG2_CAMERA) && acti->spr.yvel == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
 					{
 						acti->spr.yvel = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);

@@ -247,6 +247,7 @@ void initactorflags_r()
 	if (isRRRA()) setflag(SFLAG2_DOUBLEDMGTHRUST, { RPG2 });
 	setflag(SFLAG2_BREAKMIRRORS, { RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
 	if (isRRRA()) setflag(SFLAG2_BREAKMIRRORS, { RPG2 });
+	setflag(SFLAG2_CAMERA, { CAMERA1 });
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)
@@ -283,7 +284,6 @@ void initactorflags_r()
 	TILE_TIRE = TIRE;
 	TILE_CONE = CONE;
 	TILE_W_FORCEFIELD = W_FORCEFIELD;
-	TILE_CAMERA1 = CAMERA1;
 	TILE_SCRAP6 = SCRAP6;
 	TILE_APLAYER = APLAYER;
 	TILE_DRONE = DRONE;
