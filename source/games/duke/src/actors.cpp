@@ -1365,49 +1365,6 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-void camera(DDukeActor *actor)
-{
-	if (actor->temp_data[0] == 0)
-	{
-		actor->temp_data[1] += 8;
-
-		if (gs.camerashitable)
-		{
-			if (fi.ifhitbyweapon(actor) >= 0)
-			{
-				actor->temp_data[0] = 1; // static
-				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				for (int x = 0; x < 5; x++)
-					RANDOMSCRAP(actor);
-				return;
-			}
-		}
-
-		if (actor->spr.hitag > 0)
-		{
-			auto const angle = mapangle(8);
-
-			if (actor->temp_data[1] < actor->spr.hitag)
-				actor->spr.angle += angle;
-			else if (actor->temp_data[1] < (actor->spr.hitag * 3))
-				actor->spr.angle -= angle;
-			else if (actor->temp_data[1] < (actor->spr.hitag << 2))
-				actor->spr.angle += angle;
-			else
-			{
-				actor->spr.angle += angle;
-				actor->temp_data[1] = 0;
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 #include "gamehud.h"
 #include "global.h"
+#include "models/modeldata.h"
 
 // all inline functions.
 BEGIN_DUKE_NS
@@ -242,6 +243,24 @@ inline int angletorotation1(DAngle sprang, DAngle viewang, int shiftv = 8, int a
 inline int angletorotation2(DAngle sprang, DAngle viewang)
 {
 	return ((sprang.Buildang() + 3072 + 128 - viewang.Buildang()) & 2047) / 170;
+}
+
+inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
+{
+	if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
+	{
+		t->cstat &= ~CSTAT_SPRITE_XFLIP;
+		return;
+	}
+
+	int k = angletorotation1(t->angle, viewang);
+	if (k > 4)
+	{
+		k = 8 - k;
+		t->cstat |= CSTAT_SPRITE_XFLIP;
+	}
+	else t->cstat &= ~CSTAT_SPRITE_XFLIP;
+	t->picnum = h->spr.picnum + k;
 }
 
 END_DUKE_NS

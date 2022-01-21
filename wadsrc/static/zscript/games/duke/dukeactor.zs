@@ -140,7 +140,7 @@ class DukeActor : CoreActor native
 	virtual void Tick() {}
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
-	virtual void onUse(DukePlayer user) {}
+	virtual bool onUse(DukePlayer user) { return false; }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
 	
@@ -165,6 +165,7 @@ extend struct _
 	native @DukeGameInfo gs;
 	native @DukeUserDefs ud;
 	native DukeLevel dlevel;
+	native DukeActor camsprite;
 }
 
 // The level struct is a wrapper to group all level related global variables and static functions into one object.

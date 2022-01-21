@@ -515,14 +515,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case VIEWSCREEN:
-	case VIEWSCREEN2:
-		act->SetOwner(act);
-		act->spr.lotag = 1;
-		act->spr.extra = 1;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
 	case SHELL: //From the player
 	case SHOTGUNSHELL:
 		initshell(actj, act, act->spr.picnum == SHELL);
@@ -965,11 +957,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
-	case CAMERA1:
-	case CAMERA1 + 1:
-	case CAMERA1 + 2:
-	case CAMERA1 + 3:
-	case CAMERA1 + 4:
 	case CAMERAPOLE:
 		act->spr.extra = 1;
 
@@ -986,9 +973,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		else act->spr.pal = 0;
-		if (act->spr.picnum == CAMERAPOLE || act->spr.picnum == GENERICPOLE) break;
-		act->spr.picnum = CAMERA1;
-		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case STEAM:
 		if (actj)

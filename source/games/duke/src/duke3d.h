@@ -116,10 +116,11 @@ extern Dispatcher fi;
 
 void CallInitialize(DDukeActor* actor);
 void CallTick(DDukeActor* actor);
+bool CallOperate(DDukeActor* actor, int plnum);
 void CallAction(DDukeActor* actor);
 void CallOnHit(DDukeActor* actor, DDukeActor* hitter);
 void CallOnHurt(DDukeActor* actor, player_struct* hitter);
-void CallOnUse(DDukeActor* actor, player_struct* user);
+bool CallOnUse(DDukeActor* actor, player_struct* user);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
 
 

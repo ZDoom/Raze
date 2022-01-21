@@ -69,7 +69,7 @@ class DukeWaterFountain : DukeActor
 		}
 	}
 
-	override void onUse(DukePlayer user)
+	override bool onUse(DukePlayer user)
 	{
 		if (self.temp_data[0] != 1)
 		{
@@ -83,6 +83,7 @@ class DukeWaterFountain : DukeActor
 				act.PlayActorSound(DukeSnd.DUKE_DRINKING);
 			}
 		}
+		return true;
 	}
 }
 

@@ -790,38 +790,7 @@ void movefallers_d(void)
 
 //---------------------------------------------------------------------------
 //
-// split out of movestandables
 //
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void moveviewscreen(DDukeActor* actor)
-{
-	const double VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
-	if (actor->spr.scale.X == 0) deletesprite(actor);
-	else
-	{
-		double a;
-		int p = findplayer(actor, &a);
-
-		double x = (actor->spr.pos - ps[p].GetActor()->spr.pos).Length(); // the result from findplayer is not really useful.
-		if (x >= VIEWSCR_DIST && camsprite == actor)
-		{
-			camsprite = nullptr;
-			actor->spr.yint = 0;
-			actor->temp_data[0] = 0;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// this has been broken up into lots of smaller subfunctions
 //
 //---------------------------------------------------------------------------
 
@@ -842,11 +811,6 @@ void movestandables_d(void)
 		{
 			CallTick(act);
 			continue;
-		}
-
-		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)
-		{
-			moveviewscreen(act);
 		}
 
 		else if (isIn(picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
@@ -2367,8 +2331,11 @@ void moveactors_d(void)
 
 		int *t = &act->temp_data[0];
 
-
-		switch (act->spr.picnum)
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+		}
+		else switch (act->spr.picnum)
 		{
 		case FLAMETHROWERFLAME:
 			if (isWorldTour()) flamethrowerflame(act);
@@ -2494,10 +2461,6 @@ void moveactors_d(void)
 		case REACTOR:
 		case REACTOR2:
 			reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
-			continue;
-
-		case CAMERA1:
-			camera(act);
 			continue;
 		}
 

@@ -225,6 +225,7 @@ void initactorflags_d()
 	setflag(SFLAG2_DONTANIMATE, { TRIPBOMB, LASERLINE });
 	setflag(SFLAG2_INTERPOLATEANGLE, { BEARINGPLATE });
 	setflag(SFLAG2_GREENBLOOD, { OOZFILTER, NEWBEAST });
+	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
 
 	if (isWorldTour())
 	{

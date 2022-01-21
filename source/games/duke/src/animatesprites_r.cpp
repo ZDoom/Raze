@@ -157,10 +157,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->angle = h->interpolatedangle(interpfrac);
 		}
 
+
 		auto sectp = h->sector();
 		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			bool res = CallAnimate(h, t);
+			if (actorflag(h, SFLAG2_ALWAYSROTATE1))
+				applyRotation1(h, t, viewang);
 			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
 				copyfloorpal(t, sectp);
 
@@ -920,7 +923,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case CAMERA1:
 		case RAT:
 			k = angletorotation1(t->angle, viewang);
 			if (k > 4)

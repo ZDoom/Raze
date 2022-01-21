@@ -65,6 +65,7 @@ version "4.10"
 #include "zscript/games/duke/actors/bolt.zs"
 #include "zscript/games/duke/actors/waterdrip.zs"
 #include "zscript/games/duke/actors/doorshock.zs"
+#include "zscript/games/duke/actors/viewscreen.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"

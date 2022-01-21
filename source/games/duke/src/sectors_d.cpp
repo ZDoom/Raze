@@ -1438,23 +1438,18 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 //
 //---------------------------------------------------------------------------
 
-void clearcameras(int i, player_struct* p)
+void clearcameras(player_struct* p)
 {
-	if (i < 0)
+	p->restorexyz();
+	p->newOwner = nullptr;
+
+	updatesector(p->pos, &p->cursector);
+
+	DukeStatIterator it(STAT_ACTOR);
+	while (auto act = it.Next())
 	{
-		p->restorexyz();
-		p->newOwner = nullptr;
-
-		updatesector(p->pos, &p->cursector);
-
-		DukeStatIterator it(STAT_ACTOR);
-		while (auto act = it.Next())
-		{
-			if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
-		}
+		if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
 	}
-	else if (p->newOwner != nullptr)
-		p->newOwner = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -1515,7 +1510,7 @@ void checksectors_d(int snum)
 	{
 		if (abs(PlayerInputSideVel(snum)) > 1.5 || abs(PlayerInputForwardVel(snum)) > 1.5)
 		{
-			clearcameras(-1, p);
+			clearcameras(p);
 			return;
 		}
 	}
@@ -1530,7 +1525,7 @@ void checksectors_d(int snum)
 		{
 			if (p->newOwner != nullptr)
 			{
-				clearcameras(-1, p);
+				clearcameras(p);
 			}
 			return;
 		}
@@ -1616,91 +1611,67 @@ void checksectors_d(int snum)
 
 			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
 			{
-				CallOnUse(neartagsprite, p);
+				if (CallOnUse(neartagsprite, p))
+					return;
 			}
 			else
-			switch (neartagsprite->spr.picnum)
-			{
-			case TOILET:
-			case STALL:
-				if (p->last_pissed_time == 0)
+				switch (neartagsprite->spr.picnum)
 				{
-					S_PlayActorSound(DUKE_URINATE, p->GetActor());
+				case TOILET:
+				case STALL:
+					if (p->last_pissed_time == 0)
+					{
+						S_PlayActorSound(DUKE_URINATE, p->GetActor());
 
-					p->last_pissed_time = 26 * 220;
-					p->transporter_hold = 29 * 2;
-					if (p->holster_weapon == 0)
-					{
-						p->holster_weapon = 1;
-						p->weapon_pos = -1;
+						p->last_pissed_time = 26 * 220;
+						p->transporter_hold = 29 * 2;
+						if (p->holster_weapon == 0)
+						{
+							p->holster_weapon = 1;
+							p->weapon_pos = -1;
+						}
+						if (p->GetActor()->spr.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
+						{
+							p->GetActor()->spr.extra += gs.max_player_health / 10;
+							p->last_extra = p->GetActor()->spr.extra;
+						}
+						else if (p->GetActor()->spr.extra < gs.max_player_health)
+							p->GetActor()->spr.extra = gs.max_player_health;
 					}
-					if (p->GetActor()->spr.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
-					{
-						p->GetActor()->spr.extra += gs.max_player_health / 10;
-						p->last_extra = p->GetActor()->spr.extra;
-					}
-					else if (p->GetActor()->spr.extra < gs.max_player_health)
-						p->GetActor()->spr.extra = gs.max_player_health;
-				}
-				else if (S_CheckActorSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
-					S_PlayActorSound(FLUSH_TOILET, neartagsprite);
-				return;
+					else if (S_CheckActorSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
+						S_PlayActorSound(FLUSH_TOILET, neartagsprite);
+					return;
 
-			case NUKEBUTTON:
-			{
-				walltype* wal;
-				hitawall(p, &wal);
-				if (wal != nullptr && wal->overpicnum == 0)
-					if (neartagsprite->temp_data[0] == 0)
-					{
-						neartagsprite->temp_data[0] = 1;
-						neartagsprite->SetOwner(p->GetActor());
-						p->buttonpalette = neartagsprite->spr.pal;
-						if (p->buttonpalette)
-							ud.secretlevel = neartagsprite->spr.lotag;
-						else ud.secretlevel = 0;
-					}
-				return;
-			}
-			case PLUG:
-				S_PlayActorSound(SHORT_CIRCUIT, pact);
-				p->GetActor()->spr.extra -= 2 + (krand() & 3);
-				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
-				break;
-			case VIEWSCREEN:
-			case VIEWSCREEN2:
-			{
-				i = 0;
-				DukeStatIterator it(STAT_ACTOR);
-				while (auto acti = it.Next())
+				case NUKEBUTTON:
 				{
-					if (actorflag(acti, SFLAG2_CAMERA) && acti->spr.yint == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
-					{
-						acti->spr.yint = 1; //Using this camera
-						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
-
-						neartagsprite->SetOwner(acti);
-						neartagsprite->spr.yint = 1;
-						camsprite = neartagsprite;
-
-						p->newOwner = acti;
-						return;
-					}
+					walltype* wal;
+					hitawall(p, &wal);
+					if (wal != nullptr && wal->overpicnum == 0)
+						if (neartagsprite->temp_data[0] == 0)
+						{
+							neartagsprite->temp_data[0] = 1;
+							neartagsprite->SetOwner(p->GetActor());
+							p->buttonpalette = neartagsprite->spr.pal;
+							if (p->buttonpalette)
+								ud.secretlevel = neartagsprite->spr.lotag;
+							else ud.secretlevel = 0;
+						}
+					return;
 				}
-				i = -1;
-			}
-
-			clearcameras(i, p);
-			return;
+				case PLUG:
+					S_PlayActorSound(SHORT_CIRCUIT, pact);
+					p->GetActor()->spr.extra -= 2 + (krand() & 3);
+					SetPlayerPal(p, PalEntry(32, 48, 48, 64));
+					break;
 				}
-			}
+		}
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
-			else if (p->newOwner != nullptr)
+		else if (p->newOwner != nullptr)
 		{
-			clearcameras(-1, p);
+			clearcameras(p);
 			return;
-			}
+		}
 
 		if (near.hitWall == nullptr && near.hitSector == nullptr && near.actor() == nullptr)
 			if (hits(p->GetActor()) < 32)
@@ -1721,7 +1692,7 @@ void checksectors_d(int snum)
 			}
 			else if (p->newOwner != nullptr)
 			{
-				clearcameras(-1, p);
+				clearcameras(p);
 				return;
 			}
 		}

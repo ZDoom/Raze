@@ -280,6 +280,7 @@ struct DukePlayer native
 	native void addpos(Vector3 pos);
 	native void settargetangle(double angle, bool backup = false);
 	native double angle();
+	native void clearcameras();
 
 
 }

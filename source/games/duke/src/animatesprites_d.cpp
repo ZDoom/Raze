@@ -177,10 +177,13 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->angle = h->interpolatedangle(interpfrac);
 		}
 
+
 		auto sectp = h->sector();
 		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			bool res = CallAnimate(h, t);
+			if (actorflag(h, SFLAG2_ALWAYSROTATE1))
+				applyRotation1(h, t, viewang);
 			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
 				copyfloorpal(t, sectp);
 
@@ -246,21 +249,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			continue;
-		case VIEWSCREEN:
-		case VIEWSCREEN2:
-			if (camsprite != nullptr && h->GetHitOwner() && h->GetHitOwner()->temp_data[0] == 1)
-			{
-				t->picnum = STATIC;
-				t->cstat |= randomFlip();
-				t->scale.X += (0.125);
-				t->scale.Y += (0.125);
-			}
-			else if (camsprite && camsprite == h->GetHitOwner())
-			{
-				t->picnum = TILE_VIEWSCR;
-			}
-			break;
-
 		case SHRINKSPARK:
 			t->picnum = SHRINKSPARK + ((PlayClock >> 4) & 3);
 			break;
@@ -685,7 +673,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case CAMERA1:
 		case RAT:
 			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{

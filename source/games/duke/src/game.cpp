@@ -446,13 +446,16 @@ void CallOnHurt(DDukeActor* actor, player_struct* hitter)
 
 
 
-void CallOnUse(DDukeActor* actor, player_struct* user)
+bool CallOnUse(DDukeActor* actor, player_struct* user)
 {
+	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, onUse)
 	{
 		VMValue val[2] = { actor, user };
-		VMCall(func, val, 2, nullptr, 0);
+		VMReturn ret(&nval);
+		VMCall(func, val, 2, &ret, 1);
 	}
+	return nval;
 }
 
 bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
@@ -461,8 +464,8 @@ bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
 	IFVIRTUALPTR(actor, DDukeActor, animate)
 	{
 		VMReturn ret(& nval);
-		VMValue val[2] = { actor, tspr };
-		VMCall(func, val, 2, &ret, 1);
+		VMValue val[3] = { actor, tspr };
+		VMCall(func, val, 3, &ret, 1);
 	}
 	return nval;
 }

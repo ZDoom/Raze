@@ -2552,7 +2552,8 @@ void checksectors_r(int snum)
 
 			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
 			{
-				CallOnUse(neartagsprite, p);
+				if (CallOnUse(neartagsprite, p))
+					return;
 			}
 			else
 			switch (neartagsprite->spr.picnum)

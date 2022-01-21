@@ -56,4 +56,15 @@ class CoreActor native
 	native void backuppos();
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
+
+	int randomFlip()
+	{
+		int r = random(0, 3);
+		if (r == 0) return 0;
+		if (r == 1) return CSTAT_SPRITE_XFLIP;
+		if (r == 2) return CSTAT_SPRITE_YFLIP;
+		return CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
+	}
+
+
 }

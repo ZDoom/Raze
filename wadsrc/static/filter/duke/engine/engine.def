@@ -26,6 +26,14 @@ spawnclasses
 	916 = DukeFireext
 	1079 = DukeOozFilter
 	1247 = DukeSeenine
+	502 = DukeViewscreen
+	499 = DukeViewscreen2
+	621 = DukeCamera // yes, they are all the same!
+	622 = DukeCamera
+	623 = DukeCamera
+	624 = DukeCamera
+	625 = DukeCamera
+
 	1272 = DukeTrash
 	634 = DukeBolt1
 	635 = DukeBolt2

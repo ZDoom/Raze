@@ -2481,7 +2481,11 @@ void moveactors_r(void)
 
 		auto sectp = act->sector();
 
-		switch(act->spr.picnum)
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+		}
+		else switch(act->spr.picnum)
 		{
 			case RESPAWNMARKERRED:
 			case RESPAWNMARKERYELLOW:
@@ -2683,10 +2687,6 @@ void moveactors_r(void)
 			case REACTOR:
 			case REACTOR2:
 				reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
-				continue;
-
-			case CAMERA1:
-				camera(act);
 				continue;
 		}
 

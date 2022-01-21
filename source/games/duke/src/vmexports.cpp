@@ -108,6 +108,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, global_random, duke_global_random)
 }
 
 DEFINE_GLOBAL_UNSIZED(dlevel)
+DEFINE_GLOBAL(camsprite)
 
 //---------------------------------------------------------------------------
 //
@@ -693,6 +694,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	ACTION_RETURN_FLOAT(dukeplayer_angle(self));
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, clearcameras, clearcameras)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	clearcameras(self);
+	return 0;
+}
+
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {

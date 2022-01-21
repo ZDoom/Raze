@@ -1201,11 +1201,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.shade = act->sector()->floorshade;
 		break;
-	case CAMERA1:
-	case CAMERA1 + 1:
-	case CAMERA1 + 2:
-	case CAMERA1 + 3:
-	case CAMERA1 + 4:
 	case CAMERAPOLE:
 		act->spr.extra = 1;
 
@@ -1219,9 +1214,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		else act->spr.pal = 0;
-		if (act->spr.picnum == CAMERAPOLE) break;
-		act->spr.picnum = CAMERA1;
-		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case STEAM:
 		if (actj)

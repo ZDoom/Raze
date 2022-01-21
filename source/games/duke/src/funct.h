@@ -29,7 +29,7 @@ void movefx();
 void moveclouds(double interpfrac);
 void movefta();
 
-void clearcameras(int i, player_struct* p);
+void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
 void movecanwithsomething(DDukeActor* i);
@@ -44,7 +44,6 @@ void forcesphere(DDukeActor* i, int forcesphere);
 void recon(DDukeActor* i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i));
 void ooz(DDukeActor* i);
 void reactor(DDukeActor* i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
-void camera(DDukeActor* i);
 void bloodsplats(DDukeActor* actor);
 void forcesphereexplode(DDukeActor* i);
 void watersplash2(DDukeActor* i);

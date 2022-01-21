@@ -266,7 +266,6 @@ static void cachespritenum(DDukeActor* actor)
 		maxc = 3;
 		break;
 	case NUKEBARREL:
-	case CAMERA1:
 		maxc = 5;
 		break;
 	case VIXEN:
