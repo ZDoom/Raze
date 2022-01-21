@@ -2920,7 +2920,7 @@ void processinput_d(int snum)
 
 		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
 		{
-			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 : -1;
+			int whichsound = (gs.tileinfo[j].flags & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}
 

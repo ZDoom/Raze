@@ -1049,7 +1049,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	{
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
 		int pn = ps[i].GetActor()->sector()->floorpicnum;
-		if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
+		if (gs.tileinfo[pn].flags & TFLAG_CLEARINVENTORY)
 		{
 			resetinventory(i);
 			clearweapon = true;

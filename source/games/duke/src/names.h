@@ -21,7 +21,6 @@ extern int TILE_CAMLIGHT;
 extern int TILE_STATIC;
 extern int TILE_BOTTOMSTATUSBAR;
 extern int TILE_ATOMICHEALTH;
-extern int TILE_FLOORSLIME;
 extern int TILE_JIBS6;
 extern int TILE_FIRE;
 extern int TILE_WATERBUBBLE;
@@ -46,8 +45,6 @@ extern int TILE_LA;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;
 extern int TILE_BIGORBIT1;
-extern int TILE_HURTRAIL;
-extern int TILE_FLOORPLASMA;
 extern int TILE_EGG;
 
 

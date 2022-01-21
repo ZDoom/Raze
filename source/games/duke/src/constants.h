@@ -349,8 +349,11 @@ DEFINE_TFLAGS_OPERATORS(EDukeFlags2)
 
 enum
 {
-	TFLAG_WALLSWITCH = 1,
-	TFLAG_ADULT = 2,
+	TFLAG_WALLSWITCH			= 1,
+	TFLAG_ADULT					= 2,
+	TFLAG_ELECTRIC				= 4,
+	TFLAG_CLEARINVENTORY		= 8,	// really dumb Duke stuff...
+	TFLAG_SLIME					= 16,
 };
 
 enum
