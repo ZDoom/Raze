@@ -1309,7 +1309,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
 
     float const fglobalang = FixedToFloat(qglobalang);
     auto sky = getSky(globalpicnum);
-    int32_t dapskybits = sky.lognumtiles, dapyoffs = sky.pmoffset, daptileyscale = sky.scale * 65536;
+    int32_t dapskybits = clamp(sky.lognumtiles, 0, 4), dapyoffs = sky.pmoffset, daptileyscale = sky.scale * 65536;
     int16_t const * dapskyoff = sky.offsets;
 
     int remap = TRANSLATION(Translation_Remap + curbasepal, globalpal);
