@@ -2484,7 +2484,7 @@ sectdone:
                 }
                 else
                 {
-                    DoGameOverScene(mplevel);
+                    DoGameOverScene(currentLevel->levelNumber == 20);
                     return;
                 }
             }
