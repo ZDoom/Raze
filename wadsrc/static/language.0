@@ -6,7 +6,7 @@ Yes,TXT_YES,,,,Ano,Ja,Ναι,Jes,Sí,,Kyllä,Oui,Igen,Si,はい,네,Ja,Tak,Sim,,
 No,TXT_NO,,,,Ne,Nein,Όχι,Ne,No,,Ei,Non,Nem,No,いいえ,아니요,Nee,Nie,Não,,Nu,Нет,Не
 "You can't save if you aren't playing!
 
-Press a key.",SAVEDEAD,,,,"Nemůžeš ukládat pokud nehraješ!
+Press a key.",SAVEDEAD,,,,"Nemůžeš ukládat když nehraješ!
 
 Stiskni libovolnou klávesu.","Du kannst nicht speichern, wenn du nicht spielst.
 
@@ -181,7 +181,7 @@ Apasă Y sau N.","Загрузить быстрое сохранение
 „%s“?
 
 Притисните Y или N."
-%s cheats,TXT_X_CHEATS,This is a gender sensitive message where %s represents the player,,,%s cheatuje,%s schummelt,@[art_gr] %s απατάει,%s trompas,%s hace trampas,,%s huijaa,%s triche.,%s csal,%s imbroglia,%s はチート使用,%s 이(가) 치트를 사용 함,%s bedriegt,%s oszukuje,%s está trapaceando,%s está a fazer batota,%s trișează,%s использует чит-коды,%s вара
+%s cheats,TXT_X_CHEATS,This is a gender sensitive message where %s represents the player,,,%s podvádí,%s schummelt,@[art_gr] %s απατάει,%s trompas,%s hace trampas,,%s huijaa,%s triche.,%s csal,%s imbroglia,%s はチート使用,%s 이(가) 치트를 사용 함,%s bedriegt,%s oszukuje,%s está trapaceando,%s está a fazer batota,%s trișează,%s использует чит-коды,%s вара
 Messages: OFF,MSGOFF,,,,Oznámení ZAP.,Meldungen AUS,Μηνύματα ΚΛΕΙΣΤΑ,Mesaĝoj: MALŜALTITA,Mensajes DESACTIVADOS,,Viestit POIS PÄÄLTÄ,Messages désactivés.,Üzenetek KI,Messaggi DISATTIVATI,メッセージ: オフ,메시지 끔,Berichten UIT,Wiadomości WYŁĄCZONE,Mensagens DESATIVADAS,,Mesaje OPRITE,Сообщения ОТКЛЮЧЕНЫ,Поруке ИСКЉУЧЕНЕ
 Messages: ON,MSGON,,,,Oznámení VYP.,Meldungen AN,Μηνύματα ΑΝΟΙΧΤΑ,Mesaĝoj: ŜALTITA,Mensajes ACTIVADOS,,Viestit PÄÄLLÄ,Messages activés.,Üzenetek BE,Messaggi ATTIVATI,メッセージ: オン,메시지 켬,Berichten AAN,Wiadomości WŁĄCZONE,Mensagens ATIVADAS,,Mesaje PORNITE,Сообщения ВКЛЮЧЁНЫ,Поруке УКЉУЧЕНЕ
 Say:,TXT_SAY,,,,Říct:,Sage:,Πές:,Diri:,,,Sano:,Parler:,Üzenet:,Parla:,発言:,,Zeg:,Powiedz:,Dizer:,Diz:,Vorbește:,Чат:,Пиши:
