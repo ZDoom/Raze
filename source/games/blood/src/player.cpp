@@ -1355,7 +1355,7 @@ void PickUp(PLAYER* pPlayer, DBloodActor* actor)
 	pPlayer->pickupEffect = 30;
 	if (pPlayer == gMe) {
 		if (customMsg > 0) trTextOver(customMsg - 1);
-		else if (msg) viewSetMessage(msg, 0, MESSAGE_PRIORITY_PICKUP);
+		else if (msg) viewSetMessage(msg, nullptr, MESSAGE_PRIORITY_PICKUP);
 	}
 }
 

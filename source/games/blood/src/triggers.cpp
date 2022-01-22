@@ -2343,7 +2343,7 @@ void trTextOver(int nId)
 {
 	const char* pzMessage = currentLevel->GetMessage(nId);
 	if (pzMessage)
-		viewSetMessage(pzMessage, VanillaMode() ? 0 : 8, MESSAGE_PRIORITY_INI); // 8: gold
+		viewSetMessage(pzMessage, VanillaMode() ? nullptr : TEXTCOLOR_GOLD, MESSAGE_PRIORITY_INI);
 }
 
 //---------------------------------------------------------------------------

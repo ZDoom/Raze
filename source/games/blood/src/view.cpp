@@ -265,10 +265,10 @@ void viewSetSystemMessage(const char* pMessage, ...) {
 	Printf(PRINT_HIGH | PRINT_NOTIFY, "%s\n", buffer); // print it also in console
 }
 
-void viewSetMessage(const char* pMessage, const int pal, const MESSAGE_PRIORITY priority)
+void viewSetMessage(const char* pMessage, const char* color, const MESSAGE_PRIORITY priority)
 {
 	int printlevel = priority <= MESSAGE_PRIORITY_NORMAL ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
-	Printf(printlevel | PRINT_NOTIFY, "%s\n", pMessage);
+	Printf(printlevel | PRINT_NOTIFY, "%s%s\n", color? color : TEXTCOLOR_TAN, pMessage);
 }
 
 void viewSetErrorMessage(const char* pMessage)

@@ -401,7 +401,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 				gSecretMgr.Found(command - kCmdNumberic);
 				if (gGameOptions.nGameType == 0)
 				{
-					viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), 0, MESSAGE_PRIORITY_SECRET);
+					viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), nullptr, MESSAGE_PRIORITY_SECRET);
 				}
 			}
 			else viewSetSystemMessage("Invalid Trigger-Secret command by %s", eob.description().GetChars());
