@@ -1810,7 +1810,7 @@ void SpriteSetup(void)
                     pskybits_override = actor->spr.lotag;
                     if (SP_TAG4(actor) > 2048)
                         parallaxyscale_override = SP_TAG4(actor);
-                    defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 65536.f);
+                    defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 8192.f);
                     KillActor(actor);
                     break;
                 }
