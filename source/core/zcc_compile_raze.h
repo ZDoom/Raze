@@ -1,6 +1,8 @@
 #pragma once
 #include "zcc_compile.h"
 
+class DCoreActor;
+
 void SetImplicitArgs(TArray<PType*>* args, TArray<uint32_t>* argflags, TArray<FName>* argnames, PContainerType* cls, uint32_t funcflags, int useflags);
 
 class ZCCRazeCompiler : public ZCCCompiler
@@ -12,10 +14,6 @@ public:
 	int Compile() override;
 protected:
 	bool PrepareMetaData(PClass *type) override;
-	void SetImplicitArgs(TArray<PType*>* args, TArray<uint32_t>* argflags, TArray<FName>* argnames, PContainerType* cls, uint32_t funcflags, int useflags) override
-	{
-		::SetImplicitArgs(args, argflags, argnames, cls, funcflags, useflags);
-	}
 private:
 	void CompileAllProperties();
 	bool CompileProperties(PClass *type, TArray<ZCC_Property *> &Properties, FName prefix);
@@ -25,7 +23,6 @@ private:
 	void ProcessDefaultProperty(PClassActor *cls, ZCC_PropertyStmt *prop, Baggage &bag);
 	void ProcessDefaultFlag(PClassActor *cls, ZCC_FlagStmt *flg);
 	void InitDefaults() override final;
-	int CheckActionKeyword(ZCC_FuncDeclarator *f, uint32_t &varflags, int useflags, ZCC_StructWork *c);
 	
 };
 

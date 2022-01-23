@@ -183,7 +183,7 @@ FFlagDef *FindFlag (const PClass *type, const char *part1, const char *part2, bo
 
 	if (part2 == NULL)
 	{ // Search all lists
-		int max = strict ? 2 : NUM_FLAG_LISTS;
+		int max = strict ? 1 : NUM_FLAG_LISTS;
 		for (int i = 0; i < max; ++i)
 		{
 			if ((FlagLists[i].Use & 1) && type->IsDescendantOf (*FlagLists[i].Type))

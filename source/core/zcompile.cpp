@@ -37,13 +37,14 @@
 #include "filesystem.h"
 #include "sc_man.h"
 #include "zcc_parser.h"
-#include "zcc_compile.h"
+#include "zcc_compile_raze.h"
 #include "codegen.h"
 #include "stats.h"
 #include "printf.h"
 #include "dobject.h"
 
-void InitImports();
+void InitThingdef();
+void SynthesizeFlagFields();
 
 void ParseScripts()
 {
@@ -56,7 +57,7 @@ void ParseScripts()
 		auto newns = ParseOneScript(lump, state);
 		PSymbolTable symtable;
 
-		ZCCCompiler cc(state, NULL, symtable, newns, lump, state.ParseVersion);
+		ZCCRazeCompiler cc(state, NULL, symtable, newns, lump, state.ParseVersion);
 		cc.Compile();
 
 		if (FScriptPosition::ErrorCounter > 0)
@@ -78,7 +79,7 @@ void LoadScripts()
 	cycle_t timer;
 
 	PType::StaticInit();
-	InitImports();
+	InitThingdef();
 	timer.Reset(); timer.Clock();
 	FScriptPosition::ResetErrorCounter();
 
@@ -95,6 +96,7 @@ void LoadScripts()
 
 	timer.Unclock();
 	if (!batchrun) Printf("script parsing took %.2f ms\n", timer.TimeMS());
+	SynthesizeFlagFields();
 
 	// Now we may call the scripted OnDestroy method.
 	PClass::bVMOperational = true;
