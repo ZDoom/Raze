@@ -618,7 +618,7 @@ struct spriteext_t
 	int16_t mdanimcur;
 	int16_t angoff, pitch, roll;
 	vec3_t pivot_offset, position_offset;
-	uint8_t flags;
+	uint8_t renderflags;
 	float alpha;
 };
 

@@ -36,6 +36,7 @@
 #include "coreactor.h"
 #include "gamefuncs.h"
 #include "raze_sound.h"
+#include "vm.h"
 
 // Doubly linked ring list of Actors
 
@@ -473,4 +474,40 @@ size_t DCoreActor::PropagateMark()
 	GC::Mark(nextSect);
 	return Super::PropagateMark();
 }
+
+
+DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
+DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)
+DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)
+DEFINE_FIELD_NAMED(DCoreActor, spr.picnum, picnum)
+DEFINE_FIELD_NAMED(DCoreActor, spr.statnum, statnum)
+DEFINE_FIELD_NAMED(DCoreActor, spr.ang, ang)
+DEFINE_FIELD_NAMED(DCoreActor, spr.xvel, xvel)
+DEFINE_FIELD_NAMED(DCoreActor, spr.yvel, yvel)
+DEFINE_FIELD_NAMED(DCoreActor, spr.zvel, zvel)
+DEFINE_FIELD_NAMED(DCoreActor, spr.inittype, inittype)
+DEFINE_FIELD_NAMED(DCoreActor, spr.hitag, hitag)
+DEFINE_FIELD_NAMED(DCoreActor, spr.lotag, lotag)
+DEFINE_FIELD_NAMED(DCoreActor, spr.type, type)
+DEFINE_FIELD_NAMED(DCoreActor, spr.flags, flags) // need to be careful with this!
+DEFINE_FIELD_NAMED(DCoreActor, spr.extra, extra)
+DEFINE_FIELD_NAMED(DCoreActor, spr.detail, detail)
+DEFINE_FIELD_NAMED(DCoreActor, spr.shade, shade)
+DEFINE_FIELD_NAMED(DCoreActor, spr.pal, pal)
+DEFINE_FIELD_NAMED(DCoreActor, spr.clipdist, clipdist)
+DEFINE_FIELD_NAMED(DCoreActor, spr.blend, blend)
+DEFINE_FIELD_NAMED(DCoreActor, spr.xrepeat, xrepeat)
+DEFINE_FIELD_NAMED(DCoreActor, spr.yrepeat, yrepeat)
+DEFINE_FIELD_NAMED(DCoreActor, spr.xoffset, xoffset)
+DEFINE_FIELD_NAMED(DCoreActor, spr.yoffset, yoffset)
+DEFINE_FIELD_NAMED(DCoreActor, spr.owner, owner)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimtims, mdanimtims)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimcur, mdanimcur)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.angoff, angoff)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.pitch, pitch)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.roll, roll)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.pivot_offset, pivot_offset)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
+DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
+DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 

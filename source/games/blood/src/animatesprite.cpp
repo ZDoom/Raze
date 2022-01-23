@@ -597,7 +597,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			break;
 		case 1:
 		{
-			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.flags & SPREXT_NOTMD))
+			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -619,7 +619,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		}
 		case 2:
 		{
-			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.flags & SPREXT_NOTMD))
+			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -649,11 +649,11 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		case 6:
 		case 7:
 		{
-			if (hw_models && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(owneractor->sprext.flags & SPREXT_NOTMD))
+			if (hw_models && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 				break;
 
 			// Can be overridden by def script
-			if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(owneractor->sprext.flags & SPREXT_NOTMD))
+			if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				if ((pTSprite->flags & kHitagRespawn) == 0)
 				{
@@ -676,7 +676,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			nAnim--;
 		}
 
-		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && r_voxels && !(owneractor->sprext.flags & SPREXT_NOTMD))
+		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && r_voxels && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 		{
 			int const nRootTile = pTSprite->picnum;
 			int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
@@ -695,7 +695,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 				pTSprite->clipdist |= TSPR_MDLROTATE; // per-sprite rotation setting.
 		}
 
-		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sprext.flags & SPREXT_NOTMD))
+		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 		{
 			int const nRootTile = pTSprite->picnum;
 			int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));

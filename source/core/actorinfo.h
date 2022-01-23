@@ -10,12 +10,37 @@
 class FScanner;
 class FInternalLightAssociation;
 
+enum EDefaultFlags
+{
+	DEFF_PICNUM = 1,
+	DEFF_STATNUM = 2,
+	DEFF_ANG = 4,
+	DEFF_XVEL = 8,
+	DEFF_YVEL = 16,
+	DEFF_ZVEL = 32,
+	DEFF_HITAG = 64,
+	DEFF_LOTAG = 128,
+	DEFF_EXTRA = 256,
+	DEFF_DETAIL = 512,
+	DEFF_SHADE = 1024,
+	DEFF_PAL = 2048,
+	DEFF_CLIPDIST = 8192,
+	DEFF_BLEND = 16384,
+	DEFF_XREPEAT = 32768,
+	DEFF_YREPEAT = 65536,
+	DEFF_XOFFSET = 0x20000,
+	DEFF_YOFFSET = 0x40000,
+	DEFF_OWNER = 0x80000,
+};
+
 struct FActorInfo
 {
 	TArray<FInternalLightAssociation *> LightAssociations;
 	PClassActor *Replacement = nullptr;
 	PClassActor *Replacee = nullptr;
 	int TypeNum = -1;
+	int DefaultFlags = 0;
+	int DefaultCstat = 0;
 
 	FActorInfo() = default;
 	FActorInfo(const FActorInfo & other) = delete;

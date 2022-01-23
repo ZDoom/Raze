@@ -1544,7 +1544,7 @@ void updateModelInterpolation()
     TSpriteIterator<DCoreActor> it;
     while (auto actor = it.Next())
     {
-        if ((mdpause && actor->sprext.mdanimtims) || (actor->sprext.flags & SPREXT_NOMDANIM))
+        if ((mdpause && actor->sprext.mdanimtims) || (actor->sprext.renderflags & SPREXT_NOMDANIM))
             actor->sprext.mdanimtims += mdtims - omdtims;
     }
 }

@@ -494,7 +494,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, spriteext_t& c, sprite
 			("roll", c.roll, def->roll)
 			("pivot_offset", c.pivot_offset, def->pivot_offset)
 			("position_offset", c.position_offset, def->position_offset)
-			("flags", c.flags, def->flags)
+			("flags", c.renderflags, def->renderflags)
 			("alpha", c.alpha, def->alpha)
 			.EndObject();
 	}

@@ -2721,7 +2721,7 @@ void polymost_drawsprite(int32_t snum)
 
     sec = tspr->sectp;
 
-    while (!(actor->sprext.flags & SPREXT_NOTMD))
+    while (!(actor->sprext.renderflags & SPREXT_NOTMD))
     {
         if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
             tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
@@ -2753,12 +2753,12 @@ void polymost_drawsprite(int32_t snum)
 
     vec3_t pos = tspr->pos;
 
-    if (actor->sprext.flags & SPREXT_AWAY1)
+    if (actor->sprext.renderflags & SPREXT_AWAY1)
     {
         pos.X += bcos(tspr->ang, -13);
         pos.Y += bsin(tspr->ang, -13);
     }
-    else if (actor->sprext.flags & SPREXT_AWAY2)
+    else if (actor->sprext.renderflags & SPREXT_AWAY2)
     {
         pos.X -= bcos(tspr->ang, -13);
         pos.Y -= bsin(tspr->ang, -13);
@@ -3479,7 +3479,7 @@ static void sortsprites(int const start, int const end)
 
 static bool spriteIsModelOrVoxel(const tspritetype* tspr)
 {
-    if (!tspr->ownerActor || tspr->ownerActor->sprext.flags & SPREXT_NOTMD)
+    if (!tspr->ownerActor || tspr->ownerActor->sprext.renderflags & SPREXT_NOTMD)
         return false;
 
     if (hw_models)

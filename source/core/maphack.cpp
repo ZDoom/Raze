@@ -258,12 +258,12 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 		else if (sc.Compare("notmd") || sc.Compare("notmd2") || sc.Compare("notmd3"))
 		{
 			if (validateSprite())
-				sprites.sprext[currentsprite].flags |= SPREXT_NOTMD;
+				sprites.sprext[currentsprite].renderflags |= SPREXT_NOTMD;
 		}
 		else if (sc.Compare("nomdanim") || sc.Compare("nomd2anim") || sc.Compare("nomd3anim"))
 		{
 			if (validateSprite())
-				sprites.sprext[currentsprite].flags |= SPREXT_NOMDANIM;
+				sprites.sprext[currentsprite].renderflags |= SPREXT_NOMDANIM;
 		}
 		else if (sc.Compare("pitch"))
 		{
@@ -308,12 +308,12 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 		else if (sc.Compare("away1"))
 		{
 			if (validateSprite())
-				sprites.sprext[currentsprite].flags |= SPREXT_AWAY1;
+				sprites.sprext[currentsprite].renderflags |= SPREXT_AWAY1;
 		}
 		else if (sc.Compare("away2"))
 		{
 			if (validateSprite())
-				sprites.sprext[currentsprite].flags |= SPREXT_AWAY2;
+				sprites.sprext[currentsprite].renderflags |= SPREXT_AWAY2;
 		}
 		else if (sc.Compare("mhkreset"))
 		{
@@ -321,7 +321,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 			{
 				auto& sx = sprites.sprext[currentsprite];
 				sx.angoff = 0;
-				sx.flags &= ~(SPREXT_NOTMD | SPREXT_NOMDANIM | SPREXT_AWAY1 | SPREXT_AWAY2);
+				sx.renderflags &= ~(SPREXT_NOTMD | SPREXT_NOMDANIM | SPREXT_AWAY1 | SPREXT_AWAY2);
 				sx.pitch = 0;
 				sx.roll = 0;
 				sx.pivot_offset = {};
