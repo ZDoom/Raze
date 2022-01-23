@@ -1314,13 +1314,13 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
 
     int remap = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff, remap);
-    int realskybits = dapskybits;
+    int realskybits = dapskybits; 
     if (globalskytex)
     {
         dapskybits = 0;
     }
 
-    dapyoffs = isDuke() && globalpicnum == 89 ? 17 * 1024 : 32 * 1024;
+    dapyoffs = isSWALL()? 16*1024 : isDuke() && globalpicnum == 89 ? 17 * 1024 : 32 * 1024;
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyoffs*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
     float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
