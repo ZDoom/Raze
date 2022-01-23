@@ -2,6 +2,13 @@
 
 #include <stdint.h>
 #include "maptypes.h"
+#include "build.h"
+#include "actorinfo.h"
+
+enum
+{
+	MAXSTATUS = 1024
+};
 
 class DCoreActor : public DObject
 {
@@ -292,7 +299,6 @@ struct ActorStatList
 
 extern ActorStatList statList[MAXSTATUS];
 
-// Iterator wrappers that return an actor pointer, not an index.
 template<class TActor>
 class TStatIterator
 {
@@ -431,4 +437,10 @@ tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreAct
 inline void validateTSpriteSize(tspritetype*& tsprite, int& spritesortcnt)
 {
 
+}
+
+inline PClassActor* PClass::FindActor(FName name)
+{
+	auto cls = FindClass(name);
+	return cls && cls->IsDescendantOf(RUNTIME_CLASS(DCoreActor)) ? static_cast<PClassActor*>(cls) : nullptr;
 }

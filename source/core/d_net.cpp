@@ -143,7 +143,6 @@ void G_BuildTiccmd (ticcmd_t *cmd);
 void D_DoAdvanceDemo (void);
 
 static void SendSetup (uint32_t playersdetected[MAXNETNODES], uint8_t gotsetup[MAXNETNODES], int len);
-static void RunScript(uint8_t **stream, AActor *pawn, int snum, int argn, int always);
 
 int		reboundpacket;
 uint8_t	reboundstore[MAX_MSGLEN];

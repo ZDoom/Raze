@@ -1,5 +1,6 @@
 #pragma once
 #include "tflags.h"
+#include "coreactor.h"
 
 // all game constants got collected here.
 

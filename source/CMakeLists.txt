@@ -1012,6 +1012,9 @@ set (PCH_SOURCES
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
 
+	core/actorinfo.cpp
+	core/zcc_compile_raze.cpp
+	core/thingdef_data.cpp
 	core/actorlist.cpp
 	core/automap.cpp
 	core/cheats.cpp

@@ -43,7 +43,6 @@ enum
     MAXWALLSB = 6144,
 
     MAXVOXELS = 1024,
-    MAXSTATUS = 1024,
     // Maximum number of component tiles in a multi-psky:
     MAXSPRITESONSCREEN = 4096,
     MAXUNIQHUDID = 256, //Extra slots so HUD models can store animation state without messing game sprites
