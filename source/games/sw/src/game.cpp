@@ -215,6 +215,7 @@ static void SetTileNames()
     auto registerName = [](const char* name, int index)
     {
         TexMan.AddAlias(name, tileGetTexture(index));
+        TileFiles.addName(name, index);
     };
 #include "namelist.h"
 }

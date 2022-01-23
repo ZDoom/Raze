@@ -499,6 +499,7 @@ static void SetTileNames()
 	auto registerName = [](const char* name, int index)
 	{
 		TexMan.AddAlias(name, tileGetTexture(index));
+		TileFiles.addName(name, index);
 	};
 #include "namelist.h"
 	// Oh Joy! Plasma Pak changes the tile number of the title screen, but we preferably want mods that use the original one to display it.

@@ -316,7 +316,11 @@ static bool PointerCheck(PType *symtype, PType *checktype)
 DEFINE_PROPERTY(pic, S, CoreActor)
 {
 	PROP_STRING_PARM(str, 0);
-	defaults->spr.picnum = 0; // todo
+	defaults->spr.picnum = TileFiles.tileForName(str);
+	if (defaults->spr.picnum == -1)
+	{
+		I_Error("Unknown texture name '%s'", str);
+	}
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_PICNUM;
 }
 
