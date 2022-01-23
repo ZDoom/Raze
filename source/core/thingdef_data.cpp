@@ -62,7 +62,8 @@ extern float			BackbuttonAlpha;
 // [RH] Keep GCC quiet by not using offsetof on Actor types.
 #define DEFINE_FLAG(prefix, name, type, variable) { (unsigned int)prefix##_##name, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native }
 #define DEFINE_PROTECTED_FLAG(prefix, name, type, variable) { (unsigned int)prefix##_##name, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native|VARF_ReadOnly|VARF_InternalAccess }
-#define DEFINE_FLAG2(symbol, name, type, variable) { (unsigned int)symbol, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native }
+#define DEFINE_FLAG2(symbol, name, type, variable) { (unsigned int)symbol, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native | VARF_Protected }
+#define DEFINE_FLAG2d(symbol, name, type, variable) { (unsigned int)symbol, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native }
 #define DEFINE_FLAG2_DEPRECATED(symbol, name, type, variable) { (unsigned int)symbol, #name, (int)(size_t)&((type*)1)->variable - 1, sizeof(((type *)0)->variable), VARF_Native|VARF_Deprecated }
 #define DEFINE_DEPRECATED_FLAG(name) { DEPF_##name, #name, -1, 0, true }
 #define DEFINE_DUMMY_FLAG(name, deprec) { DEPF_UNUSED, #name, -1, 0, deprec? VARF_Deprecated:0 }
@@ -77,14 +78,14 @@ static FFlagDef InternalActorFlagDefs[]=
 
 static FFlagDef ActorFlagDefs[]=
 {
-	DEFINE_FLAG2(CSTAT_SPRITE_BLOCK, BLOCK, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_TRANSLUCENT, TRANSLUCENT, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_XFLIP, XFLIP, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_YFLIP, YFLIP, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_ONE_SIDE, ONE_SIDE, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_YCENTER, YCENTER, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_BLOCK_HITSCAN, BLOCK_HITSCAN, DCoreActor, spr.cstat),
-	DEFINE_FLAG2(CSTAT_SPRITE_INVISIBLE, INVISIBLE, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_BLOCK, BLOCK, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_TRANSLUCENT, TRANSLUCENT, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_XFLIP, XFLIP, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_YFLIP, YFLIP, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_ONE_SIDE, ONE_SIDE, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_YCENTER, YCENTER, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_BLOCK_HITSCAN, BLOCK_HITSCAN, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_INVISIBLE, INVISIBLE, DCoreActor, spr.cstat),
 	DEFINE_FLAG2(CSTAT2_SPRITE_MAPPED, MAPPED, DCoreActor, spr.cstat2),
 	DEFINE_FLAG2(CSTAT2_SPRITE_NOSHADOW, NOSHADOW, DCoreActor, spr.cstat2),
 	DEFINE_FLAG2(CSTAT2_SPRITE_DECAL, DECAL, DCoreActor, spr.cstat2),

@@ -83,6 +83,11 @@ static PClassActor *FindClassTentative(const char *name, PClass *ancestor, bool 
 //==========================================================================
 void ModActorFlag(DCoreActor *actor, FFlagDef *fd, bool set)
 {
+	// if it's a CSTAT flag, mark it as protected so that map spawned actors do not override it.
+	if (fd->varflags & VARF_Protected)
+	{
+		static_cast<PClassActor*>(actor->GetClass())->ActorInfo()->DefaultCstat |= fd->flagbit;
+	}
 	// Little-Endian machines only need one case, because all field sizes
 	// start at the same address. (Unless the machine has unaligned access
 	// exceptions, in which case you'll need multiple cases for it too.)
