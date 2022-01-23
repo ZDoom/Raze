@@ -1,0 +1,3 @@
+class SWActor : CoreActor native
+{
+}
