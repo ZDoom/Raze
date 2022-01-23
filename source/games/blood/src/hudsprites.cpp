@@ -172,6 +172,13 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 		drawElement(0, 237, 2358, 1, 0, 1, -1);
 		drawElement(320, 237, 2358, 1, 1, 1, 1);
 	}
+
+	int zn = ((gView->zWeapon - gView->zView - (12 << 8)) >> 7) + 220;
+	PLAYER* pPSprite = &gPlayer[gMe->actor->spr.type - kDudePlayer1];
+	if (gMe->actor->IsPlayerActor() && pPSprite->hand == 1)
+	{
+		gChoke.animateChoke(160, zn, (int)gInterpolate);
+	}
 }
 
 END_BLD_NS

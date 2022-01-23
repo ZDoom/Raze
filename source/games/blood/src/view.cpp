@@ -827,12 +827,6 @@ void viewDrawScreen(bool sceneonly)
 		DrawMap(gView->actor);
 	}
 	UpdateStatusBar();
-	int zn = ((gView->zWeapon - gView->zView - (12 << 8)) >> 7) + 220;
-	PLAYER* pPSprite = &gPlayer[gMe->actor->spr.type - kDudePlayer1];
-	if (gMe->actor->IsPlayerActor() && pPSprite->hand == 1)
-	{
-		gChoke.animateChoke(160, zn, (int)gInterpolate);
-	}
 
 	viewDrawAimedPlayerName();
 	if (paused)
