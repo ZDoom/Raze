@@ -85,7 +85,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 	act->timetosleep = 0;
 	act->actorstayput = nullptr;
-	act->extra = -1;
+	act->hitextra = -1;
 	act->cgg = 0;
 	act->movflag = 0;
 	act->tempang = 0;
@@ -139,7 +139,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 {
 	act->attackertype = act->spr.picnum;
 	act->timetosleep = 0;
-	act->extra = -1;
+	act->hitextra = -1;
 
 	act->backuppos();
 
@@ -1026,7 +1026,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			while (auto itActor = it.Next())
 			{
 				if (itActor->spr.picnum == ACTIVATOR || itActor->spr.picnum == ACTIVATORLOCKED)
-					actor->aflags |= AFLAG_USEACTIVATOR;
+					actor->flags2 |= SFLAG2_USEACTIVATOR;
 			}
 			ChangeActorStat(actor, STAT_LIGHT);
 			break;

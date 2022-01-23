@@ -5168,7 +5168,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				SKIPJIBS:
 
 					actor->attackertype = SHOTSPARK1;
-					actor->extra = 1;
+					actor->hitextra = 1;
 					actor->spr.zvel = 0;
 				}
 				else if (actor->spr.zvel > 2048 && actor->sector()->lotag != 1)

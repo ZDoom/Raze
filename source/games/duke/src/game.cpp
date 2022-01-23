@@ -41,6 +41,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "gamestate.h"
 #include "razefont.h"
 #include "psky.h"
+#include "vm.h"
 
 BEGIN_DUKE_NS
 
@@ -396,5 +397,24 @@ void GameInterface::app_init()
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 	S_ParseDeveloperCommentary();
 }
+
+DEFINE_FIELD(DDukeActor, ownerActor)
+DEFINE_FIELD(DDukeActor, hitOwnerActor)
+DEFINE_FIELD(DDukeActor, cgg)
+DEFINE_FIELD(DDukeActor, spriteextra)
+DEFINE_FIELD(DDukeActor, hitang)
+DEFINE_FIELD(DDukeActor, hitextra)
+DEFINE_FIELD(DDukeActor, movflag)
+DEFINE_FIELD(DDukeActor, tempang)
+DEFINE_FIELD(DDukeActor, timetosleep)
+DEFINE_FIELD(DDukeActor, floorz)
+DEFINE_FIELD(DDukeActor, ceilingz)
+DEFINE_FIELD(DDukeActor, saved_ammo)
+DEFINE_FIELD(DDukeActor, palvals)
+DEFINE_FIELD(DDukeActor, temp_data)
+DEFINE_FIELD(DDukeActor, temp_actor)
+DEFINE_FIELD(DDukeActor, seek_actor)
+DEFINE_FIELD(DDukeActor, flags1)
+DEFINE_FIELD(DDukeActor, flags2)
 
 END_DUKE_NS

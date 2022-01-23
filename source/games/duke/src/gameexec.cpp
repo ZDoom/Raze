@@ -1281,12 +1281,12 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->attackertype, sActor, sPlayer);
 		break;
 	case ACTOR_HTANG:
-		if (bSet) act->ang = lValue;
-		else SetGameVarID(lVar2, act->ang, sActor, sPlayer);
+		if (bSet) act->hitang = lValue;
+		else SetGameVarID(lVar2, act->hitang, sActor, sPlayer);
 		break;
 	case ACTOR_HTEXTRA:
-		if (bSet) act->extra = lValue;
-		else SetGameVarID(lVar2, act->extra, sActor, sPlayer);
+		if (bSet) act->hitextra = lValue;
+		else SetGameVarID(lVar2, act->hitextra, sActor, sPlayer);
 		break;
 	case ACTOR_HTOWNER:
 		if (bSet) act->hitOwnerActor = vValue.safeActor();
@@ -2281,7 +2281,7 @@ int ParseState::parse(void)
 
 			ps[g_p].falling_counter = 0;
 
-			g_ac->extra = -1;
+			g_ac->hitextra = -1;
 
 			g_ac->cgg = 0;
 			g_ac->movflag = 0;

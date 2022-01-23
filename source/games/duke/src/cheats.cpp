@@ -68,7 +68,7 @@ static const char *cheatGod(int myconnectindex, int state)
 
 	p->resurrected = true;
 	act->spr.extra = gs.max_player_health;
-	act->extra = 0;
+	act->hitextra = 0;
 	if (ud.god)
 	{
 		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
@@ -92,7 +92,7 @@ static const char *cheatGod(int myconnectindex, int state)
 	{
 		ud.god = 0;
 		act->spr.extra = gs.max_player_health;
-		act->extra = -1;
+		act->hitextra = -1;
 		ps[myconnectindex].last_extra = gs.max_player_health;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
 	}

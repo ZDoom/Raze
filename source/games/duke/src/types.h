@@ -35,11 +35,11 @@ public:
 
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short attackertype, ang, extra, movflag;
+	short attackertype, hitang, hitextra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
 	vec2_t ovel;
-	int floorz, ceilingz, aflags;
+	int floorz, ceilingz;
 	union
 	{
 		int saved_ammo;
@@ -53,6 +53,9 @@ public:
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
 	TArray<GameVarValue> uservars;
+
+	EDukeFlags1 flags1;
+	EDukeFlags2 flags2;
 
 	// Todo: Once we start assigning subclasses to actors, this one needs to be moved to the proper FIREBALL subclass.
 	FireProj fproj;

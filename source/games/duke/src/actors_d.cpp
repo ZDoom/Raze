@@ -242,7 +242,7 @@ bool ifsquished(DDukeActor* actor, int p)
 		if (actor->spr.pal == 1)
 		{
 			actor->attackertype = SHOTSPARK1;
-			actor->extra = 1;
+			actor->hitextra = 1;
 			return false;
 		}
 
@@ -349,7 +349,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 				if (d < r && cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z - (8 << 8), act2->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (12 << 8), actor->sector()))
 				{
-					act2->ang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
+					act2->hitang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
@@ -379,17 +379,17 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						if (d < r / 3)
 						{
 							if (hp4 == hp3) hp4++;
-							act2->extra = hp3 + (krand() % (hp4 - hp3));
+							act2->hitextra = hp3 + (krand() % (hp4 - hp3));
 						}
 						else if (d < 2 * r / 3)
 						{
 							if (hp3 == hp2) hp3++;
-							act2->extra = hp2 + (krand() % (hp3 - hp2));
+							act2->hitextra = hp2 + (krand() % (hp3 - hp2));
 						}
 						else if (d < r)
 						{
 							if (hp2 == hp1) hp2++;
-							act2->extra = hp1 + (krand() % (hp2 - hp1));
+							act2->hitextra = hp1 + (krand() % (hp2 - hp1));
 						}
 
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
@@ -401,7 +401,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						if (gs.actorinfo[act2->spr.picnum].flags & SFLAG_HITRADIUSCHECK)
 							fi.checkhitsprite(act2, actor);
 					}
-					else if (actor->spr.extra == 0) act2->extra = 0;
+					else if (actor->spr.extra == 0) act2->hitextra = 0;
 
 					if (act2->spr.picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
@@ -598,7 +598,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	int p;
 	auto hitowner = actor->GetHitOwner();
 
-	if (actor->extra >= 0)
+	if (actor->hitextra >= 0)
 	{
 		if (actor->spr.extra >= 0)
 		{
@@ -614,7 +614,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					ud.ffire == 0)
 					return -1;
 
-				actor->spr.extra -= actor->extra;
+				actor->spr.extra -= actor->hitextra;
 
 				if (hitowner)
 				{
@@ -641,18 +641,18 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					case SEENINE:
 					case OOZFILTER:
 					case EXPLODINGBARREL:
-						ps[p].vel.X += actor->extra * bcos(actor->ang, 2);
-						ps[p].vel.Y += actor->extra * bsin(actor->ang, 2);
+						ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
+						ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
 						break;
 					default:
-						ps[p].vel.X += actor->extra * bcos(actor->ang, 1);
-						ps[p].vel.Y += actor->extra * bsin(actor->ang, 1);
+						ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 1);
+						ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 1);
 						break;
 				}
 			}
 			else
 			{
-				if (actor->extra == 0)
+				if (actor->hitextra == 0)
 					if (actor->attackertype == SHRINKSPARK && actor->spr.xrepeat < 24)
 						return -1;
 
@@ -662,13 +662,13 @@ int ifhitbyweapon_d(DDukeActor *actor)
 						return -1;
 				}
 
-				actor->spr.extra -= actor->extra;
+				actor->spr.extra -= actor->hitextra;
 				auto Owner = actor->GetOwner();
 				if (actor->spr.picnum != RECON && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
-			actor->extra = -1;
+			actor->hitextra = -1;
 			return actor->attackertype;
 		}
 	}
@@ -676,13 +676,13 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 	if (ud.multimode < 2 || !isWorldTour()
 		|| actor->attackertype != FLAMETHROWERFLAME
-		|| actor->extra >= 0
+		|| actor->hitextra >= 0
 		|| actor->spr.extra > 0
 		|| actor->spr.picnum != APLAYER
 		|| ps[actor->PlayerIndex()].numloogs > 0
 		|| hitowner == nullptr)
 	{
-		actor->extra = -1;
+		actor->hitextra = -1;
 		return -1;
 	}
 	else
@@ -695,7 +695,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			ps[p].frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
 		actor->SetHitOwner(ps[p].GetActor());
-		actor->extra = -1;
+		actor->hitextra = -1;
 
 		return FLAMETHROWERFLAME;
 	}
@@ -745,7 +745,7 @@ void movefallers_d(void)
 				}
 				else
 				{
-					act->extra = 0;
+					act->hitextra = 0;
 					act->spr.extra = x;
 				}
 			}

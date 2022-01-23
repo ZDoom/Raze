@@ -301,7 +301,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						continue;
 					}
 
-					act2->ang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
+					act2->hitang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
@@ -313,17 +313,17 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (d < r / 3)
 					{
 						if (hp4 == hp3) hp4++;
-						act2->extra = hp3 + (krand() % (hp4 - hp3));
+						act2->hitextra = hp3 + (krand() % (hp4 - hp3));
 					}
 					else if (d < 2 * r / 3)
 					{
 						if (hp3 == hp2) hp3++;
-						act2->extra = hp2 + (krand() % (hp3 - hp2));
+						act2->hitextra = hp2 + (krand() % (hp3 - hp2));
 					}
 					else if (d < r)
 					{
 						if (hp2 == hp1) hp2++;
-						act2->extra = hp1 + (krand() % (hp2 - hp1));
+						act2->hitextra = hp1 + (krand() % (hp2 - hp1));
 					}
 
 					int pic = act2->spr.picnum;
@@ -502,7 +502,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 	int p;
 	auto hitowner = actor->GetHitOwner();
 
-	if (actor->extra >= 0)
+	if (actor->hitextra >= 0)
 	{
 		if (actor->spr.extra >= 0)
 		{
@@ -518,7 +518,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 					ud.ffire == 0)
 					return -1;
 
-				actor->spr.extra -= actor->extra;
+				actor->spr.extra -= actor->hitextra;
 
 				if (hitowner)
 				{
@@ -549,32 +549,32 @@ int ifhitbyweapon_r(DDukeActor *actor)
 				case EXPLODINGBARREL:
 				case TRIPBOMBSPRITE:
 				case RPG2:
-					ps[p].vel.X += actor->extra * bcos(actor->ang, 2);
-					ps[p].vel.Y += actor->extra * bsin(actor->ang, 2);
+					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
+					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
 					break;
 				default:
-					ps[p].vel.X += actor->extra * bcos(actor->ang, 1);
-					ps[p].vel.Y += actor->extra * bsin(actor->ang, 1);
+					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 1);
+					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 1);
 					break;
 				}
 			}
 			else
 			{
-				if (actor->extra == 0)
+				if (actor->hitextra == 0)
 					if (actor->spr.xrepeat < 24)
 						return -1;
 
-				actor->spr.extra -= actor->extra;
+				actor->spr.extra -= actor->hitextra;
 				if (actor->spr.picnum != RECON && actor->GetOwner() && actor->GetOwner()->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
-			actor->extra = -1;
+			actor->hitextra = -1;
 			return actor->attackertype;
 		}
 	}
 
-	actor->extra = -1;
+	actor->hitextra = -1;
 	return -1;
 }
 
@@ -670,7 +670,7 @@ void movefallers_r(void)
 				}
 				else
 				{
-					act->extra = 0;
+					act->hitextra = 0;
 					act->spr.extra = x;
 				}
 			}
@@ -3880,7 +3880,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			return 0;
 		}
 		actor->attackertype = SHOTSPARK1;
-		actor->extra = 1;
+		actor->hitextra = 1;
 	}
 	else if (isRRRA() && (actor->sector()->floorpicnum == RRTILE7820 || actor->sector()->floorpicnum == RRTILE7768))
 	{
@@ -3889,7 +3889,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			if ((krand() & 3) == 1)
 			{
 				actor->attackertype = SHOTSPARK1;
-				actor->extra = 5;
+				actor->hitextra = 5;
 			}
 		}
 	}	
@@ -3941,7 +3941,7 @@ void destroyit(DDukeActor *actor)
 				if (a3->spr.picnum == DESTRUCTO)
 				{
 					a3->attackertype = SHOTSPARK1;
-					a3->extra = 1;
+					a3->hitextra = 1;
 				}
 			}
 		}

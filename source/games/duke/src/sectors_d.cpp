@@ -1453,8 +1453,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				}
 
 				targ->attackertype = hitpic;
-				targ->extra += proj->spr.extra;
-				targ->ang = proj->spr.ang;
+				targ->hitextra += proj->spr.extra;
+				targ->hitang = proj->spr.ang;
 				targ->SetHitOwner(Owner);
 			}
 

@@ -292,11 +292,6 @@ enum amoveflags_t
 	antifaceplayerslow = 32768
 };
 
-enum aflags_t
-{
-	AFLAG_USEACTIVATOR = 0x00000001,
-};
-
 enum sflags_t
 {
 	SFLAG_INVENTORY				= 0x00000001,
@@ -317,7 +312,7 @@ enum sflags_t
 	SFLAG_TRIGGER_IFHITSECTOR	= 0x00008000,
 	SFLAG_MOVEFTA_WAKEUPCHECK	= 0x00010000,
 	SFLAG_MOVEFTA_CHECKSEEWITHPAL8 = 0x00020000,	// let's hope this can be done better later. For now this was what blocked merging the Duke and RR variants of movefta
-	SFLAG_NOSHADOW				= 0x00020000,
+	SFLAG_NOSHADOW				= 0x00040000,
 
 };
 
@@ -326,7 +321,7 @@ DEFINE_TFLAGS_OPERATORS(EDukeFlags1)
 
 enum sflags2_t
 {
-
+	SFLAG2_USEACTIVATOR = 0x00000001,
 };
 
 using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;

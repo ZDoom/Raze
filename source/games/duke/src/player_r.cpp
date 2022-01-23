@@ -2477,7 +2477,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		else
 			victim->SetHitOwner(p->GetActor());
 		victim->attackertype = MOTOHIT;
-		victim->extra = xs_CRoundToInt(p->MotoSpeed / 2.);
+		victim->hitextra = xs_CRoundToInt(p->MotoSpeed / 2.);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
@@ -2537,7 +2537,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 		else
 			victim->SetHitOwner(p->GetActor());
 		victim->attackertype = MOTOHIT;
-		victim->extra = xs_CRoundToInt(p->MotoSpeed / 4.);
+		victim->hitextra = xs_CRoundToInt(p->MotoSpeed / 4.);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
@@ -3460,7 +3460,7 @@ void processinput_r(int snum)
 			if (badguy(clz.actor()))
 			{
 				clz.actor()->attackertype = MOTOHIT;
-				clz.actor()->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
+				clz.actor()->hitextra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
 				p->MotoSpeed -= p->MotoSpeed / 16.;
 			}
 		if (p->OnBoat)
@@ -3468,7 +3468,7 @@ void processinput_r(int snum)
 			if (badguy(clz.actor()))
 			{
 				clz.actor()->attackertype = MOTOHIT;
-				clz.actor()->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
+				clz.actor()->hitextra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
 				p->MotoSpeed -= p->MotoSpeed / 16.;
 			}
 		}

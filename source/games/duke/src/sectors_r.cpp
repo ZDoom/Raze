@@ -2400,9 +2400,9 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					return;
 
 				targ->attackertype = proj->spr.picnum;
-				targ->extra += proj->spr.extra;
+				targ->hitextra += proj->spr.extra;
 				if (targ->spr.picnum != COW)
-					targ->ang = proj->spr.ang;
+					targ->hitang = proj->spr.ang;
 				targ->SetHitOwner(proj->GetOwner());
 			}
 
@@ -2933,7 +2933,7 @@ void tearitup(sectortype* sect)
 		if (act->spr.picnum == DESTRUCTO)
 		{
 			act->attackertype = SHOTSPARK1;
-			act->extra = 1;
+			act->hitextra = 1;
 		}
 	}
 }
