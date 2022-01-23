@@ -444,3 +444,9 @@ inline PClassActor* PClass::FindActor(FName name)
 	auto cls = FindClass(name);
 	return cls && cls->IsDescendantOf(RUNTIME_CLASS(DCoreActor)) ? static_cast<PClassActor*>(cls) : nullptr;
 }
+
+inline DCoreActor* GetDefaultByType(const PClass* type)
+{
+	return (DCoreActor*)(type->Defaults);
+}
+

@@ -67,17 +67,15 @@ struct FFlagDef
 	int varflags;
 };
 
-#if 0
 void FinalizeClass(PClass *cls);
 FFlagDef *FindFlag (const PClass *type, const char *part1, const char *part2, bool strict = false);
+const char* GetFlagName(unsigned int flagnum, int flagoffset);
 void HandleDeprecatedFlags(DCoreActor *defaults, PClassActor *info, bool set, int index);
 bool CheckDeprecatedFlags(DCoreActor *actor, PClassActor *info, int index);
-const char *GetFlagName(unsigned int flagnum, int flagoffset);
 void ModActorFlag(DCoreActor *actor, FFlagDef *fd, bool set);
 bool ModActorFlag(DCoreActor *actor, const FString &flagname, bool set, bool printerror = true);
 INTBOOL CheckActorFlag(DCoreActor *actor, FFlagDef *fd);
 INTBOOL CheckActorFlag(DCoreActor *owner, const char *flagname, bool printerror = true);
-#endif
 
 #define FLAG_NAME(flagnum, flagvar) GetFlagName(flagnum, myoffsetof(DCoreActor, flagvar))
 

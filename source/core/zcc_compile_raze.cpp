@@ -602,7 +602,6 @@ void ZCCRazeCompiler::ProcessDefaultFlag(PClassActor *cls, ZCC_FlagStmt *flg)
 		return;
 	}
 
-#if 0
 	auto fd = FindFlag(cls, n1, n2, true);
 	if (fd != nullptr)
 	{
@@ -620,7 +619,6 @@ void ZCCRazeCompiler::ProcessDefaultFlag(PClassActor *cls, ZCC_FlagStmt *flg)
 		}
 	}
 	else
-#endif
 	{
 		Error(flg, "Unknown flag '%s%s%s'", n1, n2 ? "." : "", n2 ? n2 : "");
 	}

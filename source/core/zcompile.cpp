@@ -42,6 +42,7 @@
 #include "stats.h"
 #include "printf.h"
 #include "dobject.h"
+#include "coreactor.h"
 
 void InitThingdef();
 void SynthesizeFlagFields();
@@ -97,6 +98,36 @@ void LoadScripts()
 	timer.Unclock();
 	if (!batchrun) Printf("script parsing took %.2f ms\n", timer.TimeMS());
 	SynthesizeFlagFields();
+
+	for (int i = PClass::AllClasses.Size() - 1; i >= 0; i--)
+	{
+		auto ti = (PClassActor*)PClass::AllClasses[i];
+		if (!ti->IsDescendantOf(RUNTIME_CLASS(DCoreActor))) continue;
+		if (ti->Size == TentativeClass)
+		{
+			if (ti->bOptional)
+			{
+				Printf(TEXTCOLOR_ORANGE "Class %s referenced but not defined\n", ti->TypeName.GetChars());
+				FScriptPosition::WarnCounter++;
+				// the class must be rendered harmless so that it won't cause problems.
+				ti->ParentClass = RUNTIME_CLASS(DCoreActor);
+				ti->Size = sizeof(DCoreActor);
+			}
+			else
+			{
+				Printf(TEXTCOLOR_RED "Class %s referenced but not defined\n", ti->TypeName.GetChars());
+				FScriptPosition::ErrorCounter++;
+			}
+			continue;
+		}
+
+		if (GetDefaultByType(ti) == nullptr)
+		{
+			Printf(TEXTCOLOR_RED "No ActorInfo defined for class '%s'\n", ti->TypeName.GetChars());
+			FScriptPosition::ErrorCounter++;
+			continue;
+		}
+	}
 
 	// Now we may call the scripted OnDestroy method.
 	PClass::bVMOperational = true;
