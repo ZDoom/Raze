@@ -2,7 +2,6 @@
 
 xx(IngameMenu)
 xx(ListMenuItemBloodDripDrawer)
-xx(StartgameNoSkill)
 xx(UsermapMenu)
 xx(EngineCredits)
 xx(EngineCredits2)
