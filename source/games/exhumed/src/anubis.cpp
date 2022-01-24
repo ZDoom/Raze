@@ -409,7 +409,6 @@ void AIAnubis::Damage(RunListEvent* ev)
                     BuildObject(pDrumActor, 2, 0);
                 }
 
-                ap->pTarget = ev->pOtherActor;
                 ap->nAction = 4;
                 ap->nFrame = 0;
             }
