@@ -1320,7 +1320,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         dapskybits = 0;
     }
 
-    dapyoffs = isSWALL()? 16*1024 : isDuke() && globalpicnum == 89 ? 17 * 1024 : 32 * 1024;
+    dapyoffs = isExhumed()? 64*1024 : isSWALL()? 16*1024 : isDuke() && globalpicnum == 89 ? 17 * 1024 : 32 * 1024;
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyoffs*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
     float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
