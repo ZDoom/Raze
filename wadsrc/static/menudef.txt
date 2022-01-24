@@ -145,6 +145,7 @@ LISTMENU "IngameMenu"
 		ExhumedLogo
 		ExhumedTextItem "$MNU_NEWGAME", "n", "EpisodeMenu", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		ExhumedTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		//ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
 		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
 		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
