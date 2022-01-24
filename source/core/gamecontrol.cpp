@@ -635,6 +635,11 @@ void SetDefaultStrings()
 		gSkillNames[3] = "$WELL DONE";
 		gSkillNames[4] = "$EXTRA CRISPY";
 	}
+	// Exhumed has no skills, but we still need a menu with one entry.
+	else if (isExhumed())
+	{
+		gSkillNames[0] = "Default";
+	}
 
 	//Set a few quotes which are used for common handling of a few status messages
 	quoteMgr.InitializeQuote(23, "$MESSAGES: ON");

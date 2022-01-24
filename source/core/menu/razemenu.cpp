@@ -150,14 +150,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		return true;
 
 	case NAME_Startgame:
-	case NAME_StartgameNoSkill:
 		NewGameStartupInfo.Skill = param;
-		if (menu == NAME_StartgameNoSkill)
-		{
-			menu = NAME_Startgame;
-			NewGameStartupInfo.Episode = param;
-			NewGameStartupInfo.Skill = 1;
-		}
 		if (DoStartGame(NewGameStartupInfo))
 		{
 			M_ClearMenus();

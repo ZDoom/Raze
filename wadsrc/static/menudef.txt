@@ -69,9 +69,9 @@ LISTMENU "MainMenu"
 		linespacing 22
 		Animated
 		ExhumedPlasma
-		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
+		ExhumedTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
+		//ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
 		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
 		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
@@ -143,9 +143,9 @@ LISTMENU "IngameMenu"
 		linespacing 22
 		Animated
 		ExhumedLogo
-		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
+		ExhumedTextItem "$MNU_NEWGAME", "n", "EpisodeMenu", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
+		//ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
 		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
 		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
@@ -181,6 +181,12 @@ LISTMENU "EpisodeMenu"
 		Position 35, 32
 		Linespacing 17
 	}
+	ifgame(Exhumed)
+	{
+		class ExhumedMainMenu
+		Position 160, 65
+		linespacing 22
+	}
 }
 
 LISTMENU "SkillMenu"
@@ -207,6 +213,13 @@ LISTMENU "SkillMenu"
 		CaptionItem "$MNU_DIFFICULTY"
 		Position 35, 32
 		Linespacing 17
+	}
+	ifgame(Exhumed)
+	{
+		class ExhumedMainMenu
+		Position 160, 65
+		linespacing 22
+		CaptionItem "$MNU_DIFFICULTY"
 	}
 }
 
