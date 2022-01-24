@@ -379,39 +379,23 @@ MOVEEND:
             z2 = pActor->spr.pos.Z;
             pHitSect = pActor->sector();
 
-#if 0
-            // Original code. This was producing some beautiful undefined behavior in the first case because the index can be anything, not just a wall.
-            if (coll.exbits)
-            {
-                hitwall = coll & 0x3FFF;
-                goto HITWALL;
-            }
-            else
-            {
-                switch (coll & 0xc000)
-                {
-                case 0x8000:
-                    hitwall = coll & 0x3FFF;
-                    goto HITWALL;
-                case 0xc000:
-                    hitsprite = coll & 0x3FFF;
-                    goto HITSPRITE;
-                }
-            }
-#else
             switch (coll.type)
             {
             case kHitWall:
                 pHitWall = coll.hitWall;
                 goto HITWALL;
-            case 0xc000:
+            case kHitSprite:
                 if (!coll.exbits)
                 {
                     hitactor = coll.actor();
                     goto HITSPRITE;
                 }
+            default:
+                if (coll.exbits)
+                    goto HITSECT;
+                break;
+
             }
-#endif
         }
 
         nVal = coll.type || coll.exbits? 1:0;
@@ -503,6 +487,7 @@ HITSPRITE:
             }
         }
 
+    HITSECT:
         if (pHitSect != nullptr) // NOTE: hitsect can be -1. this check wasn't in original code. TODO: demo compatiblity?
         {
             if (hitactor == nullptr && pHitWall == nullptr)
