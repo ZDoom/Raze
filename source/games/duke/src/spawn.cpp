@@ -137,6 +137,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &excludes)
 {
+	SetupGameVarsForActor(act);
 	act->attackertype = act->spr.picnum;
 	act->timetosleep = 0;
 	act->hitextra = -1;
