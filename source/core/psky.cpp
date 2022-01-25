@@ -101,9 +101,9 @@ SkyDefinition getSky(int tilenum)
 		int w = tileWidth(tilenum);
 		if (result.lognumtiles == 0 || w >= 256)
 		{
-			int bits = sizeToBits(w);
-			result.lognumtiles = 11 - bits;
-			if ((1 << bits) < w) result.lognumtiles--; // round down if not a power of two
+			if (w < 512) result.lognumtiles = 2;
+			else if (w < 1024) result.lognumtiles = 1;
+			else result.lognumtiles = 0;
 		}
 
 	}
