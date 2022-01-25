@@ -19,3 +19,4 @@
 #include "src/sbar.cpp"
 #include "src/sectors.cpp"
 #include "src/spawn.cpp"
+#include "src/vmiterators.cpp"

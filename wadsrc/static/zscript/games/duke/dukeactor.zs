@@ -40,3 +40,35 @@ class DukeActor : CoreActor native
 	flagdef NoInterpolate: flags1, 20;
 
 }
+
+extend struct _
+{
+	native DukeLevel dlevel;
+}
+
+// The level struct is a wrapper to group all level related global variables and static functions into one object.
+// On the script side we do not really want scattered global data that is publicly accessible.
+struct DukeLevel
+{
+	native static DukeStatIterator CreateStatIterator(int stat);
+	native static DukeSectIterator CreateSectorIterator(int sect);
+	native static DukeSpriteIterator CreateSpriteIterator();
+}
+
+class DukeStatIterator native
+{
+	native DukeActor Next();
+	native void Reset(int stat);
+}
+
+class DukeSectIterator native
+{
+	native DukeActor Next();
+	native void Reset(int sect);
+}
+
+class DukeSpriteIterator native
+{
+	native DukeActor Next();
+	native void Reset();
+}

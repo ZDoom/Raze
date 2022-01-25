@@ -398,6 +398,14 @@ void GameInterface::app_init()
 	S_ParseDeveloperCommentary();
 }
 
+// For now just a placeholder. Later this will contain all static level data.
+struct DukeLevel
+{
+
+};
+
+DukeLevel dlevel;
+
 DEFINE_FIELD(DDukeActor, ownerActor)
 DEFINE_FIELD(DDukeActor, hitOwnerActor)
 DEFINE_FIELD(DDukeActor, cgg)
@@ -417,4 +425,5 @@ DEFINE_FIELD(DDukeActor, seek_actor)
 DEFINE_FIELD(DDukeActor, flags1)
 DEFINE_FIELD(DDukeActor, flags2)
 
+DEFINE_GLOBAL_UNSIZED(dlevel)
 END_DUKE_NS
