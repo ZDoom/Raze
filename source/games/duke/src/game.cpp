@@ -42,6 +42,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "razefont.h"
 #include "psky.h"
 #include "vm.h"
+#include "thingdef.h"
 
 BEGIN_DUKE_NS
 
@@ -426,4 +427,17 @@ DEFINE_FIELD(DDukeActor, flags1)
 DEFINE_FIELD(DDukeActor, flags2)
 
 DEFINE_GLOBAL_UNSIZED(dlevel)
+
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, DukeActor)
+{
+	for (int i = 0; i < PROP_PARM_COUNT; ++i)
+	{
+		PROP_STRING_PARM(n, i);
+		bag.Info->ActorInfo()->SpriteSet.Push(TileFiles.tileForName(n));
+	}
+}
+
 END_DUKE_NS

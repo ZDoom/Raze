@@ -36,6 +36,7 @@ enum EDefaultFlags
 struct FActorInfo
 {
 	TArray<FInternalLightAssociation *> LightAssociations;
+	TArray<int> SpriteSet;
 	PClassActor *Replacement = nullptr;
 	PClassActor *Replacee = nullptr;
 	int TypeNum = -1;
