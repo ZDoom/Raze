@@ -36,7 +36,7 @@ public:
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	short attackertype, hitang, hitextra, movflag;
-	short tempang, dispicnum;
+	short tempang, dispicnum, basepicnum;
 	short timetosleep;
 	vec2_t ovel;
 	int floorz, ceilingz;

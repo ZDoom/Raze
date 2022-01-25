@@ -171,7 +171,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio);
 			t->pos.Z += PHEIGHT_DUKE;
 		}
-		else if (h->spr.picnum != CRANEPOLE)
+		else if (!(gs.actorinfo[h->spr.picnum].flags & SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedvec3(smoothratio);
 		}

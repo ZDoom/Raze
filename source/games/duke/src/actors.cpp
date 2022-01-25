@@ -4379,7 +4379,7 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
+void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int shift)
 {
 	auto testlist = [](const int16_t* list, int val) { for (int i = 0; list[i] > 0; i++) if (list[i] == val) return true; return false; };
 
@@ -4416,7 +4416,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 					wallswitchcheck(a2))
 					break;
 
-				if (!(a2->spr.picnum >= CRANE && a2->spr.picnum <= (CRANE + 3)))
+				if (!(gs.actorinfo[a2->spr.picnum].flags & SFLAG_SE24_NOFLOORCHECK))
 				{
 					if (a2->spr.pos.Z > (a2->floorz - (16 << 8)))
 					{
@@ -4426,7 +4426,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 						SetActor(a2, a2->spr.pos);
 
 						if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
-							if (a2->spr.statnum == 2)
+							if (a2->spr.statnum == STAT_ZOMBIEACTOR)
 								makeitfall(a2);
 					}
 				}

@@ -36,5 +36,7 @@ class DukeActor : CoreActor native
 	//flagdef MoveFTA_WakeupCheck: flags1, 16; // this one needs to be auto-set for RR, not for Duke, should not be exposed unless the feature becomes generally available.
 	flagdef CheckSeeWithPal8: flags1, 17;
 	flagdef NoShadow: flags1, 18;
+	flagdef SE24_NoFloorCheck: flags1, 19;
+	flagdef NoInterpolate: flags1, 20;
 
 }

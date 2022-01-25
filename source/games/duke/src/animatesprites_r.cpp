@@ -154,7 +154,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
-		else if (h->spr.picnum != CRANEPOLE)
+		else if (!(gs.actorinfo[h->spr.picnum].flags & SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedvec3(smoothratio);
 		}
