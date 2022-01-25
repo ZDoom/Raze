@@ -1,5 +1,28 @@
 class DukeActor : CoreActor native
 {
+	enum EStatnums
+	{
+		STAT_DEFAULT        = 0,
+		STAT_ACTOR          = 1,
+		STAT_ZOMBIEACTOR    = 2,
+		STAT_EFFECTOR       = 3,
+		STAT_PROJECTILE     = 4,
+		STAT_MISC           = 5,
+		STAT_STANDABLE      = 6,
+		STAT_LOCATOR        = 7,
+		STAT_ACTIVATOR      = 8,
+		STAT_TRANSPORT      = 9,
+		STAT_PLAYER         = 10,
+		STAT_FX             = 11,
+		STAT_FALLER         = 12,
+		STAT_DUMMYPLAYER    = 13,
+		STAT_LIGHT          = 14,
+		STAT_RAROR          = 15,
+
+		STAT_DESTRUCT		= 100,
+		STAT_BOWLING		= 105,
+	};
+
 	native DukeActor ownerActor, hitOwnerActor;
 	native uint8 cgg;
 	native uint8 spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
@@ -38,6 +61,10 @@ class DukeActor : CoreActor native
 	flagdef NoShadow: flags1, 18;
 	flagdef SE24_NoFloorCheck: flags1, 19;
 	flagdef NoInterpolate: flags1, 20;
+	
+	
+	virtual void BeginPlay() {}
+	virtual bool Tick() { return false; }
 
 }
 
