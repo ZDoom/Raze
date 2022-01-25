@@ -348,4 +348,11 @@ struct Cycler
 };
 
 
+struct DukeLevel
+{
+
+};
+
+
+
 END_DUKE_NS

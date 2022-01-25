@@ -78,6 +78,7 @@ extern int mirrorcnt;
 extern int numplayersprites;
 extern int spriteqloc;
 extern int thunder_brightness;
+inline DukeLevel dlevel;
 
 enum animtype_t
 {

@@ -399,45 +399,5 @@ void GameInterface::app_init()
 	S_ParseDeveloperCommentary();
 }
 
-// For now just a placeholder. Later this will contain all static level data.
-struct DukeLevel
-{
-
-};
-
-DukeLevel dlevel;
-
-DEFINE_FIELD(DDukeActor, ownerActor)
-DEFINE_FIELD(DDukeActor, hitOwnerActor)
-DEFINE_FIELD(DDukeActor, cgg)
-DEFINE_FIELD(DDukeActor, spriteextra)
-DEFINE_FIELD(DDukeActor, hitang)
-DEFINE_FIELD(DDukeActor, hitextra)
-DEFINE_FIELD(DDukeActor, movflag)
-DEFINE_FIELD(DDukeActor, tempang)
-DEFINE_FIELD(DDukeActor, timetosleep)
-DEFINE_FIELD(DDukeActor, floorz)
-DEFINE_FIELD(DDukeActor, ceilingz)
-DEFINE_FIELD(DDukeActor, saved_ammo)
-DEFINE_FIELD(DDukeActor, palvals)
-DEFINE_FIELD(DDukeActor, temp_data)
-DEFINE_FIELD(DDukeActor, temp_actor)
-DEFINE_FIELD(DDukeActor, seek_actor)
-DEFINE_FIELD(DDukeActor, flags1)
-DEFINE_FIELD(DDukeActor, flags2)
-
-DEFINE_GLOBAL_UNSIZED(dlevel)
-
-//==========================================================================
-//
-//==========================================================================
-DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, DukeActor)
-{
-	for (int i = 0; i < PROP_PARM_COUNT; ++i)
-	{
-		PROP_STRING_PARM(n, i);
-		bag.Info->ActorInfo()->SpriteSet.Push(TileFiles.tileForName(n));
-	}
-}
 
 END_DUKE_NS
