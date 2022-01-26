@@ -322,7 +322,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 			}
 
-			if (x == 0 || x >= 5 || AFLAMABLE(act2->spr.picnum))
+			if (x == 0 || x >= 5 || actorflag(act2, SFLAG_HITRADIUS_FLAG1))
 			{
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
@@ -1208,7 +1208,7 @@ void movestandables_d(void)
 
 		else if (AFLAMABLE(picnum))
 		{
-			moveflammable(act, TIRE, BOX, BLOODPOOL);
+			moveflammable(act, BLOODPOOL);
 		}
 
 		else if (picnum == TRIPBOMB)
@@ -3140,7 +3140,7 @@ void moveexplosions_d(void)  // STATNUM 5
 			continue;
 		case BLOODPOOL:
 		case PUKE:
-			bloodpool(act, act->spr.picnum == PUKE, TIRE);
+			bloodpool(act, act->spr.picnum == PUKE);
 
 			continue;
 

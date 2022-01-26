@@ -1083,31 +1083,20 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case TIRE:
 	case CONE:
 	case BOX:
-		switch (proj->spr.picnum)
+		if (actorflag(proj, SFLAG_INFLAME))
 		{
-		case RADIUSEXPLOSION:
-		case RPG:
-		case FIRELASER:
-		case HYDRENT:
-		case HEAVYHBOMB:
 			if (targ->temp_data[0] == 0)
 			{
 				targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				targ->temp_data[0] = 1;
 				spawn(targ, BURNING);
 			}
-			break;
 		}
 		break;
 	case CACTUS:
 		//		case CACTUSBROKE:
-		switch (proj->spr.picnum)
+		if (actorflag(proj, SFLAG_INFLAME))
 		{
-		case RADIUSEXPLOSION:
-		case RPG:
-		case FIRELASER:
-		case HYDRENT:
-		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
 				auto spawned = EGS(targ->sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
@@ -1117,8 +1106,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (targ->spr.picnum == CACTUS)
 				targ->spr.picnum = CACTUSBROKE;
 			targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-			//	   else deletesprite(i);
-			break;
 		}
 		break;
 

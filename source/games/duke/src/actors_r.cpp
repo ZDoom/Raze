@@ -267,7 +267,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		DukeStatIterator it1(statlist[x]);
 		while (auto act2 = it1.Next())
 		{
-			if (x == 0 || x >= 5 || AFLAMABLE(act2->spr.picnum))
+			if (x == 0 || x >= 5 || actorflag(act2, SFLAG_HITRADIUS_FLAG1))
 			{
 				if (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)
 					if (dist(actor, act2) < r)
@@ -853,7 +853,7 @@ void movestandables_r(void)
 
 		else if (AFLAMABLE(picnum))
 		{
-			moveflammable(act, TIRE, BOX, BLOODPOOL);
+			moveflammable(act, BLOODPOOL);
 		}
 
 
@@ -3115,7 +3115,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 
 		case BLOODPOOL:
-			if (!bloodpool(act, false, TIRE)) continue;
+			if (!bloodpool(act, false)) continue;
 
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - (8 << 8))

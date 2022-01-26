@@ -847,7 +847,7 @@ void movefountain(DDukeActor *actor, int fountain)
 //
 //---------------------------------------------------------------------------
 
-void moveflammable(DDukeActor* actor, int tire, int box, int pool)
+void moveflammable(DDukeActor* actor, int pool)
 {
 	int j;
 	if (actor->temp_data[0] == 1)
@@ -859,7 +859,11 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 		{
 			actor->spr.cstat = 0;
 			auto spawned = spawn(actor, pool);
-			if (spawned) spawned->spr.shade = 127;
+			if (spawned) 
+			{
+				spawned->spr.pal = 2;
+				spawned->spr.shade = 127;
+			}
 		}
 		else
 		{
@@ -888,7 +892,7 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 		}
 		actor->spr.yrepeat = j;
 	}
-	if (box >= 0 && actor->spr.picnum == box)
+	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
 	{
 		makeitfall(actor);
 		actor->ceilingz = actor->sector()->ceilingz;
@@ -2302,7 +2306,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 //
 //---------------------------------------------------------------------------
 
-bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
+bool bloodpool(DDukeActor* actor, bool puke)
 {
 	auto sectp = actor->sector();
 
@@ -2327,7 +2331,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 	if (actor->temp_data[2] < 32)
 	{
 		actor->temp_data[2]++;
-		if (actor->attackertype == TIRE)
+		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
 		{
 			if (actor->spr.xrepeat < 64 && actor->spr.yrepeat < 64)
 			{
@@ -2363,7 +2367,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 		if (actor->temp_data[1] == 1) return false;
 		actor->temp_data[1] = 1;
 
-		if (actor->attackertype == TIRE)
+		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
 			ps[p].footprintcount = 10;
 		else ps[p].footprintcount = 3;
 

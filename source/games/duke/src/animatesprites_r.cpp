@@ -814,7 +814,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		case FIRE:
 		case BURNING:
-			if (OwnerAc && OwnerAc->spr.picnum != TREE1 && OwnerAc->spr.picnum != TREE2)
+			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
 				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
