@@ -95,6 +95,27 @@ DEFINE_FIELD(DDukeActor, temp_actor)
 DEFINE_FIELD(DDukeActor, seek_actor)
 DEFINE_FIELD(DDukeActor, flags1)
 DEFINE_FIELD(DDukeActor, flags2)
+DEFINE_FIELD(DDukeActor, spritesetindex)
+
+static void setSpritesetImage(DDukeActor* self, unsigned int index)
+{
+	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
+
+	if (index >= spriteset.Size())
+	{
+		ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad sprite set index %d (max. allowed is %d", index, spriteset.Size() - 1);
+	}
+	self->spritesetindex = index;
+	self->spr.picnum = spriteset[index];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetSpritesetImage, setSpritesetImage)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_UINT(index);
+	setSpritesetImage(self, index);
+	return 0;
+}
 
 //---------------------------------------------------------------------------
 //

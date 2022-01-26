@@ -22,6 +22,8 @@ class DukeActor : CoreActor native
 		STAT_DESTRUCT		= 100,
 		STAT_BOWLING		= 105,
 	};
+	
+	native void SetSpritesetImage(int index);
 
 	native DukeActor ownerActor, hitOwnerActor;
 	native uint8 cgg;
@@ -34,6 +36,7 @@ class DukeActor : CoreActor native
 	native int palvals;
 	native int temp_data[6];
 	native private int flags1, flags2;
+	native readonly int16 spritesetindex;
 	//walltype* temp_walls[2]; // SE20 + SE128
 	//sectortype* temp_sect, *actorstayput;
 
