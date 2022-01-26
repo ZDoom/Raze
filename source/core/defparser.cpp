@@ -2226,6 +2226,39 @@ static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 	fileSystem.CreatePathlessCopy(fn, res_id, 0);
 }
 
+static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
+{
+	FString fn;
+	int res_id = -1;
+	int numframes = -1;
+	bool interpolate = false;
+
+	sc.SetCMode(true);
+	if (!sc.CheckString("{"))
+	{
+		pos.Message(MSG_ERROR, "spawnclasses:'{' expected, unable to continue");
+		sc.SetCMode(false);
+		return;
+	}
+	while (!sc.CheckString("}"))
+	{
+		int num = -1;
+		int base = -1;
+		FName cname;
+		sc.GetNumber(num, true);
+		sc.MustGetStringName("=");
+		sc.MustGetString();
+		cname = sc.String;
+		if (sc.CheckString(","))
+		{
+			sc.GetNumber(base, true);
+		}
+
+		// todo: check for proper base class
+		spawnMap.Insert(num, { cname, nullptr, base });
+	}
+	sc.SetCMode(false);
+}
 
 //===========================================================================
 //
@@ -2318,6 +2351,8 @@ static const dispatch basetokens[] =
 	{ "newgamechoices",  parseEmptyBlock   },
 	{ "rffdefineid",     parseRffDefineId      },
 	{ "defineqav",       parseDefineQAV        },
+
+	{ "spawnclasses",		parseSpawnClasses },
 	{ nullptr,           nullptr               },
 };
 
