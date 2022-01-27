@@ -1454,7 +1454,7 @@ void PreMapCombineFloors(void)
 
             for (auto& wal : wallsofsector(dasect))
             {
-                wal.move(wal.wall_int_pos().X + dx, wal.wall_int_pos().Y + dy);
+                wal.movexy(wal.wall_int_pos().X + dx, wal.wall_int_pos().Y + dy);
 
                 if (wal.twoSided())
                     search.Add(wal.nextSector());

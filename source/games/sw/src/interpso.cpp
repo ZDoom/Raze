@@ -340,7 +340,9 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                 }
             }
             else
+            {
                 data->oldipos = getvalue(*data);
+            }
 
             if (!interpolating)
                 data->lastipos = data->lastoldipos = data->oldipos;
@@ -352,7 +354,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
 // make sure you don't exit
 void so_dointerpolations(int32_t smoothratio)                      // Stick at beginning of drawscreen
 {
-    int32_t i, delta;
+    int32_t i;
     SECTOR_OBJECT* sop;
     so_interp *interp;
     so_interp::interp_data *data;
@@ -445,8 +447,8 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             }
             else
             {
-                delta = data->lastipos - data->lastoldipos;
-                setvalue(*data, data->lastoldipos + MulScale(delta, ratio, 16));
+                double delta = data->lastipos - data->lastoldipos;
+                setvalue(*data, data->lastoldipos + MulScaleF(delta, ratio, 16));
             }
         }
     }
@@ -473,7 +475,9 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
                 if (actorofang) actorofang->spr.ang = data->bakipos;
             }
             else
+            {
                 setvalue(*data, data->bakipos);
+            }
     }
 }
 

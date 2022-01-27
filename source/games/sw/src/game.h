@@ -100,6 +100,7 @@ enum
 
 
 #define PRODUCTION_ASSERT(f) \
+    assert(f);\
     do { \
         if (!(f)) \
             I_FatalError("Assertion failed: %s %s, line %u", #f, __FILE__, __LINE__); \

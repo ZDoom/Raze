@@ -399,9 +399,18 @@ void dragpoint(walltype* startwall, int newx, int newy)
 {
 	vertexscan(startwall, [&](walltype* wal)
 	{
-		wal->move(newx, newy);
+		wal->movexy(newx, newy);
 		wal->sectorp()->exflags |= SECTOREX_DRAGGED;
 	});
+}
+
+void dragpoint(walltype* startwall, const DVector2& pos)
+{
+	vertexscan(startwall, [&](walltype* wal)
+		{
+			wal->move(pos);
+			wal->sectorp()->exflags |= SECTOREX_DRAGGED;
+		});
 }
 
 //==========================================================================

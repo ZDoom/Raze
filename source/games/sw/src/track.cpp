@@ -1610,6 +1610,8 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     if ((sop->flags & SOBJ_ZMID_FLOOR))
         sop->pmid.Z = sop->mid_sector->floorz;
 
+    DVector2 pivot = { sop->pmid.X * maptoworld, sop->pmid.Y * maptoworld };
+    DVector2 move = { nx * maptoworld, ny * maptoworld };
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((sop->flags & (SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE)))
@@ -1623,11 +1625,11 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
 
             if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {
-                dragpoint(&wal, wal.wall_int_pos().X + nx, wal.wall_int_pos().Y + ny);
+                dragpoint(&wal, wal.pos + move);
             }
             else
             {
-                wal.move(wal.wall_int_pos().X + nx, wal.wall_int_pos().Y + ny);
+                wal.move(wal.pos + move);
             }
 
             rot_ang = delta_ang;
@@ -1641,15 +1643,15 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
             if ((wal.extra & WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
-            rotatepoint(sop->pmid.vec2, wal.wall_int_pos(), rot_ang, &rxy);
+            auto vec = rotatepoint(pivot, wal.pos, buildang(rot_ang));
 
             if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {
-                dragpoint(&wal, rxy.X, rxy.Y);
+                dragpoint(&wal, vec);
             }
             else
             {
-                wal.move(rxy.X, rxy.Y);
+                wal.move(vec);
             }
         }
 
@@ -1870,7 +1872,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
                     }
                     else
                     {
-                        wal.move(dx, dy);
+                        wal.movexy(dx, dy);
                     }
                 }
 
@@ -2018,7 +2020,7 @@ void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny)
                 }
                 else
                 {
-                    wal.move(nx, ny);
+                    wal.movexy(nx, ny);
                 }
             }
         }

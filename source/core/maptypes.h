@@ -417,7 +417,13 @@ struct walltype
 	bool twoSided() const { return nextsector >= 0; }
 	int Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
-	void move(int newx, int newy);
+	void movexy(int newx, int newy);
+	void move(const DVector2& vec)
+	{
+		pos = vec;
+		moved();
+	}
+
 	void moved();
 
 	Blood::XWALL& xw() const { return *_xw; }
@@ -553,7 +559,7 @@ inline void walltype::moved()
 	sectorp()->dirty = EDirty::AllDirty;
 }
 
-inline void walltype::move(int newx, int newy)
+inline void walltype::movexy(int newx, int newy)
 {
 	pos.X = newx * maptoworld;
 	pos.Y = newy * maptoworld;

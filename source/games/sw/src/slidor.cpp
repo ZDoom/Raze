@@ -274,11 +274,11 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wal->move(wal->wall_int_pos().X - amt, wal->wall_int_pos().Y);
-                pwal->move(pwal->wall_int_pos().X - amt, pwal->wall_int_pos().Y);
-                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos().X - amt, wal->point2Wall()->wall_int_pos().Y);
+                wal->movexy(wal->wall_int_pos().X - amt, wal->wall_int_pos().Y);
+                pwal->movexy(pwal->wall_int_pos().X - amt, pwal->wall_int_pos().Y);
+                wal->point2Wall()->movexy(wal->point2Wall()->wall_int_pos().X - amt, wal->point2Wall()->wall_int_pos().Y);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->wall_int_pos().X - amt, pwal2->wall_int_pos().Y);
+                pwal2->movexy(pwal2->wall_int_pos().X - amt, pwal2->wall_int_pos().Y);
             }
             else
             {
@@ -299,11 +299,11 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wal->move(wal->wall_int_pos().X + amt, wal->wall_int_pos().Y);
-                pwal->move(pwal->wall_int_pos().X + amt, pwal->wall_int_pos().Y);
-                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos().X + amt, wal->point2Wall()->wall_int_pos().Y);
+                wal->movexy(wal->wall_int_pos().X + amt, wal->wall_int_pos().Y);
+                pwal->movexy(pwal->wall_int_pos().X + amt, pwal->wall_int_pos().Y);
+                wal->point2Wall()->movexy(wal->point2Wall()->wall_int_pos().X + amt, wal->point2Wall()->wall_int_pos().Y);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->wall_int_pos().X + amt, pwal2->wall_int_pos().Y);
+                pwal2->movexy(pwal2->wall_int_pos().X + amt, pwal2->wall_int_pos().Y);
             }
             else
             {
@@ -323,11 +323,11 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
             if (!wal->twoSided())
             {
-                wal->move(wal->wall_int_pos().X, wal->wall_int_pos().Y - amt);
-                pwal->move(pwal->wall_int_pos().X, pwal->wall_int_pos().Y - amt);
-                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y - amt);
+                wal->movexy(wal->wall_int_pos().X, wal->wall_int_pos().Y - amt);
+                pwal->movexy(pwal->wall_int_pos().X, pwal->wall_int_pos().Y - amt);
+                wal->point2Wall()->movexy(wal->point2Wall()->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y - amt);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->wall_int_pos().X, pwal2->wall_int_pos().Y - amt);
+                pwal2->movexy(pwal2->wall_int_pos().X, pwal2->wall_int_pos().Y - amt);
             }
             else
             {
@@ -346,11 +346,11 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
             if (!wal->twoSided())
             {
-                wal->move(wal->wall_int_pos().X, wal->wall_int_pos().Y + amt);
-                pwal->move(pwal->wall_int_pos().X, pwal->wall_int_pos().Y + amt);
-                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y + amt);
+                wal->movexy(wal->wall_int_pos().X, wal->wall_int_pos().Y + amt);
+                pwal->movexy(pwal->wall_int_pos().X, pwal->wall_int_pos().Y + amt);
+                wal->point2Wall()->movexy(wal->point2Wall()->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y + amt);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->wall_int_pos().X, pwal2->wall_int_pos().Y + amt);
+                pwal2->movexy(pwal2->wall_int_pos().X, pwal2->wall_int_pos().Y + amt);
             }
             else
             {
