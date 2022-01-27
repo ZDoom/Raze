@@ -652,8 +652,10 @@ static void P_LoadBloodMapWalls(uint8_t* data, size_t len, TArray<walltype>& lwa
 		// only copy what we need to draw the map preview.
 
 		auto pWall = &lwalls[i];
-		pWall->__wall_int_pos.X = LittleLong(load.x);
-		pWall->__wall_int_pos.Y = LittleLong(load.y);
+
+		int x = LittleLong(load.x);
+		int y = LittleLong(load.y);
+		pWall->setPosFromLoad(x, y);
 		pWall->point2 = LittleShort(load.point2);
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);
