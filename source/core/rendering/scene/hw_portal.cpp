@@ -524,10 +524,10 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	di->mClipPortal = this;
 
-	int x = line->wall_int_pos.X;
-	int y = line->wall_int_pos.Y;
-	int dx = line->point2Wall()->wall_int_pos.X - x;
-	int dy = line->point2Wall()->wall_int_pos.Y - y;
+	int x = line->wall_int_pos().X;
+	int y = line->wall_int_pos().Y;
+	int dx = line->point2Wall()->wall_int_pos().X - x;
+	int dy = line->point2Wall()->wall_int_pos().Y - y;
 
 	// this can overflow so use 64 bit math.
 	const int64_t j = int64_t(dx) * dx + int64_t(dy) * dy;
@@ -565,8 +565,8 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(line->wall_int_pos.X - newx, line->wall_int_pos.Y - newy);
-	auto endan = bvectangbam(line->point2Wall()->wall_int_pos.X - newx, line->point2Wall()->wall_int_pos.Y - newy);
+	auto startan = bvectangbam(line->wall_int_pos().X - newx, line->wall_int_pos().Y - newy);
+	auto endan = bvectangbam(line->point2Wall()->wall_int_pos().X - newx, line->point2Wall()->wall_int_pos().Y - newy);
 	clipper->RestrictVisibleRange(endan, startan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
@@ -635,8 +635,8 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(origin->wall_int_pos.X - origx, origin->wall_int_pos.Y - origy);
-	auto endan = bvectangbam(origin->point2Wall()->wall_int_pos.X - origx, origin->point2Wall()->wall_int_pos.Y - origy);
+	auto startan = bvectangbam(origin->wall_int_pos().X - origx, origin->wall_int_pos().Y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->wall_int_pos().X - origx, origin->point2Wall()->wall_int_pos().Y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
@@ -687,8 +687,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(origin->wall_int_pos.X - origx, origin->wall_int_pos.Y - origy);
-	auto endan = bvectangbam(origin->point2Wall()->wall_int_pos.X - origx, origin->point2Wall()->wall_int_pos.Y - origy);
+	auto startan = bvectangbam(origin->wall_int_pos().X - origx, origin->wall_int_pos().Y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->wall_int_pos().X - origx, origin->point2Wall()->wall_int_pos().Y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }

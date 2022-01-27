@@ -220,21 +220,21 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 pWall->nextsector = mirrorsector;
                 wallarr[mirrorwall[0]].nextwall = nWall;
                 wallarr[mirrorwall[0]].nextsector = nSector;
-                wallarr[mirrorwall[0]].wall_int_pos.X = pWall->point2Wall()->wall_int_pos.X;
-                wallarr[mirrorwall[0]].wall_int_pos.Y = pWall->point2Wall()->wall_int_pos.Y;
-                wallarr[mirrorwall[1]].wall_int_pos.X = pWall->wall_int_pos.X;
-                wallarr[mirrorwall[1]].wall_int_pos.Y = pWall->wall_int_pos.Y;
-                wallarr[mirrorwall[2]].wall_int_pos.X = wallarr[mirrorwall[1]].wall_int_pos.X + (wallarr[mirrorwall[1]].wall_int_pos.X - wallarr[mirrorwall[0]].wall_int_pos.X) * 16;
-                wallarr[mirrorwall[2]].wall_int_pos.Y = wallarr[mirrorwall[1]].wall_int_pos.Y + (wallarr[mirrorwall[1]].wall_int_pos.Y - wallarr[mirrorwall[0]].wall_int_pos.Y) * 16;
-                wallarr[mirrorwall[3]].wall_int_pos.X = wallarr[mirrorwall[0]].wall_int_pos.X + (wallarr[mirrorwall[0]].wall_int_pos.X - wallarr[mirrorwall[1]].wall_int_pos.X) * 16;
-                wallarr[mirrorwall[3]].wall_int_pos.Y = wallarr[mirrorwall[0]].wall_int_pos.Y + (wallarr[mirrorwall[0]].wall_int_pos.Y - wallarr[mirrorwall[1]].wall_int_pos.Y) * 16;
+                wallarr[mirrorwall[0]].__wall_int_pos.X = pWall->point2Wall()->wall_int_pos().X;
+                wallarr[mirrorwall[0]].__wall_int_pos.Y = pWall->point2Wall()->wall_int_pos().Y;
+                wallarr[mirrorwall[1]].__wall_int_pos.X = pWall->wall_int_pos().X;
+                wallarr[mirrorwall[1]].__wall_int_pos.Y = pWall->wall_int_pos().Y;
+                wallarr[mirrorwall[2]].__wall_int_pos.X = wallarr[mirrorwall[1]].wall_int_pos().X + (wallarr[mirrorwall[1]].wall_int_pos().X - wallarr[mirrorwall[0]].wall_int_pos().X) * 16;
+                wallarr[mirrorwall[2]].__wall_int_pos.Y = wallarr[mirrorwall[1]].wall_int_pos().Y + (wallarr[mirrorwall[1]].wall_int_pos().Y - wallarr[mirrorwall[0]].wall_int_pos().Y) * 16;
+                wallarr[mirrorwall[3]].__wall_int_pos.X = wallarr[mirrorwall[0]].wall_int_pos().X + (wallarr[mirrorwall[0]].wall_int_pos().X - wallarr[mirrorwall[1]].wall_int_pos().X) * 16;
+                wallarr[mirrorwall[3]].__wall_int_pos.Y = wallarr[mirrorwall[0]].wall_int_pos().Y + (wallarr[mirrorwall[0]].wall_int_pos().Y - wallarr[mirrorwall[1]].wall_int_pos().Y) * 16;
                 sector.Data()[mirrorsector].setfloorz(sector[nSector].floorz, true);
                 sector.Data()[mirrorsector].setceilingz(sector[nSector].ceilingz, true);
                 int cx, cy, ca;
                 if (pWall->type == kWallStack)
                 {
-                    cx = x - (wall[pWall->hitag].wall_int_pos.X - pWall->point2Wall()->wall_int_pos.X);
-                    cy = y - (wall[pWall->hitag].wall_int_pos.Y - pWall->point2Wall()->wall_int_pos.Y);
+                    cx = x - (wall[pWall->hitag].wall_int_pos().X - pWall->point2Wall()->wall_int_pos().X);
+                    cy = y - (wall[pWall->hitag].wall_int_pos().Y - pWall->point2Wall()->wall_int_pos().Y);
                     ca = a;
                 }
                 else

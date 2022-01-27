@@ -715,8 +715,8 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == -1)
 		{
-			ps[0].exit.X = sectp->firstWall()->wall_int_pos.X;
-			ps[0].exit.Y = sectp->firstWall()->wall_int_pos.Y;
+			ps[0].exit.X = sectp->firstWall()->wall_int_pos().X;
+			ps[0].exit.Y = sectp->firstWall()->wall_int_pos().Y;
 			continue;
 		}
 	}

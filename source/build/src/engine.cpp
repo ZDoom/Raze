@@ -53,8 +53,8 @@ static int16_t radarang[1280];
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
 {
-    vec2_t const w  = wall[dawall].wall_int_pos;
-    vec2_t const w2 = wall[dawall].point2Wall()->wall_int_pos;
+    vec2_t const w  = wall[dawall].wall_int_pos();
+    vec2_t const w2 = wall[dawall].point2Wall()->wall_int_pos();
     vec2_t const d  = { w2.X - w.X, w2.Y - w.Y };
 
     int64_t i = d.X * ((int64_t)p.X - w.X) + d.Y * ((int64_t)p.Y - w.Y);
@@ -298,8 +298,8 @@ int32_t inside(int32_t x, int32_t y, const sectortype* sect)
         vec2_t xy = { x, y };
         for(auto& wal : wallsofsector(sect))
         {
-            vec2_t v1 = wal.wall_int_pos - xy;
-            vec2_t v2 = wal.point2Wall()->wall_int_pos - xy;
+            vec2_t v1 = wal.wall_int_pos() - xy;
+            vec2_t v2 = wal.point2Wall()->wall_int_pos() - xy;
 
             // If their signs differ[*], ...
             //
@@ -415,8 +415,8 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
         for (cnt=sec->wallnum,wal=sec->firstWall(); cnt>0; cnt--,wal++)
         {
             auto const wal2 = wal->point2Wall();
-            const int32_t x31 = wal->wall_int_pos.X-x1, x34 = wal->wall_int_pos.X-wal2->wall_int_pos.X;
-            const int32_t y31 = wal->wall_int_pos.Y-y1, y34 = wal->wall_int_pos.Y-wal2->wall_int_pos.Y;
+            const int32_t x31 = wal->wall_int_pos().X-x1, x34 = wal->wall_int_pos().X-wal2->wall_int_pos().X;
+            const int32_t y31 = wal->wall_int_pos().Y-y1, y34 = wal->wall_int_pos().Y-wal2->wall_int_pos().Y;
 
             int32_t x, y, z, t, bot;
             int32_t cfz[2];
@@ -484,7 +484,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
             auto const wal2 = wal->point2Wall();
             const auto nextsect = wal->nextSector();
 
-            const int32_t x1 = wal->wall_int_pos.X, y1 = wal->wall_int_pos.Y, x2 = wal2->wall_int_pos.X, y2 = wal2->wall_int_pos.Y;
+            const int32_t x1 = wal->wall_int_pos().X, y1 = wal->wall_int_pos().Y, x2 = wal2->wall_int_pos().X, y2 = wal2->wall_int_pos().Y;
             int32_t intx, inty, intz, good = 0;
 
             if (wal->twoSided())

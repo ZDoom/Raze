@@ -334,7 +334,7 @@ void JS_InitMirrors(void)
                     if (!Found_Cam)
                     {
                         Printf("Cound not find the camera view sprite for match %d\n", wal.hitag);
-                        Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos.X, wal.wall_int_pos.Y);
+                        Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos().X, wal.wall_int_pos().Y);
                         break;
                     }
 
@@ -363,7 +363,7 @@ void JS_InitMirrors(void)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
-                            Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos.X, wal.wall_int_pos.Y);
+                            Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos().X, wal.wall_int_pos().Y);
                             RESET_BOOL1(mirror[mirrorcnt].cameraActor);
                         }
                     }
@@ -512,8 +512,8 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                 if (bIsWallMirror)
                 {
-                    j = abs(mirror[cnt].mirrorWall->wall_int_pos.X - tx);
-                    j += abs(mirror[cnt].mirrorWall->wall_int_pos.Y - ty);
+                    j = abs(mirror[cnt].mirrorWall->wall_int_pos().X - tx);
+                    j += abs(mirror[cnt].mirrorWall->wall_int_pos().Y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -538,8 +538,8 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                 auto wal = mirror[cnt].mirrorWall;
 
                 // Get wall midpoint for offset in mirror view
-                midx = (wal->wall_int_pos.X + wal->point2Wall()->wall_int_pos.X) / 2;
-                midy = (wal->wall_int_pos.Y + wal->point2Wall()->wall_int_pos.Y) / 2;
+                midx = (wal->wall_int_pos().X + wal->point2Wall()->wall_int_pos().X) / 2;
+                midy = (wal->wall_int_pos().Y + wal->point2Wall()->wall_int_pos().Y) / 2;
 
                 // Finish finding offsets
                 tdx = abs(midx - tx);

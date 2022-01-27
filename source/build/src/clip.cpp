@@ -118,8 +118,8 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     auto const wal1 = &wall[wallnum];
     auto const wal2 = wal1->point2Wall();
 
-    vec2_t const v1 = { wal1->wall_int_pos.X + walldist - vect->X, wal1->wall_int_pos.Y + walldist - vect->Y };
-    vec2_t       v2 = { wal2->wall_int_pos.X + walldist - vect->X, wal2->wall_int_pos.Y + walldist - vect->Y };
+    vec2_t const v1 = { wal1->wall_int_pos().X + walldist - vect->X, wal1->wall_int_pos().Y + walldist - vect->Y };
+    vec2_t       v2 = { wal2->wall_int_pos().X + walldist - vect->X, wal2->wall_int_pos().Y + walldist - vect->Y };
 
     if (((v1.X < 0) && (v2.X < 0)) || ((v1.Y < 0) && (v2.Y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.Y >= r) && (v2.Y >= r)))
         return 0;
@@ -512,12 +512,12 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         {
             auto const wal2 = wal->point2Wall();
 
-            if ((wal->wall_int_pos.X < clipMin.X && wal2->wall_int_pos.X < clipMin.X) || (wal->wall_int_pos.X > clipMax.X && wal2->wall_int_pos.X > clipMax.X) ||
-                (wal->wall_int_pos.Y < clipMin.Y && wal2->wall_int_pos.Y < clipMin.Y) || (wal->wall_int_pos.Y > clipMax.Y && wal2->wall_int_pos.Y > clipMax.Y))
+            if ((wal->wall_int_pos().X < clipMin.X && wal2->wall_int_pos().X < clipMin.X) || (wal->wall_int_pos().X > clipMax.X && wal2->wall_int_pos().X > clipMax.X) ||
+                (wal->wall_int_pos().Y < clipMin.Y && wal2->wall_int_pos().Y < clipMin.Y) || (wal->wall_int_pos().Y > clipMax.Y && wal2->wall_int_pos().Y > clipMax.Y))
                 continue;
 
-            vec2_t p1 = wal->wall_int_pos;
-            vec2_t p2 = wal2->wall_int_pos;
+            vec2_t p1 = wal->wall_int_pos();
+            vec2_t p2 = wal2->wall_int_pos();
             vec2_t d  = { p2.X-p1.X, p2.Y-p1.Y };
 
             if (d.X * (pos->Y-p1.Y) < (pos->X-p1.X) * d.Y)
@@ -974,9 +974,9 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         else
                         {
                             //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                            int32_t dax = wal->point2Wall()->wall_int_pos.X-wal->wall_int_pos.X;
-                            int32_t day = wal->point2Wall()->wall_int_pos.Y-wal->wall_int_pos.Y;
-                            int32_t daz = dax*((vect->X)-wal->wall_int_pos.X) + day*((vect->Y)-wal->wall_int_pos.Y);
+                            int32_t dax = wal->point2Wall()->wall_int_pos().X-wal->wall_int_pos().X;
+                            int32_t day = wal->point2Wall()->wall_int_pos().Y-wal->wall_int_pos().Y;
+                            int32_t daz = dax*((vect->X)-wal->wall_int_pos().X) + day*((vect->Y)-wal->wall_int_pos().Y);
                             int32_t t;
                             if (daz <= 0)
                                 t = 0;
@@ -985,8 +985,8 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                                 daz2 = dax*dax+day*day;
                                 if (daz >= daz2) t = (1<<30); else t = DivScale(daz, daz2, 30);
                             }
-                            dax = wal->wall_int_pos.X + MulScale(dax, t, 30);
-                            day = wal->wall_int_pos.Y + MulScale(day, t, 30);
+                            dax = wal->wall_int_pos().X + MulScale(dax, t, 30);
+                            day = wal->wall_int_pos().Y + MulScale(day, t, 30);
 
                             closest = { dax, day };
                         }
@@ -996,7 +996,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                     if (j != 0)
                     {
-                        j = getangle(wal->point2Wall()->wall_int_pos.X-wal->wall_int_pos.X, wal->point2Wall()->wall_int_pos.Y-wal->wall_int_pos.Y);
+                        j = getangle(wal->point2Wall()->wall_int_pos().X-wal->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y-wal->wall_int_pos().Y);
                         int32_t dx = -bsin(j, -11);
                         int32_t dy = bcos(j, -11);
                         int bad2 = 16;
@@ -1073,8 +1073,8 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
             if (wal.twoSided())
             {
                 auto nextsect = wal.nextSector();
-                vec2_t const v1 = wal.wall_int_pos;
-                vec2_t const v2 = wal.point2Wall()->wall_int_pos;
+                vec2_t const v1 = wal.wall_int_pos();
+                vec2_t const v2 = wal.point2Wall()->wall_int_pos();
 
                 if ((v1.X < xmin && (v2.X < xmin)) || (v1.X > xmax && v2.X > xmax) ||
                     (v1.Y < ymin && (v2.Y < ymin)) || (v1.Y > ymax && v2.Y > ymax))
@@ -1289,7 +1289,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
     {
         auto const wal  = sec->firstWall();
         auto const wal2 = wal->point2Wall();
-        int32_t j, dax=wal2->wall_int_pos.X-wal->wall_int_pos.X, day=wal2->wall_int_pos.Y-wal->wall_int_pos.Y;
+        int32_t j, dax=wal2->wall_int_pos().X-wal->wall_int_pos().X, day=wal2->wall_int_pos().Y-wal->wall_int_pos().Y;
 
         i = ksqrt(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
         i = DivScale(heinum,i, 15);
@@ -1298,7 +1298,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
         j = (vz<<8)-DMulScale(dax,vy,-day,vx, 15);
         if (j != 0)
         {
-            i = ((z - sv->Z)<<8)+DMulScale(dax,sv->Y-wal->wall_int_pos.Y,-day,sv->X-wal->wall_int_pos.X, 15);
+            i = ((z - sv->Z)<<8)+DMulScale(dax,sv->Y-wal->wall_int_pos().Y,-day,sv->X-wal->wall_int_pos().X, 15);
             if (((i^j) >= 0) && ((abs(i)>>1) < abs(j)))
             {
                 i = DivScale(i,j, 30);
@@ -1370,7 +1370,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
             auto const  nextsect = wal->nextSector();
 
-            x1 = wal->wall_int_pos.X; y1 = wal->wall_int_pos.Y; x2 = wal2->wall_int_pos.X; y2 = wal2->wall_int_pos.Y;
+            x1 = wal->wall_int_pos().X; y1 = wal->wall_int_pos().Y; x2 = wal2->wall_int_pos().X; y2 = wal2->wall_int_pos().Y;
 
             if (compat_maybe_truncate_to_int32((coord_t)(x1-sv->X)*(y2-sv->Y))
                 < compat_maybe_truncate_to_int32((coord_t)(x2-sv->X)*(y1-sv->Y))) continue;

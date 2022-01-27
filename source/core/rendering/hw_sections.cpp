@@ -190,7 +190,7 @@ int GetWindingOrder(TArray<int>& poly)
 	int i = 0;
 	for (auto& index : poly)
 	{
-		points[i++] = wall[index].wall_int_pos;
+		points[i++] = wall[index].wall_int_pos();
 	}
 	StripLoop(points);
 	if (points.Size() == 0) return 1; // Sector has no dimension. We must accept this as valid here.
@@ -246,7 +246,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 				{
 					// quick check for the only known cause of this in proper maps: 
 					// RRRA E1L3 and SW $yamato have a wall duplicate where the duplicate's index is the original's + 1. These can just be deleted here and be ignored.
-					if (ww > 1 && wall[ww-1].wall_int_pos.X == wall[ww-2].wall_int_pos.X && wall[ww-1].wall_int_pos.Y == wall[ww-2].wall_int_pos.Y && wall[ww-1].point2 == wall[ww-2].point2 && wall[ww - 1].point2 == ww)
+					if (ww > 1 && wall[ww-1].wall_int_pos().X == wall[ww-2].wall_int_pos().X && wall[ww-1].wall_int_pos().Y == wall[ww-2].wall_int_pos().Y && wall[ww-1].point2 == wall[ww-2].point2 && wall[ww - 1].point2 == ww)
 					{
 						thisloop.Clear();
 						break;
@@ -297,7 +297,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 
 static int insideLoop(int vertex, TArray<int>& loop)
 {
-	auto pt = wall[vertex].wall_int_pos;
+	auto pt = wall[vertex].wall_int_pos();
 	for (int i = 0; i < 2; i++)
 	{
 		// to reliably detect walls where vertices lie directly on outer walls, we must test the wall's center as well.
@@ -307,8 +307,8 @@ static int insideLoop(int vertex, TArray<int>& loop)
 		for (unsigned ii = 0; ii < loop.Size() - 1; ii++)
 		{
 			auto& wal = wall[loop[ii]];
-			auto& pt1 = wal.wall_int_pos;
-			auto& pt2 = wal.point2Wall()->wall_int_pos;
+			const auto pt1 = wal.wall_int_pos();
+			const auto pt2 = wal.point2Wall()->wall_int_pos();
 
 			if ((pt1.Y >pt.Y) != (pt2.Y > pt.Y)) // skip if both are on the same side.
 			{

@@ -50,8 +50,8 @@ double Get(int index, DCoreActor* actor, int type)
 	case Interp_Sect_CeilingPanX:		return sector[index].ceilingxpan_;
 	case Interp_Sect_CeilingPanY:		return sector[index].ceilingypan_;
 
-	case Interp_Wall_X:					return wall[index].wall_int_pos.X;
-	case Interp_Wall_Y:					return wall[index].wall_int_pos.Y;
+	case Interp_Wall_X:					return wall[index].wall_int_pos().X;
+	case Interp_Wall_Y:					return wall[index].wall_int_pos().Y;
 	case Interp_Wall_PanX:				return wall[index].xpan_;
 	case Interp_Wall_PanY:				return wall[index].ypan_;
 
@@ -74,8 +74,8 @@ void Set(int index, DCoreActor* actor, int type, double val)
 	case Interp_Sect_CeilingPanX:       sector[index].ceilingxpan_ = float(val); break;
 	case Interp_Sect_CeilingPanY:       sector[index].ceilingypan_ = float(val); break;
 
-	case Interp_Wall_X:                 old = wall[index].wall_int_pos.X; wall[index].wall_int_pos.X = xs_CRoundToInt(val); if (wall[index].wall_int_pos.X != old) wall[index].moved(); break;
-	case Interp_Wall_Y:                 old = wall[index].wall_int_pos.Y; wall[index].wall_int_pos.Y = xs_CRoundToInt(val); if (wall[index].wall_int_pos.Y != old) wall[index].moved(); break;
+	case Interp_Wall_X:                 old = wall[index].wall_int_pos().X; wall[index].__wall_int_pos.X = xs_CRoundToInt(val); if (wall[index].wall_int_pos().X != old) wall[index].moved(); break;
+	case Interp_Wall_Y:                 old = wall[index].wall_int_pos().Y; wall[index].__wall_int_pos.Y = xs_CRoundToInt(val); if (wall[index].wall_int_pos().Y != old) wall[index].moved(); break;
 	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
 	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
                                         

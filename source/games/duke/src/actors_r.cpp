@@ -228,13 +228,13 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			if (((dasectp->ceilingz - actor->spr.pos.Z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
-				int d = abs(wal->wall_int_pos.X - actor->spr.pos.X) + abs(wal->wall_int_pos.Y - actor->spr.pos.Y);
+				int d = abs(wal->wall_int_pos().X - actor->spr.pos.X) + abs(wal->wall_int_pos().Y - actor->spr.pos.Y);
 				if (d < r)
 					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = abs(thirdpoint->wall_int_pos.X - actor->spr.pos.X) + abs(thirdpoint->wall_int_pos.Y - actor->spr.pos.Y);
+					d = abs(thirdpoint->wall_int_pos().X - actor->spr.pos.X) + abs(thirdpoint->wall_int_pos().Y - actor->spr.pos.Y);
 					if (d < r)
 						fi.checkhitceiling(dasectp);
 				}
@@ -242,18 +242,18 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 			for (auto& wal : wallsofsector(dasectp))
 			{
-				if ((abs(wal.wall_int_pos.X - actor->spr.pos.X) + abs(wal.wall_int_pos.Y - actor->spr.pos.Y)) < r)
+				if ((abs(wal.wall_int_pos().X - actor->spr.pos.X) + abs(wal.wall_int_pos().Y - actor->spr.pos.Y)) < r)
 				{
 					if (wal.twoSided())
 					{
 						search.Add(wal.nextSector());
 					}
-					int x1 = (((wal.wall_int_pos.X + wal.point2Wall()->wall_int_pos.X) >> 1) + actor->spr.pos.X) >> 1;
-					int y1 = (((wal.wall_int_pos.Y + wal.point2Wall()->wall_int_pos.Y) >> 1) + actor->spr.pos.Y) >> 1;
+					int x1 = (((wal.wall_int_pos().X + wal.point2Wall()->wall_int_pos().X) >> 1) + actor->spr.pos.X) >> 1;
+					int y1 = (((wal.wall_int_pos().Y + wal.point2Wall()->wall_int_pos().Y) >> 1) + actor->spr.pos.Y) >> 1;
 					auto sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
 					if (sect != nullptr && cansee(x1, y1, actor->spr.pos.Z, sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
-						fi.checkhitwall(actor, &wal, wal.wall_int_pos.X, wal.wall_int_pos.Y, actor->spr.pos.Z, actor->spr.picnum);
+						fi.checkhitwall(actor, &wal, wal.wall_int_pos().X, wal.wall_int_pos().Y, actor->spr.pos.Z, actor->spr.picnum);
 				}
 			}
 		}
@@ -3456,7 +3456,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		alignflorslope(act->sector(), wal->wall_int_pos.X, wal->wall_int_pos.Y, wal->nextSector()->floorz);
+		alignflorslope(act->sector(), wal->wall_int_pos().X, wal->wall_int_pos().Y, wal->nextSector()->floorz);
 	}
 }
 

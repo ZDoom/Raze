@@ -2096,8 +2096,8 @@ void AlignSlopes(void)
 			{
 				auto pNextSector = pWall->nextSector();
 
-				int x = (pWall->wall_int_pos.X + pWall2->wall_int_pos.X) / 2;
-				int y = (pWall->wall_int_pos.Y + pWall2->wall_int_pos.Y) / 2;
+				int x = (pWall->wall_int_pos().X + pWall2->wall_int_pos().X) / 2;
+				int y = (pWall->wall_int_pos().Y + pWall2->wall_int_pos().Y) / 2;
 				viewInterpolateSector(&sect);
 				alignflorslope(&sect, x, y, getflorzofslopeptr(pNextSector, x, y));
 				alignceilslope(&sect, x, y, getceilzofslopeptr(pNextSector, x, y));
@@ -2172,8 +2172,8 @@ void trInit(TArray<DBloodActor*>& actors)
 	gBusy.Clear();
 	for (auto& wal : wall)
 	{
-		wal.baseWall.X = wal.wall_int_pos.X;
-		wal.baseWall.Y = wal.wall_int_pos.Y;
+		wal.baseWall.X = wal.wall_int_pos().X;
+		wal.baseWall.Y = wal.wall_int_pos().Y;
 	}
 	for (auto actor : actors)
 	{
@@ -2224,8 +2224,8 @@ void trInit(TArray<DBloodActor*>& actors)
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
 				for (auto& wal : wallsofsector(pSector))
 				{
-					wal.baseWall.X = wal.wall_int_pos.X;
-					wal.baseWall.Y = wal.wall_int_pos.Y;
+					wal.baseWall.X = wal.wall_int_pos().X;
+					wal.baseWall.Y = wal.wall_int_pos().Y;
 				}
 				BloodSectIterator it(pSector);
 				while (auto actor = it.Next())
@@ -2243,8 +2243,8 @@ void trInit(TArray<DBloodActor*>& actors)
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
 				for (auto& wal : wallsofsector(pSector))
 				{
-					wal.baseWall.X = wal.wall_int_pos.X;
-					wal.baseWall.Y = wal.wall_int_pos.Y;
+					wal.baseWall.X = wal.wall_int_pos().X;
+					wal.baseWall.Y = wal.wall_int_pos().Y;
 				}
 				BloodSectIterator it(pSector);
 				while (auto actor = it.Next())

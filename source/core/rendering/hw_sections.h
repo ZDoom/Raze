@@ -19,8 +19,8 @@ struct SectionLine
 	int wall;
 	int partner;
 
-	vec2_t v1() const { return ::wall[startpoint].wall_int_pos; }
-	vec2_t v2() const { return ::wall[endpoint].wall_int_pos; }
+	vec2_t v1() const { return ::wall[startpoint].wall_int_pos(); }
+	vec2_t v2() const { return ::wall[endpoint].wall_int_pos(); }
 	walltype* wallp() const { return &::wall[wall]; }
 	SectionLine* partnerLine() const;
 

@@ -606,8 +606,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 {
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.wall_int_pos.X, def->wall_int_pos.X)
-			("y", c.wall_int_pos.Y, def->wall_int_pos.Y)
+		arc("x", c.__wall_int_pos.X, def->__wall_int_pos.X)
+			("y", c.__wall_int_pos.Y, def->__wall_int_pos.Y)
 			("point2", c.point2, def->point2)
 			("nextwall", c.nextwall, def->nextwall)
 			("nextsector", c.nextsector, def->nextsector)
