@@ -96,10 +96,10 @@ class UVCalculator
 	int myplane;
 	int stat;
 	float z1;
-	int ix1;
-	int iy1;
-	int ix2;
-	int iy2;
+	float ix1;
+	float iy1;
+	float ix2;
+	float iy2;
 	float sinalign, cosalign;
 	FGameTexture* tex;
 	float xpanning, ypanning;
@@ -115,30 +115,30 @@ public:
 		sect = sec;
 		tex = tx;
 		myplane = plane;
-		offset = off * 16;
+		offset = off;
 
 		auto firstwall = sec->firstWall();
-		ix1 = firstwall->wall_int_pos().X;
-		iy1 = firstwall->wall_int_pos().Y;
-		ix2 = firstwall->point2Wall()->wall_int_pos().X;
-		iy2 = firstwall->point2Wall()->wall_int_pos().Y;
+		ix1 = firstwall->pos.X;
+		iy1 = firstwall->pos.Y;
+		ix2 = firstwall->point2Wall()->pos.X;
+		iy2 = firstwall->point2Wall()->pos.Y;
 
 		if (plane == 0)
 		{
 			stat = sec->floorstat;
 			xpan = sec->floorxpan_;
 			ypan = sec->floorypan_;
-			PlanesAtPoint(sec, ix1, iy1, nullptr, &z1);
+			PlanesAtPointf(sec, ix1, iy1, nullptr, &z1);
 		}
 		else
 		{
 			stat = sec->ceilingstat;
 			xpan = sec->ceilingxpan_;
 			ypan = sec->ceilingypan_;
-			PlanesAtPoint(sec, ix1, iy1, &z1, nullptr);
+			PlanesAtPointf(sec, ix1, iy1, &z1, nullptr);
 		}
 
-		DVector2 dv = { double(ix2 - ix1), -double(iy2 - iy1) };
+		DVector2 dv = { (ix2 - ix1), -(iy2 - iy1) };
 		auto vang = dv.Angle() - 90.;
 
 		cosalign = float(vang.Cos());
@@ -150,7 +150,7 @@ public:
 		xpanning = xpan / 256.f;
 		ypanning = ypan / 256.f;
 
-		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 8.0f : 16.0f;
+		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 0.5f : 1.f;
 
 		if ((stat & (CSTAT_SECTOR_SLOPE | CSTAT_SECTOR_ALIGN)) == (CSTAT_SECTOR_ALIGN))
 		{
@@ -170,21 +170,21 @@ public:
 		yscaled = scalefactor * pow2height;
 	}
 
-	FVector2 GetUV(int x, int y, float z)
+	FVector2 GetUV(float x, float y, float z)
 	{
 		float tv, tu;
 
 		if (stat & CSTAT_SECTOR_ALIGN)
 		{
-			float dx = (float)(x - ix1);
-			float dy = (float)(y - iy1);
+			float dx = (x - ix1);
+			float dy = (y - iy1);
 
 			tu = -(dx * sinalign + dy * cosalign);
 			tv = (dx * cosalign - dy * sinalign);
 
 			if (stat & CSTAT_SECTOR_SLOPE)
 			{
-				float dz = (z - z1) * 16;
+				float dz = (z - z1);
 				float newtv = sqrt(tv * tv + dz * dz);
 				tv = tv < 0 ? -newtv : newtv;
 			}
@@ -454,7 +454,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 
 		pt.X = org.X; pt.Y = org.Y;
 		PlanesAtPointf(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
-		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
+		tc = uvcalc.GetUV(pt.X, -pt.Y, pt.Z);
 	}
 	sectorp->setfloorz(fz, true);
 	sectorp->setceilingz(cz, true);
