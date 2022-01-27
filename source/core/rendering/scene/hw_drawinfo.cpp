@@ -415,8 +415,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->__wall_int_pos.X += eff.geox[i];
-				wal->__wall_int_pos.Y += eff.geoy[i];
+				wal->__wall_pos.X += eff.geox[i];
+				wal->__wall_pos.Y += eff.geoy[i];
 			}
 			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == drawsectp) drawsectp = eff.geosectorwarp[i];
@@ -434,8 +434,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->__wall_int_pos.X -= eff.geox[i];
-				wal->__wall_int_pos.Y -= eff.geoy[i];
+				wal->__wall_pos.X -= eff.geox[i];
+				wal->__wall_pos.Y -= eff.geoy[i];
 			}
 		}
 
@@ -447,8 +447,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->__wall_int_pos.X += eff.geox2[i];
-				wal->__wall_int_pos.Y += eff.geoy2[i];
+				wal->__wall_pos.X += eff.geox2[i];
+				wal->__wall_pos.Y += eff.geoy2[i];
 			}
 			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == orgdrawsectp) drawsectp = eff.geosectorwarp2[i];
@@ -465,8 +465,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->__wall_int_pos.X -= eff.geox2[i];
-				wal->__wall_int_pos.Y -= eff.geoy2[i];
+				wal->__wall_pos.X -= eff.geox2[i];
+				wal->__wall_pos.Y -= eff.geoy2[i];
 			}
 		}
 		ingeo = false;

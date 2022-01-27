@@ -113,10 +113,10 @@ extern int lastlevel;
 extern sectortype* geosectorwarp[MAXGEOSECTORS];
 extern sectortype* geosectorwarp2[MAXGEOSECTORS];
 extern sectortype* geosector[MAXGEOSECTORS];
-extern int geox[MAXGEOSECTORS];
-extern int geoy[MAXGEOSECTORS];
-extern int geox2[MAXGEOSECTORS];
-extern int geoy2[MAXGEOSECTORS];
+extern double geox[MAXGEOSECTORS];
+extern double geoy[MAXGEOSECTORS];
+extern double geox2[MAXGEOSECTORS];
+extern double geoy2[MAXGEOSECTORS];
 extern int geocnt;
 
 extern short ambientlotag[64];

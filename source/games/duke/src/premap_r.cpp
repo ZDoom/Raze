@@ -605,15 +605,15 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 						if (actor2->spr.hitag == 1)
 						{
 							geosectorwarp[geocnt] = actor2->sector();
-							geox[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
-							geoy[geocnt] = actor->spr.pos.Y - actor2->spr.pos.Y;
+							geox[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * maptoworld;
+							geoy[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * maptoworld;
 							//geoz[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 						if (actor2->spr.hitag == 2)
 						{
 							geosectorwarp2[geocnt] = actor2->sector();
-							geox2[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
-							geoy2[geocnt] = actor->spr.pos.Y - actor2->spr.pos.Y;
+							geox2[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * maptoworld;
+							geoy2[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * maptoworld;
 							//geoz2[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 					}

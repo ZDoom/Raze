@@ -56,10 +56,10 @@ struct GeoEffect
 	sectortype** geosectorwarp;
 	sectortype** geosectorwarp2;
 	sectortype** geosector;
-	int* geox;
-	int* geoy;
-	int* geox2;
-	int* geoy2;
+	double* geox;
+	double* geoy;
+	double* geox2;
+	double* geoy2;
 	int geocnt;
 
 };

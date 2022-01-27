@@ -115,7 +115,7 @@ public:
 		sect = sec;
 		tex = tx;
 		myplane = plane;
-		offset = off;
+		offset = off * 16;
 
 		auto firstwall = sec->firstWall();
 		ix1 = firstwall->wall_int_pos().X;

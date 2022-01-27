@@ -36,6 +36,9 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 void MarkVerticesForSector(int sector);
 
+static constexpr double maptoworld = (1 / 16.);
+static constexpr double worldtomap = 16.;
+
 //=============================================================================
 //
 // Constants
@@ -358,10 +361,10 @@ struct sectortype
 
 struct walltype
 {
-	vec2_t __wall_int_pos;
+	DVector2 __wall_pos;
 
-	const vec2_t wall_int_pos() const { return __wall_int_pos; }
-	void setPosFromLoad(int x, int y) { __wall_int_pos = { x, y }; }
+	vec2_t wall_int_pos() const { return vec2_t(__wall_pos.X * worldtomap, __wall_pos.Y * worldtomap); };
+	void setPosFromLoad(int x, int y) { __wall_pos = { x * maptoworld, y * maptoworld }; }
 
 	int32_t point2;
 	int32_t nextwall;
@@ -552,8 +555,8 @@ inline void walltype::moved()
 
 inline void walltype::move(int newx, int newy)
 {
-	__wall_int_pos.X = newx;
-	__wall_int_pos.Y = newy;
+	__wall_pos.X = newx * maptoworld;
+	__wall_pos.Y = newy * maptoworld;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }
