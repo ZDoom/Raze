@@ -361,10 +361,10 @@ struct sectortype
 
 struct walltype
 {
-	DVector2 __wall_pos;
+	DVector2 pos;
 
-	vec2_t wall_int_pos() const { return vec2_t(__wall_pos.X * worldtomap, __wall_pos.Y * worldtomap); };
-	void setPosFromLoad(int x, int y) { __wall_pos = { x * maptoworld, y * maptoworld }; }
+	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtomap, pos.Y * worldtomap); };
+	void setPosFromLoad(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
 
 	int32_t point2;
 	int32_t nextwall;
@@ -555,8 +555,8 @@ inline void walltype::moved()
 
 inline void walltype::move(int newx, int newy)
 {
-	__wall_pos.X = newx * maptoworld;
-	__wall_pos.Y = newy * maptoworld;
+	pos.X = newx * maptoworld;
+	pos.Y = newy * maptoworld;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }

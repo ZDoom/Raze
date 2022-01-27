@@ -319,11 +319,11 @@ void setanimatevalue(int type, int index, double value)
 		break;
 	case anim_vertexx:
 		wall[index].moved();
-		wall[index].__wall_pos.X = value * maptoworld;
+		wall[index].pos.X = value * maptoworld;
 		break;
 	case anim_vertexy:
 		wall[index].moved();
-		wall[index].__wall_pos.Y = value * maptoworld;
+		wall[index].pos.Y = value * maptoworld;
 		break;
 	default:
 		assert(false);
