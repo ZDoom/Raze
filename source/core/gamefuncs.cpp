@@ -410,6 +410,22 @@ void dragpoint(walltype* startwall, int newx, int newy)
 //
 //==========================================================================
 
+DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angle)
+{
+	auto cosang = g_cosbam(angle.asbam());
+	auto sinang = g_sinbam(angle.asbam());
+	auto p = point - pivot;
+	return {
+		p.X * cosang - p.Y * sinang + pivot.X,
+		p.Y * cosang + p.X * sinang + pivot.Y };
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
 tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
 {
 	validateTSpriteSize(tsprite, spritesortcnt);

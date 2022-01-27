@@ -397,7 +397,7 @@ struct walltype
 
 	// Blood is the only game which extends the wall struct.
 	Blood::XWALL* _xw;
-	vec2_t baseWall;
+	DVector2 baseWall;
 
 	int xpan() const { return int(xpan_); }
 	int ypan() const { return int(ypan_); }

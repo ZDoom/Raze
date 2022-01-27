@@ -833,21 +833,6 @@ void PathSound(sectortype* pSector, int nSound)
 //
 //---------------------------------------------------------------------------
 
-void DragPoint(walltype* pWall, int x, int y)
-{
-	vertexscan(pWall, [&](walltype* wal)
-		{
-			viewInterpolateWall(wal);
-			wal->move(x, y);
-		});
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
 {
 	int x, y;
@@ -859,17 +844,33 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 	int v8 = interpolatedvalue(a7, a10, a3);
 	int v2c = v8 - v24;
 	int v44 = interpolatedvalue(a8, a11, a2);
-	int vbp = interpolatedvalue(a8, a11, a3);
-	int v14 = vbp - v44;
+	int ang = interpolatedvalue(a8, a11, a3);
+	int v14 = ang - v44;
+
+	DVector2 pivot = { a4 * maptoworld, a5 * maptoworld };
+	DVector2 offset = { (vc - a4) * maptoworld, (v8 - a5) * maptoworld };
+	auto angle = buildang(ang);
+
+	auto rotatewall = [=](walltype* wal, binangle angle, const DVector2& offset)
+	{
+		auto vec = wal->baseWall;
+		if (angle.asbam() != 0) 
+			vec = rotatepoint(pivot, vec, angle);
+		vec += offset;
+
+		vertexscan(wal, [&](walltype* wal)
+			{
+				viewInterpolateWall(wal);
+				wal->pos = vec;
+				wal->moved();
+			});
+	};
+
 	if (a12)
 	{
 		for (auto& wal : wallsofsector(pSector))
 		{
-			x = wal.baseWall.X;
-			y = wal.baseWall.Y;
-			if (vbp)
-				RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-			DragPoint(&wal, x + vc - a4, y + v8 - a5);
+			rotatewall(&wal, angle, offset);
 		}
 	}
 	else
@@ -877,35 +878,23 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		for (auto& wal : wallsofsector(pSector))
 		{
 			auto p2Wall = wal.point2Wall();
-			x = wal.baseWall.X;
-			y = wal.baseWall.Y;
 			if (wal.cstat & CSTAT_WALL_MOVE_FORWARD)
 			{
-				if (vbp)
-					RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-				DragPoint(&wal, x + vc - a4, y + v8 - a5);
+				rotatewall(&wal, angle, offset);
+
 				if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
 				{
-					x = p2Wall->baseWall.X;
-					y = p2Wall->baseWall.Y;
-					if (vbp)
-						RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-					DragPoint(p2Wall, x + vc - a4, y + v8 - a5);
+					rotatewall(p2Wall, angle, offset);
 				}
 				continue;
 			}
 			if (wal.cstat & CSTAT_WALL_MOVE_BACKWARD)
 			{
-				if (vbp)
-					RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
-				DragPoint(&wal, x - (vc - a4), y - (v8 - a5));
+				rotatewall(&wal, -angle, -offset);
+
 				if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
 				{
-					x = p2Wall->baseWall.X;
-					y = p2Wall->baseWall.Y;
-					if (vbp)
-						RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
-					DragPoint(p2Wall, x - (vc - a4), y - (v8 - a5));
+					rotatewall(p2Wall, -angle, -offset);
 				}
 				continue;
 			}
@@ -930,8 +919,8 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		y = actor->basePoint.Y;
 		if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 		{
-			if (vbp)
-				RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
+			if (ang)
+				RotatePoint((int*)&x, (int*)&y, ang, a4, a5);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang + v14) & 2047;
 			actor->spr.pos.X = x + vc - a4;
@@ -939,8 +928,8 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 		{
-			if (vbp)
-				RotatePoint((int*)&x, (int*)&y, -vbp, a4, a4);
+			if (ang)
+				RotatePoint((int*)&x, (int*)&y, -ang, a4, a4);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang - v14) & 2047;
 			actor->spr.pos.X = x - (vc - a4);
@@ -2172,8 +2161,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	gBusy.Clear();
 	for (auto& wal : wall)
 	{
-		wal.baseWall.X = wal.wall_int_pos().X;
-		wal.baseWall.Y = wal.wall_int_pos().Y;
+		wal.baseWall = wal.pos;
 	}
 	for (auto actor : actors)
 	{
@@ -2224,8 +2212,7 @@ void trInit(TArray<DBloodActor*>& actors)
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
 				for (auto& wal : wallsofsector(pSector))
 				{
-					wal.baseWall.X = wal.wall_int_pos().X;
-					wal.baseWall.Y = wal.wall_int_pos().Y;
+					wal.baseWall = wal.pos;
 				}
 				BloodSectIterator it(pSector);
 				while (auto actor = it.Next())
@@ -2243,8 +2230,7 @@ void trInit(TArray<DBloodActor*>& actors)
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
 				for (auto& wal : wallsofsector(pSector))
 				{
-					wal.baseWall.X = wal.wall_int_pos().X;
-					wal.baseWall.Y = wal.wall_int_pos().Y;
+					wal.baseWall = wal.pos;
 				}
 				BloodSectIterator it(pSector);
 				while (auto actor = it.Next())

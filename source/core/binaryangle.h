@@ -182,6 +182,11 @@ public:
 		return binangle(value - other.value);
 	}
 
+	constexpr binangle operator- () const
+	{
+		return binangle(0 - value);
+	}
+
 	constexpr binangle &operator<<= (const uint8_t shift)
 	{
 		value = tosigned() << shift;
