@@ -358,7 +358,7 @@ struct sectortype
 
 struct walltype
 {
-	vec2_t pos;
+	vec2_t wall_int_pos;
 
 	int32_t point2;
 	int32_t nextwall;
@@ -404,10 +404,10 @@ struct walltype
 	walltype* nextWall() const;
 	walltype* lastWall(bool fast  = true) const;
 	walltype* point2Wall() const;
-	vec2_t delta() const { return point2Wall()->pos - pos; }
-	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
-	int deltax() const { return point2Wall()->pos.X - pos.X; }
-	int deltay() const { return point2Wall()->pos.Y - pos.Y; }
+	vec2_t delta() const { return point2Wall()->wall_int_pos - wall_int_pos; }
+	vec2_t center() const { return(point2Wall()->wall_int_pos + wall_int_pos) / 2; }
+	int deltax() const { return point2Wall()->wall_int_pos.X - wall_int_pos.X; }
+	int deltay() const { return point2Wall()->wall_int_pos.Y - wall_int_pos.Y; }
 	bool twoSided() const { return nextsector >= 0; }
 	int Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
@@ -549,8 +549,8 @@ inline void walltype::moved()
 
 inline void walltype::move(int newx, int newy)
 {
-	pos.X = newx;
-	pos.Y = newy;
+	wall_int_pos.X = newx;
+	wall_int_pos.Y = newy;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }

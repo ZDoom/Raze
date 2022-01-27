@@ -735,8 +735,8 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
     ASSERT(*sectp);
 
     // midpoint of wall
-    *x = (wp->pos.X + wp->pos.X) >> 1;
-    *y = (wp->pos.Y + wp->pos.Y) >> 1;
+    *x = (wp->wall_int_pos.X + wp->wall_int_pos.X) >> 1;
+    *y = (wp->wall_int_pos.Y + wp->wall_int_pos.Y) >> 1;
 
     if (!wp->twoSided())
     {

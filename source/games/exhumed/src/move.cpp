@@ -806,8 +806,8 @@ void CreatePushBlock(sectortype* pSector)
 
     for (auto& wal : wallsofsector(pSector))
     {
-        xSum += wal.pos.X;
-        ySum += wal.pos.Y;
+        xSum += wal.wall_int_pos.X;
+        ySum += wal.wall_int_pos.Y;
     }
 
     int xAvg = xSum / pSector->wallnum;
@@ -829,8 +829,8 @@ void CreatePushBlock(sectortype* pSector)
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        uint32_t xDiff = abs(xAvg - wal.pos.X);
-        uint32_t yDiff = abs(yAvg - wal.pos.Y);
+        uint32_t xDiff = abs(xAvg - wal.wall_int_pos.X);
+        uint32_t yDiff = abs(yAvg - wal.wall_int_pos.Y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1036,7 +1036,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
 		for(auto& wal : wallsofsector(pSector))
         {
-            dragpoint(&wal, xvect + wal.pos.X, yvect + wal.pos.Y);
+            dragpoint(&wal, xvect + wal.wall_int_pos.X, yvect + wal.wall_int_pos.Y);
         }
 
         pBlockInfo->x += xvect;

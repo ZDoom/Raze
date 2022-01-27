@@ -1043,8 +1043,8 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
         FVector2 const fxy = { xy.X*r, xy.Y*r };
 
-        ft[0] = ((float)(globalposx - sec->firstWall()->pos.X)) * fxy.X + ((float)(globalposy - sec->firstWall()->pos.Y)) * fxy.Y;
-        ft[1] = ((float)(globalposy - sec->firstWall()->pos.Y)) * fxy.X - ((float)(globalposx - sec->firstWall()->pos.X)) * fxy.Y;
+        ft[0] = ((float)(globalposx - sec->firstWall()->wall_int_pos.X)) * fxy.X + ((float)(globalposy - sec->firstWall()->wall_int_pos.Y)) * fxy.Y;
+        ft[1] = ((float)(globalposy - sec->firstWall()->wall_int_pos.Y)) * fxy.X - ((float)(globalposx - sec->firstWall()->wall_int_pos.X)) * fxy.Y;
         ft[2] = fcosglobalang * fxy.X + fsinglobalang * fxy.Y;
         ft[3] = fsinglobalang * fxy.X - fcosglobalang * fxy.Y;
 
@@ -1243,8 +1243,8 @@ static inline int32_t testvisiblemost(float const x0, float const x1)
 
 static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32_t dawall, vec2_t * const n)
 {
-    vec2_t const w = { wall[dawall].pos.X, wall[dawall].pos.Y };
-    vec2_t const d = { POINT2(dawall).pos.X - w.X, POINT2(dawall).pos.Y - w.Y };
+    vec2_t const w = { wall[dawall].wall_int_pos.X, wall[dawall].wall_int_pos.Y };
+    vec2_t const d = { POINT2(dawall).wall_int_pos.X - w.X, POINT2(dawall).wall_int_pos.Y - w.Y };
     int64_t i = d.X * ((int64_t)pos->X - w.X) + d.Y * ((int64_t)pos->Y - w.Y);
 
     if (d.X == 0 && d.Y == 0)
@@ -1511,13 +1511,13 @@ static void polymost_drawalls(int32_t const bunch)
         auto const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
-        FVector2 walpos = { (float)(wal->pos.X-globalposx), (float)(wal->pos.Y-globalposy) };
+        FVector2 walpos = { (float)(wal->wall_int_pos.X-globalposx), (float)(wal->wall_int_pos.Y-globalposy) };
 
         FVector2 p0 = { walpos.Y * gcosang - walpos.X * gsinang, walpos.X * gcosang2 + walpos.Y * gsinang2 };
         FVector2 const op0 = p0;
 
-        walpos = { (float)(wal2->pos.X - globalposx),
-                   (float)(wal2->pos.Y - globalposy) };
+        walpos = { (float)(wal2->wall_int_pos.X - globalposx),
+                   (float)(wal2->wall_int_pos.Y - globalposy) };
 
         FVector2 p1 = { walpos.Y * gcosang - walpos.X * gsinang, walpos.X * gcosang2 + walpos.Y * gsinang2 };
 
@@ -1531,26 +1531,26 @@ static void polymost_drawalls(int32_t const bunch)
             if (p1.Y < SCISDIST) continue;
             t0 = (SCISDIST-p0.Y)/(p1.Y-p0.Y);
             p0 = { (p1.X-p0.X)*t0+p0.X, SCISDIST };
-            n0 = { (wal2->pos.X-wal->pos.X)*t0+wal->pos.X,
-                   (wal2->pos.Y-wal->pos.Y)*t0+wal->pos.Y };
+            n0 = { (wal2->wall_int_pos.X-wal->wall_int_pos.X)*t0+wal->wall_int_pos.X,
+                   (wal2->wall_int_pos.Y-wal->wall_int_pos.Y)*t0+wal->wall_int_pos.Y };
         }
         else
         {
             t0 = 0.f;
-            n0 = { (float)wal->pos.X, (float)wal->pos.Y };
+            n0 = { (float)wal->wall_int_pos.X, (float)wal->wall_int_pos.Y };
         }
 
         if (p1.Y < SCISDIST)
         {
             t1 = (SCISDIST-op0.Y)/(p1.Y-op0.Y);
             p1 = { (p1.X-op0.X)*t1+op0.X, SCISDIST };
-            n1 = { (wal2->pos.X-wal->pos.X)*t1+wal->pos.X,
-                   (wal2->pos.Y-wal->pos.Y)*t1+wal->pos.Y };
+            n1 = { (wal2->wall_int_pos.X-wal->wall_int_pos.X)*t1+wal->wall_int_pos.X,
+                   (wal2->wall_int_pos.Y-wal->wall_int_pos.Y)*t1+wal->wall_int_pos.Y };
         }
         else
         {
             t1 = 1.f;
-            n1 = { (float)wal2->pos.X, (float)wal2->pos.Y };
+            n1 = { (float)wal2->wall_int_pos.X, (float)wal2->wall_int_pos.Y };
         }
 
         float ryp0 = 1.f/p0.Y, ryp1 = 1.f/p1.Y;
@@ -1828,10 +1828,10 @@ static void polymost_drawalls(int32_t const bunch)
 //
 int32_t wallfront(int32_t l1, int32_t l2)
 {
-    vec2_t const l1vect = wall[thewall[l1]].pos;
-    vec2_t const l1p2vect = wall[thewall[l1]].point2Wall()->pos;
-    vec2_t const l2vect = wall[thewall[l2]].pos;
-    vec2_t const l2p2vect = wall[thewall[l2]].point2Wall()->pos;
+    vec2_t const l1vect = wall[thewall[l1]].wall_int_pos;
+    vec2_t const l1p2vect = wall[thewall[l1]].point2Wall()->wall_int_pos;
+    vec2_t const l2vect = wall[thewall[l2]].wall_int_pos;
+    vec2_t const l2p2vect = wall[thewall[l2]].point2Wall()->wall_int_pos;
     vec2_t d = { l1p2vect.X - l1vect.X, l1p2vect.Y - l1vect.Y };
     int32_t t1 = DMulScale(l2vect.X - l1vect.X, d.Y, -d.X, l2vect.Y - l1vect.Y, 2); //p1(l2) vs. l1
     int32_t t2 = DMulScale(l2p2vect.X - l1vect.X, d.Y, -d.X, l2p2vect.Y - l1vect.Y, 2); //p2(l2) vs. l1
@@ -1935,8 +1935,8 @@ void polymost_scansector(int32_t sectnum)
         {
             auto const wal2 = wal->point2Wall();
 
-            DVector2 const fp1 = { double(wal->pos.X - globalposx), double(wal->pos.Y - globalposy) };
-            DVector2 const fp2 = { double(wal2->pos.X - globalposx), double(wal2->pos.Y - globalposy) };
+            DVector2 const fp1 = { double(wal->wall_int_pos.X - globalposx), double(wal->wall_int_pos.Y - globalposy) };
+            DVector2 const fp2 = { double(wal2->wall_int_pos.X - globalposx), double(wal2->wall_int_pos.Y - globalposy) };
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
@@ -2337,10 +2337,10 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     globalshade = (int32_t)wal->shade;
     globalfloorpal = globalpal = (int32_t)((uint8_t)wal->pal);
 
-    FVector2 s0 = { (float)(wal->pos.X-globalposx), (float)(wal->pos.Y-globalposy) };
+    FVector2 s0 = { (float)(wal->wall_int_pos.X-globalposx), (float)(wal->wall_int_pos.Y-globalposy) };
     FVector2 p0 = { s0.Y*gcosang - s0.X*gsinang, s0.X*gcosang2 + s0.Y*gsinang2 };
 
-    FVector2 s1 = { (float)(wal2->pos.X-globalposx), (float)(wal2->pos.Y-globalposy) };
+    FVector2 s1 = { (float)(wal2->wall_int_pos.X-globalposx), (float)(wal2->wall_int_pos.Y-globalposy) };
     FVector2 p1 = { s1.Y*gcosang - s1.X*gsinang, s1.X*gcosang2 + s1.Y*gsinang2 };
 
     if ((p0.Y < SCISDIST) && (p1.Y < SCISDIST)) return;
@@ -2364,13 +2364,13 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
         p1 = { (p1.X - op0.X) * t1 + op0.X, SCISDIST };
     }
 
-    int32_t m0 = (int32_t)((wal2->pos.X - wal->pos.X) * t0 + wal->pos.X);
-    int32_t m1 = (int32_t)((wal2->pos.Y - wal->pos.Y) * t0 + wal->pos.Y);
+    int32_t m0 = (int32_t)((wal2->wall_int_pos.X - wal->wall_int_pos.X) * t0 + wal->wall_int_pos.X);
+    int32_t m1 = (int32_t)((wal2->wall_int_pos.Y - wal->wall_int_pos.Y) * t0 + wal->wall_int_pos.Y);
     int32_t cz[4], fz[4];
     getzsofslopeptr(sec, m0, m1, &cz[0], &fz[0]);
     getzsofslopeptr(wal->nextSector(), m0, m1, &cz[1], &fz[1]);
-    m0 = (int32_t)((wal2->pos.X - wal->pos.X) * t1 + wal->pos.X);
-    m1 = (int32_t)((wal2->pos.Y - wal->pos.Y) * t1 + wal->pos.Y);
+    m0 = (int32_t)((wal2->wall_int_pos.X - wal->wall_int_pos.X) * t1 + wal->wall_int_pos.X);
+    m1 = (int32_t)((wal2->wall_int_pos.Y - wal->wall_int_pos.Y) * t1 + wal->wall_int_pos.Y);
     getzsofslopeptr(sec, m0, m1, &cz[2], &fz[2]);
     getzsofslopeptr(wal->nextSector(), m0, m1, &cz[3], &fz[3]);
 
@@ -2911,12 +2911,12 @@ void polymost_drawsprite(int32_t snum)
             {
                 vec2_t v = { /*Blrintf(vf.x)*/(int)vf.X, /*Blrintf(vf.y)*/(int)vf.Y };
 
-                if (walldist <= 2 || ((pos.X - v.X) + (pos.X + v.X)) == (wall[w].pos.X + POINT2(w).pos.X) ||
-                    ((pos.Y - v.Y) + (pos.Y + v.Y)) == (wall[w].pos.Y + POINT2(w).pos.Y) ||
-                    polymost_lintersect(pos.X - v.X, pos.Y - v.Y, pos.X + v.X, pos.Y + v.Y, wall[w].pos.X, wall[w].pos.Y,
-                                        POINT2(w).pos.X, POINT2(w).pos.Y))
+                if (walldist <= 2 || ((pos.X - v.X) + (pos.X + v.X)) == (wall[w].wall_int_pos.X + POINT2(w).wall_int_pos.X) ||
+                    ((pos.Y - v.Y) + (pos.Y + v.Y)) == (wall[w].wall_int_pos.Y + POINT2(w).wall_int_pos.Y) ||
+                    polymost_lintersect(pos.X - v.X, pos.Y - v.Y, pos.X + v.X, pos.Y + v.Y, wall[w].wall_int_pos.X, wall[w].wall_int_pos.Y,
+                                        POINT2(w).wall_int_pos.X, POINT2(w).wall_int_pos.Y))
                 {
-                    int32_t const ang = getangle(wall[w].pos.X - POINT2(w).pos.X, wall[w].pos.Y - POINT2(w).pos.Y);
+                    int32_t const ang = getangle(wall[w].wall_int_pos.X - POINT2(w).wall_int_pos.X, wall[w].wall_int_pos.Y - POINT2(w).wall_int_pos.Y);
                     float const foffs = TSPR_OFFSET(tspr);
                     DVector2 const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
 
@@ -3281,8 +3281,8 @@ static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
     int32_t* tposx, int32_t* tposy, fixed_t* tang)
 {
-    const int32_t x = wall[dawall].pos.X, dx = wall[dawall].point2Wall()->pos.X - x;
-    const int32_t y = wall[dawall].pos.Y, dy = wall[dawall].point2Wall()->pos.Y - y;
+    const int32_t x = wall[dawall].wall_int_pos.X, dx = wall[dawall].point2Wall()->wall_int_pos.X - x;
+    const int32_t y = wall[dawall].wall_int_pos.Y, dy = wall[dawall].point2Wall()->wall_int_pos.Y - y;
 
     const int32_t j = dx * dx + dy * dy;
     if (j == 0)
@@ -3658,8 +3658,8 @@ void renderDrawMasks(void)
 
         maskwallcnt--;
 
-        FVector2 dot = { (float)wall[w].pos.X, (float)wall[w].pos.Y };
-        FVector2 dot2 = { (float)wall[w].point2Wall()->pos.X, (float)wall[w].point2Wall()->pos.Y };
+        FVector2 dot = { (float)wall[w].wall_int_pos.X, (float)wall[w].wall_int_pos.Y };
+        FVector2 dot2 = { (float)wall[w].point2Wall()->wall_int_pos.X, (float)wall[w].point2Wall()->wall_int_pos.Y };
         FVector2 middle = { (dot.X + dot2.X) * .5f, (dot.Y + dot2.Y) * .5f };
 
         _equation maskeq = equation(dot.X, dot.Y, dot2.X, dot2.Y);

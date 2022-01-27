@@ -170,10 +170,10 @@ static void CalcMapBounds()
 	for(auto& wal : wall)
 	{
 		// get map min and max coordinates
-		if (wal.pos.X < x_min_bound) x_min_bound = wal.pos.X;
-		if (wal.pos.Y < y_min_bound) y_min_bound = wal.pos.Y;
-		if (wal.pos.X > x_max_bound) x_max_bound = wal.pos.X;
-		if (wal.pos.Y > y_max_bound) y_max_bound = wal.pos.Y;
+		if (wal.wall_int_pos.X < x_min_bound) x_min_bound = wal.wall_int_pos.X;
+		if (wal.wall_int_pos.Y < y_min_bound) y_min_bound = wal.wall_int_pos.Y;
+		if (wal.wall_int_pos.X > x_max_bound) x_max_bound = wal.wall_int_pos.X;
+		if (wal.wall_int_pos.Y > y_max_bound) y_max_bound = wal.wall_int_pos.Y;
 	}
 }
 
@@ -434,14 +434,14 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 
 			if (ShowRedLine(wallnum(&wal), i))
 			{
-				int ox = wal.pos.X - cposx;
-				int oy = wal.pos.Y - cposy;
+				int ox = wal.wall_int_pos.X - cposx;
+				int oy = wal.wall_int_pos.Y - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 				auto wal2 = wal.point2Wall();
-				ox = wal2->pos.X - cposx;
-				oy = wal2->pos.Y - cposy;
+				ox = wal2->wall_int_pos.X - cposx;
+				oy = wal2->wall_int_pos.Y - cposy;
 				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
@@ -476,15 +476,15 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			int ox = wal.pos.X - cposx;
-			int oy = wal.pos.Y - cposy;
+			int ox = wal.wall_int_pos.X - cposx;
+			int oy = wal.wall_int_pos.Y - cposy;
 			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 			int k = wal.point2;
 			auto wal2 = &wall[k];
-			ox = wal2->pos.X - cposx;
-			oy = wal2->pos.Y - cposy;
+			ox = wal2->wall_int_pos.X - cposx;
+			oy = wal2->wall_int_pos.Y - cposy;
 			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 

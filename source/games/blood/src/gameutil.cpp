@@ -177,10 +177,10 @@ bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, i
 
 bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 {
-	int x1 = pWall->pos.X;
-	int y1 = pWall->pos.Y;
-	int x2 = pWall->point2Wall()->pos.X;
-	int y2 = pWall->point2Wall()->pos.Y;
+	int x1 = pWall->wall_int_pos.X;
+	int y1 = pWall->wall_int_pos.Y;
+	int x2 = pWall->point2Wall()->wall_int_pos.X;
+	int y2 = pWall->point2Wall()->wall_int_pos.Y;
 	nDist <<= 4;
 	if (x1 < x2)
 	{
@@ -539,12 +539,12 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 
 			nOfs = (nOfs * pWall->yrepeat) / 8;
 			nOfs += int((nSizY * pWall->ypan_) / 256);
-			int nLength = approxDist(pWall->pos.X - pWall->point2Wall()->pos.X, pWall->pos.Y - pWall->point2Wall()->pos.Y);
+			int nLength = approxDist(pWall->wall_int_pos.X - pWall->point2Wall()->wall_int_pos.X, pWall->wall_int_pos.Y - pWall->point2Wall()->wall_int_pos.Y);
 			int nHOffset;
 			if (pWall->cstat & CSTAT_WALL_XFLIP)
-				nHOffset = approxDist(gHitInfo.hitpos.X - pWall->point2Wall()->pos.X, gHitInfo.hitpos.Y - pWall->point2Wall()->pos.Y);
+				nHOffset = approxDist(gHitInfo.hitpos.X - pWall->point2Wall()->wall_int_pos.X, gHitInfo.hitpos.Y - pWall->point2Wall()->wall_int_pos.Y);
 			else
-				nHOffset = approxDist(gHitInfo.hitpos.X - pWall->pos.X, gHitInfo.hitpos.Y - pWall->pos.Y);
+				nHOffset = approxDist(gHitInfo.hitpos.X - pWall->wall_int_pos.X, gHitInfo.hitpos.Y - pWall->wall_int_pos.Y);
 
 			nHOffset = pWall->xpan() + ((nHOffset * pWall->xrepeat) << 3) / nLength;
 			nHOffset %= nSizX;

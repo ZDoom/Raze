@@ -71,7 +71,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
 			if (d.X == 0)
 			{
-				double newdist = fabs(tspr->pos.X - wal.pos.X);
+				double newdist = fabs(tspr->pos.X - wal.wall_int_pos.X);
 				if (newdist < maxorthdist)
 				{
 					maxorthdist = newdist;
@@ -80,7 +80,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			}
 			else if (d.Y == 0)
 			{
-				double newdist = fabs(tspr->pos.Y - wal.pos.Y);
+				double newdist = fabs(tspr->pos.Y - wal.wall_int_pos.Y);
 				if (newdist < maxorthdist)
 				{
 					maxorthdist = newdist;
@@ -914,8 +914,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	FVector2 v1(WallStartX(wal), WallStartY(wal));
 	FVector2 v2(WallEndX(wal), WallEndY(wal));
 
-	PlanesAtPoint(frontsector, wal->pos.X, wal->pos.Y, &fch1, &ffh1);
-	PlanesAtPoint(frontsector, p2wall->pos.X, p2wall->pos.Y, &fch2, &ffh2);
+	PlanesAtPoint(frontsector, wal->wall_int_pos.X, wal->wall_int_pos.Y, &fch1, &ffh1);
+	PlanesAtPoint(frontsector, p2wall->wall_int_pos.X, p2wall->wall_int_pos.Y, &fch2, &ffh2);
 
 
 #ifdef _DEBUG
@@ -1008,8 +1008,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		float bfh2;
 		float bch1;
 		float bch2;
-		PlanesAtPoint(backsector, wal->pos.X, wal->pos.Y, &bch1, &bfh1);
-		PlanesAtPoint(backsector, p2wall->pos.X, p2wall->pos.Y, &bch2, &bfh2);
+		PlanesAtPoint(backsector, wal->wall_int_pos.X, wal->wall_int_pos.Y, &bch1, &bfh1);
+		PlanesAtPoint(backsector, p2wall->wall_int_pos.X, p2wall->wall_int_pos.Y, &bch2, &bfh2);
 
 		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
 		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);

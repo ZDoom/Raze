@@ -288,10 +288,10 @@ int* animateptr(int type, int index, bool write)
 		return sector[index].ceilingzptr(!write);
 	case anim_vertexx:
 		if (write) wall[index].moved();
-		return &wall[index].pos.X;
+		return &wall[index].wall_int_pos.X;
 	case anim_vertexy:
 		if (write) wall[index].moved();
-		return &wall[index].pos.Y;
+		return &wall[index].wall_int_pos.Y;
 	default:
 		assert(false);
 		return &scratch;
@@ -506,8 +506,8 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	dax = 0L, day = 0L;
 	for (auto& wal : wallsofsector(sptr))
 	{
-		dax += wal.pos.X;
-		day += wal.pos.Y;
+		dax += wal.wall_int_pos.X;
+		day += wal.wall_int_pos.Y;
 	}
 	dax /= sptr->wallnum;
 	day /= sptr->wallnum;
@@ -517,7 +517,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	wallfind[0] = nullptr;
 	wallfind[1] = nullptr;
 	for (auto& wal : wallsofsector(sptr))
-		if ((wal.pos.X == dax) || (wal.pos.Y == day))
+		if ((wal.wall_int_pos.X == dax) || (wal.wall_int_pos.Y == day))
 		{
 			if (wallfind[0] == nullptr)
 				wallfind[0] = &wal;
@@ -533,33 +533,33 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		auto prevwall = wal - 1;
 		if (prevwall < sptr->firstWall()) prevwall += sptr->wallnum;
 
-		if ((wal->pos.X == dax) && (wal->pos.Y == day))
+		if ((wal->wall_int_pos.X == dax) && (wal->wall_int_pos.Y == day))
 		{
-			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) >> 1) - wal->pos.X;
-			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) >> 1) - wal->pos.Y;
+			dax2 = ((prevwall->wall_int_pos.X + wal->point2Wall()->wall_int_pos.X) >> 1) - wal->wall_int_pos.X;
+			day2 = ((prevwall->wall_int_pos.Y + wal->point2Wall()->wall_int_pos.Y) >> 1) - wal->wall_int_pos.Y;
 			if (dax2 != 0)
 			{
-				dax2 = wal->point2Wall()->point2Wall()->pos.X;
-				dax2 -= wal->point2Wall()->pos.X;
-				setanimation(sptr, anim_vertexx, wal, wal->pos.X + dax2, sp);
-				setanimation(sptr, anim_vertexx, prevwall, prevwall->pos.X + dax2, sp);
-				setanimation(sptr, anim_vertexx, wal->point2Wall(), wal->point2Wall()->pos.X + dax2, sp);
+				dax2 = wal->point2Wall()->point2Wall()->wall_int_pos.X;
+				dax2 -= wal->point2Wall()->wall_int_pos.X;
+				setanimation(sptr, anim_vertexx, wal, wal->wall_int_pos.X + dax2, sp);
+				setanimation(sptr, anim_vertexx, prevwall, prevwall->wall_int_pos.X + dax2, sp);
+				setanimation(sptr, anim_vertexx, wal->point2Wall(), wal->point2Wall()->wall_int_pos.X + dax2, sp);
 				callsound(sptr, actor);
 			}
 			else if (day2 != 0)
 			{
-				day2 = wal->point2Wall()->point2Wall()->pos.Y;
-				day2 -= wal->point2Wall()->pos.Y;
-				setanimation(sptr, anim_vertexy, wal, wal->pos.Y + day2, sp);
-				setanimation(sptr, anim_vertexy, prevwall, prevwall->pos.Y + day2, sp);
-				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->pos.Y + day2, sp);
+				day2 = wal->point2Wall()->point2Wall()->wall_int_pos.Y;
+				day2 -= wal->point2Wall()->wall_int_pos.Y;
+				setanimation(sptr, anim_vertexy, wal, wal->wall_int_pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, prevwall, prevwall->wall_int_pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->wall_int_pos.Y + day2, sp);
 				callsound(sptr, actor);
 			}
 		}
 		else
 		{
-			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) >> 1) - wal->pos.X;
-			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) >> 1) - wal->pos.Y;
+			dax2 = ((prevwall->wall_int_pos.X + wal->point2Wall()->wall_int_pos.X) >> 1) - wal->wall_int_pos.X;
+			day2 = ((prevwall->wall_int_pos.Y + wal->point2Wall()->wall_int_pos.Y) >> 1) - wal->wall_int_pos.Y;
 			if (dax2 != 0)
 			{
 				setanimation(sptr, anim_vertexx, wal, dax, sp);
@@ -974,8 +974,8 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		if (!isRR()) break;
 		for (auto& wal : wallsofsector(sptr))
 		{
-			setanimation(sptr, anim_vertexx, &wal, wal.pos.X + 1024, 4);
-			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->pos.X + 1024, 4);
+			setanimation(sptr, anim_vertexx, &wal, wal.wall_int_pos.X + 1024, 4);
+			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->wall_int_pos.X + 1024, 4);
 		}
 		break;
 

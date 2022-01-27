@@ -185,32 +185,32 @@ inline double RenderY(int y)
 
 inline double WallStartX(int wallnum)
 {
-	return wall[wallnum].pos.X * (1 / 16.);
+	return wall[wallnum].wall_int_pos.X * (1 / 16.);
 }
 
 inline double WallStartY(int wallnum)
 {
-	return wall[wallnum].pos.Y * (1 / -16.);
+	return wall[wallnum].wall_int_pos.Y * (1 / -16.);
 }
 
 inline double WallEndX(int wallnum)
 {
-	return wall[wallnum].point2Wall()->pos.X * (1 / 16.);
+	return wall[wallnum].point2Wall()->wall_int_pos.X * (1 / 16.);
 }
 
 inline double WallEndY(int wallnum)
 {
-	return wall[wallnum].point2Wall()->pos.Y * (1 / -16.);
+	return wall[wallnum].point2Wall()->wall_int_pos.Y * (1 / -16.);
 }
 
 inline double WallStartX(const walltype* wallnum)
 {
-	return wallnum->pos.X * (1 / 16.);
+	return wallnum->wall_int_pos.X * (1 / 16.);
 }
 
 inline double WallStartY(const walltype* wallnum)
 {
-	return wallnum->pos.Y * (1 / -16.);
+	return wallnum->wall_int_pos.Y * (1 / -16.);
 }
 
 inline DVector2 WallStart(const walltype* wallnum)
@@ -220,12 +220,12 @@ inline DVector2 WallStart(const walltype* wallnum)
 
 inline double WallEndX(const walltype* wallnum)
 {
-	return wallnum->point2Wall()->pos.X * (1 / 16.);
+	return wallnum->point2Wall()->wall_int_pos.X * (1 / 16.);
 }
 
 inline double WallEndY(const walltype* wallnum)
 {
-	return wallnum->point2Wall()->pos.Y * (1 / -16.);
+	return wallnum->point2Wall()->wall_int_pos.Y * (1 / -16.);
 }
 
 inline DVector2 WallEnd(const walltype* wallnum)
@@ -308,8 +308,8 @@ inline int I_GetBuildTime()
 inline int32_t getangle(walltype* wal)
 {
 	return getangle(
-		wal->point2Wall()->pos.X - wal->pos.X,
-		wal->point2Wall()->pos.Y - wal->pos.Y);
+		wal->point2Wall()->wall_int_pos.X - wal->wall_int_pos.X,
+		wal->point2Wall()->wall_int_pos.Y - wal->wall_int_pos.Y);
 }
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
@@ -342,10 +342,10 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 
 inline DVector2 NearestPointLine(double px, double py, const walltype* wal)
 {
-	double lx1 = wal->pos.X;
-	double ly1 = wal->pos.Y;
-	double lx2 = wal->point2Wall()->pos.X;
-	double ly2 = wal->point2Wall()->pos.Y;
+	double lx1 = wal->wall_int_pos.X;
+	double ly1 = wal->wall_int_pos.Y;
+	double lx2 = wal->point2Wall()->wall_int_pos.X;
+	double ly2 = wal->point2Wall()->wall_int_pos.Y;
 
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 
@@ -359,10 +359,10 @@ inline DVector2 NearestPointLine(double px, double py, const walltype* wal)
 
 inline double SquareDistToWall(double px, double py, const walltype* wal, DVector2* point = nullptr) 
 {
-	double lx1 = wal->pos.X;
-	double ly1 = wal->pos.Y;
-	double lx2 = wal->point2Wall()->pos.X;
-	double ly2 = wal->point2Wall()->pos.Y;
+	double lx1 = wal->wall_int_pos.X;
+	double ly1 = wal->wall_int_pos.Y;
+	double lx2 = wal->point2Wall()->wall_int_pos.X;
+	double ly2 = wal->point2Wall()->wall_int_pos.Y;
 
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 

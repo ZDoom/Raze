@@ -205,8 +205,8 @@ void JS_DrawMirrors(PLAYER* pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                 if (bIsWallMirror)
                 {
-                    j = abs(mirror[cnt].mirrorWall->pos.X - tx);
-                    j += abs(mirror[cnt].mirrorWall->pos.Y - ty);
+                    j = abs(mirror[cnt].mirrorWall->wall_int_pos.X - tx);
+                    j += abs(mirror[cnt].mirrorWall->wall_int_pos.Y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -233,8 +233,8 @@ void JS_DrawMirrors(PLAYER* pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     auto wal = mirror[cnt].mirrorWall;
 
                     // Get wall midpoint for offset in mirror view
-                    midx = (wal->pos.X + wal->point2Wall()->pos.X) / 2;
-                    midy = (wal->pos.Y + wal->point2Wall()->pos.Y) / 2;
+                    midx = (wal->wall_int_pos.X + wal->point2Wall()->wall_int_pos.X) / 2;
+                    midy = (wal->wall_int_pos.Y + wal->point2Wall()->wall_int_pos.Y) / 2;
 
                     // Finish finding offsets
                     tdx = abs(midx - tx);

@@ -178,8 +178,8 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 
 static void ReadWallV7(FileReader& fr, walltype& wall)
 {
-	wall.pos.X = fr.ReadInt32();
-	wall.pos.Y = fr.ReadInt32();
+	wall.wall_int_pos.X = fr.ReadInt32();
+	wall.wall_int_pos.Y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
@@ -199,8 +199,8 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 
 static void ReadWallV6(FileReader& fr, walltype& wall)
 {
-	wall.pos.X = fr.ReadInt32();
-	wall.pos.Y = fr.ReadInt32();
+	wall.wall_int_pos.X = fr.ReadInt32();
+	wall.wall_int_pos.Y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
@@ -220,8 +220,8 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 
 static void ReadWallV5(FileReader& fr, walltype& wall)
 {
-	wall.pos.X = fr.ReadInt32();
-	wall.pos.Y = fr.ReadInt32();
+	wall.wall_int_pos.X = fr.ReadInt32();
+	wall.wall_int_pos.Y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.picnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
@@ -649,8 +649,8 @@ static void P_LoadBloodMapWalls(uint8_t* data, size_t len, TArray<walltype>& lwa
 		// only copy what we need to draw the map preview.
 
 		auto pWall = &lwalls[i];
-		pWall->pos.X = LittleLong(load.x);
-		pWall->pos.Y = LittleLong(load.y);
+		pWall->wall_int_pos.X = LittleLong(load.x);
+		pWall->wall_int_pos.Y = LittleLong(load.y);
 		pWall->point2 = LittleShort(load.point2);
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);

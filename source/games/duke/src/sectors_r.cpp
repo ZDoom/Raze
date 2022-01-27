@@ -369,8 +369,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
-		sx = wwal->pos.X;
-		sy = wwal->pos.Y;
+		sx = wwal->wall_int_pos.X;
+		sy = wwal->wall_int_pos.Y;
 		picnum = wwal->picnum;
 		switchpal = wwal->pal;
 	}
@@ -946,8 +946,8 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 
 	j = n + 1;
 
-	int x1 = wal->pos.X;
-	int y1 = wal->pos.Y;
+	int x1 = wal->wall_int_pos.X;
+	int y1 = wal->wall_int_pos.Y;
 
 	auto delta = wal->delta();
 
@@ -2778,8 +2778,8 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		var_cx = 4;
 	for(auto& wal : wallsofsector(nextsect))
 	{
-		x = wal.pos.X;
-		y = wal.pos.Y;
+		x = wal.wall_int_pos.X;
+		y = wal.wall_int_pos.Y;
 		if (x > max_x)
 			max_x = x;
 		if (y > max_y)
@@ -2828,24 +2828,24 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 			S_PlayActorSound(389, ps[snum].GetActor());
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.pos.X;
-			y = wal.pos.Y;
+			x = wal.wall_int_pos.X;
+			y = wal.wall_int_pos.Y;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.pos.Y + var_cx;
+				y = wal.wall_int_pos.Y + var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wal.pos.X - var_cx;
+				x = wal.wall_int_pos.X - var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wal.pos.Y - var_cx;
+				y = wal.wall_int_pos.Y - var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wal.pos.X + var_cx;
+				x = wal.wall_int_pos.X + var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			}
@@ -2855,24 +2855,24 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	{
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.pos.X;
-			y = wal.pos.Y;
+			x = wal.wall_int_pos.X;
+			y = wal.wall_int_pos.Y;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.pos.Y - (var_cx - 2);
+				y = wal.wall_int_pos.Y - (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wal.pos.X + (var_cx - 2);
+				x = wal.wall_int_pos.X + (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wal.pos.Y + (var_cx - 2);
+				y = wal.wall_int_pos.Y + (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wal.pos.X - (var_cx - 2);
+				x = wal.wall_int_pos.X - (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			}

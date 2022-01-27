@@ -274,17 +274,17 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wal->move(wal->pos.X - amt, wal->pos.Y);
-                pwal->move(pwal->pos.X - amt, pwal->pos.Y);
-                wal->point2Wall()->move(wal->point2Wall()->pos.X - amt, wal->point2Wall()->pos.Y);
+                wal->move(wal->wall_int_pos.X - amt, wal->wall_int_pos.Y);
+                pwal->move(pwal->wall_int_pos.X - amt, pwal->wall_int_pos.Y);
+                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos.X - amt, wal->point2Wall()->wall_int_pos.Y);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->pos.X - amt, pwal2->pos.Y);
+                pwal2->move(pwal2->wall_int_pos.X - amt, pwal2->wall_int_pos.Y);
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(wal, wal->pos.X - amt, wal->pos.Y);
-                dragpoint(wal->point2Wall(), wal->point2Wall()->pos.X - amt, wal->point2Wall()->pos.Y);
+                dragpoint(wal, wal->wall_int_pos.X - amt, wal->wall_int_pos.Y);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->wall_int_pos.X - amt, wal->point2Wall()->wall_int_pos.Y);
             }
 
             break;
@@ -299,17 +299,17 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wal->move(wal->pos.X + amt, wal->pos.Y);
-                pwal->move(pwal->pos.X + amt, pwal->pos.Y);
-                wal->point2Wall()->move(wal->point2Wall()->pos.X + amt, wal->point2Wall()->pos.Y);
+                wal->move(wal->wall_int_pos.X + amt, wal->wall_int_pos.Y);
+                pwal->move(pwal->wall_int_pos.X + amt, pwal->wall_int_pos.Y);
+                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos.X + amt, wal->point2Wall()->wall_int_pos.Y);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->pos.X + amt, pwal2->pos.Y);
+                pwal2->move(pwal2->wall_int_pos.X + amt, pwal2->wall_int_pos.Y);
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(wal, wal->pos.X + amt, wal->pos.Y);
-                dragpoint(wal->point2Wall(), wal->point2Wall()->pos.X + amt, wal->point2Wall()->pos.Y);
+                dragpoint(wal, wal->wall_int_pos.X + amt, wal->wall_int_pos.Y);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->wall_int_pos.X + amt, wal->point2Wall()->wall_int_pos.Y);
             }
 
             break;
@@ -323,16 +323,16 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
             if (!wal->twoSided())
             {
-                wal->move(wal->pos.X, wal->pos.Y - amt);
-                pwal->move(pwal->pos.X, pwal->pos.Y - amt);
-                wal->point2Wall()->move(wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y - amt);
+                wal->move(wal->wall_int_pos.X, wal->wall_int_pos.Y - amt);
+                pwal->move(pwal->wall_int_pos.X, pwal->wall_int_pos.Y - amt);
+                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos.X, wal->point2Wall()->wall_int_pos.Y - amt);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->pos.X, pwal2->pos.Y - amt);
+                pwal2->move(pwal2->wall_int_pos.X, pwal2->wall_int_pos.Y - amt);
             }
             else
             {
-                dragpoint(wal, wal->pos.X, wal->pos.Y - amt);
-                dragpoint(wal->point2Wall(), wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y - amt);
+                dragpoint(wal, wal->wall_int_pos.X, wal->wall_int_pos.Y - amt);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->wall_int_pos.X, wal->point2Wall()->wall_int_pos.Y - amt);
             }
 
             break;
@@ -346,16 +346,16 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
             if (!wal->twoSided())
             {
-                wal->move(wal->pos.X, wal->pos.Y + amt);
-                pwal->move(pwal->pos.X, pwal->pos.Y + amt);
-                wal->point2Wall()->move(wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y + amt);
+                wal->move(wal->wall_int_pos.X, wal->wall_int_pos.Y + amt);
+                pwal->move(pwal->wall_int_pos.X, pwal->wall_int_pos.Y + amt);
+                wal->point2Wall()->move(wal->point2Wall()->wall_int_pos.X, wal->point2Wall()->wall_int_pos.Y + amt);
                 auto pwal2 = wal->point2Wall()->point2Wall();
-                pwal2->move(pwal2->pos.X, pwal2->pos.Y + amt);
+                pwal2->move(pwal2->wall_int_pos.X, pwal2->wall_int_pos.Y + amt);
             }
             else
             {
-                dragpoint(wal, wal->pos.X, wal->pos.Y + amt);
-                dragpoint(wal->point2Wall(), wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y + amt);
+                dragpoint(wal, wal->wall_int_pos.X, wal->wall_int_pos.Y + amt);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->wall_int_pos.X, wal->point2Wall()->wall_int_pos.Y + amt);
             }
 
 
@@ -382,22 +382,22 @@ int DoSlidorInstantClose(DSWActor* actor)
         switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
-            diff = wal->pos.X - actor->spr.pos.X;
+            diff = wal->wall_int_pos.X - actor->spr.pos.X;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
-            diff = wal->pos.X - actor->spr.pos.X;
+            diff = wal->wall_int_pos.X - actor->spr.pos.X;
             DoSlidorMoveWalls(actor, -diff);
             break;
 
         case TAG_WALL_SLIDOR_UP:
-            diff = wal->pos.Y - actor->spr.pos.Y;
+            diff = wal->wall_int_pos.Y - actor->spr.pos.Y;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
-            diff = wal->pos.Y - actor->spr.pos.Y;
+            diff = wal->wall_int_pos.Y - actor->spr.pos.Y;
             DoSlidorMoveWalls(actor, -diff);
             break;
         }

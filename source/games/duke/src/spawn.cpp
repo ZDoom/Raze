@@ -784,7 +784,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.pos.vec2 - wal.pos);
+				d = FindDistance2D(actor->spr.pos.vec2 - wal.wall_int_pos);
 				if (d < q)
 				{
 					q = d;
@@ -798,7 +798,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.pos.vec2 - wal.pos);
+				d = FindDistance2D(actor->spr.pos.vec2 - wal.wall_int_pos);
 				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;
@@ -958,12 +958,12 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			actor->temp_data[1] = tempwallptr;
 			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wal.pos.X - actor->spr.pos.X;
-				msy[tempwallptr] = wal.pos.Y - actor->spr.pos.Y;
+				msx[tempwallptr] = wal.wall_int_pos.X - actor->spr.pos.X;
+				msy[tempwallptr] = wal.wall_int_pos.Y - actor->spr.pos.Y;
 				tempwallptr++;
 				if (tempwallptr > 2047)
 				{
-					I_Error("Too many moving sectors at (%d,%d).\n", wal.pos.X, wal.pos.Y);
+					I_Error("Too many moving sectors at (%d,%d).\n", wal.wall_int_pos.X, wal.wall_int_pos.Y);
 				}
 			}
 			if (actor->spr.lotag == SE_30_TWO_WAY_TRAIN || actor->spr.lotag == SE_6_SUBWAY || actor->spr.lotag == SE_14_SUBWAY_CAR || actor->spr.lotag == SE_5_BOSS)
@@ -1098,8 +1098,8 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		return;
 	}
 
-	int x1 = wal->pos.X;
-	int y1 = wal->pos.Y;
+	int x1 = wal->wall_int_pos.X;
+	int y1 = wal->wall_int_pos.Y;
 	auto delta = wal->delta() / (n + 1);
 
 	x1 -= Sgn(delta.Y);
@@ -1153,8 +1153,8 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 
 	for (auto& wal : wallsofsector(sectp))
 	{
-		int x1 = wal.pos.X;
-		int y1 = wal.pos.Y;
+		int x1 = wal.wall_int_pos.X;
+		int y1 = wal.wall_int_pos.Y;
 
 		auto delta = wal.delta() / (n + 1);
 
@@ -1192,8 +1192,8 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		return;
 	}
 
-	int x1 = wal->pos.X;
-	int y1 = wal->pos.Y;
+	int x1 = wal->wall_int_pos.X;
+	int y1 = wal->wall_int_pos.Y;
 
 	auto delta = wal->delta() / (n + 1);
 

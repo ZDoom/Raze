@@ -411,20 +411,20 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        if (wal.pos.X < var_24) {
-            var_24 = wal.pos.X;
+        if (wal.wall_int_pos.X < var_24) {
+            var_24 = wal.wall_int_pos.X;
         }
 
-        if (esi < wal.pos.X) {
-            esi = wal.pos.X;
+        if (esi < wal.wall_int_pos.X) {
+            esi = wal.wall_int_pos.X;
         }
 
-        if (ecx > wal.pos.Y) {
-            ecx = wal.pos.Y;
+        if (ecx > wal.wall_int_pos.Y) {
+            ecx = wal.wall_int_pos.Y;
         }
 
-        if (edi < wal.pos.Y) {
-            edi = wal.pos.Y;
+        if (edi < wal.wall_int_pos.Y) {
+            edi = wal.wall_int_pos.Y;
         }
     }
 
@@ -986,23 +986,23 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     SlideData[nSlide].pWall2 = pWall2;
     SlideData[nSlide].pWall3 = pWall3;
 
-    SlideData[nSlide].x1 = pStartWall->pos.X;
-    SlideData[nSlide].y1 = pStartWall->pos.Y;
+    SlideData[nSlide].x1 = pStartWall->wall_int_pos.X;
+    SlideData[nSlide].y1 = pStartWall->wall_int_pos.Y;
 
-    SlideData[nSlide].x2 = pWall2->pos.X;
-    SlideData[nSlide].y2 = pWall2->pos.Y;
+    SlideData[nSlide].x2 = pWall2->wall_int_pos.X;
+    SlideData[nSlide].y2 = pWall2->wall_int_pos.Y;
 
-    SlideData[nSlide].x3 = pWall1->pos.X;
-    SlideData[nSlide].y3 = pWall1->pos.Y;
+    SlideData[nSlide].x3 = pWall1->wall_int_pos.X;
+    SlideData[nSlide].y3 = pWall1->wall_int_pos.Y;
 
-    SlideData[nSlide].x4 = pWall3->pos.X;
-    SlideData[nSlide].y4 = pWall3->pos.Y;
+    SlideData[nSlide].x4 = pWall3->wall_int_pos.X;
+    SlideData[nSlide].y4 = pWall3->wall_int_pos.Y;
 
-    SlideData[nSlide].x5 = p2ndLastWall->pos.X;
-    SlideData[nSlide].y5 = p2ndLastWall->pos.Y;
+    SlideData[nSlide].x5 = p2ndLastWall->wall_int_pos.X;
+    SlideData[nSlide].y5 = p2ndLastWall->wall_int_pos.Y;
 
-    SlideData[nSlide].x6 = pWall4->pos.X;
-    SlideData[nSlide].y6 = pWall4->pos.Y;
+    SlideData[nSlide].x6 = pWall4->wall_int_pos.X;
+    SlideData[nSlide].y6 = pWall4->wall_int_pos.Y;
 
     StartInterpolation(pStartWall, Interp_Wall_X);
     StartInterpolation(pStartWall, Interp_Wall_Y);
@@ -1021,8 +1021,8 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
 
     SlideData[nSlide].pActor = pActor;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.pos.X = pStartWall->pos.X;
-    pActor->spr.pos.Y = pStartWall->pos.Y;
+    pActor->spr.pos.X = pStartWall->wall_int_pos.X;
+    pActor->spr.pos.Y = pStartWall->wall_int_pos.Y;
     pActor->spr.pos.Z = pSector->floorz;
     pActor->backuppos();
 
@@ -1074,8 +1074,8 @@ void AISlide::Tick(RunListEvent* ev)
     if (cx == 1)
     {
         auto pWall = SlideData[nSlide].pWall1;
-        int x = pWall->pos.X;
-        int y = pWall->pos.Y;
+        int x = pWall->wall_int_pos.X;
+        int y = pWall->wall_int_pos.Y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
         int var_34 = nSeekA;
@@ -1098,15 +1098,15 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pStartWall;
 
-        y = pWall->pos.Y + var_24;
-        x = pWall->pos.X + var_20;
+        y = pWall->wall_int_pos.Y + var_24;
+        x = pWall->wall_int_pos.X + var_20;
 
         dragpoint(SlideData[nSlide].pStartWall, x, y);
 
         pWall = SlideData[nSlide].pWall3;
 
-        x = pWall->pos.X;
-        y = pWall->pos.Y;
+        x = pWall->wall_int_pos.X;
+        y = pWall->wall_int_pos.Y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
         int var_30 = nSeekC;
@@ -1124,16 +1124,16 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->pos.X + var_20;
-        y = pWall->pos.Y + var_24;
+        x = pWall->wall_int_pos.X + var_20;
+        y = pWall->wall_int_pos.Y + var_24;
 
         dragpoint(SlideData[nSlide].pWall2, x, y);
     }
     else if (cx == 0) // right branch
     {
         auto pWall = SlideData[nSlide].pStartWall;
-        int x = pWall->pos.X;
-        int y = pWall->pos.Y;
+        int x = pWall->wall_int_pos.X;
+        int y = pWall->wall_int_pos.Y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
         int edi = nSeekA;
@@ -1151,15 +1151,15 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall1;
 
-        y = pWall->pos.Y + var_28;
-        x = pWall->pos.X + var_1C;
+        y = pWall->wall_int_pos.Y + var_28;
+        x = pWall->wall_int_pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->pos.X;
-        y = pWall->pos.Y;
+        x = pWall->wall_int_pos.X;
+        y = pWall->wall_int_pos.Y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
         edi = nSeekC;
@@ -1177,8 +1177,8 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall3;
 
-        y = pWall->pos.Y + var_28;
-        x = pWall->pos.X + var_1C;
+        y = pWall->wall_int_pos.Y + var_28;
+        x = pWall->wall_int_pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall3, x, y);
     }
@@ -1565,8 +1565,8 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
 	for(auto& wal : wallsofsector(pSector))
     {
-        x += wal.pos.X;
-        y += wal.pos.Y;
+        x += wal.wall_int_pos.X;
+        y += wal.wall_int_pos.Y;
 
         wal.picnum = kClockSymbol16;
         wal.pal = 0;
@@ -2510,8 +2510,8 @@ void PostProcess()
 
                     if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
-						int xVal = abs(sect.firstWall()->pos.X - sectj.firstWall()->pos.X);
-						int yVal = abs(sect.firstWall()->pos.Y - sectj.firstWall()->pos.Y);
+						int xVal = abs(sect.firstWall()->wall_int_pos.X - sectj.firstWall()->wall_int_pos.X);
+						int yVal = abs(sect.firstWall()->wall_int_pos.Y - sectj.firstWall()->wall_int_pos.Y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {

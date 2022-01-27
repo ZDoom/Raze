@@ -287,8 +287,8 @@ void dojaildoor(void)
 			{
 				for (auto& wal : wallsofsector(sectp))
 				{
-					int x = wal.pos.X;
-					int y = wal.pos.Y;
+					int x = wal.wall_int_pos.X;
+					int y = wal.wall_int_pos.Y;
 					switch (jaildoordir[i])
 					{
 						case 10:
@@ -339,24 +339,24 @@ void dojaildoor(void)
 					switch (jaildoordir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.pos.X;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 10:
-							x = wal.pos.X;
-							y = wal.pos.Y + speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y + speed;
 							break;
 						case 20:
-							x = wal.pos.X - speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X - speed;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 30:
-							x = wal.pos.X;
-							y = wal.pos.Y - speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y - speed;
 							break;
 						case 40:
-							x = wal.pos.X + speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X + speed;
+							y = wal.wall_int_pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -421,24 +421,24 @@ void moveminecart(void)
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.pos.X;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 10:
-							x = wal.pos.X;
-							y = wal.pos.Y + speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y + speed;
 							break;
 						case 20:
-							x = wal.pos.X - speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X - speed;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 30:
-							x = wal.pos.X;
-							y = wal.pos.Y - speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y - speed;
 							break;
 						case 40:
-							x = wal.pos.X + speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X + speed;
+							y = wal.wall_int_pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -475,24 +475,24 @@ void moveminecart(void)
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.pos.X;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 10:
-							x = wal.pos.X;
-							y = wal.pos.Y + speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y + speed;
 							break;
 						case 20:
-							x = wal.pos.X - speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X - speed;
+							y = wal.wall_int_pos.Y;
 							break;
 						case 30:
-							x = wal.pos.X;
-							y = wal.pos.Y - speed;
+							x = wal.wall_int_pos.X;
+							y = wal.wall_int_pos.Y - speed;
 							break;
 						case 40:
-							x = wal.pos.X + speed;
-							y = wal.pos.Y;
+							x = wal.wall_int_pos.X + speed;
+							y = wal.wall_int_pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -504,8 +504,8 @@ void moveminecart(void)
 		min_x = min_y = 0x20000;
 		for (auto& wal : wallsofsector(csect))
 		{
-			x = wal.pos.X;
-			y = wal.pos.Y;
+			x = wal.wall_int_pos.X;
+			y = wal.wall_int_pos.Y;
 			if (x > max_x)
 				max_x = x;
 			if (y > max_y)

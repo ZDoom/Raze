@@ -63,8 +63,8 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 
 	pt[0] = { (float)WallStartX(wal), 0.f, (float)WallStartY(wal)};
 	pt[1] = { (float)WallStartX(wal2), 0.f, (float)WallStartY(wal2)};
-	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
-	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
+	PlanesAtPoint(sector, wal->wall_int_pos.X, wal->wall_int_pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
+	PlanesAtPoint(sector, wal2->wall_int_pos.X, wal2->wall_int_pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
 
 	if (pt[0].X == pt[1].X)
 	{
@@ -118,10 +118,10 @@ public:
 		offset = off;
 
 		auto firstwall = sec->firstWall();
-		ix1 = firstwall->pos.X;
-		iy1 = firstwall->pos.Y;
-		ix2 = firstwall->point2Wall()->pos.X;
-		iy2 = firstwall->point2Wall()->pos.Y;
+		ix1 = firstwall->wall_int_pos.X;
+		iy1 = firstwall->wall_int_pos.Y;
+		ix2 = firstwall->point2Wall()->wall_int_pos.X;
+		iy2 = firstwall->point2Wall()->wall_int_pos.Y;
 
 		if (plane == 0)
 		{
@@ -363,8 +363,8 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
-			sec->firstWall()->pos == sdata.poscompare[0] &&
-			sec->firstWall()->point2Wall()->pos == sdata.poscompare2[0] &&
+			sec->firstWall()->wall_int_pos == sdata.poscompare[0] &&
+			sec->firstWall()->point2Wall()->wall_int_pos == sdata.poscompare2[0] &&
 			!(section->dirty & EDirty::FloorDirty) && sdata.planes[plane].vertices.Size() ) return true;
 
 		section->dirty &= ~EDirty::FloorDirty;
@@ -376,15 +376,15 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
-			sec->firstWall()->pos == sdata.poscompare[1] &&
-			sec->firstWall()->point2Wall()->pos == sdata.poscompare2[1] &&
+			sec->firstWall()->wall_int_pos == sdata.poscompare[1] &&
+			sec->firstWall()->point2Wall()->wall_int_pos == sdata.poscompare2[1] &&
 			!(section->dirty & EDirty::CeilingDirty) && sdata.planes[1].vertices.Size()) return true;
 
 		section->dirty &= ~EDirty::CeilingDirty;
 	}
 	compare->copy(sec);
-	sdata.poscompare[plane] = sec->firstWall()->pos;
-	sdata.poscompare2[plane] = sec->firstWall()->point2Wall()->pos;
+	sdata.poscompare[plane] = sec->firstWall()->wall_int_pos;
+	sdata.poscompare2[plane] = sec->firstWall()->point2Wall()->wall_int_pos;
 	return false;
 }
 
