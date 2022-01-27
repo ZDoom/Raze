@@ -63,8 +63,8 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 
 	pt[0] = { (float)WallStartX(wal), 0.f, (float)WallStartY(wal)};
 	pt[1] = { (float)WallStartX(wal2), 0.f, (float)WallStartY(wal2)};
-	PlanesAtPoint(sector, wal->wall_int_pos().X, wal->wall_int_pos().Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
-	PlanesAtPoint(sector, wal2->wall_int_pos().X, wal2->wall_int_pos().Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
+	PlanesAtPointf(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
+	PlanesAtPointf(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
 
 	if (pt[0].X == pt[1].X)
 	{
@@ -77,7 +77,7 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 		pt[2].X = pt[0].X;
 		pt[2].Z = pt[0].Z + 4;
 	}
-	PlanesAtPoint(sector, pt[2].X * 16, pt[2].Z * -16, plane ? &pt[2].Z : nullptr, plane ? nullptr : &pt[2].Y);
+	PlanesAtPointf(sector, pt[2].X, -pt[2].Z, plane ? &pt[2].Y : nullptr, plane ? nullptr : &pt[2].Y);
 
 	auto normal = ((pt[2] - pt[0]) ^ (pt[1] - pt[0])).Unit();
 	if ((normal.Y < 0 && !plane) || (normal.Y > 0 && plane)) return -normal;
@@ -453,7 +453,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		auto& tc = entry.texcoords[i];
 
 		pt.X = org.X; pt.Y = org.Y;
-		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
+		PlanesAtPointf(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
 	}
 	sectorp->setfloorz(fz, true);
