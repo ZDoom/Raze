@@ -361,6 +361,7 @@ struct walltype
 	vec2_t __wall_int_pos;
 
 	const vec2_t wall_int_pos() const { return __wall_int_pos; }
+	void setPosFromLoad(int x, int y) { __wall_int_pos = { x, y }; }
 
 	int32_t point2;
 	int32_t nextwall;

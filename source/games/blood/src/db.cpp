@@ -392,8 +392,9 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 		{
 			dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev * sizeof(sectortypedisk)) | 0x7474614d);
 		}
-		pWall->__wall_int_pos.X = LittleLong(load.x);
-		pWall->__wall_int_pos.Y = LittleLong(load.y);
+		int x = LittleLong(load.x);
+		int y = LittleLong(load.y);
+		pWall->setPosFromLoad(x, y);
 		pWall->point2 = LittleShort(load.point2);
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);

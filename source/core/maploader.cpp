@@ -178,8 +178,9 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 
 static void ReadWallV7(FileReader& fr, walltype& wall)
 {
-	wall.__wall_int_pos.X = fr.ReadInt32();
-	wall.__wall_int_pos.Y = fr.ReadInt32();
+	int x = fr.ReadInt32();
+	int y = fr.ReadInt32();
+	wall.setPosFromLoad(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
@@ -199,8 +200,9 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 
 static void ReadWallV6(FileReader& fr, walltype& wall)
 {
-	wall.__wall_int_pos.X = fr.ReadInt32();
-	wall.__wall_int_pos.Y = fr.ReadInt32();
+	int x = fr.ReadInt32();
+	int y = fr.ReadInt32();
+	wall.setPosFromLoad(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
@@ -220,8 +222,9 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 
 static void ReadWallV5(FileReader& fr, walltype& wall)
 {
-	wall.__wall_int_pos.X = fr.ReadInt32();
-	wall.__wall_int_pos.Y = fr.ReadInt32();
+	int x = fr.ReadInt32();
+	int y = fr.ReadInt32();
+	wall.setPosFromLoad(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.picnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
