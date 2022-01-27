@@ -63,8 +63,8 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 
 	pt[0] = { (float)WallStartX(wal), 0.f, (float)WallStartY(wal)};
 	pt[1] = { (float)WallStartX(wal2), 0.f, (float)WallStartY(wal2)};
-	PlanesAtPointf(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
-	PlanesAtPointf(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
+	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
+	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
 
 	if (pt[0].X == pt[1].X)
 	{
@@ -77,7 +77,7 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 		pt[2].X = pt[0].X;
 		pt[2].Z = pt[0].Z + 4;
 	}
-	PlanesAtPointf(sector, pt[2].X, -pt[2].Z, plane ? &pt[2].Y : nullptr, plane ? nullptr : &pt[2].Y);
+	PlanesAtPoint(sector, pt[2].X, -pt[2].Z, plane ? &pt[2].Y : nullptr, plane ? nullptr : &pt[2].Y);
 
 	auto normal = ((pt[2] - pt[0]) ^ (pt[1] - pt[0])).Unit();
 	if ((normal.Y < 0 && !plane) || (normal.Y > 0 && plane)) return -normal;
@@ -128,14 +128,14 @@ public:
 			stat = sec->floorstat;
 			xpan = sec->floorxpan_;
 			ypan = sec->floorypan_;
-			PlanesAtPointf(sec, ix1, iy1, nullptr, &z1);
+			PlanesAtPoint(sec, ix1, iy1, nullptr, &z1);
 		}
 		else
 		{
 			stat = sec->ceilingstat;
 			xpan = sec->ceilingxpan_;
 			ypan = sec->ceilingypan_;
-			PlanesAtPointf(sec, ix1, iy1, &z1, nullptr);
+			PlanesAtPoint(sec, ix1, iy1, &z1, nullptr);
 		}
 
 		DVector2 dv = { (ix2 - ix1), -(iy2 - iy1) };
@@ -453,7 +453,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		auto& tc = entry.texcoords[i];
 
 		pt.X = org.X; pt.Y = org.Y;
-		PlanesAtPointf(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
+		PlanesAtPoint(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(pt.X, -pt.Y, pt.Z);
 	}
 	sectorp->setfloorz(fz, true);

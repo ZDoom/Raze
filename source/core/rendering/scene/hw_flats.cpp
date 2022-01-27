@@ -316,7 +316,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	const auto &vp = di->Viewpoint;
 
 	float florz, ceilz;
-	PlanesAtPointf(frontsector, vp.Pos.X, -vp.Pos.Y, &ceilz, &florz);
+	PlanesAtPoint(frontsector, vp.Pos.X, -vp.Pos.Y, &ceilz, &florz);
 
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;

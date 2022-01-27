@@ -185,7 +185,7 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, float* pflorz)
 {
-	calcSlope(sec, dax, day, pceilz, pflorz);
+	calcSlope(sec, dax * worldtomap, day * worldtomap, pceilz, pflorz);
 	if (pceilz) *pceilz *= -(1 / 256.f);
 	if (pflorz) *pflorz *= -(1 / 256.f);
 }
