@@ -239,6 +239,4 @@ void loadcons();
 void recordoldspritepos();
 void DrawStatusBar();
 
-int* animateptr(int i, bool write = true);
-
 END_DUKE_NS

@@ -277,30 +277,62 @@ int findotherplayer(int p, int* d)
 //
 //---------------------------------------------------------------------------
 
-int* animateptr(int type, int index, bool write)
+double getanimatevalue(int type, int index)
+{
+	switch (type)
+	{
+	case anim_floorz:
+		return sector[index].floorz;
+	case anim_ceilingz:
+		return sector[index].ceilingz;
+	case anim_vertexx:
+		return wall[index].wall_int_pos().X;
+	case anim_vertexy:
+		return wall[index].wall_int_pos().Y;
+	default:
+		assert(false);
+		return 0;
+	}
+}
+
+double getanimatevalue(int i)
+{
+	return getanimatevalue(animatetype[i], animatetarget[i]);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void setanimatevalue(int type, int index, double value)
 {
 	static int scratch;
 	switch (type)
 	{
 	case anim_floorz:
-		return sector[index].floorzptr(!write);
+		sector[index].setfloorz((int)value);
+		break;
 	case anim_ceilingz:
-		return sector[index].ceilingzptr(!write);
+		sector[index].setceilingz((int)value);
+		break;
 	case anim_vertexx:
-		if (write) wall[index].moved();
-		return &wall[index].__wall_int_pos.X;
+		wall[index].moved();
+		wall[index].__wall_int_pos.X = (int)value;
+		break;
 	case anim_vertexy:
-		if (write) wall[index].moved();
-		return &wall[index].__wall_int_pos.Y;
+		wall[index].moved();
+		wall[index].__wall_int_pos.Y = (int)value;
+		break;
 	default:
 		assert(false);
-		return &scratch;
 	}
 }
 
-int* animateptr(int i, bool write)
+void setanimatevalue(int i, double value)
 {
-	return animateptr(animatetype[i], animatetarget[i], write);
+	return setanimatevalue(animatetype[i], animatetarget[i], value);
 }
 
 //---------------------------------------------------------------------------
@@ -315,7 +347,7 @@ void doanimations(void)
 
 	for (i = animatecnt - 1; i >= 0; i--)
 	{
-		a = *animateptr(i, false);
+		a = (int)getanimatevalue(i);
 		v = animatevel[i] * TICSPERFRAME;
 		auto dasectp = animatesect[i];
 
@@ -365,8 +397,7 @@ void doanimations(void)
 				}
 			}
 		}
-
-		*animateptr(i, true) = a;
+		setanimatevalue(i, a);
 	}
 }
 
@@ -412,12 +443,12 @@ static int dosetanimation(sectortype* animsect, int animtype, int animtarget, in
 			break;
 		}
 
-	auto animptr = animateptr(animtype, animtarget, false);
+	auto animval = (int)getanimatevalue(animtype, animtarget);
 	animatesect[j] = animsect;
 	animatetype[j] = animtype;
 	animatetarget[j] = animtarget;
 	animategoal[j] = thegoal;
-	if (thegoal >= *animptr)
+	if (thegoal >= animval)
 		animatevel[j] = thevel;
 	else
 		animatevel[j] = -thevel;
