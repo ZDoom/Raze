@@ -157,6 +157,10 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
+inline void PlanesAtPointf(const sectortype* sec, float dax, float day, float* ceilz, float* florz)
+{
+	PlanesAtPoint(sec, dax * worldtomap, day * worldtomap, ceilz, florz);
+}
 
 int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
