@@ -1564,10 +1564,10 @@ enum
     SO_TURRET = 97,
     SO_VEHICLE = 98,
     // #define SO_SPEED_BOAT 99
-    MAXSO = INT32_MAX
+    MAXSO = INT32_MAX / 2
 };
 
-inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == INT32_MAX); }
+inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == MAXSO); }
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 

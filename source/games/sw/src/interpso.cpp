@@ -133,12 +133,12 @@ static void setvalue(so_interp::interp_data& element, double value)
     switch (type)
     {
     case soi_wallx:
-        wall[index].moved();
         wall[index].pos.X = value;
+        wall[index].moved();
         break;
     case soi_wally:
-        wall[index].moved();
         wall[index].pos.Y = value;
+        wall[index].moved();
         break;
     case soi_ceil:
         sector[index].setceilingz((int)value);

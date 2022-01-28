@@ -379,7 +379,7 @@ void SectorSetup(void)
         SectorObject[ndx].mid_sector = nullptr;
         SectorObject[ndx].op_main_sector = nullptr;
         SectorObject[ndx].morph_wall_point = nullptr;
-        SectorObject[ndx].pmid.X = INT32_MAX;
+        SectorObject[ndx].pmid.X = MAXSO;
     }
 
     memset(SineWaveFloor, 0, sizeof(SineWaveFloor));

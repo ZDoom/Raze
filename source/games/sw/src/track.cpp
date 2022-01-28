@@ -2669,24 +2669,6 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
 }
 
 
-void KillSectorObject(SECTOR_OBJECT* sop)
-{
-    int newx = MAXSO;
-    int newy = MAXSO;
-    short newang = 0;
-
-    if (sop->track < SO_OPERATE_TRACK_START)
-        return;
-
-    sop->ang_tgt = sop->ang_moving = newang;
-
-    sop->spin_ang = 0;
-    sop->ang = sop->ang_tgt;
-
-    RefreshPoints(sop, newx - sop->pmid.X, newy - sop->pmid.Y, false);
-}
-
-
 void TornadoSpin(SECTOR_OBJECT* sop)
 {
     short delta_ang, speed;
