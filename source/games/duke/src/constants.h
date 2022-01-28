@@ -118,6 +118,9 @@ enum
 	ST_29_TEETH_DOOR         = 29,
 	ST_30_ROTATE_RISE_BRIDGE = 30,
 	ST_31_TWO_WAY_TRAIN      = 31,
+
+	ST_41_JAILDOOR			= 41,
+	ST_42_MINECART			= 42,
 	// left: ST 32767, 65534, 65535
 };
 

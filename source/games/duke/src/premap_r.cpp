@@ -449,24 +449,24 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	for (auto&sect: sector)
 	{
 		auto sectp = &sect;
-		if (sectp->ceilingpicnum == RRTILE2577)
+		if (sectp->ceilingpicnum == RRTHUNDERSKY)
 			thunderon = 1;
 
 		switch (sectp->lotag)
 		{
-		case 41:
+		case ST_41_JAILDOOR:
 		{
 			DukeSectIterator it(sectp);
 			dist = 0;
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == RRTILE11)
+				if (act->spr.picnum == RRJAILDOOR)
 				{
-					dist = act->spr.lotag << 4;
+					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					deletesprite(act);
 				}
-				if (act->spr.picnum == RRTILE38)
+				if (act->spr.picnum == RRJAILDOORSOUND)
 				{
 					sound = act->spr.lotag;
 					deletesprite(act);
@@ -483,7 +483,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			}
 			break;
 		}
-		case 42:
+		case ST_42_MINECART:
 		{
 			sectortype* childsectnum = nullptr;
 			dist = 0;
