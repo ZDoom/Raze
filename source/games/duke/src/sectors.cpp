@@ -318,13 +318,13 @@ void setanimatevalue(int type, int index, double value)
 		sector[index].setceilingz((int)value);
 		break;
 	case anim_vertexx:
-		wall[index].pos.X = value * worldtomap;
-		wall[index].pos.X = value * maptoworld;
+
+		wall[index].pos.X = value * inttoworld;
 		wall[index].moved();
 		break;
 	case anim_vertexy:
-		wall[index].pos.Y = value * worldtomap;
-		wall[index].pos.Y = value * maptoworld;
+
+		wall[index].pos.Y = value * inttoworld;
 		wall[index].moved();
 		break;
 	default:

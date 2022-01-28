@@ -1610,8 +1610,8 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     if ((sop->flags & SOBJ_ZMID_FLOOR))
         sop->pmid.Z = sop->mid_sector->floorz;
 
-    DVector2 pivot = { sop->pmid.X * maptoworld, sop->pmid.Y * maptoworld };
-    DVector2 move = { nx * maptoworld, ny * maptoworld };
+    DVector2 pivot = { sop->pmid.X * inttoworld, sop->pmid.Y * inttoworld };
+    DVector2 move = { nx * inttoworld, ny * inttoworld };
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((sop->flags & (SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE)))

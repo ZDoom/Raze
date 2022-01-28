@@ -491,14 +491,14 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == RRTILE64)
+				if (act->spr.picnum == RRMINECART)
 				{
-					dist = act->spr.lotag << 4;
+					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					DukeSpriteIterator itt;
 					while(auto act1 = itt.Next())
 					{
-						if (act1->spr.picnum == RRTILE66)
+						if (act1->spr.picnum == RRMINECARTINNER)
 							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = act1->sector();
@@ -507,7 +507,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					}
 					deletesprite(act);
 				}
-				if (act->spr.picnum == RRTILE65)
+				if (act->spr.picnum == RRMINECARTSOUND)
 				{
 					sound = act->spr.lotag;
 					deletesprite(act);
@@ -605,15 +605,15 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 						if (actor2->spr.hitag == 1)
 						{
 							geosectorwarp[geocnt] = actor2->sector();
-							geox[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * maptoworld;
-							geoy[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * maptoworld;
+							geox[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * inttoworld;
+							geoy[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * inttoworld;
 							//geoz[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 						if (actor2->spr.hitag == 2)
 						{
 							geosectorwarp2[geocnt] = actor2->sector();
-							geox2[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * maptoworld;
-							geoy2[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * maptoworld;
+							geox2[geocnt] = (actor->spr.pos.X - actor2->spr.pos.X) * inttoworld;
+							geoy2[geocnt] = (actor->spr.pos.Y - actor2->spr.pos.Y) * inttoworld;
 							//geoz2[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 					}

@@ -37,7 +37,6 @@ BEGIN_DUKE_NS
 
 static int torchcnt;
 static int jaildoorcnt;
-static int minecartcnt;
 static int lightnincnt;
 
 static sectortype* torchsector[64];
@@ -53,14 +52,32 @@ static short jaildoordir[32];
 static short jaildooropen[32];
 static sectortype* jaildoorsect[32];
 
-static short minecartdir[16];
-static int minecartspeed[16];
+struct minecart
+{
+	sectortype* sect;
+	sectortype* childsect;
+	float speed;
+	float dist;
+	float drag;
+	int16_t direction;
+	int16_t sound;
+	int16_t open;
+};
+
+static TArray<minecart> minecarts;
+
+/*
+static int minecartcnt;
+static sectortype* minecartsect[16];
 static sectortype* minecartchildsect[16];
-static short minecartsound[16];
+static int minecartspeed[16];
 static int minecartdist[16];
 static int minecartdrag[16];
+*/
+
+static short minecartdir[16];
+static short minecartsound[16];
 static short minecartopen[16];
-static sectortype* minecartsect[16];
 
 static sectortype* lightninsector[64];
 static short lightninsectorshade[64];
@@ -76,16 +93,32 @@ static int windertime;
 void lava_cleararrays()
 {
 	jaildoorcnt = 0;
-	minecartcnt = 0;
+	minecarts.Clear();
 	torchcnt = 0;
 	lightnincnt = 0;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* key, minecart& c, minecart* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("sect", c.sect)
+			("childsect", c.childsect)
+			("speed", c.speed)
+			("dist", c.dist)
+			("drag", c.drag)
+			("dir", c.direction)
+			("sound", c.sound)
+			("open", c.open)
+			.EndObject();
+	}
+	return arc;
 }
 
 void lava_serialize(FSerializer& arc)
 {
 	arc("torchcnt", torchcnt)
 		("jaildoorcnt", jaildoorcnt)
-		("minecartcnt", minecartcnt)
 		("lightnincnt", lightnincnt);
 
 	if (torchcnt)
@@ -102,16 +135,6 @@ void lava_serialize(FSerializer& arc)
 		.Array("jaildoordir", jaildoordir, jaildoorcnt)
 		.Array("jaildooropen", jaildooropen, jaildoorcnt)
 		.Array("jaildoorsect", jaildoorsect, jaildoorcnt);
-
-	if (minecartcnt)
-		arc.Array("minecartdir", minecartdir, minecartcnt)
-		.Array("minecartspeed", minecartspeed, minecartcnt)
-		.Array("minecartchildsect", minecartchildsect, minecartcnt)
-		.Array("minecartsound", minecartsound, minecartcnt)
-		.Array("minecartdist", minecartdist, minecartcnt)
-		.Array("minecartdrag", minecartdrag, minecartcnt)
-		.Array("minecartopen", minecartopen, minecartcnt)
-		.Array("minecartsect", minecartsect, minecartcnt);
 
 	if (lightnincnt)
 		arc.Array("lightninsector", lightninsector, lightnincnt)
@@ -170,18 +193,17 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* j)
 
 void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* childsectnum)
 {
-	if (minecartcnt >= 16)
-		I_Error("Too many minecart sectors");
-	minecartdist[minecartcnt] = p1;
-	minecartspeed[minecartcnt] = p2;
-	minecartsect[minecartcnt] = i;
-	minecartdir[minecartcnt] = i->hitag;
-	minecartdrag[minecartcnt] = p1;
-	minecartopen[minecartcnt] = 1;
-	minecartsound[minecartcnt] = p3;
-	minecartchildsect[minecartcnt] = childsectnum;
+	minecarts.Reserve(1);
+	auto& mc = minecarts.Last();
+	mc.dist = p1;
+	mc.speed = p2 * maptoworld;
+	mc.sect = i;
+	mc.direction = i->hitag;
+	mc.drag = p1;
+	mc.open = 1;
+	mc.sound = p3;
+	mc.childsect = childsectnum;
 	setsectinterpolate(i);
-	minecartcnt++;
 }
 
 //---------------------------------------------------------------------------
@@ -374,43 +396,31 @@ void dojaildoor(void)
 
 void moveminecart(void)
 {
-	int i;
-	int speed;
-	int y;
-	int x;
-	int cx;
-	int cy;
-	int max_x;
-	int min_y;
-	int max_y;
-	int min_x;
-	for (i = 0; i < minecartcnt; i++)
+	for(auto& mc : minecarts)
 	{
-		auto sectp = minecartsect[i];
-		speed = minecartspeed[i];
-		if (speed < 2)
-			speed = 2;
+		auto sectp = mc.sect;
+		auto speed = max<double>(2 * maptoworld, mc.speed);
 
-		if (minecartopen[i] == 1)
+		if (mc.open == 1 || mc.open == 2)
 		{
-			minecartdrag[i] -= speed;
-			if (minecartdrag[i] <= 0)
+			mc.drag -= speed;
+			if (mc.drag <= 0)
 			{
-				minecartdrag[i] = minecartdist[i];
-				minecartopen[i] = 2;
-				switch (minecartdir[i])
+				mc.drag = mc.dist;
+				mc.open ^= 3;
+				switch (mc.direction)
 				{
 					case 10:
-						minecartdir[i] = 30;
+						mc.direction = 30;
 						break;
 					case 20:
-						minecartdir[i] = 40;
+						mc.direction = 40;
 						break;
 					case 30:
-						minecartdir[i] = 10;
+						mc.direction = 10;
 						break;
 					case 40:
-						minecartdir[i] = 20;
+						mc.direction = 20;
 						break;
 				}
 			}
@@ -418,94 +428,35 @@ void moveminecart(void)
 			{
 				for (auto& wal : wallsofsector(sectp))
 				{
-					switch (minecartdir[i])
+					auto pos = wal.pos;
+					switch (mc.direction)
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y;
 							break;
 						case 10:
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y + speed;
+							pos.Y += speed;
 							break;
 						case 20:
-							x = wal.wall_int_pos().X - speed;
-							y = wal.wall_int_pos().Y;
+							pos.X -= speed;
 							break;
 						case 30:
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y - speed;
+							pos.Y -= speed;
 							break;
 						case 40:
-							x = wal.wall_int_pos().X + speed;
-							y = wal.wall_int_pos().Y;
+							pos.X += speed;
 							break;
 					}
-					dragpoint(&wal, x, y);
+					dragpoint(&wal, pos);
 				}
 			}
 		}
-		if (minecartopen[i] == 2)
-		{
-			minecartdrag[i] -= speed;
-			if (minecartdrag[i] <= 0)
-			{
-				minecartdrag[i] = minecartdist[i];
-				minecartopen[i] = 1;
-				switch (minecartdir[i])
-				{
-					case 10:
-						minecartdir[i] = 30;
-						break;
-					case 20:
-						minecartdir[i] = 40;
-						break;
-					case 30:
-						minecartdir[i] = 10;
-						break;
-					case 40:
-						minecartdir[i] = 20;
-						break;
-				}
-			}
-			else
-			{
-				for (auto& wal : wallsofsector(sectp))
-				{
-					switch (minecartdir[i])
-					{
-						default: // make case of bad parameters well defined.
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y;
-							break;
-						case 10:
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y + speed;
-							break;
-						case 20:
-							x = wal.wall_int_pos().X - speed;
-							y = wal.wall_int_pos().Y;
-							break;
-						case 30:
-							x = wal.wall_int_pos().X;
-							y = wal.wall_int_pos().Y - speed;
-							break;
-						case 40:
-							x = wal.wall_int_pos().X + speed;
-							y = wal.wall_int_pos().Y;
-							break;
-					}
-					dragpoint(&wal, x, y);
-				}
-			}
-		}
-		auto csect = minecartchildsect[i];
-		max_x = max_y = -0x20000;
-		min_x = min_y = 0x20000;
+
+		auto csect = mc.childsect;
+		double max_x = INT32_MIN, max_y = INT32_MIN, min_x = INT32_MAX, min_y = INT32_MAX;
 		for (auto& wal : wallsofsector(csect))
 		{
-			x = wal.wall_int_pos().X;
-			y = wal.wall_int_pos().Y;
+			double x = wal.pos.X;
+			double y = wal.pos.Y;
 			if (x > max_x)
 				max_x = x;
 			if (y > max_y)
@@ -515,13 +466,13 @@ void moveminecart(void)
 			if (y < min_y)
 				min_y = y;
 		}
-		cx = (max_x + min_x) >> 1;
-		cy = (max_y + min_y) >> 1;
+		double cx = (max_x + min_x) * 0.5;
+		double cy = (max_y + min_y) * 0.5;
 		DukeSectIterator it(csect);
 		while (auto a2 = it.Next())
 		{
 			if (badguy(a2))
-				SetActor(a2, { cx, cy, a2->spr.pos.Z });
+				SetActor(a2, { int(cx * worldtoint), int(cy * worldtoint), a2->spr.pos.Z });
 		}
 	}
 }

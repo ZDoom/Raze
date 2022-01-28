@@ -213,7 +213,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp[gs]);
-			SetActor(act, { act->spr.pos.X -= int(geox[gs] * worldtomap), act->spr.pos.Y -= int(geoy[gs] * worldtomap), act->spr.pos.Z });
+			SetActor(act, { act->spr.pos.X -= int(geox[gs] * worldtoint), act->spr.pos.Y -= int(geoy[gs] * worldtoint), act->spr.pos.Z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -221,11 +221,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 			geoid = gs;
 		}
 	}
-	cposx -= int(geox[geoid] * worldtomap);
-	cposy -= int(geoy[geoid] * worldtomap);
+	cposx -= int(geox[geoid] * worldtoint);
+	cposy -= int(geoy[geoid] * worldtoint);
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
-	cposx += int(geox[geoid] * worldtomap);
-	cposy += int(geoy[geoid] * worldtomap);
+	cposx += int(geox[geoid] * worldtoint);
+	cposy += int(geoy[geoid] * worldtoint);
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp[gs];
@@ -233,7 +233,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.pos.X += int(geox[gs] * worldtomap), act->spr.pos.Y += int(geoy[gs] * worldtomap), act->spr.pos.Z });
+			SetActor(act, { act->spr.pos.X += int(geox[gs] * worldtoint), act->spr.pos.Y += int(geoy[gs] * worldtoint), act->spr.pos.Z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
@@ -245,7 +245,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp2[gs]);
-			SetActor(act, { act->spr.pos.X -= int(geox2[gs] * worldtomap), act->spr.pos.Y -= int(geoy2[gs] * worldtomap), act->spr.pos.Z });
+			SetActor(act, { act->spr.pos.X -= int(geox2[gs] * worldtoint), act->spr.pos.Y -= int(geoy2[gs] * worldtoint), act->spr.pos.Z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -253,11 +253,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 			geoid = gs;
 		}
 	}
-	cposx -= int(geox2[geoid] * worldtomap);
-	cposy -= int(geoy2[geoid] * worldtomap);
+	cposx -= int(geox2[geoid] * worldtoint);
+	cposy -= int(geoy2[geoid] * worldtoint);
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
-	cposx += int(geox2[geoid] * worldtomap);
-	cposy += int(geoy2[geoid] * worldtomap);
+	cposx += int(geox2[geoid] * worldtoint);
+	cposy += int(geoy2[geoid] * worldtoint);
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp2[gs];
@@ -265,7 +265,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.pos.X += int(geox2[gs] * worldtomap), act->spr.pos.Y += int(geoy2[gs] * worldtomap), act->spr.pos.Z });
+			SetActor(act, { act->spr.pos.X += int(geox2[gs] * worldtoint), act->spr.pos.Y += int(geoy2[gs] * worldtoint), act->spr.pos.Z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);

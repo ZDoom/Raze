@@ -36,8 +36,13 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 void MarkVerticesForSector(int sector);
 
-static constexpr double maptoworld = (1 / 16.);
-static constexpr double worldtomap = 16.;
+static constexpr double maptoworld = (1 / 16.);	// this for necessary conversions to convert map data to floating point representation.
+static constexpr double inttoworld = (1 / 16.); // this is for conversions needed to make floats coexist with existing code.
+static constexpr double worldtoint = 16.;
+
+static constexpr double zmaptoworld = (1 / 256.);	// this for necessary conversions to convert map data to floating point representation.
+static constexpr double zinttoworld = (1 / 256.); // this is for conversions needed to make floats coexist with existing code.
+static constexpr double zworldtoint = 256.;
 
 //=============================================================================
 //
@@ -363,7 +368,7 @@ struct walltype
 {
 	DVector2 pos;
 
-	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtomap, pos.Y * worldtomap); };
+	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtoint, pos.Y * worldtoint); };
 	void setPosFromLoad(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
 
 	int32_t point2;
@@ -561,8 +566,8 @@ inline void walltype::moved()
 
 inline void walltype::movexy(int newx, int newy)
 {
-	pos.X = newx * maptoworld;
-	pos.Y = newy * maptoworld;
+	pos.X = newx * inttoworld;
+	pos.Y = newy * inttoworld;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }

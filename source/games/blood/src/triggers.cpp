@@ -847,8 +847,8 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 	int ang = interpolatedvalue(a8, a11, a3);
 	int v14 = ang - v44;
 
-	DVector2 pivot = { a4 * maptoworld, a5 * maptoworld };
-	DVector2 offset = { (vc - a4) * maptoworld, (v8 - a5) * maptoworld };
+	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
+	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
 	auto angle = buildang(ang);
 
 	auto rotatewall = [=](walltype* wal, binangle angle, const DVector2& offset)
