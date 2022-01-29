@@ -284,37 +284,6 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     return t;
 }
 
-//
-// inside
-//
-// See http://fabiensanglard.net/duke3d/build_engine_internals.php,
-// "Inside details" for the idea behind the algorithm.
-
-int32_t inside(int32_t x, int32_t y, const sectortype* sect)
-{
-	if (sect)
-    {
-        unsigned cnt = 0;
-        vec2_t xy = { x, y };
-        for(auto& wal : wallsofsector(sect))
-        {
-            vec2_t v1 = wal.wall_int_pos() - xy;
-            vec2_t v2 = wal.point2Wall()->wall_int_pos() - xy;
-
-            // If their signs differ[*], ...
-            //
-            // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
-            // Equivalently, the branch is taken iff
-            //   y1 != y2 AND y_m <= y < y_M,
-            // where y_m := min(y1, y2) and y_M := max(y1, y2).
-            if ((v1.Y^v2.Y) < 0)
-                cnt ^= (((v1.X^v2.X) >= 0) ? v1.X : (v1.X*v2.Y-v2.X*v1.Y)^v2.Y);
-        }
-        return cnt>>31;
-    }
-    return -1;
-}
-
 
 int32_t getangle(int32_t xvect, int32_t yvect)
 {

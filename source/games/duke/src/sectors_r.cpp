@@ -2758,28 +2758,15 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 {
 	assert(wlwal->twoSided());
 	auto nextsect = wlwal->nextSector();
-	int var_C;
-	int x;
-	int y;
-	int min_x;
-	int min_y;
-	int max_x;
-	int max_y;
-	int ins;
-	int var_cx;
 
-	var_C = 1;
-	max_x = max_y = -0x20000;
-	min_x = min_y = 0x20000;
-	var_cx = sectp->hitag;
-	if (var_cx > 16)
-		var_cx = 16;
-	else if (var_cx == 0)
-		var_cx = 4;
-	for(auto& wal : wallsofsector(nextsect))
+	double movestep = min(sectp->hitag * maptoworld, 1.);
+	if (movestep == 0) movestep = 4 * maptoworld;
+
+	double max_x = INT32_MIN, max_y = INT32_MIN, min_x = INT32_MAX, min_y = INT32_MAX;
+	for (auto& wal : wallsofsector(sectp))
 	{
-		x = wal.wall_int_pos().X;
-		y = wal.wall_int_pos().Y;
+		double x = wal.pos.X;
+		double y = wal.pos.Y;
 		if (x > max_x)
 			max_x = x;
 		if (y > max_y)
@@ -2789,22 +2776,18 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		if (y < min_y)
 			min_y = y;
 	}
-	max_x += var_cx + 1;
-	max_y += var_cx + 1;
-	min_x -= var_cx + 1;
-	min_y -= var_cx + 1;
-	ins = inside(max_x, max_y, sectp);
-	if (!ins)
-		var_C = 0;
-	ins = inside(max_x, min_y, sectp);
-	if (!ins)
-		var_C = 0;
-	ins = inside(min_x, min_y, sectp);
-	if (!ins)
-		var_C = 0;
-	ins = inside(min_x, max_y, sectp);
-	if (!ins)
-		var_C = 0;
+
+	double margin = movestep + maptoworld;
+	max_x += margin;
+	max_y += margin;
+	min_x -= margin;
+	min_y -= margin;
+	int pos_ok = 1;
+	if (!inside(max_x, max_y, sectp) ||
+		!inside(max_x, min_y, sectp) ||
+		!inside(min_x, min_y, sectp) ||
+		!inside(min_x, max_y, sectp))
+		pos_ok = 0;
 
 	for (auto& wal : wallsofsector(nextsect))
 	{
@@ -2822,31 +2805,30 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		}
 	}
 
-	if (var_C)
+	if (pos_ok)
 	{
 		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
 			S_PlayActorSound(389, ps[snum].GetActor());
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.wall_int_pos().X;
-			y = wal.wall_int_pos().Y;
+			auto vec = wal.pos;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.wall_int_pos().Y + var_cx;
-				dragpoint(&wal, x, y);
+				vec.Y += movestep;
+				dragpoint(&wal, vec);
 				break;
 			case 41:
-				x = wal.wall_int_pos().X - var_cx;
-				dragpoint(&wal, x, y);
+				vec.X -= movestep;
+				dragpoint(&wal, vec);
 				break;
 			case 40:
-				y = wal.wall_int_pos().Y - var_cx;
-				dragpoint(&wal, x, y);
+				vec.Y -= movestep;
+				dragpoint(&wal, vec);
 				break;
 			case 43:
-				x = wal.wall_int_pos().X + var_cx;
-				dragpoint(&wal, x, y);
+				vec.X += movestep;
+				dragpoint(&wal, vec);
 				break;
 			}
 		}
@@ -2855,25 +2837,24 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	{
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.wall_int_pos().X;
-			y = wal.wall_int_pos().Y;
+			auto vec = wal.pos;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.wall_int_pos().Y - (var_cx - 2);
-				dragpoint(&wal, x, y);
+				vec.Y -= movestep - 2;
+				dragpoint(&wal, vec);
 				break;
 			case 41:
-				x = wal.wall_int_pos().X + (var_cx - 2);
-				dragpoint(&wal, x, y);
+				vec.X += movestep - 2;
+				dragpoint(&wal, vec);
 				break;
 			case 40:
-				y = wal.wall_int_pos().Y + (var_cx - 2);
-				dragpoint(&wal, x, y);
+				vec.Y += movestep - 2;
+				dragpoint(&wal, vec);
 				break;
 			case 43:
-				x = wal.wall_int_pos().X - (var_cx - 2);
-				dragpoint(&wal, x, y);
+				vec.X -= movestep - 2;
+				dragpoint(&wal, vec);
 				break;
 			}
 		}

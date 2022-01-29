@@ -171,6 +171,8 @@ bool sectorsConnected(int sect1, int sect2);
 void dragpoint(walltype* wal, int newx, int newy);
 void dragpoint(walltype* wal, const DVector2& pos);
 DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angle);
+int32_t inside(double x, double y, const sectortype* sect);
+
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!
@@ -300,6 +302,17 @@ inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
 	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->pos.Y, -bsin(tspr->ang + 512), dax - tspr->pos.X, 4);
 	return tspr->pos.Z + MulScale(heinum, j, 18);
 }
+
+inline int inside(int x, int y, const sectortype* sect)
+{
+	return inside(x * inttoworld, y * inttoworld, sect);
+}
+
+// still needed by some parts in the engine.
+inline int inside_p(int x, int y, int sectnum) { return (sectnum >= 0 && inside(x, y, &sector[sectnum]) == 1); }
+// this one is for template substitution.
+inline int inside_p0(int32_t const x, int32_t const y, int32_t const z, int const sectnum) { return inside_p(x, y, sectnum); }
+
 
 
 inline int I_GetBuildTime()

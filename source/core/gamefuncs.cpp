@@ -435,6 +435,38 @@ DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angl
 //
 //==========================================================================
 
+int inside(double x, double y, const sectortype* sect)
+{
+	if (sect)
+	{
+		double acc = 1;
+		for (auto& wal : wallsofsector(sect))
+		{
+			double xs = (wal.pos.X - x);
+			double ys = (wal.pos.Y - y);
+			auto wal2 = wal.point2Wall();
+			double xe = (wal2->pos.X - x);
+			double ye = (wal2->pos.Y - y);
+
+			if ((ys * ye) < 0)
+			{
+				double val;
+				if ((xs * xe) >= 0) val = xs;
+				else val = (xs * ye - xe * ys) * ye;
+				acc *= val;
+			}
+		}
+		return acc < 0;
+	}
+	return -1;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
 tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
 {
 	validateTSpriteSize(tsprite, spritesortcnt);
