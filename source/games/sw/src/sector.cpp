@@ -2395,7 +2395,7 @@ void DoSineWaveWall(void)
     int New;
     short sw_num;
 
-    for (sw_num = 0; sw_num < MAX_SINE_WAVE; sw_num++)
+    for (sw_num = 0; sw_num < MAX_SINE_WALL; sw_num++)
     {
         for (sw = &SineWall[sw_num][0]; sw->wallp != nullptr && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
         {
