@@ -491,7 +491,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		}
 
-		if (gs.actorinfo[h->spr.picnum].scriptaddress)
+		if (gs.actorinfo[h->spr.picnum].scriptaddress && !actorflag(h, SFLAG2_DONTANIMATE))
 		{
 			if (t4)
 			{
