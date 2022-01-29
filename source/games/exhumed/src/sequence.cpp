@@ -154,16 +154,12 @@ int16_t SeqOffsets[kMaxSEQFiles];
 int seq_ReadSequence(const char *seqName)
 {
     int i;
-    char buffer[200];
-    buffer[0] = '\0';
+    FStringf seqfilename("%s.seq", seqName);
 
-    strcat(buffer, seqName);
-    strcat(buffer, ".seq");
-
-    auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(buffer), true);
+    auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
     if (!hFile.isOpen())
     {
-        Printf("Unable to open '%s'!\n", buffer);
+        Printf("Unable to open '%s'!\n", seqfilename.GetChars());
         return 0;
     }
 
@@ -265,6 +261,8 @@ int seq_ReadSequence(const char *seqName)
     {
         int16_t var_20;
         hFile.Read(&var_20, sizeof(var_20));
+        TArray<char> buffer(var_20 * 10, true);
+        memset(buffer.Data(), 0, var_20 * 10);
 
         for (i = 0; i < var_20; i++)
         {
@@ -280,7 +278,14 @@ int seq_ReadSequence(const char *seqName)
             hFile.Read(&var_28, sizeof(var_28));
             hFile.Read(&var_2C, sizeof(var_2C));
 
-            int hSound = LoadSound(&buffer[(var_2C&0x1FF)*10]);
+            int ndx = (var_2C & 0x1FF);
+            int hSound = 0;
+            if (ndx >= var_20)
+            {
+                Printf("bad sound index %d in %s, maximum is %d\n", ndx, seqfilename.GetChars(), var_20);
+            }
+            else
+                hSound = LoadSound(&buffer[ndx*10]);
 
             assert(vdi + var_28 < 18000);
             FrameSound[vdi + var_28] = hSound | (var_2C & 0xFE00);
