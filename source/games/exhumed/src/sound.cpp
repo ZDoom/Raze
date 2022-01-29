@@ -181,7 +181,9 @@ TArray<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
 
 int LoadSound(const char* name)
 {
-    FString nname(name, 8);
+    size_t namelen = 8;
+    if (strlen(name) < namelen) { namelen = strlen(name); }
+    FString nname(name, namelen);
     int sndid = soundEngine->FindSoundNoHash(nname.GetChars());
     if (sndid > 0) return sndid - 1;
 
@@ -460,7 +462,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         {
             int which = *(int*)source;
             *pos = fcampos;
-            // Should be positioned in 90¡ intervals.
+            // Should be positioned in 90Â° intervals.
             switch (which)
             {
             default:
