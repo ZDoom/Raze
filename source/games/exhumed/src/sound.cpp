@@ -181,11 +181,12 @@ TArray<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
 
 int LoadSound(const char* name)
 {
-    FString nname(name, 8);
-    int sndid = soundEngine->FindSoundNoHash(nname.GetChars());
+    char nname[9]{};
+    for (int i = 0; i < 8 && name[i]; i++) nname[i] = name[i];
+    int sndid = soundEngine->FindSoundNoHash(nname);
     if (sndid > 0) return sndid - 1;
 
-    FStringf filename("%s.voc", nname.GetChars());
+    FStringf filename("%s.voc", nname);
     auto lump = S_LookupSound(filename);
     if (lump > 0)
     {
