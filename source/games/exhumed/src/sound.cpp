@@ -182,7 +182,14 @@ TArray<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
 int LoadSound(const char* name)
 {
     size_t namelen = 8;
-    if (strlen(name) < namelen) { namelen = strlen(name); }
+    for (int i = 0; i < 8; i++)
+    {
+        if (name[i] == 0) 
+        {
+            namelen = i;
+            break;
+        }
+    }
     FString nname(name, namelen);
     int sndid = soundEngine->FindSoundNoHash(nname.GetChars());
     if (sndid > 0) return sndid - 1;
