@@ -50,13 +50,12 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 
 static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
-	const double maxorthdist = 3; // maximum orthogonal distance to be considered an attached sprite.
-	const double maxdistsq = (tspr->ang & 0x1ff)? 3 * 3 : 1; // lower tolerance for perfectly orthogonal sprites
+	double maxorthdist = 3; // maximum orthogonal distance to be considered an attached sprite.
+	double maxdistsq = 3 * 3;
+	walltype* best = nullptr;
 
 	auto sect = tspr->sectp;
-	walltype* closest = nullptr;
 
-	int topz = (tspr->pos.Z - ((height * tspr->yrepeat) << 2));
 	for(auto& wal : wallsofsector(sect))
 	{
 		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
@@ -72,16 +71,20 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
 			if (d.X == 0)
 			{
-				if (fabs(tspr->pos.X - wal.pos.X) < maxorthdist)
+				double newdist = fabs(tspr->pos.X - wal.pos.X);
+				if (newdist < maxorthdist)
 				{
-					return &wal;
+					maxorthdist = newdist;
+					best = &wal;
 				}
 			}
 			else if (d.Y == 0)
 			{
-				if (fabs(tspr->pos.Y - wal.pos.Y) < maxorthdist)
+				double newdist = fabs(tspr->pos.Y - wal.pos.Y);
+				if (newdist < maxorthdist)
 				{
-					return &wal;
+					maxorthdist = newdist;
+					best = &wal;
 				}
 			}
 			else
@@ -94,7 +97,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			}
 		}
 	}
-	return nullptr;
+	return best;
 }
 
 //==========================================================================
