@@ -2763,7 +2763,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	if (movestep == 0) movestep = 4 * maptoworld;
 
 	double max_x = INT32_MIN, max_y = INT32_MIN, min_x = INT32_MAX, min_y = INT32_MAX;
-	for (auto& wal : wallsofsector(sectp))
+	for (auto& wal : wallsofsector(nextsect))
 	{
 		double x = wal.pos.X;
 		double y = wal.pos.Y;
@@ -2835,25 +2835,26 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	}
 	else
 	{
+		movestep -= 2 * maptoworld;
 		for(auto& wal : wallsofsector(nextsect))
 		{
 			auto vec = wal.pos;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				vec.Y -= movestep - 2;
+				vec.Y -= movestep;
 				dragpoint(&wal, vec);
 				break;
 			case 41:
-				vec.X += movestep - 2;
+				vec.X += movestep;
 				dragpoint(&wal, vec);
 				break;
 			case 40:
-				vec.Y += movestep - 2;
+				vec.Y += movestep;
 				dragpoint(&wal, vec);
 				break;
 			case 43:
-				vec.X -= movestep - 2;
+				vec.X -= movestep;
 				dragpoint(&wal, vec);
 				break;
 			}
