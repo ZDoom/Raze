@@ -66,8 +66,8 @@ void viewBackupView(int nPlayer)
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
 	pView->angle = pPlayer->angle.ang;
-	pView->x = pPlayer->actor->spr.pos.X;
-	pView->y = pPlayer->actor->spr.pos.Y;
+	pView->x = pPlayer->actor->int_pos().X;
+	pView->y = pPlayer->actor->int_pos().Y;
 	pView->viewz = pPlayer->zView;
 	pView->weaponZ = pPlayer->zWeapon - pPlayer->zView - 0xc00;
 	pView->horiz = pPlayer->horizon.horiz;
@@ -93,9 +93,9 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const* oldpos)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->x += pPlayer->actor->spr.pos.X - oldpos->X;
-	pView->y += pPlayer->actor->spr.pos.Y - oldpos->Y;
-	pView->viewz += pPlayer->actor->spr.pos.Z - oldpos->Z;
+	pView->x += pPlayer->actor->int_pos().X - oldpos->X;
+	pView->y += pPlayer->actor->int_pos().Y - oldpos->Y;
+	pView->viewz += pPlayer->actor->int_pos().Z - oldpos->Z;
 }
 
 //---------------------------------------------------------------------------
@@ -472,8 +472,8 @@ static void DrawMap(DBloodActor* view)
 		tm = 1;
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
-	int x = interpolatedvalue(pView->x, view->spr.pos.X, gInterpolate);
-	int y = interpolatedvalue(pView->y, view->spr.pos.Y, gInterpolate);
+	int x = interpolatedvalue(pView->x, view->int_pos().X, gInterpolate);
+	int y = interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate);
 	int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
 	DrawOverheadMap(x, y, ang, gInterpolate);
 	if (tm)
@@ -521,8 +521,8 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 #endif
 	{
 		VIEW* pView = &gPrevView[gViewIndex];
-		cX = interpolatedvalue(pView->x, gView->actor->spr.pos.X, gInterpolate);
-		cY = interpolatedvalue(pView->y, gView->actor->spr.pos.Y, gInterpolate);
+		cX = interpolatedvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
+		cY = interpolatedvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
 		cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
 		zDelta = interpolatedvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
 		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
@@ -849,7 +849,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f",
-		gMe->actor->spr.pos.X, gMe->actor->spr.pos.Y, gMe->actor->spr.pos.Z, gMe->actor->spr.ang * BAngToDegree);
+		gMe->actor->int_pos().X, gMe->actor->int_pos().Y, gMe->actor->int_pos().Z, gMe->actor->spr.ang * BAngToDegree);
 
 	return out;
 }

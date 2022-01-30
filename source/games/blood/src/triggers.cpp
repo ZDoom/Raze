@@ -266,21 +266,21 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					GetActorExtents(actor, &top, &bottom);
 					int nType = target->spr.type - kDudeBase;
 					DUDEINFO* pDudeInfo = getDudeInfo(nType + kDudeBase);
-					int z1 = (top - actor->spr.pos.Z) - 256;
-					int x = target->spr.pos.X;
-					int y = target->spr.pos.Y;
-					int z = target->spr.pos.Z;
-					int nDist = approxDist(x - actor->spr.pos.X, y - actor->spr.pos.Y);
-					if (nDist != 0 && cansee(actor->spr.pos.X, actor->spr.pos.Y, top, actor->sector(), x, y, z, target->sector()))
+					int z1 = (top - actor->int_pos().Z) - 256;
+					int x = target->int_pos().X;
+					int y = target->int_pos().Y;
+					int z = target->int_pos().Z;
+					int nDist = approxDist(x - actor->int_pos().X, y - actor->int_pos().Y);
+					if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, target->sector()))
 					{
 						int t = DivScale(nDist, 0x1aaaaa, 12);
 						x += (target->vel.X * t) >> 12;
 						y += (target->vel.Y * t) >> 12;
 						int angBak = actor->spr.ang;
-						actor->spr.ang = getangle(x - actor->spr.pos.X, y - actor->spr.pos.Y);
+						actor->spr.ang = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
 						int dx = bcos(actor->spr.ang);
 						int dy = bsin(actor->spr.ang);
-						int tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
+						int tz = target->int_pos().Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
 						int dz = DivScale(tz - top - 256, nDist, 10);
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 						int t2;
@@ -523,7 +523,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		actor->xspr.isTriggered = 1;
 		SetSpriteState(actor, 1, initiator);
 		for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
-			auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
+			auto vec = actor->int_pos() - gPlayer[p].actor->int_pos();
 			int dx = (vec.X) >> 4;
 			int dy = (vec.Y) >> 4;
 			int dz = (vec.Z) >> 8;
@@ -951,7 +951,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			int floorZ = getflorzofslopeptr(pSector, actor->spr.pos.X, actor->spr.pos.Y);
+			int floorZ = getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
 			if (!(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
 			{
 				viewBackupSpriteLoc(actor);
@@ -1133,9 +1133,9 @@ DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int* z)
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (actor->spr.pos.Z - top > *z)
+			if (actor->int_pos().Z - top > *z)
 			{
-				*z = actor->spr.pos.Z - top;
+				*z = actor->int_pos().Z - top;
 				found = actor;
 			}
 		}
@@ -1388,7 +1388,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!pXSector->marker0 || !pXSector->marker1) return 0;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1419,7 +1419,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveB;
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1450,13 +1450,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	{
 		vbp = pXSector->data + marker0->spr.ang;
 		int nWave = pXSector->busyWaveA;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, pXSector->data, marker0->spr.pos.X, marker0->spr.pos.Y, vbp, 1);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, marker0->int_pos().X, marker0->int_pos().Y, vbp, 1);
 	}
 	else
 	{
 		vbp = pXSector->data - marker0->spr.ang;
 		int nWave = pXSector->busyWaveB;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, vbp, marker0->spr.pos.X, marker0->spr.pos.Y, pXSector->data, 1);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, vbp, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, 1);
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1510,7 +1510,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos.X, basepath->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, 1);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, 1);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
@@ -1634,7 +1634,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					TeleFrag(pXSector->actordata, destactor->sector());
 				}
-				actor->set_int_xy(destactor->spr.pos.X, destactor->spr.pos.Y);
+				actor->set_int_xy(destactor->int_pos().X, destactor->int_pos().Y);
 				actor->add_int_z(destactor->sector()->floorz - pSector->floorz);
 				actor->spr.ang = destactor->spr.ang;
 				ChangeActorSect(actor, destactor->sector());
@@ -1692,8 +1692,8 @@ void OperatePath(sectortype* pSector, EVENT event)
 	}
 
 	pXSector->marker1 = actor;
-	pXSector->offFloorZ = marker0->spr.pos.Z;
-	pXSector->onFloorZ = actor->spr.pos.Z;
+	pXSector->offFloorZ = marker0->int_pos().Z;
+	pXSector->onFloorZ = actor->int_pos().Z;
 	switch (event.cmd) {
 	case kCmdOn:
 		pXSector->state = 0;
@@ -2309,7 +2309,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	{
 		if (!actor->exists()) continue;
 		actor->spr.inittype = actor->spr.type;
-		actor->basePoint = actor->spr.pos;
+		actor->basePoint = actor->int_pos();
 	}
 	for (auto& wal : wall)
 	{
@@ -2352,9 +2352,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			{
 				auto marker0 = pXSector->marker0;
 				auto marker1 = pXSector->marker1;
-				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2362,9 +2362,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kSectorRotate:
 			{
 				auto marker0 = pXSector->marker0;
-				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2501,7 +2501,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenDripBlood: {
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		actSpawnThing(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, bottom, (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+		actSpawnThing(actor->sector(), actor->int_pos().X, actor->int_pos().Y, bottom, (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
 		break;
 	}
 	case kGenSound:
@@ -2526,7 +2526,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenBubbleMulti: {
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, top, 0);
+		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), actor->int_pos().X, actor->int_pos().Y, top, 0);
 		break;
 	}
 	}
