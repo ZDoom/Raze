@@ -61,8 +61,8 @@ void sub_71BD4(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int height = actor->spr.yrepeat * pDudeInfo->eyeHeight;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	int x = actor->spr.pos.X;
-	int y = actor->spr.pos.Y;
+	int x = actor->int_pos().X;
+	int y = actor->int_pos().Y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
@@ -75,9 +75,9 @@ void sub_71BD4(int, DBloodActor* actor)
 	{
 		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
-		int x2 = actor2->spr.pos.X;
-		int y2 = actor2->spr.pos.Y;
-		int z2 = actor2->spr.pos.Z;
+		int x2 = actor2->int_pos().X;
+		int y2 = actor2->int_pos().Y;
+		int z2 = actor2->int_pos().Z;
 		int nDist = approxDist(x2 - x, y2 - y);
 		if (nDist == 0 || nDist > 0x2800)
 			continue;
@@ -106,7 +106,7 @@ void sub_71BD4(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
 				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
 				{
 					nClosest = nDist2;
@@ -132,8 +132,8 @@ void sub_720AC(int, DBloodActor* actor)
 	int ax, ay, az;
 	ax = bcos(actor->spr.ang);
 	ay = bsin(actor->spr.ang);
-	int x = actor->spr.pos.X;
-	int y = actor->spr.pos.Y;
+	int x = actor->int_pos().X;
+	int y = actor->int_pos().Y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
@@ -147,9 +147,9 @@ void sub_720AC(int, DBloodActor* actor)
 	{
 		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
-		int x2 = actor2->spr.pos.X;
-		int y2 = actor2->spr.pos.Y;
-		int z2 = actor2->spr.pos.Z;
+		int x2 = actor2->int_pos().X;
+		int y2 = actor2->int_pos().Y;
+		int z2 = actor2->int_pos().Z;
 		int nDist = approxDist(x2 - x, y2 - y);
 		if (nDist == 0 || nDist > 0x2800)
 			continue;
@@ -178,7 +178,7 @@ void sub_720AC(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
+				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
 				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
 				{
 					nClosest = nDist2;
@@ -226,16 +226,16 @@ static void sub_725A4(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->actor->spr.pos.X;
-			int y = pPlayer->actor->spr.pos.Y;
-			int z = pPlayer->actor->spr.pos.Z;
+			int x = pPlayer->actor->int_pos().X;
+			int y = pPlayer->actor->int_pos().Y;
+			int z = pPlayer->actor->int_pos().Z;
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->spr.pos.X;
-			int dy = y - actor->spr.pos.Y;
+			int dx = x - actor->int_pos().X;
+			int dy = y - actor->int_pos().Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
+			if (!cansee(x, y, z, pSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -264,8 +264,8 @@ static void sub_72850(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
+	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
+	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -289,8 +289,8 @@ static void sub_72934(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	int dx = target->spr.pos.X - actor->spr.pos.X;
-	int dy = target->spr.pos.Y - actor->spr.pos.Y;
+	int dx = target->int_pos().X - actor->int_pos().X;
+	int dy = target->int_pos().Y - actor->int_pos().Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (target->xspr.health == 0)
 	{
@@ -307,7 +307,7 @@ static void sub_72934(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
+		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

@@ -66,9 +66,9 @@ void podAttack(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int x = target->spr.pos.X - actor->spr.pos.X;
-	int y = target->spr.pos.Y - actor->spr.pos.Y;
-	int dz = target->spr.pos.Z - actor->spr.pos.Z;
+	int x = target->int_pos().X - actor->int_pos().X;
+	int y = target->int_pos().Y - actor->int_pos().Y;
+	int dz = target->int_pos().Z - actor->int_pos().Z;
 	x += Random2(1000);
 	y += Random2(1000);
 	int nDist = approxDist(x, y);
@@ -122,7 +122,7 @@ void sub_70284(int, DBloodActor* actor)
 		nDist = 75;
 		break;
 	}
-	actRadiusDamage(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
+	actRadiusDamage(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)
@@ -139,8 +139,8 @@ static void aiPodMove(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
+	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
+	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -181,8 +181,8 @@ static void aiPodChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
-	int dx = target->spr.pos.X - actor->spr.pos.X;
-	int dy = target->spr.pos.Y - actor->spr.pos.Y;
+	int dx = target->int_pos().X - actor->int_pos().X;
+	int dy = target->int_pos().Y - actor->int_pos().Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (target->xspr.health == 0) {
 
@@ -203,7 +203,7 @@ static void aiPodChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
+		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
