@@ -53,6 +53,11 @@ public:
 		return time; 
 	}	
 
+	DVector3 float_pos() const
+	{
+		return { spr.pos.X * inttoworld, spr.pos.Y * inttoworld, spr.pos.Z * zinttoworld };
+	}
+
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
 	{
 		return interpolatedvalue(opos.X, spr.pos.X, smoothratio, scale);
