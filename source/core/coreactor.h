@@ -95,6 +95,12 @@ public:
 		spr.pos = add;
 	}
 
+	void copy_int_xy(DCoreActor* other)
+	{
+		spr.pos.X = other->spr.pos.X;
+		spr.pos.Y = other->spr.pos.Y;
+	}
+
 	void set_int_xy(int x, int y)
 	{
 		spr.pos.X = x;
@@ -486,6 +492,17 @@ inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const w
 {
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
 	int res = pushmove_(vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return res;
+}
+
+inline int pushmove(DCoreActor* actor, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+	uint32_t const cliptype, bool clear = true)
+{
+	auto vect = actor->int_pos();
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	int res = pushmove_(&vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
+	actor->set_int_pos(vect);
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return res;
 }

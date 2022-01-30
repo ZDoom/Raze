@@ -4776,7 +4776,7 @@ void MoveDude(DBloodActor* actor)
 			if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate)
 			{
 				auto pSector2 = pSector;
-				if (pushmove(&actor->spr.pos, &pSector2, wd, tz, bz, CLIPMASK0) == -1)
+				if (pushmove(actor, &pSector2, wd, tz, bz, CLIPMASK0) == -1)
 					actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
 				if (pSector2 != nullptr)
 					pSector = pSector2;

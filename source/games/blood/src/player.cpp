@@ -1850,7 +1850,7 @@ void playerProcess(PLAYER* pPlayer)
 	if (!gNoClip)
 	{
 		auto pSector = actor->sector();
-		if (pushmove(&actor->spr.pos, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
+		if (pushmove(actor, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
 			actDamageSprite(actor, actor, kDamageFall, 500 << 4);
 		if (actor->sector() != pSector)
 		{

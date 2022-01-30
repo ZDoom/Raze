@@ -937,8 +937,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				RotatePoint((int*)&x, (int*)&y, ang, a4, a5);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang + v14) & 2047;
-			actor->spr.pos.X = x + vc - a4;
-			actor->spr.pos.Y = y + v8 - a5;
+			actor->set_int_xy(x + vc - a4, y + v8 - a5);
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 		{
@@ -946,8 +945,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				RotatePoint((int*)&x, (int*)&y, -ang, a4, sprDy);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang - v14) & 2047;
-			actor->spr.pos.X = x - (vc - a4);
-			actor->spr.pos.Y = y - (v8 - a5);
+			actor->set_int_xy(x - vc + a4, y - v8 + a5);
 		}
 		else if (pXSector->Drag)
 		{
@@ -958,7 +956,11 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			{
 				viewBackupSpriteLoc(actor);
 				if (v14)
-					RotatePoint((int*)&actor->spr.pos.X, (int*)&actor->spr.pos.Y, v14, v20, v24);
+				{
+					auto pos = actor->int_pos();
+					RotatePoint(&pos.X, &pos.Y, v14, v20, v24);
+					actor->set_int_pos(pos);
+				}
 				actor->spr.ang = (actor->spr.ang + v14) & 2047;
 				actor->add_int_pos({ v28, v2c, 0 });
 			}
