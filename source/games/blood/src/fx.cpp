@@ -208,9 +208,7 @@ void CFX::fxProcess(void)
 		assert(actor->spr.type < kFXMax);
 		FXDATA* pFXData = &gFXData[actor->spr.type];
 		actAirDrag(actor, pFXData->drag);
-		actor->spr.pos.X += actor->vel.X >> 12;
-		actor->spr.pos.Y += actor->vel.Y >> 12;
-		actor->spr.pos.Z += actor->vel.Z >> 8;
+		actor->add_int_pos({ actor->vel.X >> 12, actor->vel.Y >> 12, actor->vel.Z >> 8 });
 		// Weird...
 		if (actor->vel.X || (actor->vel.Y && actor->spr.pos.Z >= actor->sector()->floorz))
 		{

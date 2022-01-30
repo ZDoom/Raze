@@ -461,7 +461,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->spr.pos.Z += floorZ - bottom;
+	actor->add_int_z(floorZ - bottom);
 	int nAngle = Random(2048);
 	int nDist = Random(16) << 4;
 	int x = actor->spr.pos.X + MulScale(nDist, Cos(nAngle), 28);
@@ -519,7 +519,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
 	int top, bottom; GetActorExtents(actor, &top, &bottom);
-	actor->spr.pos.Z += floorZ - bottom;
+	actor->add_int_z(floorZ - bottom);
 
 	int zv = actor->vel.Z - actor->sector()->velFloor;
 
@@ -648,7 +648,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->spr.pos.Z += floorZ - bottom;
+	actor->add_int_z(floorZ - bottom);
 	int nAngle = Random(2048);
 	int nDist = Random(16) << 4;
 	int x = actor->spr.pos.X + MulScale(nDist, Cos(nAngle), 28);
@@ -708,9 +708,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 {
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->spr.pos.X = actor2->spr.pos.X;
-	actor->spr.pos.Y = actor2->spr.pos.Y;
-	actor->spr.pos.Z = actor2->sector()->floorz - (bottom - actor->spr.pos.Z);
+	actor->set_int_pos({ actor2->spr.pos.X, actor2->spr.pos.Y, actor2->sector()->floorz - (bottom - actor->spr.pos.Z) });
 	actor->spr.ang = actor2->spr.ang;
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);

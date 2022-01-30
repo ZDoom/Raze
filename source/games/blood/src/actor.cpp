@@ -2876,7 +2876,7 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 		int top, bottom;
 		GetActorExtents(act2, &top, &bottom);
 		if (bottom >= act2->spr.pos.Z)
-			act2->spr.pos.Z -= bottom - act2->spr.pos.Z;
+			act2->add_int_z(-(bottom - act2->spr.pos.Z));
 	}
 
 	return act2;
@@ -4575,7 +4575,7 @@ static Collision MoveThing(DBloodActor* actor)
 		FindSector(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, &pSector);
 	}
 
-	actor->spr.pos.Z += actor->vel.Z >> 8;
+	actor->add_int_z(actor->vel.Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4584,7 +4584,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
 	{
-		actor->spr.pos.Z += 455;
+		actor->add_int_z(455);
 		actor->vel.Z += 58254;
 		if (actor->spr.type == kThingZombieHead)
 		{
@@ -4613,7 +4613,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actTouchFloor(actor, actor->sector());
 		actor->hit.florhit = floorColl;
-		actor->spr.pos.Z += floorZ - bottom;
+		actor->add_int_z(floorZ - bottom);
 
 		int v20 = actor->vel.Z - actor->sector()->velFloor;
 		if (v20 > 0)
@@ -4668,7 +4668,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		actor->spr.pos.Z += ClipLow(ceilZ - top, 0);
+		actor->add_int_z(ClipLow(ceilZ - top, 0));
 		if (actor->vel.Z < 0)
 		{
 			actor->vel.X = MulScale(actor->vel.X, 0xc000, 16);
@@ -4753,8 +4753,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		if (pPlayer && gNoClip)
 		{
-			actor->spr.pos.X += actor->vel.X >> 12;
-			actor->spr.pos.Y += actor->vel.Y >> 12;
+			actor->add_int_pos({ actor->vel.X >> 12, actor->vel.Y >> 12, 0 });
 			if (!FindSector(actor->spr.pos.X, actor->spr.pos.Y, &pSector))
 				pSector = actor->sector();
 		}
@@ -4875,7 +4874,7 @@ void MoveDude(DBloodActor* actor)
 	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
-	if (actor->vel.Z) actor->spr.pos.Z += actor->vel.Z >> 8;
+	if (actor->vel.Z) actor->add_int_z(actor->vel.Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4911,7 +4910,7 @@ void MoveDude(DBloodActor* actor)
 		}
 		if (vc)
 		{
-			actor->spr.pos.Z += ((vc * 4) / 2) >> 8;
+			actor->add_int_z(((vc * 4) / 2) >> 8);
 			actor->vel.Z += vc;
 		}
 	}
@@ -5102,7 +5101,7 @@ void MoveDude(DBloodActor* actor)
 	if (floorZ <= bottom)
 	{
 		actor->hit.florhit = floorColl;
-		actor->spr.pos.Z += floorZ - bottom;
+		actor->add_int_z(floorZ - bottom);
 		int v30 = actor->vel.Z - actor->sector()->velFloor;
 		if (v30 > 0)
 		{
@@ -5168,7 +5167,7 @@ void MoveDude(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		actor->spr.pos.Z += ClipLow(ceilZ - top, 0);
+		actor->add_int_z(ClipLow(ceilZ - top, 0));
 
 		if (actor->vel.Z <= 0 && (actor->spr.flags & 4))
 			actor->vel.Z = MulScale(-actor->vel.Z, 0x2000, 16);
@@ -5341,7 +5340,7 @@ int MoveMissile(DBloodActor* actor)
 			cliptype = 1;
 		}
 		actor->spr.pos = pos;
-		actor->spr.pos.Z += vz;
+		actor->add_int_z(vz);
 		updatesector(pos.X, pos.Y, &pSector);
 		if (pSector != nullptr && pSector != actor->sector())
 		{
@@ -6220,12 +6219,8 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
 	DBloodActor* actor = InsertSprite(source->sector(), nStat);
 
-	actor->spr.pos.X = source->spr.pos.X;
-	actor->spr.pos.Y = source->spr.pos.Y;
-	actor->spr.pos.Z = source->spr.pos.Z;
-	actor->vel.X = source->vel.X;
-	actor->vel.Y = source->vel.Y;
-	actor->vel.Z = source->vel.Z;
+	actor->set_int_pos(source->spr.pos);
+	actor->vel = source->vel;
 	actor->spr.flags = 0;
 	actor->addX();
 	actor->hit.florhit.setNone();
@@ -7088,7 +7083,7 @@ void actPostProcess(void)
 void MakeSplash(DBloodActor* actor)
 {
 	actor->spr.flags &= ~2;
-	actor->spr.pos.Z -= 4 << 8;
+	actor->add_int_z(-(4 << 8));
 	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (actor->spr.type)
 	{
