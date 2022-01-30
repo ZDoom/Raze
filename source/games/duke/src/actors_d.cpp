@@ -343,9 +343,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->add_int_z(-gs.playerheight);
 				int d = dist(actor, act2);
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->add_int_z(gs.playerheight);
 
 				if (d < r && cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z - (8 << 8), act2->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (12 << 8), actor->sector()))
 				{
@@ -439,11 +439,9 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	int clipdist;
 	int bg = badguy(actor);
 
-	if (actor->spr.statnum == 5 || (bg && actor->spr.xrepeat < 4))
+	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.xrepeat < 4))
 	{
-		actor->spr.pos.X += (xchange * TICSPERFRAME) >> 2;
-		actor->spr.pos.Y += (ychange * TICSPERFRAME) >> 2;
-		actor->spr.pos.Z += (zchange * TICSPERFRAME) >> 2;
+		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
 		if (bg)
 			SetActor(actor, actor->spr.pos);
 		return result.setNone();
@@ -496,15 +494,14 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		else
 			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->spr.clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
-	actor->spr.pos.X = pos.X;
-	actor->spr.pos.Y = pos.Y;
+	actor->set_int_xy(pos.X, pos.Y);
 
 	if (dasectp != nullptr)
 		if (dasectp != actor->sector())
 			ChangeActorSect(actor, dasectp);
 	int daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
-		actor->spr.pos.Z = daz;
+		actor->set_int_z(daz);
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
 
@@ -712,7 +709,7 @@ void movefallers_d(void)
 
 		if (act->temp_data[0] == 0)
 		{
-			act->spr.pos.Z -= (16 << 8);
+			act->add_int_z(-(16 << 8));
 			act->temp_data[1] = act->spr.ang;
 			x = act->spr.extra;
 			j = fi.ifhitbyweapon(act);
@@ -743,7 +740,7 @@ void movefallers_d(void)
 				}
 			}
 			act->spr.ang = act->temp_data[1];
-			act->spr.pos.Z += (16 << 8);
+			act->add_int_z(+(16 << 8));
 		}
 		else if (act->temp_data[0] == 1)
 		{
@@ -778,7 +775,7 @@ void movefallers_d(void)
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
-					act->spr.pos.Z += act->spr.zvel;
+					act->add_int_z(act->spr.zvel);
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < (16 << 8))
 				{
@@ -875,9 +872,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->spr.ang = actor->temp_data[5];
 
 		actor->temp_data[3] = actor->spr.pos.X; actor->temp_data[4] = actor->spr.pos.Y;
-		actor->spr.pos.X += bcos(actor->temp_data[5], -9);
-		actor->spr.pos.Y += bsin(actor->temp_data[5], -9);
-		actor->spr.pos.Z -= (3 << 8);
+		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
 
 		// Laser fix from EDuke32.
 		auto const oldSect = actor->sector();
@@ -912,8 +907,7 @@ static void movetripbomb(DDukeActor *actor)
 					}
 					x -= 1024;
 
-					actor->spr.pos.X += bcos(actor->temp_data[5], -4);
-					actor->spr.pos.Y += bsin(actor->temp_data[5], -4);
+					actor->add_int_pos({ bcos(actor->temp_data[5], -4), bsin(actor->temp_data[5], -4), 0 });
 					updatesectorneighbor(actor->spr.pos.X, actor->spr.pos.Y, &curSect, 2048);
 
 					if (curSect == nullptr)
@@ -928,8 +922,8 @@ static void movetripbomb(DDukeActor *actor)
 		}
 
 		actor->temp_data[0]++;
-		actor->spr.pos.X = actor->temp_data[3]; actor->spr.pos.Y = actor->temp_data[4];
-		actor->spr.pos.Z += (3 << 8);
+		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
+		actor->add_int_z(3 << 8);
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
@@ -944,16 +938,15 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[1]++;
 
 
-		actor->temp_data[3] = actor->spr.pos.X; actor->temp_data[4] = actor->spr.pos.Y;
-		actor->spr.pos.X += bcos(actor->temp_data[5], -9);
-		actor->spr.pos.Y += bsin(actor->temp_data[5], -9);
-		actor->spr.pos.Z -= (3 << 8);
+		actor->temp_data[3] = actor->spr.pos.X; 
+		actor->temp_data[4] = actor->spr.pos.Y;
+		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
 		SetActor(actor, actor->spr.pos);
 
 		x = hitasprite(actor, nullptr);
 
-		actor->spr.pos.X = actor->temp_data[3]; actor->spr.pos.Y = actor->temp_data[4];
-		actor->spr.pos.Z += (3 << 8);
+		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
+		actor->add_int_z(3 << 8);
 		SetActor(actor, actor->spr.pos);
 
 		if (actor->ovel.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
@@ -1533,7 +1526,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->spr.pos.Z += (1 << 8);
+			if (spawned) spawned->add_int_z(1 << 8);
 		}
 		break;
 
@@ -1651,7 +1644,8 @@ static void weaponcommon_d(DDukeActor* proj)
 					{
 						if (proj->spr.zvel < 0)
 						{
-							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; spawned->spr.pos.Z += (72 << 8);
+							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; 
+							spawned->add_int_z(72 << 8);
 						}
 					}
 				}
@@ -1907,7 +1901,7 @@ void movetransports_d(void)
 							for (int l = 0; l < 9; l++)
 						{
 							auto q = spawn(ps[p].GetActor(), WATERBUBBLE);
-							if (q) q->spr.pos.Z += krand() & 16383;
+							if (q) q->add_int_z(krand() & 16383);
 						}
 					}
 				}
@@ -1990,14 +1984,14 @@ void movetransports_d(void)
 
 							switch (sectlotag)
 							{
-							case 0:
+							case ST_0_NO_EFFECT:
 								if (onfloorz)
 								{
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
-										act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-										act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-										act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
+										act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X),
+											(Owner->spr.pos.Y - act->spr.pos.Y), 
+											-(act->spr.pos.Z - Owner->sector()->floorz) });
 										act2->spr.ang = Owner->spr.ang;
 
 										act2->backupang();
@@ -2022,34 +2016,23 @@ void movetransports_d(void)
 								}
 								else
 								{
-									act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-									act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-									act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
-
+									act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+									act2->set_int_z(Owner->spr.pos.Z + 4096);
 									act2->backupz();
-
 									ChangeActorSect(act2, Owner->sector());
 								}
 								break;
-							case 1:
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-
+							case ST_1_ABOVE_WATER:
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->ceilingz + ll);
 								act2->backupz();
-
 								ChangeActorSect(act2, Owner->sector());
-
 								break;
-							case 2:
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->floorz - ll;
-
+							case ST_2_UNDERWATER:
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->floorz - ll);
 								act2->backupz();
-
 								ChangeActorSect(act2, Owner->sector());
-
 								break;
 							}
 
