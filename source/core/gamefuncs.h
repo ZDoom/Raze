@@ -189,32 +189,32 @@ inline double RenderY(int y)
 
 inline double WallStartX(int wallnum)
 {
-	return wall[wallnum].wall_int_pos().X * (1 / 16.);
+	return wall[wallnum].pos.X;
 }
 
 inline double WallStartY(int wallnum)
 {
-	return wall[wallnum].wall_int_pos().Y * (1 / -16.);
+	return -wall[wallnum].pos.Y;
 }
 
 inline double WallEndX(int wallnum)
 {
-	return wall[wallnum].point2Wall()->wall_int_pos().X * (1 / 16.);
+	return wall[wallnum].point2Wall()->pos.X;
 }
 
 inline double WallEndY(int wallnum)
 {
-	return wall[wallnum].point2Wall()->wall_int_pos().Y * (1 / -16.);
+	return -wall[wallnum].point2Wall()->pos.Y;
 }
 
 inline double WallStartX(const walltype* wallnum)
 {
-	return wallnum->wall_int_pos().X * (1 / 16.);
+	return wallnum->pos.X;
 }
 
 inline double WallStartY(const walltype* wallnum)
 {
-	return wallnum->wall_int_pos().Y * (1 / -16.);
+	return -wallnum->pos.Y;
 }
 
 inline DVector2 WallStart(const walltype* wallnum)
@@ -224,12 +224,12 @@ inline DVector2 WallStart(const walltype* wallnum)
 
 inline double WallEndX(const walltype* wallnum)
 {
-	return wallnum->point2Wall()->wall_int_pos().X * (1 / 16.);
+	return wallnum->point2Wall()->pos.X;
 }
 
 inline double WallEndY(const walltype* wallnum)
 {
-	return wallnum->point2Wall()->wall_int_pos().Y * (1 / -16.);
+	return -wallnum->point2Wall()->pos.Y;
 }
 
 inline DVector2 WallEnd(const walltype* wallnum)
