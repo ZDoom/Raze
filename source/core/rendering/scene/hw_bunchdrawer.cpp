@@ -463,9 +463,8 @@ retry:
 			return -1;
 
 		DVector2 intersect;
-		SquareDistToWall(x1s * 16., y1s * -16., &wall[line2], &intersect);
-		intersect.X *= (1 / 16.);
-		intersect.Y *= (1 / -16.);
+		SquareDistToWall(x1s, -y1s, &wall[line2], &intersect);
+		intersect.Y = -intersect.Y;
 
 		if (d3 < max_overlap)
 		{

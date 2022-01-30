@@ -50,11 +50,14 @@ DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsul
 
 static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 {
-	double maxorthdist = 3; // maximum orthogonal distance to be considered an attached sprite.
-	double maxdistsq = 3 * 3;
+	double maxorthdist = 3 * maptoworld; // maximum orthogonal distance to be considered an attached sprite.
+	double maxdistsq = maxorthdist * maxorthdist;
 	walltype* best = nullptr;
 
 	auto sect = tspr->sectp;
+
+	float tx = tspr->pos.X * (float)inttoworld;
+	float ty = tspr->pos.Y * (float)inttoworld;
 
 	for(auto& wal : wallsofsector(sect))
 	{
@@ -71,7 +74,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
 			if (d.X == 0)
 			{
-				double newdist = fabs(tspr->pos.X - wal.wall_int_pos().X);
+				double newdist = fabs(tx - wal.pos.X);
 				if (newdist < maxorthdist)
 				{
 					maxorthdist = newdist;
@@ -80,7 +83,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			}
 			else if (d.Y == 0)
 			{
-				double newdist = fabs(tspr->pos.Y - wal.wall_int_pos().Y);
+				double newdist = fabs(ty - wal.pos.Y);
 				if (newdist < maxorthdist)
 				{
 					maxorthdist = newdist;
@@ -89,7 +92,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 			}
 			else
 			{
-				double wdist = SquareDistToWall(tspr->pos.X, tspr->pos.Y, &wal, &outpos);
+				double wdist = SquareDistToWall(tx, ty, &wal, &outpos);
 				if (wdist <= maxdistsq)
 				{
 					return &wal;
@@ -1140,12 +1143,12 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (walldist)
 	{
 		// project the sprite right onto the wall.
-		auto v1 = NearestPointLine(pos[0].X, pos[0].Y, walldist);
-		auto v2 = NearestPointLine(pos[1].X, pos[1].Y, walldist);
-		glseg.x1 = v1.X * (1 / 16.f);
-		glseg.y1 = v1.Y * (1 / -16.f);
-		glseg.x2 = v2.X * (1 / 16.f);
-		glseg.y2 = v2.Y * (1 / -16.f);
+		auto v1 = NearestPointLine(glseg.x1, -glseg.y1, walldist);
+		auto v2 = NearestPointLine(glseg.x2, -glseg.y2, walldist);
+		glseg.x1 = v1.X;
+		glseg.y1 = -v1.Y;
+		glseg.x2 = v2.X;
+		glseg.y2 = -v2.Y;
 
 	}
 

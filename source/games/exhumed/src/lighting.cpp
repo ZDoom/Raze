@@ -254,7 +254,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
         if (!var_18)
         {
-            walldist = (((int)sqrt(SquareDistToWall(x, y, &wal))) >> 4) - 255;
+            walldist = (int)sqrt(SquareDistToWall(x * inttoworld, y * inttoworld, &wal)) - 255;
         }
 
         if (walldist < 0)
