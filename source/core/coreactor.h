@@ -70,6 +70,31 @@ public:
 		return time; 
 	}	
 
+	vec3_t int_pos() const
+	{
+		return spr.pos;
+	}
+
+	void set_int_z(int z)
+	{
+		spr.pos.Z = z;
+	}
+
+	void add_int_z(int z)
+	{
+		spr.pos.Z += z;
+	}
+
+	void add_int_pos(const vec3_t& add)
+	{
+		spr.pos += add;
+	}
+
+	void set_int_pos(const vec3_t& add)
+	{
+		spr.pos = add;
+	}
+
 	DVector3 float_pos() const
 	{
 		return { spr.pos.X * inttoworld, spr.pos.Y * inttoworld, spr.pos.Z * zinttoworld };
