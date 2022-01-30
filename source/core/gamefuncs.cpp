@@ -439,21 +439,25 @@ int inside(double x, double y, const sectortype* sect)
 {
 	if (sect)
 	{
-		double acc = 1;
+		int64_t acc = 1;
 		for (auto& wal : wallsofsector(sect))
 		{
-			double xs = (wal.pos.X - x);
-			double ys = (wal.pos.Y - y);
+			// Perform the checks here in 48.16 fixed point.
+			// Doing it directly with floats and multiplications does not work reliably.
+			// Unfortunately, due to the conversions, this is a bit slower. :(
+			int64_t xs = int64_t(0x10000 * (wal.pos.X - x));
+			int64_t ys = int64_t(0x10000 * (wal.pos.Y - y));
 			auto wal2 = wal.point2Wall();
-			double xe = (wal2->pos.X - x);
-			double ye = (wal2->pos.Y - y);
+			int64_t xe = int64_t(0x10000 * (wal2->pos.X - x));
+			int64_t ye = int64_t(0x10000 * (wal2->pos.Y - y));
 
-			if ((ys * ye) < 0)
+			if ((ys ^ ye) < 0)
 			{
-				double val;
-				if ((xs * xe) >= 0) val = xs;
-				else val = (xs * ye - xe * ys) * ye;
-				acc *= val;
+				int64_t val;
+
+				if ((xs ^ xe) >= 0) val = xs;
+				else val = ((xs * ye) - xe * ys) ^ ye;
+				acc ^= val;
 			}
 		}
 		return acc < 0;

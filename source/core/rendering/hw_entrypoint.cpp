@@ -314,6 +314,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 
 void animatecamsprite(double s);
 
+
 void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio)
 {
 	checkRotatedWalls();
