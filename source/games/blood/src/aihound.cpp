@@ -55,7 +55,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 #ifdef NOONE_EXTENSIONS
 	if (target->IsPlayerActor() || gModernMap) // allow to hit non-player targets
-		actFireVector(actor, 0, 0, dx, dy, target->spr.pos.Z - actor->spr.pos.Z, kVectorHoundBite);
+		actFireVector(actor, 0, 0, dx, dy, target->int_pos().Z - actor->int_pos().Z, kVectorHoundBite);
 #else
 	if (target->IsPlayerActor())
 		actFireVector(actor, 0, 0, dx, dy, target->spr.z - actor->spr.z, kVectorHoundBite);
@@ -81,8 +81,8 @@ static void houndThinkGoto(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
+	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
+	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -105,8 +105,8 @@ static void houndThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
-	int dx = target->spr.pos.X - actor->spr.pos.X;
-	int dy = target->spr.pos.Y - actor->spr.pos.Y;
+	int dx = target->int_pos().X - actor->int_pos().X;
+	int dy = target->int_pos().Y - actor->int_pos().Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (target->xspr.health == 0)
 	{
@@ -123,7 +123,7 @@ static void houndThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
+		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
