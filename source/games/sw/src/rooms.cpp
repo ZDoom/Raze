@@ -162,7 +162,8 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             }
             else
             {
-                ASSERT(true == false);
+                //ASSERT(true == false); // some maps in SWC20 trigger this due to poor design.
+                return;
             }
         }
     }
