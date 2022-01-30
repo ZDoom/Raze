@@ -317,7 +317,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 64;
 			if (actj->spr.statnum == 10 || badguy(actj))
-				act->spr.pos.Z -= (32 << 8);
+				act->add_int_z(-(32 << 8));
 		}
 	}
 

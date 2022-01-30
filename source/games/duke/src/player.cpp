@@ -559,7 +559,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 			p->pos.Z -= (16 << 8);
-			actor->spr.pos.Z -= (16 << 8);
+			actor->add_int_z(-(16 << 8));
 		}
 #if 0
 		if (ud.recstat == 1 && ud.multimode < 2)

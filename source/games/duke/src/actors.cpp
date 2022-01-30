@@ -932,7 +932,7 @@ void detonate(DDukeActor *actor, int explosion)
 		}
 	}
 
-	actor->spr.pos.Z -= (32 << 8);
+	actor->add_int_z(-(32 << 8));
 
 	if ((actor->temp_data[3] == 1 && actor->spr.xrepeat) || actor->spr.lotag == -99)
 	{

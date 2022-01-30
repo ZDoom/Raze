@@ -212,11 +212,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->sector()->lotag == 2)
 			{
-				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
+				act->set_int_z(getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8));
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->sector()->lotag == 1)
-				act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+				act->set_int_z(getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y));
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -284,7 +284,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TONGUE:
 		if (actj)
 			act->spr.ang = actj->spr.ang;
-		act->spr.pos.Z -= PHEIGHT_RR;
+		act->add_int_z(-PHEIGHT_RR);
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
 		ChangeActorStat(act, 4);
@@ -324,7 +324,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BLOOD:
 		act->spr.xrepeat = act->spr.yrepeat = 4;
-		act->spr.pos.Z -= (26 << 8);
+		act->add_int_z(-(26 << 8));
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case BLOODPOOL:
@@ -353,7 +353,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		act->spr.xrepeat = 7 + (krand() & 7);
 		act->spr.yrepeat = 7 + (krand() & 7);
-		act->spr.pos.Z -= (16 << 8);
+		act->add_int_z(-(16 << 8));
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		insertspriteq(act);
@@ -554,7 +554,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 8;
-			if (actj) act->spr.pos.Z = actj->floorz;
+			if (actj) act->set_int_z(actj->floorz);
 		}
 		else
 		{
@@ -651,7 +651,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			int x = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.pos.Z > x - (12 << 8))
-				act->spr.pos.Z = x - (12 << 8);
+				act->set_int_z(x - (12 << 8));
 		}
 
 		ChangeActorStat(act, STAT_MISC);
@@ -684,7 +684,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	}
 	case WATERBUBBLE:
 		if (actj && actj->spr.picnum == APLAYER)
-			act->spr.pos.Z -= (16 << 8);
+			act->add_int_z(-(16 << 8));
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
@@ -905,9 +905,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = 64;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
-			act->spr.pos.X += (krand() & 2047) - 1024;
-			act->spr.pos.Y += (krand() & 2047) - 1024;
-			act->spr.pos.Z += (krand() & 2047) - 1024;
+			act->add_int_pos({ (krand() & 2047) - 1024, (krand() & 2047) - 1024, (krand() & 2047) - 1024 });
 			break;
 		case MAMA:
 			if (act->spr.pal == 30)
@@ -1157,7 +1155,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.lotag = 0;
 			if (act->spr.picnum != BOWLINGBALLSPRITE)
 			{
-				act->spr.pos.Z -= (32 << 8);
+				act->add_int_z(-(32 << 8));
 				act->spr.zvel = -(4 << 8);
 			}
 			else

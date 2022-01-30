@@ -313,7 +313,7 @@ void operaterespawns_r(int low)
 			if (badguypic(act->spr.hitag) && ud.monsters_off) break;
 
 			auto star = spawn(act, TRANSPORTERSTAR);
-			if (star) star->spr.pos.Z -= (32 << 8);
+			if (star) star->add_int_z(-(32 << 8));
 
 			act->spr.extra = 66 - 12;   // Just a way to killit
 			break;
@@ -2284,7 +2284,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - (32 << 8);
+			if (spawned) spawned->set_int_z(targ->sector()->floorz - (32 << 8));
 		}
 		break;
 
@@ -2330,7 +2330,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 							{
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
-								spawned->spr.pos.Z += (4 << 8);
+								spawned->add_int_z(4 << 8);
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->spr.ang += 32 - (krand() & 63);

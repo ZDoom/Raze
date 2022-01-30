@@ -199,7 +199,7 @@ void operaterespawns_d(int low)
 			auto star = spawn(act, TRANSPORTERSTAR);
 			if (star)
 			{
-				star->spr.pos.Z -= (32 << 8);
+				star->add_int_z(-(32 << 8));
 
 				act->spr.extra = 66 - 12;   // Just a way to killit
 			}
@@ -1221,7 +1221,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
 		{
 			S_PlayActorSound(GLASS_BREAKING, targ);
-			targ->spr.pos.Z += 16 << 8;
+			targ->add_int_z(16 << 8);
 			targ->spr.cstat = 0;
 			lotsofglass(targ, nullptr, 5);
 		}
@@ -1288,7 +1288,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - (32 << 8);
+			if (spawned) spawned->set_int_z(targ->sector()->floorz - (32 << 8));
 		}
 		break;
 
@@ -1374,7 +1374,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 							{
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
-								spawned->spr.pos.Z += (4 << 8);
+								spawned->add_int_z(4 << 8);
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->spr.ang += 32 - (krand() & 63);
@@ -1398,7 +1398,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 						targ->spr.ang = (proj->spr.ang + 1024) & 2047;
 					targ->spr.xvel = -(proj->spr.extra << 2);
 					auto sp = targ->sector();
-					pushmove(&targ->spr.pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
+					pushmove(targ, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
 					if (sp != targ->sector() && sp != nullptr)
 						ChangeActorSect(targ, sp);
 				}

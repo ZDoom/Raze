@@ -128,7 +128,7 @@ void DoSpawn(struct player_struct *p, int snum)
 		j->spr.ang += 1024;
 		j->spr.ang &= 2047;
 		j->spr.xvel += 32;
-		j->spr.pos.Z += (3<<8);
+		j->add_int_z(3<<8);
 		ssp(j,CLIPMASK0);
 	}
 
@@ -361,7 +361,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				if (k == 15)
 				{
 					j->spr.yvel = 3;
-					j->spr.pos.Z += (8 << 8);
+					j->add_int_z(8 << 8);
 				}
 
 				k = hits(p->GetActor());
