@@ -746,8 +746,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
 		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
 		if (actor->insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
-			if (actor->spr.pos.Z == actor->sector()->floorz) actor->spr.pos.Z--;
-			else if (actor->spr.pos.Z == actor->sector()->ceilingz) actor->spr.pos.Z++;
+			if (actor->spr.pos.Z == actor->sector()->floorz) actor->add_int_z(-1);
+			else if (actor->spr.pos.Z == actor->sector()->ceilingz) actor->add_int_z(1);
 		}
 
 		// make Proximity flag work not just for dudes and things...
@@ -977,9 +977,7 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
 			if (spawned)
 			{
 				sourceactor->xspr.dropMsg = uint8_t(spawned->spr.type); // store dropped item type in dropMsg
-				spawned->spr.pos.X = sourceactor->spr.pos.X;
-				spawned->spr.pos.Y = sourceactor->spr.pos.Y;
-				spawned->spr.pos.Z = sourceactor->spr.pos.Z;
+				spawned->set_int_pos(sourceactor->spr.pos);
 
 				if ((sourceactor->spr.flags & kModernTypeFlag1) && (sourceactor->xspr.txID > 0 || (sourceactor->xspr.txID != 3 && sourceactor->xspr.lockMsg > 0)))
 				{
@@ -1069,7 +1067,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (actor->vel.Z >= 0) actor->vel.Z += val;
 		else actor->vel.Z = val;
 
-		actor->spr.pos.Z += actor->vel.Z >> 12;
+		actor->add_int_z(actor->vel.Z >> 12);
 
 	}
 
@@ -1380,8 +1378,8 @@ void nnExtProcessSuperSprites()
 			int fz = getflorzofslopeptr(pSector, debrisactor->spr.pos.X, debrisactor->spr.pos.Y);
 
 			GetActorExtents(debrisactor, &top, &bottom);
-			if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) debrisactor->spr.pos.Z += ClipLow(cz - top, 0);
-			if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) debrisactor->spr.pos.Z += ClipHigh(fz - bottom, 0);
+			if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) debrisactor->add_int_z(ClipLow(cz - top, 0));
+			if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) debrisactor->add_int_z(ClipHigh(fz - bottom, 0));
 		}
 	}
 }
@@ -1719,7 +1717,7 @@ void debrisMove(int listIndex)
 		uwater = pSector->xs().Underwater;
 
 	if (actor->vel.Z)
-		actor->spr.pos.Z += actor->vel.Z >> 8;
+		actor->add_int_z(actor->vel.Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -1742,14 +1740,14 @@ void debrisMove(int listIndex)
 
 		if (vc)
 		{
-			actor->spr.pos.Z += ((vc << 2) >> 1) >> 8;
+			actor->add_int_z(((vc << 2) >> 1) >> 8);
 			actor->vel.Z += vc;
 		}
 
 	}
 	else if ((actor->xspr.physAttr & kPhysGravity) && bottom < floorZ)
 	{
-		actor->spr.pos.Z += 455;
+		actor->add_int_z(455);
 		actor->vel.Z += 58254;
 
 	}
@@ -1838,7 +1836,7 @@ void debrisMove(int listIndex)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = moveHit = ceilColl;
-		actor->spr.pos.Z += ClipLow(ceilZ - top, 0);
+		actor->add_int_z(ClipLow(ceilZ - top, 0));
 		if (actor->vel.Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
 			actor->vel.Z = MulScale(-actor->vel.Z, 0x2000, 16);
 
@@ -3190,10 +3188,10 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	if (actor->sector() != sourceactor->sector())
 		ChangeActorSect(actor, sourceactor->sector());
 
-	actor->spr.pos.X = sourceactor->spr.pos.X; actor->spr.pos.Y = sourceactor->spr.pos.Y;
+	actor->set_int_xy(sourceactor->spr.pos.X, sourceactor->spr.pos.Y);
 	int zTop, zBot;
 	GetActorExtents(sourceactor, &zTop, &zBot);
-	actor->spr.pos.Z = zBot;
+	actor->set_int_z(zBot);
 
 	clampSprite(actor, 0x01);
 
@@ -3785,34 +3783,36 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 			if (sourceactor->xspr.data3 > 0)
 			{
 				auto spawned = InsertSprite(iactor->sector(), kStatDecoration);
-				int top, bottom; GetActorExtents(spawned, &top, &bottom);
-				spawned->spr.pos.X = iactor->spr.pos.X;
-				spawned->spr.pos.Y = iactor->spr.pos.Y;
-				switch (sourceactor->xspr.data3)
-				{
-				default:
-					spawned->spr.pos.Z = iactor->spr.pos.Z;
-					break;
-				case 2:
-					spawned->spr.pos.Z = bottom;
-					break;
-				case 3:
-					spawned->spr.pos.Z = top;
-					break;
-				case 4:
-					spawned->spr.pos.Z = iactor->spr.pos.Z + tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum);
-					break;
-				case 5:
-				case 6:
-					if (!iactor->insector()) spawned->spr.pos.Z = top;
-					else spawned->spr.pos.Z = ((sourceactor->xspr.data3 == 5) ?
-						getflorzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y) :
-						getceilzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y));
-					break;
-				}
-
 				if (spawned != nullptr)
 				{
+					int top, bottom; GetActorExtents(spawned, &top, &bottom);
+					vec3_t pos;
+					pos.X = iactor->spr.pos.X;
+					pos.Y = iactor->spr.pos.Y;
+					switch (sourceactor->xspr.data3)
+					{
+					default:
+						pos.Z = iactor->spr.pos.Z;
+						break;
+					case 2:
+						pos.Z = bottom;
+						break;
+					case 3:
+						pos.Z = top;
+						break;
+					case 4:
+						pos.Z = iactor->spr.pos.Z + tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum);
+						break;
+					case 5:
+					case 6:
+						if (!iactor->insector()) pos.Z = top;
+						else pos.Z = ((sourceactor->xspr.data3 == 5) ?
+							getflorzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y) :
+							getceilzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y));
+						break;
+					}
+
+					spawned->set_int_pos(pos);
 
 					spawned->addX();
 					seqSpawn(sourceactor->xspr.data2, spawned, -1);
@@ -6709,7 +6709,7 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 	}
 
 	spriteSetSlope(actor, slope);
-	if (forcez) actor->spr.pos.Z = z;
+	if (forcez) actor->set_int_z(z);
 }
 
 //---------------------------------------------------------------------------
@@ -9282,9 +9282,9 @@ void clampSprite(DBloodActor* actor, int which)
 	{
 		GetActorExtents(actor, &zTop, &zBot);
 		if (which & 0x01)
-			actor->spr.pos.Z += ClipHigh(getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y) - zBot, 0);
+			actor->add_int_z(ClipHigh(getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y) - zBot, 0));
 		if (which & 0x02)
-			actor->spr.pos.Z += ClipLow(getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y) - zTop, 0);
+			actor->add_int_z(ClipLow(getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y) - zTop, 0));
 
 	}
 

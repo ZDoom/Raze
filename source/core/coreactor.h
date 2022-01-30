@@ -95,6 +95,12 @@ public:
 		spr.pos = add;
 	}
 
+	void set_int_xy(int x, int y)
+	{
+		spr.pos.X = x;
+		spr.pos.Y = y;
+	}
+
 	DVector3 float_pos() const
 	{
 		return { spr.pos.X * inttoworld, spr.pos.Y * inttoworld, spr.pos.Z * zinttoworld };
