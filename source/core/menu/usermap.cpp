@@ -216,20 +216,20 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 	if (!entry) return 0;
 	LoadMapPreview(entry);
 	if (entry->walls.Size() == 0) return 0;
-	int minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
+	double minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
 	for (auto& wal : entry->walls)
 	{
-		if (wal.wall_int_pos().X < minx) minx = wal.wall_int_pos().X;
-		if (wal.wall_int_pos().X > maxx) maxx = wal.wall_int_pos().X;
-		if (wal.wall_int_pos().Y < miny) miny = wal.wall_int_pos().Y;
-		if (wal.wall_int_pos().Y > maxy) maxy = wal.wall_int_pos().Y;
+		if (wal.pos.X < minx) minx = wal.pos.X;
+		if (wal.pos.X > maxx) maxx = wal.pos.X;
+		if (wal.pos.Y < miny) miny = wal.pos.Y;
+		if (wal.pos.Y > maxy) maxy = wal.pos.Y;
 	}
-	float scalex = float(width) / (maxx - minx);
-	float scaley = float(height) / (maxy - miny);
-	int centerx = (minx + maxx) >> 1;
-	int centery = (miny + maxy) >> 1;
-	int dcenterx = left + (width >> 1);
-	int dcentery = top + (height >> 1);
+	float scalex = float(width / (maxx - minx));
+	float scaley = float(height / (maxy - miny));
+	float centerx = (minx + maxx) * 0.5f;
+	float centery = (miny + maxy) * 0.5f;
+	float dcenterx = left + (width * 0.5f);
+	float dcentery = top + (height * 0.5f);
 	float scale = min(scalex, scaley);
 	float drawleft = dcenterx - (centerx - minx) * scale;
 	float drawtop = dcentery - (centery - miny) * scale;
@@ -238,16 +238,16 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 	{
 		if (wal.nextwall < 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.wall_int_pos().X - centerx) * scale, dcentery + (wal.wall_int_pos().Y - centery) * scale,
-			dcenterx + (point2->wall_int_pos().X - centerx) * scale, dcentery + (point2->wall_int_pos().Y - centery) * scale,
+		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
+			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
 			-1, -1, INT_MAX, INT_MAX, 0xff808080);
 	}
 	for (auto& wal : entry->walls)
 	{
 		if (wal.nextwall >= 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.wall_int_pos().X - centerx) * scale, dcentery + (wal.wall_int_pos().Y - centery) * scale,
-			dcenterx + (point2->wall_int_pos().X - centerx) * scale, dcentery + (point2->wall_int_pos().Y - centery) * scale,
+		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
+			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
 			-1, -1, INT_MAX, INT_MAX, 0xffffffff);
 	}
 	return 0;
