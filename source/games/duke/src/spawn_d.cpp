@@ -116,15 +116,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				return act;
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
-			act->spr.pos.X += krand() % 512 - 256;
-			act->spr.pos.Y += krand() % 512 - 256;
+			act->add_int_pos({ krand() % 512 - 256, krand() % 512 - 256, 0 });
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
 			return act;
 		case WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
-			act->spr.pos.X += krand() % 256 - 128;
-			act->spr.pos.Y += krand() % 256 - 128;
+			act->add_int_pos({ krand() % 256 - 128, krand() % 256 - 128, 0 });
 			act->spr.xrepeat = 20;
 			act->spr.yrepeat = 20;
 			return act;
@@ -159,11 +157,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->sector()->lotag == 2)
 			{
-				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
+				act->set_int_z(getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8));
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->sector()->lotag == 1)
-				act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+				act->set_int_z(getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y));
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -204,7 +202,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TONGUE:
 		if (actj)
 			act->spr.ang = actj->spr.ang;
-		act->spr.pos.Z -= PHEIGHT_DUKE;
+		act->add_int_z(-PHEIGHT_DUKE);
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
 		ChangeActorStat(act, 4);
@@ -264,7 +262,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BLOOD:
 		act->spr.xrepeat = act->spr.yrepeat = 16;
-		act->spr.pos.Z -= (26 << 8);
+		act->add_int_z(-(26 << 8));
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		ChangeActorStat(act, STAT_MISC);
@@ -298,8 +296,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			int fz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (fz != act->spr.pos.Z)
-				act->spr.pos.Z = fz;
-			act->spr.pos.Z -= 200;
+				act->set_int_z(fz);
+			act->add_int_z(-200);
 		}
 		[[fallthrough]];
 
@@ -316,7 +314,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		act->spr.xrepeat = 7 + (krand() & 7);
 		act->spr.yrepeat = 7 + (krand() & 7);
-		act->spr.pos.Z -= (16 << 8);
+		act->add_int_z(-(16 << 8));
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		insertspriteq(act);
@@ -529,7 +527,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 24;
-			if (actj) act->spr.pos.Z = actj->floorz; // -(1<<4);
+			if (actj) act->set_int_z(actj->floorz); // -(1<<4);
 		}
 		else
 		{
@@ -642,14 +640,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			int x = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.pos.Z > x - (12 << 8))
-				act->spr.pos.Z = x - (12 << 8);
+				act->set_int_z(x - (12 << 8));
 		}
 
 		if (act->spr.picnum == ONFIRE)
 		{
-			act->spr.pos.X += krand() % 256 - 128;
-			act->spr.pos.Y += krand() % 256 - 128;
-			act->spr.pos.Z -= krand() % 10240;
+			act->add_int_pos({ krand() % 256 - 128, krand() % 256 - 128, -(krand() % 10240) });
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 
@@ -683,7 +679,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	}
 	case WATERBUBBLE:
 		if (actj && actj->spr.picnum == APLAYER)
-			act->spr.pos.Z -= (16 << 8);
+			act->add_int_z(-(16 << 8));
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
@@ -1004,7 +1000,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			act->spr.lotag = 0;
-			act->spr.pos.Z -= (32 << 8);
+			act->add_int_z(-(32 << 8));
 			act->spr.zvel = -1024;
 			ssp(act, CLIPMASK0);
 			if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
