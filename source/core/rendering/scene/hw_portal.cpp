@@ -524,22 +524,21 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	di->mClipPortal = this;
 
-	int x = line->wall_int_pos().X;
-	int y = line->wall_int_pos().Y;
-	int dx = line->point2Wall()->wall_int_pos().X - x;
-	int dy = line->point2Wall()->wall_int_pos().Y - y;
+	double x = line->pos.X;
+	double y = line->pos.Y;
+	double dx = line->point2Wall()->pos.X - x;
+	double dy = line->point2Wall()->pos.Y - y;
 
-	// this can overflow so use 64 bit math.
-	const int64_t j = int64_t(dx) * dx + int64_t(dy) * dy;
+	const double j = dx * dx + dy * dy;
 	if (j == 0)
 		return false;
 
-	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
+	DVector2 view = { vp.Pos.X, -vp.Pos.Y };
 
-	int64_t i = ((int64_t(view.X) - x) * dx + (int64_t(view.Y) - y) * dy) << 1;
+	double i = ((view.X - x) * dx + (view.Y - y) * dy) * 2;
 
-	int newx = int((x << 1) + Scale(dx, i, j) - view.X);
-	int newy = int((y << 1) + Scale(dy, i, j) - view.Y);
+	double newx = x * 2 + dx * i / j - view.X;
+	double newy = y * 2 + dy * i / j - view.Y;
 
 	auto myan = bvectangbam(dx, dy);
 	auto newan = myan + myan - bamang(vp.RotAngle);
@@ -548,8 +547,8 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
 
-	vp.Pos.X = newx / 16.f;
-	vp.Pos.Y = newy / -16.f;
+	vp.Pos.X = newx;
+	vp.Pos.Y = -newy;
 	vp.HWAngles.Yaw = -90.f + newan.asdeg();
 
 	double FocalTangent = tan(vp.FieldOfView.Radians() / 2);
@@ -565,8 +564,8 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(line->wall_int_pos().X - newx, line->wall_int_pos().Y - newy);
-	auto endan = bvectangbam(line->point2Wall()->wall_int_pos().X - newx, line->point2Wall()->wall_int_pos().Y - newy);
+	auto startan = bvectangbam(line->pos.X - newx, line->pos.Y - newy);
+	auto endan = bvectangbam(line->point2Wall()->pos.X - newx, line->point2Wall()->pos.Y - newy);
 	clipper->RestrictVisibleRange(endan, startan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
@@ -674,8 +673,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	DVector2 destcenter ={ camera->spr.pos.X / 16.f, camera->spr.pos.Y / -16.f };
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 
-	int origx = vp.Pos.X * 16;
-	int origy = vp.Pos.Y * -16;
+	double origx = vp.Pos.X;
+	double origy = vp.Pos.Y;
 
 	vp.SectNums = nullptr;
 	vp.SectCount = camera->sectno();
@@ -687,8 +686,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(origin->wall_int_pos().X - origx, origin->wall_int_pos().Y - origy);
-	auto endan = bvectangbam(origin->point2Wall()->wall_int_pos().X - origx, origin->point2Wall()->wall_int_pos().Y - origy);
+	auto startan = bvectangbam(origin->pos.X - origx, origin->pos.Y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->pos.X - origx, origin->point2Wall()->pos.Y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }

@@ -67,8 +67,8 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 		{
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
-			daang = bvectangbam(hitinfo.hitWall->point2Wall()->wall_int_pos().X - hitinfo.hitWall->wall_int_pos().X,
-								hitinfo.hitWall->point2Wall()->wall_int_pos().Y - hitinfo.hitWall->wall_int_pos().Y);
+			daang = bvectangbam(hitinfo.hitWall->point2Wall()->pos.X - hitinfo.hitWall->pos.X,
+								hitinfo.hitWall->point2Wall()->pos.Y - hitinfo.hitWall->pos.Y);
 			newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 			if (abs(nx) > abs(ny))

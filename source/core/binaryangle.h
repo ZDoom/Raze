@@ -365,7 +365,7 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 //
 //---------------------------------------------------------------------------
 
-inline binangle bvectangbam(int32_t x, int32_t y)
+inline binangle bvectangbam(double x, double y)
 {
 	return radang(atan2(y, x));
 }
