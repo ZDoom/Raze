@@ -2363,7 +2363,7 @@ static void heavyhbomb(DDukeActor *actor)
 	}
 	if (actor->spr.picnum != CHEERBOMB && actor->spr.pos.Z < actor->ceilingz + (16 << 8) && sectp->lotag != 2)
 	{
-		actor->spr.pos.Z = actor->ceilingz + (16 << 8);
+		actor->set_int_z(actor->ceilingz + (16 << 8));
 		actor->spr.zvel = 0;
 	}
 
@@ -2375,7 +2375,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (actor->sector()->lotag == 1 && actor->spr.zvel == 0)
 	{
-		actor->spr.pos.Z += (32 << 8);
+		actor->add_int_z(32 << 8);
 		if (actor->temp_data[5] == 0)
 		{
 			actor->temp_data[5] = 1;
@@ -2753,7 +2753,7 @@ void moveactors_r(void)
 					if (sectp->lotag == 1)
 					{
 						auto j = spawn(act, WATERSPLASH2);
-						if (j) j->spr.pos.Z = j->sector()->floorz;
+						if (j) j->set_int_z(j->sector()->floorz);
 					}
 					deletesprite(act);
 					continue;
@@ -2945,7 +2945,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case BLOODSPLAT4:
 
 			if (act->temp_data[0] == 7 * 26) continue;
-			act->spr.pos.Z += 16 + (krand() & 15);
+			act->add_int_z(16 + (krand() & 15));
 			act->temp_data[0]++;
 			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
 			continue;
@@ -3011,7 +3011,8 @@ void moveexplosions_r(void)  // STATNUM 5
 			deletesprite(act);
 			continue;
 		case FEATHER + 1: // feather
-			act->floorz = act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->set_int_z(act->floorz);
 			if (act->sector()->lotag == 800)
 			{
 				deletesprite(act);
@@ -3160,7 +3161,7 @@ void handle_se06_r(DDukeActor *actor)
 				auto ns = spawn(actor, HULK);
 				if (ns)
 				{
-					ns->spr.pos.Z = ns->sector()->ceilingz;
+					ns->set_int_z(ns->sector()->ceilingz);
 					ns->spr.pal = 33;
 				}
 				if (!hulkspawn)
@@ -3178,7 +3179,7 @@ void handle_se06_r(DDukeActor *actor)
 					{
 						ns->spr.cstat = 0;
 						ns->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-						ns->spr.pos.Z = actor->sector()->floorz - 6144;
+						ns->set_int_z(actor->sector()->floorz - 6144);
 					}
 					deletesprite(actor);
 					return;
@@ -3218,7 +3219,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				else pn = UFO1_RRRA;
 				auto ns = spawn(actor, pn);
-				if (ns) ns->spr.pos.Z = ns->sector()->ceilingz;
+				if (ns) ns->set_int_z(ns->sector()->ceilingz);
 			}
 		}
 	}
@@ -3642,12 +3643,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					if (isRRRA())
 					{
 						if (actor->spr.pos.Z > (l - (28 << 8)))
-							actor->spr.pos.Z = l - (28 << 8);
+							actor->set_int_z(l - (28 << 8));
 					}
 					else
 					{
 						if (actor->spr.pos.Z > (l - (30 << 8)))
-							actor->spr.pos.Z = l - (30 << 8);
+							actor->set_int_z(l - (30 << 8));
 					}
 				}
 				else
@@ -3655,26 +3656,26 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					actor->ceilingz = l = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					if ((actor->spr.pos.Z - l) < (50 << 8))
 					{
-						actor->spr.pos.Z = l + (50 << 8);
+						actor->set_int_z(l + (50 << 8));
 						actor->spr.zvel = 0;
 					}
 				}
 			}
 			if (actor->spr.zvel > 0 && actor->floorz < actor->spr.pos.Z)
-				actor->spr.pos.Z = actor->floorz;
+				actor->set_int_z(actor->floorz);
 			if (actor->spr.zvel < 0)
 			{
 				l = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if ((actor->spr.pos.Z - l) < (66 << 8))
 				{
-					actor->spr.pos.Z = l + (66 << 8);
+					actor->set_int_z(l + (66 << 8));
 					actor->spr.zvel >>= 1;
 				}
 			}
 		}
 		else if (actor->spr.picnum == APLAYER)
 			if ((actor->spr.pos.Z - actor->ceilingz) < (32 << 8))
-				actor->spr.pos.Z = actor->ceilingz + (32 << 8);
+				actor->set_int_z(actor->ceilingz + (32 << 8));
 
 		daxvel = actor->spr.xvel;
 		angdif = actor->spr.ang;
@@ -3839,7 +3840,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		}
 		if (actor->spr.picnum != APLAYER && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
-			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT;
+			actor->set_int_z(actor->floorz - FOURSLEIGHT);
 			actor->spr.zvel = 8000;
 			actor->spr.extra = 0;
 			actor->spriteextra++;
