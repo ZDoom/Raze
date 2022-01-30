@@ -131,9 +131,9 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 {
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int x = actor->spr.pos.X;
-	int y = actor->spr.pos.Y;
-	int z = actor->spr.pos.Z;
+	int x = actor->int_pos().X;
+	int y = actor->int_pos().Y;
+	int z = actor->int_pos().Z;
 	HitScan(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
 	int nDist = approxDist(x - gHitInfo.hitpos.X, y - gHitInfo.hitpos.Y);
 	if (nDist - (actor->spr.clipdist << 2) < nRange)
@@ -364,7 +364,7 @@ void aiActivateDude(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->xspr.state)
 	{
-		aiChooseDirection(actor, getangle(actor->xspr.TargetPos.X - actor->spr.pos.X, actor->xspr.TargetPos.Y - actor->spr.pos.Y));
+		aiChooseDirection(actor, getangle(actor->xspr.TargetPos.X - actor->int_pos().X, actor->xspr.TargetPos.Y - actor->int_pos().Y));
 		actor->xspr.state = 1;
 	}
 	switch (actor->spr.type)
@@ -934,9 +934,9 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
-			actor->xspr.TargetPos.X = target->spr.pos.X;
-			actor->xspr.TargetPos.Y = target->spr.pos.Y;
-			actor->xspr.TargetPos.Z = target->spr.pos.Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2);
+			actor->xspr.TargetPos.X = target->int_pos().X;
+			actor->xspr.TargetPos.Y = target->int_pos().Y;
+			actor->xspr.TargetPos.Z = target->int_pos().Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2);
 		}
 	}
 }
@@ -1508,16 +1508,16 @@ void aiThinkTarget(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->actor->spr.pos.X;
-			int y = pPlayer->actor->spr.pos.Y;
-			int z = pPlayer->actor->spr.pos.Z;
+			int x = pPlayer->actor->int_pos().X;
+			int y = pPlayer->actor->int_pos().Y;
+			int z = pPlayer->actor->int_pos().Z;
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->spr.pos.X;
-			int dy = y - actor->spr.pos.Y;
+			int dx = x - actor->int_pos().X;
+			int dy = y - actor->int_pos().Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
+			if (!cansee(x, y, z, pSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -1554,16 +1554,16 @@ void aiLookForTarget(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->actor->spr.pos.X;
-			int y = pPlayer->actor->spr.pos.Y;
-			int z = pPlayer->actor->spr.pos.Z;
+			int x = pPlayer->actor->int_pos().X;
+			int y = pPlayer->actor->int_pos().Y;
+			int z = pPlayer->actor->int_pos().Z;
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->spr.pos.X;
-			int dy = y - actor->spr.pos.Y;
+			int dx = x - actor->int_pos().X;
+			int dy = y - actor->int_pos().Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
+			if (!cansee(x, y, z, pSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -1582,13 +1582,13 @@ void aiLookForTarget(DBloodActor* actor)
 		if (actor->xspr.state)
 		{
 			const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-			GetClosestSpriteSectors(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, 400, nullptr, newSectCheckMethod);
+			GetClosestSpriteSectors(actor->sector(), actor->int_pos().X, actor->int_pos().Y, 400, nullptr, newSectCheckMethod);
 
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())
 			{
-				int dx = actor2->spr.pos.X - actor->spr.pos.X;
-				int dy = actor2->spr.pos.Y - actor->spr.pos.Y;
+				int dx = actor2->int_pos().X - actor->int_pos().X;
+				int dy = actor2->int_pos().Y - actor->int_pos().Y;
 				int nDist = approxDist(dx, dy);
 				if (actor2->spr.type == kDudeInnocent)
 				{
