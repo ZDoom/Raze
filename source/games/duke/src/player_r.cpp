@@ -153,7 +153,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (p >= 0)
 			{
 				auto k = spawn(wpn, SMALLSMOKE);
-				if (k) k->spr.pos.Z -= (8 << 8);
+				if (k) k->add_int_z(-(8 << 8));
 				if (atwith == KNEE) S_PlayActorSound(KICK_HIT, wpn);
 				else if (isRRRA() && atwith == SLINGBLADE)	S_PlayActorSound(260, wpn);
 			}
@@ -185,8 +185,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
 			if (splash)
 			{
-				splash->spr.pos.X = hit.hitpos.X;
-				splash->spr.pos.Y = hit.hitpos.Y;
+				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
 				splash->spr.ang = ps[p].angle.ang.asbuild(); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, 0);
@@ -335,7 +334,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				spark->spr.xrepeat = spark->spr.yrepeat = 0;
 				if (l)
 				{
-					l->spr.pos.Z += (4 << 8);
+					l->add_int_z(4 << 8);
 					l->spr.xvel = 16;
 					l->spr.xrepeat = l->spr.yrepeat = 24;
 					l->spr.ang += 64 - (krand() & 127);
@@ -723,13 +722,11 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			spawned->spr.pos.X -= bsin(sa) / 644;
-			spawned->spr.pos.Y += bcos(sa) / 644;
+			spawned->add_int_pos({ -bsin(sa) / 644, bcos(sa) / 644, 0 });
 		}
 		else
 		{
-			spawned->spr.pos.X += bsin(sa, -8);
-			spawned->spr.pos.Y -= bcos(sa, -8);
+			spawned->add_int_pos({ bsin(sa, -8), -bcos(sa, -8), 0 });
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -898,7 +895,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		{
 			j->spr.xvel = 32;
 			j->spr.ang = actor->spr.ang;
-			j->spr.pos.Z -= (5 << 8);
+			j->add_int_z(-(5 << 8));
 		}
 		break;
 	}
@@ -909,7 +906,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		{
 			j->spr.xvel = 250;
 			j->spr.ang = actor->spr.ang;
-			j->spr.pos.Z -= (15 << 8);
+			j->add_int_z(-(15 << 8));
 		}
 		break;
 	}
@@ -2353,11 +2350,10 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->spr.pos.X += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
-			j->spr.pos.Y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
+			j->add_int_pos({ bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6), bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6), 0 });
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
-			j->spr.pos.Z = p->pos.Z + (8 << 8);
+			j->set_int_z(p->pos.Z + (8 << 8));
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
@@ -2759,7 +2755,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if (k == 15)
 				{
 					spawned->spr.yvel = 3;
-					spawned->spr.pos.Z += (8 << 8);
+					spawned->add_int_z(8 << 8);
 				}
 
 				k = hits(p->GetActor());
@@ -2984,7 +2980,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 						j->spr.ang += 1024;
 						j->spr.ang &= 2047;
 						j->spr.xvel += 32;
-						j->spr.pos.Z += (3 << 8);
+						j->add_int_z(3 << 8);
 						ssp(j, CLIPMASK0);
 					}
 				}
