@@ -366,7 +366,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 void DCoreActor::OnDestroy()
 {
-	FVector3 pos = GetSoundPos(&spr.pos);
+	FVector3 pos = GetSoundPos(spr.pos);
 	soundEngine->RelinkSound(SOURCE_Actor, this, nullptr, &pos);
 
 	// also scan all other sounds if they have this actor as source. If so, null the source and stop looped sounds.

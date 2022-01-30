@@ -519,7 +519,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     if (pos != nullptr)
     {
         PLAYER* pp = Player + screenpeek;
-        FVector3 campos = GetSoundPos(&pp->pos);
+        FVector3 campos = GetSoundPos(pp->pos);
         vec3_t *vpos = nullptr;
 
         if (vel) vel->Zero();
@@ -607,7 +607,7 @@ void GameInterface::UpdateSounds(void)
 
     listener.angle = float(-tang.asrad());
     listener.velocity.Zero();
-    listener.position = GetSoundPos(&pp->pos);
+    listener.position = GetSoundPos(pp->pos);
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
