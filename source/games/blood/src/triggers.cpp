@@ -960,8 +960,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				if (v14)
 					RotatePoint((int*)&actor->spr.pos.X, (int*)&actor->spr.pos.Y, v14, v20, v24);
 				actor->spr.ang = (actor->spr.ang + v14) & 2047;
-				actor->spr.pos.X += v28;
-				actor->spr.pos.Y += v2c;
+				actor->add_int_pos({ v28, v2c, 0 });
 			}
 		}
 	}
@@ -1043,14 +1042,14 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += pSector->floorz - oldZ;
+				actor->add_int_z(pSector->floorz - oldZ);
 			}
 			else if (actor->spr.flags & 2)
 				actor->spr.flags |= 4;
 			else if (oldZ <= bottom && !(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += pSector->floorz - oldZ;
+				actor->add_int_z(pSector->floorz - oldZ);
 			}
 		}
 
@@ -1088,7 +1087,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += pSector->ceilingz - oldZ;
+				actor->add_int_z(pSector->ceilingz - oldZ);
 			}
 		}
 
@@ -1241,7 +1240,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z = actor->basePoint.Z + MulScale(dz1, GetWaveValue(a2, nWave), 16);
+				actor->set_int_z(actor->basePoint.Z + MulScale(dz1, GetWaveValue(a2, nWave), 16));
 			}
 		}
 	}
@@ -1254,7 +1253,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z = actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
+				actor->set_int_z(actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16));
 			}
 		}
 	}
@@ -1633,9 +1632,8 @@ void OperateTeleport(sectortype* pSector)
 				{
 					TeleFrag(pXSector->actordata, destactor->sector());
 				}
-				actor->spr.pos.X = destactor->spr.pos.X;
-				actor->spr.pos.Y = destactor->spr.pos.Y;
-				actor->spr.pos.Z += destactor->sector()->floorz - pSector->floorz;
+				actor->set_int_xy(destactor->spr.pos.X, destactor->spr.pos.Y);
+				actor->add_int_z(destactor->sector()->floorz - pSector->floorz);
 				actor->spr.ang = destactor->spr.ang;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
@@ -2127,7 +2125,7 @@ void ProcessMotion(void)
 				if (actor->spr.cstat & CSTAT_SPRITE_MOVE_MASK)
 				{
 					viewBackupSpriteLoc(actor);
-					actor->spr.pos.Z += vdi;
+					actor->add_int_z(vdi);
 				}
 			}
 			if (pXSector->bobFloor)
@@ -2148,7 +2146,7 @@ void ProcessMotion(void)
 						if (bottom >= floorZ && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 						{
 							viewBackupSpriteLoc(actor);
-							actor->spr.pos.Z += vdi;
+							actor->add_int_z(vdi);
 						}
 					}
 				}
@@ -2167,7 +2165,7 @@ void ProcessMotion(void)
 					if (top <= ceilZ && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 					{
 						viewBackupSpriteLoc(actor);
-						actor->spr.pos.Z += vdi;
+						actor->add_int_z(vdi);
 					}
 				}
 			}

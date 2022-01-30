@@ -807,7 +807,7 @@ void playerStart(int nPlayer, int bNewLevel)
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
+	actor->add_int_z(-(bottom - actor->spr.pos.Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.ang = pStartZone->ang;
 	pPlayer->angle.ang = buildang(actor->spr.ang);
