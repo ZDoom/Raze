@@ -290,9 +290,9 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->add_int_z(-gs.playerheight);
 				int d = dist(actor, act2);
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->add_int_z(gs.playerheight);
 
 				if (d < r && cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z - (8 << 8), act2->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (12 << 8), actor->sector()))
 				{
@@ -370,9 +370,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	if (actor->spr.statnum == 5 || (bg && actor->spr.xrepeat < 4))
 	{
-		actor->spr.pos.X += (xchange * TICSPERFRAME) >> 2;
-		actor->spr.pos.Y += (ychange * TICSPERFRAME) >> 2;
-		actor->spr.pos.Z += (zchange * TICSPERFRAME) >> 2;
+		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
 		if (bg)
 			SetActor(actor, actor->spr.pos);
 		return result.setNone();
@@ -412,15 +410,14 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		else
 			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype, result);
 	}
-	actor->spr.pos.X = pos.X;
-	actor->spr.pos.Y = pos.Y;
+	actor->set_int_xy(pos.X, pos.Y);
 
 	if (dasectp)
 		if ((dasectp != actor->sector()))
 			ChangeActorSect(actor, dasectp);
 	int daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
-		actor->spr.pos.Z = daz;
+		actor->set_int_z(daz);
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
 
@@ -633,7 +630,7 @@ void movefallers_r(void)
 
 		if (act->temp_data[0] == 0)
 		{
-			act->spr.pos.Z -= (16 << 8);
+			act->add_int_z(-(16 << 8));
 			act->temp_data[1] = act->spr.ang;
 			int x = act->spr.extra;
 			int j = fi.ifhitbyweapon(act);
@@ -664,7 +661,7 @@ void movefallers_r(void)
 				}
 			}
 			act->spr.ang = act->temp_data[1];
-			act->spr.pos.Z += (16 << 8);
+			act->add_int_z(16 << 8);
 		}
 		else if (act->temp_data[0] == 1)
 		{
@@ -697,7 +694,7 @@ void movefallers_r(void)
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
-					act->spr.pos.Z += act->spr.zvel;
+					act->add_int_z(act->spr.zvel);
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < (16 << 8))
 				{
@@ -924,7 +921,7 @@ static void chickenarrow(DDukeActor* actor)
 	if (actor->attackertype != BOSS2 && actor->spr.xrepeat >= 10 && actor->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
-		if (spawned) spawned->spr.pos.Z += (1 << 8);
+		if (spawned) spawned->add_int_z(1 << 8);
 		if ((krand() & 15) == 2)
 		{
 			spawn(actor, MONEY);
@@ -1088,8 +1085,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 			}
 			if (proj->spr.extra <= 0)
 			{
-				proj->spr.pos.X += bcos(proj->spr.ang, -7);
-				proj->spr.pos.Y += bsin(proj->spr.ang, -7);
+				proj->add_int_pos({ bcos(proj->spr.ang, -7), bsin(proj->spr.ang, -7), 0 });
 				auto Owner = proj->GetOwner();
 				if (!isRRRA() || !Owner || (Owner->spr.picnum != CHEER && Owner->spr.picnum != CHEERSTAYPUT))
 				{
@@ -1203,7 +1199,8 @@ static void weaponcommon_r(DDukeActor *proj)
 	case RPG:
 		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
-			spawn(proj, SMALLSMOKE)->spr.pos.Z += (1 << 8);
+			auto spawned = spawn(proj, SMALLSMOKE);
+			if (spawned) spawned->add_int_z(1 << 8);
 		}
 		break;
 	case RPG2:
@@ -1222,7 +1219,8 @@ static void weaponcommon_r(DDukeActor *proj)
 			makeitfall(proj);
 		if (proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
-			spawn(proj, SMALLSMOKE)->spr.pos.Z += (1 << 8);
+			auto spawned = spawn(proj, SMALLSMOKE);
+			if (spawned) spawned->add_int_z(1 << 8);
 		}
 		break;
 	}
@@ -1309,7 +1307,7 @@ static void weaponcommon_r(DDukeActor *proj)
 						if (proj->spr.zvel < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
-							spawned->spr.pos.Z += (72 << 8);
+							spawned->add_int_z(72 << 8);
 						}
 					}
 				}
@@ -1667,9 +1665,7 @@ void movetransports_r(void)
 								{
 									if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
 									{
-										act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-										act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-										act2->spr.pos.Z -= act->spr.pos.Z - Owner->sector()->floorz;
+										act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), -(act->spr.pos.Z - Owner->sector()->floorz) });
 										act2->spr.ang = Owner->spr.ang;
 
 										act2->backupang();
@@ -1691,30 +1687,24 @@ void movetransports_r(void)
 								}
 								else
 								{
-									act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-									act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-									act2->spr.pos.Z = Owner->spr.pos.Z + 4096;
-
+									act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+									act2->set_int_z(Owner->spr.pos.Z + 4096);
 									act2->backupz();
 
 									ChangeActorSect(act2, Owner->sector());
 								}
 								break;
 							case ST_1_ABOVE_WATER:
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->ceilingz + ll);
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
 
 								break;
 							case ST_2_UNDERWATER:
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->floorz - ll;
-
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->floorz - ll);
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
@@ -1723,10 +1713,8 @@ void movetransports_r(void)
 
 							case 160:
 								if (!isRRRA()) break;
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
-
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->ceilingz + ll2);
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
@@ -1737,10 +1725,8 @@ void movetransports_r(void)
 								break;
 							case 161:
 								if (!isRRRA()) break;
-								act2->spr.pos.X += (Owner->spr.pos.X - act->spr.pos.X);
-								act2->spr.pos.Y += (Owner->spr.pos.Y - act->spr.pos.Y);
-								act2->spr.pos.Z = Owner->sector()->floorz - ll2;
-
+								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->set_int_z(Owner->sector()->floorz - ll);
 								act2->backupz();
 
 								ChangeActorSect(act2, Owner->sector());
@@ -2143,9 +2129,9 @@ void rr_specialstats()
 	{
 		if (act->spr.hitag == 100)
 		{
-			act->spr.pos.Z += (4 << 8);
+			act->add_int_z(4 << 8);
 			if (act->spr.pos.Z >= act->sector()->floorz + 15168)
-				act->spr.pos.Z = act->sector()->floorz + 15168;
+				act->set_int_z(act->sector()->floorz + 15168);
 		}
 
 		if (act->spr.picnum == LUMBERBLADE)
@@ -2154,7 +2140,7 @@ void rr_specialstats()
 			if (act->spr.extra == 192)
 			{
 				act->spr.hitag = 0;
-				act->spr.pos.Z = act->sector()->floorz - 15168;
+				act->set_int_z(act->sector()->floorz - 15168);
 				act->spr.extra = 0;
 				act->spr.picnum = RRTILE3410;
 				DukeStatIterator it2(STAT_DEFAULT);
