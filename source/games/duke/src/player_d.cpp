@@ -550,7 +550,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	if ((krand() & 255) < 4)
 	{
 		vec3_t v{ hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z };
-		S_PlaySound3D(PISTOL_RICOCHET, spark, &v);
+		S_PlaySound3D(PISTOL_RICOCHET, spark, v);
 	}
 }
 

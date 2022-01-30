@@ -501,17 +501,17 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
 			{
 				if (act)
-					S_PlaySound3D(ALIEN_SWITCH1, act, &v);
-				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), &v);
+					S_PlaySound3D(ALIEN_SWITCH1, act, v);
+				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), v);
 			}
 			else
 			{
 				if (act)
-					S_PlaySound3D(SWITCH_ON, act, &v);
-				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
+					S_PlaySound3D(SWITCH_ON, act, v);
+				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
 			}
 			if (numdips != correctdips) break;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), &v);
+			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
 		}
 		[[fallthrough]];
 	case DIPSWITCH2:
@@ -591,15 +591,15 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{
 			if (act)
-				S_PlaySound3D(SWITCH_ON, act, &v);
-			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
+				S_PlaySound3D(SWITCH_ON, act, v);
+			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
 		}
 		else if (hitag != 0)
 		{
 			auto flags = S_GetUserFlags(hitag);
 
 			if (act && (flags & SF_TALK) == 0)
-				S_PlaySound3D(hitag, act, &v);
+				S_PlaySound3D(hitag, act, v);
 			else
 				S_PlayActorSound(hitag, ps[snum].GetActor());
 		}

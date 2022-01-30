@@ -40,7 +40,7 @@ int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, 
 void S_WorldTourMappingsForOldSounds();
 
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0, float vol =0.8f);
-int S_PlaySound3D(int num, DDukeActor* spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
+int S_PlaySound3D(int num, DDukeActor* spriteNum, const vec3_t& pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
 int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
 void S_MenuSound(void);
 

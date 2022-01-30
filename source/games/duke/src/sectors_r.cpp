@@ -700,17 +700,17 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
 			{
 				if (act)
-					S_PlaySound3D(ALIEN_SWITCH1, act, &v);
-				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), &v);
+					S_PlaySound3D(ALIEN_SWITCH1, act, v);
+				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), v);
 			}
 			else
 			{
 				if (act)
-					S_PlaySound3D(SWITCH_ON, act, &v);
-				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
+					S_PlaySound3D(SWITCH_ON, act, v);
+				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
 			}
 			if (numdips != correctdips) break;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), &v);
+			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
 		}
 		goto goOn2;
 	case MULTISWITCH2:
@@ -788,7 +788,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				{
 					DDukeActor* switches[3];
 					int switchcount = 0, j;
-					S_PlaySound3D(SWITCH_ON, act, &v);
+					S_PlaySound3D(SWITCH_ON, act, v);
 					DukeSpriteIterator itr;
 					while (auto actt = itr.Next())
 					{
@@ -810,7 +810,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 						if (switches[0]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[0], switches[2]);
 						if (switches[1]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[1], switches[2]);
 
-						S_PlaySound3D(78, act, &v);
+						S_PlaySound3D(78, act, v);
 						for (j = 0; j < switchcount; j++)
 						{
 							switches[j]->spr.hitag = 0;
@@ -880,15 +880,15 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{
 			if (act)
-				S_PlaySound3D(SWITCH_ON, act, &v);
-			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
+				S_PlaySound3D(SWITCH_ON, act, v);
+			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
 		}
 		else if (hitag != 0)
 		{
 			auto flags = S_GetUserFlags(hitag);
 
 			if (act && (flags & SF_TALK) == 0)
-				S_PlaySound3D(hitag, act, &v);
+				S_PlaySound3D(hitag, act, v);
 			else
 				S_PlayActorSound(hitag, ps[snum].GetActor());
 		}
