@@ -863,11 +863,28 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 		else
 			refheight = max(front->ceilingz, back->ceilingz);
 	}
-
-	topleft = min(bch1,fch1);
-	topright = min(bch2,fch2);
-	bottomleft = max(bfh1,ffh1);
-	bottomright = max(bfh2,ffh2);
+	if ((bch1 - fch1) * (bch2 - fch2) >= 0)
+	{
+		topleft = min(bch1, fch1);
+		topright = min(bch2, fch2);
+	}
+	else
+	{
+		// Front ceiling slope obstructs part of the wall
+		topleft = bch1;
+		topright = bch2;
+	}
+	if ((bfh1 - ffh1) * (bfh2 - ffh2) >= 0)
+	{
+		bottomleft = max(bfh1, ffh1);
+		bottomright = max(bfh2, ffh2);
+	}
+	else
+	{
+		// Front floor slope obstructs part of the wall
+		bottomleft = bfh1;
+		bottomright = bfh2;
+	}
 	if (topleft<=bottomleft && topright<=bottomright) return;
 	type = seg->cstat & CSTAT_WALL_1WAY ? RENDERWALL_M1S : RENDERWALL_M2S;
 
@@ -902,7 +919,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wallnum(wal) == 929 || wallnum(wal) == 930)
+	if (wallnum(wal) == 34)
 	{
 		int a = 0;
 	}
