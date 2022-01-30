@@ -911,7 +911,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 						pNTSprite->pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
 						pNTSprite->pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
-						pNTSprite->pos.Z = pPlayer->actor->spr.pos.Z - pPosture->xOffset;
+						pNTSprite->pos.Z = pPlayer->actor->int_pos().Z - pPosture->xOffset;
 					}
 				}
 

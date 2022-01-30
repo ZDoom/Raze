@@ -274,7 +274,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 	auto pSector = actor->sector();
 	if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
 		return;
-	CGibPosition gPos(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
+	CGibPosition gPos(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
 	if (pPos)
 		gPos = *pPos;
 	int32_t ceilZ, floorZ;
@@ -289,8 +289,8 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 		if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
 			int nAngle = Random(2048);
-			gPos.x = actor->spr.pos.X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
-			gPos.y = actor->spr.pos.Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
+			gPos.x = actor->int_pos().X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
+			gPos.y = actor->int_pos().Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
 			gPos.z = bottom - Random(bottom - top);
 		}
 		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos.x, gPos.y, gPos.z, 0);
@@ -360,8 +360,8 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 		if (!pPos)
 		{
 			int nAngle = Random(2048);
-			x = actor->spr.pos.X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
-			y = actor->spr.pos.Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
+			x = actor->int_pos().X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
+			y = actor->int_pos().Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
 			z = bottom - Random(bottom - top);
 		}
 		else

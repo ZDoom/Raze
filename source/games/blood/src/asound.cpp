@@ -60,9 +60,9 @@ void ambProcess(void)
         {
             if (actor->xspr.state)
             {
-                int dx = actor->spr.pos.X-gMe->actor->spr.pos.X;
-                int dy = actor->spr.pos.Y-gMe->actor->spr.pos.Y;
-                int dz = actor->spr.pos.Z-gMe->actor->spr.pos.Z;
+                int dx = actor->int_pos().X-gMe->actor->int_pos().X;
+                int dy = actor->int_pos().Y-gMe->actor->int_pos().Y;
+                int dz = actor->int_pos().Z-gMe->actor->int_pos().Z;
                 dx >>= 4;
                 dy >>= 4;
                 dz >>= 8;

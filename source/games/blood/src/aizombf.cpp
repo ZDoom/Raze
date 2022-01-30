@@ -66,8 +66,8 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat);
 	int height2 = (pDudeInfoT->eyeHeight * target->spr.yrepeat);
-	int tx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int ty = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
+	int tx = actor->xspr.TargetPos.X - actor->int_pos().X;
+	int ty = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nAngle = getangle(tx, ty);
 	int dx = bcos(nAngle);
 	int dy = bsin(nAngle);
@@ -90,8 +90,8 @@ static void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->spr.pos.X;
-	int dy = actor->xspr.TargetPos.Y - actor->spr.pos.Y;
+	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
+	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -112,8 +112,8 @@ static void zombfThinkChase(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	int dx = target->spr.pos.X - actor->spr.pos.X;
-	int dy = target->spr.pos.Y - actor->spr.pos.Y;
+	int dx = target->int_pos().X - actor->int_pos().X;
+	int dy = target->int_pos().Y - actor->int_pos().Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (target->xspr.health == 0)
 	{
@@ -130,14 +130,14 @@ static void zombfThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->sector()))
+		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{
 			if (abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->int_pos().Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -156,7 +156,7 @@ static void zombfThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x1400 && nDist > 0x600 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->int_pos().Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -175,7 +175,7 @@ static void zombfThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->int_pos().Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
