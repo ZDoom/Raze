@@ -1676,8 +1676,10 @@ void debrisMove(int listIndex)
 		auto oldcstat = actor->spr.cstat;
 		actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		ClipMove(actor->spr.pos, &pSector, actor->vel.X >> 12,
+		auto pos = actor->spr.pos;
+		ClipMove(pos, &pSector, actor->vel.X >> 12,
 			actor->vel.Y >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
+		actor->set_int_pos(pos);
 		actor->hit.hit = moveHit;
 
 		actor->spr.cstat = oldcstat;

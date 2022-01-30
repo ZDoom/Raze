@@ -4541,7 +4541,9 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->vel.X >> 12, actor->vel.Y >> 12, actor->spr.clipdist << 2, (actor->spr.pos.Z - top) / 4, (bottom - actor->spr.pos.Z) / 4, CLIPMASK0, lhit);
+		auto pos = actor->spr.pos;
+		ClipMove(pos, &pSector, actor->vel.X >> 12, actor->vel.Y >> 12, actor->spr.clipdist << 2, (actor->spr.pos.Z - top) / 4, (bottom - actor->spr.pos.Z) / 4, CLIPMASK0, lhit);
+		actor->set_int_pos(pos);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
@@ -4761,7 +4763,9 @@ void MoveDude(DBloodActor* actor)
 		{
 			auto bakCstat = actor->spr.cstat;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-			ClipMove(actor->spr.pos, &pSector, actor->vel.X >> 12, actor->vel.Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
+			auto pos = actor->spr.pos;
+			ClipMove(pos, &pSector, actor->vel.X >> 12, actor->vel.Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
+			actor->set_int_pos(pos);
 			if (pSector == nullptr)
 			{
 				pSector = actor->sector();
