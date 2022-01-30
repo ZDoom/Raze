@@ -216,11 +216,11 @@ int findplayer(const DDukeActor* actor, int* d)
 {
 	int j, closest_player;
 	int x, closest;
-	auto s = &actor->spr.pos;
+	const auto s = actor->spr.pos;
 
 	if (ud.multimode < 2)
 	{
-		if (d) *d = abs(ps[myconnectindex].opos.X - s->X) + abs(ps[myconnectindex].opos.Y - s->Y) + ((abs(ps[myconnectindex].opos.Z - s->Z + (28 << 8))) >> 4);
+		if (d) *d = abs(ps[myconnectindex].opos.X - s.X) + abs(ps[myconnectindex].opos.Y - s.Y) + ((abs(ps[myconnectindex].opos.Z - s.Z + (28 << 8))) >> 4);
 		return myconnectindex;
 	}
 
@@ -229,7 +229,7 @@ int findplayer(const DDukeActor* actor, int* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		x = abs(ps[j].opos.X - s->X) + abs(ps[j].opos.Y - s->Y) + ((abs(ps[j].opos.Z - s->Z + (28 << 8))) >> 4);
+		x = abs(ps[j].opos.X - s.X) + abs(ps[j].opos.Y - s.Y) + ((abs(ps[j].opos.Z - s.Z + (28 << 8))) >> 4);
 		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
@@ -394,7 +394,7 @@ void doanimations(void)
 				if (act->spr.statnum != STAT_EFFECTOR)
 				{
 					act->backupz();
-					act->spr.pos.Z += v;
+					act->add_int_z(v);
 					act->floorz = dasectp->floorz + v;
 				}
 			}

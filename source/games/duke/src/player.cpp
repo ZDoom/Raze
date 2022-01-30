@@ -611,7 +611,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 		else
 		{
-			actor->spr.pos.Z -= 512;
+			actor->add_int_z(-512);
 			actor->spr.zvel = -348;
 		}
 
@@ -1054,9 +1054,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
 					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
-					spawned->spr.pos.X = hit.hitpos.X;
-					spawned->spr.pos.Y = hit.hitpos.Y;
-					spawned->spr.pos.Z = hit.hitpos.Z;
+					spawned->set_int_pos(hit.hitpos);
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);

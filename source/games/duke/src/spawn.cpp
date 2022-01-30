@@ -59,9 +59,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	SetupGameVarsForActor(act);
 
 
-	act->spr.pos.X = s_x;
-	act->spr.pos.Y = s_y;
-	act->spr.pos.Z = s_z;
+	act->set_int_pos({ s_x, s_y, s_z });
 	act->spr.cstat = 0;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_s;
@@ -303,7 +301,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	{
 		act->spr.xrepeat = 31;
 		act->spr.yrepeat = 1;
-		act->spr.pos.Z = actj->sector()->floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE);
+		act->set_int_z(actj->sector()->floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE));
 	}
 	else
 	{
@@ -409,7 +407,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		act->spr.ang = actj->spr.ang;
 	}
 
-	act->spr.pos.Z = sect->floorz;
+	act->set_int_z(sect->floorz);
 	if (sect->lotag != 1 && sect->lotag != 2)
 		act->spr.xrepeat = act->spr.yrepeat = 32;
 
@@ -435,17 +433,16 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			act->temp_data[0] = krand() & 1;
-			act->spr.pos.Z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
+			act->set_int_z((3 << 8) + ps[snum].pyoff + ps[snum].pos.Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0));
 			act->spr.zvel = -(krand() & 255);
 		}
 		else
 		{
 			a = act->spr.ang;
-			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + (3 << 8);
+			act->set_int_z(actj->spr.pos.Z - gs.playerheight + (3 << 8));
 		}
 
-		act->spr.pos.X = actj->spr.pos.X + bcos(a, -7);
-		act->spr.pos.Y = actj->spr.pos.Y + bsin(a, -7);
+		act->set_int_xy(actj->spr.pos.X + bcos(a, -7), actj->spr.pos.Y + bsin(a, -7));
 
 		act->spr.shade = -8;
 
@@ -479,13 +476,11 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
 
 	act->spr.picnum += 2;
-	act->spr.pos.Z = sect->ceilingz + (48 << 8);
+	act->set_int_z(sect->ceilingz + (48 << 8));
 	act->temp_data[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[act->temp_data[4]];
-	apt.pos.X = act->spr.pos.X;
-	apt.pos.Y = act->spr.pos.Y;
-	apt.pos.Z = act->spr.pos.Z;
+	apt.pos = act->spr.pos;
 	apt.poleactor = nullptr;
 
 	DukeStatIterator it(STAT_DEFAULT);
@@ -530,16 +525,16 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		if (actj->spr.pal != 1)
 		{
 			actor->spr.pal = 2;
-			actor->spr.pos.Z -= (18 << 8);
+			actor->add_int_z(-(18 << 8));
 		}
-		else actor->spr.pos.Z -= (13 << 8);
+		else actor->add_int_z(-(13 << 8));
 		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.pos.X, ps[connecthead].pos.Y - actor->spr.pos.Y);
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}
 	else if (!actj)
 	{
-		actor->spr.pos.Z += (4 << 8);
+		actor->add_int_z(4 << 8);
 		actor->temp_data[0] = actor->spr.pos.Z;
 		if (!isRR()) actor->temp_data[1] = krand() & 127;
 	}
@@ -936,8 +931,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 						{
 							if (actor->spr.ang == 512)
 							{
-								actor->spr.pos.X = act2->spr.pos.X;
-								actor->spr.pos.Y = act2->spr.pos.Y;
+								actor->set_int_xy(act2->spr.pos.X, act2->spr.pos.Y);
 							}
 							found = true;
 							actor->SetOwner(act2);

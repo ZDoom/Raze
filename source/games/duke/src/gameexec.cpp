@@ -1172,16 +1172,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		if (bSet) act->spr.pos.X = lValue;
-		else SetGameVarID(lVar2, act->spr.pos.X, sActor, sPlayer);
+		/*if (bSet) act->spr.pos.X = lValue;
+		else*/ SetGameVarID(lVar2, act->spr.pos.X, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		if (bSet) act->spr.pos.Y = lValue;
-		else SetGameVarID(lVar2, act->spr.pos.Y, sActor, sPlayer);
+		/*if (bSet) act->spr.pos.Y = lValue;
+		else*/ SetGameVarID(lVar2, act->spr.pos.Y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		if (bSet) act->spr.pos.Z = lValue;
-		else SetGameVarID(lVar2, act->spr.pos.Z, sActor, sPlayer);
+		/*if (bSet) act->spr.pos.Z = lValue;
+		else*/ SetGameVarID(lVar2, act->spr.pos.Z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
@@ -1994,7 +1994,7 @@ int ParseState::parse(void)
 	case concmd_larrybird:
 		insptr++;
 		ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
-		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].pos.Z;
+		ps[g_p].GetActor()->set_int_z(ps[g_p].pos.Z);
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2238,9 +2238,7 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->spr.pos.X = ps[g_p].bobpos.X = ps[g_p].opos.X = ps[g_p].pos.X;
-			g_ac->spr.pos.Y = ps[g_p].bobpos.Y = ps[g_p].opos.Y = ps[g_p].pos.Y;
-			g_ac->spr.pos.Z = ps[g_p].opos.Z = ps[g_p].pos.Z;
+			g_ac->set_int_pos({ ps[g_p].bobpos.X = ps[g_p].opos.X = ps[g_p].pos.X, ps[g_p].bobpos.Y = ps[g_p].opos.Y = ps[g_p].pos.Y, ps[g_p].opos.Z = ps[g_p].pos.Z });
 			g_ac->backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z + gs.playerheight });
