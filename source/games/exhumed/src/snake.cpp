@@ -158,7 +158,7 @@ void BuildSnake(int nPlayer, int zVal)
     {
         BackUpBullet(&hit.hitpos.X, &hit.hitpos.Y, nAngle);
         auto pActor = insertActor(hit.hitSector, 202);
-        pActor->spr.pos = hit.hitpos;
+        pActor->set_int_pos(hit.hitpos);
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);
@@ -193,9 +193,7 @@ void BuildSnake(int nPlayer, int zVal)
 
             if (i == 0)
             {
-                pActor->spr.pos.X = pPlayerActor->spr.pos.X;
-                pActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
-                pActor->spr.pos.Z = pPlayerActor->spr.pos.Z + zVal;
+                pActor->set_int_pos({ pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z + zVal });
                 pActor->spr.xrepeat = 32;
                 pActor->spr.yrepeat = 32;
                 pViewSect = pActor->sector();
@@ -203,9 +201,7 @@ void BuildSnake(int nPlayer, int zVal)
             }
             else
             {
-                pActor->spr.pos.X = sprt->spr.pos.X;
-                pActor->spr.pos.Y = sprt->spr.pos.Y;
-                pActor->spr.pos.Z = sprt->spr.pos.Z;
+                pActor->set_int_pos(sprt->spr.pos);
                 pActor->spr.xrepeat = 40 - 3 * i;
                 pActor->spr.yrepeat = 40 - 3 * i;
             }
@@ -381,9 +377,7 @@ void AISnake::Tick(RunListEvent* ev)
             if (!pActor2) continue;
 
             pActor2->spr.ang = nAngle;
-            pActor2->spr.pos.X = x;
-            pActor2->spr.pos.Y = y;
-            pActor2->spr.pos.Z = z;
+            pActor2->set_int_pos({ x, y, z });
 
             ChangeActorSect(pActor2, pSector);
 

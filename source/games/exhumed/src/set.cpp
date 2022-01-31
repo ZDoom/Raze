@@ -54,9 +54,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         nAngle = pActor->spr.ang;
     }
 
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = z;
+    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 110;
@@ -112,10 +110,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
-    pActor->spr.pos.X = pSet->spr.pos.X;
-    pActor->spr.pos.Y = pSet->spr.pos.Y;
-
-    pActor->spr.pos.Z = (RandomSize(8) << 8) + 8192 + pActor->sector()->ceilingz - GetActorHeight(pActor);
+    pActor->set_int_pos({ pSet->spr.pos.X, pSet->spr.pos.Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->ceilingz - GetActorHeight(pActor) });
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -155,9 +150,7 @@ void AISoul::Tick(RunListEvent* ev)
         pActor->spr.cstat = 0;
         pActor->spr.yrepeat = 1;
         pActor->spr.xrepeat = 1;
-        pActor->spr.pos.X = pSet->spr.pos.X;
-        pActor->spr.pos.Y = pSet->spr.pos.Y;
-        pActor->spr.pos.Z = pSet->spr.pos.Z - (GetActorHeight(pSet) >> 1);
+        pActor->set_int_pos({ pSet->spr.pos.X, pSet->spr.pos.Y, pSet->spr.pos.Z - (GetActorHeight(pSet) >> 1) });
         ChangeActorSect(pActor, pSet->sector());
         return;
     }
@@ -273,7 +266,7 @@ void AISet::Tick(RunListEvent* ev)
     auto nMov = MoveCreature(pActor);
 
 	auto sect = pActor->sector();
-    pushmove(&pActor->spr.pos, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
+    pushmove(pActor, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
     pActor->setsector(sect);
 
     if (pActor->spr.zvel > 4000)
@@ -579,9 +572,9 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            pActor->spr.pos.Z -= GetActorHeight(pActor);
+            pActor->add_int_z(-GetActorHeight(pActor));
             BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
-            pActor->spr.pos.Z += GetActorHeight(pActor);
+            pActor->add_int_z(GetActorHeight(pActor));
         }
 
         if (bVal)
