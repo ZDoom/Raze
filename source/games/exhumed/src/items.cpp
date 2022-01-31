@@ -123,7 +123,7 @@ void BuildItemAnim(DExhumedActor* pActor)
 
     if (nItemAnimInfo[nItem].a >= 0)
     {
-        auto pAnimActor = BuildAnim(pActor, 41, nItemAnimInfo[nItem].a, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), nItemAnimInfo[nItem].repeat, 20);
+        auto pAnimActor = BuildAnim(pActor, 41, nItemAnimInfo[nItem].a, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), nItemAnimInfo[nItem].repeat, 20);
 
         if (nItem == 44) {
             pAnimActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
@@ -338,16 +338,16 @@ void DropMagic(DExhumedActor* pActor)
             nullptr,
             64,
             0,
-            pActor->spr.pos.X,
-            pActor->spr.pos.Y,
-            pActor->spr.pos.Z,
+            pActor->int_pos().X,
+            pActor->int_pos().Y,
+            pActor->int_pos().Z,
             pActor->sector(),
             48,
             4);
 
         if (pAnimActor)
         {
-            AddFlash(pAnimActor->sector(), pAnimActor->spr.pos.X, pAnimActor->spr.pos.Y, pAnimActor->spr.pos.Z, 128);
+            AddFlash(pAnimActor->sector(), pAnimActor->int_pos().X, pAnimActor->int_pos().Y, pAnimActor->int_pos().Z, 128);
             ChangeActorStat(pAnimActor, 950);
         }
         nMagicCount = RandomSize(2);
@@ -401,7 +401,7 @@ void DoRegenerates()
 
             if (pActor->spr.extra <= 0)
             {
-                BuildAnim(nullptr, 38, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), 64, 4);
+                BuildAnim(nullptr, 38, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), 64, 4);
                 D3PlayFX(StaticSound[kSoundTorchOn], pActor);
             }
             else {

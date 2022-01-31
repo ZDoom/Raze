@@ -1604,9 +1604,9 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    int x = (pActor->spr.pos.X - pRadialActor->spr.pos.X) >> 8;
-    int y = (pActor->spr.pos.Y - pRadialActor->spr.pos.Y) >> 8;
-    int z = (pActor->spr.pos.Z - pRadialActor->spr.pos.Z) >> 12;
+    int x = (pActor->int_pos().X - pRadialActor->int_pos().X) >> 8;
+    int y = (pActor->int_pos().Y - pRadialActor->int_pos().Y) >> 8;
+    int z = (pActor->int_pos().Z - pRadialActor->int_pos().Z) >> 12;
 
     if (abs(x) > nDamageRadius) {
         return 0;
@@ -1641,13 +1641,13 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pActor->spr.statnum) <= 1) ||
-            cansee(pRadialActor->spr.pos.X,
-                pRadialActor->spr.pos.Y,
-                pRadialActor->spr.pos.Z - 512,
+            cansee(pRadialActor->int_pos().X,
+                pRadialActor->int_pos().Y,
+                pRadialActor->int_pos().Z - 512,
                 pRadialActor->sector(),
-                pActor->spr.pos.X,
-                pActor->spr.pos.Y,
-                pActor->spr.pos.Z - 8192,
+                pActor->int_pos().X,
+                pActor->int_pos().Y,
+                pActor->int_pos().Z - 8192,
                 pActor->sector()))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;

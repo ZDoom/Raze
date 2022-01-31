@@ -41,7 +41,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pLimbActor = insertActor(pActor->sector(), 118);
 
-    pLimbActor->set_int_pos({ pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - RandomLong() % ebx });
+    pLimbActor->set_int_pos({ pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z - RandomLong() % ebx });
     pLimbActor->spr.cstat = 0;
     pLimbActor->spr.shade = -127;
     pLimbActor->spr.pal = 1;
@@ -107,8 +107,8 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     {
         pSector = pActor->sector();
         nAngle = pActor->spr.ang;
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
 
         ChangeActorStat(pActor, 118);
     }
@@ -278,9 +278,9 @@ void AILavaDude::Tick(RunListEvent* ev)
             }
         }
 
-        int x = pActor->spr.pos.X;
-        int y = pActor->spr.pos.Y;
-        int z = pActor->spr.pos.Z;
+        int x = pActor->int_pos().X;
+        int y = pActor->int_pos().Y;
+        int z = pActor->int_pos().Z;
         auto pSector =pActor->sector();
 
         auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, 0, 0, 0, CLIPMASK0);
@@ -311,7 +311,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
                 if (AngleDiff(pActor->spr.ang, nAng) < 64)
                 {
                     pActor->nAction = 2;

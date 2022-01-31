@@ -134,7 +134,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
         if (pIgniter)
         {
-            pActor->set_int_pos(pIgniter->spr.pos);
+            pActor->set_int_pos(pIgniter->int_pos());
 
             if (pIgniter->sector() != pActor->sector())
             {
@@ -234,12 +234,12 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pActor->spr.pos.Z == pActor->sector()->floorz)
+    else if (pActor->int_pos().Z == pActor->sector()->floorz)
     {
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
@@ -272,7 +272,7 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
         nFlag = 0;
     }
 
-    auto pSpawned = BuildAnim(nullptr, edx, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pSector->floorz, pSector, nRepeat, nFlag);
+    auto pSpawned = BuildAnim(nullptr, edx, 0, pActor->int_pos().X, pActor->int_pos().Y, pSector->floorz, pSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {

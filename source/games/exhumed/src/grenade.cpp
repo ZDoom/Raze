@@ -59,7 +59,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
     ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
-    pActor->set_int_pos(pPlayerActor->spr.pos);
+    pActor->set_int_pos(pPlayerActor->int_pos());
 
     if (nAngle < 0) {
         nAngle = pPlayerActor->spr.ang;
@@ -102,7 +102,7 @@ void BuildGrenade(int nPlayer)
 
 	auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    pActor->set_int_pos({ pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z - 3840 });
+    pActor->set_int_pos({ pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z - 3840 });
     pActor->spr.shade = -64;
     pActor->spr.xrepeat = 20;
     pActor->spr.yrepeat = 20;
@@ -152,7 +152,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     }
     else
     {
-        if (pActor->spr.pos.Z < pGrenadeSect->floorz)
+        if (pActor->int_pos().Z < pGrenadeSect->floorz)
         {
             var_20 = 200;
             var_28 = 36;
@@ -173,7 +173,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         auto pPlayerActor = PlayerList[nPlayer].pActor;
         int nAngle = pPlayerActor->spr.ang;
 
-        pActor->set_int_pos({ bcos(nAngle, -5) + pPlayerActor->spr.pos.X, bsin(nAngle, -5) + pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z });
+        pActor->set_int_pos({ bcos(nAngle, -5) + pPlayerActor->int_pos().X, bsin(nAngle, -5) + pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z });
 
         ChangeActorSect(pActor, pPlayerActor->sector());
 
@@ -190,8 +190,8 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnim(nullptr, var_28, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), var_20, 4);
-    AddFlash(pActor->sector(), pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, 128);
+    BuildAnim(nullptr, var_28, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), var_20, 4);
+    AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 128);
 
     DestroyGrenade(pActor);
 }

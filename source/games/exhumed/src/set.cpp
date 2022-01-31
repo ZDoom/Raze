@@ -48,8 +48,8 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     else
     {
         ChangeActorStat(pActor, 120);
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
         z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
     }
@@ -110,7 +110,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
-    pActor->set_int_pos({ pSet->spr.pos.X, pSet->spr.pos.Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->ceilingz - GetActorHeight(pActor) });
+    pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->ceilingz - GetActorHeight(pActor) });
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -150,7 +150,7 @@ void AISoul::Tick(RunListEvent* ev)
         pActor->spr.cstat = 0;
         pActor->spr.yrepeat = 1;
         pActor->spr.xrepeat = 1;
-        pActor->set_int_pos({ pSet->spr.pos.X, pSet->spr.pos.Y, pSet->spr.pos.Z - (GetActorHeight(pSet) >> 1) });
+        pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, pSet->int_pos().Z - (GetActorHeight(pSet) >> 1) });
         ChangeActorSect(pActor, pSet->sector());
         return;
     }
@@ -406,9 +406,9 @@ void AISet::Tick(RunListEvent* ev)
 
                 if (pSector)
                 {
-                    if ((pActor->spr.pos.Z - pSector->floorz) < 55000)
+                    if ((pActor->int_pos().Z - pSector->floorz) < 55000)
                     {
-                        if (pActor->spr.pos.Z > pSector->ceilingz)
+                        if (pActor->int_pos().Z > pSector->ceilingz)
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;
@@ -429,7 +429,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                    int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
                     if (AngleDiff(pActor->spr.ang, nAng) < 64)
                     {
                         pActor->nAction = 4;

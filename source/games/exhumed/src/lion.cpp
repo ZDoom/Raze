@@ -50,8 +50,8 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     else
     {
         ChangeActorStat(pActor, 104);
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
         z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
     }
@@ -311,7 +311,7 @@ void AILion::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                    int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
 
                     if (AngleDiff(pActor->spr.ang, nAng) < 64)
                     {
@@ -382,9 +382,9 @@ void AILion::Tick(RunListEvent* ev)
             pActor->spr.zvel = -4000;
             pActor->nCount = 0;
 
-            int x = pActor->spr.pos.X;
-            int y = pActor->spr.pos.Y;
-            int z = pActor->spr.pos.Z - (GetActorHeight(pActor) >> 1);
+            int x = pActor->int_pos().X;
+            int y = pActor->int_pos().Y;
+            int z = pActor->int_pos().Z - (GetActorHeight(pActor) >> 1);
 
             int nCheckDist = 0x7FFFFFFF;
 
@@ -444,7 +444,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos.X - pActor->spr.pos.X, pTarget->spr.pos.Y - pActor->spr.pos.Y);
+                int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
                 if (AngleDiff(pActor->spr.ang, nAng) < 64)
                 {
                     pActor->nAction = 3;

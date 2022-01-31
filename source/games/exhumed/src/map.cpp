@@ -59,7 +59,7 @@ void DrawMap(double const smoothratio)
 
 void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
 {
-    *top = *bottom = actor->spr.pos.Z;
+    *top = *bottom = actor->int_pos().Z;
     if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         int height = tileHeight(actor->spr.picnum);
@@ -89,7 +89,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
             int nTile = pPlayerActor->spr.picnum;
             int ceilZ, floorZ;
             Collision ceilHit, floorHit;
-            getzrange(pPlayerActor->spr.pos, pPlayerActor->sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pPlayerActor->spr.clipdist << 2) + 16, CLIPMASK0);
+            getzrange(pPlayerActor->int_pos(), pPlayerActor->sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pPlayerActor->spr.clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
             GetActorExtents(pPlayerActor, &nTop, &nBottom);
             int nScale = (pPlayerActor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;

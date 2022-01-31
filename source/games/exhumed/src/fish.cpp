@@ -47,7 +47,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->nCount = anim + 40;
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
-    pChunkActor->set_int_pos(pActor->spr.pos);
+    pChunkActor->set_int_pos(pActor->int_pos());
     pChunkActor->spr.cstat = 0;
     pChunkActor->spr.shade = -12;
     pChunkActor->spr.pal = 0;
@@ -94,17 +94,17 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector());
+            BuildBlood(pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector());
         }
     }
 
     int FloorZ = pActor->sector()->floorz;
 
-    if (FloorZ <= pActor->spr.pos.Z)
+    if (FloorZ <= pActor->int_pos().Z)
     {
         pActor->add_int_z(256);
 
-        if ((pActor->spr.pos.Z - FloorZ) > 25600)
+        if ((pActor->int_pos().Z - FloorZ) > 25600)
         {
             pActor->spr.zvel = 0;
             runlist_DoSubRunRec(pActor->spr.intowner);
@@ -112,7 +112,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
             runlist_SubRunRec(pActor->spr.hitag);
             DeleteActor(pActor);
         }
-        else if ((pActor->spr.pos.Z - FloorZ) > 0)
+        else if ((pActor->int_pos().Z - FloorZ) > 0)
         {
             pActor->spr.zvel = 1024;
         }
@@ -146,9 +146,9 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     }
     else
     {
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
-        z = pActor->spr.pos.Z;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
+        z = pActor->int_pos().Z;
         nAngle = pActor->spr.ang;
         ChangeActorStat(pActor, 103);
     }
@@ -275,7 +275,7 @@ void AIFish::Damage(RunListEvent* ev)
                 BuildFishLimb(pActor, i);
             }
 
-            PlayFXAtXYZ(StaticSound[kSound40], pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z);
+            PlayFXAtXYZ(StaticSound[kSound40], pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z);
             DestroyFish(pActor);
         }
         else
@@ -342,7 +342,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = GetMyAngle(pTargetActor->spr.pos.X - pActor->spr.pos.X, pTargetActor->spr.pos.Z - pActor->spr.pos.Z);
+                int nAngle = GetMyAngle(pTargetActor->int_pos().X - pActor->int_pos().X, pTargetActor->int_pos().Z - pActor->int_pos().Z);
                 pActor->spr.zvel = bsin(nAngle, -5);
 
                 pActor->nCount = RandomSize(6) + 90;
@@ -373,7 +373,7 @@ void AIFish::Tick(RunListEvent* ev)
             PlotCourseToSprite(pActor, pTargetActor);
             int nHeight = GetActorHeight(pActor) >> 1;
 
-            int z = abs(pTargetActor->spr.pos.Z - pActor->spr.pos.Z);
+            int z = abs(pTargetActor->int_pos().Z - pActor->int_pos().Z);
 
             if (z <= nHeight)
             {
@@ -386,7 +386,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->spr.yvel = 0;
             }
 
-            pActor->spr.zvel = (pTargetActor->spr.pos.Z - pActor->spr.pos.Z) >> 3;
+            pActor->spr.zvel = (pTargetActor->int_pos().Z - pActor->int_pos().Z) >> 3;
         }
         break;
     }
@@ -415,9 +415,9 @@ void AIFish::Tick(RunListEvent* ev)
     }
     }
 
-    int x = pActor->spr.pos.X;
-    int y = pActor->spr.pos.Y;
-    int z = pActor->spr.pos.Z;
+    int x = pActor->int_pos().X;
+    int y = pActor->int_pos().Y;
+    int z = pActor->int_pos().Z;
     auto pSector =pActor->sector();
 
     // loc_2EF54
@@ -460,7 +460,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->spr.ang = GetMyAngle(pHitAct->spr.pos.X - pActor->spr.pos.X, pHitAct->spr.pos.Y - pActor->spr.pos.Y);
+                    pActor->spr.ang = GetMyAngle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y);
 
                     if (nAction != 3)
                     {

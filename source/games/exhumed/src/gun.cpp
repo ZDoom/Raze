@@ -614,9 +614,9 @@ loc_flag:
             BuildFlash(nPlayer, 512);
             AddFlash(
                 pPlayerActor->sector(),
-                pPlayerActor->spr.pos.X,
-                pPlayerActor->spr.pos.Y,
-                pPlayerActor->spr.pos.Z,
+                pPlayerActor->int_pos().X,
+                pPlayerActor->int_pos().Y,
+                pPlayerActor->int_pos().Z,
                 0);
         }
 
@@ -648,9 +648,9 @@ loc_flag:
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
             int nAngle = pPlayerActor->spr.ang;
-            int theX = pPlayerActor->spr.pos.X;
-            int theY = pPlayerActor->spr.pos.Y;
-            int theZ = pPlayerActor->spr.pos.Z;
+            int theX = pPlayerActor->int_pos().X;
+            int theY = pPlayerActor->int_pos().Y;
+            int theZ = pPlayerActor->int_pos().Z;
 
             int ebp = bcos(nAngle) * (pPlayerActor->spr.clipdist << 3);
             int ebx = bsin(nAngle) * (pPlayerActor->spr.clipdist << 3);
@@ -808,7 +808,7 @@ loc_flag:
                         DExhumedActor* t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
 						assert(t->sector());
-                        int angletotarget = bvectangbam(t->spr.pos.X - pPlayerActor->spr.pos.X, t->spr.pos.Y - pPlayerActor->spr.pos.Y).asbuild();
+                        int angletotarget = bvectangbam(t->int_pos().X - pPlayerActor->int_pos().X, t->int_pos().Y - pPlayerActor->int_pos().Y).asbuild();
                         int anglediff = (pPlayerActor->spr.ang - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {

@@ -91,12 +91,12 @@ void AIBubble::Tick(RunListEvent* ev)
 
     auto pSector = pActor->sector();
 
-    if (pActor->spr.pos.Z <= pSector->ceilingz)
+    if (pActor->int_pos().Z <= pSector->ceilingz)
     {
         auto pSectAbove = pSector->pAbove;
 
         if (pActor->spr.hitag > -1 && pSectAbove != nullptr) {
-            BuildAnim(nullptr, 70, 0, pActor->spr.pos.X, pActor->spr.pos.Y, pSectAbove->floorz, pSectAbove, 64, 0);
+            BuildAnim(nullptr, 70, 0, pActor->int_pos().X, pActor->int_pos().Y, pSectAbove->floorz, pSectAbove, 64, 0);
         }
 
         DestroyBubble(pActor);
@@ -124,7 +124,7 @@ void DoBubbleMachines()
         {
             pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
-            BuildBubble(pActor->spr.pos, pActor->sector());
+            BuildBubble(pActor->int_pos(), pActor->sector());
         }
     }
 }

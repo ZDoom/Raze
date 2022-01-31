@@ -81,9 +81,9 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     }
     else
     {
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
-        z = pActor->spr.pos.Z;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
+        z = pActor->int_pos().Z;
         nAngle = pActor->spr.ang;
 
         ChangeActorStat(pActor, 108);
@@ -129,9 +129,9 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 DExhumedActor* FindFood(DExhumedActor* pActor)
 {
     auto pSector = pActor->sector();
-    int x = pActor->spr.pos.X;
-    int y = pActor->spr.pos.Y;
-    int z = pActor->spr.pos.Z;
+    int x = pActor->int_pos().X;
+    int y = pActor->int_pos().Y;
+    int z = pActor->int_pos().Z;
 
     int z2 = (z + pSector->ceilingz) / 2;
 
@@ -140,7 +140,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
         DExhumedActor* pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
 		if (pActor2 != nullptr)
 		{
-            if (cansee(x, y, z2, pSector, pActor2->spr.pos.X, pActor2->spr.pos.Y, pActor2->spr.pos.Z, pActor2->sector())) {
+            if (cansee(x, y, z2, pSector, pActor2->int_pos().X, pActor2->int_pos().Y, pActor2->int_pos().Z, pActor2->sector())) {
                 return pActor2;
             }
         }
@@ -155,7 +155,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     {
         if (nPlayerPic == pActor2->spr.picnum)
         {
-            if (cansee(x, y, z, pSector, pActor2->spr.pos.X, pActor2->spr.pos.Y, pActor2->spr.pos.Z, pActor2->sector())) {
+            if (cansee(x, y, z, pSector, pActor2->int_pos().X, pActor2->int_pos().Y, pActor2->int_pos().Z, pActor2->sector())) {
                 return pActor2;
             }
         }
@@ -235,8 +235,8 @@ void AIRat::Tick(RunListEvent* ev)
             return;
         }
 
-        int xVal = abs(pActor->spr.pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pActor->spr.pos.Y - pTarget->spr.pos.Y);
+        int xVal = abs(pActor->int_pos().X - pTarget->int_pos().X);
+        int yVal = abs(pActor->int_pos().Y - pTarget->int_pos().Y);
 
         if (xVal > 50 || yVal > 50)
         {
@@ -288,8 +288,8 @@ void AIRat::Tick(RunListEvent* ev)
 
         MoveCreature(pActor);
 
-        int xVal = abs(pActor->spr.pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pActor->spr.pos.Y - pTarget->spr.pos.Y);
+        int xVal = abs(pActor->int_pos().X - pTarget->int_pos().X);
+        int yVal = abs(pActor->int_pos().Y - pTarget->int_pos().Y);
 
         if (xVal >= 50 || yVal >= 50)
         {

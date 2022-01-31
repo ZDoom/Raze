@@ -45,8 +45,8 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     }
     else
     {
-        x = pActor->spr.pos.X;
-        y = pActor->spr.pos.Y;
+        x = pActor->int_pos().X;
+        y = pActor->int_pos().Y;
         z = pActor->sector()->floorz;
         nAngle = pActor->spr.ang;
 
