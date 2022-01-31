@@ -749,9 +749,7 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
     {
         auto pActor = insertActor(initsectp, 0);
 
-        pActor->spr.pos.X = initx;
-        pActor->spr.pos.Y = inity;
-        pActor->spr.pos.Z = initz;
+        pActor->set_int_pos({ initx, inity, initz });
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;

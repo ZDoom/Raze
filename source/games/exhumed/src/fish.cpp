@@ -47,9 +47,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->nCount = anim + 40;
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
-    pChunkActor->spr.pos.X = pActor->spr.pos.X;
-    pChunkActor->spr.pos.Y = pActor->spr.pos.Y;
-    pChunkActor->spr.pos.Z = pActor->spr.pos.Z;
+    pChunkActor->set_int_pos(pActor->spr.pos);
     pChunkActor->spr.cstat = 0;
     pChunkActor->spr.shade = -12;
     pChunkActor->spr.pal = 0;
@@ -104,7 +102,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
     if (FloorZ <= pActor->spr.pos.Z)
     {
-        pActor->spr.pos.Z += 256;
+        pActor->add_int_z(256);
 
         if ((pActor->spr.pos.Z - FloorZ) > 25600)
         {
@@ -155,9 +153,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
         ChangeActorStat(pActor, 103);
     }
 
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = z;
+    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 80;
@@ -430,9 +426,7 @@ void AIFish::Tick(RunListEvent* ev)
     if (!(pActor->sector()->Flag & kSectUnderwater))
     {
         ChangeActorSect(pActor, pSector);
-        pActor->spr.pos.X = x;
-        pActor->spr.pos.Y = y;
-        pActor->spr.pos.Z = z;
+        pActor->set_int_pos({ x, y, z });
 
         IdleFish(pActor, 0);
         return;

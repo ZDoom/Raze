@@ -353,7 +353,7 @@ int MoveBullet(int nBullet)
                     pActor->spr.xrepeat = 40;
                     pActor->spr.yrepeat = 40;
                     pActor->spr.shade = 0;
-                    pActor->spr.pos.Z += 512;
+                    pActor->add_int_z(512);
                 }
             }
             else
@@ -489,9 +489,7 @@ HITSPRITE:
             {
                 if ((pHitSect->pBelow != nullptr && (pHitSect->pBelow->Flag & kSectUnderwater)) || pHitSect->Depth)
                 {
-                    pActor->spr.pos.X = x2;
-                    pActor->spr.pos.Y = y2;
-                    pActor->spr.pos.Z = z2;
+                    pActor->set_int_pos({ x2, y2, z2 });
                     BuildSplash(pActor, pHitSect);
                 }
                 else
@@ -519,9 +517,7 @@ HITSPRITE:
                 }
                 else
                 {
-                    pActor->spr.pos.X = x2;
-                    pActor->spr.pos.Y = y2;
-                    pActor->spr.pos.Z = z2;
+                    pActor->set_int_pos({ x2, y2, z2 });
 
                     ChangeActorSect(pActor, pHitSect);
                 }
@@ -609,9 +605,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         nZOffset = -nHeight;
     }
 
-    pBulletActor->spr.pos.X = pActor->spr.pos.X;
-    pBulletActor->spr.pos.Y = pActor->spr.pos.Y;
-    pBulletActor->spr.pos.Z = pActor->spr.pos.Z;
+    pBulletActor->set_int_pos(pActor->spr.pos);
 
     Bullet *pBullet = &BulletList[nBullet];
 
@@ -681,7 +675,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBullet->nRunRec = runlist_AddRunRec(pBulletActor->spr.lotag - 1, nBullet, 0xB0000);
     pBullet->nRunRec2 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->nDoubleDamage = nDoubleDamage;
-    pBulletActor->spr.pos.Z += nZOffset;
+    pBulletActor->add_int_z(nZOffset);
     pBulletActor->backuppos();
 
     int var_18 = 0;
@@ -692,7 +686,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     {
         if (pSector->pAbove == nullptr)
         {
-            pBulletActor->spr.pos.Z = pSector->ceilingz;
+            pBulletActor->set_int_z(pSector->ceilingz);
             break;
         }
 

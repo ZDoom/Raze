@@ -65,9 +65,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     if (pActor == nullptr) {
         pActor = insertActor(pSector, 500);
     }
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = z;
+    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = 0;
 
     if (nFlag & 4)
@@ -136,9 +134,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
         if (pIgniter)
         {
-            pActor->spr.pos.X = pIgniter->spr.pos.X;
-            pActor->spr.pos.Y = pIgniter->spr.pos.Y;
-            pActor->spr.pos.Z = pIgniter->spr.pos.Z;
+            pActor->set_int_pos(pIgniter->spr.pos);
 
             if (pIgniter->sector() != pActor->sector())
             {

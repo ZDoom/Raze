@@ -42,7 +42,7 @@ DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
 
     auto pActor = insertActor(pSector, 402);
 
-    pActor->spr.pos = pos;
+    pActor->set_int_pos(pos);
     pActor->spr.cstat = 0;
     pActor->spr.shade = -32;
     pActor->spr.pal = 0;
@@ -87,7 +87,7 @@ void AIBubble::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    pActor->spr.pos.Z += pActor->spr.zvel;
+    pActor->add_int_z(pActor->spr.zvel);
 
     auto pSector = pActor->sector();
 
