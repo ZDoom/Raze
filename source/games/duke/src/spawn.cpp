@@ -498,7 +498,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 			apt.pole.X = actk->spr.pos.X;
 			apt.pole.Y = actk->spr.pos.Y;
 
-			actk->spr.pos = act->spr.pos;
+			actk->set_int_pos(act->spr.pos);
 			actk->spr.shade = act->spr.shade;
 
 			SetActor(actk, actk->spr.pos);

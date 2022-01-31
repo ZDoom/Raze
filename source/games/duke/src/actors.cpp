@@ -1363,7 +1363,7 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 {
 	auto explosion = spawn(actor, EXPLOSION2);
 	if (!explosion) return;
-	explosion->spr.pos = pos;
+	explosion->set_int_pos(pos);
 
 	if (actor->spr.xrepeat < 10)
 	{
@@ -2699,7 +2699,7 @@ void handle_se00(DDukeActor* actor)
 				auto psp = ps[p].GetActor();
 				if (psp->spr.extra <= 0)
 				{
-					psp->spr.pos.vec2 = res;
+					psp->set_int_xy(res.X, res.Y);
 				}
 			}
 		}

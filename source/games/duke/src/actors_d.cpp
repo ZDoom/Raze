@@ -1320,7 +1320,7 @@ static bool movefireball(DDukeActor* actor)
 					if (trail)
 					{
 						FireProj* proj = &trail->fproj;
-						ball->spr.pos = proj->pos;
+						ball->set_int_pos(proj->pos);
 						ball->spr.xvel = proj->vel.X;
 						ball->spr.yvel = proj->vel.Y;
 						ball->spr.zvel = proj->vel.Z;

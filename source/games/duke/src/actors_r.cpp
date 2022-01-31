@@ -976,7 +976,9 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 			&& targ->spr.pal == 19)
 		{
 			S_PlayActorSound(RPG_EXPLODE, proj);
-			spawn(proj, EXPLOSION2)->spr.pos = oldpos;
+			auto spawned = spawn(proj, EXPLOSION2);
+			if (spawned)
+				spawned->set_int_pos( oldpos);
 			return true;
 		}
 	}
