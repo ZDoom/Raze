@@ -276,7 +276,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (24 << 8), actor->sector()))
+	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (24 << 8), actor->sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 
@@ -321,7 +321,7 @@ void S_GetCamera(vec3_t* c, int32_t* ca, sectortype** cs)
 	}
 	else
 	{
-		if (c) *c =  ud.cameraactor->spr.pos;
+		if (c) *c =  ud.cameraactor->int_pos();
 		if (cs) *cs = ud.cameraactor->sector();
 		if (ca) *ca = ud.cameraactor->spr.ang;
 	}
@@ -356,7 +356,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 			auto aactor = (DDukeActor*)source;
 			if (aactor != nullptr)
 			{
-				GetPositionInfo(aactor, chanSound - 1, camsect, &campos, aactor->spr.pos, nullptr, pos);
+				GetPositionInfo(aactor, chanSound - 1, camsect, &campos, aactor->int_pos(), nullptr, pos);
 				/*
 				if (vel) // DN3D does not properly maintain this.
 				{
@@ -536,7 +536,7 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags flags)
 {
 	return (actor == nullptr ? S_PlaySound(soundNum, channel, flags) :
-		S_PlaySound3D(soundNum, actor, actor->spr.pos, channel, flags));
+		S_PlaySound3D(soundNum, actor, actor->int_pos(), channel, flags));
 }
 
 void S_StopSound(int sndNum, DDukeActor* actor, int channel)

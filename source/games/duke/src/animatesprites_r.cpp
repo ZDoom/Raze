@@ -200,12 +200,12 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			{
 				int sqa =
 					getangle(
-						OwnerAc->spr.pos.X - ps[screenpeek].pos.X,
-						OwnerAc->spr.pos.Y - ps[screenpeek].pos.Y);
+						OwnerAc->int_pos().X - ps[screenpeek].pos.X,
+						OwnerAc->int_pos().Y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
-						OwnerAc->spr.pos.X - t->pos.X,
-						OwnerAc->spr.pos.Y - t->pos.Y);
+						OwnerAc->int_pos().X - t->pos.X,
+						OwnerAc->int_pos().Y - t->pos.Y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -220,8 +220,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->ang = getangle(x - t->pos.X, y - t->pos.Y);
-					t->pos.X = OwnerAc->spr.pos.X;
-					t->pos.Y = OwnerAc->spr.pos.Y;
+					t->pos.X = OwnerAc->int_pos().X;
+					t->pos.Y = OwnerAc->int_pos().Y;
 					t->pos.X += bcos(t->ang, -10);
 					t->pos.Y += bsin(t->ang, -10);
 				}
@@ -262,7 +262,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 				else if (OwnerAc->spr.picnum == MAMA)
 				{
-					k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+					k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
@@ -280,7 +280,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
@@ -292,7 +292,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			break;
 		case EMPTYBOAT:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
@@ -303,7 +303,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			t->picnum = EMPTYBOAT + k;
 			break;
 		case RPG:
-			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
@@ -315,7 +315,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			break;
 		case RPG2:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
@@ -328,7 +328,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 		case RECON:
 
-			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			if (h->temp_data[0] < 4)
 				k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			else k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
@@ -398,7 +398,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 				if (h->GetOwner())
 					newtspr->pos.Z = ps[p].pos.Z - (12 << 8);
-				else newtspr->pos.Z = h->spr.pos.Z - (51 << 8);
+				else newtspr->pos.Z = h->int_pos().Z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -435,7 +435,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (t->sectp->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - h->spr.pos.Z) > (64 << 8)) k += 60;
+				else if ((h->floorz - h->int_pos().Z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -445,7 +445,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
-				l = h->spr.pos.Z - ps[p].GetActor()->floorz + (3 << 8);
+				l = h->int_pos().Z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(l / (h->spr.yrepeat << 2));
 				else h->spr.yoffset = 0;
@@ -651,7 +651,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					break;
 
 				case 5:
-					k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+					k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
@@ -661,7 +661,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
-					k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+					k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 					if (k > 6)
 					{
@@ -678,7 +678,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					bg = badguy(h);
 					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
 					{
-						k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
+						k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 						k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
 						if (k > 4)
 						{
@@ -733,7 +733,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						else
 							daz = h->floorz;
 
-						if ((h->spr.pos.Z - daz) < (8 << 8))
+						if ((h->int_pos().Z - daz) < (8 << 8))
 							if (ps[screenpeek].pos.Z < daz)
 							{
 								auto shadowspr = tsprites.newTSprite();

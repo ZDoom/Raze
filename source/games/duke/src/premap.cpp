@@ -615,9 +615,9 @@ void resetpspritevars(int g)
 			firsty = ps[0].pos.Y;
 		}
 
-		po[numplayersprites].opos.X = act->spr.pos.X;
-		po[numplayersprites].opos.Y = act->spr.pos.Y;
-		po[numplayersprites].opos.Z = act->spr.pos.Z;
+		po[numplayersprites].opos.X = act->int_pos().X;
+		po[numplayersprites].opos.Y = act->int_pos().Y;
+		po[numplayersprites].opos.Z = act->int_pos().Z;
 		po[numplayersprites].oa = act->spr.ang;
 		po[numplayersprites].os = act->sector();
 
@@ -659,13 +659,13 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobpos.X = ps[j].opos.X = ps[j].pos.X = act->spr.pos.X;
-			ps[j].bobpos.Y = ps[j].opos.Y = ps[j].pos.Y = act->spr.pos.Y;
-			ps[j].opos.Z = ps[j].pos.Z = act->spr.pos.Z;
+			ps[j].bobpos.X = ps[j].opos.X = ps[j].pos.X = act->int_pos().X;
+			ps[j].bobpos.Y = ps[j].opos.Y = ps[j].pos.Y = act->int_pos().Y;
+			ps[j].opos.Z = ps[j].pos.Z = act->int_pos().Z;
 			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
-			updatesector(act->spr.pos.X, act->spr.pos.Y, &ps[j].cursector);
+			updatesector(act->int_pos().X, act->int_pos().Y, &ps[j].cursector);
 
 			j = connectpoint2[j];
 
@@ -879,8 +879,8 @@ static void SpawnPortals()
 							sectortype* s1 = act->sector(), *s2 = act2->sector();
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s2->portalflags = PORTAL_SECTOR_CEILING;
-							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.pos.X - act->spr.pos.X, act2->spr.pos.Y - act->spr.pos.Y, act->spr.hitag);
-							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->spr.pos.X - act2->spr.pos.X, act->spr.pos.Y - act2->spr.pos.Y, act->spr.hitag);
+							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->int_pos().X - act->int_pos().X, act2->int_pos().Y - act->int_pos().Y, act->spr.hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->int_pos().X - act2->int_pos().X, act->int_pos().Y - act2->int_pos().Y, act->spr.hitag);
 							processedTags.Push(act->spr.hitag);
 						}
 						else

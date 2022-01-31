@@ -201,7 +201,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MUD:
 		if (actj)
 		{
-			SetActor(act, actj->spr.pos);
+			SetActor(act, actj->int_pos());
 			act->spr.xrepeat = act->spr.yrepeat = 8 + (krand() & 7);
 		}
 		else act->spr.xrepeat = act->spr.yrepeat = 16 + (krand() & 15);
@@ -212,11 +212,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->sector()->lotag == 2)
 			{
-				act->set_int_z(getceilzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8));
+				act->set_int_z(getceilzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y) + (16 << 8));
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->sector()->lotag == 1)
-				act->set_int_z(getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y));
+				act->set_int_z(getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y));
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -569,8 +569,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case SPOTLITE:
-		act->temp_data[0] = act->spr.pos.X;
-		act->temp_data[1] = act->spr.pos.Y;
+		act->temp_data[0] = act->int_pos().X;
+		act->temp_data[1] = act->int_pos().Y;
 		break;
 	case BULLETHOLE:
 		act->spr.xrepeat = act->spr.yrepeat = 3;
@@ -649,8 +649,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
-			if (act->spr.pos.Z > x - (12 << 8))
+			int x = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
+			if (act->int_pos().Z > x - (12 << 8))
 				act->set_int_z(x - (12 << 8));
 		}
 
@@ -717,7 +717,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TOUCHPLATE:
 		act->temp_data[2] = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->setfloorz(act->spr.pos.Z);
+			sectp->setfloorz(act->int_pos().Z);
 		if (act->spr.pal && ud.multimode > 1)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 0;

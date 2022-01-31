@@ -282,8 +282,8 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].exit.X = ac->spr.pos.X;
-			ps[0].exit.Y = ac->spr.pos.Y;
+			ps[0].exit.X = ac->int_pos().X;
+			ps[0].exit.Y = ac->int_pos().Y;
 		}
 		else
 			premapcontroller(ac);

@@ -241,8 +241,8 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	{
 		int x;
 		auto pactor = ps[findplayer(actor, &x)].GetActor();
-		zvel = ((pactor->spr.pos.Z - sz) << 8) / (x + 1);
-		sa = getangle(pactor->spr.pos.X - sx, pactor->spr.pos.Y - sy);
+		zvel = ((pactor->int_pos().Z - sz) << 8) / (x + 1);
+		sa = getangle(pactor->int_pos().X - sx, pactor->int_pos().Y - sy);
 	}
 
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
@@ -346,8 +346,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				dal -= (8 << 8);
 				break;
 			}
-			zvel = ((aimed->spr.pos.Z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 
 		if (isWW2GI())
@@ -592,8 +592,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		if (aimed)
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else
 			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
@@ -690,9 +690,9 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		if (aimed)
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
@@ -930,8 +930,8 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 				dal -= (8 << 8);
 				break;
 			}
-			zvel = ((aimed->spr.pos.Z - sz - dal) << 8) / (ldist(ps[p].GetActor(), aimed));
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) << 8) / (ldist(ps[p].GetActor(), aimed));
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else
 		{
@@ -1027,9 +1027,9 @@ void shoot_d(DDukeActor* actor, int atwith)
 	else
 	{
 		sa = actor->spr.ang;
-		sx = actor->spr.pos.X;
-		sy = actor->spr.pos.Y;
-		sz = actor->spr.pos.Z - (actor->spr.yrepeat * tileHeight(actor->spr.picnum) << 1) + (4 << 8);
+		sx = actor->int_pos().X;
+		sy = actor->int_pos().Y;
+		sz = actor->int_pos().Z - (actor->spr.yrepeat * tileHeight(actor->spr.picnum) << 1) + (4 << 8);
 		if (actor->spr.picnum != ROTATEGUN)
 		{
 			sz -= (7 << 8);
@@ -1139,8 +1139,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 			if (aimed)
 			{
 				dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1);
-				zvel = ((aimed->spr.pos.Z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+				zvel = ((aimed->int_pos().Z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
+				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 			}
 			else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		}
@@ -2026,7 +2026,7 @@ int operateTripbomb(int snum)
 	while ((act = it.Next()))
 	{
 		if (!actorflag(act, SFLAG_BLOCK_TRIPBOMB) &&
-			abs(act->spr.pos.Z - hit.hitpos.Z) < (12 << 8) && ((act->spr.pos.X - hit.hitpos.X) * (act->spr.pos.X - hit.hitpos.X) + (act->spr.pos.Y - hit.hitpos.Y) * (act->spr.pos.Y - hit.hitpos.Y)) < (290 * 290))
+			abs(act->int_pos().Z - hit.hitpos.Z) < (12 << 8) && ((act->int_pos().X - hit.hitpos.X) * (act->int_pos().X - hit.hitpos.X) + (act->int_pos().Y - hit.hitpos.Y) * (act->int_pos().Y - hit.hitpos.Y)) < (290 * 290))
 			return 0;
 	}
 
@@ -2773,9 +2773,9 @@ void processinput_d(int snum)
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->int_pos().Z - clz.actor()->int_pos().Z) < (84 << 8))
 		{
-			j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
+			j = getangle(clz.actor()->int_pos().X - p->pos.X, clz.actor()->int_pos().Y - p->pos.Y);
 			p->vel.X -= bcos(j, 4);
 			p->vel.Y -= bsin(j, 4);
 		}

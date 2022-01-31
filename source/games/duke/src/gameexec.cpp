@@ -1172,16 +1172,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		/*if (bSet) act->spr.pos.X = lValue;
-		else*/ SetGameVarID(lVar2, act->spr.pos.X, sActor, sPlayer);
+		/*if (bSet) act->int_pos().X = lValue;
+		else*/ SetGameVarID(lVar2, act->int_pos().X, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		/*if (bSet) act->spr.pos.Y = lValue;
-		else*/ SetGameVarID(lVar2, act->spr.pos.Y, sActor, sPlayer);
+		/*if (bSet) act->int_pos().Y = lValue;
+		else*/ SetGameVarID(lVar2, act->int_pos().Y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		/*if (bSet) act->spr.pos.Z = lValue;
-		else*/ SetGameVarID(lVar2, act->spr.pos.Z, sActor, sPlayer);
+		/*if (bSet) act->int_pos().Z = lValue;
+		else*/ SetGameVarID(lVar2, act->int_pos().Z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
@@ -1471,7 +1471,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() & ((32 << 8) - 1)), actor->sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.pos.Z, tosee->sector());
+		j = cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() & ((32 << 8) - 1)), actor->sector(), tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1483,7 +1483,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() & ((47 << 8))), actor->sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.pos.Z - ((isRR()? 28 : 24) << 8), tosee->sector());
+	j = cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() & ((47 << 8))), actor->sector(), tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - ((isRR()? 28 : 24) << 8), tosee->sector());
 
 	if (j == 0)
 	{
@@ -1495,8 +1495,8 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// else, they did see it.
 		// save where we were looking..
-		actor->ovel.X = tosee->spr.pos.X;
-		actor->ovel.Y = tosee->spr.pos.Y;
+		actor->ovel.X = tosee->int_pos().X;
+		actor->ovel.Y = tosee->int_pos().Y;
 	}
 
 	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))
@@ -1534,12 +1534,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z - ((krand() & 41) << 8), g_ac->sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - ((krand() & 41) << 8), g_ac->sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z, g_ac->sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z, g_ac->sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2183,7 +2183,7 @@ int ParseState::parse(void)
 				else s = (krand()%3);
 
 				auto spawned = EGS(g_ac->sector(),
-					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.pos.Y + (krand() & 255) - 128, g_ac->spr.pos.Z - (8 << 8) - (krand() & 8191),
+					g_ac->int_pos().X + (krand() & 255) - 128, g_ac->int_pos().Y + (krand() & 255) - 128, g_ac->int_pos().Z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if (spawned)
@@ -2290,10 +2290,10 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_ac->spr.pos.Z - g_ac->sector()->floorz) < (32 << 8) && g_ac->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
+		parseifelse(abs(g_ac->int_pos().Z - g_ac->sector()->floorz) < (32 << 8) && g_ac->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
-		parseifelse( abs(g_ac->spr.pos.Z-g_ac->sector()->floorz) < (32<<8) && g_ac->sector()->lotag == ST_1_ABOVE_WATER);
+		parseifelse( abs(g_ac->int_pos().Z-g_ac->sector()->floorz) < (32<<8) && g_ac->sector()->lotag == ST_1_ABOVE_WATER);
 		break;
 	case concmd_ifmotofast:
 		parseifelse(ps[g_p].MotoSpeed > 60);
@@ -2415,7 +2415,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].pos.Z < (g_ac->spr.pos.Z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].pos.Z < (g_ac->int_pos().Z-(48<<8)) )
 					j = 1;
 			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2440,7 +2440,7 @@ int ParseState::parse(void)
 				if (g_ac->isPlayer() && ud.multimode > 1)
 					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.X - ps[otherp].pos.X, ps[g_p].pos.Y - ps[otherp].pos.Y));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.X - ps[g_p].pos.X, g_ac->spr.pos.Y - ps[g_p].pos.Y));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->int_pos().X - ps[g_p].pos.X, g_ac->int_pos().Y - ps[g_p].pos.Y));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2497,7 +2497,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z - (32 << 8) }, g_ac->sector(), g_ac->spr.ang, hit, 768, 1);
+			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->spr.ang, hit, 768, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2549,11 +2549,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (g_ac->floorz - g_ac->spr.pos.Z) <= ((*insptr)<<8));
+		parseifelse( (g_ac->floorz - g_ac->int_pos().Z) <= ((*insptr)<<8));
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_ac->spr.pos.Z - g_ac->ceilingz ) <= ((*insptr)<<8));
+		parseifelse( ( g_ac->int_pos().Z - g_ac->ceilingz ) <= ((*insptr)<<8));
 		break;
 	case concmd_palfrom:
 		insptr++;
@@ -2804,7 +2804,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->spr.pos.X,g_ac->spr.pos.Y,g_ac->spr.pos.Z-(4<<8),g_ac->sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->sector()) )
+			if( cansee(g_ac->int_pos().X,g_ac->int_pos().Y,g_ac->int_pos().Z-(4<<8),g_ac->sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
@@ -2818,16 +2818,16 @@ int ParseState::parse(void)
 
 		j = 0;
 
-		updatesector(g_ac->spr.pos.X + 108, g_ac->spr.pos.Y + 108, &s1);
+		updatesector(g_ac->int_pos().X + 108, g_ac->int_pos().Y + 108, &s1);
 		if (s1 == g_ac->sector())
 		{
-			updatesector(g_ac->spr.pos.X - 108, g_ac->spr.pos.Y - 108, &s1);
+			updatesector(g_ac->int_pos().X - 108, g_ac->int_pos().Y - 108, &s1);
 			if (s1 == g_ac->sector())
 			{
-				updatesector(g_ac->spr.pos.X + 108, g_ac->spr.pos.Y - 108, &s1);
+				updatesector(g_ac->int_pos().X + 108, g_ac->int_pos().Y - 108, &s1);
 				if (s1 == g_ac->sector())
 				{
-					updatesector(g_ac->spr.pos.X - 108, g_ac->spr.pos.Y + 108, &s1);
+					updatesector(g_ac->int_pos().X - 108, g_ac->int_pos().Y + 108, &s1);
 					if (s1 == g_ac->sector())
 						j = 1;
 				}
@@ -3142,7 +3142,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		ang = getangle(g_ac->ovel.X - g_ac->spr.pos.X, g_ac->ovel.Y - g_ac->spr.pos.Y);
+		ang = getangle(g_ac->ovel.X - g_ac->int_pos().X, g_ac->ovel.Y - g_ac->int_pos().Y);
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}

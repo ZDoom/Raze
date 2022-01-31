@@ -216,7 +216,7 @@ int findplayer(const DDukeActor* actor, int* d)
 {
 	int j, closest_player;
 	int x, closest;
-	const auto s = actor->spr.pos;
+	const auto s = actor->int_pos();
 
 	if (ud.multimode < 2)
 	{
@@ -640,7 +640,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		if (sptr->floorz > a2->spr.pos.Z)
+		if (sptr->floorz > a2->int_pos().Z)
 			activatewarpelevators(a2, -1);
 		else
 			activatewarpelevators(a2, 1);
@@ -753,7 +753,7 @@ REDODOOR:
 		{
 			if (a2->spr.statnum == 3 && a2->spr.lotag == 9)
 			{
-				j = a2->spr.pos.Z;
+				j = a2->int_pos().Z;
 				break;
 			}
 		}

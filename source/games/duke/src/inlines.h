@@ -97,24 +97,24 @@ inline int checkcursectnums(sectortype* se)
 inline int ldist(DDukeActor* s1, DDukeActor* s2)
 {
 	int vx, vy;
-	vx = s1->spr.pos.X - s2->spr.pos.X;
-	vy = s1->spr.pos.Y - s2->spr.pos.Y;
+	vx = s1->int_pos().X - s2->int_pos().X;
+	vy = s1->int_pos().Y - s2->int_pos().Y;
 	return(FindDistance2D(vx, vy) + 1);
 }
 
 inline int ldist(const DDukeActor* s1, const tspritetype* s2)
 {
 	int vx, vy;
-	vx = s1->spr.pos.X - s2->pos.X;
-	vy = s1->spr.pos.Y - s2->pos.Y;
+	vx = s1->int_pos().X - s2->pos.X;
+	vy = s1->int_pos().Y - s2->pos.Y;
 	return(FindDistance2D(vx, vy) + 1);
 }
 inline int dist(DDukeActor* s1, DDukeActor* s2)
 {
 	int vx, vy, vz;
-	vx = s1->spr.pos.X - s2->spr.pos.X;
-	vy = s1->spr.pos.Y - s2->spr.pos.Y;
-	vz = s1->spr.pos.Z - s2->spr.pos.Z;
+	vx = s1->int_pos().X - s2->int_pos().X;
+	vy = s1->int_pos().Y - s2->int_pos().Y;
+	vz = s1->int_pos().Z - s2->int_pos().Z;
 	return(FindDistance3D(vx, vy, vz));
 }
 

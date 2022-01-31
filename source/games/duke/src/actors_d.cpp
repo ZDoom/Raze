@@ -267,16 +267,16 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 		while (auto dasectp = search.GetNext())
 		{
-			if (((dasectp->ceilingz - actor->spr.pos.Z) >> 8) < r)
+			if (((dasectp->ceilingz - actor->int_pos().Z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
-				int d = abs(wal->wall_int_pos().X - actor->spr.pos.X) + abs(wal->wall_int_pos().Y - actor->spr.pos.Y);
+				int d = abs(wal->wall_int_pos().X - actor->int_pos().X) + abs(wal->wall_int_pos().Y - actor->int_pos().Y);
 				if (d < r)
 					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = abs(thirdpoint->wall_int_pos().X - actor->spr.pos.X) + abs(thirdpoint->wall_int_pos().Y - actor->spr.pos.Y);
+					d = abs(thirdpoint->wall_int_pos().X - actor->int_pos().X) + abs(thirdpoint->wall_int_pos().Y - actor->int_pos().Y);
 					if (d < r)
 						fi.checkhitceiling(dasectp);
 				}
@@ -284,18 +284,18 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 			for (auto& wal : wallsofsector(dasectp))
 			{
-				if ((abs(wal.wall_int_pos().X - actor->spr.pos.X) + abs(wal.wall_int_pos().Y - actor->spr.pos.Y)) < r)
+				if ((abs(wal.wall_int_pos().X - actor->int_pos().X) + abs(wal.wall_int_pos().Y - actor->int_pos().Y)) < r)
 				{
 					if (wal.twoSided())
 					{
 						search.Add(wal.nextSector());
 					}
-					int x1 = (((wal.wall_int_pos().X + wal.point2Wall()->wall_int_pos().X) >> 1) + actor->spr.pos.X) >> 1;
-					int y1 = (((wal.wall_int_pos().Y + wal.point2Wall()->wall_int_pos().Y) >> 1) + actor->spr.pos.Y) >> 1;
+					int x1 = (((wal.wall_int_pos().X + wal.point2Wall()->wall_int_pos().X) >> 1) + actor->int_pos().X) >> 1;
+					int y1 = (((wal.wall_int_pos().Y + wal.point2Wall()->wall_int_pos().Y) >> 1) + actor->int_pos().Y) >> 1;
 					sectortype* sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
-					if (sect && cansee(x1, y1, actor->spr.pos.Z, sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
-						fi.checkhitwall(actor, &wal, wal.wall_int_pos().X, wal.wall_int_pos().Y, actor->spr.pos.Z, actor->spr.picnum);
+					if (sect && cansee(x1, y1, actor->int_pos().Z, sect, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+						fi.checkhitwall(actor, &wal, wal.wall_int_pos().X, wal.wall_int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 				}
 			}
 		}
@@ -327,7 +327,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z + q, act2->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z + q, actor->sector()))
+						if (badguy(act2) && !cansee(act2->int_pos().X, act2->int_pos().Y, act2->int_pos().Z + q, act2->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z + q, actor->sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
@@ -347,9 +347,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				int d = dist(actor, act2);
 				if (act2->spr.picnum == APLAYER) act2->add_int_z(gs.playerheight);
 
-				if (d < r && cansee(act2->spr.pos.X, act2->spr.pos.Y, act2->spr.pos.Z - (8 << 8), act2->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (12 << 8), actor->sector()))
+				if (d < r && cansee(act2->int_pos().X, act2->int_pos().Y, act2->int_pos().Z - (8 << 8), act2->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (12 << 8), actor->sector()))
 				{
-					act2->hitang = getangle(act2->spr.pos.X - actor->spr.pos.X, act2->spr.pos.Y - actor->spr.pos.Y);
+					act2->hitang = getangle(act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
@@ -443,13 +443,13 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	{
 		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
 		if (bg)
-			SetActor(actor, actor->spr.pos);
+			SetActor(actor, actor->int_pos());
 		return result.setNone();
 	}
 
 	auto dasectp = actor->sector();
 
-	vec3_t pos = actor->spr.pos;
+	vec3_t pos = actor->int_pos();
 	pos.Z -= ((tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 1);
 
 	if (bg)
@@ -481,7 +481,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 				actor->spr.ang = (krand()&2047);
 			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != COMMANDER)
 				actor->spr.ang = (krand()&2047);
-			SetActor(actor,actor->spr.pos);
+			SetActor(actor,actor->int_pos());
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
@@ -499,7 +499,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (dasectp != nullptr)
 		if (dasectp != actor->sector())
 			ChangeActorSect(actor, dasectp);
-	int daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3);
+	int daz = actor->int_pos().Z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		actor->set_int_z(daz);
 	else if (result.type == kHitNone)
@@ -545,8 +545,8 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		sx = sy = 8;
 	else sx = sy = 32;
 
-	gutz = actor->spr.pos.Z - (8 << 8);
-	floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+	gutz = actor->int_pos().Z - (8 << 8);
+	floorz = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
@@ -570,7 +570,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		auto spawned = EGS(actor->sector(), actor->spr.pos.X + (r5 & 255) - 128, actor->spr.pos.Y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = EGS(actor->sector(), actor->int_pos().X + (r5 & 255) - 128, actor->int_pos().Y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (spawned)
 		{
 			if (spawned->spr.picnum == JIBS2)
@@ -770,14 +770,14 @@ void movefallers_d(void)
 						x = gs.gravity;
 				}
 
-				if (act->spr.pos.Z < (sectp->floorz - FOURSLEIGHT))
+				if (act->int_pos().Z < (sectp->floorz - FOURSLEIGHT))
 				{
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
 					act->add_int_z(act->spr.zvel);
 				}
-				if ((sectp->floorz - act->spr.pos.Z) < (16 << 8))
+				if ((sectp->floorz - act->int_pos().Z) < (16 << 8))
 				{
 					j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -871,14 +871,14 @@ static void movetripbomb(DDukeActor *actor)
 		int16_t l = actor->spr.ang;
 		actor->spr.ang = actor->temp_data[5];
 
-		actor->temp_data[3] = actor->spr.pos.X; actor->temp_data[4] = actor->spr.pos.Y;
+		actor->temp_data[3] = actor->int_pos().X; actor->temp_data[4] = actor->int_pos().Y;
 		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
 
 		// Laser fix from EDuke32.
 		auto const oldSect = actor->sector();
 		auto       curSect = actor->sector();
 
-		updatesectorneighbor(actor->spr.pos.X, actor->spr.pos.Y, &curSect, 2048);
+		updatesectorneighbor(actor->int_pos().X, actor->int_pos().Y, &curSect, 2048);
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
@@ -896,9 +896,9 @@ static void movetripbomb(DDukeActor *actor)
 				auto spawned = spawn(actor, LASERLINE);
 				if (spawned)
 				{
-					SetActor(spawned, spawned->spr.pos);
+					SetActor(spawned, spawned->int_pos());
 					spawned->spr.hitag = actor->spr.hitag;
-					spawned->temp_data[1] = spawned->spr.pos.Z;
+					spawned->temp_data[1] = spawned->int_pos().Z;
 
 					if (x < 1024)
 					{
@@ -908,7 +908,7 @@ static void movetripbomb(DDukeActor *actor)
 					x -= 1024;
 
 					actor->add_int_pos({ bcos(actor->temp_data[5], -4), bsin(actor->temp_data[5], -4), 0 });
-					updatesectorneighbor(actor->spr.pos.X, actor->spr.pos.Y, &curSect, 2048);
+					updatesectorneighbor(actor->int_pos().X, actor->int_pos().Y, &curSect, 2048);
 
 					if (curSect == nullptr)
 						break;
@@ -938,16 +938,16 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[1]++;
 
 
-		actor->temp_data[3] = actor->spr.pos.X; 
-		actor->temp_data[4] = actor->spr.pos.Y;
+		actor->temp_data[3] = actor->int_pos().X; 
+		actor->temp_data[4] = actor->int_pos().Y;
 		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
-		SetActor(actor, actor->spr.pos);
+		SetActor(actor, actor->int_pos());
 
 		x = hitasprite(actor, nullptr);
 
 		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
 		actor->add_int_z(3 << 8);
-		SetActor(actor, actor->spr.pos);
+		SetActor(actor, actor->int_pos());
 
 		if (actor->ovel.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -1003,7 +1003,7 @@ static void movefireext(DDukeActor* actor)
 
 	for (int k = 0; k < 16; k++)
 	{
-		auto spawned = EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+		auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
 		if(spawned) spawned->spr.pal = 2;
 	}
 
@@ -1330,7 +1330,7 @@ static bool movefireball(DDukeActor* actor)
 				ball->spr.cstat = actor->spr.cstat;
 				ball->spr.extra = 0;
 
-				ball->fproj = { ball->spr.pos, { ball->spr.xvel, ball->spr.yvel, ball->spr.zvel } };
+				ball->fproj = { ball->int_pos(), { ball->spr.xvel, ball->spr.yvel, ball->spr.zvel } };
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
@@ -1425,7 +1425,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 	else
 	{
 		SetActor(proj, oldpos);
-		fi.checkhitwall(proj, wal, proj->spr.pos.X, proj->spr.pos.Y, proj->spr.pos.Z, proj->spr.picnum);
+		fi.checkhitwall(proj, wal, proj->int_pos().X, proj->int_pos().Y, proj->int_pos().Z, proj->spr.picnum);
 
 		if (proj->spr.picnum == FREEZEBLAST)
 		{
@@ -1505,7 +1505,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
 	int k, ll;
-	vec3_t oldpos = proj->spr.pos;
+	vec3_t oldpos = proj->int_pos();
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
@@ -1541,7 +1541,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		MulScale(k, bsin(proj->spr.ang), 14), ll, CLIPMASK1, coll);
 
 	if (proj->spr.picnum == RPG && proj->temp_actor != nullptr)
-		if (FindDistance2D(proj->spr.pos.vec2 - proj->temp_actor->spr.pos.vec2) < 256)
+		if (FindDistance2D(proj->int_pos().vec2 - proj->temp_actor->int_pos().vec2) < 256)
 			coll.setSprite(proj->temp_actor);
 
 	if (!proj->insector())
@@ -1552,14 +1552,14 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (coll.type != kHitSprite && proj->spr.picnum != FREEZEBLAST)
 	{
-		if (proj->spr.pos.Z < proj->ceilingz)
+		if (proj->int_pos().Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
 			proj->spr.zvel = -1;
 		}
 		else
-			if ((proj->spr.pos.Z > proj->floorz && proj->sector()->lotag != 1) ||
-				(proj->spr.pos.Z > proj->floorz + (16 << 8) && proj->sector()->lotag == 1))
+			if ((proj->int_pos().Z > proj->floorz && proj->sector()->lotag != 1) ||
+				(proj->int_pos().Z > proj->floorz + (16 << 8) && proj->sector()->lotag == 1))
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
@@ -1578,9 +1578,9 @@ static void weaponcommon_d(DDukeActor* proj)
 			};
 
 			auto spawned = EGS(proj->sector(),
-				proj->spr.pos.X + offset.X,
-				proj->spr.pos.Y + offset.Y,
-				proj->spr.pos.Z + offset.Z, FIRELASER, -40 + (k << 2),
+				proj->int_pos().X + offset.X,
+				proj->int_pos().Y + offset.Y,
+				proj->int_pos().Z + offset.Z, FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			if (spawned)
@@ -1806,9 +1806,9 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
-							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
-							ps[p].opos.Z = ps[p].pos.Z = Owner->spr.pos.Z - gs.playerheight;
+							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->int_pos().X;
+							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y = Owner->int_pos().Y;
+							ps[p].opos.Z = ps[p].pos.Z = Owner->int_pos().Z - gs.playerheight;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
@@ -1824,16 +1824,16 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
-					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].pos.Z) < 6144)
+					if (onfloorz == 0 && abs(act->int_pos().Z - ps[p].pos.Z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].opos.X = ps[p].pos.X += Owner->int_pos().X - act->int_pos().X;
+							ps[p].opos.Y = ps[p].pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.Z = Owner->spr.pos.Z - 6144;
-							else ps[p].pos.Z = Owner->spr.pos.Z + 6144;
+								ps[p].pos.Z = Owner->int_pos().Z - 6144;
+							else ps[p].pos.Z = Owner->int_pos().Z + 6144;
 							ps[p].opos.Z = ps[p].pos.Z;
 
 							auto pa = ps[p].GetActor();
@@ -1884,8 +1884,8 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].opos.X = ps[p].pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].opos.Y = ps[p].pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1934,13 +1934,13 @@ void movetransports_d(void)
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && act2->spr.pos.Z < (sectp->ceilingz + ll))
+					if (ll && sectlotag == 2 && act2->int_pos().Z < (sectp->ceilingz + ll))
 						warpspriteto = 1;
 
-					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll))
+					if (ll && sectlotag == 1 && act2->int_pos().Z > (sectp->floorz - ll))
 						warpspriteto = 1;
 
-					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 4096))
+					if (sectlotag == 0 && (onfloorz || abs(act2->int_pos().Z - act->int_pos().Z) < 4096))
 					{
 						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->temp_data[0] > 0 && act2->spr.statnum != STAT_MISC)
 						{
@@ -1989,7 +1989,7 @@ void movetransports_d(void)
 								{
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
-										act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X),(Owner->spr.pos.Y - act->spr.pos.Y), -(act->spr.pos.Z - Owner->sector()->floorz) });
+										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->floorz) });
 										act2->spr.ang = Owner->spr.ang;
 
 										act2->backupang();
@@ -2014,20 +2014,20 @@ void movetransports_d(void)
 								}
 								else
 								{
-									act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
-									act2->set_int_z(Owner->spr.pos.Z + 4096);
+									act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
+									act2->set_int_z(Owner->int_pos().Z + 4096);
 									act2->backupz();
 									ChangeActorSect(act2, Owner->sector());
 								}
 								break;
 							case ST_1_ABOVE_WATER:
-								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
 								act2->set_int_z(Owner->sector()->ceilingz + ll);
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
 								break;
 							case ST_2_UNDERWATER:
-								act2->add_int_pos({ (Owner->spr.pos.X - act->spr.pos.X), (Owner->spr.pos.Y - act->spr.pos.Y), 0 });
+								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
 								act2->set_int_z(Owner->sector()->floorz - ll);
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
@@ -2112,7 +2112,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			for (j = 16; j >= 0; j--)
 			{
-				auto k = EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+				auto k = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 				k->spr.pal = 1;
 			}
 			ps[p].actors_killed++;
@@ -2121,7 +2121,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->spr.pos.X - ps[p].pos.X, actor->spr.pos.Y - ps[p].pos.Y));
+			j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->int_pos().X - ps[p].pos.X, actor->int_pos().Y - ps[p].pos.Y));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2141,7 +2141,7 @@ static void greenslime(DDukeActor *actor)
 			return;
 		}
 
-		SetActor(actor, actor->spr.pos);
+		SetActor(actor, actor->int_pos());
 
 		actor->spr.ang = ps[p].angle.ang.asbuild();
 
@@ -2150,7 +2150,7 @@ static void greenslime(DDukeActor *actor)
 			{
 				for (x = 0; x < 8; x++)
 				{
-					auto spawned = EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+					auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
 					spawned->spr.pal = 6;
 				}
 
@@ -2260,7 +2260,7 @@ static void greenslime(DDukeActor *actor)
 
 		for (x = 0; x < 8; x++)
 		{
-			auto spawned = EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+			auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
 			if (spawned) spawned->spr.pal = 6;
 		}
 		actor->temp_data[0] = -3;
@@ -2299,7 +2299,7 @@ static void greenslime(DDukeActor *actor)
 
 			int l = s5->spr.ang;
 
-			actor->set_int_pos({ s5->spr.pos.X + bcos(l, -11), s5->spr.pos.Y + bsin(l, -11), s5->spr.pos.Z });
+			actor->set_int_pos({ s5->int_pos().X + bcos(l, -11), s5->int_pos().Y + bsin(l, -11), s5->int_pos().Z });
 
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
@@ -2328,7 +2328,7 @@ static void greenslime(DDukeActor *actor)
 		{
 			if (actorflag(a2, SFLAG_GREENSLIMEFOOD))
 			{
-				if (ldist(actor, a2) < 768 && (abs(actor->spr.pos.Z - a2->spr.pos.Z) < 8192)) //Gulp them
+				if (ldist(actor, a2) < 768 && (abs(actor->int_pos().Z - a2->int_pos().Z) < 8192)) //Gulp them
 				{
 					actor->temp_actor = a2;
 					actor->temp_data[0] = -2;
@@ -2353,7 +2353,7 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.zvel = 0;
 			actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 
-			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 6144) < actor->spr.pos.Z)
+			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 6144) < actor->int_pos().Z)
 			{
 				actor->add_int_z(2048);
 				actor->temp_data[0] = 3;
@@ -2379,7 +2379,7 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
 
 			actor->spr.ang += getincangle(actor->spr.ang,
-				getangle(ps[p].pos.X - actor->spr.pos.X, ps[p].pos.Y - actor->spr.pos.Y)) >> 3;
+				getangle(ps[p].pos.X - actor->int_pos().X, ps[p].pos.Y - actor->int_pos().Y)) >> 3;
 			// TJR
 		}
 
@@ -2404,7 +2404,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.zvel > -(2048 + 1024))
 			actor->spr.zvel -= 348;
 		actor->add_int_z(actor->spr.zvel);
-		if (actor->spr.pos.Z < actor->ceilingz + 4096)
+		if (actor->int_pos().Z < actor->ceilingz + 4096)
 		{
 			actor->set_int_z(actor->ceilingz + 4096);
 			actor->spr.xvel = 0;
@@ -2418,7 +2418,7 @@ static void greenslime(DDukeActor *actor)
 
 		makeitfall(actor);
 
-		if (actor->spr.pos.Z > actor->floorz - (8 << 8))
+		if (actor->int_pos().Z > actor->floorz - (8 << 8))
 		{
 			actor->spr.yrepeat -= 4;
 			actor->spr.xrepeat += 2;
@@ -2429,7 +2429,7 @@ static void greenslime(DDukeActor *actor)
 			if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
 		}
 
-		if (actor->spr.pos.Z > actor->floorz - 2048)
+		if (actor->int_pos().Z > actor->floorz - 2048)
 		{
 			actor->set_int_z(actor->floorz - 2048);
 			actor->temp_data[0] = 0;
@@ -2458,9 +2458,9 @@ static void flamethrowerflame(DDukeActor *actor)
 		return;
 	}
 
-	int dax = actor->spr.pos.X;
-	int day = actor->spr.pos.Y;
-	int daz = actor->spr.pos.Z;
+	int dax = actor->int_pos().X;
+	int day = actor->int_pos().Y;
+	int daz = actor->int_pos().Z;
 	int xvel = actor->spr.xvel;
 
 	getglobalz(actor);
@@ -2490,13 +2490,13 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	if (coll.type != kHitSprite)
 	{
-		if (actor->spr.pos.Z < actor->ceilingz)
+		if (actor->int_pos().Z < actor->ceilingz)
 		{
 			coll.setSector(actor->sector());
 			actor->spr.zvel = -1;
 		}
-		else if ((actor->spr.pos.Z > actor->floorz && actor->sector()->lotag != 1)
-			|| (actor->spr.pos.Z > actor->floorz + (16 << 8) && actor->sector()->lotag == 1))
+		else if ((actor->int_pos().Z > actor->floorz && actor->sector()->lotag != 1)
+			|| (actor->int_pos().Z > actor->floorz + (16 << 8) && actor->sector()->lotag == 1))
 		{
 			coll.setSector(actor->sector());
 			if (actor->sector()->lotag != 1)
@@ -2515,7 +2515,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		else if (coll.type == kHitWall)
 		{
 			SetActor(actor, { dax, day, daz });
-			fi.checkhitwall(actor, coll.hitWall, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.picnum);
+			fi.checkhitwall(actor, coll.hitWall, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
@@ -2583,7 +2583,7 @@ static void heavyhbomb(DDukeActor *actor)
 	{
 		makeitfall(actor);
 
-		if (sectp->lotag != 1 && actor->spr.pos.Z >= actor->floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
+		if (sectp->lotag != 1 && actor->int_pos().Z >= actor->floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
 		{
 			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
@@ -2592,7 +2592,7 @@ static void heavyhbomb(DDukeActor *actor)
 				actor->spr.zvel >>= 2;
 			actor->spr.yvel++;
 		}
-		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
+		if (actor->int_pos().Z < actor->ceilingz) // && sectp->lotag != 2 )
 		{
 			actor->set_int_z(actor->ceilingz + (3 << 8));
 			actor->spr.zvel = 0;
@@ -2643,7 +2643,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (coll.type== kHitWall)
 	{
 		auto wal = coll.hitWall;
-		fi.checkhitwall(actor, wal, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.picnum);
+		fi.checkhitwall(actor, wal, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 
 		int k = getangle(wal->delta());
 
@@ -2709,7 +2709,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
-		if (cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), actor->sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
+		if (cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), actor->sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -2954,8 +2954,8 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	else
 		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
-	double dx = Owner->spr.pos.X - ps[p].GetActor()->spr.pos.X;
-	double dy = Owner->spr.pos.Y - ps[p].GetActor()->spr.pos.Y;
+	double dx = Owner->int_pos().X - ps[p].GetActor()->int_pos().X;
+	double dy = Owner->int_pos().Y - ps[p].GetActor()->int_pos().Y;
 	double dist = sqrt(dx * dx + dy * dy);
 	if (dist != 0.0) 
 	{
@@ -2963,7 +2963,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 		dy /= dist;
 	}
 
-	actor->set_int_pos({ (int)(Owner->spr.pos.X - (dx * -10.0)), (int)(Owner->spr.pos.Y - (dy * -10.0)), Owner->spr.pos.Z + 2048 });
+	actor->set_int_pos({ (int)(Owner->int_pos().X - (dx * -10.0)), (int)(Owner->int_pos().Y - (dy * -10.0)), Owner->int_pos().Z + 2048 });
 
 	if (Owner->spr.extra <= 0) 
 	{
@@ -3077,7 +3077,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->floorz = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
 			act->set_int_z(act->floorz);
 			break;
 		case MONEY:
@@ -3139,7 +3139,7 @@ void moveexplosions_d(void)  // STATNUM 5
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(act, (sectp->floorz + (24 << 8)) < act->spr.pos.Z);
+			shell(act, (sectp->floorz + (24 << 8)) < act->int_pos().Z);
 			continue;
 
 		case GLASSPIECES:
@@ -3256,7 +3256,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), ps[screenpeek].pos.X, ps[screenpeek].pos.Y, ps[screenpeek].pos.Z, ps[screenpeek].cursector);
+			int j = !!cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), ps[screenpeek].pos.X, ps[screenpeek].pos.Y, ps[screenpeek].pos.Z, ps[screenpeek].cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{
@@ -3436,7 +3436,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		case SE_29_WAVES:
 			act->spr.hitag += 64;
 			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
-			sc->setfloorz(act->spr.pos.Z + l);
+			sc->setfloorz(act->int_pos().Z + l);
 			break;
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
 			handle_se31(act, true);
@@ -3508,8 +3508,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = getangle(ps[playernum].opos.X - actor->spr.pos.X, ps[playernum].opos.Y - actor->spr.pos.Y);
-		else goalang = getangle(ps[playernum].pos.X - actor->spr.pos.X, ps[playernum].pos.Y - actor->spr.pos.Y);
+			goalang = getangle(ps[playernum].opos.X - actor->int_pos().X, ps[playernum].opos.Y - actor->int_pos().Y);
+		else goalang = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3521,8 +3521,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = getangle(ps[playernum].opos.X - actor->spr.pos.X, ps[playernum].opos.Y - actor->spr.pos.Y);
-		else goalang = getangle(ps[playernum].pos.X - actor->spr.pos.X, ps[playernum].pos.Y - actor->spr.pos.Y);
+			goalang = getangle(ps[playernum].opos.X - actor->int_pos().X, ps[playernum].opos.Y - actor->int_pos().Y);
+		else goalang = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3545,7 +3545,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 		newx = ps[playernum].pos.X + (ps[playernum].vel.X / 768);
 		newy = ps[playernum].pos.Y + (ps[playernum].vel.Y / 768);
-		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
+		goalang = getangle(newx - actor->int_pos().X, newy - actor->int_pos().Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3553,10 +3553,10 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (actor->temp_data[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->int_pos().X) || (actor->opos.Y != actor->int_pos().Y))
 		{
 			actor->backupvec2();
-			SetActor(actor, actor->spr.pos);
+			SetActor(actor, actor->int_pos());
 		}
 		return;
 	}
@@ -3584,15 +3584,15 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 				if (actor->spr.picnum == COMMANDER)
 				{
-					actor->floorz = l = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-					if (actor->spr.pos.Z > (l - (8 << 8)))
+					actor->floorz = l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+					if (actor->int_pos().Z > (l - (8 << 8)))
 					{
-						if (actor->spr.pos.Z > (l - (8 << 8))) actor->set_int_z(l - (8 << 8));
+						if (actor->int_pos().Z > (l - (8 << 8))) actor->set_int_z(l - (8 << 8));
 						actor->spr.zvel = 0;
 					}
 
-					actor->ceilingz = l = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-					if ((actor->spr.pos.Z - l) < (80 << 8))
+					actor->ceilingz = l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+					if ((actor->int_pos().Z - l) < (80 << 8))
 					{
 						actor->set_int_z(l + (80 << 8));
 						actor->spr.zvel = 0;
@@ -3602,14 +3602,14 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				{
 					if (actor->spr.zvel > 0)
 					{
-						actor->floorz = l = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-						if (actor->spr.pos.Z > (l - (30 << 8)))
+						actor->floorz = l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+						if (actor->int_pos().Z > (l - (30 << 8)))
 							actor->set_int_z(l - (30 << 8));
 					}
 					else
 					{
-						actor->ceilingz = l = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-						if ((actor->spr.pos.Z - l) < (50 << 8))
+						actor->ceilingz = l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+						if ((actor->int_pos().Z - l) < (50 << 8))
 						{
 							actor->set_int_z(l + (50 << 8));
 							actor->spr.zvel = 0;
@@ -3619,12 +3619,12 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != ORGANTIC)
 			{
-				if (actor->spr.zvel > 0 && actor->floorz < actor->spr.pos.Z)
+				if (actor->spr.zvel > 0 && actor->floorz < actor->int_pos().Z)
 					actor->set_int_z(actor->floorz);
 				if (actor->spr.zvel < 0)
 				{
-					l = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-					if ((actor->spr.pos.Z - l) < (66 << 8))
+					l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+					if ((actor->int_pos().Z - l) < (66 << 8))
 					{
 						actor->set_int_z(l + (66 << 8));
 						actor->spr.zvel >>= 1;
@@ -3633,7 +3633,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 		}
 		else if (actor->spr.picnum == APLAYER)
-			if ((actor->spr.pos.Z - actor->ceilingz) < (32 << 8))
+			if ((actor->int_pos().Z - actor->ceilingz) < (32 << 8))
 				actor->set_int_z(actor->ceilingz + (32 << 8));
 
 		daxvel = actor->spr.xvel;
@@ -3645,7 +3645,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[playernum].pos.X - actor->spr.pos.X, ps[playernum].pos.Y - actor->spr.pos.Y);
+				angdif = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
 
 				if (xvel < 512)
 				{
@@ -3662,7 +3662,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 				if (!*(moveptr + 1))
 				{
-					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+					if (actor->opos.Z != actor->int_pos().Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
 						if ((actor->temp_data[0] & 1) || ps[playernum].actorsqu == actor) return;
 						else daxvel <<= 1;

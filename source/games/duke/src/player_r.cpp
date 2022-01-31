@@ -99,8 +99,8 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 	{
 		int x;
 		auto pspr = ps[findplayer(actor, &x)].GetActor();
-		zvel = ((pspr->spr.pos.Z - sz) << 8) / (x + 1);
-		sa = getangle(pspr->spr.pos.X - sx, pspr->spr.pos.Y - sy);
+		zvel = ((pspr->int_pos().Z - sz) << 8) / (x + 1);
+		sa = getangle(pspr->int_pos().X - sx, pspr->int_pos().Y - sy);
 	}
 
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
@@ -115,8 +115,8 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
-				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
-				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
+				nx = hit.hitpos.X + (effector->GetOwner()->int_pos().X - effector->int_pos().X);
+				ny = hit.hitpos.Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
 				if (hit.hitSector->lotag == 161)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
@@ -215,8 +215,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		if (aimed)
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (5 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 
 		if (atwith == SHOTSPARK1)
@@ -270,8 +270,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
-				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
-				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
+				nx = hit.hitpos.X + (effector->GetOwner()->int_pos().X - effector->int_pos().X);
+				ny = hit.hitpos.Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
 				if (hit.hitSector->lotag == 161)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
@@ -509,8 +509,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		if (aimed)
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else
 		{
@@ -624,9 +624,9 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					act90 = aimed;
 			}
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
@@ -776,8 +776,8 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		if (aimed)
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
-			zvel = ((aimed->spr.pos.Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
+			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
 		}
 		else
 			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
@@ -846,9 +846,9 @@ void shoot_r(DDukeActor* actor, int atwith)
 	{
 		p = -1;
 		sa = actor->spr.ang;
-		sx = actor->spr.pos.X;
-		sy = actor->spr.pos.Y;
-		sz = actor->spr.pos.Z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
+		sx = actor->int_pos().X;
+		sy = actor->int_pos().Y;
+		sz = actor->int_pos().Z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
 		sz -= (7 << 8);
 		if (badguy(actor))
 		{
@@ -3380,7 +3380,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.picnum == RRTILE380)
-				if (act2->spr.pos.Z - (8 << 8) < p->pos.Z)
+				if (act2->int_pos().Z - (8 << 8) < p->pos.Z)
 					psectlotag = 2;
 		}
 	}
@@ -3473,9 +3473,9 @@ void processinput_r(int snum)
 		{
 			doVehicleHit();
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->int_pos().Z - clz.actor()->int_pos().Z) < (84 << 8))
 		{
-			int j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
+			int j = getangle(clz.actor()->int_pos().X - p->pos.X, clz.actor()->int_pos().Y - p->pos.Y);
 			p->vel.X -= bcos(j, 4);
 			p->vel.Y -= bsin(j, 4);
 		}
@@ -3486,9 +3486,9 @@ void processinput_r(int snum)
 				p->stairs = 10;
 				if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				{
-					cz = clz.actor()->spr.pos.Z;
+					cz = clz.actor()->int_pos().Z;
 					chz.setNone();
-					fz = clz.actor()->spr.pos.Z + (4 << 8);
+					fz = clz.actor()->int_pos().Z + (4 << 8);
 				}
 			}
 			else
@@ -4047,8 +4047,8 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 	{
 		if (motosprite)
 		{
-			p->pos.X = motosprite->spr.pos.X;
-			p->pos.Y = motosprite->spr.pos.Y;
+			p->pos.X = motosprite->int_pos().X;
+			p->pos.Y = motosprite->int_pos().Y;
 			p->angle.ang = buildang(motosprite->spr.ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
@@ -4127,8 +4127,8 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 	{
 		if (boat)
 		{
-			p->pos.X = boat->spr.pos.X;
-			p->pos.Y = boat->spr.pos.Y;
+			p->pos.X = boat->int_pos().X;
+			p->pos.Y = boat->int_pos().Y;
 			p->angle.ang = buildang(boat->spr.ang);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);

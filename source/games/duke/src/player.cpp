@@ -174,9 +174,9 @@ int hits(DDukeActor* actor)
 	if (actor->isPlayer()) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	auto pos = actor->spr.pos;
+	auto pos = actor->int_pos();
 	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
+	return (FindDistance2D(hit.hitpos.vec2 - actor->int_pos().vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -195,14 +195,14 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	auto pos = actor->spr.pos;
+	auto pos = actor->int_pos();
 	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.hitpos.vec2 - actor->spr.pos.vec2));
+	return (FindDistance2D(hit.hitpos.vec2 - actor->int_pos().vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -335,8 +335,8 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 
-					xv = (act->spr.pos.X - actor->spr.pos.X);
-					yv = (act->spr.pos.Y - actor->spr.pos.Y);
+					xv = (act->int_pos().X - actor->int_pos().X);
+					yv = (act->int_pos().Y - actor->int_pos().Y);
 
 					if ((dy1 * xv) <= (dx1 * yv))
 						if ((dy2 * xv) >= (dx2 * yv))
@@ -345,10 +345,10 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (actor->isPlayer())
-									a = (abs(Scale(act->spr.pos.Z - actor->spr.pos.Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
+									a = (abs(Scale(act->int_pos().Z - actor->int_pos().Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (32 << 8), actor->sector());
+								cans = cansee(act->int_pos().X, act->int_pos().Y, act->int_pos().Z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (32 << 8), actor->sector());
 
 								if (a && cans)
 								{
@@ -507,8 +507,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->spr.pos.X - p->pos.X) < 384)
-						if (abs(act->spr.pos.Y - p->pos.Y) < 384)
+					if (abs(act->int_pos().X - p->pos.X) < 384)
+						if (abs(act->int_pos().Y - p->pos.Y) < 384)
 						{
 							j = 1;
 							break;
@@ -1059,7 +1059,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->set_int_pos(hit.hitpos);
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
-					SetActor(spawned, spawned->spr.pos);
+					SetActor(spawned, spawned->int_pos());
 					if (actor->spr.picnum == OOZFILTER || actor->spr.picnum == NEWBEAST)
 						spawned->spr.pal = 6;
 				}

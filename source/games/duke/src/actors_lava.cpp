@@ -434,7 +434,7 @@ void moveminecart(void)
 		while (auto a2 = it.Next())
 		{
 			if (badguy(a2))
-				SetActor(a2, { int(cx * worldtoint), int(cy * worldtoint), a2->spr.pos.Z });
+				SetActor(a2, { int(cx * worldtoint), int(cy * worldtoint), a2->int_pos().Z });
 		}
 	}
 }

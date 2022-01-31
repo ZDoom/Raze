@@ -96,7 +96,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->spr.pos, camera->sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
+				render_camtex(camera, camera->int_pos(), camera->sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -264,7 +264,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly, fov);
+		renderView(act, act->sector(), act->int_pos().X, act->int_pos().Y, act->int_pos().Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly, fov);
 		act->spr.cstat = cstat;
 
 	}
@@ -329,9 +329,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			auto act = p->newOwner;
 			cang = buildang(act->interpolatedang(smoothratio));
 			choriz = buildhoriz(act->spr.shade);
-			cposx = act->spr.pos.X;
-			cposy = act->spr.pos.Y;
-			cposz = act->spr.pos.Z;
+			cposx = act->int_pos().X;
+			cposy = act->int_pos().Y;
+			cposz = act->int_pos().Z;
 			sect = act->sector();
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
