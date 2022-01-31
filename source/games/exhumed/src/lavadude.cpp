@@ -41,9 +41,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pLimbActor = insertActor(pActor->sector(), 118);
 
-    pLimbActor->spr.pos.X = pActor->spr.pos.X;
-    pLimbActor->spr.pos.Y = pActor->spr.pos.Y;
-    pLimbActor->spr.pos.Z = pActor->spr.pos.Z - RandomLong() % ebx;
+    pLimbActor->set_int_pos({ pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z - RandomLong() % ebx });
     pLimbActor->spr.cstat = 0;
     pLimbActor->spr.shade = -127;
     pLimbActor->spr.pal = 1;
@@ -115,9 +113,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
         ChangeActorStat(pActor, 118);
     }
 
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = pSector->floorz;
+    pActor->set_int_pos({ x, y, pSector->floorz });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xrepeat = 200;
     pActor->spr.yrepeat = 200;
@@ -292,9 +288,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (pSector != pActor->sector())
         {
             ChangeActorSect(pActor, pSector);
-            pActor->spr.pos.X = x;
-            pActor->spr.pos.Y = y;
-            pActor->spr.pos.Z = z;
+            pActor->set_int_pos({ x, y, z });
 
             pActor->spr.ang = (pActor->spr.ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
             pActor->spr.xvel = bcos(pActor->spr.ang);

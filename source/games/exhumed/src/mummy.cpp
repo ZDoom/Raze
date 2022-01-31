@@ -53,9 +53,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         ChangeActorStat(pActor, 102);
     }
 
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = z;
+    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 32;
@@ -450,7 +448,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->spr.pos.Z = pActor->sector()->floorz;
+        pActor->set_int_z(pActor->sector()->floorz);
     }
     else
     {

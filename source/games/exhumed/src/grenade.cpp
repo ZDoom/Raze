@@ -59,9 +59,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
     ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
-    pActor->spr.pos.X = pPlayerActor->spr.pos.X;
-    pActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
-    pActor->spr.pos.Z = pPlayerActor->spr.pos.Z;
+    pActor->set_int_pos(pPlayerActor->spr.pos);
 
     if (nAngle < 0) {
         nAngle = pPlayerActor->spr.ang;
@@ -104,9 +102,7 @@ void BuildGrenade(int nPlayer)
 
 	auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    pActor->spr.pos.X = pPlayerActor->spr.pos.X;
-    pActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
-    pActor->spr.pos.Z = pPlayerActor->spr.pos.Z - 3840;
+    pActor->set_int_pos({ pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z - 3840 });
     pActor->spr.shade = -64;
     pActor->spr.xrepeat = 20;
     pActor->spr.yrepeat = 20;
@@ -177,9 +173,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         auto pPlayerActor = PlayerList[nPlayer].pActor;
         int nAngle = pPlayerActor->spr.ang;
 
-        pActor->spr.pos.Z = pPlayerActor->spr.pos.Z;
-        pActor->spr.pos.X = bcos(nAngle, -5) + pPlayerActor->spr.pos.X;
-        pActor->spr.pos.Y = bsin(nAngle, -5) + pPlayerActor->spr.pos.Y;
+        pActor->set_int_pos({ bcos(nAngle, -5) + pPlayerActor->spr.pos.X, bsin(nAngle, -5) + pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z });
 
         ChangeActorSect(pActor, pPlayerActor->sector());
 

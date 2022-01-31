@@ -46,9 +46,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     {
         pActor = insertActor(pSector, 107);
 
-        pActor->spr.pos.X = x;
-        pActor->spr.pos.Y = y;
-        pActor->spr.pos.Z = z;
+        pActor->set_int_pos({ x, y, z });
     }
     else
     {
@@ -334,7 +332,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         auto pSector =pActor->sector();
 
-        pActor->spr.pos.Z += pActor->spr.zvel;
+        pActor->add_int_z(pActor->spr.zvel);
 
         if (pActor->spr.pos.Z >= pSector->floorz)
         {
