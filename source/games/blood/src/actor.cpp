@@ -5343,7 +5343,7 @@ int MoveMissile(DBloodActor* actor)
 			vz += ClipLow(ceilZ - top, 0);
 			cliptype = 1;
 		}
-		actor->int_pos() = pos;
+		actor->set_int_pos( pos);
 		actor->add_int_z(vz);
 		updatesector(pos.X, pos.Y, &pSector);
 		if (pSector != nullptr && pSector != actor->sector())
@@ -6653,7 +6653,7 @@ bool actCheckRespawn(DBloodActor* actor)
 			if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
 			{
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->int_pos() = actor->basePoint;
+				actor->set_int_pos(actor->basePoint);
 			}
 			evPostActor(actor, nRespawnTime, kCallbackRespawn);
 		}

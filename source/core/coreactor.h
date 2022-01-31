@@ -70,7 +70,7 @@ public:
 		return time; 
 	}	
 
-	vec3_t int_pos() const
+	const vec3_t int_pos() const
 	{
 		return spr.pos;
 	}
