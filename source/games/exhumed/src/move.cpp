@@ -294,7 +294,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 
     if (z2 < pActor->spr.pos.Z)
     {
-        pActor->spr.pos.Z = z2;
+        pActor->set_int_z(z2);
         overridesect = pSector;
         pActor->spr.zvel = 0;
 
@@ -348,7 +348,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pSect2 != pSector)
     {
-        pActor->spr.pos.Z = ebp;
+        pActor->set_int_z(ebp);
 
         if (pSect2->Flag & kSectUnderwater)
         {
@@ -446,7 +446,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
         // loc_1543B:
         ebp = mySprfloor;
-        pActor->spr.pos.Z = mySprfloor;
+        pActor->set_int_z(mySprfloor);
     }
     else
     {
@@ -466,7 +466,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     pActor->spr.cstat = cstat; // restore cstat
-    pActor->spr.pos.Z = ebp;
+    pActor->set_int_z(ebp);
 
     if (pActor->spr.statnum == 100)
     {
@@ -538,7 +538,9 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
+    auto pos = pActor->spr.pos;
+    clipmove(pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
+    pActor->set_int_pos(pos);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -553,8 +555,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
         if ((pSector->floorz - z) < (dz + flordist))
         {
-            pActor->spr.pos.X = x;
-            pActor->spr.pos.Y = y;
+            pActor->set_int_xy( x, y);
         }
         else
         {
@@ -639,9 +640,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
         if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
         {
-            pActor->spr.pos.X = x;
-            pActor->spr.pos.Y = y;
-            pActor->spr.pos.Z = z;
+            pActor->set_int_pos({ x, y, z });
 
             ChangeActorSect(pActor, pSectorPre);
 
@@ -820,9 +819,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].pActor = pActor;
 
-    pActor->spr.pos.X = xAvg;
-    pActor->spr.pos.Y = yAvg;
-    pActor->spr.pos.Z = pSector->floorz - 256;
+    pActor->set_int_pos({ xAvg, yAvg, pSector->floorz - 256 });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     int var_28 = 0;
@@ -980,8 +977,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         {
             if (pActor->spr.statnum < 99)
             {
-                pActor->spr.pos.X += xvect;
-                pActor->spr.pos.Y += yvect;
+                pActor->add_int_pos({ xvect, yvect, 0 });
             }
             else
             {
@@ -1055,7 +1051,10 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->spr.pos.Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
+                auto lpos = pActor->spr.pos;
+                clipmove(lpos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
+                pActor->set_int_pos(lpos);
+
             }
         }
     }
@@ -1356,7 +1355,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     if (pActor == nullptr) {
         return nullptr;
     }
-    pActor->spr.pos = pSrc->spr.pos;
+    pActor->set_int_pos(pSrc->spr.pos);
 
     ChangeActorSect(pActor, pSrc->sector());
 
@@ -1412,7 +1411,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->spr.pos.Z = pSector->floorz;
+        pActor->set_int_z(pSector->floorz);
     }
     else
     {

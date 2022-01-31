@@ -52,9 +52,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
         nAngle = spp->spr.ang;
     }
 
-    spp->spr.pos.X = x;
-    spp->spr.pos.Y = y;
-    spp->spr.pos.Z = z;
+    spp->set_int_pos({ x, y, z });
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     spp->spr.shade = -12;
     spp->spr.clipdist = 15;
@@ -102,7 +100,7 @@ void AISpider::Tick(RunListEvent* ev)
     {
         if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
         {
-            spp->spr.pos.Z = spp->sector()->ceilingz + GetActorHeight(spp);
+            spp->set_int_z(spp->sector()->ceilingz + GetActorHeight(spp));
         }
         else
         {
@@ -179,7 +177,7 @@ void AISpider::Tick(RunListEvent* ev)
             if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
             {
                 spp->spr.zvel = 0;
-                spp->spr.pos.Z = pSector->ceilingz + (tileHeight(spp->spr.picnum) << 5);
+                spp->set_int_z(pSector->ceilingz + (tileHeight(spp->spr.picnum) << 5));
 
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
                 {
@@ -212,7 +210,7 @@ void AISpider::Tick(RunListEvent* ev)
                     {
                         spp->spr.cstat ^= CSTAT_SPRITE_YFLIP;
                         spp->spr.zvel = 1;
-                        spp->spr.pos.Z = pSector->ceilingz + GetActorHeight(spp);
+                        spp->set_int_z(pSector->ceilingz + GetActorHeight(spp));
                     }
                     else
                     {
@@ -290,7 +288,7 @@ void AISpider::Tick(RunListEvent* ev)
         && !((spp->sector()->ceilingstat) & CSTAT_SECTOR_SKY))
     {
         spp->spr.cstat |= CSTAT_SPRITE_YFLIP;
-        spp->spr.pos.Z = GetActorHeight(spp) + spp->sector()->ceilingz;
+        spp->set_int_z(GetActorHeight(spp) + spp->sector()->ceilingz);
         spp->spr.zvel = 0;
 
         spp->nAction = 1;

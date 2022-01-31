@@ -407,8 +407,7 @@ void BuildTail()
         pTailActor->spr.lotag = runlist_HeadRun() + 1;
         pTailActor->spr.intowner = runlist_AddRunRec(pTailActor->spr.lotag - 1, (i + 1), 0x1B0000);
         pTailActor->spr.shade = -12;
-        pTailActor->spr.pos.X = x;
-        pTailActor->spr.pos.Y = y;
+        pTailActor->set_int_xy(x, y);
         pTailActor->spr.hitag = 0;
         pTailActor->spr.cstat = 0;
         pTailActor->spr.clipdist = 100;
@@ -418,7 +417,7 @@ void BuildTail()
         pTailActor->spr.pal = pTailActor->sector()->ceilingpal;
         pTailActor->spr.xoffset = 0;
         pTailActor->spr.yoffset = 0;
-        pTailActor->spr.pos.Z = z;
+        pTailActor->set_int_z(z);
         pTailActor->spr.extra = -1;
     }
 
@@ -453,9 +452,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     auto pActor2 = insertActor(pSector, 121);
 
-    pActor2->spr.pos.X = x;
-    pActor2->spr.pos.Y = y;
-    pActor2->spr.pos.Z = nFloorZ;
+    pActor2->set_int_pos({ x, y, nFloorZ });
     pActor2->spr.pal = 0;
     pActor2->spr.clipdist = 50;
     pActor2->spr.xoffset = 0;
@@ -655,7 +652,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (pEgg->nCounter <= 0)
         {
             auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos.X, pActor->spr.pos.Y, pActor->spr.pos.Z, pActor->sector(), pActor->spr.ang, true);
-            pActor->spr.pos.Z = pWaspSprite->spr.pos.Z;
+            pActor->set_int_z(pWaspSprite->spr.pos.Z);
 
             DestroyEgg(nEgg);
         }
@@ -713,9 +710,7 @@ void BuildQueenHead(int nQueen)
 
     auto pActor2 = insertActor(pSector, 121);
 
-    pActor2->spr.pos.X = x;
-    pActor2->spr.pos.Y = y;
-    pActor2->spr.pos.Z = z;
+    pActor2->set_int_pos({ x, y, z });
     pActor2->spr.clipdist = 70;
     pActor2->spr.xrepeat = 80;
     pActor2->spr.yrepeat = 80;
@@ -874,7 +869,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         }
         else
         {
-            pActor->spr.pos.Z -= 2048;
+            pActor->add_int_z(-2048);
             goto __MOVEQS;
         }
         break;
@@ -950,9 +945,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     ChangeActorSect(pTActor, headSect);
                 }
 
-                pTActor->spr.pos.X = MoveQX[nHd];
-                pTActor->spr.pos.Y = MoveQY[nHd];
-                pTActor->spr.pos.Z = MoveQZ[nHd];
+                pTActor->set_int_pos({ MoveQX[nHd], MoveQY[nHd], MoveQZ[nHd] });
                 pTActor->spr.ang = MoveQA[nHd];
             }
         }
@@ -999,9 +992,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                     ChangeActorSect(pActor, pSector);
 
-                    pActor->spr.pos.X = x;
-                    pActor->spr.pos.Y = y;
-                    pActor->spr.pos.Z = z;
+                    pActor->set_int_pos({ x, y, z });
 
                     if (QueenHead.nIndex2 < 10) {
                         for (int i = (10 - QueenHead.nIndex2) * 2; i > 0; i--)
@@ -1126,9 +1117,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         nAngle = pActor->spr.ang;
     }
 
-    pActor->spr.pos.X = x;
-    pActor->spr.pos.Y = y;
-    pActor->spr.pos.Z = z;
+    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.pal = 0;
     pActor->spr.shade = -12;
