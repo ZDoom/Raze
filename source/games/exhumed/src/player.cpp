@@ -263,18 +263,14 @@ void RestartPlayer(int nPlayer)
 			nCurStartSprite = 0;
 		}
 
-		pActor->spr.pos.X = nNStartSprite->spr.pos.X;
-		pActor->spr.pos.Y = nNStartSprite->spr.pos.Y;
-		pActor->spr.pos.Z = nNStartSprite->spr.pos.Z;
+		pActor->set_int_pos(nNStartSprite->spr.pos);
 		ChangeActorSect(pActor, nNStartSprite->sector());
 		plr->angle.ang = buildang(nNStartSprite->spr.ang&kAngleMask);
 		pActor->spr.ang = plr->angle.ang.asbuild();
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
-		floorsprt->spr.pos.X = pActor->spr.pos.X;
-		floorsprt->spr.pos.Y = pActor->spr.pos.Y;
-		floorsprt->spr.pos.Z = pActor->spr.pos.Z;
+		floorsprt->set_int_pos(pActor->spr.pos);
 		floorsprt->spr.yrepeat = 64;
 		floorsprt->spr.xrepeat = 64;
 		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
@@ -282,9 +278,7 @@ void RestartPlayer(int nPlayer)
 	}
 	else
 	{
-		pActor->spr.pos.X = plr->sPlayerSave.x;
-		pActor->spr.pos.Y = plr->sPlayerSave.y;
-		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
+        pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->floorz });
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
 		pActor->spr.ang = plr->angle.ang.asbuild();
 
@@ -317,9 +311,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.extra = -1;
 	pActor->spr.lotag = runlist_HeadRun() + 1;
 
-	pDActor->spr.pos.X = pActor->spr.pos.X;
-	pDActor->spr.pos.Y = pActor->spr.pos.Y;
-	pDActor->spr.pos.Z = pActor->spr.pos.Z;
+    pDActor->set_int_pos(pActor->spr.pos);
 	pDActor->spr.xrepeat = pActor->spr.xrepeat;
 	pDActor->spr.yrepeat = pActor->spr.yrepeat;
 	pDActor->spr.xoffset = 0;
@@ -462,9 +454,7 @@ void StartDeathSeq(int nPlayer, int nVal)
                 auto pGunActor = GrabBodyGunSprite();
                 ChangeActorSect(pGunActor, pSector);
 
-                pGunActor->spr.pos.X = pActor->spr.pos.X;
-                pGunActor->spr.pos.Y = pActor->spr.pos.Y;
-                pGunActor->spr.pos.Z = pSector->floorz - 512;
+                pGunActor->set_int_pos({ pActor->spr.pos.X, pActor->spr.pos.Y, pSector->floorz - 512 });
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
@@ -887,13 +877,12 @@ void AIPlayer::Tick(RunListEvent* ev)
     nMove.setNone();
     if (bSlipMode)
     {
-        pPlayerActor->spr.pos.X += (x >> 14);
-        pPlayerActor->spr.pos.Y += (y >> 14);
+        pPlayerActor->add_int_pos({ (x >> 14), (y >> 14), 0 });
 
-        vec3_t pos = { pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->spr.pos.Z };
+        vec3_t pos = pPlayerActor->spr.pos;
         SetActor(pPlayerActor, &pos);
 
-        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+        pPlayerActor->set_int_z(pPlayerActor->sector()->floorz);
     }
     else
     {
@@ -901,7 +890,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
         auto pPlayerSect = pPlayerActor->sector();
 
-        pushmove(&pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
+        pushmove(pPlayerActor, &pPlayerSect, pPlayerActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
         if (pPlayerSect != pPlayerActor->sector()) {
             ChangeActorSect(pPlayerActor, pPlayerSect);
         }
@@ -912,8 +901,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         ChangeActorSect(pPlayerActor, spr_sect);
 
-        pPlayerActor->spr.pos.X = spr_x;
-        pPlayerActor->spr.pos.Y = spr_y;
+        pPlayerActor->set_int_xy(spr_x, spr_y);
 
         if (zVel < pPlayerActor->spr.zvel) {
             pPlayerActor->spr.zvel = zVel;
@@ -1056,10 +1044,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         }
                         else
                         {
-                            pPlayerActor->spr.pos.X = spr_x;
-                            pPlayerActor->spr.pos.Y = spr_y;
-                            pPlayerActor->spr.pos.Z = spr_z;
-
+                            pPlayerActor->set_int_pos({ spr_x, spr_y, spr_z });
                             ChangeActorSect(pPlayerActor, spr_sect);
                         }
 
@@ -1132,25 +1117,20 @@ sectdone:
 
                 ChangeActorSect(pPlayerActor, pViewSect);
 
-                pPlayerActor->spr.pos.X = spr_x;
-                pPlayerActor->spr.pos.Y = spr_y;
 
                 int var_FC = pViewSect->floorz + (-5120);
-
-                pPlayerActor->spr.pos.Z = var_FC;
+                pPlayerActor->set_int_pos({ spr_x, spr_y, var_FC });
 
                 auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
                     ChangeActorSect(pPlayerActor, pPlayerActor->sector());
 
-                    pPlayerActor->spr.pos.X = var_C4;
-                    pPlayerActor->spr.pos.Y = var_D4;
-                    pPlayerActor->spr.pos.Z = var_C8;
+                    pPlayerActor->set_int_pos({ var_C4, var_D4, var_C8 });
                 }
                 else
                 {
-                    pPlayerActor->spr.pos.Z = var_FC - 256;
+                    pPlayerActor->set_int_z(var_FC - 256);
                     D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
             }
@@ -1278,15 +1258,14 @@ sectdone:
         DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
-            pFloorActor->spr.pos.X = pPlayerActor->spr.pos.X;
-            pFloorActor->spr.pos.Y = pPlayerActor->spr.pos.Y;
+            pFloorActor->set_int_xy(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y);
 
             if (pFloorActor->sector() != pPlayerActor->sector())
             {
                 ChangeActorSect(pFloorActor, pPlayerActor->sector());
             }
 
-            pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+            pFloorActor->set_int_z(pPlayerActor->sector()->floorz);
         }
 
         int var_30 = 0;
@@ -2473,7 +2452,7 @@ sectdone:
                     {
                         pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
                         pPlayerActor->spr.cstat = 0;
-                        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+                        pPlayerActor->set_int_z(pPlayerActor->sector()->floorz);
                     }
 
                     // will invalidate nPlayerSprite
@@ -2522,7 +2501,7 @@ sectdone:
             PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
             if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) {
-                pPlayerActor->spr.pos.Z += 256;
+                pPlayerActor->add_int_z(256);
             }
 
             if (!RandomSize(5))
@@ -2593,7 +2572,7 @@ sectdone:
     }
 
     // loc_1C4E1
-    pDopple->spr.pos = pPlayerActor->spr.pos;
+    pDopple->set_int_pos(pPlayerActor->spr.pos);
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
