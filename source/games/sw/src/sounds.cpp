@@ -627,12 +627,13 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, int flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
 
     auto sps = actor;
+    auto pos = ppos ? *ppos : vec3_t(0, 0, 0);
 
     auto vp = &voc[num];
     int sourcetype = SOURCE_None;
@@ -641,19 +642,19 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, int flags, int
     // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
     if (!(flags & v3df_follow))
     {
-        if (actor && !pos)
+        if (actor && !ppos)
         {
-            pos = &actor->spr.pos;
+            pos = actor->spr.pos;
             actor = nullptr;
         }
-        else if (pp && !pos)
+        else if (pp && !ppos)
         {
-            pos = &pp->pos;
+            pos = pp->pos;
             pp = nullptr;
         }
     }
 
-    if (pos != nullptr)
+    if (ppos != nullptr)
     {
         sourcetype = SOURCE_Unattached;
     }
@@ -678,7 +679,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, int flags, int
     else if (vp->pitch_hi != vp->pitch_lo) pitch = vp->pitch_lo + (StdRandomRange(vp->pitch_hi - vp->pitch_lo));
 
     auto rolloff = GetRolloff(vp->voc_distance);
-    FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
+    FVector3 spos = GetSoundPos(pos);
     auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
     if (chan && sourcetype == SOURCE_Unattached) chan->Source = sps; // needed for sound termination.
     return 1;
