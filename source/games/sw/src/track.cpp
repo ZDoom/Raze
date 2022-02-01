@@ -1706,7 +1706,7 @@ PlayerPart:
         if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->spr.pos.Z = sop->pmid.Z - actor->user.pos.Z;
+            actor->set_int_z(sop->pmid.Z - actor->user.pos.Z);
         }
         else
         {
@@ -1714,12 +1714,12 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->spr.pos.Z = actor->sector()->floorz - actor->user.pos.Z;
+                actor->set_int_z(actor->sector()->floorz - actor->user.pos.Z);
             }
             else
             {
                 // move with the mid sector
-                actor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
+                actor->set_int_z(sop->mid_sector->floorz - actor->user.pos.Z);
             }
         }
 
@@ -1792,7 +1792,7 @@ PlayerPart:
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
                 pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
-                pp->actor->spr.pos.Z = pp->loz;
+                pp->actor->set_int_z(pp->loz);
             }
             else
             {
@@ -1803,7 +1803,7 @@ PlayerPart:
                 if (!(pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING)))
                 {
                     pp->pos.Z = pp->loz - PLAYER_HEIGHT;
-                    pp->actor->spr.pos.Z = pp->loz;
+                    pp->actor->set_int_z(pp->loz);
                 }
             }
         }
@@ -3287,7 +3287,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
-            actor->spr.pos.Z = actor->sector()->floorz;
+            actor->set_int_z(actor->sector()->floorz);
             actor->spr.zvel = 0;
         }
         else

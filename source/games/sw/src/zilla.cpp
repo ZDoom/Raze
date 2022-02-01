@@ -648,7 +648,7 @@ int NullZilla(DSWActor* actor)
     actor->user.hi_sectp = actor->sector();
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
-    actor->spr.pos.Z = actor->user.loz;
+    actor->set_int_z(actor->user.loz);
 
     DoActorSectorDamage(actor);
 
@@ -717,7 +717,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     actor->user.hi_sectp = actor->sector();
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
-    actor->spr.pos.Z = actor->user.loz;
+    actor->set_int_z(actor->user.loz);
 
     BossSpriteNum[2] = nullptr;
     return 0;

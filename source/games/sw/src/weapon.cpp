@@ -3799,7 +3799,7 @@ int DoVomit(DSWActor* actor)
         ChangeState(actor, s_VomitSplash);
         DoFindGroundPoint(actor);
         MissileWaterAdjust(actor);
-        actor->spr.pos.Z = actor->user.loz;
+        actor->set_int_z(actor->user.loz);
         actor->user.WaitTics = 60;
         actor->user.pos.X = actor->spr.xrepeat;
         actor->user.pos.Y = actor->spr.yrepeat;
@@ -8627,7 +8627,7 @@ int DoMineStuck(DSWActor* actor)
 
         vec3_t pos = { attachActor->spr.pos.X, attachActor->spr.pos.Y, attachActor->spr.pos.Z - actor->user.pos.Z };
         SetActorZ(actor, &pos);
-        actor->spr.pos.Z = attachActor->spr.pos.Z - (ActorSizeZ(attachActor) >> 1);
+        actor->set_int_z(attachActor->spr.pos.Z - (ActorSizeZ(attachActor) >> 1));
     }
 
     // not activated yet
@@ -8812,7 +8812,7 @@ int DoMine(DSWActor* actor)
 
             SetMineStuck(actor);
             // Set the Z position
-            actor->spr.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1);
+            actor->set_int_z(hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1));
 
             // If it's not alive, don't stick it
             if (hitActor->hasU() && hitActor->user.Health <= 0) return false;    // JBF: added null check
@@ -9862,7 +9862,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
     actorNew->user.Radius = 200;
     actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
-    actorNew->spr.pos.Z = getflorzofslopeptr(actorNew->sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y);
+    actorNew->set_int_z(getflorzofslopeptr(actorNew->sector(), actorNew->spr.pos.X, actorNew->spr.pos.Y));
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
@@ -10262,13 +10262,13 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
     if (actor->user.Flags & (SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        expActor->spr.pos.Z = actor->sector()->floorz - actor->user.pos.Z;
+        expActor->set_int_z(actor->sector()->floorz - actor->user.pos.Z);
         expActor->backupz();
     }
     else
     {
         // move with the mid sector
-        expActor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
+        expActor->set_int_z(sop->mid_sector->floorz - actor->user.pos.Z);
         expActor->backupz();
     }
 
@@ -10391,12 +10391,12 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 
         if (tos_z <= actor->user.hiz + Z(4))
         {
-            expActor->spr.pos.Z = actor->user.hiz + upper_zsize;
+            expActor->set_int_z(actor->user.hiz + upper_zsize);
             expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > actor->user.loz)
         {
-            expActor->spr.pos.Z = actor->user.loz - lower_zsize;
+            expActor->set_int_z(actor->user.loz - lower_zsize);
         }
     }
     else
@@ -10410,12 +10410,12 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
 
         if (tos_z <= cz + Z(4))
         {
-            expActor->spr.pos.Z = cz + upper_zsize;
+            expActor->set_int_z(cz + upper_zsize);
             expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > fz)
         {
-            expActor->spr.pos.Z = fz - lower_zsize;
+            expActor->set_int_z(fz - lower_zsize);
         }
     }
 
@@ -10814,7 +10814,7 @@ int DoNapalm(DSWActor* actor)
 
         DoFindGroundPoint(expActor);
         MissileWaterAdjust(expActor);
-        expActor->spr.pos.Z = expActor->user.loz;
+        expActor->set_int_z(expActor->user.loz);
         expActor->backupz();
 
         if (actor->user.Flags & (SPR_UNDERWATER))
@@ -11207,12 +11207,12 @@ int DoRing(DSWActor* actor)
     // bound the sprite by the sectors ceiling and floor
     if (actor->spr.pos.Z > fz)
     {
-        actor->spr.pos.Z = fz;
+        actor->set_int_z(fz);
     }
 
     if (actor->spr.pos.Z < cz + ActorSizeZ(actor))
     {
-        actor->spr.pos.Z = cz + ActorSizeZ(actor);
+        actor->set_int_z(cz + ActorSizeZ(actor));
     }
 
     // Done last - check for damage
@@ -11335,12 +11335,12 @@ int DoSerpRing(DSWActor* actor)
     // bound the sprite by the sectors ceiling and floor
     if (actor->spr.pos.Z > fz)
     {
-        actor->spr.pos.Z = fz;
+        actor->set_int_z(fz);
     }
 
     if (actor->spr.pos.Z < cz + ActorSizeZ(actor))
     {
-        actor->spr.pos.Z = cz + ActorSizeZ(actor);
+        actor->set_int_z(cz + ActorSizeZ(actor));
     }
 
     if (actor->user.Counter2 > 0)
@@ -11536,7 +11536,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.zvel = Z(3);
         actorNew->spr.pal = 0;
 
-        actorNew->spr.pos.Z = ActorZOfTop(actor) - Z(20);
+        actorNew->set_int_z(ActorZOfTop(actor) - Z(20));
         actorNew->user.pos.Z = Z(50);
 
         // ang around the serp is now slide_ang
@@ -14082,7 +14082,7 @@ int InitSerpSpell(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(),
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 1500);
 
-        actorNew->spr.pos.Z = ActorZOfTop(actor);
+        actorNew->set_int_z(ActorZOfTop(actor));
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
@@ -14181,7 +14181,7 @@ int InitSerpMonstSpell(DSWActor* actor)
                           actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 500);
 
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
-        actorNew->spr.pos.Z = ActorZOfTop(actor);
+        actorNew->set_int_z(ActorZOfTop(actor));
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
@@ -14643,7 +14643,7 @@ int DoCoolgDrip(DSWActor* actor)
 
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
-        actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
+        actor->set_int_z(actor->user.loz - actor->user.floor_dist);
         actor->spr.yrepeat = actor->spr.xrepeat = 32;
         ChangeState(actor, s_GoreFloorSplash);
         if (actor->user.spal == PALETTE_BLUE_LIGHTING)
@@ -16955,7 +16955,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->spr.pos.Z = underActor->sector()->ceilingz + actor->user.ceiling_dist+Z(1);
+    actor->set_int_z(underActor->sector()->ceilingz + actor->user.ceiling_dist+Z(1));
 
     actor->backuppos();
 
@@ -17024,7 +17024,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->spr.pos.Z = overActor->sector()->floorz - Z(2);
+    actor->set_int_z(overActor->sector()->floorz - Z(2));
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);
@@ -18054,7 +18054,7 @@ int DoShrapVelocity(DSWActor* actor)
                 // hit floor
                 if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
                 {
-                    actor->spr.pos.Z = actor->user.loz;
+                    actor->set_int_z(actor->user.loz);
                     if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
 
@@ -18327,7 +18327,7 @@ int DoItemFly(DSWActor* actor)
             // hit floor
             if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) >> 1))
             {
-                actor->spr.pos.Z = actor->user.loz;
+                actor->set_int_z(actor->user.loz);
                 actor->user.Counter = 0;
                 actor->spr.xvel = 0;
                 actor->user.change.Z = actor->user.change.X = actor->user.change.Y = 0;

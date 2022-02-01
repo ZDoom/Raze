@@ -147,8 +147,7 @@ int DoWallMove(DSWActor* actor)
         }
         else
         {
-            actor->spr.pos.X += nx;
-            actor->spr.pos.Y += ny;
+            actor->add_int_pos({ nx, ny, 0 });
         }
     }
 
