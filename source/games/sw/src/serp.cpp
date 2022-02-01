@@ -730,7 +730,7 @@ int SetupSerp(DSWActor* actor)
     actor->spr.clipdist = (512) >> 2;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    actor->user.loz = actor->spr.pos.Z;
+    actor->user.loz = actor->int_pos().Z;
 
     // amount to move up for clipmove
     actor->user.zclip = Z(80);

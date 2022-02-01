@@ -312,7 +312,7 @@ int SetupHornet(DSWActor* actor)
     actor->user.floor_dist = Z(16);
     actor->user.ceiling_dist = Z(16);
 
-    actor->user.pos.Z = actor->spr.pos.Z;
+    actor->user.pos.Z = actor->int_pos().Z;
 
     actor->spr.xrepeat = 37;
     actor->spr.yrepeat = 32;
@@ -396,7 +396,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     actor->set_int_z(actor->user.pos.Z + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14));
 
     bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
-    if (actor->spr.pos.Z < bound)
+    if (actor->int_pos().Z < bound)
     {
         // bumped something
         actor->set_int_z(actor->user.pos.Z = bound + HORNET_BOB_AMT);
@@ -513,7 +513,7 @@ int DoHornetDeath(DSWActor* actor)
     actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
-    if (actor->spr.pos.Z >= actor->user.loz)
+    if (actor->int_pos().Z >= actor->user.loz)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
@@ -541,7 +541,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (actor->user.targetActor->user.PlayerP)
     {
         pp = actor->user.targetActor->user.PlayerP;
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
+        DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
     }
     else
         return 0;
@@ -554,7 +554,7 @@ int DoCheckSwarm(DSWActor* actor)
 
         if (itActor->spr.hitag != TAG_SWARMSPOT || itActor->spr.lotag != 2) continue;
 
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y, dist, a, b, c);
 
         if (dist < pdist && actor->user.ID == itActor->user.ID) // Only flock to your own kind
         {

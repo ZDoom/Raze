@@ -456,13 +456,13 @@ void WarpCopySprite(tspriteArray& tsprites)
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
-                    xoff = itActor->spr.pos.X - newTSpr->pos.X;
-                    yoff = itActor->spr.pos.Y - newTSpr->pos.Y;
-                    zoff = itActor->spr.pos.Z - newTSpr->pos.Z;
+                    xoff = itActor->int_pos().X - newTSpr->pos.X;
+                    yoff = itActor->int_pos().Y - newTSpr->pos.Y;
+                    zoff = itActor->int_pos().Z - newTSpr->pos.Z;
 
-                    newTSpr->pos.X = itActor1->spr.pos.X - xoff;
-                    newTSpr->pos.Y = itActor1->spr.pos.Y - yoff;
-                    newTSpr->pos.Z = itActor1->spr.pos.Z - zoff;
+                    newTSpr->pos.X = itActor1->int_pos().X - xoff;
+                    newTSpr->pos.Y = itActor1->int_pos().Y - yoff;
+                    newTSpr->pos.Z = itActor1->int_pos().Z - zoff;
                     newTSpr->sectp = itActor1->sector();
                 }
 
@@ -478,8 +478,8 @@ void WarpCopySprite(tspriteArray& tsprites)
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
-                    auto off = itActor1->spr.pos - newTSpr->pos;
-                    newTSpr->pos = itActor->spr.pos - off;
+                    auto off = itActor1->int_pos() - newTSpr->pos;
+                    newTSpr->pos = itActor->int_pos() - off;
                     newTSpr->sectp = itActor->sector();
                 }
             }
@@ -639,8 +639,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                int32_t const floorz = getflorzofslopeptr(tActor->sector(), tActor->spr.pos.X, tActor->spr.pos.Y);
-                if (tActor->spr.pos.Z > floorz)
+                int32_t const floorz = getflorzofslopeptr(tActor->sector(), tActor->int_pos().X, tActor->int_pos().Y);
+                if (tActor->int_pos().Z > floorz)
                     tsp->pos.Z = floorz;
             }
 
@@ -1066,9 +1066,9 @@ void PrintSpriteInfo(PLAYER* pp)
         }
 
         {
-            Printf("POSX:%d, ", actor->spr.pos.X);
-            Printf("POSY:%d, ", actor->spr.pos.Y);
-            Printf("POSZ:%d,", actor->spr.pos.Z);
+            Printf("POSX:%d, ", actor->int_pos().X);
+            Printf("POSY:%d, ", actor->int_pos().Y);
+            Printf("POSZ:%d,", actor->int_pos().Z);
             Printf("ANG:%d\n", actor->spr.ang);
         }
     }
@@ -1096,12 +1096,12 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         SWStatIterator it(STAT_DEMO_CAMERA);
         while (auto actor = it.Next())
         {
-            ang = bvectangbam(*tx - actor->spr.pos.X, *ty - actor->spr.pos.Y);
+            ang = bvectangbam(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
             ang_test = getincangle(ang.asbuild(), actor->spr.ang) < actor->spr.lotag;
 
             FAFcansee_test =
-                (FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), *tx, *ty, *tz + ActorSizeZ(pp->actor), pp->cursector));
+                (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz + ActorSizeZ(pp->actor), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1134,15 +1134,15 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     xvect = ang.bcos(-3);
                     yvect = ang.bsin(-3);
 
-                    zdiff = actor->spr.pos.Z - *tz;
-                    if (labs(actor->spr.pos.X - *tx) > 1000)
-                        zvect = Scale(xvect, zdiff, actor->spr.pos.X - *tx);
-                    else if (labs(actor->spr.pos.Y - *ty) > 1000)
-                        zvect = Scale(yvect, zdiff, actor->spr.pos.Y - *ty);
-                    else if (actor->spr.pos.X - *tx != 0)
-                        zvect = Scale(xvect, zdiff, actor->spr.pos.X - *tx);
-                    else if (actor->spr.pos.Y - *ty != 0)
-                        zvect = Scale(yvect, zdiff, actor->spr.pos.Y - *ty);
+                    zdiff = actor->int_pos().Z - *tz;
+                    if (labs(actor->int_pos().X - *tx) > 1000)
+                        zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);
+                    else if (labs(actor->int_pos().Y - *ty) > 1000)
+                        zvect = Scale(yvect, zdiff, actor->int_pos().Y - *ty);
+                    else if (actor->int_pos().X - *tx != 0)
+                        zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);
+                    else if (actor->int_pos().Y - *ty != 0)
+                        zvect = Scale(yvect, zdiff, actor->int_pos().Y - *ty);
                     else
                         zvect = 0;
 
@@ -1150,9 +1150,9 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     *thoriz = q16horiz(clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax()));
 
                     *tang = ang;
-                    *tx = actor->spr.pos.X;
-                    *ty = actor->spr.pos.Y;
-                    *tz = actor->spr.pos.Z;
+                    *tx = actor->int_pos().X;
+                    *ty = actor->int_pos().Y;
+                    *tz = actor->int_pos().Z;
                     *tsect = actor->sector();
 
                     found_camera = true;
@@ -1626,8 +1626,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 if (actor == peekActor)
                     col = GPalette.BaseColors[31];
 
-                sprx = actor->spr.pos.X;
-                spry = actor->spr.pos.Y;
+                sprx = actor->int_pos().X;
+                spry = actor->int_pos().Y;
 
                 k = actor->spr.statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving

@@ -364,7 +364,7 @@ void EelCommon(DSWActor* actor)
     actor->user.floor_dist = Z(16);
     actor->user.ceiling_dist = Z(20);
 
-    actor->user.pos.Z = actor->spr.pos.Z;
+    actor->user.pos.Z = actor->int_pos().Z;
 
     actor->spr.xrepeat = 35;
     actor->spr.yrepeat = 27;
@@ -462,7 +462,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // lower bound
     if (actor->user.lowActor && actor->user.targetActor == actor->user.highActor) // this doesn't look right...
     {
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.lowActor->spr.pos.X, actor->user.lowActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.lowActor->int_pos().X, actor->user.lowActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
             bound = actor->user.pos.Z;
         else
@@ -479,7 +479,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // upper bound
     if (actor->user.highActor && actor->user.targetActor == actor->user.highActor)
     {
-        DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.highActor->spr.pos.X, actor->user.highActor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.highActor->int_pos().X, actor->user.highActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
             bound = actor->user.pos.Z;
         else
@@ -500,7 +500,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     actor->set_int_z(actor->user.pos.Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
 
     bound = actor->user.hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
-    if (actor->spr.pos.Z < bound)
+    if (actor->int_pos().Z < bound)
     {
         // bumped something
         actor->set_int_z(actor->user.pos.Z = bound + EEL_BOB_AMT);
@@ -534,7 +534,7 @@ int DoEelDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (actor->spr.pos.Z >= actor->user.loz)
+    if (actor->int_pos().Z >= actor->user.loz)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)

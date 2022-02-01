@@ -56,15 +56,15 @@ void ReverseVator(DSWActor* actor)
     // moving toward to OFF pos
     if (actor->user.z_tgt == actor->user.oz)
     {
-        if (actor->spr.pos.Z == actor->user.oz)
+        if (actor->int_pos().Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z;
         else if (actor->user.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
     }
     else if (actor->user.z_tgt == actor->user.pos.Z)
     {
-        if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->spr.pos.Z;
+        if (actor->int_pos().Z == actor->user.oz)
+            actor->user.z_tgt = actor->int_pos().Z;
         else if (actor->user.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z;
     }
@@ -107,7 +107,7 @@ void SetVatorActive(DSWActor* actor)
     actor->user.Tics = 0;
 
     // moving to the ON position
-    if (actor->user.z_tgt == actor->spr.pos.Z)
+    if (actor->user.z_tgt == actor->int_pos().Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
@@ -390,7 +390,7 @@ int DoVator(DSWActor* actor)
     if (*lptr == actor->user.z_tgt)
     {
         // in the ON position
-        if (actor->user.z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->int_pos().Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z;
@@ -411,7 +411,7 @@ int DoVator(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = short(abs(actor->user.vel_rate));
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
 
             RESET_BOOL8(actor);
             SetVatorInactive(actor);
@@ -541,7 +541,7 @@ int DoVatorAuto(DSWActor* actor)
     if (*lptr == actor->user.z_tgt)
     {
         // in the UP position
-        if (actor->user.z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->int_pos().Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z;
@@ -558,7 +558,7 @@ int DoVatorAuto(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = short(abs(actor->user.vel_rate));
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
             actor->user.Tics = actor->user.WaitTics;
 
             if (SP_TAG6(actor) && TEST_BOOL5(actor))

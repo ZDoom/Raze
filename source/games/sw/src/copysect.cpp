@@ -169,8 +169,8 @@ void CopySectorMatch(int match)
                         SectorMidPoint(dActor->sector(), &dx, &dy, &trash);
 
                         // get offset
-                        src_xoff = sx - itActor->spr.pos.X;
-                        src_yoff = sy - itActor->spr.pos.Y;
+                        src_xoff = sx - itActor->int_pos().X;
+                        src_yoff = sy - itActor->int_pos().Y;
 
                         // move sprite to dest sector
                         itActor->set_int_xy(dx - src_xoff, dy - src_yoff);

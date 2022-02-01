@@ -51,15 +51,15 @@ void ReverseSpike(DSWActor* actor)
     // moving toward to OFF pos
     if (actor->user.z_tgt == actor->user.oz)
     {
-        if (actor->spr.pos.Z == actor->user.oz)
+        if (actor->int_pos().Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z;
         else if (actor->user.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
     }
     else if (actor->user.z_tgt == actor->user.pos.Z)
     {
-        if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->spr.pos.Z;
+        if (actor->int_pos().Z == actor->user.oz)
+            actor->user.z_tgt = actor->int_pos().Z;
         else if (actor->user.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z;
     }
@@ -102,7 +102,7 @@ void SetSpikeActive(DSWActor* actor)
     actor->user.Tics = 0;
 
     // moving to the ON position
-    if (actor->user.z_tgt == actor->spr.pos.Z)
+    if (actor->user.z_tgt == actor->int_pos().Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
@@ -232,16 +232,16 @@ void SpikeAlign(DSWActor* actor)
     if ((int8_t)SP_TAG7(actor) < 0)
     {
         if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-            alignceilslope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            alignceilslope(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->user.zclip);
         else
-            alignflorslope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            alignflorslope(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->user.zclip);
     }
     else
     {
         if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], actor->int_pos().X, actor->int_pos().Y, actor->user.zclip);
         else
-            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], actor->spr.pos.X, actor->spr.pos.Y, actor->user.zclip);
+            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], actor->int_pos().X, actor->int_pos().Y, actor->user.zclip);
     }
 }
 
@@ -258,7 +258,7 @@ void MoveSpritesWithSpike(sectortype* sect)
         if ((actor->spr.extra & SPRX_STAY_PUT_VATOR))
             continue;
 
-        getzsofslopeptr(sect, actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
+        getzsofslopeptr(sect, actor->int_pos().X, actor->int_pos().Y, &cz, &fz);
         actor->set_int_z(fz);
     }
 }
@@ -282,7 +282,7 @@ int DoSpike(DSWActor* actor)
     if (*lptr == actor->user.z_tgt)
     {
         // in the ON position
-        if (actor->user.z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->int_pos().Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z;
@@ -302,7 +302,7 @@ int DoSpike(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = (short)abs(actor->user.vel_rate);
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
 
             SetSpikeInactive(actor);
 
@@ -387,7 +387,7 @@ int DoSpikeAuto(DSWActor* actor)
     if (*lptr == actor->user.z_tgt)
     {
         // in the UP position
-        if (actor->user.z_tgt == actor->spr.pos.Z)
+        if (actor->user.z_tgt == actor->int_pos().Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z;
@@ -404,7 +404,7 @@ int DoSpikeAuto(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = (short)abs(actor->user.vel_rate);
-            actor->user.z_tgt = actor->spr.pos.Z;
+            actor->user.z_tgt = actor->int_pos().Z;
             actor->user.Tics = actor->user.WaitTics;
 
             if (SP_TAG6(actor) && TEST_BOOL5(actor))

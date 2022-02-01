@@ -1954,12 +1954,12 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, int range)
 {
-    return (abs(getincangle(getangle(a->spr.pos.X - (pp)->pos.X, a->spr.pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range));
+    return (abs(getincangle(getangle(a->int_pos().X - (pp)->pos.X, a->int_pos().Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range));
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, int range)
 {
-    return (abs(getincangle(getangle(a1->spr.pos.X - a2->spr.pos.X, a1->spr.pos.Y - a2->spr.pos.Y), a2->spr.ang)) < (range));
+    return (abs(getincangle(getangle(a1->int_pos().X - a2->int_pos().X, a1->int_pos().Y - a2->int_pos().Y), a2->spr.ang)) < (range));
 }
 inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
@@ -2067,7 +2067,7 @@ inline int ActorSizeY(DSWActor* sp)
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 {
-    return (abs(getincangle(getangle(actor1->spr.pos.X - actor2->spr.pos.X, actor1->spr.pos.Y - actor2->spr.pos.Y), actor2->spr.ang)) < 512);
+    return (abs(getincangle(getangle(actor1->int_pos().X - actor2->int_pos().X, actor1->int_pos().Y - actor2->int_pos().Y), actor2->spr.ang)) < 512);
 }
 
 // Given a z height and sprite return the correct y repeat value

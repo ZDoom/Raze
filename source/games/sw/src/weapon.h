@@ -34,12 +34,12 @@ BEGIN_SW_NS
 
 inline int AngToSprite(DSWActor* actor, DSWActor* other)
 {
-    return (getangle(actor->spr.pos.X - other->spr.pos.X, actor->spr.pos.Y - other->spr.pos.Y));
+    return (getangle(actor->int_pos().X - other->int_pos().X, actor->int_pos().Y - other->int_pos().Y));
 }
 
 inline int AngToPlayer(PLAYER* player, DSWActor* other)
 {
-    return (getangle(player->pos.X - other->spr.pos.X, player->pos.Y - other->spr.pos.Y));
+    return (getangle(player->pos.X - other->int_pos().X, player->pos.Y - other->int_pos().Y));
 }
 
 

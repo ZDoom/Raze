@@ -832,7 +832,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     DSWActor* target = actor->user.targetActor;
     int tang;
 
-    tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
+    tang = getangle(target->int_pos().X - actor->int_pos().X, target->int_pos().Y - actor->int_pos().Y);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
         0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -904,11 +904,11 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (itActor->user.ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, actor->spr.pos.X, actor->spr.pos.Y, dist, a, b, c);
+        DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, look_height, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ActorUpperZ(itActor), itActor->sector());
+        ICanSee = FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ActorUpperZ(itActor), itActor->sector());
 
         if (ICanSee && dist < near_dist && itActor->user.ID == BUNNY_RUN_R0)
         {
@@ -1003,7 +1003,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(2<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1018,13 +1018,13 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(3<<8)>>8;
-                            if (FAFcansee(actor->spr.pos.X,actor->spr.pos.Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,ActorZOfTop(actor),actor->sector(),pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
                 }
 
-                actor->set_int_xy(hitActor->spr.pos.X, hitActor->spr.pos.Y);
+                actor->set_int_xy(hitActor->int_pos().X, hitActor->int_pos().Y);
                 actor->spr.ang = hitActor->spr.ang;
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 HelpMissileLateral(actor, 2000);
@@ -1084,7 +1084,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face bunny
-    target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
+    target->spr.ang = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
     return 0;
 }
 
@@ -1112,7 +1112,7 @@ void BunnyHatch(DSWActor* actor)
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-        actorNew->set_int_pos(actor->spr.pos);
+        actorNew->set_int_pos(actor->int_pos());
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
         actorNew->spr.ang = rip_ang[i];
@@ -1168,7 +1168,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 {
 
     auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-    actorNew->set_int_pos(actor->spr.pos);
+    actorNew->set_int_pos(actor->int_pos());
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
     actorNew->spr.ang = RANDOM_P2(2048);

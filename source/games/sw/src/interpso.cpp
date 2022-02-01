@@ -110,15 +110,15 @@ static double getvalue(so_interp::interp_data& element)
         return SectorObject[index].pmid.Z;
     case soi_sprx:
 		if (element.actorofang)
-			return element.actorofang->spr.pos.X;
+			return element.actorofang->int_pos().X;
         break;
     case soi_spry:
 		if (element.actorofang)
-			return element.actorofang->spr.pos.Y;
+			return element.actorofang->int_pos().Y;
         break;
     case soi_sprz:
 		if (element.actorofang)
-			return element.actorofang->spr.pos.Z;
+			return element.actorofang->int_pos().Z;
         break;
     default:
 		break;

@@ -236,14 +236,14 @@ int SetupSkull(DSWActor* actor)
     {
         actor->set_int_z(actor->user.loz + Z(tileTopOffset(actor->spr.picnum)));
 
-        actor->user.loz = actor->spr.pos.Z;
+        actor->user.loz = actor->int_pos().Z;
         // leave 8 pixels above the ground
         actor->add_int_z(ActorSizeToTop(actor) - Z(3));
     }
     else
     {
         actor->user.Counter = RANDOM_P2(2048);
-        actor->user.pos.Z = actor->spr.pos.Z;
+        actor->user.pos.Z = actor->int_pos().Z;
     }
 
 
@@ -363,7 +363,7 @@ int DoSkullJump(DSWActor* actor)
 
             int dist,a,b,c;
 
-            DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, Z(32)))
@@ -373,7 +373,7 @@ int DoSkullJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((actor->spr.pos.Z > actor->user.loz - Z(36)))
+            if ((actor->int_pos().Z > actor->user.loz - Z(36)))
             {
                 actor->set_int_z(actor->user.loz - Z(36));
                 UpdateSinglePlayKills(actor);
@@ -425,7 +425,7 @@ int DoSkullWait(DSWActor* actor)
 {
     int a,b,c,dist;
 
-    DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
+    DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 
@@ -439,7 +439,7 @@ int DoSkullWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (actor->spr.pos.Z > actor->user.loz)
+    if (actor->int_pos().Z > actor->user.loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)
@@ -459,7 +459,7 @@ int DoSkullWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            actor->spr.ang = getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y);
+            actor->spr.ang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y);
             actor->spr.xvel = 128 + (RANDOM_P2(256<<8)>>8);
             actor->user.jump_speed = -700;
             NewStateGroup(actor, sg_SkullJump);
@@ -621,14 +621,14 @@ int SetupBetty(DSWActor* actor)
     {
         actor->set_int_z(actor->user.loz + Z(tileTopOffset(actor->spr.picnum)));
 
-        actor->user.loz = actor->spr.pos.Z;
+        actor->user.loz = actor->int_pos().Z;
         // leave 8 pixels above the ground
         actor->add_int_z(ActorSizeToTop(actor) - Z(3));
     }
     else
     {
         actor->user.Counter = RANDOM_P2(2048);
-        actor->user.pos.Z = actor->spr.pos.Z;
+        actor->user.pos.Z = actor->int_pos().Z;
     }
 
 
@@ -741,7 +741,7 @@ int DoBettyJump(DSWActor* actor)
         {
             int dist,a,b,c;
 
-            DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, Z(32)))
@@ -751,7 +751,7 @@ int DoBettyJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((actor->spr.pos.Z > actor->user.loz - Z(36)))
+            if ((actor->int_pos().Z > actor->user.loz - Z(36)))
             {
                 actor->set_int_z(actor->user.loz - Z(36));
                 UpdateSinglePlayKills(actor);
@@ -800,7 +800,7 @@ int DoBettyWait(DSWActor* actor)
 {
     int a,b,c,dist;
 
-    DISTANCE(actor->spr.pos.X, actor->spr.pos.Y, actor->user.targetActor->spr.pos.X, actor->user.targetActor->spr.pos.Y, dist, a, b, c);
+    DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 
@@ -811,7 +811,7 @@ int DoBettyWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (actor->spr.pos.Z > actor->user.loz)
+    if (actor->int_pos().Z > actor->user.loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)
@@ -831,7 +831,7 @@ int DoBettyWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            actor->spr.ang = getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y);
+            actor->spr.ang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y);
             actor->spr.xvel = 128 + (RANDOM_P2(256<<8)>>8);
             actor->user.jump_speed = -700;
             NewStateGroup(actor, sg_BettyJump);

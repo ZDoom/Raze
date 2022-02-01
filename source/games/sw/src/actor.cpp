@@ -211,7 +211,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y) + 1024);
+        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -234,7 +234,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->spr.pos.X - actor->spr.pos.X, actor->user.targetActor->spr.pos.Y - actor->spr.pos.Y) + 1024);
+        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
         break;
 
     default:
@@ -397,7 +397,7 @@ int DoActorDebris(DSWActor* actor)
         KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
-        getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+        getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.hiz, &actor->user.loz);
         actor->user.lo_sectp = actor->sector();
         actor->user.hi_sectp = actor->sector();
         actor->user.lowActor = nullptr;
@@ -476,7 +476,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 200);
 
         SetOwner(actor, spawned);
     }
@@ -565,7 +565,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         int ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(),
+        FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
         actor->set_int_z(actor->user.oz = florz);
@@ -664,7 +664,7 @@ int DoActorJump(DSWActor* actor)
 
     // if player gets to close the ceiling while jumping
     int minh = actor->user.hiz + (tileHeight(actor->spr.picnum) << 8);
-    if (actor->spr.pos.Z < minh)
+    if (actor->int_pos().Z < minh)
     {
         // put player at the ceiling
         actor->set_int_z(minh);
@@ -718,7 +718,7 @@ int DoActorFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->spr.pos.Z > actor->user.loz)
+    if (actor->int_pos().Z > actor->user.loz)
     {
         DoActorStopFall(actor);
     }
@@ -830,7 +830,7 @@ int DoJump(DSWActor* actor)
 
     // if player gets to close the ceiling while jumping
     int minh = actor->user.hiz + (tileHeight(actor->spr.picnum) << 8);
-    if (actor->spr.pos.Z < minh)
+    if (actor->int_pos().Z < minh)
     {
         // put player at the ceiling
         actor->set_int_z(minh);
@@ -867,7 +867,7 @@ int DoFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
+    if (actor->int_pos().Z > actor->user.loz - actor->user.floor_dist)
     {
         actor->set_int_z(actor->user.loz - actor->user.floor_dist);
         actor->user.Flags &= ~(SPR_FALLING);

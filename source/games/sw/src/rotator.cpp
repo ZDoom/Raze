@@ -326,7 +326,7 @@ int DoRotator(DSWActor* actor)
     {
         if (itActor->spr.lotag == actor->spr.lotag)
         {
-            dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
+            dist = Distance(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
             if (dist < closest)
             {
                 closest = dist;
@@ -343,7 +343,7 @@ int DoRotator(DSWActor* actor)
     for(auto& wal : wallsofsector(actor->sector()))
     {
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
-        rotatepoint(pivot->spr.pos.vec2, orig, r->pos, &nxy);
+        rotatepoint(pivot->int_pos().vec2, orig, r->pos, &nxy);
 
         dragpoint(&wal, nxy.X, nxy.Y);
         ndx++;

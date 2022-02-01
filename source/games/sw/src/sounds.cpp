@@ -375,12 +375,12 @@ static void UpdateAmbients()
     for (auto& amb : ambients)
     {
         auto spot = amb->spot;
-        auto sdist = SoundDist(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, voc[amb->vocIndex].voc_distance);
+        auto sdist = SoundDist(spot->int_pos().X, spot->int_pos().Y, spot->int_pos().Z, voc[amb->vocIndex].voc_distance);
 
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYER* pp = Player + screenpeek;
-            if (!FAFcansee(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+            if (!FAFcansee(spot->int_pos().X, spot->int_pos().Y, spot->int_pos().Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
             {
                 sdist = 255;
             }
@@ -644,7 +644,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, in
     {
         if (actor && !ppos)
         {
-            pos = actor->spr.pos;
+            pos = actor->int_pos();
             actor = nullptr;
         }
         else if (pp && !ppos)

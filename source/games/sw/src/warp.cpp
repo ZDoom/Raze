@@ -87,7 +87,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_ceiling)
     {
-        if (*z <= sp_ceiling->spr.pos.Z)
+        if (*z <= sp_ceiling->int_pos().Z)
         {
             return WarpToArea(sp_ceiling, x, y, z, sect);
         }
@@ -95,7 +95,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_floor)
     {
-        if (*z >= sp_floor->spr.pos.Z)
+        if (*z >= sp_floor->int_pos().Z)
         {
             return WarpToArea(sp_floor, x, y, z, sect);
         }
@@ -114,9 +114,9 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     short match_rand[16];
     int z_adj = 0;
 
-    xoff = *x - sp_from->spr.pos.X;
-    yoff = *y - sp_from->spr.pos.Y;
-    zoff = *z - sp_from->spr.pos.Z;
+    xoff = *x - sp_from->int_pos().X;
+    yoff = *y - sp_from->int_pos().Y;
+    zoff = *z - sp_from->int_pos().Z;
     match = sp_from->spr.lotag;
 
 #if 0
@@ -176,9 +176,9 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
                     return nullptr;
 
                 // determine new x,y,z position
-                *x = actor->spr.pos.X + xoff;
-                *y = actor->spr.pos.Y + yoff;
-                *z = actor->spr.pos.Z + zoff;
+                *x = actor->int_pos().X + xoff;
+                *y = actor->int_pos().Y + yoff;
+                *z = actor->int_pos().Z + zoff;
 
                 // make sure you warp outside of warp plane
                 *z += z_adj;

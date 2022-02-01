@@ -1163,7 +1163,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             // Only look at closest ones
             //if ((dist = Distance(actor->spr.x, actor->spr.y, itActor->spr.x, itActor->spr.y)) > PICK_DIST)
-            if ((dist = FindDistance3D(actor->spr.pos - itActor->spr.pos)) > PICK_DIST)
+            if ((dist = FindDistance3D(actor->int_pos() - itActor->int_pos())) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1174,7 +1174,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Get the angle to the player
-            angle2 = NORM_ANGLE(getangle(itActor->spr.pos.X - actor->spr.pos.X, itActor->spr.pos.Y - actor->spr.pos.Y));
+            angle2 = NORM_ANGLE(getangle(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y));
 
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
@@ -1195,9 +1195,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezh, itActor->sector()) &&
-                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhm, itActor->sector()) &&
-                !FAFcansee(actor->spr.pos.X, actor->spr.pos.Y, zh, actor->sector(), itActor->spr.pos.X, itActor->spr.pos.Y, ezhl, itActor->sector())
+            if (!FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
+                !FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhm, itActor->sector()) &&
+                !FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhl, itActor->sector())
                 )
                 continue;
 
@@ -1300,14 +1300,14 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     nx = MOVEx(512, actor->spr.ang);
     ny = MOVEy(512, actor->spr.ang);
 
-    nx += actor->spr.pos.X;
-    ny += actor->spr.pos.Y;
+    nx += actor->int_pos().X;
+    ny += actor->int_pos().Y;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          nx, ny, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    SetActorZ(effectActor, effectActor->spr.pos);
+    SetActorZ(effectActor, effectActor->int_pos());
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
@@ -1322,10 +1322,10 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     extern STATE s_TeleportEffect[];
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
+                         actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    SetActorZ(effectActor, effectActor->spr.pos);
+    SetActorZ(effectActor, effectActor->int_pos());
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
@@ -1363,7 +1363,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         break;
     default:
     {
-        auto pos = act_warp->spr.pos;
+        auto pos = act_warp->int_pos();
         DoPlayerTeleportToSprite(pp, &pos, act_warp->spr.ang);
         act_warp->set_int_pos(pos);
 
@@ -1716,7 +1716,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
     DSWActor* act_under = pp->PlayerUnderActor;
 
-    act_under->set_int_pos(act_over->spr.pos);
+    act_under->set_int_pos(act_over->int_pos());
     ChangeActorSect(act_under, act_over->sector());
 
     SpriteWarpToUnderwater(act_under);
@@ -1871,7 +1871,7 @@ void DoPlayerZrange(PLAYER* pp)
         if (fsp->spr.statnum == STAT_ENEMY && floorColl.actor()->user.ID == ZOMBIE_RUN_R0)
         {
             pp->lo_sectp = fsp->sector();
-            pp->loz = fsp->spr.pos.Z;
+            pp->loz = fsp->int_pos().Z;
             pp->lowActor = nullptr;
         }
     }
@@ -2376,7 +2376,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     SWSectIterator it(sop->op_main_sector);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
+        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
         {
             if ((actor->spr.extra & SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
@@ -2399,7 +2399,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
             if (actor->spr.statnum > STAT_DONT_DRAW)
                 continue;
 
-            if (actor->spr.pos.Z < sop->crush_z)
+            if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2411,10 +2411,10 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     SWStatIterator it2(STAT_ENEMY);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
+        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
         {
             //if (actor->spr.z < pp->posz)
-            if (actor->spr.pos.Z < sop->crush_z)
+            if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
             int32_t const vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
@@ -2438,9 +2438,9 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     it2.Reset(STAT_DEAD_ACTOR);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
+        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
         {
-            if (actor->spr.pos.Z < sop->crush_z)
+            if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2460,12 +2460,12 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
         if (actor->user.PlayerP == pp)
             continue;
 
-        if (testpointinquad(actor->spr.pos.X, actor->spr.pos.Y, x, y))
+        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
         {
             int damage;
 
             //if (actor->spr.z < pp->posz)
-            if (actor->spr.pos.Z < sop->crush_z)
+            if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
             damage = -(actor->user.Health + 100);
@@ -2483,7 +2483,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
         while (auto actor = it.Next())
         {
             // give some extra buffer
-            if (actor->spr.pos.Z < sop->crush_z + Z(40))
+            if (actor->int_pos().Z < sop->crush_z + Z(40))
                 continue;
 
             if ((actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
@@ -3197,7 +3197,7 @@ void DoPlayerClimb(PLAYER* pp)
             }
 
             // sprite
-            auto pos = plActor->spr.pos;
+            auto pos = plActor->int_pos();
             if (pos.X != plActor->user.pos.X)
             {
                 if (pos.X < plActor->user.pos.X)
@@ -3350,8 +3350,8 @@ void DoPlayerClimb(PLAYER* pp)
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
 
-            pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
-            pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
+            pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
+            pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
             pp->angle.settarget(buildang(lActor->spr.ang + 1024));
         }
@@ -3644,7 +3644,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     SWStatIterator it(stat);
     while (auto itActor = it.Next())
     {
-        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, itActor->spr.pos.X, itActor->spr.pos.Y);
+        dist = Distance(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
 
         if (dist < near_dist)
         {
@@ -3732,8 +3732,8 @@ bool PlayerOnLadder(PLAYER* pp)
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-    pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
-    pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
+    pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
+    pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
     pp->angle.settarget(buildang(lActor->spr.ang + 1024));
 
@@ -4037,12 +4037,12 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    plActor->user.pos.X = over_act->spr.pos.X - pp->pos.X;
-    plActor->user.pos.Y = over_act->spr.pos.Y - pp->pos.Y;
+    plActor->user.pos.X = over_act->int_pos().X - pp->pos.X;
+    plActor->user.pos.Y = over_act->int_pos().Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = under_act->spr.pos.X - plActor->user.pos.X;
-    pp->pos.Y = under_act->spr.pos.Y - plActor->user.pos.Y;
+    pp->pos.X = under_act->int_pos().X - plActor->user.pos.X;
+    pp->pos.Y = under_act->int_pos().Y - plActor->user.pos.Y;
 
     auto over  = over_act->sector();
     auto under = under_act->sector();
@@ -4107,12 +4107,12 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    plActor->user.pos.X = under_act->spr.pos.X - pp->pos.X;
-    plActor->user.pos.Y = under_act->spr.pos.Y - pp->pos.Y;
+    plActor->user.pos.X = under_act->int_pos().X - pp->pos.X;
+    plActor->user.pos.Y = under_act->int_pos().Y - pp->pos.Y;
 
     // update to the new x y position
-    pp->pos.X = over_act->spr.pos.X - plActor->user.pos.X;
-    pp->pos.Y = over_act->spr.pos.Y - plActor->user.pos.Y;
+    pp->pos.X = over_act->int_pos().X - plActor->user.pos.X;
+    pp->pos.Y = over_act->int_pos().Y - plActor->user.pos.Y;
 
     auto over = over_act->sector();
     auto under = under_act->sector();
@@ -5090,8 +5090,8 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->lastcursector = pp->cursector;
 
     auto rsp = pp->remoteActor;
-    pp->pos.X = rsp->spr.pos.X;
-    pp->pos.Y = rsp->spr.pos.Y;
+    pp->pos.X = rsp->int_pos().X;
+    pp->pos.Y = rsp->int_pos().Y;
     pp->pos.Z = sect->floorz - PLAYER_HEIGHT;
 
     pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_vect.Y = 0;
@@ -5718,9 +5718,9 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(killer->spr.pos.X, killer->spr.pos.Y, ActorZOfTop(killer), killer->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, ActorZOfTop(killer), killer->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(killer->spr.pos.X - pp->pos.X, killer->spr.pos.Y - pp->pos.Y)) >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(killer->int_pos().X - pp->pos.X, killer->int_pos().Y - pp->pos.Y)) >> 4);
         }
     }
 }
@@ -5837,13 +5837,13 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos.X, itActor->spr.pos.Y, plActor->spr.pos.X, plActor->spr.pos.Y, dist, a, b, c);
+            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, plActor->int_pos().X, plActor->int_pos().Y, dist, a, b, c);
 
             if (unsigned(dist) < itActor->user.Radius + 100)
             {
                 pp->KillerActor = itActor;
 
-                plActor->user.slide_ang = getangle(plActor->spr.pos.X - itActor->spr.pos.X, plActor->spr.pos.Y - itActor->spr.pos.Y);
+                plActor->user.slide_ang = getangle(plActor->int_pos().X - itActor->int_pos().X, plActor->int_pos().Y - itActor->int_pos().Y);
                 plActor->user.slide_ang = NORM_ANGLE(plActor->user.slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
                 plActor->user.slide_vel = itActor->spr.xvel<<1;
@@ -5914,8 +5914,8 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         }
     }
 
-    pp->pos.X = plActor->spr.pos.X;
-    pp->pos.Y = plActor->spr.pos.Y;
+    pp->pos.X = plActor->int_pos().X;
+    pp->pos.Y = plActor->int_pos().Y;
     pp->setcursector(plActor->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
@@ -6786,7 +6786,7 @@ int SearchSpawnPosition(PLAYER* pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(spawn_sprite->spr.pos - opp->pos) < 1000)
+                if (FindDistance3D(spawn_sprite->int_pos() - opp->pos) < 1000)
                 {
                     blocked = true;
                     break;
@@ -6864,7 +6864,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->pos = pp->opos = spawn_sprite->spr.pos;
+    pp->pos = pp->opos = spawn_sprite->int_pos();
     pp->angle.ang = pp->angle.oang = buildang(spawn_sprite->spr.ang);
     pp->setcursector(spawn_sprite->sector());
 

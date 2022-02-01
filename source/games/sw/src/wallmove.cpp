@@ -100,7 +100,7 @@ int DoWallMove(DSWActor* actor)
 
     for(auto& wal : wall)
     {
-        if (wal.wall_int_pos().X == actor->spr.pos.X && wal.wall_int_pos().Y == actor->spr.pos.Y)
+        if (wal.wall_int_pos().X == actor->int_pos().X && wal.wall_int_pos().Y == actor->int_pos().Y)
         {
             found = true;
 
@@ -115,7 +115,7 @@ int DoWallMove(DSWActor* actor)
             }
             else
             {
-                wal.movexy(actor->spr.pos.X + nx, actor->spr.pos.Y + ny);
+                wal.movexy(actor->int_pos().X + nx, actor->int_pos().Y + ny);
             }
 
             if (shade1)
@@ -166,7 +166,7 @@ bool CanSeeWallMove(DSWActor* caller, int match)
         {
             found = true;
 
-            if (cansee(caller->spr.pos.X, caller->spr.pos.Y, caller->spr.pos.Z, caller->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector()))
+            if (cansee(caller->int_pos().X, caller->int_pos().Y, caller->int_pos().Z, caller->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
             {
                 return true;
             }

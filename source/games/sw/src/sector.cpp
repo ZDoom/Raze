@@ -124,7 +124,7 @@ void WallSetupDontMove(void)
             {
                 for(auto& wal : wall)
                 {
-                    if (wal.wall_int_pos().X < jActor->spr.pos.X && wal.wall_int_pos().X > iActor->spr.pos.X && wal.wall_int_pos().Y < jActor->spr.pos.Y && wal.wall_int_pos().Y > iActor->spr.pos.Y)
+                    if (wal.wall_int_pos().X < jActor->int_pos().X && wal.wall_int_pos().X > iActor->int_pos().X && wal.wall_int_pos().Y < jActor->int_pos().Y && wal.wall_int_pos().Y > iActor->int_pos().Y)
                     {
                         wal.extra |= WALLFX_DONT_MOVE;
                     }
@@ -841,7 +841,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
     
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
-    getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
+    getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.hiz, &actor->user.loz);
 
     // spawn explosion
     auto exp = SpawnSectorExp(actor);
@@ -929,7 +929,7 @@ void DoSpawnSpotsForKill(short match)
             change_actor_stat(actor, STAT_NO_STATE);
             actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG5(actor) * 15;
-            SetActorZ(actor, actor->spr.pos);
+            SetActorZ(actor, actor->int_pos());
             // setting for Killed
             actor->user.LastDamage = 1;
         }
@@ -1133,7 +1133,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
     while (auto actor = it.Next())
     {
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wActor->spr.pos - actor->spr.pos);
+        dist = FindDistance3D(wActor->int_pos() - actor->int_pos());
 
         if (actor->spr.clipdist == 0)
             continue;
@@ -1143,7 +1143,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wActor->user.Radius/2) + radius)
             continue;
 
-        if (!FAFcansee(wActor->spr.pos.X,wActor->spr.pos.Y,wActor->spr.pos.Z,wActor->sector(),actor->spr.pos.X,actor->spr.pos.Y,actor->spr.pos.Z,actor->sector()))
+        if (!FAFcansee(wActor->int_pos().X,wActor->int_pos().Y,wActor->int_pos().Z,wActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
             continue;
 
 
@@ -1200,8 +1200,8 @@ void DoDeleteSpriteMatch(short match)
             if (actor->spr.lotag == match)
             {
                 found = actor;
-                del_x = actor->spr.pos.X;
-                del_y = actor->spr.pos.Y;
+                del_x = actor->int_pos().X;
+                del_y = actor->int_pos().Y;
                 break;
             }
         }
@@ -1214,7 +1214,7 @@ void DoDeleteSpriteMatch(short match)
             it.Reset(StatList[stat]);
             while (auto actor = it.Next())
             {
-                if (del_x == actor->spr.pos.X && del_y == actor->spr.pos.Y)
+                if (del_x == actor->int_pos().X && del_y == actor->int_pos().Y)
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)
@@ -1380,7 +1380,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (ActorSizeZ(actor) >> 1), actor->sector()))
+        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (ActorSizeZ(actor) >> 1), actor->sector()))
             return false;
     }
 
@@ -1837,7 +1837,7 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(actor->spr.pos.X, actor->spr.pos.Y, pp->pos.X, pp->pos.Y) < dist)
+                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->pos.X, pp->pos.Y) < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -2128,7 +2128,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if (FindDistance3D(actor->spr.pos.X - pp->pos.X, actor->spr.pos.Y - pp->pos.Y, actor->spr.pos.Z - pp->pos.Z + Z(12)) < 500)
+            if (FindDistance3D(actor->int_pos().X - pp->pos.X, actor->int_pos().Y - pp->pos.Y, actor->int_pos().Z - pp->pos.Z + Z(12)) < 500)
             {
                 break;
             }
@@ -2205,8 +2205,8 @@ void PlayerOperateEnv(PLAYER* pp)
                 int z[3];
                 DSWActor* plActor = pp->actor;
 
-                z[0] = plActor->spr.pos.Z - ActorSizeZ(plActor) - Z(10);
-                z[1] = plActor->spr.pos.Z;
+                z[0] = plActor->int_pos().Z - ActorSizeZ(plActor) - Z(10);
+                z[1] = plActor->int_pos().Z;
                 z[2] = (z[0] + z[1]) >> 1;
 
                 for (unsigned i = 0; i < SIZ(z); i++)

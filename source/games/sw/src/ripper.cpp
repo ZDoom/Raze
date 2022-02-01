@@ -929,7 +929,7 @@ int InitRipperHang(DSWActor* actor)
     {
         tang = NORM_ANGLE(actor->spr.ang + dang);
 
-        FAFhitscan(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ActorSizeZ(actor), actor->sector(),  // Start position
+        FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ActorSizeZ(actor), actor->sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -938,7 +938,7 @@ int InitRipperHang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(actor->spr.pos.X, actor->spr.pos.Y, hit.hitpos.X, hit.hitpos.Y);
+        dist = Distance(actor->int_pos().X, actor->int_pos().Y, hit.hitpos.X, hit.hitpos.Y);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
@@ -1045,7 +1045,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
     DSWActor* target = actor->user.targetActor;
     short tang;
 
-    tang = getangle(target->spr.pos.X - actor->spr.pos.X, target->spr.pos.Y - actor->spr.pos.Y);
+    tang = getangle(target->int_pos().X - actor->int_pos().X, target->int_pos().Y - actor->int_pos().Y);
 
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -1149,7 +1149,7 @@ int DoRipperRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper
-    target->spr.ang = getangle(actor->spr.pos.X - target->spr.pos.X, actor->spr.pos.Y - target->spr.pos.Y);
+    target->spr.ang = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
     return 0;
 }
 
@@ -1174,7 +1174,7 @@ void RipperHatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         ClearOwner(actorNew);
-        actorNew->set_int_pos(actor->spr.pos);
+        actorNew->set_int_pos(actor->int_pos());
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
         actorNew->spr.ang = rip_ang[i];
         actorNew->spr.pal = 0;
