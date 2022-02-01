@@ -3516,9 +3516,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
+        actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor) });
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3557,9 +3555,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
+        actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor) });
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3585,9 +3581,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
+        actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor) });
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3616,9 +3610,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
-            actorNew->spr.pos.X = actor->spr.pos.X;
-            actorNew->spr.pos.Y = actor->spr.pos.Y;
-            actorNew->spr.pos.Z = ActorZOfMiddle(actor);
+            actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor) });
             actorNew->spr.ang = 0;
             actorNew->spr.extra = 0;
 
@@ -3678,9 +3670,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = ActorZOfMiddle(actor);
+        actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorZOfMiddle(actor) });
         actorNew->spr.ang = 0;
         actorNew->spr.extra = 0;
 
@@ -3736,9 +3726,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.X = actor->spr.pos.X;
-        actorNew->spr.pos.Y = actor->spr.pos.Y;
-        actorNew->spr.pos.Z = ActorLowerZ(actor) + Z(10);
+        actorNew->set_int_pos({ actor->spr.pos.X, actor->spr.pos.Y, ActorLowerZ(actor) + Z(10) });
         actorNew->spr.ang = actor->spr.ang;
 
         // vel
@@ -4650,9 +4638,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         if (labs(actor->spr.pos.Z - globloz) > actor->user.lo_step)
         {
             // cancel move
-            actor->spr.pos.X = x;
-            actor->spr.pos.Y = y;
-            actor->spr.pos.Z = z;
+            actor->set_int_pos({ x, y, z });
             //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;
@@ -4668,9 +4654,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         if (ActorDrop(actor, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), actor->user.lo_step))
         {
             // cancel move
-            actor->spr.pos.X = x;
-            actor->spr.pos.Y = y;
-            actor->spr.pos.Z = z;
+            actor->set_int_pos({ x, y, z });
             //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;

@@ -4479,10 +4479,7 @@ int DoFireballFlames(DSWActor* actor)
     DSWActor* attach = actor->user.attachActor;
     if (attach != nullptr)
     {
-        actor->spr.pos.X = attach->spr.pos.X;
-        actor->spr.pos.Y = attach->spr.pos.Y;
-
-        actor->spr.pos.Z = ActorZOfMiddle(attach);
+        actor->set_int_pos({ attach->spr.pos.X, attach->spr.pos.Y, ActorZOfMiddle(attach) });
 
         if ((attach->spr.extra & SPRX_BURNABLE))
         {
@@ -8015,9 +8012,7 @@ int DoPlasma(DSWActor* actor)
 
                 if (hitActor->hasU() && hitActor != actor->user.WpnGoalActor)
                 {
-                    actor->spr.pos.X = ox;
-                    actor->spr.pos.Y = oy;
-                    actor->spr.pos.Z = oz;
+                    actor->set_int_pos({ ox, oy, oz });
 
                     hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                     actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10785,9 +10780,7 @@ int DoNapalm(DSWActor* actor)
             {
                 auto hcstat = hitActor->spr.cstat;
 
-                actor->spr.pos.X = ox;
-                actor->spr.pos.Y = oy;
-                actor->spr.pos.Z = oz;
+                actor->set_int_pos({ ox, oy, oz });
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10914,8 +10907,7 @@ int DoBloodWorm(DSWActor* actor)
         GlobalSkipZrange = false;
     }
 
-    actor->spr.pos.X = bx;
-    actor->spr.pos.Y = by;
+    actor->set_int_xy(bx, by);
 
     return false;
 }
@@ -10952,9 +10944,7 @@ int DoSerpMeteor(DSWActor* actor)
             {
                 auto hcstat = hitActor->spr.cstat;
 
-                actor->spr.pos.X = ox;
-                actor->spr.pos.Y = oy;
-                actor->spr.pos.Z = oz;
+                actor->set_int_pos({ ox, oy, oz });
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11167,13 +11157,14 @@ int DoRing(DSWActor* actor)
         }
     }
 
+    int z;
     // move the center with the player
-    actor->spr.pos.X = own->spr.pos.X;
-    actor->spr.pos.Y = own->spr.pos.Y;
     if (pp)
-        actor->spr.pos.Z = pp->pos.Z + Z(20);
+        z = pp->pos.Z + Z(20);
     else
-        actor->spr.pos.Z = ActorZOfMiddle(own) + Z(30);
+        z = ActorZOfMiddle(own) + Z(30);
+
+    actor->set_int_pos({ own->spr.pos.X, own->spr.pos.Y, z });
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
@@ -11305,13 +11296,13 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    // move the center with the player
-    actor->spr.pos.X = own->spr.pos.X;
-    actor->spr.pos.Y = own->spr.pos.Y;
+    int z = actor->spr.pos.Z + actor->spr.zvel;
+    if (z > own->spr.pos.Z - actor->user.pos.Z)
+        z = own->spr.pos.Z - actor->user.pos.Z;
 
-    actor->spr.pos.Z += actor->spr.zvel;
-    if (actor->spr.pos.Z > own->spr.pos.Z - actor->user.pos.Z)
-        actor->spr.pos.Z = own->spr.pos.Z - actor->user.pos.Z;
+    // move the center with the player
+    actor->set_int_pos({ own->spr.pos.X, own->spr.pos.Y, z });
+
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
@@ -15119,9 +15110,7 @@ DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int
     actor->spr.extra = 0;
     actor->spr.clipdist = 0;
     actor->spr.xoffset = actor->spr.yoffset = 0;
-    actor->spr.pos.X = hit_x;
-    actor->spr.pos.Y = hit_y;
-    actor->spr.pos.Z = hit_z;
+    actor->set_int_pos({ hit_x, hit_y, hit_z });
     actor->spr.picnum = 2151;
 
     //actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
@@ -16952,8 +16941,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     sy = overActor->spr.pos.Y - actor->spr.pos.Y;
 
     // update to the new x y position
-    actor->spr.pos.X = underActor->spr.pos.X - sx;
-    actor->spr.pos.Y = underActor->spr.pos.Y - sy;
+    actor->set_int_xy(underActor->spr.pos.X - sx, underActor->spr.pos.Y - sy);
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -17026,8 +17014,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     sy = underActor->spr.pos.Y - actor->spr.pos.Y;
 
     // update to the new x y position
-    actor->spr.pos.X = overActor->spr.pos.X - sx;
-    actor->spr.pos.Y = overActor->spr.pos.Y - sy;
+    actor->set_int_xy(overActor->spr.pos.X - sx, overActor->spr.pos.Y - sy);
 
     auto over = overActor->sector();
     auto under = underActor->sector();
