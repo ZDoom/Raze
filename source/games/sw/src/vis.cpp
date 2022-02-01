@@ -148,7 +148,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         ASSERT(parentActor->hasU());
         parentActor->user.Flags2 |= (SPR2_CHILDREN);
 
-        actorNew->spr.pos = parentActor->spr.pos;
+        actorNew->set_int_pos(parentActor->spr.pos);
 
         parentActor->user.Flags2 |= (SPR2_VIS_SHADING);
     }

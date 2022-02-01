@@ -7948,7 +7948,7 @@ int DoPlasmaFountain(DSWActor* actor)
         if (!attachActor) return 0;
 
         // move with sprite
-        SetActorZ(actor, &attachActor->spr.pos);
+        SetActorZ(actor, attachActor->spr.pos);
         actor->spr.ang = attachActor->spr.ang;
 
         actor->user.Counter++;
@@ -9441,7 +9441,7 @@ int DoMicro(DSWActor* actor)
         // last smoke
         if ((actor->user.WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            SetActorZ(actorNew, &actorNew->spr.pos);
+            SetActorZ(actorNew, actorNew->spr.pos);
             NewStateGroup(actor, &sg_MicroMini[0]);
             actor->spr.xrepeat = actor->spr.yrepeat = 10;
             actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
@@ -11187,7 +11187,7 @@ int DoRing(DSWActor* actor)
     actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->spr.ang), 14), MulScale(actor->user.Dist, bsin(actor->spr.ang), 14),
         pp ? (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9 : 0 });
 
-    SetActor(actor, &actor->spr.pos);
+    SetActor(actor, actor->spr.pos);
 
     ASSERT(actor->insector());
 
@@ -11313,7 +11313,7 @@ int DoSerpRing(DSWActor* actor)
     // put it out there
     actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->user.slide_ang), 14), MulScale(actor->user.Dist, bsin(actor->user.slide_ang), 14), 0 });
 
-    SetActor(actor, &actor->spr.pos);
+    SetActor(actor, actor->spr.pos);
 
     ASSERT(actor->insector());
 
@@ -15131,7 +15131,9 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
     auto sect = actor->sector();
 
     Collision coll;
-    clipmove(actor->spr.pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
+    auto pos = actor->spr.pos;
+    clipmove(pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
+    actor->set_int_pos(pos);
 
     if (actor->sector() != sect)
         ChangeActorSect(actor, sect);
@@ -16176,7 +16178,7 @@ int InitEnemyUzi(DSWActor* actor)
     // Make sprite shade brighter
     actor->user.Vis = 128;
 
-    SetActorZ(actor, &actor->spr.pos);
+    SetActorZ(actor, actor->spr.pos);
 
     if (actor->user.ID == ZILLA_RUN_R0)
     {
@@ -17396,7 +17398,7 @@ int QueueStar(DSWActor* actor)
     {
         // move old star to new stars place
         auto osp = StarQueue[StarQueueHead];
-        osp->spr.pos = actor->spr.pos;
+        osp->set_int_pos(actor->spr.pos);
         ChangeActorSect(osp, actor->sector());
         KillActor(actor);
         actor = osp;
@@ -17430,7 +17432,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = { hit_x, hit_y, hit_z };
+    spawnedActor->set_int_pos({ hit_x, hit_y, hit_z });
     spawnedActor->spr.picnum = 2151;
     ChangeActorSect(spawnedActor, hit_sect);
 
@@ -17450,7 +17452,9 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    auto pos = spawnedActor->spr.pos;
+    clipmove(pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    spawnedActor->set_int_pos(pos);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
@@ -17507,7 +17511,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = actor->spr.pos;
+    spawnedActor->set_int_pos(actor->spr.pos);
     spawnedActor->add_int_z(Z(1));
     spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
@@ -17608,7 +17612,7 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = actor->spr.pos;
+    spawnedActor->set_int_pos(actor->spr.pos);
     spawnedActor->spr.ang = actor->spr.ang;
     spawnedActor->user.Flags &= ~(SPR_SHADOW);
     switch (FootMode)
@@ -17742,7 +17746,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = hit.hitpos;
+    spawnedActor->set_int_pos(hit.hitpos);
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
     spawnedActor->tempwall = hit.hitWall; // pass hitinfo.wall
 
@@ -17761,7 +17765,9 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    auto pos = spawnedActor->spr.pos;
+    clipmove(pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    spawnedActor->set_int_pos(pos);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
@@ -17879,7 +17885,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     {
         // move old sprite to new sprite's place
         auto osp = GenericQueue[GenericQueueHead];
-        osp->spr.pos = actor->spr.pos;
+        osp->set_int_pos(actor->spr.pos);
         ChangeActorSect(osp, actor->sector());
         KillActor(actor);
         actor = GenericQueue[GenericQueueHead];
@@ -18359,7 +18365,7 @@ void QueueLoWangs(DSWActor* actor)
     else
     {
         // move old sprite to new sprite's place
-        SetActorZ(LoWangsQueue[LoWangsQueueHead], &actor->spr.pos);
+        SetActorZ(LoWangsQueue[LoWangsQueueHead], actor->spr.pos);
         spawnedActor = LoWangsQueue[LoWangsQueueHead];
         ASSERT(spawnedActor->spr.statnum != MAXSTATUS);
     }

@@ -1307,7 +1307,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
                          nx, ny, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    SetActorZ(effectActor, &effectActor->spr.pos);
+    SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
@@ -1325,7 +1325,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
                          actor->spr.pos.X, actor->spr.pos.Y, ActorZOfTop(actor) + Z(16),
                          actor->spr.ang, 0);
 
-    SetActorZ(effectActor, &effectActor->spr.pos);
+    SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
@@ -1362,7 +1362,10 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         UpdatePlayerSprite(pp);
         break;
     default:
-        DoPlayerTeleportToSprite(pp, &act_warp->spr.pos, act_warp->spr.ang);
+    {
+        auto pos = act_warp->spr.pos;
+        DoPlayerTeleportToSprite(pp, &pos, act_warp->spr.ang);
+        act_warp->set_int_pos(pos);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
@@ -1394,6 +1397,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         }
 
         break;
+    }
     }
 
     ppActor->backuppos();
@@ -1712,7 +1716,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
     DSWActor* act_under = pp->PlayerUnderActor;
 
-    act_under->spr.pos = act_over->spr.pos;
+    act_under->set_int_pos(act_over->spr.pos);
     ChangeActorSect(act_under, act_over->sector());
 
     SpriteWarpToUnderwater(act_under);
@@ -3193,7 +3197,7 @@ void DoPlayerClimb(PLAYER* pp)
             }
 
             // sprite
-            auto pos = plActor->int_pos();
+            auto pos = plActor->spr.pos;
             if (pos.X != plActor->user.pos.X)
             {
                 if (pos.X < plActor->user.pos.X)

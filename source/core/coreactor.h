@@ -476,6 +476,10 @@ inline void SetActor(DCoreActor* actor, const vec3_t& newpos)
 	SetActor(actor, &newpos);
 }
 
+inline void SetActorZ(DCoreActor* actor, const vec3_t& newpos)
+{
+	SetActorZ(actor, &newpos);
+}
 
 
 inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,

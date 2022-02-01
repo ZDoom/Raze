@@ -1174,7 +1174,7 @@ void RipperHatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         ClearOwner(actorNew);
-        actorNew->set_int_pos(actor->int_pos());
+        actorNew->set_int_pos(actor->spr.pos);
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
         actorNew->spr.ang = rip_ang[i];
         actorNew->spr.pal = 0;

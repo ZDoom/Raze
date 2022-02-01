@@ -929,7 +929,7 @@ void DoSpawnSpotsForKill(short match)
             change_actor_stat(actor, STAT_NO_STATE);
             actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG5(actor) * 15;
-            SetActorZ(actor, &actor->spr.pos);
+            SetActorZ(actor, actor->spr.pos);
             // setting for Killed
             actor->user.LastDamage = 1;
         }

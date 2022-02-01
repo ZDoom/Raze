@@ -226,7 +226,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 
     auto actorNew = insertActor(sect, STAT_QUAKE_ON);
 
-    actorNew->spr.pos = { x, y, z };
+    actorNew->set_int_pos({ x, y, z });
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
 

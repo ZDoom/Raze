@@ -23,6 +23,7 @@ DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
 DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
 
 
+
 void ProcessVisOn(void);
 void VisViewChange(PLAYER* pp, int* vis);
 void SpawnVis(DSWActor* Parent, sectortype* sect, int x, int y, int z, int amt);

@@ -1924,7 +1924,7 @@ void UpdateSectorObjectSprites(SECTOR_OBJECT* sop)
         DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
 
-        SetActorZ(actor, &actor->spr.pos);
+        SetActorZ(actor, actor->spr.pos);
     }
 }
 

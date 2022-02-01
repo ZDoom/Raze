@@ -1112,7 +1112,7 @@ void BunnyHatch(DSWActor* actor)
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-        actorNew->spr.pos = actor->spr.pos;
+        actorNew->set_int_pos(actor->spr.pos);
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
         actorNew->spr.ang = rip_ang[i];

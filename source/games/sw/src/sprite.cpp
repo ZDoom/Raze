@@ -880,7 +880,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, int x, in
 
     auto spawnedActor = insertActor(sect, stat);
 
-    spawnedActor->spr.pos = { x, y, z };
+    spawnedActor->set_int_pos({ x, y, z });
 
     SpawnUser(spawnedActor, id, state);
 
@@ -2486,7 +2486,7 @@ void SpriteSetup(void)
 
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
-                    actorNew->spr.pos = actor->spr.pos;
+                    actorNew->set_int_pos(actor->spr.pos);
                     actorNew->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     actorNew->spr.picnum = actor->spr.picnum;
 
@@ -4723,7 +4723,7 @@ int DoGrating(DSWActor* actor)
         actor->clearUser();
     }
 
-    SetActorZ(actor, &actor->spr.pos);
+    SetActorZ(actor, actor->spr.pos);
 
     return 0;
 }
