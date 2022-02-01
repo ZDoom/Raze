@@ -2427,7 +2427,7 @@ void SpriteSetup(void)
                     if (SP_TAG9(actor) == 0)
                         SP_TAG9(actor) = 10;
 
-                    actor->spr.pos.Z += Z(30);
+                    actor->add_int_z(Z(30));
 
                     break;
                 }
@@ -6548,12 +6548,12 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         {
             if (actor->user.z_tgt > actor->spr.pos.Z)
             {
-                actor->spr.pos.Z += Z(30);
+                actor->add_int_z(Z(30));
                 return retval;
             }
             else
             {
-                actor->spr.pos.Z -= Z(30);
+                actor->add_int_z(-Z(30));
                 return retval;
             }
         }

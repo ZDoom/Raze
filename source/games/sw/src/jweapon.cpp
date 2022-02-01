@@ -265,18 +265,18 @@ int DoWallBloodDrip(DSWActor* actor)
         if (actor->spr.pos.Z > actor->user.pos.Y && actor->spr.pos.Z < actor->user.pos.Z)
         {
             actor->spr.zvel += 300;
-            actor->spr.pos.Z += actor->spr.zvel;
+            actor->add_int_z(actor->spr.zvel);
         }
         else
         {
             actor->spr.zvel = (300+RandomRange(2300)) >> 1;
-            actor->spr.pos.Z += actor->spr.zvel;
+            actor->add_int_z(actor->spr.zvel);
         }
     }
     else
     {
         actor->spr.zvel = (300+RandomRange(2300)) >> 1;
-        actor->spr.pos.Z += actor->spr.zvel;
+        actor->add_int_z(actor->spr.zvel);
     }
 
     if (actor->spr.pos.Z >= actor->user.loz)
@@ -357,7 +357,7 @@ int DoBloodSpray(DSWActor* actor)
     if (actor->spr.xvel <= 2)
     {
         // special stuff for blood worm
-        actor->spr.pos.Z += (actor->user.change.Z >> 1);
+        actor->add_int_z((actor->user.change.Z >> 1));
 
         getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
         // pretend like we hit a sector
@@ -1838,7 +1838,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
 int BloodSprayFall(DSWActor* actor)
 {
-    actor->spr.pos.Z += 1500;
+    actor->add_int_z(1500);
     return 0;
 }
 
@@ -2185,13 +2185,13 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-        actorNew->spr.pos.Z += int(-actor->user.PlayerP->horizon.horiz.asbuildf() * HORIZ_MULT * (1. / 3.));
+        actorNew->add_int_z(int(-actor->user.PlayerP->horizon.horiz.asbuildf() * HORIZ_MULT * (1. / 3.)));
     }
 
     switch (actorNew->user.ID)
     {
     case UZI_SHELL:
-        actorNew->spr.pos.Z -= Z(13);
+        actorNew->add_int_z(-Z(13));
 
         if (ShellNum == -3)
         {
@@ -2217,7 +2217,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 13;
         break;
     case SHOT_SHELL:
-        actorNew->spr.pos.Z -= Z(13);
+        actorNew->add_int_z(-Z(13));
         actorNew->spr.ang = actor->spr.ang;
         HelpMissileLateral(actorNew,2500);
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);

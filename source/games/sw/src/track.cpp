@@ -3353,7 +3353,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             if (bos_z > actor->user.loz)
             {
                 actor->user.pos.Y = (bos_z - actor->spr.pos.Z);
-                actor->spr.pos.Z -= actor->user.pos.Y;
+                actor->add_int_z(-actor->user.pos.Y);
             }
 
             //
@@ -3512,7 +3512,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->spr.pos.Z += actor->user.pos.Y;
+                actor->add_int_z(actor->user.pos.Y);
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
                 actor->user.ActorActionFunc = NinjaJumpActionFunc;

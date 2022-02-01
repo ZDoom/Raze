@@ -318,7 +318,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
             }
         }
 
-        actor->spr.pos.Z += z_amt;
+        actor->add_int_z(z_amt);
     }
 }
 

@@ -3709,7 +3709,7 @@ AutoShrap:
                 break;
             case Vomit1:
                 shrap_bounce = false;
-                actor->spr.pos.Z -= Z(4);
+                actor->add_int_z(-Z(4));
                 shrap_xsize = actor->user.pos.X = 12 + (RANDOM_P2(32<<8)>>8);
                 shrap_ysize = actor->user.pos.Y = 12 + (RANDOM_P2(32<<8)>>8);
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
@@ -3724,7 +3724,7 @@ AutoShrap:
                 break;
             case EMP:
                 shrap_bounce = false;
-                actor->spr.pos.Z -= Z(4);
+                actor->add_int_z(-Z(4));
                 //actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 shrap_xsize = actor->user.pos.X = 5 + (RANDOM_P2(4<<8)>>8);
                 shrap_ysize = actor->user.pos.Y = 5 + (RANDOM_P2(4<<8)>>8);
@@ -3743,7 +3743,7 @@ AutoShrap:
 
             if (shrap_rand_zamt)
             {
-                actor->spr.pos.Z += Z(RandomRange(shrap_rand_zamt) - (shrap_rand_zamt/2));
+                actor->add_int_z(Z(RandomRange(shrap_rand_zamt) - (shrap_rand_zamt/2)));
             }
 
             actor->spr.pal = actor->user.spal = uint8_t(shrap_pal);
@@ -4447,13 +4447,13 @@ bool WeaponMoveHit(DSWActor* actor)
 
 int DoUziSmoke(DSWActor* actor)
 {
-    actor->spr.pos.Z -= 200; // !JIM! Make them float up
+    actor->add_int_z(-200); // !JIM! Make them float up
     return 0;
 }
 
 int DoShotgunSmoke(DSWActor* actor)
 {
-    actor->spr.pos.Z -= 200; // !JIM! Make them float up
+    actor->add_int_z(-200); // !JIM! Make them float up
     return 0;
 }
 
@@ -7382,7 +7382,7 @@ int DoStar(DSWActor* actor)
                 SpawnBubble(actor);
         }
 
-        actor->spr.pos.Z += 128 * MISSILEMOVETICS;
+        actor->add_int_z(128 * MISSILEMOVETICS);
 
         DoActorZrange(actor);
         MissileWaterAdjust(actor);
@@ -14626,7 +14626,7 @@ int InitCoolgFire(DSWActor* actor)
 int DoCoolgDrip(DSWActor* actor)
 {
     actor->user.Counter += 220;
-    actor->spr.pos.Z += actor->user.Counter;
+    actor->add_int_z(actor->user.Counter);
 
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
@@ -17162,7 +17162,7 @@ int DoVehicleSmoke(DSWActor* actor)
 
 int DoWaterSmoke(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->spr.zvel;
+    actor->add_int_z(-actor->spr.zvel);
     return false;
 }
 
@@ -17225,7 +17225,7 @@ int SpawnSmokePuff(DSWActor* actor)
 
 int DoBubble(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->spr.zvel;
+    actor->add_int_z(-actor->spr.zvel);
     actor->spr.zvel += 32;
 
     if (actor->spr.zvel > 768)
@@ -17508,7 +17508,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos;
-    spawnedActor->spr.pos.Z += Z(1);
+    spawnedActor->add_int_z(Z(1));
     spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
 
@@ -17838,7 +17838,7 @@ int DoWallBlood(DSWActor* actor)
     if (actor->spr.yrepeat < 80)
     {
         actor->spr.yrepeat++;
-        actor->spr.pos.Z += 128;
+        actor->add_int_z(128);
     }
 
     return 0;

@@ -5991,7 +5991,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
         {
             pp->pos.Z += Z(2);
             if (MoveSkip2 == 0)
-                actor->spr.pos.Z += Z(4);
+                actor->add_int_z(Z(4));
 
             // Stick like glue when you hit the ground
             if (pp->pos.Z > pp->loz - PLAYER_DEATH_HEIGHT)
