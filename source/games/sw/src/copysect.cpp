@@ -173,8 +173,7 @@ void CopySectorMatch(int match)
                         src_yoff = sy - itActor->spr.pos.Y;
 
                         // move sprite to dest sector
-                        itActor->spr.pos.X = dx - src_xoff;
-                        itActor->spr.pos.Y = dy - src_yoff;
+                        itActor->set_int_xy(dx - src_xoff, dy - src_yoff);
 
                         // change sector
                         ChangeActorSect(itActor, dsectp);

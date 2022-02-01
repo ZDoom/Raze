@@ -470,6 +470,11 @@ struct spritetypebase
 	uint8_t yrepeat;
 	int8_t xoffset;
 	int8_t yoffset;
+
+	void SetMapPos(int x, int y, int z)
+	{
+		pos = { x, y, z };
+	}
 };
 
 

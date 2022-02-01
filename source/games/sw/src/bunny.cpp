@@ -1024,8 +1024,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                     }
                 }
 
-                actor->spr.pos.X = hitActor->spr.pos.X; // Mount up little bunny
-                actor->spr.pos.Y = hitActor->spr.pos.Y;
+                actor->set_int_xy(hitActor->spr.pos.X, hitActor->spr.pos.Y);
                 actor->spr.ang = hitActor->spr.ang;
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 HelpMissileLateral(actor, 2000);
@@ -1169,9 +1168,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 {
 
     auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
-    actorNew->spr.pos.X = actor->spr.pos.X;
-    actorNew->spr.pos.Y = actor->spr.pos.Y;
-    actorNew->spr.pos.Z = actor->spr.pos.Z;
+    actorNew->set_int_pos(actor->spr.pos);
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
     actorNew->spr.ang = RANDOM_P2(2048);

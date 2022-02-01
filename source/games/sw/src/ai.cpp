@@ -1366,9 +1366,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     *stopz = actor->spr.pos.Z;
 
     // reset position information
-    actor->spr.pos.X = x;
-    actor->spr.pos.Y = y;
-    actor->spr.pos.Z = z;
+    actor->set_int_pos({ x, y, z });
     actor->spr.ang = sang;
     actor->user.loz = loz;
     actor->user.hiz = hiz;

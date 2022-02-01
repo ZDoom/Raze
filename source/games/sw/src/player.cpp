@@ -1738,8 +1738,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     // Update sprite representation of player
 
-    actor->spr.pos.X = pp->pos.X;
-    actor->spr.pos.Y = pp->pos.Y;
+    actor->set_int_xy(pp->pos.X, pp->pos.Y);
 
     // there are multiple death functions
     if (pp->Flags & (PF_DEAD))
@@ -3194,27 +3193,29 @@ void DoPlayerClimb(PLAYER* pp)
             }
 
             // sprite
-            if (plActor->spr.pos.X != plActor->user.pos.X)
+            auto pos = plActor->int_pos();
+            if (pos.X != plActor->user.pos.X)
             {
-                if (plActor->spr.pos.X < plActor->user.pos.X)
-                    plActor->spr.pos.X += ADJ_AMT;
-                else if (plActor->spr.pos.X > plActor->user.pos.X)
-                    plActor->spr.pos.X -= ADJ_AMT;
+                if (pos.X < plActor->user.pos.X)
+                    pos.X += ADJ_AMT;
+                else if (pos.X > plActor->user.pos.X)
+                    pos.X -= ADJ_AMT;
 
-                if (labs(plActor->spr.pos.X - plActor->user.pos.X) <= ADJ_AMT)
-                    plActor->spr.pos.X = plActor->user.pos.X;
+                if (labs(pos.X - plActor->user.pos.X) <= ADJ_AMT)
+                    pos.X = plActor->user.pos.X;
             }
 
-            if (plActor->spr.pos.Y != plActor->user.pos.Y)
+            if (pos.Y != plActor->user.pos.Y)
             {
-                if (plActor->spr.pos.Y < plActor->user.pos.Y)
-                    plActor->spr.pos.Y += ADJ_AMT;
-                else if (plActor->spr.pos.Y > plActor->user.pos.Y)
-                    plActor->spr.pos.Y -= ADJ_AMT;
+                if (pos.Y < plActor->user.pos.Y)
+                    pos.Y += ADJ_AMT;
+                else if (pos.Y > plActor->user.pos.Y)
+                    pos.Y -= ADJ_AMT;
 
-                if (labs(plActor->spr.pos.Y - plActor->user.pos.Y) <= ADJ_AMT)
-                    plActor->spr.pos.Y = plActor->user.pos.Y;
+                if (labs(pos.Y - plActor->user.pos.Y) <= ADJ_AMT)
+                    pos.Y = plActor->user.pos.Y;
             }
+            plActor->set_int_pos(pos);
         }
     }
 
@@ -5748,9 +5749,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.pos.X = pp->pos.X;
-        plActor->spr.pos.Y = pp->pos.Y;
-        plActor->spr.pos.Z = pp->pos.Z+PLAYER_HEIGHT;
+        plActor->set_int_pos({ pp->pos.X, pp->pos.Y, pp->pos.Z + PLAYER_HEIGHT });
         plActor->spr.ang = pp->angle.ang.asbuild();
 
         DoSpawnTeleporterEffect(plActor);
@@ -5922,8 +5921,9 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->actor, pp->lv_sector);
-        pp->pos.X = plActor->spr.pos.X = pp->lv.X;
-        pp->pos.Y = plActor->spr.pos.Y = pp->lv.Y;
+        pp->pos.X = pp->lv.X;
+        pp->pos.Y = pp->lv.Y;
+        plActor->set_int_xy(pp->pos.X, pp->pos.Y);
     }
     else
     {
