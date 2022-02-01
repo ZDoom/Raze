@@ -159,9 +159,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
 
         actorNew = insertActor(sect, STAT_VIS_ON);
 
-        actorNew->spr.pos.X = x;
-        actorNew->spr.pos.Y = y;
-        actorNew->spr.pos.Z = z - Z(20);
+        actorNew->set_int_pos({ x, y, z - Z(20) });
     }
 
     actorNew->spr.cstat = 0;

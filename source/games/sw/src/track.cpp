@@ -303,9 +303,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
 
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
-    actorNew->spr.pos.X = actor->spr.pos.X;
-    actorNew->spr.pos.Y = actor->spr.pos.Y;
-    actorNew->spr.pos.Z = actor->spr.pos.Z;
+    actorNew->set_int_pos(actor->spr.pos);
     actorNew->spr.ang = actor->spr.ang;
     actorNew->spr.lotag = actor->spr.lotag;
     actorNew->spr.hitag = actor->spr.hitag;
@@ -1587,7 +1585,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     vec2_t rxy;
     int pnum;
     PLAYER* pp;
-    sectortype* *sectp;
+    sectortype** sectp;
     int i, rot_ang;
     bool PlayerMove = true;
 
@@ -1602,8 +1600,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->spr.pos.X = sop->pmid.X;
-    sop->sp_child->spr.pos.Y = sop->pmid.Y;
+    sop->sp_child->set_int_xy(sop->pmid.X, sop->pmid.Y);
 
 
     // setting floorz if need be
@@ -1703,8 +1700,7 @@ PlayerPart:
             }
         }
 
-        actor->spr.pos.X = sop->pmid.X - actor->user.pos.X;
-        actor->spr.pos.Y = sop->pmid.Y - actor->user.pos.Y;
+        actor->set_int_xy(sop->pmid.X - actor->user.pos.X, sop->pmid.Y - actor->user.pos.Y);
 
         // sprites z update
         if ((sop->flags & SOBJ_SPRITE_OBJ))
@@ -3323,8 +3319,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             nx = MOVEx(100, lActor->spr.ang);
             ny = MOVEy(100, lActor->spr.ang);
 
-            actor->spr.pos.X = lActor->spr.pos.X + nx;
-            actor->spr.pos.Y = lActor->spr.pos.Y + ny;
+            actor->set_int_xy(lActor->spr.pos.X + nx, lActor->spr.pos.Y + ny);
 
             actor->spr.ang = NORM_ANGLE(lActor->spr.ang + 1024);
 

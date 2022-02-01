@@ -536,25 +536,26 @@ int DoSkelTeleport(DSWActor* actor)
 {
     int x,y;
 
-    x = actor->spr.pos.X;
-    y = actor->spr.pos.Y;
+    auto pos = actor->int_pos();
+    x = pos.X;
+    y = pos.Y;
 
     while (true)
     {
-        actor->spr.pos.X = x;
-        actor->spr.pos.Y = y;
+        pos.X = x;
+        pos.Y = y;
 
         if (RANDOM_P2(1024) < 512)
-            actor->spr.pos.X += 512 + RANDOM_P2(1024);
+            pos.X += 512 + RANDOM_P2(1024);
         else
-            actor->spr.pos.X -= 512 + RANDOM_P2(1024);
+            pos.X -= 512 + RANDOM_P2(1024);
 
         if (RANDOM_P2(1024) < 512)
-            actor->spr.pos.Y += 512 + RANDOM_P2(1024);
+            pos.Y += 512 + RANDOM_P2(1024);
         else
-            actor->spr.pos.Y -= 512 + RANDOM_P2(1024);
+            pos.Y -= 512 + RANDOM_P2(1024);
 
-        SetActorZ(actor, &actor->spr.pos);
+        SetActorZ(actor, &pos);
 
         if (actor->insector())
             break;
