@@ -1552,12 +1552,28 @@ class GLDefsParser
 						}
 						sc.MustGetString();
 						cvarname = sc.String;
-						cvar = C_CreateCVar(cvarname, cvartype, cvarflags);
+						cvar = FindCVar(cvarname, NULL);
+						if (!cvar)
+							cvar = C_CreateCVar(cvarname, cvartype, cvarflags);
+						if (!(cvar->GetFlags() & CVAR_MOD))
+						{
+							if (!((cvar->GetFlags() & (CVAR_AUTO | CVAR_UNSETTABLE)) == (CVAR_AUTO | CVAR_UNSETTABLE)))
+								sc.ScriptError("CVAR '%s' already in use!", cvarname);
+						}
 						
 						UCVarValue val;
 						sc.MustGetNumber();
 						
 						val.Float = sc.Number;
+
+						// must've picked this up from an autoexec.cfg, handle accordingly
+						if (cvar && ((cvar->GetFlags() & (CVAR_MOD|CVAR_AUTO|CVAR_UNSETTABLE)) == (CVAR_AUTO | CVAR_UNSETTABLE)))
+						{
+							val = cvar->GetGenericRep(CVAR_Float);
+							delete cvar;
+							cvar = C_CreateCVar(cvarname, cvartype, cvarflags);
+						}
+
 						shaderdesc.Uniforms[uniformName].Values[0] = sc.Number;
 
 						cvar->SetGenericRepDefault(val, CVAR_Float);
