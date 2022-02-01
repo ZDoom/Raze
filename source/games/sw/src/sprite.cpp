@@ -6243,7 +6243,8 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
 
-    actor->spr.pos.vec2 = clippos.vec2;
+
+    actor->set_int_xy(clippos.X, clippos.Y);
 
     if (dasect == nullptr)
     {
@@ -6297,21 +6298,25 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(actor->sector()))
-        SetActorZ(actor, &actor->spr.pos);
+        SetActorZ(actor, actor->spr.pos);
 
     if ((actor->sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
-        if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+        pos = actor->spr.pos;
+        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
         {
+            actor->set_int_pos(pos);
             ActorWarpUpdatePos(actor, dasect);
             ActorWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+            pos = actor->spr.pos;
+            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
             {
+                actor->set_int_pos(pos);
                 ActorWarpUpdatePos(actor, dasect);
                 ActorWarpType(actor, sp_warp);
             }
@@ -6430,7 +6435,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     clipmove(clippos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-    actor->spr.pos.vec2 = clippos.vec2;
+    actor->set_int_xy(clippos.X, clippos.Y);
 
     if (dasect == nullptr)
     {
@@ -6483,22 +6488,26 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
 
     if (FAF_ConnectArea(actor->sector()))
-        SetActorZ(actor, &actor->spr.pos);
+        SetActorZ(actor, actor->spr.pos);
 
     if ((actor->sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+        auto pos = actor->spr.pos;
+        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
         {
+            actor->set_int_pos(pos);
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+            pos = actor->spr.pos;
+            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
             {
+                actor->set_int_pos(pos);
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }
@@ -6575,7 +6584,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-        actor->spr.pos.vec2 = opos.vec2;
+        actor->set_int_xy(opos.X, opos.Y);
     }
 
     if (dasect == nullptr)
@@ -6619,16 +6628,20 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+        auto pos = actor->spr.pos;
+        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
         {
+            actor->set_int_pos(pos);
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&actor->spr.pos.X, &actor->spr.pos.Y, &actor->spr.pos.Z, &dasect)))
+            pos = actor->spr.pos;
+            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
             {
+                actor->set_int_pos(pos);
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }

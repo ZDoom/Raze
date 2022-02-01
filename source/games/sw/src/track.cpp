@@ -1729,16 +1729,18 @@ PlayerPart:
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
                 continue;
 
+            auto pos = actor->spr.pos;
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
-                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, -delta_ang, &actor->spr.pos.vec2);
+                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, -delta_ang, &pos.vec2);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang - delta_ang);
             }
             else
             {
-                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, delta_ang, &actor->spr.pos.vec2);
+                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, delta_ang, &pos.vec2);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + delta_ang);
             }
+            actor->set_int_pos(pos);
 
         }
         else
@@ -1746,14 +1748,16 @@ PlayerPart:
             if (!(sop->flags & SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, delta_ang, &actor->spr.pos.vec2);
+                auto pos = actor->spr.pos;
+                rotatepoint(sop->pmid.vec2, actor->spr.pos.vec2, delta_ang, &pos.vec2);
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + delta_ang);
+                actor->set_int_pos(pos);
             }
 
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (sop->pmid.X < MAXSO) // special case for operating SO's
-                SetActorZ(sop->so_actors[i], &actor->spr.pos);
+                SetActorZ(sop->so_actors[i], actor->spr.pos);
         }
 
         actor->user.oangdiff += getincangle(oldang, actor->spr.ang);
