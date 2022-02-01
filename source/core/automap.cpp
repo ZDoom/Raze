@@ -607,7 +607,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		{
 			auto A = *(DCoreActor**)a;
 			auto B = *(DCoreActor**)b;
-			if (A->spr.pos.Z != B->spr.pos.Z) return B->spr.pos.Z - A->spr.pos.Z;
+			if (A->int_pos().Z != B->int_pos().Z) return B->int_pos().Z - A->int_pos().Z;
 			return A->time - B->time; // ensures stable sort.
 		});
 
@@ -616,7 +616,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	{
 		if (!gFullMap && !(actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		vec2_t pp[4];
-		GetFlatSpritePosition(actor, actor->spr.pos.vec2, pp, true);
+		GetFlatSpritePosition(actor, actor->int_pos().vec2, pp, true);
 
 		for (unsigned j = 0; j < 4; j++)
 		{

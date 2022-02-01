@@ -366,7 +366,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 void DCoreActor::OnDestroy()
 {
-	FVector3 pos = GetSoundPos(spr.pos);
+	FVector3 pos = GetSoundPos(int_pos());
 	soundEngine->RelinkSound(SOURCE_Actor, this, nullptr, &pos);
 
 	// also scan all other sounds if they have this actor as source. If so, null the source and stop looped sounds.
@@ -450,7 +450,7 @@ void InitSpriteLists()
 void SetActor(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->spr.pos = *newpos;
+	actor->set_int_pos(*newpos);
 	updatesector(newpos->X, newpos->Y, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
@@ -460,7 +460,7 @@ void SetActor(DCoreActor* actor, const vec3_t* newpos)
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->spr.pos = *newpos;
+	actor->set_int_pos(*newpos);
 	updatesectorz(newpos->X, newpos->Y, newpos->Z, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
