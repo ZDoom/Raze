@@ -3829,10 +3829,7 @@ int DoVomitSplash(DSWActor* actor)
 
 int DoFastShrapJumpFall(DSWActor* actor)
 {
-    actor->spr.pos.X += actor->user.change.X*2;
-    actor->spr.pos.Y += actor->user.change.Y*2;
-    actor->spr.pos.Z += actor->user.change.Z*2;
-
+    actor->add_int_pos({ actor->user.change.X * 2, actor->user.change.Y * 2, actor->user.change.Z * 2 });
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
         KillActor(actor);
@@ -3842,9 +3839,7 @@ int DoFastShrapJumpFall(DSWActor* actor)
 
 int DoTracerShrap(DSWActor* actor)
 {
-    actor->spr.pos.X += actor->user.change.X;
-    actor->spr.pos.Y += actor->user.change.Y;
-    actor->spr.pos.Z += actor->user.change.Z;
+    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, actor->user.change.Z });
 
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
@@ -8930,9 +8925,7 @@ int DoMine(DSWActor* actor)
 
 int DoPuff(DSWActor* actor)
 {
-    actor->spr.pos.X += actor->user.change.X;
-    actor->spr.pos.Y += actor->user.change.Y;
-    actor->spr.pos.Z += actor->user.change.Z;
+    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, actor->user.change.Z });
     return 0;
 }
 
@@ -10464,8 +10457,7 @@ int DoMineExp(DSWActor* actor)
 
 int DoSectorExp(DSWActor* actor)
 {
-    actor->spr.pos.X += actor->user.change.X;
-    actor->spr.pos.Y += actor->user.change.Y;
+    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, 0 });
     return 0;
 }
 
@@ -10895,8 +10887,7 @@ int DoBloodWorm(DSWActor* actor)
     by = actor->spr.pos.Y;
 
     amt = RANDOM_P2(2048) - 1024;
-    actor->spr.pos.X += MulScale(amt,xvect, 15);
-    actor->spr.pos.Y += MulScale(amt,yvect, 15);
+    actor->add_int_pos({ MulScale(amt,xvect, 15), MulScale(amt,yvect, 15), 0 });
 
     auto sect = actor->sector();
     updatesectorz(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, &sect);
@@ -11193,10 +11184,8 @@ int DoRing(DSWActor* actor)
     actor->spr.ang = NORM_ANGLE(actor->spr.ang + (4 * RINGMOVETICS) + RINGMOVETICS);
 
     // put it out there
-    actor->spr.pos.X += MulScale(actor->user.Dist, bcos(actor->spr.ang), 14);
-    actor->spr.pos.Y += MulScale(actor->user.Dist, bsin(actor->spr.ang), 14);
-    if (pp)
-        actor->spr.pos.Z += (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9;
+    actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->spr.ang), 14), MulScale(actor->user.Dist, bsin(actor->spr.ang), 14),
+        pp ? (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9 : 0 });
 
     SetActor(actor, &actor->spr.pos);
 
@@ -11266,9 +11255,8 @@ void InitSpellRing(PLAYER* pp)
         actorNew->user.floor_dist = Z(10);
 
         // put it out there
-        actorNew->spr.pos.X += MulScale(actorNew->user.Dist, bcos(actorNew->spr.ang), 14);
-        actorNew->spr.pos.Y += MulScale(actorNew->user.Dist, bsin(actorNew->spr.ang), 14);
-        actorNew->spr.pos.Z = pp->pos.Z + Z(20) + ((actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9);
+        actorNew->add_int_pos({ MulScale(actorNew->user.Dist, bcos(actorNew->spr.ang), 14), MulScale(actorNew->user.Dist, bsin(actorNew->spr.ang), 14),
+                pp->pos.Z + Z(20) + ((actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9) });
 
         actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang + 512);
 
@@ -11323,8 +11311,7 @@ int DoSerpRing(DSWActor* actor)
         actor->spr.ang = NORM_ANGLE(actor->spr.ang - (28 * RINGMOVETICS));
 
     // put it out there
-    actor->spr.pos.X += MulScale(actor->user.Dist, bcos(actor->user.slide_ang), 14);
-    actor->spr.pos.Y += MulScale(actor->user.Dist, bsin(actor->user.slide_ang), 14);
+    actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->user.slide_ang), 14), MulScale(actor->user.Dist, bsin(actor->user.slide_ang), 14), 0 });
 
     SetActor(actor, &actor->spr.pos);
 
@@ -17169,11 +17156,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
 
 int DoVehicleSmoke(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->spr.zvel;
-    actor->spr.pos.X += actor->user.change.X;
-    actor->spr.pos.Y += actor->user.change.Y;
-
-
+    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, -actor->spr.zvel });
     return false;
 }
 
