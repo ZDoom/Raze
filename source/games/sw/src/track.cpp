@@ -350,14 +350,12 @@ void QuickJumpSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        actor->spr.pos.X += MulScale(64, bcos(actor->spr.ang), 14);
-        actor->spr.pos.Y += MulScale(64, bsin(actor->spr.ang), 14);
+        actor->add_int_pos({ MulScale(64, bcos(actor->spr.ang), 14), MulScale(64, bsin(actor->spr.ang), 14), 0 });
         actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos.X += MulScale(2048, bcos(end_sprite->spr.ang), 14);
-        end_sprite->spr.pos.Y += MulScale(2048, bsin(end_sprite->spr.ang), 14);
+        end_sprite->add_int_pos({ MulScale(2048, bcos(end_sprite->spr.ang), 14), MulScale(2048, bsin(end_sprite->spr.ang), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -405,8 +403,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->spr.pos.X += MulScale(64, -bcos(start_sprite->spr.ang), 14);
-        start_sprite->spr.pos.Y += MulScale(64, -bsin(start_sprite->spr.ang), 14);
+        start_sprite->add_int_pos({ MulScale(64, -bcos(start_sprite->spr.ang), 14), MulScale(64, -bsin(start_sprite->spr.ang), 14), 0 });
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -414,8 +411,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos.X += MulScale(64, bcos(end_sprite->spr.ang), 14);
-        end_sprite->spr.pos.Y += MulScale(64, bsin(end_sprite->spr.ang), 14);
+        end_sprite->add_int_pos({ MulScale(64, bcos(end_sprite->spr.ang), 14), MulScale(64, bsin(end_sprite->spr.ang), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -465,8 +461,7 @@ void QuickExitSetup(short stat, short type)
         KillActor(actor);
 
         // add end point
-        end_sprite->spr.pos.X += MulScale(1024, bcos(end_sprite->spr.ang), 14);
-        end_sprite->spr.pos.Y += MulScale(1024, bsin(end_sprite->spr.ang), 14);
+        end_sprite->add_int_pos({ MulScale(1024, bcos(end_sprite->spr.ang), 14), MulScale(1024, bsin(end_sprite->spr.ang), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -511,8 +506,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->spr.pos.X += MOVEx(256,start_sprite->spr.ang + 1024);
-        start_sprite->spr.pos.Y += MOVEy(256,start_sprite->spr.ang + 1024);
+        start_sprite->add_int_pos({ MOVEx(256,start_sprite->spr.ang + 1024), MOVEy(256,start_sprite->spr.ang + 1024), 0 });
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
@@ -520,8 +514,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos.X += MOVEx(512,end_sprite->spr.ang);
-        end_sprite->spr.pos.Y += MOVEy(512,end_sprite->spr.ang);
+        end_sprite->add_int_pos({ MOVEx(512,end_sprite->spr.ang), MOVEy(512,end_sprite->spr.ang), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
