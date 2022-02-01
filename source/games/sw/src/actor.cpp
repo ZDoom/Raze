@@ -304,7 +304,7 @@ void DoDebrisCurrent(DSWActor* actor)
         move_sprite(actor, nx, ny, 0, actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
     }
 
-    actor->spr.pos.Z = actor->user.loz;
+    actor->set_int_z(actor->user.loz);
 }
 
 int DoActorSectorDamage(DSWActor* actor)
@@ -429,12 +429,12 @@ int DoActorDebris(DSWActor* actor)
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 10) // JBF: added null check
         {
             actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 3)) & 1023;
-            actor->spr.pos.Z = actor->user.loz - MulScale(Z(2), bsin(actor->user.WaitTics), 14);
+            actor->set_int_z(actor->user.loz - MulScale(Z(2), bsin(actor->user.WaitTics), 14));
         }
     }
     else
     {
-        actor->spr.pos.Z = actor->user.loz;
+        actor->set_int_z(actor->user.loz);
     }
 
     return 0;
@@ -456,7 +456,7 @@ int DoFireFly(DSWActor* actor)
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    actor->spr.pos.Z = actor->user.pos.Z + MulScale(Z(32), bsin(actor->user.WaitTics), 14);
+    actor->set_int_z(actor->user.pos.Z + MulScale(Z(32), bsin(actor->user.WaitTics), 14));
     return 0;
 }
 
@@ -514,7 +514,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->spr.pos.Z = actor->user.oz = actor->user.loz;
+                actor->set_int_z(actor->user.oz = actor->user.loz);
                 actor->backupz();
                 return;
             }
@@ -525,7 +525,7 @@ void KeepActorOnFloor(DSWActor* actor)
             }
 
             // are swimming
-            actor->spr.pos.Z = actor->user.oz = actor->user.loz - Z(depth);
+            actor->set_int_z(actor->user.oz = actor->user.loz - Z(depth));
             actor->backupz();
         }
         else
@@ -534,7 +534,7 @@ void KeepActorOnFloor(DSWActor* actor)
             if (actor->user.Rot == actor->user.ActorActionSet->Run || actor->user.Rot == actor->user.ActorActionSet->Swim)
             {
                 NewStateGroup(actor, actor->user.ActorActionSet->Swim);
-                actor->spr.pos.Z = actor->user.oz = actor->user.loz - Z(depth);
+                actor->set_int_z(actor->user.oz = actor->user.loz - Z(depth));
                 actor->backupz();
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -543,7 +543,7 @@ void KeepActorOnFloor(DSWActor* actor)
             {
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->spr.pos.Z = actor->user.oz = actor->user.loz;
+                actor->set_int_z(actor->user.oz = actor->user.loz);
                 actor->backupz();
             }
         }
@@ -558,7 +558,7 @@ void KeepActorOnFloor(DSWActor* actor)
 #if 1
     if (actor->user.Flags & (SPR_MOVED))
     {
-        actor->spr.pos.Z = actor->user.oz = actor->user.loz;
+        actor->set_int_z(actor->user.oz = actor->user.loz);
         actor->backupz();
     }
     else
@@ -568,7 +568,7 @@ void KeepActorOnFloor(DSWActor* actor)
         FAFgetzrangepoint(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
-        actor->spr.pos.Z = actor->user.oz = florz;
+        actor->set_int_z(actor->user.oz = florz);
         actor->backupz();
     }
 #endif
@@ -667,7 +667,7 @@ int DoActorJump(DSWActor* actor)
     if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling
-        actor->spr.pos.Z = minh;
+        actor->set_int_z(minh);
 
         // reverse your speed to falling
         actor->user.jump_speed = -actor->user.jump_speed;
@@ -728,7 +728,7 @@ int DoActorFall(DSWActor* actor)
 
 int DoActorStopFall(DSWActor* actor)
 {
-    actor->spr.pos.Z = actor->user.loz;
+    actor->set_int_z(actor->user.loz);
 
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
@@ -833,7 +833,7 @@ int DoJump(DSWActor* actor)
     if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling
-        actor->spr.pos.Z = minh;
+        actor->set_int_z(minh);
 
         // reverse your speed to falling
         actor->user.jump_speed = -actor->user.jump_speed;
@@ -869,7 +869,7 @@ int DoFall(DSWActor* actor)
     // Stick like glue when you hit the ground
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
-        actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
+        actor->set_int_z(actor->user.loz - actor->user.floor_dist);
         actor->user.Flags &= ~(SPR_FALLING);
     }
 

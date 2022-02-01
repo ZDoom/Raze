@@ -234,7 +234,7 @@ int SetupSkull(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.loz - Z(16))
     {
-        actor->spr.pos.Z = actor->user.loz + Z(tileTopOffset(actor->spr.picnum));
+        actor->set_int_z(actor->user.loz + Z(tileTopOffset(actor->spr.picnum)));
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
@@ -375,7 +375,7 @@ int DoSkullJump(DSWActor* actor)
 
             if ((actor->spr.pos.Z > actor->user.loz - Z(36)))
             {
-                actor->spr.pos.Z = actor->user.loz - Z(36);
+                actor->set_int_z(actor->user.loz - Z(36));
                 UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
                 return 0;
@@ -407,8 +407,8 @@ int DoSkullBob(DSWActor* actor)
     const int SKULL_BOB_AMT = (Z(16));
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + MulScale(SKULL_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale((SKULL_BOB_AMT / 2), bsin(actor->user.Counter), 14);
+    actor->set_int_z(actor->user.pos.Z + MulScale(SKULL_BOB_AMT, bsin(actor->user.Counter), 14) +
+            MulScale((SKULL_BOB_AMT / 2), bsin(actor->user.Counter), 14));
 
     return 0;
 }
@@ -619,7 +619,7 @@ int SetupBetty(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.loz - Z(16))
     {
-        actor->spr.pos.Z = actor->user.loz + Z(tileTopOffset(actor->spr.picnum));
+        actor->set_int_z(actor->user.loz + Z(tileTopOffset(actor->spr.picnum)));
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
@@ -753,7 +753,7 @@ int DoBettyJump(DSWActor* actor)
 
             if ((actor->spr.pos.Z > actor->user.loz - Z(36)))
             {
-                actor->spr.pos.Z = actor->user.loz - Z(36);
+                actor->set_int_z(actor->user.loz - Z(36));
                 UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
                 return 0;
@@ -784,8 +784,8 @@ int DoBettyBob(DSWActor* actor)
     const int  BETTY_BOB_AMT = (Z(16));
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + MulScale(BETTY_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale((BETTY_BOB_AMT / 2), bsin(actor->user.Counter), 14);
+    actor->set_int_z(actor->user.pos.Z + MulScale(BETTY_BOB_AMT, bsin(actor->user.Counter), 14) +
+            MulScale((BETTY_BOB_AMT / 2), bsin(actor->user.Counter), 14));
 
     return 0;
 }

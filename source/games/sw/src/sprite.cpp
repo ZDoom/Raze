@@ -1448,8 +1448,7 @@ void PreMapCombineFloors(void)
             SWSectIterator it2(dasect);
             while (auto jActor = it2.Next())
             {
-                jActor->spr.pos.X += dx;
-                jActor->spr.pos.Y += dy;
+                jActor->add_int_pos({ dx, dy, 0 });
             }
 
             for (auto& wal : wallsofsector(dasect))
@@ -2491,8 +2490,7 @@ void SpriteSetup(void)
                     actorNew->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     actorNew->spr.picnum = actor->spr.picnum;
 
-                    actorNew->spr.pos.X += MOVEx(256+128, actor->spr.ang);
-                    actorNew->spr.pos.Y += MOVEy(256+128, actor->spr.ang);
+                    actorNew->add_int_pos({ MOVEx(256 + 128, actor->spr.ang), MOVEy(256 + 128, actor->spr.ang), 0 });
 
                     break;
                 }
@@ -4612,7 +4610,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        actor->spr.pos.Z = actor->user.pos.Z;
+        actor->set_int_z(actor->user.pos.Z);
     }
 
     // save off x,y values
@@ -4688,7 +4686,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->spr.pos.Z = actor->sector()->floorz;
+    actor->set_int_z(actor->sector()->floorz);
     return 0;
 }
 
@@ -4700,20 +4698,22 @@ int DoGrating(DSWActor* actor)
     // reduce to 0 to 3 value
     dir = actor->spr.ang >> 9;
 
+    int x = 0, y = 0;
     if ((dir & 1) == 0)
     {
         if (dir == 0)
-            actor->spr.pos.X += 2 * GRATE_FACTOR;
+            x = 2 * GRATE_FACTOR;
         else
-            actor->spr.pos.X -= 2 * GRATE_FACTOR;
+            x = -2 * GRATE_FACTOR;
     }
     else
     {
         if (dir == 1)
-            actor->spr.pos.Y += 2 * GRATE_FACTOR;
+            y= 2 * GRATE_FACTOR;
         else
-            actor->spr.pos.Y -= 2 * GRATE_FACTOR;
+            y= -2 * GRATE_FACTOR;
     }
+    actor->add_int_pos({ x, y, 0 });
 
     actor->spr.hitag -= GRATE_FACTOR;
 
@@ -6283,7 +6283,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
         {
             if (actor->user.Flags & (SPR_CLIMBING))
             {
-                actor->spr.pos.Z = clippos.Z;
+                actor->set_int_z(clippos.Z);
                 return retval;
             }
 
@@ -6292,7 +6292,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     }
     else
     {
-        actor->spr.pos.Z = clippos.Z;
+        actor->set_int_z(clippos.Z);
     }
 
     // extra processing for Stacks and warping
@@ -6467,19 +6467,19 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (clippos.Z - zh <= actor->user.hiz + ceildist)
     {
         // normal code
-        actor->spr.pos.Z = actor->user.hiz + zh + ceildist;
+        actor->set_int_z(actor->user.hiz + zh + ceildist);
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else if (clippos.Z - zh > actor->user.loz - flordist)
     {
-        actor->spr.pos.Z = actor->user.loz + zh - flordist;
+        actor->set_int_z(actor->user.loz + zh - flordist);
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else
     {
-        actor->spr.pos.Z = clippos.Z;
+        actor->set_int_z(clippos.Z);
     }
 
     if (FAF_ConnectArea(actor->sector()))
@@ -6561,8 +6561,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
             actor->user.z_tgt = 0;
     }
 
-    actor->spr.pos.X += xchange/2;
-    actor->spr.pos.Y += ychange/2;
+    actor->add_int_pos({ xchange / 2, ychange / 2, 0 });
 
     updatesector(actor->spr.pos.X, actor->spr.pos.Y, &dasect);
 
@@ -6599,7 +6598,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         int new_loz,new_hiz;
         getzsofslopeptr(dasect, actor->spr.pos.X, actor->spr.pos.Y, &new_hiz, &new_loz);
 
-        actor->spr.pos.Z = new_loz;
+        actor->set_int_z(new_loz);
         ChangeActorSect(actor, dasect);
     }
 
@@ -6607,7 +6606,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     actor->user.hi_sectp = actor->user.lo_sectp = actor->sector();
     actor->user.highActor = nullptr; actor->user.lowActor = nullptr;
-    actor->spr.pos.Z = actor->user.loz - Z(8);
+    actor->set_int_z(actor->user.loz - Z(8));
 
     if (labs(actor->user.hiz - actor->user.loz) < Z(12))
     {

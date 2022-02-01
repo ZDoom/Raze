@@ -259,7 +259,7 @@ void MoveSpritesWithSpike(sectortype* sect)
             continue;
 
         getzsofslopeptr(sect, actor->spr.pos.X, actor->spr.pos.Y, &cz, &fz);
-        actor->spr.pos.Z = fz;
+        actor->set_int_z(fz);
     }
 }
 

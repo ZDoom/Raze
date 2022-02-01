@@ -662,13 +662,13 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.ceiling_dist);
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS<<3)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + MulScale(COOLG_BOB_AMT, bsin(actor->user.Counter), 14);
+    actor->set_int_z(actor->user.pos.Z + MulScale(COOLG_BOB_AMT, bsin(actor->user.Counter), 14));
 
     bound = actor->user.hiz + actor->user.ceiling_dist + COOLG_BOB_AMT;
     if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        actor->spr.pos.Z = actor->user.pos.Z = bound + COOLG_BOB_AMT;
+        actor->set_int_z(actor->user.pos.Z = bound + COOLG_BOB_AMT);
     }
 
     return 0;

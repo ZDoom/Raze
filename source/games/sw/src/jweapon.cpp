@@ -281,7 +281,7 @@ int DoWallBloodDrip(DSWActor* actor)
 
     if (actor->spr.pos.Z >= actor->user.loz)
     {
-        actor->spr.pos.Z = actor->user.loz;
+        actor->set_int_z(actor->user.loz);
         SpawnFloorSplash(actor);
         KillActor(actor);
         return 0;
@@ -363,7 +363,7 @@ int DoBloodSpray(DSWActor* actor)
         // pretend like we hit a sector
         if (actor->spr.pos.Z >= fz)
         {
-            actor->spr.pos.Z = fz;
+            actor->set_int_z(fz);
             SpawnFloorSplash(actor);
             KillActor(actor);
             return true;
@@ -1215,10 +1215,7 @@ int SpawnRadiationCloud(DSWActor* actor)
 
 int DoRadiationCloud(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->spr.zvel;
-
-    actor->spr.pos.X += actor->user.change.X;
-    actor->spr.pos.Y += actor->user.change.Y;
+    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, -actor->spr.zvel });
 
     if (actor->user.ID)
     {
@@ -2073,7 +2070,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
         vec3_t pos = { attached->spr.pos.X, attached->spr.pos.Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
         actor->spr.ang = NORM_ANGLE(attached->spr.ang + 1536);
-        actor->spr.pos.Z = attached->spr.pos.Z - (ActorSizeZ(attached) >> 1);
+        actor->set_int_z(attached->spr.pos.Z - (ActorSizeZ(attached) >> 1));
     }
 
     if (!attached->hasU() || attached->user.Health <= 0)
