@@ -82,7 +82,7 @@ extern int gSkyCount;
 
 void GetSpriteExtents(spritetypebase const* const pSprite, int* top, int* bottom)
 {
-	*top = *bottom = pSprite->__int_pos.Z;
+	*top = *bottom = pSprite->int_pos().Z;
 	if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
 		int height = tileHeight(pSprite->picnum);

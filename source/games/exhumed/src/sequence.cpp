@@ -626,7 +626,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         {
             pTSprite->picnum = nShadowPic;
 
-            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->__int_pos.Z) >> 10);
+            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->int_pos().Z) >> 10);
             if (edx < 1) {
                 edx = 1;
             }

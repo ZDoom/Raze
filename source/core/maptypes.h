@@ -504,6 +504,30 @@ struct tspritetype : public spritetypebase
 	{
 		__int_pos = pos;
 	}
+	void add_int_x(int x)
+	{
+		__int_pos.X += x;
+	}
+	void set_int_x(int x)
+	{
+		__int_pos.X = x;
+	}
+	void add_int_y(int x)
+	{
+		__int_pos.Y  += x;
+	}
+	void set_int_y(int x)
+	{
+		__int_pos.Y  = x;
+	}
+	void add_int_z(int x)
+	{
+		__int_pos.Z += x;
+	}
+	void set_int_z(int x)
+	{
+		__int_pos.Z = x;
+	}
 };
 
 class tspriteArray

@@ -170,7 +170,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (perc >= 75) pNSprite2->pal = 0;
 		else if (perc >= 50) pNSprite2->pal = 6;
 
-		pNSprite2->__int_pos.Z = top - 2048;
+		pNSprite2->set_int_z(top - 2048);
 		pNSprite2->shade = -128;
 		break;
 	}
@@ -207,7 +207,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
-		pNSprite->__int_pos.Z = top;
+		pNSprite->set_int_z(top);
 		if (nViewEffect == kViewEffectFlag)
 			pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		else
@@ -221,7 +221,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->__int_pos.Z = pTSprite->int_pos().Z;
+		pNSprite->set_int_z(pTSprite->int_pos().Z);
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pTSprite->xrepeat;
@@ -267,7 +267,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		pNSprite->picnum = 626;
-		pNSprite->__int_pos.Z = top;
+		pNSprite->set_int_z(top);
 		break;
 	}
 	case kViewEffectTrail:
@@ -314,7 +314,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		pNSprite->shade = -128;
-		pNSprite->__int_pos.Z = pTSprite->int_pos().Z;
+		pNSprite->set_int_z(pTSprite->int_pos().Z);
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 64;
@@ -328,7 +328,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->__int_pos.Z = top;
+		pNSprite->set_int_z(top);
 		if (IsDudeSprite(pTSprite))
 			pNSprite->picnum = 672;
 		else
@@ -347,7 +347,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->__int_pos.Z = bottom;
+		pNSprite->set_int_z(bottom);
 		if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
 			pNSprite->picnum = 672;
 		else
@@ -366,7 +366,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->__int_pos.Z = top;
+		pNSprite->set_int_z(top);
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -380,7 +380,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->__int_pos.Z = bottom;
+		pNSprite->set_int_z(bottom);
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -431,7 +431,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = -128;
 		pNSprite->pal = 2;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->__int_pos.Z = pTSprite->int_pos().Z;
+		pNSprite->set_int_z(pTSprite->int_pos().Z);
 		pNSprite->xrepeat = pTSprite->xrepeat;
 		pNSprite->yrepeat = pTSprite->yrepeat;
 		pNSprite->picnum = 2427;
@@ -479,7 +479,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->__int_pos.Z = pTSprite->int_pos().Z;
+		pNSprite->set_int_z(pTSprite->int_pos().Z);
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
@@ -513,8 +513,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->__int_pos.X += MulScale(128, Cos(gView->actor->spr.ang), 30);
-				pNSprite->__int_pos.Y += MulScale(128, Sin(gView->actor->spr.ang), 30);
+				pNSprite->add_int_x(MulScale(128, Cos(gView->actor->spr.ang), 30));
+				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->spr.ang), 30));
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
@@ -578,7 +578,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->int_pos() = owneractor->interpolatedvec3(gInterpolate);
+			pTSprite->set_int_pos(owneractor->interpolatedvec3(gInterpolate));
 			pTSprite->ang = owneractor->interpolatedang(gInterpolate);
 		}
 		int nAnim = 0;
@@ -902,9 +902,9 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-						pNTSprite->__int_pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
-						pNTSprite->__int_pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
-						pNTSprite->__int_pos.Z = pPlayer->actor->int_pos().Z - pPosture->xOffset;
+						pNTSprite->add_int_x(MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28));
+						pNTSprite->add_int_y(MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28));
+						pNTSprite->set_int_z(pPlayer->actor->int_pos().Z - pPosture->xOffset);
 					}
 				}
 

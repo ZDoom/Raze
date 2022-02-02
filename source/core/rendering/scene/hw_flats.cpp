@@ -424,7 +424,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	if (sprite->int_pos().Z > sprite->sectp->floorz)
 	{
 		belowfloor = true;
-		sprite->int_pos().Z = sprite->sectp->floorz;
+		sprite->__int_pos.Z = sprite->sectp->floorz;
 	}
 	z = sprite->int_pos().Z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.

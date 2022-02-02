@@ -165,14 +165,14 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		if (t->statnum == 99) continue;
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->__int_pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16);
-			t->__int_pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16);
-			t->__int_pos.Z = interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio);
-			t->__int_pos.Z += PHEIGHT_DUKE;
+			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16));
+			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16));
+			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio));
+			t->add_int_z(PHEIGHT_DUKE);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
-			t->__int_pos = h->interpolatedvec3(smoothratio);
+			t->set_int_pos(h->interpolatedvec3(smoothratio));
 		}
 
 		auto sectp = h->sector();
@@ -183,7 +183,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		switch (h->spr.picnum)
 		{
 		case DUKELYINGDEAD:
-			t->__int_pos.Z += (24 << 8);
+			t->add_int_z(24 << 8);
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -226,14 +226,14 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->ang = getangle(x - t->int_pos().X, y - t->int_pos().Y);
-					t->__int_pos.X = OwnerAc->int_pos().X + bcos(t->ang, -10);
-					t->__int_pos.Y = OwnerAc->int_pos().Y + bsin(t->ang, -10);
+					t->set_int_x(OwnerAc->int_pos().X + bcos(t->ang, -10));
+					t->set_int_y(OwnerAc->int_pos().Y + bsin(t->ang, -10));
 				}
 			}
 			break;
 
 		case ATOMICHEALTH:
-			t->__int_pos.Z -= (4 << 8);
+			t->add_int_z(-(4 << 8));
 			break;
 		case CRYSTALAMMO:
 			t->shade = bsin(PlayClock << 4, -10);
@@ -355,8 +355,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (h->GetOwner())
-					newtspr->__int_pos.Z = ps[p].pos.Z - (12 << 8);
-				else newtspr->__int_pos.Z = h->int_pos().Z - (51 << 8);
+					newtspr->set_int_z(ps[p].pos.Z - (12 << 8));
+				else newtspr->set_int_z(h->int_pos().Z - (51 << 8));
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -429,7 +429,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			if (!h->GetOwner()) continue;
 
 			if (t->__int_pos.Z > h->floorz && t->xrepeat < 32)
-				t->__int_pos.Z = h->floorz;
+				t->set_int_z(h->floorz);
 
 			break;
 
@@ -588,7 +588,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							shadowspr->shade = 127;
 							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
-							shadowspr->__int_pos.Z = daz;
+							shadowspr->set_int_z(daz);
 							shadowspr->pal = 4;
 
 							if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
@@ -602,9 +602,9 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->int_pos() - ps[screenpeek].pos.X, shadowspr->__int_pos.Y - ps[screenpeek].pos.Y);
-								shadowspr->__int_pos.X += bcos(look, -9);
-								shadowspr->__int_pos.Y += bsin(look, -9);
+								int look = getangle(shadowspr->int_pos().X - ps[screenpeek].pos.X, shadowspr->int_pos().Y - ps[screenpeek].pos.Y);
+								shadowspr->add_int_x(bcos(look, -9));
+								shadowspr->add_int_y(bsin(look, -9));
 							}
 						}
 					}
@@ -623,7 +623,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case LASERLINE:
 			if (!OwnerAc) break;
 			if (t->sectp->lotag == 2) t->pal = 8;
-			t->__int_pos.Z = OwnerAc->int_pos().Z - (3 << 8);
+			t->set_int_z(OwnerAc->int_pos().Z - (3 << 8));
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
 			t->shade = -127;
@@ -654,7 +654,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case BURNING2:
 			if (!OwnerAc) break;
 			if (!actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->__int_pos.Z = t->sectp->floorz;
+				t->set_int_z(t->sectp->floorz);
 			t->shade = -127;
 			break;
 		case COOLEXPLOSION1:

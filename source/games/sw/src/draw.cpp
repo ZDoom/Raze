@@ -336,8 +336,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
         int look = getangle(tSpr->int_pos().X - Player[screenpeek].si.X, tSpr->int_pos().Y - Player[screenpeek].si.Y);
-        tSpr->__int_pos.X += bcos(look, -9);
-        tSpr->__int_pos.Y += bsin(look, -9);
+        tSpr->add_int_x(bcos(look, -9));
+        tSpr->add_int_y(bsin(look, -9));
     }
 
     // Check for voxel items and use a round generic pic if so
@@ -406,12 +406,12 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         *tSpr = *tsp;
         tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP;
 
-        tSpr->__int_pos.X += dx;
-        tSpr->__int_pos.Y += dy;
+        tSpr->add_int_x(dx);
+        tSpr->add_int_y(dy);
         dx += nx;
         dy += ny;
 
-        tSpr->__int_pos.Z += dz;
+        tSpr->add_int_z(dz);
         dz += nz;
 
         tSpr->xrepeat = uint8_t(xrepeat);
@@ -479,7 +479,7 @@ void WarpCopySprite(tspriteArray& tsprites)
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
-                    auto off = itActor1->int_pos() - newTSpr->__int_pos;
+                    auto off = itActor1->int_pos() - newTSpr->int_pos();
                     newTSpr->__int_pos = itActor->int_pos() - off;
                     newTSpr->sectp = itActor->sector();
                 }
@@ -492,7 +492,7 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
-    int zdiff = viewz - tsp->__int_pos.Z;
+    int zdiff = viewz - tsp->int_pos().Z;
 
     if (labs(zdiff) > Z(24))
     {
@@ -517,7 +517,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 
     auto actorNew = insertActor(newsector, STAT_FAF_COPY);
 
-    actorNew->set_int_pos(tsp->__int_pos);
+    actorNew->set_int_pos(tsp->int_pos());
     actorNew->spr.cstat = tsp->cstat;
     actorNew->spr.picnum = tsp->picnum;
     actorNew->spr.pal = tsp->pal;
@@ -788,8 +788,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             {
                 pp = tActor->user.PlayerP;
                 int sr = 65536 - int(smoothratio);
-                tsp->__int_pos.X -= MulScale(pp->pos.X - pp->opos.X, sr, 16);
-                tsp->__int_pos.Y -= MulScale(pp->pos.Y - pp->opos.Y, sr, 16);
+                tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
+                tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
                 tsp->__int_pos.Z -= MulScale(pp->pos.Z - pp->opos.Z, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
@@ -908,8 +908,8 @@ void post_analyzesprites(tspriteArray& tsprites)
                     continue;
                 }
 
-                tsp->__int_pos.X = atsp->int_pos().X;
-                tsp->__int_pos.Y = atsp->int_pos().Y;
+                tsp->set_int_x(atsp->int_pos().X);
+                tsp->set_int_y(atsp->int_pos().Y);
                 // statnum is priority - draw this ALWAYS first at 0
                 // statnum is priority - draw this ALWAYS last at MAXSTATUS
                 if ((atsp->extra & SPRX_BURNABLE))
