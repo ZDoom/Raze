@@ -103,7 +103,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
 
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
-    angle2 = getangle(tsp->__int_pos.X - viewx, tsp->__int_pos.Y - viewy);
+    angle2 = getangle(tsp->int_pos().X - viewx, tsp->int_pos().Y - viewy);
     rotation = ((tsp->ang + 3072 + 128 - angle2) & 2047);
     rotation = (rotation >> 8) & 7;
 
@@ -211,7 +211,7 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
 
     save_cstat = tspr->cstat;
     tspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(tspr->__int_pos.X, tspr->__int_pos.Y, tspr->__int_pos.Z, tspr->sectp, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(tspr->int_pos().X, tspr->int_pos().Y, tspr->int_pos().Z, tspr->sectp, &hiz, &ceilhit, &loz, &florhit);
     tspr->cstat = save_cstat;
 
     switch (florhit.type)
@@ -263,7 +263,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     auto sect = tsp->sectp;
     // make sure its the correct sector
     // DoShadowFindGroundPoint calls FAFgetzrangepoint and this is sensitive
-    updatesector(tsp->__int_pos.X, tsp->__int_pos.Y, &sect);
+    updatesector(tsp->int_pos().X, tsp->int_pos().Y, &sect);
 
     if (sect == nullptr)
     {
@@ -335,7 +335,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     else
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(tSpr->__int_pos.X - Player[screenpeek].si.X, tSpr->__int_pos.Y - Player[screenpeek].si.Y);
+        int look = getangle(tSpr->int_pos().X - Player[screenpeek].si.X, tSpr->int_pos().Y - Player[screenpeek].si.Y);
         tSpr->__int_pos.X += bcos(look, -9);
         tSpr->__int_pos.Y += bsin(look, -9);
     }
@@ -456,13 +456,14 @@ void WarpCopySprite(tspriteArray& tsprites)
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
-                    xoff = itActor->int_pos().X - newTSpr->__int_pos.X;
-                    yoff = itActor->int_pos().Y - newTSpr->__int_pos.Y;
-                    zoff = itActor->int_pos().Z - newTSpr->__int_pos.Z;
+                    xoff = itActor->int_pos().X - newTSpr->int_pos().X;
+                    yoff = itActor->int_pos().Y - newTSpr->int_pos().Y;
+                    zoff = itActor->int_pos().Z - newTSpr->int_pos().Z;
 
-                    newTSpr->__int_pos.X = itActor1->int_pos().X - xoff;
-                    newTSpr->__int_pos.Y = itActor1->int_pos().Y - yoff;
-                    newTSpr->__int_pos.Z = itActor1->int_pos().Z - zoff;
+                    newTSpr->set_int_pos({
+                        itActor1->int_pos().X - xoff,
+                        itActor1->int_pos().Y - yoff,
+                        itActor1->int_pos().Z - zoff });
                     newTSpr->sectp = itActor1->sector();
                 }
 
@@ -546,7 +547,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
         testz = GetSpriteZOfTop(tsp) - Z(10);
 
         if (testz < tsp->sectp->ceilingz)
-            updatesectorz(tsp->__int_pos.X, tsp->__int_pos.Y, testz, &newsector);
+            updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)
         {
@@ -560,7 +561,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
         testz = GetSpriteZOfBottom(tsp) + Z(10);
 
         if (testz > tsp->sectp->floorz)
-            updatesectorz(tsp->__int_pos.X, tsp->__int_pos.Y, testz, &newsector);
+            updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)
         {
@@ -757,20 +758,22 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
                         tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
+                    vec3_t pos;
                     if (pp->Flags & (PF_CLIMBING))
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        tsp->__int_pos.X = pp->si.X + MOVEx(128 + 80, tsp->ang);
-                        tsp->__int_pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->ang);
+                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->ang);
+                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->ang);
                     }
                     else
                     {
-                        tsp->__int_pos.X = pp->si.X;
-                        tsp->__int_pos.Y = pp->si.Y;
+                        pos.X = pp->si.X;
+                        pos.Y = pp->si.Y;
                     }
 
-                    tsp->__int_pos.Z = tsp->__int_pos.Z + pp->si.Z;
+                    pos.Z = tsp->int_pos().Z + pp->si.Z;
+                    tsp->set_int_pos(pos);
                     tsp->ang = pp->siang;
                     //continue;
                 }
@@ -905,8 +908,8 @@ void post_analyzesprites(tspriteArray& tsprites)
                     continue;
                 }
 
-                tsp->__int_pos.X = atsp->__int_pos.X;
-                tsp->__int_pos.Y = atsp->__int_pos.Y;
+                tsp->__int_pos.X = atsp->int_pos().X;
+                tsp->__int_pos.Y = atsp->int_pos().Y;
                 // statnum is priority - draw this ALWAYS first at 0
                 // statnum is priority - draw this ALWAYS last at MAXSTATUS
                 if ((atsp->extra & SPRX_BURNABLE))
