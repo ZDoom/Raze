@@ -242,15 +242,15 @@ inline int GetSpriteSizeToBottom(const spritetypebase* sp)
 inline int GetSpriteZOfTop(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->__int_pos.Z - GetSpriteSizeToTop(sp) :
-        sp->__int_pos.Z - GetSpriteSizeZ(sp);
+        sp->int_pos().Z - GetSpriteSizeToTop(sp) :
+        sp->int_pos().Z - GetSpriteSizeZ(sp);
 }
 
 inline int GetSpriteZOfBottom(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->__int_pos.Z + GetSpriteSizeToBottom(sp) :
-        sp->__int_pos.Z;
+        sp->int_pos().Z + GetSpriteSizeToBottom(sp) :
+        sp->int_pos().Z;
 }
 
 // mid and upper/lower sprite calculations

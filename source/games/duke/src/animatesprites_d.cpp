@@ -209,8 +209,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						OwnerAc->int_pos().Y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
-						OwnerAc->int_pos().X - t->__int_pos.X,
-						OwnerAc->int_pos().Y - t->__int_pos.Y);
+						OwnerAc->int_pos().X - t->int_pos().X,
+						OwnerAc->int_pos().Y - t->int_pos().Y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -225,11 +225,9 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->xrepeat = 0;
 				else
 				{
-					t->ang = getangle(x - t->__int_pos.X, y - t->__int_pos.Y);
-					t->__int_pos.X = OwnerAc->int_pos().X;
-					t->__int_pos.Y = OwnerAc->int_pos().Y;
-					t->__int_pos.X += bcos(t->ang, -10);
-					t->__int_pos.Y += bsin(t->ang, -10);
+					t->ang = getangle(x - t->int_pos().X, y - t->int_pos().Y);
+					t->__int_pos.X = OwnerAc->int_pos().X + bcos(t->ang, -10);
+					t->__int_pos.Y = OwnerAc->int_pos().Y + bsin(t->ang, -10);
 				}
 			}
 			break;
@@ -604,7 +602,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->__int_pos.X - ps[screenpeek].pos.X, shadowspr->__int_pos.Y - ps[screenpeek].pos.Y);
+								int look = getangle(shadowspr->int_pos() - ps[screenpeek].pos.X, shadowspr->__int_pos.Y - ps[screenpeek].pos.Y);
 								shadowspr->__int_pos.X += bcos(look, -9);
 								shadowspr->__int_pos.Y += bsin(look, -9);
 							}

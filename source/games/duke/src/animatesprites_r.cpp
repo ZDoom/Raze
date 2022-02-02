@@ -204,8 +204,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						OwnerAc->int_pos().Y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
-						OwnerAc->int_pos().X - t->__int_pos.X,
-						OwnerAc->int_pos().Y - t->__int_pos.Y);
+						OwnerAc->int_pos().X - t->int_pos().X,
+						OwnerAc->int_pos().Y - t->int_pos().Y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -219,7 +219,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->xrepeat = 0;
 				else
 				{
-					t->ang = getangle(x - t->__int_pos.X, y - t->__int_pos.Y);
+					t->ang = getangle(x - t->int_pos().X, y - t->int_pos().Y);
 					t->__int_pos.X = OwnerAc->int_pos().X;
 					t->__int_pos.Y = OwnerAc->int_pos().Y;
 					t->__int_pos.X += bcos(t->ang, -10);

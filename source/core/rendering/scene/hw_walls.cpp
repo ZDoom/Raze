@@ -55,8 +55,8 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 
 	auto sect = tspr->sectp;
 
-	float tx = tspr->__int_pos.X * (float)inttoworld;
-	float ty = tspr->__int_pos.Y * (float)inttoworld;
+	float tx = tspr->int_pos().X * (float)inttoworld;
+	float ty = tspr->int_pos().Y * (float)inttoworld;
 
 	for(auto& wal : wallsofsector(sect))
 	{
@@ -1128,9 +1128,9 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	seg = nullptr;
 	Sprite = spr;
 	vec2_t pos[2];
-	int sprz = spr->__int_pos.Z;
+	int sprz = spr->int_pos().Z;
 
-	GetWallSpritePosition(spr, spr->__int_pos.vec2, pos, true);
+	GetWallSpritePosition(spr, spr->int_pos().vec2, pos, true);
 	glseg.x1 = pos[0].X * (1 / 16.f);
 	glseg.y1 = pos[0].Y * (1 / -16.f);
 	glseg.x2 = pos[1].X * (1 / 16.f);

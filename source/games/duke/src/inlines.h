@@ -105,8 +105,8 @@ inline int ldist(DDukeActor* s1, DDukeActor* s2)
 inline int ldist(const DDukeActor* s1, const tspritetype* s2)
 {
 	int vx, vy;
-	vx = s1->int_pos().X - s2->__int_pos.X;
-	vy = s1->int_pos().Y - s2->__int_pos.Y;
+	vx = s1->int_pos().X - s2->int_pos().X;
+	vy = s1->int_pos().Y - s2->int_pos().Y;
 	return(FindDistance2D(vx, vy) + 1);
 }
 inline int dist(DDukeActor* s1, DDukeActor* s2)

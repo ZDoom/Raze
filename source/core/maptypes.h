@@ -475,6 +475,11 @@ struct spritetypebase
 	{
 		__int_pos = { x, y, z };
 	}
+
+	const vec3_t int_pos() const
+	{
+		return __int_pos;
+	}
 };
 
 
@@ -494,11 +499,6 @@ struct tspritetype : public spritetypebase
 {
 	DCoreActor* ownerActor;
 	int time;
-
-	const vec3_t int_pos() const
-	{
-		return __int_pos;
-	}
 
 	void set_int_pos(const vec3_t& pos)
 	{
