@@ -253,8 +253,6 @@ struct sectortype
 	void set_int_floorz(int cc, bool temp = false);
 	void add_int_ceilingz(int cc, bool temp = false);
 	void add_int_floorz(int cc, bool temp = false);
-	int32_t* ceilingzptr(bool temp = false);
-	int32_t* floorzptr(bool temp = false);
 
 #endif
 
@@ -694,16 +692,6 @@ inline void sectortype::add_int_floorz(int cc, bool temp)
 {
 	__int_floorz += cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
-}
-inline int32_t* sectortype::ceilingzptr(bool temp)
-{
-	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
-	return &__int_ceilingz;
-}
-inline int32_t* sectortype::floorzptr(bool temp)
-{
-	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
-	return &__int_floorz;
 }
 
 #endif

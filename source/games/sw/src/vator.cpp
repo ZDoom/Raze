@@ -364,7 +364,7 @@ int DoVatorMove(DSWActor* actor, int *lptr)
 int DoVator(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
-    int *lptr;
+    int zval;
     int amt;
 
     // actor->user.sz        - where the sector z started
@@ -375,19 +375,21 @@ int DoVator(DSWActor* actor)
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
-        lptr = sectp->ceilingzptr();
-        amt = DoVatorMove(actor, lptr);
+        zval = sectp->int_ceilingz();
+        amt = DoVatorMove(actor, &zval);
+        sectp->set_int_ceilingz(zval);
         MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
-        lptr = sectp->floorzptr();
-        amt = DoVatorMove(actor, lptr);
+        zval = sectp->int_floorz();
+        amt = DoVatorMove(actor, &zval);
+        sectp->set_int_floorz(zval);
         MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
-    if (*lptr == actor->user.z_tgt)
+    if (zval == actor->user.z_tgt)
     {
         // in the ON position
         if (actor->user.z_tgt == actor->int_pos().Z)
@@ -436,7 +438,7 @@ int DoVator(DSWActor* actor)
         }
 
         // setup to go back to the original z
-        if (*lptr != actor->user.oz)
+        if (zval != actor->user.oz)
         {
             if (actor->user.WaitTics)
                 actor->user.Tics = actor->user.WaitTics;
@@ -521,24 +523,26 @@ int DoVator(DSWActor* actor)
 int DoVatorAuto(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
-    int *lptr;
+    int zval;
     int amt;
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
-        lptr = sectp->ceilingzptr();
-        amt = DoVatorMove(actor, lptr);
+        zval = sectp->int_ceilingz();
+        amt = DoVatorMove(actor, &zval);
+        sectp->set_int_ceilingz(zval);
         MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
-        lptr = sectp->floorzptr();
-        amt = DoVatorMove(actor, lptr);
+        zval = sectp->int_floorz();
+        amt = DoVatorMove(actor, &zval);
+        sectp->set_int_floorz(zval);
         MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
-    if (*lptr == actor->user.z_tgt)
+    if (zval == actor->user.z_tgt)
     {
         // in the UP position
         if (actor->user.z_tgt == actor->int_pos().Z)

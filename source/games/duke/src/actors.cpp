@@ -4211,30 +4211,36 @@ void handle_se20(DDukeActor* actor)
 void handle_se21(DDukeActor* actor)
 {
 	auto sc = actor->sector();
-	int* lp;
+	int lp;
 
 	if (actor->temp_data[0] == 0) return;
 
 	if (actor->spr.ang == 1536)
-		lp = sc->ceilingzptr();
+		lp = sc->int_ceilingz();
 	else
-		lp = sc->floorzptr();
+		lp = sc->int_floorz();
 
 	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
 	{
-		actor->spr.zvel = Sgn(actor->int_pos().Z - *lp) * (actor->spr.yvel << 4);
+		actor->spr.zvel = Sgn(actor->int_pos().Z - lp) * (actor->spr.yvel << 4);
 		actor->temp_data[0]++;
 	}
 
 	if (sc->extra == 0)
 	{
-		*lp += actor->spr.zvel;
+		lp += actor->spr.zvel;
 
-		if (abs(*lp - actor->int_pos().Z) < 1024)
+		if (abs(lp - actor->int_pos().Z) < 1024)
 		{
-			*lp = actor->int_pos().Z;
+			lp = actor->int_pos().Z;
 			deletesprite(actor);
 		}
+
+		if (actor->spr.ang == 1536)
+			sc->set_int_ceilingz(lp);
+		else
+			sc->set_int_floorz(lp);
+
 	}
 	else sc->extra--;
 }
