@@ -295,8 +295,8 @@ void ScaleRandomPoint(SECTOR_OBJECT* sop, short k, short ang, int x, int y, int 
 void MorphTornado(SECTOR_OBJECT* sop)
 {
     int mx, my;
-    int ceilingz;
-    int floorz;
+    int ceilz;
+    int florz;
     sectortype* *sectp;
     int j;
     int x,y,sx,sy;
@@ -347,24 +347,24 @@ void MorphTornado(SECTOR_OBJECT* sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    ceilingz = sop->op_main_sector->int_ceilingz();
-    floorz = sop->op_main_sector->int_floorz();
+    ceilz = sop->op_main_sector->int_ceilingz();
+    florz = sop->op_main_sector->int_floorz();
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-#define TOR_LOW (floorz)
+#define TOR_LOW (florz)
             if (sop->morph_z > TOR_LOW)
             {
                 sop->morph_z_speed *= -1;
                 sop->morph_z = TOR_LOW;
             }
-            else if (sop->morph_z < ceilingz)
+            else if (sop->morph_z < ceilz)
             {
                 sop->morph_z_speed *= -1;
-                sop->morph_z = ceilingz;
+                sop->morph_z = ceilz;
             }
 
             alignceilslope(*sectp, mx, my, sop->morph_z);
@@ -376,7 +376,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
 void MorphFloor(SECTOR_OBJECT* sop)
 {
     int mx, my;
-    int floorz;
+    int florz;
     sectortype* *sectp;
     int j;
     int x,y;
@@ -425,7 +425,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    floorz = sop->op_main_sector->int_floorz();
+    florz = sop->op_main_sector->int_floorz();
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
@@ -447,7 +447,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
         if ((*sectp)->hasU() &&
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp, mx, my, floorz + sop->morph_z);
+            alignflorslope(*sectp, mx, my, florz + sop->morph_z);
         }
     }
 }
@@ -502,7 +502,7 @@ void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
 void SpikeFloor(SECTOR_OBJECT* sop)
 {
     int mx, my;
-    int floorz;
+    int florz;
     int x,y;
 
     // z direction
@@ -522,7 +522,7 @@ void SpikeFloor(SECTOR_OBJECT* sop)
     my = y;
 
     // bound the Z
-    floorz = sop->op_main_sector->int_floorz();
+    florz = sop->op_main_sector->int_floorz();
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
@@ -537,7 +537,7 @@ void SpikeFloor(SECTOR_OBJECT* sop)
         sop->morph_z_speed *= -1;
     }
 
-    SOBJ_AlignFloorToPoint(sop, mx, my, floorz + sop->morph_z);
+    SOBJ_AlignFloorToPoint(sop, mx, my, florz + sop->morph_z);
 }
 
 

@@ -2363,7 +2363,7 @@ void DoSineWaveFloor(void)
     /*  SLOPED SIN-WAVE FLOORS:
 
     It's best to program sloped sin-wave floors in 2 steps:
-       1.  First set the floorz of the floor as the sin code normally does it.
+       1.  First set the floor z of the floor as the sin code normally does it.
        2.  Adjust the slopes by calling alignflorslope once for each sector.
 
     Note:  For this to work, the first wall of each sin-wave sector must be

@@ -784,7 +784,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         {
             /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
-                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                when getting the floor z for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
             */
             int zVal = 0;
@@ -804,7 +804,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         {
             /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
-                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                when getting the floor z for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
             */
             int zVal = 0;
@@ -828,7 +828,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         {
             /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
-                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                when getting the floor z for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
             */
             int zVal = 0;
@@ -920,7 +920,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         {
             /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
-                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                when getting the floor z for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
             */
             int zVal = 0;
@@ -1158,7 +1158,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         {
             /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
-                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                when getting the floor z for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
             */
             int zVal = 0;

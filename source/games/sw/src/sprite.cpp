@@ -2201,7 +2201,7 @@ void SpriteSetup(void)
                 case SECT_SPIKE:
                 {
                     short speed,vel,time,type,start_on,floor_vator;
-                    int floorz,ceilingz;
+                    int florz,ceilz;
                     Collision trash;
                     SpawnUser(actor, 0, nullptr);
 
@@ -2243,11 +2243,11 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    getzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), &ceilingz, &trash, &floorz, &trash);
+                    getzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), &ceilz, &trash, &florz, &trash);
 
                     if (floor_vator)
                     {
-                        actor->user.zclip = floorz;
+                        actor->user.zclip = florz;
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
@@ -2265,7 +2265,7 @@ void SpriteSetup(void)
                     }
                     else
                     {
-                        actor->user.zclip = ceilingz;
+                        actor->user.zclip = ceilz;
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
@@ -2853,8 +2853,8 @@ KeyMain:
              *
              * actor->spr.ang = 0; actor->spr.xvel = 4;
              *
-             * if (labs(actor->spr.z - actor->sector()->floorz) < Z(32)) actor->spr.z =
-             * actor->sector()->floorz - Z(32);
+             * if (labs(actor->spr.z - actor->sector()->int_floorz()) < Z(32)) actor->spr.z =
+             * actor->sector()->int_floorz() - Z(32);
              *
              * actor->user.sz = actor->spr.z;
              *

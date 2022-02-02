@@ -410,7 +410,7 @@ static void fakeMoveDude(DBloodActor* actor)
 			if (pHitWall->twoSided())
 			{
 				sectortype* pHitSector = &pHitWall->nextSector();
-				if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
+				if (top < pHitSector->ceiling z || bottom > pHitSector->floor z)
 				{
 					// ???
 				}

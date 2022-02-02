@@ -640,9 +640,9 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                int32_t const floorz = getflorzofslopeptr(tActor->sector(), tActor->int_pos().X, tActor->int_pos().Y);
-                if (tActor->int_pos().Z > floorz)
-                    tsp->set_int_z(floorz);
+                int32_t const florz = getflorzofslopeptr(tActor->sector(), tActor->int_pos().X, tActor->int_pos().Y);
+                if (tActor->int_pos().Z > florz)
+                    tsp->set_int_z(florz);
             }
 
             if (r_shadows && (tActor->user.Flags & SPR_SHADOW))

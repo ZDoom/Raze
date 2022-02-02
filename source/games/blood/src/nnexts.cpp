@@ -744,7 +744,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 		if (actor->xspr.Proximity && actor->xspr.Sight && actor->xspr.DudeLockout)
 			actor->xspr.Proximity = false;
 
-		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
+		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector florz / ceilgz
 		if (actor->insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
 			if (actor->int_pos().Z == actor->sector()->int_floorz()) actor->add_int_z(-1);
 			else if (actor->int_pos().Z == actor->sector()->int_ceilingz()) actor->add_int_z(1);

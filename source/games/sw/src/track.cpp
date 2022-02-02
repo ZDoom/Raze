@@ -767,7 +767,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
             if ((sect->extra & SECTFX_SINK))
                 sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
 
-            // lowest and highest floorz's
+            // lowest and highest floor z's
             if (sect->int_floorz() > sop->floor_loz)
                 sop->floor_loz = sect->int_floorz();
 
@@ -1596,7 +1596,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     sop->sp_child->set_int_xy(sop->pmid.X, sop->pmid.Y);
 
 
-    // setting floorz if need be
+    // setting floor z if need be
     if ((sop->flags & SOBJ_ZMID_FLOOR))
         sop->pmid.Z = sop->mid_sector->int_floorz();
 
@@ -2109,7 +2109,6 @@ void CallbackSOsink(ANIM* ap, void *data)
 
     destsect->floorpicnum = srcsect->floorpicnum;
     destsect->floorshade = srcsect->floorshade;
-//    destsect->floorz = srcsect->floorz;
 
     destsect->floorstat &= ~(CSTAT_SECTOR_ALIGN);
     destsect->u_defined = true;
