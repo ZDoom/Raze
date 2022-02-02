@@ -148,7 +148,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16));
 			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16));
 			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio));
-			t->__int_pos.Z += PHEIGHT_RR;
+			t->add_int_z(PHEIGHT_RR);
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
@@ -181,7 +181,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 			if (h->spr.extra > 0)
-				t->__int_pos.Z += (6 << 8);
+				t->add_int_z(6 << 8);
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -349,7 +349,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			p = h->spr.yvel;
 
-			if (t->pal == 1) t->__int_pos.Z -= (18 << 8);
+			if (t->pal == 1) t->add_int_z(-(18 << 8));
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
@@ -474,7 +474,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (!h->GetOwner()) continue;
 
-			if (t->__int_pos.Z > h->floorz && t->xrepeat < 32)
+			if (t->int_pos().Z > h->floorz && t->xrepeat < 32)
 				t->set_int_z(h->floorz);
 
 			if (ps[p].OnMotorcycle && p == screenpeek)

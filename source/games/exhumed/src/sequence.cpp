@@ -632,7 +632,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
             }
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-            pTSprite->__int_pos.Z = nFloorZ;
+            pTSprite->set_int_z(nFloorZ);
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;
             pTSprite->statnum = -3;

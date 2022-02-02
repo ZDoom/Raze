@@ -300,7 +300,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     }
 
     // need to find the ground here
-    tSpr->__int_pos.Z = loz;
+    tSpr->set_int_z(loz);
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
@@ -480,7 +480,7 @@ void WarpCopySprite(tspriteArray& tsprites)
                     newTSpr->statnum = 0;
 
                     auto off = itActor1->int_pos() - newTSpr->int_pos();
-                    newTSpr->__int_pos = itActor->int_pos() - off;
+                    newTSpr->set_int_pos(itActor->int_pos() - off);
                     newTSpr->sectp = itActor->sector();
                 }
             }
@@ -624,7 +624,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->__int_pos = tActor->interpolatedvec3(smr4, 18);
+                        tsp->set_int_pos(tActor->interpolatedvec3(smr4, 18));
                     }
                 }
 
@@ -632,7 +632,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->__int_pos = tActor->interpolatedvec3(smr2, 17);
+                        tsp->set_int_pos(tActor->interpolatedvec3(smr2, 17));
                     }
                 }
             }
@@ -642,7 +642,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             {
                 int32_t const floorz = getflorzofslopeptr(tActor->sector(), tActor->int_pos().X, tActor->int_pos().Y);
                 if (tActor->int_pos().Z > floorz)
-                    tsp->__int_pos.Z = floorz;
+                    tsp->set_int_z(floorz);
             }
 
             if (r_shadows && (tActor->user.Flags & SPR_SHADOW))
@@ -790,7 +790,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 int sr = 65536 - int(smoothratio);
                 tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
                 tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
-                tsp->__int_pos.Z -= MulScale(pp->pos.Z - pp->opos.Z, sr, 16);
+                tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
         }

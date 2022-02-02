@@ -259,7 +259,7 @@ static void SetWallPalV5()
 
 void validateSprite(spritetype& spri, int sectnum, int index)
 {
-	auto pos = spri.__int_pos;
+	auto pos = spri.int_pos();
 	bool bugged = false;
 	if ((unsigned)spri.statnum >= MAXSTATUS)
 	{
