@@ -520,7 +520,8 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     {
         PLAYER* pp = Player + screenpeek;
         FVector3 campos = GetSoundPos(pp->pos);
-        vec3_t *vpos = nullptr;
+        vec3_t vpos = {};
+        bool pancheck = false;
 
         if (vel) vel->Zero();
 
@@ -532,7 +533,8 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.__int_pos : &((PLAYER*)source)->pos;
+            vpos = type == SOURCE_Actor ? ((DSWActor*)source)->spr.int_pos() : ((PLAYER*)source)->pos;
+            pancheck = true;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -552,13 +554,14 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Ambient)
         {
             auto spot = ((AmbientSound*)source)->spot;
-            vpos = &spot->spr.__int_pos;
+            vpos = spot->spr.int_pos();
             FVector3 npos = GetSoundPos(vpos);
+            pancheck = true;
 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+                if (!FAFcansee(vpos.X, vpos.Y, vpos.Z, spot->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -567,11 +570,11 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             *pos = npos;
         }
 
-        if (vpos && chanflags & CHANEXF_DONTPAN)
+        if (pancheck && chanflags & CHANEXF_DONTPAN)
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
             *pos = campos;
-            auto sdist = SoundDist(vpos->X, vpos->Y, vpos->Z, voc[chanSound].voc_distance);
+            auto sdist = SoundDist(vpos.X, vpos.Y, vpos.Z, voc[chanSound].voc_distance);
             if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
         }
 
