@@ -2113,7 +2113,7 @@ struct ANIM
 		switch (animtype)
 		{
 		case ANIM_Floorz:
-            return sector[animindex].floorz;
+            return sector[animindex].__int_floorz;
 		case ANIM_SopZ:
 			return SectorObject[animindex].pmid.Z;
 		case ANIM_Spritez:
@@ -2134,7 +2134,7 @@ struct ANIM
         switch (animtype)
         {
         case ANIM_Floorz:
-            sector[animindex].setfloorz(value);
+            sector[animindex].set_int_floorz(value);
 			break;
         case ANIM_SopZ:
             SectorObject[animindex].pmid.Z = value;

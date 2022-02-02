@@ -498,8 +498,8 @@ void SectorSetup(void)
             swf->sectp = sectp;
             ASSERT(swf->sectp->hitag != 0);
             swf->range = range = Z(swf->sectp->hitag);
-            swf->floor_origz = swf->sectp->floorz - (range >> 2);
-            swf->ceiling_origz = swf->sectp->ceilingz - (range >> 2);
+            swf->floor_origz = swf->sectp->__int_floorz - (range >> 2);
+            swf->ceiling_origz = swf->sectp->__int_ceilingz - (range >> 2);
 
             // look for the rest by distance
             auto near_sectp = sectp, base_sectp = sectp;
@@ -519,8 +519,8 @@ void SectorSetup(void)
                         peak_dist = near_sectp->hitag;
 
                     swf->sectp = near_sectp;
-                    swf->floor_origz = swf->sectp->floorz - (range >> 2);
-                    swf->ceiling_origz = swf->sectp->ceilingz - (range >> 2);
+                    swf->floor_origz = swf->sectp->__int_floorz - (range >> 2);
+                    swf->ceiling_origz = swf->sectp->__int_ceilingz - (range >> 2);
                     range -= range_diff;
                     swf->range = range;
 
@@ -573,8 +573,8 @@ void SectorSetup(void)
                         swf->range = Z(4);
 
                     // reset origz's based on new range
-                    swf->floor_origz = swf->sectp->floorz - (swf->range >> 2);
-                    swf->ceiling_origz = swf->sectp->ceilingz - (swf->range >> 2);
+                    swf->floor_origz = swf->sectp->__int_floorz - (swf->range >> 2);
+                    swf->ceiling_origz = swf->sectp->__int_ceilingz - (swf->range >> 2);
                 }
             }
 
@@ -601,7 +601,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
     *xmid = xsum / (sectp->wallnum);
     *ymid = ysum / (sectp->wallnum);
 
-    *zmid = (sectp->floorz + sectp->ceilingz) >> 1;
+    *zmid = (sectp->__int_floorz + sectp->__int_ceilingz) >> 1;
 }
 
 
@@ -630,7 +630,7 @@ void DoSpringBoardDown(void)
             {
                 int destz;
 
-				destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->floorz, Find_FloorDown | Find_Safe)->floorz;
+				destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->__int_floorz, Find_FloorDown | Find_Safe)->__int_floorz;
 
                 AnimSet(ANIM_Floorz, sbp->sectp, destz, 256);
 
@@ -874,7 +874,7 @@ void DoExplodeSector(short match)
 
         sectp = actor->sector();
 
-        sectp->addceilingz(-Z(SP_TAG4(actor)));
+        sectp->add_int_ceilingz(-Z(SP_TAG4(actor)));
 
         if (SP_TAG5(actor))
         {
@@ -886,7 +886,7 @@ void DoExplodeSector(short match)
             sectp->setceilingslope(SP_TAG6(actor));
         }
 
-        for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
+        for (zh = sectp->__int_ceilingz; zh < sectp->__int_floorz; zh += Z(60))
         {
             SectorExp(actor, actor->sector(), orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
         }
@@ -1250,7 +1250,7 @@ void DoChangorMatch(short match)
         if (TEST_BOOL1(actor))
         {
             sectp->ceilingpicnum = SP_TAG4(actor);
-            sectp->addceilingz(Z(SP_TAG5(actor)));
+            sectp->add_int_ceilingz(Z(SP_TAG5(actor)));
             sectp->ceilingheinum += SP_TAG6(actor);
 
             if (sectp->ceilingheinum)
@@ -1264,7 +1264,7 @@ void DoChangorMatch(short match)
         else
         {
             sectp->floorpicnum = SP_TAG4(actor);
-            sectp->addfloorz(Z(SP_TAG5(actor)));
+            sectp->add_int_floorz(Z(SP_TAG5(actor)));
             sectp->floorheinum += SP_TAG6(actor);
 
             if (sectp->floorheinum)
@@ -2293,7 +2293,7 @@ void PlayerOperateEnv(PLAYER* pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((ActorZOfBottom(pp->actor) >= sectp->floorz) && !(pp->Flags & PF_DIVING))
+        else if ((ActorZOfBottom(pp->actor) >= sectp->__int_floorz) && !(pp->Flags & PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
@@ -2348,13 +2348,13 @@ void DoSineWaveFloor(void)
             if ((flags & SINE_FLOOR))
             {
                 newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                swf->sectp->setfloorz(newz);
+                swf->sectp->set_int_floorz(newz);
             }
 
             if ((flags & SINE_CEILING))
             {
                 newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                swf->sectp->setceilingz(newz);
+                swf->sectp->set_int_ceilingz(newz);
             }
 
         }
@@ -2387,7 +2387,7 @@ void DoSineWaveFloor(void)
                     wal = sect->firstWall() + 2;
 
                     //Pass (Sector, x, y, z)
-                    alignflorslope(sect,wal->wall_int_pos().X,wal->wall_int_pos().Y, wal->nextSector()->floorz);
+                    alignflorslope(sect,wal->wall_int_pos().X,wal->wall_int_pos().Y, wal->nextSector()->__int_floorz);
                 }
             }
         }

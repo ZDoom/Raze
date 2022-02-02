@@ -331,7 +331,7 @@ int DoActorSectorDamage(DSWActor* actor)
                 }
             }
         }
-        else if (ActorZOfBottom(actor) >= sectp->floorz)
+        else if (ActorZOfBottom(actor) >= sectp->__int_floorz)
         {
             if ((actor->user.DamageTics -= synctics) < 0)
             {

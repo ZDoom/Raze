@@ -546,7 +546,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
         newsector = tsp->sectp;
         testz = GetSpriteZOfTop(tsp) - Z(10);
 
-        if (testz < tsp->sectp->ceilingz)
+        if (testz < tsp->sectp->__int_ceilingz)
             updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)
@@ -560,7 +560,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
         newsector = tsp->sectp;
         testz = GetSpriteZOfBottom(tsp) + Z(10);
 
-        if (testz > tsp->sectp->floorz)
+        if (testz > tsp->sectp->__int_floorz)
             updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)

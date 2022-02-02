@@ -4829,7 +4829,7 @@ void MoveDude(DBloodActor* actor)
 				if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
 					trTriggerSector(pHitSector, kCmdSectorPush, actor);
 
-				if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
+				if (top < pHitSector->__int_ceilingz || bottom > pHitSector->__int_floorz)
 				{
 					// ???
 				}

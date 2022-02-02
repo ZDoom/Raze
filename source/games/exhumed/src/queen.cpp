@@ -447,7 +447,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     int x = pActor->int_pos().X;
     int y = pActor->int_pos().Y;
     auto pSector =pActor->sector();
-    int nFloorZ = pSector->floorz;
+    int nFloorZ = pSector->__int_floorz;
     int nAngle = pActor->spr.ang;
 
     auto pActor2 = insertActor(pSector, 121);
@@ -706,7 +706,7 @@ void BuildQueenHead(int nQueen)
     int y = pActor->int_pos().Y;
     int nAngle = pActor->spr.ang;
     auto pSector = pActor->sector();
-    int z = pSector->floorz;
+    int z = pSector->__int_floorz;
 
     auto pActor2 = insertActor(pSector, 121);
 
@@ -1113,7 +1113,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         ChangeActorStat(pActor, 121);
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
-        z = pActor->sector()->floorz;
+        z = pActor->sector()->__int_floorz;
         nAngle = pActor->spr.ang;
     }
 

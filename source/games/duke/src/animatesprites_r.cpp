@@ -729,7 +729,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 						if (isRRRA() && sectp->lotag == 160) continue;
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE)
-							daz = sectp->floorz;
+							daz = sectp->__int_floorz;
 						else
 							daz = h->floorz;
 
@@ -813,7 +813,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case FIRE:
 		case BURNING:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->set_int_z(t->sectp->floorz);
+				t->set_int_z(t->sectp->__int_floorz);
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:

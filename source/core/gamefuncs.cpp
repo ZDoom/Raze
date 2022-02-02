@@ -158,12 +158,12 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 	if (pceilz)
 	{
 		bits |= sec->ceilingstat;
-		*pceilz = float(sec->ceilingz);
+		*pceilz = float(sec->__int_ceilingz);
 	}
 	if (pflorz)
 	{
 		bits |= sec->floorstat;
-		*pflorz = float(sec->floorz);
+		*pflorz = float(sec->__int_floorz);
 	}
 
 	if ((bits & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
@@ -527,7 +527,7 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags)
 	int factor = (flags & Find_Up)? -1 : 1;
 	int bestz = INT_MAX;
 	sectortype* bestsec = (flags & Find_Safe)? sectp : nullptr;
-	const auto planez = (flags & Find_Ceiling)? &sectortype::ceilingz : &sectortype::floorz;
+	const auto planez = (flags & Find_Ceiling)? &sectortype::__int_ceilingz : &sectortype::__int_floorz;
 
 	startz *= factor;
 	for(auto& wal : wallsofsector(sectp))

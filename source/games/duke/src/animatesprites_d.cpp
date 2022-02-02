@@ -571,7 +571,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						int daz;
 
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE || h->spr.picnum == COMMANDER)
-							daz = sectp->floorz;
+							daz = sectp->__int_floorz;
 						else
 							daz = h->floorz;
 
@@ -654,7 +654,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case BURNING2:
 			if (!OwnerAc) break;
 			if (!actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->set_int_z(t->sectp->floorz);
+				t->set_int_z(t->sectp->__int_floorz);
 			t->shade = -127;
 			break;
 		case COOLEXPLOSION1:

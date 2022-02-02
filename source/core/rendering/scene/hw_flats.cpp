@@ -104,7 +104,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 
 		auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
 		auto vp = ret.first;
-		float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1 / -256.f);
+		float base = (plane == 0 ? sec->__int_floorz : sec->__int_ceilingz) * (1 / -256.f);
 		for (unsigned i = 0; i < pIndices->Size(); i++)
 		{
 			auto ii = (*pIndices)[i];
@@ -421,10 +421,10 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);
 	bool belowfloor = false;
-	if (sprite->int_pos().Z > sprite->sectp->floorz)
+	if (sprite->int_pos().Z > sprite->sectp->__int_floorz)
 	{
 		belowfloor = true;
-		sprite->set_int_z(sprite->sectp->floorz);
+		sprite->set_int_z(sprite->sectp->__int_floorz);
 	}
 	z = sprite->int_pos().Z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.

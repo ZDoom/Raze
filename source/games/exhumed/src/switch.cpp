@@ -290,7 +290,7 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
     if (var_14 != sRunChannels[nChannel].c)
     {
         auto pWall = pSector->firstWall();
-        PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->wall_int_pos().X, pWall->wall_int_pos().Y, pSector->floorz);
+        PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->wall_int_pos().X, pWall->wall_int_pos().Y, pSector->__int_floorz);
 
         assert(sRunChannels[nChannel].c < 8);
 

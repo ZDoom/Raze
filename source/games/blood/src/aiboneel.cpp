@@ -415,7 +415,7 @@ void eelMoveToCeil(DBloodActor* actor)
 		aiNewState(actor, &eelIdle);
 	}
 	else
-		aiSetTarget(actor, x, y, actor->sector()->ceilingz);
+		aiSetTarget(actor, x, y, actor->sector()->__int_ceilingz);
 }
 
 END_BLD_NS

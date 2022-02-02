@@ -455,7 +455,7 @@ int DoVator(DSWActor* actor)
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < ActorSizeZ(itActor))
+                    if (labs(sectp->__int_ceilingz - sectp->__int_floorz) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
@@ -501,7 +501,7 @@ int DoVator(DSWActor* actor)
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->ceilingz - sectp->floorz) < ActorSizeZ(itActor))
+                    if (labs(sectp->__int_ceilingz - sectp->__int_floorz) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);

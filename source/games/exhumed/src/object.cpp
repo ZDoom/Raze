@@ -393,7 +393,7 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
 
     auto pActor = insertActor(pSector, 401);
 
-    pActor->set_int_pos({ wal->center().X, wal->center().Y, (pSector->floorz + pSector->ceilingz) / 2 });
+    pActor->set_int_pos({ wal->center().X, wal->center().Y, (pSector->__int_floorz + pSector->__int_ceilingz) / 2 });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     return pActor;
@@ -457,7 +457,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     {
         pAct = insertActor(pSector, 401);
 
-        pAct->set_int_pos({ (var_24 + esi) / 2, (ecx + edi) / 2, pSector->floorz });
+        pAct->set_int_pos({ (var_24 + esi) / 2, (ecx + edi) / 2, pSector->__int_floorz });
         pAct->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         pAct->spr.intowner = -1;
         pAct->spr.lotag = 0;
@@ -588,7 +588,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
 
     if (nVal)
     {
-        int nZDiff = pSector->floorz - pSector->ceilingz;
+        int nZDiff = pSector->__int_floorz - pSector->__int_ceilingz;
 
         ExhumedSectIterator it(pSector);
         while (auto pActor= it.Next())
@@ -632,7 +632,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
 // done
 void MoveSectorSprites(sectortype* pSector, int z)
 {
-    int newz = pSector->floorz;
+    int newz = pSector->__int_floorz;
     int oldz = newz - z;
     int minz = min(newz, oldz);
     int maxz = max(newz, oldz);
@@ -764,7 +764,7 @@ void AIElev::Tick(RunListEvent* ev)
         int nZVal = Elevator[nElev].zOffsets[nZOffset];
 
         StartInterpolation(pSector, Interp_Sect_Floorz);
-        int nVal = LongSeek((int*)&pSector->floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
+        int nVal = LongSeek((int*)&pSector->__int_floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
         ebp = nVal;
 
         if (!nVal)
@@ -798,7 +798,7 @@ void AIElev::Tick(RunListEvent* ev)
     else
     {
         // loc_20FC3:
-        int ceilZ = pSector->ceilingz;
+        int ceilZ = pSector->__int_ceilingz;
 
         int nZOffset = Elevator[nElev].nCurZOffset;
         int zVal = Elevator[nElev].zOffsets[nZOffset];
@@ -854,7 +854,7 @@ void AIElev::Tick(RunListEvent* ev)
         }
 
         StartInterpolation(pSector, Interp_Sect_Ceilingz);
-        pSector->setceilingz(ceilZ);
+        pSector->set_int_ceilingz(ceilZ);
     }
 
     // maybe this doesn't go here?
@@ -1018,7 +1018,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
 
     SlideData[nSlide].pActor = pActor;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->set_int_pos({ pStartWall->wall_int_pos().X, pStartWall->wall_int_pos().Y, pSector->floorz });
+    pActor->set_int_pos({ pStartWall->wall_int_pos().X, pStartWall->wall_int_pos().Y, pSector->__int_floorz });
     pActor->backuppos();
 
     SlideData[nSlide].nRunC = 0;
@@ -1578,10 +1578,10 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     //	GrabTimeSlot(3);
 
-    pActor->set_int_z(pSector->firstWall()->nextSector()->floorz);
+    pActor->set_int_z(pSector->firstWall()->nextSector()->__int_floorz);
 
     // CHECKME - name of this variable?
-    int nRepeat = (pActor->int_pos().Z - pSector->floorz) >> 8;
+    int nRepeat = (pActor->int_pos().Z - pSector->__int_floorz) >> 8;
     if (nRepeat > 255) {
         nRepeat = 255;
     }
@@ -1656,9 +1656,9 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     pSector->floorshade = 50;
     pSector->extra = -1;
-    pSector->setfloorz(pActor->int_pos().Z);
+    pSector->set_int_floorz(pActor->int_pos().Z);
 
-    pActor->set_int_z((pActor->int_pos().Z + pSector->floorz) / 2);
+    pActor->set_int_z((pActor->int_pos().Z + pSector->__int_floorz) / 2);
 
     BuildSpark(pActor, 3);
 
@@ -1763,15 +1763,15 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
         return;
     }
 
-    int nFloorZ = pSector->floorz;
+    int nFloorZ = pSector->__int_floorz;
 
-    pSector->setfloorz(pActor->int_pos().Z);
+    pSector->set_int_floorz(pActor->int_pos().Z);
     pActor->add_int_z(-256);
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
-    pSector->setfloorz(nFloorZ);
+    pSector->set_int_floorz(nFloorZ);
     pActor->add_int_z(256);
 
     if (ev->nDamage <= 0) {
@@ -1919,7 +1919,7 @@ void AIObject::Tick(RunListEvent* ev)
         int var_18;
 
         // red branch
-        if ((nStat == kStatExplodeTarget) || (pActor->int_pos().Z < pActor->sector()->floorz))
+        if ((nStat == kStatExplodeTarget) || (pActor->int_pos().Z < pActor->sector()->__int_floorz))
         {
             var_18 = 36;
         }
@@ -1929,7 +1929,7 @@ void AIObject::Tick(RunListEvent* ev)
         }
 
         AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 128);
-        BuildAnim(nullptr, var_18, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->sector()->floorz, pActor->sector(), 240, 4);
+        BuildAnim(nullptr, var_18, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->sector()->__int_floorz, pActor->sector(), 240, 4);
 
         //				int edi = nSprite | 0x4000;
 
@@ -2113,15 +2113,15 @@ void DoDrips()
 
         if (sBob[i].field_3)
         {
-            pSector->setceilingz(edx + sBob[i].z);
+            pSector->set_int_ceilingz(edx + sBob[i].z);
         }
         else
         {
-            int nFloorZ = pSector->floorz;
+            int nFloorZ = pSector->__int_floorz;
 
-            pSector->setfloorz(edx + sBob[i].z);
+            pSector->set_int_floorz(edx + sBob[i].z);
 
-            MoveSectorSprites(pSector, pSector->floorz - nFloorZ);
+            MoveSectorSprites(pSector, pSector->__int_floorz - nFloorZ);
         }
     }
 }
@@ -2174,10 +2174,10 @@ void AddSectorBob(sectortype* pSector, int nHitag, int bx)
     int z;
 
     if (bx == 0) {
-        z = pSector->floorz;
+        z = pSector->__int_floorz;
     }
     else {
-        z = pSector->ceilingz;
+        z = pSector->__int_ceilingz;
     }
 
     sBob[nBobs].z = z;

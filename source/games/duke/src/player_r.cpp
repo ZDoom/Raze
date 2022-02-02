@@ -119,11 +119,11 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				ny = hit.hitpos.Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
 				if (hit.hitSector->lotag == 161)
 				{
-					nz = effector->GetOwner()->sector()->floorz;
+					nz = effector->GetOwner()->sector()->__int_floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->sector()->ceilingz;
+					nz = effector->GetOwner()->sector()->__int_ceilingz;
 				}
 				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
@@ -170,7 +170,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			{
 				if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 					if (hit.hitWall->twoSided())
-						if (hit.hitpos.Z >= (hit.hitWall->nextSector()->floorz))
+						if (hit.hitpos.Z >= (hit.hitWall->nextSector()->__int_floorz))
 							hit.hitWall = hit.hitWall->nextWall();
 
 				if (hit.hitWall->picnum != ACCESSSWITCH && hit.hitWall->picnum != ACCESSSWITCH2)
@@ -274,11 +274,11 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				ny = hit.hitpos.Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
 				if (hit.hitSector->lotag == 161)
 				{
-					nz = effector->GetOwner()->sector()->floorz;
+					nz = effector->GetOwner()->sector()->__int_floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->sector()->ceilingz;
+					nz = effector->GetOwner()->sector()->__int_ceilingz;
 				}
 				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
@@ -421,7 +421,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 			if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 				if (hit.hitWall->twoSided())
-					if (hit.hitpos.Z >= (hit.hitWall->nextSector()->floorz))
+					if (hit.hitpos.Z >= (hit.hitWall->nextSector()->__int_floorz))
 						hit.hitWall = hit.hitWall->nextWall();
 
 			fi.checkhitwall(spark, hit.hitWall, hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, SHOTSPARK1);
@@ -3959,7 +3959,7 @@ HORIZONLY:
 		break;
 	}
 
-	if (ud.clipping == 0 && (!p->cursector || (p->cursector && p->cursector->ceilingz > (p->cursector->floorz - (12 << 8)))))
+	if (ud.clipping == 0 && (!p->cursector || (p->cursector && p->cursector->__int_ceilingz > (p->cursector->__int_floorz - (12 << 8)))))
 	{
 		quickkill(p);
 		return;

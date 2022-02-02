@@ -715,9 +715,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 6);
 		break;
 	case TOUCHPLATE:
-		act->temp_data[2] = sectp->floorz;
+		act->temp_data[2] = sectp->__int_floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->setfloorz(act->int_pos().Z);
+			sectp->set_int_floorz(act->int_pos().Z);
 		if (act->spr.pal && ud.multimode > 1)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 0;

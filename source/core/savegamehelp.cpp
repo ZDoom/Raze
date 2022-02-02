@@ -512,8 +512,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("wallptr", c.wallptr, def->wallptr)
 			("wallnum", c.wallnum, def->wallnum)
 #ifndef SECTOR_HACKJOB // can't save these in test mode...
-			("ceilingz", c.ceilingz, def->ceilingz)
-			("floorz", c.floorz, def->floorz)
+			("ceilingz", c.__int_ceilingz, def->__int_ceilingz)
+			("floorz", c.__int_floorz, def->__int_floorz)
 #endif
 			("ceilingstat", c.ceilingstat, def->ceilingstat)
 			("floorstat", c.floorstat, def->floorstat)

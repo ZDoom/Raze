@@ -222,7 +222,7 @@ bool ifsquished(DDukeActor* actor, int p)
 		return false;
 
 	auto sectp = actor->sector();
-	int floorceildist = sectp->floorz - sectp->ceilingz;
+	int floorceildist = sectp->__int_floorz - sectp->__int_ceilingz;
 
 	if (sectp->lotag != ST_23_SWINGING_DOOR)
 	{
@@ -267,7 +267,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 		while (auto dasectp = search.GetNext())
 		{
-			if (((dasectp->ceilingz - actor->int_pos().Z) >> 8) < r)
+			if (((dasectp->__int_ceilingz - actor->int_pos().Z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
 				int d = abs(wal->wall_int_pos().X - actor->int_pos().X) + abs(wal->wall_int_pos().Y - actor->int_pos().Y);
@@ -770,14 +770,14 @@ void movefallers_d(void)
 						x = gs.gravity;
 				}
 
-				if (act->int_pos().Z < (sectp->floorz - FOURSLEIGHT))
+				if (act->int_pos().Z < (sectp->__int_floorz - FOURSLEIGHT))
 				{
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
 					act->add_int_z(act->spr.zvel);
 				}
-				if ((sectp->floorz - act->int_pos().Z) < (16 << 8))
+				if ((sectp->__int_floorz - act->int_pos().Z) < (16 << 8))
 				{
 					j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -1847,7 +1847,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 2048))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->__int_floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 2048))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1858,14 +1858,14 @@ void movetransports_d(void)
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].opos.Z = ps[p].pos.Z =
-						Owner->sector()->ceilingz + (7 << 8);
+						Owner->sector()->__int_ceilingz + (7 << 8);
 
 						ps[p].vel.X = 4096 - (krand() & 8192);
 						ps[p].vel.Y = 4096 - (krand() & 8192);
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->__int_ceilingz + (6 << 8)))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
@@ -1876,7 +1876,7 @@ void movetransports_d(void)
 						S_PlayActorSound(DUKE_GASP, act2);
 
 						ps[p].opos.Z = ps[p].pos.Z =
-						Owner->sector()->floorz - (7 << 8);
+						Owner->sector()->__int_floorz - (7 << 8);
 
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
@@ -1934,10 +1934,10 @@ void movetransports_d(void)
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && act2->int_pos().Z < (sectp->ceilingz + ll))
+					if (ll && sectlotag == 2 && act2->int_pos().Z < (sectp->__int_ceilingz + ll))
 						warpspriteto = 1;
 
-					if (ll && sectlotag == 1 && act2->int_pos().Z > (sectp->floorz - ll))
+					if (ll && sectlotag == 1 && act2->int_pos().Z > (sectp->__int_floorz - ll))
 						warpspriteto = 1;
 
 					if (sectlotag == 0 && (onfloorz || abs(act2->int_pos().Z - act->int_pos().Z) < 4096))
@@ -1989,7 +1989,7 @@ void movetransports_d(void)
 								{
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
-										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->floorz) });
+										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->__int_floorz) });
 										act2->spr.ang = Owner->spr.ang;
 
 										act2->backupang();
@@ -2022,13 +2022,13 @@ void movetransports_d(void)
 								break;
 							case ST_1_ABOVE_WATER:
 								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
-								act2->set_int_z(Owner->sector()->ceilingz + ll);
+								act2->set_int_z(Owner->sector()->__int_ceilingz + ll);
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
 								break;
 							case ST_2_UNDERWATER:
 								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
-								act2->set_int_z(Owner->sector()->floorz - ll);
+								act2->set_int_z(Owner->sector()->__int_floorz - ll);
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
 								break;
@@ -2585,7 +2585,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if (sectp->lotag != 1 && actor->int_pos().Z >= actor->floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
 		{
-			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
+			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->__int_floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			actor->spr.zvel = -((4 - actor->spr.yvel) << 8);
 			if (actor->sector()->lotag == 2)
@@ -3139,7 +3139,7 @@ void moveexplosions_d(void)  // STATNUM 5
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(act, (sectp->floorz + (24 << 8)) < act->int_pos().Z);
+			shell(act, (sectp->__int_floorz + (24 << 8)) < act->int_pos().Z);
 			continue;
 
 		case GLASSPIECES:
@@ -3436,7 +3436,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		case SE_29_WAVES:
 			act->spr.hitag += 64;
 			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
-			sc->setfloorz(act->int_pos().Z + l);
+			sc->set_int_floorz(act->int_pos().Z + l);
 			break;
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
 			handle_se31(act, true);
@@ -3483,7 +3483,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		if (wal->nextSector()) alignflorslope(act->sector(), wal->wall_int_pos().X, wal->wall_int_pos().Y, wal->nextSector()->floorz);
+		if (wal->nextSector()) alignflorslope(act->sector(), wal->wall_int_pos().X, wal->wall_int_pos().Y, wal->nextSector()->__int_floorz);
 	}
 }
 

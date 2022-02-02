@@ -437,9 +437,9 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
-	int fz = sectorp->floorz, cz = sectorp->ceilingz;
-	sectorp->setfloorz(0, true);
-	sectorp->setceilingz(0, true);
+	int fz = sectorp->__int_floorz, cz = sectorp->__int_ceilingz;
+	sectorp->set_int_floorz(0, true);
+	sectorp->set_int_ceilingz(0, true);
 
 	UVCalculator uvcalc(sectorp, plane, texture, offset);
 
@@ -456,8 +456,8 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		PlanesAtPoint(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(pt.X, -pt.Y, pt.Z);
 	}
-	sectorp->setfloorz(fz, true);
-	sectorp->setceilingz(cz, true);
+	sectorp->set_int_floorz(fz, true);
+	sectorp->set_int_ceilingz(cz, true);
 	entry.normal = CalcNormal(sectorp, plane);
 }
 

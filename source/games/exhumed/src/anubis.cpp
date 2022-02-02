@@ -55,7 +55,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
 
         x = ap->int_pos().X;
         y = ap->int_pos().Y;
-        z = ap->sector()->floorz;
+        z = ap->sector()->__int_floorz;
         nAngle = ap->spr.ang;
     }
 
@@ -397,7 +397,7 @@ void AIAnubis::Damage(RunListEvent* ev)
                 {
                     auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
 
-                    pDrumActor->set_int_pos({ ap->int_pos().X, ap->int_pos().Y, pDrumActor->sector()->floorz });
+                    pDrumActor->set_int_pos({ ap->int_pos().X, ap->int_pos().Y, pDrumActor->sector()->__int_floorz });
                     pDrumActor->spr.xrepeat = 40;
                     pDrumActor->spr.yrepeat = 40;
                     pDrumActor->spr.shade = -64;
@@ -420,7 +420,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             ap->spr.xvel = 0;
             ap->spr.yvel = 0;
             ap->spr.zvel = 0;
-            ap->set_int_z(ap->sector()->floorz);
+            ap->set_int_z(ap->sector()->__int_floorz);
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;

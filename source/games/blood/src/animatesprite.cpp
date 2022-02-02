@@ -444,10 +444,10 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->ceilingz });
+		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->__int_ceilingz });
 
 		pNSprite->picnum = 624;
-		pNSprite->shade = ((pTSprite->int_pos().Z - pSector->ceilingz) >> 8) - 64;
+		pNSprite->shade = ((pTSprite->int_pos().Z - pSector->__int_ceilingz) >> 8) - 64;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
@@ -462,9 +462,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->floorz });
+		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->__int_floorz });
 		pNSprite->picnum = 624;
-		uint8_t nShade = (pSector->floorz - pTSprite->int_pos().Z) >> 8;
+		uint8_t nShade = (pSector->__int_floorz - pTSprite->int_pos().Z) >> 8;
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
@@ -848,12 +848,12 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				if (pTSprite->type != kMissileFlareRegular) break;
 				sectortype* pSector1 = pTSprite->sectp;
 
-				int zDiff = (pTSprite->int_pos().Z - pSector1->ceilingz) >> 8;
+				int zDiff = (pTSprite->int_pos().Z - pSector1->__int_ceilingz) >> 8;
 				if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectCeilGlow);
 				}
 
-				zDiff = (pSector1->floorz - pTSprite->int_pos().Z) >> 8;
+				zDiff = (pSector1->__int_floorz - pTSprite->int_pos().Z) >> 8;
 				if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectFloorGlow);
 				}

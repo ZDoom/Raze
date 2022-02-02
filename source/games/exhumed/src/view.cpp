@@ -274,7 +274,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = pPlayerActor->sector()->floorz;
+        int floorZ = pPlayerActor->sector()->__int_floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;
@@ -297,10 +297,10 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (pSector != nullptr)
     {
-        int Z = pSector->ceilingz + 256;
+        int Z = pSector->__int_ceilingz + 256;
         if (Z <= viewz)
         {
-            Z = pSector->floorz - 256;
+            Z = pSector->__int_floorz - 256;
 
             if (Z < viewz)
                 viewz = Z;

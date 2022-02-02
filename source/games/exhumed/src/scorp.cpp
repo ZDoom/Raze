@@ -50,7 +50,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
-        z = pActor->sector()->floorz;
+        z = pActor->sector()->__int_floorz;
         nAngle = pActor->spr.ang;
     }
 

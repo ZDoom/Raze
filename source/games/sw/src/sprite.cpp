@@ -863,8 +863,8 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    actor->user.loz = actor->sector()->floorz;
-    actor->user.hiz = actor->sector()->ceilingz;
+    actor->user.loz = actor->sector()->__int_floorz;
+    actor->user.hiz = actor->sector()->__int_ceilingz;
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
     actor->user.lo_sectp = actor->sector();
@@ -2044,42 +2044,42 @@ void SpriteSetup(void)
                     if (floor_vator)
                     {
                         // start off
-                        actor->user.pos.Z = sectp->floorz;
+                        actor->user.pos.Z = sectp->__int_floorz;
                         actor->user.z_tgt = actor->int_pos().Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = actor->int_pos().Z - sectp->floorz;
+                            amt = actor->int_pos().Z - sectp->__int_floorz;
 
                             // start in the on position
-                            sectp->addfloorz(amt);
+                            sectp->add_int_floorz(amt);
                             actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, false); // floor
                         }
 
                         // set orig z
-                        actor->user.oz = actor->opos.Z = sectp->floorz;
+                        actor->user.oz = actor->opos.Z = sectp->__int_floorz;
                     }
                     else
                     {
                         // start off
-                        actor->user.pos.Z = sectp->ceilingz;
+                        actor->user.pos.Z = sectp->__int_ceilingz;
                         actor->user.z_tgt = actor->int_pos().Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = actor->int_pos().Z - sectp->ceilingz;
+                            amt = actor->int_pos().Z - sectp->__int_ceilingz;
 
                             // starting in the on position
-                            sectp->addceilingz(amt);
+                            sectp->add_int_ceilingz(amt);
                             actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
                         }
 
                         // set orig z
-                        actor->user.oz = actor->opos.Z = sectp->ceilingz;
+                        actor->user.oz = actor->opos.Z = sectp->__int_ceilingz;
                     }
 
 
@@ -2449,9 +2449,9 @@ void SpriteSetup(void)
                         sectp->setceilingslope(0);
                     }
 
-                    SP_TAG4(actor) = abs(sectp->ceilingz - sectp->floorz)>>8;
+                    SP_TAG4(actor) = abs(sectp->__int_ceilingz - sectp->__int_floorz)>>8;
 
-                    sectp->setceilingz(sectp->floorz);
+                    sectp->set_int_ceilingz(sectp->__int_floorz);
 
                     change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
                     break;
@@ -4686,7 +4686,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->set_int_z(actor->sector()->floorz);
+    actor->set_int_z(actor->sector()->__int_floorz);
     return 0;
 }
 
@@ -6516,7 +6516,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->ceilingstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z < actor->sector()->ceilingz)
+        if (actor->int_pos().Z < actor->sector()->__int_ceilingz)
         {
             retval.setVoid();
         }
@@ -6524,7 +6524,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->floorstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z > actor->sector()->floorz)
+        if (actor->int_pos().Z > actor->sector()->__int_floorz)
         {
             retval.setVoid();
         }

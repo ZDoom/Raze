@@ -249,7 +249,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
-        if (track_sect && FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(16), actor->sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
+        if (track_sect && FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(16), actor->sector(), near_tp->x, near_tp->y, track_sect->__int_floorz - Z(32), track_sect))
         {
             return short(near_track - &Track[0]);
         }
@@ -761,18 +761,18 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
             // detection and recognition
             sect->extra |= SECTFX_SECTOR_OBJECT;
 
-            sop->zorig_floor[sop->num_sectors] = sect->floorz;
-            sop->zorig_ceiling[sop->num_sectors] = sect->ceilingz;
+            sop->zorig_floor[sop->num_sectors] = sect->__int_floorz;
+            sop->zorig_ceiling[sop->num_sectors] = sect->__int_ceilingz;
 
             if ((sect->extra & SECTFX_SINK))
                 sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
 
             // lowest and highest floorz's
-            if (sect->floorz > sop->floor_loz)
-                sop->floor_loz = sect->floorz;
+            if (sect->__int_floorz > sop->floor_loz)
+                sop->floor_loz = sect->__int_floorz;
 
-            if (sect->floorz < sop->floor_hiz)
-                sop->floor_hiz = sect->floorz;
+            if (sect->__int_floorz < sop->floor_hiz)
+                sop->floor_hiz = sect->__int_floorz;
 
             sop->num_sectors++;
         }
@@ -874,7 +874,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
                 itActor->user.pos.X = sop->pmid.X - itActor->int_pos().X;
                 itActor->user.pos.Y = sop->pmid.Y - itActor->int_pos().Y;
-                itActor->user.pos.Z = sop->mid_sector->floorz - itActor->int_pos().Z;
+                itActor->user.pos.Z = sop->mid_sector->__int_floorz - itActor->int_pos().Z;
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
@@ -905,7 +905,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                         if (sop->sectp[j] == itActor->sector())
                         {
                             itActor->user.Flags |= (SPR_ON_SO_SECTOR);
-                            itActor->user.pos.Z = itActor->sector()->floorz - itActor->int_pos().Z;
+                            itActor->user.pos.Z = itActor->sector()->__int_floorz - itActor->int_pos().Z;
                             break;
                         }
                     }
@@ -1598,7 +1598,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
 
     // setting floorz if need be
     if ((sop->flags & SOBJ_ZMID_FLOOR))
-        sop->pmid.Z = sop->mid_sector->floorz;
+        sop->pmid.Z = sop->mid_sector->__int_floorz;
 
     DVector2 pivot = { sop->pmid.X * inttoworld, sop->pmid.Y * inttoworld };
     DVector2 move = { nx * inttoworld, ny * inttoworld };
@@ -1707,12 +1707,12 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->set_int_z(actor->sector()->floorz - actor->user.pos.Z);
+                actor->set_int_z(actor->sector()->__int_floorz - actor->user.pos.Z);
             }
             else
             {
                 // move with the mid sector
-                actor->set_int_z(sop->mid_sector->floorz - actor->user.pos.Z);
+                actor->set_int_z(sop->mid_sector->__int_floorz - actor->user.pos.Z);
             }
         }
 
@@ -2037,7 +2037,7 @@ void MoveZ(SECTOR_OBJECT* sop)
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
+            (*sectp)->set_int_floorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
@@ -2386,7 +2386,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
                 if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->__int_floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2406,7 +2406,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
                 {
                     if ((*sectp) && (*sectp)->stag == SECT_SO_FORM_WHIRLPOOL)
                     {
-                        AnimSet(ANIM_Floorz, *sectp, (*sectp)->floorz + Z((*sectp)->height), 128);
+                        AnimSet(ANIM_Floorz, *sectp, (*sectp)->__int_floorz + Z((*sectp)->height), 128);
                         (*sectp)->floorshade += (*sectp)->height / 6;
 
                         (*sectp)->extra &= ~(SECTFX_NO_RIDE);
@@ -2534,7 +2534,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
                 // churn through sectors setting their new z values
                 for (i = 0; sop->sectp[i] != nullptr; i++)
                 {
-                    AnimSet(ANIM_Floorz, sop->sectp[i], dz - (sop->mid_sector->floorz - sop->sectp[i]->floorz), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sectp[i], dz - (sop->mid_sector->__int_floorz - sop->sectp[i]->__int_floorz), sop->z_rate);
                 }
             }
         }
@@ -2597,7 +2597,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int 
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
+            (*sectp)->set_int_floorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
@@ -2708,7 +2708,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     yvect = sop->vel * bcos(*ang);
 
     auto cursect = sop->op_main_sector; // for sop->vel
-    floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
+    floor_dist = (abs(cursect->__int_ceilingz - cursect->__int_floorz)) >> 2;
     pos.X = sop->pmid.X;
     pos.Y = sop->pmid.Y;
     pos.Z = floor_dist;
@@ -3024,7 +3024,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 if (!hit.hitWall->twoSided())
                     return false;
 
-                zdiff = labs(actor->int_pos().Z - hit.hitWall->nextSector()->floorz) >> 8;
+                zdiff = labs(actor->int_pos().Z - hit.hitWall->nextSector()->__int_floorz) >> 8;
 
                 actor->user.jump_speed = PickJumpSpeed(actor, zdiff);
             }
@@ -3284,7 +3284,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
-            actor->set_int_z(actor->sector()->floorz);
+            actor->set_int_z(actor->sector()->__int_floorz);
             actor->spr.zvel = 0;
         }
         else
@@ -3342,9 +3342,9 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // destination z for climbing
             if (wal->twoSided())
-                actor->user.pos.Z = wal->nextSector()->floorz;
+                actor->user.pos.Z = wal->nextSector()->__int_floorz;
             else
-                actor->user.pos.Z = wal->sectorp()->ceilingz; // don't crash on bad setups.
+                actor->user.pos.Z = wal->sectorp()->__int_ceilingz; // don't crash on bad setups.
 
             DoActorZrange(actor);
 

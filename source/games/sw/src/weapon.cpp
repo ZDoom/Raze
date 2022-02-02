@@ -4299,7 +4299,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
         if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
         {
-            if (labs(actor->int_pos().Z - sectp->ceilingz) < ActorSizeZ(actor))
+            if (labs(actor->int_pos().Z - sectp->__int_ceilingz) < ActorSizeZ(actor))
             {
                 SetSuicide(actor);
                 return true;
@@ -4502,7 +4502,7 @@ int DoFireballFlames(DSWActor* actor)
         {
             if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 0)
             {
-                if (labs(actor->sector()->floorz - actor->int_pos().Z) <= Z(4))
+                if (labs(actor->sector()->__int_floorz - actor->int_pos().Z) <= Z(4))
                 {
                     KillActor(actor);
                     return 0;
@@ -4575,7 +4575,7 @@ int DoBreakFlames(DSWActor* actor)
     {
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 0)
         {
-            if (labs(actor->sector()->floorz - actor->int_pos().Z) <= Z(4))
+            if (labs(actor->sector()->__int_floorz - actor->int_pos().Z) <= Z(4))
             {
                 KillActor(actor);
                 return 0;
@@ -10205,7 +10205,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 
     actor->user.pos.X = sop->pmid.X - actor->int_pos().X;
     actor->user.pos.Y = sop->pmid.Y - actor->int_pos().Y;
-    actor->user.pos.Z = sop->mid_sector->floorz - actor->int_pos().Z;
+    actor->user.pos.Z = sop->mid_sector->__int_floorz - actor->int_pos().Z;
 
     actor->user.sang = actor->spr.ang;
 }
@@ -10255,13 +10255,13 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
     if (actor->user.Flags & (SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        expActor->set_int_z(actor->sector()->floorz - actor->user.pos.Z);
+        expActor->set_int_z(actor->sector()->__int_floorz - actor->user.pos.Z);
         expActor->backupz();
     }
     else
     {
         // move with the mid sector
-        expActor->set_int_z(sop->mid_sector->floorz - actor->user.pos.Z);
+        expActor->set_int_z(sop->mid_sector->__int_floorz - actor->user.pos.Z);
         expActor->backupz();
     }
 
@@ -11938,7 +11938,7 @@ int InitSwordAttack(PLAYER* pp)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                         {
                             return 0;
                         }
@@ -12132,7 +12132,7 @@ int InitFistAttack(PLAYER* pp)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                         {
                             return 0;
                         }
@@ -12752,13 +12752,13 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
 
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.Z - hit.hitSector->__int_ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
-        else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
+        else if (labs(hit.hitpos.Z - hit.hitSector->__int_floorz) <= Z(1))
         {
         }
     }
@@ -12769,7 +12769,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                 {
                     return 0;
                 }
@@ -12885,7 +12885,7 @@ int InitShotgun(PLAYER* pp)
 
         if (hit.actor() == nullptr && hit.hitWall == nullptr)
         {
-            if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
+            if (labs(hit.hitpos.Z - hit.hitSector->__int_ceilingz) <= Z(1))
             {
                 hit.hitpos.Z += Z(16);
                 cstat |= (CSTAT_SPRITE_YFLIP);
@@ -12900,7 +12900,7 @@ int InitShotgun(PLAYER* pp)
                     continue;
                 }
             }
-            else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
+            else if (labs(hit.hitpos.Z - hit.hitSector->__int_floorz) <= Z(1))
             {
                 if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
@@ -12923,7 +12923,7 @@ int InitShotgun(PLAYER* pp)
             {
                 if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                 {
-                    if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                    if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                     {
                         continue;
                     }
@@ -15217,7 +15217,7 @@ int InitUzi(PLAYER* pp)
     // check to see what you hit
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.Z - hit.hitSector->__int_ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
             cstat |= (CSTAT_SPRITE_YFLIP);
@@ -15232,7 +15232,7 @@ int InitUzi(PLAYER* pp)
                 return 0;
             }
         }
-        else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
+        else if (labs(hit.hitpos.Z - hit.hitSector->__int_floorz) <= Z(1))
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
@@ -15256,7 +15256,7 @@ int InitUzi(PLAYER* pp)
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                 {
                     return 0;
                 }
@@ -15706,7 +15706,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
 
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.Z - hit.hitSector->__int_ceilingz) <= Z(1))
         {
             hit.hitpos.Z += Z(16);
             cstat |= (CSTAT_SPRITE_YFLIP);
@@ -15714,7 +15714,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
-        else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
+        else if (labs(hit.hitpos.Z - hit.hitSector->__int_floorz) <= Z(1))
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
@@ -16087,7 +16087,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
 
             if (hit.actor() == nullptr && hit.hitWall == nullptr)
             {
-                if (labs(hit.hitpos.Z - hit.hitSector->ceilingz) <= Z(1))
+                if (labs(hit.hitpos.Z - hit.hitSector->__int_ceilingz) <= Z(1))
                 {
                     hit.hitpos.Z += Z(16);
                     cstat |= (CSTAT_SPRITE_YFLIP);
@@ -16095,7 +16095,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                     if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                         continue;
                 }
-                else if (labs(hit.hitpos.Z - hit.hitSector->floorz) <= Z(1))
+                else if (labs(hit.hitpos.Z - hit.hitSector->__int_floorz) <= Z(1))
                 {
                     if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
@@ -16112,7 +16112,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                         {
                             return 0;
                         }
@@ -16245,7 +16245,7 @@ int InitEnemyUzi(DSWActor* actor)
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->__int_ceilingz)
                 {
                     return 0;
                 }
@@ -16810,7 +16810,7 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
         *psectu = under;
     }
 
-    *z = underActor->sector()->ceilingz + Z(1);
+    *z = underActor->sector()->__int_ceilingz + Z(1);
 
     return true;
 }
@@ -16875,7 +16875,7 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
         *psectu = over;
     }
 
-    *z = overActor->sector()->floorz - Z(2);
+    *z = overActor->sector()->__int_floorz - Z(2);
 
     return true;
 }
@@ -16944,7 +16944,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->set_int_z(underActor->sector()->ceilingz + actor->user.ceiling_dist+Z(1));
+    actor->set_int_z(underActor->sector()->__int_ceilingz + actor->user.ceiling_dist+Z(1));
 
     actor->backuppos();
 
@@ -17013,7 +17013,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->set_int_z(overActor->sector()->floorz - Z(2));
+    actor->set_int_z(overActor->sector()->__int_floorz - Z(2));
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);
@@ -17103,7 +17103,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             // Check added by Jim because of sprite bridge over water
-            if (actor->int_pos().Z < (hit_sect->floorz-Z(20)))
+            if (actor->int_pos().Z < (hit_sect->__int_floorz-Z(20)))
                 return false;
 
             actor->user.Flags |= (SPR_UNDERWATER);
@@ -17245,7 +17245,7 @@ int DoBubble(DSWActor* actor)
     actor->spr.xrepeat = actor->user.pos.X + (RANDOM_P2(8 << 8) >> 8) - 4;
     actor->spr.yrepeat = actor->user.pos.Y + (RANDOM_P2(8 << 8) >> 8) - 4;
 
-    if (actor->int_pos().Z < actor->sector()->ceilingz)
+    if (actor->int_pos().Z < actor->sector()->__int_ceilingz)
     {
         if (SectorIsUnderwaterArea(actor->user.hi_sectp))
         {

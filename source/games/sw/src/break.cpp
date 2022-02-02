@@ -741,7 +741,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
     if (!wp->twoSided())
     {
         // white wall
-        *z = ((*sectp)->floorz + (*sectp)->ceilingz) >> 1;
+        *z = ((*sectp)->__int_floorz + (*sectp)->__int_ceilingz) >> 1;
     }
     else
     {
@@ -751,16 +751,16 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
         ASSERT(wp->twoSided());
 
         // floor and ceiling meet
-        if (next_sect->floorz == next_sect->ceilingz)
-            *z = ((*sectp)->floorz + (*sectp)->ceilingz) >> 1;
+        if (next_sect->__int_floorz == next_sect->__int_ceilingz)
+            *z = ((*sectp)->__int_floorz + (*sectp)->__int_ceilingz) >> 1;
         else
         // floor is above other sector
-        if (next_sect->floorz < (*sectp)->floorz)
-            *z = (next_sect->floorz + (*sectp)->floorz) >> 1;
+        if (next_sect->__int_floorz < (*sectp)->__int_floorz)
+            *z = (next_sect->__int_floorz + (*sectp)->__int_floorz) >> 1;
         else
         // ceiling is below other sector
-        if (next_sect->ceilingz > (*sectp)->ceilingz)
-            *z = (next_sect->ceilingz + (*sectp)->ceilingz) >> 1;
+        if (next_sect->__int_ceilingz > (*sectp)->__int_ceilingz)
+            *z = (next_sect->__int_ceilingz + (*sectp)->__int_ceilingz) >> 1;
     }
 
     *ang = wall_ang;

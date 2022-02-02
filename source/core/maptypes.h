@@ -240,13 +240,20 @@ struct sectortype
 
 #else
 	// Do not change directly!
-	int32_t ceilingz;
-	int32_t floorz;
+	int32_t __int_ceilingz;
+	int32_t __int_floorz;
 
-	void setceilingz(int cc, bool temp = false);
-	void setfloorz(int cc, bool temp = false);
-	void addceilingz(int cc, bool temp = false);
-	void addfloorz(int cc, bool temp = false);
+	/*
+	void setceilingz(double cc, bool temp = false);
+	void setfloorz(double cc, bool temp = false);
+	void addceilingz(double cc, bool temp = false);
+	void addfloorz(double cc, bool temp = false);
+	*/
+
+	void set_int_ceilingz(int cc, bool temp = false);
+	void set_int_floorz(int cc, bool temp = false);
+	void add_int_ceilingz(int cc, bool temp = false);
+	void add_int_floorz(int cc, bool temp = false);
 	int32_t* ceilingzptr(bool temp = false);
 	int32_t* floorzptr(bool temp = false);
 
@@ -664,35 +671,35 @@ inline int walltype::Length()
 
 #ifndef SECTOR_HACKJOB
 
-inline void sectortype::setceilingz(int cc, bool temp)
+inline void sectortype::set_int_ceilingz(int cc, bool temp)
 {
-	ceilingz = cc;
+	__int_ceilingz = cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::setfloorz(int cc, bool temp)
+inline void sectortype::set_int_floorz(int cc, bool temp)
 {
-	floorz = cc;
+	__int_floorz = cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::addceilingz(int cc, bool temp)
+inline void sectortype::add_int_ceilingz(int cc, bool temp)
 {
-	ceilingz += cc;
+	__int_ceilingz += cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::addfloorz(int cc, bool temp)
+inline void sectortype::add_int_floorz(int cc, bool temp)
 {
-	floorz += cc;
+	__int_floorz += cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
 inline int32_t* sectortype::ceilingzptr(bool temp)
 {
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
-	return &ceilingz;
+	return &__int_ceilingz;
 }
 inline int32_t* sectortype::floorzptr(bool temp)
 {
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
-	return &floorz;
+	return &__int_floorz;
 }
 
 #endif

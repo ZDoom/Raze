@@ -98,7 +98,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         }
     }
 
-    int FloorZ = pActor->sector()->floorz;
+    int FloorZ = pActor->sector()->__int_floorz;
 
     if (FloorZ <= pActor->int_pos().Z)
     {

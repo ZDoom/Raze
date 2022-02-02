@@ -107,80 +107,80 @@ DEFINE_GLOBAL(sector)
 double sector_floorz(sectortype* sect)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	return sect->floorz * zinttoworld;
+	return sect->__int_floorz * zinttoworld;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, floorz, sector_floorz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
-	ACTION_RETURN_FLOAT(self->floorz * zinttoworld);
+	ACTION_RETURN_FLOAT(self->__int_floorz * zinttoworld);
 }
 
 double sector_ceilingz(sectortype* sect)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	return sect->ceilingz * zinttoworld;
+	return sect->__int_ceilingz * zinttoworld;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, ceilingz, sector_ceilingz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
-	ACTION_RETURN_FLOAT(self->ceilingz * zinttoworld);
+	ACTION_RETURN_FLOAT(self->__int_ceilingz * zinttoworld);
 }
 
 void sector_setfloorz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->setfloorz(int(val * zworldtoint));
+	sect->set_int_floorz(int(val * zworldtoint));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setfloorz, sector_floorz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->setfloorz(z);
+	self->set_int_floorz(z);
 	return 0;
 }
 
 void sector_setceilingz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->setceilingz(int(val * zworldtoint));
+	sect->set_int_ceilingz(int(val * zworldtoint));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setceilingz, sector_ceilingz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->setceilingz(z);
+	self->set_int_ceilingz(z);
 	return 0;
 }
 
 void sector_addfloorz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->addfloorz(int(val * zworldtoint));
+	sect->add_int_floorz(int(val * zworldtoint));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addfloorz, sector_floorz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->addfloorz(z);
+	self->add_int_floorz(z);
 	return 0;
 }
 
 void sector_addceilingz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->addceilingz(int(val * zworldtoint));
+	sect->add_int_ceilingz(int(val * zworldtoint));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addceilingz, sector_ceilingz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->addceilingz(z);
+	self->add_int_ceilingz(z);
 	return 0;
 }
 

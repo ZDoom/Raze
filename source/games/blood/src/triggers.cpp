@@ -1028,9 +1028,9 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 
 	if (dfz != 0)
 	{
-		int oldZ = pSector->floorz;
-		pSector->setfloorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
-		pSector->velFloor += (pSector->floorz - oldZ) << 8;
+		int oldZ = pSector->__int_floorz;
+		pSector->set_int_floorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
+		pSector->velFloor += (pSector->__int_floorz - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
@@ -1042,14 +1042,14 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->floorz - oldZ);
+				actor->add_int_z(pSector->__int_floorz - oldZ);
 			}
 			else if (actor->spr.flags & 2)
 				actor->spr.flags |= 4;
 			else if (oldZ <= bottom && !(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->floorz - oldZ);
+				actor->add_int_z(pSector->__int_floorz - oldZ);
 			}
 		}
 
@@ -1064,7 +1064,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->floorz - oldZ);
+					ac->add_int_z(pSector->__int_floorz - oldZ);
 				}
 			}
 		}
@@ -1075,9 +1075,9 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 
 	if (dcz != 0)
 	{
-		int oldZ = pSector->ceilingz;
-		pSector->setceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
-		pSector->velCeil += (pSector->ceilingz - oldZ) << 8;
+		int oldZ = pSector->__int_ceilingz;
+		pSector->set_int_ceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
+		pSector->velCeil += (pSector->__int_ceilingz - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
@@ -1087,7 +1087,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->ceilingz - oldZ);
+				actor->add_int_z(pSector->__int_ceilingz - oldZ);
 			}
 		}
 
@@ -1102,7 +1102,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->ceilingz - oldZ);
+					ac->add_int_z(pSector->__int_ceilingz - oldZ);
 				}
 			}
 		}
@@ -1121,7 +1121,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 
 DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int* z)
 {
-	*z = pSector->floorz;
+	*z = pSector->__int_floorz;
 	DBloodActor* found = nullptr;
 
 	BloodSectIterator it(pSector);
@@ -1152,7 +1152,7 @@ DBloodActor* GetCrushedSpriteExtents(sectortype* pSector, int* pzTop, int* pzBot
 	assert(pzTop != NULL && pzBot != NULL);
 	assert(pSector);
 	DBloodActor* found = nullptr;
-	int foundz = pSector->ceilingz;
+	int foundz = pSector->__int_ceilingz;
 
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
@@ -1201,9 +1201,9 @@ int VCrushBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		return 1;
 	viewInterpolateSector(pSector);
 	if (dz1 != 0)
-		pSector->setceilingz(vc);
+		pSector->set_int_ceilingz(vc);
 	if (dz2 != 0)
-		pSector->setfloorz(v10);
+		pSector->set_int_floorz(v10);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
 		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
@@ -1633,7 +1633,7 @@ void OperateTeleport(sectortype* pSector)
 					TeleFrag(pXSector->actordata, destactor->sector());
 				}
 				actor->set_int_xy(destactor->int_pos().X, destactor->int_pos().Y);
-				actor->add_int_z(destactor->sector()->floorz - pSector->floorz);
+				actor->add_int_z(destactor->sector()->__int_floorz - pSector->__int_floorz);
 				actor->spr.ang = destactor->spr.ang;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
@@ -2130,9 +2130,9 @@ void ProcessMotion(void)
 			}
 			if (pXSector->bobFloor)
 			{
-				int floorZ = pSector->floorz;
+				int floorZ = pSector->__int_floorz;
 				viewInterpolateSector(pSector);
-				pSector->setfloorz(pSector->baseFloor + vdi);
+				pSector->set_int_floorz(pSector->baseFloor + vdi);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
@@ -2153,9 +2153,9 @@ void ProcessMotion(void)
 			}
 			if (pXSector->bobCeiling)
 			{
-				int ceilZ = pSector->ceilingz;
+				int ceilZ = pSector->__int_ceilingz;
 				viewInterpolateSector(pSector);
-				pSector->setceilingz(pSector->baseCeil + vdi);
+				pSector->set_int_ceilingz(pSector->baseCeil + vdi);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
@@ -2323,8 +2323,8 @@ void trInit(TArray<DBloodActor*>& actors)
 	for (auto& sect : sector)
 	{
 		sectortype* pSector = &sect;
-		pSector->baseFloor = pSector->floorz;
-		pSector->baseCeil = pSector->ceilingz;
+		pSector->baseFloor = pSector->__int_floorz;
+		pSector->baseCeil = pSector->__int_ceilingz;
 		if (pSector->hasX())
 		{
 			XSECTOR* pXSector = &pSector->xs();

@@ -524,9 +524,9 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 				return 0;
 			int nOfs;
 			if (pWall->cstat & CSTAT_WALL_ALIGN_BOTTOM)
-				nOfs = ClipHigh(pSector->floorz, pSectorNext->floorz);
+				nOfs = ClipHigh(pSector->__int_floorz, pSectorNext->__int_floorz);
 			else
-				nOfs = ClipLow(pSector->ceilingz, pSectorNext->ceilingz);
+				nOfs = ClipLow(pSector->__int_ceilingz, pSectorNext->__int_ceilingz);
 			nOfs = (gHitInfo.hitpos.Z - nOfs) >> 8;
 			if (pWall->cstat & CSTAT_WALL_YFLIP)
 				nOfs = -nOfs;
