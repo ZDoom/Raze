@@ -229,7 +229,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			break;
 
 		case ATOMICHEALTH:
-			t->__int_pos.Z -= (4 << 8);
+			t->add_int_z(-(4 << 8));
 			break;
 		case CRYSTALAMMO:
 			t->shade = bsin(PlayClock << 4, -10);
