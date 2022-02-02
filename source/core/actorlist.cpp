@@ -550,7 +550,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, z, coreactor_z)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
-	self->set_float_pos({ x, y, z });
+	self->spr.pos = { x, y, z };
 	// todo: SW needs to call updatesectorz here or have a separate function.
 	if (relink) SetActor(self, self->int_pos());
 }
@@ -569,7 +569,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
 void coreactor_copypos(DCoreActor* self, DCoreActor* other, int relink)
 {
 	if (!other) return;
-	self->copy_pos(other);
+	self->spr.pos = other->spr.pos;
 	// todo: SW needs to call updatesectorz here or have a separate function.
 	if (relink) SetActor(self, self->int_pos());
 }
@@ -585,7 +585,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, copypos, coreactor_setpos)
 
 void coreactor_move(DCoreActor* self, double x, double y, double z, int relink)
 {
-	self->add_float_pos({ x, y, z });
+	self->spr.pos += { x, y, z };
 	// todo: SW needs to call updatesectorz here or have a separate function.
 	if (relink) SetActor(self, self->int_pos());
 }
@@ -603,27 +603,27 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
 
 void coreactor_setz(DCoreActor* self, double z)
 {
-	self->set_float_z(z);
+	self->spr.pos.Z = z;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setz, coreactor_setz)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
 	PARAM_FLOAT(z);
-	self->set_float_z(z);
+	coreactor_setz(self, z);
 	return 0;
 }
 
 void coreactor_addz(DCoreActor* self, double z)
 {
-	self->add_float_z(z);
+	self->spr.pos.Z += z;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
 	PARAM_FLOAT(z);
-	self->add_float_z(z);
+	coreactor_addz(self, z);
 	return 0;
 }
 

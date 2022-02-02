@@ -445,7 +445,7 @@ struct walltype
 
 struct spritetypebase
 {
-	vec3_t __int_pos;
+	DVector3 pos;
 
 	sectortype* sectp;
 
@@ -473,12 +473,12 @@ struct spritetypebase
 
 	void SetMapPos(int x, int y, int z)
 	{
-		__int_pos = { x, y, z };
+		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
 
 	const vec3_t int_pos() const
 	{
-		return __int_pos;
+		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
 	}
 };
 
@@ -500,33 +500,33 @@ struct tspritetype : public spritetypebase
 	DCoreActor* ownerActor;
 	int time;
 
-	void set_int_pos(const vec3_t& pos)
+	void set_int_pos(const vec3_t& ipos)
 	{
-		__int_pos = pos;
+		pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
 	}
 	void add_int_x(int x)
 	{
-		__int_pos.X += x;
+		pos.X += x * inttoworld;
 	}
 	void set_int_x(int x)
 	{
-		__int_pos.X = x;
+		pos.X = x * inttoworld;
 	}
 	void add_int_y(int x)
 	{
-		__int_pos.Y  += x;
+		pos.Y  += x * inttoworld;
 	}
 	void set_int_y(int x)
 	{
-		__int_pos.Y  = x;
+		pos.Y  = x * inttoworld;
 	}
 	void add_int_z(int x)
 	{
-		__int_pos.Z += x;
+		pos.Z += x * zinttoworld;
 	}
 	void set_int_z(int x)
 	{
-		__int_pos.Z = x;
+		pos.Z = x * zinttoworld;
 	}
 };
 

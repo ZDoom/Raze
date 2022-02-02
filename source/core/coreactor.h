@@ -70,93 +70,78 @@ public:
 		return time; 
 	}
 	
-	void copy_pos(const DCoreActor* other)
-	{
-		spr.__int_pos = other->spr.__int_pos;
-	}
-
 	const vec3_t int_pos() const
 	{
-		return spr.__int_pos;
+		return { int(spr.pos.X * worldtoint), int(spr.pos.Y * worldtoint), int(spr.pos.Z * zworldtoint) };
 	}
 
 	void set_int_z(int z)
 	{
-		spr.__int_pos.Z = z;
+		spr.pos.Z = z * zinttoworld;
 	}
 
 	void add_int_z(int z)
 	{
-		spr.__int_pos.Z += z;
+		spr.pos.Z += z * zinttoworld;
 	}
 
 	void add_int_pos(const vec3_t& add)
 	{
-		spr.__int_pos += add;
+		spr.pos += { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
 	}
 
 	void set_int_pos(const vec3_t& add)
 	{
-		spr.__int_pos = add;
+		spr.pos = { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
 	}
 
-	void copy_int_xy(DCoreActor* other)
+	void copyXY(DCoreActor* other)
 	{
-		spr.__int_pos.X = other->spr.__int_pos.X;
-		spr.__int_pos.Y = other->spr.__int_pos.Y;
+		spr.pos.X = other->spr.pos.X;
+		spr.pos.Y = other->spr.pos.Y;
 	}
 
 	void set_int_xy(int x, int y)
 	{
-		spr.__int_pos.X = x;
-		spr.__int_pos.Y = y;
+		spr.pos.X = x * inttoworld;
+		spr.pos.Y = y * inttoworld;
 	}
 
 	DVector3 float_pos() const
 	{
-		return { spr.__int_pos.X * inttoworld, spr.__int_pos.Y * inttoworld, spr.__int_pos.Z * zinttoworld };
+		return spr.pos;
 	}
 	
-	void set_float_pos(const DVector3& pos)
-	{
-		spr.__int_pos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-	}
-
-	void add_float_pos(const DVector3& pos)
-	{
-		spr.__int_pos += { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-	}
-
 	void set_float_z(int z)
 	{
-		spr.__int_pos.Z = int(z * zworldtoint);
+		spr.pos.Z = z;
 	}
 
 	void add_float_z(int z)
 	{
-		spr.__int_pos.Z += int(z * zworldtoint);
+		spr.pos.Z += z;
 	}
 
 
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
 	DVector3 render_pos() const
 	{
-		return { spr.__int_pos.X * inttoworld, -spr.__int_pos.Y * inttoworld, -spr.__int_pos.Z * zinttoworld };
+		return { spr.pos.X, -spr.pos.Y, -spr.pos.Z };
 	}
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.X, spr.__int_pos.X, smoothratio, scale);
+		return interpolatedvalue(opos.X, spr.int_pos().X, smoothratio, scale);
 	}
 
 	int32_t interpolatedy(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.Y, spr.__int_pos.Y, smoothratio, scale);
+		return interpolatedvalue(opos.Y, spr.int_pos().Y, smoothratio, scale);
 	}
 
 	int32_t interpolatedz(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.Z, spr.__int_pos.Z, smoothratio, scale);
+		return interpolatedvalue(opos.Z, spr.int_pos().Z, smoothratio, scale);
 	}
 
 	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
@@ -185,27 +170,27 @@ public:
 
 	void backupx()
 	{
-		opos.X = spr.__int_pos.X;
+		opos.X = spr.int_pos().X;
 	}
 
 	void backupy()
 	{
-		opos.Y = spr.__int_pos.Y;
+		opos.Y = spr.int_pos().Y;
 	}
 
 	void backupz()
 	{
-		opos.Z = spr.__int_pos.Z;
+		opos.Z = spr.int_pos().Z;
 	}
 
 	void backupvec2()
 	{
-		opos.vec2 = spr.__int_pos.vec2;
+		opos.vec2 = spr.int_pos().vec2;
 	}
 
 	void backuppos()
 	{
-		opos = spr.__int_pos;
+		opos = spr.int_pos();
 	}
 
 	void backupang()
