@@ -2425,11 +2425,11 @@ void DoSineWaveWall(void)
 
 void DoAnim(int numtics)
 {
-    int i, animval;
+    int i;
 
     for (i = AnimCnt - 1; i >= 0; i--)
     {
-        animval = Anim[i].Addr(true);
+        double animval = Anim[i].getValue();
 
         // if LESS THAN goal
         if (animval < Anim[i].goal)
@@ -2455,7 +2455,7 @@ void DoAnim(int numtics)
                 animval = Anim[i].goal;
         }
 
-        Anim[i].Addr(true) =animval;
+        Anim[i].setValue(animval);
 
         // EQUAL this entry has finished
         if (animval == Anim[i].goal)

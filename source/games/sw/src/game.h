@@ -2101,34 +2101,58 @@ inline void PlaySound(int num, DSWActor* actor, int flags, int channel = 8, ECha
 struct ANIM
 {
 	int animtype, animindex;
-	int goal;
+	double goal;
 	int vel;
 	short vel_adj;
 	TObjPtr<DSWActor*> animactor;
 	ANIM_CALLBACKp callback;
 	SECTOR_OBJECT* callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
 
-	int& Addr(bool write)
+	double getValue()
 	{
-        static int scratch;
 		switch (animtype)
 		{
 		case ANIM_Floorz:
-            return *sector[animindex].floorzptr(!write);
+            return sector[animindex].floorz;
 		case ANIM_SopZ:
 			return SectorObject[animindex].pmid.Z;
 		case ANIM_Spritez:
-            if (animactor == nullptr) return scratch;
-			return animactor->spr.__int_pos.Z;
+            if (animactor == nullptr) return 0;
+			return animactor->spr.int_pos().Z;
 		case ANIM_Userz:
-            if (animactor == nullptr) return scratch;
+            if (animactor == nullptr) return 0;
             return animactor->user.pos.Z;
 		case ANIM_SUdepth:
 			return sector[animindex].depth_fixed;
 		default:
-			return animindex;
+			return 0;
 		}
 	}
+
+    void setValue(double value)
+    {
+        switch (animtype)
+        {
+        case ANIM_Floorz:
+            sector[animindex].setfloorz(value);
+			break;
+        case ANIM_SopZ:
+            SectorObject[animindex].pmid.Z = value;
+			break;
+        case ANIM_Spritez:
+            if (animactor == nullptr) return;
+            animactor->set_int_z(value);
+			break;
+        case ANIM_Userz:
+            if (animactor == nullptr) return;
+            animactor->user.pos.Z = value;
+			break;
+        case ANIM_SUdepth:
+            sector[animindex].depth_fixed = value;
+        default:
+            return;
+        }
+    }
 };
 
 extern ANIM Anim[MAXANIM];
