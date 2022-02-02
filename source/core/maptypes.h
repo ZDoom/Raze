@@ -445,7 +445,7 @@ struct walltype
 
 struct spritetypebase
 {
-	vec3_t pos;
+	vec3_t __int_pos;
 
 	sectortype* sectp;
 
@@ -473,7 +473,7 @@ struct spritetypebase
 
 	void SetMapPos(int x, int y, int z)
 	{
-		pos = { x, y, z };
+		__int_pos = { x, y, z };
 	}
 };
 
@@ -494,6 +494,16 @@ struct tspritetype : public spritetypebase
 {
 	DCoreActor* ownerActor;
 	int time;
+
+	const vec3_t int_pos() const
+	{
+		return __int_pos;
+	}
+
+	void set_int_pos(const vec3_t& pos)
+	{
+		__int_pos = pos;
+	}
 };
 
 class tspriteArray

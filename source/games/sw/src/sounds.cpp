@@ -532,7 +532,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.pos : &((PLAYER*)source)->pos;
+            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.__int_pos : &((PLAYER*)source)->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -552,7 +552,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Ambient)
         {
             auto spot = ((AmbientSound*)source)->spot;
-            vpos = &spot->spr.pos;
+            vpos = &spot->spr.__int_pos;
             FVector3 npos = GetSoundPos(vpos);
 
             // Can the ambient sound see the player?  If not, tone it down some.

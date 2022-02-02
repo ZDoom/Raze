@@ -257,38 +257,39 @@ static void SetWallPalV5()
 	}
 }
 
-void validateSprite(spritetype& spr, int sectnum, int index)
+void validateSprite(spritetype& spri, int sectnum, int index)
 {
+	auto pos = spri.__int_pos;
 	bool bugged = false;
-	if ((unsigned)spr.statnum >= MAXSTATUS)
+	if ((unsigned)spri.statnum >= MAXSTATUS)
 	{
-		Printf("Sprite #%d (%d,%d) has invalid statnum %d.\n", index, spr.pos.X, spr.pos.Y, spr.statnum);
+		Printf("Sprite #%d (%d,%d) has invalid statnum %d.\n", index, pos.X, pos.Y, spri.statnum);
 		bugged = true;
 	}
-	else if ((unsigned)spr.picnum >= MAXTILES)
+	else if ((unsigned)spri.picnum >= MAXTILES)
 	{
-		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, spr.pos.X, spr.pos.Y, spr.picnum);
+		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, pos.X, pos.Y, spri.picnum);
 		bugged = true;
 	}
 	else if (!validSectorIndex(sectnum))
 	{
 		sectnum = -1;
-		updatesector(spr.pos.X, spr.pos.Y, &sectnum);
+		updatesector(pos.X, pos.Y, &sectnum);
 		bugged = sectnum < 0;
 
-		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.pos.X, spr.pos.Y, sectnum, sectnum))
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, pos.X, pos.Y, sectnum, sectnum))
 		{
-			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.pos.X, spr.pos.Y, sectnum);
+			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, pos.X, pos.Y, sectnum);
 		}
 	}
 	if (bugged)
 	{
-		spr = {};
-		spr.statnum = MAXSTATUS;
+		spri = {};
+		spri.statnum = MAXSTATUS;
 		sectnum = -1;
 	}
-	if (sectnum >= 0) spr.sectp = &sector[sectnum];
-	else spr.sectp = nullptr;
+	if (sectnum >= 0) spri.sectp = &sector[sectnum];
+	else spri.sectp = nullptr;
 }
 
 static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)

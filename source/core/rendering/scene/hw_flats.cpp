@@ -124,7 +124,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		int ofsz[4];
 		auto cstat = Sprite->cstat;
 		if (tspriteGetSlope(Sprite)) cstat &= ~CSTAT_SPRITE_YFLIP;	// NBlood doesn't y-flip slope sprites.
-		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, ofsz, true);
+		GetFlatSpritePosition(Sprite, Sprite->__int_pos.vec2, pos, ofsz, true);
 		Sprite->cstat = cstat;
 
 		auto ret = screen->mVertexData->AllocVertices(6);
@@ -177,7 +177,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		auto svp = &di->SlopeSpriteVertices[svi];
 
 		auto& vpt = di->Viewpoint;
-		depth = (float)((Sprite->pos.X * (1/16.f) - vpt.Pos.X) * vpt.TanCos + (Sprite->pos.Y * (1 / -16.f) - vpt.Pos.Y) * vpt.TanSin);
+		depth = (float)((Sprite->__int_pos.X * (1/16.f) - vpt.Pos.X) * vpt.TanCos + (Sprite->__int_pos.Y * (1 / -16.f) - vpt.Pos.Y) * vpt.TanSin);
 
 		for (unsigned j = 0; j < 4; j++)
 		{
@@ -421,12 +421,12 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);
 	bool belowfloor = false;
-	if (sprite->pos.Z > sprite->sectp->floorz)
+	if (sprite->__int_pos.Z > sprite->sectp->floorz)
 	{
 		belowfloor = true;
-		sprite->pos.Z = sprite->sectp->floorz;
+		sprite->__int_pos.Z = sprite->sectp->floorz;
 	}
-	z = sprite->pos.Z * (1 / -256.f);
+	z = sprite->__int_pos.Z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 	dynlightindex = -1;
 

@@ -479,7 +479,7 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = GetMyAngle(nCamerax - pTSprite->pos.X, nCameray - pTSprite->pos.Y);
+    int nAngle = GetMyAngle(nCamerax - pTSprite->__int_pos.X, nCameray - pTSprite->__int_pos.Y);
 
     int nSeqOffset = ((((pTSprite->ang + 512) - nAngle) + 128) & kAngleMask) >> 8;
 
@@ -527,7 +527,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = GetMyAngle(nCamerax - pTSprite->pos.X, nCameray - pTSprite->pos.Y);
+    int nAngle = GetMyAngle(nCamerax - pTSprite->__int_pos.X, nCameray - pTSprite->__int_pos.Y);
 
     int val;
 
@@ -580,9 +580,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         }
 
         tspritetype* tsp = mytspriteArray->newTSprite();
-        tsp->pos.X = pTSprite->pos.X;
-        tsp->pos.Y = pTSprite->pos.Y;
-        tsp->pos.Z = pTSprite->pos.Z;
+        tsp->__int_pos = pTSprite->__int_pos;
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;
         tsp->xrepeat = pTSprite->xrepeat;
@@ -626,13 +624,13 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         {
             pTSprite->picnum = nShadowPic;
 
-            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->pos.Z) >> 10);
+            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->__int_pos.Z) >> 10);
             if (edx < 1) {
                 edx = 1;
             }
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-            pTSprite->pos.Z = nFloorZ;
+            pTSprite->__int_pos.Z = nFloorZ;
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;
             pTSprite->statnum = -3;

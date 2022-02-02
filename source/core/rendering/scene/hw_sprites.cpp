@@ -332,9 +332,9 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 
 	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
-	x = spr->pos.X * (1 / 16.f);
-	z = spr->pos.Z * (1 / -256.f);
-	y = spr->pos.Y * (1 / -16.f);
+	x = spr->__int_pos.X * (1 / 16.f);
+	z = spr->__int_pos.Z * (1 / -256.f);
+	y = spr->__int_pos.Y * (1 / -16.f);
 	auto vp = di->Viewpoint;
 
 	if ((vp.Pos.XY() - DVector2(x, y)).LengthSquared() < 0.125) return;
@@ -395,9 +395,9 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		float viewvecX = vp.ViewVector.X;
 		float viewvecY = vp.ViewVector.Y;
 
-		x = spr->pos.X * (1 / 16.f);
-		y = spr->pos.Y * (1 / -16.f);
-		z = spr->pos.Z * (1 / -256.f);
+		x = spr->__int_pos.X * (1 / 16.f);
+		y = spr->__int_pos.Y * (1 / -16.f);
+		z = spr->__int_pos.Z * (1 / -256.f);
 
 		x1 = x - viewvecY * (xoff - (width * 0.5f));
 		x2 = x - viewvecY * (xoff + (width * 0.5f));
@@ -504,13 +504,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
-	float zpos = (float)(spr->pos.Z + ownerActor->sprext.position_offset.Z);
+	float zpos = (float)(spr->__int_pos.Z + ownerActor->sprext.position_offset.Z);
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
-	x = (spr->pos.X + ownerActor->sprext.position_offset.X) * (1 / 16.f);
+	x = (spr->__int_pos.X + ownerActor->sprext.position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
-	y = (spr->pos.Y + ownerActor->sprext.position_offset.Y) * (1 / -16.f);
+	y = (spr->__int_pos.Y + ownerActor->sprext.position_offset.Y) * (1 / -16.f);
 
 	float zoff = voxel->siz.Z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))

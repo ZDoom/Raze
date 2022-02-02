@@ -537,15 +537,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, twosided, wall_twosided)
 DEFINE_ACTION_FUNCTION(_tspritetype, pos)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(tspritetype);
-	ACTION_RETURN_VEC3(DVector3(self->pos.X * inttoworld, self->pos.Y * inttoworld, self->pos.Z * zinttoworld));
+	ACTION_RETURN_VEC3(DVector3(self->__int_pos.X * inttoworld, self->__int_pos.Y * inttoworld, self->__int_pos.Z * zinttoworld));
 }
 
 void tsprite_setpos(tspritetype* tsp, double x, double y, double z)
 {
 	if (!tsp) ThrowAbortException(X_READ_NIL, nullptr);
-	tsp->pos.X = int(x * worldtoint);
-	tsp->pos.Y = int(y * worldtoint);
-	tsp->pos.Z = int(z * zworldtoint);
+	tsp->__int_pos.X = int(x * worldtoint);
+	tsp->__int_pos.Y = int(y * worldtoint);
+	tsp->__int_pos.Z = int(z * zworldtoint);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setpos, tsprite_setpos)
@@ -561,9 +561,9 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setpos, tsprite_setpos)
 void tsprite_addpos(tspritetype* tsp, double x, double y, double z)
 {
 	if (!tsp) ThrowAbortException(X_READ_NIL, nullptr);
-	tsp->pos.X = int(x * worldtoint);
-	tsp->pos.Y = int(y * worldtoint);
-	tsp->pos.Z = int(z * zworldtoint);
+	tsp->__int_pos.X += int(x * worldtoint);
+	tsp->__int_pos.Y += int(y * worldtoint);
+	tsp->__int_pos.Z += int(z * zworldtoint);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, addpos, tsprite_addpos)

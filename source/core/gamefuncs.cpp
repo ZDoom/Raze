@@ -377,7 +377,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				int spos = DMulScale(-sinang, out[i].Y - spr->pos.Y, -cosang, out[i].X - spr->pos.X, 4);
+				int spos = DMulScale(-sinang, out[i].Y - pos.Y, -cosang, out[i].X - pos.X, 4);
 				outz[i] = MulScale(heinum, spos, 18);
 			}
 		}
@@ -557,7 +557,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 {
 	auto tspr = tsprites.newTSprite();
 
-	tspr->pos = actor->int_pos();
+	tspr->__int_pos = actor->int_pos();
 	tspr->cstat = actor->spr.cstat;
 	tspr->picnum = actor->spr.picnum;
 	tspr->shade = actor->spr.shade;

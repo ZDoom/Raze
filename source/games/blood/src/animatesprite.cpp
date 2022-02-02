@@ -97,12 +97,12 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	pTSprite->sectp = pSector;
 	if (parentTSprite)
 	{
-		pTSprite->pos = parentTSprite->pos;
+		pTSprite->__int_pos = parentTSprite->__int_pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
 		pTSprite->ang = parentTSprite->ang;
 	}
-	pTSprite->pos.X += Cos(gCameraAng) >> 25;
-	pTSprite->pos.Y += Sin(gCameraAng) >> 25;
+	pTSprite->__int_pos.X += Cos(gCameraAng) >> 25;
+	pTSprite->__int_pos.Y += Sin(gCameraAng) >> 25;
 	return pTSprite;
 }
 
@@ -167,7 +167,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (perc >= 75) pNSprite2->pal = 0;
 		else if (perc >= 50) pNSprite2->pal = 6;
 
-		pNSprite2->pos.Z = top - 2048;
+		pNSprite2->__int_pos.Z = top - 2048;
 		pNSprite2->shade = -128;
 		break;
 	}
@@ -188,9 +188,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			int z = 0;
 			RotateYZ(&x, &y, &z, nRand1);
 			RotateXZ(&x, &y, &z, nRand2);
-			pNSprite->pos.X = pTSprite->pos.X + x;
-			pNSprite->pos.Y = pTSprite->pos.Y + y;
-			pNSprite->pos.Z = pTSprite->pos.Z + (z << 4);
+			pNSprite->__int_pos.X = pTSprite->__int_pos.X + x;
+			pNSprite->__int_pos.Y = pTSprite->__int_pos.Y + y;
+			pNSprite->__int_pos.Z = pTSprite->__int_pos.Z + (z << 4);
 			pNSprite->picnum = 1720;
 			pNSprite->shade = -128;
 		}
@@ -206,7 +206,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
-		pNSprite->pos.Z = top;
+		pNSprite->__int_pos.Z = top;
 		if (nViewEffect == kViewEffectFlag)
 			pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		else
@@ -220,7 +220,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->pos.Z = pTSprite->pos.Z;
+		pNSprite->__int_pos.Z = pTSprite->__int_pos.Z;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pTSprite->xrepeat;
@@ -266,7 +266,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		pNSprite->picnum = 626;
-		pNSprite->pos.Z = top;
+		pNSprite->__int_pos.Z = top;
 		break;
 	}
 	case kViewEffectTrail:
@@ -289,12 +289,12 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 			int nLen = 128 + (i << 7);
 			int x = MulScale(nLen, Cos(nAng), 30);
-			pNSprite->pos.X = pTSprite->pos.X + x;
+			pNSprite->__int_pos.X = pTSprite->__int_pos.X + x;
 			int y = MulScale(nLen, Sin(nAng), 30);
-			pNSprite->pos.Y = pTSprite->pos.Y + y;
-			pNSprite->pos.Z = pTSprite->pos.Z;
+			pNSprite->__int_pos.Y = pTSprite->__int_pos.Y + y;
+			pNSprite->__int_pos.Z = pTSprite->__int_pos.Z;
 			assert(pSector);
-			FindSector(pNSprite->pos.X, pNSprite->pos.Y, pNSprite->pos.Z, &pSector);
+			FindSector(pNSprite->__int_pos.X, pNSprite->__int_pos.Y, pNSprite->__int_pos.Z, &pSector);
 			pNSprite->sectp = pSector;
 			pNSprite->ownerActor = pTSprite->ownerActor;
 			pNSprite->picnum = pTSprite->picnum;
@@ -315,7 +315,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		pNSprite->shade = -128;
-		pNSprite->pos.Z = pTSprite->pos.Z;
+		pNSprite->__int_pos.Z = pTSprite->__int_pos.Z;
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 64;
@@ -329,7 +329,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->pos.Z = top;
+		pNSprite->__int_pos.Z = top;
 		if (IsDudeSprite(pTSprite))
 			pNSprite->picnum = 672;
 		else
@@ -348,7 +348,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->pos.Z = bottom;
+		pNSprite->__int_pos.Z = bottom;
 		if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
 			pNSprite->picnum = 672;
 		else
@@ -367,7 +367,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->pos.Z = top;
+		pNSprite->__int_pos.Z = top;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -381,7 +381,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->pos.Z = bottom;
+		pNSprite->__int_pos.Z = bottom;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -392,10 +392,10 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
-		pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos.X, pNSprite->pos.Y);
+		pNSprite->__int_pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->__int_pos.X, pNSprite->__int_pos.Y);
 		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
-			int cX = pNSprite->pos.X, cY = pNSprite->pos.Y, cZ = pNSprite->pos.Z, cZrel = pNSprite->pos.Z;
+			int cX = pNSprite->__int_pos.X, cY = pNSprite->__int_pos.Y, cZ = pNSprite->__int_pos.Z, cZrel = pNSprite->__int_pos.Z;
 			auto cSect = pNSprite->sectp;
 			for (int i = 0; i < 16; i++) // scan through max stacked sectors
 			{
@@ -408,7 +408,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 				cZ = newFloorZ;
 			}
 			pNSprite->sectp = cSect;
-			pNSprite->pos.Z = cZrel;
+			pNSprite->__int_pos.Z = cZrel;
 		}
 		pNSprite->shade = 127;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
@@ -420,7 +420,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 5;
 		int height = tileHeight(pNSprite->picnum);
 		int center = height / 2 + tileTopOffset(pNSprite->picnum);
-		pNSprite->pos.Z -= (pNSprite->yrepeat << 2) * (height - center);
+		pNSprite->__int_pos.Z -= (pNSprite->yrepeat << 2) * (height - center);
 		break;
 	}
 	case kViewEffectFlareHalo:
@@ -432,7 +432,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = -128;
 		pNSprite->pal = 2;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->pos.Z = pTSprite->pos.Z;
+		pNSprite->__int_pos.Z = pTSprite->__int_pos.Z;
 		pNSprite->xrepeat = pTSprite->xrepeat;
 		pNSprite->yrepeat = pTSprite->yrepeat;
 		pNSprite->picnum = 2427;
@@ -445,11 +445,11 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->pos.X = pTSprite->pos.X;
-		pNSprite->pos.Y = pTSprite->pos.Y;
-		pNSprite->pos.Z = pSector->ceilingz;
+		pNSprite->__int_pos.X = pTSprite->__int_pos.X;
+		pNSprite->__int_pos.Y = pTSprite->__int_pos.Y;
+		pNSprite->__int_pos.Z = pSector->ceilingz;
 		pNSprite->picnum = 624;
-		pNSprite->shade = ((pTSprite->pos.Z - pSector->ceilingz) >> 8) - 64;
+		pNSprite->shade = ((pTSprite->__int_pos.Z - pSector->ceilingz) >> 8) - 64;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
@@ -464,11 +464,11 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->pos.X = pTSprite->pos.X;
-		pNSprite->pos.Y = pTSprite->pos.Y;
-		pNSprite->pos.Z = pSector->floorz;
+		pNSprite->__int_pos.X = pTSprite->__int_pos.X;
+		pNSprite->__int_pos.Y = pTSprite->__int_pos.Y;
+		pNSprite->__int_pos.Z = pSector->floorz;
 		pNSprite->picnum = 624;
-		uint8_t nShade = (pSector->floorz - pTSprite->pos.Z) >> 8;
+		uint8_t nShade = (pSector->floorz - pTSprite->__int_pos.Z) >> 8;
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
@@ -483,7 +483,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->pos.Z = pTSprite->pos.Z;
+		pNSprite->__int_pos.Z = pTSprite->__int_pos.Z;
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
@@ -503,10 +503,10 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->pos.X = pTSprite->pos.X;
-		pNSprite->pos.Y = pTSprite->pos.Y;
-		pNSprite->pos.Z = pTSprite->pos.Z - (32 << 8);
-		pNSprite->pos.Z -= weaponIcon.zOffset << 8; // offset up
+		pNSprite->__int_pos.X = pTSprite->__int_pos.X;
+		pNSprite->__int_pos.Y = pTSprite->__int_pos.Y;
+		pNSprite->__int_pos.Z = pTSprite->__int_pos.Z - (32 << 8);
+		pNSprite->__int_pos.Z -= weaponIcon.zOffset << 8; // offset up
 		pNSprite->picnum = nTile;
 		pNSprite->shade = pTSprite->shade;
 		pNSprite->xrepeat = 32;
@@ -520,8 +520,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.X += MulScale(128, Cos(gView->actor->spr.ang), 30);
-				pNSprite->pos.Y += MulScale(128, Sin(gView->actor->spr.ang), 30);
+				pNSprite->__int_pos.X += MulScale(128, Cos(gView->actor->spr.ang), 30);
+				pNSprite->__int_pos.Y += MulScale(128, Sin(gView->actor->spr.ang), 30);
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
@@ -585,7 +585,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->pos = owneractor->interpolatedvec3(gInterpolate);
+			pTSprite->__int_pos = owneractor->interpolatedvec3(gInterpolate);
 			pTSprite->ang = owneractor->interpolatedang(gInterpolate);
 		}
 		int nAnim = 0;
@@ -615,8 +615,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			int dX = cX - pTSprite->pos.X;
-			int dY = cY - pTSprite->pos.Y;
+			int dX = cX - pTSprite->__int_pos.X;
+			int dY = cY - pTSprite->__int_pos.Y;
 			RotateVector(&dX, &dY, 128 - pTSprite->ang);
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
@@ -637,8 +637,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			int dX = cX - pTSprite->pos.X;
-			int dY = cY - pTSprite->pos.Y;
+			int dX = cX - pTSprite->__int_pos.X;
+			int dY = cY - pTSprite->__int_pos.Y;
 			RotateVector(&dX, &dY, 128 - pTSprite->ang);
 			nAnim = GetOctant(dX, dY);
 			break;
@@ -654,7 +654,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			{
 				int top, bottom;
 				GetSpriteExtents(pTSprite, &top, &bottom);
-				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos.X, pTSprite->pos.Y) > bottom)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->__int_pos.X, pTSprite->__int_pos.Y) > bottom)
 					nAnim = 1;
 			}
 			break;
@@ -855,12 +855,12 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				if (pTSprite->type != kMissileFlareRegular) break;
 				sectortype* pSector1 = pTSprite->sectp;
 
-				int zDiff = (pTSprite->pos.Z - pSector1->ceilingz) >> 8;
+				int zDiff = (pTSprite->__int_pos.Z - pSector1->ceilingz) >> 8;
 				if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectCeilGlow);
 				}
 
-				zDiff = (pSector1->floorz - pTSprite->pos.Z) >> 8;
+				zDiff = (pSector1->floorz - pTSprite->__int_pos.Z) >> 8;
 				if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectFloorGlow);
 				}
@@ -909,9 +909,9 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-						pNTSprite->pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
-						pNTSprite->pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
-						pNTSprite->pos.Z = pPlayer->actor->int_pos().Z - pPosture->xOffset;
+						pNTSprite->__int_pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
+						pNTSprite->__int_pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
+						pNTSprite->__int_pos.Z = pPlayer->actor->int_pos().Z - pPosture->xOffset;
 					}
 				}
 
@@ -936,7 +936,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 
 			if (pTSprite->ownerActor != gView->actor || gViewPos != VIEWPOS_0) {
-				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->__int_pos.X, pTSprite->__int_pos.Y) >= cZ)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 				}
@@ -968,7 +968,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
-				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
+				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->__int_pos.X, pTSprite->__int_pos.Y) >= cZ)
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 			}
 		}
@@ -984,8 +984,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 		case 1:
 		{
-			int dX = cX - pTSprite->pos.X;
-			int dY = cY - pTSprite->pos.Y;
+			int dX = cX - pTSprite->__int_pos.X;
+			int dY = cY - pTSprite->__int_pos.Y;
 			RotateVector(&dX, &dY, 128 - pTSprite->ang);
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
@@ -1001,8 +1001,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		}
 		case 2:
 		{
-			int dX = cX - pTSprite->pos.X;
-			int dY = cY - pTSprite->pos.Y;
+			int dX = cX - pTSprite->__int_pos.X;
+			int dY = cY - pTSprite->__int_pos.Y;
 			RotateVector(&dX, &dY, 128 - pTSprite->ang);
 			nAnim = GetOctant(dX, dY);
 			break;

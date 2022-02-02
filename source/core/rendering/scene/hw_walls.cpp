@@ -55,8 +55,8 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 
 	auto sect = tspr->sectp;
 
-	float tx = tspr->pos.X * (float)inttoworld;
-	float ty = tspr->pos.Y * (float)inttoworld;
+	float tx = tspr->__int_pos.X * (float)inttoworld;
+	float ty = tspr->__int_pos.Y * (float)inttoworld;
 
 	for(auto& wal : wallsofsector(sect))
 	{
@@ -1102,7 +1102,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 {
 	// If the position changed we need to recalculate everything.
-	if (spr->pos.X != last->pos.X || spr->pos.Y != last->pos.Y || spr->sectp != last->sectp || spr->ang != last->ang) return 3;
+	if (spr->__int_pos.X != last->__int_pos.X || spr->__int_pos.Y != last->__int_pos.Y || spr->sectp != last->sectp || spr->ang != last->ang) return 3;
 	
 	// if the horizontal orientation changes we need to recalculate the walls this attaches to, but not the positioning.
 	if (spr->xrepeat != last->xrepeat || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;
@@ -1128,9 +1128,9 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	seg = nullptr;
 	Sprite = spr;
 	vec2_t pos[2];
-	int sprz = spr->pos.Z;
+	int sprz = spr->__int_pos.Z;
 
-	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+	GetWallSpritePosition(spr, spr->__int_pos.vec2, pos, true);
 	glseg.x1 = pos[0].X * (1 / 16.f);
 	glseg.y1 = pos[0].Y * (1 / -16.f);
 	glseg.x2 = pos[1].X * (1 / 16.f);

@@ -73,7 +73,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         if (pTSprite->ownerActor)
         {
             // interpolate sprite position
-            pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio);
+            pTSprite->__int_pos = pTSprite->ownerActor->interpolatedvec3(smoothratio);
             pTSprite->ang = pTSprite->ownerActor->interpolatedang(smoothratio);
         }
     }
@@ -110,7 +110,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         {
             pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
             int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
-            pTSprite->pos.Z -= nTileY;
+            pTSprite->__int_pos.Z -= nTileY;
         }
 
         if (pTSprite->pal == 4 && pTSprite->shade >= numshades) pTSprite->shade = numshades - 1;

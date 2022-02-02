@@ -157,15 +157,15 @@ static void setvalue(so_interp::interp_data& element, double value)
         break;
     case soi_sprx:
         if (element.actorofang)
-            element.actorofang->spr.pos.X = (int)value;
+            element.actorofang->spr.__int_pos.X = (int)value;
         break;
     case soi_spry:
         if (element.actorofang)
-            element.actorofang->spr.pos.Y = (int)value;
+            element.actorofang->spr.__int_pos.Y = (int)value;
         break;
     case soi_sprz:
         if (element.actorofang)
-            element.actorofang->spr.pos.Z = (int)value;
+            element.actorofang->spr.__int_pos.Z = (int)value;
         break;
     default:
         break;

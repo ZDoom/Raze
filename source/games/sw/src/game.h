@@ -242,15 +242,15 @@ inline int GetSpriteSizeToBottom(const spritetypebase* sp)
 inline int GetSpriteZOfTop(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->pos.Z - GetSpriteSizeToTop(sp) :
-        sp->pos.Z - GetSpriteSizeZ(sp);
+        sp->__int_pos.Z - GetSpriteSizeToTop(sp) :
+        sp->__int_pos.Z - GetSpriteSizeZ(sp);
 }
 
 inline int GetSpriteZOfBottom(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->pos.Z + GetSpriteSizeToBottom(sp) :
-        sp->pos.Z;
+        sp->__int_pos.Z + GetSpriteSizeToBottom(sp) :
+        sp->__int_pos.Z;
 }
 
 // mid and upper/lower sprite calculations
@@ -2119,7 +2119,7 @@ struct ANIM
 			return SectorObject[animindex].pmid.Z;
 		case ANIM_Spritez:
             if (animactor == nullptr) return scratch;
-			return animactor->spr.pos.Z;
+			return animactor->spr.__int_pos.Z;
 		case ANIM_Userz:
             if (animactor == nullptr) return scratch;
             return animactor->user.pos.Z;

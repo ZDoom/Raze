@@ -145,16 +145,16 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		if (t->statnum == 99) continue;
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16);
-			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16);
-			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio);
-			t->pos.Z += PHEIGHT_RR;
+			t->__int_pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16);
+			t->__int_pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16);
+			t->__int_pos.Z = interpolatedvalue(ps[h->spr.yvel].opos.Z, ps[h->spr.yvel].pos.Z, smoothratio);
+			t->__int_pos.Z += PHEIGHT_RR;
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
-			t->pos = h->interpolatedvec3(smoothratio);
+			t->__int_pos = h->interpolatedvec3(smoothratio);
 		}
 
 		auto sectp = h->sector();
@@ -181,7 +181,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 			if (h->spr.extra > 0)
-				t->pos.Z += (6 << 8);
+				t->__int_pos.Z += (6 << 8);
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -204,8 +204,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						OwnerAc->int_pos().Y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
-						OwnerAc->int_pos().X - t->pos.X,
-						OwnerAc->int_pos().Y - t->pos.Y);
+						OwnerAc->int_pos().X - t->__int_pos.X,
+						OwnerAc->int_pos().Y - t->__int_pos.Y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -219,17 +219,17 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->xrepeat = 0;
 				else
 				{
-					t->ang = getangle(x - t->pos.X, y - t->pos.Y);
-					t->pos.X = OwnerAc->int_pos().X;
-					t->pos.Y = OwnerAc->int_pos().Y;
-					t->pos.X += bcos(t->ang, -10);
-					t->pos.Y += bsin(t->ang, -10);
+					t->ang = getangle(x - t->__int_pos.X, y - t->__int_pos.Y);
+					t->__int_pos.X = OwnerAc->int_pos().X;
+					t->__int_pos.Y = OwnerAc->int_pos().Y;
+					t->__int_pos.X += bcos(t->ang, -10);
+					t->__int_pos.Y += bsin(t->ang, -10);
 				}
 			}
 			break;
 
 		case ATOMICHEALTH:
-			t->pos.Z -= (4 << 8);
+			t->__int_pos.Z -= (4 << 8);
 			break;
 		case CRYSTALAMMO:
 			t->shade = bsin(PlayClock << 4, -10);
@@ -349,7 +349,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			p = h->spr.yvel;
 
-			if (t->pal == 1) t->pos.Z -= (18 << 8);
+			if (t->pal == 1) t->__int_pos.Z -= (18 << 8);
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
@@ -397,8 +397,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (h->GetOwner())
-					newtspr->pos.Z = ps[p].pos.Z - (12 << 8);
-				else newtspr->pos.Z = h->int_pos().Z - (51 << 8);
+					newtspr->__int_pos.Z = ps[p].pos.Z - (12 << 8);
+				else newtspr->__int_pos.Z = h->int_pos().Z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -474,8 +474,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (!h->GetOwner()) continue;
 
-			if (t->pos.Z > h->floorz && t->xrepeat < 32)
-				t->pos.Z = h->floorz;
+			if (t->__int_pos.Z > h->floorz && t->xrepeat < 32)
+				t->__int_pos.Z = h->floorz;
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
@@ -746,7 +746,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 								shadowspr->shade = 127;
 								shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
-								shadowspr->pos.Z = daz;
+								shadowspr->__int_pos.Z = daz;
 								shadowspr->pal = 4;
 
 								if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
@@ -760,9 +760,9 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 								else
 								{
 									// Alter the shadow's position so that it appears behind the sprite itself.
-									int look = getangle(shadowspr->pos.X - ps[screenpeek].pos.X, shadowspr->pos.Y - ps[screenpeek].pos.Y);
-									shadowspr->pos.X += bcos(look, -9);
-									shadowspr->pos.Y += bsin(look, -9);
+									int look = getangle(shadowspr->__int_pos.X - ps[screenpeek].pos.X, shadowspr->__int_pos.Y - ps[screenpeek].pos.Y);
+									shadowspr->__int_pos.X += bcos(look, -9);
+									shadowspr->__int_pos.Y += bsin(look, -9);
 								}
 							}
 					}
@@ -813,7 +813,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case FIRE:
 		case BURNING:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->pos.Z = t->sectp->floorz;
+				t->__int_pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:
