@@ -47,7 +47,7 @@ inline void LIGHT_DirChange(DSWActor* sp) { sp->spr.extra ^= SPRX_BOOL10; }
 
 int8_t& LIGHT_FloorShade(DSWActor* a) { return a->spr.xoffset; }
 int8_t& LIGHT_CeilingShade(DSWActor* a) { return a->spr.yoffset; }
-int& LIGHT_Tics(DSWActor* a) { return a->spr.pos.Z; }
+int16_t& LIGHT_Tics(DSWActor* a) { return a->spr.detail; }
 
 inline int LIGHT_DiffuseNum(DSWActor* sp) { return SP_TAG3(sp); }
 inline int16_t LIGHT_DiffuseMult(DSWActor* sp) { return SP_TAG4((sp)); }
