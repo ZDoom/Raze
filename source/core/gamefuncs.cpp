@@ -158,12 +158,12 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 	if (pceilz)
 	{
 		bits |= sec->ceilingstat;
-		*pceilz = float(sec->__int_ceilingz);
+		*pceilz = float(sec->int_ceilingz());
 	}
 	if (pflorz)
 	{
 		bits |= sec->floorstat;
-		*pflorz = float(sec->__int_floorz);
+		*pflorz = float(sec->int_floorz());
 	}
 
 	if ((bits & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)

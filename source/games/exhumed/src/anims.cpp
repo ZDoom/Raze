@@ -234,7 +234,7 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pActor->int_pos().Z == pActor->sector()->__int_floorz)
+    else if (pActor->int_pos().Z == pActor->sector()->int_floorz())
     {
         edx = 34;
     }
@@ -272,7 +272,7 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
         nFlag = 0;
     }
 
-    auto pSpawned = BuildAnim(nullptr, edx, 0, pActor->int_pos().X, pActor->int_pos().Y, pSector->__int_floorz, pSector, nRepeat, nFlag);
+    auto pSpawned = BuildAnim(nullptr, edx, 0, pActor->int_pos().X, pActor->int_pos().Y, pSector->int_floorz(), pSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {

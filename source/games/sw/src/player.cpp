@@ -1417,7 +1417,7 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
     if ((sectp->extra & SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->pos.Z + PLAYER_HEIGHT > pp->lo_sectp->__int_floorz - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
+        if (pp->pos.Z + PLAYER_HEIGHT > pp->lo_sectp->int_floorz() - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
             pp->WadeDepth = FixedToInt(pp->lo_sectp->depth_fixed);
     }
 }
@@ -1687,7 +1687,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     ASSERT(act_over->hasU());
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = act_over->sector()->__int_floorz; // - Z(pp->WadeDepth);
+    water_level_z = act_over->sector()->int_floorz(); // - Z(pp->WadeDepth);
 
     // if not below water
     above_water = (ActorZOfBottom(act_over) <= water_level_z);
@@ -1726,7 +1726,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     zdiff = ActorZOfBottom(act_over) - water_level_z;
 
     // add diff to ceiling
-    act_under->set_int_z(act_under->sector()->__int_ceilingz + zdiff);
+    act_under->set_int_z(act_under->sector()->int_ceilingz() + zdiff);
 
     act_under->user.State = act_over->user.State;
     act_under->user.Rot = act_over->user.Rot;
@@ -1755,7 +1755,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     if (pp->sop_control)
     {
-        actor->set_int_z(pp->cursector->__int_floorz);
+        actor->set_int_z(pp->cursector->int_floorz());
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
@@ -2619,7 +2619,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 13000)
             {
-                vec3_t hit_pos = { (x[0] + x[1]) >> 1, (y[0] + y[1]) >> 1, pp->cursector->__int_floorz - Z(10) };
+                vec3_t hit_pos = { (x[0] + x[1]) >> 1, (y[0] + y[1]) >> 1, pp->cursector->int_floorz() - Z(10) };
 
                 hitscan(hit_pos, pp->cursector,
                     { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
@@ -3252,14 +3252,14 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->LadderSector->__int_ceilingz + Z(4);
+            pp->pos.Z = pp->LadderSector->int_ceilingz() + Z(4);
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
         // if floor is ABOVE you && your head goes above it, do a jump up to
         // terrace
 
-        if (pp->pos.Z < pp->LadderSector->__int_floorz - Z(6))
+        if (pp->pos.Z < pp->LadderSector->int_floorz() - Z(6))
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
@@ -3365,7 +3365,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
     unsigned i;
     //short angs[3];
     static short angs[3] = {0, 0, 0};
-    int zh = pp->cursector->__int_floorz - Z(pp->WadeDepth) - Z(2);
+    int zh = pp->cursector->int_floorz() - Z(pp->WadeDepth) - Z(2);
 
     if (Prediction) return false;   // !JIM! 8/5/97 Teleporter FAFhitscan SuperJump bug.
 
@@ -3380,7 +3380,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
         {
             hit.hitSector = hit.hitWall->nextSector();
 
-            if (hit.hitSector != nullptr && labs(hit.hitSector->__int_floorz - pp->pos.Z) < Z(50))
+            if (hit.hitSector != nullptr && labs(hit.hitSector->int_floorz() - pp->pos.Z) < Z(50))
             {
                 if (Distance(pp->pos.X, pp->pos.Y, hit.hitpos.X, hit.hitpos.Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
                     return true;
@@ -3455,7 +3455,7 @@ void DoPlayerCrawl(PLAYER* pp)
         if (FAF_ConnectArea(pp->cursector))
         {
             // adjust the z
-            pp->pos.Z = pp->cursector->__int_ceilingz + Z(12);
+            pp->pos.Z = pp->cursector->int_ceilingz() + Z(12);
         }
 
         DoPlayerBeginDiveNoWarp(pp);
@@ -3815,7 +3815,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
             if (SectorIsUnderwaterArea(sect))
             {
                 pp->setcursector(sect);
-                pp->pos.Z = sect->__int_ceilingz;
+                pp->pos.Z = sect->int_ceilingz();
 
                 pp->pos.Z += Z(20);
                 pp->z_speed = Z(20);
@@ -3881,7 +3881,7 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sf[0]->__int_floorz > sf[1]->__int_floorz)
+        if (sf[0]->int_floorz() > sf[1]->int_floorz())
         {
             *under = sf[0];
             *over = sf[1];
@@ -3971,7 +3971,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sf[0]->__int_floorz > sf[1]->__int_floorz)
+        if (sf[0]->int_floorz() > sf[1]->int_floorz())
         {
             *under = sf[0];
             *over = sf[1];
@@ -4054,7 +4054,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     else
         pp->setcursector(over);
 
-    pp->pos.Z = under_act->sector()->__int_ceilingz + Z(6);
+    pp->pos.Z = under_act->sector()->int_ceilingz() + Z(6);
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
@@ -4122,7 +4122,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
         pp->setcursector(over);
     }
 
-    pp->pos.Z = over_act->sector()->__int_floorz - Z(2);
+    pp->pos.Z = over_act->sector()->int_floorz() - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
@@ -4418,18 +4418,18 @@ void DoPlayerDive(PLAYER* pp)
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector))
     {
-        if (pp->pos.Z < pp->cursector->__int_ceilingz + Z(10))
+        if (pp->pos.Z < pp->cursector->int_ceilingz() + Z(10))
         {
             auto sect = pp->cursector;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(pp->pos.X, pp->pos.Y, pp->cursector->__int_ceilingz - Z(8), &sect);
+            updatesectorz(pp->pos.X, pp->pos.Y, pp->cursector->int_ceilingz() - Z(8), &sect);
 
             if (!SectorIsUnderwaterArea(sect))
             {
                 // if not underwater sector we must surface
                 // force into above sector
-                pp->pos.Z = pp->cursector->__int_ceilingz - Z(8);
+                pp->pos.Z = pp->cursector->int_ceilingz() - Z(8);
                 pp->setcursector(sect);
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
@@ -5092,7 +5092,7 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     auto rsp = pp->remoteActor;
     pp->pos.X = rsp->int_pos().X;
     pp->pos.Y = rsp->int_pos().Y;
-    pp->pos.Z = sect->__int_floorz - PLAYER_HEIGHT;
+    pp->pos.Z = sect->int_floorz() - PLAYER_HEIGHT;
 
     pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_vect.Y = 0;
 
@@ -5267,7 +5267,7 @@ void DoPlayerDeathFall(PLAYER* pp)
 
         if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
         {
-            loz = pp->lo_sectp->__int_floorz;
+            loz = pp->lo_sectp->int_floorz();
         }
         else
             loz = pp->loz;

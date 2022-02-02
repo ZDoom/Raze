@@ -131,7 +131,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     int y = pActor->int_pos().Y;
     int z = pActor->int_pos().Z;
 
-    int z2 = (z + pSector->__int_ceilingz) / 2;
+    int z2 = (z + pSector->int_ceilingz()) / 2;
 
     if (nChunkTotal)
     {

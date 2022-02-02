@@ -746,8 +746,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
 		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
 		if (actor->insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
-			if (actor->int_pos().Z == actor->sector()->__int_floorz) actor->add_int_z(-1);
-			else if (actor->int_pos().Z == actor->sector()->__int_ceilingz) actor->add_int_z(1);
+			if (actor->int_pos().Z == actor->sector()->int_floorz()) actor->add_int_z(-1);
+			else if (actor->int_pos().Z == actor->sector()->int_ceilingz()) actor->add_int_z(1);
 		}
 
 		// make Proximity flag work not just for dudes and things...
@@ -1893,7 +1893,7 @@ bool ceilIsTooLow(DBloodActor* actor)
 	if (actor != nullptr)
 	{
 		sectortype* pSector = actor->sector();
-		int a = pSector->__int_ceilingz - pSector->__int_floorz;
+		int a = pSector->int_ceilingz() - pSector->int_floorz();
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		int b = top - bottom;
@@ -3539,8 +3539,8 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
 	case OBJ_SECTOR:
 	{
 		GetActorExtents(sourceactor, &top, &bottom);
-		floor = (bottom >= pSector->__int_floorz);
-		ceil = (top <= pSector->__int_ceilingz);
+		floor = (bottom >= pSector->int_floorz());
+		ceil = (top <= pSector->int_ceilingz());
 		wall = (sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL);
 		enter = (!floor && !ceil && !wall);
 		BloodSectIterator it(targSect);
@@ -4255,12 +4255,12 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 				if (cond == 55)// 60)
 				{
 					h = ClipLow(abs(pXSect->onFloorZ - pXSect->offFloorZ), 1);
-					curH = abs(pSect->__int_floorz - pXSect->offFloorZ);
+					curH = abs(pSect->int_floorz() - pXSect->offFloorZ);
 				}
 				else
 				{
 					h = ClipLow(abs(pXSect->onCeilZ - pXSect->offCeilZ), 1);
-					curH = abs(pSect->__int_ceilingz - pXSect->offCeilZ);
+					curH = abs(pSect->int_ceilingz() - pXSect->offCeilZ);
 				}
 				return condCmp((kPercFull * curH) / h, arg1, arg2, cmpOp);
 			default:

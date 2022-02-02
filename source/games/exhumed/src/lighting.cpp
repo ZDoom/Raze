@@ -264,7 +264,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
             if (wal.pal < 5)
             {
-                if (!pNextSector || pNextSector->__int_floorz < pSector->__int_floorz)
+                if (!pNextSector || pNextSector->int_floorz() < pSector->int_floorz())
                 {
                     int nFlash = GrabFlash();
                     if (nFlash < 0) {

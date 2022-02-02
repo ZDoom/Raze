@@ -437,7 +437,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
-	int fz = sectorp->__int_floorz, cz = sectorp->__int_ceilingz;
+	int fz = sectorp->int_floorz(), cz = sectorp->int_ceilingz();
 	sectorp->set_int_floorz(0, true);
 	sectorp->set_int_ceilingz(0, true);
 

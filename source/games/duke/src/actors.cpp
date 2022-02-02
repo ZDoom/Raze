@@ -361,7 +361,7 @@ void movedummyplayers(void)
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector->lotag == 1)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-				act->set_int_z(act->sector()->__int_ceilingz + (27 << 8));
+				act->set_int_z(act->sector()->int_ceilingz() + (27 << 8));
 				act->spr.ang = ps[p].angle.ang.asbuild();
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
@@ -369,7 +369,7 @@ void movedummyplayers(void)
 			}
 			else
 			{
-				if (act->sector()->lotag != 2) act->set_int_z(act->sector()->__int_floorz);
+				if (act->sector()->lotag != 2) act->set_int_z(act->sector()->int_floorz());
 				act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			}
 		}
@@ -580,7 +580,7 @@ void movefx(void)
 					act->temp_data[0] = 0;
 				}
 			}
-			else if (act->spr.lotag < 999 && (unsigned)act->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->sector()->__int_floorz != act->sector()->__int_ceilingz)
+			else if (act->spr.lotag < 999 && (unsigned)act->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->sector()->int_floorz() != act->sector()->int_ceilingz())
 			{
 				int flags = S_GetUserFlags(act->spr.lotag);
 				if (flags & SF_MSFX)
@@ -670,15 +670,15 @@ void movecrane(DDukeActor *actor, int crane)
 
 		if (actor->temp_data[0] == 2)
 		{
-			if ((sectp->__int_floorz - actor->int_pos().Z) < (64 << 8))
+			if ((sectp->int_floorz() - actor->int_pos().Z) < (64 << 8))
 				if (actor->spr.picnum > crane) actor->spr.picnum--;
 
-			if ((sectp->__int_floorz - actor->int_pos().Z) < (4096 + 1024))
+			if ((sectp->int_floorz() - actor->int_pos().Z) < (4096 + 1024))
 				actor->temp_data[0]++;
 		}
 		if (actor->temp_data[0] == 7)
 		{
-			if ((sectp->__int_floorz - actor->int_pos().Z) < (64 << 8))
+			if ((sectp->int_floorz() - actor->int_pos().Z) < (64 << 8))
 			{
 				if (actor->spr.picnum > crane) actor->spr.picnum--;
 				else
@@ -738,7 +738,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (actor->temp_data[0] == 5 || actor->temp_data[0] == 8)
 	{
 		if (actor->temp_data[0] == 8 && actor->spr.picnum < (crane + 2))
-			if ((sectp->__int_floorz - actor->int_pos().Z) > 8192)
+			if ((sectp->int_floorz() - actor->int_pos().Z) > 8192)
 				actor->spr.picnum++;
 
 		if (actor->int_pos().Z < cpt.pos.Z)
@@ -891,7 +891,7 @@ void moveflammable(DDukeActor* actor, int pool)
 	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
 	{
 		makeitfall(actor);
-		actor->ceilingz = actor->sector()->__int_ceilingz;
+		actor->ceilingz = actor->sector()->int_ceilingz();
 	}
 }
 
@@ -1068,10 +1068,10 @@ void movewaterdrip(DDukeActor *actor, int drip)
 void movedoorshock(DDukeActor* actor)
 {
 	auto sectp = actor->sector();
-	int j = abs(sectp->__int_ceilingz - sectp->__int_floorz) >> 9;
+	int j = abs(sectp->int_ceilingz() - sectp->int_floorz()) >> 9;
 	actor->spr.yrepeat = j + 4;
 	actor->spr.xrepeat = 16;
-	actor->set_int_z(sectp->__int_floorz);
+	actor->set_int_z(sectp->int_floorz());
 }
 
 //---------------------------------------------------------------------------
@@ -1088,7 +1088,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 
 	if (actor->temp_data[1] == 1 && actor->spr.hitag >= 0) //Move the sector floor
 	{
-		x = sectp->__int_floorz;
+		x = sectp->int_floorz();
 
 		if (actor->temp_data[3] == 1)
 		{
@@ -1577,8 +1577,8 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 		if (actor->spr.zvel < 6144)
 			actor->spr.zvel += 192;
 		actor->add_int_z(actor->spr.zvel);
-		if (actor->int_pos().Z > sectp->__int_floorz)
-			actor->set_int_z(sectp->__int_floorz);
+		if (actor->int_pos().Z > sectp->int_floorz())
+			actor->set_int_z(sectp->int_floorz());
 		actor->temp_data[3]--;
 		if (actor->temp_data[3] == 0)
 		{
@@ -1615,8 +1615,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->spr.shade += (sectp->ceilingshade - actor->spr.shade) >> 1;
 	else actor->spr.shade += (sectp->floorshade - actor->spr.shade) >> 1;
 
-	if (actor->int_pos().Z < sectp->__int_ceilingz + (32 << 8))
-		actor->set_int_z(sectp->__int_ceilingz + (32 << 8));
+	if (actor->int_pos().Z < sectp->int_ceilingz() + (32 << 8))
+		actor->set_int_z(sectp->int_ceilingz() + (32 << 8));
 
 	if (ud.multimode < 2)
 	{
@@ -1887,7 +1887,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 		actor->temp_data[1]++;
 
 		actor->temp_data[4] = actor->int_pos().Z;
-		actor->set_int_z(sectp->__int_floorz - (krand() % (sectp->__int_floorz - sectp->__int_ceilingz)));
+		actor->set_int_z(sectp->int_floorz() - (krand() % (sectp->int_floorz() - sectp->int_ceilingz())));
 
 		switch (actor->temp_data[1])
 		{
@@ -2248,7 +2248,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14), MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14), 0 });
 		actor->add_int_z(actor->spr.zvel);
 
-		if (floorcheck && actor->int_pos().Z >= actor->sector()->__int_floorz)
+		if (floorcheck && actor->int_pos().Z >= actor->sector()->int_floorz())
 		{
 			deletesprite(actor);
 			return false;
@@ -2499,7 +2499,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 		sectp = actor->sector();
 	}
 
-	if (actor->int_pos().Z < sectp->__int_floorz - (2 << 8))
+	if (actor->int_pos().Z < sectp->int_floorz() - (2 << 8))
 	{
 		if (actor->temp_data[1] < 1) actor->temp_data[1]++;
 		else
@@ -2609,19 +2609,19 @@ void handle_se00(DDukeActor* actor)
 			}
 			else actor->tempang = 256;
 
-			if (sect->__int_floorz > actor->int_pos().Z) //z's are touching
+			if (sect->int_floorz() > actor->int_pos().Z) //z's are touching
 			{
 				sect->add_int_floorz(-512);
 				zchange = -512;
-				if (sect->__int_floorz < actor->int_pos().Z)
+				if (sect->int_floorz() < actor->int_pos().Z)
 					sect->set_int_floorz(actor->int_pos().Z);
 			}
 
-			else if (sect->__int_floorz < actor->int_pos().Z) //z's are touching
+			else if (sect->int_floorz() < actor->int_pos().Z) //z's are touching
 			{
 				sect->add_int_floorz(512);
 				zchange = 512;
-				if (sect->__int_floorz > actor->int_pos().Z)
+				if (sect->int_floorz() > actor->int_pos().Z)
 					sect->set_int_floorz(actor->int_pos().Z);
 			}
 		}
@@ -2637,19 +2637,19 @@ void handle_se00(DDukeActor* actor)
 			}
 			else actor->tempang = 0;
 
-			if (sect->__int_floorz > actor->temp_data[3]) //z's are touching
+			if (sect->int_floorz() > actor->temp_data[3]) //z's are touching
 			{
 				sect->add_int_floorz(-512);
 				zchange = -512;
-				if (sect->__int_floorz < actor->temp_data[3])
+				if (sect->int_floorz() < actor->temp_data[3])
 					sect->set_int_floorz(actor->temp_data[3]);
 			}
 
-			else if (sect->__int_floorz < actor->temp_data[3]) //z's are touching
+			else if (sect->int_floorz() < actor->temp_data[3]) //z's are touching
 			{
 				sect->add_int_floorz(512);
 				zchange = 512;
-				if (sect->__int_floorz > actor->temp_data[3])
+				if (sect->int_floorz() > actor->temp_data[3])
 					sect->set_int_floorz(actor->temp_data[3]);
 			}
 		}
@@ -2825,7 +2825,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		if (actor->spr.xvel <= 64 && statstate)
 			S_StopSound(actor->ovel.X, actor);
 
-		if ((sc->__int_floorz - sc->__int_ceilingz) < (108 << 8))
+		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 		{
 			if (ud.clipping == 0 && actor->spr.xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -2913,7 +2913,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
 		//SetActor(actor, actor->int_pos());
 
-		if ((sc->__int_floorz - sc->__int_ceilingz) < (108 << 8))
+		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 		{
 			if (ud.clipping == 0 && actor->spr.xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3014,7 +3014,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		int l = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
 		int x = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
-		if ((sc->__int_floorz - sc->__int_ceilingz) < (108 << 8))
+		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 			if (ud.clipping == 0)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 					{
@@ -3076,7 +3076,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		ms(actor);
 		//SetActor(actor, actor->int_pos());
 
-		if ((sc->__int_floorz - sc->__int_ceilingz) < (108 << 8))
+		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 		{
 			if (ud.clipping == 0)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3495,7 +3495,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	if ((sc->lotag & 0xff) == 27 || (sc->__int_floorz > sc->__int_ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
+	if ((sc->lotag & 0xff) == 27 || (sc->int_floorz() > sc->int_ceilingz() && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
 	{
 		int j = 1;
 
@@ -3681,24 +3681,24 @@ void handle_se13(DDukeActor* actor)
 		{
 			if (actor->spriteextra)
 			{
-				if (abs(actor->temp_data[0] - sc->__int_ceilingz) >= j)
-					sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->__int_ceilingz) * j);
+				if (abs(actor->temp_data[0] - sc->int_ceilingz()) >= j)
+					sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->int_ceilingz()) * j);
 				else sc->set_int_ceilingz(actor->temp_data[0]);
 			}
 			else
 			{
-				if (abs(actor->temp_data[1] - sc->__int_floorz) >= j)
-					sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->__int_floorz) * j);
+				if (abs(actor->temp_data[1] - sc->int_floorz()) >= j)
+					sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->int_floorz()) * j);
 				else sc->set_int_floorz(actor->temp_data[1]);
 			}
 		}
 		else
 		{
-			if (abs(actor->temp_data[1] - sc->__int_floorz) >= j)
-				sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->__int_floorz) * j);
+			if (abs(actor->temp_data[1] - sc->int_floorz()) >= j)
+				sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->int_floorz()) * j);
 			else sc->set_int_floorz(actor->temp_data[1]);
-			if (abs(actor->temp_data[0] - sc->__int_ceilingz) >= j)
-				sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->__int_ceilingz) * j);
+			if (abs(actor->temp_data[0] - sc->int_ceilingz()) >= j)
+				sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->int_ceilingz()) * j);
 			sc->set_int_ceilingz(actor->temp_data[0]);
 		}
 
@@ -3785,9 +3785,9 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	auto sc = actor->sector();
 
 	actor->temp_data[2] += 32;
-	if (sc->__int_floorz < sc->__int_ceilingz) actor->spr.shade = 0;
+	if (sc->int_floorz() < sc->int_ceilingz()) actor->spr.shade = 0;
 
-	else if (sc->__int_ceilingz < actor->temp_data[3])
+	else if (sc->int_ceilingz() < actor->temp_data[3])
 	{
 
 		//The following code check to see if
@@ -3851,13 +3851,13 @@ void handle_se17(DDukeActor* actor)
 			act1->add_int_z(q);
 		}
 
-		act1->floorz = sc->__int_floorz;
-		act1->ceilingz = sc->__int_ceilingz;
+		act1->floorz = sc->int_floorz();
+		act1->ceilingz = sc->int_ceilingz();
 	}
 
 	if (actor->temp_data[0]) //If in motion
 	{
-		if (abs(sc->__int_floorz - actor->temp_data[2]) <= actor->spr.yvel)
+		if (abs(sc->int_floorz() - actor->temp_data[2]) <= actor->spr.yvel)
 		{
 			activatewarpelevators(actor, 0);
 			return;
@@ -3865,10 +3865,10 @@ void handle_se17(DDukeActor* actor)
 
 		if (actor->temp_data[0] == -1)
 		{
-			if (sc->__int_floorz > actor->temp_data[3])
+			if (sc->int_floorz() > actor->temp_data[3])
 				return;
 		}
-		else if (sc->__int_ceilingz < actor->temp_data[4]) return;
+		else if (sc->int_ceilingz() < actor->temp_data[4]) return;
 
 		if (actor->temp_data[1] == 0) return;
 		actor->temp_data[1] = 0;
@@ -3893,10 +3893,10 @@ void handle_se17(DDukeActor* actor)
 
 				ps[p].pos.X += act2->int_pos().X - actor->int_pos().X;
 				ps[p].pos.Y += act2->int_pos().Y - actor->int_pos().Y;
-				ps[p].pos.Z = act2->sector()->__int_floorz - (sc->__int_floorz - ps[p].pos.Z);
+				ps[p].pos.Z = act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].pos.Z);
 
-				act3->floorz = act2->sector()->__int_floorz;
-				act3->ceilingz = act2->sector()->__int_ceilingz;
+				act3->floorz = act2->sector()->int_floorz();
+				act3->ceilingz = act2->sector()->int_ceilingz();
 
 				ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X;
 				ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y;
@@ -3912,15 +3912,15 @@ void handle_se17(DDukeActor* actor)
 			else if (act3->spr.statnum != STAT_EFFECTOR)
 			{
 				act3->add_int_pos({ act2->int_pos().X - actor->int_pos().X ,act2->int_pos().Y - actor->int_pos().Y, 0 });
-				act3->set_int_z(act2->sector()->__int_floorz - (sc->__int_floorz - act3->int_pos().Z));
+				act3->set_int_z(act2->sector()->int_floorz() - (sc->int_floorz() - act3->int_pos().Z));
 
 				act3->backupz();
 
 				ChangeActorSect(act3, act2->sector());
 				SetActor(act3, act3->int_pos());
 
-				act3->floorz = act2->sector()->__int_floorz;
-				act3->ceilingz = act2->sector()->__int_ceilingz;
+				act3->floorz = act2->sector()->int_floorz();
+				act3->ceilingz = act2->sector()->int_ceilingz();
 
 			}
 		}
@@ -3944,7 +3944,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 			if (actor->spr.ang == 512)
 			{
 				sc->add_int_ceilingz(-sc->extra);
-				if (sc->__int_ceilingz <= actor->temp_data[1])
+				if (sc->int_ceilingz() <= actor->temp_data[1])
 				{
 					sc->set_int_ceilingz(actor->temp_data[1]);
 					deletesprite(actor);
@@ -3964,11 +3964,11 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(sc->extra);
-							a2->floorz = sc->__int_floorz;
+							a2->floorz = sc->int_floorz();
 						}
 					}
 				}
-				if (sc->__int_floorz >= actor->temp_data[1])
+				if (sc->int_floorz() >= actor->temp_data[1])
 				{
 					sc->set_int_floorz(actor->temp_data[1]);
 					deletesprite(actor);
@@ -3981,7 +3981,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 			if (actor->spr.ang == 512)
 			{
 				sc->add_int_ceilingz(sc->extra);
-				if (sc->__int_ceilingz >= actor->int_pos().Z)
+				if (sc->int_ceilingz() >= actor->int_pos().Z)
 				{
 					sc->set_int_ceilingz(actor->int_pos().Z);
 					deletesprite(actor);
@@ -4001,11 +4001,11 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(-sc->extra);
-							a2->floorz = sc->__int_floorz;
+							a2->floorz = sc->int_floorz();
 						}
 					}
 				}
-				if (sc->__int_floorz <= actor->int_pos().Z)
+				if (sc->int_floorz() <= actor->int_pos().Z)
 				{
 					sc->set_int_floorz(actor->int_pos().Z);
 					deletesprite(actor);
@@ -4072,11 +4072,11 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 			}
 		}
 
-		if (sc->__int_ceilingz < sc->__int_floorz)
+		if (sc->int_ceilingz() < sc->int_floorz())
 			sc->add_int_ceilingz(actor->spr.yvel);
 		else
 		{
-			sc->set_int_ceilingz(sc->__int_floorz);
+			sc->set_int_ceilingz(sc->int_floorz());
 
 			DukeStatIterator it(STAT_EFFECTOR);
 			while (auto a2 = it.Next())
@@ -4436,17 +4436,17 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 {
 	auto sec = actor->sector();
 
-	if (sec->__int_floorz <= sec->__int_ceilingz)
+	if (sec->int_floorz() <= sec->int_ceilingz())
 		actor->spr.shade = 0;
-	else if (sec->__int_ceilingz <= actor->temp_data[t_index])
+	else if (sec->int_ceilingz() <= actor->temp_data[t_index])
 		actor->spr.shade = 1;
 
 	if (actor->spr.shade)
 	{
 		sec->add_int_ceilingz(actor->spr.yvel << 4);
-		if (sec->__int_ceilingz > sec->__int_floorz)
+		if (sec->int_ceilingz() > sec->int_floorz())
 		{
-			sec->set_int_ceilingz(sec->__int_floorz);
+			sec->set_int_ceilingz(sec->int_floorz());
 			if (pistonsound && snd1 >= 0)
 				S_PlayActorSound(snd1, actor);
 		}
@@ -4454,7 +4454,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	else
 	{
 		sec->add_int_ceilingz(-actor->spr.yvel << 4);
-		if (sec->__int_ceilingz < actor->temp_data[t_index])
+		if (sec->int_ceilingz() < actor->temp_data[t_index])
 		{
 			sec->set_int_ceilingz(actor->temp_data[t_index]);
 			if (pistonsound && snd2 >= 0)
@@ -4481,43 +4481,43 @@ void handle_se32(DDukeActor *actor)
 		{
 			if (actor->spr.ang != 1536)
 			{
-				if (abs(sc->__int_ceilingz - actor->int_pos().Z) < (actor->spr.yvel << 1))
+				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
 				{
 					sc->set_int_ceilingz(actor->int_pos().Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->__int_ceilingz) * actor->spr.yvel);
+				else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->int_ceilingz()) * actor->spr.yvel);
 			}
 			else
 			{
-				if (abs(sc->__int_ceilingz - actor->temp_data[1]) < (actor->spr.yvel << 1))
+				if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yvel << 1))
 				{
 					sc->set_int_ceilingz(actor->temp_data[1]);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->temp_data[1] - sc->__int_ceilingz) * actor->spr.yvel);
+				else sc->add_int_ceilingz(Sgn(actor->temp_data[1] - sc->int_ceilingz()) * actor->spr.yvel);
 			}
 			return;
 		}
 
 		if ((actor->spr.ang & 2047) == 1536)
 		{
-			if (abs(sc->__int_ceilingz - actor->int_pos().Z) < (actor->spr.yvel << 1))
+			if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 				sc->set_int_ceilingz(actor->int_pos().Z);
 			}
-			else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->__int_ceilingz) * actor->spr.yvel);
+			else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->int_ceilingz()) * actor->spr.yvel);
 		}
 		else
 		{
-			if (abs(sc->__int_ceilingz - actor->temp_data[1]) < (actor->spr.yvel << 1))
+			if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yvel << 1))
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
@@ -4539,7 +4539,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 {
 	auto sc = actor->sector();
 
-	if (sc->__int_ceilingz > actor->int_pos().Z)
+	if (sc->int_ceilingz() > actor->int_pos().Z)
 		for (int j = 0; j < 8; j++)
 		{
 			actor->spr.ang += krand() & 511;
@@ -4558,14 +4558,14 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	{
 	case 0:
 		sc->add_int_ceilingz(actor->spr.yvel);
-		if (sc->__int_ceilingz > sc->__int_floorz)
-			sc->set_int_floorz(sc->__int_ceilingz);
-		if (sc->__int_ceilingz > actor->int_pos().Z + (32 << 8))
+		if (sc->int_ceilingz() > sc->int_floorz())
+			sc->set_int_floorz(sc->int_ceilingz());
+		if (sc->int_ceilingz() > actor->int_pos().Z + (32 << 8))
 			actor->temp_data[0]++;
 		break;
 	case 1:
 		sc->add_int_ceilingz(-(actor->spr.yvel << 2));
-		if (sc->__int_ceilingz < actor->temp_data[4])
+		if (sc->int_ceilingz() < actor->temp_data[4])
 		{
 			sc->set_int_ceilingz(actor->temp_data[4]);
 			actor->temp_data[0] = 0;
@@ -4629,7 +4629,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 	}
 	else actor->temp_data[0]++;
 
-	int x = sc->__int_floorz - sc->__int_ceilingz;
+	int x = sc->int_floorz() - sc->int_ceilingz();
 
 	if (rnd(64))
 	{
@@ -4637,7 +4637,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		if (k)
 		{
 			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
-			k->set_int_z(sc->__int_floorz - (krand() % x));
+			k->set_int_z(sc->int_floorz() - (krand() % x));
 			k->spr.ang += 256 - (krand() % 511);
 			k->spr.xvel = krand() & 127;
 			ssp(k, CLIPMASK0);
@@ -4669,7 +4669,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		{
 			if (actor->spr.ang != 1536)
 			{
-				if (abs(sec->__int_floorz - actor->int_pos().Z) < actor->spr.yvel)
+				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yvel)
 				{
 					sec->set_int_floorz(actor->int_pos().Z);
 					actor->temp_data[2] = 0;
@@ -4679,7 +4679,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->int_pos().Z - sec->__int_floorz) * actor->spr.yvel;
+					int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yvel;
 					sec->add_int_floorz(l);
 
 					DukeSectIterator it(actor->sector());
@@ -4691,14 +4691,14 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
-							a2->floorz = sec->__int_floorz;
+							a2->floorz = sec->int_floorz();
 						}
 					}
 				}
 			}
 			else
 			{
-				if (abs(sec->__int_floorz - actor->temp_data[1]) < actor->spr.yvel)
+				if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yvel)
 				{
 					sec->set_int_floorz(actor->temp_data[1]);
 					callsound(actor->sector(), actor);
@@ -4708,7 +4708,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->temp_data[1] - sec->__int_floorz) * actor->spr.yvel;
+					int l = Sgn(actor->temp_data[1] - sec->int_floorz()) * actor->spr.yvel;
 					sec->add_int_floorz(l);
 
 					DukeSectIterator it(actor->sector());
@@ -4720,7 +4720,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
-							a2->floorz = sec->__int_floorz;
+							a2->floorz = sec->int_floorz();
 						}
 					}
 				}
@@ -4730,7 +4730,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 
 		if ((actor->spr.ang & 2047) == 1536)
 		{
-			if (abs(actor->int_pos().Z - sec->__int_floorz) < actor->spr.yvel)
+			if (abs(actor->int_pos().Z - sec->int_floorz()) < actor->spr.yvel)
 			{
 				callsound(actor->sector(), actor);
 				actor->temp_data[0] = 0;
@@ -4739,7 +4739,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = Sgn(actor->int_pos().Z - sec->__int_floorz) * actor->spr.yvel;
+				int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yvel;
 				sec->add_int_floorz(l);
 
 				DukeSectIterator it(actor->sector());
@@ -4751,14 +4751,14 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(l);
-						a2->floorz = sec->__int_floorz;
+						a2->floorz = sec->int_floorz();
 					}
 				}
 			}
 		}
 		else
 		{
-			if (abs(sec->__int_floorz - actor->temp_data[1]) < actor->spr.yvel)
+			if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yvel)
 			{
 				actor->temp_data[0] = 0;
 				callsound(actor->sector(), actor);
@@ -4779,7 +4779,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(-l);
-						a2->floorz = sec->__int_floorz;
+						a2->floorz = sec->int_floorz();
 					}
 				}
 			}
@@ -4829,15 +4829,15 @@ void getglobalz(DDukeActor* actor)
 			}
 			else if(actor->spr.statnum == STAT_PROJECTILE && lz.actor()->isPlayer() && actor->GetOwner() == actor)
 			{
-				actor->ceilingz = actor->sector()->__int_ceilingz;
-				actor->floorz	= actor->sector()->__int_floorz;
+				actor->ceilingz = actor->sector()->int_ceilingz();
+				actor->floorz	= actor->sector()->int_floorz();
 			}
 		}
 	}
 	else
 	{
-		actor->ceilingz = actor->sector()->__int_ceilingz;
-		actor->floorz	= actor->sector()->__int_floorz;
+		actor->ceilingz = actor->sector()->int_ceilingz();
+		actor->floorz	= actor->sector()->int_floorz();
 	}
 }
 
@@ -4872,8 +4872,8 @@ void makeitfall(DDukeActor* actor)
 	}
 	else
 	{
-		actor->ceilingz = actor->sector()->__int_ceilingz;
-		actor->floorz	= actor->sector()->__int_floorz;
+		actor->ceilingz = actor->sector()->int_ceilingz();
+		actor->floorz	= actor->sector()->int_floorz();
 	}
 
 	if( actor->int_pos().Z < actor->floorz-(FOURSLEIGHT) )

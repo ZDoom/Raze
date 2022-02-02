@@ -1063,11 +1063,11 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 	case SECTOR_CEILINGZ:
 		if (bSet) sectp->set_int_ceilingz(lValue);
-		else SetGameVarID(lVar2, sectp->__int_ceilingz, sActor, sPlayer);
+		else SetGameVarID(lVar2, sectp->int_ceilingz(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORZ:
 		if (bSet) sectp->set_int_floorz(lValue);
-		else SetGameVarID(lVar2, sectp->__int_floorz, sActor, sPlayer);
+		else SetGameVarID(lVar2, sectp->int_floorz(), sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSTAT:
 		if (bSet) sectp->ceilingstat = ESectorFlags::FromInt(lValue);
@@ -1993,7 +1993,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->__int_ceilingz;
+		ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->int_ceilingz();
 		ps[g_p].GetActor()->set_int_z(ps[g_p].pos.Z);
 		break;
 	case concmd_destroyit:
@@ -2290,10 +2290,10 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_ac->int_pos().Z - g_ac->sector()->__int_floorz) < (32 << 8) && g_ac->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
+		parseifelse(abs(g_ac->int_pos().Z - g_ac->sector()->int_floorz()) < (32 << 8) && g_ac->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
-		parseifelse( abs(g_ac->int_pos().Z-g_ac->sector()->__int_floorz) < (32<<8) && g_ac->sector()->lotag == ST_1_ABOVE_WATER);
+		parseifelse( abs(g_ac->int_pos().Z-g_ac->sector()->int_floorz()) < (32<<8) && g_ac->sector()->lotag == ST_1_ABOVE_WATER);
 		break;
 	case concmd_ifmotofast:
 		parseifelse(ps[g_p].MotoSpeed > 60);
@@ -2502,7 +2502,7 @@ int ParseState::parse(void)
 			if (sectp)
 			{
 				if (isanearoperator(sectp->lotag))
-					if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->__int_floorz == sectp->__int_ceilingz)
+					if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->int_floorz() == sectp->int_ceilingz())
 						if ((sectp->lotag & 16384) == 0 && (sectp->lotag & 32768) == 0)
 						{
 							DukeSectIterator it(sectp);

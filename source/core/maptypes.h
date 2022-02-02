@@ -227,16 +227,14 @@ struct sectortype
 	// Debug hack job for finding all places where ceilingz and floorz get written to.
 	// If the engine does not compile with this block on, we got a problem.
 	// Since this is only for compile verification there's no need to provide a working implementation.
-	const int32_t ceilingz;
-	const int32_t floorz;
+	const int32_t __int_ceilingz;
+	const int32_t __int_floorz;
 	sectortype(int a = 0, int b = 0) : ceilingz(a), floorz(b) {}
 
-	void setceilingz(int cc, bool temp = false) {}
-	void setfloorz(int cc, bool temp = false) {}
-	void addceilingz(int cc, bool temp = false) {}
-	void addfloorz(int cc, bool temp = false) {}
-	int32_t* ceilingzptr(bool temp = false) { return nullptr; }
-	int32_t* floorzptr(bool temp = false) { return nullptr; }
+	void set_int_ceilingz(int cc, bool temp = false) {}
+	void set_int_floorz(int cc, bool temp = false) {}
+	void add_int_ceilingz(int cc, bool temp = false) {}
+	void add_int_floorz(int cc, bool temp = false) {}
 
 #else
 	// Do not change directly!
@@ -250,6 +248,7 @@ struct sectortype
 	void addfloorz(double cc, bool temp = false);
 	*/
 
+
 	void set_int_ceilingz(int cc, bool temp = false);
 	void set_int_floorz(int cc, bool temp = false);
 	void add_int_ceilingz(int cc, bool temp = false);
@@ -258,6 +257,11 @@ struct sectortype
 	int32_t* floorzptr(bool temp = false);
 
 #endif
+
+	int int_ceilingz() const { return __int_ceilingz; }
+	int int_floorz() const { return __int_floorz; }
+	float render_ceilingz() const { return __int_ceilingz * (float)zinttoworld; }
+	float render_floorz() const { return __int_floorz * (float)zinttoworld; }
 
 
 	// panning byte fields were promoted to full floats to enable panning interpolation.

@@ -1029,7 +1029,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		((hit.hitWall->twoSided() && hit.hitSector != nullptr &&
 			hit.hitWall->nextSector()->lotag == 0 &&
 			hit.hitSector->lotag == 0 &&
-			(hit.hitSector->__int_floorz - hit.hitWall->nextSector()->__int_floorz) > (16 << 8)) ||
+			(hit.hitSector->int_floorz() - hit.hitWall->nextSector()->int_floorz()) > (16 << 8)) ||
 			(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0)))
 	{
 		if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)

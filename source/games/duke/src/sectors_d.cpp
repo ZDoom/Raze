@@ -655,8 +655,8 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	}
 
 	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
-		if (wal->nextSector()->__int_floorz > z)
-			if (wal->nextSector()->__int_floorz - wal->nextSector()->__int_ceilingz)
+		if (wal->nextSector()->int_floorz() > z)
+			if (wal->nextSector()->int_floorz() - wal->nextSector()->int_ceilingz())
 				switch (wal->overpicnum)
 				{
 				case W_FORCEFIELD:
@@ -1132,7 +1132,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(targ->sector(), targ->int_pos().X, targ->int_pos().Y, targ->sector()->__int_floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->sector(), targ->int_pos().X, targ->int_pos().Y, targ->sector()->int_floorz() - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -1288,7 +1288,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->set_int_z(targ->sector()->__int_floorz - (32 << 8));
+			if (spawned) spawned->set_int_z(targ->sector()->int_floorz() - (32 << 8));
 		}
 		break;
 

@@ -111,7 +111,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 				{
 					int top, bottom;
 					GetActorExtents(actor, &top, &bottom);
-					if (abs(bottom - pSector->__int_floorz) == 0)
+					if (abs(bottom - pSector->int_floorz()) == 0)
 					{
 						int dx = abs(actor->int_pos().X - actor2->int_pos().X);
 						int dy = abs(actor->int_pos().Y - actor2->int_pos().Y);

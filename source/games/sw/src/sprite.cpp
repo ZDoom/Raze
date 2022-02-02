@@ -863,8 +863,8 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    actor->user.loz = actor->sector()->__int_floorz;
-    actor->user.hiz = actor->sector()->__int_ceilingz;
+    actor->user.loz = actor->sector()->int_floorz();
+    actor->user.hiz = actor->sector()->int_ceilingz();
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
     actor->user.lo_sectp = actor->sector();
@@ -2044,12 +2044,12 @@ void SpriteSetup(void)
                     if (floor_vator)
                     {
                         // start off
-                        actor->user.pos.Z = sectp->__int_floorz;
+                        actor->user.pos.Z = sectp->int_floorz();
                         actor->user.z_tgt = actor->int_pos().Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = actor->int_pos().Z - sectp->__int_floorz;
+                            amt = actor->int_pos().Z - sectp->int_floorz();
 
                             // start in the on position
                             sectp->add_int_floorz(amt);
@@ -2059,17 +2059,17 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->opos.Z = sectp->__int_floorz;
+                        actor->user.oz = actor->opos.Z = sectp->int_floorz();
                     }
                     else
                     {
                         // start off
-                        actor->user.pos.Z = sectp->__int_ceilingz;
+                        actor->user.pos.Z = sectp->int_ceilingz();
                         actor->user.z_tgt = actor->int_pos().Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = actor->int_pos().Z - sectp->__int_ceilingz;
+                            amt = actor->int_pos().Z - sectp->int_ceilingz();
 
                             // starting in the on position
                             sectp->add_int_ceilingz(amt);
@@ -2079,7 +2079,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->opos.Z = sectp->__int_ceilingz;
+                        actor->user.oz = actor->opos.Z = sectp->int_ceilingz();
                     }
 
 
@@ -2449,9 +2449,9 @@ void SpriteSetup(void)
                         sectp->setceilingslope(0);
                     }
 
-                    SP_TAG4(actor) = abs(sectp->__int_ceilingz - sectp->__int_floorz)>>8;
+                    SP_TAG4(actor) = abs(sectp->int_ceilingz() - sectp->int_floorz())>>8;
 
-                    sectp->set_int_ceilingz(sectp->__int_floorz);
+                    sectp->set_int_ceilingz(sectp->int_floorz());
 
                     change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
                     break;
@@ -4686,7 +4686,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->set_int_z(actor->sector()->__int_floorz);
+    actor->set_int_z(actor->sector()->int_floorz());
     return 0;
 }
 
@@ -6516,7 +6516,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->ceilingstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z < actor->sector()->__int_ceilingz)
+        if (actor->int_pos().Z < actor->sector()->int_ceilingz())
         {
             retval.setVoid();
         }
@@ -6524,7 +6524,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->floorstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z > actor->sector()->__int_floorz)
+        if (actor->int_pos().Z > actor->sector()->int_floorz())
         {
             retval.setVoid();
         }

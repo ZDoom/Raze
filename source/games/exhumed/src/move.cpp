@@ -250,7 +250,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
     }
     else
     {
-        z2 = pSector->__int_floorz + pSector->Depth;
+        z2 = pSector->int_floorz() + pSector->Depth;
 
         BFSSectorSearch search(pSector);
 
@@ -280,7 +280,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
                 pSect2 = pSect2->pBelow;
             }
 
-            int ecx = pTempSect->__int_floorz + pTempSect->Depth;
+            int ecx = pTempSect->int_floorz() + pTempSect->Depth;
             int eax = ecx - z;
 
             if (eax < 0 && eax >= -5120)
@@ -331,17 +331,17 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     int spriteZ = pActor->int_pos().Z;
-    int floorZ = pSector->__int_floorz;
+    int floorZ = pSector->int_floorz();
 
     int ebp = spriteZ + z;
-    int eax = pSector->__int_ceilingz + (height >> 1);
+    int eax = pSector->int_ceilingz() + (height >> 1);
 
     if ((nSectFlags & kSectUnderwater) && ebp < eax) {
         ebp = eax;
     }
 
     // loc_151E7:
-    while (ebp > pActor->sector()->__int_floorz && pActor->sector()->pBelow != nullptr)
+    while (ebp > pActor->sector()->int_floorz() && pActor->sector()->pBelow != nullptr)
     {
         ChangeActorSect(pActor, pActor->sector()->pBelow);
     }
@@ -363,7 +363,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < pActor->sector()->__int_ceilingz) && (pActor->sector()->pAbove != nullptr))
+        while ((ebp < pActor->sector()->int_ceilingz()) && (pActor->sector()->pAbove != nullptr))
         {
             ChangeActorSect(pActor, pActor->sector()->pAbove);
         }
@@ -502,7 +502,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     auto pSector = pActor->sector();
     assert(pSector);
 
-    int floorZ = pSector->__int_floorz;
+    int floorZ = pSector->int_floorz();
 
     if ((pSector->Flag & kSectUnderwater) || (floorZ < z))
     {
@@ -553,7 +553,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
             dz = 0;
         }
 
-        if ((pSector->__int_floorz - z) < (dz + flordist))
+        if ((pSector->int_floorz() - z) < (dz + flordist))
         {
             pActor->set_int_xy( x, y);
         }
@@ -633,7 +633,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
     if (pSector != pSectorPre)
     {
-        int zDiff = pSectorPre->__int_floorz - pSector->__int_floorz;
+        int zDiff = pSectorPre->int_floorz() - pSector->int_floorz();
         if (zDiff < 0) {
             zDiff = -zDiff;
         }
@@ -749,7 +749,7 @@ void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
     int nFlag = pSector->Flag;
     int nAng = nFlag & kAngleMask;
 
-    if (z >= pSector->__int_floorz)
+    if (z >= pSector->int_floorz())
     {
         *x += bcos(nAng, 3) * nSpeed;
         *y += bsin(nAng, 3) * nSpeed;
@@ -819,7 +819,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].pActor = pActor;
 
-    pActor->set_int_pos({ xAvg, yAvg, pSector->__int_floorz - 256 });
+    pActor->set_int_pos({ xAvg, yAvg, pSector->int_floorz() - 256 });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     int var_28 = 0;
@@ -872,7 +872,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     int nBlock = pSector->extra;
     int nSectFlag = pSector->Flag;
 
-    int nFloorZ = pSector->__int_floorz;
+    int nFloorZ = pSector->int_floorz();
 
     walltype *pStartWall = pSector->firstWall();
     sectortype* pNextSector = pStartWall->nextSector();
@@ -894,17 +894,17 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
     if (nSectFlag & kSectUnderwater)
     {
-        nZVal = pSector->__int_ceilingz;
-        pos.Z = pNextSector->__int_ceilingz + 256;
+        nZVal = pSector->int_ceilingz();
+        pos.Z = pNextSector->int_ceilingz() + 256;
 
-        pSector->set_int_ceilingz(pNextSector->__int_ceilingz);
+        pSector->set_int_ceilingz(pNextSector->int_ceilingz());
     }
     else
     {
-        nZVal = pSector->__int_floorz;
-        pos.Z = pNextSector->__int_floorz - 256;
+        nZVal = pSector->int_floorz();
+        pos.Z = pNextSector->int_floorz() - 256;
 
-        pSector->set_int_floorz(pNextSector->__int_floorz);
+        pSector->set_int_floorz(pNextSector->int_floorz());
     }
 
     auto pSectorB = pSector;
@@ -1403,7 +1403,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
     auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
 
-    if (pActor->int_pos().Z >= pSector->__int_floorz)
+    if (pActor->int_pos().Z >= pSector->int_floorz())
     {
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
         pSector = pActor->sector();
@@ -1411,7 +1411,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->set_int_z(pSector->__int_floorz);
+        pActor->set_int_z(pSector->int_floorz());
     }
     else
     {

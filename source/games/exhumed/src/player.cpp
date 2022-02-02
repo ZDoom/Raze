@@ -278,7 +278,7 @@ void RestartPlayer(int nPlayer)
 	}
 	else
 	{
-        pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->__int_floorz });
+        pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
 		pActor->spr.ang = plr->angle.ang.asbuild();
 
@@ -454,7 +454,7 @@ void StartDeathSeq(int nPlayer, int nVal)
                 auto pGunActor = GrabBodyGunSprite();
                 ChangeActorSect(pGunActor, pSector);
 
-                pGunActor->set_int_pos({ pActor->int_pos().X, pActor->int_pos().Y, pSector->__int_floorz - 512 });
+                pGunActor->set_int_pos({ pActor->int_pos().X, pActor->int_pos().Y, pSector->int_floorz() - 512 });
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
@@ -882,7 +882,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         vec3_t pos = pPlayerActor->int_pos();
         SetActor(pPlayerActor, &pos);
 
-        pPlayerActor->set_int_z(pPlayerActor->sector()->__int_floorz);
+        pPlayerActor->set_int_z(pPlayerActor->sector()->int_floorz());
     }
     else
     {
@@ -1093,7 +1093,7 @@ sectdone:
 
     while (1)
     {
-        int nCeilZ = pViewSect->__int_ceilingz;
+        int nCeilZ = pViewSect->int_ceilingz();
 
         if (EyeZ >= nCeilZ)
             break;
@@ -1118,7 +1118,7 @@ sectdone:
                 ChangeActorSect(pPlayerActor, pViewSect);
 
 
-                int var_FC = pViewSect->__int_floorz + (-5120);
+                int var_FC = pViewSect->int_floorz() + (-5120);
                 pPlayerActor->set_int_pos({ spr_x, spr_y, var_FC });
 
                 auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
@@ -1223,7 +1223,7 @@ sectdone:
         {
             auto pTmpSect = pPlayerActor->sector();
 
-            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->int_pos().Z > pTmpSect->__int_floorz)
+            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->int_pos().Z > pTmpSect->int_floorz())
             {
                 if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
                 {
@@ -1265,7 +1265,7 @@ sectdone:
                 ChangeActorSect(pFloorActor, pPlayerActor->sector());
             }
 
-            pFloorActor->set_int_z(pPlayerActor->sector()->__int_floorz);
+            pFloorActor->set_int_z(pPlayerActor->sector()->int_floorz());
         }
 
         int var_30 = 0;
@@ -2254,7 +2254,7 @@ sectdone:
             // loc_1BC57:
 
             // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
-            if (nStandHeight > (pPlayerActor->sector()->__int_floorz - pPlayerActor->sector()->__int_ceilingz)) {
+            if (nStandHeight > (pPlayerActor->sector()->int_floorz() - pPlayerActor->sector()->int_ceilingz())) {
                 var_48 = 1;
             }
 
@@ -2452,7 +2452,7 @@ sectdone:
                     {
                         pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
                         pPlayerActor->spr.cstat = 0;
-                        pPlayerActor->set_int_z(pPlayerActor->sector()->__int_floorz);
+                        pPlayerActor->set_int_z(pPlayerActor->sector()->int_floorz());
                     }
 
                     // will invalidate nPlayerSprite
@@ -2500,7 +2500,7 @@ sectdone:
         case 16:
             PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
-            if (pPlayerActor->int_pos().Z < pPlayerActor->sector()->__int_floorz) {
+            if (pPlayerActor->int_pos().Z < pPlayerActor->sector()->int_floorz()) {
                 pPlayerActor->add_int_z(256);
             }
 

@@ -347,8 +347,8 @@ void MorphTornado(SECTOR_OBJECT* sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    ceilingz = sop->op_main_sector->__int_ceilingz;
-    floorz = sop->op_main_sector->__int_floorz;
+    ceilingz = sop->op_main_sector->int_ceilingz();
+    floorz = sop->op_main_sector->int_floorz();
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -425,7 +425,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    floorz = sop->op_main_sector->__int_floorz;
+    floorz = sop->op_main_sector->int_floorz();
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
@@ -522,7 +522,7 @@ void SpikeFloor(SECTOR_OBJECT* sop)
     my = y;
 
     // bound the Z
-    floorz = sop->op_main_sector->__int_floorz;
+    floorz = sop->op_main_sector->int_floorz();
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 

@@ -965,7 +965,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		updatesector(x1, y1, &sect);
 		if (sect)
 		{
-			z = sect->__int_floorz - (krand() & (abs(sect->__int_ceilingz - sect->__int_floorz)));
+			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = actor->spr.ang - 1024;
@@ -996,8 +996,8 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	}
 
 	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
-		if (wal->nextSector()->__int_floorz > z)
-			if (wal->nextSector()->__int_floorz - wal->nextSector()->__int_ceilingz)
+		if (wal->nextSector()->int_floorz() > z)
+			if (wal->nextSector()->int_floorz() - wal->nextSector()->int_ceilingz())
 				switch (wal->overpicnum)
 				{
 				case FANSPRITE:
@@ -2158,7 +2158,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(targ->sector(), targ->int_pos().X, targ->int_pos().Y, targ->sector()->__int_floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->sector(), targ->int_pos().X, targ->int_pos().Y, targ->sector()->int_floorz() - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -2284,7 +2284,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->set_int_z(targ->sector()->__int_floorz - (32 << 8));
+			if (spawned) spawned->set_int_z(targ->sector()->int_floorz() - (32 << 8));
 		}
 		break;
 

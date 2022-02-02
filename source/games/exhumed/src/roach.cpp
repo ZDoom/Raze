@@ -46,7 +46,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
         ChangeActorStat(pActor, 105);
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
-        z = pActor->sector()->__int_floorz;
+        z = pActor->sector()->int_floorz();
         angle = pActor->spr.ang;
     }
 

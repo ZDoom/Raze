@@ -113,7 +113,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
         ChangeActorStat(pActor, 118);
     }
 
-    pActor->set_int_pos({ x, y, pSector->__int_floorz });
+    pActor->set_int_pos({ x, y, pSector->int_floorz() });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xrepeat = 200;
     pActor->spr.yrepeat = 200;

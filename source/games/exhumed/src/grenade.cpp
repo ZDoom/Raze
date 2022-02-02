@@ -152,7 +152,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     }
     else
     {
-        if (pActor->int_pos().Z < pGrenadeSect->__int_floorz)
+        if (pActor->int_pos().Z < pGrenadeSect->int_floorz())
         {
             var_20 = 200;
             var_28 = 36;

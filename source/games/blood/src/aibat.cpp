@@ -411,7 +411,7 @@ void batMoveToCeil(DBloodActor* actor)
 		aiNewState(actor, &batIdle);
 	}
 	else
-		aiSetTarget(actor, x, y, actor->sector()->__int_ceilingz);
+		aiSetTarget(actor, x, y, actor->sector()->int_ceilingz());
 }
 
 END_BLD_NS

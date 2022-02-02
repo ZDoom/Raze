@@ -438,12 +438,12 @@ inline double SquareDistToLine(double px, double py, double lx1, double ly1, dou
 
 inline void alignceilslope(sectortype* sect, int x, int y, int z)
 {
-	sect->setceilingslope(getslopeval(sect, x, y, z, sect->__int_ceilingz));
+	sect->setceilingslope(getslopeval(sect, x, y, z, sect->int_ceilingz()));
 }
 
 inline void alignflorslope(sectortype* sect, int x, int y, int z)
 {
-	sect->setfloorslope(getslopeval(sect, x, y, z, sect->__int_floorz));
+	sect->setfloorslope(getslopeval(sect, x, y, z, sect->int_floorz()));
 }
 
 #include "updatesector.h"

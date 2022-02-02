@@ -253,8 +253,8 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     }
     }
 
-    int32_t daz2  = sec2->__int_floorz;
-    int32_t dacz2 = sec2->__int_ceilingz;
+    int32_t daz2  = sec2->int_floorz();
+    int32_t dacz2 = sec2->int_ceilingz();
 
     if ((sec2->floorstat|sec2->ceilingstat) & CSTAT_SECTOR_SLOPE)
         getcorrectzsofslope(nextsect, pos.X, pos.Y, &dacz2, &daz2);
@@ -264,8 +264,8 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
 
     auto const sec = &sector[dasect];
 
-    int32_t daz  = sec->__int_floorz;
-    int32_t dacz = sec->__int_ceilingz;
+    int32_t daz  = sec->int_floorz();
+    int32_t dacz = sec->int_ceilingz();
 
     if ((sec->floorstat|sec->ceilingstat) & CSTAT_SECTOR_SLOPE)
         getcorrectzsofslope(dasect, pos.X, pos.Y, &dacz, &daz);
@@ -879,7 +879,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
                     tempint2 = getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
                 else
-                    tempint2 = sect->__int_ceilingz - pos->Z;
+                    tempint2 = sect->int_ceilingz() - pos->Z;
 
                 if (tempint2 > 0)
                 {
@@ -894,7 +894,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
                         tempint2 = pos->Z - getflorzofslopeptr(sect, pos->X, pos->Y);
                     else
-                        tempint2 = pos->Z - sect->__int_floorz;
+                        tempint2 = pos->Z - sect->int_floorz();
 
                     if (tempint2 <= 0)
                     {
@@ -1098,8 +1098,8 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                 if (wal.cstat & EWallFlags::FromInt(dawalclipmask)) continue;  // XXX?
 
-                if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z <= nextsect->__int_ceilingz+(3<<8))) continue;
-                if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z >= nextsect->__int_floorz-(3<<8))) continue;
+                if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z <= nextsect->int_ceilingz()+(3<<8))) continue;
+                if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z >= nextsect->int_floorz()-(3<<8))) continue;
 
                 int nextsectno = ::sectnum(nextsect);
                 if (!clipsectormap[nextsectno])
@@ -1366,9 +1366,9 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     while (auto sec = search.GetNext())
     {
         i = 1;
-        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->__int_ceilingz, -i))
+        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->int_ceilingz(), -i))
             continue;
-        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->__int_floorz, i))
+        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->int_floorz(), i))
             continue;
 
         ////////// Walls //////////

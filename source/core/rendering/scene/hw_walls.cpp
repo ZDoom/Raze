@@ -790,13 +790,13 @@ void HWWall::DoOneSidedTexture(HWDrawInfo* di, walltype* wal, sectortype* fronts
 	{
 		if ((!(wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->cstat & CSTAT_WALL_1WAY)) ||
 			((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->nextWall()->cstat & CSTAT_WALL_ALIGN_BOTTOM)))
-			refheight = frontsector->__int_ceilingz;
+			refheight = frontsector->int_ceilingz();
 		else
-			refheight = backsector->__int_floorz;
+			refheight = backsector->int_floorz();
 	}
 	else
 	{
-		refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->__int_floorz : frontsector->__int_ceilingz;
+		refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_floorz() : frontsector->int_ceilingz();
 	}
 
 	type = RENDERWALL_M1S;
@@ -813,7 +813,7 @@ void HWWall::DoUpperTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	float topleft, float topright, float bottomleft, float bottomright)
 {
 	// get the alignment reference position.
-	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->__int_ceilingz : backsector->__int_ceilingz;
+	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_ceilingz() : backsector->int_ceilingz();
 
 	type = RENDERWALL_TOP;
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
@@ -831,7 +831,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	// get the alignment reference position.
 	int refheight;
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? wal->nextWall() : wal;
-	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->__int_ceilingz : backsector->__int_floorz;
+	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_ceilingz() : backsector->int_floorz();
 
 	shade = refwall->shade;
 	palette = refwall->pal;
@@ -858,15 +858,15 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 	if (wal->cstat & CSTAT_WALL_1WAY)
 	{
 		// 1-sided wall
-		refheight = swapit ? front->__int_ceilingz : back->__int_ceilingz;
+		refheight = swapit ? front->int_ceilingz() : back->int_ceilingz();
 	}
 	else
 	{
 		// masked wall
 		if (swapit)
-			refheight = min(front->__int_floorz, back->__int_floorz);
+			refheight = min(front->int_floorz(), back->int_floorz());
 		else
-			refheight = max(front->__int_ceilingz, back->__int_ceilingz);
+			refheight = max(front->int_ceilingz(), back->int_ceilingz());
 	}
 	if ((bch1 - fch1) * (bch2 - fch2) >= 0)
 	{
@@ -1220,7 +1220,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
 		float polyh = (ztop[0] - zbottom[0]);
-		float ceilingz = sector->__int_ceilingz * (1 / -256.f);
+		float ceilingz = sector->render_ceilingz();
 		if (ceilingz < ztop[0] && ceilingz >= zbottom[0])
 		{
 			float newv = (ceilingz - zbottom[0]) / polyh;
@@ -1231,7 +1231,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
 	{
 		float polyh = (ztop[0] - zbottom[0]);
-		float floorz = sector->__int_floorz * (1 / -256.f);
+		float floorz = sector->render_floorz();
 		if (floorz <= ztop[0] && floorz > zbottom[0])
 		{
 			float newv = (floorz - zbottom[0]) / polyh;

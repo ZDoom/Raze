@@ -50,7 +50,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         ChangeActorStat(pActor, 120);
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
-        z = pActor->sector()->__int_floorz;
+        z = pActor->sector()->int_floorz();
         nAngle = pActor->spr.ang;
     }
 
@@ -110,7 +110,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
-    pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->__int_ceilingz - GetActorHeight(pActor) });
+    pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->int_ceilingz() - GetActorHeight(pActor) });
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -406,9 +406,9 @@ void AISet::Tick(RunListEvent* ev)
 
                 if (pSector)
                 {
-                    if ((pActor->int_pos().Z - pSector->__int_floorz) < 55000)
+                    if ((pActor->int_pos().Z - pSector->int_floorz()) < 55000)
                     {
-                        if (pActor->int_pos().Z > pSector->__int_ceilingz)
+                        if (pActor->int_pos().Z > pSector->int_ceilingz())
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;
