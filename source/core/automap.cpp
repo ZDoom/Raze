@@ -389,10 +389,10 @@ bool ShowRedLine(int j, int i)
 		}
 		if (automapMode == am_full)
 		{
-			if (sector[i].int_floorz() != sector[i].int_ceilingz())
-				if (wal->nextSector()->int_floorz() != wal->nextSector()->int_ceilingz())
+			if (sector[i].floorz != sector[i].ceilingz)
+				if (wal->nextSector()->floorz != wal->nextSector()->ceilingz)
 					if (((wal->cstat | wal->nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0)
-						if (sector[i].int_floorz() == wal->nextSector()->int_floorz())
+						if (sector[i].floorz == wal->nextSector()->floorz)
 							return false;
 			if (sector[i].floorpicnum != wal->nextSector()->floorpicnum)
 				return false;
