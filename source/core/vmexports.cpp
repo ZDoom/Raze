@@ -104,30 +104,6 @@ DEFINE_FIELD_X(tspritetype, tspritetype, time)
 DEFINE_GLOBAL(wall)
 DEFINE_GLOBAL(sector)
 
-double sector_floorz(sectortype* sect)
-{
-	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	return sect->int_floorz() * zinttoworld;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, floorz, sector_floorz)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
-	ACTION_RETURN_FLOAT(sector_floorz(self));
-}
-
-double sector_ceilingz(sectortype* sect)
-{
-	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	return sect->int_ceilingz() * zinttoworld;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, ceilingz, sector_ceilingz)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
-	ACTION_RETURN_FLOAT(sector_ceilingz(self));
-}
-
 void sector_setfloorz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);

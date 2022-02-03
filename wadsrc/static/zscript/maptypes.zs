@@ -188,8 +188,6 @@ struct sectortype native
 	}
 */
 
-	native double floorz();
-	native double ceilingz();
 	native void setceilingz(double cc, bool temp = false);
 	native void setfloorz(double cc, bool temp = false);
 	native void addceilingz(double cc, bool temp = false);
