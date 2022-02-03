@@ -307,8 +307,8 @@ struct sectortype
 			BLD_NS::XSECTOR* _xs;
 			TObjPtr<DCoreActor*> upperLink;
 			TObjPtr<DCoreActor*> lowerLink;
-			int baseFloor;
-			int baseCeil;
+			double baseFloor;
+			double baseCeil;
 			int velFloor;
 			int velCeil;
 			uint8_t slopewallofs; // This was originally the repurposed filler byte.

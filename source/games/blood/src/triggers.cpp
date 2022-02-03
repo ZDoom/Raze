@@ -1029,7 +1029,8 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dfz != 0)
 	{
 		int oldZ = pSector->int_floorz();
-		pSector->set_int_floorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
+		pSector->set_int_floorz((pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
+		pSector->baseFloor = pSector->floorz;
 		pSector->velFloor += (pSector->int_floorz() - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
@@ -1076,7 +1077,8 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dcz != 0)
 	{
 		int oldZ = pSector->int_ceilingz();
-		pSector->set_int_ceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
+		pSector->set_int_ceilingz((pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
+		pSector->baseCeil = pSector->ceilingz;
 		pSector->velCeil += (pSector->int_ceilingz() - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
@@ -2132,7 +2134,7 @@ void ProcessMotion(void)
 			{
 				int floorZ = pSector->int_floorz();
 				viewInterpolateSector(pSector);
-				pSector->set_int_floorz(pSector->baseFloor + vdi);
+				pSector->setfloorz(pSector->baseFloor + vdi * zinttoworld);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
@@ -2155,7 +2157,7 @@ void ProcessMotion(void)
 			{
 				int ceilZ = pSector->int_ceilingz();
 				viewInterpolateSector(pSector);
-				pSector->set_int_ceilingz(pSector->baseCeil + vdi);
+				pSector->setceilingz(pSector->baseCeil + vdi * zinttoworld);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
@@ -2323,8 +2325,8 @@ void trInit(TArray<DBloodActor*>& actors)
 	for (auto& sect : sector)
 	{
 		sectortype* pSector = &sect;
-		pSector->baseFloor = pSector->int_floorz();
-		pSector->baseCeil = pSector->int_ceilingz();
+		pSector->baseFloor = pSector->floorz;
+		pSector->baseCeil = pSector->ceilingz;
 		if (pSector->hasX())
 		{
 			XSECTOR* pXSector = &pSector->xs();
