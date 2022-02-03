@@ -5122,7 +5122,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		}
 		else
 		{
-			actor->set_int_z(actor->actor_int_floorz() - FOURSLEIGHT);
+			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
 
 			if (badguy(actor) || (actor->isPlayer() && actor->GetOwner()))
 			{

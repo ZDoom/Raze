@@ -44,6 +44,8 @@ static constexpr double zmaptoworld = (1 / 256.);	// this for necessary conversi
 static constexpr double zinttoworld = (1 / 256.); // this is for conversions needed to make floats coexist with existing code.
 static constexpr double zworldtoint = 256.;
 
+static constexpr double REPEAT_SCALE = (1 / 64.);	// map's 'repeat' values use 2.6 fixed point.
+
 //=============================================================================
 //
 // Constants

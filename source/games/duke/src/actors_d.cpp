@@ -1552,7 +1552,7 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (coll.type != kHitSprite && proj->spr.picnum != FREEZEBLAST)
 	{
-		if (proj->int_pos().Z < proj->actor_int_ceilingz())
+		if (proj->spr.pos.Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
 			proj->spr.zvel = -1;
@@ -2356,9 +2356,9 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.zvel = 0;
 			actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 
-			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->actor_int_ceilingz() + 6144) < actor->int_pos().Z)
+			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 24) < actor->spr.pos.Z)
 			{
-				actor->add_int_z(2048);
+				actor->spr.pos.Z += 8;
 				actor->temp_data[0] = 3;
 				return;
 			}
@@ -2406,9 +2406,9 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.zvel > -(2048 + 1024))
 			actor->spr.zvel -= 348;
 		actor->add_int_z(actor->spr.zvel);
-		if (actor->int_pos().Z < actor->actor_int_ceilingz() + 4096)
+		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
-			actor->set_int_z(actor->actor_int_ceilingz() + 4096);
+			actor->spr.pos.Z = actor->ceilingz + 16;
 			actor->spr.xvel = 0;
 			actor->temp_data[0] = 2;
 		}
@@ -2492,7 +2492,7 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	if (coll.type != kHitSprite)
 	{
-		if (actor->int_pos().Z < actor->actor_int_ceilingz())
+		if (actor->spr.pos.Z < actor->ceilingz)
 		{
 			coll.setSector(actor->sector());
 			actor->spr.zvel = -1;

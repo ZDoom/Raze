@@ -3085,7 +3085,7 @@ HORIZONLY:
 		int blocked;
 		blocked = (pushmove(&p->pos, &p->cursector, 164, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 
-		if (abs(pact->actor_int_floorz() - pact->actor_int_ceilingz()) < (48 << 8) || blocked)
+		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
 			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
 				isanearoperator(pact->sector()->lotag)))

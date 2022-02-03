@@ -1307,11 +1307,11 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_HTFLOORZ:
 		if (bSet) act->floorz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, act->actor_int_floorz(), sActor, sPlayer);
+		else SetGameVarID(lVar2, act->floorz * (1/zmaptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTCEILINGZ:
 		if (bSet) act->ceilingz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, act->actor_int_ceilingz(), sActor, sPlayer);
+		else SetGameVarID(lVar2, act->ceilingz * (1/zmaptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
 		if (bSet) act->ovel.X = lValue;
@@ -1738,7 +1738,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || ((g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8)) << 2) < (g_ac->actor_int_floorz() - g_ac->actor_int_ceilingz()))
+		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || (g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8) * REPEAT_SCALE) < g_ac->floorz - g_ac->ceilingz)
 		{
 			j = ((*insptr) - g_ac->spr.yrepeat) << 1;
 			if (abs(j)) g_ac->spr.yrepeat += Sgn(j);
@@ -2469,7 +2469,7 @@ int ParseState::parse(void)
 		return 0;
 	case concmd_ifgapzl:
 		insptr++;
-		parseifelse( (( g_ac->actor_int_floorz() - g_ac->actor_int_ceilingz() ) >> 8 ) < *insptr);
+		parseifelse(int(g_ac->floorz - g_ac->ceilingz) < *insptr);	// Note: int cast here is needed to use the same truncation behavior as the old fixed point code.
 		break;
 	case concmd_ifhitspace:
 		parseifelse(PlayerInput(g_p, SB_OPEN));
@@ -2537,11 +2537,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (g_ac->actor_int_floorz() - g_ac->int_pos().Z) <= ((*insptr)<<8));
+		parseifelse(g_ac->floorz - g_ac->spr.pos.Z <= *insptr);
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_ac->int_pos().Z - g_ac->actor_int_ceilingz() ) <= ((*insptr)<<8));
+		parseifelse(g_ac->spr.pos.Z - g_ac->ceilingz <= *insptr);
 		break;
 	case concmd_palfrom:
 		insptr++;
