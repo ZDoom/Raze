@@ -625,7 +625,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->set_int_pos(tActor->__interpolatedvec3(smr4, 18));
+                        tsp->pos = tActor->interpolatedvec3(smr4, 18);
                     }
                 }
 
@@ -633,7 +633,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->set_int_pos(tActor->__interpolatedvec3(smr2, 17));
+                        tsp->pos = tActor->interpolatedvec3(smr2, 17);
                     }
                 }
             }
