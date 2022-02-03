@@ -38,7 +38,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     Player     *nPlayer = &PlayerList[nLocalPlayer];
 
     nPlayer->pActor->set_int_pos({ x, y, z });
-    nPlayer->pActor->opos = nPlayer->pActor->int_pos();
+    nPlayer->pActor->backuppos();
 
     if (ang != INT_MIN)
     {

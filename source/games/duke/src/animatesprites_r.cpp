@@ -154,7 +154,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
-			t->set_int_pos(h->interpolatedvec3(smoothratio));
+			t->set_int_pos(h->__interpolatedvec3(smoothratio));
 		}
 
 		auto sectp = h->sector();

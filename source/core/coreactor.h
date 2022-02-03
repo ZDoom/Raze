@@ -129,39 +129,40 @@ public:
 		return { spr.pos.X, -spr.pos.Y, -spr.pos.Z };
 	}
 
-	int32_t interpolatedx(double const smoothratio, int const scale = 16)
+	int32_t __interpolatedx(double const smoothratio, int const scale = 16)
 	{
 		return interpolatedvalue(opos.X, spr.int_pos().X, smoothratio, scale);
 	}
 
-	int32_t interpolatedy(double const smoothratio, int const scale = 16)
+	int32_t __interpolatedy(double const smoothratio, int const scale = 16)
 	{
 		return interpolatedvalue(opos.Y, spr.int_pos().Y, smoothratio, scale);
 	}
 
-	int32_t interpolatedz(double const smoothratio, int const scale = 16)
+	int32_t __interpolatedz(double const smoothratio, int const scale = 16)
 	{
 		return interpolatedvalue(opos.Z, spr.int_pos().Z, smoothratio, scale);
 	}
 
-	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
+	vec2_t __interpolatedvec2(double const smoothratio, int const scale = 16)
 	{
 		return
 		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale)
+			__interpolatedx(smoothratio, scale),
+			__interpolatedy(smoothratio, scale)
 		};
 	}
 
-	vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
+	vec3_t __interpolatedvec3(double const smoothratio, int const scale = 16)
 	{
 		return
 		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale),
-			interpolatedz(smoothratio, scale)
+			__interpolatedx(smoothratio, scale),
+			__interpolatedy(smoothratio, scale),
+			__interpolatedz(smoothratio, scale)
 		};
 	}
+
 
 	int16_t interpolatedang(double const smoothratio)
 	{

@@ -625,7 +625,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->set_int_pos(tActor->interpolatedvec3(smr4, 18));
+                        tsp->set_int_pos(tActor->__interpolatedvec3(smr4, 18));
                     }
                 }
 
@@ -633,7 +633,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->set_int_pos(tActor->interpolatedvec3(smr2, 17));
+                        tsp->set_int_pos(tActor->__interpolatedvec3(smr2, 17));
                     }
                 }
             }
@@ -1636,8 +1636,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                 k = actor->spr.statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
                 {
-                    sprx = actor->interpolatedx(smoothratio);
-                    spry = actor->interpolatedy(smoothratio);
+                    sprx = actor->__interpolatedx(smoothratio);
+                    spry = actor->__interpolatedy(smoothratio);
                 }
 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)

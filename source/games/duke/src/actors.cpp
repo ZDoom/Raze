@@ -792,9 +792,7 @@ void movecrane(DDukeActor *actor, int crane)
 		else if (actor->IsActiveCrane())
 		{
 			auto ang = ps[p].angle.ang.asbuild();
-			ps[p].opos.X = ps[p].pos.X;
-			ps[p].opos.Y = ps[p].pos.Y;
-			ps[p].opos.Z = ps[p].pos.Z;
+			ps[p].opos = ps[p].pos;
 			ps[p].pos.X = actor->int_pos().X - bcos(ang, -6);
 			ps[p].pos.Y = actor->int_pos().Y - bsin(ang, -6);
 			ps[p].pos.Z = actor->int_pos().Z + (2 << 8);

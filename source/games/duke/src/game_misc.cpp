@@ -558,7 +558,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		auto act = ps[p].GetActor();
-		auto spos = act->interpolatedvec2(smoothratio);
+		auto spos = act->__interpolatedvec2(smoothratio);
 
 		ox = mx - cposx;
 		oy = my - cposy;

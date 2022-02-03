@@ -578,7 +578,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->set_int_pos(owneractor->interpolatedvec3(gInterpolate));
+			pTSprite->set_int_pos(owneractor->__interpolatedvec3(gInterpolate));
 			pTSprite->ang = owneractor->interpolatedang(gInterpolate);
 		}
 		int nAnim = 0;
