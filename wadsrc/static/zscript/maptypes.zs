@@ -114,6 +114,7 @@ struct sectortype native
 	native readonly float ceilingypan;
 	native readonly float floorxpan;
 	native readonly float floorypan;
+	native readonly double ceilingz, floorz;
 
 	native readonly int wallptr;
 	native readonly int16 wallnum;

@@ -99,9 +99,9 @@ static double getvalue(so_interp::interp_data& element)
     case soi_wally:
         return wall[index].pos.Y;
     case soi_ceil:
-        return sector[index].int_ceilingz();
+        return sector[index].ceilingz;
     case soi_floor:
-        return sector[index].int_floorz();
+        return sector[index].floorz;
     case soi_sox:
         return SectorObject[index].pmid.X;
     case soi_soy:
@@ -141,10 +141,10 @@ static void setvalue(so_interp::interp_data& element, double value)
         wall[index].moved();
         break;
     case soi_ceil:
-        sector[index].set_int_ceilingz((int)value);
+        sector[index].setceilingz(value);
         break;
     case soi_floor:
-        sector[index].set_int_floorz((int)value);
+        sector[index].setfloorz(value);
         break;
     case soi_sox:
         SectorObject[index].pmid.X = (int)value;

@@ -227,9 +227,8 @@ struct sectortype
 	// Debug hack job for finding all places where ceilingz and floorz get written to.
 	// If the engine does not compile with this block on, we got a problem.
 	// Since this is only for compile verification there's no need to provide a working implementation.
-	const int32_t __int_ceilingz;
-	const int32_t __int_floorz;
-	sectortype(int a = 0, int b = 0) : ceilingz(a), floorz(b) {}
+	const double floorz, ceilingz;
+	sectortype(double a = 0, double b = 0) : ceilingz(a), floorz(b) {}
 
 	void set_int_ceilingz(int cc, bool temp = false) {}
 	void set_int_floorz(int cc, bool temp = false) {}
@@ -238,28 +237,30 @@ struct sectortype
 
 #else
 	// Do not change directly!
-	int32_t __int_ceilingz;
-	int32_t __int_floorz;
+	double floorz, ceilingz;
 
-	/*
 	void setceilingz(double cc, bool temp = false);
 	void setfloorz(double cc, bool temp = false);
 	void addceilingz(double cc, bool temp = false);
 	void addfloorz(double cc, bool temp = false);
-	*/
 
+	void set_int_ceilingz(int cc, bool temp = false) { setceilingz(cc * zinttoworld, temp); }
+	void set_int_floorz(int cc, bool temp = false) { setfloorz(cc * zinttoworld, temp); }
+	void add_int_ceilingz(int cc, bool temp = false) { addceilingz(cc * zinttoworld, temp); }
+	void add_int_floorz(int cc, bool temp = false) { addfloorz(cc * zinttoworld, temp); }
 
-	void set_int_ceilingz(int cc, bool temp = false);
-	void set_int_floorz(int cc, bool temp = false);
-	void add_int_ceilingz(int cc, bool temp = false);
-	void add_int_floorz(int cc, bool temp = false);
+	void setzfrommap(int c, int f)
+	{
+		ceilingz = c * zmaptoworld;
+		floorz = f * zmaptoworld;
+	}
 
 #endif
 
-	int int_ceilingz() const { return __int_ceilingz; }
-	int int_floorz() const { return __int_floorz; }
-	float render_ceilingz() const { return __int_ceilingz * (float)zinttoworld; }
-	float render_floorz() const { return __int_floorz * (float)zinttoworld; }
+	int int_ceilingz() const { return ceilingz * zworldtoint; }
+	int int_floorz() const { return floorz * zworldtoint; }
+	float render_ceilingz() const { return (float)-ceilingz; }
+	float render_floorz() const { return (float)-floorz; }
 
 
 	// panning byte fields were promoted to full floats to enable panning interpolation.
@@ -673,24 +674,24 @@ inline int walltype::Length()
 
 #ifndef SECTOR_HACKJOB
 
-inline void sectortype::set_int_ceilingz(int cc, bool temp)
+inline void sectortype::setceilingz(double cc, bool temp)
 {
-	__int_ceilingz = cc;
+	ceilingz = cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::set_int_floorz(int cc, bool temp)
+inline void sectortype::setfloorz(double cc, bool temp)
 {
-	__int_floorz = cc;
+	floorz = cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::add_int_ceilingz(int cc, bool temp)
+inline void sectortype::addceilingz(double cc, bool temp)
 {
-	__int_ceilingz += cc;
+	ceilingz += cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
-inline void sectortype::add_int_floorz(int cc, bool temp)
+inline void sectortype::addfloorz(double cc, bool temp)
 {
-	__int_floorz += cc;
+	floorz += cc;
 	if (!temp) MarkVerticesForSector(sector.IndexOf(this));
 }
 

@@ -41,8 +41,8 @@ double Get(int index, DCoreActor* actor, int type)
 {
 	switch(type)
 	{
-	case Interp_Sect_Floorz:			return sector[index].int_floorz();
-	case Interp_Sect_Ceilingz:			return sector[index].int_ceilingz();
+	case Interp_Sect_Floorz:			return sector[index].floorz;
+	case Interp_Sect_Ceilingz:			return sector[index].ceilingz;
 	case Interp_Sect_Floorheinum:		return sector[index].floorheinum;
 	case Interp_Sect_Ceilingheinum:		return sector[index].ceilingheinum;
 	case Interp_Sect_FloorPanX:			return sector[index].floorxpan_;
@@ -65,8 +65,8 @@ void Set(int index, DCoreActor* actor, int type, double val)
 	int old;
 	switch(type)
 	{
-	case Interp_Sect_Floorz:			sector[index].set_int_floorz(xs_CRoundToInt(val)); break;
-	case Interp_Sect_Ceilingz:          sector[index].set_int_ceilingz(xs_CRoundToInt(val)); break;
+	case Interp_Sect_Floorz:			sector[index].setfloorz(val); break;
+	case Interp_Sect_Ceilingz:          sector[index].setceilingz(val); break;
 	case Interp_Sect_Floorheinum:       sector[index].floorheinum = (short)xs_CRoundToInt(val); break;
 	case Interp_Sect_Ceilingheinum:     sector[index].ceilingheinum = (short)xs_CRoundToInt(val); break;
 	case Interp_Sect_FloorPanX:         sector[index].floorxpan_ = float(val); break;

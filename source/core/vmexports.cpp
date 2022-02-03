@@ -61,6 +61,8 @@ DEFINE_FIELD_X(sectortype, sectortype, floorpal)
 DEFINE_FIELD_X(sectortype, sectortype, visibility)
 DEFINE_FIELD_X(sectortype, sectortype, fogpal)
 DEFINE_FIELD_X(sectortype, sectortype, exflags)
+DEFINE_FIELD_X(sectortype, sectortype, floorz)
+DEFINE_FIELD_X(sectortype, sectortype, ceilingz)
 
 DEFINE_FIELD_NAMED_X(walltype, walltype, xpan_, xpan)
 DEFINE_FIELD_NAMED_X(walltype, walltype, ypan_, ypan)
@@ -107,56 +109,56 @@ DEFINE_GLOBAL(sector)
 void sector_setfloorz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->set_int_floorz(int(val * zworldtoint));
+	sect->setfloorz(val);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setfloorz, sector_floorz)
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setfloorz, sector_setfloorz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->set_int_floorz(z);
+	self->setfloorz(z);
 	return 0;
 }
 
 void sector_setceilingz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->set_int_ceilingz(int(val * zworldtoint));
+	sect->setceilingz(val);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setceilingz, sector_ceilingz)
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setceilingz, sector_setceilingz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->set_int_ceilingz(z);
+	self->setceilingz(z);
 	return 0;
 }
 
 void sector_addfloorz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->add_int_floorz(int(val * zworldtoint));
+	sect->addfloorz(val);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addfloorz, sector_floorz)
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addfloorz, sector_addfloorz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->add_int_floorz(z);
+	self->addfloorz(z);
 	return 0;
 }
 
 void sector_addceilingz(sectortype* sect, double val)
 {
 	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
-	sect->add_int_ceilingz(int(val * zworldtoint));
+	sect->addceilingz(val);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addceilingz, sector_ceilingz)
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addceilingz, sector_addceilingz)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(z);
-	self->add_int_ceilingz(z);
+	self->addceilingz(z);
 	return 0;
 }
 

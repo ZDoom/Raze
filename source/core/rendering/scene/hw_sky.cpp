@@ -114,7 +114,7 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 		ptype = PORTALTYPE_PLANEMIRROR;
 		if (plane == plane_ceiling && (sector->ceilingstat & CSTAT_SECTOR_SLOPE)) return;
 		if (plane == plane_floor && (sector->floorstat & CSTAT_SECTOR_SLOPE)) return;
-		planemirror = plane == plane_floor ? &sector->__int_floorz : &sector->__int_ceilingz;
+		planemirror = plane == plane_floor ? &sector->floorz : &sector->ceilingz;
 		PutPortal(di, PORTALTYPE_PLANEMIRROR, plane);
 	}
 	else

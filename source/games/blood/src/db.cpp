@@ -257,8 +257,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 		}
 		pSector->wallptr = LittleShort(load.wallptr);
 		pSector->wallnum = LittleShort(load.wallnum);
-		pSector->set_int_ceilingz(LittleLong(load.ceilingz), true);
-		pSector->set_int_floorz(LittleLong(load.floorz), true);
+		pSector->setzfrommap(LittleLong(load.ceilingz), LittleLong(load.floorz));
 		pSector->ceilingstat = ESectorFlags::FromInt(LittleShort(load.ceilingstat));
 		pSector->floorstat = ESectorFlags::FromInt(LittleShort(load.floorstat));
 		pSector->ceilingpicnum = LittleShort(load.ceilingpicnum);
