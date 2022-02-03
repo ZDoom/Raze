@@ -355,8 +355,8 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			}
 		}
 
-		cz = p->GetActor()->__int_ceilingz;
-		fz = p->GetActor()->__int_floorz;
+		cz = p->GetActor()->actor_int_ceilingz();
+		fz = p->GetActor()->actor_int_floorz();
 
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{

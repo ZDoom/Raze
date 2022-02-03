@@ -1306,11 +1306,11 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->timetosleep, sActor, sPlayer);
 		break;
 	case ACTOR_HTFLOORZ:
-		if (bSet) act->__int_floorz = lValue;
+		if (bSet) act->floorz = lValue * zmaptoworld;
 		else SetGameVarID(lVar2, act->actor_int_floorz(), sActor, sPlayer);
 		break;
 	case ACTOR_HTCEILINGZ:
-		if (bSet) act->__int_ceilingz = lValue;
+		if (bSet) act->ceilingz = lValue * zmaptoworld;
 		else SetGameVarID(lVar2, act->actor_int_ceilingz(), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:

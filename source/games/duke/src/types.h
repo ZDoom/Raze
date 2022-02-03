@@ -123,23 +123,14 @@ public:
 
 	int actor_int_ceilingz() const
 	{
-		return __int_ceilingz;
+		return ceilingz * zworldtoint;
 	}
 
 	int actor_int_floorz() const
 	{
-		return __int_floorz;
+		return floorz * zworldtoint;
 	}
 
-	double float_ceilingz() const
-	{
-		return __int_ceilingz * inttoworld;
-	}
-
-	double float_floorz() const
-	{
-		return __int_floorz * inttoworld;
-	}
 
 	void ChangeType(PClass* newtype)
 	{

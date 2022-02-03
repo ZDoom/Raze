@@ -3417,8 +3417,8 @@ void processinput_r(int snum)
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
 		psectlotag = 0;
 
-	pact->__int_floorz = fz;
-	pact->__int_ceilingz = cz;
+	pact->floorz = fz * zinttoworld;
+	pact->ceilingz = cz * zinttoworld;
 
 	if (SyncInput())
 	{

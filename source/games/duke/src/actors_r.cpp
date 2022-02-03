@@ -3013,8 +3013,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			deletesprite(act);
 			continue;
 		case FEATHER + 1: // feather
-			act->__int_floorz = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
-			act->set_int_z(act->__int_floorz);
+			act->spr.pos.Z = act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)
 			{
 				deletesprite(act);
