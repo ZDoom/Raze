@@ -180,7 +180,7 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 {
 	int x = fr.ReadInt32();
 	int y = fr.ReadInt32();
-	wall.setPosFromLoad(x, y);
+	wall.setPosFromMap(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
@@ -202,7 +202,7 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 {
 	int x = fr.ReadInt32();
 	int y = fr.ReadInt32();
-	wall.setPosFromLoad(x, y);
+	wall.setPosFromMap(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
@@ -224,7 +224,7 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 {
 	int x = fr.ReadInt32();
 	int y = fr.ReadInt32();
-	wall.setPosFromLoad(x, y);
+	wall.setPosFromMap(x, y);
 	wall.point2 = fr.ReadInt16();
 	wall.picnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
@@ -659,7 +659,7 @@ static void P_LoadBloodMapWalls(uint8_t* data, size_t len, TArray<walltype>& lwa
 
 		int x = LittleLong(load.x);
 		int y = LittleLong(load.y);
-		pWall->setPosFromLoad(x, y);
+		pWall->setPosFromMap(x, y);
 		pWall->point2 = LittleShort(load.point2);
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);

@@ -391,7 +391,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 		}
 		int x = LittleLong(load.x);
 		int y = LittleLong(load.y);
-		pWall->setPosFromLoad(x, y);
+		pWall->setPosFromMap(x, y);
 		pWall->point2 = LittleShort(load.point2);
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);

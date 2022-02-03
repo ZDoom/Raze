@@ -379,7 +379,7 @@ struct walltype
 	DVector2 pos;
 
 	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtoint, pos.Y * worldtoint); };
-	void setPosFromLoad(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
+	void setPosFromMap(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
 
 	int32_t point2;
 	int32_t nextwall;
