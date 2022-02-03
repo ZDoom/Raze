@@ -180,6 +180,21 @@ int getflorzofslopeptr(const sectortype* sec, int dax, int day);
 void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
 void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
 
+inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
+{
+	return getceilzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
+}
+inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
+{
+	return getflorzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
+}
+[[deprecated]]
+inline void getzsofslopeptrf(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
+{
+	getzsofslopeptr(sec, dax, day, ceilz, florz);
+}
+
+
 enum EFindNextSector
 {
 	Find_Floor = 0,
