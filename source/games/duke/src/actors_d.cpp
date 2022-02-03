@@ -3494,7 +3494,6 @@ void moveeffectors_d(void)   //STATNUM 3
 
 void move_d(DDukeActor *actor, int playernum, int xvel)
 {
-	int l;
 	int goalang, angdif;
 	int daxvel;
 
@@ -3583,17 +3582,20 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 				if (actor->spr.picnum == COMMANDER)
 				{
-					actor->__int_floorz = l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-					if (actor->int_pos().Z > (l - (8 << 8)))
+					double c, f;
+					getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
+					actor->floorz = f;
+					actor->ceilingz = c;
+
+					if (actor->spr.pos.Z > f - 8)
 					{
-						if (actor->int_pos().Z > (l - (8 << 8))) actor->set_int_z(l - (8 << 8));
+						actor->spr.pos.Z = f - 8;
 						actor->spr.zvel = 0;
 					}
 
-					actor->__int_ceilingz = l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-					if ((actor->int_pos().Z - l) < (80 << 8))
+					if (actor->spr.pos.Z < c + 80)
 					{
-						actor->set_int_z(l + (80 << 8));
+						actor->spr.pos.Z = c + 80;
 						actor->spr.zvel = 0;
 					}
 				}
@@ -3601,16 +3603,18 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				{
 					if (actor->spr.zvel > 0)
 					{
-						actor->__int_floorz = l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-						if (actor->int_pos().Z > (l - (30 << 8)))
-							actor->set_int_z(l - (30 << 8));
+						double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+						actor->floorz = f;
+						if (actor->spr.pos.Z > f - 30)
+							actor->spr.pos.Z = f - 30;
 					}
 					else
 					{
-						actor->__int_ceilingz = l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-						if ((actor->int_pos().Z - l) < (50 << 8))
+						double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+						actor->ceilingz = c;
+						if (actor->spr.pos.Z < c + 50)
 						{
-							actor->set_int_z(l + (50 << 8));
+							actor->spr.pos.Z = c + 50;
 							actor->spr.zvel = 0;
 						}
 					}
@@ -3618,22 +3622,22 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != ORGANTIC)
 			{
-				if (actor->spr.zvel > 0 && actor->__int_floorz < actor->int_pos().Z)
-					actor->set_int_z(actor->__int_floorz);
+				if (actor->spr.zvel > 0 && actor->floorz < actor->spr.pos.Z)
+					actor->spr.pos.Z = actor->floorz;
 				if (actor->spr.zvel < 0)
 				{
-					l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-					if ((actor->int_pos().Z - l) < (66 << 8))
+					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					if (actor->spr.pos.Z < c + 66)
 					{
-						actor->set_int_z(l + (66 << 8));
+						actor->spr.pos.Z = c + 66;
 						actor->spr.zvel >>= 1;
 					}
 				}
 			}
 		}
 		else if (actor->spr.picnum == APLAYER)
-			if ((actor->int_pos().Z - actor->__int_ceilingz) < (32 << 8))
-				actor->set_int_z(actor->__int_ceilingz + (32 << 8));
+			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
+				actor->spr.pos.Z = actor->ceilingz + 32;
 
 		daxvel = actor->spr.xvel;
 		angdif = actor->spr.ang;

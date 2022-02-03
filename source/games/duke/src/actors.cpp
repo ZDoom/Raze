@@ -4810,7 +4810,7 @@ void getglobalz(DDukeActor* actor)
 
 		auto cc = actor->spr.cstat2;
 		actor->spr.cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
-		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->__int_ceilingz, hz, &actor->__int_floorz, lz, zr, CLIPMASK0);
+		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		actor->spr.cstat2 = cc;
 
 		actor->spr.cstat2 &= ~CSTAT2_SPRITE_NOSHADOW;
@@ -4872,7 +4872,7 @@ void makeitfall(DDukeActor* actor)
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))
 	{
 		Collision coll;
-		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->__int_ceilingz, coll, &actor->__int_floorz, coll, 127, CLIPMASK0);
+		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->ceilingz, coll, &actor->floorz, coll, 127, CLIPMASK0);
 	}
 	else
 	{

@@ -3024,7 +3024,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (!money(act, BLOODPOOL)) continue;
 
 			if (act->sector()->lotag == 800)
-				if (act->int_pos().Z >= act->sector()->int_floorz() - (8 << 8))
+				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
 					deletesprite(act);
 					continue;
@@ -3472,7 +3472,6 @@ int adjustfall(DDukeActor *actor, int c)
 
 void move_r(DDukeActor *actor, int pnum, int xvel)
 {
-	int l;
 	int goalang, angdif;
 	int daxvel;
 
@@ -3640,43 +3639,38 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 				if (actor->spr.zvel > 0)
 				{
-					actor->__int_floorz = l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-					if (isRRRA())
-					{
-						if (actor->int_pos().Z > (l - (28 << 8)))
-							actor->set_int_z(l - (28 << 8));
-					}
-					else
-					{
-						if (actor->int_pos().Z > (l - (30 << 8)))
-							actor->set_int_z(l - (30 << 8));
-					}
+					double dist = isRRRA() ? 28 : 30;
+					double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					actor->floorz = f;
+					if (actor->spr.pos.Z > f - dist)
+						actor->spr.pos.Z = f - dist;
 				}
 				else
 				{
-					actor->__int_ceilingz = l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-					if ((actor->int_pos().Z - l) < (50 << 8))
+					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					actor->ceilingz = c;
+					if (actor->spr.pos.Z < c + 50)
 					{
-						actor->set_int_z(l + (50 << 8));
+						actor->spr.pos.Z = c + 50;
 						actor->spr.zvel = 0;
 					}
 				}
 			}
-			if (actor->spr.zvel > 0 && actor->__int_floorz < actor->int_pos().Z)
-				actor->set_int_z(actor->__int_floorz);
+			if (actor->spr.zvel > 0 && actor->floorz < actor->spr.pos.Z)
+				actor->spr.pos.Z = actor->floorz;
 			if (actor->spr.zvel < 0)
 			{
-				l = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-				if ((actor->int_pos().Z - l) < (66 << 8))
+				double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+				if (actor->spr.pos.Z < c + 66)
 				{
-					actor->set_int_z(l + (66 << 8));
+					actor->spr.pos.Z = c + 66;
 					actor->spr.zvel >>= 1;
 				}
 			}
 		}
 		else if (actor->spr.picnum == APLAYER)
-			if ((actor->int_pos().Z - actor->__int_ceilingz) < (32 << 8))
-				actor->set_int_z(actor->__int_ceilingz + (32 << 8));
+			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
+				actor->spr.pos.Z = actor->ceilingz + 32;
 
 		daxvel = actor->spr.xvel;
 		angdif = actor->spr.ang;

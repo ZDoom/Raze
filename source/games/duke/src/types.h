@@ -51,7 +51,6 @@ public:
 	short timetosleep;
 	vec2_t ovel;
 	double floorz, ceilingz;
-	int __int_floorz, __int_ceilingz;
 	union
 	{
 		int saved_ammo;
