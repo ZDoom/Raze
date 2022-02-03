@@ -1270,7 +1270,7 @@ void bounce(DDukeActor* actor)
 	int daang = getangle(sectp->firstWall()->delta());
 
 	int k, l;
-	if (actor->int_pos().Z < (actor->actor_int_floorz() + actor->actor_int_ceilingz()) >> 1)
+	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)
 		k = sectp->ceilingheinum;
 	else
 		k = sectp->floorheinum;
@@ -1645,7 +1645,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->spr.ang += 96;
 		actor->spr.xvel = 128;
 		int j = ssp(actor, CLIPMASK0);
-		if (j != 1 || actor->int_pos().Z > actor->actor_int_floorz())
+		if (j != 1 || actor->spr.pos.Z > actor->floorz)
 		{
 			for (int l = 0; l < 16; l++)
 				RANDOMSCRAP(actor);
@@ -1659,8 +1659,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	}
 	else
 	{
-		if (actor->int_pos().Z > actor->actor_int_floorz() - (48 << 8))
-			actor->set_int_z(actor->actor_int_floorz() - (48 << 8));
+		if (actor->spr.pos.Z > actor->floorz - 48)
+			actor->spr.pos.Z = actor->floorz - 48;
 	}
 
 	int x;
@@ -1808,7 +1808,7 @@ void ooz(DDukeActor *actor)
 
 	actor->spr.yrepeat = j;
 	actor->spr.xrepeat = x;
-	actor->set_int_z(actor->actor_int_floorz());
+	actor->spr.pos.Z = actor->floorz;
 }
 
 //---------------------------------------------------------------------------
@@ -2320,7 +2320,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 	int x;
 	int p = findplayer(actor, &x);
 
-	actor->set_int_z(actor->actor_int_floorz() - (FOURSLEIGHT));
+	actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
 
 	if (actor->temp_data[2] < 32)
 	{
@@ -2449,7 +2449,7 @@ void glasspieces(DDukeActor* actor)
 		return;
 	}
 
-	if (actor->int_pos().Z == actor->actor_int_floorz() - (FOURSLEIGHT) && actor->temp_data[0] < 3)
+	if (actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F && actor->temp_data[0] < 3)
 	{
 		actor->spr.zvel = -((3 - actor->temp_data[0]) << 8) - (krand() & 511);
 		if (sectp->lotag == 2)
@@ -4401,7 +4401,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 					wallswitchcheck(a2))
 					continue;
 
-				if (a2->int_pos().Z > (a2->actor_int_floorz() - (16 << 8)))
+				if (a2->spr.pos.Z > a2->floorz - 16)
 				{
 					a2->add_int_pos({ x >> shift , y >> shift, 0 });
 
@@ -4880,7 +4880,7 @@ void makeitfall(DDukeActor* actor)
 		actor->floorz = actor->sector()->floorz;
 	}
 
-	if( actor->int_pos().Z < actor->actor_int_floorz()-(FOURSLEIGHT) )
+	if( actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 	{
 		if( actor->sector()->lotag == 2 && actor->spr.zvel > 3122 )
 			actor->spr.zvel = 3144;
@@ -4889,9 +4889,9 @@ void makeitfall(DDukeActor* actor)
 		else actor->spr.zvel = 6144;
 		actor->add_int_z(actor->spr.zvel);
 	}
-	if( actor->int_pos().Z >= actor->actor_int_floorz()-(FOURSLEIGHT) )
+	if (actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F)
 	{
-		actor->set_int_z(actor->actor_int_floorz() - FOURSLEIGHT);
+ 		actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
 		actor->spr.zvel = 0;
 	}
 }
@@ -5113,7 +5113,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		}
 		else actor->cgg--;
 
-		if (actor->int_pos().Z < (actor->actor_int_floorz() - FOURSLEIGHT))
+		if (actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 		{
 			actor->spr.zvel += c;
 			actor->add_int_z(actor->spr.zvel);

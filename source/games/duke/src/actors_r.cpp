@@ -415,9 +415,9 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (dasectp)
 		if ((dasectp != actor->sector()))
 			ChangeActorSect(actor, dasectp);
-	int daz = actor->int_pos().Z + ((zchange * TICSPERFRAME) >> 3);
-	if ((daz > actor->actor_int_ceilingz()) && (daz <= actor->actor_int_floorz()))
-		actor->set_int_z(daz);
+	double daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3) * zinttoworld;
+	if (daz > actor->ceilingz && daz <= actor->floorz)
+		actor->spr.pos.Z = daz;
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
 

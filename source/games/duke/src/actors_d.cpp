@@ -496,12 +496,12 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	}
 	actor->set_int_xy(pos.X, pos.Y);
 
-	if (dasectp != nullptr)
-		if (dasectp != actor->sector())
-			ChangeActorSect(actor, dasectp);
-	int daz = actor->int_pos().Z + ((zchange * TICSPERFRAME) >> 3);
-	if ((daz > actor->actor_int_ceilingz()) && (daz <= actor->actor_int_floorz()))
-		actor->set_int_z(daz);
+	if (dasectp != nullptr && dasectp != actor->sector())
+		ChangeActorSect(actor, dasectp);
+
+	double daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3) * zinttoworld;
+	if (daz > actor->ceilingz && daz <= actor->floorz)
+		actor->spr.pos.Z = daz;
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
 
@@ -1558,8 +1558,8 @@ static void weaponcommon_d(DDukeActor* proj)
 			proj->spr.zvel = -1;
 		}
 		else
-			if ((proj->int_pos().Z > proj->actor_int_floorz() && proj->sector()->lotag != 1) ||
-				(proj->int_pos().Z > proj->actor_int_floorz() + (16 << 8) && proj->sector()->lotag == 1))
+			if ((proj->spr.pos.Z > proj->floorz && proj->sector()->lotag != 1) ||
+				(proj->spr.pos.Z > proj->floorz + 16 && proj->sector()->lotag == 1))
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
@@ -2387,8 +2387,7 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.yrepeat = 16 + bsin(actor->temp_data[1], -13);
 
 		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
-			abs(actor->actor_int_floorz() - actor->actor_int_ceilingz())
-			< (192 << 8))
+			fabs(actor->floorz - actor->ceilingz) < 192)
 		{
 			actor->spr.zvel = 0;
 			actor->temp_data[0]++;
@@ -2418,7 +2417,7 @@ static void greenslime(DDukeActor *actor)
 
 		makeitfall(actor);
 
-		if (actor->int_pos().Z > actor->actor_int_floorz() - (8 << 8))
+		if (actor->spr.pos.Z > actor->floorz - 8)
 		{
 			actor->spr.yrepeat -= 4;
 			actor->spr.xrepeat += 2;
@@ -2429,9 +2428,9 @@ static void greenslime(DDukeActor *actor)
 			if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
 		}
 
-		if (actor->int_pos().Z > actor->actor_int_floorz() - 2048)
+		if (actor->spr.pos.Z > actor->floorz - 8)
 		{
-			actor->set_int_z(actor->actor_int_floorz() - 2048);
+			actor->spr.pos.Z = actor->floorz - 8;
 			actor->temp_data[0] = 0;
 			actor->spr.xvel = 0;
 		}
@@ -2495,8 +2494,8 @@ static void flamethrowerflame(DDukeActor *actor)
 			coll.setSector(actor->sector());
 			actor->spr.zvel = -1;
 		}
-		else if ((actor->int_pos().Z > actor->actor_int_floorz() && actor->sector()->lotag != 1)
-			|| (actor->int_pos().Z > actor->actor_int_floorz() + (16 << 8) && actor->sector()->lotag == 1))
+		else if ((actor->spr.pos.Z > actor->floorz && actor->sector()->lotag != 1)
+			|| (actor->spr.pos.Z > actor->floorz + 16 && actor->sector()->lotag == 1))
 		{
 			coll.setSector(actor->sector());
 			if (actor->sector()->lotag != 1)
@@ -2583,18 +2582,18 @@ static void heavyhbomb(DDukeActor *actor)
 	{
 		makeitfall(actor);
 
-		if (sectp->lotag != 1 && actor->int_pos().Z >= actor->actor_int_floorz() - (FOURSLEIGHT) && actor->spr.yvel < 3)
+		if (sectp->lotag != 1 && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yvel < 3)
 		{
-			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->actor_int_floorz() == sectp->int_floorz()))
+			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			actor->spr.zvel = -((4 - actor->spr.yvel) << 8);
 			if (actor->sector()->lotag == 2)
 				actor->spr.zvel >>= 2;
 			actor->spr.yvel++;
 		}
-		if (actor->int_pos().Z < actor->actor_int_ceilingz()) // && sectp->lotag != 2 )
+		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
 		{
-			actor->set_int_z(actor->actor_int_ceilingz() + (3 << 8));
+			actor->spr.pos.Z = actor->ceilingz + 3;
 			actor->spr.zvel = 0;
 		}
 	}

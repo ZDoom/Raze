@@ -434,6 +434,8 @@ enum miscConstants
 	DUKE3D_NO_WIDESCREEN_PINNING = 1 << 0,
 };
 
+constexpr double FOURSLEIGHT_F = 1.0;
+
 enum {
 	MUS_INTRO = 0,
 	MUS_BRIEFING = 1,
