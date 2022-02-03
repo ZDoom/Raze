@@ -1307,11 +1307,11 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_HTFLOORZ:
 		if (bSet) act->__int_floorz = lValue;
-		else SetGameVarID(lVar2, act->__int_floorz, sActor, sPlayer);
+		else SetGameVarID(lVar2, act->actor_int_floorz(), sActor, sPlayer);
 		break;
 	case ACTOR_HTCEILINGZ:
 		if (bSet) act->__int_ceilingz = lValue;
-		else SetGameVarID(lVar2, act->__int_ceilingz, sActor, sPlayer);
+		else SetGameVarID(lVar2, act->actor_int_ceilingz(), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
 		if (bSet) act->ovel.X = lValue;
@@ -1738,7 +1738,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || ((g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8)) << 2) < (g_ac->__int_floorz - g_ac->__int_ceilingz))
+		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || ((g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8)) << 2) < (g_ac->actor_int_floorz() - g_ac->actor_int_ceilingz()))
 		{
 			j = ((*insptr) - g_ac->spr.yrepeat) << 1;
 			if (abs(j)) g_ac->spr.yrepeat += Sgn(j);
@@ -2469,7 +2469,7 @@ int ParseState::parse(void)
 		return 0;
 	case concmd_ifgapzl:
 		insptr++;
-		parseifelse( (( g_ac->__int_floorz - g_ac->__int_ceilingz ) >> 8 ) < *insptr);
+		parseifelse( (( g_ac->actor_int_floorz() - g_ac->actor_int_ceilingz() ) >> 8 ) < *insptr);
 		break;
 	case concmd_ifhitspace:
 		parseifelse(PlayerInput(g_p, SB_OPEN));
@@ -2537,11 +2537,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (g_ac->__int_floorz - g_ac->int_pos().Z) <= ((*insptr)<<8));
+		parseifelse( (g_ac->actor_int_floorz() - g_ac->int_pos().Z) <= ((*insptr)<<8));
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_ac->int_pos().Z - g_ac->__int_ceilingz ) <= ((*insptr)<<8));
+		parseifelse( ( g_ac->int_pos().Z - g_ac->actor_int_ceilingz() ) <= ((*insptr)<<8));
 		break;
 	case concmd_palfrom:
 		insptr++;

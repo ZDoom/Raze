@@ -121,12 +121,12 @@ public:
 
 	void Serialize(FSerializer& arc) override;
 
-	int int_ceilingz() const
+	int actor_int_ceilingz() const
 	{
 		return __int_ceilingz;
 	}
 
-	int int_floorz() const
+	int actor_int_floorz() const
 	{
 		return __int_floorz;
 	}

@@ -1728,8 +1728,8 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	if (p->pos.Z > (fz - (k << 8)))
 		p->pos.Z += ((fz - (k << 8)) - p->pos.Z) >> 1;
-	if (p->pos.Z < (pact->__int_ceilingz + (18 << 8)))
-		p->pos.Z = pact->__int_ceilingz + (18 << 8);
+	if (p->pos.Z < (pact->actor_int_ceilingz() + (18 << 8)))
+		p->pos.Z = pact->actor_int_ceilingz() + (18 << 8);
 
 }
 
@@ -3085,7 +3085,7 @@ HORIZONLY:
 		int blocked;
 		blocked = (pushmove(&p->pos, &p->cursector, 164, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 
-		if (abs(pact->__int_floorz - pact->__int_ceilingz) < (48 << 8) || blocked)
+		if (abs(pact->actor_int_floorz() - pact->actor_int_ceilingz()) < (48 << 8) || blocked)
 		{
 			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
 				isanearoperator(pact->sector()->lotag)))

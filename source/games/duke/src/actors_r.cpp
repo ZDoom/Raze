@@ -416,7 +416,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		if ((dasectp != actor->sector()))
 			ChangeActorSect(actor, dasectp);
 	int daz = actor->int_pos().Z + ((zchange * TICSPERFRAME) >> 3);
-	if ((daz > actor->__int_ceilingz) && (daz <= actor->__int_floorz))
+	if ((daz > actor->actor_int_ceilingz()) && (daz <= actor->actor_int_floorz()))
 		actor->set_int_z(daz);
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
@@ -1244,13 +1244,13 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	if (coll.type != kHitSprite && proj->spr.picnum != FREEZEBLAST)
 	{
-		if (proj->int_pos().Z < proj->__int_ceilingz)
+		if (proj->int_pos().Z < proj->actor_int_ceilingz())
 		{
 			coll.setSector(proj->sector());
 			proj->spr.zvel = -1;
 		}
 		else
-			if (proj->int_pos().Z > proj->__int_floorz)
+			if (proj->int_pos().Z > proj->actor_int_floorz())
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
@@ -2344,9 +2344,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	makeitfall(actor);
 
-	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && actor->int_pos().Z >= actor->__int_floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
+	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && actor->int_pos().Z >= actor->actor_int_floorz() - (FOURSLEIGHT) && actor->spr.yvel < 3)
 	{
-		if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->__int_floorz == sectp->int_floorz()))
+		if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->actor_int_floorz() == sectp->int_floorz()))
 		{
 			if (actor->spr.picnum != CHEERBOMB)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
@@ -2363,9 +2363,9 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->spr.zvel >>= 2;
 		actor->spr.yvel++;
 	}
-	if (actor->spr.picnum != CHEERBOMB && actor->int_pos().Z < actor->__int_ceilingz + (16 << 8) && sectp->lotag != 2)
+	if (actor->spr.picnum != CHEERBOMB && actor->int_pos().Z < actor->actor_int_ceilingz() + (16 << 8) && sectp->lotag != 2)
 	{
-		actor->set_int_z(actor->__int_ceilingz + (16 << 8));
+		actor->set_int_z(actor->actor_int_ceilingz() + (16 << 8));
 		actor->spr.zvel = 0;
 	}
 
@@ -2831,7 +2831,7 @@ void moveactors_r(void)
 				getglobalz(act);
 				if (sectp->lotag == 1)
 				{
-					SetActor(act, { act->int_pos().X,act->int_pos().Y,act->__int_floorz + (16 << 8) });
+					SetActor(act, { act->int_pos().X,act->int_pos().Y,act->actor_int_floorz() + (16 << 8) });
 				}
 				break;
 
@@ -3818,7 +3818,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		}
 		else if (actor->sector()->lotag == 802)
 		{
-			if (actor->spr.picnum != APLAYER && badguy(actor) && actor->int_pos().Z == actor->__int_floorz - FOURSLEIGHT)
+			if (actor->spr.picnum != APLAYER && badguy(actor) && actor->int_pos().Z == actor->actor_int_floorz() - FOURSLEIGHT)
 			{
 				fi.guts(actor, JIBS6, 5, playernum);
 				S_PlayActorSound(SQUISHED, actor);
@@ -3842,7 +3842,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		}
 		if (actor->spr.picnum != APLAYER && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
-			actor->set_int_z(actor->__int_floorz - FOURSLEIGHT);
+			actor->set_int_z(actor->actor_int_floorz() - FOURSLEIGHT);
 			actor->spr.zvel = 8000;
 			actor->spr.extra = 0;
 			actor->spriteextra++;
