@@ -785,7 +785,7 @@ void movecrane(DDukeActor *actor, int crane)
 		{
 			SetActor(Owner, actor->int_pos());
 
-			Owner->opos = actor->int_pos();
+			Owner->opos = actor->spr.pos;
 
 			actor->spr.zvel = 0;
 		}

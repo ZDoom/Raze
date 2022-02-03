@@ -1585,7 +1585,7 @@ static void weaponcommon_d(DDukeActor* proj)
 
 			if (spawned)
 			{
-				spawned->opos = proj->opos + offset;
+				spawned->opos = proj->opos + DVector3(offset.X * inttoworld, offset.Y * inttoworld, offset.Z * zinttoworld);
 				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 				spawned->spr.pal = proj->spr.pal;
 			}
@@ -1837,7 +1837,7 @@ void movetransports_d(void)
 							ps[p].opos.Z = ps[p].pos.Z;
 
 							auto pa = ps[p].GetActor();
-							pa->opos = ps[p].pos;
+							pa->opos = DVector3(ps[p].pos.X * inttoworld, ps[p].pos.Y * inttoworld, ps[p].pos.Z * zinttoworld);
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -3553,7 +3553,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (actor->temp_data[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->int_pos().X) || (actor->opos.Y != actor->int_pos().Y))
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
 			actor->backupvec2();
 			SetActor(actor, actor->int_pos());
@@ -3662,7 +3662,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 				if (!*(moveptr + 1))
 				{
-					if (actor->opos.Z != actor->int_pos().Z || (ud.multimode < 2 && ud.player_skill < 2))
+					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
 						if ((actor->temp_data[0] & 1) || ps[playernum].actorsqu == actor) return;
 						else daxvel <<= 1;

@@ -3592,7 +3592,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (actor->temp_data[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->int_pos().X) || (actor->opos.Y != actor->int_pos().Y))
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
 			actor->backupvec2();
 			SetActor(actor, actor->int_pos());
@@ -3707,7 +3707,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 				if (!*(moveptr + 1))
 				{
-					if (actor->opos.Z != actor->int_pos().Z || (ud.multimode < 2 && ud.player_skill < 2))
+					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
 						if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
 						else daxvel <<= 1;

@@ -41,7 +41,7 @@ public:
 	spriteext_t sprext;
 	spritesmooth_t spsmooth;
 
-	vec3_t opos;
+	DVector3 opos;
 	int time;
 	int16_t oang;
 	int16_t spritesetindex;
@@ -129,27 +129,62 @@ public:
 		return { spr.pos.X, -spr.pos.Y, -spr.pos.Z };
 	}
 
+	double interpolatedx(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvaluef(opos.X, spr.pos.X, smoothratio, scale);
+	}
+
+	double interpolatedy(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvaluef(opos.Y, spr.pos.Y, smoothratio, scale);
+	}
+
+	double interpolatedz(double const smoothratio, int const scale = 16)
+	{
+		return interpolatedvalue(opos.Z, spr.pos.Z, smoothratio, scale);
+	}
+
+	DVector2 interpolatedvec2(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale)
+		};
+	}
+
+	DVector3 interpolatedvec3(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale),
+			interpolatedz(smoothratio, scale)
+		};
+	}
+
+
 	int32_t __interpolatedx(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.X, spr.int_pos().X, smoothratio, scale);
+		return interpolatedx(smoothratio, scale) * worldtoint;
 	}
 
 	int32_t __interpolatedy(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.Y, spr.int_pos().Y, smoothratio, scale);
+		return interpolatedy(smoothratio, scale) * worldtoint;
 	}
 
 	int32_t __interpolatedz(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.Z, spr.int_pos().Z, smoothratio, scale);
+		return interpolatedz(smoothratio, scale) * zworldtoint;
 	}
 
 	vec2_t __interpolatedvec2(double const smoothratio, int const scale = 16)
 	{
 		return
 		{
-			__interpolatedx(smoothratio, scale),
-			__interpolatedy(smoothratio, scale)
+			(int)(interpolatedx(smoothratio, scale) * worldtoint),
+			(int)(interpolatedy(smoothratio, scale) * worldtoint)
 		};
 	}
 
@@ -157,9 +192,9 @@ public:
 	{
 		return
 		{
-			__interpolatedx(smoothratio, scale),
-			__interpolatedy(smoothratio, scale),
-			__interpolatedz(smoothratio, scale)
+			(int)(interpolatedx(smoothratio, scale)* worldtoint),
+			(int)(interpolatedy(smoothratio, scale)* worldtoint),
+			(int)(interpolatedz(smoothratio, scale)* zworldtoint)
 		};
 	}
 
@@ -171,27 +206,28 @@ public:
 
 	void backupx()
 	{
-		opos.X = spr.int_pos().X;
+		opos.X = spr.pos.X;
 	}
 
 	void backupy()
 	{
-		opos.Y = spr.int_pos().Y;
+		opos.Y = spr.pos.Y;
 	}
 
 	void backupz()
 	{
-		opos.Z = spr.int_pos().Z;
+		opos.Z = spr.pos.Z;
 	}
 
 	void backupvec2()
 	{
-		opos.vec2 = spr.int_pos().vec2;
+		backupx();
+		backupy();
 	}
 
 	void backuppos()
 	{
-		opos = spr.int_pos();
+		opos = spr.pos;
 	}
 
 	void backupang()
