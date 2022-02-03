@@ -889,7 +889,7 @@ void moveflammable(DDukeActor* actor, int pool)
 	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
 	{
 		makeitfall(actor);
-		actor->ceilingz = actor->sector()->int_ceilingz();
+		actor->__int_ceilingz = actor->sector()->int_ceilingz();
 	}
 }
 
@@ -1270,7 +1270,7 @@ void bounce(DDukeActor* actor)
 	int daang = getangle(sectp->firstWall()->delta());
 
 	int k, l;
-	if (actor->int_pos().Z < (actor->floorz + actor->ceilingz) >> 1)
+	if (actor->int_pos().Z < (actor->__int_floorz + actor->__int_ceilingz) >> 1)
 		k = sectp->ceilingheinum;
 	else
 		k = sectp->floorheinum;
@@ -1645,7 +1645,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->spr.ang += 96;
 		actor->spr.xvel = 128;
 		int j = ssp(actor, CLIPMASK0);
-		if (j != 1 || actor->int_pos().Z > actor->floorz)
+		if (j != 1 || actor->int_pos().Z > actor->__int_floorz)
 		{
 			for (int l = 0; l < 16; l++)
 				RANDOMSCRAP(actor);
@@ -1659,8 +1659,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	}
 	else
 	{
-		if (actor->int_pos().Z > actor->floorz - (48 << 8))
-			actor->set_int_z(actor->floorz - (48 << 8));
+		if (actor->int_pos().Z > actor->__int_floorz - (48 << 8))
+			actor->set_int_z(actor->__int_floorz - (48 << 8));
 	}
 
 	int x;
@@ -1799,7 +1799,7 @@ void ooz(DDukeActor *actor)
 {
 	getglobalz(actor);
 
-	int j = (actor->floorz - actor->ceilingz) >> 9;
+	int j = (actor->__int_floorz - actor->__int_ceilingz) >> 9;
 	if (j > 255) j = 255;
 
 	int x = 25 - (j >> 1);
@@ -1808,7 +1808,7 @@ void ooz(DDukeActor *actor)
 
 	actor->spr.yrepeat = j;
 	actor->spr.xrepeat = x;
-	actor->set_int_z(actor->floorz);
+	actor->set_int_z(actor->__int_floorz);
 }
 
 //---------------------------------------------------------------------------
@@ -2320,7 +2320,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 	int x;
 	int p = findplayer(actor, &x);
 
-	actor->set_int_z(actor->floorz - (FOURSLEIGHT));
+	actor->set_int_z(actor->__int_floorz - (FOURSLEIGHT));
 
 	if (actor->temp_data[2] < 32)
 	{
@@ -2449,7 +2449,7 @@ void glasspieces(DDukeActor* actor)
 		return;
 	}
 
-	if (actor->int_pos().Z == actor->floorz - (FOURSLEIGHT) && actor->temp_data[0] < 3)
+	if (actor->int_pos().Z == actor->__int_floorz - (FOURSLEIGHT) && actor->temp_data[0] < 3)
 	{
 		actor->spr.zvel = -((3 - actor->temp_data[0]) << 8) - (krand() & 511);
 		if (sectp->lotag == 2)
@@ -3849,8 +3849,8 @@ void handle_se17(DDukeActor* actor)
 			act1->add_int_z(q);
 		}
 
-		act1->floorz = sc->int_floorz();
-		act1->ceilingz = sc->int_ceilingz();
+		act1->__int_floorz = sc->int_floorz();
+		act1->__int_ceilingz = sc->int_ceilingz();
 	}
 
 	if (actor->temp_data[0]) //If in motion
@@ -3893,15 +3893,15 @@ void handle_se17(DDukeActor* actor)
 				ps[p].pos.Y += act2->int_pos().Y - actor->int_pos().Y;
 				ps[p].pos.Z = act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].pos.Z);
 
-				act3->floorz = act2->sector()->int_floorz();
-				act3->ceilingz = act2->sector()->int_ceilingz();
+				act3->__int_floorz = act2->sector()->int_floorz();
+				act3->__int_ceilingz = act2->sector()->int_ceilingz();
 
 				ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X;
 				ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y;
 				ps[p].opos.Z = ps[p].pos.Z;
 
-				ps[p].truefz = act3->floorz;
-				ps[p].truecz = act3->ceilingz;
+				ps[p].truefz = act3->__int_floorz;
+				ps[p].truecz = act3->__int_ceilingz;
 				ps[p].bobcounter = 0;
 
 				ChangeActorSect(act3, act2->sector());
@@ -3917,8 +3917,8 @@ void handle_se17(DDukeActor* actor)
 				ChangeActorSect(act3, act2->sector());
 				SetActor(act3, act3->int_pos());
 
-				act3->floorz = act2->sector()->int_floorz();
-				act3->ceilingz = act2->sector()->int_ceilingz();
+				act3->__int_floorz = act2->sector()->int_floorz();
+				act3->__int_ceilingz = act2->sector()->int_ceilingz();
 
 			}
 		}
@@ -3962,7 +3962,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(sc->extra);
-							a2->floorz = sc->int_floorz();
+							a2->__int_floorz = sc->int_floorz();
 						}
 					}
 				}
@@ -3999,7 +3999,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(-sc->extra);
-							a2->floorz = sc->int_floorz();
+							a2->__int_floorz = sc->int_floorz();
 						}
 					}
 				}
@@ -4401,7 +4401,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 					wallswitchcheck(a2))
 					continue;
 
-				if (a2->int_pos().Z > (a2->floorz - (16 << 8)))
+				if (a2->int_pos().Z > (a2->__int_floorz - (16 << 8)))
 				{
 					a2->add_int_pos({ x >> shift , y >> shift, 0 });
 
@@ -4695,7 +4695,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
-							a2->floorz = sec->int_floorz();
+							a2->__int_floorz = sec->int_floorz();
 						}
 					}
 				}
@@ -4724,7 +4724,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
-							a2->floorz = sec->int_floorz();
+							a2->__int_floorz = sec->int_floorz();
 						}
 					}
 				}
@@ -4755,7 +4755,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(l);
-						a2->floorz = sec->int_floorz();
+						a2->__int_floorz = sec->int_floorz();
 					}
 				}
 			}
@@ -4783,7 +4783,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(-l);
-						a2->floorz = sec->int_floorz();
+						a2->__int_floorz = sec->int_floorz();
 					}
 				}
 			}
@@ -4810,7 +4810,7 @@ void getglobalz(DDukeActor* actor)
 
 		auto cc = actor->spr.cstat2;
 		actor->spr.cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
-		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
+		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->__int_ceilingz, hz, &actor->__int_floorz, lz, zr, CLIPMASK0);
 		actor->spr.cstat2 = cc;
 
 		actor->spr.cstat2 &= ~CSTAT2_SPRITE_NOSHADOW;
@@ -4833,15 +4833,15 @@ void getglobalz(DDukeActor* actor)
 			}
 			else if(actor->spr.statnum == STAT_PROJECTILE && lz.actor()->isPlayer() && actor->GetOwner() == actor)
 			{
-				actor->ceilingz = actor->sector()->int_ceilingz();
-				actor->floorz	= actor->sector()->int_floorz();
+				actor->__int_ceilingz = actor->sector()->int_ceilingz();
+				actor->__int_floorz	= actor->sector()->int_floorz();
 			}
 		}
 	}
 	else
 	{
-		actor->ceilingz = actor->sector()->int_ceilingz();
-		actor->floorz	= actor->sector()->int_floorz();
+		actor->__int_ceilingz = actor->sector()->int_ceilingz();
+		actor->__int_floorz	= actor->sector()->int_floorz();
 	}
 }
 
@@ -4872,15 +4872,15 @@ void makeitfall(DDukeActor* actor)
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))
 	{
 		Collision coll;
-		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->ceilingz, coll, &actor->floorz, coll, 127, CLIPMASK0);
+		getzrange({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (FOURSLEIGHT) }, actor->sector(), &actor->__int_ceilingz, coll, &actor->__int_floorz, coll, 127, CLIPMASK0);
 	}
 	else
 	{
-		actor->ceilingz = actor->sector()->int_ceilingz();
-		actor->floorz	= actor->sector()->int_floorz();
+		actor->__int_ceilingz = actor->sector()->int_ceilingz();
+		actor->__int_floorz	= actor->sector()->int_floorz();
 	}
 
-	if( actor->int_pos().Z < actor->floorz-(FOURSLEIGHT) )
+	if( actor->int_pos().Z < actor->__int_floorz-(FOURSLEIGHT) )
 	{
 		if( actor->sector()->lotag == 2 && actor->spr.zvel > 3122 )
 			actor->spr.zvel = 3144;
@@ -4889,9 +4889,9 @@ void makeitfall(DDukeActor* actor)
 		else actor->spr.zvel = 6144;
 		actor->add_int_z(actor->spr.zvel);
 	}
-	if( actor->int_pos().Z >= actor->floorz-(FOURSLEIGHT) )
+	if( actor->int_pos().Z >= actor->__int_floorz-(FOURSLEIGHT) )
 	{
-		actor->set_int_z(actor->floorz - FOURSLEIGHT);
+		actor->set_int_z(actor->__int_floorz - FOURSLEIGHT);
 		actor->spr.zvel = 0;
 	}
 }
@@ -5113,7 +5113,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		}
 		else actor->cgg--;
 
-		if (actor->int_pos().Z < (actor->floorz - FOURSLEIGHT))
+		if (actor->int_pos().Z < (actor->__int_floorz - FOURSLEIGHT))
 		{
 			actor->spr.zvel += c;
 			actor->add_int_z(actor->spr.zvel);
@@ -5122,7 +5122,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		}
 		else
 		{
-			actor->set_int_z(actor->floorz - FOURSLEIGHT);
+			actor->set_int_z(actor->__int_floorz - FOURSLEIGHT);
 
 			if (badguy(actor) || (actor->isPlayer() && actor->GetOwner()))
 			{

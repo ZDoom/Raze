@@ -1728,8 +1728,8 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	if (p->pos.Z > (fz - (k << 8)))
 		p->pos.Z += ((fz - (k << 8)) - p->pos.Z) >> 1;
-	if (p->pos.Z < (pact->ceilingz + (18 << 8)))
-		p->pos.Z = pact->ceilingz + (18 << 8);
+	if (p->pos.Z < (pact->__int_ceilingz + (18 << 8)))
+		p->pos.Z = pact->__int_ceilingz + (18 << 8);
 
 }
 
@@ -2747,8 +2747,8 @@ void processinput_d(int snum)
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
 		psectlotag = 0;
 
-	pact->floorz = fz;
-	pact->ceilingz = cz;
+	pact->__int_floorz = fz;
+	pact->__int_ceilingz = cz;
 
 	if (SyncInput())
 	{
@@ -3085,7 +3085,7 @@ HORIZONLY:
 		int blocked;
 		blocked = (pushmove(&p->pos, &p->cursector, 164, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 
-		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || blocked)
+		if (abs(pact->__int_floorz - pact->__int_ceilingz) < (48 << 8) || blocked)
 		{
 			if (!(pact->sector()->lotag & 0x8000) && (isanunderoperator(pact->sector()->lotag) ||
 				isanearoperator(pact->sector()->lotag)))

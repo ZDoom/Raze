@@ -96,8 +96,8 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	if (s_ow)
 	{
 		act->attackertype = s_ow->spr.picnum;
-		act->floorz = s_ow->floorz;
-		act->ceilingz = s_ow->ceilingz;
+		act->__int_floorz = s_ow->__int_floorz;
+		act->__int_ceilingz = s_ow->__int_ceilingz;
 	}
 	else
 	{
@@ -150,8 +150,8 @@ bool initspriteforspawn(DDukeActor* act)
 	act->movflag = 0;
 	act->tempang = 0;
 	act->dispicnum = 0;
-	act->floorz = act->sector()->int_floorz();
-	act->ceilingz = act->sector()->int_ceilingz();
+	act->__int_floorz = act->sector()->int_floorz();
+	act->__int_ceilingz = act->sector()->int_ceilingz();
 
 	act->ovel.X = 0;
 	act->ovel.Y = 0;

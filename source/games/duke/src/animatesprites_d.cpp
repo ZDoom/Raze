@@ -389,7 +389,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (t->sectp->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - h->int_pos().Z) > (64 << 8)) k += 60;
+				else if ((h->__int_floorz - h->int_pos().Z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -399,7 +399,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
-				l = h->int_pos().Z - ps[p].GetActor()->floorz + (3 << 8);
+				l = h->int_pos().Z - ps[p].GetActor()->__int_floorz + (3 << 8);
 				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(l / (h->spr.yrepeat << 2));
 				else h->spr.yoffset = 0;
@@ -428,8 +428,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (!h->GetOwner()) continue;
 
-			if (t->int_pos().Z > h->floorz && t->xrepeat < 32)
-				t->set_int_z(h->floorz);
+			if (t->int_pos().Z > h->__int_floorz && t->xrepeat < 32)
+				t->set_int_z(h->__int_floorz);
 
 			break;
 
@@ -573,7 +573,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE || h->spr.picnum == COMMANDER)
 							daz = sectp->int_floorz();
 						else
-							daz = h->floorz;
+							daz = h->__int_floorz;
 
 
 						if ((h->int_pos().Z - daz) < (8 << 8) && ps[screenpeek].pos.Z < daz)

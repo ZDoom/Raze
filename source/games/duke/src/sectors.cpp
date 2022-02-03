@@ -402,7 +402,7 @@ void doanimations(void)
 				{
 					act->backupz();
 					act->add_int_z(v);
-					act->floorz = dasectp->int_floorz() + v;
+					act->__int_floorz = dasectp->int_floorz() + v;
 				}
 			}
 		}

@@ -31,7 +31,7 @@ class DukeActor : CoreActor native
 	native int16 /*attackertype,*/ hitang, hitextra, movflag;
 	native int16 tempang; /*, dispicnum;*/
 	native int16 timetosleep;
-	native int floorz, ceilingz;
+	native double floorz, ceilingz;
 	native int saved_ammo;
 	native int palvals;
 	native int temp_data[6];

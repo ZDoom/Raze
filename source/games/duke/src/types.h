@@ -50,7 +50,8 @@ public:
 	short tempang, dispicnum, basepicnum;
 	short timetosleep;
 	vec2_t ovel;
-	int floorz, ceilingz;
+	double floorz, ceilingz;
+	int __int_floorz, __int_ceilingz;
 	union
 	{
 		int saved_ammo;
@@ -119,6 +120,26 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
+
+	int int_ceilingz() const
+	{
+		return __int_ceilingz;
+	}
+
+	int int_floorz() const
+	{
+		return __int_floorz;
+	}
+
+	double float_ceilingz() const
+	{
+		return __int_ceilingz * inttoworld;
+	}
+
+	double float_floorz() const
+	{
+		return __int_floorz * inttoworld;
+	}
 
 	void ChangeType(PClass* newtype)
 	{
