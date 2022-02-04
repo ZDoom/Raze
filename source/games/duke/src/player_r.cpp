@@ -3410,8 +3410,8 @@ void processinput_r(int snum)
 		tempfz = getflorzofslopeptr(psectp, p->pos.X, p->pos.Y);
 	}
 
-	p->__int_truefz = tempfz;
-	p->__int_truecz = getceilzofslopeptr(psectp, p->pos.X, p->pos.Y);
+	p->truefz = tempfz * zinttoworld;
+	p->truecz = getceilzofslopeptr(psectp, p->pos.X, p->pos.Y) * zinttoworld;
 
 	truefdist = abs(p->pos.Z - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
@@ -3431,7 +3431,7 @@ void processinput_r(int snum)
 		if (chz.actor()->spr.statnum == 1 && chz.actor()->spr.extra >= 0)
 		{
 			chz.setNone();
-			cz = p->__int_truecz;
+			cz = p->truecz * zworldtoint;
 		}
 		else if (chz.actor()->spr.picnum == LADDER)
 		{
@@ -3441,7 +3441,7 @@ void processinput_r(int snum)
 				if ((actions & SB_JUMP) && !p->OnMotorcycle)
 				{
 					chz.setNone();
-					cz = p->__int_truecz;
+					cz = p->truecz * zworldtoint;
 				}
 			}
 			else

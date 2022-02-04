@@ -160,7 +160,8 @@ struct DukePlayer
 	native int numloogs, loogcnt;
 	native int invdisptime;
 	native int pyoff, opyoff;
-	native int last_pissed_time;//, truefz, truecz;
+	native int last_pissed_time;
+	native double truefz, truecz;
 	native int player_par, visibility;
 	native int bobcounter;
 	native int randomflamex, crack_time;

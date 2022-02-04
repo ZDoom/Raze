@@ -368,8 +368,8 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 
 		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{
-			if (cposz < (p->__int_truecz + (4 << 8))) cposz = cz + (4 << 8);
-			else if (cposz > (p->__int_truefz - (4 << 8))) cposz = fz - (4 << 8);
+			if (cposz < (p->truecz * zworldtoint + (4 << 8))) cposz = cz + (4 << 8);
+			else if (cposz > (p->truefz * zworldtoint - (4 << 8))) cposz = fz - (4 << 8);
 		}
 
 		if (sect)

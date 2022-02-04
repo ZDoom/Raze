@@ -423,13 +423,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_TRUEFZ:
-		if (bSet) ps[iPlayer].__int_truefz = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].__int_truefz, sActor, sPlayer);
+		if (bSet) ps[iPlayer].truefz = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].truefz * (1/zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_TRUECZ:
- 		if (bSet) ps[iPlayer].__int_truecz = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].__int_truecz, sActor, sPlayer);
+		if (bSet) ps[iPlayer].truecz = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].truecz * (1 / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_PLAYER_PAR:

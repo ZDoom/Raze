@@ -2740,8 +2740,8 @@ void processinput_d(int snum)
 
 	j = getflorzofslopeptr(psectp, p->pos.X, p->pos.Y);
 
-	p->__int_truefz = j;
-	p->__int_truecz = getceilzofslopeptr(psectp, p->pos.X, p->pos.Y);
+	p->truefz = j * zinttoworld;
+	p->truecz = getceilzofslopeptr(psectp, p->pos.X, p->pos.Y) * zinttoworld;
 
 	truefdist = abs(p->pos.Z - j);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
@@ -2761,7 +2761,7 @@ void processinput_d(int snum)
 		if (chz.actor()->spr.statnum == 1 && chz.actor()->spr.extra >= 0)
 		{
 			chz.setNone();
-			cz = p->__int_truecz;
+			cz = p->truecz * zworldtoint;
 		}
 	}
 

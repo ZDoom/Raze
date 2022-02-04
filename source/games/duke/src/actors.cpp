@@ -3826,10 +3826,10 @@ void handle_se17(DDukeActor* actor)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	int q = actor->temp_data[0] * (actor->spr.yvel << 2);
+	double q = actor->temp_data[0] * actor->spr.yvel * (4 * zinttoworld);
 
-	sc->add_int_ceilingz(q);
-	sc->add_int_floorz(q);
+	sc->addceilingz(q);
+	sc->addfloorz(q);
 
 	DukeSectIterator it(actor->sector());
 	while (auto act1 = it.Next())
@@ -3838,15 +3838,15 @@ void handle_se17(DDukeActor* actor)
 		{
 			int p = act1->spr.yvel;
 			if (numplayers < 2) ps[p].opos.Z = ps[p].pos.Z;
-			ps[p].pos.Z += q;
-			ps[p].__int_truefz += q;
-			ps[p].__int_truecz += q;
+			ps[p].pos.Z += q * zworldtoint;
+			ps[p].truefz += q;
+			ps[p].truecz += q;
 			if (numplayers > 1)	ps[p].opos.Z = ps[p].pos.Z;
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR)
 		{
 			act1->backupz();
-			act1->add_int_z(q);
+			act1->spr.pos.Z += q;
 		}
 
 		act1->floorz = sc->floorz;
@@ -3900,8 +3900,8 @@ void handle_se17(DDukeActor* actor)
 				ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y;
 				ps[p].opos.Z = ps[p].pos.Z;
 
-				ps[p].__int_truefz = act3->actor_int_floorz();
-				ps[p].__int_truecz = act3->actor_int_ceilingz();
+				ps[p].truefz = act3->floorz;
+				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
 				ChangeActorSect(act3, act2->sector());
@@ -4420,7 +4420,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 	{
 		if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 		{
-			if (abs(ps[p].pos.Z - ps[p].__int_truefz) < gs.playerheight + (9 << 8))
+			if (abs(ps[p].pos.Z - ps[p].truefz * zworldtoint) < gs.playerheight + (9 << 8))
 			{
 				ps[p].fric.X += x << 3;
 				ps[p].fric.Y += y << 3;

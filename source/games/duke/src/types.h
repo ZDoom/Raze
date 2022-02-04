@@ -238,13 +238,14 @@ struct player_struct
 	int numloogs, oloogcnt, loogcnt;
 	int invdisptime;
 	int pyoff, opyoff;
-	int last_pissed_time, __int_truefz, __int_truecz;
+	int last_pissed_time;
 	int player_par, visibility;
 	int bobcounter;
 	int randomflamex, crack_time;
 
 	int aim_mode, ftt;
 
+	double truefz, truecz;
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
