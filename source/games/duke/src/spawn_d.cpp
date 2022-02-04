@@ -202,7 +202,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TONGUE:
 		if (actj)
 			act->spr.ang = actj->spr.ang;
-		act->add_int_z(-PHEIGHT_DUKE);
+		act->add_int_z(-gs.playerheight);
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
 		ChangeActorStat(act, 4);

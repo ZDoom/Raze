@@ -171,7 +171,7 @@ int hits(DDukeActor* actor)
 	int zoff;
 	HitInfo hit{};
 
-	if (actor->isPlayer()) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
+	if (actor->isPlayer()) zoff = gs.playerheight;
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
@@ -192,7 +192,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 	if (badguy(actor))
 		zoff = (42 << 8);
-	else if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
+	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.playerheight;
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
