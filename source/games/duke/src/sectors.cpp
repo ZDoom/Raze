@@ -227,7 +227,7 @@ int findplayer(const DDukeActor* actor, int* d)
 
 	if (ud.multimode < 2)
 	{
-		if (d) *d = abs(ps[myconnectindex].__int_opos.X - s.X) + abs(ps[myconnectindex].__int_opos.Y - s.Y) + ((abs(ps[myconnectindex].__int_opos.Z - s.Z + (28 << 8))) >> 4);
+		if (d) *d = abs(ps[myconnectindex].player_int_opos().X - s.X) + abs(ps[myconnectindex].player_int_opos().Y - s.Y) + ((abs(ps[myconnectindex].player_int_opos().Z - s.Z + (28 << 8))) >> 4);
 		return myconnectindex;
 	}
 
@@ -236,7 +236,7 @@ int findplayer(const DDukeActor* actor, int* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		x = abs(ps[j].__int_opos.X - s.X) + abs(ps[j].__int_opos.Y - s.Y) + ((abs(ps[j].__int_opos.Z - s.Z + (28 << 8))) >> 4);
+		x = abs(ps[j].player_int_opos().X - s.X) + abs(ps[j].player_int_opos().Y - s.Y) + ((abs(ps[j].player_int_opos().Z - s.Z + (28 << 8))) >> 4);
 		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
@@ -265,7 +265,7 @@ int findotherplayer(int p, int* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
-			x = abs(ps[j].__int_opos.X - ps[p].__int_pos.X) + abs(ps[j].__int_opos.Y - ps[p].__int_pos.Y) + (abs(ps[j].__int_opos.Z - ps[p].__int_pos.Z) >> 4);
+			x = abs(ps[j].player_int_opos().X - ps[p].player_int_pos().X) + abs(ps[j].player_int_opos().Y - ps[p].player_int_pos().Y) + (abs(ps[j].player_int_opos().Z - ps[p].player_int_pos().Z) >> 4);
 
 			if (x < closest)
 			{
@@ -388,7 +388,7 @@ void doanimations(void)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursector == dasectp)
-					if ((dasectp->int_floorz() - ps[p].__int_pos.Z) < (64 << 8))
+					if ((dasectp->int_floorz() - ps[p].player_int_pos().Z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].__int_pos.Z += v;

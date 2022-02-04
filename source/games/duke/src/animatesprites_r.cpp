@@ -145,9 +145,9 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		if (t->statnum == 99) continue;
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].__int_pos.X - ps[h->spr.yvel].__int_opos.X, 16));
-			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].__int_pos.Y - ps[h->spr.yvel].__int_opos.Y, 16));
-			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].__int_opos.Z, ps[h->spr.yvel].__int_pos.Z, smoothratio));
+			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].player_int_pos().X - ps[h->spr.yvel].player_int_opos().X, 16));
+			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].player_int_pos().Y - ps[h->spr.yvel].player_int_opos().Y, 16));
+			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].player_int_opos().Z, ps[h->spr.yvel].player_int_pos().Z, smoothratio));
 			t->pos.Z += gs.playerheight;
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
@@ -200,8 +200,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			{
 				int sqa =
 					getangle(
-						OwnerAc->int_pos().X - ps[screenpeek].__int_pos.X,
-						OwnerAc->int_pos().Y - ps[screenpeek].__int_pos.Y);
+						OwnerAc->int_pos().X - ps[screenpeek].player_int_pos().X,
+						OwnerAc->int_pos().Y - ps[screenpeek].player_int_pos().Y);
 				int sqb =
 					getangle(
 						OwnerAc->int_pos().X - t->int_pos().X,
@@ -397,7 +397,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (h->GetOwner())
-					newtspr->set_int_z(ps[p].__int_pos.Z - (12 << 8));
+					newtspr->set_int_z(ps[p].player_int_pos().Z - (12 << 8));
 				else newtspr->set_int_z(h->int_pos().Z - (51 << 8));
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
@@ -734,7 +734,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							daz = h->actor_int_floorz();
 
 						if ((h->int_pos().Z - daz) < (8 << 8))
-							if (ps[screenpeek].__int_pos.Z < daz)
+							if (ps[screenpeek].player_int_pos().Z < daz)
 							{
 								auto shadowspr = tsprites.newTSprite();
 								*shadowspr = *t;
@@ -760,7 +760,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 								else
 								{
 									// Alter the shadow's position so that it appears behind the sprite itself.
-									int look = getangle(shadowspr->int_pos().X - ps[screenpeek].__int_pos.X, shadowspr->int_pos().Y - ps[screenpeek].__int_pos.Y);
+									int look = getangle(shadowspr->int_pos().X - ps[screenpeek].player_int_pos().X, shadowspr->int_pos().Y - ps[screenpeek].player_int_pos().Y);
 									shadowspr->add_int_x(bcos(look, -9));
 									shadowspr->add_int_y(bsin(look, -9));
 								}

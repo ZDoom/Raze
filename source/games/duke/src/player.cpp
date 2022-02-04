@@ -511,8 +511,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->int_pos().X - p->__int_pos.X) < 384)
-						if (abs(act->int_pos().Y - p->__int_pos.Y) < 384)
+					if (abs(act->int_pos().X - p->player_int_pos().X) < 384)
+						if (abs(act->int_pos().Y - p->player_int_pos().Y) < 384)
 						{
 							j = 1;
 							break;
@@ -612,7 +612,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->__int_pos.Z - fz) > (gs.int_playerheight >> 1))
+			if (abs(p->player_int_pos().Z - fz) > (gs.int_playerheight >> 1))
 				p->__int_pos.Z += 348;
 		}
 		else
@@ -629,12 +629,12 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->__int_pos.X, p->__int_pos.Y, &p->cursector);
+	updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
 
 	pushmove(&p->__int_pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && actor->spr.pal != 1)
-		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->__int_pos.Z) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->player_int_pos().Z) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -769,18 +769,18 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		__int_opos.X = __int_pos.X;
-		__int_opos.Y = __int_pos.Y;
+		__int_opos.X = player_int_pos().X;
+		__int_opos.Y = player_int_pos().Y;
 	}
 	else
 	{
-		__int_pos.X = __int_opos.X;
-		__int_pos.Y = __int_opos.Y;
+		__int_pos.X = player_int_opos().X;
+		__int_pos.Y = player_int_opos().Y;
 	}
 
-	__int_opos.Z = __int_pos.Z;
-	bobpos.X = __int_pos.X;
-	bobpos.Y = __int_pos.Y;
+	__int_opos.Z = player_int_pos().Z;
+	bobpos.X = player_int_pos().X;
+	bobpos.Y = player_int_pos().Y;
 	opyoff = pyoff;
 }
 

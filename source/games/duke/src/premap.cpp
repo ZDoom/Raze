@@ -541,7 +541,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursector, ps[0].__int_pos.X, ps[0].__int_pos.Y, ps[0].__int_pos.Z,
+	EGS(ps[0].cursector, ps[0].player_int_pos().X, ps[0].player_int_pos().Y, ps[0].player_int_pos().Z,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
@@ -611,8 +611,8 @@ void resetpspritevars(int g)
 
 		if (numplayersprites == 0)
 		{
-			firstx = ps[0].__int_pos.X;
-			firsty = ps[0].__int_pos.Y;
+			firstx = ps[0].player_int_pos().X;
+			firsty = ps[0].player_int_pos().Y;
 		}
 
 		po[numplayersprites].opos.X = act->int_pos().X;

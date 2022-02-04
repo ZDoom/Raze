@@ -922,18 +922,18 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), wal,
-			p->__int_pos.X + p->angle.ang.bcos(-9),
-			p->__int_pos.Y + p->angle.ang.bsin(-9),
-			p->__int_pos.Z, -1);
+			p->player_int_pos().X + p->angle.ang.bcos(-9),
+			p->player_int_pos().Y + p->angle.ang.bsin(-9),
+			p->player_int_pos().Z, -1);
 
 		break;
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal,
-			p->__int_pos.X + p->angle.ang.bcos(-9),
-			p->__int_pos.Y + p->angle.ang.bsin(-9),
-			p->__int_pos.Z, -1);
+			p->player_int_pos().X + p->angle.ang.bcos(-9),
+			p->player_int_pos().Y + p->angle.ang.bsin(-9),
+			p->player_int_pos().Z, -1);
 		break;
 
 	}
@@ -1441,12 +1441,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
-					ps[p].__int_pos.X = ps[p].__int_opos.X;
-					ps[p].__int_pos.Y = ps[p].__int_opos.Y;
-					ps[p].__int_pos.Z = ps[p].__int_opos.Z;
+					ps[p].__int_pos.X = ps[p].player_int_opos().X;
+					ps[p].__int_pos.Y = ps[p].player_int_opos().Y;
+					ps[p].__int_pos.Z = ps[p].player_int_opos().Z;
 					ps[p].angle.restore();
 
-					updatesector(ps[p].__int_pos.X, ps[p].__int_pos.Y, &ps[p].cursector);
+					updatesector(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto itActor = it.Next())
@@ -1479,12 +1479,12 @@ void clearcameras(int i, player_struct* p)
 {
 	if (i < 0)
 	{
-		p->__int_pos.X = p->__int_opos.X;
-		p->__int_pos.Y = p->__int_opos.Y;
-		p->__int_pos.Z = p->__int_opos.Z;
+		p->__int_pos.X = p->player_int_opos().X;
+		p->__int_pos.Y = p->player_int_opos().Y;
+		p->__int_pos.Z = p->player_int_opos().Z;
 		p->newOwner = nullptr;
 
-		updatesector(p->__int_pos.X, p->__int_pos.Y, &p->cursector);
+		updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
 
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto act = it.Next())
@@ -1593,17 +1593,17 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag({ p->__int_opos.X, p->__int_opos.Y, p->__int_opos.Z }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
+			neartag({ p->player_int_opos().X, p->player_int_opos().Y, p->__int_opos.Z }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
 		else
 		{
 			neartag(p->__int_pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

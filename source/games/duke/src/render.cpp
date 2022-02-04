@@ -305,9 +305,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		else
 #endif
 		{
-			cposx = interpolatedvalue(p->__int_opos.X, p->__int_pos.X, smoothratio);
-			cposy = interpolatedvalue(p->__int_opos.Y, p->__int_pos.Y, smoothratio);
-			cposz = interpolatedvalue(p->__int_opos.Z, p->__int_pos.Z, smoothratio);;
+			cposx = interpolatedvalue(p->player_int_opos().X, p->player_int_pos().X, smoothratio);
+			cposy = interpolatedvalue(p->player_int_opos().Y, p->player_int_pos().Y, smoothratio);
+			cposz = interpolatedvalue(p->player_int_opos().Z, p->player_int_pos().Z, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct

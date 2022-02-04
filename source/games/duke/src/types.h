@@ -247,7 +247,7 @@ struct player_struct
 
 	double truefz, truecz;
 	sectortype* cursector;
-	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
+	sectortype* one_parallax_sectnum; // wall + sector references.
 	walltype* access_wall;
 	DDukeActor* actor;
 	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
@@ -357,6 +357,18 @@ struct player_struct
 	{
 		return cursector != nullptr;
 	}
+
+
+	vec3_t player_int_pos() const
+	{
+		return __int_pos;
+	}
+
+	vec3_t player_int_opos() const
+	{
+		return __int_opos;
+	}
+
 };
 
 struct Cycler
