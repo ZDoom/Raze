@@ -3187,6 +3187,7 @@ void loadcons()
 	gs.shrinkerblastradius = 650;
 	gs.gravity = 176;
 	gs.tripbombblastradius = 3880;
+	gs.int_playerheight = PHEIGHT_DUKE << 8;
 	gs.playerheight = PHEIGHT_DUKE;
 	gs.displayflags = DUKE3D_NO_WIDESCREEN_PINNING;
 

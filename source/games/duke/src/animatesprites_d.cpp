@@ -168,7 +168,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].__int_pos.X - ps[h->spr.yvel].__int_opos.X, 16));
 			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].__int_pos.Y - ps[h->spr.yvel].__int_opos.Y, 16));
 			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].__int_opos.Z, ps[h->spr.yvel].__int_pos.Z, smoothratio));
-			t->add_int_z(gs.playerheight);
+			t->pos.Z += gs.playerheight;
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{

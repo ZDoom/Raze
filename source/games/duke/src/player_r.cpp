@@ -2084,7 +2084,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		}
 		else i = 12;
 
-		if (shrunk == 0 && truefdist <= gs.playerheight)
+		if (shrunk == 0 && truefdist <= gs.int_playerheight)
 		{
 			if (p->on_ground == 1)
 			{
@@ -3414,7 +3414,7 @@ void processinput_r(int snum)
 	p->truecz = getceilzofslopeptr(psectp, p->__int_pos.X, p->__int_pos.Y) * zinttoworld;
 
 	truefdist = abs(p->__int_pos.Z - tempfz);
-	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.int_playerheight + (16 << 8))
 		psectlotag = 0;
 
 	pact->floorz = fz * zinttoworld;
@@ -3642,7 +3642,7 @@ void processinput_r(int snum)
 		int j = pact->sector()->floorpicnum;
 		k = 0;
 
-		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
+		if (p->on_ground && truefdist <= gs.int_playerheight + (16 << 8))
 		{
 			int whichsound = (gs.tileinfo[j].flags & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
 				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 3 : -1);
@@ -3679,7 +3679,7 @@ void processinput_r(int snum)
 				p->NotOnWater = 1;
 		}
 
-		if (truefdist < gs.playerheight + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.int_playerheight + (8 << 8) && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
@@ -3898,7 +3898,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, { p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + gs.playerheight });
+	SetActor(pact, { p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + gs.int_playerheight });
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -3921,7 +3921,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
+	if (truefdist < gs.int_playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);

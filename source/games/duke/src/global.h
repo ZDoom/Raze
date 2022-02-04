@@ -39,7 +39,8 @@ struct DukeGameInfo
 	ActorInfo actorinfo[MAXTILES];
 	int16_t max_ammo_amount[MAX_WEAPONS];
 	int16_t weaponsandammosprites[15];
-	int playerheight;
+	int int_playerheight;
+	double playerheight;
 	int displayflags;
 };
 

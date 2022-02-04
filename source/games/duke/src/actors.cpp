@@ -397,7 +397,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->set_int_pos({ p->__int_opos.X, p->__int_opos.Y, p->__int_opos.Z + gs.playerheight });
+				act->set_int_pos({ p->__int_opos.X, p->__int_opos.Y, p->__int_opos.Z + gs.int_playerheight });
 				act->backupz();
 				act->spr.ang = p->angle.oang.asbuild();
 				SetActor(act, act->int_pos());
@@ -4187,7 +4187,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].__int_opos.X = ps[p].__int_pos.X;
 				ps[p].__int_opos.Y = ps[p].__int_pos.Y;
 
-				SetActor(ps[p].GetActor(), { ps[p].__int_pos.X, ps[p].__int_pos.Y, ps[p].__int_pos.Z + gs.playerheight });
+				SetActor(ps[p].GetActor(), { ps[p].__int_pos.X, ps[p].__int_pos.Y, ps[p].__int_pos.Z + gs.int_playerheight });
 			}
 
 		sc->addfloorxpan(-x / 8.f);
@@ -4418,7 +4418,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 	{
 		if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 		{
-			if (abs(ps[p].__int_pos.Z - ps[p].truefz * zworldtoint) < gs.playerheight + (9 << 8))
+			if (abs(ps[p].__int_pos.Z - ps[p].truefz * zworldtoint) < gs.int_playerheight + (9 << 8))
 			{
 				ps[p].fric.X += x << 3;
 				ps[p].fric.Y += y << 3;

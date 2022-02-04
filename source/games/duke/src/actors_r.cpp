@@ -290,9 +290,9 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 
-				if (act2->spr.picnum == APLAYER) act2->add_int_z(-gs.playerheight);
+				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
 				int d = dist(actor, act2);
-				if (act2->spr.picnum == APLAYER) act2->add_int_z(gs.playerheight);
+				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
 
 				if (d < r && cansee(act2->int_pos().X, act2->int_pos().Y, act2->int_pos().Z - (8 << 8), act2->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (12 << 8), actor->sector()))
 				{
@@ -1458,7 +1458,7 @@ void movetransports_r(void)
 
 							ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
 							ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
-							ps[p].__int_opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - (gs.playerheight - (4 << 8));
+							ps[p].__int_opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - (gs.int_playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());

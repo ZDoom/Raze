@@ -171,7 +171,7 @@ int hits(DDukeActor* actor)
 	int zoff;
 	HitInfo hit{};
 
-	if (actor->isPlayer()) zoff = gs.playerheight;
+	if (actor->isPlayer()) zoff = gs.int_playerheight;
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
@@ -192,7 +192,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 	if (badguy(actor))
 		zoff = (42 << 8);
-	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.playerheight;
+	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.int_playerheight;
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
@@ -612,7 +612,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->__int_pos.Z - fz) > (gs.playerheight >> 1))
+			if (abs(p->__int_pos.Z - fz) > (gs.int_playerheight >> 1))
 				p->__int_pos.Z += 348;
 		}
 		else
