@@ -577,7 +577,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			else
 				i = TILE_APLAYERTOP;
 
-			j = abs(pp.truefz - pp.pos.Z) >> 8;
+			j = abs(pp.__int_truefz - pp.pos.Z) >> 8;
 			j = czoom * (act->spr.yrepeat + j);
 
 			if (j < 22000) j = 22000;

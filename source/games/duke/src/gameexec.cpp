@@ -423,13 +423,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_TRUEFZ:
-		if (bSet) ps[iPlayer].truefz = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].truefz, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__int_truefz = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__int_truefz, sActor, sPlayer);
 		break;
 
 	case PLAYER_TRUECZ:
- 		if (bSet) ps[iPlayer].truecz = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].truecz, sActor, sPlayer);
+ 		if (bSet) ps[iPlayer].__int_truecz = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__int_truecz, sActor, sPlayer);
 		break;
 
 	case PLAYER_PLAYER_PAR:

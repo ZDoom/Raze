@@ -238,7 +238,7 @@ struct player_struct
 	int numloogs, oloogcnt, loogcnt;
 	int invdisptime;
 	int pyoff, opyoff;
-	int last_pissed_time, truefz, truecz;
+	int last_pissed_time, __int_truefz, __int_truecz;
 	int player_par, visibility;
 	int bobcounter;
 	int randomflamex, crack_time;
