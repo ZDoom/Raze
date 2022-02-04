@@ -215,10 +215,10 @@ int hitawall(struct player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
+	hitscan(p->__int_pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.hitpos.vec2 - p->pos.vec2));
+	return (FindDistance2D(hit.hitpos.vec2 - p->__int_pos.vec2));
 }
 
 
@@ -252,7 +252,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 				int zvel = -plr->horizon.sum().asq16() >> 5;
 
 				HitInfo hit{};
-				hitscan(plr->pos.withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
+				hitscan(plr->__int_pos.withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -511,8 +511,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->int_pos().X - p->pos.X) < 384)
-						if (abs(act->int_pos().Y - p->pos.Y) < 384)
+					if (abs(act->int_pos().X - p->__int_pos.X) < 384)
+						if (abs(act->int_pos().Y - p->__int_pos.Y) < 384)
 						{
 							j = 1;
 							break;
@@ -564,7 +564,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->pos.Z -= (16 << 8);
+			p->__int_pos.Z -= (16 << 8);
 			actor->add_int_z(-(16 << 8));
 		}
 #if 0
@@ -612,8 +612,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->pos.Z - fz) > (gs.playerheight >> 1))
-				p->pos.Z += 348;
+			if (abs(p->__int_pos.Z - fz) > (gs.playerheight >> 1))
+				p->__int_pos.Z += 348;
 		}
 		else
 		{
@@ -622,19 +622,19 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 
 		Collision coll;
-		clipmove(p->pos, &p->cursector, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
+		clipmove(p->__int_pos, &p->cursector, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->pos.X, p->pos.Y, &p->cursector);
+	updatesector(p->__int_pos.X, p->__int_pos.Y, &p->cursector);
 
-	pushmove(&p->pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
+	pushmove(&p->__int_pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && actor->spr.pal != 1)
-		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.Z) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->__int_pos.Z) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -710,7 +710,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->pos.Z += (2048 + 768);
+		p->__int_pos.Z += (2048 + 768);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -769,18 +769,18 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		opos.X = pos.X;
-		opos.Y = pos.Y;
+		opos.X = __int_pos.X;
+		opos.Y = __int_pos.Y;
 	}
 	else
 	{
-		pos.X = opos.X;
-		pos.Y = opos.Y;
+		__int_pos.X = opos.X;
+		__int_pos.Y = opos.Y;
 	}
 
-	opos.Z = pos.Z;
-	bobpos.X = pos.X;
-	bobpos.Y = pos.Y;
+	opos.Z = __int_pos.Z;
+	bobpos.X = __int_pos.X;
+	bobpos.Y = __int_pos.Y;
 	opyoff = pyoff;
 }
 

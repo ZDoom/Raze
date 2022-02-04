@@ -95,9 +95,9 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->bobpos.X = p->opos.X = p->pos.X = po[i].opos.X;
-	p->bobpos.Y = p->opos.Y = p->pos.Y = po[i].opos.Y;
-	p->opos.Z = p->pos.Z = po[i].opos.Z;
+	p->bobpos.X = p->opos.X = p->__int_pos.X = po[i].opos.X;
+	p->bobpos.Y = p->opos.Y = p->__int_pos.Y = po[i].opos.Y;
+	p->opos.Z = p->__int_pos.Z = po[i].opos.Z;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
 	p->setCursector(po[i].os);
 }
@@ -541,7 +541,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursector, ps[0].pos.X, ps[0].pos.Y, ps[0].pos.Z,
+	EGS(ps[0].cursector, ps[0].__int_pos.X, ps[0].__int_pos.Y, ps[0].__int_pos.Z,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
@@ -611,8 +611,8 @@ void resetpspritevars(int g)
 
 		if (numplayersprites == 0)
 		{
-			firstx = ps[0].pos.X;
-			firsty = ps[0].pos.Y;
+			firstx = ps[0].__int_pos.X;
+			firsty = ps[0].__int_pos.Y;
 		}
 
 		po[numplayersprites].opos.X = act->int_pos().X;
@@ -659,9 +659,9 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobpos.X = ps[j].opos.X = ps[j].pos.X = act->int_pos().X;
-			ps[j].bobpos.Y = ps[j].opos.Y = ps[j].pos.Y = act->int_pos().Y;
-			ps[j].opos.Z = ps[j].pos.Z = act->int_pos().Z;
+			ps[j].bobpos.X = ps[j].opos.X = ps[j].__int_pos.X = act->int_pos().X;
+			ps[j].bobpos.Y = ps[j].opos.Y = ps[j].__int_pos.Y = act->int_pos().Y;
+			ps[j].opos.Z = ps[j].__int_pos.Z = act->int_pos().Z;
 			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
@@ -1005,7 +1005,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	currentLevel = mi;
 	int sect;
 	SpawnSpriteDef sprites;
-	loadMap(mi->fileName, isShareware(), &p->pos, &lbang, &sect, sprites);
+	loadMap(mi->fileName, isShareware(), &p->__int_pos, &lbang, &sect, sprites);
 	p->cursector = &sector[sect];
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);

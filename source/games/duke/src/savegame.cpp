@@ -107,9 +107,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("posx", w.pos.X)
-			("posy", w.pos.Y)
-			("posz", w.pos.Z)
+		arc("posx", w.__int_pos.X)
+			("posy", w.__int_pos.Y)
+			("posz", w.__int_pos.Z)
 			("angle", w.angle)
 			("horizon", w.horizon)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
@@ -277,9 +277,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.opos.X = w.pos.X;
-		w.opos.Y = w.pos.Y;
-		w.opos.Z = w.pos.Z;
+		w.opos.X = w.__int_pos.X;
+		w.opos.Y = w.__int_pos.Y;
+		w.opos.Z = w.__int_pos.Z;
 		w.opyoff = w.pyoff;
 		w.backupweapon();
 		w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.

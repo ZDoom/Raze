@@ -1806,9 +1806,9 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = Owner->int_pos().X;
-							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].pos.Y = Owner->int_pos().Y;
-							ps[p].opos.Z = ps[p].pos.Z = Owner->int_pos().Z - gs.playerheight;
+							ps[p].bobpos.X = ps[p].opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
+							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
+							ps[p].opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - gs.playerheight;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
@@ -1824,20 +1824,20 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
-					if (onfloorz == 0 && abs(act->int_pos().Z - ps[p].pos.Z) < 6144)
+					if (onfloorz == 0 && abs(act->int_pos().Z - ps[p].__int_pos.Z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].opos.X = ps[p].pos.X += Owner->int_pos().X - act->int_pos().X;
-							ps[p].opos.Y = ps[p].pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+							ps[p].opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.Z = Owner->int_pos().Z - 6144;
-							else ps[p].pos.Z = Owner->int_pos().Z + 6144;
-							ps[p].opos.Z = ps[p].pos.Z;
+								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
+							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
+							ps[p].opos.Z = ps[p].__int_pos.Z;
 
 							auto pa = ps[p].GetActor();
-							pa->opos = DVector3(ps[p].pos.X * inttoworld, ps[p].pos.Y * inttoworld, ps[p].pos.Z * zinttoworld);
+							pa->opos = DVector3(ps[p].__int_pos.X * inttoworld, ps[p].__int_pos.Y * inttoworld, ps[p].__int_pos.Z * zinttoworld);
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1847,7 +1847,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->int_floorz() - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 2048))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].__int_pos.Z > (sectp->int_floorz() - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 2048))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1857,7 +1857,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].opos.Z = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].__int_pos.Z =
 						Owner->sector()->int_ceilingz() + (7 << 8);
 
 						ps[p].vel.X = 4096 - (krand() & 8192);
@@ -1865,7 +1865,7 @@ void movetransports_d(void)
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->int_ceilingz() + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].__int_pos.Z < (sectp->int_ceilingz() + (6 << 8)))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
@@ -1875,7 +1875,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].opos.Z = ps[p].pos.Z =
+						ps[p].opos.Z = ps[p].__int_pos.Z =
 						Owner->sector()->int_floorz() - (7 << 8);
 
 						ps[p].jumping_toggle = 1;
@@ -1884,15 +1884,15 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].opos.X = ps[p].pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].opos.Y = ps[p].pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
-						SetActor(ps[p].GetActor(), { ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z + gs.playerheight });
+						SetActor(ps[p].GetActor(), { ps[p].__int_pos.X, ps[p].__int_pos.Y, ps[p].__int_pos.Z + gs.playerheight });
 
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -2124,7 +2124,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->int_pos().X - ps[p].pos.X, actor->int_pos().Y - ps[p].pos.Y));
+			j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->int_pos().X - ps[p].__int_pos.X, actor->int_pos().Y - ps[p].__int_pos.Y));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2172,7 +2172,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->set_int_z(ps[p].pos.Z + ps[p].pyoff - actor->temp_data[2] + (8 << 8) - (ps[p].horizon.horiz.asq16() >> 12));
+		actor->set_int_z(ps[p].__int_pos.Z + ps[p].pyoff - actor->temp_data[2] + (8 << 8) - (ps[p].horizon.horiz.asq16() >> 12));
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;
@@ -2183,12 +2183,10 @@ static void greenslime(DDukeActor *actor)
 		if (ps[p].newOwner != nullptr)
 		{
 			ps[p].newOwner = nullptr;
-			ps[p].pos.X = ps[p].opos.X;
-			ps[p].pos.Y = ps[p].opos.Y;
-			ps[p].pos.Z = ps[p].opos.Z;
+			ps[p].__int_pos = ps[p].opos;
 			ps[p].angle.restore();
 
-			updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);
+			updatesector(ps[p].__int_pos.X, ps[p].__int_pos.Y, &ps[p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
@@ -2223,7 +2221,7 @@ static void greenslime(DDukeActor *actor)
 
 		actor->spr.xrepeat = 20 + bsin(actor->temp_data[1], -13);
 		actor->spr.yrepeat = 15 + bsin(actor->temp_data[1], -13);
-		actor->set_int_xy(ps[p].pos.X + ps[p].angle.ang.bcos(-7), ps[p].pos.Y + ps[p].angle.ang.bsin(-7));
+		actor->set_int_xy(ps[p].__int_pos.X + ps[p].angle.ang.bcos(-7), ps[p].__int_pos.Y + ps[p].angle.ang.bsin(-7));
 		return;
 	}
 
@@ -2382,7 +2380,7 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
 
 			actor->spr.ang += getincangle(actor->spr.ang,
-				getangle(ps[p].pos.X - actor->int_pos().X, ps[p].pos.Y - actor->int_pos().Y)) >> 3;
+				getangle(ps[p].__int_pos.X - actor->int_pos().X, ps[p].__int_pos.Y - actor->int_pos().Y)) >> 3;
 			// TJR
 		}
 
@@ -2711,7 +2709,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
-		if (cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), actor->sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
+		if (cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), actor->sector(), ps[p].__int_pos.X, ps[p].__int_pos.Y, ps[p].__int_pos.Z, ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -3257,7 +3255,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), ps[screenpeek].pos.X, ps[screenpeek].pos.Y, ps[screenpeek].pos.Z, ps[screenpeek].cursector);
+			int j = !!cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), ps[screenpeek].__int_pos.X, ps[screenpeek].__int_pos.Y, ps[screenpeek].__int_pos.Z, ps[screenpeek].cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{
@@ -3509,7 +3507,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].opos.X - actor->int_pos().X, ps[playernum].opos.Y - actor->int_pos().Y);
-		else goalang = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
+		else goalang = getangle(ps[playernum].__int_pos.X - actor->int_pos().X, ps[playernum].__int_pos.Y - actor->int_pos().Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3522,7 +3520,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].opos.X - actor->int_pos().X, ps[playernum].opos.Y - actor->int_pos().Y);
-		else goalang = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
+		else goalang = getangle(ps[playernum].__int_pos.X - actor->int_pos().X, ps[playernum].__int_pos.Y - actor->int_pos().Y);
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3543,8 +3541,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		int newx, newy;
 
-		newx = ps[playernum].pos.X + (ps[playernum].vel.X / 768);
-		newy = ps[playernum].pos.Y + (ps[playernum].vel.Y / 768);
+		newx = ps[playernum].__int_pos.X + (ps[playernum].vel.X / 768);
+		newy = ps[playernum].__int_pos.Y + (ps[playernum].vel.Y / 768);
 		goalang = getangle(newx - actor->int_pos().X, newy - actor->int_pos().Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3650,7 +3648,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[playernum].pos.X - actor->int_pos().X, ps[playernum].pos.Y - actor->int_pos().Y);
+				angdif = getangle(ps[playernum].__int_pos.X - actor->int_pos().X, ps[playernum].__int_pos.Y - actor->int_pos().Y);
 
 				if (xvel < 512)
 				{

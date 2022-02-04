@@ -61,7 +61,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.Z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
+		ps[snum].__int_pos.X, ps[snum].__int_pos.Y, ps[snum].__int_pos.Z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
 		ps[snum].cursector->lotag, ps[snum].cursector->hitag);
 
 	return out;
@@ -279,8 +279,8 @@ void drawoverlays(double smoothratio)
 				}
 				else
 				{
-					cposx = interpolatedvalue(pp->opos.X, pp->pos.X, smoothratio);
-					cposy = interpolatedvalue(pp->opos.Y, pp->pos.Y, smoothratio);
+					cposx = interpolatedvalue(pp->opos.X, pp->__int_pos.X, smoothratio);
+					cposy = interpolatedvalue(pp->opos.Y, pp->__int_pos.Y, smoothratio);
 					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
@@ -577,7 +577,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			else
 				i = TILE_APLAYERTOP;
 
-			j = abs(int(pp.truefz * zworldtoint) - pp.pos.Z) >> 8;
+			j = abs(int(pp.truefz * zworldtoint) - pp.__int_pos.Z) >> 8;
 			j = czoom * (act->spr.yrepeat + j);
 
 			if (j < 22000) j = 22000;

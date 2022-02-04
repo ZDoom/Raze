@@ -681,7 +681,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		setnextmap(false);
 	}
 
-	vec3_t v = { sx, sy, ps[snum].pos.Z };
+	vec3_t v = { sx, sy, ps[snum].__int_pos.Z };
 	switch (picnum)
 	{
 	default:
@@ -1409,9 +1409,9 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal,
-			p->pos.X + p->angle.ang.bcos(-9),
-			p->pos.Y + p->angle.ang.bsin(-9),
-			p->pos.Z, -1);
+			p->__int_pos.X + p->angle.ang.bcos(-9),
+			p->__int_pos.Y + p->angle.ang.bsin(-9),
+			p->__int_pos.Z, -1);
 		break;
 
 	}
@@ -2373,11 +2373,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
-					ps[p].pos.X = ps[p].opos.X;
-					ps[p].pos.Y = ps[p].opos.Y;
-					ps[p].pos.Z = ps[p].opos.Z;
+					ps[p].__int_pos.X = ps[p].opos.X;
+					ps[p].__int_pos.Y = ps[p].opos.Y;
+					ps[p].__int_pos.Z = ps[p].opos.Z;
 
-					updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);
+					updatesector(ps[p].__int_pos.X, ps[p].__int_pos.Y, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
@@ -2526,21 +2526,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near , 1280, 3);
+			neartag(p->__int_pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near , 1280, 3);
 		}
 
 		if (p->newOwner != nullptr)
 			neartag({ p->opos.X, p->opos.Y, p->opos.Z }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
 		else
 		{
-			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			neartag(p->__int_pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				neartag({ p->__int_pos.X, p->__int_pos.Y, p->__int_pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)
