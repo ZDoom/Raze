@@ -1456,9 +1456,9 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobpos.X = ps[p].opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
-							ps[p].bobpos.Y = ps[p].opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
-							ps[p].opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - (gs.playerheight - (4 << 8));
+							ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
+							ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
+							ps[p].__int_opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - (gs.playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
@@ -1475,13 +1475,13 @@ void movetransports_r(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-							ps[p].opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+							ps[p].__int_opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
 							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
-							ps[p].opos.Z = ps[p].__int_pos.Z;
+							ps[p].__int_opos.Z = ps[p].__int_pos.Z;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1496,7 +1496,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].__int_pos.Z > (sectp->int_floorz() - (48 << 8)))
 						{
 							k = 2;
-							ps[p].opos.Z = ps[p].__int_pos.Z =
+							ps[p].__int_opos.Z = ps[p].__int_pos.Z =
 								Owner->sector()->int_ceilingz() + (7 << 8);
 						}
 
@@ -1504,7 +1504,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].opos.Z = ps[p].__int_pos.Z =
+							ps[p].__int_opos.Z = ps[p].__int_pos.Z =
 								Owner->sector()->int_floorz() - (49 << 8);
 						}
 					}
@@ -1519,7 +1519,7 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].opos.Z = ps[p].__int_pos.Z =
+						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
 							Owner->sector()->int_ceilingz() + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
@@ -1535,14 +1535,14 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].opos.Z = ps[p].__int_pos.Z =
+						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
 							Owner->sector()->int_floorz() - (7 << 8);
 					}
 
 					if (k == 1)
 					{
-						ps[p].opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].__int_opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1555,8 +1555,8 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].__int_opos.Y = ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2289,9 +2289,9 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTILE297)
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
-						ps[p].bobpos.X = ps[p].opos.X = ps[p].__int_pos.X = act2->int_pos().X;
-						ps[p].bobpos.Y = ps[p].opos.Y = ps[p].__int_pos.Y = act2->int_pos().Y;
-						ps[p].opos.Z = ps[p].__int_pos.Z = act2->int_pos().Z - (36 << 8);
+						ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = act2->int_pos().X;
+						ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = act2->int_pos().Y;
+						ps[p].__int_opos.Z = ps[p].__int_pos.Z = act2->int_pos().Z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
@@ -3488,7 +3488,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.X - actor->int_pos().X, ps[pnum].opos.Y - actor->int_pos().Y);
+			goalang = getangle(ps[pnum].__int_opos.X - actor->int_pos().X, ps[pnum].__int_opos.Y - actor->int_pos().Y);
 		else goalang = getangle(ps[pnum].__int_pos.X - actor->int_pos().X, ps[pnum].__int_pos.Y - actor->int_pos().Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3501,7 +3501,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.X - actor->int_pos().X, ps[pnum].opos.Y - actor->int_pos().Y);
+			goalang = getangle(ps[pnum].__int_opos.X - actor->int_pos().X, ps[pnum].__int_opos.Y - actor->int_pos().Y);
 		else goalang = getangle(ps[pnum].__int_pos.X - actor->int_pos().X, ps[pnum].__int_pos.Y - actor->int_pos().Y);
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
@@ -3517,7 +3517,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = (getangle(ps[pnum].opos.X - actor->int_pos().X, ps[pnum].opos.Y - actor->int_pos().Y) + 1024) & 2047;
+				goalang = (getangle(ps[pnum].__int_opos.X - actor->int_pos().X, ps[pnum].__int_opos.Y - actor->int_pos().Y) + 1024) & 2047;
 			else goalang = (getangle(ps[pnum].__int_pos.X - actor->int_pos().X, ps[pnum].__int_pos.Y - actor->int_pos().Y) + 1024) & 2047;
 			angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)

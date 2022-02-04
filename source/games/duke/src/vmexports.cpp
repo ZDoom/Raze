@@ -397,9 +397,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backuppos, dukeplayer_backuppos)
 
 void dukeplayer_setpos(player_struct* self, double x, double y, double z)
 {
+	/*
 	self->pos.X = int(x * worldtoint);
 	self->pos.Y = int(y * worldtoint);
 	self->pos.Z = int(z * zworldtoint);
+	 */
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)

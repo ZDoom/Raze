@@ -107,7 +107,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		sa += 16 - (krand() & 31);
 		int scratch;
 		int j = findplayer(actor, &scratch);
-		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].__int_opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 	else
 	{
@@ -159,7 +159,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].opos.X - sx, ps[j].opos.Y - sy);
+		sa = getangle(ps[j].__int_opos.X - sx, ps[j].__int_opos.Y - sy);
 
 		if (actor->spr.picnum == BOSS5)
 		{
@@ -171,7 +171,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 
 		int l = ldist(ps[j].GetActor(), actor);
 		if (l != 0)
-			zvel = ((ps[j].opos.Z - sz) * vel) / l;
+			zvel = ((ps[j].__int_opos.Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
 			sa = (short)(actor->spr.ang + (krand() & 31) - 16);
@@ -184,7 +184,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (ps[p].GetActor()->spr.xvel != 0)
 			vel = (int)((((512 - (1024
-				- abs(abs(getangle(sx - ps[p].opos.X, sy - ps[p].opos.Y) - sa) - 1024)))
+				- abs(abs(getangle(sx - ps[p].__int_opos.X, sy - ps[p].__int_opos.Y) - sa) - 1024)))
 				* 0.001953125f) * ps[p].GetActor()->spr.xvel) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -604,7 +604,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		int j = findplayer(actor, &x);
 		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		sa += 16 - (krand() & 31);
-		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].__int_opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -703,7 +703,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].opos.X - sx, ps[j].opos.Y - sy);
+		sa = getangle(ps[j].__int_opos.X - sx, ps[j].__int_opos.Y - sy);
 		if (actor->spr.picnum == BOSS3)
 		{
 			int zoffs = (32 << 8);
@@ -721,7 +721,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		}
 
 		l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].opos.Z - sz) * vel) / l;
+		zvel = ((ps[j].__int_opos.Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			sa = actor->spr.ang + (krand() & 31) - 16;
@@ -1148,7 +1148,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		{
 			j = findplayer(actor, &x);
 			l = ldist(ps[j].GetActor(), actor);
-			zvel = ((ps[j].opos.Z - sz) * 512) / l;
+			zvel = ((ps[j].__int_opos.Z - sz) * 512) / l;
 		}
 		else zvel = 0;
 
@@ -2034,7 +2034,7 @@ int operateTripbomb(int snum)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 			if (((hit.hitpos.X - p->__int_pos.X) * (hit.hitpos.X - p->__int_pos.X) + (hit.hitpos.Y - p->__int_pos.Y) * (hit.hitpos.Y - p->__int_pos.Y)) < (290 * 290))
 			{
-				p->__int_pos.Z = p->opos.Z;
+				p->__int_pos.Z = p->__int_opos.Z;
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -2572,7 +2572,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->__int_pos.Z = p->opos.Z;
+			p->__int_pos.Z = p->__int_opos.Z;
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
@@ -2848,7 +2848,7 @@ void processinput_d(int snum)
 
 	checklook(snum,actions);
 	int ii = 40;
-	auto oldpos = p->opos;
+	auto oldpos = p->__int_opos;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3094,7 +3094,7 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->__int_pos = p->opos = oldpos;
+					p->__int_pos = p->__int_opos = oldpos;
 					continue;
 				}
 				quickkill(p);

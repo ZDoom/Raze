@@ -769,16 +769,16 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		opos.X = __int_pos.X;
-		opos.Y = __int_pos.Y;
+		__int_opos.X = __int_pos.X;
+		__int_opos.Y = __int_pos.Y;
 	}
 	else
 	{
-		__int_pos.X = opos.X;
-		__int_pos.Y = opos.Y;
+		__int_pos.X = __int_opos.X;
+		__int_pos.Y = __int_opos.Y;
 	}
 
-	opos.Z = __int_pos.Z;
+	__int_opos.Z = __int_pos.Z;
 	bobpos.X = __int_pos.X;
 	bobpos.Y = __int_pos.Y;
 	opyoff = pyoff;

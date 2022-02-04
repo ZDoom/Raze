@@ -529,7 +529,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		else if (actor->spr.picnum != UFOBEAM)
 			sa += 16 - (krand() & 31);
 
-		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].__int_opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -644,7 +644,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].opos.X - sx, ps[j].opos.Y - sy);
+		sa = getangle(ps[j].__int_opos.X - sx, ps[j].__int_opos.Y - sy);
 		if (actor->spr.picnum == BOSS3)
 			sz -= (32 << 8);
 		else if (actor->spr.picnum == BOSS2)
@@ -654,7 +654,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		}
 
 		l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].opos.Z - sz) * vel) / l;
+		zvel = ((ps[j].__int_opos.Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			sa = actor->spr.ang + (krand() & 31) - 16;
@@ -791,7 +791,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 			sa -= (krand() & 16);
 		else
 			sa += 16 - (krand() & 31);
-		zvel = (((ps[j].opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		zvel = (((ps[j].__int_opos.Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -3573,7 +3573,7 @@ void processinput_r(int snum)
 	checklook(snum, actions);
 	p->apply_seasick(1);
 
-	auto oldpos = p->opos;
+	auto oldpos = p->__int_opos;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3947,7 +3947,7 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->__int_pos = p->opos = oldpos;
+					p->__int_pos = p->__int_opos = oldpos;
 					continue;
 				}
 				quickkill(p);

@@ -202,7 +202,7 @@ void checkavailweapon(struct player_struct* player)
 void clearcamera(player_struct* ps)
 {
 	ps->newOwner = nullptr;
-	ps->__int_pos = ps->opos;
+	ps->__int_pos = ps->__int_opos;
 	ps->angle.restore();
 	updatesector(ps->__int_pos.X, ps->__int_pos.Y, &ps->cursector);
 
@@ -372,7 +372,7 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->add_int_pos({ (ps[p].__int_pos.X - ps[p].opos.X), (ps[p].__int_pos.Y - ps[p].opos.Y), 0 });
+		act->add_int_pos({ (ps[p].__int_pos.X - ps[p].__int_opos.X), (ps[p].__int_pos.Y - ps[p].__int_opos.Y), 0 });
 		SetActor(act, act->int_pos());
 	}
 }
@@ -397,7 +397,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->set_int_pos({ p->opos.X, p->opos.Y, p->opos.Z + gs.playerheight });
+				act->set_int_pos({ p->__int_opos.X, p->__int_opos.Y, p->__int_opos.Z + gs.playerheight });
 				act->backupz();
 				act->spr.ang = p->angle.oang.asbuild();
 				SetActor(act, act->int_pos());
@@ -790,7 +790,7 @@ void movecrane(DDukeActor *actor, int crane)
 		else if (actor->IsActiveCrane())
 		{
 			auto ang = ps[p].angle.ang.asbuild();
-			ps[p].opos = ps[p].__int_pos;
+			ps[p].__int_opos = ps[p].__int_pos;
 			ps[p].__int_pos.X = actor->int_pos().X - bcos(ang, -6);
 			ps[p].__int_pos.Y = actor->int_pos().Y - bsin(ang, -6);
 			ps[p].__int_pos.Z = actor->int_pos().Z + (2 << 8);
@@ -2872,8 +2872,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					if (numplayers > 1)
 					{
-						ps[p].opos.X = ps[p].__int_pos.X;
-						ps[p].opos.Y = ps[p].__int_pos.Y;
+						ps[p].__int_opos.X = ps[p].__int_pos.X;
+						ps[p].__int_opos.Y = ps[p].__int_pos.Y;
 					}
 					if (psp->spr.extra <= 0)
 					{
@@ -2920,8 +2920,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].__int_pos.X, ps[p].__int_pos.Y, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].opos.X = ps[p].__int_pos.X = actor->int_pos().X;
-							ps[p].opos.Y = ps[p].__int_pos.Y = actor->int_pos().Y;
+							ps[p].__int_opos.X = ps[p].__int_pos.X = actor->int_pos().X;
+							ps[p].__int_opos.Y = ps[p].__int_pos.Y = actor->int_pos().Y;
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->int_pos());
@@ -3040,8 +3040,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					ps[p].opos.X = ps[p].__int_pos.X;
-					ps[p].opos.Y = ps[p].__int_pos.Y;
+					ps[p].__int_opos.X = ps[p].__int_pos.X;
+					ps[p].__int_opos.Y = ps[p].__int_pos.Y;
 				}
 
 				ps[p].bobpos.X += l;
@@ -3085,8 +3085,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							ps[p].__int_pos.X = actor->int_pos().X;
 							ps[p].__int_pos.Y = actor->int_pos().Y;
 
-							ps[p].opos.X = ps[p].__int_pos.X;
-							ps[p].opos.Y = ps[p].__int_pos.Y;
+							ps[p].__int_opos.X = ps[p].__int_pos.X;
+							ps[p].__int_opos.Y = ps[p].__int_pos.Y;
 
 							ps[p].setCursector(actor->sector());
 
@@ -3835,11 +3835,11 @@ void handle_se17(DDukeActor* actor)
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
 			int p = act1->spr.yvel;
-			if (numplayers < 2) ps[p].opos.Z = ps[p].__int_pos.Z;
+			if (numplayers < 2) ps[p].__int_opos.Z = ps[p].__int_pos.Z;
 			ps[p].__int_pos.Z += q * zworldtoint;
 			ps[p].truefz += q;
 			ps[p].truecz += q;
-			if (numplayers > 1)	ps[p].opos.Z = ps[p].__int_pos.Z;
+			if (numplayers > 1)	ps[p].__int_opos.Z = ps[p].__int_pos.Z;
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR)
 		{
@@ -3894,9 +3894,9 @@ void handle_se17(DDukeActor* actor)
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
 
-				ps[p].bobpos.X = ps[p].opos.X = ps[p].__int_pos.X;
-				ps[p].bobpos.Y = ps[p].opos.Y = ps[p].__int_pos.Y;
-				ps[p].opos.Z = ps[p].__int_pos.Z;
+				ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X;
+				ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y;
+				ps[p].__int_opos.Z = ps[p].__int_pos.Z;
 
 				ps[p].truefz = act3->floorz;
 				ps[p].truecz = act3->ceilingz;
@@ -4184,8 +4184,8 @@ void handle_se20(DDukeActor* actor)
 				ps[p].__int_pos.X += x;
 				ps[p].__int_pos.Y += l;
 
-				ps[p].opos.X = ps[p].__int_pos.X;
-				ps[p].opos.Y = ps[p].__int_pos.Y;
+				ps[p].__int_opos.X = ps[p].__int_pos.X;
+				ps[p].__int_opos.Y = ps[p].__int_pos.Y;
 
 				SetActor(ps[p].GetActor(), { ps[p].__int_pos.X, ps[p].__int_pos.Y, ps[p].__int_pos.Z + gs.playerheight });
 			}
@@ -5239,8 +5239,8 @@ void movefta(void)
 				{
 					if (badguy(act))
 					{
-						px = ps[p].opos.X + 64 - (krand() & 127);
-						py = ps[p].opos.Y + 64 - (krand() & 127);
+						px = ps[p].__int_opos.X + 64 - (krand() & 127);
+						py = ps[p].__int_opos.Y + 64 - (krand() & 127);
 						updatesector(px, py, &psect);
 						if (psect == nullptr)
 						{
@@ -5261,14 +5261,14 @@ void movefta(void)
 						{
 							int r1 = krand();
 							int r2 = krand();
-							canseeme = cansee(sx, sy, act->int_pos().Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].opos.Z - (r1 % (32 << 8)), ps[p].cursector);
+							canseeme = cansee(sx, sy, act->int_pos().Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].__int_opos.Z - (r1 % (32 << 8)), ps[p].cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->int_pos().X, act->int_pos().Y, act->int_pos().Z - ((r2 & 31) << 8), act->sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].opos.Z - ((r1 & 31) << 8), ps[p].cursector);
+						canseeme = cansee(act->int_pos().X, act->int_pos().Y, act->int_pos().Z - ((r2 & 31) << 8), act->sector(), ps[p].__int_opos.X, ps[p].__int_opos.Y, ps[p].__int_opos.Z - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 

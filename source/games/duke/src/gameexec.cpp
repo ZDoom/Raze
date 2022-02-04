@@ -378,18 +378,18 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OPOSX:
-		if (bSet) ps[iPlayer].opos.X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.X, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__int_opos.X = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__int_opos.X, sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSY:
-		if (bSet) ps[iPlayer].opos.Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.Y, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__int_opos.Y = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__int_opos.Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSZ:
-		if (bSet) ps[iPlayer].opos.Z = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.Z, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__int_opos.Z = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__int_opos.Z, sActor, sPlayer);
 		break;
 
 	case PLAYER_PYOFF:
@@ -2047,9 +2047,9 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].__int_pos.X = ps[g_p].opos.X;
-			ps[g_p].__int_pos.Y = ps[g_p].opos.Y;
-			ps[g_p].__int_pos.Z = ps[g_p].opos.Z;
+			ps[g_p].__int_pos.X = ps[g_p].__int_opos.X;
+			ps[g_p].__int_pos.Y = ps[g_p].__int_opos.Y;
+			ps[g_p].__int_pos.Z = ps[g_p].__int_opos.Z;
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].__int_pos.X,ps[g_p].__int_pos.Y,&ps[g_p].cursector);
 
@@ -2226,7 +2226,7 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->set_int_pos({ ps[g_p].bobpos.X = ps[g_p].opos.X = ps[g_p].__int_pos.X, ps[g_p].bobpos.Y = ps[g_p].opos.Y = ps[g_p].__int_pos.Y, ps[g_p].opos.Z = ps[g_p].__int_pos.Z });
+			g_ac->set_int_pos({ ps[g_p].bobpos.X = ps[g_p].__int_opos.X = ps[g_p].__int_pos.X, ps[g_p].bobpos.Y = ps[g_p].__int_opos.Y = ps[g_p].__int_pos.Y, ps[g_p].__int_opos.Z = ps[g_p].__int_pos.Z });
 			g_ac->backuppos();
 			updatesector(ps[g_p].__int_pos.X, ps[g_p].__int_pos.Y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), { ps[g_p].__int_pos.X, ps[g_p].__int_pos.Y, ps[g_p].__int_pos.Z + gs.playerheight });

@@ -95,9 +95,9 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->bobpos.X = p->opos.X = p->__int_pos.X = po[i].opos.X;
-	p->bobpos.Y = p->opos.Y = p->__int_pos.Y = po[i].opos.Y;
-	p->opos.Z = p->__int_pos.Z = po[i].opos.Z;
+	p->bobpos.X = p->__int_opos.X = p->__int_pos.X = po[i].opos.X;
+	p->bobpos.Y = p->__int_opos.Y = p->__int_pos.Y = po[i].opos.Y;
+	p->__int_opos.Z = p->__int_pos.Z = po[i].opos.Z;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
 	p->setCursector(po[i].os);
 }
@@ -659,9 +659,9 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobpos.X = ps[j].opos.X = ps[j].__int_pos.X = act->int_pos().X;
-			ps[j].bobpos.Y = ps[j].opos.Y = ps[j].__int_pos.Y = act->int_pos().Y;
-			ps[j].opos.Z = ps[j].__int_pos.Z = act->int_pos().Z;
+			ps[j].bobpos.X = ps[j].__int_opos.X = ps[j].__int_pos.X = act->int_pos().X;
+			ps[j].bobpos.Y = ps[j].__int_opos.Y = ps[j].__int_pos.Y = act->int_pos().Y;
+			ps[j].__int_opos.Z = ps[j].__int_pos.Z = act->int_pos().Z;
 			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
