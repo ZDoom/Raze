@@ -1689,15 +1689,17 @@ void movetransports_r(void)
 								}
 								else
 								{
-									act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
-									act2->set_int_z(Owner->int_pos().Z + 4096);
+									act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
+									act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+									act2->spr.pos.Z = Owner->spr.pos.Z + 16;
 									act2->backupz();
 
 									ChangeActorSect(act2, Owner->sector());
 								}
 								break;
 							case ST_1_ABOVE_WATER:
-								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
+								act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
+								act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 								act2->set_int_z(Owner->sector()->int_ceilingz() + ll);
 								act2->backupz();
 
@@ -1705,7 +1707,8 @@ void movetransports_r(void)
 
 								break;
 							case ST_2_UNDERWATER:
-								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
+								act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
+								act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 								act2->set_int_z(Owner->sector()->int_floorz() - ll);
 								act2->backupz();
 
@@ -1715,7 +1718,8 @@ void movetransports_r(void)
 
 							case 160:
 								if (!isRRRA()) break;
-								act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), 0 });
+								act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
+								act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 								act2->set_int_z(Owner->sector()->int_ceilingz() + ll2);
 								act2->backupz();
 
