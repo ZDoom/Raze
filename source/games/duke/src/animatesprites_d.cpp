@@ -389,7 +389,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 
 				if (t->sectp->lotag == 2) k += 1795 - 1405;
-				else if ((h->actor_int_floorz() - h->int_pos().Z) > (64 << 8)) k += 60;
+				else if ((h->floorz - h->spr.pos.Z) > 64) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -399,9 +399,9 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
-				l = h->int_pos().Z - ps[p].GetActor()->actor_int_floorz() + (3 << 8);
-				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
-					h->spr.yoffset = (int8_t)(l / (h->spr.yrepeat << 2));
+				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
+				if (v > 4 && h->spr.yrepeat > 32 && h->spr.extra > 0)
+					h->spr.yoffset = (int8_t)(v * (1/REPEAT_SCALE) / h->spr.yrepeat);
 				else h->spr.yoffset = 0;
 			}
 
@@ -428,8 +428,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			if (!h->GetOwner()) continue;
 
-			if (t->int_pos().Z > h->actor_int_floorz() && t->xrepeat < 32)
-				t->set_int_z(h->actor_int_floorz());
+			if (t->pos.Z > h->floorz && t->xrepeat < 32)
+				t->pos.Z = h->floorz;
 
 			break;
 

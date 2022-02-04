@@ -554,7 +554,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 8;
-			if (actj) act->set_int_z(actj->actor_int_floorz());
+			if (actj) act->spr.pos.Z = actj->floorz;
 		}
 		else
 		{
@@ -1092,7 +1092,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		getglobalz(act);
 
-		int j = (act->actor_int_floorz() - act->actor_int_ceilingz()) >> 9;
+		int j = int((act->floorz - act->ceilingz) * 0.5);
 
 		act->spr.yrepeat = j;
 		act->spr.xrepeat = 25 - (j >> 1);
