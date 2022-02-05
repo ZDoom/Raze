@@ -779,8 +779,7 @@ void player_struct::backuppos(bool noclipping)
 	}
 
 	opos.Z = pos.Z;
-	bobpos.X = player_int_pos().X;
-	bobpos.Y = player_int_pos().Y;
+	bobpos = pos.XY();
 	opyoff = pyoff;
 }
 

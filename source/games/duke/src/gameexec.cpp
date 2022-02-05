@@ -368,13 +368,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_BOBPOSX:
-		if (bSet) ps[iPlayer].bobpos.X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].bobpos.X, sActor, sPlayer);
+		if (bSet) ps[iPlayer].bobpos.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].bobpos.X * (1/maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_BOBPOSY:
-		if (bSet) ps[iPlayer].bobpos.Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].bobpos.Y, sActor, sPlayer);
+		if (bSet) ps[iPlayer].bobpos.Y = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].bobpos.Y * (1/maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSX:

@@ -205,6 +205,7 @@ struct player_struct
 {
 	vec3_t vel;
 	DVector3 pos, opos;
+	DVector2 bobpos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -218,7 +219,7 @@ struct player_struct
 	PalEntry pals;
 
 	// this was a global variable originally.
-	vec2_t fric, exit, loogie[64], bobpos;
+	vec2_t fric, exit, loogie[64];
 
 	// weapon drawer variables and their interpolation counterparts.
 	int weapon_sway;
@@ -379,7 +380,7 @@ struct player_struct
 
 	void setbobpos()
 	{
-		bobpos = player_int_pos().vec2;
+		bobpos = pos.XY();
 	}
 
 	void getposfromactor(DCoreActor* actor, double addz = 0)

@@ -2684,8 +2684,7 @@ void handle_se00(DDukeActor* actor)
 
 				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), buildang(q * l));
 
-				ps[p].bobpos.X += (result.X - ps[p].pos.X) * worldtoint;
-				ps[p].bobpos.Y += (result.Y - ps[p].pos.Y) * worldtoint;
+				ps[p].bobpos += (result - ps[p].pos.XY());
 
 				ps[p].pos.X = result.X;
 				ps[p].pos.Y = result.Y;
@@ -2864,8 +2863,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					ps[p].player_set_int_xy({ result.X + m, result.Y + x });
 
-					ps[p].bobpos.X += m;
-					ps[p].bobpos.Y += x;
+					ps[p].bobpos.X += m * inttoworld;
+					ps[p].bobpos.Y += x * inttoworld;
 
 					ps[p].angle.addadjustment(buildang(q));
 
@@ -3039,8 +3038,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					ps[p].backupxy();
 				}
 
-				ps[p].bobpos.X += l;
-				ps[p].bobpos.Y += x;
+				ps[p].bobpos.X += l * inttoworld;
+				ps[p].bobpos.Y += x * inttoworld;
 			}
 
 			if (po[p].os == actor->sector())
@@ -3165,8 +3164,8 @@ void handle_se02(DDukeActor* actor)
 			{
 				ps[p].player_add_int_xy({ m, x });
 
-				ps[p].bobpos.X += m;
-				ps[p].bobpos.Y += x;
+				ps[p].bobpos.X += m * inttoworld;
+				ps[p].bobpos.Y += x * inttoworld;
 			}
 
 		DukeSectIterator it(actor->sector());
