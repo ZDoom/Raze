@@ -2683,18 +2683,19 @@ void handle_se00(DDukeActor* actor)
 
 				ps[p].player_add_int_z(zchange);
 
-				vec2_t res;
-				rotatepoint(Owner->int_pos().vec2, ps[p].player_int_pos().vec2, (q * l), &res);
+				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), buildang(q * l));
 
-				ps[p].bobpos.X += res.X - ps[p].player_int_pos().X;
-				ps[p].bobpos.Y += res.Y - ps[p].player_int_pos().Y;
+				ps[p].bobpos.X += (result.X - ps[p].pos.X) * worldtoint;
+				ps[p].bobpos.Y += (result.Y - ps[p].pos.Y) * worldtoint;
 
-				ps[p].player_set_int_xy(res);
+				ps[p].pos.X = result.X;
+				ps[p].pos.Y = result.Y;
 
 				auto psp = ps[p].GetActor();
 				if (psp->spr.extra <= 0)
 				{
-					psp->set_int_xy(res.X, res.Y);
+					psp->spr.pos.X = result.X;
+					psp->spr.pos.Y = result.Y;
 				}
 			}
 		}
