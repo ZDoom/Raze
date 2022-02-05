@@ -643,7 +643,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
 				actor->spr.ang = getangle(cpt.pole.X - actor->int_pos().X, cpt.pole.Y - actor->int_pos().Y);
-				SetActor(a2, { cpt.pole.X, cpt.pole.Y, a2->int_pos().Z });
+				SetActor(a2, vec3_t( cpt.pole.X, cpt.pole.Y, a2->int_pos().Z ));
 				actor->temp_data[0]++;
 				return;
 			}
@@ -761,7 +761,7 @@ void movecrane(DDukeActor *actor, int crane)
 		actor->temp_data[0] = 0;
 
 	if (cpt.poleactor)
-		SetActor(cpt.poleactor, { actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (34 << 8) });
+		SetActor(cpt.poleactor, vec3_t( actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (34 << 8) ));
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())
@@ -4187,7 +4187,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].__int_opos.X = ps[p].player_int_pos().X;
 				ps[p].__int_opos.Y = ps[p].player_int_pos().Y;
 
-				SetActor(ps[p].GetActor(), { ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight });
+				SetActor(ps[p].GetActor(), vec3_t( ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight ));
 			}
 
 		sc->addfloorxpan(-x / 8.f);

@@ -1912,7 +1912,7 @@ static void rrra_specialstats()
 		}
 		else if (act->spr.extra == 200)
 		{
-			SetActor(act, { act->int_pos().X, act->int_pos().Y, act->sector()->int_floorz() - 10 });
+			SetActor(act, vec3_t( act->int_pos().X, act->int_pos().Y, act->sector()->int_floorz() - 10 ));
 			act->spr.extra = 1;
 			act->spr.picnum = PIG + 11;
 			spawn(act, TRANSPORTERSTAR);
@@ -2835,7 +2835,7 @@ void moveactors_r(void)
 				getglobalz(act);
 				if (sectp->lotag == 1)
 				{
-					SetActor(act, { act->int_pos().X,act->int_pos().Y,act->actor_int_floorz() + (16 << 8) });
+					SetActor(act, vec3_t( act->int_pos().X,act->int_pos().Y,act->actor_int_floorz() + (16 << 8) ));
 				}
 				break;
 

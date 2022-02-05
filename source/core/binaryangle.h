@@ -87,7 +87,6 @@ inline double bsinf(const double ang, const int shift = 0)
 	return g_sinbam(ang * BAMUNIT) * sinscale(shift);
 }
 
-
 //---------------------------------------------------------------------------
 //
 // Build cosine inline functions.
@@ -102,7 +101,6 @@ inline double bcosf(const double ang, const int shift = 0)
 {
 	return g_cosbam(ang * BAMUNIT) * sinscale(shift);
 }
-
 
 //---------------------------------------------------------------------------
 //

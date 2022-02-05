@@ -1892,7 +1892,7 @@ void movetransports_d(void)
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
-						SetActor(ps[p].GetActor(), { ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight });
+						SetActor(ps[p].GetActor(), vec3_t(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight ));
 
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -2514,12 +2514,12 @@ static void flamethrowerflame(DDukeActor *actor)
 		}
 		else if (coll.type == kHitWall)
 		{
-			SetActor(actor, { dax, day, daz });
+			SetActor(actor, vec3_t( dax, day, daz ));
 			fi.checkhitwall(actor, coll.hitWall, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
-			SetActor(actor, { dax, day, daz });
+			SetActor(actor, vec3_t(dax, day, daz));
 			if (actor->spr.zvel < 0)
 				fi.checkhitceiling(actor->sector());
 		}

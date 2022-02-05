@@ -2229,7 +2229,7 @@ int ParseState::parse(void)
 			g_ac->set_int_pos({ ps[g_p].bobpos.X = ps[g_p].__int_opos.X = ps[g_p].player_int_pos().X, ps[g_p].bobpos.Y = ps[g_p].__int_opos.Y = ps[g_p].player_int_pos().Y, ps[g_p].__int_opos.Z = ps[g_p].__int_pos.Z });
 			g_ac->backuppos();
 			updatesector(ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), { ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].player_int_pos().Z + gs.int_playerheight });
+			SetActor(ps[g_p].GetActor(), vec3_t( ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].player_int_pos().Z + gs.int_playerheight ));
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;

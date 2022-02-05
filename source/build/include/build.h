@@ -154,6 +154,11 @@ void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
 
+inline int cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2)
+{
+    return cansee(start.X * worldtoint, start.Y * worldtoint, start.Z * zworldtoint, sect1, end.X * worldtoint, end.Y * worldtoint, end.Z * zworldtoint, sect2);
+}
+
 int32_t try_facespr_intersect(DCoreActor* spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);
