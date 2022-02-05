@@ -206,7 +206,9 @@ struct player_struct
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
 
 	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	vec3_t __int_pos, __int_opos, vel;
+	vec3_t __int_pos, vel;
+
+	DVector3 opos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -360,29 +362,33 @@ struct player_struct
 
 	void backupxyz()
 	{
-		__int_opos = __int_pos;
+		opos.X = __int_pos.X * inttoworld;
+		opos.Y = __int_pos.Y * inttoworld;
+		opos.Z = __int_pos.Z * zinttoworld;
 	}
 
 	void restorexyz()
 	{
-		__int_pos = __int_opos;
+		__int_pos.X = opos.X * worldtoint;
+		__int_pos.Y = opos.Y * worldtoint;
+		__int_pos.Z = opos.Z * zworldtoint;
 	}
 
 	void backupxy()
 	{
-		__int_opos.X = __int_pos.X;
-		__int_opos.Y = __int_pos.Y;
+		opos.X = __int_pos.X * inttoworld;
+		opos.Y = __int_pos.Y * inttoworld;
 	}
 
 	void restorexy()
 	{
-		__int_pos.X = __int_opos.X;
-		__int_pos.Y = __int_opos.Y;
+		__int_pos.X = opos.X * worldtoint;
+		__int_pos.Y = opos.Y * worldtoint;
 	}
 
 	void backupz()
 	{
-		__int_opos.Z = __int_pos.Z;
+		opos.Z = __int_pos.Z * zinttoworld;
 	}
 
 	void setbobpos()
@@ -409,7 +415,7 @@ struct player_struct
 
 	vec3_t player_int_opos() const
 	{
-		return __int_opos;
+		return { int(opos.X * worldtoint), int(opos.Y * worldtoint),int(opos.Z * zworldtoint) };
 	}
 
 };

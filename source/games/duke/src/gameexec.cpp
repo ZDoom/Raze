@@ -378,18 +378,18 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OPOSX:
-		if (bSet) ps[iPlayer].__int_opos.X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].player_int_opos().X, sActor, sPlayer);
+		if (bSet) ps[iPlayer].opos.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].opos.X * (1/maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSY:
-		if (bSet) ps[iPlayer].__int_opos.Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].player_int_opos().Y, sActor, sPlayer);
+		if (bSet) ps[iPlayer].opos.Y = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].opos.Y * (1 / maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSZ:
-		if (bSet) ps[iPlayer].__int_opos.Z = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].player_int_opos().Z, sActor, sPlayer);
+		if (bSet) ps[iPlayer].opos.Z = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].opos.Z * (1 / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_PYOFF:

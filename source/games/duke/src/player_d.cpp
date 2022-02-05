@@ -2848,7 +2848,7 @@ void processinput_d(int snum)
 
 	checklook(snum,actions);
 	int ii = 40;
-	auto oldpos = p->__int_opos;
+	auto oldpos = p->opos;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3094,7 +3094,8 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->__int_pos = p->__int_opos = oldpos;
+					p->opos = oldpos;
+					p->restorexyz();
 					continue;
 				}
 				quickkill(p);
