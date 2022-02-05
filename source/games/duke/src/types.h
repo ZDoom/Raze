@@ -358,6 +358,43 @@ struct player_struct
 		return cursector != nullptr;
 	}
 
+	void backupxyz()
+	{
+		__int_opos = __int_pos;
+	}
+
+	void restorepos()
+	{
+		__int_pos = __int_opos;
+	}
+
+	void backupxy()
+	{
+		__int_opos.X = __int_pos.X;
+		__int_opos.Y = __int_pos.Y;
+	}
+
+	void backupz()
+	{
+		__int_opos.Z = __int_pos.Z;
+	}
+
+	void setbobpos()
+	{
+		bobpos = __int_pos.vec2;
+	}
+
+	void getposfromactor(DCoreActor* actor, double addz = 0)
+	{
+		__int_pos = actor->int_pos();
+		if (addz) __int_pos.Z += int(addz * worldtoint);
+	}
+
+	void getxyfromactor(DCoreActor* actor)
+	{
+		__int_pos.X = actor->int_pos().X;
+		__int_pos.Y = actor->int_pos().Y;
+	}
 
 	vec3_t player_int_pos() const
 	{
