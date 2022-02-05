@@ -363,7 +363,7 @@ struct player_struct
 		__int_opos = __int_pos;
 	}
 
-	void restorepos()
+	void restorexyz()
 	{
 		__int_pos = __int_opos;
 	}

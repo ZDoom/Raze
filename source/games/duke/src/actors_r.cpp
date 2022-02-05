@@ -1456,9 +1456,9 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
-							ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
-							ps[p].__int_opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - (gs.int_playerheight - (4 << 8));
+							ps[p].getposfromactor(Owner, -gs.playerheight + 4);
+							ps[p].backupxyz();
+							ps[p].setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
@@ -1475,13 +1475,14 @@ void movetransports_r(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-							ps[p].__int_opos.Y = ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+							ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
 							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
-							ps[p].__int_opos.Z = ps[p].player_int_pos().Z;
+							ps[p].backupz();
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1496,16 +1497,16 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].player_int_pos().Z > (sectp->int_floorz() - (48 << 8)))
 						{
 							k = 2;
-							ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-								Owner->sector()->int_ceilingz() + (7 << 8);
+							ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+							ps[p].backupz();
 						}
 
 						if (onfloorz && sectlotag == 161 && ps[p].player_int_pos().Z < (sectp->int_ceilingz() + (6 << 8)))
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-								Owner->sector()->int_floorz() - (49 << 8);
+							ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (49 << 8);
+							ps[p].backupz();
 						}
 					}
 
@@ -1519,8 +1520,8 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-							Owner->sector()->int_ceilingz() + (7 << 8);
+						ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+							ps[p].backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
@@ -1535,14 +1536,15 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-							Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].backupz();
 					}
 
 					if (k == 1)
 					{
-						ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].__int_opos.Y = ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1555,8 +1557,9 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].__int_opos.Y = ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1912,7 +1915,8 @@ static void rrra_specialstats()
 		}
 		else if (act->spr.extra == 200)
 		{
-			SetActor(act, vec3_t( act->int_pos().X, act->int_pos().Y, act->sector()->int_floorz() - 10 ));
+			// This was really 10 and not (10 << 8)!
+			SetActor(act, DVector3(act->spr.pos.X, act->spr.pos.Y, act->sector()->floorz - 10 * zmaptoworld));
 			act->spr.extra = 1;
 			act->spr.picnum = PIG + 11;
 			spawn(act, TRANSPORTERSTAR);
@@ -2289,9 +2293,9 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTILE297)
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
-						ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = act2->int_pos().X;
-						ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = act2->int_pos().Y;
-						ps[p].__int_opos.Z = ps[p].__int_pos.Z = act2->int_pos().Z - (36 << 8);
+						ps[p].getposfromactor(act2, -36);
+						ps[p].backupxyz();
+						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
@@ -2835,7 +2839,7 @@ void moveactors_r(void)
 				getglobalz(act);
 				if (sectp->lotag == 1)
 				{
-					SetActor(act, vec3_t( act->int_pos().X,act->int_pos().Y,act->actor_int_floorz() + (16 << 8) ));
+					SetActor(act, DVector3(act->spr.pos.X, act->spr.pos.Y, act->floorz + 16));
 				}
 				break;
 

@@ -1806,9 +1806,9 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobpos.X = ps[p].__int_opos.X = ps[p].__int_pos.X = Owner->int_pos().X;
-							ps[p].bobpos.Y = ps[p].__int_opos.Y = ps[p].__int_pos.Y = Owner->int_pos().Y;
-							ps[p].__int_opos.Z = ps[p].__int_pos.Z = Owner->int_pos().Z - gs.int_playerheight;
+							ps[p].getposfromactor(Owner, -gs.playerheight);
+							ps[p].backupxyz();
+							ps[p].setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
@@ -1828,13 +1828,14 @@ void movetransports_d(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-							ps[p].__int_opos.Y = ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+							ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
 							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
-							ps[p].__int_opos.Z = ps[p].player_int_pos().Z;
+							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
 							pa->opos = DVector3(ps[p].__int_pos.X * inttoworld, ps[p].__int_pos.Y * inttoworld, ps[p].__int_pos.Z * zinttoworld);
@@ -1857,8 +1858,8 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-						Owner->sector()->int_ceilingz() + (7 << 8);
+						ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+						ps[p].backupz();
 
 						ps[p].vel.X = 4096 - (krand() & 8192);
 						ps[p].vel.Y = 4096 - (krand() & 8192);
@@ -1875,8 +1876,8 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].__int_opos.Z = ps[p].__int_pos.Z =
-						Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].backupz();
 
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
@@ -1884,8 +1885,9 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].__int_opos.X = ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].__int_opos.Y = ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
+						ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].backupxy();
 
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2183,7 +2185,7 @@ static void greenslime(DDukeActor *actor)
 		if (ps[p].newOwner != nullptr)
 		{
 			ps[p].newOwner = nullptr;
-			ps[p].__int_pos = ps[p].__int_opos;
+			ps[p].restorexyz();
 			ps[p].angle.restore();
 
 			updatesector(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, &ps[p].cursector);
