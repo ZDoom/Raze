@@ -1981,8 +1981,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].player_set_int_z(ps[g_p].GetActor()->sector()->int_ceilingz());
-		ps[g_p].GetActor()->set_int_z(ps[g_p].player_int_pos().Z);
+		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2224,12 +2223,12 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->set_int_pos(ps[g_p].player_int_pos());
+			g_ac->spr.pos = ps[g_p].pos;
 			ps[g_p].backupxyz();
 			ps[g_p].setbobpos();
 			g_ac->backuppos();
-			updatesector(ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), vec3_t( ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].player_int_pos().Z + gs.int_playerheight ));
+			updatesector(ps[g_p].pos, &ps[g_p].cursector);
+			SetActor(ps[g_p].GetActor(), ps[g_p].pos.plusZ(gs.playerheight ));
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;

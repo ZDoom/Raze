@@ -564,8 +564,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->player_add_int_z(-(16 << 8));
-			actor->add_int_z(-(16 << 8));
+			p->pos.Z -= 16;
+			actor->spr.pos.Z -= 16;
 		}
 #if 0
 		if (ud.recstat == 1 && ud.multimode < 2)
@@ -613,7 +613,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (p->on_warping_sector == 0)
 		{
 			if (abs(p->player_int_pos().Z - fz) > (gs.int_playerheight >> 1))
-				p->player_add_int_z(348);
+				p->pos.Z += 348/ 256.;
 		}
 		else
 		{
@@ -710,7 +710,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->player_add_int_z((2048 + 768));
+		p->pos.Z += 8 + 3;
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -769,14 +769,16 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		backupxy();
+		opos.X = pos.X;
+		opos.Y = pos.Y;
 	}
 	else
 	{
-		restorexy();
+		pos.X = opos.X;
+		pos.Y = opos.Y;
 	}
 
-	backupz();
+	opos.Z = pos.Z;
 	bobpos.X = player_int_pos().X;
 	bobpos.Y = player_int_pos().Y;
 	opyoff = pyoff;

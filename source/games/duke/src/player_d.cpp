@@ -1667,7 +1667,6 @@ void checkweapons_d(struct player_struct* p)
 
 static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, int cz, int shrunk)
 {
-	int j;
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	p->on_ground = 0;
@@ -1687,13 +1686,14 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
-		p->player_add_int_z(-(p->jetpack_on << 7)); //Goin up
+		p->pos.Z -= (p->jetpack_on * 0.5); //Goin up
 	}
 	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pact, DUKE_JETPACK_IDLE))
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
 
-	if (shrunk) j = 512;
-	else j = 2048;
+	double dist;
+	if (shrunk) dist = 2;
+	else dist = 8;
 
 	if (actions & SB_JUMP)                            //A (soar high)
 	{
@@ -1702,7 +1702,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			p->player_add_int_z(-j);
+			p->pos.Z -= dist;
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -1714,7 +1714,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		OnEvent(EVENT_SOARDOWN, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			p->player_add_int_z(j);
+			p->pos.Z += dist;
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -1727,9 +1727,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		p->scuba_on = 0;
 
 	if (p->player_int_pos().Z > (fz - (k << 8)))
-		p->player_add_int_z(((fz - (k << 8)) - p->player_int_pos().Z) >> 1);
+		p->pos.Z += (((fz - (k << 8)) - p->player_int_pos().Z) >> 1) * zinttoworld;
 	if (p->player_int_pos().Z < (pact->actor_int_ceilingz() + (18 << 8)))
-		p->player_set_int_z(pact->actor_int_ceilingz() + (18 << 8));
+		p->pos.Z = pact->ceilingz + 18;
 
 }
 
@@ -2034,7 +2034,7 @@ int operateTripbomb(int snum)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 			if (((hit.hitpos.X - p->player_int_pos().X) * (hit.hitpos.X - p->player_int_pos().X) + (hit.hitpos.Y - p->player_int_pos().Y) * (hit.hitpos.Y - p->player_int_pos().Y)) < (290 * 290))
 			{
-				p->player_set_int_z(p->player_int_opos().Z);
+				p->pos.Z = p->opos.Z;
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -2572,7 +2572,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->player_set_int_z(p->player_int_opos().Z);
+			p->pos.Z = p->opos.Z;
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
@@ -3034,7 +3034,7 @@ HORIZONLY:
 		clipmove(p->pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->player_add_int_z(32 << 8);
+		p->pos.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_d(p, clip);

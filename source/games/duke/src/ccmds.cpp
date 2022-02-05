@@ -115,8 +115,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
 	player_struct* p = &ps[myconnectindex];
 
-	p->player_set_int_xy({ x, y});
-	p->player_set_int_z(z);
+	p->pos = DVector3(x, y, z);
 	p->backupxyz();
 
 	if (ang != INT_MIN)

@@ -372,12 +372,6 @@ struct player_struct
 		opos.Y = pos.Y;
 	}
 
-	void restorexy()
-	{
-		pos.X = opos.X;
-		pos.Y = opos.Y;
-	}
-
 	void backupz()
 	{
 		opos.Z = pos.Z;

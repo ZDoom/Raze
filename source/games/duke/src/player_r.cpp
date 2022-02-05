@@ -3803,7 +3803,7 @@ HORIZONLY:
 		clipmove(p->pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->player_add_int_z(32 << 8);
+		p->pos.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);
@@ -4046,7 +4046,8 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 	{
 		if (motosprite)
 		{
-			p->getxyfromactor(motosprite);
+			p->pos.X = motosprite->spr.pos.X;
+			p->pos.Y = motosprite->spr.pos.Y;
 			p->angle.ang = buildang(motosprite->spr.ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
@@ -4125,7 +4126,8 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 	{
 		if (boat)
 		{
-			p->getxyfromactor(boat);
+			p->pos.X = boat->spr.pos.X;
+			p->pos.Y = boat->spr.pos.Y;
 			p->angle.ang = buildang(boat->spr.ang);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
