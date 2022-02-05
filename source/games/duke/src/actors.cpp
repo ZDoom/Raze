@@ -440,7 +440,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->actorsqu->int_pos().X - p->player_int_pos().X, p->actorsqu->int_pos().Y - p->player_int_pos().Y)) >> 2);
+					p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) >> 2);
 				}
 
 				if (act->spr.extra > 0)
@@ -460,7 +460,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->int_pos().X - p->player_int_pos().X, p->wackedbyactor->int_pos().Y - p->player_int_pos().Y)) >> 1);
+						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) >> 1);
 					}
 				}
 				act->spr.ang = p->angle.ang.asbuild();
@@ -1498,7 +1498,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				int j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->int_pos().X - ps[p].player_int_pos().X, actor->int_pos().Y - ps[p].player_int_pos().Y));
+				int j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -1508,7 +1508,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								j = getincangle(ps[p].angle.ang.asbuild(), getangle(act2->int_pos().X - ps[p].player_int_pos().X, act2->int_pos().Y - ps[p].player_int_pos().Y));
+								j = getincangle(ps[p].angle.ang.asbuild(), getangle(act2->spr.pos.XY() - ps[p].pos.XY()));
 								if (j > -64 && j < 64)
 								{
 									int l;
@@ -1530,7 +1530,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 512 && actor->sector() == ps[p].cursector)
 		{
-			actor->spr.ang = getangle(actor->int_pos().X - ps[p].player_int_pos().X, actor->int_pos().Y - ps[p].player_int_pos().Y);
+			actor->spr.ang = getangle(actor->spr.pos.XY() - ps[p].pos.XY());
 			actor->spr.xvel = 48;
 		}
 	}
@@ -1676,13 +1676,13 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			fi.shoot(actor, firelaser);
 			actor->spr.ang = a;
 		}
-		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (16 << 8), actor->sector(), ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z, ps[p].cursector))
+		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].pos, ps[p].cursector))
 		{
 			actor->temp_data[0] = 0;
 			actor->temp_data[2] = 0;
 		}
 		else actor->tempang +=
-			getincangle(actor->tempang, getangle(ps[p].player_int_pos().X - actor->int_pos().X, ps[p].player_int_pos().Y - actor->int_pos().Y)) / 3;
+			getincangle(actor->tempang, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) / 3;
 	}
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
@@ -1692,14 +1692,14 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 		if (actor->temp_data[0] == 2)
 		{
-			int l = ps[p].player_int_pos().Z - actor->int_pos().Z;
-			if (abs(l) < (48 << 8)) actor->temp_data[0] = 3;
-			else actor->add_int_z(Sgn(ps[p].player_int_pos().Z - actor->int_pos().Z) << shift); // The shift here differs between Duke and RR.
+			double l = ps[p].pos.Z - actor->spr.pos.Z;
+			if (fabs(l) < 48) actor->temp_data[0] = 3;
+			else actor->spr.pos.Z += (Sgn(ps[p].pos.Z - actor->spr.pos.Z) * shift); // The shift here differs between Duke and RR.
 		}
 		else
 		{
 			actor->temp_data[2]++;
-			if (actor->temp_data[2] > (26 * 3) || !cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (16 << 8), actor->sector(), ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z, ps[p].cursector))
+			if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].pos, ps[p].cursector))
 			{
 				actor->temp_data[0] = 1;
 				actor->temp_data[2] = 0;
@@ -1710,7 +1710,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.ang += getincangle(actor->spr.ang, getangle(ps[p].player_int_pos().X - actor->int_pos().X, ps[p].player_int_pos().Y - actor->int_pos().Y)) >> 2;
+		actor->spr.ang += getincangle(actor->spr.ang, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1721,7 +1721,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			a = actor->spr.ang;
 			actor->spr.xvel >>= 1;
 		}
-		else a = getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y);
+		else a = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
 		if (actor->temp_data[0] == 1 || actor->temp_data[0] == 4) // Found a locator and going with it
 		{
@@ -1772,11 +1772,11 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[3] = getincangle(actor->spr.ang, a);
 		actor->spr.ang += actor->temp_data[3] >> 3;
 
-        if (actor->int_pos().Z < Owner->int_pos().Z - 512)
-            actor->add_int_z(512);
-        else if (actor->int_pos().Z > Owner->int_pos().Z + 512)
-            actor->add_int_z(-512);
-        else actor->set_int_z(Owner->int_pos().Z);
+        if (actor->spr.pos.Z < Owner->spr.pos.Z - 2)
+            actor->spr.pos.Z += 2;
+        else if (actor->spr.pos.Z > Owner->spr.pos.Z + 2)
+            actor->spr.pos -= 2;
+        else actor->spr.pos.Z = Owner->spr.pos.Z; 
 	}
 
 	if (roamsnd >= 0 && S_CheckActorSoundPlaying(actor, roamsnd) < 1)

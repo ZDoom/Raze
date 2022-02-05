@@ -43,6 +43,7 @@
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
 #include "math/cmath.h"
+#include "intvec.h"
 
 class FSerializer;
 
@@ -367,6 +368,21 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 inline binangle bvectangbam(double x, double y)
 {
 	return radang(atan2(y, x));
+}
+
+inline int getangle(double xvect, double yvect)
+{
+	return bvectangbam(xvect, yvect).asbuild();
+}
+
+inline int getangle(const DVector2& vec)
+{
+	return getangle(vec.X, vec.Y);
+}
+
+inline int getangle(const vec2_t& vec)
+{
+	return getangle(vec.X, vec.Y);
 }
 
 

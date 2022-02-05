@@ -2811,7 +2811,7 @@ void moveactors_r(void)
 			case UFO3:
 			case UFO4:
 			case UFO5:
-				recon(act, EXPLOSION2, FIRELASER, -1, -1, 457, 8, [](DDukeActor* act) ->int
+				recon(act, EXPLOSION2, FIRELASER, -1, -1, 457, 1, [](DDukeActor* act) ->int
 					{
 						if (isRRRA() && ufospawnsminion)
 							return MINION;

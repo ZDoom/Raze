@@ -189,7 +189,7 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 }
 
 
-int32_t getangle(int32_t xvect, int32_t yvect)
+int32_t _getangle(int32_t xvect, int32_t yvect)
 {
     int32_t rv;
 
