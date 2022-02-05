@@ -418,6 +418,16 @@ struct player_struct
 		return { int(opos.X * worldtoint), int(opos.Y * worldtoint),int(opos.Z * zworldtoint) };
 	}
 
+	void player_add_int_z(int z)
+	{
+		__int_pos.Z += z;
+	}
+
+	void player_set_int_z(int z)
+	{
+		__int_pos.Z = z;
+	}
+
 };
 
 struct Cycler

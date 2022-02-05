@@ -3830,10 +3830,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(&p->__int_pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove_p(p, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
-					pushmove(&p->__int_pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove_p(p, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 			}
 		}
 	}
@@ -3934,9 +3934,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->spr.clipdist == 64)
-			blocked = (pushmove(&p->__int_pos, &p->cursector, 128, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			blocked = (pushmove_p(p, &p->cursector, 128, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			blocked = (pushmove(&p->__int_pos, &p->cursector, 16, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			blocked = (pushmove_p(p, &p->cursector, 16, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
@@ -4048,8 +4048,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 	{
 		if (motosprite)
 		{
-			p->__int_pos.X = motosprite->int_pos().X;
-			p->__int_pos.Y = motosprite->int_pos().Y;
+			p->getxyfromactor(motosprite);
 			p->angle.ang = buildang(motosprite->spr.ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
@@ -4128,8 +4127,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 	{
 		if (boat)
 		{
-			p->__int_pos.X = boat->int_pos().X;
-			p->__int_pos.Y = boat->int_pos().Y;
+			p->getxyfromactor(boat);
 			p->angle.ang = buildang(boat->spr.ang);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);

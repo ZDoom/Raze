@@ -455,9 +455,7 @@ void moveplayers(void)
 				}
 				else
 				{
-					p->__int_pos.X = act->int_pos().X;
-					p->__int_pos.Y = act->int_pos().Y;
-					p->__int_pos.Z = act->int_pos().Z - (20 << 8);
+					p->getposfromactor(act, -20);
 
 					p->newOwner = nullptr;
 
@@ -794,7 +792,7 @@ void movecrane(DDukeActor *actor, int crane)
 			ps[p].__int_pos.X = actor->int_pos().X - bcos(ang, -6);
 			ps[p].__int_pos.Y = actor->int_pos().Y - bsin(ang, -6);
 			ps[p].__int_pos.Z = actor->int_pos().Z + (2 << 8);
-			SetActor(ps[p].GetActor(), ps[p].__int_pos);
+			SetActor(ps[p].GetActor(), ps[p].player_int_pos());
 			ps[p].setCursector(ps[p].GetActor()->sector());
 		}
 	}
@@ -2685,7 +2683,7 @@ void handle_se00(DDukeActor* actor)
 				ps[p].__int_pos.Z += zchange;
 
 				vec2_t res;
-				rotatepoint(Owner->int_pos().vec2, ps[p].__int_pos.vec2, (q * l), &res);
+				rotatepoint(Owner->int_pos().vec2, ps[p].player_int_pos().vec2, (q * l), &res);
 
 				ps[p].bobpos.X += res.X - ps[p].player_int_pos().X;
 				ps[p].bobpos.Y += res.Y - ps[p].player_int_pos().Y;
@@ -2859,7 +2857,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (actor->sector() == psp->sector())
 				{
-					rotatepoint(actor->int_pos().vec2, ps[p].__int_pos.vec2, q, &ps[p].__int_pos.vec2);
+					rotatepoint(actor->int_pos().vec2, ps[p].player_int_pos().vec2, q, &ps[p].__int_pos.vec2);
 
 					ps[p].__int_pos.X += m;
 					ps[p].__int_pos.Y +=x;
