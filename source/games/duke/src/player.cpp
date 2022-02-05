@@ -215,10 +215,10 @@ int hitawall(struct player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->__int_pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
+	hitscan(p->player_int_pos(), p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.hitpos.vec2 - p->__int_pos.vec2));
+	return (FindDistance2D(hit.hitpos.vec2 - p->player_int_pos().vec2));
 }
 
 
@@ -252,7 +252,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 				int zvel = -plr->horizon.sum().asq16() >> 5;
 
 				HitInfo hit{};
-				hitscan(plr->__int_pos.withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
+				hitscan(plr->player_int_pos().withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -769,16 +769,14 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		__int_opos.X = player_int_pos().X;
-		__int_opos.Y = player_int_pos().Y;
+		backupxy();
 	}
 	else
 	{
-		__int_pos.X = player_int_opos().X;
-		__int_pos.Y = player_int_opos().Y;
+		restorexy();
 	}
 
-	__int_opos.Z = player_int_pos().Z;
+	backupz();
 	bobpos.X = player_int_pos().X;
 	bobpos.Y = player_int_pos().Y;
 	opyoff = pyoff;

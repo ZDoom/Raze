@@ -184,7 +184,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (ps[p].GetActor()->spr.xvel != 0)
 			vel = (int)((((512 - (1024
-				- abs(abs(getangle(sx - ps[p].player_int_opos().X, sy - ps[p].__int_opos.Y) - sa) - 1024)))
+				- abs(abs(getangle(sx - ps[p].player_int_opos().X, sy - ps[p].player_int_opos().Y) - sa) - 1024)))
 				* 0.001953125f) * ps[p].GetActor()->spr.xvel) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -2736,7 +2736,7 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.yrepeat < 32);
-	getzrange(p->__int_pos, psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
+	getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
 
 	j = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
 

@@ -95,9 +95,9 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->bobpos.X = p->__int_opos.X = p->__int_pos.X = po[i].opos.X;
-	p->bobpos.Y = p->__int_opos.Y = p->__int_pos.Y = po[i].opos.Y;
-	p->__int_opos.Z = p->__int_pos.Z = po[i].opos.Z;
+	p->__int_pos = po[i].opos;
+	p->backupxyz();
+	p->setbobpos();
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
 	p->setCursector(po[i].os);
 }
@@ -615,9 +615,7 @@ void resetpspritevars(int g)
 			firsty = ps[0].player_int_pos().Y;
 		}
 
-		po[numplayersprites].opos.X = act->int_pos().X;
-		po[numplayersprites].opos.Y = act->int_pos().Y;
-		po[numplayersprites].opos.Z = act->int_pos().Z;
+		po[numplayersprites].opos = act->int_pos();
 		po[numplayersprites].oa = act->spr.ang;
 		po[numplayersprites].os = act->sector();
 
@@ -659,9 +657,9 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobpos.X = ps[j].__int_opos.X = ps[j].__int_pos.X = act->int_pos().X;
-			ps[j].bobpos.Y = ps[j].__int_opos.Y = ps[j].__int_pos.Y = act->int_pos().Y;
-			ps[j].__int_opos.Z = ps[j].__int_pos.Z = act->int_pos().Z;
+			ps[j].getposfromactor(act);
+			ps[j].backupxyz();
+			ps[j].setbobpos();
 			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
@@ -1005,7 +1003,9 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	currentLevel = mi;
 	int sect;
 	SpawnSpriteDef sprites;
-	loadMap(mi->fileName, isShareware(), &p->__int_pos, &lbang, &sect, sprites);
+	vec3_t pos;
+	loadMap(mi->fileName, isShareware(), &pos, &lbang, &sect, sprites);
+	p->__int_pos = pos;
 	p->cursector = &sector[sect];
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);

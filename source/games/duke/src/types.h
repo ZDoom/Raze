@@ -374,6 +374,12 @@ struct player_struct
 		__int_opos.Y = __int_pos.Y;
 	}
 
+	void restorexy()
+	{
+		__int_pos.X = __int_opos.X;
+		__int_pos.Y = __int_opos.Y;
+	}
+
 	void backupz()
 	{
 		__int_opos.Z = __int_pos.Z;

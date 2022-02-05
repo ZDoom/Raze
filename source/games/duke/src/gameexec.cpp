@@ -2047,9 +2047,7 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].__int_pos.X = ps[g_p].player_int_opos().X;
-			ps[g_p].__int_pos.Y = ps[g_p].player_int_opos().Y;
-			ps[g_p].__int_pos.Z = ps[g_p].player_int_opos().Z;
+			ps[g_p].restorexyz();
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].player_int_pos().X,ps[g_p].player_int_pos().Y,&ps[g_p].cursector);
 
@@ -2226,7 +2224,9 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->set_int_pos({ ps[g_p].bobpos.X = ps[g_p].__int_opos.X = ps[g_p].player_int_pos().X, ps[g_p].bobpos.Y = ps[g_p].__int_opos.Y = ps[g_p].player_int_pos().Y, ps[g_p].__int_opos.Z = ps[g_p].__int_pos.Z });
+			g_ac->set_int_pos(ps[g_p].player_int_pos());
+			ps[g_p].backupxyz();
+			ps[g_p].setbobpos();
 			g_ac->backuppos();
 			updatesector(ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), vec3_t( ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].player_int_pos().Z + gs.int_playerheight ));

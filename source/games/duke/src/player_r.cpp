@@ -3401,12 +3401,12 @@ void processinput_r(int snum)
 	int tempfz;
 	if (pact->spr.clipdist == 64)
 	{
-		getzrange(p->__int_pos, psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+		getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
 	}
 	else
 	{
-		getzrange(p->__int_pos, psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
+		getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
 	}
 
