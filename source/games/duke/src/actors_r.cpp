@@ -1475,12 +1475,13 @@ void movetransports_r(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
+							ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+							ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].player_set_int_z(Owner->int_pos().Z - 6144);
-							else ps[p].player_set_int_z(Owner->int_pos().Z + 6144);
+								ps[p].pos.Z = Owner->spr.pos.Z - 24;
+							else ps[p].pos.Z = Owner->spr.pos.Z + 24;
 							ps[p].backupz();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1496,7 +1497,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].player_int_pos().Z > (sectp->int_floorz() - (48 << 8)))
 						{
 							k = 2;
-							ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
+							ps[p].pos.Z = Owner->sector()->ceilingz + 7;
 							ps[p].backupz();
 						}
 
@@ -1504,7 +1505,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].player_set_int_z(Owner->sector()->int_floorz() - (49 << 8));
+							ps[p].pos.Z = Owner->sector()->floorz - 49;
 							ps[p].backupz();
 						}
 					}
@@ -1519,8 +1520,8 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
-							ps[p].backupz();
+						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
+						ps[p].backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
@@ -1535,13 +1536,14 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].player_set_int_z(Owner->sector()->int_floorz() - (7 << 8));
+						ps[p].pos.Z = Owner->sector()->floorz - 7;
 						ps[p].backupz();
 					}
 
 					if (k == 1)
 					{
-						ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
+						ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
@@ -1555,7 +1557,8 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
+						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)

@@ -1828,12 +1828,13 @@ void movetransports_d(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
+							ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+							ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].player_set_int_z(Owner->int_pos().Z - 6144);
-							else ps[p].player_set_int_z(Owner->int_pos().Z + 6144);
+								ps[p].pos.Z = Owner->spr.pos.Z - 24;
+							else ps[p].pos.Z = Owner->spr.pos.Z + 24;
 							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
@@ -1857,7 +1858,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
+						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
 						ps[p].backupz();
 
 						ps[p].vel.X = 4096 - (krand() & 8192);
@@ -1875,7 +1876,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].player_set_int_z(Owner->sector()->int_floorz() - (7 << 8));
+						ps[p].pos.Z = Owner->sector()->floorz - 7;
 						ps[p].backupz();
 
 						ps[p].jumping_toggle = 1;
@@ -1884,7 +1885,8 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
+						ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (!Owner || Owner->GetOwner() != Owner)
@@ -1892,7 +1894,7 @@ void movetransports_d(void)
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
-						SetActor(ps[p].GetActor(), vec3_t(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight ));
+						SetActor(ps[p].GetActor(), ps[p].pos.plusZ(gs.playerheight));
 
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
