@@ -789,8 +789,7 @@ void movecrane(DDukeActor *actor, int crane)
 		{
 			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].backupxyz();
-			ps[p].__int_pos.X = actor->int_pos().X - bcos(ang, -6);
-			ps[p].__int_pos.Y = actor->int_pos().Y - bsin(ang, -6);
+			ps[p].player_set_int_xy({ actor->int_pos().X - bcos(ang, -6), actor->int_pos().Y - bsin(ang, -6) });
 			ps[p].player_set_int_z(actor->int_pos().Z + (2 << 8));
 			SetActor(ps[p].GetActor(), ps[p].player_int_pos());
 			ps[p].setCursector(ps[p].GetActor()->sector());
@@ -2688,7 +2687,7 @@ void handle_se00(DDukeActor* actor)
 				ps[p].bobpos.X += res.X - ps[p].player_int_pos().X;
 				ps[p].bobpos.Y += res.Y - ps[p].player_int_pos().Y;
 
-				ps[p].__int_pos.vec2 = res;
+				ps[p].player_set_int_xy(res);
 
 				auto psp = ps[p].GetActor();
 				if (psp->spr.extra <= 0)
@@ -2857,10 +2856,10 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (actor->sector() == psp->sector())
 				{
-					rotatepoint(actor->int_pos().vec2, ps[p].player_int_pos().vec2, q, &ps[p].__int_pos.vec2);
+					vec2_t result;
+					rotatepoint(actor->int_pos().vec2, ps[p].player_int_pos().vec2, q, &result);
 
-					ps[p].__int_pos.X += m;
-					ps[p].__int_pos.Y +=x;
+					ps[p].player_set_int_xy({ result.X + m, result.Y + x });
 
 					ps[p].bobpos.X += m;
 					ps[p].bobpos.Y += x;
@@ -3030,8 +3029,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			auto psp = ps[p].GetActor();
 			if (psp->sector() == actor->sector())
 			{
-				ps[p].__int_pos.X += l;
-				ps[p].__int_pos.Y +=x;
+				ps[p].player_add_int_xy({ l, x });
 
 				if (numplayers > 1)
 				{
@@ -3162,8 +3160,7 @@ void handle_se02(DDukeActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].__int_pos.X += m;
-				ps[p].__int_pos.Y +=x;
+				ps[p].player_add_int_xy({ m, x });
 
 				ps[p].bobpos.X += m;
 				ps[p].bobpos.Y += x;
@@ -3878,8 +3875,7 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->spr.yvel;
 
-				ps[p].__int_pos.X += act2->int_pos().X - actor->int_pos().X;
-				ps[p].__int_pos.Y +=act2->int_pos().Y - actor->int_pos().Y;
+				ps[p].player_add_int_xy({ act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y });
 				ps[p].player_set_int_z(act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].player_int_pos().Z));
 
 				act3->floorz = act2->sector()->floorz;
@@ -4171,9 +4167,7 @@ void handle_se20(DDukeActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].__int_pos.X += x;
-				ps[p].__int_pos.Y +=l;
-
+				ps[p].player_add_int_xy({ x, l });
 				ps[p].backupxy();
 
 				SetActor(ps[p].GetActor(), vec3_t( ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight ));

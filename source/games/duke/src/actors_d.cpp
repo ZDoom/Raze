@@ -1828,8 +1828,7 @@ void movetransports_d(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-							ps[p].__int_pos.Y += Owner->int_pos().Y - act->int_pos().Y;
+							ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
@@ -1885,8 +1884,7 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].__int_pos.X += Owner->int_pos().X - act->int_pos().X;
-						ps[p].__int_pos.Y +=Owner->int_pos().Y - act->int_pos().Y;
+						ps[p].player_add_int_xy(Owner->int_pos().vec2 - act->int_pos().vec2);
 						ps[p].backupxy();
 
 						if (!Owner || Owner->GetOwner() != Owner)

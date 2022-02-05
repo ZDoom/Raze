@@ -415,7 +415,7 @@ struct player_struct
 
 	vec3_t player_int_opos() const
 	{
-		return { int(opos.X * worldtoint), int(opos.Y * worldtoint),int(opos.Z * zworldtoint) };
+		return { int(opos.X * worldtoint), int(opos.Y * worldtoint), int(opos.Z * zworldtoint) };
 	}
 
 	void player_add_int_z(int z)
@@ -427,6 +427,15 @@ struct player_struct
 	{
 		__int_pos.Z  = z;
 	}
+	void player_add_int_xy(const vec2_t& v)
+	{
+		__int_pos.vec2 += v;
+	}
+	void player_set_int_xy(const vec2_t& v)
+	{
+		__int_pos.vec2 = v;
+	}
+
 
 };
 

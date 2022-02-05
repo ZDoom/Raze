@@ -3795,8 +3795,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->__int_pos.X += p->vel.X >> 14;
-		p->__int_pos.Y +=p->vel.Y >> 14;
+		p->player_add_int_xy({ p->vel.X >> 14, p->vel.Y >> 14 });
 		updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
