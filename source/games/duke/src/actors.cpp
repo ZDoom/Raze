@@ -372,7 +372,7 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->add_int_pos({ (ps[p].player_int_pos().X - ps[p].__int_opos.X), (ps[p].player_int_pos().Y - ps[p].__int_opos.Y), 0 });
+		act->add_int_pos({ (ps[p].player_int_pos().X - ps[p].player_int_opos().X), (ps[p].player_int_pos().Y - ps[p].player_int_opos().Y), 0 });
 		SetActor(act, act->int_pos());
 	}
 }
