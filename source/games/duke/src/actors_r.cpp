@@ -1480,8 +1480,8 @@ void movetransports_r(void)
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
-							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
+								ps[p].player_set_int_z(Owner->int_pos().Z - 6144);
+							else ps[p].player_set_int_z(Owner->int_pos().Z + 6144);
 							ps[p].backupz();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1497,7 +1497,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].player_int_pos().Z > (sectp->int_floorz() - (48 << 8)))
 						{
 							k = 2;
-							ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+							ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
 							ps[p].backupz();
 						}
 
@@ -1505,7 +1505,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (49 << 8);
+							ps[p].player_set_int_z(Owner->sector()->int_floorz() - (49 << 8));
 							ps[p].backupz();
 						}
 					}
@@ -1520,7 +1520,7 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+						ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
 							ps[p].backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
@@ -1536,7 +1536,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].player_set_int_z(Owner->sector()->int_floorz() - (7 << 8));
 						ps[p].backupz();
 					}
 

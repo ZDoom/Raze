@@ -1833,8 +1833,8 @@ void movetransports_d(void)
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].__int_pos.Z = Owner->int_pos().Z - 6144;
-							else ps[p].__int_pos.Z = Owner->int_pos().Z + 6144;
+								ps[p].player_set_int_z(Owner->int_pos().Z - 6144);
+							else ps[p].player_set_int_z(Owner->int_pos().Z + 6144);
 							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
@@ -1858,7 +1858,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].__int_pos.Z = Owner->sector()->int_ceilingz() + (7 << 8);
+						ps[p].player_set_int_z(Owner->sector()->int_ceilingz() + (7 << 8));
 						ps[p].backupz();
 
 						ps[p].vel.X = 4096 - (krand() & 8192);
@@ -1876,7 +1876,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].__int_pos.Z = Owner->sector()->int_floorz() - (7 << 8);
+						ps[p].player_set_int_z(Owner->sector()->int_floorz() - (7 << 8));
 						ps[p].backupz();
 
 						ps[p].jumping_toggle = 1;

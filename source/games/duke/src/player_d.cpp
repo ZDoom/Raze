@@ -1687,7 +1687,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
-		p->__int_pos.Z -= (p->jetpack_on << 7); //Goin up
+		p->player_add_int_z(-(p->jetpack_on << 7)); //Goin up
 	}
 	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pact, DUKE_JETPACK_IDLE))
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
@@ -1702,7 +1702,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			p->__int_pos.Z -= j;
+			p->player_add_int_z(-j);
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -1714,7 +1714,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		OnEvent(EVENT_SOARDOWN, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			p->__int_pos.Z += j;
+			p->player_add_int_z(j);
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -1727,9 +1727,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		p->scuba_on = 0;
 
 	if (p->player_int_pos().Z > (fz - (k << 8)))
-		p->__int_pos.Z += ((fz - (k << 8)) - p->player_int_pos().Z) >> 1;
+		p->player_add_int_z(((fz - (k << 8)) - p->player_int_pos().Z) >> 1);
 	if (p->player_int_pos().Z < (pact->actor_int_ceilingz() + (18 << 8)))
-		p->__int_pos.Z = pact->actor_int_ceilingz() + (18 << 8);
+		p->player_set_int_z(pact->actor_int_ceilingz() + (18 << 8));
 
 }
 
@@ -1788,7 +1788,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 		// not jumping or crouching
 		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->player_int_pos().Z >= (fz - (i << 8) - (16 << 8)))
-			p->__int_pos.Z = fz - (i << 8);
+			p->player_set_int_z(fz - (i << 8));
 		else
 		{
 			p->on_ground = 0;
@@ -1847,16 +1847,16 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 			int k = ((fz - (i << 8)) - p->player_int_pos().Z) >> 1;
 			if (abs(k) < 256) k = 0;
-			p->__int_pos.Z += k;
+			p->player_add_int_z(k);
 			p->vel.Z -= 768;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->__int_pos.Z += ((fz - (i << 7)) - p->player_int_pos().Z) >> 1; //Smooth on the water
+			p->player_add_int_z(((fz - (i << 7)) - p->player_int_pos().Z) >> 1); //Smooth on the water
 			if (p->on_warping_sector == 0 && p->player_int_pos().Z > fz - (16 << 8))
 			{
-				p->__int_pos.Z = fz - (16 << 8);
+				p->player_set_int_z(fz - (16 << 8));
 				p->vel.Z >>= 1;
 			}
 		}
@@ -1907,7 +1907,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		}
 	}
 
-	p->__int_pos.Z += p->vel.Z;
+	p->player_add_int_z(p->vel.Z);
 
 	if (p->player_int_pos().Z < (cz + (4 << 8)))
 	{
@@ -1915,7 +1915,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 128;
-		p->__int_pos.Z = cz + (4 << 8);
+		p->player_set_int_z(cz + (4 << 8));
 	}
 }
 
@@ -1974,14 +1974,14 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->vel.Z > 2048)
 		p->vel.Z >>= 1;
 
-	p->__int_pos.Z += p->vel.Z;
+	p->player_add_int_z(p->vel.Z);
 
 	if (p->player_int_pos().Z > (fz - (15 << 8)))
-		p->__int_pos.Z += ((fz - (15 << 8)) - p->player_int_pos().Z) >> 1;
+		p->player_add_int_z(((fz - (15 << 8)) - p->player_int_pos().Z) >> 1);
 
 	if (p->player_int_pos().Z < (cz + (4 << 8)))
 	{
-		p->__int_pos.Z = cz + (4 << 8);
+		p->player_set_int_z(cz + (4 << 8));
 		p->vel.Z = 0;
 	}
 
@@ -2034,7 +2034,7 @@ int operateTripbomb(int snum)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 			if (((hit.hitpos.X - p->player_int_pos().X) * (hit.hitpos.X - p->player_int_pos().X) + (hit.hitpos.Y - p->player_int_pos().Y) * (hit.hitpos.Y - p->player_int_pos().Y)) < (290 * 290))
 			{
-				p->__int_pos.Z = p->player_int_opos().Z;
+				p->player_set_int_z(p->player_int_opos().Z);
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -2572,7 +2572,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->__int_pos.Z = p->player_int_opos().Z;
+			p->player_set_int_z(p->player_int_opos().Z);
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
@@ -3035,7 +3035,7 @@ HORIZONLY:
 		clipmove(p->__int_pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->__int_pos.Z += 32 << 8;
+		p->player_add_int_z(32 << 8);
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_d(p, clip);

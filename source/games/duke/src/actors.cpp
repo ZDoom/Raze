@@ -791,7 +791,7 @@ void movecrane(DDukeActor *actor, int crane)
 			ps[p].backupxyz();
 			ps[p].__int_pos.X = actor->int_pos().X - bcos(ang, -6);
 			ps[p].__int_pos.Y = actor->int_pos().Y - bsin(ang, -6);
-			ps[p].__int_pos.Z = actor->int_pos().Z + (2 << 8);
+			ps[p].player_set_int_z(actor->int_pos().Z + (2 << 8));
 			SetActor(ps[p].GetActor(), ps[p].player_int_pos());
 			ps[p].setCursector(ps[p].GetActor()->sector());
 		}
@@ -1095,7 +1095,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 			{
 				sectp->add_int_floorz(sectp->extra);
 				p = checkcursectnums(actor->sector());
-				if (p >= 0) ps[p].__int_pos.Z += sectp->extra;
+				if (p >= 0) ps[p].player_add_int_z(sectp->extra);
 			}
 		}
 		else
@@ -1110,7 +1110,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 				sectp->add_int_floorz(-sectp->extra);
 				p = checkcursectnums(actor->sector());
 				if (p >= 0)
-					ps[p].__int_pos.Z -= sectp->extra;
+					ps[p].player_add_int_z(-sectp->extra);
 			}
 		}
 		return;
@@ -2680,7 +2680,7 @@ void handle_se00(DDukeActor* actor)
 			{
 				ps[p].angle.addadjustment(buildang(l * q));
 
-				ps[p].__int_pos.Z += zchange;
+				ps[p].player_add_int_z(zchange);
 
 				vec2_t res;
 				rotatepoint(Owner->int_pos().vec2, ps[p].player_int_pos().vec2, (q * l), &res);
@@ -3827,7 +3827,7 @@ void handle_se17(DDukeActor* actor)
 		{
 			int p = act1->spr.yvel;
 			if (numplayers < 2) ps[p].backupz();
-			ps[p].__int_pos.Z += q * zworldtoint;
+			ps[p].player_add_int_z(q * zworldtoint);
 			ps[p].truefz += q;
 			ps[p].truecz += q;
 			if (numplayers > 1)	ps[p].backupz();
@@ -3880,7 +3880,7 @@ void handle_se17(DDukeActor* actor)
 
 				ps[p].__int_pos.X += act2->int_pos().X - actor->int_pos().X;
 				ps[p].__int_pos.Y +=act2->int_pos().Y - actor->int_pos().Y;
-				ps[p].__int_pos.Z = act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].player_int_pos().Z);
+				ps[p].player_set_int_z(act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].player_int_pos().Z));
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
@@ -3946,7 +3946,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].__int_pos.Z += sc->extra;
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].player_add_int_z(sc->extra);
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(sc->extra);
@@ -3983,7 +3983,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].__int_pos.Z -= sc->extra;
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].player_add_int_z(-sc->extra);
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(-sc->extra);
@@ -4287,7 +4287,7 @@ void handle_se26(DDukeActor* actor)
 		{
 			ps[p].fric.X += l << 5;
 			ps[p].fric.Y += x << 5;
-			ps[p].__int_pos.Z += actor->spr.zvel;
+			ps[p].player_add_int_z(actor->spr.zvel);
 		}
 
 	ms(actor);
@@ -4678,7 +4678,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].__int_pos.Z += l;
+								ps[a2->PlayerIndex()].player_add_int_z(l);
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
@@ -4707,7 +4707,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].__int_pos.Z += l;
+								ps[a2->PlayerIndex()].player_add_int_z(l);
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
@@ -4738,7 +4738,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].__int_pos.Z += l;
+							ps[a2->PlayerIndex()].player_add_int_z(l);
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(l);
@@ -4766,7 +4766,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].__int_pos.Z -= l;
+							ps[a2->PlayerIndex()].player_add_int_z(-l);
 					if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(-l);

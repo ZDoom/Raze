@@ -1981,7 +1981,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].__int_pos.Z = ps[g_p].GetActor()->sector()->int_ceilingz();
+		ps[g_p].player_set_int_z(ps[g_p].GetActor()->sector()->int_ceilingz());
 		ps[g_p].GetActor()->set_int_z(ps[g_p].player_int_pos().Z);
 		break;
 	case concmd_destroyit:

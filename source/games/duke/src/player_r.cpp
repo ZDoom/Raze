@@ -2118,7 +2118,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 	if (p->player_int_pos().Z < (fz - (i << 8))) //falling
 	{
 		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->player_int_pos().Z >= (fz - (i << 8) - (16 << 8)))
-			p->__int_pos.Z = fz - (i << 8);
+			p->player_set_int_z(fz - (i << 8));
 		else
 		{
 			p->on_ground = 0;
@@ -2215,16 +2215,16 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 			int k = ((fz - (i << 8)) - p->player_int_pos().Z) >> 1;
 			if (abs(k) < 256) k = 0;
-			p->__int_pos.Z += k;
+			p->player_add_int_z(k);
 			p->vel.Z -= 768;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->__int_pos.Z += ((fz - (i << 7)) - p->player_int_pos().Z) >> 1; //Smooth on the water
+			p->player_add_int_z(((fz - (i << 7)) - p->player_int_pos().Z) >> 1); //Smooth on the water
 			if (p->on_warping_sector == 0 && p->player_int_pos().Z > fz - (16 << 8))
 			{
-				p->__int_pos.Z = fz - (16 << 8);
+				p->player_set_int_z(fz - (16 << 8));
 				p->vel.Z >>= 1;
 			}
 		}
@@ -2271,7 +2271,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		}
 	}
 
-	p->__int_pos.Z += p->vel.Z;
+	p->player_add_int_z(p->vel.Z);
 
 	if (p->player_int_pos().Z < (cz + (4 << 8)))
 	{
@@ -2279,7 +2279,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 128;
-		p->__int_pos.Z = cz + (4 << 8);
+		p->player_set_int_z(cz + (4 << 8));
 	}
 }
 
@@ -2334,14 +2334,14 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->vel.Z > 2048)
 		p->vel.Z >>= 1;
 
-	p->__int_pos.Z += p->vel.Z;
+	p->player_add_int_z(p->vel.Z);
 
 	if (p->player_int_pos().Z > (fz - (15 << 8)))
-		p->__int_pos.Z += ((fz - (15 << 8)) - p->player_int_pos().Z) >> 1;
+		p->player_add_int_z(((fz - (15 << 8)) - p->player_int_pos().Z) >> 1);
 
 	if (p->player_int_pos().Z < (cz + (4 << 8)))
 	{
-		p->__int_pos.Z = cz + (4 << 8);
+		p->player_set_int_z(cz + (4 << 8));
 		p->vel.Z = 0;
 	}
 
@@ -3804,7 +3804,7 @@ HORIZONLY:
 		clipmove(p->__int_pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->__int_pos.Z += 32 << 8;
+		p->player_add_int_z(32 << 8);
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);

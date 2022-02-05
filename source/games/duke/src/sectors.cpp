@@ -391,7 +391,7 @@ void doanimations(void)
 					if ((dasectp->int_floorz() - ps[p].player_int_pos().Z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].__int_pos.Z += v;
+							ps[p].player_add_int_z(v);
 							ps[p].vel.Z = 0;
 						}
 

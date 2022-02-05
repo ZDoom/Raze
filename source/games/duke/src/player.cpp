@@ -564,7 +564,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->__int_pos.Z -= (16 << 8);
+			p->player_add_int_z(-(16 << 8));
 			actor->add_int_z(-(16 << 8));
 		}
 #if 0
@@ -613,7 +613,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (p->on_warping_sector == 0)
 		{
 			if (abs(p->player_int_pos().Z - fz) > (gs.int_playerheight >> 1))
-				p->__int_pos.Z += 348;
+				p->player_add_int_z(348);
 		}
 		else
 		{
@@ -710,7 +710,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->__int_pos.Z += (2048 + 768);
+		p->player_add_int_z((2048 + 768));
 		p->crack_time = CRACK_TIME;
 	}
 }

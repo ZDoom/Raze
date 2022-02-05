@@ -371,7 +371,7 @@ struct player_struct
 	{
 		__int_pos.X = opos.X * worldtoint;
 		__int_pos.Y = opos.Y * worldtoint;
-		__int_pos.Z = opos.Z * zworldtoint;
+		__int_pos.Z  = opos.Z * zworldtoint;
 	}
 
 	void backupxy()
@@ -399,7 +399,7 @@ struct player_struct
 	void getposfromactor(DCoreActor* actor, double addz = 0)
 	{
 		__int_pos = actor->int_pos();
-		if (addz) __int_pos.Z += int(addz * worldtoint);
+		if (addz) __int_pos.Z  += int(addz * worldtoint);
 	}
 
 	void getxyfromactor(DCoreActor* actor)
@@ -420,12 +420,12 @@ struct player_struct
 
 	void player_add_int_z(int z)
 	{
-		__int_pos.Z += z;
+		__int_pos.Z  += z;
 	}
 
 	void player_set_int_z(int z)
 	{
-		__int_pos.Z = z;
+		__int_pos.Z  = z;
 	}
 
 };
