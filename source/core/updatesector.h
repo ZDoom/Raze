@@ -110,6 +110,13 @@ inline void updatesector(int const x, int const y, sectortype** const sectp)
 	*sectp = sectno == -1? nullptr : &sector[sectno];
 }
 
+inline void updatesector(const DVector3& pos, sectortype** const sectp)
+{
+    int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
+    updatesector(int(pos.X * worldtoint), int(pos.Y * worldtoint), &sectno);
+    *sectp = sectno == -1 ? nullptr : &sector[sectno];
+}
+
 inline void updatesectorz(int x, int y, int z, sectortype** const sectp)
 {
     int sectno = *sectp ? sector.IndexOf(*sectp) : -1;

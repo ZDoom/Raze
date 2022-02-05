@@ -204,7 +204,7 @@ void clearcamera(player_struct* ps)
 	ps->newOwner = nullptr;
 	ps->restorexyz();
 	ps->angle.restore();
-	updatesector(ps->player_int_pos().X, ps->player_int_pos().Y, &ps->cursector);
+	updatesector(ps->pos, &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
@@ -372,7 +372,8 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->add_int_pos({ (ps[p].player_int_pos().X - ps[p].player_int_opos().X), (ps[p].player_int_pos().Y - ps[p].player_int_opos().Y), 0 });
+		act->spr.pos.X += (ps[p].pos.X - ps[p].opos.X);
+		act->spr.pos.Y += (ps[p].pos.Y - ps[p].opos.Y);
 		SetActor(act, act->int_pos());
 	}
 }
@@ -455,8 +456,7 @@ void moveplayers(void)
 				}
 				else
 				{
-					p->getposfromactor(act, -20);
-
+					p->pos = act->spr.pos.plusZ(-28);
 					p->newOwner = nullptr;
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
@@ -620,6 +620,7 @@ void movefx(void)
 
 void movecrane(DDukeActor *actor, int crane)
 {
+	const double CRANE_STEP = 16.;
 	auto sectp = actor->sector();
 	int x;
 	auto& cpt = cranes[actor->temp_data[4]];
@@ -789,9 +790,10 @@ void movecrane(DDukeActor *actor, int crane)
 		{
 			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].backupxyz();
-			ps[p].player_set_int_xy({ actor->int_pos().X - bcos(ang, -6), actor->int_pos().Y - bsin(ang, -6) });
-			ps[p].player_set_int_z(actor->int_pos().Z + (2 << 8));
-			SetActor(ps[p].GetActor(), ps[p].player_int_pos());
+			ps[p].pos.X = actor->spr.pos.X - CRANE_STEP * buildang(ang).fcos();
+			ps[p].pos.Y = actor->spr.pos.Y - CRANE_STEP * buildang(ang).fsin();
+			ps[p].pos.Z = actor->spr.pos.Z + 2;
+			SetActor(ps[p].GetActor(), ps[p].pos);
 			ps[p].setCursector(ps[p].GetActor()->sector());
 		}
 	}
@@ -1094,7 +1096,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 			{
 				sectp->add_int_floorz(sectp->extra);
 				p = checkcursectnums(actor->sector());
-				if (p >= 0) ps[p].player_add_int_z(sectp->extra);
+				if (p >= 0) ps[p].pos.Z += sectp->extra * zmaptoworld;
 			}
 		}
 		else
@@ -1109,7 +1111,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 				sectp->add_int_floorz(-sectp->extra);
 				p = checkcursectnums(actor->sector());
 				if (p >= 0)
-					ps[p].player_add_int_z(-sectp->extra);
+					ps[p].pos.Z -= sectp->extra * zmaptoworld;
 			}
 		}
 		return;
@@ -3824,7 +3826,7 @@ void handle_se17(DDukeActor* actor)
 		{
 			int p = act1->spr.yvel;
 			if (numplayers < 2) ps[p].backupz();
-			ps[p].player_add_int_z(q * zworldtoint);
+			ps[p].pos.Z += q;
 			ps[p].truefz += q;
 			ps[p].truecz += q;
 			if (numplayers > 1)	ps[p].backupz();
@@ -3875,8 +3877,9 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->spr.yvel;
 
-				ps[p].player_add_int_xy({ act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y });
-				ps[p].player_set_int_z(act2->sector()->int_floorz() - (sc->int_floorz() - ps[p].player_int_pos().Z));
+				ps[p].pos.X += act2->spr.pos.X - actor->spr.pos.X;
+				ps[p].pos.Y += act2->spr.pos.Y - actor->spr.pos.Y;
+				ps[p].pos.Z = act2->sector()->floorz - (sc->floorz - ps[p].pos.Z);
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
@@ -3921,6 +3924,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 
 	if (actor->temp_data[0])
 	{
+		double extra = sc->extra * zmaptoworld;
 		if (actor->spr.pal)
 		{
 			if (actor->spr.ang == 512)
@@ -3942,7 +3946,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].player_add_int_z(sc->extra);
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z += extra;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(sc->extra);
@@ -3979,7 +3983,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].player_add_int_z(-sc->extra);
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z -= extra;
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->add_int_z(-sc->extra);
@@ -4170,7 +4174,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].player_add_int_xy({ x, l });
 				ps[p].backupxy();
 
-				SetActor(ps[p].GetActor(), vec3_t( ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z + gs.int_playerheight ));
+				SetActor(ps[p].GetActor(), ps[p].pos.plusZ(gs.playerheight));
 			}
 
 		sc->addfloorxpan(-x / 8.f);
@@ -4281,7 +4285,7 @@ void handle_se26(DDukeActor* actor)
 		{
 			ps[p].fric.X += l << 5;
 			ps[p].fric.Y += x << 5;
-			ps[p].player_add_int_z(actor->spr.zvel);
+			ps[p].pos.Z += actor->spr.zvel * zmaptoworld;
 		}
 
 	ms(actor);
