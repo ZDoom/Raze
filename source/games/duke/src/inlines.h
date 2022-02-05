@@ -247,10 +247,4 @@ inline ESpriteFlags randomXFlip()
 	return CSTAT_SPRITE_XFLIP;
 }
 
-inline int pushmove_p(player_struct* actor, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	return ::pushmove(&actor->__int_pos, sect, walldist, ceildist, flordist, cliptype, clear);
-}
-
 END_DUKE_NS

@@ -2850,8 +2850,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			{
 				if (po[p].os == actor->sector())
 				{
-					po[p].opos.X += m;
-					po[p].opos.Y += x;
+					po[p].opos.X += m * inttoworld;
+					po[p].opos.Y += x * inttoworld;
 				}
 
 				if (actor->sector() == psp->sector())
@@ -3042,8 +3042,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 			if (po[p].os == actor->sector())
 			{
-				po[p].opos.X += l;
-				po[p].opos.Y += x;
+				po[p].opos.X += l * inttoworld;
+				po[p].opos.Y += x * inttoworld;
 			}
 		}
 

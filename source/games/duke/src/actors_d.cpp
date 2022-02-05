@@ -1837,7 +1837,7 @@ void movetransports_d(void)
 							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
-							pa->opos = DVector3(ps[p].__int_pos.X * inttoworld, ps[p].__int_pos.Y * inttoworld, ps[p].__int_pos.Z * zinttoworld);
+							pa->opos = ps[p].pos;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());

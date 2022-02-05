@@ -1522,12 +1522,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - ((krand() & 41) << 8), g_ac->sector(), ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].__int_pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), ps[g_p].pos, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z, g_ac->sector(), ps[g_p].player_int_pos().X, ps[g_p].player_int_pos().Y, ps[g_p].player_int_pos().Z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos, g_ac->sector(), ps[g_p].pos, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2792,7 +2792,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->int_pos().X,g_ac->int_pos().Y,g_ac->int_pos().Z-(4<<8),g_ac->sector(),ps[g_p].player_int_pos().X,ps[g_p].player_int_pos().Y,ps[g_p].__int_pos.Z+(16<<8),ps[g_p].GetActor()->sector()) )
+			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].pos.plusZ(16), ps[g_p].GetActor()->sector()))
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

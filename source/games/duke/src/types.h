@@ -189,7 +189,7 @@ struct user_defs
 
 struct player_orig
 {
-	vec3_t opos;
+	DVector3 opos;
 	short oa;
 	sectortype* os;
 };
@@ -203,12 +203,8 @@ struct CraneDef
 
 struct player_struct 
 {
-	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
-
-	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	vec3_t __int_pos, vel;
-
-	DVector3 opos;
+	vec3_t vel;
+	DVector3 pos, opos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -362,55 +358,51 @@ struct player_struct
 
 	void backupxyz()
 	{
-		opos.X = __int_pos.X * inttoworld;
-		opos.Y = __int_pos.Y * inttoworld;
-		opos.Z = __int_pos.Z * zinttoworld;
+		opos = pos;
 	}
 
 	void restorexyz()
 	{
-		__int_pos.X = opos.X * worldtoint;
-		__int_pos.Y = opos.Y * worldtoint;
-		__int_pos.Z  = opos.Z * zworldtoint;
+		pos = opos;
 	}
 
 	void backupxy()
 	{
-		opos.X = __int_pos.X * inttoworld;
-		opos.Y = __int_pos.Y * inttoworld;
+		opos.X = pos.X;
+		opos.Y = pos.Y;
 	}
 
 	void restorexy()
 	{
-		__int_pos.X = opos.X * worldtoint;
-		__int_pos.Y = opos.Y * worldtoint;
+		pos.X = opos.X;
+		pos.Y = opos.Y;
 	}
 
 	void backupz()
 	{
-		opos.Z = __int_pos.Z * zinttoworld;
+		opos.Z = pos.Z;
 	}
 
 	void setbobpos()
 	{
-		bobpos = __int_pos.vec2;
+		bobpos = player_int_pos().vec2;
 	}
 
 	void getposfromactor(DCoreActor* actor, double addz = 0)
 	{
-		__int_pos = actor->int_pos();
-		if (addz) __int_pos.Z  += int(addz * worldtoint);
+		pos = actor->spr.pos;
+		if (addz) pos.Z  += addz;
 	}
 
 	void getxyfromactor(DCoreActor* actor)
 	{
-		__int_pos.X = actor->int_pos().X;
-		__int_pos.Y = actor->int_pos().Y;
+		pos.X = actor->spr.pos.X;
+		pos.Y = actor->spr.pos.Y;
 	}
 
 	vec3_t player_int_pos() const
 	{
-		return __int_pos;
+		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
 	}
 
 	vec3_t player_int_opos() const
@@ -420,20 +412,22 @@ struct player_struct
 
 	void player_add_int_z(int z)
 	{
-		__int_pos.Z  += z;
+		pos.Z  += z * zinttoworld;
 	}
 
 	void player_set_int_z(int z)
 	{
-		__int_pos.Z  = z;
+		pos.Z  = z * zinttoworld;
 	}
 	void player_add_int_xy(const vec2_t& v)
 	{
-		__int_pos.vec2 += v;
+		pos.X  += v.X * inttoworld;
+		pos.Y  += v.Y * inttoworld;
 	}
 	void player_set_int_xy(const vec2_t& v)
 	{
-		__int_pos.vec2 = v;
+		pos.X  = v.X * inttoworld;
+		pos.Y  = v.Y * inttoworld;
 	}
 
 
