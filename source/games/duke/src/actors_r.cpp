@@ -1471,7 +1471,7 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && abs(act->int_pos().Z - ps[p].player_int_pos().Z) < 6144)
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].pos.Z) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
@@ -1494,14 +1494,14 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].player_int_pos().Z > (sectp->int_floorz() - (48 << 8)))
+						if (onfloorz && sectlotag == 160 && ps[p].pos.Z > sectp->floorz - 48)
 						{
 							k = 2;
 							ps[p].pos.Z = Owner->sector()->ceilingz + 7;
 							ps[p].backupz();
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].player_int_pos().Z < (sectp->int_ceilingz() + (6 << 8)))
+						if (onfloorz && sectlotag == 161 && ps[p].pos.Z < sectp->ceilingz + 6)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -1510,7 +1510,7 @@ void movetransports_r(void)
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].player_int_pos().Z > (sectp->int_floorz() - (6 << 8))) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.Z > sectp->floorz - 6) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1526,7 +1526,7 @@ void movetransports_r(void)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].player_int_pos().Z < (sectp->int_ceilingz() + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < sectp->ceilingz + 6)
 					{
 						k = 1;
 						if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -2498,7 +2498,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
-		if (cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), actor->sector(), ps[p].player_int_pos().X, ps[p].player_int_pos().Y, ps[p].player_int_pos().Z, ps[p].cursector))
+		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
 				{
@@ -3492,8 +3492,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].player_int_opos().X - actor->int_pos().X, ps[pnum].player_int_opos().Y - actor->int_pos().Y);
-		else goalang = getangle(ps[pnum].player_int_pos().X - actor->int_pos().X, ps[pnum].player_int_pos().Y - actor->int_pos().Y);
+			goalang = getangle(ps[pnum].opos.XY() - actor->spr.pos.XY());
+		else goalang = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3505,8 +3505,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].player_int_opos().X - actor->int_pos().X, ps[pnum].player_int_opos().Y - actor->int_pos().Y);
-		else goalang = getangle(ps[pnum].player_int_pos().X - actor->int_pos().X, ps[pnum].player_int_pos().Y - actor->int_pos().Y);
+			goalang = getangle(ps[pnum].opos.XY() - actor->spr.pos.XY());
+		else goalang = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3521,8 +3521,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = (getangle(ps[pnum].player_int_opos().X - actor->int_pos().X, ps[pnum].player_int_opos().Y - actor->int_pos().Y) + 1024) & 2047;
-			else goalang = (getangle(ps[pnum].player_int_pos().X - actor->int_pos().X, ps[pnum].player_int_pos().Y - actor->int_pos().Y) + 1024) & 2047;
+				goalang = (getangle(ps[pnum].opos.XY() - actor->spr.pos.XY()) + 1024) & 2047;
+			else goalang = (getangle(ps[pnum].pos.XY() - actor->spr.pos.XY()) + 1024) & 2047;
 			angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
@@ -3586,11 +3586,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		int newx, newy;
-
-		newx = ps[pnum].player_int_pos().X + (ps[pnum].vel.X / 768);
-		newy = ps[pnum].player_int_pos().Y + (ps[pnum].vel.Y / 768);
-		goalang = getangle(newx - actor->int_pos().X, newy - actor->int_pos().Y);
+		double newx = ps[pnum].pos.X + (ps[pnum].vel.X / 768) * inttoworld;
+		double newy = ps[pnum].pos.Y + (ps[pnum].vel.Y / 768) * inttoworld;
+		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3689,7 +3687,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[pnum].player_int_pos().X - actor->int_pos().X, ps[pnum].player_int_pos().Y - actor->int_pos().Y);
+				angdif = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
 
 				if (xvel < 512)
 				{

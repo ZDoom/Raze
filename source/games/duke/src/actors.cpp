@@ -397,7 +397,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->set_int_pos({ p->player_int_opos().X, p->player_int_opos().Y, p->player_int_opos().Z + gs.int_playerheight });
+				act->spr.pos = p->opos.plusZ(gs.playerheight);
 				act->backupz();
 				act->spr.ang = p->angle.oang.asbuild();
 				SetActor(act, act->int_pos());
@@ -5202,7 +5202,7 @@ void recordoldspritepos()
 
 void movefta(void)
 {
-	int x, px, py, sx, sy;
+	int x;
 	int canseeme, p;
 	sectortype* psect, * ssect;
 
@@ -5229,20 +5229,16 @@ void movefta(void)
 				{
 					if (badguy(act))
 					{
-						px = ps[p].player_int_opos().X + 64 - (krand() & 127);
-						py = ps[p].player_int_opos().Y + 64 - (krand() & 127);
-						updatesector(px, py, &psect);
+						double px = ps[p].opos.X + (64 - (krand() & 127)) * maptoworld;
+						double py = ps[p].opos.Y + (64 - (krand() & 127)) * maptoworld;
+						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{
 							continue;
 						}
-						sx = act->int_pos().X + 64 - (krand() & 127);
-						sy = act->int_pos().Y + 64 - (krand() & 127);
-						updatesector(px, py, &ssect);
-						if (ssect == nullptr)
-						{
-							continue;
-						}
+						double sx = act->spr.pos.X + (64 - (krand() & 127)) * maptoworld;
+						double sy = act->spr.pos.Y + (64 - (krand() & 127)) * maptoworld;
+						// The second updatesector call here used px and py again and was redundant as coded.
 
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
 						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
@@ -5251,14 +5247,14 @@ void movefta(void)
 						{
 							int r1 = krand();
 							int r2 = krand();
-							canseeme = cansee(sx, sy, act->int_pos().Z - (r2 % (52 << 8)), act->sector(), px, py, ps[p].player_int_opos().Z - (r1 % (32 << 8)), ps[p].cursector);
+							canseeme = cansee({ sx, sy, act->spr.pos.Z - (r2 % (52 << 8)) * maptoworld }, act->sector(), { px, py, ps[p].opos.Z - (r1 % (32 << 8)) * maptoworld }, ps[p].cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->int_pos().X, act->int_pos().Y, act->int_pos().Z - ((r2 & 31) << 8), act->sector(), ps[p].player_int_opos().X, ps[p].player_int_opos().Y, ps[p].player_int_opos().Z - ((r1 & 31) << 8), ps[p].cursector);
+						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].opos.plusZ(-(r1 & 31)), ps[p].cursector);
 					}
 
 
