@@ -55,6 +55,7 @@ public:
 	{
 		int saved_ammo;
 		int palvals;
+		int tempsound;
 	};
 	int temp_data[6];
 	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now

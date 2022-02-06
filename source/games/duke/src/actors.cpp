@@ -2800,8 +2800,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		{
 			if (statstate)
 			{
-				if (!S_CheckSoundPlaying(actor->ovel.X))
-					S_PlayActorSound(actor->ovel.X, actor);
+				if (!S_CheckSoundPlaying(actor->tempsound))
+					S_PlayActorSound(actor->tempsound, actor);
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
@@ -2817,7 +2817,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		}
 
 		if (actor->spr.xvel <= 64 && statstate)
-			S_StopSound(actor->ovel.X, actor);
+			S_StopSound(actor->tempsound, actor);
 
 		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 		{

@@ -1043,7 +1043,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				else if (actor->sector()->floorpal == 7) j = 456;
 				else j = 75;
 			}
-			actor->ovel.X = j;
+			actor->tempsound = j;
 		}
 		[[fallthrough]];
 		case SE_30_TWO_WAY_TRAIN:
