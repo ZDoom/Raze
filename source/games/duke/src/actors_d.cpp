@@ -1526,7 +1526,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->add_int_z(1 << 8);
+			if (spawned) spawned->spr.pos.Z += 1;
 		}
 		break;
 

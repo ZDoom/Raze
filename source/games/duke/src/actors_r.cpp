@@ -921,7 +921,7 @@ static void chickenarrow(DDukeActor* actor)
 	if (actor->attackertype != BOSS2 && actor->spr.xrepeat >= 10 && actor->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
-		if (spawned) spawned->add_int_z(1 << 8);
+		if (spawned) spawned->spr.pos.Z += 1;
 		if ((krand() & 15) == 2)
 		{
 			spawn(actor, MONEY);
@@ -1202,7 +1202,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->add_int_z(1 << 8);
+			if (spawned) spawned->spr.pos.Z += 1;
 		}
 		break;
 	case RPG2:
@@ -1222,7 +1222,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->add_int_z(1 << 8);
+			if (spawned) spawned->spr.pos.Z += 1;
 		}
 		break;
 	}

@@ -303,7 +303,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	{
 		act->spr.xrepeat = 31;
 		act->spr.yrepeat = 1;
-		act->set_int_z(actj->sector()->int_floorz() - gs.int_playerheight);
+		act->spr.pos.Z = actj->sector()->floorz - gs.playerheight;
 	}
 	else
 	{
@@ -441,7 +441,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		else
 		{
 			a = act->spr.ang;
-			act->set_int_z(actj->int_pos().Z - gs.int_playerheight + (3 << 8));
+			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
 		}
 
 		act->set_int_xy(actj->int_pos().X + bcos(a, -7), actj->int_pos().Y + bsin(a, -7));

@@ -511,8 +511,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->int_pos().X - p->player_int_pos().X) < 384)
-						if (abs(act->int_pos().Y - p->player_int_pos().Y) < 384)
+					if (abs(act->spr.pos.X - p->pos.X) < 24)
+						if (abs(act->spr.pos.Y - p->pos.Y) < 24)
 						{
 							j = 1;
 							break;
@@ -612,7 +612,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->player_int_pos().Z - fz) > (gs.int_playerheight >> 1))
+			if (abs(p->pos.Z - fz * inttoworld) > (gs.playerheight * 0.5))
 				p->pos.Z += 348/ 256.;
 		}
 		else

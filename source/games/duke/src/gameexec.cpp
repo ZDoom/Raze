@@ -326,15 +326,15 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].player_int_pos().X, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.X * (1/maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].player_int_pos().Y, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.Y * (1 / maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].player_int_pos().Z, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.Z * (1 / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -2048,7 +2048,7 @@ int ParseState::parse(void)
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].restorexyz();
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].player_int_pos().X,ps[g_p].player_int_pos().Y,&ps[g_p].cursector);
+			updatesector(ps[g_p].pos, &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto actj = it.Next())
@@ -2402,7 +2402,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].player_int_pos().Z < (g_ac->int_pos().Z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].pos.Z < g_ac->spr.pos.Z - 48)
 					j = 1;
 			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2425,9 +2425,9 @@ int ParseState::parse(void)
 			else if( (l& pfacing) )
 			{
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].player_int_pos().X - ps[otherp].player_int_pos().X, ps[g_p].player_int_pos().Y - ps[otherp].player_int_pos().Y));
+					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->int_pos().X - ps[g_p].player_int_pos().X, g_ac->int_pos().Y - ps[g_p].player_int_pos().Y));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
 
 				if( j > -128 && j < 128 )
 					j = 1;
