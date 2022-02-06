@@ -373,7 +373,7 @@ void movedummyplayers(void)
 
 		act->spr.pos.X += (ps[p].pos.X - ps[p].opos.X);
 		act->spr.pos.Y += (ps[p].pos.Y - ps[p].opos.Y);
-		SetActor(act, act->int_pos());
+		SetActor(act, act->spr.pos);
 	}
 }
 
@@ -400,7 +400,7 @@ void moveplayers(void)
 				act->spr.pos = p->opos.plusZ(gs.playerheight);
 				act->backupz();
 				act->spr.ang = p->angle.oang.asbuild();
-				SetActor(act, act->int_pos());
+				SetActor(act, act->spr.pos);
 			}
 			else
 			{
@@ -503,7 +503,7 @@ void moveplayers(void)
 			else
 			{
 				act->spr.ang = 2047 - (p->angle.ang.asbuild());
-				SetActor(act, act->int_pos());
+				SetActor(act, act->spr.pos);
 			}
 		}
 
@@ -666,15 +666,15 @@ void movecrane(DDukeActor *actor, int crane)
 
 		if (actor->temp_data[0] == 2)
 		{
-			if ((sectp->int_floorz() - actor->int_pos().Z) < (64 << 8))
+			if ((sectp->floorz - actor->spr.pos.Z) < 64)
 				if (actor->spr.picnum > crane) actor->spr.picnum--;
 
-			if ((sectp->int_floorz() - actor->int_pos().Z) < (4096 + 1024))
+			if ((sectp->floorz - actor->spr.pos.Z) < 20)
 				actor->temp_data[0]++;
 		}
 		if (actor->temp_data[0] == 7)
 		{
-			if ((sectp->int_floorz() - actor->int_pos().Z) < (64 << 8))
+			if ((sectp->floorz - actor->spr.pos.Z) < 64)
 			{
 				if (actor->spr.picnum > crane) actor->spr.picnum--;
 				else
@@ -734,7 +734,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (actor->temp_data[0] == 5 || actor->temp_data[0] == 8)
 	{
 		if (actor->temp_data[0] == 8 && actor->spr.picnum < (crane + 2))
-			if ((sectp->int_floorz() - actor->int_pos().Z) > 8192)
+			if ((sectp->floorz - actor->spr.pos.Z) > 32)
 				actor->spr.picnum++;
 
 		if (actor->int_pos().Z < cpt.pos.Z)
@@ -743,7 +743,7 @@ void movecrane(DDukeActor *actor, int crane)
 			actor->spr.xvel = 0;
 		}
 		else
-			actor->add_int_z(-(1024 + 512));
+			actor->spr.pos.Z -= 6;
 	}
 	else if (actor->temp_data[0] == 6)
 	{
@@ -779,7 +779,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 		if (Owner != nullptr)
 		{
-			SetActor(Owner, actor->int_pos());
+			SetActor(Owner, actor->spr.pos);
 
 			Owner->opos = actor->spr.pos;
 
@@ -1102,12 +1102,12 @@ void movetouchplate(DDukeActor* actor, int plate)
 		{
 			if (x <= actor->int_pos().Z)
 			{
-				sectp->set_int_floorz(actor->int_pos().Z);
+				sectp->setfloorz(actor->spr.pos.Z);
 				actor->temp_data[1] = 0;
 			}
 			else
 			{
-				sectp->add_int_floorz(-sectp->extra);
+				sectp->floorz -= sectp->extra * zmaptoworld;
 				p = checkcursectnums(actor->sector());
 				if (p >= 0)
 					ps[p].pos.Z -= sectp->extra * zmaptoworld;
@@ -1317,9 +1317,10 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		}
 
 	actor->spr.ang = Owner->spr.ang;
-	actor->set_int_xy(Owner->int_pos().X, Owner->int_pos().Y);
+	actor->spr.pos.X = Owner->spr.pos.X;
+	actor->spr.pos.Y = Owner->spr.pos.Y;
 	if (Owner->isPlayer())
-		actor->set_int_z(Owner->int_pos().Z - (34 << 8));
+		actor->spr.pos.Z = Owner->spr.pos.Z - 34;
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
 		auto q = EGS(actor->sector(),
@@ -1570,9 +1571,9 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 	{
 		if (actor->spr.zvel < 6144)
 			actor->spr.zvel += 192;
-		actor->add_int_z(actor->spr.zvel);
-		if (actor->int_pos().Z > sectp->int_floorz())
-			actor->set_int_z(sectp->int_floorz());
+		actor->spr.pos.Z += actor->spr.zvel * inttoworld;
+		if (actor->spr.pos.Z > sectp->floorz)
+			actor->spr.pos.Z = sectp->floorz;
 		actor->temp_data[3]--;
 		if (actor->temp_data[3] == 0)
 		{
@@ -1609,8 +1610,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->spr.shade += (sectp->ceilingshade - actor->spr.shade) >> 1;
 	else actor->spr.shade += (sectp->floorshade - actor->spr.shade) >> 1;
 
-	if (actor->int_pos().Z < sectp->int_ceilingz() + (32 << 8))
-		actor->set_int_z(sectp->int_ceilingz() + (32 << 8));
+	if (actor->spr.pos.Z < sectp->ceilingz + 32)
+		actor->spr.pos.Z = sectp->ceilingz + 32;
 
 	if (ud.multimode < 2)
 	{
@@ -2037,7 +2038,7 @@ void forcesphereexplode(DDukeActor *actor)
 			l -= 3;
 		}
 
-	actor->set_int_pos(Owner->int_pos());
+	actor->spr.pos = Owner->spr.pos;;
 	actor->spr.ang += Owner->temp_data[0];
 
 	if (l > 64) l = 64;
@@ -2132,7 +2133,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	ssp(actor, CLIPMASK0);
 
 	if ((krand() & 3) == 0)
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 
 	if (!actor->insector())
 	{
@@ -2188,11 +2189,11 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 
 	if (actor->spr.zvel > 1024 && actor->spr.zvel < 1280)
 	{
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 		sectp = actor->sector();
 	}
 
-	if (callsetsprite) SetActor(actor, actor->int_pos());
+	if (callsetsprite) SetActor(actor, actor->spr.pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
 	if (!actor->insector())
