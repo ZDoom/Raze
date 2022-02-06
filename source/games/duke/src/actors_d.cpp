@@ -443,7 +443,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	{
 		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
 		if (bg)
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 		return result.setNone();
 	}
 
@@ -941,13 +941,13 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[3] = actor->int_pos().X; 
 		actor->temp_data[4] = actor->int_pos().Y;
 		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 
 		x = hitasprite(actor, nullptr);
 
 		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
 		actor->add_int_z(3 << 8);
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 
 		if (actor->ovel.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -2146,7 +2146,7 @@ static void greenslime(DDukeActor *actor)
 			return;
 		}
 
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 
 		actor->spr.ang = ps[p].angle.ang.asbuild();
 
@@ -3555,7 +3555,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
 			actor->backupvec2();
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 		}
 		return;
 	}

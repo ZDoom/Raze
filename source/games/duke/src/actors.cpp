@@ -1317,10 +1317,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		}
 
 	actor->spr.ang = Owner->spr.ang;
-	actor->spr.pos.X = Owner->spr.pos.X;
-	actor->spr.pos.Y = Owner->spr.pos.Y;
-	if (Owner->isPlayer())
-		actor->spr.pos.Z = Owner->spr.pos.Z - 34;
+	actor->spr.pos = Owner->spr.pos.plusZ(Owner->isPlayer() ? -34 : 0);
+
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
 		auto q = EGS(actor->sector(),
@@ -2243,7 +2241,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14), MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14), 0 });
 		actor->add_int_z(actor->spr.zvel);
 
-		if (floorcheck && actor->int_pos().Z >= actor->sector()->int_floorz())
+		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
 		{
 			deletesprite(actor);
 			return false;
@@ -2454,7 +2452,7 @@ void glasspieces(DDukeActor* actor)
 		actor->spr.xrepeat >>= 1;
 		actor->spr.yrepeat >>= 1;
 		if (rnd(96))
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 		actor->temp_data[0]++;//Number of bounces
 	}
 	else if (actor->temp_data[0] == 3)
@@ -2490,7 +2488,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 
 	if (actor->spr.zvel > 1024 && actor->spr.zvel < 1280)
 	{
-		SetActor(actor, actor->int_pos());
+		SetActor(actor, actor->spr.pos);
 		sectp = actor->sector();
 	}
 
@@ -2604,20 +2602,20 @@ void handle_se00(DDukeActor* actor)
 			}
 			else actor->tempang = 256;
 
-			if (sect->int_floorz() > actor->int_pos().Z) //z's are touching
+			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
 				sect->add_int_floorz(-512);
 				zchange = -512;
-				if (sect->int_floorz() < actor->int_pos().Z)
-					sect->set_int_floorz(actor->int_pos().Z);
+				if (sect->floorz < actor->spr.pos.Z)
+					sect->floorz = actor->spr.pos.Z;
 			}
 
-			else if (sect->int_floorz() < actor->int_pos().Z) //z's are touching
+			else if (sect->floorz < actor->spr.pos.Z) //z's are touching
 			{
 				sect->add_int_floorz(512);
 				zchange = 512;
-				if (sect->int_floorz() > actor->int_pos().Z)
-					sect->set_int_floorz(actor->int_pos().Z);
+				if (sect->floorz > actor->spr.pos.Z)
+					sect->floorz = actor->spr.pos.Z;
 			}
 		}
 		else if (actor->spr.extra == 3)
@@ -2791,7 +2789,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	Owner = actor->GetOwner();
 	if (actor->spr.xvel)
 	{
-		int x = getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y);
+		int x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 		int q = getincangle(actor->spr.ang, x) >> 3;
 
 		actor->temp_data[2] += q;
@@ -2908,7 +2906,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 		ms(actor);
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
-		//SetActor(actor, actor->int_pos());
+		//SetActor(actor, actor->spr.pos);
 
 		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 		{
@@ -3068,7 +3066,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		}
 
 		ms(actor);
-		//SetActor(actor, actor->int_pos());
+		//SetActor(actor, actor->spr.pos);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
@@ -3182,7 +3180,7 @@ void handle_se02(DDukeActor* actor)
 			}
 		}
 		ms(actor);
-		//SetActor(actor, actor->int_pos());
+		//SetActor(actor, actor->spr.pos);
 	}
 }
 
@@ -3389,7 +3387,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	sc->add_int_ceilingz(actor->spr.zvel);
 	sector[actor->temp_data[0]].add_int_ceilingz(actor->spr.zvel);
 	ms(actor);
-	//SetActor(actor, actor->int_pos());
+	//SetActor(actor, actor->spr.pos);
 }
 
 //---------------------------------------------------------------------------
@@ -3546,7 +3544,7 @@ void handle_se11(DDukeActor *actor)
 		actor->temp_data[2] += k;
 		actor->temp_data[4] += k;
 		ms(actor);
-		//SetActor(actor, actor->int_pos());
+		//SetActor(actor, actor->spr.pos);
 
 		for(auto& wal : wallsofsector(sc))
 		{
@@ -3559,7 +3557,7 @@ void handle_se11(DDukeActor *actor)
 					actor->temp_data[2] -= k;
 					actor->temp_data[4] -= k;
 					ms(actor);
-					//SetActor(actor, actor->int_pos());
+					//SetActor(actor, actor->spr.pos);
 					return;
 				}
 			}
@@ -3570,7 +3568,7 @@ void handle_se11(DDukeActor *actor)
 			actor->temp_data[4] = 0;
 			actor->temp_data[2] &= 0xffffff00;
 			ms(actor);
-			//SetActor(actor, actor->int_pos());
+			//SetActor(actor, actor->spr.pos);
 		}
 	}
 }
@@ -3760,7 +3758,7 @@ void handle_se15(DDukeActor* actor)
 		}
 
 		ms(actor);
-		//SetActor(actor, actor->int_pos());
+		//SetActor(actor, actor->spr.pos);
 	}
 }
 
@@ -3804,7 +3802,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	else sc->add_int_ceilingz(-512);
 
 	ms(actor);
-	//SetActor(actor, actor->int_pos());
+	//SetActor(actor, actor->spr.pos);
 }
 
 //---------------------------------------------------------------------------
@@ -4293,7 +4291,7 @@ void handle_se26(DDukeActor* actor)
 		}
 
 	ms(actor);
-	//SetActor(actor, actor->int_pos());
+	//SetActor(actor, actor->spr.pos);
 }
 
 //---------------------------------------------------------------------------
@@ -5020,7 +5018,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		// NOTE: looks like 'Owner' is set to target sprite ID...
 
-		if (holoduke && cansee(holoduke->int_pos().X, holoduke->int_pos().Y, holoduke->int_pos().Z, holoduke->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+		if (holoduke && cansee(holoduke->spr.pos, holoduke->sector(), actor->spr.pos, actor->sector()))
 			actor->SetOwner(holoduke);
 		else actor->SetOwner(ps[playernum].GetActor());
 
@@ -5028,7 +5026,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		if (Owner->isPlayer())
 			goalang = getangle(actor->ovel.X - actor->int_pos().X, actor->ovel.Y - actor->int_pos().Y);
 		else
-			goalang = getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y);
+			goalang = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
 		if (actor->spr.xvel && actor->spr.picnum != TILE_DRONE)
 		{

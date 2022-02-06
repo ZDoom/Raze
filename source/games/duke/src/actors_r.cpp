@@ -372,7 +372,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	{
 		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
 		if (bg)
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 		return result.setNone();
 	}
 
@@ -397,7 +397,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 				actor->spr.ang = (krand() & 2047);
 			else if ((actor->temp_data[0] & 3) == 1)
 				actor->spr.ang = (krand() & 2047);
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
@@ -3599,7 +3599,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
 			actor->backupvec2();
-			SetActor(actor, actor->int_pos());
+			SetActor(actor, actor->spr.pos);
 		}
 		if (badguy(actor) && actor->spr.extra <= 0)
 		{
