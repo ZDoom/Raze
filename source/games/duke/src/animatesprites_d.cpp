@@ -163,12 +163,12 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		}
 
 		if (t->statnum == 99) continue;
-		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
+		auto pp = &ps[h->PlayerIndex()];
+		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
-			t->add_int_x(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].player_int_pos().X - ps[h->spr.yvel].player_int_opos().X, 16));
-			t->add_int_y(-MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].player_int_pos().Y - ps[h->spr.yvel].player_int_opos().Y, 16));
-			t->set_int_z(interpolatedvalue(ps[h->spr.yvel].player_int_opos().Z, ps[h->spr.yvel].player_int_pos().Z, smoothratio));
-			t->pos.Z += gs.playerheight;
+			t->pos.X -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.X - pp->opos.X, 16);
+			t->pos.Y -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.Y - pp->opos.Y, 16);
+			t->pos.Z = interpolatedvalue(pp->opos.Z, pp->pos.Z, smoothratio) + gs.playerheight;
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
@@ -203,14 +203,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
 			{
-				int sqa =
-					getangle(
-						OwnerAc->int_pos().X - ps[screenpeek].player_int_pos().X,
-						OwnerAc->int_pos().Y - ps[screenpeek].player_int_pos().Y);
-				int sqb =
-					getangle(
-						OwnerAc->int_pos().X - t->int_pos().X,
-						OwnerAc->int_pos().Y - t->int_pos().Y);
+				int sqa = getangle( OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY());
+				int sqb = getangle(OwnerAc->spr.pos.XY() - t->pos.XY());
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -354,9 +348,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
 				}
 
-				if (h->GetOwner())
-					newtspr->set_int_z(ps[p].player_int_pos().Z - (12 << 8));
-				else newtspr->set_int_z(h->int_pos().Z - (51 << 8));
+				if (h->GetOwner()) newtspr->pos.Z = ps[p].pos.Z - 12;
+				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -568,15 +561,15 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				{
 					if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 					{
-						int daz;
+						double floorz;
 
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE || h->spr.picnum == COMMANDER)
-							daz = sectp->int_floorz();
+							floorz = sectp->floorz;
 						else
-							daz = h->actor_int_floorz();
+							floorz = h->floorz;
 
 
-						if ((h->int_pos().Z - daz) < (8 << 8) && ps[screenpeek].player_int_pos().Z < daz)
+						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].pos.Z < floorz)
 						{
 							auto shadowspr = tsprites.newTSprite();
 							*shadowspr = *t;
@@ -588,7 +581,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							shadowspr->shade = 127;
 							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
-							shadowspr->set_int_z(daz);
+							shadowspr->pos.Z = floorz;
 							shadowspr->pal = 4;
 
 							if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
@@ -602,9 +595,9 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->int_pos().X - ps[screenpeek].player_int_pos().X, shadowspr->int_pos().Y - ps[screenpeek].player_int_pos().Y);
-								shadowspr->add_int_x(bcos(look, -9));
-								shadowspr->add_int_y(bsin(look, -9));
+								int look = getangle(shadowspr->pos.XY() - ps[screenpeek].pos.XY());
+								shadowspr->pos.X += buildang(look).fcos() * 2;
+								shadowspr->pos.Y += buildang(look).fsin() * 2;
 							}
 						}
 					}
