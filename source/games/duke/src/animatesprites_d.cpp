@@ -220,8 +220,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->ang = getangle(x - t->int_pos().X, y - t->int_pos().Y);
-					t->set_int_x(OwnerAc->int_pos().X + bcos(t->ang, -10));
-					t->set_int_y(OwnerAc->int_pos().Y + bsin(t->ang, -10));
+					t->pos.X = OwnerAc->spr.pos.X + buildang(t->ang).fcos();
+					t->pos.Y = OwnerAc->spr.pos.Y + buildang(t->ang).fsin();
 				}
 			}
 			break;

@@ -909,8 +909,8 @@ void post_analyzesprites(tspriteArray& tsprites)
                     continue;
                 }
 
-                tsp->set_int_x(atsp->int_pos().X);
-                tsp->set_int_y(atsp->int_pos().Y);
+                tsp->pos.X = atsp->pos.X;
+                tsp->pos.Y = atsp->pos.Y;
                 // statnum is priority - draw this ALWAYS first at 0
                 // statnum is priority - draw this ALWAYS last at MAXSTATUS
                 if ((atsp->extra & SPRX_BURNABLE))

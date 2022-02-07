@@ -520,17 +520,9 @@ struct tspritetype : public spritetypebase
 	{
 		pos.X += x * inttoworld;
 	}
-	void set_int_x(int x)
-	{
-		pos.X = x * inttoworld;
-	}
 	void add_int_y(int x)
 	{
 		pos.Y  += x * inttoworld;
-	}
-	void set_int_y(int x)
-	{
-		pos.Y  = x * inttoworld;
 	}
 	void add_int_z(int x)
 	{
