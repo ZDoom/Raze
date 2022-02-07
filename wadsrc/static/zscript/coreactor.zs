@@ -5,6 +5,7 @@ class CoreActor native
 
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
+	native readonly Vector3 pos;
 	native readonly int16 statnum;
 	native int16 ang;
 	native int16 xvel;
@@ -37,16 +38,9 @@ class CoreActor native
 	native readonly int16 spritesetpic;
 	native readonly int spawnindex;
 
-	// note that the pos vector is not directly accessible here.
-	// Its mixed fixed point format should be hidden from scripting, plus we need to wrap the setters to ensure proper sector linking anyway.
-	native Vector3 pos();
-	native Vector2 xy();
-	native double z();
 	native void setpos(Vector3 newpos, bool relink = true);
 	native void copypos(CoreActor newpos, bool relink = true);
 	native void move(Vector3 newpos, bool relink = true);
-	native void setz(double newz);
-	native void addz(double amount);
 	native void setSpritePic(int index);	// index into actor's spriteset.
 	native void backuppos();
 }

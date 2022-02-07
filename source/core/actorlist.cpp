@@ -496,6 +496,7 @@ DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)
 DEFINE_FIELD_NAMED(DCoreActor, spr.picnum, picnum)
 DEFINE_FIELD_NAMED(DCoreActor, spr.statnum, statnum)
 DEFINE_FIELD_NAMED(DCoreActor, spr.ang, ang)
+DEFINE_FIELD_NAMED(DCoreActor, spr.pos, pos)
 DEFINE_FIELD_NAMED(DCoreActor, spr.xvel, xvel)
 DEFINE_FIELD_NAMED(DCoreActor, spr.yvel, yvel)
 DEFINE_FIELD_NAMED(DCoreActor, spr.zvel, zvel)
@@ -524,29 +525,6 @@ DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
-
-DEFINE_ACTION_FUNCTION(DCoreActor, pos)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	ACTION_RETURN_VEC3(self->float_pos());
-}
-
-DEFINE_ACTION_FUNCTION(DCoreActor, xy)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	ACTION_RETURN_VEC2(self->float_pos().XY());
-}
-
-double coreactor_z(DCoreActor* self)
-{
-	return self->float_pos().Z;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, z, coreactor_z)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	ACTION_RETURN_FLOAT(coreactor_z(self));
-}
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
@@ -598,32 +576,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
 	PARAM_FLOAT(z);
 	PARAM_BOOL(relink);
 	coreactor_move(self, x, y, z, relink);
-	return 0;
-}
-
-void coreactor_setz(DCoreActor* self, double z)
-{
-	self->spr.pos.Z = z;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setz, coreactor_setz)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	PARAM_FLOAT(z);
-	coreactor_setz(self, z);
-	return 0;
-}
-
-void coreactor_addz(DCoreActor* self, double z)
-{
-	self->spr.pos.Z += z;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	PARAM_FLOAT(z);
-	coreactor_addz(self, z);
 	return 0;
 }
 

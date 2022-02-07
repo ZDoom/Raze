@@ -107,22 +107,6 @@ public:
 		spr.pos.Y = y * inttoworld;
 	}
 
-	DVector3 float_pos() const
-	{
-		return spr.pos;
-	}
-	
-	void set_float_z(int z)
-	{
-		spr.pos.Z = z;
-	}
-
-	void add_float_z(int z)
-	{
-		spr.pos.Z += z;
-	}
-
-
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
 	DVector3 render_pos() const
 	{
