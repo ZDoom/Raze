@@ -361,7 +361,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				if (k == 15)
 				{
 					j->spr.yvel = 3;
-					j->add_int_z(8 << 8);
+					j->spr.pos.Z += 8;
 				}
 
 				k = hits(p->GetActor());

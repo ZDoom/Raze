@@ -17398,7 +17398,7 @@ int QueueStar(DSWActor* actor)
     {
         // move old star to new stars place
         auto osp = StarQueue[StarQueueHead];
-        osp->set_int_pos(actor->int_pos());
+        osp->spr.pos = actor->spr.pos;
         ChangeActorSect(osp, actor->sector());
         KillActor(actor);
         actor = osp;
@@ -17511,7 +17511,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->set_int_pos(actor->int_pos());
+    spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->add_int_z(Z(1));
     spawnedActor->spr.ang = RANDOM_P2(2048); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
@@ -17612,7 +17612,7 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->set_int_pos(actor->int_pos());
+    spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->spr.ang = actor->spr.ang;
     spawnedActor->user.Flags &= ~(SPR_SHADOW);
     switch (FootMode)
@@ -17885,7 +17885,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     {
         // move old sprite to new sprite's place
         auto osp = GenericQueue[GenericQueueHead];
-        osp->set_int_pos(actor->int_pos());
+        osp->spr.pos = actor->spr.pos;
         ChangeActorSect(osp, actor->sector());
         KillActor(actor);
         actor = GenericQueue[GenericQueueHead];

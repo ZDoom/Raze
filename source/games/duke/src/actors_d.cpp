@@ -709,7 +709,7 @@ void movefallers_d(void)
 
 		if (act->temp_data[0] == 0)
 		{
-			act->add_int_z(-(16 << 8));
+			act->spr.pos.Z -= 16;
 			act->temp_data[1] = act->spr.ang;
 			x = act->spr.extra;
 			j = fi.ifhitbyweapon(act);
@@ -923,7 +923,7 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->temp_data[0]++;
 		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
-		actor->add_int_z(3 << 8);
+		actor->spr.pos.Z += 3;
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
@@ -946,7 +946,7 @@ static void movetripbomb(DDukeActor *actor)
 		x = hitasprite(actor, nullptr);
 
 		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
-		actor->add_int_z(3 << 8);
+		actor->spr.pos.Z += 3;
 		SetActor(actor, actor->spr.pos);
 
 		if (actor->ovel.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)

@@ -7087,7 +7087,7 @@ void actPostProcess(void)
 void MakeSplash(DBloodActor* actor)
 {
 	actor->spr.flags &= ~2;
-	actor->add_int_z(-(4 << 8));
+	actor->spr.pos.Z -= 4;
 	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (actor->spr.type)
 	{

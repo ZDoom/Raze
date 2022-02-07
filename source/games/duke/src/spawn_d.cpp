@@ -314,7 +314,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		act->spr.xrepeat = 7 + (krand() & 7);
 		act->spr.yrepeat = 7 + (krand() & 7);
-		act->add_int_z(-(16 << 8));
+		act->spr.pos.Z -= 16;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		insertspriteq(act);
@@ -679,7 +679,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	}
 	case WATERBUBBLE:
 		if (actj && actj->spr.picnum == APLAYER)
-			act->add_int_z(-(16 << 8));
+			act->spr.pos.Z -= 16;
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)

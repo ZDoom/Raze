@@ -536,7 +536,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 	}
 	else if (!actj)
 	{
-		actor->add_int_z(4 << 8);
+		actor->spr.pos.Z += 4;
 		actor->temp_data[0] = actor->int_pos().Z;
 		if (!isRR()) actor->temp_data[1] = krand() & 127;
 	}

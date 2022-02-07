@@ -630,7 +630,7 @@ void movefallers_r(void)
 
 		if (act->temp_data[0] == 0)
 		{
-			act->add_int_z(-(16 << 8));
+			act->spr.pos.Z -= 16;
 			act->temp_data[1] = act->spr.ang;
 			int x = act->spr.extra;
 			int j = fi.ifhitbyweapon(act);
@@ -661,7 +661,7 @@ void movefallers_r(void)
 				}
 			}
 			act->spr.ang = act->temp_data[1];
-			act->add_int_z(16 << 8);
+			act->spr.pos.Z += 16;
 		}
 		else if (act->temp_data[0] == 1)
 		{
@@ -2139,7 +2139,7 @@ void rr_specialstats()
 	{
 		if (act->spr.hitag == 100)
 		{
-			act->add_int_z(4 << 8);
+			act->spr.pos.Z += 4;
 			if (act->int_pos().Z >= act->sector()->int_floorz() + 15168)
 				act->set_int_z(act->sector()->int_floorz() + 15168);
 		}

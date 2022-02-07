@@ -153,7 +153,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (p >= 0)
 			{
 				auto k = spawn(wpn, SMALLSMOKE);
-				if (k) k->add_int_z(-(8 << 8));
+				if (k) k->spr.pos.Z -= 8;
 				if (atwith == KNEE) S_PlayActorSound(KICK_HIT, wpn);
 				else if (isRRRA() && atwith == SLINGBLADE)	S_PlayActorSound(260, wpn);
 			}
@@ -334,7 +334,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				spark->spr.xrepeat = spark->spr.yrepeat = 0;
 				if (l)
 				{
-					l->add_int_z(4 << 8);
+					l->spr.pos.Z += 4;
 					l->spr.xvel = 16;
 					l->spr.xrepeat = l->spr.yrepeat = 24;
 					l->spr.ang += 64 - (krand() & 127);
@@ -2755,7 +2755,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if (k == 15)
 				{
 					spawned->spr.yvel = 3;
-					spawned->add_int_z(8 << 8);
+					spawned->spr.pos.Z += 8;
 				}
 
 				k = hits(p->GetActor());
@@ -2980,7 +2980,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 						j->spr.ang += 1024;
 						j->spr.ang &= 2047;
 						j->spr.xvel += 32;
-						j->add_int_z(3 << 8);
+						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
 					}
 				}

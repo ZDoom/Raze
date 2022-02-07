@@ -1221,7 +1221,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
 		{
 			S_PlayActorSound(GLASS_BREAKING, targ);
-			targ->add_int_z(16 << 8);
+			targ->spr.pos.Z += 16;
 			targ->spr.cstat = 0;
 			lotsofglass(targ, nullptr, 5);
 		}
@@ -1374,7 +1374,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 							{
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
-								spawned->add_int_z(4 << 8);
+								spawned->spr.pos.Z += 4;
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->spr.ang += 32 - (krand() & 63);

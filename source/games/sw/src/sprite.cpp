@@ -2490,7 +2490,7 @@ void SpriteSetup(void)
 
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
-                    actorNew->set_int_pos(actor->int_pos());
+                    actorNew->spr.pos = actor->spr.pos;
                     actorNew->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                     actorNew->spr.picnum = actor->spr.picnum;
 

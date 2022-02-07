@@ -2330,7 +2330,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 							{
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
-								spawned->add_int_z(4 << 8);
+								spawned->spr.pos.Z += 4;
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->spr.ang += 32 - (krand() & 63);

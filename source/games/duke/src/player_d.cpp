@@ -261,7 +261,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				if (p >= 0)
 				{
 					auto k = spawn(knee, SMALLSMOKE);
-					if (k) k->add_int_z(-(8 << 8));
+					if (k) k->spr.pos.Z -= 8;
 					S_PlayActorSound(KICK_HIT, knee);
 				}
 
@@ -439,7 +439,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				auto jib = spawn(spark, JIBS6);
 				if (jib)
 				{
-					jib->add_int_z(4 << 8);
+					jib->spr.pos.Z += 4;
 					jib->spr.xvel = 16;
 					jib->spr.xrepeat = jib->spr.yrepeat = 24;
 					jib->spr.ang += 64 - (krand() & 127);
@@ -2212,7 +2212,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (k == 15)
 			{
 				spawned->spr.yvel = 3;
-				spawned->add_int_z(8 << 8);
+				spawned->spr.pos.Z += 8;
 			}
 
 			k = hits(pact);
@@ -2377,7 +2377,7 @@ static void operateweapon(int snum, ESyncBits actions)
 						j->spr.ang += 1024;
 						j->spr.ang &= 2047;
 						j->spr.xvel += 32;
-						j->add_int_z(3 << 8);
+						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
 					}
 				}

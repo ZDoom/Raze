@@ -221,7 +221,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->set_int_z(pTSprite->int_pos().Z);
+		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pTSprite->xrepeat;
@@ -314,7 +314,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		pNSprite->shade = -128;
-		pNSprite->set_int_z(pTSprite->int_pos().Z);
+		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 64;
@@ -431,7 +431,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = -128;
 		pNSprite->pal = 2;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->set_int_z(pTSprite->int_pos().Z);
+		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->xrepeat = pTSprite->xrepeat;
 		pNSprite->yrepeat = pTSprite->yrepeat;
 		pNSprite->picnum = 2427;
@@ -479,7 +479,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->set_int_z(pTSprite->int_pos().Z);
+		pNSprite->pos.Z = pTSprite->pos.Z;
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
