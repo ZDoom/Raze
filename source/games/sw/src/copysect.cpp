@@ -211,8 +211,8 @@ void CopySectorMatch(int match)
                 dsectp->hitag = ssectp->hitag;
                 dsectp->lotag = ssectp->lotag;
 
-                dsectp->set_int_floorz(ssectp->int_floorz());
-                dsectp->set_int_ceilingz(ssectp->int_ceilingz());
+                dsectp->setfloorz(ssectp->floorz);
+                dsectp->setceilingz(ssectp->ceilingz);
 
                 dsectp->floorshade = ssectp->floorshade;
                 dsectp->ceilingshade = ssectp->ceilingshade;

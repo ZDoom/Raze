@@ -2431,7 +2431,7 @@ void SpriteSetup(void)
                     if (SP_TAG9(actor) == 0)
                         SP_TAG9(actor) = 10;
 
-                    actor->add_int_z(Z(30));
+                    actor->spr.pos.Z += 30;
 
                     break;
                 }
@@ -2453,9 +2453,9 @@ void SpriteSetup(void)
                         sectp->setceilingslope(0);
                     }
 
-                    SP_TAG4(actor) = abs(sectp->int_ceilingz() - sectp->int_floorz())>>8;
+                    SP_TAG4(actor) = int(fabs(sectp->ceilingz - sectp->floorz));
 
-                    sectp->set_int_ceilingz(sectp->int_floorz());
+                    sectp->setceilingz(sectp->floorz);
 
                     change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
                     break;

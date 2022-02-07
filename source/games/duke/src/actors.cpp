@@ -3971,7 +3971,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				sc->add_int_ceilingz(sc->extra);
 				if (sc->int_ceilingz() >= actor->int_pos().Z)
 				{
-					sc->set_int_ceilingz(actor->int_pos().Z);
+					sc->setceilingz(actor->spr.pos.Z);
 					deletesprite(actor);
 					return;
 				}
@@ -3995,7 +3995,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				}
 				if (sc->int_floorz() <= actor->int_pos().Z)
 				{
-					sc->set_int_floorz(actor->int_pos().Z);
+					sc->setfloorz(actor->spr.pos.Z);
 					deletesprite(actor);
 					return;
 				}
@@ -4474,7 +4474,7 @@ void handle_se32(DDukeActor *actor)
 			{
 				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
 				{
-					sc->set_int_ceilingz(actor->int_pos().Z);
+					sc->setceilingz(actor->spr.pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
@@ -4502,7 +4502,7 @@ void handle_se32(DDukeActor *actor)
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
-				sc->set_int_ceilingz(actor->int_pos().Z);
+				sc->setceilingz(actor->spr.pos.Z);
 			}
 			else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->int_ceilingz()) * actor->spr.yvel);
 		}
@@ -4662,7 +4662,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			{
 				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yvel)
 				{
-					sec->set_int_floorz(actor->int_pos().Z);
+					sec->setfloorz(actor->spr.pos.Z);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 					if (choosedir) actor->temp_data[3] = actor->spr.hitag;
