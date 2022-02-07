@@ -1024,7 +1024,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                     }
                 }
 
-                actor->set_int_xy(hitActor->int_pos().X, hitActor->int_pos().Y);
+                actor->copyXY(hitActor);
                 actor->spr.ang = hitActor->spr.ang;
                 actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
                 HelpMissileLateral(actor, 2000);

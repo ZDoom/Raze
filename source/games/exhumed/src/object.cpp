@@ -1355,7 +1355,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
     auto pSpark = insertActor(pActor->sector(), 0);
 
-    pSpark->set_int_xy(pActor->int_pos().X, pActor->int_pos().Y);
+    pSpark->copyXY(pActor);
     pSpark->spr.cstat = 0;
     pSpark->spr.shade = -127;
     pSpark->spr.pal = 1;

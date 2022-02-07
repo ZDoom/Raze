@@ -1258,7 +1258,7 @@ sectdone:
         DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
-            pFloorActor->set_int_xy(pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y);
+            pFloorActor->copyXY(pPlayerActor);
 
             if (pFloorActor->sector() != pPlayerActor->sector())
             {
