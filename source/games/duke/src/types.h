@@ -197,8 +197,8 @@ struct player_orig
 
 struct CraneDef
 {
-	vec3_t pos;
-	vec2_t pole;
+	DVector3 pos;
+	DVector2 pole;
 	TObjPtr<DDukeActor*> poleactor;
 };
 

@@ -478,11 +478,11 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
 
 	act->spr.picnum += 2;
-	act->set_int_z(sect->int_ceilingz() + (48 << 8));
+	act->spr.pos.Z = sect->ceilingz + 48;
 	act->temp_data[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[act->temp_data[4]];
-	apt.pos = act->int_pos();
+	apt.pos = act->spr.pos;
 	apt.poleactor = nullptr;
 
 	DukeStatIterator it(STAT_DEFAULT);
@@ -497,13 +497,12 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 			actk->spr.xrepeat = 48;
 			actk->spr.yrepeat = 128;
 
-			apt.pole.X = actk->int_pos().X;
-			apt.pole.Y = actk->int_pos().Y;
+			apt.pole = actk->spr.pos.XY();
 
-			actk->set_int_pos(act->int_pos());
+			actk->spr.pos = act->spr.pos;
 			actk->spr.shade = act->spr.shade;
 
-			SetActor(actk, actk->int_pos());
+			SetActor(actk, actk->spr.pos);
 			break;
 		}
 	}

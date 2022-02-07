@@ -640,8 +640,8 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				actor->spr.ang = getangle(cpt.pole.X - actor->int_pos().X, cpt.pole.Y - actor->int_pos().Y);
-				SetActor(a2, vec3_t( cpt.pole.X, cpt.pole.Y, a2->int_pos().Z ));
+				actor->spr.ang = getangle(cpt.pole - actor->spr.pos.XY());
+				SetActor(a2, DVector3( cpt.pole.X, cpt.pole.Y, a2->spr.pos.Z ));
 				actor->temp_data[0]++;
 				return;
 			}
@@ -737,7 +737,7 @@ void movecrane(DDukeActor *actor, int crane)
 			if ((sectp->floorz - actor->spr.pos.Z) > 32)
 				actor->spr.picnum++;
 
-		if (actor->int_pos().Z < cpt.pos.Z)
+		if (actor->spr.pos.Z < cpt.pos.Z)
 		{
 			actor->temp_data[0]++;
 			actor->spr.xvel = 0;
@@ -749,9 +749,9 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (actor->spr.xvel < 192)
 			actor->spr.xvel += 8;
-		actor->spr.ang = getangle(cpt.pos.X - actor->int_pos().X, cpt.pos.Y - actor->int_pos().Y);
+		actor->spr.ang = getangle(cpt.pos.XY() - actor->spr.pos.XY());
 		ssp(actor, CLIPMASK0);
-		if (((actor->int_pos().X - cpt.pos.X) * (actor->int_pos().X - cpt.pos.X) + (actor->int_pos().Y - cpt.pos.Y) * (actor->int_pos().Y - cpt.pos.Y)) < (128 * 128))
+		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (8 * 8))
 			actor->temp_data[0]++;
 	}
 
