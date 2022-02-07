@@ -226,7 +226,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 	int cposx, cposy, cposz, fz, cz;
 	binangle cang, rotscrnang;
 	fixedhoriz choriz;
-	struct player_struct* p;
+	player_struct* p;
 
 	p = &ps[snum];
 

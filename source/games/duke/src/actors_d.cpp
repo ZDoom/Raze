@@ -161,7 +161,7 @@ void check_fta_sounds_d(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void addweapon_d(struct player_struct *p, int weapon)
+void addweapon_d(player_struct *p, int weapon)
 {
 	if ( p->gotweapon[weapon] == 0 )
 	{

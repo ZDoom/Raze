@@ -205,7 +205,7 @@ void displayweapon_d(int snum, double smoothratio)
 	int o, pal;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
 	int8_t shade;
-	struct player_struct *p;
+	player_struct* p;
 
 	p = &ps[snum];
 	auto kb = &p->kickback_pic;

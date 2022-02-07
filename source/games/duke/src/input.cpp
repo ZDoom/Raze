@@ -60,7 +60,7 @@ void hud_input(int plnum)
 {
 	int i, k;
 	uint8_t dainv;
-	struct player_struct* p;
+	player_struct* p;
 
 	p = &ps[plnum];
 	auto pact = p->GetActor();

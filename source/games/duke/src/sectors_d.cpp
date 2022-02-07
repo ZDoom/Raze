@@ -884,7 +884,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
+void checkplayerhurt_d(player_struct* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -1501,7 +1501,7 @@ void clearcameras(int i, player_struct* p)
 void checksectors_d(int snum)
 {
 	int i = -1, oldz;
-	struct player_struct* p;
+	player_struct* p;
 	walltype* hitscanwall;
 	HitInfo near;
 

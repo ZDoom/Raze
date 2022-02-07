@@ -114,7 +114,7 @@ void check_fta_sounds_r(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void addweapon_r(struct player_struct* p, int weapon)
+void addweapon_r(player_struct* p, int weapon)
 {
 	int cw = p->curr_weapon;
 	if (p->OnMotorcycle || p->OnBoat)

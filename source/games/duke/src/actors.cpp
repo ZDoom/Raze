@@ -86,7 +86,7 @@ void deletesprite(DDukeActor *const actor)
 //
 //---------------------------------------------------------------------------
 
-void addammo(int weapon, struct player_struct* player, int amount)
+void addammo(int weapon, player_struct* player, int amount)
 {
 	player->ammo_amount[weapon] += amount;
 
@@ -100,7 +100,7 @@ void addammo(int weapon, struct player_struct* player, int amount)
 //
 //---------------------------------------------------------------------------
 
-void checkavailinven(struct player_struct* player)
+void checkavailinven(player_struct* player)
 {
 
 	if (player->firstaid_amount > 0)
@@ -126,7 +126,7 @@ void checkavailinven(struct player_struct* player)
 //
 //---------------------------------------------------------------------------
 
-void checkavailweapon(struct player_struct* player)
+void checkavailweapon(player_struct* player)
 {
 	int i, snum;
 	int weap;

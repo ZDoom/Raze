@@ -103,9 +103,9 @@ void check_fta_sounds_r(DDukeActor* i);
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
 void fall_common(DDukeActor* actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
-void checkavailweapon(struct player_struct* p);
+void checkavailweapon(player_struct* p);
 void deletesprite(DDukeActor* num);
-void addammo(int weapon, struct player_struct* p, int amount);
+void addammo(int weapon, player_struct* p, int amount);
 
 int ssp(DDukeActor* i, unsigned int cliptype); //The set sprite function
 void insertspriteq(DDukeActor *i);
@@ -129,10 +129,10 @@ void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
 DDukeActor* aim(DDukeActor* s, int aang);
-void checkweapons(struct player_struct* const p);
+void checkweapons(player_struct* const p);
 int findotherplayer(int p, int* d);
-void quickkill(struct player_struct* p);
-int setpal(struct player_struct* p);
+void quickkill(player_struct* p);
+int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
 void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
@@ -158,7 +158,7 @@ int setanimation(sectortype* animsect, int animtype, walltype* animtarget, int t
 int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int thegoal, int thevel);
 void dofurniture(walltype* wallNum, sectortype* sectnum, int playerNum);
 void dotorch();
-int hitawall(struct player_struct* pl, walltype** hitWall);
+int hitawall(player_struct* pl, walltype** hitWall);
 int hits(DDukeActor* snum);
 
 DDukeActor* LocateTheLocator(int n, sectortype* sectnum);
@@ -177,8 +177,8 @@ void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(DDukeActor* snum, walltype* wallNum, int cnt);
 void lotsofglass(DDukeActor* snum, walltype* wallnum, int cnt);
-void checkplayerhurt_d(struct player_struct* p, const Collision& coll);
-void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
+void checkplayerhurt_d(player_struct* p, const Collision& coll);
+void checkplayerhurt_r(player_struct* p, const Collision& coll);
 DDukeActor* dospawnsprite(DDukeActor* actj, int pn);
 
 void spriteinit_d(DDukeActor*);
@@ -187,7 +187,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
 
 void addspritetodelete(int spnum=0);
-void checkavailinven(struct player_struct* p);
+void checkavailinven(player_struct* p);
 bool initspriteforspawn(DDukeActor* spn);
 void spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
@@ -210,7 +210,7 @@ void prelevel_common(int g);
 void cacheit_d();
 void cacheit_r();
 
-void FTA(int q, struct player_struct* p);
+void FTA(int q, player_struct* p);
 void OnMotorcycle(player_struct *pl, DDukeActor* snum);
 void OffMotorcycle(player_struct *pl);
 void OnBoat(player_struct *pl, DDukeActor* snum);

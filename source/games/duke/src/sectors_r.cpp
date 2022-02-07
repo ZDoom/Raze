@@ -1366,7 +1366,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
+void checkplayerhurt_r(player_struct* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -2403,7 +2403,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 void checksectors_r(int snum)
 {
 	int oldz;
-	struct player_struct* p;
+	player_struct* p;
 	walltype* hitscanwall;
 	HitInfo near;
 

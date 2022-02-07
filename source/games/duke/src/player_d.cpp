@@ -50,7 +50,7 @@ void operateweapon_ww(int snum, ESyncBits actions);
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_d(struct player_struct* p)
+void incur_damage_d(player_struct* p)
 {
 	int  damage = 0L, shield_damage = 0L;
 
@@ -1427,7 +1427,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 //
 //---------------------------------------------------------------------------
 
-int doincrements_d(struct player_struct* p)
+int doincrements_d(player_struct* p)
 {
 	int snum;
 
@@ -1626,7 +1626,7 @@ int doincrements_d(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_d(struct player_struct* p)
+void checkweapons_d(player_struct* p)
 {
 	static const uint16_t weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
 			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
@@ -2707,7 +2707,7 @@ void processinput_d(int snum)
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
-	struct player_struct* p;
+	player_struct* p;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();

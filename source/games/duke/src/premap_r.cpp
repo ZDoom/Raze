@@ -408,7 +408,7 @@ void spriteinit_r(DDukeActor* actor, TArray<DDukeActor*>& actors)
 
 void prelevel_r(int g, TArray<DDukeActor*>& actors)
 {
-	struct player_struct* p;
+	player_struct* p;
 	int i;
 	int j;
 	int lotaglist;

@@ -41,7 +41,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_r(struct player_struct* p)
+void incur_damage_r(player_struct* p)
 {
 	int  damage = 0, shield_damage = 0;
 	int gut = 0;
@@ -1229,7 +1229,7 @@ void selectweapon_r(int snum, int weap)
 //
 //---------------------------------------------------------------------------
 
-int doincrements_r(struct player_struct* p)
+int doincrements_r(player_struct* p)
 {
 	int snum;
 	auto pact = p->GetActor();
@@ -1493,7 +1493,7 @@ int doincrements_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_r(struct player_struct* p)
+void checkweapons_r(player_struct* p)
 {
 	static const uint16_t weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
 			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
@@ -4040,7 +4040,7 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
+void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 {
 	if (!p->OnMotorcycle && !(p->cursector->lotag == 2))
 	{
@@ -4071,7 +4071,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 //
 //---------------------------------------------------------------------------
 
-void OffMotorcycle(struct player_struct *p)
+void OffMotorcycle(player_struct *p)
 {
 	auto pact = p->GetActor();
 	if (p->OnMotorcycle)
@@ -4120,7 +4120,7 @@ void OffMotorcycle(struct player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OnBoat(struct player_struct *p, DDukeActor* boat)
+void OnBoat(player_struct *p, DDukeActor* boat)
 {
 	if (!p->OnBoat)
 	{
@@ -4149,7 +4149,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 //
 //---------------------------------------------------------------------------
 
-void OffBoat(struct player_struct *p)
+void OffBoat(player_struct *p)
 {
 	if (p->OnBoat)
 	{

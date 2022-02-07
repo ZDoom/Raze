@@ -78,7 +78,7 @@ void PlayerColorChanged(void)
 //
 //---------------------------------------------------------------------------
 
-int setpal(struct player_struct* p)
+int setpal(player_struct* p)
 {
 	int palette;
 	if (p->DrugMode) palette = DRUGPAL;
@@ -96,7 +96,7 @@ int setpal(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void quickkill(struct player_struct* p)
+void quickkill(player_struct* p)
 {
 	SetPlayerPal(p, PalEntry(48, 48, 48, 48));
 
@@ -211,7 +211,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 //
 //---------------------------------------------------------------------------
 
-int hitawall(struct player_struct* p, walltype** hitw)
+int hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 

@@ -88,7 +88,7 @@ struct Dispatcher
 
 	bool (*ceilingspace)(sectortype* sectp);
 	bool (*floorspace)(sectortype* sectp);
-	void (*addweapon)(struct player_struct *p, int weapon);
+	void (*addweapon)(player_struct *p, int weapon);
 	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 	void (*lotsofmoney)(DDukeActor *s, int n);
 	void (*lotsofmail)(DDukeActor *s, int n);
@@ -101,11 +101,11 @@ struct Dispatcher
 	void (*move)(DDukeActor* i, int g_p, int g_x);
 
 	// player
-	void (*incur_damage)(struct player_struct* p);
+	void (*incur_damage)(player_struct* p);
 	void (*shoot)(DDukeActor*, int);
 	void (*selectweapon)(int snum, int j);
-	int (*doincrements)(struct player_struct* p);
-	void (*checkweapons)(struct player_struct* p);
+	int (*doincrements)(player_struct* p);
+	void (*checkweapons)(player_struct* p);
 	void (*processinput)(int snum);
 	void (*displayweapon)(int snum, double smoothratio);
 	void (*displaymasks)(int snum, int p, double smoothratio);

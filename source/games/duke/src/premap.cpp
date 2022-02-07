@@ -86,7 +86,7 @@ void premapcontroller(DDukeActor* ac)
 
 void pickrandomspot(int snum)
 {
-	struct player_struct *p;
+	player_struct* p;
 	int i;
 
 	p = &ps[snum];
@@ -111,7 +111,7 @@ void pickrandomspot(int snum)
 
 void resetplayerstats(int snum)
 {
-	struct player_struct *p;
+	player_struct* p;
 
 	p = &ps[snum];
 
@@ -298,7 +298,7 @@ void resetplayerstats(int snum)
 void resetweapons(int snum)
 {
 	int weapon;
-	struct player_struct *p;
+	player_struct* p;
 
 	p = &ps[snum];
 
@@ -345,7 +345,7 @@ void resetweapons(int snum)
 
 void resetinventory(int snum)
 {
-	struct player_struct* p;
+	player_struct* p;
 
 	p = &ps[snum];
 
@@ -419,7 +419,7 @@ void resetinventory(int snum)
 
 void resetprestat(int snum,int g)
 {
-	struct player_struct *p;
+	player_struct* p;
 	int i;
 
 	p = &ps[snum];
@@ -992,7 +992,7 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 //
 //---------------------------------------------------------------------------
 
-static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
+static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 {
 	int16_t lbang;
 	if (isShareware() && (mi->flags & MI_USERMAP))

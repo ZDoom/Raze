@@ -70,7 +70,7 @@ FString GameInterface::GetCoordString()
 
 GameStats GameInterface::getStats()
 {
-	struct player_struct* p = &ps[myconnectindex];
+	player_struct* p = &ps[myconnectindex];
 	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
@@ -122,7 +122,7 @@ void GameInterface::ExitFromMenu()
 //
 //---------------------------------------------------------------------------
 
-void FTA(int q, struct player_struct* p)
+void FTA(int q, player_struct* p)
 {
 	if (q < 0 || gamestate != GS_LEVEL)
 		return;
@@ -236,7 +236,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	struct player_struct* pp;
+	player_struct* pp;
 	int cposx, cposy, cang;
 
 	pp = &ps[screenpeek];

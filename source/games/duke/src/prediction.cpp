@@ -68,7 +68,7 @@ void resetmys()
 void fakedomovethingscorrect(void)
 {
 	 int i;
-	 struct player_struct *p;
+	 player_struct* p;
 
 	 if (numplayers < 2) return;
 
@@ -100,7 +100,7 @@ void fakedomovethingscorrect(void)
 void fakedomovethings(void)
 {
 		input *syn;
-		struct player_struct *p;
+		player_struct* p;
 		int i, j, k, doubvel, fz, cz, x, y;
 		Collision clz, chz;
 		int psect, psectlotag, tempsect, backcstat;
