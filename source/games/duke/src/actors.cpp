@@ -2604,7 +2604,7 @@ void handle_se00(DDukeActor* actor)
 
 			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
-				sect->add_int_floorz(-512);
+				sect->addfloorz(-2);
 				zchange = -512;
 				if (sect->floorz < actor->spr.pos.Z)
 					sect->floorz = actor->spr.pos.Z;
@@ -2612,7 +2612,7 @@ void handle_se00(DDukeActor* actor)
 
 			else if (sect->floorz < actor->spr.pos.Z) //z's are touching
 			{
-				sect->add_int_floorz(512);
+				sect->addfloorz(2);
 				zchange = 512;
 				if (sect->floorz > actor->spr.pos.Z)
 					sect->floorz = actor->spr.pos.Z;
@@ -2630,20 +2630,21 @@ void handle_se00(DDukeActor* actor)
 			}
 			else actor->tempang = 0;
 
-			if (sect->int_floorz() > actor->temp_data[3]) //z's are touching
+			double checkz = actor->temp_data[3] * zinttoworld;
+			if (sect->floorz > checkz) //z's are touching
 			{
-				sect->add_int_floorz(-512);
+				sect->addfloorz(-2);
 				zchange = -512;
-				if (sect->int_floorz() < actor->temp_data[3])
-					sect->set_int_floorz(actor->temp_data[3]);
+				if (sect->floorz < checkz)
+					sect->setfloorz(checkz);
 			}
 
-			else if (sect->int_floorz() < actor->temp_data[3]) //z's are touching
+			else if (sect->floorz < checkz) //z's are touching
 			{
-				sect->add_int_floorz(512);
+				sect->addfloorz(2);
 				zchange = 512;
-				if (sect->int_floorz() > actor->temp_data[3])
-					sect->set_int_floorz(actor->temp_data[3]);
+				if (sect->floorz > checkz)
+					sect->setfloorz(checkz);
 			}
 		}
 
