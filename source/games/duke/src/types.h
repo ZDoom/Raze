@@ -420,13 +420,6 @@ struct player_struct
 		pos.X  += v.X * inttoworld;
 		pos.Y  += v.Y * inttoworld;
 	}
-	void player_set_int_xy(const vec2_t& v)
-	{
-		pos.X  = v.X * inttoworld;
-		pos.Y  = v.Y * inttoworld;
-	}
-
-
 };
 
 struct Cycler
