@@ -45,11 +45,12 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
-// 
+// this creates a new actor but does not run any init code on it
+// direct calls should only be done for very simple things.
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss)
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
@@ -61,7 +62,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	SetupGameVarsForActor(act);
 
 
-	act->set_int_pos({ s_x, s_y, s_z });
+	act->spr.pos = pos;
 	act->spr.cstat = 0;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_s;

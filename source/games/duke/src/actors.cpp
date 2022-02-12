@@ -262,8 +262,9 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 {
 	for (int i = n; i > 0; i--)
 	{
-		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
-		auto j = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
+		int r1 = krand();	// using the RANDCORRECT version from RR.
+		double r2 = zrand(47);
+		auto j = CreateActor(actor->sector(), actor->spr.pos.plusZ(-r2), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
 		if (j) j->spr.cstat = randomFlip();
 	}
 }
@@ -5229,15 +5230,15 @@ void movefta(void)
 				{
 					if (badguy(act))
 					{
-						double px = ps[p].opos.X + (64 - (krand() & 127)) * maptoworld;
-						double py = ps[p].opos.Y + (64 - (krand() & 127)) * maptoworld;
+						double px = ps[p].opos.X - xyrand(64);
+						double py = ps[p].opos.Y - xyrand(64);
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{
 							continue;
 						}
-						double sx = act->spr.pos.X + (64 - (krand() & 127)) * maptoworld;
-						double sy = act->spr.pos.Y + (64 - (krand() & 127)) * maptoworld;
+						double sx = act->spr.pos.X - xyrand(64);
+						double sy = act->spr.pos.Y - xyrand(64);
 						// The second updatesector call here used px and py again and was redundant as coded.
 
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
@@ -5245,9 +5246,9 @@ void movefta(void)
 							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
 							(bcos(act->spr.ang) * (px - sx) + bsin(act->spr.ang) * (py - sy) >= 0))
 						{
-							int r1 = krand();
-							int r2 = krand();
-							canseeme = cansee({ sx, sy, act->spr.pos.Z - (r2 % (52 << 8)) * maptoworld }, act->sector(), { px, py, ps[p].opos.Z - (r1 % (32 << 8)) * maptoworld }, ps[p].cursector);
+							double r1 = zrand(32);
+							double r2 = zrand(52);
+							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, ps[p].opos.Z - r1 }, ps[p].cursector);
 						}
 					}
 					else

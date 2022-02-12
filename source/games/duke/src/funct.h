@@ -171,7 +171,12 @@ int furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
-DDukeActor* EGS(sectortype* whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
+DDukeActor* CreateActor(sectortype* whatsect, const DVector3& pos, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
+
+inline DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss)
+{
+	return CreateActor(whatsectp, { s_x * inttoworld, s_y * inttoworld, s_z * zinttoworld }, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, s_ow, s_ss);
+}
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
@@ -239,5 +244,16 @@ bool movementBlocked(player_struct *p);
 void loadcons();
 void recordoldspritepos();
 void DrawStatusBar();
+
+inline double zrand(int spread)
+{
+	int r = krand() % (spread << 8);
+	return r * zmaptoworld;
+}
+
+inline double xyrand(int mask)
+{
+	return ((krand() % mask) - (mask << 1) - 1) * maptoworld;
+}
 
 END_DUKE_NS
