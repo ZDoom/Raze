@@ -272,8 +272,6 @@ void ZCCRazeCompiler::DispatchProperty(FPropertyInfo *prop, ZCC_PropertyStmt *pr
 				break;
 
 			case 'I':
-			case 'M':	// special case for morph styles in DECORATE . This expression-aware parser will not need this.
-			case 'N':	// special case for thing activations in DECORATE. This expression-aware parser will not need this.
 				conv.i = GetIntConst(ex, ctx);
 				break;
 

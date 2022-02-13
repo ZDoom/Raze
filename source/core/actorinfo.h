@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "maptypes.h"
 #include "dobject.h"
 #include "m_fixed.h"
 #include "m_random.h"
@@ -42,6 +43,7 @@ struct FActorInfo
 	int TypeNum = -1;
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
+	spritetype defsprite{};	// Due to how the map format works we cannot define defaults for the sprite itself. These must be applied later.
 
 	FActorInfo() = default;
 	FActorInfo(const FActorInfo & other) = delete;

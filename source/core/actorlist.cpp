@@ -581,3 +581,17 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
 	self->spr.pos.Z = int(z * 256);
 	return 0;
 }
+
+void coreactor_setSpritePic(DCoreActor* self, unsigned z)
+{
+	auto &spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
+	if (z < spriteset.Size()) self->spr.picnum = spriteset[z];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setSpritePic, coreactor_setSpritePic)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_INT(z);
+	coreactor_setSpritePic(self, z);
+	return 0;
+}

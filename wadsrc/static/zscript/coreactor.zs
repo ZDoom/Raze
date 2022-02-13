@@ -42,5 +42,6 @@ class CoreActor native
 	native void move(Vector3 newpos, bool relink = true);
 	native void setz(double newz);
 	native void addz(double amount);
+	native void setSpritePic(int index);	// index into actor's spriteset.
 }
 

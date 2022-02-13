@@ -4,7 +4,7 @@
 ** Actor denitions - properties and flags handling
 **
 **---------------------------------------------------------------------------
-** Copyright 2002-2007 Christoph Oelckers
+** Copyright 2002-2022 Christoph Oelckers
 ** Copyright 2004-2007 Randy Heit
 ** All rights reserved.
 **
@@ -309,15 +309,16 @@ static bool PointerCheck(PType *symtype, PType *checktype)
 
 //==========================================================================
 //
-// Default spritetype fields need to set an additional flag
-// so we need native handlers for them
+// Default spritetype fields cannot be set directly
+// they need to be combined with the data from the map, so they need to be
+// stored outside the actual actor until the spawn code can init it.
 // 
 //==========================================================================
 DEFINE_PROPERTY(pic, S, CoreActor)
 {
 	PROP_STRING_PARM(str, 0);
-	defaults->spr.picnum = TileFiles.tileForName(str);
-	if (defaults->spr.picnum == -1)
+	bag.Info->ActorInfo()->defsprite.picnum = TileFiles.tileForName(str);
+	if (bag.Info->ActorInfo()->defsprite.picnum == -1)
 	{
 		I_Error("Unknown texture name '%s'", str);
 	}
@@ -330,7 +331,7 @@ DEFINE_PROPERTY(pic, S, CoreActor)
 DEFINE_PROPERTY(statnum, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.statnum = i;
+	bag.Info->ActorInfo()->defsprite.statnum = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_STATNUM;
 }
 
@@ -340,7 +341,7 @@ DEFINE_PROPERTY(statnum, I, CoreActor)
 DEFINE_PROPERTY(angle, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.ang = i;
+	bag.Info->ActorInfo()->defsprite.ang = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_ANG;
 }
 
@@ -350,7 +351,7 @@ DEFINE_PROPERTY(angle, I, CoreActor)
 DEFINE_PROPERTY(xvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.xvel = i;
+	bag.Info->ActorInfo()->defsprite.xvel = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_XVEL;
 }
 
@@ -360,7 +361,7 @@ DEFINE_PROPERTY(xvel, I, CoreActor)
 DEFINE_PROPERTY(yvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.yvel = i;
+	bag.Info->ActorInfo()->defsprite.yvel = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_YVEL;
 }
 
@@ -370,7 +371,7 @@ DEFINE_PROPERTY(yvel, I, CoreActor)
 DEFINE_PROPERTY(zvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.zvel = i;
+	bag.Info->ActorInfo()->defsprite.zvel = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_ZVEL;
 }
 
@@ -380,7 +381,7 @@ DEFINE_PROPERTY(zvel, I, CoreActor)
 DEFINE_PROPERTY(lotag, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.lotag = i;
+	bag.Info->ActorInfo()->defsprite.lotag = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_LOTAG;
 }
 
@@ -390,7 +391,7 @@ DEFINE_PROPERTY(lotag, I, CoreActor)
 DEFINE_PROPERTY(hitag, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.lotag = i;
+	bag.Info->ActorInfo()->defsprite.lotag = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_HITAG;
 }
 
@@ -400,7 +401,7 @@ DEFINE_PROPERTY(hitag, I, CoreActor)
 DEFINE_PROPERTY(extra, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.lotag = i;
+	bag.Info->ActorInfo()->defsprite.lotag = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_EXTRA;
 }
 
@@ -410,7 +411,7 @@ DEFINE_PROPERTY(extra, I, CoreActor)
 DEFINE_PROPERTY(detail, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.detail = i;
+	bag.Info->ActorInfo()->defsprite.detail = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_DETAIL;
 }
 
@@ -420,7 +421,7 @@ DEFINE_PROPERTY(detail, I, CoreActor)
 DEFINE_PROPERTY(shade, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.shade = i;
+	bag.Info->ActorInfo()->defsprite.shade = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_SHADE;
 }
 
@@ -430,7 +431,7 @@ DEFINE_PROPERTY(shade, I, CoreActor)
 DEFINE_PROPERTY(pal, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.pal = i;
+	bag.Info->ActorInfo()->defsprite.pal = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_PAL;
 }
 
@@ -440,7 +441,7 @@ DEFINE_PROPERTY(pal, I, CoreActor)
 DEFINE_PROPERTY(clipdist, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.clipdist = i;
+	bag.Info->ActorInfo()->defsprite.clipdist = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_CLIPDIST;
 }
 
@@ -450,7 +451,7 @@ DEFINE_PROPERTY(clipdist, I, CoreActor)
 DEFINE_PROPERTY(xrepeat, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.xrepeat = i;
+	bag.Info->ActorInfo()->defsprite.xrepeat = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_XREPEAT;
 }
 
@@ -460,7 +461,7 @@ DEFINE_PROPERTY(xrepeat, I, CoreActor)
 DEFINE_PROPERTY(yrepeat, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.yrepeat = i;
+	bag.Info->ActorInfo()->defsprite.yrepeat = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_YREPEAT;
 }
 
@@ -470,7 +471,7 @@ DEFINE_PROPERTY(yrepeat, I, CoreActor)
 DEFINE_PROPERTY(xoffset, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.xoffset = i;
+	bag.Info->ActorInfo()->defsprite.xoffset = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_XOFFSET;
 }
 
@@ -480,7 +481,7 @@ DEFINE_PROPERTY(xoffset, I, CoreActor)
 DEFINE_PROPERTY(yoffset, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.yoffset = i;
+	bag.Info->ActorInfo()->defsprite.yoffset = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_YOFFSET;
 }
 
@@ -490,6 +491,26 @@ DEFINE_PROPERTY(yoffset, I, CoreActor)
 DEFINE_PROPERTY(owner, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.owner = i;
+	bag.Info->ActorInfo()->defsprite.owner = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_OWNER;
 }
+
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, CoreActor)
+{
+	info->ActorInfo()->SpriteSet.Clear();
+	for (int i = 0; i < PROP_PARM_COUNT; ++i)
+	{
+		PROP_STRING_PARM(n, i);
+
+		int picnum = TileFiles.tileForName(n);
+		if (picnum == -1)
+		{
+			I_Error("Unknown texture name '%s'", n);
+		}
+		info->ActorInfo()->SpriteSet.Push(picnum);
+	}
+}
+
