@@ -29,10 +29,18 @@ class CoreActor native
 	native uint mdanimtims;
 	native int16 mdanimcur;
 	native int16 angoff, pitch, roll;
-	//native vec3 pivot_offset, position_offset;
+	//native vec3 pivot_offset, position_offset; // no access needed - these are display only.
 	native uint8 renderflags;
 	native float alpha;
 
 	native readonly int spawnindex;
+
+	// note that the pos vector is not directly accessible here.
+	// Its mixed fixed point format should be hidden from scripting, plus we need to wrap the setters to ensure proper sector linking anyway.
+	native Vector3 pos();
+	native void setpos(Vector3 newpos, bool relink = true);
+	native void move(Vector3 newpos, bool relink = true);
+	native void setz(double newz);
+	native void addz(double amount);
 }
 

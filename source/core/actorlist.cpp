@@ -506,8 +506,78 @@ DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimcur, mdanimcur)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.angoff, angoff)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.pitch, pitch)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.roll, roll)
-DEFINE_FIELD_NAMED(DCoreActor, sprext.pivot_offset, pivot_offset)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 
+DEFINE_ACTION_FUNCTION(DCoreActor, pos)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	ACTION_RETURN_VEC3(DVector3(self->spr.pos.X * (1 / 16.), self->spr.pos.Y * (1 / 16.), self->spr.pos.Z * (1 / 256.)));
+}
+
+void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
+{
+	self->spr.pos.X = int(x * 16);
+	self->spr.pos.Y = int(y * 16);
+	self->spr.pos.Z = int(z * 256);
+	// todo: SW needs to call updatesectorz here or have a separate function.
+	if (relink) updatesector(self->spr.pos.X, self->spr.pos.Y, &self->spr.sectp);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_BOOL(relink);
+	coreactor_setpos(self, x, y, z, relink);
+	return 0;
+}
+
+void coreactor_move(DCoreActor* self, double x, double y, double z, int relink)
+{
+	self->spr.pos.X += int(x * 16);
+	self->spr.pos.Y += int(y * 16);
+	self->spr.pos.Z += int(z * 256);
+	// todo: SW needs to call updatesectorz here or have a separate function.
+	if (relink) updatesector(self->spr.pos.X, self->spr.pos.Y, &self->spr.sectp);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_BOOL(relink);
+	coreactor_move(self, x, y, z, relink);
+	return 0;
+}
+
+void coreactor_setz(DCoreActor* self, double z)
+{
+	self->spr.pos.Z = int(z * 256);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setz, coreactor_setz)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(z);
+	self->spr.pos.Z = int(z * 256);
+	return 0;
+}
+
+void coreactor_addz(DCoreActor* self, double z)
+{
+	self->spr.pos.Z += int(z * 256);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(z);
+	self->spr.pos.Z = int(z * 256);
+	return 0;
+}
