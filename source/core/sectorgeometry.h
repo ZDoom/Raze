@@ -58,8 +58,8 @@ struct SectionGeometryData
 	TArray<FVector2> meshVertices;	// flat vertices. Stored separately so that plane changes won't require completely new triangulation.
 	TArray<int> meshIndices;
 	sectortypelight compare[2] = {};
-	vec2_t poscompare[2] = {};
-	vec2_t poscompare2[2] = {};
+	DVector2 poscompare[2] = {};
+	DVector2 poscompare2[2] = {};
 	FVector3 normal[2];
 };
 

@@ -246,7 +246,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 				{
 					// quick check for the only known cause of this in proper maps: 
 					// RRRA E1L3 and SW $yamato have a wall duplicate where the duplicate's index is the original's + 1. These can just be deleted here and be ignored.
-					if (ww > 1 && wall[ww-1].wall_int_pos().X == wall[ww-2].wall_int_pos().X && wall[ww-1].wall_int_pos().Y == wall[ww-2].wall_int_pos().Y && wall[ww-1].point2 == wall[ww-2].point2 && wall[ww - 1].point2 == ww)
+					if (ww > 1 && wall[ww-1].pos == wall[ww-2].pos && wall[ww-1].point2 == wall[ww-2].point2 && wall[ww - 1].point2 == ww)
 					{
 						thisloop.Clear();
 						break;
