@@ -4,7 +4,7 @@ class CoreActor native
 	//native readonly sectortype sectp;
 
 	native int16 cstat;
-	native int16 picnum;
+	//native int16 picnum; // access is disabled to allow later refactoring.
 	native readonly int16 statnum;
 	native int16 ang;
 	native int16 xvel;
@@ -33,6 +33,7 @@ class CoreActor native
 	native uint8 renderflags;
 	native float alpha;
 
+	native readonly int16 spritesetpic;
 	native readonly int spawnindex;
 
 	// note that the pos vector is not directly accessible here.

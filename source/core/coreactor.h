@@ -30,6 +30,8 @@ public:
 	vec3_t opos;
 	int time;
 	int16_t oang;
+	int16_t spritesetindex;
+
 
 	DCoreActor() = default;
 	virtual ~DCoreActor() = default;

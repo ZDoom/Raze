@@ -509,6 +509,7 @@ DEFINE_FIELD_NAMED(DCoreActor, sprext.roll, roll)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
+DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
 
 DEFINE_ACTION_FUNCTION(DCoreActor, pos)
 {
@@ -585,7 +586,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
 void coreactor_setSpritePic(DCoreActor* self, unsigned z)
 {
 	auto &spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
-	if (z < spriteset.Size()) self->spr.picnum = spriteset[z];
+	if (z < spriteset.Size())
+	{
+		self->spritesetindex = z;
+		self->spr.picnum = spriteset[z];
+	}
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setSpritePic, coreactor_setSpritePic)
