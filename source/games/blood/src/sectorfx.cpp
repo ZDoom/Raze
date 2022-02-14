@@ -300,9 +300,9 @@ void DoSectorPanning(void)
 				if (pSector->ceilingstat & CSTAT_SECTOR_ALIGN)
 					angle -= 512;
 				int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
+				int px = MulScale(speed << 2, Cos(-angle), 30) / xBits;
 				int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
+				int py = MulScale(speed << 2, Sin(-angle), 30) / yBits;
 				pSector->addceilingxpan(px * (1.f / 256));
 				pSector->addceilingypan(-py * (1.f / 256));
 			}
