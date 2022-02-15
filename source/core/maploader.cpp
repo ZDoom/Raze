@@ -831,7 +831,11 @@ void setWallSectors()
 				wal.nextsector = wal.nextWall()->sector;
 			}
 		}
-		else wal.nextwall = -1;
+		else
+		{
+			wal.nextwall = -1;
+			wal.nextsector = -1;
+		}
 	}
 
 }
