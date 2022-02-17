@@ -730,7 +730,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		switch (wal->overpicnum)
 		{
 		case FANSPRITE:
-			wal->cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN;
+			//wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN; Original code assigned this to 'wall', i.e. wall[0]
 			animwall[numanimwalls].wall = wal;
 			numanimwalls++;
 			break;
