@@ -213,7 +213,7 @@ grpinfo
 	crc DUKEDCPP_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
-	gamefilter "Duke.DukeDC.13"
+	gamefilter "Duke.DukeDC.15"
 	GameID "DukeDC"
 	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
