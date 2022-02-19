@@ -101,7 +101,7 @@ void HWDrawInfo::SetFog(FRenderState &state, int lightlevel, float visibility, b
 	PalEntry fogcolor;
 	float fogdensity;
 
-	if (cmap != nullptr && !fullbright)
+	if (cmap != nullptr && !fullbright && visibility > 0)
 	{
 		fogcolor = cmap->FadeColor;
 		fogdensity = GetFogDensity(lightlevel, fogcolor, cmap->FogDensity, cmap->BlendFactor) * visibility;
@@ -163,7 +163,7 @@ void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int pale
 
 	if (!di->isBuildSoftwareLighting() && !foggy)
 	{
-		bool fullbright = ShadeDiv < 1 / 1000.f || g_visibility == 0 || shade < -numshades;
+		bool fullbright = ShadeDiv < 1 / 1000.f || shade < -numshades;
 		float inverselight = shade * 255.f / numshades;
 		if (!fullbright) inverselight /= ShadeDiv;
 		int lightlevel = !fullbright ? clamp(int(255 - inverselight), 0, 255) : 255;
