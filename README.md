@@ -12,7 +12,7 @@ The game modules are based on the following sources:
   * Shadow Warrior: SWP and VoidSW.
   * Exhumed/Powerslave: PCExhumed, with some enhancements inspired by PowerslaveGDX.
 
-ZDoom, GZDoom Copyright (c) 1998-2020 ZDoom + GZDoom teams, and contributors
+ZDoom, GZDoom Copyright (c) 1998-2022 ZDoom + GZDoom teams, and contributors
 
 Doom Source (c) 1997 id Software, Raven Software, and contributors
 
