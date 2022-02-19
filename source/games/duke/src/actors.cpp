@@ -2713,7 +2713,7 @@ void handle_se00(DDukeActor* actor)
 		DukeSectIterator itp(actor->sector());
 		while (auto act2 = itp.Next())
 		{
-			if (act2->spr.statnum != STAT_MISC && act2->spr.statnum != STAT_PROJECTILE && !actorflag(act2, SFLAG2_NOROTATEWITHSECTOR))
+			if (act2->spr.statnum != STAT_EFFECTOR && act2->spr.statnum != STAT_PROJECTILE && !actorflag(act2, SFLAG2_NOROTATEWITHSECTOR))
 			{
 				if (act2->isPlayer() && act2->GetOwner())
 				{
