@@ -51,7 +51,7 @@ TMap<int, bool> bugged;
 
 TArray<SectionLine> sectionLines;
 TArray<Section> sections;
-TArrayView<TArrayView<Section*>> sectionsPerSector;
+TArrayView<TArrayView<int>> sectionsPerSector;
 TArray<int> splits;
 
 struct loopcollect
@@ -617,9 +617,9 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		auto& builder = builders[i];
 		count += builder.sections.Size();
 
-		size = sizeof(Section*) * builder.sections.Size();
+		size = sizeof(int) * builder.sections.Size();
 		data = sectionArena.Calloc(size);
-		sectionsPerSector[i].Set(static_cast<Section** >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
+		sectionsPerSector[i].Set(static_cast<int* >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
 	}
 	sections.Resize(count); // this we cannot put into the arena because its size may change.
 	memset(sections.Data(), 0, count * sizeof(*sections.Data()));
@@ -634,7 +634,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		{
 			auto section = &sections[cursection];
 			auto& srcsect = builder.sections[j];
-			sectionsPerSector[i][j] = section;
+			sectionsPerSector[i][j] = cursection;
 			section->sector = i;
 			section->index = cursection++;
 

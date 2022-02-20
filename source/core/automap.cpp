@@ -588,7 +588,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		for (auto section : sectionsPerSector[i])
 		{
 			TArray<int>* indices;
-			auto mesh = sectionGeometry.get(section, 0, { 0.f, 0.f }, &indices);
+			auto mesh = sectionGeometry.get(&sections[section], 0, { 0.f, 0.f }, &indices);
 			vertices.Resize(mesh->vertices.Size());
 			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{

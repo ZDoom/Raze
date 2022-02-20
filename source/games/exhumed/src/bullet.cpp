@@ -171,12 +171,7 @@ void IgniteSprite(DExhumedActor* pActor)
     {
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
-
-        int yRepeat = (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight;
-        if (yRepeat < 1)
-            yRepeat = 1;
-
-        pAnimActor->spr.yrepeat = (uint8_t)yRepeat;
+        pAnimActor->spr.yrepeat = (uint8_t)max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight);
     }
 }
 

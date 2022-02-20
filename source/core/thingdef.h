@@ -148,7 +148,7 @@ enum EDefinitionType
 #if defined(_MSC_VER)
 #pragma section(SECTION_GREG,read)
 
-#define MSVC_PSEG __declspec(allocate(SECTION_GREG))
+#define MSVC_PSEG __declspec(allocate(SECTION_GREG)) __declspec(no_sanitize_address)
 #define GCC_PSEG
 #else
 #define MSVC_PSEG

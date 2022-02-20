@@ -471,7 +471,7 @@ void SectionGeometry::MarkDirty(sectortype* sector)
 {
 	for (auto section : sectionsPerSector[sectnum(sector)])
 	{
-		section->dirty = sector->dirty;
+		sections[section].dirty = sector->dirty;
 	}
 	sector->dirty = 0;
 }

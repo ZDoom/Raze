@@ -757,15 +757,15 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 		{
 			for (auto j : sectionsPerSector[viewsectors[i]])
 			{
-				sectionstartang[j->index] = 0;
-				sectionendang[j->index] = int(angrange.asbam());
+				sectionstartang[j] = 0;
+				sectionendang[j] = int(angrange.asbam());
 			}
 		}
 		for (unsigned i = 0; i < sectcount; i++)
 		{
 			for (auto j : sectionsPerSector[viewsectors[i]])
 			{
-				ProcessSection(j->index, portal);
+				ProcessSection(j, portal);
 			}
 		}
 		while (Bunches.Size() > 0)
