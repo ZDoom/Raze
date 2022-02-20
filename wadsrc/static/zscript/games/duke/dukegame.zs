@@ -61,6 +61,12 @@ struct Duke native
 		ICON_BOOTS,
 		ICON_MAX
 	};
+	
+	enum EClipMask
+	{
+		CLIPMASK0 = (1 << 16) + 1,
+		CLIPMASK1 = (256 << 16) + 64
+	}
 
 	native static void PlaySpecialMusic(int which);
 	native static int PlaySound(int num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);
@@ -69,6 +75,7 @@ struct Duke native
 	native static DukePlayer GetViewPlayer();
 	native static int MaxPlayerHealth();
 	native static int MaxAmmoAmount(int weap);
+	native static DukePlayer checkcursectnums(sectortype sect);
 
 	static void PlayBonusMusic()
 	{
@@ -174,8 +181,8 @@ struct DukePlayer
 	native int16 cheat_phase;
 	native int16 extra_extra8, quick_kick, last_quick_kick;
 	native int16 heat_amount, timebeforeexit, customexitsound;
-	//DDukeActor* actor, actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner; // later
-	native voidptr holoduke_on; // cannot do it as a proper actor pointer yet - but the status bar needs it.
+	native DukeActor actor, actorsqu, wackedbyactor, on_crane, somethingonplayer, access_spritenum, dummyplayersprite, newOwner, holoduke_on;
+	native sectortype cursector;
 
 	native int16 weaprecs[256], weapreccnt;
 	native uint interface_toggle_flag;
@@ -260,6 +267,9 @@ struct DukePlayer
 
 	native bool IsFrozen();
 	native int GetGameVar(String varname, int defval);
+	native int angleAsBuild();
+	native void backuppos();
+	native void setpos(Vector3 pos);
 
 
 }

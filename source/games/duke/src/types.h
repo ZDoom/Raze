@@ -120,6 +120,16 @@ public:
 
 	void Serialize(FSerializer& arc) override;
 
+	void ChangeType(PClass* newtype)
+	{
+		if (newtype->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && newtype->Size == RUNTIME_CLASS(DDukeActor)->Size && GetClass()->Size == RUNTIME_CLASS(DDukeActor)->Size)
+		{
+			// It sucks having to do this but the game heavily depends on being able to swap out the class type and often uses this to manage actor state.
+			// We'll allow this only for classes that do not add their own data, though.
+			SetClass(newtype);
+		}
+	}
+
 };
 
 // subclassed to add a game specific actor() method
@@ -335,7 +345,6 @@ struct player_struct
 	{
 		return cursector != nullptr;
 	}
-
 };
 
 struct Cycler

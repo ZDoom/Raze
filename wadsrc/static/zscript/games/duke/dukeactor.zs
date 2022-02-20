@@ -37,8 +37,8 @@ class DukeActor : CoreActor native
 	native int temp_data[6];
 	native private int flags1, flags2;
 	native readonly int16 spritesetindex;
-	//walltype* temp_walls[2]; // SE20 + SE128
-	//sectortype* temp_sect, *actorstayput;
+	native walltype temp_walls[2];
+	native sectortype temp_sect, actorstayput;
 
 	native DukeActor temp_actor, seek_actor;
 
@@ -65,10 +65,16 @@ class DukeActor : CoreActor native
 	flagdef SE24_NoFloorCheck: flags1, 19;
 	flagdef NoInterpolate: flags1, 20;
 	
+	native void getglobalz();
+	native DukePlayer findplayer();
+	native int ifhitbyweapon();
+	native int domove(int clipmask);
+	native void PlayActorSound(int snd);
 	
 	virtual void BeginPlay() {}
-	virtual bool Tick() { return false; }
-
+	virtual void Initialize() {}
+	virtual void Tick() {}
+	virtual void RunState() {}	// this is the CON function.
 }
 
 extend struct _
@@ -81,7 +87,7 @@ extend struct _
 struct DukeLevel
 {
 	native static DukeStatIterator CreateStatIterator(int stat);
-	native static DukeSectIterator CreateSectorIterator(int sect);
+	native static DukeSectIterator CreateSectorIterator(sectortype sect);
 	native static DukeSpriteIterator CreateSpriteIterator();
 }
 

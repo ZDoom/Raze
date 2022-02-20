@@ -98,7 +98,7 @@ public:
 	
 	DukeSectIterator it;
 
-	DDukeSectIterator(int Sectnum)
+	DDukeSectIterator(sectortype* Sectnum)
 		: it(Sectnum)
 	{
 	}
@@ -106,7 +106,7 @@ public:
 
 IMPLEMENT_CLASS(DDukeSectIterator, true, false);
 
-static DDukeSectIterator *CreateSectIterator(int Sectnum)
+static DDukeSectIterator *CreateSectIterator(sectortype* Sectnum)
 {
 	return Create<DDukeSectIterator>(Sectnum);
 }
@@ -114,7 +114,7 @@ static DDukeSectIterator *CreateSectIterator(int Sectnum)
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, CreateSectorIterator, CreateSectIterator)
 {
 	PARAM_PROLOGUE;
-	PARAM_INT(Sectnum);
+	PARAM_POINTER(Sectnum, sectortype);
 	ACTION_RETURN_OBJECT(CreateSectIterator(Sectnum));
 }
 

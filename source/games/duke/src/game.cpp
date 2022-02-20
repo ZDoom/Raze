@@ -400,4 +400,31 @@ void GameInterface::app_init()
 }
 
 
+void CallInitialize(DDukeActor* actor)
+{
+	IFVIRTUALPTR(actor, DDukeActor, initialize)
+	{
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
+	}
+}
+
+void CallTick(DDukeActor* actor)
+{
+	IFVIRTUALPTR(actor, DDukeActor, Tick)
+	{
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
+	}
+}
+
+void CallAction(DDukeActor* actor)
+{
+	IFVIRTUALPTR(actor, DDukeActor, RunState)
+	{
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
+	}
+}
+
 END_DUKE_NS

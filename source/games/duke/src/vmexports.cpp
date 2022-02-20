@@ -69,6 +69,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, CheckSoundPlaying, S_CheckSoundPlaying)
 	ACTION_RETURN_INT(S_CheckSoundPlaying(snd));
 }
 
+player_struct* duke_checkcursectnums(sectortype* sector)
+{
+	if (!sector) return nullptr;
+	int pp = checkcursectnums(sector);
+	return pp ? &ps[pp] : nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checkcursectnums, duke_checkcursectnums)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_POINTER(duke_checkcursectnums(sect));
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 
 //---------------------------------------------------------------------------
@@ -96,6 +110,9 @@ DEFINE_FIELD(DDukeActor, seek_actor)
 DEFINE_FIELD(DDukeActor, flags1)
 DEFINE_FIELD(DDukeActor, flags2)
 DEFINE_FIELD(DDukeActor, spritesetindex)
+DEFINE_FIELD(DDukeActor, temp_walls)
+DEFINE_FIELD(DDukeActor, temp_sect)
+DEFINE_FIELD(DDukeActor, actorstayput)
 
 static void setSpritesetImage(DDukeActor* self, unsigned int index)
 {
@@ -116,6 +133,56 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetSpritesetImage, setSpritesetImage)
 	setSpritesetImage(self, index);
 	return 0;
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getglobalz, getglobalz)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	getglobalz(self);
+	return 0;
+}
+
+player_struct* DukeActor_findplayer(DDukeActor* self)
+{
+	int a;
+	return &ps[findplayer(self, &a)];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, findplayer, DukeActor_findplayer)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_POINTER(DukeActor_findplayer(self));
+}
+
+int DukeActor_ifhitbyweapon(DDukeActor* self)
+{
+	return fi.ifhitbyweapon(self);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ifhitbyweapon, DukeActor_ifhitbyweapon)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(DukeActor_ifhitbyweapon(self));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, domove, ssp)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(clipmask);
+	ACTION_RETURN_INT(ssp(self, clipmask));
+}
+
+int DukeActor_PlayActorSound(DDukeActor* self, int snd)
+{
+	return S_PlayActorSound(snd, self);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSound)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(snd);
+	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd));
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -288,6 +355,13 @@ DEFINE_FIELD_X(DukePlayer, player_struct, vehTurnLeft)
 DEFINE_FIELD_X(DukePlayer, player_struct, vehTurnRight)
 DEFINE_FIELD_X(DukePlayer, player_struct, vehBraking)
 DEFINE_FIELD_X(DukePlayer, player_struct, holoduke_on)
+DEFINE_FIELD_X(DukePlayer, player_struct, actorsqu)
+DEFINE_FIELD_X(DukePlayer, player_struct, wackedbyactor)
+DEFINE_FIELD_X(DukePlayer, player_struct, on_crane)
+DEFINE_FIELD_X(DukePlayer, player_struct, somethingonplayer)
+DEFINE_FIELD_X(DukePlayer, player_struct, access_spritenum)
+DEFINE_FIELD_X(DukePlayer, player_struct, dummyplayersprite)
+DEFINE_FIELD_X(DukePlayer, player_struct, newOwner)
 
 DEFINE_ACTION_FUNCTION(_DukePlayer, IsFrozen)
 {
@@ -301,6 +375,41 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, GetGameVar)
 	PARAM_STRING(name);
 	PARAM_INT(def);
 	ACTION_RETURN_INT(GetGameVar(name, def, self->GetActor(), self->GetPlayerNum()).safeValue());
+}
+
+DEFINE_ACTION_FUNCTION(_DukePlayer, angleAsBuild)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	ACTION_RETURN_INT(self->angle.ang.asbuild());
+}
+
+void dukeplayer_backuppos(player_struct* self)
+{
+	self->backuppos();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backuppos, dukeplayer_backuppos)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	dukeplayer_backuppos(self);
+	return 0;
+}
+
+void dukeplayer_setpos(player_struct* self, double x, double y, double z)
+{
+	self->pos.X = int(x * worldtoint);
+	self->pos.Y = int(y * worldtoint);
+	self->pos.Z = int(z * zworldtoint);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	dukeplayer_setpos(self, x, y, z);
+	return 0;
 }
 
 
