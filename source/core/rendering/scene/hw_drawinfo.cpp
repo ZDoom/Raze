@@ -284,7 +284,8 @@ void HWDrawInfo::DispatchSprites()
 
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
-		tileUpdatePicnum(&tilenum, (actor->GetIndex() & 16383) + 32768, 0);
+		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+			tileUpdatePicnum(&tilenum, (actor->GetIndex() & 16383) + 32768, 0);
 		tspr->picnum = tilenum;
 		gotpic.Set(tilenum);
 
