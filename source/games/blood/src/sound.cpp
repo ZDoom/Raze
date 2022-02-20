@@ -218,7 +218,7 @@ void sndStartWavDisk(const char* pzFile, int nVolume, int nChannel)
 
 void sndKillAllSounds(void)
 {
-	soundEngine->StopSound(CHAN_AUTO);
+	if (soundEngine) soundEngine->StopSound(CHAN_AUTO);
 }
 
 

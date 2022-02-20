@@ -265,7 +265,7 @@ void sfxKill3DSound(DBloodActor* pActor, int a2, int a3)
 
 void sfxKillAllSounds(void)
 {
-	soundEngine->EnumerateChannels([](FSoundChan* channel)
+	if (soundEngine) soundEngine->EnumerateChannels([](FSoundChan* channel)
 		{
 			if (channel->SourceType == SOURCE_Actor || channel->SourceType == SOURCE_Unattached) soundEngine->StopChannel(channel);
 			return false;
