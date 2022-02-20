@@ -1560,10 +1560,9 @@ void OperatePath(sectortype* pSector, EVENT event)
 	DBloodActor* actor;
 	assert(pSector);
 	auto pXSector = &pSector->xs();
-	if (!pXSector->marker0 || !pXSector->marker1) return;
+	if (!pXSector->marker0) return;
 	auto marker0 = pXSector->marker0;
-	auto marker1 = pXSector->marker1;
-	int nId = marker1->xspr.data2;
+	int nId = marker0->xspr.data2;
 
 	BloodStatIterator it(kStatPathMarker);
 	while ((actor = it.Next()))
@@ -1577,7 +1576,7 @@ void OperatePath(sectortype* pSector, EVENT event)
 
 	// trigger marker after it gets reached
 #ifdef NOONE_EXTENSIONS
-	if (gModernMap && marker1->xspr.state != 1)
+	if (gModernMap && marker0->xspr.state != 1)
 		trTriggerSprite(pXSector->marker0, kCmdOn);
 #endif
 
@@ -1595,8 +1594,8 @@ void OperatePath(sectortype* pSector, EVENT event)
 	case kCmdOn:
 		pXSector->state = 0;
 		pXSector->busy = 0;
-		AddBusy(pSector, BUSYID_7, 65536 / ClipLow((120 * marker1->xspr.busyTime) / 10, 1));
-		if (marker1->xspr.data3) PathSound(pSector, marker1->xspr.data3);
+		AddBusy(pSector, BUSYID_7, 65536 / ClipLow((120 * marker0->xspr.busyTime) / 10, 1));
+		if (marker0->xspr.data3) PathSound(pSector, marker0->xspr.data3);
 		break;
 	}
 }
