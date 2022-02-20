@@ -247,7 +247,7 @@ void DrawClock()
 
 double calc_smoothratio()
 {
-    if (bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate)
+    if (bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel)
         return MaxSmoothRatio;
 
     return I_GetTimeFrac() * MaxSmoothRatio;
@@ -463,9 +463,6 @@ void GameInterface::Ticker()
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
 
         if (EndLevel > 1) EndLevel--;
-        PlayerList[nLocalPlayer].pActor->backuppos();
-        PlayerList[nLocalPlayer].ototalvel = PlayerList[nLocalPlayer].totalvel;
-        obobangle = bobangle;
         int flash = 7 - abs(EndLevel - 7);
         videoTintBlood(flash * 30, flash * 30, flash * 30);
         if (EndLevel == 1)
