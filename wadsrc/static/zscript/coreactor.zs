@@ -33,16 +33,21 @@ class CoreActor native
 	native uint8 renderflags;
 	native float alpha;
 
+	native readonly sectortype sector;
 	native readonly int16 spritesetpic;
 	native readonly int spawnindex;
 
 	// note that the pos vector is not directly accessible here.
 	// Its mixed fixed point format should be hidden from scripting, plus we need to wrap the setters to ensure proper sector linking anyway.
 	native Vector3 pos();
+	native Vector2 xy();
+	native double z();
 	native void setpos(Vector3 newpos, bool relink = true);
+	native void copypos(CoreActor newpos, bool relink = true);
 	native void move(Vector3 newpos, bool relink = true);
 	native void setz(double newz);
 	native void addz(double amount);
 	native void setSpritePic(int index);	// index into actor's spriteset.
+	native void backuppos();
 }
 

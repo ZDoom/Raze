@@ -1573,6 +1573,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
 	ACTION_RETURN_INT(bcos(v, shift));
 }
 
+int raze_getangle(double x, double y)
+{
+	return bvectangbam(x, y).asbuild();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, getangle, raze_getangle)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	ACTION_RETURN_INT(raze_getangle(x, y));
+}
+
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 {
 	ACTION_RETURN_INT(I_GetBuildTime());

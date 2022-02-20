@@ -517,13 +517,30 @@ DEFINE_ACTION_FUNCTION(DCoreActor, pos)
 	ACTION_RETURN_VEC3(DVector3(self->spr.pos.X * (1 / 16.), self->spr.pos.Y * (1 / 16.), self->spr.pos.Z * (1 / 256.)));
 }
 
+DEFINE_ACTION_FUNCTION(DCoreActor, xy)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	ACTION_RETURN_VEC2(DVector2(self->spr.pos.X * (1 / 16.), self->spr.pos.Y * (1 / 16.)));
+}
+
+double coreactor_z(DCoreActor* self)
+{
+	return self->spr.zvel * zinttoworld;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, z, coreactor_z)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	ACTION_RETURN_FLOAT(coreactor_z(self));
+}
+
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
-	self->spr.pos.X = int(x * 16);
-	self->spr.pos.Y = int(y * 16);
-	self->spr.pos.Z = int(z * 256);
+	self->spr.pos.X = int(x * worldtoint);
+	self->spr.pos.Y = int(y * worldtoint);
+	self->spr.pos.Z = int(z * zworldtoint);
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) updatesector(self->spr.pos.X, self->spr.pos.Y, &self->spr.sectp);
+	if (relink) SetActor(self, self->spr.pos);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
@@ -537,13 +554,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
 	return 0;
 }
 
+void coreactor_copypos(DCoreActor* self, DCoreActor* other, int relink)
+{
+	if (!other) return;
+	self->spr.pos = other->spr.pos;
+	// todo: SW needs to call updatesectorz here or have a separate function.
+	if (relink) SetActor(self, self->spr.pos);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, copypos, coreactor_setpos)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_POINTER(other, DCoreActor);
+	PARAM_BOOL(relink);
+	coreactor_copypos(self, other, relink);
+	return 0;
+}
+
 void coreactor_move(DCoreActor* self, double x, double y, double z, int relink)
 {
 	self->spr.pos.X += int(x * 16);
 	self->spr.pos.Y += int(y * 16);
 	self->spr.pos.Z += int(z * 256);
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) updatesector(self->spr.pos.X, self->spr.pos.Y, &self->spr.sectp);
+	if (relink) SetActor(self, self->spr.pos);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
@@ -600,3 +634,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setSpritePic, coreactor_setSpritePic)
 	coreactor_setSpritePic(self, z);
 	return 0;
 }
+
+void coreactor_backuppos(DCoreActor* self)
+{
+	self->backuppos();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, backuppos, coreactor_backuppos)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	coreactor_backuppos(self);
+	return 0;
+}
+

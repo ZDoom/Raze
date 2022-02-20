@@ -70,6 +70,10 @@ extend struct _
 	native readonly MapRecord currentLevel;
 	native readonly int automapMode;
 	native readonly int PlayClock;
+	
+	native Array<@sectortype> Sector;
+	native Array<@walltype> Wall;
+	
 }
 
 struct MapRecord native
@@ -140,6 +144,7 @@ struct Raze
 	native static String PlayerName(int i);
 	native static int bsin(int angle, int shift = 0);
 	native static int bcos(int angle, int shift = 0);
+	native static int getangle(double x, double y);
 	native static TextureID PickTexture(TextureID texid);
 	native static int GetBuildTime();
 	native static Font PickBigFont(String cmptext = "");
@@ -212,7 +217,7 @@ struct Raze
 		// todo: reimplement this in a game independent fashion based on GZDoom's code.
 		// Right now, with no MP support there is no need, though.
 	}
-
+	
 }
 
 /*

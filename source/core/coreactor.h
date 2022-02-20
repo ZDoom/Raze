@@ -156,6 +156,10 @@ public:
 		return spr.sectp ? ::sector.IndexOf(spr.sectp) : -1;
 	}
 
+	auto spriteset() const
+	{
+		return static_cast<PClassActor*>(GetClass())->ActorInfo()->SpriteSet;
+	}
 
 };
 

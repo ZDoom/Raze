@@ -345,11 +345,11 @@ struct sectortype
 	void setceilingslope(int heinum) { ceilingheinum = heinum; if (heinum) ceilingstat |= CSTAT_SECTOR_SLOPE; else ceilingstat &= ~CSTAT_SECTOR_SLOPE; }
 	void setfloorslope(int heinum) { floorheinum = heinum; if (heinum) floorstat |= CSTAT_SECTOR_SLOPE; else floorstat &= ~CSTAT_SECTOR_SLOPE; }
 	int getfloorslope() const { return floorstat & CSTAT_SECTOR_SLOPE ? floorheinum : 0; }
+	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 	walltype* firstWall() const;
 	walltype* lastWall() const;
 
 
-	// These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
 	Blood::XSECTOR& xs() const { return *_xs;  }
 	bool hasX() const { return _xs != nullptr; } // 0 is invalid!
 	void allocX();

@@ -801,6 +801,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/spawn.cpp
 	games/duke/src/spawn_d.cpp
 	games/duke/src/spawn_r.cpp
+	games/duke/src/vmexports.cpp
 
 	# Shadow Warrior
 	games/sw/src/actor.cpp
@@ -1014,6 +1015,7 @@ set (PCH_SOURCES
 
 	core/actorinfo.cpp
 	core/zcc_compile_raze.cpp
+	core/vmexports.cpp
 	core/thingdef_data.cpp
 	core/thingdef_properties.cpp
 	core/actorlist.cpp
