@@ -144,8 +144,8 @@ public:
 	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }
 	constexpr double signeddeg() const { return AngleToFloat(tosigned()); }
 
-	double fsin() const { return g_sin(asrad()); }
-	double fcos() const { return g_cos(asrad()); }
+	double fsin() const { return g_sinbam(asbam()); }
+	double fcos() const { return g_cosbam(asbam()); }
 	double ftan() const { return g_tan(asrad()); }
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
