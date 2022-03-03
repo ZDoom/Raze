@@ -134,7 +134,8 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$GAMEDIR", true);
 #else
 		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
-		SetValueForKey ("Path", SHARE_DIR, true);
+		SetValueForKey ("Path", "/usr/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
@@ -157,10 +158,8 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
 #else
 		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
-		SetValueForKey("Path", "/usr/local/share/" GAME_DIR "/soundfonts", true);
-		SetValueForKey("Path", "/usr/local/share/games/" GAME_DIR "/soundfonts", true);
-		SetValueForKey("Path", "/usr/share/" GAME_DIR "/soundfonts", true);
-		SetValueForKey("Path", "/usr/share/games/" GAME_DIR "/soundfonts", true);
+		SetValueForKey("Path", "/usr/share/games/raze/soundfonts", true);
+		SetValueForKey("Path", "/usr/local/share/games/raze/soundfonts", true);
 #endif
 	}
 
