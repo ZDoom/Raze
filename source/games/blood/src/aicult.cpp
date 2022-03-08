@@ -58,7 +58,8 @@ AISTATE cultistTFire = { kAiStateChase, 6, nTommyClient, 0, NULL, aiMoveTurn, cu
 AISTATE cultistTsFire = { kAiStateChase, 6, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistChase };
 AISTATE cultistSProneFire = { kAiStateChase, 8, nShotClient, 60, NULL, NULL, NULL, &cultistProneChase };
 AISTATE cultistTProneFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTProneFire };
-AISTATE cultistTsProneFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, NULL, &cultistTsProneFire };
+AISTATE cultistTsProneFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, NULL, &cultistTsProneFire }; // vanilla, broken
+AISTATE cultistTsProneFireFixed = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsProneFireFixed };
 AISTATE cultistRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistDodge };
 AISTATE cultistProneRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistProneDodge };
 AISTATE cultistTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &cultistDodge };
@@ -443,6 +444,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x3200 && abs(nDeltaAngle) < 28)
 					{
+						AISTATE *pCultistTsProneFire = !cl_bloodvanillaenemies && !VanillaMode() ? &cultistTsProneFireFixed : &cultistTsProneFire;
 						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
@@ -450,7 +452,7 @@ static void cultThinkChase(DBloodActor* actor)
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 								aiNewState(actor, &cultistTsFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTsProneFire);
+								aiNewState(actor, pCultistTsProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
 								aiNewState(actor, &cultistTsSwimFire);
 							break;
@@ -460,7 +462,7 @@ static void cultThinkChase(DBloodActor* actor)
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, &cultistTsFire);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistTsProneFire);
+									aiNewState(actor, pCultistTsProneFire);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
 									aiNewState(actor, &cultistTsSwimFire);
 							}
@@ -478,7 +480,7 @@ static void cultThinkChase(DBloodActor* actor)
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 								aiNewState(actor, &cultistTsFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTsProneFire);
+								aiNewState(actor, pCultistTsProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
 								aiNewState(actor, &cultistTsSwimFire);
 							break;
