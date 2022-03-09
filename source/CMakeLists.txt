@@ -1475,6 +1475,11 @@ if( NOT WIN32 AND NOT APPLE )
 	add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/link-make
 		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		#allow libzmusiclite.so.1 library in same folder as executable at runtime
+		INSTALL_RPATH "\$ORIGIN"
+		BUILD_WITH_INSTALL_RPATH ON
+	)
 endif()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
