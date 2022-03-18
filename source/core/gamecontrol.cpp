@@ -1675,6 +1675,14 @@ void InitBuildTiles()
 
 static FString LevelName;
 
+void TITLE_InformName(const char* newname)
+{
+	LevelName = newname;
+	if (newname[0] == '$')
+		LevelName = GStrings(newname + 1);
+	I_UpdateWindowTitle();
+}
+
 void I_UpdateWindowTitle()
 {
 	FString titlestr;

@@ -973,7 +973,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
 	STAT_NewLevel(mi->fileName);
-
+	TITLE_InformName(mi->name);
+	
 	p->angle.ang = buildang(lbang);
 
 	gotpic.Zero();

@@ -46,6 +46,8 @@ void DeferredStartGame(MapRecord* map, int skill, bool nostopsound = false);
 void ChangeLevel(MapRecord* map, int skill, bool bossexit = false);
 void CompleteLevel(MapRecord* map);
 
+void TITLE_InformName(const char* newname);
+
 struct UserConfig
 {
 	FString gamegrp;

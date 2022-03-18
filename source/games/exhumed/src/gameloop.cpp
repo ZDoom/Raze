@@ -127,7 +127,7 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 	}
 
 	STAT_NewLevel(currentLevel->labelName);
-
+	TITLE_InformName(currentLevel->name);
 }
 
 //---------------------------------------------------------------------------

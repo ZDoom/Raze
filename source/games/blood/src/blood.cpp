@@ -253,6 +253,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	startsector = &sector[startsectno];
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
+	TITLE_InformName(currentLevel->name);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
 	gKillMgr.Clear();
 	gSecretMgr.Clear();
