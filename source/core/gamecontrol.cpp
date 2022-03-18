@@ -109,6 +109,17 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 	}
 }
 
+void I_UpdateWindowTitle();
+
+CUSTOM_CVAR (Bool, i_discordrpc, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	I_UpdateWindowTitle();
+}
+CUSTOM_CVAR(Int, I_FriendlyWindowTitle, 1, CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_NOINITCALL)
+{
+	I_UpdateWindowTitle();
+}
+
 // The last remains of sdlayer.cpp
 GameInterface* gi;
 int myconnectindex, numplayers;
@@ -149,6 +160,7 @@ void LoadVoxelModels();
 void MarkMap();
 void BuildFogTable();
 void ParseGLDefs();
+void I_UpdateDiscordPresence(bool SendPresence, const char* curstatus, const char* appid, const char* steamappid);
 
 DStatusBarCore* StatusBar;
 
@@ -1080,7 +1092,7 @@ int RunGame()
 		I_FatalError("No palette found.");
 
 	FMaterial::SetLayerCallback(setpalettelayer);
-	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
+	I_UpdateWindowTitle();
 	DeleteStartupScreen();
 
 	V_Init2();
@@ -1661,3 +1673,59 @@ void InitBuildTiles()
 	// need to find a better way to handle this thing.
 }
 
+static FString LevelName;
+
+void I_UpdateWindowTitle()
+{
+	FString titlestr;
+	if (!(GameStartupInfo.Name.IsNotEmpty()))
+		return;
+	switch (I_FriendlyWindowTitle)
+	{
+	case 1:
+		if (LevelName.IsNotEmpty())
+		{
+			titlestr.Format("%s - %s", LevelName.GetChars(), GameStartupInfo.Name.GetChars());
+			break;
+		}
+		[[fallthrough]];
+	case 2:
+		titlestr = GameStartupInfo.Name;
+		break;
+	default:
+		I_UpdateDiscordPresence(false, NULL, GameStartupInfo.DiscordAppId.GetChars(), GameStartupInfo.SteamAppId.GetChars());
+		I_SetWindowTitle(NULL);
+		return;
+	}
+
+	// Strip out any color escape sequences before setting a window title
+	TArray<char> copy(titlestr.Len() + 1);
+	const char* srcp = titlestr;
+	char* dstp = copy.Data();
+
+	while (*srcp != 0)
+	{
+
+		if (*srcp != TEXTCOLOR_ESCAPE)
+		{
+			*dstp++ = *srcp++;
+		}
+		else if (srcp[1] == '[')
+		{
+			srcp += 2;
+			while (*srcp != ']' && *srcp != 0) srcp++;
+			if (*srcp == ']') srcp++;
+		}
+		else
+		{
+			if (srcp[1] != 0) srcp += 2;
+			else break;
+		}
+	}
+	*dstp = 0;
+	if (i_discordrpc)
+		I_UpdateDiscordPresence(true, copy.Data(), GameStartupInfo.DiscordAppId.GetChars(), GameStartupInfo.SteamAppId.GetChars());
+	else
+		I_UpdateDiscordPresence(false, nullptr, nullptr, nullptr);
+	I_SetWindowTitle(copy.Data());
+}
