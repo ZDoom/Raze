@@ -357,10 +357,12 @@ void spawnactors(SpawnSpriteDef& sprites)
         auto sprt = &sprites.sprites[i];
         auto actor = insertActor(sprt->sectp, sprt->statnum);
         actor->spr = sprites.sprites[i];
+        actor->time = i;
         if (sprites.sprext.Size()) actor->sprext = sprites.sprext[i];
         else actor->sprext = {};
         actor->spsmooth = {};
     }
+    leveltimer = sprites.sprites.Size();
 }
 
 

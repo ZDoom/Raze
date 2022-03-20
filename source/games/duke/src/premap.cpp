@@ -944,10 +944,12 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 		auto actor = static_cast<DDukeActor*>(InsertActor(RUNTIME_CLASS(DDukeActor), sprt->sectp, sprt->statnum));
 		spawns[j++] = actor;
 		actor->spr = sprites.sprites[i];
+		actor->time = i;
 		if (sprites.sprext.Size()) actor->sprext = sprites.sprext[i];
 		else actor->sprext = {};
 		actor->spsmooth = {};
 	}
+	leveltimer = sprites.sprites.Size();
 	return spawns;
 }
 
