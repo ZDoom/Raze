@@ -11,6 +11,7 @@
 #include "v_video.h"
 #include "v_text.h"
 #include "c_cvars.h"
+#include "secrets.h"
 
 // Unlike in GZDoom we have to maintain this list here, because we got different game frontents that all store this info differently.
 // So the games will have to report the credited secrets so that this code can keep track of how to display them.
@@ -31,12 +32,21 @@ static void PrintSecretString(const char *string, bool thislevel)
 	{
 		if (*string == '$')
 		{
+			unsigned secnum = UINT_MAX;
 			if (string[1] == 'S' || string[1] == 's')
 			{
-				auto secnum = (unsigned)strtoull(string+2, (char**)&string, 10);
-				if (*string == ';') string++;
-				colstr = discovered_secrets.Find(secnum) == discovered_secrets.Size() ? TEXTCOLOR_RED : TEXTCOLOR_GREEN;
+				secnum = (unsigned)strtoull(string+2, (char**)&string, 10);
 			}
+			else if (string[1] == 'T' || string[1] == 't')
+			{
+				secnum = (unsigned)strtoull(string + 2, (char**)&string, 10) + 0x100000 * Secret_Sprite;
+			}
+			else if (string[1] == 'W' || string[1] == 'w')
+			{
+				secnum = (unsigned)strtoull(string + 2, (char**)&string, 10) + 0x100000 * Secret_Wall;
+			}
+			if (*string == ';') string++;
+			if (secnum != UINT_MAX) colstr = discovered_secrets.Find(secnum) == discovered_secrets.Size() ? TEXTCOLOR_RED : TEXTCOLOR_GREEN;
 		}
 		auto brok = V_BreakLines(NewConsoleFont, screen->GetWidth()*95/100, string);
 
@@ -127,12 +137,18 @@ void SECRET_SetMapName(const char *filename, const char *_maptitle)
 	maptitle = _maptitle;
 }
 
-bool SECRET_Trigger(int num)
+bool SECRET_Trigger(int nnum, int type)
 {
+	int num = nnum + type * 0x100000;
 	if (discovered_secrets.Find(num) == discovered_secrets.Size())
 	{
 		discovered_secrets.Push(num);
-		if (secret_notify) Printf(PRINT_NONOTIFY, "Secret #%d found\n", num);
+		if (secret_notify)
+		{
+			if (type == Secret_Sector) Printf(PRINT_NONOTIFY, "Secret sector #%d found\n", nnum);
+			else if (type == Secret_Sprite) Printf(PRINT_NONOTIFY, "Secret sprite #%d found\n", nnum);
+			else if (type == Secret_Wall) Printf(PRINT_NONOTIFY, "Secret wall #%d found\n", nnum);
+		}
 		return true;
 	}
 	return false;

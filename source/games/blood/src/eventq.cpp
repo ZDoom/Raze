@@ -391,10 +391,11 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 	case kChannelSecretFound:
 	{
 		int nIndex = -1;
-		if (eob.isActor() && eob.actor()) nIndex = eob.actor()->GetIndex() + 3 * 65536;	// the hint system needs the sprite index.
-		else if (eob.isSector()) nIndex = eob.rawindex() + 6 * 65536;
-		else if (eob.isWall()) nIndex = eob.rawindex();
-		if (SECRET_Trigger(nIndex)) // if the hint system knows this secret it's a retrigger - skip that.
+		int nType = -1;
+		if (eob.isActor() && eob.actor()) nIndex = eob.actor()->GetIndex(), nType = Secret_Sprite;
+		else if (eob.isSector()) nIndex = eob.rawindex(), nType = Secret_Sector;
+		else if (eob.isWall()) nIndex = eob.rawindex(), nType = Secret_Wall;
+		if (SECRET_Trigger(nIndex, nType)) // if the hint system knows this secret it's a retrigger - skip that.
 		{
 			if (command >= kCmdNumberic)
 			{
