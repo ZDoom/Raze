@@ -239,6 +239,8 @@ void drawoverlays(double smoothratio)
 	int cposx, cposy, cang;
 
 	pp = &ps[screenpeek];
+	// set palette here, in case the 3D view is off.
+	setgamepalette(setpal(pp));
 
 	float blend[4] = {};
 
