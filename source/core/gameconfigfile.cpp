@@ -83,6 +83,7 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", user_app_support + "/EDuke32", true);
 		SetValueForKey ("Path", user_app_support + "/JFDuke32", true);
 		SetValueForKey ("Path", user_app_support + "/NBlood", true);
+		SetValueForKey("Path", user_app_support + "/Raze/*", true);
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
 		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
@@ -125,9 +126,9 @@ FGameConfigFile::FGameConfigFile ()
 		SetSection ("FileSearch.Directories", true);
 #ifdef __APPLE__
 		SetValueForKey ("Path", user_docs, true);
-		SetValueForKey ("Path", user_app_support, true);
+		SetValueForKey ("Path", user_app_support + "/" GAME_DIR, true);
 		SetValueForKey ("Path", "$PROGDIR", true);
-		SetValueForKey ("Path", local_app_support, true);
+		SetValueForKey ("Path", local_app_support + "/" GAME_DIR, true);
 #elif !defined(__unix__)
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$GAMEDIR", true);
@@ -149,9 +150,9 @@ FGameConfigFile::FGameConfigFile ()
 		SetSection("SoundfontSearch.Directories", true);
 #ifdef __APPLE__
 		SetValueForKey("Path", user_docs + "/soundfonts", true);
-		SetValueForKey("Path", user_app_support + "/soundfonts", true);
+		SetValueForKey("Path", user_app_support +  "/" GAME_DIR "/soundfonts", true);
 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
-		SetValueForKey("Path", local_app_support + "/soundfonts", true);
+		SetValueForKey("Path", local_app_support +  "/" GAME_DIR "/soundfonts", true);
 #elif !defined(__unix__)
 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
 #else
