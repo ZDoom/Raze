@@ -71,7 +71,7 @@ void CreateVertexMap()
 				if (processed[w]) return;	// broken wall setups can trigger this.
 				walls.Push(w);
 				processed.Set(w);
-				if (!sectors.Contains(wal->sector))
+				if ((unsigned)wal->sector < sector.Size() && !sectors.Contains(wal->sector))
 				{
 					sectors.Push(wal->sector);
 					countpersector[wal->sector]++;
