@@ -88,7 +88,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 	pe.a = 230;
 
 	sky->fadecolor = pe;
-	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
+	sky->shade = clamp<int>(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;
 }
 
@@ -119,12 +119,10 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 	}
 	else
 	{
-		ptype = PORTALTYPE_SKY;
 		HWSkyInfo skyinfo;
 		initSkyInfo(di, &skyinfo, sector, plane);
-		ptype = PORTALTYPE_SKY;
 		sky = &skyinfo;
-		PutPortal(di, ptype, plane);
+		PutPortal(di, PORTALTYPE_SKY, plane);
 	}
 }
 

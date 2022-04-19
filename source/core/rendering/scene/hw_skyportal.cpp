@@ -45,6 +45,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	state.AlphaFunc(Alpha_GEqual, 0.f);
 	state.SetRenderStyle(STYLE_Translucent);
 	bool oldClamp = state.SetDepthClamp(true);
+	auto color = shadeToLight(origin->shade);
 
 	di->SetupView(state, 0, 0, 0, !!(mState->MirrorFlag & 1), !!(mState->PlaneMirrorFlag & 1));
 
@@ -53,7 +54,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	auto skybox = origin->texture ? dynamic_cast<FSkyBox*>(origin->texture->GetTexture()) : nullptr;
 	if (skybox)
 	{
-		vertexBuffer->RenderBox(state, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
+		vertexBuffer->RenderBox(state, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 }, color);
 	}
 	else if (!origin->cloudy)
 	{
@@ -77,12 +78,12 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 		textureMatrix.loadIdentity();
 		state.EnableTextureMatrix(true);
 		textureMatrix.scale(1.f, repeat_fac, 1.f);
-		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
+		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true, 0, 0, color);
 		state.EnableTextureMatrix(false);
 	}
 	else
 	{
-		vertexBuffer->RenderDome(state, origin->texture, -origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
+		vertexBuffer->RenderDome(state, origin->texture, -origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, true, 0, 0, color);
 	}
 	state.SetTextureMode(TM_NORMAL);
 	if (origin->fadecolor & 0xffffff)
