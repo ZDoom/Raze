@@ -1578,13 +1578,21 @@ static void weaponcommon_d(DDukeActor* proj)
 	{
 		for (k = -3; k < 2; k++)
 		{
+			vec3_t offset = {
+				MulScale(k, bcos(proj->spr.ang), 9),
+				MulScale(k, bsin(proj->spr.ang), 9),
+				(k * Sgn(proj->spr.zvel)) * abs(proj->spr.zvel / 24)
+			};
+
 			auto spawned = EGS(proj->sector(),
-				proj->spr.pos.X + MulScale(k, bcos(proj->spr.ang), 9),
-				proj->spr.pos.Y + MulScale(k, bsin(proj->spr.ang), 9),
-				proj->spr.pos.Z + ((k * Sgn(proj->spr.zvel)) * abs(proj->spr.zvel / 24)), FIRELASER, -40 + (k << 2),
+				proj->spr.pos.X + offset.X,
+				proj->spr.pos.Y + offset.Y,
+				proj->spr.pos.Z + offset.Z, FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
+
 			if (spawned)
 			{
+				spawned->opos = proj->opos + offset;
 				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 				spawned->spr.pal = proj->spr.pal;
 			}
