@@ -784,7 +784,7 @@ class ExCredits : ScreenJob
 	}
 }
 
-class ExhumedCutscenes
+class ExhumedCutscenes ui
 {
 	//---------------------------------------------------------------------------
 	//

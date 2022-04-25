@@ -310,4 +310,4 @@ void renderSetVisibility(float v);
 void renderSetViewpoint(float x, float y, float z);
 void renderBeginScene();
 void renderFinishScene();
-void videoShowFrame(int32_t);
+void videoShowFrame();

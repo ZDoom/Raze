@@ -417,7 +417,7 @@ int32_t r_scenebrightness = 0;
 
 
 
-void videoShowFrame(int32_t w)
+void videoShowFrame()
 {
 	int oldssao = gl_ssao;
 
@@ -428,7 +428,6 @@ void videoShowFrame(int32_t w)
 	screen->PostProcessScene(false, 0, Brightness, []() {
 		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
 		});
-	screen->Update();
 	screen->mVertexData->Reset();
 	screen->mViewpoints->Clear();
 

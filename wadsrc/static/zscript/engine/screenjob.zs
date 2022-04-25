@@ -1,5 +1,5 @@
 
-class ScreenJob : Object
+class ScreenJob : Object UI
 {
 	int flags;
 	float fadetime;	// in milliseconds
@@ -25,6 +25,11 @@ class ScreenJob : Object
 		fadeout = 2,
 		stopmusic = 4,
 		stopsound = 8,
+		transition_shift = 4,
+		transition_mask = 48,
+		transition_melt = 16,
+		transition_burn = 32,
+		transition_crossfade = 48,
 	};
 
 	void Init(int fflags = 0, float fadet = 250.f)
@@ -60,6 +65,7 @@ class ScreenJob : Object
 		if (flags & stopmusic) System.StopMusic();
 		if (flags & stopsound) System.StopAllSounds();
 	}
+
 }
 
 //---------------------------------------------------------------------------
@@ -244,12 +250,12 @@ class MoviePlayerJob : SkippableScreenJob
 		empty.Push(int(soundname));
 		return CreateWithSoundInfo(filename, empty, flags, frametime);
 	}
-
+	
 	virtual void DrawFrame()
 	{
 		let tex = player.GetTexture();
 		let size = TexMan.GetScaledSize(tex);
-
+		
 		if (!(flag & MoviePlayer.FIXEDVIEWPORT) || (size.x <= 320 && size.y <= 200) || size.x >= 640 || size.y >= 480)
 		{
 			Screen.DrawTexture(tex, false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false);
@@ -298,7 +304,7 @@ class MoviePlayerJob : SkippableScreenJob
 //
 //---------------------------------------------------------------------------
 
-class ScreenJobRunner : Object
+class ScreenJobRunner : Object UI
 {
 	enum ERunState
 	{
@@ -317,6 +323,8 @@ class ScreenJobRunner : Object
 	int terminateState;
 	int fadeticks;
 	int last_paused_tic;
+	
+	native static void setTransition(int type);
 
 	void Init(bool clearbefore_, bool skipall_)
 	{
@@ -378,6 +386,10 @@ class ScreenJobRunner : Object
 		{
 			jobs[index].fadestate = !paused && jobs[index].flags & ScreenJob.fadein? ScreenJob.fadein : ScreenJob.visible;
 			jobs[index].Start();
+			if (jobs[index].flags & ScreenJob.transition_mask)
+			{
+				setTransition((jobs[index].flags & ScreenJob.transition_mask) >> ScreenJob.Transition_Shift);
+			}
 		}
 	}
 

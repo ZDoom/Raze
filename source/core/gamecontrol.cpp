@@ -79,6 +79,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_palmanager.h"
 #include "razefont.h"
 #include "coreactor.h"
+#include "wipe.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -182,6 +183,7 @@ bool pausedWithKey;
 bool gamesetinput = false;
 
 int PlayClock;
+extern int nextwipe;
 
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
@@ -542,6 +544,11 @@ static void System_StartCutscene(bool blockui)
 	gameaction = blockui ? ga_intro : ga_intermission;
 }
 
+static void System_SetTransition(int type)
+{
+	nextwipe = type;
+}
+
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
@@ -579,6 +586,7 @@ int GameMain()
 		FontCharCreated,
 		System_ToggleFullConsole,
 		System_StartCutscene,
+		System_SetTransition,
 	};
 
 	try

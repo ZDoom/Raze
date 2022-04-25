@@ -26,7 +26,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easily look up the methods from C++.
+class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot easily look up the methods from C++.
 {
 	//---------------------------------------------------------------------------
 	//
@@ -261,7 +261,7 @@ class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easi
 
 }
 
-class RRCutscenes
+class RRCutscenes ui
 {
 
 	//---------------------------------------------------------------------------

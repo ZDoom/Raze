@@ -361,7 +361,7 @@ class SWLoadScreen : ScreenJob
 }
 
 
-class SWCutscenes
+class SWCutscenes ui
 {
 	//---------------------------------------------------------------------------
 	//

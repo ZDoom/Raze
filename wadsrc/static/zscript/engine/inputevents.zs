@@ -29,7 +29,7 @@ struct UiEvent native ui version("2.4")
             Type_FwdButtonUp, // ???
         Type_LastMouseEvent
     }
-
+    
     // for KeyDown, KeyRepeat, KeyUp
     enum ESpecialGUIKeys
     {
@@ -67,7 +67,7 @@ struct UiEvent native ui version("2.4")
         Key_Back        = 30,        // browser back key
         Key_CEscape     = 31         // color escape
     }
-
+    
     // 
     native readonly EGUIEvent Type;
     //
@@ -93,7 +93,7 @@ struct InputEvent native play version("2.4")
         Type_GUI, // unused, kept for completeness
         Type_DeviceChange
     }
-
+    
     // ew.
     enum EDoomInputKeys
     {
@@ -237,7 +237,7 @@ struct InputEvent native play version("2.4")
 
         Num_Keys = 0x1C4
     }
-
+    
     //
     native readonly EGenericEvent Type;
     // 
