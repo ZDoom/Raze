@@ -71,17 +71,17 @@ void M_GetMacSearchDirectories(FString& user_docs, FString& user_app_support, FS
 		? "~/" GAME_DIR
 		: (path + "/" GAME_DIR);
 
-#define LIBRARY_APPSUPPORT "/Library/Application Support"
+#define LIBRARY_APPSUPPORT "/Library/Application Support/"
 
 	path = M_GetMacAppSupportPath();
 	user_app_support = path.IsEmpty()
-		? "~" LIBRARY_APPSUPPORT
-		: (path);
+		? "~" LIBRARY_APPSUPPORT GAME_DIR
+		: (path + "/" GAME_DIR);
 
 	path = GetSpecialPath(NSApplicationSupportDirectory, YES, NSLocalDomainMask);
 	local_app_support = path.IsEmpty()
-		? LIBRARY_APPSUPPORT
-		: (path);
+		? LIBRARY_APPSUPPORT GAME_DIR
+		: (path + "/" GAME_DIR);
 
 #undef LIBRARY_APPSUPPORT
 }

@@ -987,6 +987,8 @@ int SmackerDecoder::DecodeAudio(uint32_t size, SmackerAudioTrack &track)
 		return -1;
     }
 
+    memset(h, 0, sizeof(HuffContext) * 4);
+
     // Initialize
     for (i = 0; i < (1 << (sampleBits + stereo)); i++) {
         h[i].length = 256;
@@ -1142,7 +1144,7 @@ uint32_t SmackerDecoder::GetAudioData(uint32_t trackIndex, int16_t *audioBuffer)
 	SmackerAudioTrack *track = &audioTracks[trackIndex];
 
 	if (track->bytesReadThisFrame) {
-		memcpy(audioBuffer, track->buffer, min(track->bufferSize, track->bytesReadThisFrame));
+		memcpy(audioBuffer, track->buffer, std::min(track->bufferSize, track->bytesReadThisFrame));
 	}
 
 	return track->bytesReadThisFrame;

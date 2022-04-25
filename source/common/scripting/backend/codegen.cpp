@@ -11156,9 +11156,14 @@ ExpEmit FxLocalArrayDeclaration::Emit(VMFunctionBuilder *build)
 		ClearDynamicArray(build);
 	}
 
+	auto zero = build->GetConstantInt(0);
 	auto elementSizeConst = build->GetConstantInt(static_cast<PArray *>(ValueType)->ElementSize);
-	auto arrOffsetReg = build->Registers[REGT_INT].Get(1);
-	build->Emit(OP_LK, arrOffsetReg, build->GetConstantInt(StackOffset));
+	int arrOffsetReg;
+	if (!isDynamicArray)
+	{
+		arrOffsetReg = build->Registers[REGT_POINTER].Get(1);
+		build->Emit(OP_ADDA_RK, arrOffsetReg, build->FramePointer.RegNum, build->GetConstantInt(StackOffset));
+	}
 
 	for (auto v : values)
 	{
@@ -11166,6 +11171,7 @@ ExpEmit FxLocalArrayDeclaration::Emit(VMFunctionBuilder *build)
 
 		if (isDynamicArray)
 		{
+			emitval.Free(build);
 			continue;
 		}
 
@@ -11178,61 +11184,48 @@ ExpEmit FxLocalArrayDeclaration::Emit(VMFunctionBuilder *build)
 		if (emitval.Konst)
 		{
 			auto constval = static_cast<FxConstant *>(v);
-			int regNum = build->Registers[regtype].Get(1);
+			auto regNum = build->Registers[regtype].Get(1);
 			switch (regtype)
 			{
 			default:
 			case REGT_INT:
-				build->Emit(OP_LK, regNum, build->GetConstantInt(constval->GetValue().GetInt()));
-				build->Emit(OP_SW_R, build->FramePointer.RegNum, regNum, arrOffsetReg);
+				build->Emit(OP_LK, regNum, emitval.RegNum);
+				build->Emit(OP_SW, arrOffsetReg, regNum, zero);
 				break;
 
 			case REGT_FLOAT:
-				build->Emit(OP_LKF, regNum, build->GetConstantFloat(constval->GetValue().GetFloat()));
-				build->Emit(OP_SDP_R, build->FramePointer.RegNum, regNum, arrOffsetReg);
+				build->Emit(OP_LKF, regNum, emitval.RegNum);
+				build->Emit(OP_SDP, arrOffsetReg, regNum, zero);
 				break;
 
 			case REGT_POINTER:
-				build->Emit(OP_LKP, regNum, build->GetConstantAddress(constval->GetValue().GetPointer()));
-				build->Emit(OP_SP_R, build->FramePointer.RegNum, regNum, arrOffsetReg);
+				build->Emit(OP_LKP, regNum, emitval.RegNum);
+				build->Emit(OP_SP, arrOffsetReg, regNum, zero);
 				break;
 
 			case REGT_STRING:
-				build->Emit(OP_LKS, regNum, build->GetConstantString(constval->GetValue().GetString()));
-				build->Emit(OP_SS_R, build->FramePointer.RegNum, regNum, arrOffsetReg);
+				build->Emit(OP_LKS, regNum, emitval.RegNum);
+				build->Emit(OP_SS, arrOffsetReg, regNum, zero);
 				break;
 			}
-			build->Registers[regtype].Return(regNum, 1);
 
-			emitval.Free(build);
+			build->Registers[regtype].Return(regNum, 1);
 		}
 		else
 		{
-			switch (regtype)
-			{
-			default:
-			case REGT_INT:
-				build->Emit(OP_SW_R, build->FramePointer.RegNum, emitval.RegNum, arrOffsetReg);
-				break;
-
-			case REGT_FLOAT:
-				build->Emit(OP_SDP_R, build->FramePointer.RegNum, emitval.RegNum, arrOffsetReg);
-				break;
-
-			case REGT_POINTER:
-				build->Emit(OP_SP_R, build->FramePointer.RegNum, emitval.RegNum, arrOffsetReg);
-				break;
-
-			case REGT_STRING:
-				build->Emit(OP_SS_R, build->FramePointer.RegNum, emitval.RegNum, arrOffsetReg);
-				break;
-			}
-			emitval.Free(build);
+			build->Emit(v->ValueType->GetStoreOp(), arrOffsetReg, emitval.RegNum, zero);
 		}
+		emitval.Free(build);
 
-		build->Emit(OP_ADD_RK, arrOffsetReg, arrOffsetReg, elementSizeConst);
+		if (!isDynamicArray)
+		{
+			build->Emit(OP_ADDA_RK, arrOffsetReg, arrOffsetReg, elementSizeConst);
+		}
 	}
-	build->Registers[REGT_INT].Return(arrOffsetReg, 1);
+	if (!isDynamicArray)
+	{
+		build->Registers[REGT_POINTER].Return(arrOffsetReg, 1);
+	}
 
 	return ExpEmit();
 }
