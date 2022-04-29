@@ -113,7 +113,7 @@ void StopInterpolation(int index, int type)
 
 void StartInterpolation(DCoreActor* actor, int type)
 {
-	assert(type = Interp_Sprite_Z);
+	assert(type == Interp_Sprite_Z);
 	for (unsigned i = 0; i < interpolations.Size(); i++)
 	{
 		if (interpolations[i].actor == actor && interpolations[i].type == type)
@@ -129,7 +129,7 @@ void StartInterpolation(DCoreActor* actor, int type)
 
 void StopInterpolation(DCoreActor* actor, int type)
 {
-	assert(type = Interp_Sprite_Z);
+	assert(type == Interp_Sprite_Z);
 	for (unsigned i = 0; i < interpolations.Size(); i++)
 	{
 		if (interpolations[i].actor == actor && interpolations[i].type == type)
