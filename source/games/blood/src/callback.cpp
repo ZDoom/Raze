@@ -535,7 +535,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 		int nChannel = 28 + (actor->GetIndex() & 2);
 
 		// tommy sleeve
-		if (actor->spr.type >= 37 && actor->spr.type <= 39) {
+		if (actor->spr.type >= FX_37 && actor->spr.type <= FX_39) {
 			Random(3);
 			sfxPlay3DSound(actor, 608 + Random(2), nChannel, 1);
 
@@ -561,19 +561,19 @@ void sleeveStopBouncing(DBloodActor* actor)
 	sfxKill3DSound(actor, -1, -1);
 
 	switch (actor->spr.type) {
-	case 37:
-	case 38:
-	case 39:
+	case FX_37:
+	case FX_38:
+	case FX_39:
 		actor->spr.picnum = 2465;
 		break;
-	case 40:
-	case 41:
-	case 42:
+	case FX_40:
+	case FX_41:
+	case FX_42:
 		actor->spr.picnum = 2464;
 		break;
 	}
 
-	actor->spr.type = 51;
+	actor->spr.type = FX_51;
 	actor->spr.xrepeat = actor->spr.yrepeat = 10;
 }
 
