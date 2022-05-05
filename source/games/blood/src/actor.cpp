@@ -6262,6 +6262,8 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 		y = source->spr.pos.Y + mulscale30r(Sin(angle), a3);
 	}
 	spawned->spr.type = nType;
+	if (!VanillaMode())
+		 spawned->spr.inittype = nType;
 	spawned->spr.ang = angle;
 	vec3_t pos = { x, y, z };
 	SetActor(spawned, &pos);
