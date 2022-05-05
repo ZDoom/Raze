@@ -1029,9 +1029,9 @@ DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int* z)
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (top - actor->spr.pos.Z > *z)
+			if (actor->spr.pos.Z - top > *z)
 			{
-				*z = top - actor->spr.pos.Z;
+				*z = actor->spr.pos.Z - top;
 				found = actor;
 			}
 		}
