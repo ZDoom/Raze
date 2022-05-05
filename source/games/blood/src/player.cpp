@@ -737,6 +737,15 @@ void playerResetPowerUps(PLAYER* pPlayer)
 
 void playerResetPosture(PLAYER* pPlayer) {
 	memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
+	if (!VanillaMode()) {
+		pPlayer->bobPhase = 0;
+		pPlayer->bobAmp = 0;
+		pPlayer->swayAmp = 0;
+		pPlayer->bobHeight = 0;
+		pPlayer->bobWidth = 0;
+		pPlayer->swayHeight = 0;
+		pPlayer->swayWidth = 0;
+	}
 }
 
 //---------------------------------------------------------------------------
