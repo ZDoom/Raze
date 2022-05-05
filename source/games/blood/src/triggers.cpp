@@ -499,6 +499,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 				switch (actor->xspr.data1) {
 				case kDudeBurningInnocent:
 				case kDudeBurningCultist:
+				case kDudeBurningZombieAxe:
 				case kDudeBurningZombieButcher:
 				case kDudeBurningTinyCaleb:
 				case kDudeBurningBeast: {
