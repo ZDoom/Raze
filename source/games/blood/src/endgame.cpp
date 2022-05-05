@@ -73,11 +73,6 @@ void CKillMgr::SetCount(int nCount)
 	TotalKills = nCount;
 }
 
-void CKillMgr::AddNewKill(int nCount)
-{
-	TotalKills += nCount;
-}
-
 void CKillMgr::AddKill(DBloodActor* actor)
 {
 	if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)

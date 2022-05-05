@@ -257,7 +257,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 						aiActivateDude(spawned);
 				}
 
-				gKillMgr.AddNewKill(1);
+				gKillMgr.AddKill(spawned);
 				pExtra->slave[pExtra->slaveCount++] = spawned;
 				if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
 					sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
@@ -1954,7 +1954,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 		spawned->spr.yrepeat = source->spr.yrepeat;
 	}
 
-	gKillMgr.AddNewKill(1);
+	gKillMgr.AddKill(spawned);
 	aiInitSprite(spawned);
 	return spawned;
 }
