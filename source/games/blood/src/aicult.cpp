@@ -87,7 +87,7 @@ void TommySeqCallback(int, DBloodActor* actor)
 
 void TeslaSeqCallback(int, DBloodActor* actor)
 {
-	if (Chance(dword_138BB0[gGameOptions.nDifficulty]))
+	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
 		int dx = bcos(actor->spr.ang);
 		int dy = bsin(actor->spr.ang);

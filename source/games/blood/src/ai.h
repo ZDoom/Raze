@@ -75,7 +75,7 @@ struct TARGETTRACK {
 	int at10; // Move predict
 };
 
-extern const int dword_138BB0[5];
+extern const int gCultTeslaFireChance[5];
 
 bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
 void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
