@@ -145,7 +145,7 @@ enum
 //
 //---------------------------------------------------------------------------
 
-bool checkFired6or7(PLAYER* pPlayer)
+bool checkLitSprayOrTNT(PLAYER* pPlayer)
 {
 	switch (pPlayer->curWeapon)
 	{
@@ -743,7 +743,7 @@ void WeaponRaise(PLAYER* pPlayer)
 void WeaponLower(PLAYER* pPlayer)
 {
 	assert(pPlayer != NULL);
-	if (checkFired6or7(pPlayer))
+	if (checkLitSprayOrTNT(pPlayer))
 		return;
 	pPlayer->throwPower = 0;
 	int prevState = pPlayer->weaponState;
@@ -2058,7 +2058,7 @@ static const uint8_t gWeaponUpgrade[][13] = {
 int WeaponUpgrade(PLAYER* pPlayer, int newWeapon)
 {
 	int weapon = pPlayer->curWeapon;
-	if (!checkFired6or7(pPlayer) && (cl_weaponswitch & 1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch & 2)))
+	if (!checkLitSprayOrTNT(pPlayer) && (cl_weaponswitch & 1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch & 2)))
 		weapon = newWeapon;
 	return weapon;
 }
@@ -2380,7 +2380,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	}
 	if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->curWeapon))
 	{
-		if (checkFired6or7(pPlayer))
+		if (checkLitSprayOrTNT(pPlayer))
 		{
 			if (pPlayer->curWeapon == kWeapSpraycan)
 			{
@@ -2570,7 +2570,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	}
 	if (pPlayer->newWeapon)
 	{
-		if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer) && !VanillaMode()) // skip banned weapons when underwater and using next/prev weapon key inputs
+		if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkLitSprayOrTNT(pPlayer) && !VanillaMode()) // skip banned weapons when underwater and using next/prev weapon key inputs
 		{
 			if (prevNewWeaponVal == WeaponSel_Next || prevNewWeaponVal == WeaponSel_Prev) // if player switched weapons
 			{
@@ -2636,7 +2636,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 			pPlayer->newWeapon = kWeapNone;
 			return;
 		}
-		if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer))
+		if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkLitSprayOrTNT(pPlayer))
 		{
 			pPlayer->newWeapon = kWeapNone;
 			return;

@@ -46,7 +46,7 @@ int qanimateoffs(int a1, int a2);
 
 struct PLAYER;
 
-bool checkFired6or7(PLAYER* pPlayer);
+bool checkLitSprayOrTNT(PLAYER* pPlayer);
 void WeaponInit(void);
 void WeaponDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5);
 void WeaponRaise(PLAYER* pPlayer);

@@ -242,7 +242,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 				pPlayer->hasWeapon[kWeapLifeLeech] = 1;
 				if (pPlayer->curWeapon != kWeapLifeLeech)
 				{
-					if (!VanillaMode() && checkFired6or7(pPlayer)) // if tnt/spray is actively used, do not switch weapon
+					if (!VanillaMode() && checkLitSprayOrTNT(pPlayer)) // if tnt/spray is actively used, do not switch weapon
 						break;
 					pPlayer->weaponState = 0;
 					pPlayer->nextWeapon = kWeapLifeLeech;
