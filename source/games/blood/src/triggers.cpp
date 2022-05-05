@@ -833,7 +833,7 @@ void PathSound(sectortype* pSector, int nSound)
 //
 //---------------------------------------------------------------------------
 
-void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
+void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char bAllWalls)
 {
 	int x, y;
 	XSECTOR* pXSector = &pSector->xs();
@@ -865,7 +865,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			});
 	};
 
-	if (a12)
+	if (bAllWalls)
 	{
 		for (auto& wal : wallsofsector(pSector))
 		{
