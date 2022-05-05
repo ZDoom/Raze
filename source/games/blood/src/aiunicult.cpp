@@ -796,7 +796,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hitactor->IsDudeActor() && (weaponType != kGenDudeWeaponHitscan || hscn))
 							{
 								// dodge a bit in sides
-								if (hitactor->GetTarget() != actor)
+								if (hitactor->xspr.health > 0 && hitactor->GetTarget() != actor)
 								{
 									if (pExtra->baseDispersion < 1024 && weaponType != kGenDudeWeaponMissile)
 									{
@@ -1215,6 +1215,10 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 	{
 		return;
 	}
+	
+	if (actor->xspr.health <= 0 || actor->xspr.sysData1 == kGenDudeTransformStatus)
+		return;
+
 
 	// redirect dudes which cannot walk to non-walk states
 	if (!actor->genDudeExtra.canWalk)
