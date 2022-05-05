@@ -680,7 +680,7 @@ void SetupGibWallState(walltype* pWall, XWALL* pXWall)
 		pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
 	if (pWall2)
 	{
-		pWall2->cstat |= CSTAT_WALL_BLOCK;
+		pWall2->cstat &= ~CSTAT_WALL_BLOCK;
 		if (bVector)
 			pWall2->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
 		pWall->cstat |= CSTAT_WALL_MASKED;
