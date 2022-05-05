@@ -5023,7 +5023,7 @@ void MoveDude(DBloodActor* actor)
 					break;
 				case kDudeBurningCultist:
 				{
-					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && !VanillaMode(); // fix burning cultists randomly switching types underwater
+					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && (actor->spr.inittype != actor->spr.type) && !VanillaMode(); // fix burning cultists randomly switching types underwater
 					if (Chance(chance))
 						actor->spr.type = kDudeCultistTommy;
 					else
