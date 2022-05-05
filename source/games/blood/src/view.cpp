@@ -395,7 +395,7 @@ void viewUpdateDelirium(void)
 	if ((powerCount = powerupCheck(gView, kPwUpDeliriumShroom)) != 0)
 	{
 		int tilt1 = 170, tilt2 = 170, pitch = 20;
-		int timer = PlayClock * 4;
+		int timer = PlayClock * 2;
 		if (powerCount < 512)
 		{
 			int powerScale = IntToFixed(powerCount) / 512;
