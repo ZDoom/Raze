@@ -397,7 +397,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 
 */
 
-int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal)
+int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, bool align)
 {
     int nFrame = SeqBase[nSeqOffset] + dx;
     int nFrameBase = FrameBase[nFrame];
@@ -419,6 +419,8 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
 
         if (ChunkFlag[nFrameBase] & 2)
             stat |= RS_YFLIPHUD;
+		
+		if (align) stat |= RS_ALIGN_R;
 
         int16_t nTile = ChunkPict[nFrameBase];
 

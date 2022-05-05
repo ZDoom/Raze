@@ -918,6 +918,7 @@ void DrawWeapons(double smooth)
     nPal = RemapPLU(nPal);
 
     double xOffset = 0, yOffset = 0;
+	bool screenalign = false;
 
     if (cl_weaponsway)
     {
@@ -949,6 +950,10 @@ void DrawWeapons(double smooth)
     if (nWeapon == 3 && var_34 == 1) {
         seq_DrawPilotLightSeq(xOffset, yOffset);
     }
+	else if (nWeapon == 8 || nWeapon == 9)
+	{
+		screenalign = true;
+	}
 
     if (nWeapon < 0) {
         nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
@@ -960,7 +965,7 @@ void DrawWeapons(double smooth)
     xOffset -= look_anghalf;
     yOffset += looking_arc;
 
-    seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal);
+    seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, screenalign);
 
     if (nWeapon != kWeaponM60)
         return;
