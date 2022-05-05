@@ -395,23 +395,38 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectShadow:
 	{
-		if (r_shadows)
+		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		if (!pNSprite)
+			break;
+		pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos.X, pNSprite->pos.Y);
+		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
-			auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
-			if (!pNSprite)
-				break;
-
-			pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos.X, pNSprite->pos.Y);
-			pNSprite->shade = 127;
-			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-			pNSprite->xrepeat = pTSprite->xrepeat;
-			pNSprite->yrepeat = pTSprite->yrepeat >> 2;
-			pNSprite->picnum = pTSprite->picnum;
-			pNSprite->pal = 5;
-			int height = tileHeight(pNSprite->picnum);
-			int center = height / 2 + tileTopOffset(pNSprite->picnum);
-			pNSprite->pos.Z -= (pNSprite->yrepeat << 2) * (height - center);
+			int cX = pNSprite->pos.X, cY = pNSprite->pos.Y, cZ = pNSprite->pos.Z, cZrel = pNSprite->pos.Z;
+			auto cSect = pNSprite->sectp;
+			for (int i = 0; i < 16; i++) // scan through max stacked sectors
+			{
+				if (!CheckLink(&cX, &cY, &cZ, &cSect)) // if no more floors underneath, abort
+					break;
+				const int newFloorZ = getflorzofslopeptr(cSect, cX, cZ);
+				cZrel += newFloorZ - cZ; // get height difference for next sector's ceiling/floor, and add to relative height for shadow
+				if ((cSect->floorpicnum < 4080) || (cSect->floorpicnum > 4095)) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
+					break;
+				cZ = newFloorZ;
+			}
+			pNSprite->sectp = cSect;
+			pNSprite->pos.Z = cZrel;
 		}
+		pNSprite->shade = 127;
+		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+		pNSprite->xrepeat = pTSprite->xrepeat;
+		pNSprite->yrepeat = pTSprite->yrepeat>>2;
+		pNSprite->picnum = pTSprite->picnum;
+		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
+			pNSprite->picnum = 800;
+		pNSprite->pal = 5;
+		int height = tileHeight(pNSprite->picnum);
+		int center = height / 2 + tileTopOffset(pNSprite->picnum);
+		pNSprite->pos.Z -= (pNSprite->yrepeat << 2) * (height - center);
 		break;
 	}
 	case kViewEffectFlareHalo:
