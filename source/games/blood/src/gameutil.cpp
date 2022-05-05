@@ -398,11 +398,11 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 	}
 	else
 	{
-		hitscangoal.X = hitscangoal.Y = 0x1ffffff;
+		hitscangoal.X = hitscangoal.Y = 0x1fffffff;
 	}
 	hitscan({ x, y, z }, actor->sector(), { dx, dy, dz << 4 }, gHitInfo, nMask);
 
-	hitscangoal.X = hitscangoal.Y = 0x1ffffff;
+	hitscangoal.X = hitscangoal.Y = 0x1fffffff;
 	actor->spr.cstat = bakCstat;
 	if (gHitInfo.actor() != nullptr)
 		return 3;

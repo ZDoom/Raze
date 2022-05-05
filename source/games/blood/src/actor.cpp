@@ -6377,7 +6377,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data1 = (nThingType == kThingBloodBits) ? 19 : 8;
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
-		actor->xspr.data4 = 318;
+		actor->xspr.data4 = 319;
 		actor->xspr.TargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;

@@ -653,7 +653,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int nDist = Random(16) << 4;
 	int x = actor->spr.pos.X + MulScale(nDist, Cos(nAngle), 28);
 	int y = actor->spr.pos.Y + MulScale(nDist, Sin(nAngle), 28);
-	if (actor->spr.ang == 1024)
+	if (actor->spr.ang == 1024 && actor->spr.type == 53)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
 		assert(nChannel < 32);

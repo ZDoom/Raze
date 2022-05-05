@@ -1757,6 +1757,7 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeZombieAxeBuried: {
 		pDudeExtraE->thinkTime = 0;
 		aiNewState(actor, &zombieEIdle);
+		actor->spr.flags &= ~1;
 		break;
 	}
 	case kDudeGargoyleFlesh:
