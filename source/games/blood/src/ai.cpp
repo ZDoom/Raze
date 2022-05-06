@@ -987,7 +987,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 				PLAYER* pPlayer = getPlayerById(source->spr.type);
 				if (!pPlayer) return nDamage;
-				if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
+				//if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 				if (readyForCrit(source, actor)) 
 				{
 					nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
@@ -1694,7 +1694,7 @@ void aiInitSprite(DBloodActor* actor)
 	pDudeExtraE->active = 0;
 
 #ifdef NOONE_EXTENSIONS
-	int stateTimer = -1;
+	unsigned int stateTimer = 0;
 	int targetX = 0, targetY = 0, targetZ = 0;
 	DBloodActor* pTargetMarker = nullptr;
 

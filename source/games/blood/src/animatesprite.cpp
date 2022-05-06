@@ -601,6 +601,12 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		case 0:
 			if (!owneractor->hasX()) break;
 			switch (pTSprite->type) {
+#ifdef NOONE_EXTENSIONS
+			case kModernCondition:
+			case kModernConditionFalse:
+				if (!gModernMap) break;
+				[[fallthrough]];
+#endif
 			case kSwitchToggle:
 			case kSwitchOneWay:
 				if (owneractor->xspr.state) nAnim = 1;

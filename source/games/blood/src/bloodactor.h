@@ -40,8 +40,6 @@ public:
 	void Serialize(FSerializer& arc) override;
 	size_t PropagateMark() override;
 
-	DBloodActor& operator=(const DBloodActor& other) = default;
-
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 

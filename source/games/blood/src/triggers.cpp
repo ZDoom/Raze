@@ -2304,6 +2304,14 @@ void trInit(TArray<DBloodActor*>& actors)
 	}
 
 	evSendGame(kChannelLevelStart, kCmdOn);
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+	{
+		evSendGame(kChannelLevelStartRAZE, kCmdOn);
+	}
+#endif
+
+
 	switch (gGameOptions.nGameType) {
 	case 1:
 		evSendGame(kChannelLevelStartCoop, kCmdOn);

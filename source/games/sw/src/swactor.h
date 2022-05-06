@@ -18,7 +18,6 @@ public:
 	TObjPtr<DSWActor*> ownerActor;
 
 	DSWActor() = default;
-	DSWActor& operator=(const DSWActor& other) = default;
 
 	bool hasU() { return hasUser; }
 

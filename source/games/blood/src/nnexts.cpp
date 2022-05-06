@@ -41,6 +41,8 @@ inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 
+CVARD(Bool, nnext_showconditionsprites, false, 0, "makes kModernCondition sprites visable")
+
 
 
 
@@ -491,6 +493,35 @@ void nnExtResetGlobals()
 //
 //---------------------------------------------------------------------------
 
+CCMD(nnext_ifshow)
+{
+	if (!isBlood()) return;
+	BloodSpriteIterator it;
+	int cnt = 0;
+	while (auto actor = it.Next())
+	{
+		if (actor->spr.type == kModernCondition || actor->spr.type == kModernConditionFalse)
+		{
+			if (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
+			{
+				actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+				cnt++;
+			}
+		}
+	}
+	
+	if (cnt <= 0)
+		Printf("No condition sprites found!\n");
+
+	Printf("%d sprites are visible now.\n", cnt);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 {
 	nnExtResetGlobals();
@@ -693,7 +724,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			actor->SetTarget(nullptr);
 			ChangeActorStat(actor, kStatModernCondition);
 			auto oldStat = actor->spr.cstat;
-			actor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_SLOPE;
+			actor->spr.cstat = 0;
 
 			if (oldStat & CSTAT_SPRITE_BLOCK)
 				actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
@@ -701,7 +732,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			if (oldStat & CSTAT_SPRITE_MOVE_FORWARD) actor->spr.cstat |= CSTAT_SPRITE_MOVE_FORWARD;
 			else if (oldStat & CSTAT_SPRITE_MOVE_REVERSE) actor->spr.cstat |= CSTAT_SPRITE_MOVE_REVERSE;
 
-			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+			if (!nnext_showconditionsprites)
+				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
 		}
 
@@ -1061,15 +1093,7 @@ void nnExtProcessSuperSprites()
 			if (aCond->xspr.locked || aCond->xspr.isTriggered || ++aCond->xspr.busy < aCond->xspr.busyTime)
 				continue;
 
-			if (aCond->xspr.data1 >= kCondGameBase && aCond->xspr.data1 < kCondGameMax)
-			{
-				EVENT evn;
-				evn.target = EventObject(pCond->actor);
-				evn.cmd = (int8_t)aCond->xspr.command;
-				evn.funcID = kCallbackMax;
-				useCondition(pCond->actor, evn);
-			}
-			else if (pCond->length > 0)
+			if (pCond->length > 0)
 			{
 				aCond->xspr.busy = 0;
 				for (unsigned k = 0; k < pCond->length; k++)
@@ -1080,6 +1104,14 @@ void nnExtProcessSuperSprites()
 					evn.funcID = kCallbackMax;
 					useCondition(pCond->actor, evn);
 				}
+			}
+			else if (aCond->xspr.data1 >= kCondGameBase && aCond->xspr.data1 < kCondGameMax)
+			{
+				EVENT evn;
+				evn.target = EventObject(pCond->actor);
+				evn.cmd = (int8_t)aCond->xspr.command;
+				evn.funcID = kCallbackMax;
+				useCondition(pCond->actor, evn);
 			}
 
 		}
@@ -2505,44 +2537,71 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 
 void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* targetactor)
 {
+	bool flag1 = (sourceactor->spr.flags & kModernTypeFlag1);
+	bool flag2 = (sourceactor->spr.flags & kModernTypeFlag2);
+	bool flag4 = (sourceactor->spr.flags & kModernTypeFlag4);
+	short data3 = sourceactor->xspr.data3;
+	short data4 = sourceactor->xspr.data4;
+
 	switch (objType)
 	{
 	case OBJ_WALL:
 	{
 		if (!pWall) return;
 
-		// data3 = set wall hitag
-		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+		// data1 = set this wall as first wall of sector or as sector.alignto wall
+		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
 		{
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->hitag |= sourceactor->xspr.data3;
+			if (pWall->sectorp())
+			{
+				switch (sourceactor->xspr.data1) {
+					case 1:
+						// You got to be f***ing kidding...
+						//setfirstwall(nSector, objIndex);
+						Printf("Setting first wall not supported!"); // this will require a lot of mess...
+						pWall->allocX();
+						break;
+					case 2:
+						pWall->sectorp()->slopewallofs = max<int>(pWall - pWall->sectorp()->firstWall(), 0);
+						break;
+				}
+			}
+		}
+
+		// data3 = set wall hitag
+		if (valueIsBetween(data3, -1, 32767))
+		{
+			if (flag1)
+			{
+				if (flag4) pWall->hitag &= ~data3;
+				else pWall->hitag |= data3;
+
+				pWall->hitag |= sourceactor->xspr.data3;
+			}
 			else pWall->hitag = sourceactor->xspr.data3;
 		}
 
 		// data4 = set wall cstat
-		if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+		if (valueIsBetween(data4, -1, 65535))
 		{
-			auto old = pWall->cstat;
-
-			// set new cstat
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(sourceactor->xspr.data4); // relative
-			else pWall->cstat = EWallFlags::FromInt(sourceactor->xspr.data4); // absolute
-
-			// and hanlde exceptions
-			pWall->cstat |= old & (CSTAT_WALL_BOTTOM_SWAP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_1WAY);
-			pWall->cstat = (pWall->cstat & ~CSTAT_WALL_MOVE_MASK) | (old & CSTAT_WALL_MOVE_MASK);
-#if 0
-			// old code for reference. This does not look right.
-			if (old & 0xc000) {
-
-				if (!(pWall->cstat & 0xc000))
-					pWall->cstat |= 0xc000; // kWallMoveMask
-
-				if ((old & 0x0) && !(pWall->cstat & 0x0)) pWall->cstat |= 0x0; // kWallMoveNone
-				else if ((old & 0x4000) && !(pWall->cstat & 0x4000)) pWall->cstat |= 0x4000; // kWallMoveForward
-				else if ((old & 0x8000) && !(pWall->cstat & CSTAT_SPRITE_INVISIBLE)) pWall->cstat |= CSTAT_SPRITE_INVISIBLE; // kWallMoveBackward
-
+			// relative
+			if (flag1)
+			{
+				if (flag4) pWall->cstat &= ~EWallFlags::FromInt(data4);
+				else pWall->cstat |= EWallFlags::FromInt(data4);
 			}
-#endif
+			// absolute
+			else
+			{
+				auto old = pWall->cstat;
+				pWall->cstat = EWallFlags::FromInt(data4);
+				if (!flag2)
+				{
+					// check for exceptions
+					pWall->cstat |= old & (CSTAT_WALL_BOTTOM_SWAP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_1WAY);
+					pWall->cstat = (pWall->cstat & ~CSTAT_WALL_MOVE_MASK) | (old & CSTAT_WALL_MOVE_MASK);
+				}
+			}
 		}
 	}
 	break;
@@ -2552,22 +2611,29 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 		int old = -1;
 
 		// data3 = set sprite hitag
-		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+		if (valueIsBetween(data3, -1, 32767))
 		{
-			old = targetactor->spr.flags;
-
-			// set new hitag
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.flags = sourceactor->spr.flags |= sourceactor->xspr.data3; // relative
-			else targetactor->spr.flags = sourceactor->xspr.data3;  // absolute
-
+			// relative
+			if (flag1)
+			{
+				if (flag4) targetactor->spr.flags &= ~data3;
+				else targetactor->spr.flags |= data3;
+			}
+			// absolute
+			else
+			{
+				old = targetactor->spr.flags;
+				targetactor->spr.flags = data3;
+			}
+			
 			// and handle exceptions
 			if ((old & kHitagFree) && !(targetactor->spr.flags & kHitagFree)) targetactor->spr.flags |= kHitagFree;
 			if ((old & kHitagRespawn) && !(targetactor->spr.flags & kHitagRespawn)) targetactor->spr.flags |= kHitagRespawn;
 
 			// prepare things for different (debris) physics.
-			if (targetactor->spr.statnum == kStatThing && debrisGetFreeIndex() >= 0) thing2debris = true;
-
+			thing2debris = (targetactor->spr.statnum == kStatThing && debrisGetFreeIndex() >= 0);
 		}
+
 
 		// data2 = sprite physics settings
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767) || thing2debris)
@@ -2754,29 +2820,39 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 		// data4 = sprite cstat
 		if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
 		{
-			auto oldstat = targetactor->spr.cstat;
-
-			// set new cstat
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(sourceactor->xspr.data4); // relative
-			else targetactor->spr.cstat = ESpriteFlags::FromInt(sourceactor->xspr.data4 & 0xffff); // absolute
-
-			// and handle exceptions
-			if ((oldstat & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
-			if ((oldstat & CSTAT_SPRITE_YCENTER)) targetactor->spr.cstat |= CSTAT_SPRITE_YCENTER;
-
-			targetactor->spr.cstat |= (oldstat & CSTAT_SPRITE_MOVE_MASK);
-#if 0
-			// looks very broken.
-			if (old & 0x6000)
+			// relative
+			if (flag1)
 			{
-				if (!(targetactor->spr.cstat & 0x6000))
-					targetactor->spr.cstat |= 0x6000; // kSpriteMoveMask
-
-				if ((old & 0x0) && !(targetactor->spr.cstat & 0x0)) targetactor->spr.cstat |= 0x0; // kSpriteMoveNone
-				else if ((old & 0x2000) && !(targetactor->spr.cstat & 0x2000)) targetactor->spr.cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
-				else if ((old & 0x4000) && !(targetactor->spr.cstat & 0x4000)) targetactor->spr.cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
+				if (flag4) targetactor->spr.cstat &= ~ESpriteFlags::FromInt(data4);
+				else targetactor->spr.cstat |= ESpriteFlags::FromInt(data4);
 			}
+			// absolute
+			else
+			{
+				auto oldstat = targetactor->spr.cstat;
+				
+				// set new cstat
+				if ((sourceactor->spr.flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(sourceactor->xspr.data4); // relative
+				else targetactor->spr.cstat = ESpriteFlags::FromInt(sourceactor->xspr.data4 & 0xffff); // absolute
+				
+				// and handle exceptions
+				if ((oldstat & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
+				if ((oldstat & CSTAT_SPRITE_YCENTER)) targetactor->spr.cstat |= CSTAT_SPRITE_YCENTER;
+				
+				targetactor->spr.cstat = (targetactor->spr.cstat & ~CSTAT_SPRITE_MOVE_MASK) | (oldstat & CSTAT_SPRITE_MOVE_MASK);
+#if 0
+				// looks very broken.
+				if (old & 0x6000)
+				{
+					if (!(targetactor->spr.cstat & 0x6000))
+						targetactor->spr.cstat |= 0x6000; // kSpriteMoveMask
+					
+					if ((old & 0x0) && !(targetactor->spr.cstat & 0x0)) targetactor->spr.cstat |= 0x0; // kSpriteMoveNone
+					else if ((old & 0x2000) && !(targetactor->spr.cstat & 0x2000)) targetactor->spr.cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
+					else if ((old & 0x4000) && !(targetactor->spr.cstat & 0x4000)) targetactor->spr.cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
+				}
 #endif
+			}
 		}
 	}
 	break;
@@ -2901,16 +2977,31 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
 			pSector->visibility = ClipRange(sourceactor->xspr.data2, 0, 234);
 
+	
 		// data3 = sector ceil cstat
-		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767)) {
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(sourceactor->xspr.data3);
-			else pSector->ceilingstat = ESectorFlags::FromInt(sourceactor->xspr.data3);
+		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
+		{
+			// relative
+			if (flag1)
+			{
+				if (flag4) pSector->ceilingstat &= ~ESectorFlags::FromInt(data3);
+				else pSector->ceilingstat |= ESectorFlags::FromInt(data3);
+			}
+			// absolute
+			else pSector->ceilingstat = ESectorFlags::FromInt(data3);
 		}
 
 		// data4 = sector floor cstat
-		if (valueIsBetween(sourceactor->xspr.data4, -1, 65535)) {
-			if ((sourceactor->spr.flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(sourceactor->xspr.data4);
-			else pSector->floorstat = ESectorFlags::FromInt(sourceactor->xspr.data4);
+		if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
+		{
+			// relative
+			if (flag1)
+			{
+				if (flag4) pSector->floorstat &= ~ESectorFlags::FromInt(data4);
+				else pSector->floorstat |= ESectorFlags::FromInt(data4);
+			}
+			// absolute
+			else pSector->floorstat = ESectorFlags::FromInt(data4);
 		}
 	}
 	break;
@@ -3121,6 +3212,11 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 				pEffect->spr.cstat = sourceactor->spr.cstat;
 				if (pEffect->spr.cstat & CSTAT_SPRITE_INVISIBLE)
 					pEffect->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+			}
+
+			if (sourceactor->spr.flags & kModernTypeFlag4)
+			{
+				pEffect->spr.ang = sourceactor->spr.ang;
 			}
 
 			if (pEffect->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
@@ -3547,6 +3643,11 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						spawned->spr.cstat |= sourceactor->spr.cstat;
 					}
 
+					if (sourceactor->spr.flags & kModernTypeFlag4)
+					{
+						spawned->spr.ang = sourceactor->spr.ang;
+					}
+
 					// should be: the more is seqs, the shorter is timer
 					evPostActor(spawned, 1000, kCallbackRemove);
 				}
@@ -3633,7 +3734,7 @@ void condError(DBloodActor* aCond, const char* pzFormat, ...)
 
 bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 {
-	int cond = aCond->xspr.data1 - kCondGameBase;
+	int cond = aCond->xspr.data1;
 	int arg1 = aCond->xspr.data2;
 	int arg2 = aCond->xspr.data3;
 	int arg3 = aCond->xspr.data4;
@@ -3961,7 +4062,7 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 			case kSectorZMotion:
 			case kSectorRotate:
 			case kSectorSlide:
-				if (cond == 60)
+				if (cond == 55)// 60)
 				{
 					h = ClipLow(abs(pXSect->onFloorZ - pXSect->offFloorZ), 1);
 					curH = abs(pSect->floorz - pXSect->offFloorZ);
@@ -4313,7 +4414,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		switch (cond)
 		{
 		default: break;
-		case 0: return condCmp((objActor->spr.ang & 2047), arg1, arg2, cmpOp);
+		case 0: return condCmp((arg3 == 0) ? (objActor->spr.ang & 2047) : objActor->spr.ang, arg1, arg2, cmpOp);
 		case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
 		case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
 		case 7: return condCmp(spriteGetSlope(objActor), arg1, arg2, cmpOp);
@@ -4327,13 +4428,22 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			else if (PUSH) condPush(aCond, objActor->sector());
 			return true;
 		case 25:
-			switch (arg1)
+			if (arg3 == 1)
 			{
-			case 0: return (objActor->vel.X || objActor->vel.Y || objActor->vel.Z);
-			case 1: return (objActor->vel.X);
-			case 2: return (objActor->vel.Y);
-			case 3: return (objActor->vel.Z);
+				if (arg1 == 0)
+				{
+					if ((var = condCmp(objActor->vel.X, arg1, arg2, cmpOp)) == true) return var;
+					if ((var = condCmp(objActor->vel.Y, arg1, arg2, cmpOp)) == true) return var;
+					if ((var = condCmp(objActor->vel.Z, arg1, arg2, cmpOp)) == true) return var;
+				}
+				else if (arg1 == 1) return condCmp(objActor->vel.X, arg1, arg2, cmpOp);
+				else if (arg1 == 2) return condCmp(objActor->vel.Y, arg1, arg2, cmpOp);
+				else if (arg1 == 3) return condCmp(objActor->vel.Z, arg1, arg2, cmpOp);
 			}
+			else if (arg1 == 0) return (objActor->vel.X || objActor->vel.Y || objActor->vel.Z);
+			else if (arg1 == 1) return (objActor->vel.X);
+			else if (arg1 == 2) return (objActor->vel.Y);
+			else if (arg1 == 3) return (objActor->vel.Z);
 			break;
 		case 30:
 			if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
@@ -6066,7 +6176,8 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 		return -1;
 	}
 
-	if (sourceactor->xspr.state)
+	int retn = sourceactor->xspr.state;
+	if (retn)
 	{
 		sourceactor->xspr.isTriggered = sourceactor->xspr.triggerOnce;
 
@@ -6093,7 +6204,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 			}
 		}
 	}
-	return sourceactor->xspr.state;
+	return retn;
 }
 
 //---------------------------------------------------------------------------
@@ -7712,8 +7823,8 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 			// alarm only when in non-recoil state?
 			//if (((actor->xspr.unused1 & kDudeFlagStealth) && stype != kAiStateRecoil) || !(actor->xspr.unused1 & kDudeFlagStealth)) {
-			if (alarm) aiPatrolAlarmFull(actor, targetactor, Chance(0x0100));
-			else aiPatrolAlarmLite(actor, targetactor);
+			//if (alarm) aiPatrolAlarmFull(actor, targetactor, Chance(0x0100));
+			if (alarm) aiPatrolAlarmLite(actor, targetactor);
 			//}
 
 		}
@@ -7817,14 +7928,31 @@ void aiPatrolMove(DBloodActor* actor)
 
 	if (actor->hit.hit.type == kHitSprite)
 	{
+		actor->xspr.dodgeDir = Chance(0x5000) ? 1 : -1;
 		auto hitactor = actor->hit.hit.actor();
-		hitactor->xspr.dodgeDir = -1;
-		actor->xspr.dodgeDir = 1;
+		if (hitactor)
+		{
+			if (hitactor->hasX() && hitactor->xspr.health)
+			{
+				hitactor->xspr.dodgeDir = (actor->xspr.dodgeDir > 0) ? -1 : 1;
+				if (hitactor->vel.X || hitactor->vel.Y)
+					aiMoveDodge(hitactor);
+			}
+		}
 		aiMoveDodge(actor);
 	}
 	else
 	{
-		int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
+		int frontSpeed = pDudeInfo->frontSpeed;
+		switch (actor->spr.type)
+		{
+			case kDudeModernCustom:
+			case kDudeModernCustomBurning:
+				frontSpeed = actor->genDudeExtra.moveSpeed;
+				break;
+		}
+
+		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
 		actor->vel.X += MulScale(frontSpeed, Cos(actor->spr.ang), 30);
 		actor->vel.Y += MulScale(frontSpeed, Sin(actor->spr.ang), 30);
 	}
@@ -8125,7 +8253,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					hearChance += mulscale8(sndvol, f) + Random(gGameOptions.nDifficulty);
 					return (hearChance >= kMaxPatrolSpotValue);
 				});
-
+			/*
 			if (invisible && hearChance >= kMaxPatrolSpotValue >> 2)
 			{
 				newtarget = pPlayer->actor;
@@ -8133,6 +8261,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 				invisible = false;
 				break;
 			}
+			 */
 		}
 
 		if (!invisible && (!deaf || !blind))
@@ -8389,7 +8518,7 @@ void aiPatrolThink(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
 	DBloodActor* targetactor;
-	int stateTimer;
+	unsigned int stateTimer;
 	auto markeractor = actor->GetTarget();
 	if ((targetactor = aiPatrolSearchTargets(actor)) != nullptr)
 	{

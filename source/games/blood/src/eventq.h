@@ -69,22 +69,26 @@ public:
 
 
 enum {
-	kChannelZero = 0,
-	kChannelSetTotalSecrets,
-	kChannelSecretFound,
-	kChannelTextOver,
-	kChannelLevelExitNormal,
-	kChannelLevelExitSecret,
-	kChannelModernEndLevelCustom, // custom level end
-	kChannelLevelStart,
-	kChannelLevelStartMatch, // DM and TEAMS
-	kChannelLevelStartCoop,
-	kChannelLevelStartTeamsOnly,
-	kChannelPlayerDeathTeamA = 15,
-	kChannelPlayerDeathTeamB,
+	kChannelZero                        = 0,
+	kChannelSetTotalSecrets             = 1,
+	kChannelSecretFound                 = 2,
+	kChannelTextOver                    = 3,
+	kChannelLevelExitNormal             = 4,
+	kChannelLevelExitSecret             = 5,
+	kChannelModernEndLevelCustom        = 6, // custom level number end (gModernMap)
+	kChannelLevelStart                  = 7,
+	kChannelLevelStartMatch             = 8, // DM and TEAMS
+	kChannelLevelStartCoop              = 9,
+	kChannelLevelStartTeamsOnly         = 10,
+	kChannelPlayerDeathTeamA            = 15,
+	kChannelPlayerDeathTeamB            = 16,
 	/////////////////////////////
+	// level start channels for specific ports
+	kChannelLevelStartNBLOOD            = 17, // *NBlood only* must trigger it at level start (gModernMap)
+	kChannelLevelStartRAZE              = 18, // *Raze only* must trigger it at level start (gModernMap)
 	// channels of players to send commands on
-	kChannelPlayer0 = 30,
+	kChannelAllPlayers                  = 29,
+	kChannelPlayer0                     = 30,
 	kChannelPlayer1,
 	kChannelPlayer2,
 	kChannelPlayer3,
@@ -92,7 +96,7 @@ enum {
 	kChannelPlayer5,
 	kChannelPlayer6,
 	kChannelPlayer7,
-	kChannelAllPlayers = kChannelPlayer0 + kMaxPlayers,
+
 	// channel of event causer
 	kChannelEventCauser = 50,
 	// map requires modern features to work properly

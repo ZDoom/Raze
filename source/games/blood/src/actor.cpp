@@ -2468,6 +2468,9 @@ static void actInitDudes()
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
 					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+					if (act->xspr.data2 > 0 && getSequence(act->xspr.data2))
+						seqStartId = act->xspr.data2; //  Custom Dude stores it's SEQ in data2
+
 					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
 					act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
 					act->xspr.data3 = 0;
