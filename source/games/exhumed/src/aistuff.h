@@ -27,10 +27,16 @@ BEGIN_PS_NS
 
 // anims
 
+enum
+{
+    kAnimFlag1 = (1 << 2),
+    kAnimLoop  = (1 << 4)
+};
+
 void InitAnims();
 void DestroyAnim(DExhumedActor* nAnim);
 DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, int z, sectortype* pSector, int nRepeat, int nFlag);
-
+void UnlinkIgnitedAnim(DExhumedActor* pActor);
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
 void BuildSplash(DExhumedActor* actor, sectortype* pSector);
