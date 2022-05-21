@@ -24,9 +24,10 @@ void M_Autosave();
 
 template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
 {
+	assert(arc.isReading() || w == nullptr || (w >= &sector[0] && w <= &sector.Last()));
 	int ndx = w ? sectnum(w) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : &sector[ndx];
+	w = !validSectorIndex(ndx) ? nullptr : &sector[ndx];
 	return arc;
 }
 
@@ -34,7 +35,7 @@ template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, 
 {
 	int ndx = w ? wallnum(w) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : &wall[ndx];
+	w = !validWallIndex(ndx) ? nullptr : &wall[ndx];
 	return arc;
 }
 

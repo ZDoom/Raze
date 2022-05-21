@@ -36,7 +36,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 static int torchcnt;
-static int jaildoorcnt;
 static int lightnincnt;
 
 static sectortype* torchsector[64];
@@ -84,7 +83,7 @@ static int windertime;
 
 void lava_cleararrays()
 {
-	jaildoorcnt = 0;
+	jaildoors.Clear();
 	minecarts.Clear();
 	torchcnt = 0;
 	lightnincnt = 0;
@@ -274,6 +273,7 @@ void dojaildoor(void)
 	for(auto& jd : jaildoors)
 	{
 		auto sectp = jd.sect;
+		if (!sectp) continue; // this is only for allowing old, broken savegames to work, this would crash otherwise.
 		double speed = max(2, jd.speed) * maptoworld;
 
 		if (jd.open == 1 || jd.open == 3)
