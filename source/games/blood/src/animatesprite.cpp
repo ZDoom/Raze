@@ -746,7 +746,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		}
 		nShade += tileShade[pTSprite->picnum];
 		pTSprite->shade = ClipRange(nShade, -128, 127);
-		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.owner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
+		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{
 			pTSprite->xrepeat = 48;
 			pTSprite->yrepeat = 48;

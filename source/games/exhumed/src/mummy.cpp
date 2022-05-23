@@ -82,7 +82,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pActor->nCount = 0;
     pActor->nPhase = Counters[kCountMummy]++;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0xE0000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0xE0000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0xE0000);
 

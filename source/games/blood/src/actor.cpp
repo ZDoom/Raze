@@ -6653,7 +6653,7 @@ bool actCheckRespawn(DBloodActor* actor)
 		if (nRespawnTime > 0)
 		{
 			if (actor->xspr.respawnPending == 1) nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
-			actor->spr.owner = actor->spr.statnum;
+			actor->spr.intowner = actor->spr.statnum;
 			actPostSprite(actor, kStatRespawn);
 			actor->spr.flags |= kHitagRespawn;
 

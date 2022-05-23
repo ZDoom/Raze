@@ -62,7 +62,7 @@ DSWActor* insertActor(sectortype* sect, int statnum)
 {
     auto pActor = static_cast<DSWActor*>(::InsertActor(RUNTIME_CLASS(DSWActor), sect, statnum));
 
-    pActor->spr.owner = -1;
+    pActor->spr.intowner = -1;
     return pActor;
 }
 

@@ -87,7 +87,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
     pActor->nChannel = nChannel;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x190000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x190000);
 
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x190000);
@@ -125,7 +125,7 @@ void BuildSoul(DExhumedActor* pSet)
 
     //	GrabTimeSlot(3);
 
-    pActor->spr.owner = runlist_AddRunRec(NewRun, pActor, 0x230000);
+    pActor->spr.intowner = runlist_AddRunRec(NewRun, pActor, 0x230000);
 }
 
 void AISoul::Tick(RunListEvent* ev)

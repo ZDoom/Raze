@@ -190,7 +190,7 @@ void PropagateMarkerReferences(void)
 		case kMarkerAxis:
 		case kMarkerWarpDest:
 		{
-			int nOwner = actor->spr.owner;
+			int nOwner = actor->spr.intowner;
 			if (validSectorIndex(nOwner))
 			{
 				if (sector[nOwner].hasX())
@@ -203,7 +203,7 @@ void PropagateMarkerReferences(void)
 		break;
 		case kMarkerOn:
 		{
-			int nOwner = actor->spr.owner;
+			int nOwner = actor->spr.intowner;
 			if (validSectorIndex(nOwner))
 			{
 				if (sector[nOwner].hasX())

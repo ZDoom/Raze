@@ -459,6 +459,7 @@ struct spritetypebase
 	union { int16_t hitag, flags; };
 	int16_t extra;
 	int16_t detail;
+	uint16_t cstat2;
 
 	int8_t shade;
 	uint8_t pal;
@@ -473,9 +474,7 @@ struct spritetypebase
 
 struct spritetype : public spritetypebase
 {
-	int16_t owner;
-	int16_t detail;
-	uint16_t cstat2;
+	int16_t intowner;
 };
 
 //=============================================================================

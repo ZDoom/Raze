@@ -99,7 +99,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     }
 
     pActor->spr.lotag = runlist_HeadRun() + 1;
-    pActor->spr.owner = -1;
+    pActor->spr.intowner = -1;
     pActor->spr.extra = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x100000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x100000);

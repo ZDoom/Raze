@@ -1271,14 +1271,14 @@ DExhumedActor* GrabBodyGunSprite()
         nBodyGunSprite[nCurBodyGunNum] = pActor;
 
         pActor->spr.lotag = -1;
-        pActor->spr.owner = -1;
+        pActor->spr.intowner = -1;
     }
     else
     {
         DestroyAnim(pActor);
 
         pActor->spr.lotag = -1;
-        pActor->spr.owner = -1;
+        pActor->spr.intowner = -1;
     }
 
     nCurBodyGunNum++;
@@ -1386,7 +1386,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 //	GrabTimeSlot(3);
 
     pActor->spr.extra = -1;
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0xD0000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0xD0000);
     pActor->spr.hitag = runlist_AddRunRec(NewRun, pActor, 0xD0000);
 
     return pActor;
@@ -1457,7 +1457,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         }
     }
 
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_FreeRun(pActor->spr.lotag - 1);
     runlist_SubRunRec(pActor->spr.hitag);
 

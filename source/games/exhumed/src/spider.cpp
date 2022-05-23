@@ -80,7 +80,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
     spp->nHealth = 160;
     spp->nPhase = Counters[kCountSpider]++;
 
-    spp->spr.owner = runlist_AddRunRec(spp->spr.lotag - 1, spp, 0xC0000);
+    spp->spr.intowner = runlist_AddRunRec(spp->spr.lotag - 1, spp, 0xC0000);
 
     spp->nRun = runlist_AddRunRec(NewRun, spp, 0xC0000);
 
@@ -233,7 +233,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (!spp->nFrame)
             {
-                runlist_DoSubRunRec(spp->spr.owner);
+                runlist_DoSubRunRec(spp->spr.intowner);
                 runlist_FreeRun(spp->spr.lotag - 1);
                 runlist_SubRunRec(spp->nRun);
                 spp->spr.cstat = CSTAT_SPRITE_INVISIBLE;

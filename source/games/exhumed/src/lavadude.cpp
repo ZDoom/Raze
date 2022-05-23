@@ -62,7 +62,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 //	GrabTimeSlot(3);
 
     pLimbActor->spr.extra = -1;
-    pLimbActor->spr.owner = runlist_AddRunRec(pLimbActor->spr.lotag - 1, pLimbActor, 0x160000);
+    pLimbActor->spr.intowner = runlist_AddRunRec(pLimbActor->spr.lotag - 1, pLimbActor, 0x160000);
     pLimbActor->spr.hitag = runlist_AddRunRec(NewRun, pLimbActor, 0x160000);
 
     return pLimbActor;
@@ -83,7 +83,7 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
 
-        runlist_DoSubRunRec(pActor->spr.owner);
+        runlist_DoSubRunRec(pActor->spr.intowner);
         runlist_FreeRun(pActor->spr.lotag - 1);
         runlist_SubRunRec(pActor->spr.hitag);
 
@@ -145,7 +145,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     pActor->nFrame = 0;
     pActor->nPhase = Counters[kCountLava]++;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x150000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x150000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x150000);
 
     nCreaturesTotal++;
@@ -413,7 +413,7 @@ void AILavaDude::Tick(RunListEvent* ev)
                 ecx++;
             } while (ecx < 30);
 
-            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_DoSubRunRec(pActor->spr.intowner);
             runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->nRun);
             DeleteActor(pActor);

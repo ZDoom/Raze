@@ -1703,7 +1703,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         return;
     }
 
-    int nRun = pActor->spr.owner;
+    int nRun = pActor->spr.intowner;
     if (nRun <= -1) {
         return;
     }

@@ -88,7 +88,7 @@ void DestroySnake(int nSnake)
         if (!pSnake) continue;
 
         runlist_DoSubRunRec(pSnake->spr.lotag - 1);
-        runlist_DoSubRunRec(pSnake->spr.owner);
+        runlist_DoSubRunRec(pSnake->spr.intowner);
 
         DeleteActor(pSnake);
     }
@@ -188,7 +188,7 @@ void BuildSnake(int nPlayer, int zVal)
             auto pActor = insertActor(pViewSect, 202);
 
 			pActor->pTarget = pPlayerActor;
-            //pActor->spr.owner = nPlayerSprite;
+            //pActor->spr.intowner = nPlayerSprite;
             pActor->spr.picnum = nPic;
 
             if (i == 0)
@@ -227,7 +227,7 @@ void BuildSnake(int nPlayer, int zVal)
 
             SnakeList[nSnake].pSprites[i] = pActor;
 
-            pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, ((nSnake << 8) | i), 0x110000);
+            pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, ((nSnake << 8) | i), 0x110000);
         }
 
         SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake, 0x110000);

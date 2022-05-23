@@ -117,7 +117,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.ang = pPlayerActor->spr.ang;
-    pActor->spr.owner = nPlayer;
+    pActor->spr.intowner = nPlayer;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -144,7 +144,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 {
     int var_28, var_20;
 
-    int nPlayer = pActor->spr.owner;
+    int nPlayer = pActor->spr.intowner;
     auto pGrenadeSect = pActor->sector();
 
     pActor->nFrame = 1;
@@ -225,7 +225,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     pActor->nIndex2--;
     if (!pActor->nIndex2)
     {
-        int nPlayer = pActor->spr.owner;
+        int nPlayer = pActor->spr.intowner;
 
         if (pActor->nTurn < 0)
         {

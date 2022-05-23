@@ -487,7 +487,7 @@ DEFINE_PROPERTY(yoffset, I, CoreActor)
 DEFINE_PROPERTY(owner, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.owner = i;
+	bag.Info->ActorInfo()->defsprite.intowner = i;
 	bag.Info->ActorInfo()->DefaultCstat |= DEFF_OWNER;
 }
 

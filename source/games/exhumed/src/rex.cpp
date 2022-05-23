@@ -84,7 +84,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
     pActor->nRun = nChannel;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x180000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x180000);
 
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x180000);

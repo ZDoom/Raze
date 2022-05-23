@@ -259,7 +259,7 @@ void DestroyEgg(int nEgg)
         }
     }
 
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_DoSubRunRec(pActor->spr.lotag - 1);
     runlist_SubRunRec(QueenEgg[nEgg].nRun);
 
@@ -405,7 +405,7 @@ void BuildTail()
         tailspr[i] = pTailActor;
 
         pTailActor->spr.lotag = runlist_HeadRun() + 1;
-        pTailActor->spr.owner = runlist_AddRunRec(pTailActor->spr.lotag - 1, (i + 1), 0x1B0000);
+        pTailActor->spr.intowner = runlist_AddRunRec(pTailActor->spr.lotag - 1, (i + 1), 0x1B0000);
         pTailActor->spr.shade = -12;
         pTailActor->spr.pos.X = x;
         pTailActor->spr.pos.Y = y;
@@ -503,7 +503,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     QueenEgg[nEgg].nAction = nVal;
 
-    pActor2->spr.owner = runlist_AddRunRec(pActor2->spr.lotag - 1, nEgg, 0x1D0000);
+    pActor2->spr.intowner = runlist_AddRunRec(pActor2->spr.lotag - 1, nEgg, 0x1D0000);
     QueenEgg[nEgg].nRun = runlist_AddRunRec(NewRun, nEgg, 0x1D0000);
 }
 
@@ -745,7 +745,7 @@ void BuildQueenHead(int nQueen)
     QueenHead.nIndex = 0;
     QueenHead.nChannel = QueenList[nQueen].nChannel;
 
-    pActor2->spr.owner = runlist_AddRunRec(pActor2->spr.lotag - 1, 0, 0x1B0000);
+    pActor2->spr.intowner = runlist_AddRunRec(pActor2->spr.lotag - 1, 0, 0x1B0000);
 
     QueenHead.nRun = runlist_AddRunRec(NewRun, 0, 0x1B0000);
     QueenHead.nIndex2 = 0;
@@ -1027,7 +1027,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     BuildLavaLimb(pActor, i, GetActorHeight(pActor));
                 }
 
-                runlist_SubRunRec(pActor->spr.owner);
+                runlist_SubRunRec(pActor->spr.intowner);
                 runlist_SubRunRec(QueenHead.nRun);
                 DeleteActor(pActor);
                 runlist_ChangeChannel(QueenHead.nChannel, 1);
@@ -1160,7 +1160,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
     nHeadVel = 800;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nQueen, 0x1A0000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nQueen, 0x1A0000);
 
     runlist_AddRunRec(NewRun, nQueen, 0x1A0000);
 

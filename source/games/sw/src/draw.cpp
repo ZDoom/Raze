@@ -1534,7 +1534,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 if (actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_FLOOR);
-                    actor->spr.owner = -2;
+                    actor->spr.intowner = -2;
                 }
             }
         }
@@ -1545,10 +1545,10 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     while (auto actor = it.Next())
     {
         // Don't show sprites tagged with 257
-        if (actor->spr.lotag == 257 && actor->spr.owner == -2)
+        if (actor->spr.lotag == 257 && actor->spr.intowner == -2)
         {
             actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_FLOOR);
-            actor->spr.owner = -1;
+            actor->spr.intowner = -1;
         }
     }
 

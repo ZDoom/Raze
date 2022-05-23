@@ -2007,8 +2007,8 @@ inline int16_t& SP_TAG5(DSWActor* actor) { return actor->spr.xvel; }
 inline int16_t& SP_TAG6(DSWActor* actor) { return actor->spr.yvel; }
 inline uint8_t& SP_TAG7(DSWActor* actor) { return MSB_VAR(actor->spr.zvel); }
 inline uint8_t& SP_TAG8(DSWActor* actor) { return LSB_VAR(actor->spr.zvel); }
-inline uint8_t& SP_TAG9(DSWActor* actor) { return MSB_VAR(actor->spr.owner); }
-inline uint8_t& SP_TAG10(DSWActor* actor) { return LSB_VAR(actor->spr.owner); }
+inline uint8_t& SP_TAG9(DSWActor* actor) { return MSB_VAR(actor->spr.intowner); }
+inline uint8_t& SP_TAG10(DSWActor* actor) { return LSB_VAR(actor->spr.intowner); }
 inline int8_t& SP_TAG11(DSWActor* actor) { return actor->spr.shade; }
 inline uint8_t& SP_TAG12(DSWActor* actor) { return actor->spr.pal; }
 inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(uint8_t(actor->spr.xoffset) + (actor->spr.yoffset << 8)); }

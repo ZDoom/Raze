@@ -98,13 +98,13 @@ public:
 
 	inline bool IsActiveCrane()
 	{
-		return spr.owner == -2;
+		return spr.intowner == -2;
 	}
 
 	inline void SetActiveCrane(bool yes)
 	{
 		ownerActor = nullptr;
-		spr.owner = yes ? -2 : -1;
+		spr.intowner = yes ? -2 : -1;
 	}
 
 	int PlayerIndex() const

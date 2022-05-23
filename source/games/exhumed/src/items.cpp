@@ -131,11 +131,11 @@ void BuildItemAnim(DExhumedActor* pActor)
 
         ChangeActorStat(pAnimActor, pActor->spr.statnum);
         pAnimActor->spr.hitag = pActor->spr.hitag;
-        pActor->spr.owner = 0;
+        pActor->spr.intowner = 0;
     }
     else
     {
-        pActor->spr.owner = -1;
+        pActor->spr.intowner = -1;
         pActor->spr.yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
         pActor->spr.xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
     }
@@ -143,7 +143,7 @@ void BuildItemAnim(DExhumedActor* pActor)
 
 void DestroyItemAnim(DExhumedActor* actor)
 {
-    if (actor && actor->spr.owner >= 0) 
+    if (actor && actor->spr.intowner >= 0) 
         DestroyAnim(actor);
 }
 

@@ -86,12 +86,12 @@ public:
 	void SetSpecialOwner() // nnext hackery
 	{
 		ownerActor = nullptr;
-		spr.owner = kMagicOwner;
+		spr.intowner = kMagicOwner;
 	}
 
 	bool GetSpecialOwner()
 	{
-		return  ownerActor == nullptr && (spr.owner == kMagicOwner);
+		return  ownerActor == nullptr && (spr.intowner == kMagicOwner);
 	}
 
 	bool IsPlayerActor()

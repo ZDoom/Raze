@@ -85,7 +85,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->nCount = 0;
     pActor->nPhase = Counters[kCountLion]++;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x130000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x130000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x130000);
 
@@ -520,7 +520,7 @@ void AILion::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            runlist_SubRunRec(pActor->spr.owner);
+            runlist_SubRunRec(pActor->spr.intowner);
             runlist_SubRunRec(pActor->nRun);
             pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         }

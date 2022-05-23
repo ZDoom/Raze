@@ -462,7 +462,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         pAct->spr.pos.Y = (ecx + edi) / 2;
         pAct->spr.pos.Z = pSector->floorz;
         pAct->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-        pAct->spr.owner = -1;
+        pAct->spr.intowner = -1;
         pAct->spr.lotag = 0;
         pAct->spr.hitag = 0;
     }
@@ -1214,7 +1214,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = runlist_AddRunRec(NewRun, nTrap, 0x1F0000);
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nTrap, 0x1F0000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nTrap, 0x1F0000);
 
     //	GrabTimeSlot(3);
 
@@ -1412,7 +1412,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     //	GrabTimeSlot(3);
 
     pSpark->spr.extra = -1;
-    pSpark->spr.owner = runlist_AddRunRec(pSpark->spr.lotag - 1, pSpark, 0x260000);
+    pSpark->spr.intowner = runlist_AddRunRec(pSpark->spr.lotag - 1, pSpark, 0x260000);
     pSpark->spr.hitag = runlist_AddRunRec(NewRun, pSpark, 0x260000);
 
     return pSpark;
@@ -1460,7 +1460,7 @@ void AISpark::Tick(RunListEvent* ev)
         nSmokeSparks--;
     }
 
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_FreeRun(pActor->spr.lotag - 1);
     runlist_SubRunRec(pActor->spr.hitag);
     DeleteActor(pActor);
@@ -1601,7 +1601,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x250000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x250000);
     pActor->backuppos();
 
     return pActor;
@@ -1802,7 +1802,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x170000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x170000);
 
     //	GrabTimeSlot(3);
     pActor->nPhase = ObjectList.Push(pActor);
@@ -1959,7 +1959,7 @@ void AIObject::Tick(RunListEvent* ev)
 
         if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || nStat != kStatExplodeTrigger)
         {
-            runlist_SubRunRec(pActor->spr.owner);
+            runlist_SubRunRec(pActor->spr.intowner);
             runlist_SubRunRec(pActor->nRun);
 
             DeleteActor(pActor);

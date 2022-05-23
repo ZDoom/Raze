@@ -87,7 +87,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pActor->nHealth = 600;
 	pActor->nPhase = Counters[kCountRoach]++;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x1C0000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x1C0000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1C0000);
 
     nCreaturesTotal++;

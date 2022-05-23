@@ -76,7 +76,7 @@ void FreeRa(int nPlayer)
     if (!pActor) return;
 
     runlist_SubRunRec(nRun);
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_FreeRun(pActor->spr.lotag - 1);
 
     DeleteActor(pActor);
@@ -96,7 +96,7 @@ void BuildRa(int nPlayer)
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0x210000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0x210000);
     pActor->spr.pal = 1;
     pActor->spr.xrepeat = 64;
     pActor->spr.yrepeat = 64;

@@ -70,7 +70,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 //	GrabTimeSlot(3);
 
     pChunkActor->spr.extra = -1;
-    pChunkActor->spr.owner = runlist_AddRunRec(pChunkActor->spr.lotag - 1, pChunkActor, 0x200000);
+    pChunkActor->spr.intowner = runlist_AddRunRec(pChunkActor->spr.lotag - 1, pChunkActor, 0x200000);
     pChunkActor->spr.hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
@@ -109,7 +109,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         if ((pActor->spr.pos.Z - FloorZ) > 25600)
         {
             pActor->spr.zvel = 0;
-            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_DoSubRunRec(pActor->spr.intowner);
             runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->spr.hitag);
             DeleteActor(pActor);
@@ -183,7 +183,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->nCount = 60;
     pActor->nFrame = 0;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x120000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x120000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x120000);
 
     nCreaturesTotal++;
@@ -216,7 +216,7 @@ void IdleFish(DExhumedActor* pActor, int edx)
 
 void DestroyFish(DExhumedActor* pActor)
 {
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_FreeRun(pActor->spr.lotag - 1);
     runlist_SubRunRec(pActor->nRun);
     DeleteActor(pActor);

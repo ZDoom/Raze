@@ -1244,8 +1244,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
-		if (bSet) act->spr.owner = lValue;
-		else SetGameVarID(lVar2, act->spr.owner, sActor, sPlayer);
+		if (bSet) act->spr.intowner = lValue;
+		else SetGameVarID(lVar2, act->spr.intowner, sActor, sPlayer);
 		break;
 	case ACTOR_XVEL:
 		if (bSet) act->spr.xvel = lValue;

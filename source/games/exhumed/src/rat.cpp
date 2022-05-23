@@ -118,7 +118,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->nCount = RandomSize(5);
     pActor->nPhase = RandomSize(3);
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x240000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x240000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x240000);
 }
@@ -352,7 +352,7 @@ void AIRat::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_DoSubRunRec(pActor->spr.intowner);
             runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->nRun);
 

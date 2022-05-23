@@ -213,7 +213,7 @@ void InitPlayerInventory(int nPlayer)
 
 int GetPlayerFromActor(DExhumedActor* pActor)
 {
-    return RunData[pActor->spr.owner].nObjIndex;
+    return RunData[pActor->spr.intowner].nObjIndex;
 }
 
 void RestartPlayer(int nPlayer)
@@ -226,7 +226,7 @@ void RestartPlayer(int nPlayer)
 
 	if (pActor)
 	{
-        runlist_DoSubRunRec(pActor->spr.owner);
+        runlist_DoSubRunRec(pActor->spr.intowner);
 		runlist_FreeRun(pActor->spr.lotag - 1);
 
 		ChangeActorStat(pActor, 0);
@@ -240,7 +240,7 @@ void RestartPlayer(int nPlayer)
 
 		if (pDopSprite)
 		{
-			runlist_DoSubRunRec(pDopSprite->spr.owner);
+			runlist_DoSubRunRec(pDopSprite->spr.intowner);
 			runlist_FreeRun(pDopSprite->spr.lotag - 1);
             DeleteActor(pDopSprite);
 		}
@@ -396,8 +396,8 @@ void RestartPlayer(int nPlayer)
 
 	plr->nTauntTimer = RandomSize(3) + 3;
 
-	pDActor->spr.owner = runlist_AddRunRec(pDActor->spr.lotag - 1, nPlayer, 0xA0000);
-	pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0xA0000);
+	pDActor->spr.intowner = runlist_AddRunRec(pDActor->spr.lotag - 1, nPlayer, 0xA0000);
+	pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0xA0000);
 
 	if (plr->nRun < 0) {
 		plr->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);

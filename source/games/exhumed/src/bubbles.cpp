@@ -28,7 +28,7 @@ BEGIN_PS_NS
 void DestroyBubble(DExhumedActor* pActor)
 {
     runlist_DoSubRunRec(pActor->spr.lotag - 1); 
-    runlist_DoSubRunRec(pActor->spr.owner);
+    runlist_DoSubRunRec(pActor->spr.intowner);
     runlist_SubRunRec(pActor->nRun);
     DeleteActor(pActor);
 }
@@ -66,7 +66,7 @@ DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
     pActor->nFrame = 0;
     pActor->nIndex = SeqOffsets[kSeqBubble] + nSize;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
     return pActor;

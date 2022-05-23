@@ -54,7 +54,7 @@ void ambProcess(void)
     BloodStatIterator it(kStatAmbience);
     while (DBloodActor* actor = it.Next())
     {
-        if (actor->spr.owner < 0 || actor->spr.owner >= kMaxAmbChannel)
+        if (actor->spr.intowner < 0 || actor->spr.intowner >= kMaxAmbChannel)
             continue;
         if (actor->hasX())
         {
@@ -68,7 +68,7 @@ void ambProcess(void)
                 dz >>= 8;
                 int nDist = ksqrt(dx*dx+dy*dy+dz*dz);
                 int vs = MulScale(actor->xspr.data4, actor->xspr.busy, 16);
-                ambChannels[actor->spr.owner].distance += ClipRange(scale(nDist, actor->xspr.data1, actor->xspr.data2, vs, 0), 0, vs);
+                ambChannels[actor->spr.intowner].distance += ClipRange(scale(nDist, actor->xspr.data1, actor->xspr.data2, vs, 0), 0, vs);
             }
         }
     }
@@ -137,7 +137,7 @@ void ambInit(void)
         if (i == nAmbChannels) {
 
             if (i >= kMaxAmbChannel) {
-                actor->spr.owner = -1;
+                actor->spr.intowner = -1;
                 continue;
             }
 
@@ -157,7 +157,7 @@ void ambInit(void)
 
         }
 
-        actor->spr.owner = i;
+        actor->spr.intowner = i;
     }
 }
 

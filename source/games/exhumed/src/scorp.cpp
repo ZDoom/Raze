@@ -86,7 +86,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
     pActor->nChannel = nChannel;
 
-    pActor->spr.owner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x220000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x220000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x220000);
 
     nCreaturesTotal++;
@@ -391,7 +391,7 @@ void AIScorp::Tick(RunListEvent* ev)
         if (bVal)
         {
             runlist_SubRunRec(pActor->nRun);
-            runlist_DoSubRunRec(pActor->spr.owner);
+            runlist_DoSubRunRec(pActor->spr.intowner);
             runlist_FreeRun(pActor->spr.lotag - 1);
 
             DeleteActor(pActor);

@@ -285,9 +285,9 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 		break;
 	}
 	case 3: {
-		assert(actor->spr.owner != kStatRespawn);
-		assert(actor->spr.owner >= 0 && actor->spr.owner < kMaxStatus);
-		ChangeActorStat(actor, actor->spr.owner);
+		assert(actor->spr.intowner != kStatRespawn);
+		assert(actor->spr.intowner >= 0 && actor->spr.intowner < kMaxStatus);
+		ChangeActorStat(actor, actor->spr.intowner);
 		actor->spr.type = actor->spr.inittype;
 		actor->SetOwner(nullptr);
 		actor->spr.flags &= ~kHitagRespawn;

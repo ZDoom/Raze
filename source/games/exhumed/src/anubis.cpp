@@ -102,7 +102,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     ap->pTarget = nullptr;
     ap->nCount = 0;
 
-    ap->spr.owner = runlist_AddRunRec(ap->spr.lotag - 1, ap, 0x90000);
+    ap->spr.intowner = runlist_AddRunRec(ap->spr.lotag - 1, ap, 0x90000);
 
     runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
