@@ -1086,6 +1086,38 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	}
 }
 
+//==========================================================================
+//
+// checks if the wall sprite has changed since the last call.
+// Returns:
+//  0 if identical or only render style changed
+//  1 if vertical orientation changed
+//  2 if horizontal orientation changed
+//  3 if positioning changed
+//
+//==========================================================================
+
+int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
+{
+	// If the position changed we need to recalculate everything.
+	if (spr->pos.X != last->pos.X || spr->pos.Y != last->pos.Y || spr->sectp != last->sectp || spr->ang != last->ang) return 3;
+	
+	// if the horizontal orientation changes we need to recalculate the walls this attaches to, but not the positioning.
+	if (spr->xrepeat != last->xrepeat || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;
+	
+	// only y-positioning changed - we need to re-check the wall tiers this sprite attaches to
+	if(spr->yrepeat != last->yrepeat || spr->yoffset != last->yoffset || ((spr->cstat ^ last->cstat) & (CSTAT_SPRITE_YFLIP|CSTAT_SPRITE_YCENTER))) return 1;
+
+	// all remaining properties only affect the render style which is not relevant for positioning a wall sprite
+	return 0;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sector)
 {
 	auto tex = tileGetTexture(spr->picnum);

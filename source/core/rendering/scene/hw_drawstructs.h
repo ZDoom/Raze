@@ -233,6 +233,7 @@ public:
 	void RenderMirrorSurface(HWDrawInfo *di, FRenderState &state);
 	void RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags);
 	void RenderTranslucentWall(HWDrawInfo *di, FRenderState &state);
+	int CheckWallSprite(tspritetype* spr, tspritetype* last);
 
 public:
 	void Process(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
