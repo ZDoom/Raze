@@ -90,7 +90,9 @@ CCMD(secret)
 				if (!foundsome)
 				{
 					FString levelname;
-					if (thislevel) levelname.Format("%s - %s", mapname, currentLevel->name.GetChars());
+					auto cc = currentLevel->name.GetChars();
+					if (*cc == '$') cc = GStrings[cc + 1];
+					if (thislevel) levelname.Format("%s - %s", mapname, cc);
 					else levelname = mapname;
 					Printf(TEXTCOLOR_YELLOW "%s\n", levelname.GetChars());
 					size_t llen = levelname.Len();
@@ -107,7 +109,7 @@ CCMD(secret)
 			if (readbuffer[0] != '[')
 			{
 				linebuild += readbuffer;
-				if (linebuild.Len() < 1023 || linebuild[1022] == '\n')
+				if (linebuild.Len() < 10239 || linebuild[10238] == '\n')
 				{
 					// line complete so print it.
 					linebuild.Substitute("\r", "");
