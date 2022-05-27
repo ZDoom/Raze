@@ -10,6 +10,19 @@ enum
 	MAXSTATUS = 1024
 };
 
+struct FWallSpriteDesc
+{
+	walltype* wall;
+	float offsetOnWall;
+};
+
+// This is for quick determination of walls a wall sprite is attached to.
+struct FWallSpriteInfo
+{
+	tspritetype base;						// this is needed for checking if something has changed.
+	TArray<FWallSpriteDesc> connections[2]; // two lists - for front and back
+};
+
 class DCoreActor : public DObject
 {
 	DECLARE_CLASS(DCoreActor, DObject)
@@ -22,6 +35,7 @@ public:
 	sectortype* link_sector;
 	DCoreActor* prevStat, * nextStat;
 	DCoreActor* prevSect, * nextSect;
+	FWallSpriteInfo* wallspriteinfo; // this is render data but needs to be attached to the actor so it can be found.
 
 	spritetype spr;
 	spriteext_t sprext;

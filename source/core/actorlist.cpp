@@ -396,6 +396,10 @@ void DCoreActor::OnDestroy()
 		assert(prevSect == nullptr && nextSect == nullptr);
 	}
 	Numsprites--;
+	
+	if (wallspriteinfo) delete wallspriteinfo;
+	wallspriteinfo = nullptr;
+
 }
 
 //==========================================================================
