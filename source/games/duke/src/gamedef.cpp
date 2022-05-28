@@ -1923,6 +1923,7 @@ int ConCompiler::parsecommand()
 		{
 			if (pcount == 30) g_gameType |= GAMEFLAG_PLUTOPAK;
 			else if (pcount == 31) g_gameType |= GAMEFLAG_PLUTOPAK | GAMEFLAG_WORLDTOUR;
+			else if (pcount == 22) g_gameType |= GAMEFLAG_SHAREWARE;
 			else if (pcount != 26) I_FatalError("Invalid CONs. Cannot detect version. gamestartup has %d entries", pcount);
 		}
 		gameinfo.gametype = g_gameType;
