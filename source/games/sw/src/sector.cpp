@@ -472,6 +472,8 @@ void SectorSetup(void)
 
             // set the first on up
             swf = &SineWaveFloor[NextSineWave][swf_ndx];
+            if (tag != TAG_SINE_WAVE_CEILING) StartInterpolation(sectp, Interp_Sect_Floorz);
+            if (tag != TAG_SINE_WAVE_FLOOR) StartInterpolation(sectp, Interp_Sect_Ceilingz);
 
             swf->flags = 0;
 
