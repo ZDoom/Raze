@@ -1308,6 +1308,7 @@ int ConCompiler::parsecommand()
 	case concmd_spawn:
 	case concmd_count:
 	case concmd_endofgame:
+	case concmd_endoflevel:
 	case concmd_spritepal:
 	case concmd_cactor:
 	case concmd_quote:
@@ -1585,6 +1586,7 @@ int ConCompiler::parsecommand()
 	case concmd_ifactorhealthl:
 	case concmd_ifsoundid:
 	case concmd_ifsounddist:
+	case concmd_ifplayersl:
 		transnum(tw == concmd_ifai? LABEL_AI : tw == concmd_ifaction? LABEL_ACTION : tw == concmd_ifmove? LABEL_MOVE : LABEL_DEFINE);
 		[[fallthrough]];
 	case concmd_ifonwater:
@@ -3067,6 +3069,11 @@ int ConCompiler::parsecommand()
 		return 0;
 
 
+	case concmd_shadeto:
+		popscriptvalue();
+		transnum(LABEL_DEFINE);
+		popscriptvalue();
+		break;
 	}
 	return 0;
 }

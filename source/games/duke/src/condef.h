@@ -241,6 +241,9 @@ cmd(gmaxammo) 				// 191
 cmd(smaxammo) 				// 192
 cmd(mapvoxel) 				// 193
 cmd(startlevel) 			// 194
+cmd(shadeto) 				// 195
+cmd(ifplayersl) 			// 196
+cmd(endoflevel) 			// 197
 
 // RR Deer Huntin'. These are merely here for reference because the game is not supported.
 // cmd(iffindnewspot)
