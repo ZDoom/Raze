@@ -1213,13 +1213,13 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 		tcs[UPLFT].v = tcs[UPRGT].v = 1.f - tcs[UPLFT].v;
 		tcs[LOLFT].v = tcs[LORGT].v = 1.f - tcs[LOLFT].v;
 	}
-
+	
 	// Clip sprites to ceilings/floors
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
 		float polyh = (ztop[0] - zbottom[0]);
 		float ceilingz = sector->ceilingz * (1 / -256.f);
-		if (ceilingz < ztop[0] && ceilingz > zbottom[0])
+		if (ceilingz < ztop[0] && ceilingz >= zbottom[0])
 		{
 			float newv = (ceilingz - zbottom[0]) / polyh;
 			tcs[UPLFT].v = tcs[UPRGT].v = tcs[LOLFT].v + newv * (tcs[UPLFT].v - tcs[LOLFT].v);
@@ -1230,13 +1230,15 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	{
 		float polyh = (ztop[0] - zbottom[0]);
 		float floorz = sector->floorz * (1 / -256.f);
-		if (floorz < ztop[0] && floorz > zbottom[0])
+		if (floorz <= ztop[0] && floorz > zbottom[0])
 		{
 			float newv = (floorz - zbottom[0]) / polyh;
 			tcs[LOLFT].v = tcs[LORGT].v = tcs[LOLFT].v + newv * (tcs[UPLFT].v - tcs[LOLFT].v);
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
+	if (zbottom[0] >= ztop[0])
+		return; // nothing left to render.
 
 	// If the sprite is backward, flip it around so that we have guaranteed orientation when this is about to be sorted.
 	if (PointOnLineSide(di->Viewpoint.Pos.XY(), DVector2(glseg.x1, glseg.y1), DVector2(glseg.x2, glseg.y2)) < 0)
