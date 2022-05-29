@@ -570,5 +570,6 @@ void FSkyVertexBuffer::RenderBox(FRenderState& state, FSkyBox* tex, float x_offs
 	state.Draw(DT_TriangleStrip, FaceStart(4), 4);
 
 	state.EnableModelMatrix(false);
+	state.SetObjectColor(0xffffffff);
 }
 
