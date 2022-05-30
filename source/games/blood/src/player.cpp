@@ -1781,9 +1781,6 @@ void ProcessInput(PLAYER* pPlayer)
 		doslopetilting(pPlayer);
 	}
 
-	pPlayer->angle.unlockinput();
-	pPlayer->horizon.unlockinput();
-
 	pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
 	if (pInput->actions & SB_INVPREV)
 	{

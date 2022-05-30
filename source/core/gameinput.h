@@ -57,8 +57,6 @@ struct PlayerHorizon
 	bool targetset() { return target.asq16(); }
 
 	// Input locking helpers.
-	void lockinput() { inputdisabled = true; }
-	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() {	return targetset() || inputdisabled; }
 
 	// Draw code helpers.
@@ -92,9 +90,10 @@ struct PlayerHorizon
 		}
 	}
 
-	void settarget(fixedhoriz value)
+	void settarget(fixedhoriz value, bool const lock = false)
 	{
 		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
+		inputdisabled = lock;
 
 		if (!SyncInput())
 		{
