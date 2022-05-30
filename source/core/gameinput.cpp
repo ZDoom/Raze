@@ -89,7 +89,7 @@ static double turnheldtime;
 
 void updateTurnHeldAmt(double const scaleAdjust)
 {
-	turnheldtime += getTicrateScale(BUILDTICRATE, scaleAdjust);
+	turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
 }
 
 bool isTurboTurnTime()
@@ -403,7 +403,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < 0)
 		{
 			// return spin to 0
-			double add = getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH, scaleAdjust);
+			double add = getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) * scaleAdjust;
 			spin += add;
 			if (spin > 0)
 			{

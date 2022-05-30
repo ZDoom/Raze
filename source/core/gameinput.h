@@ -12,18 +12,13 @@ binangle getincanglebam(binangle a, binangle na);
 
 //---------------------------------------------------------------------------
 //
-// Functions for dividing an input value by current ticrate for angle/horiz scaling.
+// Function for dividing an input value by current ticrate for angle/horiz scaling.
 //
 //---------------------------------------------------------------------------
 
 inline double getTicrateScale(double const value)
 {
 	return value / GameTicRate;
-}
-
-inline double getTicrateScale(double const value, double const scaleAdjust)
-{
-	return scaleAdjust * getTicrateScale(value);
 }
 
 
