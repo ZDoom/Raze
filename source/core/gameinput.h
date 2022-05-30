@@ -166,6 +166,9 @@ struct PlayerAngle
 	binangle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
 	binangle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
+	// Setter to force angle and its interpolation companion.
+	void setvalue(binangle const value) { oang = ang = value; }
+
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
 	bool targetset() { return target.asbam(); }
@@ -207,9 +210,9 @@ struct PlayerAngle
 		}
 	}
 
-	void settarget(binangle const value, bool const backup = false)
+	void settarget(binangle const value)
 	{
-		if (!SyncInput() && !backup)
+		if (!SyncInput())
 		{
 			target = value;
 			if (!targetset()) target = bamang(1);
@@ -217,7 +220,6 @@ struct PlayerAngle
 		else
 		{
 			ang = value;
-			if (backup) oang = ang;
 		}
 	}
 
