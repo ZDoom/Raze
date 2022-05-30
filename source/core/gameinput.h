@@ -49,6 +49,9 @@ struct PlayerHorizon
 	fixedhoriz sum() { return horiz + horizoff; }
 	fixedhoriz interpolatedsum(double const smoothratio) { return interpolatedhorizon(osum(), sum(), smoothratio); }
 
+	// Setter to force horizon and its interpolation companion.
+	void setvalue(fixedhoriz const value) { ohoriz = horiz = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax())); }
+
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
 	bool targetset() { return target.asq16(); }
@@ -89,11 +92,11 @@ struct PlayerHorizon
 		}
 	}
 
-	void settarget(fixedhoriz value, bool const backup = false)
+	void settarget(fixedhoriz value)
 	{
 		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
-		if (!SyncInput() && !backup)
+		if (!SyncInput())
 		{
 			target = value;
 			if (!targetset()) target = q16horiz(1);
@@ -101,7 +104,6 @@ struct PlayerHorizon
 		else
 		{
 			horiz = value;
-			if (backup) ohoriz = horiz;
 		}
 	}
 

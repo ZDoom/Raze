@@ -938,7 +938,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             PlayerList[nPlayer].angle.settarget(buildang(ang), true);
             pPlayerActor->spr.ang = ang;
 
-            PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
+            PlayerList[nPlayer].horizon.setvalue(buildhoriz(0));
 
             lPlayerXVel = 0;
             lPlayerYVel = 0;
