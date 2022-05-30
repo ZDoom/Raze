@@ -3348,7 +3348,7 @@ void DoPlayerClimb(PLAYER* pp)
             pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
             pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
 
-            pp->angle.settarget(lActor->spr.ang + 1024);
+            pp->angle.settarget(buildang(lActor->spr.ang + 1024));
         }
     }
 }
@@ -3730,7 +3730,7 @@ bool PlayerOnLadder(PLAYER* pp)
     pp->LadderPosition.X = lActor->spr.pos.X + nx * 5;
     pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5;
 
-    pp->angle.settarget(lActor->spr.ang + 1024);
+    pp->angle.settarget(buildang(lActor->spr.ang + 1024));
 
     return true;
 }
@@ -5619,12 +5619,12 @@ void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
 {
     if ((pp->horizon.horiz.asbuild() - target) > 1)
     {   
-        pp->horizon.addadjustment(-speed);
+        pp->horizon.addadjustment(buildhoriz(-speed));
     }
 
     if ((target - pp->horizon.horiz.asbuild()) > 1)
     {
-        pp->horizon.addadjustment(speed);
+        pp->horizon.addadjustment(buildhoriz(speed));
     }
 }
 

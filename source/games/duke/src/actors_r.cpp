@@ -1014,7 +1014,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 				guts_r(proj, RABBITJIBC, 2, myconnectindex);
 			}
 
-			ps[p].horizon.addadjustment(32);
+			ps[p].horizon.addadjustment(buildhoriz(32));
 			ps[p].sync.actions |= SB_CENTERVIEW;
 
 			if (ps[p].loogcnt == 0)

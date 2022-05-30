@@ -1389,7 +1389,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 		if (proj->spr.picnum == SPIT)
 		{
-			ps[p].horizon.addadjustment(32);
+			ps[p].horizon.addadjustment(buildhoriz(32));
 			ps[p].sync.actions |= SB_CENTERVIEW;
 
 			if (ps[p].loogcnt == 0)

@@ -1755,7 +1755,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(horiz - p->horizon.horiz.asbuildf());
+		p->horizon.addadjustment(buildfhoriz(horiz) - p->horizon.horiz);
 	}
 
 	int currSpeed = int(p->MotoSpeed);
@@ -2023,7 +2023,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(horiz - p->horizon.horiz.asbuildf());
+		p->horizon.addadjustment(buildfhoriz(horiz) - p->horizon.horiz);
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
@@ -2371,7 +2371,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 	int damageAmount;
 
-	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -2 : 2));
+	p->angle.addadjustment(buildfang(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
 
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
@@ -2425,7 +2425,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	auto delta = wal->delta();
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 
-	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -4 : 4));
+	p->angle.addadjustment(buildfang(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
 
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
@@ -2961,7 +2961,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addadjustment(1);
+		p->horizon.addadjustment(buildhoriz(1));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3054,11 +3054,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(16);
+			p->angle.addadjustment(buildang(16));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(-16);
+			p->angle.addadjustment(buildang(-16));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3084,11 +3084,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(4);
+			p->angle.addadjustment(buildang(4));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(-4);
+			p->angle.addadjustment(buildang(-4));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3136,7 +3136,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->vel.X -= p->angle.ang.bcos(4);
 			p->vel.Y -= p->angle.ang.bsin(4);
-			p->horizon.addadjustment(20);
+			p->horizon.addadjustment(buildhoriz(20));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3977,7 +3977,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizon.addadjustment(-d);
+		p->horizon.addadjustment(buildhoriz(-d));
 	}
 
 	if (SyncInput())

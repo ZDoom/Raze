@@ -596,8 +596,6 @@ DEFINE_MAP_OPTION(ex_ramses_text, false)
 	info->ex_ramses_text = parse.sc.String;
 }
 
-int ex_ramses_horiz = 11;
-int ex_ramses_cdtrack = -1; // this is not music, it is the actual dialogue!
 FString ex_ramses_pup;
 FString ex_ramses_text;
 

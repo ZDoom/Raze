@@ -344,7 +344,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			{
 				ps[iPlayer].sync.actions &= ~SB_CENTERVIEW;
 			}
-			ps[iPlayer].horizon.settarget(lValue);
+			ps[iPlayer].horizon.settarget(buildhoriz(lValue));
 		}
 		else SetGameVarID(lVar2, ps[iPlayer].horizon.horiz.asbuild(), sActor, sPlayer);
 		break;
@@ -472,7 +472,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) ps[iPlayer].angle.settarget(lValue);
+		if (bSet) ps[iPlayer].angle.settarget(buildang(lValue));
 		else SetGameVarID(lVar2, ps[iPlayer].angle.ang.asbuild(), sActor, sPlayer);
 		break;
 

@@ -711,7 +711,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				ps[p].angle.settarget(actor->spr.ang + 1024);
+				ps[p].angle.settarget(buildang(actor->spr.ang + 1024));
 			}
 			else
 			{
@@ -2691,7 +2691,7 @@ void handle_se00(DDukeActor* actor)
 		{
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground == 1)
 			{
-				ps[p].angle.addadjustment(l * q);
+				ps[p].angle.addadjustment(buildang(l * q));
 
 				ps[p].pos.Z += zchange;
 
@@ -2877,7 +2877,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobpos.X += m;
 					ps[p].bobpos.Y += x;
 
-					ps[p].angle.addadjustment(q);
+					ps[p].angle.addadjustment(buildang(q));
 
 					if (numplayers > 1)
 					{

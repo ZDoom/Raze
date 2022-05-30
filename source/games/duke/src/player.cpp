@@ -120,7 +120,7 @@ void forceplayerangle(int snum)
 
 	n = 128 - (krand() & 255);
 
-	p->horizon.addadjustment(64);
+	p->horizon.addadjustment(buildhoriz(64));
 	p->sync.actions |= SB_CENTERVIEW;
 	p->angle.rotscrnang = p->angle.look_ang = buildang(n >> 1);
 }
@@ -375,7 +375,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		p->horizon.addadjustment(-48);
+		p->horizon.addadjustment(buildhoriz(-48));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -802,7 +802,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		horizon.addadjustment(-(hard_landing << 4));
+		horizon.addadjustment(buildhoriz(-(hard_landing << 4)));
 		hard_landing--;
 	}
 }
