@@ -110,8 +110,6 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 
 	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
-	if (shade >= numshades) state.SetObjectColor(0xff000000); // make sure that nothing lights this up again.
-
 
 	if (modelframe == 0)
 	{
