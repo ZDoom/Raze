@@ -120,6 +120,7 @@ struct PlayerHorizon
 			{
 				horiz = target;
 				target = q16horiz(0);
+				inputdisabled = false;
 			}
 		}
 		else if (adjustment)
@@ -236,6 +237,7 @@ struct PlayerAngle
 			{
 				ang = target;
 				target = bamang(0);
+				inputdisabled = false;
 			}
 		}
 		else if (adjustment)
