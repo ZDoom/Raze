@@ -536,17 +536,3 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 	}
 	return arc;
 }
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerPosition& w, PlayerPosition* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("pos", w.pos).EndObject();
-
-		if (arc.isReading())
-		{
-			w.opos = w.pos;
-		}
-	}
-	return arc;
-}
