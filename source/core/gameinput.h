@@ -173,8 +173,6 @@ struct PlayerAngle
 	bool targetset() { return target.asbam(); }
 
 	// Input locking helpers.
-	void lockinput() { inputdisabled = true; }
-	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers.
@@ -209,8 +207,10 @@ struct PlayerAngle
 		}
 	}
 
-	void settarget(binangle const value)
+	void settarget(binangle const value, bool const lock = false)
 	{
+		inputdisabled = lock;
+
 		if (!SyncInput())
 		{
 			target = value;
