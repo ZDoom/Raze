@@ -1754,6 +1754,18 @@ int DoTrapMatch(short match)
     return 0;
 }
 
+void TriggerSecret(sectortype* sectp, PLAYER* pp)
+{
+    if (pp == Player + myconnectindex)
+        PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan | v3df_doppler | v3df_follow, pp);
+
+    SECRET_Trigger(sectnum(pp->cursector));
+
+    PutStringInfo(pp, GStrings("TXTS_SECRET"));
+    // always give to the first player
+    Player->SecretsFound++;
+    sectp->lotag = 0;
+}
 
 void OperateTripTrigger(PLAYER* pp)
 {
@@ -1781,16 +1793,8 @@ void OperateTripTrigger(PLAYER* pp)
     }
 
     case TAG_SECRET_AREA_TRIGGER:
-        if (pp == Player+myconnectindex)
-            PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-
-        SECRET_Trigger(sectnum(pp->cursector));
-
-        PutStringInfo(pp, GStrings("TXTS_SECRET"));
-        // always give to the first player
-        Player->SecretsFound++;
-        sectp->lotag = 0;
-        sectp->hitag = 0;
+        TriggerSecret(sectp, pp);
+        sectp->hitag = 0; // intentionally not in TriggerSecret.
         break;
 
     case TAG_TRIGGER_EVERYTHING:
@@ -2243,6 +2247,13 @@ void PlayerOperateEnv(PLAYER* pp)
                     {
                         // Release the key
                         pp->KeyPressBits &= ~SB_OPEN;
+
+                        // crude and very awful hack for wd secret area
+                        if (pp->cursector == &sector[491] && currentLevel->levelNumber == 11 && sector[715].lotag == TAG_SECRET_AREA_TRIGGER) 
+                        {
+                            TriggerSecret(&sector[715], pp);
+                        }
+
                     }
                 }
             }
