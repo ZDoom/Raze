@@ -363,7 +363,7 @@ class RRCutscenes ui
 
 	static void BuildMapIntro(ScreenJobRunner runner, MapRecord map)
 	{
-		int ln = map.levelnumber - 1;
+		int ln = map.levelnumber - 1001;
 		if (ln == 0) return;
 		if (ln >= 1000) ln -= 1000-7;
 
