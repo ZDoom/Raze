@@ -1540,6 +1540,7 @@ int doincrements_d(struct player_struct* p)
 
 	if (p->access_incs && p->GetActor()->spr.pal != 1)
 	{
+		p->oaccess_incs = p->access_incs;
 		p->access_incs++;
 		if (p->GetActor()->spr.extra <= 0)
 			p->access_incs = 12;
@@ -1570,7 +1571,7 @@ int doincrements_d(struct player_struct* p)
 
 		if (p->access_incs > 20)
 		{
-			p->access_incs = 0;
+			p->oaccess_incs = p->access_incs = 0;
 			p->oweapon_pos = p->weapon_pos = 10;
 			p->okickback_pic = p->kickback_pic = 0;
 		}

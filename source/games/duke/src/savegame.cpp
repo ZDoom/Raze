@@ -157,6 +157,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("airleft", w.airleft)
 			("oknee_incs", w.oknee_incs)
 			("knee_incs", w.knee_incs)
+			("oaccess_incs", w.oaccess_incs)
 			("access_incs", w.access_incs)
 			("ftq", w.ftq)
 			("access_wallnum", w.access_wall)

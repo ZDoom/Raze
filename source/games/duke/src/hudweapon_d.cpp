@@ -178,23 +178,21 @@ static int animatetip(int gs, player_struct* p, double look_anghalf, double look
 //
 //---------------------------------------------------------------------------
 
-int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel)
+int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, double const smoothratio)
 {
 	if(p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return 0;
 
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
-	looking_arc += access_y[p->access_incs];
+	const double accessi = interpolatedvaluef(access_y[p->oaccess_incs], access_y[p->access_incs], smoothratio);
+	looking_arc += accessi;
 
-	int pal;
-	if (p->access_spritenum != nullptr)
-		pal = p->access_spritenum->spr.pal;
-	else pal = 0;
+	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
 
 	if((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
-		hud_drawpal(170 + plravel - look_anghalf + (access_y[p->access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
+		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 - horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
 	else
-		hud_drawpal(170 + plravel - look_anghalf + (access_y[p->access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
+		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 - horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
 
 	return 1;
 }
@@ -260,7 +258,7 @@ void displayweapon_d(int snum, double smoothratio)
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
 	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal, smoothratio) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
-					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel);
+					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, smoothratio);
 
 	if(playerVars || playerAnims)
 		return;

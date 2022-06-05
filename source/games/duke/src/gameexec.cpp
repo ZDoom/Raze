@@ -581,7 +581,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ACCESS_INCS:
-		if (bSet) ps[iPlayer].access_incs = lValue;
+		if (bSet) ps[iPlayer].oaccess_incs = ps[iPlayer].access_incs = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].access_incs, sActor, sPlayer);
 		break;
 
