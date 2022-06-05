@@ -159,7 +159,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 
 void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int smoothratio)
 {
-	if (testgotpic(TILE_MIRROR, true))
+	if (mirrorcnt > 0 && testgotpic(TILE_MIRROR, true))
 	{
 		int dst = 0x7fffffff, i = 0;
 		for (int k = 0; k < mirrorcnt; k++)
@@ -168,7 +168,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 			if (j < dst) dst = j, i = k;
 		}
 
-		if (mirrorwall[i]->overpicnum == TILE_MIRROR)
+		if (mirrorwall[i] && mirrorwall[i]->overpicnum == TILE_MIRROR)
 		{
 			int tposx, tposy;
 			fixed_t tang;
