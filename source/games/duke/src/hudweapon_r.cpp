@@ -87,13 +87,13 @@ void displaymasks_r(int snum, int p, double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, double a)
+inline static void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, double a)
 {
 	hud_drawsprite(x, y, 34816, a, tilenum, shade, p, 2 | orientation);
 }
 
 
-void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, double a)
+inline static void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, double a)
 {
 	hud_drawsprite(x, y, 66048, a, tilenum, shade, p, 2 | orientation);
 }
