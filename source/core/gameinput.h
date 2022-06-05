@@ -92,13 +92,13 @@ struct PlayerHorizon
 
 	void settarget(fixedhoriz value, bool const lock = false)
 	{
+		// Clamp incoming variable because sometimes the caller can exceed bounds.
 		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
-		inputdisabled = lock;
 
 		if (!SyncInput())
 		{
-			target = value;
-			if (!targetset()) target = q16horiz(1);
+			inputdisabled = lock;
+			target = value.asq16() ? value : q16horiz(1);
 		}
 		else
 		{
@@ -210,12 +210,10 @@ struct PlayerAngle
 
 	void settarget(binangle const value, bool const lock = false)
 	{
-		inputdisabled = lock;
-
 		if (!SyncInput())
 		{
-			target = value;
-			if (!targetset()) target = bamang(1);
+			inputdisabled = lock;
+			target = value.asbam() ? value : bamang(1);
 		}
 		else
 		{
