@@ -168,7 +168,7 @@ void resetplayerstats(int snum)
 
 	p->knuckle_incs      = 1;
 	p->ofist_incs = p->fist_incs = 0;
-	p->knee_incs         = 0;
+	p->oknee_incs = p->knee_incs = 0;
 	p->stairs = 0;
 	p->noise.X = 0;
 	p->noise.Y = 0;

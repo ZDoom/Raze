@@ -374,12 +374,13 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 
 	if (p->knee_incs > 0)
 	{
+		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
 		p->horizon.addadjustment(buildhoriz(-48));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
-			p->knee_incs = 0;
+			p->oknee_incs = p->knee_incs = 0;
 			p->holster_weapon = 0;
 			if (p->weapon_pos < 0)
 				p->weapon_pos = -p->weapon_pos;

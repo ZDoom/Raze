@@ -245,7 +245,7 @@ struct player_struct
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
 	short holoduke_amount, hurt_delay, hbomb_hold_delay;
-	short jumping_counter, airleft, knee_incs, access_incs;
+	short jumping_counter, airleft, oknee_incs, knee_incs, access_incs;
 	short ftq;
 	short got_access, weapon_ang, firstaid_amount;
 	short over_shoulder_on, ofist_incs, fist_incs;

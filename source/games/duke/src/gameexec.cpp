@@ -576,7 +576,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_KNEE_INCS:
-		if (bSet) ps[iPlayer].knee_incs = lValue;
+		if (bSet) ps[iPlayer].oknee_incs = ps[iPlayer].knee_incs = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].knee_incs, sActor, sPlayer);
 		break;
 

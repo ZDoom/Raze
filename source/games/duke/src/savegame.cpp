@@ -155,6 +155,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("hbomb_hold_delay", w.hbomb_hold_delay)
 			("jumping_counter", w.jumping_counter)
 			("airleft", w.airleft)
+			("oknee_incs", w.oknee_incs)
 			("knee_incs", w.knee_incs)
 			("access_incs", w.access_incs)
 			("ftq", w.ftq)

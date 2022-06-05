@@ -105,15 +105,16 @@ int animatefist(int gs, player_struct* p, double look_anghalf, double looking_ar
 //
 //---------------------------------------------------------------------------
 
-int animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
+int animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const smoothratio)
 {
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return 0;
 
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
+	const double kneei = interpolatedvaluef(knee_y[p->oknee_incs], knee_y[p->knee_incs], smoothratio);
 
-	looking_arc += knee_y[p->knee_incs];
+	looking_arc += kneei;
 
-	hud_drawpal(105 + plravel - look_anghalf + (knee_y[p->knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
+	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
 
 	return 1;
 }
@@ -263,7 +264,7 @@ void displayweapon_d(int snum, double smoothratio)
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal);
+	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio);
 
 	if (isWW2GI())
 	{
