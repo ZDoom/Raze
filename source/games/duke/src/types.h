@@ -243,7 +243,7 @@ struct player_struct
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
-	short curr_weapon, last_weapon, tipincs, wantweaponfire;
+	short curr_weapon, last_weapon, otipincs, tipincs, wantweaponfire;
 	short holoduke_amount, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, oknee_incs, knee_incs, access_incs;
 	short ftq;

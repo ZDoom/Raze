@@ -536,7 +536,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_TIPINCS:
-		if (bSet) ps[iPlayer].tipincs = lValue;
+		if (bSet) ps[iPlayer].otipincs = ps[iPlayer].tipincs = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].tipincs, sActor, sPlayer);
 		break;
 

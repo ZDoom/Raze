@@ -89,7 +89,7 @@ void resetplayerstats(int snum)
 	p->subweapon        = 0;
 	p->last_full_weapon = 0;
 	p->ftq              = 0;
-	p->tipincs          = 0;
+	p->otipincs = p->tipincs = 0;
 	p->buttonpalette    = 0;
 	p->actorsqu         =nullptr;
 	p->invdisptime      = 0;

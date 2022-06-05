@@ -1449,7 +1449,11 @@ int doincrements_d(struct player_struct* p)
 	if (p->invdisptime > 0)
 		p->invdisptime--;
 
-	if (p->tipincs > 0) p->tipincs--;
+	if (p->tipincs > 0)
+	{
+		p->otipincs = p->tipincs;
+		p->tipincs--;
+	}
 
 	if (p->last_pissed_time > 0)
 	{
