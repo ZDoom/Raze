@@ -645,7 +645,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_FIST_INCS:
-		if (bSet) 	ps[iPlayer].fist_incs = lValue;
+		if (bSet) ps[iPlayer].ofist_incs = ps[iPlayer].fist_incs = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].fist_incs, sActor, sPlayer);
 		break;
 

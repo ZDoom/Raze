@@ -248,7 +248,7 @@ struct player_struct
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq;
 	short got_access, weapon_ang, firstaid_amount;
-	short over_shoulder_on, fist_incs;
+	short over_shoulder_on, ofist_incs, fist_incs;
 	short cheat_phase;
 	short extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;

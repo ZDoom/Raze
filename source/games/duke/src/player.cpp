@@ -644,6 +644,7 @@ int endoflevel(int snum)
 	auto p = &ps[snum];
 
 	// the fist puching the end-of-level thing...
+	p->ofist_incs = p->fist_incs;
 	p->fist_incs++;
 	if (p->fist_incs == 28)
 	{

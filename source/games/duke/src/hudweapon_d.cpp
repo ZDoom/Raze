@@ -86,15 +86,15 @@ void displayloogie(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
+int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal, double const smoothratio)
 {
-	int fisti = min(p->fist_incs, short(32));
+	const double fisti = min(interpolatedvaluef(p->ofist_incs, p->fist_incs, smoothratio), 32.);
 	if (fisti <= 0) return 0;
 
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
-		(looking_arc + 194 + bsinf((6 + fisti) << 7, -9)),
-		clamp(65536. - bcosf(fisti << 6, 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
+		(looking_arc + 194 + bsinf((6 + fisti) * 128., -9)),
+		clamp(65536. - bcosf(fisti * 64., 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
 
 	return 1;
 }
@@ -257,7 +257,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
-	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
+	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal, smoothratio) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
 					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel);
 
 	if(playerVars || playerAnims)
