@@ -21,6 +21,12 @@ inline double getTicrateScale(double const value)
 	return value / GameTicRate;
 }
 
+inline double getPushScale(double const scaleAdjust)
+{
+	return (2. / 9.) * ((scaleAdjust < 1.) ? ((1. - scaleAdjust * 0.5) * 1.5) : (1.));
+}
+
+
 
 struct PlayerHorizon
 {
@@ -72,7 +78,7 @@ struct PlayerHorizon
 		if (object.asq16())
 		{
 			auto sgn = Sgn(object.asq16());
-			object  -= getscaledhoriz(value, scaleAdjust, &object, push == DBL_MAX ? sgn * (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.) : push);
+			object  -= getscaledhoriz(value, scaleAdjust, &object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
 			if (sgn != Sgn(object.asq16())) object = q16horiz(0);
 		}
 	}
@@ -190,7 +196,7 @@ struct PlayerAngle
 		if (object.asbam())
 		{
 			auto sgn = Sgn(object.signedbam());
-			object  -= getscaledangle(value, scaleAdjust, &object, push == DBL_MAX ? sgn * (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.) : push);
+			object  -= getscaledangle(value, scaleAdjust, &object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
 			if (sgn != Sgn(object.signedbam())) object = bamang(0);
 		}
 	}
