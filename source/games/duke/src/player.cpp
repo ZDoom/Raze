@@ -792,6 +792,10 @@ void player_struct::backupweapon()
 	orandom_club_frame = random_club_frame;
 	ohard_landing = hard_landing;
 	ofistsign = fistsign;
+	otipincs = tipincs;
+	oknee_incs = knee_incs;
+	oaccess_incs = access_incs;
+	ofist_incs = fist_incs;
 }
 
 //---------------------------------------------------------------------------
