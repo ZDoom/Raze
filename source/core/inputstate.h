@@ -108,7 +108,7 @@ extern bool gamesetinput;
 
 inline bool SyncInput()
 {
-	return gamesetinput || cl_syncinput;
+	return gamesetinput || cl_syncinput || cl_capfps;
 }
 
 inline float backendinputscale()
