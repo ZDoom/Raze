@@ -77,7 +77,7 @@ static void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord*
 	auto func = LookupFunction(qname);
 	if (func->Proto->ArgumentTypes.Size() == 1) return CallCreateFunction(qname, runner);	// accept functions without map parameter as well here.
 	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
-	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype) 
+	if (func->Proto->ArgumentTypes[0] != cutscene.runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype) 
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner and MapRecord reference.", qname);
 	VMValue val[2] = { runner, map };
 	VMCall(func, val, 2, nullptr, 0);
@@ -96,7 +96,7 @@ void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* ma
 	auto s = func->Proto->ArgumentTypes.Size();
 	auto at = func->Proto->ArgumentTypes.Data();
 	if (s != 3 && s != 4) I_Error("Bad map-cutscene function %s. Must receive precisely three or four arguments.", qname);
-	if (at[0] != runnerclasstype && at[1] != maprecordtype && at[2] != summaryinfotype && (s == 3 || at[3] == maprecordtype))
+	if (at[0] != cutscene.runnerclasstype && at[1] != maprecordtype && at[2] != summaryinfotype && (s == 3 || at[3] == maprecordtype))
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner, MapRecord and SummaryInfo reference,", qname);
 	if (info) summaryinfo = *info; // must be copied to a persistent location.
 	else summaryinfo = {};
@@ -158,24 +158,24 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 
 void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 {
-	completion = completion_;
-	runner = CreateRunner();
-	Printf("Created runner at %p\n", runner);
-	GC::WriteBarrier(runner);
+	cutscene.completion = completion_;
+	cutscene.runner = CreateRunner();
+	Printf("Created runner at %p\n", cutscene.runner);
+	GC::WriteBarrier(cutscene.runner);
 
 	const char* qname = globalCutscenes.MPSummaryScreen;
 	auto func = LookupFunction(qname);
 	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
-	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != TypeSInt32)
+	if (func->Proto->ArgumentTypes[0] != cutscene.runnerclasstype && func->Proto->ArgumentTypes[1] != TypeSInt32)
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner reference and integer.", qname);
-	VMValue val[2] = { runner, numplayers };
+	VMValue val[2] = { cutscene.runner, numplayers };
 	VMCall(func, val, 2, nullptr, 0);
 	if (!ScreenJobValidate())
 	{
-		runner->Destroy();
-		runner = nullptr;
-		if (completion) completion(false);
-		completion = nullptr;
+		cutscene.runner->Destroy();
+		cutscene.runner = nullptr;
+		if (cutscene.completion) cutscene.completion(false);
+		cutscene.completion = nullptr;
 		return;
 	}
 	gameaction = ga_intermission;
@@ -189,7 +189,7 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
 {
-	if (runner != nullptr) 
+	if (cutscene.runner != nullptr)
 		return;	// protection against double exits.
 	if (fromMap == toMap)
 	{
@@ -200,17 +200,17 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 	bool bossexit = g_bossexit;
 	g_bossexit = false;
 
-	completion = completion_;
-	runner = CreateRunner();
-	GC::WriteBarrier(runner);
+	cutscene.completion = completion_;
+	cutscene.runner = CreateRunner();
+	GC::WriteBarrier(cutscene.runner);
 
-	// retrieve cluster relations for cluster-based cutscenes.
+	// retrieve cluster relations for cluster-based cutscene.
 	ClusterDef* fromcluster = nullptr, *tocluster = nullptr;
 	if (fromMap) fromcluster = FindCluster(fromMap->cluster);
 	if (toMap) tocluster = FindCluster(toMap->cluster);
 	if (fromcluster == tocluster) fromcluster = tocluster = nullptr;
 
-
+	auto runner = cutscene.runner;
 	try
 	{
 		if (fromMap && (!(fromMap->gameflags & LEVEL_BOSSONLYCUTSCENE) || bossexit))
@@ -245,9 +245,9 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		if (!ScreenJobValidate())
 		{
 			runner->Destroy();
-			runner = nullptr;
-			if (completion) completion(false);
-			completion = nullptr;
+			cutscene.runner = nullptr;
+			if (cutscene.completion) cutscene.completion(false);
+			cutscene.completion = nullptr;
 			return;
 		}
 		gameaction = ga_intermission;
@@ -255,7 +255,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 	catch (...)
 	{
 		if (runner) runner->Destroy();
-		runner = nullptr;
+		cutscene.runner = nullptr;
 		throw;
 	}
 }
