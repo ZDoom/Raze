@@ -416,6 +416,49 @@ class SWStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
+	void DisplayAllKeys(SWPlayer pp, double xs, double ys, double scalex = 1, double scaley = 1)
+	{
+		double x, y;
+		int i;
+
+		static const String StatusKeyPics[] =
+		{
+			"PANEL_KEY_RED",
+			"PANEL_KEY_BLUE",
+			"PANEL_KEY_GREEN",
+			"PANEL_KEY_YELLOW",
+			"PANEL_SKELKEY_GOLD",
+			"PANEL_SKELKEY_SILVER",
+			"PANEL_SKELKEY_BRONZE",
+			"PANEL_SKELKEY_RED"
+		};
+		let tex = TexMan.CheckForTexture("PANEL_KEY_RED", TexMan.Type_Any);
+		let size = TexMan.GetScaledSize(tex) + (1, 2);
+
+		i = 0;
+		int row = 0;
+		for (int key = 0; key < 8; key++)
+		{
+			if (pp.HasKey[key])
+			{
+				DrawImage(StatusKeyPics[key], (xs, ys), DI_ITEM_LEFT_TOP, scale:(scalex, scaley));
+				if (row == 0) ys += PANEL_KEYS_YOFF + size.Y;
+				else
+				{
+					ys -= PANEL_KEYS_YOFF + size.Y;
+					xs -= PANEL_KEYS_XOFF + size.X;
+				}
+				row ^= 1;
+			}
+		}
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
 	void PlayerUpdateInventoryPercent(SWPlayer pp, double InventoryBoxX, double InventoryBoxY, double InventoryXoff, double InventoryYoff)
 	{
 		String ds;
@@ -793,7 +836,7 @@ class SWStatusBar : RazeStatusBar
 		//
 		// keys
 		//
-		DisplayKeys(pp, -25, -38, 0.8625, 0.8625);
+		DisplayAllKeys(pp, -12, -38, 0.8625, 0.8625);
 		DoLevelStats(baseScale + 4, info);
 	}
 
