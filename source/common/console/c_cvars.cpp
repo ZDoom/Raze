@@ -520,7 +520,6 @@ void FBaseCVar::EnableNoSet ()
 
 void FBaseCVar::EnableCallbacks ()
 {
-	m_inEnable = true;
 	m_UseCallback = true;
 	FBaseCVar *cvar = CVars;
 
@@ -532,7 +531,6 @@ void FBaseCVar::EnableCallbacks ()
 		}
 		cvar = cvar->m_Next;
 	}
-	m_inEnable = false;
 }
 
 void FBaseCVar::DisableCallbacks ()

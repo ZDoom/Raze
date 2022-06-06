@@ -210,9 +210,6 @@ protected:
 	uint32_t Flags;
 	bool inCallback = false;
 
-public:
-	static inline bool m_inEnable = false;
-
 private:
 	FBaseCVar (const FBaseCVar &var) = delete;
 	FBaseCVar (const char *name, uint32_t flags);

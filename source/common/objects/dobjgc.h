@@ -183,6 +183,10 @@ public:
 	TObjPtr() = default;
 	TObjPtr(const TObjPtr<T> &q) = default;
 
+	TObjPtr(T q) noexcept
+		: pp(q)
+	{
+	}
 	T operator=(T q)
 	{
 		pp = q;

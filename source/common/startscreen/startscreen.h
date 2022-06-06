@@ -31,73 +31,74 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **---------------------------------------------------------------------------
 **
+#pragma once
 ** The startup screen interface is based on a mix of Heretic and Hexen.
 ** Actual implementation is system-specific.
 */
 #include <stdint.h>
+#include <functional>
+#include "bitmap.h"
 
-class FStartupScreen
+class FGameTexture;
+
+struct RgbQuad 
 {
-public:
-	static FStartupScreen *CreateInstance(int max_progress, bool showprogress);
-
-	FStartupScreen(int max_progress)
-	{
-		MaxPos = max_progress;
-		CurPos = 0;
-		NotchPos = 0;
-	}
-
-	virtual ~FStartupScreen() = default;
-
-	virtual void Progress() {}
-
-	virtual void NetInit(const char *message, int num_players) {}
-	virtual void NetProgress(int count) {}
-	virtual void NetDone() {}
-	virtual bool NetLoop(bool (*timer_callback)(void *), void *userdata) { return false; }
-	virtual void AppendStatusLine(const char* status) {}
-	virtual void LoadingStatus(const char* message, int colors) {}
-
-protected:
-	int MaxPos, CurPos, NotchPos;
+	uint8_t    rgbBlue;
+	uint8_t    rgbGreen;
+	uint8_t    rgbRed;
+	uint8_t    rgbReserved;
 };
 
-class FBasicStartupScreen : public FStartupScreen
-{
-public:
-	FBasicStartupScreen(int max_progress, bool show_bar);
-	~FBasicStartupScreen();
 
-	void Progress();
-	void NetInit(const char* message, int num_players);
+extern const RgbQuad TextModePalette[16];
+
+class FStartScreen
+{
+protected:
+	int CurPos = 0;
+	int MaxPos;
+	int Scale = 1;
+	int NetMaxPos = -1;
+	int NetCurPos = 0;
+	FBitmap StartupBitmap;
+	FBitmap HeaderBitmap;
+	FBitmap NetBitmap;
+	FString NetMessageString;
+	FGameTexture* StartupTexture = nullptr;
+	FGameTexture* HeaderTexture = nullptr;
+	FGameTexture* NetTexture = nullptr;
+public:
+	FStartScreen(int maxp) { MaxPos = maxp; }
+	virtual ~FStartScreen() = default;
+	void Render(bool force = false);
+	bool Progress(int);
 	void NetProgress(int count);
-	void NetMessage(const char* format, ...);	// cover for printf
-	void NetDone();
-	bool NetLoop(bool (*timer_callback)(void*), void* userdata);
+	virtual void LoadingStatus(const char *message, int colors) {}
+	virtual void AppendStatusLine(const char *status) {}
+	virtual bool NetInit(const char* message, int numplayers);
+	virtual void NetDone() {}
+	virtual void NetTick() {}
+	FBitmap& GetBitmap() { return StartupBitmap; }
+	int GetScale() const { return Scale; }
+
+	
 protected:
-	int NetMaxPos, NetCurPos;
+	void ClearBlock(FBitmap& bitmap_info, RgbQuad fill, int x, int y, int bytewidth, int height);
+	FBitmap AllocTextBitmap();
+	void DrawTextScreen(FBitmap& bitmap_info, const uint8_t* text_screen);
+	int DrawChar(FBitmap& screen, double x, double y, unsigned charnum, uint8_t attrib);
+	int DrawChar(FBitmap& screen, double x, double y, unsigned charnum, RgbQuad fg, RgbQuad bg);
+	int DrawString(FBitmap& screen, double x, double y, const char* text, RgbQuad fg, RgbQuad bg);
+	void UpdateTextBlink(FBitmap& bitmap_info, const uint8_t* text_screen, bool on);
+	void ST_Sound(const char* sndname);
+	int SizeOfText(const char* text);
+	void CreateHeader();
+	void DrawNetStatus(int found, int total);
+	void ValidateTexture();
+	virtual bool DoProgress(int);
+	virtual void DoNetProgress(int count);
 };
 
+FStartScreen* GetGameStartScreen(int max_progress);
 
-
-extern FStartupScreen *StartWindow;
-
-//===========================================================================
-//
-// DeleteStartupScreen
-//
-// Makes sure the startup screen has been deleted before quitting.
-//
-//===========================================================================
-
-inline void DeleteStartupScreen()
-{
-	if (StartWindow != nullptr)
-	{
-		delete StartWindow;
-		StartWindow = nullptr;
-	}
-}
-
-
+extern void ST_Endoom();

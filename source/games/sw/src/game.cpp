@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "st_start.h"
 #include "i_interface.h"
 #include "psky.h"
+#include "startscreen.h"
 
 
 

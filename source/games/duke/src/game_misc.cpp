@@ -44,6 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "dukeactor.h"
 #include "interpolate.h"
 #include "razefont.h"
+#include "startscreen.h"
 
 BEGIN_DUKE_NS
 

@@ -80,6 +80,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "razefont.h"
 #include "coreactor.h"
 #include "wipe.h"
+#include "findfile.h"
+#include "version.h"
+
+void LoadHexFont(const char* filename);
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -918,9 +922,11 @@ void GetGames()
 
 static void InitTextures()
 {
+
 	TexMan.usefullnames = true;
-	TexMan.Init([]() {}, [](BuildInfo&) {});
-	StartScreen->Progress();
+	TexMan.Init();
+	TexMan.AddTextures([]() {}, [](BuildInfo&) {});
+	StartWindow->Progress();
 	mdinit();
 
 	TileFiles.Init();
@@ -950,6 +956,13 @@ static uint8_t palindexmap[256];
 int RunGame()
 {
 	GameStartupInfo.FgColor = 0xffffff;
+
+	auto wad = BaseFileSearch(ENGINERES_FILE, NULL, true, GameConfig);
+	if (wad == NULL)
+	{
+		I_FatalError("Cannot find " ENGINERES_FILE);
+	}
+	LoadHexFont(wad);	// load hex font early so we have it during startup.
 
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
@@ -1026,8 +1039,8 @@ int RunGame()
 
 	V_InitScreenSize();
 	V_InitScreen();
-	StartScreen = FStartupScreen::CreateInstance(8);
-	StartScreen->Progress();
+	StartWindow = FStartupScreen::CreateInstance(8, true);
+	StartWindow->Progress();
 
 	TArray<FString> addArt;
 	for (auto& grp : usedgroups)
@@ -1062,18 +1075,18 @@ int RunGame()
 	GPalette.Init(MAXPALOOKUPS + 2, palindexmap);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	gi->loadPalette();
 	BuildFogTable();
-	StartScreen->Progress();
+	StartWindow->Progress();
 	InitTextures();
 
-	StartScreen->Progress();
+	StartWindow->Progress();
 	I_InitSound();
-	StartScreen->Progress();
+	StartWindow->Progress();
 	Mus_InitMusic();
 	S_ParseSndInfo();
 	S_ParseReverbDef();
 	InitStatistics();
 	LoadScripts();
-	StartScreen->Progress();
+	StartWindow->Progress();
 	SetDefaultStrings();
 	Job_Init();
 	Local_Job_Init();
@@ -1082,12 +1095,12 @@ int RunGame()
 
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
-	StartScreen->Progress();
+	StartWindow->Progress();
 
 	engineInit();
 	GC::AddMarkerFunc(MarkMap);
 	gi->app_init();
-	StartScreen->Progress();
+	StartWindow->Progress();
 	G_ParseMapInfo();
 	ParseGLDefs();
 	ReplaceMusics(true);
@@ -1095,7 +1108,7 @@ int RunGame()
 	SetDefaultMenuColors();
 	M_Init();
 	BuildGameMenus();
-	StartScreen->Progress();
+	StartWindow->Progress();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
@@ -1104,6 +1117,10 @@ int RunGame()
 	DeleteStartupScreen();
 
 	V_Init2();
+	while (!screen->CompileNextShader())
+	{
+		// here we can do some visual updates later
+	}
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
 	twod->End();
 	UpdateJoystickMenu(NULL);
