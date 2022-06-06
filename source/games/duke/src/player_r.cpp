@@ -3520,8 +3520,15 @@ void processinput_r(int snum)
 
 	p->last_extra = pact->spr.extra;
 
-	if (p->loogcnt > 0) p->loogcnt--;
-	else p->loogcnt = 0;
+	if (p->loogcnt > 0)
+	{
+		p->oloogcnt = p->loogcnt;
+		p->loogcnt--;
+	}
+	else
+	{
+		p->oloogcnt = p->loogcnt = 0;
+	}
 
 	if (p->fist_incs)
 	{

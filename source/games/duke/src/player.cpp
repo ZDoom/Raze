@@ -796,6 +796,7 @@ void player_struct::backupweapon()
 	oknee_incs = knee_incs;
 	oaccess_incs = access_incs;
 	ofist_incs = fist_incs;
+	oloogcnt = loogcnt;
 }
 
 //---------------------------------------------------------------------------

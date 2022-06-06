@@ -321,7 +321,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOGCNT:
-		if (bSet) ps[iPlayer].loogcnt = lValue;
+		if (bSet) ps[iPlayer].oloogcnt = ps[iPlayer].loogcnt = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].loogcnt, sActor, sPlayer);
 		break;
 

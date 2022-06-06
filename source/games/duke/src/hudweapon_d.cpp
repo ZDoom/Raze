@@ -61,20 +61,18 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 //
 //---------------------------------------------------------------------------
 
-static void displayloogie(player_struct* p)
+static void displayloogie(player_struct* p, double const smoothratio)
 {
-	double a, y;
-	int z;
-	double x;
-
 	if (p->loogcnt == 0) return;
 
-	y = (p->loogcnt << 2);
+	const double loogi = interpolatedvaluef(p->oloogcnt, p->loogcnt, smoothratio);
+	const double y = loogi * 4.;
+
 	for (int i = 0; i < p->numloogs; i++)
 	{
-		a = fabs(bsinf((p->loogcnt + i) << 5, -5));
-		z = 4096 + ((p->loogcnt + i) << 9);
-		x = -getavel(p->GetPlayerNum()) + bsinf((p->loogcnt + i) << 6, -10);
+		const double a = fabs(bsinf((loogi + i) * 32., -5));
+		const double z = 4096. + ((loogi + i) * 512.);
+		const double x = -getavel(p->GetPlayerNum()) + bsinf((loogi + i) * 64., -10);
 
 		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
 	}
@@ -1226,7 +1224,7 @@ void displayweapon_d(int snum, double smoothratio)
 		}
 	}
 
-	displayloogie(p);
+	displayloogie(p, smoothratio);
 
 }
 

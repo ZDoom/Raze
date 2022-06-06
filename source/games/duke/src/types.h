@@ -224,7 +224,7 @@ struct player_struct
 	short psectlotag;
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
-	int numloogs, loogcnt;
+	int numloogs, oloogcnt, loogcnt;
 	int invdisptime;
 	int pyoff, opyoff;
 	int last_pissed_time, truefz, truecz;

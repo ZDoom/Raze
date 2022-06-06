@@ -99,7 +99,7 @@ void resetplayerstats(int snum)
 	p->pycount          = 0;
 	p->pyoff            = 0;
 	p->opyoff           = 0;
-	p->loogcnt          = 0;
+	p->oloogcnt = p->loogcnt = 0;
 	p->psectlotag       = 0;
 	p->weapon_sway      = 0;
 //    p->select_dir       = 0;
