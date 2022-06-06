@@ -78,7 +78,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 		textureMatrix.loadIdentity();
 		state.EnableTextureMatrix(true);
 		textureMatrix.scale(1.f, repeat_fac, 1.f);
-		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true, 0, 0, color);
+		vertexBuffer->DoRenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true, color);
 		state.EnableTextureMatrix(false);
 	}
 	else
