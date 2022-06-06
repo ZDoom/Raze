@@ -16999,7 +16999,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         }
     }
 
-    ASSERT(Found);
+    if (!Found) return false;
 
     if (underActor->spr.lotag == 0)
         return false;
@@ -17019,7 +17019,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         }
     }
 
-    ASSERT(Found);
+    if (!Found) return false;
 
     // get the offset from the under sprite
     sx = underActor->spr.pos.X - actor->spr.pos.X;
