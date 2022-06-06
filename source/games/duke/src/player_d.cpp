@@ -2824,6 +2824,7 @@ void processinput_d(int snum)
 
 	if (p->GetActor()->spr.xrepeat < 40 && p->jetpack_on == 0)
 	{
+		p->ofistsign = p->fistsign;
 		p->fistsign += p->GetActor()->spr.xvel;
 	}
 

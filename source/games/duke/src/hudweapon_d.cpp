@@ -300,18 +300,10 @@ void displayweapon_d(int snum, double smoothratio)
 	if (p->GetActor()->spr.xrepeat < 40)
 	{
 		//shrunken..
-		int fistsign = interpolatedvalue(p->ofistsign, p->fistsign, (int)smoothratio);
-		if (p->jetpack_on == 0)
-		{
-			i = p->GetActor()->spr.xvel;
-			looking_arc += 32 - (i >> 1);
-		}
-		double owo = weapon_xoffset;
-		weapon_xoffset += bsinf(fistsign, -10);
-		hud_draw(weapon_xoffset + 250 - look_anghalf, looking_arc + 258 - fabs(bsinf(fistsign, -8)), FIST, shade, o);
-		weapon_xoffset = owo;
-		weapon_xoffset -= bsinf(fistsign, -10);
-		hud_draw(weapon_xoffset + 40 - look_anghalf, looking_arc + 200 + fabs(bsinf(fistsign, -8)), FIST, shade, o | 4);
+		const double fistsign = bsinf(interpolatedvalue(p->ofistsign, p->fistsign, smoothratio), -10);
+		if (p->jetpack_on == 0)	looking_arc += 32 - (p->GetActor()->spr.xvel >> 1);
+		hud_draw(weapon_xoffset + fistsign + 250 - look_anghalf, looking_arc + 258 - fabs(fistsign * 4), FIST, shade, o);
+		hud_draw(weapon_xoffset - fistsign + 40 - look_anghalf, looking_arc + 200 + fabs(fistsign * 4), FIST, shade, o | 4);
 	}
 	else
 	{

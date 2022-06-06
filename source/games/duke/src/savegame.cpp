@@ -276,6 +276,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("actions", w.sync.actions)
 			.Array("frags", w.frags, MAXPLAYERS)
 			("uservars", w.uservars)
+			("ofistsign", w.ofistsign)
 			("fistsign", w.fistsign)
 			.EndObject();
 
