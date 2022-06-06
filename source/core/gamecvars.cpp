@@ -139,7 +139,7 @@ CUSTOM_CVARD(Float, hud_scalefactor, 1, CVAR_ARCHIVE, "changes the hud scale")
 	else setViewport(hud_size);
 }
 
-CUSTOM_CVAR(Bool, hud_aspectscale, false, CVAR_ARCHIVE)
+CUSTOM_CVAR(Bool, hud_aspectscale, true, CVAR_ARCHIVE)
 {
 	setViewport(hud_size);
 }
