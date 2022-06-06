@@ -2234,7 +2234,8 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 		adjustment = 0;
 	}
 
-	pPlayer->horizon.settarget(buildfhoriz(100. * tan(adjustment * pi::pi() / 1024.)), true);
+	pPlayer->horizon.settarget(buildfhoriz(100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+	pPlayer->horizon.lockinput();
 }
 
 //---------------------------------------------------------------------------
@@ -3119,7 +3120,8 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (pPlayer)
 		{
-			pPlayer->angle.settarget(buildang(sourceactor->spr.ang), true);
+			pPlayer->angle.settarget(buildang(sourceactor->spr.ang));
+			pPlayer->angle.lockinput();
 		}
 		else if (isDude) sourceactor->xspr.goalAng = actor->spr.ang = sourceactor->spr.ang;
 		else actor->spr.ang = sourceactor->spr.ang;
@@ -5840,11 +5842,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.settarget(buildang(actor->spr.ang), true);
+				pPlayer->angle.settarget(buildang(actor->spr.ang));
+				pPlayer->angle.lockinput();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				pPlayer->angle.settarget(buildang(actor->xspr.data2), true);
+				pPlayer->angle.settarget(buildang(actor->xspr.data2));
+				pPlayer->angle.lockinput();
 			}
 			break;
 		case 10: // 74 (de)activate powerup

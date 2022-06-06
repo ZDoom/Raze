@@ -1543,7 +1543,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->angle.setvalue(buildang(actor->spr.ang));
+					pPlayer->angle.settarget(buildang(actor->spr.ang), true);
 				}
 			}
 		}

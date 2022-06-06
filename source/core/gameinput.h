@@ -55,14 +55,13 @@ struct PlayerHorizon
 	fixedhoriz sum() { return horiz + horizoff; }
 	fixedhoriz interpolatedsum(double const smoothratio) { return interpolatedhorizon(osum(), sum(), smoothratio); }
 
-	// Setter to force horizon and its interpolation companion.
-	void setvalue(fixedhoriz const value) { ohoriz = horiz = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax())); }
-
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
 	bool targetset() { return target.asq16(); }
 
 	// Input locking helpers.
+	void lockinput() { inputdisabled = true; }
+	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() {	return targetset() || inputdisabled; }
 
 	// Draw code helpers.
@@ -96,19 +95,19 @@ struct PlayerHorizon
 		}
 	}
 
-	void settarget(fixedhoriz value, bool const lock = false)
+	void settarget(fixedhoriz value, bool const backup = false)
 	{
 		// Clamp incoming variable because sometimes the caller can exceed bounds.
 		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
-		if (!SyncInput())
+		if (!SyncInput() && !backup)
 		{
-			inputdisabled = lock;
 			target = value.asq16() ? value : q16horiz(1);
 		}
 		else
 		{
 			horiz = value;
+			if (backup) ohoriz = horiz;
 		}
 	}
 
@@ -126,7 +125,6 @@ struct PlayerHorizon
 			{
 				horiz = target;
 				target = q16horiz(0);
-				inputdisabled = false;
 			}
 		}
 		else if (adjustment)
@@ -172,14 +170,13 @@ struct PlayerAngle
 	binangle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
 	binangle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
-	// Setter to force angle and its interpolation companion.
-	void setvalue(binangle const value) { oang = ang = value; }
-
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
 	bool targetset() { return target.asbam(); }
 
 	// Input locking helpers.
+	void lockinput() { inputdisabled = true; }
+	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers.
@@ -214,16 +211,16 @@ struct PlayerAngle
 		}
 	}
 
-	void settarget(binangle const value, bool const lock = false)
+	void settarget(binangle const value, bool const backup = false)
 	{
-		if (!SyncInput())
+		if (!SyncInput() && !backup)
 		{
-			inputdisabled = lock;
 			target = value.asbam() ? value : bamang(1);
 		}
 		else
 		{
 			ang = value;
+			if (backup) oang = ang;
 		}
 	}
 
@@ -241,7 +238,6 @@ struct PlayerAngle
 			{
 				ang = target;
 				target = bamang(0);
-				inputdisabled = false;
 			}
 		}
 		else if (adjustment)

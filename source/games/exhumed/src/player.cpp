@@ -935,10 +935,10 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (nTotalPlayers <= 1)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite) & kAngleMask;
-            PlayerList[nPlayer].angle.setvalue(buildang(ang));
+            PlayerList[nPlayer].angle.settarget(buildang(ang), true);
             pPlayerActor->spr.ang = ang;
 
-            PlayerList[nPlayer].horizon.setvalue(buildhoriz(0));
+            PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
 
             lPlayerXVel = 0;
             lPlayerYVel = 0;
