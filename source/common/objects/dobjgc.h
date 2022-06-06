@@ -183,10 +183,12 @@ public:
 	TObjPtr() = default;
 	TObjPtr(const TObjPtr<T> &q) = default;
 
+#if 0 // Courtesy of GCC being stupid and not fully recognizing TobjPtr as trivial. GZDoom needs this constructor, but it breaks compilation in Raze, but only with GCC.
 	TObjPtr(T q) noexcept
 		: pp(q)
 	{
 	}
+#endif
 	T operator=(T q)
 	{
 		pp = q;
