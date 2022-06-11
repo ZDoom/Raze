@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "serializer.h"
 #include "build.h"
 
-CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
-CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
-
 
 //---------------------------------------------------------------------------
 //
@@ -204,12 +201,6 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 		currInput->horz -= hidInput->mouseturny;
 	else
 		currInput->fvel -= int16_t(hidInput->mousemovey * mousevelscale * hidprescale);
-
-	if (invertmouse)
-		currInput->horz = -currInput->horz;
-
-	if (invertmousex)
-		currInput->avel = -currInput->avel;
 
 	// process remaining controller input.
 	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
