@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
 CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
+
 //---------------------------------------------------------------------------
 //
 // code fron gameexec/conrun
@@ -148,6 +149,7 @@ void resetTurnHeldAmt()
 	turnheldtime = 0;
 }
 
+
 //---------------------------------------------------------------------------
 //
 // Player's movement function, called from game's ticker or from gi->GetInput() as required.
@@ -177,12 +179,10 @@ SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3
 Average: 234.375;
 */
 
-enum
-{
-	RUNNINGTURNBASE = 1549,
-	NORMALTURNBASE = 891,
-	PREAMBLEBASE = 234,
-};
+static constexpr double RUNNINGTURNBASE = 1548.75;
+static constexpr double NORMALTURNBASE = 890.625;
+static constexpr double PREAMBLEBASE = 234.375;
+static constexpr double PREAMBLESCALE = PREAMBLEBASE / NORMALTURNBASE;
 
 void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
@@ -195,14 +195,14 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
+		currInput->svel -= int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 	else
 		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
 	else
-		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale * hidprescale);
+		currInput->fvel -= int16_t(hidInput->mousemovey * mousevelscale * hidprescale);
 
 	if (invertmouse)
 		currInput->horz = -currInput->horz;
@@ -212,8 +212,8 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// process remaining controller input.
 	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
-	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * hidprescale);
-	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * hidprescale);
+	currInput->svel += int16_t(scaleAdjust * hidInput->dx * keymove * hidprescale);
+	currInput->fvel += int16_t(scaleAdjust * hidInput->dz * keymove * hidprescale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -235,7 +235,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 		if (turnleft || turnright)
 		{
 			updateTurnHeldAmt(scaleAdjust);
-			float const turnamount = float(scaleAdjust * hidspeed * turnscale * (isTurboTurnTime() ? 1. : double(PREAMBLEBASE) / double(NORMALTURNBASE)));
+			float const turnamount = float(scaleAdjust * hidspeed * turnscale * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
 
 			if (turnleft)
 				currInput->avel -= turnamount;
@@ -323,7 +323,7 @@ enum
 
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
-	// Process only if movewment isn't locked.
+	// Process only if movement isn't locked.
 	if (!movementlocked())
 	{
 		// Test if we have input to process.
@@ -374,6 +374,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 	}
 }
 
+
 //---------------------------------------------------------------------------
 //
 // Player's angle function, called from game's ticker or from gi->GetInput() as required.
@@ -401,9 +402,11 @@ Blood:    128 * 30 = 3840;
 Blood:     64 * 30 = 1920;
 */
 
+static constexpr double ROTRETURNSPEED  = (1. / 2.) * 30.;
+static constexpr double LOOKRETURNSPEED = (1. / 4.) * 30.;
+
 enum
 {
-	LOOKROTRETBASE = 15,
 	ROTATESPEED = 720,
 	LOOKINGSPEED = 4560,
 	SPINSTAND = 3840,
@@ -413,8 +416,8 @@ enum
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
-	scaletozero(rotscrnang, LOOKROTRETBASE, scaleAdjust);
-	scaletozero(look_ang, +LOOKROTRETBASE * 0.5, scaleAdjust);
+	scaletozero(rotscrnang, ROTRETURNSPEED, scaleAdjust);
+	scaletozero(look_ang, LOOKRETURNSPEED, scaleAdjust);
 
 	// Process keyboard input.
 	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
@@ -466,6 +469,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	}
 }
 
+
 //---------------------------------------------------------------------------
 //
 // Player's slope tilt when playing without a mouse and on a slope.
@@ -478,6 +482,8 @@ Duke: (1 / 8) * 30 = 3.75;
 SW:   (1 / 8) * 40 = 5;
 Average: 4.375;
 */
+
+static constexpr double HORIZOFFSPEED = (1. / 8.) * 35.;
 
 enum
 {
@@ -518,7 +524,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
+					horizoff += q16horiz(fixed_t(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}
 			}
 		}
@@ -526,15 +532,22 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff.asq16() < IntToFixed(100)) horizoff += getscaledhoriz(4.375, scaleAdjust, buildhoriz(100) - horizoff, 1.);
+			if (horizoff.asq16() < IntToFixed(100)) horizoff += getscaledhoriz(HORIZOFFSPEED, scaleAdjust, buildhoriz(100) - horizoff, 1.);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, 4.375, scaleAdjust, Sgn(horizoff.asq16()));
+			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, Sgn(horizoff.asq16()));
 		}
 	}
 }
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def)
 {
