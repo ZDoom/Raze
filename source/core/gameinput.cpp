@@ -189,15 +189,16 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
+	bool const strafing = buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe;
 	float const mousevelscale = keymove * (1.f / 160.f);
 	double const hidprescale = g_gameType & GAMEFLAG_PSEXHUMED ? 5. : 1.;
 	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * BAngToDegree;
 
 	// process mouse and initial controller input.
-	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
-	else
+	if (!strafing)
 		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
+	else
+		currInput->svel -= int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
@@ -216,18 +217,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	currInput->fvel += int16_t(scaleAdjust * hidInput->dz * keymove * hidprescale);
 
 	// process keyboard turning keys.
-	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-	{
-		if (abs(inputBuffer->svel) < keymove)
-		{
-			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-				currInput->svel += keymove;
-
-			if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-				currInput->svel -= keymove;
-		}
-	}
-	else
+	if (!strafing)
 	{
 		bool const turnleft = buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe);
 		bool const turnright = buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe);
@@ -248,39 +238,43 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 			resetTurnHeldAmt();
 		}
 	}
-
-	// process keyboard forward/side velocity keys.
-	if (abs(inputBuffer->svel) < keymove)
+	else
 	{
-		if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && allowstrafe)
+		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
 			currInput->svel += keymove;
 
-		if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && allowstrafe)
+		if (buttonMap.ButtonDown(gamefunc_Turn_Right))
 			currInput->svel -= keymove;
 	}
-	if (abs(inputBuffer->fvel) < keymove)
+
+	// process keyboard side velocity keys.
+	if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && allowstrafe)
+		currInput->svel += keymove;
+
+	if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && allowstrafe)
+		currInput->svel -= keymove;
+
+	// process keyboard forward velocity keys.
+	if (!(isRR() && drink_amt >= 66 && drink_amt <= 87))
 	{
-		if (isRR() && drink_amt >= 66 && drink_amt <= 87)
-		{
-			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-			{
-				currInput->fvel += keymove;
-				currInput->svel += drink_amt & 1 ? keymove : -keymove;
-			}
+		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+			currInput->fvel += keymove;
 
-			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			{
-				currInput->fvel -= keymove;
-				currInput->svel -= drink_amt & 1 ? keymove : -keymove;
-			}
+		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+			currInput->fvel -= keymove;
+	}
+	else
+	{
+		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+		{
+			currInput->fvel += keymove;
+			currInput->svel += drink_amt & 1 ? keymove : -keymove;
 		}
-		else
-		{
-			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-				currInput->fvel += keymove;
 
-			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-				currInput->fvel -= keymove;
+		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+		{
+			currInput->fvel -= keymove;
+			currInput->svel -= drink_amt & 1 ? keymove : -keymove;
 		}
 	}
 
