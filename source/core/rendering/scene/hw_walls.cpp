@@ -42,6 +42,162 @@
 
 DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsulate this better without having to permanently store actors in the wall object.
 
+static walltype* PrevColinearWall(walltype* nnwall)
+{
+	const int maxangdelta = 1;
+	auto d = nnwall->delta();
+	int nwalang = getangle(d.X, d.Y);
+	walltype* best = nullptr;
+
+	auto sect = nnwall->sectorp();
+	// Check the chain of next walls.
+
+	auto nw = nnwall;
+	nnwall = nullptr;
+	vertexscan(nw, [&](walltype* nwal)
+	{
+		// We are only interested in walls from other sectors
+		if (nwal->sectorp() != sect)
+		{
+			nwal = nwal->lastWall();
+			if (!nwal || nwal->sectorp() == sect) return; // this can happen on malformed maps.
+			auto d = nwal->delta();
+			int walang = getangle(d.X, d.Y);
+			int deltaang = abs((((walang - nwalang) & 2047) << 21) >> 21);
+			if (deltaang >= -maxangdelta && deltaang <= maxangdelta)
+			{
+				best = nwal;
+			}
+		}
+	});
+	return best;
+}
+
+static walltype* NextColinearWall(walltype* nnwall)
+{
+	const int maxangdelta = 1;
+	auto d = nnwall->delta();
+	int nwalang = getangle(d.X, d.Y);
+	walltype* best = nullptr;
+
+	auto sect = nnwall->sectorp();
+	// Check the chain of next walls.
+
+	auto nw = nnwall->point2Wall();
+	nnwall = nullptr;
+	vertexscan(nw, [&](walltype* nwal)
+	{
+		// We are only interested in walls from other sectors
+		if (nwal->sectorp() != sect)
+		{
+			auto d = nwal->delta();
+			int walang = getangle(d.X, d.Y);
+			int deltaang = abs((((walang - nwalang) & 2047) << 21) >> 21);
+			if (deltaang >= -maxangdelta && deltaang <= maxangdelta)
+			{
+				best = nwal;
+			}
+		}
+	});
+	return best;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static walltype* FindWallSpriteWall(tspritetype* tspr, int height, DVector2& outpos)
+{
+	const double maxorthdist = 3 * maptoworld; // maximum orthogonal distance to be considered an attached sprite.
+	const double maxdistsq = maxorthdist * maxorthdist;
+	const int maxangdelta = 1;
+
+	walltype* best = nullptr;
+
+	auto sect = tspr->sectp;
+
+	float tx = tspr->pos.X * (float)inttoworld;
+	float ty = tspr->pos.Y * (float)inttoworld;
+
+	for(auto& wal : wallsofsector(sect))
+	{
+		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
+		auto d = wal.delta();
+		int walang = getangle(d.X, d.Y);
+		int deltaang = abs((((walang - tspr->ang) & 2047) << 21) >> 21);
+
+		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
+		if (deltaang >= 512 - maxangdelta && deltaang <= 512 + maxangdelta)
+		{
+			double wdist = SquareDistToWall(tx, ty, &wal, &outpos);
+			if (wdist <= maxdistsq)
+			{
+				return &wal;
+			}
+		}
+		if (d.X != 0 && d.Y != 0)
+			return nullptr;
+	}
+	
+	// no wall was found where this sprite could be attached to.
+	// now check some adjacent walls to account for a type of mapping bug where wall sprites are badly placed
+	
+	for(auto& wal : wallsofsector(sect))
+	{
+		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
+		auto d = wal.delta();
+		int walang = getangle(d.X, d.Y);
+		int deltaang = abs((((walang - tspr->ang) & 2047) << 21) >> 21);
+
+		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
+		if (deltaang >= 512 - maxangdelta && deltaang <= 512 + maxangdelta)
+		{
+			bool found = false;
+			// orthogonal lines do not check the actual position so that certain off-sector sprites get handled properly.
+			// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
+			if (d.X == 0)
+			{
+				double newdist = fabs(tx - wal.pos.X);
+				found = (newdist < maxorthdist);
+			}
+			else if (d.Y == 0)
+			{
+				double newdist = fabs(ty - wal.pos.Y);
+				found = (newdist < maxorthdist);
+			}
+			if (found)
+			{
+				// Check the chain of next walls.
+				walltype *nnwall = &wal;
+				while (auto nwal = NextColinearWall(nnwall))
+				{
+					double wdist = SquareDistToWall(tx, ty, nwal, &outpos);
+					if (wdist <= maxdistsq)
+						return nwal;
+					else
+						nnwall = nwal;
+				}
+				// Check the chain of next walls.
+				nnwall = &wal;
+				while (auto nwal = PrevColinearWall(nnwall))
+				{
+					double wdist = SquareDistToWall(tx, ty, nwal, &outpos);
+					if (wdist <= maxdistsq)
+						return nwal;
+					else
+						nnwall = nwal;
+				}
+			}
+		}
+	}
+
+	return best;
+}
+
+
+
 //==========================================================================
 //
 //
@@ -1175,8 +1331,8 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (walldist)
 	{
 		// project the sprite right onto the wall.
-		auto v1 = NearestPointLine(glseg.x1, -glseg.y1, walldist);
-		auto v2 = NearestPointLine(glseg.x2, -glseg.y2, walldist);
+		auto v1 = NearestPointOnLine(glseg.x1, -glseg.y1, walldist);
+		auto v2 = NearestPointOnLine(glseg.x2, -glseg.y2, walldist);
 		glseg.x1 = v1.X;
 		glseg.y1 = -v1.Y;
 		glseg.x2 = v2.X;

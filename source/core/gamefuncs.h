@@ -354,7 +354,21 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 	return dx * dx + dy * dy;
 }
 
-inline DVector2 NearestPointLine(double px, double py, const walltype* wal)
+inline double PointDistOnLine(double px, double py, const walltype* wal)
+{
+	double lx1 = wal->pos.X;
+	double ly1 = wal->pos.Y;
+	double lx2 = wal->point2Wall()->pos.X;
+	double ly2 = wal->point2Wall()->pos.Y;
+
+	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
+
+	if (wall_length == 0) return 0.;
+
+	return ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
+}
+
+inline DVector2 NearestPointOnLine(double px, double py, const walltype* wal)
 {
 	double lx1 = wal->pos.X;
 	double ly1 = wal->pos.Y;
