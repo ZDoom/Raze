@@ -128,6 +128,11 @@ static GameAtExit *ExitCmdList;
 static char *work = NULL;
 static int worklen = 0;
 
+CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
+{
+	if (self < 0) self = 0;
+}
+
 CUSTOM_CVAR(Float, con_alpha, 0.75f, CVAR_ARCHIVE)
 {
 	if (self < 0.f) self = 0.f;
@@ -600,7 +605,7 @@ void C_DrawConsole ()
 
 		if (conback.isValid() && gamestate != GS_FULLCONSOLE)
 		{
-			DrawTexture (twod, TexMan.GetGameTexture(conback), 0, visheight - screen->GetHeight(),
+			DrawTexture (twod, conback, false, 0, visheight - screen->GetHeight(),
 				DTA_DestWidth, twod->GetWidth(),
 				DTA_DestHeight, twod->GetHeight(),
 				DTA_ColorOverlay, conshade,
