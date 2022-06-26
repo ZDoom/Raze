@@ -1,0 +1,2 @@
+// Wanton Destruction $auto.map - workaround for sector object overlapping with an outer wall.
+sector 152 dontclip

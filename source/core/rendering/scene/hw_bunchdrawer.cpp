@@ -278,7 +278,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	if (cline->partner == -1 || (wall[line].cstat & CSTAT_WALL_1WAY) || CheckClip(&wall[line], &topclip, &bottomclip))
 	{
 		// one-sided
-		if (!portal && !dontclip)
+		if (!portal && !dontclip && !(sector[sections[section].sector].exflags & SECTOREX_DONTCLIP))
 		{
 			clipper->AddClipRange(startAngle, endAngle);
 			//Printf("\nWall %d from %2.3f - %2.3f (blocking)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg());

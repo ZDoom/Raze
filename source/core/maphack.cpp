@@ -190,6 +190,10 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 				hw_SetSplitSector(currentsector, start, end);
 			}
 		}
+		else if (sc.Compare("dontclip"))
+		{
+			sector[currentsector].exflags |= SECTOREX_DONTCLIP;
+		}
 		else if (sc.Compare("clearflags"))
 		{
 			if (currentsector != -1 && validateSector())

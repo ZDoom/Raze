@@ -535,7 +535,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("portalflags", c.portalflags, def->portalflags)
-			("portalnum", c.portalnum, def->portalnum);
+			("portalnum", c.portalnum, def->portalnum)
+			("exflags", c.exflags, def->exflags);
 
 		// Save the extensions only when playing their respective games.
 		if (isDukeLike())
