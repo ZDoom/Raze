@@ -47,6 +47,11 @@ struct gameinfo_t
 	FName mSliderBackColor;
 	FString mBackButton;
 	FString TitlePage;
+	
+	FString mMapArrow;
+	FString mCheatMapArrow;
+	FString mEasyKey;
+	FString mCheatKey;
 };
 
 

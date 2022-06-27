@@ -193,4 +193,9 @@ public:
 	void Fill(PalEntry color, double x, double y, double w, double h, int flags = 0);
 	void SetClipRect(double x, double y, double w, double h, int flags = 0);
 
+	int GetTopOfStatusbar() const
+	{
+		return SBarTop;
+	}
+
 };

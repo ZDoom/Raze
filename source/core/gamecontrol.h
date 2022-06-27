@@ -261,6 +261,7 @@ enum gameaction_t : int
 	ga_loadgamehidecon,
 	ga_newgamenostopsound,	// start a new game
 	ga_endscreenjob,
+	ga_togglemap,
 
 	ga_fullconsole,
 };

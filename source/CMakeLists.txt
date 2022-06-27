@@ -1019,6 +1019,7 @@ set (PCH_SOURCES
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
 
+        core/am_map.cpp
 	core/actorinfo.cpp
 	core/zcc_compile_raze.cpp
 	core/vmexports.cpp
