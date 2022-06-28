@@ -664,7 +664,7 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 	}
 	int x = follow_x;
 	int y = follow_y;
-	follow_a = am_rotate ? pl_angle : 0;
+	follow_a = am_rotate ? pl_angle : 1536;
 	AutomapControl();
 
 	if (automapMode == am_full)
