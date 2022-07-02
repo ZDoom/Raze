@@ -47,7 +47,7 @@
 bool I_GetVulkanPlatformExtensions(unsigned int *count, const char **names);
 bool I_CreateVulkanSurface(VkInstance instance, VkSurfaceKHR *surface);
 
-FString JitCaptureStackTrace(int framesToSkip, bool includeNativeFrames);
+FString JitCaptureStackTrace(int framesToSkip, bool includeNativeFrames, int maxFrames = -1);
 
 // Physical device info
 static std::vector<VulkanPhysicalDevice> AvailableDevices;
@@ -409,7 +409,7 @@ VkBool32 VulkanDevice::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT mess
 
 			if (vk_debug_callstack && showcallstack)
 			{
-				FString callstack = JitCaptureStackTrace(0, true);
+				FString callstack = JitCaptureStackTrace(0, true, 5);
 				if (!callstack.IsEmpty())
 					Printf("%s\n", callstack.GetChars());
 			}
