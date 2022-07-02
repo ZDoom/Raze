@@ -13,16 +13,12 @@ endif(WIN32)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     add_compile_options(-Wall -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs
-                        -Wno-unused-parameter -Wunused-value  -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-exceptions)
+                        -Wunused-parameter -Wunused-value  -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-exceptions)
     add_compile_options(-Wno-reorder)  # disable this from -Wall, since it happens all over.
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     add_compile_options(-Wall -Wuninitialized -Wunused -Wunused-local-typedefs
-                        -Wno-unused-parameter -Wunused-value  -Wunused-variable)
+                        -Wunused-parameter -Wunused-value  -Wunused-variable)
     add_compile_options(-Wno-reorder)  # disable this from -Wall, since it happens all over.
-endif()
-
-if (MSVC)
-	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4146" )
 endif()
 
 # Request C++11
@@ -52,6 +48,7 @@ set(SOURCES
     MachineIndependent/RemoveTree.cpp
     MachineIndependent/Scan.cpp
     MachineIndependent/ShaderLang.cpp
+    MachineIndependent/SpirvIntrinsics.cpp
     MachineIndependent/SymbolTable.cpp
     MachineIndependent/Versions.cpp
     MachineIndependent/intermOut.cpp
@@ -79,8 +76,8 @@ set(HEADERS
     Include/intermediate.h
     Include/PoolAlloc.h
     Include/ResourceLimits.h
-    Include/revision.h
     Include/ShHandle.h
+    Include/SpirvIntrinsics.h
     Include/Types.h
     MachineIndependent/attribute.h
     MachineIndependent/glslang_tab.cpp.h

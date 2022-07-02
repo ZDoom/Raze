@@ -20,71 +20,54 @@
 **
 */
 
-#include "vk_buffers.h"
+#include "vk_hwbuffer.h"
 #include "vk_builders.h"
 #include "vk_framebuffer.h"
+#include "vk_commandbuffer.h"
+#include "vk_buffer.h"
 #include "vulkan/renderer/vk_renderstate.h"
-#include "vulkan/renderer/vk_renderpass.h"
+#include "vulkan/renderer/vk_descriptorset.h"
 #include "engineerrors.h"
 
-VKBuffer *VKBuffer::First = nullptr;
-
-VKBuffer::VKBuffer()
+VkHardwareBuffer::VkHardwareBuffer(VulkanFrameBuffer* fb) : fb(fb)
 {
-	Next = First;
-	First = this;
-	if (Next) Next->Prev = this;
+	fb->GetBufferManager()->AddBuffer(this);
 }
 
-VKBuffer::~VKBuffer()
+VkHardwareBuffer::~VkHardwareBuffer()
 {
-	if (Next) Next->Prev = Prev;
-	if (Prev) Prev->Next = Next;
-	else First = Next;
+	if (fb)
+		fb->GetBufferManager()->RemoveBuffer(this);
+}
 
-	if (mBuffer && map)
-		mBuffer->Unmap();
-
-	auto fb = GetVulkanFrameBuffer();
+void VkHardwareBuffer::Reset()
+{
 	if (fb)
 	{
+		if (mBuffer && map)
+		{
+			mBuffer->Unmap();
+			map = nullptr;
+		}
 		if (mBuffer)
-			fb->FrameDeleteList.Buffers.push_back(std::move(mBuffer));
+			fb->GetCommands()->DrawDeleteList->Add(std::move(mBuffer));
 		if (mStaging)
-			fb->FrameDeleteList.Buffers.push_back(std::move(mStaging));
+			fb->GetCommands()->TransferDeleteList->Add(std::move(mStaging));
 	}
 }
 
-void VKBuffer::ResetAll()
+void VkHardwareBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
 {
-	for (VKBuffer *cur = VKBuffer::First; cur; cur = cur->Next)
-		cur->Reset();
-}
-
-void VKBuffer::Reset()
-{
-	if (mBuffer && map)
-		mBuffer->Unmap();
-	mBuffer.reset();
-	mStaging.reset();
-}
-
-void VKBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
-{
-	auto fb = GetVulkanFrameBuffer();
-
 	size_t bufsize = max(size, (size_t)16); // For supporting zero byte buffers
 
 	// If SetData is called multiple times we have to keep the old buffers alive as there might still be draw commands referencing them
 	if (mBuffer)
 	{
-		fb->FrameDeleteList.Buffers.push_back(std::move(mBuffer));
-		mBuffer = {};
+		fb->GetCommands()->DrawDeleteList->Add(std::move(mBuffer));
 	}
 	if (mStaging)
 	{
-		fb->FrameDeleteList.Buffers.push_back(std::move(mStaging));
-		mStaging = {};
+		fb->GetCommands()->TransferDeleteList->Add(std::move(mStaging));
 	}
 
 	if (usage == BufferUsageType::Static || usage == BufferUsageType::Stream)
@@ -93,15 +76,17 @@ void VKBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
 
 		mPersistent = false;
 
-		BufferBuilder builder;
-		builder.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | mBufferType, VMA_MEMORY_USAGE_GPU_ONLY);
-		builder.setSize(bufsize);
-		mBuffer = builder.create(fb->device);
+		mBuffer = BufferBuilder()
+			.Usage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | mBufferType, VMA_MEMORY_USAGE_GPU_ONLY)
+			.Size(bufsize)
+			.DebugName(usage == BufferUsageType::Static ? "VkHardwareBuffer.Static" : "VkHardwareBuffer.Stream")
+			.Create(fb->device);
 
-		BufferBuilder builder2;
-		builder2.setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-		builder2.setSize(bufsize);
-		mStaging = builder2.create(fb->device);
+		mStaging = BufferBuilder()
+			.Usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY)
+			.Size(bufsize)
+			.DebugName(usage == BufferUsageType::Static ? "VkHardwareBuffer.Staging.Static" : "VkHardwareBuffer.Staging.Stream")
+			.Create(fb->device);
 
 		if (data)
 		{
@@ -110,19 +95,20 @@ void VKBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
 			mStaging->Unmap();
 		}
 
-		fb->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get());
+		fb->GetCommands()->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get());
 	}
 	else if (usage == BufferUsageType::Persistent)
 	{
 		mPersistent = true;
 
-		BufferBuilder builder;
-		builder.setUsage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT);
-		builder.setMemoryType(
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		builder.setSize(bufsize);
-		mBuffer = builder.create(fb->device);
+		mBuffer = BufferBuilder()
+			.Usage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
+			.MemoryType(
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+			.Size(bufsize)
+			.DebugName("VkHardwareBuffer.Persistent")
+			.Create(fb->device);
 
 		map = mBuffer->Map(0, bufsize);
 		if (data)
@@ -132,13 +118,14 @@ void VKBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
 	{
 		mPersistent = false;
 
-		BufferBuilder builder;
-		builder.setUsage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, 0);
-		builder.setMemoryType(
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		builder.setSize(bufsize);
-		mBuffer = builder.create(fb->device);
+		mBuffer = BufferBuilder()
+			.Usage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, 0)
+			.MemoryType(
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+			.Size(bufsize)
+			.DebugName("VkHardwareBuffer.Mappable")
+			.Create(fb->device);
 
 		if (data)
 		{
@@ -151,18 +138,17 @@ void VKBuffer::SetData(size_t size, const void *data, BufferUsageType usage)
 	buffersize = size;
 }
 
-void VKBuffer::SetSubData(size_t offset, size_t size, const void *data)
+void VkHardwareBuffer::SetSubData(size_t offset, size_t size, const void *data)
 {
 	size = max(size, (size_t)16); // For supporting zero byte buffers
 
-	auto fb = GetVulkanFrameBuffer();
 	if (mStaging)
 	{
 		void *dst = mStaging->Map(offset, size);
 		memcpy(dst, data, size);
 		mStaging->Unmap();
 
-		fb->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get(), offset, offset, size);
+		fb->GetCommands()->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get(), offset, offset, size);
 	}
 	else
 	{
@@ -172,11 +158,9 @@ void VKBuffer::SetSubData(size_t offset, size_t size, const void *data)
 	}
 }
 
-void VKBuffer::Resize(size_t newsize)
+void VkHardwareBuffer::Resize(size_t newsize)
 {
 	newsize = max(newsize, (size_t)16); // For supporting zero byte buffers
-
-	auto fb = GetVulkanFrameBuffer();
 
 	// Grab old buffer
 	size_t oldsize = buffersize;
@@ -185,33 +169,33 @@ void VKBuffer::Resize(size_t newsize)
 	map = nullptr;
 
 	// Create new buffer
-	BufferBuilder builder;
-	builder.setUsage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT);
-	builder.setMemoryType(
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	builder.setSize(newsize);
-	mBuffer = builder.create(fb->device);
+	mBuffer = BufferBuilder()
+		.Usage(mBufferType, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
+		.MemoryType(
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+		.Size(newsize)
+		.DebugName("VkHardwareBuffer.Resized")
+		.Create(fb->device);
 	buffersize = newsize;
 
 	// Transfer data from old to new
-	fb->GetTransferCommands()->copyBuffer(oldBuffer.get(), mBuffer.get(), 0, 0, oldsize);
-	fb->WaitForCommands(false);
+	fb->GetCommands()->GetTransferCommands()->copyBuffer(oldBuffer.get(), mBuffer.get(), 0, 0, oldsize);
+	fb->GetCommands()->TransferDeleteList->Add(std::move(oldBuffer));
+	fb->GetCommands()->WaitForCommands(false);
+	fb->GetDescriptorSetManager()->UpdateHWBufferSet(); // Old buffer may be part of the bound descriptor set
 
 	// Fetch pointer to new buffer
 	map = mBuffer->Map(0, newsize);
-
-	// Old buffer may be part of the dynamic set
-	fb->GetRenderPassManager()->UpdateDynamicSet();
 }
 
-void VKBuffer::Map()
+void VkHardwareBuffer::Map()
 {
 	if (!mPersistent)
 		map = mBuffer->Map(0, mBuffer->size);
 }
 
-void VKBuffer::Unmap()
+void VkHardwareBuffer::Unmap()
 {
 	if (!mPersistent)
 	{
@@ -220,7 +204,7 @@ void VKBuffer::Unmap()
 	}
 }
 
-void *VKBuffer::Lock(unsigned int size)
+void *VkHardwareBuffer::Lock(unsigned int size)
 {
 	size = max(size, (unsigned int)16); // For supporting zero byte buffers
 
@@ -238,7 +222,7 @@ void *VKBuffer::Lock(unsigned int size)
 	return map;
 }
 
-void VKBuffer::Unlock()
+void VkHardwareBuffer::Unlock()
 {
 	if (!mBuffer)
 	{
@@ -255,15 +239,15 @@ void VKBuffer::Unlock()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void VKVertexBuffer::SetFormat(int numBindingPoints, int numAttributes, size_t stride, const FVertexBufferAttribute *attrs)
+void VkHardwareVertexBuffer::SetFormat(int numBindingPoints, int numAttributes, size_t stride, const FVertexBufferAttribute *attrs)
 {
-	VertexFormat = GetVulkanFrameBuffer()->GetRenderPassManager()->GetVertexFormat(numBindingPoints, numAttributes, stride, attrs);
+	VertexFormat = fb->GetRenderPassManager()->GetVertexFormat(numBindingPoints, numAttributes, stride, attrs);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 
-void VKDataBuffer::BindRange(FRenderState* state, size_t start, size_t length)
+void VkHardwareDataBuffer::BindRange(FRenderState* state, size_t start, size_t length)
 {
 	static_cast<VkRenderState*>(state)->Bind(bindingpoint, (uint32_t)start);
 }
