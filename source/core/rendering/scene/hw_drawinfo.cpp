@@ -528,6 +528,27 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	drawlists[GLDL_MASKEDWALLSS].DrawWalls(this, state, false);
 
 	// Each list must draw both its passes before the next one to ensure proper depth buffer contents.
+	auto& list = drawlists[GLDL_MASKEDWALLSD].drawitems;
+	unsigned i = 0;
+	RenderWall.Clock();
+	while (i < list.Size())
+	{
+		unsigned j;
+		auto check = drawlists[GLDL_MASKEDWALLSD].walls[list[i].index]->walldist;
+		state.SetDepthMask(false);
+		for (j = i; j < list.Size() && drawlists[GLDL_MASKEDWALLSD].walls[list[j].index]->walldist == check; j++)
+		{
+			drawlists[GLDL_MASKEDWALLSD].walls[list[j].index]->DrawWall(this, state, false);
+		}
+		state.SetDepthMask(true);
+		for (unsigned k = i; k < j; k++)
+		{
+			drawlists[GLDL_MASKEDWALLSD].walls[list[k].index]->DrawWall(this, state, false);
+		}
+		i = j;
+	}
+	RenderWall.Unclock();
+
 	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDWALLSD].DrawWalls(this, state, false);
 	state.SetDepthMask(true);
