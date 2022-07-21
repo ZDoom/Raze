@@ -14922,7 +14922,7 @@ int InitTracerUzi(PLAYER* pp)
         return 0;
     }
 
-    actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
+    actorNew->spr.zvel = int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.));
 
     plActor->spr.clipdist = oclipdist;
 
@@ -14971,7 +14971,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(q16horiz, actorNew->spr.xvel / 8., 16));
+    actorNew->spr.zvel = int(-MulScaleF(q16horiz, actorNew->spr.xvel * (1. / 8.), 16));
 
     WeaponAutoAim(actor, actorNew, 32, false);
 
@@ -15392,7 +15392,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
+    actorNew->spr.zvel = int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
@@ -15530,7 +15530,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
+    actorNew->spr.zvel = int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
@@ -15567,7 +15567,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->spr.zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), actorNew->spr.xvel / 8., 16));
+    actorNew->spr.zvel = int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness

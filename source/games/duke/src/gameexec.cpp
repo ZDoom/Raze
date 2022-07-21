@@ -928,15 +928,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_RETURN_TO_CENTER:
-		if (bSet)
-		{
-			ps[iPlayer].sync.actions |= SB_CENTERVIEW;
-		}
-		else
-		{
-			auto center = ps[iPlayer].sync.actions & SB_CENTERVIEW ? abs(xs_CRoundToInt(ps[iPlayer].horizon.horiz.asq16() * (9. / gi->playerHorizMax()))) : 0;
-			SetGameVarID(lVar2, center, sActor, sPlayer);
-		}
+		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
+		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? abs(int(ps[iPlayer].horizon.horiz.asq16() * (9. / gi->playerHorizMax()))) : 0, sActor, sPlayer);
 		break;
 
 	default:

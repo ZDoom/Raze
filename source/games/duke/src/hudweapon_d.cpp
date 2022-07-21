@@ -930,7 +930,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - xs_CRoundToInt(bsinf(random_club_frame, -10)),
+						16 - int(bsinf(random_club_frame, -10)),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
@@ -1082,7 +1082,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - xs_CRoundToInt(bsinf(random_club_frame, -10)),
+						16 - int(bsinf(random_club_frame, -10)),
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
@@ -1092,7 +1092,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - xs_CRoundToInt(bsinf(random_club_frame, -10)),
+						16 - int(bsinf(random_club_frame, -10)),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,

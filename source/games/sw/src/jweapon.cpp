@@ -2189,7 +2189,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-        actorNew->spr.pos.Z += xs_CRoundToInt(-MulScaleF(actor->user.PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3., 16));
+        actorNew->spr.pos.Z += int(-actor->user.PlayerP->horizon.horiz.asbuildf() * HORIZ_MULT * (1. / 3.));
     }
 
     switch (actorNew->user.ID)

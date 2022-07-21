@@ -2132,7 +2132,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 				{
 					p->VBumpTarget = 80;
 					p->moto_bump_fast = 1;
-					p->vel.Z -= xs_CRoundToInt(gs.gravity * (p->MotoSpeed / 16.));
+					p->vel.Z -= int(gs.gravity * p->MotoSpeed * (1. / 16.));
 					p->MotoOnGround = 0;
 					if (S_CheckActorSoundPlaying(pact, 188))
 						S_StopSound(188, pact);
@@ -2374,39 +2374,39 @@ void onMotorcycleMove(int snum, walltype* wal)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
-	int damageAmount;
+	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	p->angle.addadjustment(buildfang(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
 
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
-		damageAmount = xs_CRoundToInt((p->MotoSpeed * p->MotoSpeed) / 256.);
+		damageAmount *= (1. / 256.);
 		p->MotoSpeed = 0;
 		if (S_CheckActorSoundPlaying(pact, 238) == 0)
 			S_PlayActorSound(238, pact);
 	}
 	else if (angleDelta >= 311 && angleDelta <= 711)
 	{
-		damageAmount = xs_CRoundToInt((p->MotoSpeed * p->MotoSpeed) / 2048.);
+		damageAmount *= (1. / 2048.);
 		p->MotoSpeed -= (p->MotoSpeed / 2.) + (p->MotoSpeed / 4.);
 		if (S_CheckActorSoundPlaying(pact, 238) == 0)
 			S_PlayActorSound(238, pact);
 	}
 	else if (angleDelta >= 111 && angleDelta <= 911)
 	{
-		damageAmount = xs_CRoundToInt((p->MotoSpeed * p->MotoSpeed) / 16384.);
+		damageAmount *= (1. / 16384.);
 		p->MotoSpeed -= p->MotoSpeed / 2.;
 		if (S_CheckActorSoundPlaying(pact, 239) == 0)
 			S_PlayActorSound(239, pact);
 	}
 	else
 	{
-		damageAmount = xs_CRoundToInt((p->MotoSpeed * p->MotoSpeed) / 32768.);
+		damageAmount *= (1. / 32768.);
 		p->MotoSpeed -= p->MotoSpeed / 8.;
 		if (S_CheckActorSoundPlaying(pact, 240) == 0)
 			S_PlayActorSound(240, pact);
 	}
-	pact->spr.extra -= damageAmount;
+	pact->spr.extra -= int(damageAmount);
 	if (pact->spr.extra <= 0)
 	{
 		S_PlayActorSound(SQUISHED, pact);
@@ -2482,7 +2482,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		else
 			victim->SetHitOwner(p->GetActor());
 		victim->attackertype = MOTOHIT;
-		victim->hitextra = xs_CRoundToInt(p->MotoSpeed / 2.);
+		victim->hitextra = int(p->MotoSpeed * 0.5);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
@@ -2542,7 +2542,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 		else
 			victim->SetHitOwner(p->GetActor());
 		victim->attackertype = MOTOHIT;
-		victim->hitextra = xs_CRoundToInt(p->MotoSpeed / 4.);
+		victim->hitextra = int(p->MotoSpeed * 0.25);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
@@ -3455,6 +3455,16 @@ void processinput_r(int snum)
 
 	if (clz.type == kHitSprite)
 	{
+		auto doVehicleHit = [&]()
+		{
+			if (badguy(clz.actor()))
+			{
+				clz.actor()->attackertype = MOTOHIT;
+				clz.actor()->hitextra = int(2 + (p->MotoSpeed * 0.5));
+				p->MotoSpeed -= p->MotoSpeed * (1. / 16.);
+			}
+		};
+
 		if ((clz.actor()->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_FLOOR| CSTAT_SPRITE_BLOCK)) == (CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_BLOCK))
 		{
 			psectlotag = 0;
@@ -3462,20 +3472,10 @@ void processinput_r(int snum)
 			p->spritebridge = 1;
 		}
 		if (p->OnMotorcycle)
-			if (badguy(clz.actor()))
-			{
-				clz.actor()->attackertype = MOTOHIT;
-				clz.actor()->hitextra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
-				p->MotoSpeed -= p->MotoSpeed / 16.;
-			}
+			doVehicleHit();
 		if (p->OnBoat)
 		{
-			if (badguy(clz.actor()))
-			{
-				clz.actor()->attackertype = MOTOHIT;
-				clz.actor()->hitextra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
-				p->MotoSpeed -= p->MotoSpeed / 16.;
-			}
+			doVehicleHit();
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < (84 << 8))
 		{

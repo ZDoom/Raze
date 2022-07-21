@@ -558,7 +558,7 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 		{
 			cZ += bobHeight;
 		}
-		cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
+		cZ += int(cH.asq16() * (1. / 6553.6));
 		cameradist = -1;
 		cameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
 	}
