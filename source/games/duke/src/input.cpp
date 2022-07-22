@@ -589,7 +589,6 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
-				updateTurnHeldAmt(factor);
 				p->TiltStatus -= (float)factor;
 
 				if (p->TiltStatus < -10)
@@ -603,11 +602,12 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 
 				if (hidInput->dyaw < 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
+
+				updateTurnHeldAmt(factor);
 			}
 
 			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
-				updateTurnHeldAmt(factor);
 				p->TiltStatus += (float)factor;
 
 				if (p->TiltStatus > 10)
@@ -621,6 +621,8 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 
 				if (hidInput->dyaw > 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
+
+				updateTurnHeldAmt(factor);
 			}
 		}
 		else
@@ -660,8 +662,6 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
-				updateTurnHeldAmt(factor);
-
 				if (!p->NotOnWater)
 				{
 					p->TiltStatus -= (float)factor;
@@ -677,12 +677,12 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 
 				if (hidInput->dyaw < 0)
 					turnvel += baseVel * hidInput->dyaw;
+
+				updateTurnHeldAmt(factor);
 			}
 
 			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
-				updateTurnHeldAmt(factor);
-
 				if (!p->NotOnWater)
 				{
 					p->TiltStatus += (float)factor;
@@ -698,6 +698,8 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 
 				if (hidInput->dyaw > 0)
 					turnvel += baseVel * hidInput->dyaw;
+
+				updateTurnHeldAmt(factor);
 			}
 		}
 		else if (!p->NotOnWater)

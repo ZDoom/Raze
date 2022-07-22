@@ -215,7 +215,6 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 		if (turnleft || turnright)
 		{
-			updateTurnHeldAmt(scaleAdjust);
 			double const turnspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * turnscale * BAngToDegree;
 			float const turnamount = float(scaleAdjust * turnspeed * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
 
@@ -224,6 +223,8 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 			if (turnright)
 				currInput->avel += turnamount;
+
+			updateTurnHeldAmt(scaleAdjust);
 		}
 		else
 		{
