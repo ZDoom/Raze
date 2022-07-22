@@ -189,11 +189,11 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	bool const strafing = buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe;
 	float const mousevelscale = keymove * (1.f / 160.f);
 	double const hidprescale = g_gameType & GAMEFLAG_PSEXHUMED ? 5. : 1.;
-	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * BAngToDegree;
+	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * turnscale * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (!strafing)
-		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
+		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed));
 	else
 		currInput->svel -= int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 
@@ -216,7 +216,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 		if (turnleft || turnright)
 		{
 			updateTurnHeldAmt(scaleAdjust);
-			float const turnamount = float(scaleAdjust * hidspeed * turnscale * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
+			float const turnamount = float(scaleAdjust * hidspeed * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
 
 			if (turnleft)
 				currInput->avel -= turnamount;
