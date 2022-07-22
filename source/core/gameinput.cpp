@@ -64,6 +64,52 @@ binangle getincanglebam(binangle a, binangle na)
 	return bamang(uint32_t(newa-cura));
 }
 
+
+//---------------------------------------------------------------------------
+//
+// Input scale helper functions.
+//
+//---------------------------------------------------------------------------
+
+inline static double getTicrateScale(const double value)
+{
+	return value * (1. / GameTicRate);
+}
+
+inline static double getPushScale(const double scaleAdjust)
+{
+	return (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.);
+}
+
+inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz& object, const double push)
+{
+	return buildfhoriz(scaleAdjust * ((object.asbuildf() * getTicrateScale(value)) + push));
+}
+
+inline static binangle getscaledangle(const double value, const double scaleAdjust, const binangle& object, const double push)
+{
+	return buildfang(scaleAdjust * ((object.signedbuildf() * getTicrateScale(value)) + push));
+}
+
+inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
+{
+	if (auto sgn = Sgn(object.asq16()))
+	{
+		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
+		if (sgn != Sgn(object.asq16())) object = q16horiz(0);
+	}
+}
+
+inline static void scaletozero(binangle& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
+{
+	if (auto sgn = Sgn(object.signedbam()))
+	{
+		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
+		if (sgn != Sgn(object.signedbam())) object = bamang(0);
+	}
+}
+
+
 //---------------------------------------------------------------------------
 //
 // Functions for determining whether its turbo turn time (turn key held for a number of tics).
@@ -375,8 +421,8 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & key)
 		{
-			look_ang += getscaledangle(LOOKINGSPEED, scaleAdjust * direction);
-			rotscrnang -= getscaledangle(ROTATESPEED, scaleAdjust * direction);
+			look_ang += buildfang(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction);
+			rotscrnang -= buildfang(getTicrateScale(ROTATESPEED) * scaleAdjust * direction);
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);
@@ -480,11 +526,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff.asq16() < IntToFixed(100))
-			{
-				auto temphorizoff = buildhoriz(100) - horizoff;
-				horizoff += getscaledhoriz(4.375, scaleAdjust, &temphorizoff, 1.);
-			}
+			if (horizoff.asq16() < IntToFixed(100)) horizoff += getscaledhoriz(4.375, scaleAdjust, buildhoriz(100) - horizoff, 1.);
 		}
 		else
 		{
