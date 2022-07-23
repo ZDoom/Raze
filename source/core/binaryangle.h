@@ -83,7 +83,7 @@ inline int bsin(const int ang, int shift = 0)
 }
 inline double bsinf(const double ang, const int shift = 0)
 {
-	return g_sin(ang * BAngRadian) * sinscale(shift);
+	return g_sinbam(ang * BAMUNIT) * sinscale(shift);
 }
 
 
@@ -99,7 +99,7 @@ inline int bcos(const int ang, int shift = 0)
 }
 inline double bcosf(const double ang, const int shift = 0)
 {
-	return g_cos(ang * BAngRadian) * sinscale(shift);
+	return g_cosbam(ang * BAMUNIT) * sinscale(shift);
 }
 
 
