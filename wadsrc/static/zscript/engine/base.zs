@@ -464,12 +464,26 @@ enum DrawTextureTags
 
 };
 
+enum StencilOp
+{
+	SOP_Keep = 0,
+	SOP_Increment = 1,
+	SOP_Decrement = 2
+};
+enum StencilFlags
+{
+	SF_AllOn = 0,
+	SF_ColorMaskOff = 1,
+	SF_DepthMaskOff = 2
+};
+
 class Shape2DTransform : Object native
 {
 	native void Clear();
 	native void Rotate(double angle);
 	native void Scale(Vector2 scaleVec);
 	native void Translate(Vector2 translateVec);
+	native void From2D(double m00, double m01, double m10, double m11, double vx, double vy);
 }
 
 class Shape2D : Object native
@@ -500,6 +514,7 @@ struct Screen native
 
 	native static vararg void DrawTexture(TextureID tex, bool animate, double x, double y, ...);
 	native static vararg void DrawShape(TextureID tex, bool animate, Shape2D s, ...);
+	native static vararg void DrawShapeFill(Color col, double amount, Shape2D s, ...);
 	native static vararg void DrawChar(Font font, int normalcolor, double x, double y, int character, ...);
 	native static vararg void DrawText(Font font, int normalcolor, double x, double y, String text, ...);
 	native static void DrawLine(int x0, int y0, int x1, int y1, Color color, int alpha = 255);
@@ -515,6 +530,12 @@ struct Screen native
 	native static Vector2 SetOffset(double x, double y);
 	native static void ClearScreen(color col = 0);
 	native static void SetScreenFade(double factor);
+
+	native static void EnableStencil(bool on);
+	native static void SetStencil(int offs, int op, int flags = -1);
+	native static void ClearStencil();
+	native static void SetTransform(Shape2DTransform transform);
+	native static void ClearTransform();
 }
 
 struct Font native

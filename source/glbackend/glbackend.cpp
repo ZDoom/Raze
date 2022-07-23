@@ -119,7 +119,7 @@ void GLInstance::DoDraw()
 					state.EnableTexture(true);
 					rs.model->BuildVertexBuffer(&mr);
 					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], 0);
-					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation);
+					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation, nullptr);
 					state.SetDepthFunc(DF_Less);
 					state.SetVertexBuffer(screen->mVertexData);
 				}
