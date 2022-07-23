@@ -1498,7 +1498,7 @@ if( NOT WIN32 AND NOT APPLE )
 	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${COMPILE_OUTPUT_DIRECTORY}/${PROJECT_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME} ${COMPILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}; fi" )
 	add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/link-make
-		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
+		COMMAND ${CMAKE_CURRENT_BINARY_DIR}/link-make )
 	IF ("${INSTALL_RPATH}" STREQUAL "")
 		set_target_properties(${PROJECT_NAME} PROPERTIES
 			#allow libzmusic.so.1 library in same folder as executable at runtime
