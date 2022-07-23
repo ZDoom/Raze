@@ -30,41 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 //---------------------------------------------------------------------------
 //
-// code fron gameexec/conrun
-//
-//---------------------------------------------------------------------------
-
-int getincangle(int a, int na)
-{
-	a &= 2047;
-	na &= 2047;
-
-	if(abs(a-na) >= 1024)
-	{
-		if(na > 1024) na -= 2048;
-		if(a > 1024) a -= 2048;
-	}
-
-	return na-a;
-}
-
-binangle getincanglebam(binangle a, binangle na)
-{
-	int64_t cura = a.asbam();
-	int64_t newa = na.asbam();
-
-	if(abs(cura-newa) > INT32_MAX)
-	{
-		if(newa > INT32_MAX) newa -= UINT32_MAX;
-		if(cura > INT32_MAX) cura -= UINT32_MAX;
-	}
-
-	return bamang(uint32_t(newa-cura));
-}
-
-
-//---------------------------------------------------------------------------
-//
 // Input scale helper functions.
 //
 //---------------------------------------------------------------------------

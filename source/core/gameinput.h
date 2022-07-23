@@ -6,8 +6,15 @@
 #include "gamestruct.h"
 #include "packet.h"
 
-int getincangle(int a, int na);
-binangle getincanglebam(binangle a, binangle na);
+inline constexpr binangle getincanglebam(binangle a, binangle na)
+{
+	return na-a;
+}
+
+inline constexpr int getincangle(int a, int na)
+{
+	return getincanglebam(buildang(a), buildang(na)).signedbuild();
+}
 
 struct PlayerHorizon
 {
