@@ -124,7 +124,7 @@ class binangle
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
 
-	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
+	constexpr int32_t tosigned() const { return int32_t(value); }
 
 public:
 	binangle() = default;
