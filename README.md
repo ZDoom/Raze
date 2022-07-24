@@ -1,6 +1,6 @@
 # Welcome to Raze!
 
-[![Continuous Integration](https://github.com/ZDoom-Official/Raze/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/ZDoom-Official/Raze/actions/workflows/continuous_integration.yml)
+[![Continuous Integration](https://github.com/ZDoom/Raze/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/ZDoom/Raze/actions/workflows/continuous_integration.yml)
 
 ## Raze is a fork of Build engine games backed by GZDoom tech and combines Duke Nukem 3D, Blood, Redneck Rampage, Shadow Warrior and Exhumed/Powerslave in a single package. It is also capable of playing Nam and WW2 GI.
 
