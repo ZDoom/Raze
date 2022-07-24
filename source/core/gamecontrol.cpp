@@ -957,6 +957,8 @@ int RunGame()
 {
 	GameStartupInfo.FgColor = 0xffffff;
 
+	G_LoadConfig();
+
 	auto wad = BaseFileSearch(ENGINERES_FILE, NULL, true, GameConfig);
 	if (wad == NULL)
 	{
@@ -979,7 +981,6 @@ int RunGame()
 	}
 	I_DetectOS();
 	userConfig.ProcessOptions();
-	G_LoadConfig();
 	GetGames();
 	auto usedgroups = SetupGame();
 
