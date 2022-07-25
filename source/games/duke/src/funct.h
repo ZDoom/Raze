@@ -201,6 +201,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors);
 int startrts(int lumpNum, int localPlayer);
 
 void pickrandomspot(int pn);
+void premapcontroller(DDukeActor* ac);
 void resetinventory(int pn);
 void resetplayerstats(int pn);
 void resetweapons(int pn);

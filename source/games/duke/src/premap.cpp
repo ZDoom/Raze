@@ -43,6 +43,41 @@ BEGIN_DUKE_NS
 
 int which_palookup = 9;
 
+void premapcontroller(DDukeActor* ac)
+{
+	switch (ac->spr.picnum)
+	{
+	case ACTIVATOR:
+	case ACTIVATORLOCKED:
+	case LOCATORS:
+	case MASTERSWITCH:
+	case MUSICANDSFX:
+	case RESPAWN:
+	case SECTOREFFECTOR:
+	case TOUCHPLATE:
+		ac->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
+		break;
+
+	case GPSPEED:
+		ac->sector()->extra = ac->spr.lotag;
+		deletesprite(ac);
+		break;
+
+	case CYCLER:
+		if (numcyclers >= MAXCYCLERS)
+			I_Error("Too many cycling sectors.");
+		cyclers[numcyclers].sector = ac->sector();
+		cyclers[numcyclers].lotag = ac->spr.lotag;
+		cyclers[numcyclers].shade1 = ac->spr.shade;
+		cyclers[numcyclers].shade2 = ac->sector()->floorshade;
+		cyclers[numcyclers].hitag = ac->spr.hitag;
+		cyclers[numcyclers].state = (ac->spr.ang == 1536);
+		numcyclers++;
+		deletesprite(ac);
+		break;
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 // 

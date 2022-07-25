@@ -531,26 +531,12 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		}
 		else switch (ac->spr.picnum)
 		{
+		default:
+			premapcontroller(ac);
+			break;
+			
 		case NUKEBUTTON:
 			chickenplant = 1;
-			break;
-
-		case GPSPEED:
-			ac->sector()->extra = ac->spr.lotag;
-			deletesprite(ac);
-			break;
-
-		case CYCLER:
-			if (numcyclers >= MAXCYCLERS)
-				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sector = ac->sector();
-			cyclers[numcyclers].lotag = ac->spr.lotag;
-			cyclers[numcyclers].shade1 = ac->spr.shade;
-			cyclers[numcyclers].shade2 = ac->sector()->floorshade;
-			cyclers[numcyclers].hitag = ac->spr.hitag;
-			cyclers[numcyclers].state = (ac->spr.ang == 1536);
-			numcyclers++;
-			deletesprite(ac);
 			break;
 
 		case RRTILE18:
