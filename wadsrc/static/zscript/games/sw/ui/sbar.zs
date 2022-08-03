@@ -126,7 +126,7 @@ class SWStatusBar : RazeStatusBar
 
 		buffer = String.Format("%03d", number);
 
-		for (int i = 0; i < buffer.length(); i++)
+		for (uint i = 0; i < buffer.length(); i++)
 		{
 			let c = buffer.ByteAt(i);
 			if (c < "0" || c > "9")
@@ -148,7 +148,7 @@ class SWStatusBar : RazeStatusBar
 
 	void DisplaySummaryString(double x, double y, int color, int shade, String buffer)
 	{
-		for (int i = 0; i < buffer.length(); i++)
+		for (uint i = 0; i < buffer.length(); i++)
 		{
 			let ch = buffer.ByteAt(i);
 

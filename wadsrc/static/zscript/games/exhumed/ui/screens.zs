@@ -591,12 +591,12 @@ class LastLevelCinema : ScreenJob
 		if (printFont == ConFont)
 		{
 			yy *= 2;
-			for (int i = 0; i < nStringTypeOn; i++, yy += 10) Screen.DrawText(ConFont, Font.CR_GREEN, 140, yy, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit640x400);
+			for (uint i = 0; i < nStringTypeOn; i++, yy += 10) Screen.DrawText(ConFont, Font.CR_GREEN, 140, yy, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit640x400);
 			Screen.DrawText(ConFont, Font.CR_GREEN, 140, yy, screentext.StringAt(nStringTypeOn), DTA_FullscreenScale, FSMode_Fit640x400, DTA_TextLen, nCharTypeOn);
 		}
 		else
 		{
-			for (int i = 0; i < nStringTypeOn; i++, yy += 8) Screen.DrawText(SmallFont2, Font.CR_UNTRANSLATED, 70, yy, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit320x200);
+			for (uint i = 0; i < nStringTypeOn; i++, yy += 8) Screen.DrawText(SmallFont2, Font.CR_UNTRANSLATED, 70, yy, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit320x200);
 			Screen.DrawText(SmallFont2, Font.CR_UNTRANSLATED, 70, yy, screentext.StringAt(nStringTypeOn), DTA_FullscreenScale, FSMode_Fit320x200, DTA_TextLen, nCharTypeOn);
 		}
 	}
@@ -637,7 +637,7 @@ class LastLevelCinema : ScreenJob
 			{
 				nCharTypeOn = 0;
 				nStringTypeOn++;
-				if (nStringTypeOn >= screentext.Count())
+				if (nStringTypeOn >= uint(screentext.Count()))
 				{
 					nextclock = (GameTicRate * (screentext.Count() + 2)) + ticks;
 					phase = 3;

@@ -348,7 +348,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		DrawTexture(ThreeByFive[index], (x - 7, y), DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, (-1, -1), (1, 1), STYLE_Translucent, Raze.ShadeToLight(shade - 10), Translation.MakeID(Translation_Remap, 7));
 		let pe = Raze.ShadeToLight(shade);
 		DrawTexture(ThreeByFive[10], (x - 3, y), DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, (-1, -1), (1, 1), STYLE_Translucent, pe);
-		for (int i = 0; i < format.Length(); i++) 
+		for (uint i = 0; i < format.Length(); i++) 
 		{
 			int cc = format.ByteAt(i);
 			if (cc != " ")
