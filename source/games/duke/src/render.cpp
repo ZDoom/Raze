@@ -271,8 +271,11 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 	}
 	else
 	{
-		if (isRRRA() && p->DrugMode) 
-			fov = atan(getdrugmode(p, 65536) * (1. / 65536.)) * (4 * r_fov / pi::pi());
+		if (isRRRA() && p->DrugMode)
+		{
+			double fovdelta = atan(getdrugmode(p, 65536) * (1. / 65536.)) * (360. / pi::pi()) - 90.;
+			fov = (float)clamp<double>(r_fov + fovdelta * 0.6, r_fov, 150.);
+		}
 
 
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
