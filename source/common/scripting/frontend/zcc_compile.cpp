@@ -68,7 +68,7 @@ const char * ZCCCompiler::GetStringConst(FxExpression *ex, FCompileContext &ctx)
 
 int ZCCCompiler::IntConstFromNode(ZCC_TreeNode *node, PContainerType *cls)
 {
-	FCompileContext ctx(OutNamespace, cls, false);
+	FCompileContext ctx(OutNamespace, cls, false, mVersion);
 	FxExpression *ex = new FxIntCast(ConvertNode(node), false);
 	ex = ex->Resolve(ctx);
 	if (ex == nullptr) return 0;
@@ -82,7 +82,7 @@ int ZCCCompiler::IntConstFromNode(ZCC_TreeNode *node, PContainerType *cls)
 
 FString ZCCCompiler::StringConstFromNode(ZCC_TreeNode *node, PContainerType *cls)
 {
-	FCompileContext ctx(OutNamespace, cls, false);
+	FCompileContext ctx(OutNamespace, cls, false, mVersion);
 	FxExpression *ex = new FxStringCast(ConvertNode(node));
 	ex = ex->Resolve(ctx);
 	if (ex == nullptr) return "";
@@ -1144,7 +1144,7 @@ void ZCCCompiler::AddConstant(ZCC_ConstantWork &constant)
 
 bool ZCCCompiler::CompileConstant(ZCC_ConstantWork *work)
 {
-	FCompileContext ctx(OutNamespace, work->cls, false);
+	FCompileContext ctx(OutNamespace, work->cls, false, mVersion);
 	FxExpression *exp = ConvertNode(work->node->Value);
 	try
 	{
@@ -1185,7 +1185,7 @@ void ZCCCompiler::CompileArrays(ZCC_StructWork *work)
 		ConvertNodeList(values, sas->Values);
 
 		bool fail = false;
-		FCompileContext ctx(OutNamespace, work->Type(), false);
+		FCompileContext ctx(OutNamespace, work->Type(), false, mVersion);
 
 		char *destmem = (char *)ClassDataAllocator.Alloc(values.Size() * ztype->Align);
 		memset(destmem, 0, values.Size() * ztype->Align);
@@ -1325,7 +1325,7 @@ void ZCCCompiler::CompileAllFields()
 {
 	// Create copies of the arrays which can be altered
 	auto Classes = this->Classes;
-	auto Structs = this->Structs;
+	auto Structs = OrderStructs();
 	TMap<FName, bool> HasNativeChildren;
 
 	// first step: Look for native classes with native children.
@@ -1610,6 +1610,83 @@ bool ZCCCompiler::CompileFields(PContainerType *type, TArray<ZCC_VarDeclarator *
 	}
 
 	return Fields.Size() == 0;
+}
+
+//==========================================================================
+//
+// ZCCCompiler :: OrderStructs
+//
+// Order the Structs array so that the least-dependant structs come first
+//
+//==========================================================================
+
+TArray<ZCC_StructWork *> ZCCCompiler::OrderStructs()
+{
+	TArray<ZCC_StructWork *> new_order;
+
+	for (auto struct_def : Structs)
+	{
+		if (std::find(new_order.begin(), new_order.end(), struct_def) != new_order.end())
+		{
+			continue;
+		}
+		AddStruct(new_order, struct_def);
+	}
+	return new_order;
+}
+
+//==========================================================================
+//
+// ZCCCompiler :: AddStruct
+//
+// Adds a struct to the Structs array, preceded by all its dependant structs
+//
+//==========================================================================
+
+void ZCCCompiler::AddStruct(TArray<ZCC_StructWork *> &new_order, ZCC_StructWork *my_def)
+{
+	PStruct *my_type = static_cast<PStruct *>(my_def->Type());
+	if (my_type)
+	{
+		if (my_type->isOrdered)
+		{
+			return;
+		}
+		my_type->isOrdered = true;
+	}
+
+	// Find all struct fields and add them before this one
+	for (const auto field : my_def->Fields)
+	{
+		PType *fieldtype = DetermineType(my_type, field, field->Names->Name, field->Type, true, true);
+		if (fieldtype->isStruct() && !static_cast<PStruct *>(fieldtype)->isOrdered)
+		{
+			AddStruct(new_order, StructTypeToWork(static_cast<PStruct *>(fieldtype)));
+		}
+	}
+	new_order.Push(my_def);
+}
+
+//==========================================================================
+//
+// ZCCCompiler :: StructTypeToWork
+//
+// Find the ZCC_StructWork that corresponds to a PStruct
+//
+//==========================================================================
+
+ZCC_StructWork *ZCCCompiler::StructTypeToWork(const PStruct *type) const
+{
+	assert(type->isStruct());
+	for (auto &def : Structs)
+	{
+		if (def->Type() == type)
+		{
+			return def;
+		}
+	}
+	assert(false && "Struct not found");
+	return nullptr;
 }
 
 //==========================================================================
@@ -1937,7 +2014,7 @@ PType *ZCCCompiler::ResolveArraySize(PType *baseType, ZCC_Expression *arraysize,
 		indices = std::move(fixedIndices);
 	}
 
-	FCompileContext ctx(OutNamespace, cls, false);
+	FCompileContext ctx(OutNamespace, cls, false, mVersion);
 	for (auto index : indices)
 	{
 		// There is no float->int casting here.
@@ -2270,7 +2347,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 
 
 						FxExpression *x = new FxTypeCast(ConvertNode(p->Default), type, false);
-						FCompileContext ctx(OutNamespace, c->Type(), false);
+						FCompileContext ctx(OutNamespace, c->Type(), false, mVersion);
 						x = x->Resolve(ctx);
 
 						if (x != nullptr)
@@ -2731,7 +2808,14 @@ FxExpression *ZCCCompiler::ConvertNode(ZCC_TreeNode *ast, bool substitute)
 		}
 		else if (cnst->Type->isInt())
 		{
-			return new FxConstant(cnst->IntVal, *ast);
+			if (cnst->Type == TypeUInt32)
+			{
+				return new FxConstant((unsigned)cnst->IntVal, *ast);
+			}
+			else
+			{
+				return new FxConstant(cnst->IntVal, *ast);
+			}
 		}
 		else if (cnst->Type == TypeBool)
 		{
