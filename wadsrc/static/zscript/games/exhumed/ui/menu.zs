@@ -96,7 +96,7 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		int width = myfont.StringWidth(mText);
 		let delegate = ExhumedMenuDelegate(menuDelegate);
 		double zoom = 1.;
-		let now = MSTime();
+		let now = MSTimeF();
 		
 		if (delegate && (delegate.zoomsize < 1. || delegate.lastzoomsize < 1.))
 		{
@@ -143,7 +143,7 @@ class ExhumedMainMenu : ListMenu
 		delegate.lastzoomsize = delegate.zoomsize;
 		if (delegate.zoomsize < 1.)
 		{
-			delegate.zoomtime = MSTime();
+			delegate.zoomtime = MSTimeF();
 			delegate.zoomsize += 0.0625;
 			if (delegate.zoomsize >= 1.)
 				delegate.zoomsize = 1.;
