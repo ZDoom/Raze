@@ -274,6 +274,15 @@ public:
 	bool mIsFirstPass = true;
 };
 
+// DCanvas is already taken so using FCanvas instead.
+class FCanvas : public DObject
+{
+	DECLARE_CLASS(FCanvas, DObject)
+public:
+	F2DDrawer Drawer;
+	FCanvasTexture* Tex = nullptr;
+};
+
 struct DShape2DBufferInfo : RefCountedBase
 {
 	TArray<F2DVertexBuffer> buffers;

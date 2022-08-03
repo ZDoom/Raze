@@ -246,8 +246,9 @@ void FUE1Model::RenderFrame( FModelRenderer *renderer, FGameTexture *skin, int f
 		FGameTexture *sskin = skin;
 		if ( !sskin )
 		{
-			if (surfaceskinids && surfaceskinids[i].isValid())
-				sskin = TexMan.GetGameTexture(surfaceskinids[i], true);
+			int ssIndex = groups[i].texNum;
+			if (surfaceskinids && surfaceskinids[ssIndex].isValid())
+				sskin = TexMan.GetGameTexture(surfaceskinids[ssIndex], true);
 			if ( !sskin )
 			{
 				vofs += vsize;
@@ -308,8 +309,9 @@ void FUE1Model::AddSkins( uint8_t *hitlist, const FTextureID* surfaceskinids)
 {
 	for (int i = 0; i < numGroups; i++)
 	{
-		if (surfaceskinids && surfaceskinids[i].isValid())
-			hitlist[surfaceskinids[i].GetIndex()] |= FTextureManager::HIT_Flat;
+		int ssIndex = groups[i].texNum;
+		if (surfaceskinids && surfaceskinids[ssIndex].isValid())
+			hitlist[surfaceskinids[ssIndex].GetIndex()] |= FTextureManager::HIT_Flat;
 	}
 }
 

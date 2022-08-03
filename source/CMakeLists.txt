@@ -471,7 +471,7 @@ set( PLAT_WIN32_SOURCES
 	common/platform/win32/base_sysfb.cpp
 	common/platform/win32/win32basevideo.cpp
 	common/platform/win32/win32glvideo.cpp
-	common/platform/win32/win32polyvideo.cpp)
+	)
 
 if (HAVE_VULKAN)
 	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/win32vulkanvideo.cpp )
@@ -643,10 +643,6 @@ file( GLOB HEADER_FILES
 	common/rendering/gl_load/*.h
 	common/rendering/hwrenderer/*.h
 	common/rendering/hwrenderer/data/*.h
-	common/rendering/polyrenderer/*.h
-	common/rendering/polyrenderer/math/*.h
-	common/rendering/polyrenderer/drawers/*.h
-	common/rendering/polyrenderer/backend/*.h
 	common/rendering/vulkan/*.h
 	common/rendering/vulkan/system/*.h
 	common/rendering/vulkan/renderer/*.h
@@ -673,14 +669,6 @@ file( GLOB HEADER_FILES
 	core/textures/formats/*.h
 )
 
-set( POLYRENDER_SOURCES
-	common/rendering/polyrenderer/drawers/poly_triangle.cpp
-	common/rendering/polyrenderer/drawers/poly_thread.cpp
-	common/rendering/polyrenderer/drawers/screen_triangle.cpp
-	common/rendering/polyrenderer/drawers/screen_scanline_setup.cpp
-	common/rendering/polyrenderer/drawers/screen_shader.cpp
-	common/rendering/polyrenderer/drawers/screen_blend.cpp
-)
 
 # These files will be flagged as "headers" so that they appear in project files
 # without being compiled.
@@ -1004,12 +992,6 @@ if (HAVE_VULKAN)
 	set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${VULKAN_SOURCES})
 endif()
 
-set (POLYBACKEND_SOURCES
-	common/rendering/polyrenderer/backend/poly_framebuffer.cpp
-	common/rendering/polyrenderer/backend/poly_buffers.cpp
-	common/rendering/polyrenderer/backend/poly_hwtexture.cpp
-	common/rendering/polyrenderer/backend/poly_renderstate.cpp
-)
 set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
 
 set (PCH_SOURCES
@@ -1439,8 +1421,6 @@ include_directories(
 	common/rendering/gles/glad/include
 	common/rendering/gles/Mali_OpenGL_ES_Emulator/include
 	common/rendering/vulkan/thirdparty
-	common/rendering/polyrenderer/backend
-	common/rendering/polyrenderer/drawers
 	common/scripting/vm
 	common/scripting/jit
 	common/scripting/core
@@ -1518,14 +1498,10 @@ if( CMAKE_COMPILER_IS_GNUCXX )
 endif()
 if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	# Need to enable intrinsics for these files.
-	if( SSE_MATTERS )
-		set_property( SOURCE
-			common/rendering/polyrenderer/poly_all.cpp
-			rendering/swrenderer/r_all.cpp
-			utility/palette.cpp
-			utility/x86.cpp
-			APPEND_STRING PROPERTY COMPILE_FLAGS " -msse2 -mmmx" )
-	endif()
+	set_property( SOURCE
+		common/utility/palette.cpp
+		common/utility/x86.cpp
+		APPEND_STRING PROPERTY COMPILE_FLAGS " ${SSE2_ENABLE}" )
 endif()
 
 if( APPLE )
@@ -1618,9 +1594,6 @@ source_group("Common\\Rendering\\Vulkan Renderer\\Textures" REGULAR_EXPRESSION "
 source_group("Common\\Rendering\\Vulkan Renderer\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/.+")
 source_group("Common\\Rendering\\Vulkan Renderer\\Third Party\\Volk" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/volk/.+")
 source_group("Common\\Rendering\\Vulkan Renderer\\Third Party\\Vk_Mem_Alloc" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/vk_mem_alloc.+")
-source_group("Common\\Rendering\\Poly Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/.+")
-source_group("Common\\Rendering\\Poly Renderer\\Drawers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/drawers/.+")
-source_group("Common\\Rendering\\Poly Renderer\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/backend/.+")
 source_group("Common\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/models/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")

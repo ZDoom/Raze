@@ -194,7 +194,7 @@ int CleanXfac_1, CleanYfac_1, CleanWidth_1, CleanHeight_1;
 //
 //==========================================================================
 
-static void DoDrawTexture(F2DDrawer *drawer, FGameTexture* img, double x, double y, int tags_first, Va_List& tags)
+void DoDrawTexture(F2DDrawer *drawer, FGameTexture* img, double x, double y, int tags_first, Va_List& tags)
 {
 	DrawParms parms;
 
@@ -233,7 +233,7 @@ void DrawTexture(F2DDrawer *drawer, FTextureID texid, bool animate, double x, do
 
 int ListGetInt(VMVa_List &tags);
 
-static void DoDrawTexture(F2DDrawer *drawer, FGameTexture *img, double x, double y, VMVa_List &args)
+void DoDrawTexture(F2DDrawer *drawer, FGameTexture *img, double x, double y, VMVa_List &args)
 {
 	DrawParms parms;
 	uint32_t tag = ListGetInt(args);
@@ -258,6 +258,23 @@ DEFINE_ACTION_FUNCTION(_Screen, DrawTexture)
 	auto tex = TexMan.GameByIndex(texid, animate);
 	VMVa_List args = { param + 4, 0, numparam - 5, va_reginfo + 4 };
 	DoDrawTexture(twod, tex, x, y, args);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, DrawTexture)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(texid);
+	PARAM_BOOL(animate);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+
+	PARAM_VA_POINTER(va_reginfo)	// Get the hidden type information array
+
+	auto tex = TexMan.GameByIndex(texid, animate);
+	VMVa_List args = { param + 5, 0, numparam - 6, va_reginfo + 5 };
+	DoDrawTexture(&self->Drawer, tex, x, y, args);
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -320,6 +337,23 @@ DEFINE_ACTION_FUNCTION(_Screen, DrawShape)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, DrawShape)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(texid);
+	PARAM_BOOL(animate);
+	PARAM_POINTER(shape, DShape2D);
+
+	PARAM_VA_POINTER(va_reginfo)	// Get the hidden type information array
+
+	auto tex = TexMan.GameByIndex(texid, animate);
+	VMVa_List args = { param + 4, 0, numparam - 5, va_reginfo + 4 };
+
+	DrawShape(&self->Drawer, tex, shape, args);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, DrawShapeFill)
 {
 	PARAM_PROLOGUE;
@@ -336,6 +370,24 @@ DEFINE_ACTION_FUNCTION(_Screen, DrawShapeFill)
 	color.a = int(amount * 255.0f);
 
 	DrawShapeFill(twod, color, shape, args);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, DrawShapeFill)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_COLOR(color);
+	PARAM_FLOAT(amount);
+	PARAM_POINTER(shape, DShape2D);
+
+	PARAM_VA_POINTER(va_reginfo)	// Get the hidden type information array
+
+	VMVa_List args = { param + 4, 0, numparam - 5, va_reginfo + 4 };
+
+	color.a = int(amount * 255.0f);
+
+	DrawShapeFill(&self->Drawer, color, shape, args);
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -364,10 +416,30 @@ DEFINE_ACTION_FUNCTION(_Screen, SetClipRect)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, SetClipRect)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(x);
+	PARAM_INT(y);
+	PARAM_INT(w);
+	PARAM_INT(h);
+	self->Drawer.SetClipRect(x, y, w, h);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, ClearClipRect)
 {
 	PARAM_PROLOGUE;
 	twod->ClearClipRect();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, ClearClipRect)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	self->Drawer.ClearClipRect();
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -378,11 +450,28 @@ DEFINE_ACTION_FUNCTION(_Screen, ClearScreen)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, ClearScreen)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	self->Drawer.ClearScreen();
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, SetScreenFade)
 {
 	PARAM_PROLOGUE;
 	PARAM_FLOAT(x);
 	twod->SetScreenFade(float(x));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, SetScreenFade)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_FLOAT(x);
+	self->Drawer.SetScreenFade(float(x));
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -400,6 +489,18 @@ DEFINE_ACTION_FUNCTION(_Screen, GetClipRect)
 	PARAM_PROLOGUE;
 	int x, y, w, h;
 	twod->GetClipRect(&x, &y, &w, &h);
+	if (numret > 0) ret[0].SetInt(x);
+	if (numret > 1) ret[1].SetInt(y);
+	if (numret > 2) ret[2].SetInt(w);
+	if (numret > 3) ret[3].SetInt(h);
+	return min(numret, 4);
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, GetClipRect)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	int x, y, w, h;
+	self->Drawer.GetClipRect(&x, &y, &w, &h);
 	if (numret > 0) ret[0].SetInt(x);
 	if (numret > 1) ret[1].SetInt(y);
 	if (numret > 2) ret[2].SetInt(w);
@@ -510,6 +611,24 @@ DEFINE_ACTION_FUNCTION(_Screen, GetFullscreenRect)
 	return min(numret, 4);
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, GetFullscreenRect)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_FLOAT(virtw);
+	PARAM_FLOAT(virth);
+	PARAM_INT(fsmode);
+
+	DrawParms parms;
+	DoubleRect rect;
+	parms.viewport.width = self->Drawer.GetWidth();
+	parms.viewport.height = self->Drawer.GetHeight();
+	CalcFullscreenScale(&parms, virtw, virth, fsmode, rect);
+	if (numret >= 1) ret[0].SetFloat(rect.left);
+	if (numret >= 2) ret[1].SetFloat(rect.top);
+	if (numret >= 3) ret[2].SetFloat(rect.width);
+	if (numret >= 4) ret[3].SetFloat(rect.height);
+	return min(numret, 4);
+}
 
 
 //==========================================================================
@@ -1403,6 +1522,23 @@ DEFINE_ACTION_FUNCTION(_Screen, VirtualToRealCoords)
 	return min(numret, 2);
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, VirtualToRealCoords)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(w);
+	PARAM_FLOAT(h);
+	PARAM_FLOAT(vw);
+	PARAM_FLOAT(vh);
+	PARAM_BOOL(vbottom);
+	PARAM_BOOL(handleaspect);
+	VirtualToRealCoords(&self->Drawer, x, y, w, h, vw, vh, vbottom, handleaspect);
+	if (numret >= 1) ret[0].SetVector2(DVector2(x, y));
+	if (numret >= 2) ret[1].SetVector2(DVector2(w, h));
+	return min(numret, 2);
+}
+
 void VirtualToRealCoordsInt(F2DDrawer *drawer, int &x, int &y, int &w, int &h,
 	int vwidth, int vheight, bool vbottom, bool handleaspect)
 {
@@ -1444,6 +1580,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawLine, DrawLine)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, DrawLine)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(x0);
+	PARAM_INT(y0);
+	PARAM_INT(x1);
+	PARAM_INT(y1);
+	PARAM_INT(color);
+	PARAM_INT(alpha);
+	self->Drawer.AddLine((float)x0, (float)y0, (float)x1, (float)y1, -1, -1, INT_MAX, INT_MAX, color | MAKEARGB(255, 0, 0, 0), alpha);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 static void DrawThickLine(int x0, int y0, int x1, int y1, double thickness, uint32_t realcolor, int alpha) 
 {
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
@@ -1461,6 +1611,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawThickLine, DrawThickLine)
 	PARAM_INT(color);
 	PARAM_INT(alpha);
 	DrawThickLine(x0, y0, x1, y1, thickness, color, alpha);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, DrawThickLine)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(x0);
+	PARAM_INT(y0);
+	PARAM_INT(x1);
+	PARAM_INT(y1);
+	PARAM_FLOAT(thickness);
+	PARAM_INT(color);
+	PARAM_INT(alpha);
+	self->Drawer.AddThickLine(x0, y0, x1, y1, thickness, color, alpha);
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -1520,6 +1685,20 @@ DEFINE_ACTION_FUNCTION(_Screen, Clear)
 	PARAM_INT(palcol);
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 	ClearRect(twod, x1, y1, x2, y2, palcol, color);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, Clear)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(x1);
+	PARAM_INT(y1);
+	PARAM_INT(x2);
+	PARAM_INT(y2);
+	PARAM_INT(color);
+	PARAM_INT(palcol);
+	ClearRect(&self->Drawer, x1, y1, x2, y2, palcol, color);
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -1587,6 +1766,21 @@ DEFINE_ACTION_FUNCTION(_Screen, Dim)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, Dim)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(color);
+	PARAM_FLOAT(amount);
+	PARAM_INT(x1);
+	PARAM_INT(y1);
+	PARAM_INT(w);
+	PARAM_INT(h);
+	PARAM_INT(style);
+	Dim(&self->Drawer, color, float(amount), x1, y1, w, h, &LegacyRenderStyles[style]);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 
 //==========================================================================
 //
@@ -1643,6 +1837,20 @@ DEFINE_ACTION_FUNCTION(_Screen, DrawLineFrame)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, DrawLineFrame)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_COLOR(color);
+	PARAM_INT(left);
+	PARAM_INT(top);
+	PARAM_INT(width);
+	PARAM_INT(height);
+	PARAM_INT(thickness);
+	DrawFrame(&self->Drawer, color, left, top, width, height, thickness);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 void V_CalcCleanFacs(int designwidth, int designheight, int realwidth, int realheight, int* cleanx, int* cleany, int* _cx1, int* _cx2)
 {
 	if (designheight < 240 && realheight >= 480) designheight = 240;
@@ -1658,6 +1866,14 @@ DEFINE_ACTION_FUNCTION(_Screen, SetOffset)
 	ACTION_RETURN_VEC2(twod->SetOffset(DVector2(x, y)));
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, SetOffset)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	ACTION_RETURN_VEC2(self->Drawer.SetOffset(DVector2(x, y)));
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, EnableStencil)
 {
 	PARAM_PROLOGUE;
@@ -1666,6 +1882,16 @@ DEFINE_ACTION_FUNCTION(_Screen, EnableStencil)
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 
 	twod->AddEnableStencil(on);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, EnableStencil)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_BOOL(on);
+
+	self->Drawer.AddEnableStencil(on);
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -1682,6 +1908,18 @@ DEFINE_ACTION_FUNCTION(_Screen, SetStencil)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, SetStencil)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_INT(offs);
+	PARAM_INT(op);
+	PARAM_INT(flags);
+
+	self->Drawer.AddSetStencil(offs, op, flags);
+	self->Tex->NeedUpdate();
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, ClearStencil)
 {
 	PARAM_PROLOGUE;
@@ -1689,6 +1927,15 @@ DEFINE_ACTION_FUNCTION(_Screen, ClearStencil)
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 
 	twod->AddClearStencil();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, ClearStencil)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+
+	self->Drawer.AddClearStencil();
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
@@ -1704,6 +1951,17 @@ DEFINE_ACTION_FUNCTION(_Screen, SetTransform)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FCanvas, SetTransform)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+	PARAM_OBJECT_NOT_NULL(transform, DShape2DTransform);
+
+	self->Drawer.SetTransform(*transform);
+	self->Tex->NeedUpdate();
+
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Screen, ClearTransform)
 {
 	PARAM_PROLOGUE;
@@ -1711,6 +1969,15 @@ DEFINE_ACTION_FUNCTION(_Screen, ClearTransform)
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 
 	twod->ClearTransform();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(FCanvas, ClearTransform)
+{
+	PARAM_SELF_PROLOGUE(FCanvas);
+
+	self->Drawer.ClearTransform();
+	self->Tex->NeedUpdate();
 	return 0;
 }
 
