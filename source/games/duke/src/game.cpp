@@ -283,7 +283,7 @@ static void setupbackdrop()
 static void initTiles()
 {
 	tileDelete(TILE_MIRROR);
-	skiptile = TILE_W_FORCEFIELD + 1;
+	//skiptile = TILE_W_FORCEFIELD + 1;
 
 	if (isRR())
 		tileDelete(0);

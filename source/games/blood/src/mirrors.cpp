@@ -43,9 +43,6 @@ MIRROR mirror[16]; // only needed by Polymost.
 
 void InitMirrors(void)
 {
-	r_rortexture = 4080;
-	r_rortexturerange = 16;
-
 	mirrorcnt = 0;
 	tileDelete(504);
 	portalClear();
@@ -154,7 +151,6 @@ void InitMirrors(void)
 	}
 	mirrorsector = sector.Size();
 	mergePortals();
-	InitPolymostMirrorHack();
 }
 
 //---------------------------------------------------------------------------
@@ -198,14 +194,10 @@ void SerializeMirrors(FSerializer& arc)
 
 		tileDelete(504);
 
-		r_rortexture = 4080;
-		r_rortexturerange = 16;
-
 		for (int i = 0; i < 16; i++)
 		{
 			tileDelete(4080 + i);
 		}
-		InitPolymostMirrorHack();
 	}
 }
 

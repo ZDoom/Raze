@@ -55,7 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_text.h"
 #include "resourcefile.h"
 #include "c_dispatch.h"
-#include "glbackend/glbackend.h"
 #include "engineerrors.h"
 #include "gamestate.h"
 #include "gstrings.h"
@@ -82,6 +81,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "wipe.h"
 #include "findfile.h"
 #include "version.h"
+#include "hw_material.h"
 
 void LoadHexFont(const char* filename);
 
@@ -1130,7 +1130,6 @@ int RunGame()
 	setVideoMode();
 
 	LoadVoxelModels();
-	GLInterface.Init(screen->GetWidth());
 	screen->BeginFrame();
 	screen->SetTextureFilterMode();
 	setViewport(hud_size);

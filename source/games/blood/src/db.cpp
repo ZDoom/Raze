@@ -218,9 +218,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 	}
 	gMapRev = mapHeader.revision;
 	allocateMapArrays(mapHeader.numwalls, mapHeader.numsectors, mapHeader.numsprites);
-#if 1 // bad, bad hack, just for making Polymost happy...
-	PolymostAllocFakeSector();
-#endif
 	*cursectnum = mapHeader.sect;
 
 	if (encrypted)

@@ -13,21 +13,6 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-extern int32_t globalpal, globalfloorpal;
-extern int32_t xdimen, xdimenscale, xdimscale, ydimen;
-extern float fxdimen;
-extern int32_t globalposx, globalposy, globalposz;
-extern fixed_t qglobalhoriz, qglobalang;
-extern float fglobalposx, fglobalposy, fglobalposz;
-extern int16_t globalang, globalcursectnum;
-extern int32_t globalpal, cosglobalang, singlobalang;
-extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern int32_t xyaspect;
-extern int32_t globalshade;
-extern int16_t globalpicnum;
-
-extern int32_t globalorientation;
-
 extern int32_t hitallsprites;
 
 int32_t animateoffs(int tilenum, int fakevar);

@@ -188,8 +188,12 @@ struct glblend_t
 extern glblend_t const nullglblend, defaultglblend;
 extern glblend_t glblend[MAXBLENDTABS];
 
+enum {
+    DAMETH_TRANS1 = 2,
+    DAMETH_TRANS2 = 3,
+};
+
 FRenderStyle GetRenderStyle(int blend, int def);
-extern void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def);
 float GetAlphaFromBlend(uint32_t maskprops, uint32_t blend);
 void DrawFullscreenBlends();
 

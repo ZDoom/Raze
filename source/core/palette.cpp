@@ -45,7 +45,6 @@
 #include "v_font.h"
 #include "printf.h"
 #include "v_draw.h"
-#include "../../glbackend/glbackend.h"
 
 LookupTableInfo lookups;
 int numshades;
@@ -419,6 +418,7 @@ void LookupTableInfo::setPaletteTint(int palnum, int r, int g, int b, int sr, in
 #include "v_2ddrawer.h"
 
 uint8_t curbasepal;
+int32_t r_scenebrightness;
 PalEntry palfadergb;
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 glblend_t glblend[MAXBLENDTABS];
@@ -460,17 +460,6 @@ FRenderStyle GetRenderStyle(int blend, int def)
     rs.DestAlpha = glbdef->dst;
     rs.Flags = 0;
     return rs;
-}
-
-void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def)
-{
-    if (!enable)
-    {
-        GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-        return;
-    }
-    auto rs = GetRenderStyle(blend, def);
-    GLInterface.SetRenderStyle(rs);
 }
 
 float GetAlphaFromBlend(uint32_t method, uint32_t blend)

@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "razefont.h"
 
 
-EXTERN_CVAR(Bool, vid_renderer)
 BEGIN_BLD_NS
 
 VIEW gPrevView[kMaxPlayers];
@@ -655,7 +654,6 @@ void viewDrawScreen(bool sceneonly)
 		gInterpolate = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
 	}
 	else gInterpolate = MaxSmoothRatio;
-	pm_smoothratio = (int)gInterpolate;
 
 	if (cl_interpolate)
 	{
@@ -766,21 +764,12 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (vid_renderer)
-		{
-			if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
-			fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
-			auto bakCstat = gView->actor->spr.cstat;
-			gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-			render_drawrooms(gView->actor, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
-			gView->actor->spr.cstat = bakCstat;
-		}
-		else
-		{
-			renderSetRollAngle((float)rotscrnang.asbuildf());
-			render3DViewPolymost(sectnum(pSector), cX, cY, cZ, cA, cH);
-			if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
-		}
+		if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
+		fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
+		auto bakCstat = gView->actor->spr.cstat;
+		gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
+		render_drawrooms(gView->actor, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
+		gView->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		int nClipDist = gView->actor->spr.clipdist << 2;

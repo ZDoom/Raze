@@ -38,7 +38,6 @@
 
 #include "v_video.h"
 #include "flatvertices.h"
-#include "glbackend/glbackend.h"
 
 DCoreActor* wall_to_sprite_actors[8]; // gets updated each frame. Todo: Encapsulate this better without having to permanently store actors in the wall object.
 

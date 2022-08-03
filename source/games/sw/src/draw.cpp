@@ -56,7 +56,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_draw.h"
 #include "render.h"
 #include "razefont.h"
-EXTERN_CVAR(Bool, vid_renderer)
 
 extern DCoreActor* wall_to_sprite_actors[8];
 
@@ -1382,7 +1381,6 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     PreUpdatePanel(smoothratio);
     int sr = (int)smoothratio;
-    pm_smoothratio = sr;
 
     if (!sceneonly)
     {
@@ -1493,23 +1491,13 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     if (automapMode != am_full)
     {
         // Cameras must be done before the main loop.
-        if (!vid_renderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
-        else JS_CameraParms(pp, tx, ty, tz);  
+        JS_CameraParms(pp, tx, ty, tz);  
     }
 
-    if (!vid_renderer)
-    {
-        renderSetRollAngle((float)trotscrnang.asbuildf());
-        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsect);
-        if (!sceneonly) UpdatePanel(smoothratio);
-    }
-    else
-    {
-        if (!sceneonly) UpdatePanel(smoothratio);
-        UpdateWallPortalState();
-        render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
-        RestorePortalState();
-    }
+    if (!sceneonly) UpdatePanel(smoothratio);
+    UpdateWallPortalState();
+    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+    RestorePortalState();
 
     if (sceneonly)
     {

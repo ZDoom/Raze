@@ -35,9 +35,7 @@
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
-# include "polymost.h"
 #include "v_video.h"
-#include "../../glbackend/glbackend.h"
 #include "gl_renderer.h"
 #endif
 
@@ -78,22 +76,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     *closest = { (int32_t)(w.X + ((d.X * i) >> 30)), (int32_t)(w.Y + ((d.Y * i) >> 30)) };
 }
 
-int32_t xdimen = -1, xdimenscale, xdimscale;
-float fxdimen = -1.f;
-int32_t ydimen;
-
-int32_t globalposx, globalposy, globalposz;
-fixed_t qglobalhoriz;
-float fglobalposx, fglobalposy, fglobalposz;
-int16_t globalang, globalcursectnum;
-fixed_t qglobalang;
-int32_t globalpal, globalfloorpal, cosglobalang, singlobalang;
-int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-
-int32_t viewingrangerecip;
-
-int32_t globalshade, globalorientation;
-int16_t globalpicnum;
 
 
 static int32_t globaly1, globalx2;
@@ -667,13 +649,6 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     windowxy1.Y = y1;
     windowxy2.X = x2;
     windowxy2.Y = y2;
-
-    xdimen = (x2-x1)+1;
-    ydimen = (y2-y1)+1;
-
-    fxdimen = (float) xdimen;
-    fydimen = (float) ydimen;
-    videoSetCorrectedAspect();
 }
 
 
@@ -711,7 +686,6 @@ FCanvasTexture* renderSetTarget(int16_t tilenume)
     xdim = ysiz;
     ydim = xsiz;
     videoSetViewableArea(0,0,ysiz-1,xsiz-1);
-    renderSetAspect(65536,65536);
     return canvas;
 }
 

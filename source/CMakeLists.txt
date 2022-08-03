@@ -601,7 +601,6 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 # there's generally a new cpp for every header so this file will get changed
 file( GLOB HEADER_FILES
 	build/include/*.h
-	glbackend/*.h
 	core/*.h
 	core/2d/*.h
 	core/utility/*.h
@@ -681,9 +680,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	zcc-parse.h
 	common/platform/win32/zutil.natvis
 	common/rendering/vulkan/thirdparty/vk_mem_alloc/vk_mem_alloc.natvis
-	games/blood/src/_polymost.cpp
-	games/duke/src/_polymost.cpp
-	games/sw/src/_polymost.cpp
 
 	# Blood
 	games/blood/src/actor.cpp
@@ -998,16 +994,12 @@ set (PCH_SOURCES
 
 	common/thirdparty/richpresence.cpp
 
-	glbackend/glbackend.cpp
-	glbackend/gl_texture.cpp
-
 	thirdparty/src/md4.cpp
 
 	# Todo: Split out the license-safe code from this.
 	build/src/clip.cpp
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
-	build/src/polymost.cpp
 
 	core/actorinfo.cpp
 	core/zcc_compile_raze.cpp
@@ -1550,7 +1542,6 @@ source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
 source_group("Core\\Rendering\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/scene/.+")
-source_group("Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")

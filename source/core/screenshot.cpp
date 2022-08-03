@@ -41,8 +41,6 @@
 #include "c_dispatch.h"
 #include "v_video.h"
 
-#include "../../glbackend/glbackend.h"
-
 EXTERN_CVAR(Float, png_gamma)
 //
 // screencapture

@@ -66,8 +66,6 @@
 #include "src/warp.cpp"
 #include "src/weapon.cpp"
 
-#include "src/_polymost.cpp"
-
 // This includes the VM so it is last
 #include "src/d_menu.cpp"
 

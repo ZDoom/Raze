@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "render.h"
 #include <string.h>
 
-EXTERN_CVAR(Bool, vid_renderer)
-
 BEGIN_PS_NS
 
 bool bSubTitles = true;
@@ -207,7 +205,6 @@ void DrawView(double smoothRatio, bool sceneonly)
     zbob = bsin(2 * bobangle, -3);
 
     DoInterpolations(smoothRatio / 65536.);
-    pm_smoothratio = (int)smoothRatio;
 
     auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
@@ -354,25 +351,9 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        if (!vid_renderer)
-        {
-            // this little block of code is Exhumed's entire interface to Polymost.
-            int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
-            videoSetCorrectedAspect();
-            renderSetAspect(MulScale(vr, viewingrange, 16), yxaspect);
-            renderSetRollAngle((float)rotscrnang.asbuildf());
-            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), sectnum(pSector), false);
-            analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
-            renderDrawMasks();
-            if (!nFreeze && !sceneonly)
-                DrawWeapons(smoothRatio);
-        }
-        else
-        {
-            if (!nFreeze && !sceneonly)
-                DrawWeapons(smoothRatio);
-            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
-        }
+        if (!nFreeze && !sceneonly)
+            DrawWeapons(smoothRatio);
+        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
 
         if (HavePLURemap())
         {

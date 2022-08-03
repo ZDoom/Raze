@@ -142,9 +142,7 @@ EXTERN int32_t enginecompatibility_mode;
 
 void engineInit(void);
 
-void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 
 FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
@@ -264,8 +262,6 @@ EXTERN_CVAR(Bool, r_voxels)
 
 extern int32_t mdtims, omdtims;
 
-extern int32_t r_rortexture;
-extern int32_t r_rortexturerange;
 extern int32_t r_rorphase;
 
 // flags bitset: 1 = don't compress
@@ -317,12 +313,6 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, FVector3 add,
                       int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
-
-#ifdef USE_OPENGL
-# include "polymost.h"
-#endif
-
-extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 

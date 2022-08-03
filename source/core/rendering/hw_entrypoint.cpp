@@ -59,6 +59,15 @@ float GlobalFogDensity = 350.f;
 TArray<PortalDesc> allPortals;
 void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
+CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+bool hw_int_useindexedcolortextures;
+CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
+{
+	if (screen) screen->SetTextureFilterMode();
+}
+CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
+
+
 
 #if 0
 void CollectLights(FLevelLocals* Level)
@@ -230,15 +239,9 @@ bool writingsavepic;
 FileWriter* savefile;
 int savewidth, saveheight;
 void PM_WriteSavePic(FileWriter* file, int width, int height);
-EXTERN_CVAR(Bool, vid_renderer);
 
 void WriteSavePic(FileWriter* file, int width, int height)
 {
-	if (!vid_renderer)
-	{
-		PM_WriteSavePic(file, width, height);
-		return;
-	}
 	int oldx = xdim;
 	int oldy = ydim;
 	auto oldwindowxy1 = windowxy1;

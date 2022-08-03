@@ -77,7 +77,6 @@
 #include "c_console.h"
 #include "uiinput.h"
 #include "v_video.h"
-#include "glbackend/glbackend.h"
 #include "palette.h"
 #include "build.h"
 #include "g_input.h"
@@ -397,7 +396,6 @@ void DrawOverlays()
 // Display
 //
 //==========================================================================
-EXTERN_CVAR(Bool, vid_renderer);
 
 void Display()
 {
@@ -442,7 +440,6 @@ void Display()
 			screen->SetSceneRenderTarget(gl_ssao != 0);
 			updateModelInterpolation();
 			gi->Render();
-			if (vid_renderer == 0) videoShowFrame();
 			DrawFullscreenBlends();
 			drawMapTitle();
 			break;

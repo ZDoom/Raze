@@ -241,7 +241,7 @@ void ZCCRazeCompiler::DispatchProperty(FPropertyInfo *prop, ZCC_PropertyStmt *pr
 		const char * p = prop->params;
 		auto exp = property->Values;
 
-		FCompileContext ctx(OutNamespace, bag.Info->VMType, false);
+		FCompileContext ctx(OutNamespace, bag.Info->VMType, false, mVersion);
 		while (true)
 		{
 			FPropParam conv;
@@ -422,7 +422,7 @@ void ZCCRazeCompiler::DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *
 	}
 
 	auto exp = property->Values;
-	FCompileContext ctx(OutNamespace, bag.Info->VMType, false);
+	FCompileContext ctx(OutNamespace, bag.Info->VMType, false, mVersion);
 	for (auto f : prop->Variables)
 	{
 		void *addr;
