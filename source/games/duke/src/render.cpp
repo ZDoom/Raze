@@ -59,10 +59,10 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, double smoothratio, bool sceneonly)
+void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, double smoothratio, bool sceneonly, float fov)
 {
 	if (!sceneonly) drawweapon(smoothratio);
-	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio);
+	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio, fov);
 }
 
 //---------------------------------------------------------------------------
@@ -251,6 +251,8 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 
 	setgamepalette(BASEPAL);
 
+	float fov = r_fov;
+
 	if (ud.cameraactor)
 	{
 		auto act = ud.cameraactor;
@@ -263,16 +265,15 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly);
+		renderView(act, act->sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly, fov);
 		act->spr.cstat = cstat;
 
 	}
 	else
 	{
-		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-		int i = DivScale(1, isRR() ? 64 : p->GetActor()->spr.yrepeat + 28, 22);
-		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
-		// todo: transform this mess into something sane to feed to the renderer.
+		if (isRRRA() && p->DrugMode) 
+			fov = atan(getdrugmode(p, 65536) * (1. / 65536.)) * (4 * r_fov / pi::pi());
+
 
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
@@ -380,7 +381,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 
 		auto cstat = viewer->spr.cstat;
 		if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, smoothratio, sceneonly);
+		renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, smoothratio, sceneonly, fov);
 		viewer->spr.cstat = cstat;
 	}
 	//GLInterface.SetMapFog(false);

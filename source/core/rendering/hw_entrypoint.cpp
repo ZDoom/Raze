@@ -192,7 +192,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang)
+FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, float fov = -1)
 {
 	FRenderViewpoint r_viewpoint{};
 	r_viewpoint.CameraActor = cam;
@@ -202,7 +202,7 @@ FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sec
 	r_viewpoint.HWAngles.Yaw = -90.f + angle.asdeg();
 	r_viewpoint.HWAngles.Pitch = -horizon.aspitch();
 	r_viewpoint.HWAngles.Roll = -rollang.asdeg();
-	r_viewpoint.FieldOfView = (float)r_fov;
+	r_viewpoint.FieldOfView = fov > 0? fov :  (float)r_fov;
 	r_viewpoint.RotAngle = angle.asbam();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
 	DAngle an = 270. - r_viewpoint.HWAngles.Yaw.Degrees;
@@ -318,7 +318,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio)
+void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio, float fov)
 {
 	checkRotatedWalls();
 
@@ -332,7 +332,7 @@ void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sect
 	ResetProfilingData();
 
 	// Get this before everything else
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang, fov);
 	if (cl_capfps) r_viewpoint.TicFrac = 1.;
 	else r_viewpoint.TicFrac = smoothratio * (1/65536.);
 
