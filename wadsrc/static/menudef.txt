@@ -1072,12 +1072,6 @@ OptionValue "Precision"
 	1, "$OPTVAL_QUALITY"
 }
 
-OptionValue "VideoRenderers"
-{
-        0, "Polymost"
-        1, "Raze3D"
-}
-
 OptionMenu "VideoOptions" protected
 {
 	Title "$DSPLYMNU_TITLE"
@@ -1087,8 +1081,6 @@ OptionMenu "VideoOptions" protected
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
 	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
 	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
-	StaticText ""
-	Option "Renderer",							vid_renderer,					"VideoRenderers"
 	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2

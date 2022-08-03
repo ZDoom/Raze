@@ -102,7 +102,6 @@ struct usermaphack_t
 EXTERN int leveltimer;
 
 EXTERN int32_t xdim, ydim;
-EXTERN int32_t yxaspect, viewingrange;
 
 EXTERN int32_t Numsprites;
 EXTERN int32_t display_mirror;

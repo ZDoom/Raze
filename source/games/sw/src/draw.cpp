@@ -1374,8 +1374,6 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     extern bool FAF_DebugView;
     PLAYER* camerapp;                       // prediction player if prediction is on, else regular player
 
-    int const viewingRange = viewingrange;
-
     DrawScreen = true;
     PreDraw();
 

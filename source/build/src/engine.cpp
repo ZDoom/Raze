@@ -41,9 +41,6 @@
 
 int32_t mdtims, omdtims;
 
-float fcosglobalang, fsinglobalang;
-float fydimen, fviewingrange;
-
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 static int16_t radarang[1280];
@@ -75,15 +72,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 
     *closest = { (int32_t)(w.X + ((d.X * i) >> 30)), (int32_t)(w.Y + ((d.Y * i) >> 30)) };
 }
-
-
-
-static int32_t globaly1, globalx2;
-
-int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
-
-static int16_t numhits;
-
 
 
 //
@@ -711,12 +699,4 @@ int tilehasmodelorvoxel(int const tilenume, int pal)
     return
         (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
         (r_voxels && tiletovox[tilenume] != -1);
-}
-
-
-CCMD(updatesectordebug)
-{
-    int sect = 319;
-    updatesector(1792, 24334, &sect);
-    int blah = sect;
 }
