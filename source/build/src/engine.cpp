@@ -14,7 +14,6 @@
 #include "automap.h"
 
 #include "imagehelpers.h"
-#include "engine_priv.h"
 #include "palette.h"
 #include "gamecvars.h"
 #include "c_console.h"

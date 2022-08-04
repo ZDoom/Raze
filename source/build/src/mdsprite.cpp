@@ -3,7 +3,6 @@
 #ifdef USE_OPENGL
 
 #include "build.h"
-#include "engine_priv.h"
 #include "mdsprite.h"
 #include "coreactor.h"
 

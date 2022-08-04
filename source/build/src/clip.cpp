@@ -8,7 +8,6 @@
 
 #include "build.h"
 #include "clip.h"
-#include "engine_priv.h"
 #include "printf.h"
 #include "gamefuncs.h"
 #include "coreactor.h"
