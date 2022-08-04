@@ -101,8 +101,6 @@ struct usermaphack_t
 
 EXTERN int leveltimer;
 
-EXTERN int32_t xdim, ydim;
-
 EXTERN int32_t Numsprites;
 EXTERN int32_t display_mirror;
 
@@ -119,13 +117,7 @@ enum {
 inline int32_t g_visibility = 512, g_relvisibility = 0;
 
 EXTERN vec2_t windowxy1, windowxy2;
-
-// last sprite in the freelist, that is the spritenum for which 
-//   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1
-// (or -1 if freelist is empty):
-EXTERN int16_t tailspritefree;
-
-extern uint32_t drawlinepat;
+EXTERN int32_t xdim, ydim;
 
 extern uint8_t globalr, globalg, globalb;
 
@@ -234,9 +226,6 @@ inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *
     getzsofslopeptr(&sector[sectnum], closest.X, closest.Y, ceilz, florz);
 }
 
-void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);
-void   alignflorslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);
-
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t destX, int32_t destY, int32_t destZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
@@ -244,19 +233,13 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
 
 int32_t spriteheightofsptr(DCoreActor* spr, int32_t *height, int32_t alsotileyofs);
 
-int videoCaptureScreen();
-
-void Polymost_Startup();
-
 EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
-EXTERN_CVAR(Float, hw_shadescale)
 EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
 EXTERN_CVAR(Int, gl_texture_filter)
 extern bool hw_int_useindexedcolortextures;
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
-EXTERN_CVAR(Bool, hw_parallaxskypanning)
 EXTERN_CVAR(Bool, r_voxels)
 
 extern int32_t mdtims, omdtims;

@@ -690,7 +690,6 @@ void SerializeMap(FSerializer& arc)
 			("sectors", sector, sectorbackup)
 			("walls", wall, wallbackup)
 
-			("tailspritefree", tailspritefree)
 			("myconnectindex", myconnectindex)
 			("connecthead", connecthead)
 			.Array("connectpoint2", connectpoint2, countof(connectpoint2))
