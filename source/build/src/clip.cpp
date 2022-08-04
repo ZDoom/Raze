@@ -413,11 +413,11 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
     if (inside_p(pos.X, pos.Y, *sectnum))
         return;
 
-    int16_t nsecs = min<int16_t>(getsectordist(pos, *sectnum), INT16_MAX);
+    double nsecs = SquareDistToSector(pos.X * inttoworld, pos.Y * inttoworld, &sector[*sectnum]);
 
-    if (nsecs > (walldist + 8))
+    double wd = (walldist + 8) * inttoworld; wd *= wd;
+    if (nsecs > wd)
     {
-        Printf("%s(): initial position (%d, %d) not within initial sector %d; shortest distance %d.\n", __func__, pos.X, pos.Y, *sectnum, nsecs);
         walldist = 0x7fff;
     }
 
@@ -1057,9 +1057,13 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
     vec2_t closest = pos.vec2;
     int sectnum = ::sectnum(sect);
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-        getsectordist(closest, sectnum, &closest);
-    else
-        getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
+    {
+        DVector2 v;
+        SquareDistToSector(closest.X * inttoworld, closest.Y * inttoworld, &sector[sectnum], &v);
+        closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
+    }
+
+    getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
     ceilhit.setSector(sect);
     florhit.setSector(sect);
 
@@ -1119,9 +1123,13 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 int32_t daz = 0, daz2 = 0;
                 closest = pos.vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                    getsectordist(closest, nextsectno, &closest);
-                else
-                    getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
+                {
+                    DVector2 v;
+                    SquareDistToSector(closest.X * inttoworld, closest.Y * inttoworld, &sector[nextsectno], &v);
+                    closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
+                }
+
+                getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
 
                 {
                     if (daz > *ceilz)

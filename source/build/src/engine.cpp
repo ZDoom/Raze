@@ -471,42 +471,11 @@ int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out)
 }
 
 
-int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*= nullptr*/)
-{
-    if (inside_p(in.X, in.Y, sectnum))
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
-
-    int32_t distance = INT32_MAX;
-
-    vec2_t     closest = {};
-
-    for (auto& wal : wallsofsector(sectnum))
-    {
-        vec2_t p;
-        int32_t const walldist = getwalldist(in, wallnum(&wal), &p);
-
-        if (walldist < distance)
-        {
-            distance = walldist;
-            closest = p;
-        }
-    }
-
-    if (out)
-        *out = closest;
-
-    return distance;
-}
-
-
 template<class Inside>
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum, int32_t maxDistance, Inside checker)
 {
     int const initialsectnum = *sectnum;
+    double maxDist = maxDistance * inttoworld; maxDist *= maxDist;
 
     if ((validSectorIndex(initialsectnum)))
     {
@@ -526,7 +495,7 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
 
             for (auto& wal : wallsofsector(listsectnum))
             {
-                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
+                if (wal.nextsector >= 0 && (iter == 0 || SquareDistToSector(x * inttoworld, y * inttoworld, wal.nextSector()) <= maxDist))
                     search.Add(wal.nextsector);
             }
             iter++;

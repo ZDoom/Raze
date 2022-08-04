@@ -172,7 +172,6 @@ inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, sec
 void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 
 
-int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 
 inline int32_t krand(void)
