@@ -1600,6 +1600,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     xvect = -bsin(cang) * czoom;
     yvect = -bcos(cang) * czoom;
 
+    int xdim = twod->GetWidth() << 11;
+    int ydim = twod->GetHeight() << 11;
 
     // Draw sprites
     auto peekActor = Player[screenpeek].actor;
@@ -1648,8 +1650,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                         oy = my - cposy;
                         x1 = DMulScale(ox, xvect, -oy, yvect, 16);
                         y1 = DMulScale(oy, xvect, ox, yvect, 16);
-                        int xx = xdim / 2. + x1 / 4096.;
-                        int yy = ydim / 2. + y1 / 4096.;
+                        int xx = twod->GetWidth() / 2. + x1 / 4096.;
+                        int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
                         if (czoom > 192)
                         {
@@ -1704,8 +1706,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
                     y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
-                    drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-                        x2 + (xdim << 11), y2 + (ydim << 11), col);
+                    drawlinergb(x1 + xdim, y1 + ydim, x2 + xdim, y2 + ydim, col);
 
                     break;
                 case 32:    // Floor sprite
@@ -1762,17 +1763,17 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                         x4 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
                         y4 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
-                        drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-                            x2 + (xdim << 11), y2 + (ydim << 11), col);
+                        drawlinergb(x1 + xdim, y1 + ydim,
+                            x2 + xdim, y2 + ydim, col);
 
-                        drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
-                            x3 + (xdim << 11), y3 + (ydim << 11), col);
+                        drawlinergb(x2 + xdim, y2 + ydim,
+                            x3 + xdim, y3 + ydim, col);
 
-                        drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
-                            x4 + (xdim << 11), y4 + (ydim << 11), col);
+                        drawlinergb(x3 + xdim, y3 + ydim,
+                            x4 + xdim, y4 + ydim, col);
 
-                        drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
-                            x1 + (xdim << 11), y1 + (ydim << 11), col);
+                        drawlinergb(x4 + xdim, y4 + ydim,
+                            x1 + xdim, y1 + ydim, col);
 
                     }
                     break;

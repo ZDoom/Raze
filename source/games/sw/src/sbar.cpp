@@ -56,16 +56,18 @@ static void UpdateFrame(void)
 {
 	static const int kBackTile = 51;
     auto tex = tileGetTexture(kBackTile);
+    int width = twod->GetWidth();
+    int height = twod->GetHeight();
 
-    twod->AddFlatFill(0, 0, xdim, windowxy1.Y - 3, tex);
-    twod->AddFlatFill(0, windowxy2.Y + 4, xdim, ydim, tex);
-    twod->AddFlatFill(0, windowxy1.Y - 3, windowxy1.X - 3, windowxy2.Y + 4, tex);
-    twod->AddFlatFill(windowxy2.X + 4, windowxy1.Y - 3, xdim, windowxy2.Y + 4, tex);
+    twod->AddFlatFill(0, 0, width, viewport3d.Top() - 3, tex);
+    twod->AddFlatFill(0, viewport3d.Bottom() + 3, width, height, tex);
+    twod->AddFlatFill(0, viewport3d.Top() - 3, viewport3d.Left() - 3, viewport3d.Bottom() + 3, tex);
+    twod->AddFlatFill(viewport3d.Right() + 3, viewport3d.Top() - 3, width, viewport3d.Bottom() + 3, tex);
 
-    twod->AddFlatFill(windowxy1.X - 3, windowxy1.Y - 3, windowxy1.X, windowxy2.Y + 1, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(windowxy1.X, windowxy1.Y - 3, windowxy2.X + 4, windowxy1.Y, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(windowxy2.X + 1, windowxy1.Y, windowxy2.X + 4, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
-    twod->AddFlatFill(windowxy1.X - 3, windowxy2.Y + 1, windowxy2.X + 1, windowxy2.Y + 4, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(viewport3d.Left() - 3, viewport3d.Top() - 3, viewport3d.Left(), viewport3d.Bottom(), tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(viewport3d.Left(), viewport3d.Top() - 3, viewport3d.Right() + 3, viewport3d.Top(), tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(viewport3d.Right(), viewport3d.Top(), viewport3d.Right() + 3, viewport3d.Bottom() + 3, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(viewport3d.Left() - 3, viewport3d.Bottom(), viewport3d.Right(), viewport3d.Bottom() + 3, tex, 0, 1, 0xff2a2a2a);
 }
 
 //---------------------------------------------------------------------------

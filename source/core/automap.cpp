@@ -324,7 +324,7 @@ void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
 		twod->AddThickLine(x1 / 4096, y1 / 4096, x2 / 4096, y2 / 4096, am_linethickness, p, uint8_t(am_linealpha * 255));
 	} else {
 		// Use more efficient thin line drawing routine.
-		twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.X, windowxy1.Y, windowxy2.X, windowxy2.Y, p, uint8_t(am_linealpha * 255));
+		twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, &viewport3d, p, uint8_t(am_linealpha * 255));
 	}
 }
 
@@ -600,7 +600,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			}
 
 			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
-				LegacyRenderStyles[STYLE_Translucent], windowxy1.X, windowxy1.Y, windowxy2.X + 1, windowxy2.Y + 1);
+				LegacyRenderStyles[STYLE_Translucent], &viewport3d);
 		}
 	}
 	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(DCoreActor*), [](const void* a, const void* b)
@@ -644,8 +644,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int picnum = actor->spr.picnum;
 		gotpic.Set(picnum);
 		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
-		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs,
-			windowxy1.X, windowxy1.Y, windowxy2.X + 1, windowxy2.Y + 1);
+		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs, &viewport3d);
 	}
 }
 

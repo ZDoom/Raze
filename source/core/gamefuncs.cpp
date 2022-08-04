@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "coreactor.h"
 #include "interpolate.h"
 
+IntRect viewport3d;
+
 //---------------------------------------------------------------------------
 //
 // Unified chasecam function for all games.

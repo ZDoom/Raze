@@ -4,6 +4,9 @@
 #include "binaryangle.h"
 #include "build.h"
 #include "coreactor.h"
+#include "intrect.h"
+
+extern IntRect viewport3d;
 
 // breadth first search, this gets used multiple times throughout the engine, mainly for iterating over sectors.
 // Only works on indices, this has no knowledge of the actual objects being looked at.

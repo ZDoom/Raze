@@ -323,7 +323,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nFreeze == 2 || nFreeze == 1)
     {
         nSnakeCam = -1;
-        videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
+        //???
+        viewport3d = { 0, 0, screen->GetWidth(), screen->GetHeight() };
     }
 
     UpdateMap();

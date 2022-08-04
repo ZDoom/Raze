@@ -240,7 +240,7 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 		auto point2 = &entry->walls[wal.point2];
 		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
 			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
-			-1, -1, INT_MAX, INT_MAX, 0xff808080);
+			nullptr, 0xff808080);
 	}
 	for (auto& wal : entry->walls)
 	{
@@ -248,7 +248,7 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 		auto point2 = &entry->walls[wal.point2];
 		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
 			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
-			-1, -1, INT_MAX, INT_MAX, 0xffffffff);
+			nullptr, 0xffffffff);
 	}
 	return 0;
 }

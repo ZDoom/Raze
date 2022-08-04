@@ -86,7 +86,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 		auto tex = tileGetTexture(camsprite->spr.picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight());
 
-		auto canvas = renderSetTarget(TILE_VIEWSCR);
+		auto canvas = tileGetCanvas(TILE_VIEWSCR);
 		if (!canvas) return;
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
@@ -100,7 +100,6 @@ void GameInterface::UpdateCameras(double smoothratio)
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
-		renderRestoreTarget();
 	}
 }
 

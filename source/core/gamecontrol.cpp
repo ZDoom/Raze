@@ -257,10 +257,10 @@ static bool System_DisableTextureFilter()
 
 static IntRect System_GetSceneRect()
 {
-	int viewbottom = windowxy2.Y + 1;
-	int viewheight = viewbottom - windowxy1.Y;
-	int viewright = windowxy2.X + 1;
-	int viewwidth = viewright - windowxy1.X;
+	int viewbottom = viewport3d.Bottom();
+	int viewheight = viewport3d.Height();
+	int viewright = viewport3d.Right();
+	int viewwidth = viewport3d.Width();
 
 	int renderheight;
 
@@ -268,8 +268,8 @@ static IntRect System_GetSceneRect()
 	else renderheight = (viewwidth * screen->GetHeight() / screen->GetWidth()) & ~7;
 
 	IntRect mSceneViewport;
-	mSceneViewport.left = windowxy1.X;
-	mSceneViewport.top = screen->GetHeight() - (renderheight + windowxy1.Y - ((renderheight - viewheight) / 2));
+	mSceneViewport.left = viewport3d.Left();
+	mSceneViewport.top = screen->GetHeight() - (renderheight + viewport3d.Top() - ((renderheight - viewheight) / 2));
 	mSceneViewport.width = viewwidth;
 	mSceneViewport.height = renderheight;
 	return mSceneViewport;
@@ -1184,10 +1184,10 @@ void LoadVoxelModels(void);
 
 void setVideoMode()
 {
-	xdim = screen->GetWidth();
-	ydim = screen->GetHeight();
+	int xdim = screen->GetWidth();
+	int ydim = screen->GetHeight();
 	V_UpdateModeSize(xdim, ydim);
-	videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
+	viewport3d = { 0, 0, xdim, ydim };
 }
 
 //==========================================================================
@@ -1460,7 +1460,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 				double crosshair_scale = crosshairscale * scale;
 				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color,
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
-					DTA_ViewportX, windowxy1.X, DTA_ViewportY, windowxy1.Y, DTA_ViewportWidth, windowxy2.X - windowxy1.X + 1, DTA_ViewportHeight, windowxy2.Y - windowxy1.Y + 1, TAG_DONE);
+					DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), DTA_ViewportHeight, viewport3d.Height(), TAG_DONE);
 
 				return;
 			}
@@ -1468,8 +1468,8 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 		// 0 means 'game provided crosshair' - use type 2 as fallback.
 		ST_LoadCrosshair(crosshair == 0 ? 2 : *crosshair, false);
 
-		double xpos = (windowxy1.X + windowxy2.X) / 2 + xdelta * (windowxy2.Y - windowxy1.Y) / 240.;
-		double ypos = (windowxy1.Y + windowxy2.Y) / 2;
+		double xpos = viewport3d.Width() * 0.5 + xdelta * viewport3d.Height() / 240.;
+		double ypos = viewport3d.Height() * 0.5;
 		ST_DrawCrosshair(health, xpos, ypos, 1);
 	}
 }
@@ -1573,10 +1573,10 @@ bool validFilter(const char* str)
 DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
 {
 	PARAM_PROLOGUE;
-	if (numret > 0) ret[0].SetInt(windowxy1.X);
-	if (numret > 1) ret[1].SetInt(windowxy1.Y);
-	if (numret > 2) ret[2].SetInt(windowxy2.X - windowxy1.X + 1);
-	if (numret > 3) ret[3].SetInt(windowxy2.Y - windowxy1.Y + 1);
+	if (numret > 0) ret[0].SetInt(viewport3d.Left());
+	if (numret > 1) ret[1].SetInt(viewport3d.Top());
+	if (numret > 2) ret[2].SetInt(viewport3d.Width());
+	if (numret > 3) ret[3].SetInt(viewport3d.Height());
 	return min(numret, 4);
 }
 

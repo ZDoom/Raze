@@ -847,6 +847,26 @@ void tileUpdateAnimations()
 
 //===========================================================================
 // 
+//	validates the texture for rendering to a given tilenum
+//
+//===========================================================================
+
+FCanvasTexture* tileGetCanvas(int tilenum)
+{
+	auto tex = tileGetTexture(tilenum);
+	if (!tex || !tex->isHardwareCanvas()) return nullptr;
+	auto canvas = static_cast<FCanvasTexture*>(tex->GetTexture());
+	if (!canvas) return nullptr;
+	int xsiz = tex->GetTexelWidth(), ysiz = tex->GetTexelHeight();
+	if (xsiz <= 0 || ysiz <= 0)
+		return nullptr;
+	return canvas;
+}
+
+
+
+//===========================================================================
+// 
 //	Parsing stuff for tile data comes below.
 //
 //===========================================================================

@@ -796,19 +796,19 @@ void F2DDrawer::AddPoly(FGameTexture *texture, FVector2 *points, int npoints,
 //
 //==========================================================================
 
-void F2DDrawer::AddPoly(FGameTexture* img, FVector4* vt, size_t vtcount, const unsigned int* ind, size_t idxcount, int translation, PalEntry color, FRenderStyle style, int clipx1, int clipy1, int clipx2, int clipy2)
+void F2DDrawer::AddPoly(FGameTexture* img, FVector4* vt, size_t vtcount, const unsigned int* ind, size_t idxcount, int translation, PalEntry color, FRenderStyle style, const IntRect* clip)
 {
 	RenderCommand dg;
 
 	if (!img || !img->isValid()) return;
 
 	dg.mType = DrawTypeTriangles;
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth() - 1 || clipy2 < GetHeight() - 1)
+	if (clip != nullptr)
 	{
-		dg.mScissor[0] = clipx1     + int(offset.X);
-		dg.mScissor[1] = clipy1     + int(offset.Y);
-		dg.mScissor[2] = clipx2 + 1 + int(offset.X);
-		dg.mScissor[3] = clipy2 + 1 + int(offset.Y);
+		dg.mScissor[0] = clip->Left() + int(offset.X);
+		dg.mScissor[1] = clip->Top() + int(offset.Y);
+		dg.mScissor[2] = clip->Right() + int(offset.X);
+		dg.mScissor[3] = clip->Bottom() + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 	}
 
@@ -1040,19 +1040,19 @@ void F2DDrawer::ClearScreen(PalEntry color)
 //
 //==========================================================================
 
-void F2DDrawer::AddLine(double x1, double y1, double x2, double y2, int clipx1, int clipy1, int clipx2, int clipy2, uint32_t color, uint8_t alpha)
+void F2DDrawer::AddLine(double x1, double y1, double x2, double y2, const IntRect* clip, uint32_t color, uint8_t alpha)
 {
 	PalEntry p = (PalEntry)color;
 	p.a = alpha;
 
 	RenderCommand dg;
 
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth()- 1 || clipy2 < GetHeight() - 1)
+	if (clip != nullptr)
 	{
-		dg.mScissor[0] = clipx1     + int(offset.X);
-		dg.mScissor[1] = clipy1     + int(offset.Y);
-		dg.mScissor[2] = clipx2 + 1 + int(offset.X);
-		dg.mScissor[3] = clipy2 + 1 + int(offset.Y);
+		dg.mScissor[0] = clip->Left() + int(offset.X);
+		dg.mScissor[1] = clip->Top() + int(offset.Y);
+		dg.mScissor[2] = clip->Right() + int(offset.X);
+		dg.mScissor[3] = clip->Bottom() + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 	}
 

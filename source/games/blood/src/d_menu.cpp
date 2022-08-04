@@ -99,7 +99,7 @@ void CGameMenuItemQAV::Draw(void)
 
 		if (bWideScreen)
 		{
-			int xdim43 = Scale(ydim, 4, 3);
+			int xdim43 = Scale(twod->GetHeight(), 4, 3);
 			int nCount = (twod->GetWidth() + xdim43 - 1) / xdim43;
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)

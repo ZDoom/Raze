@@ -116,9 +116,6 @@ enum {
 
 inline int32_t g_visibility = 512, g_relvisibility = 0;
 
-EXTERN vec2_t windowxy1, windowxy2;
-EXTERN int32_t xdim, ydim;
-
 extern uint8_t globalr, globalg, globalb;
 
 enum {
@@ -132,11 +129,6 @@ EXTERN int32_t enginecompatibility_mode;
 
 
 void engineInit(void);
-
-void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-
-FCanvasTexture *renderSetTarget(int16_t tilenume);
-void   renderRestoreTarget();
 
 void setVideoMode();
 

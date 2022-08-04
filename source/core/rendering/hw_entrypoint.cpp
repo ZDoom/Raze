@@ -238,28 +238,15 @@ void DoWriteSavePic(FileWriter* file, uint8_t* scr, int width, int height, bool 
 bool writingsavepic;
 FileWriter* savefile;
 int savewidth, saveheight;
-void PM_WriteSavePic(FileWriter* file, int width, int height);
 
 void WriteSavePic(FileWriter* file, int width, int height)
 {
-	int oldx = xdim;
-	int oldy = ydim;
-	auto oldwindowxy1 = windowxy1;
-	auto oldwindowxy2 = windowxy2;
-
-	xdim = width;
-	ydim = height;
-	videoSetViewableArea(0, 0, width - 1, height - 1);
-
 	writingsavepic = true;
 	savefile = file;
 	savewidth = width;
 	saveheight = height;
 	/*bool didit =*/ gi->GenerateSavePic();
 	writingsavepic = false;
-	xdim = oldx;
-	ydim = oldy;
-	videoSetViewableArea(oldwindowxy1.X, oldwindowxy1.Y, oldwindowxy2.X, oldwindowxy2.Y);
 }
 
 void RenderToSavePic(FRenderViewpoint& vp, FileWriter* file, int width, int height)

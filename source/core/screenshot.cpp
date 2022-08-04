@@ -118,7 +118,7 @@ static int SaveScreenshot()
 	int pitch;
 	ESSType ctype;
 	auto imgBuf = screen->GetScreenshotBuffer(pitch, ctype, gamma);
-	WritePNGfile(fil, imgBuf.Data(), Palette, ctype, xdim, ydim, pitch, gamma);
+	WritePNGfile(fil, imgBuf.Data(), Palette, ctype, screen->GetWidth(), screen->GetHeight(), pitch, gamma);
 	delete fil;
 	Printf("screenshot saved\n");
     return 0;

@@ -405,7 +405,7 @@ void JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      binangle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
-    auto canvas = renderSetTarget(tilenume);
+    auto canvas = tileGetCanvas(tilenume);
     if (!canvas) return;
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
@@ -413,7 +413,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
                render_camtex(nullptr, { daposx, daposy, daposz }, dacursect, ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
         });
 
-    renderRestoreTarget();
 }
 
 void

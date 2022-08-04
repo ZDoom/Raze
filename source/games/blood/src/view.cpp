@@ -466,7 +466,7 @@ int32_t g_frameRate;
 static void DrawMap(DBloodActor* view)
 {
 	int tm = 0;
-	if (windowxy1.X > 0)
+	if (viewport3d.Left() > 0)
 	{
 		setViewport(Hud_Stbar);
 		tm = 1;
@@ -630,7 +630,6 @@ void renderCrystalBall()
 	drawrooms(vd8, vd4, vd0, v50, v54, vcc);
 	viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
 	renderDrawMasks();
-	renderRestoreTarget();
 #endif
 }
 
@@ -875,8 +874,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 		int oy = my - y;
 		int x1 = DMulScale(ox, xvect, -oy, yvect, 16);
 		int y1 = DMulScale(oy, xvect, ox, yvect, 16);
-		int xx = xdim / 2. + x1 / 4096.;
-		int yy = ydim / 2. + y1 / 4096.;
+		int xx = twod->GetWidth() / 2. + x1 / 4096.;
+		int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
 		if (i == gView->nPlayer || gGameOptions.nGameType == 1)
 		{
@@ -889,11 +888,11 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 			int nScale = (actor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;
 			nScale = ClipRange(nScale, 8000, 65536 << 1);
 			// Players on automap
-			double xsize = xdim / 2. + x1 / double(1 << 12);
-			double ysize = ydim / 2. + y1 / double(1 << 12);
+			double xsize = twod->GetWidth() / 2. + x1 / double(1 << 12);
+			double ysize = twod->GetHeight() / 2. + y1 / double(1 << 12);
 			// This very likely needs fixing later
-			DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, windowxy1.X, DTA_ClipTop, windowxy1.Y, DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
-				DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.Y + 1, DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
+			DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
+				DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
 		}
 	}
 	return true;

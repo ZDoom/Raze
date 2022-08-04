@@ -326,8 +326,8 @@ void cameratext(DDukeActor *cam)
 {
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
-		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.X, DTA_ViewportY, windowxy1.Y, DTA_ViewportWidth, windowxy2.X - windowxy1.X + 1, DTA_CenterOffsetRel, 2,
-			DTA_ViewportHeight, windowxy2.Y - windowxy1.Y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), 
+			DTA_ViewportHeight, viewport3d.Height(), DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_CenterOffsetRel, 2, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
 	if (!cam->temp_data[0])
 	{
@@ -404,6 +404,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 	xvect = -bsin(cang) * czoom;
 	yvect = -bcos(cang) * czoom;
 
+	int xdim = twod->GetWidth() << 11;
+	int ydim = twod->GetHeight() << 11;
+
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
 	for (unsigned ii = 0; ii < sector.Size(); ii++)
@@ -438,12 +441,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				x3 = x2;
 				y3 = y2;
 
-				drawlinergb(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
-				drawlinergb(x1 - y2 + (xdim << 11), y1 + x3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
-				drawlinergb(x1 + y2 + (xdim << 11), y1 - x3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
+				drawlinergb(x1 - x2 + xdim, y1 - y3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
+				drawlinergb(x1 - y2 + xdim, y1 + x3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
+				drawlinergb(x1 + y2 + xdim, y1 - x3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
@@ -475,8 +475,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 					x2 = DMulScale(ox, xvect, -oy, yvect, 16);
 					y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
-					drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-						x2 + (xdim << 11), y2 + (ydim << 11), col);
+					drawlinergb(x1 + xdim, y1 + ydim,
+						x2 + xdim, y2 + ydim, col);
 				}
 
 				break;
@@ -538,17 +538,17 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				x4 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y4 = DMulScale(oy, xvect, ox, yvect, 16);
 
-				drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-					x2 + (xdim << 11), y2 + (ydim << 11), col);
+				drawlinergb(x1 + xdim, y1 + ydim,
+					x2 + xdim, y2 + ydim, col);
 
-				drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
-					x3 + (xdim << 11), y3 + (ydim << 11), col);
+				drawlinergb(x2 + xdim, y2 + ydim,
+					x3 + xdim, y3 + ydim, col);
 
-				drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
-					x4 + (xdim << 11), y4 + (ydim << 11), col);
+				drawlinergb(x3 + xdim, y3 + ydim,
+					x4 + xdim, y4 + ydim, col);
 
-				drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
-					x1 + (xdim << 11), y1 + (ydim << 11), col);
+				drawlinergb(x4 + xdim, y4 + ydim,
+					x1 + xdim, y1 + ydim, col);
 
 				break;
 			}
@@ -564,8 +564,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		oy = my - cposy;
 		x1 = DMulScale(ox, xvect, -oy, yvect, 16);
 		y1 = DMulScale(oy, xvect, ox, yvect, 16);
-		int xx = xdim / 2. + x1 / 4096.;
-		int yy = ydim / 2. + y1 / 4096.;
+		int xx = twod->GetWidth() / 2. + x1 / 4096.;
+		int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
 		daang = ((!SyncInput() ? act->spr.ang : act->interpolatedang(smoothratio)) - cang) & 2047;
 

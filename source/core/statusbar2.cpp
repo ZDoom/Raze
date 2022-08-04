@@ -62,6 +62,7 @@
 #include "razemenu.h"
 #include "mapinfo.h"
 #include "razefont.h"
+#include "gamefuncs.h"
 
 #include "../version.h"
 
@@ -112,26 +113,26 @@ void setViewport(int viewSize)
 	if (viewSize > Hud_Stbar)
 	{
 		x0 = 0;
-		x1 = xdim - 1;
+		x1 = xdim;
 		y0 = reserved.top;
-		y1 = ydim - 1;
+		y1 = ydim;
 	}
 	else
 	{
 		x0 = 0;
 		y0 = reserved.top;
-		x1 = xdim - 1;
-		y1 = ydim - 1 - reserved.statusbar;
+		x1 = xdim;
+		y1 = ydim - reserved.statusbar;
 
 		int height = y1 - y0;
 		int frameheight = (height * (5 - viewSize) / 20);
-		int framewidth = Scale(frameheight, xdim, y1+1);
+		int framewidth = Scale(frameheight, xdim, y1);
 		x0 += framewidth;
 		x1 -= framewidth;
 		y0 += frameheight;
 		y1 -= frameheight;
 	}
-	videoSetViewableArea(x0, y0, x1, y1);
+	viewport3d = { x0, y0, x1 - x0, y1 - y0 };
 }
 
 //============================================================================
