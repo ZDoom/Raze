@@ -149,28 +149,6 @@ int32_t try_facespr_intersect(DCoreActor* spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);
 
-#define MAXUPDATESECTORDIST 1536
-#define INITIALUPDATESECTORDIST 512 // was 256 which is too low - Exhumed LEV1 has problems with it 
-void updatesector(int const x, int const y, int * const sectnum) ATTRIBUTE((nonnull(3)));
-inline void updatesector(int const x, int const y, sectortype** const sectp)
-{
-	int sectno = *sectp? sector.IndexOf(*sectp) : -1;
-	updatesector(x, y, &sectno);
-	*sectp = sectno == -1? nullptr : &sector[sectno];
-}
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
-
-inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, sectortype** const sectp)
-{
-    int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-    updatesectorz(x, y, z, &sectno);
-    *sectp = sectno == -1 ? nullptr : &sector[sectno];
-}
-
-
-
-void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
-
 
 extern const int16_t *chsecptr_onextwall;
 

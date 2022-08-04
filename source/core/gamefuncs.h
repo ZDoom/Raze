@@ -178,6 +178,7 @@ void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
 int getceilzofslopeptr(const sectortype* sec, int dax, int day);
 int getflorzofslopeptr(const sectortype* sec, int dax, int day);
 void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
+void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
 
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
@@ -316,8 +317,6 @@ inline int inside(int x, int y, const sectortype* sect)
 
 // still needed by some parts in the engine.
 inline int inside_p(int x, int y, int sectnum) { return (sectnum >= 0 && inside(x, y, &sector[sectnum]) == 1); }
-// this one is for template substitution.
-inline int inside_p0(int32_t const x, int32_t const y, int32_t const z, int const sectnum) { return inside_p(x, y, sectnum); }
 
 
 
@@ -428,9 +427,5 @@ inline void alignflorslope(sectortype* sect, int x, int y, int z)
 {
 	sect->setfloorslope(getslopeval(sect, x, y, z, sect->floorz));
 }
-inline void updatesectorneighbor(int32_t const x, int32_t const y, sectortype* * const sect, int32_t maxDistance = MAXUPDATESECTORDIST)
-{
-	int sectno = *sect? sector.IndexOf(*sect) : -1;
-	updatesectorneighbor(x, y, &sectno, maxDistance);
-	*sect = sectno < 0? nullptr : &sector[sectno];
-}
+
+#include "updatesector.h"

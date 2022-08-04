@@ -181,7 +181,7 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 
 //==========================================================================
 //
-// for the renderer (Polymost variants are in polymost.cpp)
+// for the renderer
 //
 //==========================================================================
 
@@ -218,6 +218,14 @@ void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* f
 	calcSlope(sec, dax, day, &c, &f);
 	*ceilz = int(c);
 	*florz = int(f);
+}
+
+void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
+{
+	float c, f;
+	calcSlope(sec, dax * worldtoint, day * worldtoint, &c, &f);
+	*ceilz = c * zinttoworld;
+	*florz = f * zinttoworld;
 }
 
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
