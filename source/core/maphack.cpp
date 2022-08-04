@@ -372,7 +372,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 	return 0;
 }
 
-void loadMapHack(const char* filename, const unsigned char* md4, SpawnSpriteDef& sprites)
+void loadMapHack(const char* filename, const uint8_t* md4, SpawnSpriteDef& sprites)
 {
 	hw_ClearSplitSector();
 

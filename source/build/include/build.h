@@ -225,7 +225,7 @@ typedef struct
     uint16_t    smoothduration;
     hudtyp      hudmem[2];
     int8_t      skinnum;
-    char        pal;
+    uint8_t     pal;
 } tile2model_t;
 
 # define EXTRATILES (MAXTILES/8)

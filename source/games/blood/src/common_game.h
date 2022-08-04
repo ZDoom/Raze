@@ -661,9 +661,9 @@ class BitReader {
 public:
 	int nBitPos;
 	int nSize;
-	char* pBuffer;
-	BitReader(char* _pBuffer, int _nSize, int _nBitPos) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = _nBitPos; nSize -= nBitPos >> 3; }
-	BitReader(char* _pBuffer, int _nSize) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = 0; }
+	uint8_t* pBuffer;
+	BitReader(uint8_t* _pBuffer, int _nSize, int _nBitPos) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = _nBitPos; nSize -= nBitPos >> 3; }
+	BitReader(uint8_t* _pBuffer, int _nSize) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = 0; }
 	int readBit()
 	{
 		if (nSize <= 0)

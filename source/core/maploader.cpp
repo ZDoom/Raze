@@ -527,7 +527,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
-	unsigned char md4[16];
+	uint8_t md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
 	loadMapHack(filename, md4, sprites);
 	setWallSectors();
@@ -707,7 +707,7 @@ TArray<walltype> loadMapWalls(const char* filename)
 }
 
 
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang);
+void qloadboard(const char* filename, uint8_t flags, vec3_t* dapos, int16_t* daang);
 
 
 // loads a map into the backup buffer.

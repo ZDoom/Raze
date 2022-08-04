@@ -521,7 +521,7 @@ static void ByteSwapSEQ(Seq* pSeq)
 	for (int i = 0; i < pSeq->nFrames; i++)
 	{
 		SEQFRAME* pFrame = &pSeq->frames[i];
-		BitReader bitReader((char*)pFrame, sizeof(SEQFRAME));
+		BitReader bitReader((uint8_t*)pFrame, sizeof(SEQFRAME));
 		SEQFRAME swapFrame;
 		swapFrame.tile = bitReader.readUnsigned(12);
 		swapFrame.transparent = bitReader.readBit();

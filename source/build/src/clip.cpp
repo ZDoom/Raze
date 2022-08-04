@@ -31,7 +31,7 @@ vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
 int32_t hitallsprites = 0;
 
 ////////// CLIPMOVE //////////
-inline char bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
+inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 
 // x1, y1: in/out
@@ -347,7 +347,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
     const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
     const int32_t ox = Sgn(-dy), oy = Sgn(dx);
-    char first = (abs(dx) <= abs(dy));
+    uint8_t first = (abs(dx) <= abs(dy));
 
     do
     {

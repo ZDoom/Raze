@@ -666,5 +666,5 @@ void fixSectors();
 void loadMap(const char *filename, int flags, vec3_t *pos, int16_t *ang, int *cursectnum, SpawnSpriteDef& sprites);
 TArray<walltype> loadMapWalls(const char* filename);
 void loadMapBackup(const char* filename);
-void loadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);
+void loadMapHack(const char* filename, const uint8_t*, SpawnSpriteDef& sprites);
 void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors, bool noabort = false);

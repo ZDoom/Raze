@@ -983,7 +983,7 @@ void FMapInfoParser::ParseEpisodeInfo ()
 		{
 			ParseAssign();
 			sc.MustGetString ();
-			key = sc.String[0];
+			if (!(sc.String[0] & 0x80)) key = sc.String[0];
 		}
 		else if (sc.Compare("noskillmenu"))
 		{

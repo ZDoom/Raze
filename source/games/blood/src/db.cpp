@@ -284,7 +284,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 
 		if (pSector->extra > 0)
 		{
-			char pBuffer[nXSectorSize];
+			uint8_t pBuffer[nXSectorSize];
 			pSector->allocX();
 			XSECTOR* pXSector = &pSector->xs();
 			int nCount;
@@ -410,7 +410,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 
 		if (pWall->extra > 0)
 		{
-			char pBuffer[nXWallSize];
+			uint8_t pBuffer[nXWallSize];
 			pWall->allocX();
 			XWALL* pXWall = &pWall->xw();
 			int nCount;
@@ -501,7 +501,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 
 		if (pSprite->extra > 0)
 		{
-			char pBuffer[nXSpriteSize];
+			uint8_t pBuffer[nXSpriteSize];
 			XSPRITE* pXSprite = &sprites.xspr[i];
 			*pXSprite = {};
 			int nCount;
@@ -680,7 +680,7 @@ END_BLD_NS
 //
 //---------------------------------------------------------------------------
 
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
+void qloadboard(const char* filename, uint8_t flags, vec3_t* dapos, int16_t* daang)
 {
 	Blood::BloodSpawnSpriteDef sprites;
 	int sp;

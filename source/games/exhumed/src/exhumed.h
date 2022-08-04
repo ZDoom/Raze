@@ -58,11 +58,9 @@ void BlackOut();
 
 void DoGameOverScene(bool finallevel);
 
-extern unsigned char curpal[];
+extern uint8_t curpal[];
 
 void TintPalette(int a, int b, int c);
-//void MySetPalette(unsigned char *palette);
-//void GetCurPal(unsigned char *palette);
 
 void EraseScreen(int eax);
 

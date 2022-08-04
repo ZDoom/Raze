@@ -196,7 +196,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 	if (index == nullptr && namehack)
 	{
 		int lev, ep;
-		signed char b1, b2;
+		int8_t b1, b2;
 
 		int numMatches = sscanf(mapname, "%c%d%c%d", &b1, &ep, &b2, &lev);
 

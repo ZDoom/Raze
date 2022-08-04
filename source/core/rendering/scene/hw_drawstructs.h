@@ -122,7 +122,6 @@ struct HWDrawInfo;
 class HWWall
 {
 public:
-	static const char passflag[];
 
 	enum
 	{
