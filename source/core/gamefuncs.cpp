@@ -220,6 +220,16 @@ void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* f
 	*florz = int(f);
 }
 
+void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
+{
+	DVector2 closestv;
+	SquareDistToSector(dax * inttoworld, day * inttoworld, &sector[sectnum], &closestv);
+	float ffloorz, fceilz;
+	calcSlope(&sector[sectnum], closestv.X * worldtoint, closestv.Y * worldtoint, &fceilz, &ffloorz);
+	if (ceilz) *ceilz = int(fceilz);
+	if (florz) *florz = int(ffloorz);
+}
+
 //==========================================================================
 //
 // 
@@ -234,6 +244,36 @@ int getslopeval(sectortype* sect, int x, int y, int z, int basez)
 	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
 }
 
+//==========================================================================
+//
+// Calculate the distance to the closest point in the given sector
+//
+//==========================================================================
+
+double SquareDistToSector(double px, double py, const sectortype* sect, DVector2* point)
+{
+	if (inside(px, py, sect))
+	{
+		if (point)
+			*point = { px, py };
+		return 0;
+	}
+
+	double bestdist = DBL_MAX;
+	DVector2 bestpt = { px, py };
+	for (auto& wal : wallsofsector(sect))
+	{
+		DVector2 pt;
+		auto dist = SquareDistToWall(px, py, &wal, &pt);
+		if (dist < bestdist)
+		{
+			bestdist = dist;
+			bestpt = pt;
+		}
+	}
+	if (point) *point = bestpt;
+	return bestdist;
+}
 
 //==========================================================================
 //

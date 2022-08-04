@@ -87,7 +87,6 @@ enum {
 #include "maptypes.h"
 #include "clip.h"
 
-int32_t getwalldist(vec2_t const in, int const wallnum);
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
 EXTERN int32_t guniqhudid;
@@ -205,17 +204,6 @@ inline sectortype* safenextsectorneighborzptr(sectortype* sectp, int refz, int t
 {
     auto sect = nextsectorneighborzptr(sectp, refz, topbottom, direction);
     return sect == nullptr ? sectp : sect;
-}
-
-int getceilzofslopeptr(const sectortype* sec, int dax, int day) ATTRIBUTE((nonnull(1)));
-int getflorzofslopeptr(const sectortype* sec, int dax, int day) ATTRIBUTE((nonnull(1)));
-void getzsofslopeptr(const sectortype* sec, int dax, int day, int *ceilz, int *florz) ATTRIBUTE((nonnull(1,4,5)));
-
-inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
-{
-    vec2_t closest = { dax, day };
-    getsectordist(closest, sectnum, &closest);
-    getzsofslopeptr(&sector[sectnum], closest.X, closest.Y, ceilz, florz);
 }
 
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,

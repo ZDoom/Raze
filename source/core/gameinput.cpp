@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameinput.h"
 #include "gamestruct.h"
 #include "serializer.h"
-#include "build.h"
-
+#include "gamefuncs.h"
 
 //---------------------------------------------------------------------------
 //

@@ -393,6 +393,13 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
     return clipyou;
 }
 
+static int32_t getwalldist(vec2_t const in, int const wallnum)
+{
+    auto dvec = NearestPointOnWall(in.X * maptoworld, in.Y * maptoworld, &wall[wallnum]);
+    vec2_t closest = { int(dvec.X * worldtoint), int(dvec.Y * worldtoint) };
+    return abs(closest.X - in.X) + abs(closest.Y - in.Y);
+}
+
 static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist)
 {
 #if 0

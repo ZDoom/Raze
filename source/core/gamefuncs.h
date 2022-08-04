@@ -174,6 +174,10 @@ void dragpoint(walltype* wal, int newx, int newy);
 void dragpoint(walltype* wal, const DVector2& pos);
 DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angle);
 int32_t inside(double x, double y, const sectortype* sect);
+void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
+int getceilzofslopeptr(const sectortype* sec, int dax, int day);
+int getflorzofslopeptr(const sectortype* sec, int dax, int day);
+void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
 
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
@@ -374,7 +378,7 @@ inline DVector2 NearestPointLine(double px, double py, const walltype* wal)
 	return { xx, yy };
 }
 
-inline double SquareDistToWall(double px, double py, const walltype* wal, DVector2* point = nullptr) 
+inline DVector2 NearestPointOnWall(double px, double py, const walltype* wal)
 {
 	double lx1 = wal->pos.X;
 	double ly1 = wal->pos.Y;
@@ -383,15 +387,24 @@ inline double SquareDistToWall(double px, double py, const walltype* wal, DVecto
 
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 
-	if (wall_length == 0) return SquareDist(px, py, lx1, ly1);
+	if (wall_length == 0) return { lx1, ly1 };
 
 	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
-	t = clamp(t, 0., 1.);
+	if (t <= 0) return { lx1, ly1 };
+	if (t >= 1) return { lx2, ly2 };
 	double xx = lx1 + t * (lx2 - lx1);
 	double yy = ly1 + t * (ly2 - ly1);
-	if (point) *point = { xx, yy };
-	return SquareDist(px, py, xx, yy);
+	return { xx, yy };
 }
+
+inline double SquareDistToWall(double px, double py, const walltype* wal, DVector2* point = nullptr) 
+{
+	auto pt = NearestPointOnWall(px, py, wal);
+	if (point) *point = pt;
+	return SquareDist(px, py, pt.X, pt.Y);
+}
+
+double SquareDistToSector(double px, double py, const sectortype* sect, DVector2* point = nullptr);
 
 inline double SquareDistToLine(double px, double py, double lx1, double ly1, double lx2, double ly2)
 {

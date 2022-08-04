@@ -45,34 +45,6 @@ uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 static int16_t radarang[1280];
 
-// adapted from build.c
-static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
-{
-    vec2_t const w  = wall[dawall].wall_int_pos();
-    vec2_t const w2 = wall[dawall].point2Wall()->wall_int_pos();
-    vec2_t const d  = { w2.X - w.X, w2.Y - w.Y };
-
-    int64_t i = d.X * ((int64_t)p.X - w.X) + d.Y * ((int64_t)p.Y - w.Y);
-
-    if (i <= 0)
-    {
-        *closest = w;
-        return;
-    }
-
-    int64_t const j = (int64_t)d.X * d.X + (int64_t)d.Y * d.Y;
-
-    if (i >= j)
-    {
-        *closest = w2;
-        return;
-    }
-
-    i = ((i << 15) / j) << 15;
-
-    *closest = { (int32_t)(w.X + ((d.X * i) >> 30)), (int32_t)(w.Y + ((d.Y * i) >> 30)) };
-}
-
 
 //
 // Internal Engine Functions
@@ -491,16 +463,10 @@ static inline int inside_z_p(int32_t const x, int32_t const y, int32_t const z, 
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
-int32_t getwalldist(vec2_t const in, int const wallnum)
-{
-    vec2_t closest;
-    getclosestpointonwall_internal(in, wallnum, &closest);
-    return abs(closest.X - in.X) + abs(closest.Y - in.Y);
-}
-
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out)
 {
-    getclosestpointonwall_internal(in, wallnum, out);
+    auto dvec = NearestPointOnWall(in.X * maptoworld, in.Y * maptoworld, &wall[wallnum]);
+    *out = { int(dvec.X * worldtoint), int(dvec.Y * worldtoint) };
     return abs(out->X - in.X) + abs(out->Y - in.Y);
 }
 
