@@ -619,7 +619,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
-                    int32_t height, daz = spr->pos.Z+spriteheightofsptr(actor, &height, 1);
+                    int32_t height, daz = spr->pos.Z + actor->GetOffsetAndHeight(height);
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
@@ -635,7 +635,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
-                int32_t height, daz = spr->pos.Z+spriteheightofsptr(actor, &height, 1);
+                int32_t height, daz = spr->pos.Z + actor->GetOffsetAndHeight(height);
 
                 if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                 {
@@ -1170,7 +1170,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         int32_t k = walldist+(spr->clipdist<<2)+1;
                         if ((abs(v1.X-pos.X) <= k) && (abs(v1.Y-pos.Y) <= k))
                         {
-                            daz = spr->pos.Z + spriteheightofsptr(actor, &k, 1);
+                            daz = spr->pos.Z + actor->GetOffsetAndHeight(k);
                             daz2 = daz - k;
                             clipyou = 1;
                         }
@@ -1185,7 +1185,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         if (clipinsideboxline(pos.X,pos.Y,v1.X,v1.Y,v2.X,v2.Y,walldist+1) != 0)
                         {
                             int32_t k;
-                            daz = spr->pos.Z + spriteheightofsptr(actor, &k, 1);
+                            daz = spr->pos.Z + actor->GetOffsetAndHeight(k);
                             daz2 = daz-k;
                             clipyou = 1;
                         }
@@ -1255,7 +1255,7 @@ int32_t try_facespr_intersect(DCoreActor* spr, vec3_t const in,
 
     vec3_t        newpos = { 0, 0, in.Z + Scale(vz, topt, bot) };
     int32_t       siz;
-    int32_t const z1 = sprpos.Z + spriteheightofsptr(spr, &siz, 1);
+    int32_t const z1 = sprpos.Z + spr->GetOffsetAndHeight(siz);
 
     if (newpos.Z < z1 - siz || newpos.Z > z1)
         return 0;
@@ -1462,7 +1462,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.hitpos.X)-sv->X)+abs((hitinfo.hitpos.Y)-sv->Y))
                     continue;
 
-                daz = spr->pos.Z + spriteheightofsptr(actor, &k, 1);
+                daz = spr->pos.Z + actor->GetOffsetAndHeight(k);
                 if (intz > daz-k && intz < daz)
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)

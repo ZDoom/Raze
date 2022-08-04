@@ -248,28 +248,6 @@ int32_t getangle(int32_t xvect, int32_t yvect)
 }
 
 
-// Gets the BUILD unit height and z offset of a sprite.
-// Returns the z offset, 'height' may be NULL.
-int32_t spriteheightofsptr(DCoreActor* spr, int32_t *height, int32_t alsotileyofs)
-{
-    int32_t hei, zofs=0;
-    const int32_t picnum=spr->spr.picnum, yrepeat=spr->spr.yrepeat;
-
-    hei = (tileHeight(picnum)*yrepeat)<<2;
-    if (height != NULL)
-        *height = hei;
-
-    if (spr->spr.cstat & CSTAT_SPRITE_YCENTER)
-        zofs = hei>>1;
-
-    // NOTE: a positive per-tile yoffset translates the sprite into the
-    // negative world z direction (i.e. upward).
-    if (alsotileyofs)
-        zofs -= tileTopOffset(picnum) *yrepeat<<2;
-
-    return zofs;
-}
-
 //
 // nextsectorneighborz
 //

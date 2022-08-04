@@ -480,6 +480,16 @@ size_t DCoreActor::PropagateMark()
 }
 
 
+int DCoreActor::GetOffsetAndHeight(int& height)
+{
+	int yrepeat = spr.yrepeat << 2;
+	height = tileHeight(spr.picnum) * yrepeat;
+	int zofs = (spr.cstat & CSTAT_SPRITE_YCENTER)? height >> 1 : 0;
+	return zofs - tileTopOffset(spr.picnum) * yrepeat;
+}
+
+
+
 DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)

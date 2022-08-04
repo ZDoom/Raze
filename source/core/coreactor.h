@@ -57,6 +57,7 @@ public:
 	virtual void BeginPlay() {}
 	void OnDestroy() override;
 	size_t PropagateMark() override;
+	int GetOffsetAndHeight(int& height);
 
 	bool exists() const
 	{
