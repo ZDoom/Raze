@@ -180,6 +180,24 @@ int getflorzofslopeptr(const sectortype* sec, int dax, int day);
 void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
 void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
 
+enum EFindNextSector
+{
+	Find_Floor = 0,
+	Find_Ceiling = 1,
+	
+	Find_Down = 0,
+	Find_Up = 2,
+	
+	Find_Safe = 4,
+	
+	Find_CeilingUp = Find_Ceiling | Find_Up,
+	Find_CeilingDown = Find_Ceiling | Find_Down,
+	Find_FloorUp = Find_Floor | Find_Up,
+	Find_FloorDown = Find_Floor | Find_Down,
+};
+sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags);
+
+
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!

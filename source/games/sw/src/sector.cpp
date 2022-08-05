@@ -630,7 +630,7 @@ void DoSpringBoardDown(void)
             {
                 int destz;
 
-                destz = safenextsectorneighborzptr(sbp->sectp, sbp->sectp->floorz, 1, 1)->floorz;
+				destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->floorz, Find_FloorDown | Find_Safe)->floorz;
 
                 AnimSet(ANIM_Floorz, sbp->sectp, destz, 256);
 

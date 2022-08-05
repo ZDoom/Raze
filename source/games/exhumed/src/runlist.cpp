@@ -615,7 +615,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
                 This function searches z-coordinates of neighboring sectors to find the
                 closest (next) ceiling starting at the given z-coordinate (thez).
             */
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -634,7 +634,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 2: // Floor Doom door
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->ceilingz, nextSectorP->floorz);
@@ -683,7 +683,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 5: // Permanent floor raise
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz + 1, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz + 1, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -694,7 +694,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 6: // Touchplate floor lower, single
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -712,7 +712,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 7: // Touchplate floor lower, multiple
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -732,7 +732,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 8: // Permanent floor lower
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -744,7 +744,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 9: // Switch activated lift down
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -760,7 +760,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 10: // Touchplate Floor Raise
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -789,7 +789,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -809,7 +809,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -833,7 +833,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -850,7 +850,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 15: // Sector raise/lower
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -925,7 +925,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
             if (nextSectorP) {
                 zVal = nextSectorP->floorz;
             }
@@ -942,7 +942,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 24: // Ceiling door, channel trigger only
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -958,7 +958,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 25:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -974,7 +974,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 26:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -990,7 +990,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 27:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1006,7 +1006,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 28:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1022,7 +1022,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 31: // Touchplate
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1038,7 +1038,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 32:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1050,7 +1050,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 33: // Ceiling Crusher
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1062,7 +1062,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 34: // Triggerable Ceiling Crusher(Inactive)
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1088,7 +1088,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 37:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1100,7 +1100,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 39: // Touchplate
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1163,7 +1163,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingDown | Find_Safe);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->ceilingz;
             }
@@ -1176,7 +1176,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 49:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1188,7 +1188,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 50: // Floor lower / raise
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1264,7 +1264,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 54:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1280,7 +1280,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 55:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1296,7 +1296,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 56:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1308,7 +1308,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 57:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1333,7 +1333,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
                 nEnergyChan = nChannel;
             }
 
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -1344,7 +1344,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 59:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1369,7 +1369,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
             while (1)
             {
-                auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
+				auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorUp | Find_Safe);
                 if (nextSectorP == nullptr || var_1C >= 8) {
                     break;
                 }
@@ -1393,7 +1393,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
             while (1)
             {
-                auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+				auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
                 if (nextSectorP == nullptr || var_20 >= 8) {
                     break;
                 }
@@ -1419,7 +1419,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 68:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1432,7 +1432,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
         case 70:
         case 71:
         {
-            auto nextSectorP = safenextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
+			auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, Find_CeilingUp | Find_Safe);
 			if (nextSectorP == nullptr) break;
 
 

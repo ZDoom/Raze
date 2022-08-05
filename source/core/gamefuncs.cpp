@@ -517,6 +517,38 @@ int inside(double x, double y, const sectortype* sect)
 
 //==========================================================================
 //
+// find the closest neighboring sector plane in the given direction.
+// Does not consider slopes, just like the original!
+//
+//==========================================================================
+
+sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags)
+{
+	int factor = (flags & Find_Up)? -1 : 1;
+	int bestz = INT_MAX;
+	sectortype* bestsec = (flags & Find_Safe)? sectp : nullptr;
+	const auto planez = (flags & Find_Ceiling)? &sectortype::ceilingz : &sectortype::floorz;
+
+	startz *= factor;
+	for(auto& wal : wallsofsector(sectp))
+	{
+		if (wal.twoSided())
+		{
+			auto nextsec = wal.nextSector();
+			auto nextz = factor * nextsec->*planez;
+			
+			if (startz < nextz && nextz < bestz)
+			{
+				bestz = nextz;
+				bestsec = nextsec;
+			}
+		}
+	}
+	return bestsec;
+}
+
+//==========================================================================
+//
 // 
 //
 //==========================================================================

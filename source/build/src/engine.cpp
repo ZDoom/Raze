@@ -248,38 +248,6 @@ int32_t getangle(int32_t xvect, int32_t yvect)
 }
 
 
-//
-// nextsectorneighborz
-//
-// -1: ceiling or up
-//  1: floor or down
-sectortype* nextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction)
-{
-    int nextz = (direction==1) ? INT32_MAX : INT32_MIN;
-    sectortype* sectortouse = nullptr;
-
-    for(auto& wal : wallsofsector(sectp))
-    {
-        if (wal.twoSided())
-        {
-            auto ns = wal.nextSector();
-
-            const int32_t testz = (topbottom == 1) ? ns->floorz : ns->ceilingz;
-
-            const int32_t update = (direction == 1) ?
-                (nextz > testz && testz > refz) :
-                (nextz < testz && testz < refz);
-
-            if (update)
-            {
-                nextz = testz;
-                sectortouse = ns;
-            }
-        }
-    }
-    return sectortouse;
-}
-
 
 //
 // cansee
