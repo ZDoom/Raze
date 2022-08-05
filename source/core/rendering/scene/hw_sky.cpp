@@ -44,7 +44,7 @@ FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum);
 void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
-	tileUpdatePicnum(&picnum, 0, 0);
+	tileUpdatePicnum(&picnum);
 	int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 
 	FGameTexture* skytex = SkyboxReplacement(tileGetTexture(picnum)->GetID(), palette);

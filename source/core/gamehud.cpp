@@ -56,8 +56,7 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
 	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
 
-	if (picanm[picnum].sf & PICANM_ANIMTYPE_MASK)
-		picnum += animateoffs(picnum, 0);
+	tileUpdatePicnum(&picnum);
 
 	auto tex = tileGetTexture(picnum);
 

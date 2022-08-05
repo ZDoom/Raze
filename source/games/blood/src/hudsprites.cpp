@@ -88,7 +88,7 @@ static void viewBurnTime(int gScale)
 
 	for (int i = 0; i < 9; i++)
 	{
-		int nTile = burnTable[i].nTile + qanimateoffs(burnTable[i].nTile, 32768 + i);
+		int nTile = burnTable[i].nTile + tileAnimateOfs(burnTable[i].nTile, i);
 		int nScale = burnTable[i].nScale;
 		if (gScale < 600)
 		{

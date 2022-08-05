@@ -268,15 +268,4 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
 void updateModelInterpolation();
 
-inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
-{
-    auto& tile = *tileptr;
-
-    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
-        tile += animateoffs(tile, obj);
-
-    if (((obj & 16384) == 16384) && (stat & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
-        tile = RotTile(tile).newtile;
-}
-
 #endif // build_h_

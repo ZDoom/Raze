@@ -408,16 +408,16 @@ void checkRotatedWalls()
 	{
 		if (w.cstat & CSTAT_WALL_ROTATE_90)
 		{
-			auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
+			int picnum = w.picnum;
+			tileUpdatePicnum(&picnum);
+			auto& tile = RotTile(picnum);
 
 			if (tile.newtile == -1 && tile.owner == -1)
 			{
-				auto owner = w.picnum + animateoffs(w.picnum, 16384);
-
-				tile.newtile = TileFiles.tileCreateRotated(owner);
+				tile.newtile = TileFiles.tileCreateRotated(picnum);
 				assert(tile.newtile != -1);
 
-				RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
+				RotTile(tile.newtile).owner = picnum;
 
 			}
 		}

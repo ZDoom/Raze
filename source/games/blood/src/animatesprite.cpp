@@ -699,7 +699,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && r_voxels && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 		{
 			int const nRootTile = pTSprite->picnum;
-			int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
+			int nAnimTile = pTSprite->picnum + tileAnimateOfs(pTSprite->picnum, (pTSprite->ownerActor->GetIndex() & 16383));
 
 #if 0
 			if (tiletovox[nAnimTile] != -1)
@@ -718,7 +718,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 		{
 			int const nRootTile = pTSprite->picnum;
-			int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
+			int nAnimTile = pTSprite->picnum + tileAnimateOfs(pTSprite->picnum, (pTSprite->ownerActor->GetIndex() & 16383));
 
 			if (tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
 				tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].framenum >= 0)

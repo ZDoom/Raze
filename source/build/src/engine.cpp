@@ -49,43 +49,6 @@ static int16_t radarang[1280];
 // Internal Engine Functions
 //
 
-BEGIN_BLD_NS
-int qanimateoffs(int a1, int a2);
-END_BLD_NS
-
-//
-// animateoffs (internal)
-//
-int32_t animateoffs(int const tilenum, int fakevar)
-{
-    if (isBlood())
-    {
-        return Blood::qanimateoffs(tilenum, fakevar);
-    }
-
-    int const animnum = picanm[tilenum].num;
-
-    if (animnum <= 0)
-        return 0;
-
-    int const i = (int) I_GetBuildTime() >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
-    int offs = 0;
-
-    switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
-    {
-        case PICANM_ANIMTYPE_OSC:
-        {
-            int k = (i % (animnum << 1));
-            offs = (k < animnum) ? k : (animnum << 1) - k;
-        }
-        break;
-        case PICANM_ANIMTYPE_FWD: offs = i % (animnum + 1); break;
-        case PICANM_ANIMTYPE_BACK: offs = -(i % (animnum + 1)); break;
-    }
-
-    return offs;
-}
-
 void engineInit(void)
 {
     int32_t i;

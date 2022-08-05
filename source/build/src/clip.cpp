@@ -1467,7 +1467,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
-                        tileUpdatePicnum(&tilenum, 0, 0);
+                        tileUpdatePicnum(&tilenum);
 
                         if (tileLoad(tilenum))
                         {

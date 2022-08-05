@@ -802,6 +802,41 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 
 //==========================================================================
 //
+//  Retrieve animation offset
+//
+//==========================================================================
+
+int tileAnimateOfs(int tilenum, int randomize)
+{
+	int framecount = picanm[tilenum].num;
+	if (framecount > 0)
+	{
+		int frametime = PlayClock;
+	
+		if (isBlood() && randomize)
+		{
+			frametime += Bcrc32(&randomize, 2, 0);
+		}
+	
+		int curframe = (frametime & 0x7fffffff) >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+		
+		switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
+		{
+		case PICANM_ANIMTYPE_FWD:
+			return curframe % (framecount + 1);
+		case PICANM_ANIMTYPE_BACK:
+			return -(curframe % (framecount + 1));
+		case PICANM_ANIMTYPE_OSC:
+			curframe = curframe % (framecount << 1);
+			if (curframe >= framecount) return (framecount << 1) - curframe;
+			else return curframe;
+		}
+	}
+	return 0;
+}
+
+//==========================================================================
+//
 //  Check if two tiles are the same
 //
 //==========================================================================
@@ -836,7 +871,7 @@ void tileUpdateAnimations()
 	{
 		if (TileFiles.tiledata[i].picanm.sf & PICANM_ANIMTYPE_MASK)
 		{
-			int j = i + animateoffs(i, 0);
+			int j = i + tileAnimateOfs(i);
 
 			auto id1 = TileFiles.tiledata[i].texture->GetID();
 			auto id2 = TileFiles.tiledata[j].texture->GetID();

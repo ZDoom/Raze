@@ -1000,7 +1000,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->picnum;
 		gotpic.Set(tilenum);
-		tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
+		tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
 		texture = tileGetTexture(tilenum);
 		if (texture && texture->isValid())
 		{
@@ -1038,7 +1038,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			{
 				int tilenum = wal->picnum;
 				gotpic.Set(tilenum);
-				tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
+				tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{
@@ -1051,7 +1051,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		{
 			int tilenum = wal->overpicnum;
 			gotpic.Set(tilenum);
-			tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
+			tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
 			{
@@ -1077,7 +1077,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
 				int tilenum = w->picnum;
 				gotpic.Set(tilenum);
-				tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, w->cstat);
+				tileUpdatePicnum(&tilenum, (w->cstat & CSTAT_WALL_ROTATE_90));
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{

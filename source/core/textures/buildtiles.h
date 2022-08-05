@@ -461,18 +461,25 @@ inline rottile_t& RotTile(int tile)
 }
 
 
-int32_t animateoffs(int const tilenum, int fakevar);
+int tileAnimateOfs(int tilenum, int randomize = -1);
+
+inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int randomize = -1)
+{
+	auto& tile = *tileptr;
+
+	if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+		tile += tileAnimateOfs(tile, randomize);
+
+	if (mayrotate && RotTile(tile).newtile != -1)
+		tile = RotTile(tile).newtile;
+}
+
 
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
 	assert((unsigned)tile < MAXTILES);
 	if (tile < 0 || tile >= MAXTILES) return nullptr;
-	if (animate)
-	{
-		if (TileFiles.tiledata[tile].picanm.sf & PICANM_ANIMTYPE_MASK)
-			tile += animateoffs(tile, 0);
-
-	}
+	if (animate) tileUpdatePicnum(&tile);
 	return TileFiles.tiledata[tile].texture;
 }
 
