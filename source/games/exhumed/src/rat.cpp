@@ -89,6 +89,9 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         ChangeActorStat(pActor, 108);
     }
 
+	pActor->spr.pos.X = x;
+	pActor->spr.pos.Y = y;
+	pActor->spr.pos.Z = z;
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.xoffset = 0;
