@@ -61,6 +61,17 @@ struct picanm_t
 		extra = sf = 0;
 		num = 0;
 	}
+
+	int speed()
+	{
+		return sf & PICANM_ANIMSPEED_MASK;
+	}
+
+	int type()
+	{
+		return sf & PICANM_ANIMTYPE_MASK;
+	}
+
 };
 picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int* lo, int* to);
 
@@ -467,7 +478,7 @@ inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int ran
 {
 	auto& tile = *tileptr;
 
-	if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+	if (picanm[tile].type())
 		tile += tileAnimateOfs(tile, randomize);
 
 	if (mayrotate && RotTile(tile).newtile != -1)

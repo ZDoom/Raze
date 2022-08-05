@@ -80,54 +80,19 @@ void precacheMap(void)
 		j = sec.ceilingpicnum;
 		markTileForPrecache(j, sec.ceilingpal);
 
-		if ((picanm[j].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
-		{
-			for (i = 1; i <= picanm[j].num; i++)
-			{
-				markTileForPrecache(j + i, sec.ceilingpal);
-			}
-		}
-
 		j = sec.floorpicnum;
-
 		markTileForPrecache(j, sec.floorpal);
-
-		if ((picanm[j].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
-		{
-			for (i = 1; i <= picanm[j].num; i++)
-			{
-				markTileForPrecache(j + i, sec.floorpal);
-			}
-		}
-
 	}
 
 	for (auto& wal : wall)
 	{
 		j = wal.picnum;
-
 		markTileForPrecache(j, wal.pal);
-
-		if ((picanm[j].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
-		{
-			for (i = 1; i <= picanm[j].num; i++)
-			{
-				markTileForPrecache(j + i, wal.pal);
-			}
-		}
 
 		if (wal.overpicnum > 0 && wal.overpicnum < MAXTILES)
 		{
 			j = wal.overpicnum;
 			markTileForPrecache(j, wal.pal);
-
-			if ((picanm[j].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
-			{
-				for (i = 1; i <= picanm[j].num; i++)
-				{
-					markTileForPrecache(j + i, wal.pal);
-				}
-			}
 		}
 	}
 }

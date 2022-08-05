@@ -102,7 +102,7 @@ TMap<int64_t, bool> cachemap;
 void markTileForPrecache(int tilenum, int palnum)
 {
 	int i, j;
-	if ((picanm[tilenum].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
+	if (picanm[tilenum].type() == PICANM_ANIMTYPE_BACK)
 	{
 		i = tilenum - picanm[tilenum].num;
 		j = tilenum;
@@ -110,7 +110,7 @@ void markTileForPrecache(int tilenum, int palnum)
 	else
 	{
 		i = tilenum;
-		j = tilenum + picanm[tilenum].num;
+		j = tilenum + picanm[tilenum].num * ((picanm[tilenum].type() == PICANM_ANIMTYPE_OSC) ? 2 : 1);
 	}
 
 	for (; i <= j; i++)

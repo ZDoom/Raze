@@ -62,23 +62,7 @@ void tilePrecacheTile(int nTile, int nType, int palette)
 	}
 	while (n--)
 	{
-		if (picanm[nTile].sf & PICANM_ANIMTYPE_MASK)
-		{
-			for (int frame = picanm[nTile].num; frame >= 0; frame--)
-			{
-				int tile;
-				if ((picanm[nTile].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-					tile = nTile - frame;
-				else
-					tile = nTile + frame;
-
-				markTileForPrecache(tile, palette);
-			}
-		}
-		else
-		{
-			markTileForPrecache(nTile, palette);
-		}
+		markTileForPrecache(nTile, palette);
 		nTile += 1 + picanm[nTile].num;
 	}
 }

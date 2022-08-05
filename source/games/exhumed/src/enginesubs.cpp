@@ -42,29 +42,20 @@ void precache()
     {
         int j = sect.ceilingpicnum;
         markTileForPrecache(j, sect.ceilingpal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sect.ceilingpal);
 
         j = sect.floorpicnum;
         markTileForPrecache(j, sect.floorpal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sect.floorpal);
     }
 
     for(auto& wal : wall)
     {
         int j = wal.picnum;
         markTileForPrecache(j, wal.pal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wal.pal);
 
         if (wal.twoSided())
         {
             j = wal.overpicnum;
             markTileForPrecache(j, wal.pal);
-            if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-                for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wal.pal);
-
         }
     }
 
@@ -73,8 +64,6 @@ void precache()
     {
         int j = ac->spr.picnum;
         markTileForPrecache(j, ac->spr.pal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, ac->spr.pal);
     }
     precacheMarkedTiles();
 }

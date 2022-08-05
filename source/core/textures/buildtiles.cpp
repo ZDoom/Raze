@@ -818,9 +818,9 @@ int tileAnimateOfs(int tilenum, int randomize)
 			frametime += Bcrc32(&randomize, 2, 0);
 		}
 	
-		int curframe = (frametime & 0x7fffffff) >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+		int curframe = (frametime & 0x7fffffff) >> (picanm[tilenum].speed());
 		
-		switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
+		switch (picanm[tilenum].type())
 		{
 		case PICANM_ANIMTYPE_FWD:
 			return curframe % (framecount + 1);
@@ -869,7 +869,7 @@ void tileUpdateAnimations()
 {
 	for (int i = 0; i < MAXTILES; i++)
 	{
-		if (TileFiles.tiledata[i].picanm.sf & PICANM_ANIMTYPE_MASK)
+		if (TileFiles.tiledata[i].picanm.type())
 		{
 			int j = i + tileAnimateOfs(i);
 
