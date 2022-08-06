@@ -42,7 +42,7 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
 {
     double maxDistSq = maxDistance * maxDistance;
 
-    if (sectnum)
+    if (validSectorIndex(sectnum))
     {
         if (checker(x, y, z, &sector[*sectnum]))
             return;
@@ -66,8 +66,8 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
             }
             iter++;
         }
-        *sectnum = -1;
     }
+    *sectnum = -1;
 }
 
 template<class Inside>
