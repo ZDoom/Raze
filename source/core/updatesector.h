@@ -42,7 +42,7 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
 {
     double maxDistSq = maxDistance * maxDistance;
 
-    if (validSectorIndex(sectnum))
+    if (validSectorIndex(*sectnum))
     {
         if (checker(x, y, z, &sector[*sectnum]))
             return;
