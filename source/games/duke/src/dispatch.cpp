@@ -98,8 +98,8 @@ void displaymasks_d(int snum, int p, double smoothratio);
 void displaymasks_r(int snum, int p, double smoothratio);
 void think_d();
 void think_r();
-void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
-void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
+void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
+void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
 
 Dispatcher fi;
 

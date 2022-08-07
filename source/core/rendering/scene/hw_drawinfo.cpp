@@ -273,9 +273,9 @@ HWPortal * HWDrawInfo::FindPortal(const void * src)
 
 void HWDrawInfo::DispatchSprites()
 {
-	for (int i = 0; i < spritesortcnt; i++)
+	for (unsigned i = 0; i < tsprites.Size(); i++)
 	{
-		auto tspr = &tsprite[i];
+		auto tspr = tsprites.get(i);
 		int tilenum = tspr->picnum;
 		auto actor = tspr->ownerActor;
 
@@ -378,8 +378,7 @@ void HWDrawInfo::CreateScene(bool portal)
 	screen->mVertexData->Map();
 	screen->mLights->Map();
 
-	memset(tsprite, 0, sizeof(tsprite));
-	spritesortcnt = 0;
+	tsprites.clear();
 	ingeo = false;
 	geoofs = { 0,0 };
 
@@ -395,7 +394,7 @@ void HWDrawInfo::CreateScene(bool portal)
 		mDrawer.RenderScene(&vp.SectCount, 1, portal);
 
 	SetupSprite.Clock();
-	gi->processSprites(tsprite, spritesortcnt, view.X, view.Y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
+	gi->processSprites(tsprites, view.X, view.Y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
 	DispatchSprites();
 	SetupSprite.Unclock();
 

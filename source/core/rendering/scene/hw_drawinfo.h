@@ -112,8 +112,7 @@ struct HWDrawInfo
 	FRenderViewpoint Viewpoint;
 	HWViewpointUniforms VPUniforms;	// per-viewpoint uniform state
 	TArray<HWPortal *> Portals;
-	tspritetype tsprite[MAXSPRITESONSCREEN];
-	int spritesortcnt;
+	tspriteArray tsprites;
 	TArray<FFlatVertex> SlopeSpriteVertices;	// we need to cache these in system memory in case of translucency splits.
 
 	// This is needed by the BSP traverser.

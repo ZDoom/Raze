@@ -406,9 +406,9 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
-void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-	fi.animatesprites(tsprite, spritesortcnt, viewx, viewy, viewang.asbuild(), int(smoothRatio));
+	fi.animatesprites(tsprites, viewx, viewy, viewang.asbuild(), int(smoothRatio));
 }
 
 

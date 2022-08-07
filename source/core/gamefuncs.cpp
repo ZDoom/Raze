@@ -553,12 +553,9 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags)
 //
 //==========================================================================
 
-tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
+tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 {
-	validateTSpriteSize(tsprite, spritesortcnt);
-
-	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
-	auto tspr = &tsprite[spritesortcnt++];
+	auto tspr = tsprites.newTSprite();
 
 	tspr->pos = actor->spr.pos;
 	tspr->cstat = actor->spr.cstat;

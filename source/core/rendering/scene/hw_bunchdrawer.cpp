@@ -685,7 +685,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 					(r_voxels && tiletovox[actor->spr.picnum] >= 0 && voxmodels[tiletovox[actor->spr.picnum]]) ||
 					(r_voxels && gi->Voxelize(actor->spr.picnum) > -1) ||
 					DMulScale(bcos(actor->spr.ang), -sx, bsin(actor->spr.ang), -sy, 6) > 0)
-					if (!renderAddTsprite(di->tsprite, di->spritesortcnt, actor))
+					if (!renderAddTsprite(di->tsprites, actor))
 						break;
 			}
 		}

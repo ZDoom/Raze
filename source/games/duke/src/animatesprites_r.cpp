@@ -37,18 +37,18 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 
-void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
+void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothratio)
 {
-	int j, k, p;
+	int k, p;
 	int l, t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
 
 	int bg = 0;
 
-	for (j = 0; j < spritesortcnt; j++)
+	for (unsigned j = 0; j < tsprites.Size(); j++)
 	{
-		t = &tsprite[j];
+		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
 		switch (t->picnum)
@@ -121,11 +121,9 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 	}
 
 
-	//Between drawrooms() and drawmasks() is the perfect time to animate sprites
-	for (j = 0; j < spritesortcnt; j++)
+	for (unsigned j = 0; j < tsprites.Size(); j++)
 	{
-		validateTSpriteSize(tsprite, spritesortcnt);
-		t = &tsprite[j];
+		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
 
@@ -370,8 +368,8 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->spr.extra > 0 && ps[p].curr_weapon > 0)
 			{
-				auto newtspr = &tsprite[spritesortcnt++];
-				newtspr = t;
+				auto newtspr = tsprites.newTSprite();
+				*newtspr = *t;
 
 				newtspr->statnum = 99;
 
@@ -725,7 +723,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			{
 				if (h->spr.picnum != EXPLOSION2 && h->spr.picnum != DOMELITE && h->spr.picnum != TORNADO && h->spr.picnum != EXPLOSION3 && (h->spr.picnum != SBMOVE || isRRRA()))
 				{
-					if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2) && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
+					if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 					{
 						int daz;
 
@@ -738,7 +736,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						if ((h->spr.pos.Z - daz) < (8 << 8))
 							if (ps[screenpeek].pos.Z < daz)
 							{
-								auto shadowspr = &tsprite[spritesortcnt++];
+								auto shadowspr = tsprites.newTSprite();
 								*shadowspr = *t;
 
 								shadowspr->statnum = 99;

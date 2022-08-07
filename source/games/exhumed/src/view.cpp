@@ -59,20 +59,16 @@ int viewz;
 
 
 // We cannot drag these through the entire event system... :(
-tspritetype* mytsprite;
-int* myspritesortcnt;
+tspriteArray* mytspriteArray;
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int y, int z, double const smoothratio)
+static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double const smoothratio)
 {
-    tspritetype *pTSprite;
+    mytspriteArray = &tsprites;
 
-    mytsprite = tsprite;
-    myspritesortcnt = &spritesortcnt;
-
-    for (int i = 0; i < spritesortcnt; i++) {
-        validateTSpriteSize(tsprite, spritesortcnt);
-        pTSprite = &tsprite[i];
+    for (unsigned i = 0; i < tsprites.Size(); i++) 
+    {
+        auto pTSprite = tsprites.get(i);
 
         if (pTSprite->ownerActor)
         {
@@ -94,12 +90,9 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
     int nAngle = (2048 - pPlayerActor->spr.ang) & kAngleMask;
 
-    int nTSprite;
-
-//	int var_20 = var_24;
-
-    for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
+    for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
+        auto pTSprite = tsprites.get(nTSprite);
         auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
 
         if (pTSprite->sectp != nullptr)
@@ -176,8 +169,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
         }
     }
 
-    mytsprite = nullptr;
-    myspritesortcnt = nullptr;
+    mytspriteArray = nullptr;
 
 }
 
@@ -450,9 +442,9 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, smoothRatio);
+    analyzesprites(tsprites, viewx, viewy, viewz, smoothRatio);
 }
 
 

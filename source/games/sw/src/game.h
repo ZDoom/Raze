@@ -1666,7 +1666,7 @@ void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
 DSWActor* GetOwner(DSWActor* child);
 void SetAttach(DSWActor*, DSWActor*);
-void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
+void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang);
 void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
@@ -1922,7 +1922,7 @@ struct GameInterface : public ::GameInterface
     int chaseCamX(binangle ang) override { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) override { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
-    void processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;
     void LeavePortal(DCoreActor* viewer, int type) override;

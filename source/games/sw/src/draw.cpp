@@ -88,13 +88,13 @@ void ShadeSprite(tspritetype* tsp)
 #endif
 
 
-int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
+int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
 {
     static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
     int rotation;
 
-    tspritetype* tsp = &tsprite[tSpriteNum];
+    tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int angle2;
 
@@ -159,9 +159,9 @@ directions was not standardized.
 
 */
 
-int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
+int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
 {
-    tspritetype* tsp = &tsprite[tSpriteNum];
+    tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int StateOffset, Rotation;
 
@@ -177,7 +177,7 @@ int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, i
     StateOffset = int(State - StateStart);
 
     // Get the rotation angle
-    Rotation = GetRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
+    Rotation = GetRotation(tsprites, tSpriteNum, viewx, viewy);
 
     ASSERT(Rotation < 5);
 
@@ -248,9 +248,9 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
     return loz;
 }
 
-void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int viewz, int camang)
+void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
 {
-    tspritetype* tSpr = &tsprite[spritesortcnt];
+    tspritetype* tSpr = tsprites.newTSprite();
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
     int view_dist = 0;
@@ -342,11 +342,9 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspritetype* tsp, int v
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
-
-    spritesortcnt++;
 }
 
-void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
+void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 {
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int nx,ny,nz = 0,dx,dy,dz;
@@ -404,7 +402,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
 
     for (i = 0; i < ownerActor->user.motion_blur_num; i++)
     {
-        tspritetype* tSpr = &tsprite[spritesortcnt];
+        tspritetype* tSpr = tsprites.newTSprite();
         *tSpr = *tsp;
         tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP;
 
@@ -421,13 +419,11 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
 
         xrepeat -= repeat_adj;
         yrepeat -= repeat_adj;
-
-        spritesortcnt++;
     }
 
 }
 
-void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
+void WarpCopySprite(tspriteArray& tsprites)
 {
     int spnum;
     int xoff,yoff,zoff;
@@ -457,7 +453,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     if (itActor2->spr.picnum == ST1)
                         continue;
 
-                    tspritetype* newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
+                    tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
                     xoff = itActor->spr.pos.X - newTSpr->pos.X;
@@ -479,7 +475,7 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     if (itActor2->spr.picnum == ST1)
                         continue;
 
-                    tspritetype* newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
+                    tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
                     auto off = itActor1->spr.pos - newTSpr->pos;
@@ -576,7 +572,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 }
 
 
-void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
+void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
     int smr4, smr2;
@@ -592,10 +588,9 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
     smr4 = int(smoothratio) + IntToFixed(MoveSkip4);
     smr2 = int(smoothratio) + IntToFixed(MoveSkip2);
 
-    for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
+    for (tSpriteNum = (int)tsprites.Size() - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        validateTSpriteSize(tsprite, spritesortcnt);
-        tspritetype* tsp = &tsprite[tSpriteNum];
+        tspritetype* tsp = tsprites.get(tSpriteNum);
         auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
         auto tsectp = tsp->sectp;
 
@@ -651,7 +646,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
             if (r_shadows && (tActor->user.Flags & SPR_SHADOW))
             {
-                DoShadows(tsprite, spritesortcnt, tsp, viewz, camang);
+                DoShadows(tsprites, tsp, viewz, camang);
             }
 
             //#define UK_VERSION 1
@@ -682,11 +677,11 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
 
             // rotation
             if (tActor->user.RotNum > 0)
-                SetActorRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
+                SetActorRotation(tsprites, tSpriteNum, viewx, viewy);
 
             if (tActor->user.motion_blur_num)
             {
-                DoMotionBlur(tsprite, spritesortcnt, tsp);
+                DoMotionBlur(tsprites, tsp);
             }
 
             // set palette lookup correctly
@@ -870,40 +865,40 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
         }
     }
 
-    WarpCopySprite(tsprite, spritesortcnt);
+    WarpCopySprite(tsprites);
 
 }
 
 
 #if 1
-tspritetype* get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* actor)
+tspritetype* get_tsprite(tspriteArray& tsprites, DSWActor* actor)
 {
     int tSpriteNum;
 
-    for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
+    for (tSpriteNum = (int)tsprites.Size() - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        if (tsprite[tSpriteNum].ownerActor == actor)
-            return &tsprite[tSpriteNum];
+        if (tsprites.get(tSpriteNum)->ownerActor == actor)
+            return tsprites.get(tSpriteNum);
     }
 
     return nullptr;
 }
 
-void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
+void post_analyzesprites(tspriteArray& tsprites)
 {
     int tSpriteNum;
 
-    for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
+    for (tSpriteNum = (int)tsprites.Size() - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        auto actor = static_cast<DSWActor*>(tsprite[tSpriteNum].ownerActor);
+        auto actor = static_cast<DSWActor*>(tsprites.get(tSpriteNum)->ownerActor);
         if (!actor) continue;    // JBF: verify this is safe
-        tspritetype* tsp = &tsprite[tSpriteNum];
+        tspritetype* tsp = tsprites.get(tSpriteNum);
 
         if (actor->hasU())
         {
             if (actor->user.ID == FIREBALL_FLAMES && actor->user.attachActor != nullptr)
             {
-                tspritetype* const atsp = get_tsprite(tsprite, spritesortcnt, actor->user.attachActor);
+                tspritetype* const atsp = get_tsprite(tsprites, actor->user.attachActor);
 
                 if (!atsp)
                 {
@@ -1784,10 +1779,10 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     return true;
 }
 
-void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild());
-    post_analyzesprites(tsprite, spritesortcnt);
+    analyzesprites(tsprites, viewx, viewy, viewz, viewang.asbuild());
+    post_analyzesprites(tsprites);
 }
 
 

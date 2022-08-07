@@ -44,16 +44,16 @@ EXTERN_CVAR(Bool, wt_commentary)
 
 BEGIN_DUKE_NS
 
-void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
+void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothratio)
 {
-	int j, k, p;
+	int k, p;
 	int l, t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
 
-	for (j = 0; j < spritesortcnt; j++)
+	for (unsigned j = 0; j < tsprites.Size(); j++)
 	{
-		t = &tsprite[j];
+		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
 		switch (t->picnum)
@@ -137,10 +137,9 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 
 	//Between drawrooms() and drawmasks() is the perfect time to animate sprites
-	for (j = 0; j < spritesortcnt; j++)  
+	for (unsigned j = 0; j < tsprites.Size(); j++)  
 	{
-		validateTSpriteSize(tsprite, spritesortcnt);
-		t = &tsprite[j];
+		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
 
@@ -327,8 +326,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->spr.extra > 0 && ps[p].curr_weapon > 0)
 			{
-				auto newtspr = &tsprite[spritesortcnt++];
-				newtspr = t;
+				auto newtspr = tsprites.newTSprite();
+				*newtspr = *t;
 
 				newtspr->statnum = 99;
 
@@ -569,7 +568,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			{
 				if (h->spr.picnum != HOTMEAT)
 				{
-					if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2) && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
+					if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 					{
 						int daz;
 
@@ -581,7 +580,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 						if ((h->spr.pos.Z - daz) < (8 << 8) && ps[screenpeek].pos.Z < daz)
 						{
-							auto shadowspr = &tsprite[spritesortcnt++];
+							auto shadowspr = tsprites.newTSprite();
 							*shadowspr = *t;
 
 							shadowspr->statnum = 99;

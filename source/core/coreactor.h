@@ -459,11 +459,7 @@ inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const w
 	return res;
 }
 
-tspritetype* renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor);
-inline void validateTSpriteSize(tspritetype*& tsprite, int& spritesortcnt)
-{
-
-}
+tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 
 inline PClassActor* PClass::FindActor(FName name)
 {

@@ -84,22 +84,17 @@ static void RotateXZ(int* pX, int*, int* pZ, int ang)
 //
 //---------------------------------------------------------------------------
 
-tspritetype* viewInsertTSprite(tspritetype* tsprite, int& spritesortcnt, sectortype* pSector, int nStatnum, tspritetype const* const parentTSprite)
+tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int nStatnum, tspritetype const* const parentTSprite)
 {
-	if (spritesortcnt >= MAXSPRITESONSCREEN)
-		return nullptr;
-
-	int nTSprite = spritesortcnt;
-	tspritetype* pTSprite = &tsprite[nTSprite];
+	tspritetype* pTSprite = tsprites.newTSprite();
 	memset(pTSprite, 0, sizeof(tspritetype));
 	pTSprite->cstat = CSTAT_SPRITE_YCENTER;
 	pTSprite->xrepeat = 64;
 	pTSprite->yrepeat = 64;
 	pTSprite->ownerActor = nullptr;
-	pTSprite->type = -spritesortcnt;
+	pTSprite->type = -int(tsprites.Size() - 1);
 	pTSprite->statnum = nStatnum;
 	pTSprite->sectp = pSector;
-	spritesortcnt++;
 	if (parentTSprite)
 	{
 		pTSprite->pos = parentTSprite->pos;
@@ -145,12 +140,12 @@ static const WEAPONICON gWeaponIcon[] = {
 //
 //---------------------------------------------------------------------------
 
-static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int nTSprite, VIEW_EFFECT nViewEffect)
+static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFFECT nViewEffect)
 {
 	assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
-	auto pTSprite = &tsprite[nTSprite];
+	auto pTSprite = tsprites.get(nTSprite);
 	auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
-	if (gDetail < effectDetail[nViewEffect] || nTSprite >= MAXSPRITESONSCREEN) return NULL;
+	if (gDetail < effectDetail[nViewEffect]) return NULL;
 	switch (nViewEffect)
 	{
 	case kViewEffectSpotProgress: {
@@ -160,7 +155,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 
-		auto pNSprite2 = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite2 = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite2)
 			break;
 
@@ -179,7 +174,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	case kViewEffectAtom:
 		for (int i = 0; i < 16; i++)
 		{
-			auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+			auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 			if (!pNSprite)
 				break;
 
@@ -205,7 +200,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	{
 		int top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -221,7 +216,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectTesla:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -235,7 +230,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectShoot:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -247,7 +242,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectReflectiveBall:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -260,7 +255,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectPhase:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -285,10 +280,10 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 		{
 			nAng = (nAng + 1024) & 2047;
 		}
-		for (int i = 0; i < 5 && spritesortcnt < MAXSPRITESONSCREEN; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			auto pSector = pTSprite->sectp;
-			auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pSector, 32767, NULL);
+			auto pNSprite = viewInsertTSprite(tsprites, pSector, 32767, NULL);
 			if (!pNSprite)
 				break;
 
@@ -315,7 +310,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectFlame:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -328,7 +323,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectSmokeHigh:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -347,7 +342,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectSmokeLow:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -366,7 +361,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectTorchHigh:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -380,7 +375,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectTorchLow:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -394,7 +389,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectShadow:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 		pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos.X, pNSprite->pos.Y);
@@ -430,7 +425,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectFlareHalo:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -445,7 +440,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectCeilGlow:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -464,7 +459,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectFloorGlow:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -484,7 +479,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 	}
 	case kViewEffectSpear:
 	{
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -504,7 +499,7 @@ static tspritetype* viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 		WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
 		auto& nTile = weaponIcon.nTile;
 		if (nTile < 0) break;
-		auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectp, 32767, pTSprite);
+		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
@@ -558,17 +553,15 @@ static void viewApplyDefaultPal(tspritetype* pTSprite, sectortype const* pSector
 //
 //---------------------------------------------------------------------------
 
-void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
+void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
 {
+	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	int myclock = (PlayClock << 3) + MulScale(4 << 3, smoothratio, 16);
-	assert(spritesortcnt <= MAXSPRITESONSCREEN);
 	gCameraAng = cA;
-	int nViewSprites = spritesortcnt;
-	for (int nTSprite = spritesortcnt - 1; nTSprite >= 0; nTSprite--)
+	for (int nTSprite = int(tsprites.Size()) - 1; nTSprite >= 0; nTSprite--)
 	{
-		validateTSpriteSize(tsprite, spritesortcnt);
-		tspritetype* pTSprite = &tsprite[nTSprite];
+		tspritetype* pTSprite = tsprites.get(nTSprite);
 		auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
 		if (owneractor->spr.detail > gDetail)
 		{
@@ -762,14 +755,13 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 				pTSprite->xrepeat = pTSprite->yrepeat = 0;
 			}
 		}
-		if (spritesortcnt >= MAXSPRITESONSCREEN) continue;
 		if (owneractor->hasX() && owneractor->xspr.burnTime > 0)
 		{
 			pTSprite->shade = ClipRange(pTSprite->shade - 16 - QRandom(8), -128, 127);
 		}
 		if (pTSprite->flags & 256)
 		{
-			viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSmokeHigh);
+			viewAddEffect(tsprites, nTSprite, kViewEffectSmokeHigh);
 		}
 		if (pTSprite->flags & 1024)
 		{
@@ -785,7 +777,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			case kDecorationCandle:
 				if (!owneractor->hasX() || owneractor->xspr.state == 1) {
 					pTSprite->shade = -128;
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectPhase);
+					viewAddEffect(tsprites, nTSprite, kViewEffectPhase);
 				}
 				else {
 					pTSprite->shade = -8;
@@ -794,10 +786,10 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			case kDecorationTorch:
 				if (!owneractor->hasX() || owneractor->xspr.state == 1) {
 					pTSprite->picnum++;
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectTorchHigh);
+					viewAddEffect(tsprites, nTSprite, kViewEffectTorchHigh);
 				}
 				else {
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSmokeHigh);
+					viewAddEffect(tsprites, nTSprite, kViewEffectSmokeHigh);
 				}
 				break;
 			default:
@@ -810,13 +802,13 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			switch (pTSprite->type) {
 			case kItemFlagABase:
 				if (owneractor->hasX() && owneractor->xspr.state > 0 && gGameOptions.nGameType == 3) {
-					auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectBigFlag);
+					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectBigFlag);
 					if (pNTSprite) pNTSprite->pal = 10;
 				}
 				break;
 			case kItemFlagBBase:
 				if (owneractor->hasX() && owneractor->xspr.state > 0 && gGameOptions.nGameType == 3) {
-					auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectBigFlag);
+					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectBigFlag);
 					if (pNTSprite) pNTSprite->pal = 7;
 				}
 				break;
@@ -844,10 +836,10 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 				pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 				break;
 			case kMissileTeslaRegular:
-				viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectTesla);
+				viewAddEffect(tsprites, nTSprite, kViewEffectTesla);
 				break;
 			case kMissileButcherKnife:
-				viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectTrail);
+				viewAddEffect(tsprites, nTSprite, kViewEffectTrail);
 				break;
 			case kMissileFlareRegular:
 			case kMissileFlareAlt:
@@ -859,18 +851,18 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 					}
 				}
 
-				viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFlareHalo);
+				viewAddEffect(tsprites, nTSprite, kViewEffectFlareHalo);
 				if (pTSprite->type != kMissileFlareRegular) break;
 				sectortype* pSector1 = pTSprite->sectp;
 
 				int zDiff = (pTSprite->pos.Z - pSector1->ceilingz) >> 8;
 				if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectCeilGlow);
+					viewAddEffect(tsprites, nTSprite, kViewEffectCeilGlow);
 				}
 
 				zDiff = (pSector1->floorz - pTSprite->pos.Z) >> 8;
 				if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFloorGlow);
+					viewAddEffect(tsprites, nTSprite, kViewEffectFloorGlow);
 				}
 				break;
 			}
@@ -906,15 +898,15 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 				}
 
 				if (powerupCheck(pPlayer, kPwUpReflectShots)) {
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectReflectiveBall);
+					viewAddEffect(tsprites, nTSprite, kViewEffectReflectiveBall);
 				}
 
 				if (cl_showweapon && gGameOptions.nGameType > 0 && gView) {
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShowWeapon);
+					viewAddEffect(tsprites, nTSprite, kViewEffectShowWeapon);
 				}
 
 				if (pPlayer->flashEffect && (gView != pPlayer || gViewPos != VIEWPOS_0)) {
-					auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShoot);
+					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 						pNTSprite->pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
@@ -925,7 +917,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 
 				if (pPlayer->hasFlag > 0 && gGameOptions.nGameType == 3) {
 					if (pPlayer->hasFlag & 1) {
-						auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFlag);
+						auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectFlag);
 						if (pNTSprite)
 						{
 							pNTSprite->pal = 10;
@@ -933,7 +925,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 						}
 					}
 					if (pPlayer->hasFlag & 2) {
-						auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFlag);
+						auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectFlag);
 						if (pNTSprite)
 						{
 							pNTSprite->pal = 7;
@@ -946,13 +938,13 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			if (pTSprite->ownerActor != gView->actor || gViewPos != VIEWPOS_0) {
 				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
 				{
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
+					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 				}
 			}
 
 			if (gModernMap && owneractor->hasX()) { // add target spot indicator for patrol dudes
 				if (owneractor->xspr.dudeFlag4 && aiInPatrolState(owneractor->xspr.aiState) && owneractor->xspr.data3 > 0 && owneractor->xspr.data3 <= kMaxPatrolSpotValue)
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpotProgress);
+					viewAddEffect(tsprites, nTSprite, kViewEffectSpotProgress);
 			}
 			break;
 		}
@@ -962,7 +954,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 					if (owneractor->xspr.data1) {
 						pTSprite->picnum = 772;
 						if (owneractor->xspr.data2)
-							viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpear);
+							viewAddEffect(tsprites, nTSprite, kViewEffectSpear);
 					}
 				}
 				else if (owneractor->xspr.data1) pTSprite->picnum = 773;
@@ -977,16 +969,16 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
 				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
-					viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
+					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 			}
 		}
 					   break;
 		}
 	}
 
-	for (int nTSprite = spritesortcnt - 1; nTSprite >= nViewSprites; nTSprite--)
+	for (int nTSprite = int(tsprites.Size() - 1); nTSprite >= nViewSprites; nTSprite--)
 	{
-		tspritetype* pTSprite = &tsprite[nTSprite];
+		tspritetype* pTSprite = tsprites.get(nTSprite);
 		int nAnim = 0;
 		switch (picanm[pTSprite->picnum].extra & 7)
 		{
@@ -1031,9 +1023,9 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-	viewProcessSprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
+	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
 }
 
 int display_mirror;

@@ -9,6 +9,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "packet.h"
 #include "binaryangle.h"
 #include "inputstate.h"
+#include "maptypes.h"
 
 class FSerializer;
 struct FRenderViewpoint;
@@ -118,7 +119,7 @@ struct GameInterface
 	virtual int chaseCamX(binangle ang) { return 0; }
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
-	virtual void processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
+	virtual void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(DCoreActor* viewer, int type) {}
 	virtual void LeavePortal(DCoreActor* viewer, int type) {}

@@ -491,6 +491,47 @@ struct tspritetype : public spritetypebase
 	int time;
 };
 
+class tspriteArray
+{
+	static const int blockbits = 9;
+	static const int blocksize = 1 << blockbits;
+	struct block
+	{
+		tspritetype data[blocksize];
+	};
+	TDeletingArray<block*> blocks;
+	unsigned size;
+
+public:
+	tspritetype* newTSprite()
+	{
+		if ((size & (blocksize - 1)) == 0) blocks.Push(new block);
+		return get(size++);
+	}
+
+	tspritetype* get(unsigned index)
+	{
+		assert(index < size);
+		return &blocks[index >> blockbits]->data[index & (blocksize - 1)];
+	}
+
+	tspritetype* current()
+	{
+		return get(size - 1);
+	}
+
+	void clear()
+	{
+		blocks.DeleteAndClear();
+		size = 0;
+	}
+
+	unsigned Size() const
+	{
+		return size;
+	}
+};
+
 extern TArray<sectortype> sector;
 extern TArray<walltype> wall;
 extern TArray<sectortype> sectorbackup;

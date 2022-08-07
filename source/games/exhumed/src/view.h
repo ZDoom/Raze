@@ -40,8 +40,7 @@ extern bool bTouchFloor;
 extern int nChunkTotal;
 extern int gFov;
 
-extern tspritetype* mytsprite;
-extern int* myspritesortcnt;
+extern tspriteArray* mytspriteArray;
 
 END_PS_NS
 
