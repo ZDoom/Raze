@@ -15,9 +15,9 @@ struct FVoxelVertexHash
 	// Returns the hash value for a key.
 	hash_t Hash(const FModelVertex &key) 
 	{ 
-		int ix = xs_RoundToInt(key.x);		
-		int iy = xs_RoundToInt(key.y);		
-		int iz = xs_RoundToInt(key.z);		
+		int ix = int(key.x);		
+		int iy = int(key.y);		
+		int iz = int(key.z);		
 		return (hash_t)(ix + (iy<<9) + (iz<<18));
 	}
 
