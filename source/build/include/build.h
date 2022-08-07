@@ -182,7 +182,6 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
 
-EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
