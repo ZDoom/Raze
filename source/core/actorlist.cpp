@@ -528,18 +528,18 @@ DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
 DEFINE_ACTION_FUNCTION(DCoreActor, pos)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
-	ACTION_RETURN_VEC3(DVector3(self->spr.pos.X * (1 / 16.), self->spr.pos.Y * (1 / 16.), self->spr.pos.Z * (1 / 256.)));
+	ACTION_RETURN_VEC3(self->float_pos());
 }
 
 DEFINE_ACTION_FUNCTION(DCoreActor, xy)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
-	ACTION_RETURN_VEC2(DVector2(self->spr.pos.X * (1 / 16.), self->spr.pos.Y * (1 / 16.)));
+	ACTION_RETURN_VEC2(self->float_pos().XY());
 }
 
 double coreactor_z(DCoreActor* self)
 {
-	return self->spr.zvel * zinttoworld;
+	return self->float_pos().Z;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, z, coreactor_z)
@@ -550,11 +550,9 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, z, coreactor_z)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
-	self->spr.pos.X = int(x * worldtoint);
-	self->spr.pos.Y = int(y * worldtoint);
-	self->spr.pos.Z = int(z * zworldtoint);
+	self->set_float_pos({ x, y, z });
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->spr.pos);
+	if (relink) SetActor(self, self->int_pos());
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
@@ -571,9 +569,9 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
 void coreactor_copypos(DCoreActor* self, DCoreActor* other, int relink)
 {
 	if (!other) return;
-	self->spr.pos = other->spr.pos;
+	self->copy_pos(other);
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->spr.pos);
+	if (relink) SetActor(self, self->int_pos());
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, copypos, coreactor_setpos)
@@ -587,11 +585,9 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, copypos, coreactor_setpos)
 
 void coreactor_move(DCoreActor* self, double x, double y, double z, int relink)
 {
-	self->spr.pos.X += int(x * 16);
-	self->spr.pos.Y += int(y * 16);
-	self->spr.pos.Z += int(z * 256);
+	self->add_float_pos({ x, y, z });
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->spr.pos);
+	if (relink) SetActor(self, self->int_pos());
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
@@ -607,27 +603,27 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
 
 void coreactor_setz(DCoreActor* self, double z)
 {
-	self->spr.pos.Z = int(z * 256);
+	self->set_float_z(z);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setz, coreactor_setz)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
 	PARAM_FLOAT(z);
-	self->spr.pos.Z = int(z * 256);
+	self->set_float_z(z);
 	return 0;
 }
 
 void coreactor_addz(DCoreActor* self, double z)
 {
-	self->spr.pos.Z += int(z * 256);
+	self->add_float_z(z);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, addz, coreactor_addz)
 {
 	PARAM_SELF_PROLOGUE(DCoreActor);
 	PARAM_FLOAT(z);
-	self->spr.pos.Z = int(z * 256);
+	self->add_float_z(z);
 	return 0;
 }
 

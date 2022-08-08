@@ -616,7 +616,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
-                    int32_t height, daz = int_pos().Z + actor->GetOffsetAndHeight(height);
+                    int32_t height, daz = actor->int_pos().Z + actor->GetOffsetAndHeight(height);
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
@@ -1166,7 +1166,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         int32_t k = walldist+(actor->spr.clipdist<<2)+1;
                         if ((abs(v1.X-pos.X) <= k) && (abs(v1.Y-pos.Y) <= k))
                         {
-                            daz = int_pos().Z + actor->GetOffsetAndHeight(k);
+                            daz = actor->int_pos().Z + actor->GetOffsetAndHeight(k);
                             daz2 = daz - k;
                             clipyou = 1;
                         }

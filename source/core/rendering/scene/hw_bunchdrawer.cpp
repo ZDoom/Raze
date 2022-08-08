@@ -676,7 +676,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.xrepeat == 0 || actor->spr.yrepeat == 0) // skip invisible sprites
 				continue;
 
-			int sx = actor->spr.pos.X - iview.X, sy = actor->spr.pos.Y - int(iview.Y);
+			int sx = actor->int_pos().X - iview.X, sy = actor->int_pos().Y - int(iview.Y);
 
 			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
 			//if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[actor->spr.picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 

@@ -68,7 +68,12 @@ public:
 	{ 
 		// This is only identical with the sprite index for items spawned at map start.
 		return time; 
-	}	
+	}
+	
+	void copy_pos(const DCoreActor* other)
+	{
+		spr.pos = other->spr.pos;
+	}
 
 	const vec3_t int_pos() const
 	{
@@ -110,6 +115,33 @@ public:
 	DVector3 float_pos() const
 	{
 		return { spr.pos.X * inttoworld, spr.pos.Y * inttoworld, spr.pos.Z * zinttoworld };
+	}
+	
+	void set_float_pos(const DVector3& pos)
+	{
+		spr.pos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+	}
+
+	void add_float_pos(const DVector3& pos)
+	{
+		spr.pos += { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+	}
+
+	void set_float_z(int z)
+	{
+		spr.pos.Z = int(z * zworldtoint);
+	}
+
+	void add_float_z(int z)
+	{
+		spr.pos.Z += int(z * zworldtoint);
+	}
+
+
+	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
+	DVector3 render_pos() const
+	{
+		return { spr.pos.X * inttoworld, -spr.pos.Y * inttoworld, -spr.pos.Z * zinttoworld };
 	}
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
