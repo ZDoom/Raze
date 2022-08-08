@@ -1102,7 +1102,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 {
 	// If the position changed we need to recalculate everything.
-	if (spr->__int_pos.X != last->__int_pos.X || spr->__int_pos.Y != last->__int_pos.Y || spr->sectp != last->sectp || spr->ang != last->ang) return 3;
+	if (spr->int_pos().X != last->int_pos().X || spr->int_pos().Y != last->int_pos().Y || spr->sectp != last->sectp || spr->ang != last->ang) return 3;
 	
 	// if the horizontal orientation changes we need to recalculate the walls this attaches to, but not the positioning.
 	if (spr->xrepeat != last->xrepeat || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;

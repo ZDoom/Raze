@@ -298,11 +298,7 @@ struct tspritetype native
 	native int8 yoffset;
 	native CoreActor ownerActor;
 	native int time;
-	
-	//void setPic(string texture);
-	native Vector3 pos();
-	native void setPos(Vector3 pos);
-	native void addPos(Vector3 pos);
+
 }
 
 enum ESprextFlags

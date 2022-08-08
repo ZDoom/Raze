@@ -557,7 +557,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 {
 	auto tspr = tsprites.newTSprite();
 
-	tspr->__int_pos = actor->int_pos();
+	tspr->set_int_pos(actor->int_pos());
 	tspr->cstat = actor->spr.cstat;
 	tspr->picnum = actor->spr.picnum;
 	tspr->shade = actor->spr.shade;

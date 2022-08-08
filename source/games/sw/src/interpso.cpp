@@ -110,15 +110,15 @@ static double getvalue(so_interp::interp_data& element)
         return SectorObject[index].pmid.Z;
     case soi_sprx:
 		if (element.actorofang)
-			return element.actorofang->int_pos().X;
+			return element.actorofang->float_pos().X;
         break;
     case soi_spry:
 		if (element.actorofang)
-			return element.actorofang->int_pos().Y;
+			return element.actorofang->float_pos().Y;
         break;
     case soi_sprz:
 		if (element.actorofang)
-			return element.actorofang->int_pos().Z;
+			return element.actorofang->float_pos().Z;
         break;
     default:
 		break;
@@ -157,15 +157,15 @@ static void setvalue(so_interp::interp_data& element, double value)
         break;
     case soi_sprx:
         if (element.actorofang)
-            element.actorofang->spr.__int_pos.X = (int)value;
+			element.actorofang->add_float_pos({ value, 0, 0});
         break;
     case soi_spry:
         if (element.actorofang)
-            element.actorofang->spr.__int_pos.Y = (int)value;
+			element.actorofang->add_float_pos({ 0, value, 0});
         break;
     case soi_sprz:
         if (element.actorofang)
-            element.actorofang->spr.__int_pos.Z = (int)value;
+			element.actorofang->add_float_pos({ 0, 0, value});
         break;
     default:
         break;

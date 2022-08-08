@@ -391,10 +391,10 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
-		pNSprite->__int_pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->__int_pos.X, pNSprite->__int_pos.Y);
+		pNSprite->set_int_z(getflorzofslopeptr(pTSprite->sectp, pNSprite->int_pos().X, pNSprite->int_pos().Y));
 		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
-			int cX = pNSprite->__int_pos.X, cY = pNSprite->__int_pos.Y, cZ = pNSprite->__int_pos.Z, cZrel = pNSprite->__int_pos.Z;
+			int cX = pNSprite->int_pos().X, cY = pNSprite->int_pos().Y, cZ = pNSprite->int_pos().Z, cZrel = pNSprite->int_pos().Z;
 			auto cSect = pNSprite->sectp;
 			for (int i = 0; i < 16; i++) // scan through max stacked sectors
 			{
@@ -407,7 +407,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 				cZ = newFloorZ;
 			}
 			pNSprite->sectp = cSect;
-			pNSprite->__int_pos.Z = cZrel;
+			pNSprite->set_int_z(cZrel);
 		}
 		pNSprite->shade = 127;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
@@ -419,7 +419,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 5;
 		int height = tileHeight(pNSprite->picnum);
 		int center = height / 2 + tileTopOffset(pNSprite->picnum);
-		pNSprite->__int_pos.Z -= (pNSprite->yrepeat << 2) * (height - center);
+		pNSprite->add_int_z(-(pNSprite->yrepeat << 2) * (height - center));
 		break;
 	}
 	case kViewEffectFlareHalo:
