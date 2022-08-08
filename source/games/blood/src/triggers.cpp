@@ -967,7 +967,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	{
 		int oldZ = pSector->floorz;
 		pSector->setfloorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16)));
-		pSector->velFloor += (pSector->floorz - oldZ);
+		pSector->velFloor += (pSector->floorz - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
