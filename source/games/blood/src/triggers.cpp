@@ -866,6 +866,15 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			});
 	};
 
+
+#ifdef NOONE_EXTENSIONS
+	// fix Y arg in RotatePoint for reverse (green) moving sprites?
+	int sprDy = (gModernMap) ? a5 : a4;
+#else
+	int sprDy = a4;
+#endif
+
+
 	if (bAllWalls)
 	{
 		for (auto& wal : wallsofsector(pSector))
@@ -929,7 +938,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 		{
 			if (ang)
-				RotatePoint((int*)&x, (int*)&y, -ang, a4, a4);
+				RotatePoint((int*)&x, (int*)&y, -ang, a4, sprDy);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang - v14) & 2047;
 			actor->spr.pos.X = x - (vc - a4);
@@ -951,6 +960,47 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			}
 		}
 	}
+
+#ifdef NOONE_EXTENSIONS
+	// translate sprites near outside walls
+	////////////////////////////////////////////////////////////
+
+	if (gModernMap)
+	{
+		auto ptr = gSprNSect.GetSprPtr(sectnum(pSector));
+		if (ptr)
+		{
+			for (auto& ac : *ptr)
+			{
+				if (ac == nullptr)
+					continue;
+
+				x = ac->basePoint.X;
+				y = ac->basePoint.Y;
+				if (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
+				{
+					if (ang)
+						RotatePoint(&x, &y, ang, a4, a5);
+					viewBackupSpriteLoc(ac);
+					ac->spr.ang = (ac->spr.ang + v14) & 2047;
+					ac->spr.pos.X = x + vc - a4;
+					ac->spr.pos.Y = y + v8 - a5;
+				}
+				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
+				{
+					if (ang)
+						RotatePoint(&x, &y, -ang, a4, sprDy);
+					viewBackupSpriteLoc(ac);
+					ac->spr.ang = (ac->spr.ang - v14) & 2047;
+					ac->spr.pos.X = x - (vc - a4);
+					ac->spr.pos.Y = y - (v8 - a5);
+				}
+			}
+		}
+	}
+	/////////////////////
+#endif
+
 }
 
 //---------------------------------------------------------------------------
@@ -962,11 +1012,20 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 {
 	viewInterpolateSector(pSector);
-	int dz = pXSector->onFloorZ - pXSector->offFloorZ;
-	if (dz != 0)
+
+	int dfz = pXSector->onFloorZ - pXSector->offFloorZ;
+	int dcz = pXSector->onCeilZ - pXSector->offCeilZ;
+
+#ifdef NOONE_EXTENSIONS
+	// get pointer to sprites near outside walls before translation
+	///////////////////////////////////////////////////////////////
+	auto ptr1 = (gModernMap && (dfz || dcz))? gSprNSect.GetSprPtr(sectnum(pSector)) : nullptr;
+#endif
+
+	if (dfz != 0)
 	{
 		int oldZ = pSector->floorz;
-		pSector->setfloorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16)));
+		pSector->setfloorz((pSector->baseFloor = pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
 		pSector->velFloor += (pSector->floorz - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
@@ -989,12 +1048,31 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				actor->spr.pos.Z += pSector->floorz - oldZ;
 			}
 		}
+
+
+#ifdef NOONE_EXTENSIONS
+		// translate sprites near outside walls (floor)
+		////////////////////////////////////////////////////////////
+		if (ptr1)
+		{
+			for(auto& ac : *ptr1)
+			{
+				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD))
+				{
+					viewBackupSpriteLoc(ac);
+					ac->spr.pos.Z += pSector->floorz - oldZ;
+				}
+			}
+		}
+		/////////////////////
+#endif
+
 	}
-	dz = pXSector->onCeilZ - pXSector->offCeilZ;
-	if (dz != 0)
+
+	if (dcz != 0)
 	{
 		int oldZ = pSector->ceilingz;
-		pSector->setceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16)));
+		pSector->setceilingz((pSector->baseCeil = pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
 		pSector->velCeil += (pSector->ceilingz - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
@@ -1008,6 +1086,26 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				actor->spr.pos.Z += pSector->ceilingz - oldZ;
 			}
 		}
+
+
+#ifdef NOONE_EXTENSIONS
+		// translate sprites near outside walls (ceil)
+		////////////////////////////////////////////////////////////
+		if (ptr1)
+		{
+			for (auto& ac : *ptr1)
+			{
+				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE))
+				{
+					viewBackupSpriteLoc(ac);
+					ac->spr.pos.Z += pSector->ceilingz - oldZ;
+				}
+			}
+		}
+
+		/////////////////////
+#endif
+
 	}
 }
 
@@ -2153,15 +2251,49 @@ void trProcessBusy(void)
 //
 //---------------------------------------------------------------------------
 
+static void UpdateBasePoints(sectortype* pSector)
+{
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+	{
+		// must set basepoint for outside sprites as well
+		auto ptr1 = gSprNSect.GetSprPtr(sectnum(pSector));
+		if (ptr1)
+		{
+			for (auto& ac : *ptr1)
+				ac->basePoint = ac->spr.pos;
+		}
+	}
+#endif
+
+	for (auto& wal : wallsofsector(pSector))
+	{
+		wal.baseWall = wal.pos;
+	}
+	BloodSectIterator it(pSector);
+	while (auto actor = it.Next())
+	{
+		actor->basePoint = actor->spr.pos;
+	}
+
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void InitGenerator(DBloodActor*);
 
 void trInit(TArray<DBloodActor*>& actors)
 {
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+		gSprNSect.Init(); // collect sprites near outside walls
+#endif
+
 	gBusy.Clear();
-	for (auto& wal : wall)
-	{
-		wal.baseWall = wal.pos;
-	}
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
@@ -2170,6 +2302,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	}
 	for (auto& wal : wall)
 	{
+		wal.baseWall = wal.pos;
 		if (wal.hasX())
 		{
 			XWALL* pXWall = &wal.xw();
@@ -2209,15 +2342,7 @@ void trInit(TArray<DBloodActor*>& actors)
 				auto marker0 = pXSector->marker0;
 				auto marker1 = pXSector->marker1;
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
-				for (auto& wal : wallsofsector(pSector))
-				{
-					wal.baseWall = wal.pos;
-				}
-				BloodSectIterator it(pSector);
-				while (auto actor = it.Next())
-				{
-					actor->basePoint = actor->spr.pos;
-				}
+				UpdateBasePoints(pSector);
 				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, pSector->type == kSectorSlide);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
@@ -2227,19 +2352,12 @@ void trInit(TArray<DBloodActor*>& actors)
 			{
 				auto marker0 = pXSector->marker0;
 				TranslateSector(pSector, 0, -65536, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
-				for (auto& wal : wallsofsector(pSector))
-				{
-					wal.baseWall = wal.pos;
-				}
-				BloodSectIterator it(pSector);
-				while (auto actor = it.Next())
-				{
-					actor->basePoint = actor->spr.pos;
-				}
+				UpdateBasePoints(pSector);
 				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, 0, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, pSector->type == kSectorRotate);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
+
 			case kSectorPath:
 				InitPath(pSector, pXSector);
 				break;

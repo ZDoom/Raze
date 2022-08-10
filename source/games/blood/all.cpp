@@ -47,6 +47,7 @@
 #include "src/messages.cpp"
 #include "src/mirrors.cpp"
 #include "src/misc.cpp"
+#include "src/nnsprinsect.cpp"
 #include "src/nnexts.cpp"
 #include "src/osdcmd.cpp"
 #include "src/player.cpp"

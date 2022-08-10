@@ -9090,8 +9090,9 @@ void SerializeNNExts(FSerializer& arc)
 			.Array("impactspriteslist", gImpactSpritesList, gImpactSpritesCount)
 			("eventredirects", gEventRedirectsUsed)
 			("trconditioncount", gTrackingCondsCount)
-			.Array("trcondition", gCondition, gTrackingCondsCount)
-			.EndObject();
+			.Array("trcondition", gCondition, gTrackingCondsCount);
+		gSprNSect.Serialize(arc);
+		arc.EndObject();
 	}
 }
 
