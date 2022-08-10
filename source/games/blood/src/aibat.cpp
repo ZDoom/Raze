@@ -86,8 +86,7 @@ static void batThinkTarget(DBloodActor* actor)
 	{
 		pDudeExtraE->thinkTime = 0;
 		actor->xspr.goalAng += 256;
-		POINT3D* pTarget = &actor->basePoint;
-		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
+		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &batTurn);
 		return;
 	}

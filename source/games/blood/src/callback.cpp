@@ -298,7 +298,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 		if (actor->IsDudeActor())
 		{
 			int nType = actor->spr.type - kDudeBase;
-			actor->set_int_pos(actor->basePoint);
+			actor->spr.pos = actor->basePoint;
 			actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #ifdef NOONE_EXTENSIONS
 			if (!gModernMap || actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->spr.type - kDudeBase].startHealth << 4;

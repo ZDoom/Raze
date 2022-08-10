@@ -6223,7 +6223,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
 	DBloodActor* actor = InsertSprite(source->sector(), nStat);
 
-	actor->set_int_pos(source->int_pos());
+	actor->spr.pos = source->spr.pos;
 	actor->vel = source->vel;
 	actor->spr.flags = 0;
 	actor->addX();
@@ -6653,7 +6653,7 @@ bool actCheckRespawn(DBloodActor* actor)
 			if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
 			{
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->set_int_pos(actor->basePoint);
+				actor->spr.pos = actor->basePoint;
 			}
 			evPostActor(actor, nRespawnTime, kCallbackRespawn);
 		}

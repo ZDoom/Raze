@@ -214,8 +214,7 @@ static void sub_725A4(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		actor->xspr.goalAng += 256;
-		POINT3D* pTarget = &actor->basePoint;
-		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
+		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &tcherno13AA28);
 		return;
 	}

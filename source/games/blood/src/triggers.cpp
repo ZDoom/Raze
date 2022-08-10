@@ -929,12 +929,12 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			break;
 		}
 
-		x = actor->basePoint.X;
-		y = actor->basePoint.Y;
+		x = int(actor->basePoint.X * worldtoint);
+		y = int(actor->basePoint.Y * worldtoint);
 		if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 		{
 			if (ang)
-				RotatePoint((int*)&x, (int*)&y, ang, a4, a5);
+				RotatePoint(&x, &y, ang, a4, a5);
 			viewBackupSpriteLoc(actor);
 			actor->spr.ang = (actor->spr.ang + v14) & 2047;
 			actor->set_int_xy(x + vc - a4, y + v8 - a5);
@@ -981,8 +981,8 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				if (ac == nullptr)
 					continue;
 
-				x = ac->basePoint.X;
-				y = ac->basePoint.Y;
+				x = int(ac->basePoint.X * worldtoint);
+				y = int(ac->basePoint.Y * worldtoint);
 				if (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 				{
 					if (ang)
@@ -1242,7 +1242,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->set_int_z(actor->basePoint.Z + MulScale(dz1, GetWaveValue(a2, nWave), 16));
+				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz1, GetWaveValue(a2, nWave), 16) * inttoworld;
 			}
 		}
 	}
@@ -1255,7 +1255,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->set_int_z(actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16));
+				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16) * inttoworld;
 			}
 		}
 	}
@@ -2272,7 +2272,7 @@ static void UpdateBasePoints(sectortype* pSector)
 		if (ptr1)
 		{
 			for (auto& ac : *ptr1)
-				ac->basePoint = ac->int_pos();
+				ac->basePoint = ac->spr.pos;
 		}
 	}
 #endif
@@ -2284,7 +2284,7 @@ static void UpdateBasePoints(sectortype* pSector)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		actor->basePoint = actor->int_pos();
+		actor->basePoint = actor->spr.pos;
 	}
 
 }
@@ -2309,7 +2309,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	{
 		if (!actor->exists()) continue;
 		actor->spr.inittype = actor->spr.type;
-		actor->basePoint = actor->int_pos();
+		actor->basePoint = actor->spr.pos;
 	}
 	for (auto& wal : wall)
 	{
