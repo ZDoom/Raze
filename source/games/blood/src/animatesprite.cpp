@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static fixed_t gCameraAng;
+static binangle gCameraAng;
 int dword_172CE0[16][3];
 
 //---------------------------------------------------------------------------
@@ -96,16 +96,16 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	pTSprite->statnum = nStatnum;
 	pTSprite->sectp = pSector;
 
-	vec3_t pos = { 0,0,0 };
+	DVector3 pos = { 0,0,0 };
 	if (parentTSprite)
 	{
-		pos = parentTSprite->int_pos();
+		pos = parentTSprite->pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
 		pTSprite->ang = parentTSprite->ang;
 	}
-	pos.X += Cos(gCameraAng) >> 25;
-	pos.Y += Sin(gCameraAng) >> 25;
-	pTSprite->set_int_pos(pos);
+	pos.X += gCameraAng.fcos() * 2;
+	pos.Y += gCameraAng.fsin() * 2;
+	pTSprite->pos = pos;
 	return pTSprite;
 }
 
@@ -546,7 +546,7 @@ static void viewApplyDefaultPal(tspritetype* pTSprite, sectortype const* pSector
 //
 //---------------------------------------------------------------------------
 
-void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
+void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, binangle cA, int32_t smoothratio)
 {
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
@@ -1018,7 +1018,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
+	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang, int(smoothRatio));
 }
 
 int display_mirror;
