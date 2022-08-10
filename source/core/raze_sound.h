@@ -22,6 +22,10 @@ inline FVector3 GetSoundPos(const vec3_t& pos)
     return { pos.X * xmul, pos.Z * zmul, pos.Y * ymul };
 }
 
+inline FVector3 GetSoundPos(const DVector3& pos)
+{
+    return { float(pos.X), float(-pos.Z), float(-pos.Y) };
+}
 
 enum
 {

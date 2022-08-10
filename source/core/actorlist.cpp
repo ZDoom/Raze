@@ -366,7 +366,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 void DCoreActor::OnDestroy()
 {
-	FVector3 pos = GetSoundPos(int_pos());
+	FVector3 pos = GetSoundPos(spr.pos);
 	soundEngine->RelinkSound(SOURCE_Actor, this, nullptr, &pos);
 
 	// also scan all other sounds if they have this actor as source. If so, null the source and stop looped sounds.
@@ -530,7 +530,7 @@ void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink
 {
 	self->spr.pos = { x, y, z };
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->int_pos());
+	if (relink) SetActor(self, self->spr.pos);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpos, coreactor_setpos)
@@ -549,7 +549,7 @@ void coreactor_copypos(DCoreActor* self, DCoreActor* other, int relink)
 	if (!other) return;
 	self->spr.pos = other->spr.pos;
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->int_pos());
+	if (relink) SetActor(self, self->spr.pos);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, copypos, coreactor_setpos)
@@ -565,7 +565,7 @@ void coreactor_move(DCoreActor* self, double x, double y, double z, int relink)
 {
 	self->spr.pos += { x, y, z };
 	// todo: SW needs to call updatesectorz here or have a separate function.
-	if (relink) SetActor(self, self->int_pos());
+	if (relink) SetActor(self, self->spr.pos);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)

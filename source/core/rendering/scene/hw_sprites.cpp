@@ -332,9 +332,9 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 
 	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
-	x = spr->int_pos().X * (1 / 16.f);
-	z = spr->int_pos().Z * (1 / -256.f);
-	y = spr->int_pos().Y * (1 / -16.f);
+	x = spr->pos.X;
+	z = -spr->pos.Z;
+	y = -spr->pos.Y;
 	auto vp = di->Viewpoint;
 
 	if ((vp.Pos.XY() - DVector2(x, y)).LengthSquared() < 0.125) return;
@@ -395,9 +395,9 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		float viewvecX = vp.ViewVector.X;
 		float viewvecY = vp.ViewVector.Y;
 
-		x = spr->int_pos().X * (1 / 16.f);
-		y = spr->int_pos().Y * (1 / -16.f);
-		z = spr->int_pos().Z * (1 / -256.f);
+		x = spr->pos.X;
+		y = -spr->pos.Y;
+		z = -spr->pos.Z;
 
 		x1 = x - viewvecY * (xoff - (width * 0.5f));
 		x2 = x - viewvecY * (xoff + (width * 0.5f));

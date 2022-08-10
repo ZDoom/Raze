@@ -177,7 +177,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		auto svp = &di->SlopeSpriteVertices[svi];
 
 		auto& vpt = di->Viewpoint;
-		depth = (float)((Sprite->int_pos().X * (1/16.f) - vpt.Pos.X) * vpt.TanCos + (Sprite->int_pos().Y * (1 / -16.f) - vpt.Pos.Y) * vpt.TanSin);
+		depth = (float)((Sprite->pos.X - vpt.Pos.X) * vpt.TanCos + (-Sprite->pos.Y - vpt.Pos.Y) * vpt.TanSin);
 
 		for (unsigned j = 0; j < 4; j++)
 		{
@@ -421,12 +421,12 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);
 	bool belowfloor = false;
-	if (sprite->int_pos().Z > sprite->sectp->int_floorz())
+	if (sprite->pos.Z > sprite->sectp->floorz)
 	{
 		belowfloor = true;
-		sprite->set_int_z(sprite->sectp->int_floorz());
+		sprite->pos.Z = sprite->sectp->floorz;
 	}
-	z = sprite->int_pos().Z * (1 / -256.f);
+	z = -sprite->pos.Z;
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 	dynlightindex = -1;
 

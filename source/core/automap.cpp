@@ -607,7 +607,8 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		{
 			auto A = *(DCoreActor**)a;
 			auto B = *(DCoreActor**)b;
-			if (A->int_pos().Z != B->int_pos().Z) return B->int_pos().Z - A->int_pos().Z;
+			if (A->spr.pos.Z < B->spr.pos.Z) return 1;
+			if (A->spr.pos.Z > B->spr.pos.Z) return -1;
 			return A->time - B->time; // ensures stable sort.
 		});
 
