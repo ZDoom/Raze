@@ -64,6 +64,7 @@ enum
 	kModernTypeFlag4 = 0x0004,
 	kModernTypeFlag8 = 0x0008,
 	kModernTypeFlag16 = 0x0010,
+	kModernTypeFlag64 = 0x0040,
 
 	kMaxRandomizeRetries = 16,
 	kPercFull = 100,
@@ -139,6 +140,7 @@ enum {
 	kModernCondition = 501, /// WIP, sends command only if specified conditions == true
 	kModernConditionFalse = 502, /// WIP, sends command only if specified conditions != true
 	kModernSlopeChanger = 504,
+	kModernVelocityChanger = 506,
 	kGenModernMissileUniversal = 704,
 	kGenModernSound = 708,
 };
@@ -322,11 +324,12 @@ void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, 
 void useSectorLightChanger(DBloodActor* pXSource, sectortype* pSector);
 void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor);
 void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype*, walltype*, DBloodActor* objActor);
-void useSequentialTx(DBloodActor* pXSource, COMMAND_ID cmd, bool setState);
-void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState);
+void useSequentialTx(DBloodActor* pXSource, COMMAND_ID cmd, bool setState, DBloodActor* initiator);
+void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState, DBloodActor* initiator);
 void useDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
-void seqTxSendCmdAll(DBloodActor* pXSource, DBloodActor* nIndex, COMMAND_ID cmd, bool modernSend);
+void useVelocityChanger(DBloodActor* pXSource, sectortype* sect, DBloodActor* causerID, DBloodActor* pSprite);
+void seqTxSendCmdAll(DBloodActor* pXSource, DBloodActor* nIndex, COMMAND_ID cmd, bool modernSend, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
 void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
@@ -335,7 +338,7 @@ void modernTypeTrigger(int type, sectortype* sect, walltype* wal, DBloodActor* a
 bool modernTypeOperateSector(sectortype* pSector, const EVENT& event);
 bool modernTypeOperateSprite(DBloodActor*, EVENT& event);
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
-void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
+void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
 bool playerSizeShrink(PLAYER* pPlayer, int divider);
 bool playerSizeGrow(PLAYER* pPlayer, int multiplier);
@@ -371,6 +374,11 @@ void condError(DBloodActor* pXCond, const char* pzFormat, ...);
 void condUpdateObjectIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
 DBloodActor* evrListRedirectors(int objType, sectortype*, walltype*, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
 void seqSpawnerOffSameTx(DBloodActor* actor);
+void triggerTouchSprite(DBloodActor* pSprite, DBloodActor* nHSprite);
+void triggerTouchWall(DBloodActor* pSprite, walltype* nHWall);
+void killEvents(int nRx, int nCmd);
+void changeSpriteAngle(DBloodActor* pSpr, int nAng);
+int getVelocityAngle(DBloodActor* pSpr);
 //  -------------------------------------------------------------------------   //
 void aiPatrolSetMarker(DBloodActor* actor);
 void aiPatrolThink(DBloodActor* actor);

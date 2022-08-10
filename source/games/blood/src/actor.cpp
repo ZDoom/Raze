@@ -3410,7 +3410,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 			gPlayer[p].fragger = nullptr;
 	}
 	if (actor->spr.type != kDudeCultistBeast)
-		trTriggerSprite(actor, kCmdOff);
+		trTriggerSprite(actor, kCmdOff, killerActor);
 
 	actor->spr.flags |= 7;
 	checkAddFrag(killerActor, actor);
@@ -3690,7 +3690,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			break;
 		}
 
-		trTriggerSprite(actor, kCmdOff);
+		trTriggerSprite(actor, kCmdOff, source);
 
 		switch (actor->spr.type)
 		{
@@ -4087,7 +4087,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap && actorHit && actorHit->hasX() && actorHit->xspr.state != actorHit->xspr.restState && actorHit->xspr.Impact)
-		trTriggerSprite(actorHit, kCmdSpriteImpact);
+		trTriggerSprite(actorHit, kCmdSpriteImpact, missileActor);
 #endif
 	missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 }
@@ -4470,8 +4470,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 
 		if (actor2 && actor2->hasX())
 		{
-			if (actor2->xspr.Touch && !actor2->xspr.isTriggered && (!actor2->xspr.DudeLockout || actor->IsPlayerActor()))
-				trTriggerSprite(actor2, kCmdSpriteTouch);
+			triggerTouchSprite(actor, actor2);
 		}
 
 		// Touch walls
@@ -4482,14 +4481,9 @@ static void ProcessTouchObjects(DBloodActor* actor)
 			pHWall = coll.hitWall;
 			if (pHWall && pHWall->hasX())
 			{
-				if (pHWall->xw().triggerTouch && !pHWall->xw().isTriggered && (!pHWall->xw().dudeLockout || actor->IsPlayerActor()))
-					trTriggerWall(pHWall, kCmdWallTouch);
+				triggerTouchWall(actor, pHWall);
 			}
 		}
-
-		// enough to reset SpriteHit values
-		if (pHWall != nullptr || actor2) actor->vel.X += 5;
-
 	}
 #endif
 }
@@ -4804,14 +4798,14 @@ void MoveDude(DBloodActor* actor)
 			}
 #ifdef NOONE_EXTENSIONS
 			if (!gModernMap && hitActor->hasX() && hitActor->xspr.Touch && !hitActor->xspr.state && !hitActor->xspr.isTriggered)
-				trTriggerSprite(coll.actor(), kCmdSpriteTouch);
+				trTriggerSprite(coll.actor(), kCmdSpriteTouch, actor);
 #else
 			if (hitActor->hasX() && hitActor->xspr.Touch && !hitActor->xspr.state && !hitActor->xspr.isTriggered)
 				trTriggerSprite(coll.actor, kCmdSpriteTouch);
 #endif
 
 			if (pDudeInfo->lockOut && hitActor->hasX() && hitActor->xspr.Push && !hitActor->xspr.key && !hitActor->xspr.DudeLockout && !hitActor->xspr.state && !hitActor->xspr.busy && !pPlayer)
-				trTriggerSprite(coll.actor(), kCmdSpritePush);
+				trTriggerSprite(coll.actor(), kCmdSpritePush, actor);
 
 			break;
 		}
@@ -4822,7 +4816,7 @@ void MoveDude(DBloodActor* actor)
 			if (pHitWall->hasX()) pHitXWall = &pHitWall->xw();
 
 			if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
-				trTriggerWall(pHitWall, kCmdWallPush);
+				trTriggerWall(pHitWall, kCmdWallPush, actor);
 
 			if (pHitWall->twoSided())
 			{
@@ -4830,7 +4824,7 @@ void MoveDude(DBloodActor* actor)
 				XSECTOR* pHitXSector = pHitSector->hasX() ? &pHitSector->xs() : nullptr;
 
 				if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
-					trTriggerSector(pHitSector, kCmdSectorPush);
+					trTriggerSector(pHitSector, kCmdSectorPush, actor);
 
 				if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
 				{
@@ -4857,14 +4851,14 @@ void MoveDude(DBloodActor* actor)
 		XSECTOR* pXOldSector = pOldSector->hasX() ? &pOldSector->xs() : nullptr;
 
 		if (pXOldSector && pXOldSector->Exit && (pPlayer || !pXOldSector->dudeLockout))
-			trTriggerSector(pOldSector, kCmdSectorExit);
+			trTriggerSector(pOldSector, kCmdSectorExit, actor);
 		ChangeActorSect(actor, pSector);
 
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
 			if (pSector->type == kSectorTeleport)
 				pXSector->actordata = actor;
-			trTriggerSector(pSector, kCmdSectorEnter);
+			trTriggerSector(pSector, kCmdSectorEnter, actor);
 		}
 
 		pSector = actor->sector();
@@ -5306,7 +5300,7 @@ int MoveMissile(DBloodActor* actor)
 				XWALL* pXWall = &pWall->xw();
 				if (pXWall->triggerVector)
 				{
-					trTriggerWall(pWall, kCmdWallImpact);
+					trTriggerWall(pWall, kCmdWallImpact, Owner? Owner : actor);
 					if (!(pWall->cstat & CSTAT_WALL_BLOCK_HITSCAN))
 					{
 						cliptype = -1;
@@ -5638,7 +5632,7 @@ static void actCheckProximity()
 								break;
 							}
 							if (actor->GetOwner() == nullptr) actor->SetOwner(dudeactor);
-							trTriggerSprite(actor, kCmdSpriteProximity);
+							trTriggerSprite(actor, kCmdSpriteProximity, dudeactor);
 						}
 					}
 				}
@@ -5702,7 +5696,7 @@ static void actCheckThings()
 				Collision hit = MoveThing(actor);
 				if (hit.type)
 				{
-					if (actor->xspr.Impact) trTriggerSprite(actor, kCmdOff);
+					if (actor->xspr.Impact) trTriggerSprite(actor, kCmdOff, hit.type == kHitSprite? hit.safeActor() : nullptr);
 
 					switch (actor->spr.type)
 					{
@@ -5814,7 +5808,7 @@ static void actCheckExplosion()
 
 		for (auto pWall : affectedXWalls)
 		{
-			trTriggerWall(pWall, kCmdWallImpact);
+			trTriggerWall(pWall, kCmdWallImpact, Owner);
 		}
 
 		BloodStatIterator it1(kStatDude);
@@ -5906,7 +5900,7 @@ static void actCheckExplosion()
 					if (!CheckSector(sectorMap, impactactor) || !CheckProximity(impactactor, x, y, z, pSector, radius))
 						continue;
 
-					trTriggerSprite(impactactor, kCmdSpriteImpact);
+					trTriggerSprite(impactactor, kCmdSpriteImpact, Owner);
 				}
 			}
 
@@ -6043,7 +6037,7 @@ static void actCheckDudes()
 					if (actor2->IsPlayerActor() && (unsigned int)actor2->xspr.health > 0)
 					{
 						if (CheckProximity(actor2, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->sector(), 128))
-							trTriggerSprite(actor, kCmdSpriteProximity);
+							trTriggerSprite(actor, kCmdSpriteProximity, actor2);
 					}
 				}
 			}
@@ -6772,7 +6766,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			if (pWall->hasX())
 			{
 				if (pWall->xw().triggerVector)
-					trTriggerWall(pWall, kCmdWallImpact);
+					trTriggerWall(pWall, kCmdWallImpact, shooter);
 			}
 			break;
 		}
@@ -6787,7 +6781,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			if (vectorType == kVectorTine && !actor->IsPlayerActor()) shift = 3;
 
 			actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << shift);
-			if (actor->hasX() && actor->xspr.Vector) trTriggerSprite(actor, kCmdSpriteImpact);
+			if (actor->hasX() && actor->xspr.Vector) trTriggerSprite(actor, kCmdSpriteImpact, shooter);
 
 			if (actor->spr.statnum == kStatThing)
 			{

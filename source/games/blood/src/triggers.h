@@ -51,18 +51,18 @@ struct BUSY {
 
 extern TArray<BUSY> gBusy;
 
-void trTriggerSector(sectortype* pSector, int command);
+void trTriggerSector(sectortype* pSector, int command, DBloodActor* initiator = nullptr);
 void trMessageSector(sectortype* pSector, EVENT event);
-void trTriggerWall(walltype*, int command);
+void trTriggerWall(walltype*, int command, DBloodActor* initiator = nullptr);
 void trMessageWall(walltype* pWall, EVENT& event);
-void trTriggerSprite(DBloodActor* actor, int command);
+void trTriggerSprite(DBloodActor* actor, int command, DBloodActor* initiator = nullptr);
 void trMessageSprite(DBloodActor* actor, EVENT event);
 void trProcessBusy(void);
 void trInit(TArray<DBloodActor*>& actors);
 void trTextOver(int nId);
-bool SetSpriteState(DBloodActor* actor, int nState);
-bool SetWallState(walltype* pWall, int nState);
-bool SetSectorState(sectortype* pSector, int nState);
+bool SetSpriteState(DBloodActor* actor, int nState, DBloodActor* initiator);
+bool SetWallState(walltype* pWall, int nState, DBloodActor* initiator);
+bool SetSectorState(sectortype* pSector, int nState, DBloodActor* initiator);
 void TeleFrag(DBloodActor* killer, sectortype* pSector);
 void SectorStartSound(sectortype* pSector, int nState);
 void SectorEndSound(sectortype* pSector, int nState);

@@ -387,7 +387,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	if (impact == true && dist <= 7680) spawned->xspr.Impact = true;
 	else {
 		spawned->xspr.Impact = false;
-		evPostActor(spawned, 120 * Random(2) + 120, kCmdOn);
+		evPostActor(spawned, 120 * Random(2) + 120, kCmdOn, actor);
 	}
 }
 
@@ -1973,7 +1973,7 @@ void genDudeTransform(DBloodActor* actor)
 	if (actIncarnation == NULL)
 	{
 		if (actor->xspr.sysData1 == kGenDudeTransformStatus) actor->xspr.sysData1 = 0;
-		trTriggerSprite(actor, kCmdOff);
+		trTriggerSprite(actor, kCmdOff, actor);
 		return;
 	}
 
@@ -1988,7 +1988,7 @@ void genDudeTransform(DBloodActor* actor)
 	actIncarnation->xspr.triggerOff = false;
 
 	// trigger dude death before transform
-	trTriggerSprite(actor, kCmdOff);
+	trTriggerSprite(actor, kCmdOff, actor);
 
 	actor->spr.type = actor->spr.inittype = actIncarnation->spr.type;
 	actor->spr.flags = actIncarnation->spr.flags;

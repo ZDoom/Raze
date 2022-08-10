@@ -142,7 +142,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	if (v4)
 		pMissile->xspr.Impact = 1;
 	else
-		evPostActor(pMissile, 120 * (1 + Random(2)), kCmdOn);
+		evPostActor(pMissile, 120 * (1 + Random(2)), kCmdOn, actor);
 }
 
 void sub_68170(int, DBloodActor* actor)
@@ -152,7 +152,7 @@ void sub_68170(int, DBloodActor* actor)
 		nMissile = kThingArmedTNTBundle;
 	sfxPlay3DSound(actor, 455, -1, 0);
 	auto pMissile = actFireThing(actor, 0, 0, actor->dudeSlope - 9460, nMissile, 0x133333);
-	evPostActor(pMissile, 120 * (2 + Random(2)), kCmdOn);
+	evPostActor(pMissile, 120 * (2 + Random(2)), kCmdOn, actor);
 }
 
 void sub_68230(int, DBloodActor* actor)

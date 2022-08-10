@@ -1198,7 +1198,7 @@ void ThrowCan(int, PLAYER* pPlayer)
 	{
 		sfxPlay3DSound(spawned, 441, 0, 0);
 		spawned->spr.shade = -128;
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
 		spawned->xspr.Impact = 1;
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 		pPlayer->throwPower = 0;
@@ -1217,7 +1217,7 @@ void DropCan(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 	}
 }
@@ -1234,7 +1234,7 @@ void ExplodeCan(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 0, kCmdOn);
+		evPostActor(spawned, 0, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 		StartQAV(pPlayer, kQAVCANBOOM);
 		pPlayer->curWeapon = kWeapNone;
@@ -1259,7 +1259,7 @@ void ThrowBundle(int, PLAYER* pPlayer)
 		if (pPlayer->fuseTime < 0)
 			spawned->xspr.Impact = 1;
 		else
-			evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
+			evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 5, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1277,7 +1277,7 @@ void DropBundle(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 5, 1);
 	}
 }
@@ -1294,7 +1294,7 @@ void ExplodeBundle(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 0, kCmdOn);
+		evPostActor(spawned, 0, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 5, 1);
 		StartQAV(pPlayer, kQAVDYNEXPLO);
 		pPlayer->curWeapon = kWeapNone;
@@ -1315,7 +1315,7 @@ void ThrowProx(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
 	if (spawned)
 	{
-		evPostActor(spawned, 240, kCmdOn);
+		evPostActor(spawned, 240, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 10, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1332,7 +1332,7 @@ void DropProx(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 240, kCmdOn);
+		evPostActor(spawned, 240, kCmdOn, pPlayer->actor);
 		UseAmmo(pPlayer, 10, 1);
 	}
 }

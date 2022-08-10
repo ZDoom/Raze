@@ -60,13 +60,13 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
 //
 //---------------------------------------------------------------------------
 
-bool SetSpriteState(DBloodActor* actor, int nState)
+bool SetSpriteState(DBloodActor* actor, int nState, DBloodActor* initiator)
 {
 	if ((actor->xspr.busy & 0xffff) == 0 && actor->xspr.state == nState)
 		return 0;
 	actor->xspr.busy = IntToFixed(nState);
 	actor->xspr.state = nState;
-	evKillActor(actor);
+	evKillActor(actor, initiator);
 	if ((actor->spr.flags & kHitagRespawn) != 0 && actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax)
 	{
 		actor->xspr.respawnPending = 3;
@@ -74,13 +74,13 @@ bool SetSpriteState(DBloodActor* actor, int nState)
 		return 1;
 	}
 	if (actor->xspr.restState != nState && actor->xspr.waitTime > 0)
-		evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
+		evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff, initiator);
 	if (actor->xspr.txID)
 	{
 		if (actor->xspr.command != kCmdLink && actor->xspr.triggerOn && actor->xspr.state)
-			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 		if (actor->xspr.command != kCmdLink && actor->xspr.triggerOff && !actor->xspr.state)
-			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 	}
 	return 1;
 }
@@ -91,22 +91,22 @@ bool SetSpriteState(DBloodActor* actor, int nState)
 //
 //---------------------------------------------------------------------------
 
-bool SetWallState(walltype* pWall, int nState)
+bool SetWallState(walltype* pWall, int nState, DBloodActor* initiator)
 {
 	auto pXWall = &pWall->xw();
 	if ((pXWall->busy & 0xffff) == 0 && pXWall->state == nState)
 		return 0;
 	pXWall->busy = IntToFixed(nState);
 	pXWall->state = nState;
-	evKillWall(pWall);
+	evKillWall(pWall, initiator);
 	if (pXWall->restState != nState && pXWall->waitTime > 0)
-		evPostWall(pWall, (pXWall->waitTime * 120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
+		evPostWall(pWall, (pXWall->waitTime * 120) / 10, pXWall->restState ? kCmdOn : kCmdOff, initiator);
 	if (pXWall->txID)
 	{
 		if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
-			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command, initiator);
 		if (pXWall->command != kCmdLink && pXWall->triggerOff && !pXWall->state)
-			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command, initiator);
 	}
 	return 1;
 }
@@ -117,7 +117,7 @@ bool SetWallState(walltype* pWall, int nState)
 //
 //---------------------------------------------------------------------------
 
-bool SetSectorState(sectortype* pSector, int nState)
+bool SetSectorState(sectortype* pSector, int nState, DBloodActor* initiator)
 {
 	assert(pSector->hasX());
 	auto pXSector = &pSector->xs();
@@ -125,30 +125,30 @@ bool SetSectorState(sectortype* pSector, int nState)
 		return 0;
 	pXSector->busy = IntToFixed(nState);
 	pXSector->state = nState;
-	evKillSector(pSector);
+	evKillSector(pSector, initiator);
 	if (nState == 1)
 	{
 		if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
-			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command);
+			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command, initiator);
 		if (pXSector->stopOn)
 		{
 			pXSector->stopOn = 0;
 			pXSector->stopOff = 0;
 		}
 		else if (pXSector->reTriggerA)
-			evPostSector(pSector, (pXSector->waitTimeA * 120) / 10, kCmdOff);
+			evPostSector(pSector, (pXSector->waitTimeA * 120) / 10, kCmdOff, initiator);
 	}
 	else
 	{
 		if (pXSector->command != kCmdLink && pXSector->triggerOff && pXSector->txID)
-			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command);
+			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command, initiator);
 		if (pXSector->stopOff)
 		{
 			pXSector->stopOn = 0;
 			pXSector->stopOff = 0;
 		}
 		else if (pXSector->reTriggerB)
-			evPostSector(pSector, (pXSector->waitTimeB * 120) / 10, kCmdOn);
+			evPostSector(pSector, (pXSector->waitTimeB * 120) / 10, kCmdOn, initiator);
 	}
 	return 1;
 }
@@ -172,6 +172,7 @@ void AddBusy(sectortype* pSector, BUSYID a2, int nDelta)
 			return;
 		}
 	}
+	if (VanillaMode() && gBusy.Size() == 128) return;
 	BUSY b = { pSector, nDelta, nDelta > 0 ? 0 : 65536, a2 };
 	gBusy.Push(b);
 }
@@ -228,7 +229,8 @@ unsigned int GetSourceBusy(EVENT& a1)
 
 void LifeLeechOperate(DBloodActor* actor, EVENT event)
 {
-	switch (event.cmd) {
+	switch (event.cmd) 
+	{
 	case kCmdSpritePush:
 	{
 		int nPlayer = actor->xspr.data4;
@@ -317,6 +319,7 @@ void ActivateGenerator(DBloodActor*);
 
 void OperateSprite(DBloodActor* actor, EVENT event)
 {
+	DBloodActor* initiator = event.initiator;
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap && modernTypeOperateSprite(actor, event))
 		return;
@@ -338,7 +341,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 
 		switch (event.cmd) {
 		case kCmdOff:
-			SetSpriteState(actor, 0);
+			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdSpriteProximity:
 			if (actor->xspr.state) break;
@@ -346,7 +349,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		case kCmdOn:
 		case kCmdSpritePush:
 		case kCmdSpriteTouch:
-			if (!actor->xspr.state) SetSpriteState(actor, 1);
+			if (!actor->xspr.state) SetSpriteState(actor, 1, initiator);
 			aiActivateDude(actor);
 			break;
 		}
@@ -360,11 +363,11 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		if (actor->xspr.health <= 0) break;
 		switch (event.cmd) {
 		case kCmdOff:
-			if (!SetSpriteState(actor, 0)) break;
+			if (!SetSpriteState(actor, 0, initiator)) break;
 			seqSpawn(40, actor, -1);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			seqSpawn(38, actor, nMGunOpenClient);
 			if (actor->xspr.data1 > 0)
 				actor->xspr.data2 = actor->xspr.data1;
@@ -372,15 +375,15 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		}
 		break;
 	case kThingFallingRock:
-		if (SetSpriteState(actor, 1))
+		if (SetSpriteState(actor, 1, initiator))
 			actor->spr.flags |= 7;
 		break;
 	case kThingWallCrack:
-		if (SetSpriteState(actor, 0))
+		if (SetSpriteState(actor, 0, initiator))
 			actPostSprite(actor, kStatFree);
 		break;
 	case kThingCrateFace:
-		if (SetSpriteState(actor, 0))
+		if (SetSpriteState(actor, 0, initiator))
 			actPostSprite(actor, kStatFree);
 		break;
 	case kTrapZapSwitchable:
@@ -405,12 +408,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kTrapFlame:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (!SetSpriteState(actor, 0)) break;
+			if (!SetSpriteState(actor, 0, initiator)) break;
 			seqSpawn(40, actor, -1);
 			sfxKill3DSound(actor, 0, -1);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			seqSpawn(38, actor, -1);
 			sfxPlay3DSound(actor, 441, 0, 0);
 			break;
@@ -419,14 +422,14 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSwitchPadlock:
 		switch (event.cmd) {
 		case kCmdOff:
-			SetSpriteState(actor, 0);
+			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			seqSpawn(37, actor, -1);
 			break;
 		default:
-			SetSpriteState(actor, actor->xspr.state ^ 1);
+			SetSpriteState(actor, actor->xspr.state ^ 1, initiator);
 			if (actor->xspr.state) seqSpawn(37, actor, -1);
 			break;
 		}
@@ -434,15 +437,15 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSwitchToggle:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (!SetSpriteState(actor, 0)) break;
+			if (!SetSpriteState(actor, 0, initiator)) break;
 			sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
 			break;
 		default:
-			if (!SetSpriteState(actor, actor->xspr.state ^ 1)) break;
+			if (!SetSpriteState(actor, actor->xspr.state ^ 1, initiator)) break;
 			if (actor->xspr.state) sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
 			else sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
 			break;
@@ -451,15 +454,15 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSwitchOneWay:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (!SetSpriteState(actor, 0)) break;
+			if (!SetSpriteState(actor, 0, initiator)) break;
 			sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
 			break;
 		default:
-			if (!SetSpriteState(actor, actor->xspr.restState ^ 1)) break;
+			if (!SetSpriteState(actor, actor->xspr.restState ^ 1, initiator)) break;
 			if (actor->xspr.state) sfxPlay3DSound(actor, actor->xspr.data1, 0, 0);
 			else sfxPlay3DSound(actor, actor->xspr.data2, 0, 0);
 			break;
@@ -482,12 +485,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		sfxPlay3DSound(actor, actor->xspr.data4, -1, 0);
 
 		if (actor->xspr.command == kCmdLink && actor->xspr.txID > 0)
-			evSendActor(actor, actor->xspr.txID, kCmdLink);
+			evSendActor(actor, actor->xspr.txID, kCmdLink, initiator);
 
 		if (actor->xspr.data1 == actor->xspr.data2)
-			SetSpriteState(actor, 1);
+			SetSpriteState(actor, 1, initiator);
 		else
-			SetSpriteState(actor, 0);
+			SetSpriteState(actor, 0, initiator);
 
 		break;
 	case kMarkerDudeSpawn:
@@ -518,7 +521,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kMarkerEarthQuake:
 		actor->xspr.triggerOn = 0;
 		actor->xspr.isTriggered = 1;
-		SetSpriteState(actor, 1);
+		SetSpriteState(actor, 1, initiator);
 		for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
 			auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
 			int dx = (vec.X) >> 4;
@@ -539,7 +542,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kTrapExploder:
 		switch (event.cmd) {
 		case kCmdOn:
-			SetSpriteState(actor, 1);
+			SetSpriteState(actor, 1, initiator);
 			break;
 		default:
 			actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -552,7 +555,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 			if (event.cmd != kCmdOn) actExplodeSprite(actor);
 			else {
 				sfxPlay3DSound(actor, 454, 0, 0);
-				evPostActor(actor, 18, kCmdOff);
+				evPostActor(actor, 18, kCmdOff, initiator);
 			}
 		}
 		break;
@@ -562,7 +565,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 			case kCmdSpriteProximity:
 				if (actor->xspr.state) break;
 				sfxPlay3DSound(actor, 452, 0, 0);
-				evPostActor(actor, 30, kCmdOff);
+				evPostActor(actor, 30, kCmdOff, initiator);
 				actor->xspr.state = 1;
 				[[fallthrough]];
 			case kCmdOn:
@@ -589,20 +592,20 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kGenSound:
 		switch (event.cmd) {
 		case kCmdOff:
-			SetSpriteState(actor, 0);
+			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdRepeat:
 			if (actor->spr.type != kGenTrigger) ActivateGenerator(actor);
-			if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			if (actor->xspr.busyTime > 0) {
 				int nRand = Random2(actor->xspr.data1);
-				evPostActor(actor, 120 * (nRand + actor->xspr.busyTime) / 10, kCmdRepeat);
+				evPostActor(actor, 120 * (nRand + actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 			}
 			break;
 		default:
 			if (!actor->xspr.state) {
-				SetSpriteState(actor, 1);
-				evPostActor(actor, 0, kCmdRepeat);
+				SetSpriteState(actor, 1, initiator);
+				evPostActor(actor, 0, kCmdRepeat, initiator);
 			}
 			break;
 		}
@@ -623,15 +626,15 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kThingZombieHead:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (!SetSpriteState(actor, 0)) break;
+			if (!SetSpriteState(actor, 0, initiator)) break;
 			actActivateGibObject(actor);
 			break;
 		case kCmdOn:
-			if (!SetSpriteState(actor, 1)) break;
+			if (!SetSpriteState(actor, 1, initiator)) break;
 			actActivateGibObject(actor);
 			break;
 		default:
-			if (!SetSpriteState(actor, actor->xspr.state ^ 1)) break;
+			if (!SetSpriteState(actor, actor->xspr.state ^ 1, initiator)) break;
 			actActivateGibObject(actor);
 			break;
 		}
@@ -639,13 +642,13 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	default:
 		switch (event.cmd) {
 		case kCmdOff:
-			SetSpriteState(actor, 0);
+			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			SetSpriteState(actor, 1);
+			SetSpriteState(actor, 1, initiator);
 			break;
 		default:
-			SetSpriteState(actor, actor->xspr.state ^ 1);
+			SetSpriteState(actor, actor->xspr.state ^ 1, initiator);
 			break;
 		}
 		break;
@@ -694,7 +697,9 @@ void SetupGibWallState(walltype* pWall, XWALL* pXWall)
 //
 //---------------------------------------------------------------------------
 
-void OperateWall(walltype* pWall, EVENT event) {
+void OperateWall(walltype* pWall, EVENT event) 
+{
+	DBloodActor* initiator = event.initiator;
 	auto pXWall = &pWall->xw();
 
 	switch (event.cmd) {
@@ -720,13 +725,13 @@ void OperateWall(walltype* pWall, EVENT event) {
 		switch (event.cmd) {
 		case kCmdOn:
 		case kCmdWallImpact:
-			bStatus = SetWallState(pWall, 1);
+			bStatus = SetWallState(pWall, 1, initiator);
 			break;
 		case kCmdOff:
-			bStatus = SetWallState(pWall, 0);
+			bStatus = SetWallState(pWall, 0, initiator);
 			break;
 		default:
-			bStatus = SetWallState(pWall, pXWall->state ^ 1);
+			bStatus = SetWallState(pWall, pXWall->state ^ 1, initiator);
 			break;
 		}
 
@@ -743,13 +748,13 @@ void OperateWall(walltype* pWall, EVENT event) {
 	default:
 		switch (event.cmd) {
 		case kCmdOff:
-			SetWallState(pWall, 0);
+			SetWallState(pWall, 0, initiator);
 			break;
 		case kCmdOn:
-			SetWallState(pWall, 1);
+			SetWallState(pWall, 1, initiator);
 			break;
 		default:
-			SetWallState(pWall, pXWall->state ^ 1);
+			SetWallState(pWall, pXWall->state ^ 1, initiator);
 			break;
 		}
 		return;
@@ -1175,7 +1180,7 @@ DBloodActor* GetCrushedSpriteExtents(sectortype* pSector, int* pzTop, int* pzBot
 //
 //---------------------------------------------------------------------------
 
-int VCrushBusy(sectortype* pSector, unsigned int a2)
+int VCrushBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1202,10 +1207,10 @@ int VCrushBusy(sectortype* pSector, unsigned int a2)
 		pSector->setfloorz(v10);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1218,7 +1223,7 @@ int VCrushBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int VSpriteBusy(sectortype* pSector, unsigned int a2)
+int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1255,10 +1260,10 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1271,7 +1276,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int VDoorBusy(sectortype* pSector, unsigned int a2)
+int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1354,10 +1359,10 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1370,7 +1375,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int HDoorBusy(sectortype* pSector, unsigned int a2)
+int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1386,10 +1391,10 @@ int HDoorBusy(sectortype* pSector, unsigned int a2)
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1402,7 +1407,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int RDoorBusy(sectortype* pSector, unsigned int a2)
+int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1417,10 +1422,10 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1433,7 +1438,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int StepRotateBusy(sectortype* pSector, unsigned int a2)
+int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1454,10 +1459,10 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		pXSector->data = vbp & 2047;
 		return 3;
@@ -1471,16 +1476,16 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int GenSectorBusy(sectortype* pSector, unsigned int a2)
+int GenSectorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
-		evSendSector(pSector, pXSector->txID, kCmdLink);
+		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
 	if ((a2 & 0xffff) == 0)
 	{
-		SetSectorState(pSector, FixedToInt(a2));
+		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
 		return 3;
 	}
@@ -1493,7 +1498,7 @@ int GenSectorBusy(sectortype* pSector, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-int PathBusy(sectortype* pSector, unsigned int a2)
+int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 {
 	assert(pSector && pSector->hasX());
 	XSECTOR* pXSector = &pSector->xs();
@@ -1509,7 +1514,7 @@ int PathBusy(sectortype* pSector, unsigned int a2)
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
 	{
-		evPostSector(pSector, (120 * marker1->xspr.waitTime) / 10, kCmdOn);
+		evPostSector(pSector, (120 * marker1->xspr.waitTime) / 10, kCmdOn, initiator);
 		pXSector->state = 0;
 		pXSector->busy = 0;
 		if (marker0->xspr.data4)
@@ -1676,7 +1681,7 @@ void OperatePath(sectortype* pSector, EVENT event)
 	// trigger marker after it gets reached
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap && marker0->xspr.state != 1)
-		trTriggerSprite(pXSector->marker0, kCmdOn);
+		trTriggerSprite(pXSector->marker0, kCmdOn, event.initiator);
 #endif
 
 	if (actor == nullptr) {
@@ -1778,17 +1783,18 @@ void OperateSector(sectortype* pSector, EVENT event)
 			OperatePath(pSector, event);
 			break;
 		default:
-			if (!pXSector->busyTimeA && !pXSector->busyTimeB) {
-
+			if (!pXSector->busyTimeA && !pXSector->busyTimeB) 
+			{
+				DBloodActor* initiator = event.initiator;
 				switch (event.cmd) {
 				case kCmdOff:
-					SetSectorState(pSector, 0);
+					SetSectorState(pSector, 0, initiator);
 					break;
 				case kCmdOn:
-					SetSectorState(pSector, 1);
+					SetSectorState(pSector, 1, initiator);
 					break;
 				default:
-					SetSectorState(pSector, pXSector->state ^ 1);
+					SetSectorState(pSector, pXSector->state ^ 1, initiator);
 					break;
 				}
 
@@ -1835,7 +1841,7 @@ void InitPath(sectortype* pSector, XSECTOR* pXSector)
 
 	pXSector->basePath = pXSector->marker0 = actor;
 	if (pXSector->state)
-		evPostSector(pSector, 0, kCmdOn);
+		evPostSector(pSector, 0, kCmdOn, nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -1846,27 +1852,28 @@ void InitPath(sectortype* pSector, XSECTOR* pXSector)
 
 void LinkSector(sectortype* pSector, EVENT event)
 {
+	DBloodActor* initiator = event.initiator;
 	auto pXSector = &pSector->xs();
 	int nBusy = GetSourceBusy(event);
 	switch (pSector->type) {
 	case kSectorZMotionSprite:
-		VSpriteBusy(pSector, nBusy);
+		VSpriteBusy(pSector, nBusy, initiator);
 		break;
 	case kSectorZMotion:
-		VDoorBusy(pSector, nBusy);
+		VDoorBusy(pSector, nBusy, initiator);
 		break;
 	case kSectorSlideMarked:
 	case kSectorSlide:
-		HDoorBusy(pSector, nBusy);
+		HDoorBusy(pSector, nBusy, initiator);
 		break;
 	case kSectorRotateMarked:
 	case kSectorRotate:
-		RDoorBusy(pSector, nBusy);
+		RDoorBusy(pSector, nBusy, initiator);
 		break;
 	default:
 		pXSector->busy = nBusy;
 		if ((pXSector->busy & 0xffff) == 0)
-			SetSectorState(pSector, FixedToInt(nBusy));
+			SetSectorState(pSector, FixedToInt(nBusy), initiator);
 		break;
 	}
 }
@@ -1879,6 +1886,7 @@ void LinkSector(sectortype* pSector, EVENT event)
 
 void LinkSprite(DBloodActor* actor, EVENT event)
 {
+	DBloodActor* initiator = event.initiator;
 	int nBusy = GetSourceBusy(event);
 
 	switch (actor->spr.type) {
@@ -1890,9 +1898,9 @@ void LinkSprite(DBloodActor* actor, EVENT event)
 
 			actor->xspr.data1 = actor2 && actor2->hasX() ? actor2->xspr.data1 : 0;
 			if (actor->xspr.data1 == actor->xspr.data2)
-				SetSpriteState(actor, 1);
+				SetSpriteState(actor, 1, initiator);
 			else
-				SetSpriteState(actor, 0);
+				SetSpriteState(actor, 0, initiator);
 		}
 	}
 	break;
@@ -1900,7 +1908,7 @@ void LinkSprite(DBloodActor* actor, EVENT event)
 	{
 		actor->xspr.busy = nBusy;
 		if ((actor->xspr.busy & 0xffff) == 0)
-			SetSpriteState(actor, FixedToInt(nBusy));
+			SetSpriteState(actor, FixedToInt(nBusy), initiator);
 	}
 	break;
 	}
@@ -1917,7 +1925,7 @@ void LinkWall(walltype* pWall, EVENT& event)
 	int nBusy = GetSourceBusy(event);
 	pWall->xw().busy = nBusy;
 	if ((pWall->xw().busy & 0xffff) == 0)
-		SetWallState(pWall, FixedToInt(nBusy));
+		SetWallState(pWall, FixedToInt(nBusy), event.initiator);
 }
 
 //---------------------------------------------------------------------------
@@ -1926,7 +1934,7 @@ void LinkWall(walltype* pWall, EVENT& event)
 //
 //---------------------------------------------------------------------------
 
-void trTriggerSector(sectortype* pSector, int command)
+void trTriggerSector(sectortype* pSector, int command, DBloodActor* initiator)
 {
 	auto pXSector = &pSector->xs();
 	if (!pXSector->locked && !pXSector->isTriggered) {
@@ -1935,11 +1943,12 @@ void trTriggerSector(sectortype* pSector, int command)
 			pXSector->isTriggered = 1;
 
 		if (pXSector->decoupled && pXSector->txID > 0)
-			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command);
+			evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command, initiator);
 
 		else {
 			EVENT event;
 			event.cmd = command;
+			event.initiator = gModernMap? initiator : nullptr;
 			OperateSector(pSector, event);
 		}
 
@@ -1952,7 +1961,7 @@ void trTriggerSector(sectortype* pSector, int command)
 //
 //---------------------------------------------------------------------------
 
-void trTriggerWall(walltype* pWall, int command)
+void trTriggerWall(walltype* pWall, int command, DBloodActor* initiator)
 {
 	if (!pWall->hasX()) return;
 	auto pXWall = &pWall->xw();
@@ -1962,11 +1971,12 @@ void trTriggerWall(walltype* pWall, int command)
 			pXWall->isTriggered = 1;
 
 		if (pXWall->decoupled && pXWall->txID > 0)
-			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+			evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command, initiator);
 
 		else {
 			EVENT event;
 			event.cmd = command;
+			event.initiator = gModernMap ? initiator : nullptr;
 			OperateWall(pWall, event);
 		}
 
@@ -1979,7 +1989,7 @@ void trTriggerWall(walltype* pWall, int command)
 //
 //---------------------------------------------------------------------------
 
-void trTriggerSprite(DBloodActor* actor, int command)
+void trTriggerSprite(DBloodActor* actor, int command, DBloodActor* initiator)
 {
 	if (!actor->xspr.locked && !actor->xspr.isTriggered) {
 
@@ -1987,11 +1997,12 @@ void trTriggerSprite(DBloodActor* actor, int command)
 			actor->xspr.isTriggered = 1;
 
 		if (actor->xspr.Decoupled && actor->xspr.txID > 0)
-			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 
 		else {
 			EVENT event;
 			event.cmd = command;
+			event.initiator = gModernMap ? initiator : nullptr;
 			OperateSprite(actor, event);
 		}
 
@@ -2198,7 +2209,7 @@ void AlignSlopes(void)
 //
 //---------------------------------------------------------------------------
 
-int(*gBusyProc[])(sectortype*, unsigned int) =
+int(*gBusyProc[])(sectortype*, unsigned int, DBloodActor*) =
 {
 	VCrushBusy,
 	VSpriteBusy,
@@ -2222,7 +2233,7 @@ void trProcessBusy(void)
 		int oldBusy = gBusy[i].busy;
 		gBusy[i].busy = ClipRange(oldBusy + gBusy[i].delta * 4, 0, 65536);
 #ifdef NOONE_EXTENSIONS
-		if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy);
+		if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy, nullptr);
 		else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
 #else
 		nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
@@ -2382,9 +2393,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kModernRandom2:
 
 				if (!gModernMap || actor->xspr.state == actor->xspr.restState) break;
-				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat);
+				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, actor);
 				if (actor->xspr.waitTime > 0)
-					evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
+					evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff, actor);
 				break;
 			case kModernSeqSpawner:
 			case kModernObjDataAccumulator:
@@ -2392,9 +2403,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kModernEffectSpawner:
 			case kModernWindGenerator:
 				if (actor->xspr.state == actor->xspr.restState) break;
-				evPostActor(actor, 0, kCmdRepeat);
+				evPostActor(actor, 0, kCmdRepeat, actor);
 				if (actor->xspr.waitTime > 0)
-					evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
+					evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff, actor);
 				break;
 #endif
 			case kGenTrigger:
@@ -2473,7 +2484,7 @@ void InitGenerator(DBloodActor* actor)
 		break;
 	}
 	if (actor->xspr.state != actor->xspr.restState && actor->xspr.busyTime > 0)
-		evPostActor(actor, (120 * (actor->xspr.busyTime + Random2(actor->xspr.data1))) / 10, kCmdRepeat);
+		evPostActor(actor, (120 * (actor->xspr.busyTime + Random2(actor->xspr.data1))) / 10, kCmdRepeat, actor);
 }
 
 //---------------------------------------------------------------------------
@@ -2550,7 +2561,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 		{
 			actor->xspr.data2--;
 			if (actor->xspr.data2 == 0)
-				evPostActor(actor, 1, kCmdOff);
+				evPostActor(actor, 1, kCmdOff, actor);
 		}
 		int dx = bcos(actor->spr.ang) + Random2(1000);
 		int dy = bsin(actor->spr.ang) + Random2(1000);

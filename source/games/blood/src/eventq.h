@@ -158,6 +158,7 @@ enum COMMAND_ID {
 	kCmdSectorMotionPause = 13,   // stops motion of the sector
 	kCmdSectorMotionContinue = 14,   // continues motion of the sector
 	kCmdDudeFlagsSet = 15,   // copy dudeFlags from sprite to dude
+	kCmdEventKillFull = 16,   // immediately kill the pending object events
 	kCmdModernUse = 53,   // used by most of modern types
 #endif
 
@@ -192,6 +193,7 @@ struct EVENT
 	int8_t cmd;
 	int16_t funcID;
 	int priority;
+	TObjPtr<DBloodActor*> initiator;
 
 	bool operator<(const EVENT& other) const
 	{
@@ -238,16 +240,17 @@ struct EVENT
 };
 
 void evInit(TArray<DBloodActor*>& actors);
-void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
+void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
 void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
 
-void evPostSector(sectortype* index, unsigned int nDelta, COMMAND_ID command);
+void evPostSector(sectortype* index, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
 void evPostSector(sectortype* index, unsigned int nDelta, CALLBACK_ID callback);
 
-void evPostWall(walltype* index, unsigned int nDelta, COMMAND_ID command);
+void evPostWall(walltype* index, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
 
 void evProcess(unsigned int nTime);
 void evKillActor(DBloodActor*);
+void evKillActor(DBloodActor*, DBloodActor* initiator);
 void evKillActor(DBloodActor*, CALLBACK_ID a3);
 
 END_BLD_NS

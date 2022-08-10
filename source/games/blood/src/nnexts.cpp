@@ -436,21 +436,21 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void nnExtTriggerObject(EventObject& eob, int command)
+void nnExtTriggerObject(EventObject& eob, int command, DBloodActor* initiator)
 {
 	if (eob.isSector())
 	{
-		trTriggerSector(eob.sector(), command);
+		trTriggerSector(eob.sector(), command, initiator);
 	}
 	else if (eob.isWall())
 	{
-		trTriggerWall(eob.wall(), command);
+		trTriggerWall(eob.wall(), command, initiator);
 	}
 	else if (eob.isActor())
 	{
 		auto objActor = eob.actor();
 		if (!objActor || !objActor->hasX()) return;
-		trTriggerSprite(objActor, command);
+		trTriggerSprite(objActor, command, initiator);
 	}
 }
 
@@ -695,7 +695,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				break;
 			}
 			case 67: // play qav animation
-				if (actor->xspr.txID && !actor->xspr.waitTime) actor->xspr.waitTime = 1;
+				if (actor->xspr.txID >= kChannelUser && !actor->xspr.waitTime) actor->xspr.waitTime = 1;
 				ChangeActorStat(actor, kStatModernQavScene);
 				break;
 			}
@@ -758,7 +758,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			case kStatFX:           case kStatExplosion:            case kStatItem:
 			case kStatPurge:        case kStatSpares:               case kStatFlare:
 			case kStatInactive:     case kStatFree:                 case kStatMarker:
-			case kStatPathMarker:   case kStatThing:                case kStatDude:
+			case kStatThing:        case kStatDude:
 			case kStatModernPlayerLinker:
 				break;
 			default:
@@ -777,7 +777,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			case kStatFX:           case kStatExplosion:            case kStatItem:
 			case kStatPurge:        case kStatSpares:               case kStatFlare:
 			case kStatInactive:     case kStatFree:                 case kStatMarker:
-			case kStatPathMarker:   case kStatModernPlayerLinker:
+			case kStatModernPlayerLinker:
 				break;
 			default:
 				gSightSpritesList[gSightSpritesCount++] = actor;
@@ -795,7 +795,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			case kStatFX:           case kStatExplosion:            case kStatItem:
 			case kStatPurge:        case kStatSpares:               case kStatFlare:
 			case kStatInactive:     case kStatFree:                 case kStatMarker:
-			case kStatPathMarker:   case kStatModernPlayerLinker:
+			case kStatModernPlayerLinker:
 				break;
 			default:
 				gImpactSpritesList[gImpactSpritesCount++] = actor;
@@ -1102,6 +1102,7 @@ void nnExtProcessSuperSprites()
 					evn.target = pCond->obj[k].obj;
 					evn.cmd = pCond->obj[k].cmd;
 					evn.funcID = kCallbackMax;
+					evn.initiator = nullptr;
 					useCondition(pCond->actor, evn);
 				}
 			}
@@ -1111,6 +1112,7 @@ void nnExtProcessSuperSprites()
 				evn.target = EventObject(pCond->actor);
 				evn.cmd = (int8_t)aCond->xspr.command;
 				evn.funcID = kCallbackMax;
+				evn.initiator = nullptr;
 				useCondition(pCond->actor, evn);
 			}
 
@@ -1193,7 +1195,7 @@ void nnExtProcessSuperSprites()
 					if (!affected->hasX() || affected->xspr.health <= 0) continue;
 					else if (CheckProximity(affected, x, y, z, pSect, okDist))
 					{
-						trTriggerSprite(pProx, kCmdSpriteProximity);
+						trTriggerSprite(pProx, kCmdSpriteProximity, affected);
 						break;
 					}
 				}
@@ -1208,8 +1210,7 @@ void nnExtProcessSuperSprites()
 
 					if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
 					{
-						trTriggerSprite(pProx, kCmdSpriteProximity);
-						break;
+						trTriggerSprite(pProx, kCmdSpriteProximity, pPlayer->actor);
 					}
 				}
 			}
@@ -1253,8 +1254,7 @@ void nnExtProcessSuperSprites()
 				{
 					if (pSight->xspr.Sight)
 					{
-						trTriggerSprite(pSight, kCmdSpriteSight);
-						break;
+						trTriggerSprite(pSight, kCmdSpriteSight, plActor);
 					}
 
 					if (pSight->xspr.unused3 & kTriggerSpriteAim)
@@ -1270,8 +1270,7 @@ void nnExtProcessSuperSprites()
 
 						if (gHitInfo.actor() == pSight)
 						{
-							trTriggerSprite(gHitInfo.actor(), kCmdSpriteSight);
-							break;
+							trTriggerSprite(gHitInfo.actor(), kCmdSpriteSight, plActor);
 						}
 					}
 				}
@@ -1854,7 +1853,7 @@ void debrisMove(int listIndex)
 		if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
 			ChangeActorStat(actor, kStatThing);
 
-		trTriggerSprite(actor, kCmdToggle);
+		trTriggerSprite(actor, kCmdToggle, actor);
 	}
 
 	if (!actor->vel.X && !actor->vel.Y) return;
@@ -2584,6 +2583,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 		// data4 = set wall cstat
 		if (valueIsBetween(data4, -1, 65535))
 		{
+			auto old = pWall->cstat;
 			// relative
 			if (flag1)
 			{
@@ -2593,7 +2593,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 			// absolute
 			else
 			{
-				auto old = pWall->cstat;
 				pWall->cstat = EWallFlags::FromInt(data4);
 				if (!flag2)
 				{
@@ -2613,6 +2612,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 		// data3 = set sprite hitag
 		if (valueIsBetween(data3, -1, 32767))
 		{
+			old = targetactor->spr.flags;
 			// relative
 			if (flag1)
 			{
@@ -2622,7 +2622,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 			// absolute
 			else
 			{
-				old = targetactor->spr.flags;
 				targetactor->spr.flags = data3;
 			}
 			
@@ -3021,6 +3020,167 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 //
 //---------------------------------------------------------------------------
 
+void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initiator, DBloodActor* pSprite)
+//void useVelocityChanger(XSPRITE* pXSource, int causerID, short objType, int objIndex)
+{
+#define kVelShift       8
+#define kScaleVal       0x10000
+
+	int t, r = 0, nAng = 0, vAng = 0;
+	int xv = 0, yv = 0, zv = 0;
+
+	bool relative = (actor->spr.flags & kModernTypeFlag1);
+	bool toDstAng = (actor->spr.flags & kModernTypeFlag2);
+	bool toSrcAng = (actor->spr.flags & kModernTypeFlag4);
+	bool toRndAng = (actor->spr.flags & kModernTypeFlag8);
+	bool chgDstAng = !(actor->spr.flags & kModernTypeFlag16);
+	bool toEvnAng = (toDstAng && toSrcAng && initiator != NULL);
+	bool toAng = (toDstAng || toSrcAng || toEvnAng || toRndAng);
+	bool toAng180 = (toRndAng && (toDstAng || toSrcAng || toEvnAng));
+
+	if (actor)
+	{
+		if ((r = MulScale(actor->xspr.data4 << kVelShift, kScaleVal, 14)) != 0)
+			r = nnExtRandom(-r, r);
+
+		if (valueIsBetween(actor->xspr.data3, -32767, 32767))
+		{
+			if ((zv = MulScale(actor->xspr.data3 << kVelShift, kScaleVal, 14)) != 0)
+				zv += r;
+		}
+
+		if (!toAng)
+		{
+			if (valueIsBetween(actor->xspr.data1, -32767, 32767))
+			{
+				if ((xv = MulScale(actor->xspr.data1 << kVelShift, kScaleVal, 14)) != 0)
+					xv += r;
+			}
+
+			if (valueIsBetween(actor->xspr.data2, -32767, 32767))
+			{
+				if ((yv = MulScale(actor->xspr.data2 << kVelShift, kScaleVal, 14)) != 0)
+					yv += r;
+			}
+		}
+		else
+		{
+			if (toEvnAng)       nAng = initiator->spr.ang;
+			else if (toSrcAng)  nAng = actor->spr.ang;
+			else                nAng = pSprite->spr.ang;
+
+			nAng = nAng & 2047;
+
+			if (!toAng180 && toRndAng)
+			{
+				t = nAng;
+				while (t == nAng)
+					nAng = nnExtRandom(0, kAng360);
+			}
+
+			if (chgDstAng)
+				changeSpriteAngle(pSprite, nAng);
+
+			if ((t = (actor->xspr.data1 << kVelShift)) != 0)
+				t += r;
+
+			xv = MulScale(t, Cos(nAng) >> 16, 14);
+			yv = MulScale(t, Sin(nAng) >> 16, 14);
+		}
+
+		if (actor->xspr.physAttr)
+		{
+			t = 1;
+			switch (pSprite->spr.statnum) {
+			case kStatThing:
+				break;
+			case kStatFX:
+				t = 0;
+				[[fallthrough]];
+			case kStatDude:
+			case kStatProjectile:
+				if (actor->xspr.physAttr & kPhysMove)     pSprite->spr.flags |= kPhysMove;     else pSprite->spr.flags &= ~kPhysMove;
+				if (actor->xspr.physAttr & kPhysGravity)  pSprite->spr.flags |= kPhysGravity;  else pSprite->spr.flags &= ~kPhysGravity;
+				if (actor->xspr.physAttr & kPhysFalling)  pSprite->spr.flags |= kPhysFalling;  else pSprite->spr.flags &= ~kPhysFalling;
+				break;
+			}
+
+			// debris physics for sprites that is allowed
+			if (t && ((t = debrisGetIndex(pSprite)) >= 0 || (t = debrisGetFreeIndex()) >= 0))
+			{
+				pSprite->addX();
+
+				if (pSprite->spr.statnum == kStatThing)
+				{
+					pSprite->spr.flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
+					ChangeActorStat(pSprite, 0);
+				}
+
+				pSprite->xspr.physAttr = actor->xspr.physAttr, gPhysSpritesList[t] = pSprite;
+
+				getSpriteMassBySize(pSprite);
+				if (t >= gPhysSpritesCount)
+					gPhysSpritesCount++;
+			}
+		}
+
+		if (relative)
+		{
+			pSprite->vel.X += xv;
+			pSprite->vel.Y += yv;
+			pSprite->vel.Z += zv;
+		}
+		else
+		{
+			pSprite->vel.X = xv;
+			pSprite->vel.Y = yv;
+			pSprite->vel.Z = zv;
+		}
+
+		vAng = getVelocityAngle(pSprite);
+
+		if (toAng)
+		{
+			if (toAng180)
+				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, kAng180, pSprite->spr.pos.X, pSprite->spr.pos.Y);
+			else
+				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, (nAng - vAng) & 2047, pSprite->spr.pos.X, pSprite->spr.pos.Y);
+
+
+			vAng = getVelocityAngle(pSprite);
+		}
+
+		if (chgDstAng)
+			changeSpriteAngle(pSprite, vAng);
+
+		if (pSprite->ownerActor)
+		{
+			// hack to make player projectiles damage it's owner
+			if (pSprite->spr.statnum == kStatProjectile && pSprite->IsPlayerActor())
+				pSprite->ownerActor = pSprite;
+		}
+
+		viewCorrectPrediction();
+
+		//if (pXSource->rxID == 157)
+		//viewSetSystemMessage("%d: %d  /  %d  /  %d, C: %d", pSprite->spr.sectnum, pSprite->vel.X, pSprite->vel.Y, pSprite->vel.Z, sprite[causerID].type);
+	}
+	else if (sect)
+	{
+		BloodSectIterator it(sect);
+		while(auto act = it.Next())
+		{
+			useVelocityChanger(actor, nullptr, initiator, act);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 {
 	PLAYER* pPlayer = getPlayerById(actor->spr.type);
@@ -3047,7 +3207,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 
 		if (pXSector->Enter && (pPlayer || (isDude && !pXSector->dudeLockout)))
-			trTriggerSector(sourceactor->sector(), kCmdSectorEnter);
+			trTriggerSector(sourceactor->sector(), kCmdSectorEnter, actor);
 
 		if (pXSector->Underwater)
 		{
@@ -3106,7 +3266,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
 		aiInitSprite(actor);
 
-		if (target != nullptr)
+		if (target != nullptr && target->IsDudeActor())
 		{
 			actor->xspr.TargetPos.X = x;
 			actor->xspr.TargetPos.Y = y;
@@ -3116,6 +3276,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		}
 	}
 
+#if 0
 	if (sourceactor->xspr.data2 == 1)
 	{
 		if (pPlayer)
@@ -3126,9 +3287,27 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		else if (isDude) sourceactor->xspr.goalAng = actor->spr.ang = sourceactor->spr.ang;
 		else actor->spr.ang = sourceactor->spr.ang;
 	}
+#endif
 
 	if (sourceactor->xspr.data3 == 1)
+	{
 		actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
+	}
+	else if (sourceactor->xspr.data3 > 0)
+	{
+		// change movement direction according source angle
+		if (sourceactor->xspr.data3 & kModernTypeFlag2)
+		{
+			int vAng = getVelocityAngle(actor);
+			RotatePoint(&actor->vel.X, &actor->vel.Y, (sourceactor->spr.ang - vAng) & 2047, actor->spr.pos.X, actor->spr.pos.Y);
+		}
+
+		if (sourceactor->xspr.data3 & kModernTypeFlag4)
+			actor->vel.Z = 0;
+	}
+
+	if (sourceactor->xspr.data2 == 1)
+		changeSpriteAngle(actor, sourceactor->spr.ang);
 
 	viewBackupSpriteLoc(actor);
 
@@ -3185,9 +3364,16 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			break;
 		case 3:
 		case 4:
-			if (!actor->insector()) pos = top;
-			else pos = (sourceactor->xspr.data4 == 3) ? actor->sector()->floorz : actor->sector()->ceilingz;
-			break;
+			if (actor->insector())
+			{
+				if (sourceactor->xspr.data4 == 3)
+					pos = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+				else
+					pos = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+
+				break;
+			}
+			[[fallthrough]];
 		default:
 			pos = top;
 			break;
@@ -3619,7 +3805,9 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 				case 5:
 				case 6:
 					if (!iactor->insector()) spawned->spr.pos.Z = top;
-					else spawned->spr.pos.Z = (sourceactor->xspr.data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
+					else spawned->spr.pos.Z = ((sourceactor->xspr.data3 == 5) ?
+						getflorzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y) :
+						getceilzofslopeptr(spawned->sector(), spawned->spr.pos.X, spawned->spr.pos.Y));
 					break;
 				}
 
@@ -3810,8 +3998,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
 			case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
-			case 28: return (pObj->cstat & EWallFlags::FromInt(arg1));
-			case 29: return (pObj->hitag & arg1);
+			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
+			case 29: return (arg3) ? condCmp((pObj->hitag & arg3), arg1, arg2, cmpOp) : (pObj->hitag & arg1);
 			case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
 			case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);
 			case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
@@ -3828,8 +4016,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 25: return condCmp(actor->spr.picnum, arg1, arg2, cmpOp);
 			case 26: return condCmp(actor->spr.pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
-			case 28: return (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
-			case 29: return (actor->spr.flags & arg1);
+			case 28: return (arg3) ? condCmp((actor->spr.cstat & ESpriteFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
+			case 29: return (arg3) ? condCmp((actor->spr.hitag & arg3), arg1, arg2, cmpOp) : (actor->spr.hitag & arg1);
 			case 30: return condCmp(actor->spr.xrepeat, arg1, arg2, cmpOp);
 			case 31: return condCmp(actor->spr.xoffset, arg1, arg2, cmpOp);
 			case 32: return condCmp(actor->spr.yrepeat, arg1, arg2, cmpOp);
@@ -3884,7 +4072,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 				}
 				break;
 			}
-			case 29: return (pObj->hitag & arg1);
+			case 29: return (arg3) ? condCmp((pObj->hitag & arg3), arg1, arg2, cmpOp) : (pObj->hitag & arg1);
 			case 30: return condCmp(pObj->floorxpan(), arg1, arg2, cmpOp);
 			case 31: return condCmp(pObj->ceilingxpan(), arg1, arg2, cmpOp);
 			case 32: return condCmp(pObj->floorypan(), arg1, arg2, cmpOp);
@@ -4476,9 +4664,9 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
 			else if (objActor->IsDudeActor())
 				var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
-			else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
-				var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
+				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 0x10000 << 1 : -(0x10000 << 1);
 				var = HitScan(objActor, objActor->spr.pos.Z, Cos(objActor->spr.ang) >> 16, Sin(objActor->spr.ang) >> 16, var3, arg1, arg3 << 1);
 			}
 			else
@@ -4486,26 +4674,28 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), 0, arg1, arg3 << 1);
 			}
 
-			if (var >= 0)
-			{
-				switch (cond)
-				{
-				case 35: retn = (var == 1); break;
-				case 36: retn = (var == 2); break;
-				case 37: retn = (var == 0 || var == 4); break;
-				case 38: retn = (var == 3); break;
-				}
+			if (var < 0)
+				return false;
 
-				if (!PUSH) return retn;
-				switch (var)
-				{
-				case 0: case 4: condPush(aCond, gHitInfo.hitWall);    break;
-				case 1: case 2: condPush(aCond, gHitInfo.hitSector);    break;
-				case 3:         condPush(aCond, gHitInfo.actor());   break;
-				}
-
+			switch (cond) {
+			case 35:
+				if (var != 1) return false;
+				else if (PUSH) condPush(aCond, gHitInfo.hitSector);
+				return true;
+			case 36:
+				if (var != 2) return false;
+				else if (PUSH) condPush(aCond, gHitInfo.hitSector);
+				return true;
+			case 37:
+				if (var != 0 && var != 4) return false;
+				else if (PUSH) condPush(aCond, gHitInfo.hitWall);
+				return true;
+			case 38:
+				if (var != 3) return false;
+				else if (PUSH) condPush(aCond, gHitInfo.actor());
+				return true;
 			}
-			return retn;
+			break;
 
 		case 45: // this sprite is a target of some dude?
 			BloodStatIterator it(kStatDude);
@@ -4564,10 +4754,10 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.safeActor();
 				break;
 			}
-			if (actorvar == nullptr)
+			if (actorvar == nullptr && objActor->insector())
 			{
 				// check if something is touching this sprite
-				BloodSpriteIterator it;
+				BloodSectIterator it(objActor->sector());
 				while (auto iactor = it.Next())
 				{
 					if (iactor->spr.flags & kHitagRespawn) continue;
@@ -4675,7 +4865,7 @@ void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeSetSpriteState(DBloodActor* actor, int nState)
+bool modernTypeSetSpriteState(DBloodActor* actor, int nState, DBloodActor* initiator)
 {
 	if ((actor->xspr.busy & 0xffff) == 0 && actor->xspr.state == nState)
 		return false;
@@ -4683,12 +4873,12 @@ bool modernTypeSetSpriteState(DBloodActor* actor, int nState)
 	actor->xspr.busy = IntToFixed(nState);
 	actor->xspr.state = nState;
 
-	evKillActor(actor);
+	evKillActor(actor, initiator);
 	if (actor->xspr.restState != nState && actor->xspr.waitTime > 0)
-		evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff);
+		evPostActor(actor, (actor->xspr.waitTime * 120) / 10, actor->xspr.restState ? kCmdOn : kCmdOff, initiator);
 
 	if (actor->xspr.txID != 0 && ((actor->xspr.triggerOn && actor->xspr.state) || (actor->xspr.triggerOff && !actor->xspr.state)))
-		modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+		modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 
 	return true;
 }
@@ -4699,20 +4889,20 @@ bool modernTypeSetSpriteState(DBloodActor* actor, int nState)
 //
 //---------------------------------------------------------------------------
 
-void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID command)
+void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID command, DBloodActor* initiator)
 {
 	switch (command)
 	{
 	case kCmdLink:
-		evSendActor(actor, destChannel, kCmdModernUse); // just send command to change properties
+		evSendActor(actor, destChannel, kCmdModernUse, initiator); // just send command to change properties
 		return;
 	case kCmdUnlock:
-		evSendActor(actor, destChannel, command); // send normal command first
-		evSendActor(actor, destChannel, kCmdModernUse);  // then send command to change properties
+		evSendActor(actor, destChannel, command, initiator); // send normal command first
+		evSendActor(actor, destChannel, kCmdModernUse, initiator);  // then send command to change properties
 		return;
 	default:
-		evSendActor(actor, destChannel, kCmdModernUse); // send first command to change properties
-		evSendActor(actor, destChannel, command); // then send normal command
+		evSendActor(actor, destChannel, kCmdModernUse, initiator); // send first command to change properties
+		evSendActor(actor, destChannel, command, initiator); // then send normal command
 		return;
 	}
 }
@@ -4744,6 +4934,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 		// allow redirect events received from some modern types.
 		// example: it allows to spawn FX effect if event was received from kModernEffectGen
 		// on many TX channels instead of just one.
+		DBloodActor* initiator = event.initiator;
 		switch (destactor->spr.type)
 		{
 		case kModernRandomTX:
@@ -4752,19 +4943,19 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 			switch (destactor->spr.type)
 			{
 			case kModernRandomTX:
-				useRandomTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false); // set random TX id
+				useRandomTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false, initiator); // set random TX id
 				break;
 			case kModernSequentialTX:
 				if (destactor->spr.flags & kModernTypeFlag1)
 				{
-					seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)sourceactor->xspr.command, true);
+					seqTxSendCmdAll(destactor, sourceactor, (COMMAND_ID)sourceactor->xspr.command, true, initiator);
 					return;
 				}
-				useSequentialTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false); // set next TX id
+				useSequentialTx(destactor, (COMMAND_ID)sourceactor->xspr.command, false, initiator); // set next TX id
 				break;
 			}
 			if (destactor->xspr.txID <= 0 || destactor->xspr.txID >= kChannelUserMax) return;
-			modernTypeSendCommand(sourceactor, destactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
+			modernTypeSendCommand(sourceactor, destactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command, initiator);
 			return;
 		}
 		break;
@@ -4845,6 +5036,15 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 		usePropertiesChanger(sourceactor, destObjType, destSect, destWall, destactor);
 		break;
 		// updated vanilla sound gen that now allows to play sounds on TX ID sprites
+		// change velocity of the sprite
+	case kModernVelocityChanger:
+		switch (destObjType) {
+		case OBJ_SPRITE:
+		case OBJ_SECTOR:
+			useVelocityChanger(sourceactor, destSect, event.initiator, destactor);
+			break;
+		}
+		break;
 	case kGenModernSound:
 		if (destObjType != OBJ_SPRITE) break;
 		useSoundGen(sourceactor, destactor);
@@ -5226,13 +5426,13 @@ void sectorKillSounds(sectortype* pSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorPauseMotion(sectortype* pSector)
+void sectorPauseMotion(sectortype* pSector, DBloodActor* initiator)
 {
 	if (!pSector->hasX()) return;
 	XSECTOR* pXSector = &pSector->xs();
 	pXSector->unused1 = 1;
 
-	evKillSector(pSector);
+	evKillSector(pSector, initiator);
 
 	sectorKillSounds(pSector);
 	if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
@@ -5279,7 +5479,7 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 	case kCmdOff:
 		if (pXSector->busy == 0)
 		{
-			if (pXSector->reTriggerB && waitTimeB) evPostSector(pSector, (waitTimeB * 120) / 10, kCmdOff);
+			if (pXSector->reTriggerB && waitTimeB) evPostSector(pSector, (waitTimeB * 120) / 10, kCmdOff, event.initiator);
 			return;
 		}
 		pXSector->state = 1;
@@ -5289,7 +5489,7 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 	case kCmdOn:
 		if (pXSector->busy == 65536)
 		{
-			if (pXSector->reTriggerA && waitTimeA) evPostSector(pSector, (waitTimeA * 120) / 10, kCmdOn);
+			if (pXSector->reTriggerA && waitTimeA) evPostSector(pSector, (waitTimeA * 120) / 10, kCmdOn, event.initiator);
 			return;
 		}
 		pXSector->state = 0;
@@ -5364,7 +5564,7 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 		{
 		case kSectorCounter:
 			if (pXSector->locked != 1) break;
-			SetSectorState(pSector, 0);
+			SetSectorState(pSector, 0, event.initiator.Get());
 			evPostSector(pSector, 0, kCallbackCounterCheck);
 			break;
 		}
@@ -5388,7 +5588,7 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 	}
 	else if (event.cmd == kCmdSectorMotionPause)
 	{
-		sectorPauseMotion(pSector);
+		sectorPauseMotion(pSector, event.initiator.Get());
 		return true;
 	}
 	return false;
@@ -5408,7 +5608,7 @@ void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
 	if (randomSpawnDude(pSource, pActor, pActor->spr.clipdist << 1, 0) == nullptr)
-		nnExtSpawnDude(pSource, pActor, pSource->xspr.data1, pActor->spr.clipdist << 1, 0);
+		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->spr.clipdist << 1, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -5419,6 +5619,7 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 
 bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 {
+	DBloodActor* initiator = event.initiator;
 	if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock)
 	{
 		switch (event.cmd)
@@ -5470,10 +5671,10 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state) SetSpriteState(actor, 0);
+			if (actor->xspr.state) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			if (!actor->xspr.state) SetSpriteState(actor, 1);
+			if (!actor->xspr.state) SetSpriteState(actor, 1, initiator);
 			if (!actor->IsDudeActor() || actor->IsPlayerActor() || actor->xspr.health <= 0) break;
 			else if (actor->xspr.aiState->stateType >= kAiStatePatrolBase && actor->xspr.aiState->stateType < kAiStatePatrolMax)
 				break;
@@ -5497,8 +5698,8 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			break;
 
 		default:
-			if (!actor->xspr.state) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (!actor->xspr.state) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5527,13 +5728,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 	case kMarkerDudeSpawn:
 		if (!gGameOptions.nMonsterSettings) return true;
 		else if (!(actor->spr.flags & kModernTypeFlag4)) useDudeSpawn(actor, actor);
-		else if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, kCmdModernUse);
+		else if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, kCmdModernUse, initiator);
 		return true;
 
 	case kModernCustomDudeSpawn:
 		if (!gGameOptions.nMonsterSettings) return true;
 		else if (!(actor->spr.flags & kModernTypeFlag4)) useCustomDudeSpawn(actor, actor);
-		else if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, kCmdModernUse);
+		else if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, kCmdModernUse, initiator);
 		return true;
 
 	case kModernRandomTX: // random Event Switch takes random data field and uses it as TX ID
@@ -5542,12 +5743,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (actor->spr.type)
 		{
 		case kModernRandomTX:
-			useRandomTx(actor, (COMMAND_ID)actor->xspr.command, true);
+			useRandomTx(actor, (COMMAND_ID)actor->xspr.command, true, initiator);
 			break;
 
 		case kModernSequentialTX:
-			if (!(actor->spr.flags & kModernTypeFlag1)) useSequentialTx(actor, (COMMAND_ID)actor->xspr.command, true);
-			else seqTxSendCmdAll(actor, actor, (COMMAND_ID)actor->xspr.command, false);
+			if (!(actor->spr.flags & kModernTypeFlag1)) useSequentialTx(actor, (COMMAND_ID)actor->xspr.command, true, initiator);
+			else seqTxSendCmdAll(actor, actor, (COMMAND_ID)actor->xspr.command, false, initiator);
 			break;
 		}
 		return true;
@@ -5556,14 +5757,14 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
 			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
-			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else if (actor->xspr.data1 == 0 && actor->insector()) useSpriteDamager(actor, OBJ_SECTOR, actor->sector(), nullptr);
 			else if (actor->xspr.data1 >= 666 && actor->xspr.data1 < 669) useSpriteDamager(actor, -1, nullptr, nullptr);
 			else
@@ -5574,21 +5775,21 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			}
 
 			if (actor->xspr.busyTime > 0)
-				evPostActor(actor, actor->xspr.busyTime, kCmdRepeat);
+				evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
 
 	case kMarkerWarpDest:
-		if (actor->xspr.txID <= 0) {
-
+		if (actor->xspr.txID <= 0) 
+		{
 			PLAYER* pPlayer = getPlayerById(actor->xspr.data1);
-			if (pPlayer != NULL && SetSpriteState(actor, actor->xspr.state ^ 1) == 1)
+			if (pPlayer != NULL && SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
 				useTeleportTarget(actor, pPlayer->actor);
 			return true;
 		}
@@ -5596,7 +5797,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 	case kModernObjPropertiesChanger:
 		if (actor->xspr.txID <= 0)
 		{
-			if (SetSpriteState(actor, actor->xspr.state ^ 1) == 1)
+			if (SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
 				usePropertiesChanger(actor, -1, nullptr, nullptr, nullptr);
 			return true;
 		}
@@ -5606,7 +5807,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 	case kModernObjPicnumChanger:
 	case kModernSectorFXChanger:
 	case kModernObjDataChanger:
-		modernTypeSetSpriteState(actor, actor->xspr.state ^ 1);
+		modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator);
 		return true;
 
 	case kModernSeqSpawner:
@@ -5614,24 +5815,24 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			if (actor->spr.type == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
 			[[fallthrough]];
 		case kCmdRepeat:
-			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else if (actor->spr.type == kModernSeqSpawner) useSeqSpawnerGen(actor, OBJ_SPRITE, nullptr, nullptr, actor);
 			else useEffectGen(actor, nullptr);
 
 			if (actor->xspr.busyTime > 0)
-				evPostActor(actor, ClipLow((int(actor->xspr.busyTime) + Random2(actor->xspr.data1)) * 120 / 10, 0), kCmdRepeat);
+				evPostActor(actor, ClipLow((int(actor->xspr.busyTime) + Random2(actor->xspr.data1)) * 120 / 10, 0), kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5641,24 +5842,46 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		{
 		case kCmdOff:
 			windGenStopWindOnSectors(actor);
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
-			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useSectorWindGen(actor, nullptr);
-
-			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat);
+			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
+
+	case kModernVelocityChanger:
+		switch (event.cmd) 
+		{
+		case kCmdOff:
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
+			break;
+		case kCmdOn:
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
+			[[fallthrough]];
+		case kCmdRepeat:
+			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
+			else useVelocityChanger(actor, actor->sector(), initiator, nullptr);
+			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
+			break;
+		default:
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
+			break;
+		}
+		return true;
+
 	case kModernDudeTargetChanger:
 
 		// this one is required if data4 of generator was dynamically changed
@@ -5670,57 +5893,79 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		{
 		case kCmdOff:
 			if (actor->xspr.data4 == 3) aiFightActivateDudes(actor->xspr.txID);
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
 			if (actor->xspr.txID <= 0 || !aiFightGetDudesForBattle(actor))
 			{
 				aiFightFreeAllTargets(actor);
-				evPostActor(actor, 0, kCmdOff);
+				evPostActor(actor, 0, kCmdOff, initiator);
 				break;
 			}
 			else
 			{
-				modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+				modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			}
 
-			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat);
+			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		actor->xspr.dropMsg = uint8_t(actor->xspr.data4);
 		return true;
 
+	case kGenTrigger:
+		if (!(actor->spr.flags & kModernTypeFlag1)) return false; // work as vanilla generator
+		switch (event.cmd) { // work as fast generator
+		case kCmdOff:
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
+			break;
+		case kCmdOn:
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
+			[[fallthrough]];
+		case kCmdRepeat:
+			if (actor->xspr.txID)
+				evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
+			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
+			break;
+		default:
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
+			break;
+		}
+		return true;
+
 	case kModernObjDataAccumulator:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
 			// force OFF after *all* TX objects reach the goal value
 			if (actor->spr.flags == kModernTypeFlag0 && incDecGoalValueIsReached(actor))
 			{
-				evPostActor(actor, 0, kCmdOff);
+				evPostActor(actor, 0, kCmdOff, initiator);
 				break;
 			}
 
-			modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
-			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat);
+			modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
+			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5729,20 +5974,20 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
 			useRandomItemGen(actor);
 			if (actor->xspr.busyTime > 0)
-				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat);
+				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5755,7 +6000,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			case kCmdSpriteProximity:
 				if (actor->xspr.state) break;
 				sfxPlay3DSound(actor, 452, 0, 0);
-				evPostActor(actor, 30, kCmdOff);
+				evPostActor(actor, 30, kCmdOff, nullptr);
 				actor->xspr.state = 1;
 				[[fallthrough]];
 			case kCmdOn:
@@ -5771,10 +6016,20 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 	case kModernThingEnemyLifeLeech:
 		dudeLeechOperate(actor, event);
 		return true;
-	case kModernPlayerControl: { // WIP
-		PLAYER* pPlayer = NULL; int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : actor->xspr.command;
-		if ((pPlayer = getPlayerById(actor->xspr.data1)) == NULL
-			|| ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, actor->xspr.state ^ 1)))
+	case kModernPlayerControl: 
+	{ // WIP
+		PLAYER* pPlayer = NULL; 
+		int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : actor->xspr.command;
+
+
+		int playerID;
+		if ((actor->xspr.txID == kChannelEventCauser || actor->xspr.data1 == 0) && initiator && initiator->IsPlayerActor())
+			playerID = initiator->spr.type;
+		else
+			playerID = actor->xspr.data1;
+
+		if ((pPlayer = getPlayerById(playerID)) == NULL
+			|| ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator)))
 			return true;
 
 		TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
@@ -5875,22 +6130,22 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 	case kGenModernSound:
 		switch (event.cmd) {
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
-			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useSoundGen(actor, actor);
 
 			if (actor->xspr.busyTime > 0)
-				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat);
+				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5898,23 +6153,23 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0);
+			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1);
+			evKillActor(actor, initiator); // queue overflow protect
+			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
-			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command);
+			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useUniMissileGen(actor, actor);
 
 			if (actor->xspr.busyTime > 0)
-				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat);
+				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn);
-			else evPostActor(actor, 0, kCmdOff);
+			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
+			else evPostActor(actor, 0, kCmdOff, initiator);
 			break;
 		}
 		return true;
@@ -5929,18 +6184,19 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event)
 {
+	DBloodActor* initiator = event.initiator.Get();
 	switch (pWall->type)
 	{
 	case kSwitchOneWay:
 		switch (event.cmd) {
 		case kCmdOff:
-			SetWallState(pWall, 0);
+			SetWallState(pWall, 0, initiator);
 			break;
 		case kCmdOn:
-			SetWallState(pWall, 1);
+			SetWallState(pWall, 1, initiator);
 			break;
 		default:
-			SetWallState(pWall, pWall->xw().restState ^ 1);
+			SetWallState(pWall, pWall->xw().restState ^ 1, initiator);
 			break;
 		}
 		return true;
@@ -5977,7 +6233,7 @@ bool txIsRanged(DBloodActor* sourceactor)
 //
 //---------------------------------------------------------------------------
 
-void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cmd, bool modernSend)
+void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cmd, bool modernSend, DBloodActor* initiator)
 {
 	bool ranged = txIsRanged(sourceactor);
 	if (ranged)
@@ -5985,8 +6241,8 @@ void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cm
 		for (sourceactor->xspr.txID = sourceactor->xspr.data1; sourceactor->xspr.txID <= sourceactor->xspr.data4; sourceactor->xspr.txID++)
 		{
 			if (sourceactor->xspr.txID <= 0 || sourceactor->xspr.txID >= kChannelUserMax) continue;
-			else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd);
-			else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd);
+			else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd, initiator);
+			else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd, initiator);
 		}
 	}
 	else
@@ -5995,8 +6251,8 @@ void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cm
 		{
 			sourceactor->xspr.txID = GetDataVal(sourceactor, i);
 			if (sourceactor->xspr.txID <= 0 || sourceactor->xspr.txID >= kChannelUserMax) continue;
-			else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd);
-			else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd);
+			else if (!modernSend) evSendActor(actor, sourceactor->xspr.txID, cmd, initiator);
+			else modernTypeSendCommand(actor, sourceactor->xspr.txID, cmd, initiator);
 		}
 	}
 	sourceactor->xspr.txID = sourceactor->xspr.sysData1 = 0;
@@ -6008,7 +6264,7 @@ void seqTxSendCmdAll(DBloodActor* sourceactor, DBloodActor* actor, COMMAND_ID cm
 //
 //---------------------------------------------------------------------------
 
-void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
+void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState, DBloodActor* initiator)
 {
 	int tx = 0; int maxRetries = kMaxRandomizeRetries;
 
@@ -6031,7 +6287,7 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 	sourceactor->xspr.txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
 	if (setState)
-		SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1);
+		SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1, initiator);
 	//evSendActor(sourceactor->spr.index, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
 }
 
@@ -6041,7 +6297,7 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 //
 //---------------------------------------------------------------------------
 
-void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
+void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState, DBloodActor* initiator)
 {
 	bool range = txIsRanged(sourceactor); int cnt = 3; int tx = 0;
 
@@ -6103,7 +6359,7 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 	sourceactor->xspr.txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
 	if (setState)
-		SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1);
+		SetSpriteState(sourceactor, sourceactor->xspr.state ^ 1, initiator);
 	//evSendActor(sourceactor->spr.index, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
 
 }
@@ -6163,7 +6419,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 		{
 			sourceactor->xspr.restState = 1;
 			evKillActor(sourceactor);
-			evPostActor(sourceactor, (sourceactor->xspr.waitTime * 120) / 10, kCmdRepeat);
+			evPostActor(sourceactor, (sourceactor->xspr.waitTime * 120) / 10, kCmdRepeat, event.initiator);
 			return -1;
 		}
 	}
@@ -6186,21 +6442,23 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
 		// send command to rx bucket
 		if (sourceactor->xspr.txID)
-			evSendActor(sourceactor, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command);
+		{
+			evSendActor(sourceactor, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command, sourceactor->condition[0].isActor()? sourceactor->condition[0].actor() : nullptr);
+		}
 
 		if (sourceactor->spr.flags) {
 
 			// send it for object currently in the focus
 			if (sourceactor->spr.flags & kModernTypeFlag1)
 			{
-				nnExtTriggerObject(event.target, sourceactor->xspr.command);
+				nnExtTriggerObject(event.target, sourceactor->xspr.command, sourceactor);
 			}
 
 			// send it for initial object
 			if ((sourceactor->spr.flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(sourceactor->spr.hitag & kModernTypeFlag1)))
 			{
 				auto co = condGet(sourceactor);
-				nnExtTriggerObject(co, sourceactor->xspr.command);
+				nnExtTriggerObject(co, sourceactor->xspr.command, sourceactor);
 			}
 		}
 	}
@@ -6599,28 +6857,19 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 
 void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* objActor)
 {
-	switch (objType)
-	{
+	bool flag1 = (sourceactor->spr.flags & kModernTypeFlag1);
+	switch (objType) {
 	case OBJ_SECTOR:
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
-			setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data1, -1, 32767)) setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
 		break;
 	case OBJ_SPRITE:
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
-			setDataValueOfObject(objType, pSector, pWall, objActor, 1, sourceactor->xspr.data1);
-
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data2 != -1 && sourceactor->xspr.data2 != 32767))
-			setDataValueOfObject(objType, pSector, pWall, objActor, 2, sourceactor->xspr.data2);
-
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data3 != -1 && sourceactor->xspr.data3 != 32767))
-			setDataValueOfObject(objType, pSector, pWall, objActor, 3, sourceactor->xspr.data3);
-
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || sourceactor->xspr.data4 != 65535)
-			setDataValueOfObject(objType, pSector, pWall, objActor, 4, sourceactor->xspr.data4);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data1, -1, 32767)) setDataValueOfObject(objType, pSector, pWall, objActor, 1, sourceactor->xspr.data1);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data2, -1, 32767)) setDataValueOfObject(objType, pSector, pWall, objActor, 2, sourceactor->xspr.data1);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data3, -1, 32767)) setDataValueOfObject(objType, pSector, pWall, objActor, 3, sourceactor->xspr.data1);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data4, -1, 65535)) setDataValueOfObject(objType, pSector, pWall, objActor, 4, sourceactor->xspr.data1);
 		break;
 	case OBJ_WALL:
-		if ((sourceactor->spr.flags & kModernTypeFlag1) || (sourceactor->xspr.data1 != -1 && sourceactor->xspr.data1 != 32767))
-			setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
+		if (flag1 || valueIsBetween(sourceactor->xspr.data1, -1, 32767)) setDataValueOfObject(objType, pSector, pWall, nullptr, 1, sourceactor->xspr.data1);
 		break;
 	}
 }
@@ -6631,31 +6880,71 @@ void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, 
 //
 //---------------------------------------------------------------------------
 
+
 void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 {
+	bool relative = (sourceactor->spr.flags & kModernTypeFlag16);
 	auto pXSector = &pSector->xs();
 
 	if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-		pXSector->wave = ClipHigh(sourceactor->xspr.data1, 11);
+	{
+		if (relative)
+			pXSector->wave = ClipHigh(pXSector->wave + sourceactor->xspr.data1, 11);
+		else
+			pXSector->wave = ClipHigh(sourceactor->xspr.data1, 11);
+	}
 
-	int oldAmplitude = pXSector->amplitude;
 	if (valueIsBetween(sourceactor->xspr.data2, -128, 128))
-		pXSector->amplitude = uint8_t(sourceactor->xspr.data2);
+	{
+		if (relative)
+			pXSector->amplitude = ClipRange(pXSector->amplitude + sourceactor->xspr.data2, -127, 127);
+		else
+			pXSector->amplitude = sourceactor->xspr.data2;
+	}
 
 	if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
-		pXSector->freq = ClipHigh(sourceactor->xspr.data3, 255);
+	{
+		if (relative)
+			pXSector->freq = ClipHigh(pXSector->freq + sourceactor->xspr.data3, 255);
+		else
+			pXSector->freq = ClipHigh(sourceactor->xspr.data3, 255);
+	}
 
 	if (valueIsBetween(sourceactor->xspr.data4, -1, 65535))
-		pXSector->phase = ClipHigh(sourceactor->xspr.data4, 255);
+	{
+		if (relative)
+			pXSector->phase = ClipHigh(pXSector->phase + sourceactor->xspr.data4, 255);
+		else
+			pXSector->phase = ClipHigh(sourceactor->xspr.data4, 255);
+	}
 
 	if (sourceactor->spr.flags)
 	{
 		if (sourceactor->spr.flags != kModernTypeFlag1)
 		{
-			pXSector->shadeAlways = (sourceactor->spr.flags & 0x0001) ? true : false;
-			pXSector->shadeFloor = (sourceactor->spr.flags & 0x0002) ? true : false;
-			pXSector->shadeCeiling = (sourceactor->spr.flags & 0x0004) ? true : false;
-			pXSector->shadeWalls = (sourceactor->spr.flags & 0x0008) ? true : false;
+			pXSector->shadeAlways = (sourceactor->spr.flags & kModernTypeFlag1) ? true : false;
+			pXSector->shadeFloor = (sourceactor->spr.flags & kModernTypeFlag2) ? true : false;
+			pXSector->shadeCeiling = (sourceactor->spr.flags & kModernTypeFlag4) ? true : false;
+			pXSector->shadeWalls = (sourceactor->spr.flags & kModernTypeFlag8) ? true : false;
+			pXSector->color = (sourceactor->spr.pal) ? true : false;
+
+			auto cstat = sourceactor->spr.cstat;
+			if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+			{
+				// !!! xsector pal bits must be extended
+				if (cstat & CSTAT_SPRITE_ONE_SIDE)
+				{
+					if (cstat & CSTAT_SPRITE_YFLIP)
+						pXSector->ceilpal = sourceactor->spr.pal;
+					else
+						pXSector->floorpal = sourceactor->spr.pal;
+				}
+				else
+				{
+					pXSector->floorpal = sourceactor->spr.pal;
+					pXSector->ceilpal = sourceactor->spr.pal;
+				}
+			}
 		}
 		else
 		{
@@ -6663,12 +6952,9 @@ void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 		}
 	}
 
-	// add to shadeList if amplitude was set to 0 previously
-	if (oldAmplitude != pXSector->amplitude)
-	{
-		if (!shadeList.Contains(pSector))
-			shadeList.Push(pSector);
-	}
+	// add to shadeList
+	if (!shadeList.Contains(pSector))
+		shadeList.Push(pSector);
 }
 
 //---------------------------------------------------------------------------
@@ -7034,7 +7320,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 						}
 
 					}
-					nnExtTriggerObject(rxBucket[i], initiator->xspr.command);
+					nnExtTriggerObject(rxBucket[i], initiator->xspr.command, pPlayer->actor);
 
 				}
 			}
@@ -7359,8 +7645,8 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 			switch (type)
 			{
 			case kSwitchCombo:
-				if (value == objActor->xspr.data2) SetSpriteState(objActor, 1);
-				else SetSpriteState(objActor, 0);
+				if (value == objActor->xspr.data2) SetSpriteState(objActor, 1, nullptr);
+				else SetSpriteState(objActor, 0, nullptr);
 				break;
 			case kDudeModernCustom:
 			case kDudeModernCustomBurning:
@@ -8402,7 +8688,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 					// trigger this region if target gonna be spot
 					if (steal->xspr.txID && actor->xspr.data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-						trTriggerSprite(steal, kCmdToggle);
+						trTriggerSprite(steal, kCmdToggle, pPlayer->actor);
 
 					// continue search another stealth regions to affect chances
 				}
@@ -8472,7 +8758,7 @@ void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool cop
 	}
 
 	// do init
-	if (init)
+	if (init && destactor->IsDudeActor() && !destactor->IsPlayerActor())
 	{
 		if (!destactor->xspr.dudeFlag4)
 		{
@@ -8572,7 +8858,7 @@ void aiPatrolThink(DBloodActor* actor)
 			// send command
 			if (markeractor->xspr.txID)
 			{
-				evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
+				evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command, actor);
 
 				// copy dude flags for current dude
 			}
@@ -8643,7 +8929,7 @@ void aiPatrolThink(DBloodActor* actor)
 				// send command
 				if (markeractor->xspr.txID)
 				{
-					evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
+					evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command, actor);
 				}
 				else if (markeractor->xspr.command == kCmdDudeFlagsSet)
 				{
@@ -8677,11 +8963,11 @@ void aiPatrolThink(DBloodActor* actor)
 				{
 					// send command at arrival
 					if (markeractor->xspr.triggerOn)
-						evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
+						evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command, actor);
 
 					// send command at departure
 					if (markeractor->xspr.triggerOff)
-						evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command);
+						evSendActor(markeractor, markeractor->xspr.txID, (COMMAND_ID)markeractor->xspr.command, actor);
 
 					// copy dude flags for current dude
 				}
@@ -8884,14 +9170,17 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 
 void seqSpawnerOffSameTx(DBloodActor* actor)
 {
-	BloodSpriteIterator it;
-	while (auto iactor = it.Next())
+	for (auto&sect : sector)
 	{
-		if (iactor->spr.type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
-		if (iactor->xspr.txID == actor->xspr.txID && iactor->xspr.state == 1)
+		BloodSectIterator it(&sect);
+		while (auto iactor = it.Next())
 		{
-			evKillActor(iactor);
-			iactor->xspr.state = 0;
+			if (iactor->spr.type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
+			if (/*iactor->xspr.txID == actor->xspr.txID &&*/ iactor->xspr.state == 1)
+			{
+				evKillActor(iactor);
+				iactor->xspr.state = 0;
+			}
 		}
 	}
 }
@@ -9000,6 +9289,83 @@ void clampSprite(DBloodActor* actor, int which)
 	}
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void killEvents(int nRx, int nCmd)
+{
+	for (int i = bucketHead[nRx]; i < bucketHead[nRx + 1]; i++)
+	{
+		if (nCmd == kCmdEventKillFull)
+			evKill_(rxBucket[i]);
+	}
+}
+
+void triggerTouchSprite(DBloodActor* actor, DBloodActor* hActor)
+{
+	if (hActor && hActor->hasX())
+	{
+		if (hActor->xspr.Touch && !hActor->xspr.isTriggered && (!hActor->xspr.DudeLockout || actor->IsPlayerActor()))
+			trTriggerSprite(hActor, kCmdSpriteTouch, actor);
+
+		// enough to reset gSpriteHit values
+		actor->vel.X += 5;
+	}
+}
+
+void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
+{
+	if (pHWall && pHWall->hasX())
+	{
+		if (pHWall->xw().triggerTouch && !pHWall->xw().isTriggered && (!pHWall->xw().dudeLockout || actor->IsPlayerActor()))
+			trTriggerWall(pHWall, kCmdWallTouch, actor);
+
+		// enough to reset gSpriteHit values
+		actor->vel.X += 5;
+	}
+}
+
+void changeSpriteAngle(DBloodActor* pSpr, int nAng)
+{
+	if (!pSpr->IsDudeActor())
+		pSpr->spr.ang = nAng;
+	else
+	{
+		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
+		if (pPlayer)
+			pPlayer->angle.ang = buildang(nAng);
+		else
+		{
+			pSpr->spr.ang = nAng;
+			if (pSpr->hasX())
+				pSpr->xspr.goalAng = pSpr->spr.ang;
+		}
+	}
+}
+
+int getVelocityAngle(DBloodActor* pSpr)
+{
+	return getangle(pSpr->vel.X >> 12, pSpr->vel.Y >> 12);
+}
+
+#if 0
+bool xsprIsFine(DBloodActor* pSpr)
+{
+	if (pSpr && pSpr->hasX() && !(pSpr->spr.flags & kHitagFree))
+	{
+		if (!(pSpr->spr.flags & kHitagRespawn) || (pSpr->spr.statnum != kStatThing && pSpr->spr.statnum != kStatDude))
+			return true;
+	}
+
+	return false;
+}
+#endif
+
+
 
 //---------------------------------------------------------------------------
 //

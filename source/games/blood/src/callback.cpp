@@ -593,13 +593,13 @@ void returnFlagToBase(DBloodActor* actor, sectortype*) // 17
 		switch (actor->spr.type)
 		{
 		case kItemFlagA:
-			trTriggerSprite(aOwner, kCmdOn);
+			trTriggerSprite(aOwner, kCmdOn, aOwner);
 			sndStartSample(8003, 255, 2, 0);
 			gBlueFlagDropped = false;
 			viewSetMessage("Blue Flag returned to base.");
 			break;
 		case kItemFlagB:
-			trTriggerSprite(aOwner, kCmdOn);
+			trTriggerSprite(aOwner, kCmdOn, aOwner);
 			sndStartSample(8002, 255, 2, 0);
 			gRedFlagDropped = false;
 			viewSetMessage("Red Flag returned to base.");

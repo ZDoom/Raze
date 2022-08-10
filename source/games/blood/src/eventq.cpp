@@ -349,7 +349,7 @@ static bool evGetSourceState(EventObject& eob)
 //
 //---------------------------------------------------------------------------
 
-void evSend(EventObject& eob, int rxId, COMMAND_ID command)
+void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiator)
 {
 	switch (command) {
 	case kCmdState:
@@ -365,6 +365,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 	EVENT event;
 	event.target = eob;
 	event.cmd = command;
+	event.initiator = gModernMap? initiator : nullptr;
 
 	switch (rxId) {
 	case kChannelTextOver:
@@ -459,15 +460,44 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		if (playerRXRngIsFine(rxId))
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
-				trMessageSprite(pPlayer->actor, event);
+			{
+				if (command == kCmdEventKillFull)
+					evKillActor(pPlayer->actor);
+				else
+					trMessageSprite(pPlayer->actor, event);
+			}
 		}
 		else if (rxId == kChannelAllPlayers)
 		{
 			for (int i = 0; i < kMaxPlayers; i++)
 			{
 				if ((pPlayer = getPlayerById(i)) != nullptr)
-					trMessageSprite(pPlayer->actor, event);
+				{
+					if (command == kCmdEventKillFull)
+						evKillActor(pPlayer->actor);
+					else
+						trMessageSprite(pPlayer->actor, event);
+				}
 			}
+			return;
+		}
+		// send command on sprite which created the event sequence
+		else if (rxId == kChannelEventCauser && event.initiator != nullptr)
+		{
+			DBloodActor* einitiator = event.initiator;
+			if (!(einitiator->spr.flags & kHitagFree) && !(einitiator->spr.flags & kHitagRespawn))
+			{
+				if (command == kCmdEventKillFull)
+					evKillActor(einitiator);
+				else
+					trMessageSprite(einitiator, event);
+			}
+
+			return;
+		}
+		else if (command == kCmdEventKillFull)
+		{
+			killEvents(rxId, command);
 			return;
 		}
 
@@ -506,12 +536,12 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 //
 //---------------------------------------------------------------------------
 
-void evPost_(EventObject& eob, unsigned int nDelta, COMMAND_ID command)
+void evPost_(EventObject& eob, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator)
 {
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(eob) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(eob) ? kCmdOff : kCmdOn;
-	EVENT evn = { eob, (int8_t)command, 0, PlayClock + (int)nDelta };
+	EVENT evn = { eob, (int8_t)command, 0, PlayClock + (int)nDelta, MakeObjPtr(gModernMap ? initiator : nullptr) };
 	queue.insert(evn);
 }
 
@@ -522,10 +552,10 @@ void evPost_(const EventObject& eob, unsigned int nDelta, CALLBACK_ID callback)
 }
 
 
-void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator)
 {
 	auto ev = EventObject(actor);
-	evPost_(ev, nDelta, command);
+	evPost_(ev, nDelta, command, initiator);
 }
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
@@ -533,10 +563,10 @@ void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 	evPost_(EventObject(actor), nDelta, callback);
 }
 
-void evPostSector(sectortype* sect, unsigned int nDelta, COMMAND_ID command)
+void evPostSector(sectortype* sect, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator)
 {
 	auto ev = EventObject(sect);
-	evPost_(ev, nDelta, command);
+	evPost_(ev, nDelta, command, initiator);
 }
 
 void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
@@ -544,10 +574,10 @@ void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
 	evPost_(EventObject(sect), nDelta, callback);
 }
 
-void evPostWall(walltype* wal, unsigned int nDelta, COMMAND_ID command)
+void evPostWall(walltype* wal, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator)
 {
 	auto ev = EventObject(wal);
-	evPost_(ev, nDelta, command);
+	evPost_(ev, nDelta, command, initiator);
 }
 
 
@@ -566,6 +596,15 @@ void evKill_(const EventObject& eob)
 	}
 }
 
+void evKill_(const EventObject& eob, DBloodActor* initiator)
+{
+	for (auto ev = queue.begin(); ev != queue.end();)
+	{
+		if (ev->event_isObject(eob) && ev->initiator.ForceGet() == initiator) ev = queue.erase(ev);
+		else ev++;
+	}
+}
+
 void evKill_(const EventObject& eob, CALLBACK_ID cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
@@ -578,6 +617,14 @@ void evKill_(const EventObject& eob, CALLBACK_ID cb)
 void evKillActor(DBloodActor* actor)
 {
 	evKill_(EventObject(actor));
+}
+
+void evKillActor(DBloodActor* actor, DBloodActor* initiator)
+{
+	if (!gModernMap)
+		evKill_(EventObject(actor));
+	else
+		evKill_(EventObject(actor), initiator);
 }
 
 void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
@@ -595,29 +642,39 @@ void evKillSector(sectortype* sec)
 	evKill_(EventObject(sec));
 }
 
+void evKillWall(walltype* wal, DBloodActor* initiator)
+{
+	evKill_(EventObject(wal), initiator);
+}
+
+void evKillSector(sectortype* sec, DBloodActor* initiator)
+{
+	evKill_(EventObject(sec), initiator);
+}
+
 // these have no target.
-void evSendGame(int rxId, COMMAND_ID command)
+void evSendGame(int rxId, COMMAND_ID command, DBloodActor* initiator = nullptr)
 {
 	auto ev = EventObject(nullptr);
-	evSend(ev, rxId, command);
+	evSend(ev, rxId, command, initiator);
 }
 
-void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
+void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command, DBloodActor* initiator = nullptr)
 {
 	auto ev = EventObject(actor);
-	evSend(ev, rxId, command);
+	evSend(ev, rxId, command, initiator);
 }
 
-void evSendSector(sectortype* sect, int rxId, COMMAND_ID command)
+void evSendSector(sectortype* sect, int rxId, COMMAND_ID command, DBloodActor* initiator = nullptr)
 {
 	auto ev = EventObject(sect);
-	evSend(ev, rxId, command);
+	evSend(ev, rxId, command, initiator);
 }
 
-void evSendWall(walltype* wal, int rxId, COMMAND_ID command)
+void evSendWall(walltype* wal, int rxId, COMMAND_ID command, DBloodActor* initiator = nullptr)
 {
 	auto ev = EventObject(wal);
-	evSend(ev, rxId, command);
+	evSend(ev, rxId, command, initiator);
 }
 
 //---------------------------------------------------------------------------
@@ -703,6 +760,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 			("command", w.cmd)
 			("func", w.funcID)
 			("prio", w.priority)
+			("initiator",w.initiator)
 			.EndObject();
 	}
 	return arc;
