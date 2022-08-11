@@ -141,11 +141,13 @@ struct TVector2
 	}
 
 	// Scalar addition
+#if 0
 	TVector2 &operator+= (double scalar)
 	{
 		X += scalar, Y += scalar;
 		return *this;
 	}
+#endif
 
 	friend TVector2 operator+ (const TVector2 &v, vec_t scalar)
 	{
@@ -385,11 +387,13 @@ struct TVector3
 	}
 
 	// Scalar addition
+#if 0
 	TVector3 &operator+= (vec_t scalar)
 	{
 		X += scalar, Y += scalar, Z += scalar;
 		return *this;
 	}
+#endif
 
 	friend TVector3 operator+ (const TVector3 &v, vec_t scalar)
 	{
