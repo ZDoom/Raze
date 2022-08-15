@@ -794,7 +794,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         PlayerList[nPlayer].nDouble--;
         if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
-            PlayAlert("WEAPON POWER IS ABOUT TO EXPIRE");
+            PlayAlert(GStrings("TXT_EX_WEAPONEX"));
         }
     }
 
@@ -812,7 +812,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
         else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
         {
-            PlayAlert("INVISIBILITY IS ABOUT TO EXPIRE");
+            PlayAlert(GStrings("TXT_EX_INVISEX"));
         }
     }
 
@@ -820,7 +820,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         PlayerList[nPlayer].invincibility--;
         if (PlayerList[nPlayer].invincibility == 150 && nPlayer == nLocalPlayer) {
-            PlayAlert("INVINCIBILITY IS ABOUT TO EXPIRE");
+            PlayAlert(GStrings("TXT_EX_INVINCEX"));
         }
     }
 
@@ -1174,7 +1174,7 @@ sectdone:
         {
             PlayerList[nPlayer].nMaskAmount--;
             if (PlayerList[nPlayer].nMaskAmount == 150 && nPlayer == nLocalPlayer) {
-                PlayAlert("MASK IS ABOUT TO EXPIRE");
+				PlayAlert(GStrings("TXT_EX_MASKEX"));
             }
         }
 

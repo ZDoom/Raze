@@ -445,7 +445,7 @@ void AISWPressSector::Use(RunListEvent* ev)
             auto& pos = PlayerList[nPlayer].pActor->spr.pos;
             PlayFXAtXYZ(StaticSound[nSwitchSound], pos.X, pos.Y, 0, CHANF_LISTENERZ);
 
-            StatusMessage(300, "YOU NEED THE KEY FOR THIS DOOR");
+            StatusMessage(300, GStrings("TXT_EX_NEEDKEY"));
         }
     }
 

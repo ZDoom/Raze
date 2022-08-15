@@ -1689,11 +1689,13 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     if (nEnergyTowers == 1)
     {
         runlist_ChangeChannel(nEnergyChan, nEnergyTowers);
-        StatusMessage(1000, "TAKE OUT THE CONTROL CENTER!");
+        StatusMessage(1000, GStrings("TXT_EX_TAKEOUT"));
     }
     else if (nEnergyTowers != 0)
     {
-        StatusMessage(500, "%d TOWERS REMAINING", nEnergyTowers);
+		FString msg = GStrings("TXT_EX_TOWERSREMAIN");
+		msg.Substitute("%d", std::to_string(nEnergyTowers).c_str());
+        StatusMessage(500, msg.GetChars());
     }
     else
     {
