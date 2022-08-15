@@ -393,8 +393,8 @@ void BuildTail()
     auto head = QueenHead.pActor;
 
     int x = head->spr.pos.X;
-    int y = head->spr.pos.X;
-    int z = head->spr.pos.X;
+    int y = head->spr.pos.Y;
+    int z = head->spr.pos.Z;
     auto pSector =head->sector();
 
     int i;
