@@ -410,7 +410,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
     if (mode == 0)
     {
         PlotCourseToSprite(pActor, pTarget);
-        pActor->spr.__int_angle += RandomSize(7) - 63;
+        pActor->add_int_ang(RandomSize(7) - 63);
         pActor->spr.__int_angle &= kAngleMask;
 
         pActor->spr.xvel = bcos(pActor->int_ang());

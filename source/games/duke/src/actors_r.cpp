@@ -401,7 +401,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
-		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.__int_angle += 768;
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->add_int_ang(768);
 	}
 	else
 	{
@@ -941,7 +941,7 @@ static void chickenarrow(DDukeActor* actor)
 		if (ang2 < 100)
 		{
 			if (ang3 > 1023)
-				actor->spr.__int_angle += 51;
+				actor->add_int_ang(51);
 			else
 				actor->spr.__int_angle -= 51;
 		}
@@ -950,7 +950,7 @@ static void chickenarrow(DDukeActor* actor)
 			if (ang3 > 1023)
 				actor->spr.__int_angle -= 51;
 			else
-				actor->spr.__int_angle += 51;
+				actor->add_int_ang(51);
 		}
 		else
 			actor->set_int_ang(ang);
@@ -3496,11 +3496,11 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		else goalang = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 	if (a & spin)
-		actor->spr.__int_angle += bsin(actor->temp_data[0] << 3, -6);
+		actor->add_int_ang(bsin(actor->temp_data[0] << 3, -6));
 
 	if (a & face_player_slow)
 	{
@@ -3513,7 +3513,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			angdif = 0;
 			actor->set_int_ang(goalang);
 		}
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 	if (isRRRA())
@@ -3529,7 +3529,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				angdif = 0;
 				actor->set_int_ang(goalang);
 			}
-			actor->spr.__int_angle += angdif;
+			actor->add_int_ang(angdif);
 		}
 
 		if ((a & jumptoplayer) == jumptoplayer)
@@ -3591,7 +3591,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 	if (actor->temp_data[1] == 0 || a == 0)

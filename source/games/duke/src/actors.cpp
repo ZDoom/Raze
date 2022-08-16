@@ -1423,7 +1423,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	if (ssp(actor, CLIPMASK0))
 	{
 		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		actor->spr.__int_angle += (krand() & 31) - 15 + bsin(actor->temp_data[0] << 8, -11);
+		actor->add_int_ang((krand() & 31) - 15 + bsin(actor->temp_data[0] << 8, -11));
 	}
 	else
 	{
@@ -1437,7 +1437,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	}
 	if (actor->spr.xvel < 128)
 		actor->spr.xvel += 2;
-	actor->spr.__int_angle += (krand() & 3) - 6;
+	actor->add_int_ang((krand() & 3) - 6);
 	return true;
 }
 
@@ -1638,7 +1638,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 3) == 0) spawn(actor, explosion);
 		getglobalz(actor);
-		actor->spr.__int_angle += 96;
+		actor->add_int_ang(96);
 		actor->spr.xvel = 128;
 		int j = ssp(actor, CLIPMASK0);
 		if (j != 1 || actor->spr.pos.Z > actor->floorz)
@@ -1710,7 +1710,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.__int_angle += getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2;
+		actor->add_int_ang(getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2);
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1770,7 +1770,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		}
 
 		actor->temp_data[3] = getincangle(actor->int_ang(), a);
-		actor->spr.__int_angle += actor->temp_data[3] >> 3;
+		actor->add_int_ang(actor->temp_data[3] >> 3);
 
         if (actor->spr.pos.Z < Owner->spr.pos.Z - 2)
             actor->spr.pos.Z += 2;
@@ -1984,7 +1984,7 @@ void camera(DDukeActor *actor)
 			if (actor->int_ang() == minimum || actor->int_ang() == maximum)
 			{
 				increment = -increment;
-				actor->spr.__int_angle += increment;
+				actor->add_int_ang(increment);
 			}
 			else if (actor->int_ang() + increment < minimum)
 			{
@@ -1996,7 +1996,7 @@ void camera(DDukeActor *actor)
 			}
 			else
 			{
-				actor->spr.__int_angle += increment;
+				actor->add_int_ang(increment);
 			}
 		}
 	}
@@ -2038,7 +2038,7 @@ void forcesphereexplode(DDukeActor *actor)
 		}
 
 	actor->spr.pos = Owner->spr.pos;;
-	actor->spr.__int_angle += Owner->temp_data[0];
+	actor->add_int_ang(Owner->temp_data[0]);
 
 	if (l > 64) l = 64;
 	else if (l < 1) l = 1;
@@ -2649,7 +2649,7 @@ void handle_se00(DDukeActor* actor)
 			}
 		}
 
-		actor->spr.__int_angle += (l * q);
+		actor->add_int_ang((l * q));
 		actor->temp_data[2] += (l * q);
 	}
 	else
@@ -2668,7 +2668,7 @@ void handle_se00(DDukeActor* actor)
 			actor->temp_data[3] = ldist(actor, Owner);
 		actor->spr.xvel = actor->temp_data[3];
 		actor->copyXY(Owner);
-		actor->spr.__int_angle += (l * q);
+		actor->add_int_ang((l * q));
 		actor->temp_data[2] += (l * q);
 	}
 
@@ -2708,7 +2708,7 @@ void handle_se00(DDukeActor* actor)
 					continue;
 				}
 
-				act2->spr.__int_angle += (l * q);
+				act2->add_int_ang((l * q));
 				act2->spr.__int_angle &= 2047;
 
 				act2->add_int_z(zchange);
@@ -2795,7 +2795,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		int q = getincangle(actor->int_ang(), x) >> 3;
 
 		actor->temp_data[2] += q;
-		actor->spr.__int_angle += q;
+		actor->add_int_ang(q);
 
 		bool statstate = (!checkstat || ((sc->floorstat & CSTAT_SECTOR_SKY) == 0 && (sc->ceilingstat & CSTAT_SECTOR_SKY) == 0));
 		if (actor->spr.xvel == sc->extra)
@@ -2897,7 +2897,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				pos.Y += x;
 				a2->set_int_pos(pos);
 
-				a2->spr.__int_angle += q;
+				a2->add_int_ang(q);
 
 				if (numplayers > 1)
 				{
@@ -2999,7 +2999,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->spr.xvel = 0;
 				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], -1);
 				actor->SetOwner(nullptr);
-				actor->spr.__int_angle += 1024;
+				actor->add_int_ang(1024);
 				actor->temp_data[4] = 0;
 				fi.operateforcefields(actor, actor->spr.hitag);
 			}
@@ -3361,7 +3361,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 	int q = getincangle(actor->int_ang(), x) >> 3;
-	actor->spr.__int_angle += q;
+	actor->add_int_ang(q);
 
 	if (rnd(32))
 	{
@@ -4327,7 +4327,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->spr.__int_angle += getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3;
+					actor->add_int_ang(getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
 					actor->spr.yvel = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
 
 				}
@@ -4535,7 +4535,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	if (sc->int_ceilingz() > actor->int_pos().Z)
 		for (int j = 0; j < 8; j++)
 		{
-			actor->spr.__int_angle += krand() & 511;
+			actor->add_int_ang(krand() & 511);
 			auto spawned = spawn(actor, SMALLSMOKE);
 			if (spawned)
 			{
@@ -4631,7 +4631,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		{
 			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
 			k->set_int_z(sc->int_floorz() - (krand() % x));
-			k->spr.__int_angle += 256 - (krand() % 511);
+			k->add_int_ang(256 - (krand() % 511));
 			k->spr.xvel = krand() & 127;
 			ssp(k, CLIPMASK0);
 		}
@@ -5039,7 +5039,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 				if (abs(angdif) < 256)
 				{
 					j = 128 - (krand() & 256);
-					actor->spr.__int_angle += j;
+					actor->add_int_ang(j);
 					if (hits(actor) < 844)
 						actor->spr.__int_angle -= j;
 				}
@@ -5047,7 +5047,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose
 			{
 				if (abs(angdif >> 2) < 128) actor->set_int_ang(goalang);
-				else actor->spr.__int_angle += angdif >> 2;
+				else actor->add_int_ang(angdif >> 2);
 			}
 		}
 		else actor->set_int_ang(goalang);

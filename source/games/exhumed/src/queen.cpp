@@ -624,7 +624,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case kHitWall:
-            pActor->spr.__int_angle += (RandomSize(9) + 768);
+            pActor->add_int_ang((RandomSize(9) + 768);
             pActor->spr.__int_angle &= kAngleMask;
             pActor->spr.xvel = bcos(pActor->int_ang(), -3);
             pActor->spr.yvel = bsin(pActor->int_ang(), -3);
@@ -906,7 +906,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     runlist_DamageEnemy(pTarget, pActor, 10);
                     D3PlayFX(StaticSound[kSoundQTail] | 0x2000, pActor);
 
-                    pActor->spr.__int_angle += RandomSize(9) + 768;
+                    pActor->add_int_ang(RandomSize(9) + 768);
                     pActor->spr.__int_angle &= kAngleMask;
 
                     pActor->spr.zvel = (-20) - RandomSize(6);
@@ -1303,7 +1303,7 @@ void AIQueen::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case 0x8000:
-            pActor->spr.__int_angle += 256;
+            pActor->add_int_ang(256);
             pActor->spr.__int_angle &= kAngleMask;
 
             SetQueenSpeed(pActor, si);

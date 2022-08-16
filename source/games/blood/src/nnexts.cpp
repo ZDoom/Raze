@@ -3462,7 +3462,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 				sourceactor->set_int_ang(nnExtRandom(-kAng360, kAng360) & 2047);
 		}
 	}
-	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.__int_angle += sourceactor->xspr.data4;
+	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->add_int_ang(sourceactor->xspr.data4);
 	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.__int_angle -= sourceactor->xspr.data4;
 	else if (sourceactor->xspr.sysData1 == 0)
 	{

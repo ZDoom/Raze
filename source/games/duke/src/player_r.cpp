@@ -337,7 +337,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 					l->spr.pos.Z += 4;
 					l->spr.xvel = 16;
 					l->spr.xrepeat = l->spr.yrepeat = 24;
-					l->spr.__int_angle += 64 - (krand() & 127);
+					l->add_int_ang(64 - (krand() & 127));
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -717,7 +717,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	else if (ps[p].curr_weapon == TIT_WEAPON)
 	{
 		spawned->spr.extra >>= 2;
-		spawned->spr.__int_angle += 16 - (krand() & 31);
+		spawned->add_int_ang(16 - (krand() & 31));
 		spawned->spr.zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
@@ -2761,7 +2761,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				k = hits(p->GetActor());
 				if (k < 512)
 				{
-					spawned->spr.__int_angle += 1024;
+					spawned->add_int_ang(1024);
 					spawned->spr.zvel /= 3;
 					spawned->spr.xvel /= 3;
 				}
@@ -2977,7 +2977,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					if (j)
 					{
 
-						j->spr.__int_angle += 1024;
+						j->add_int_ang(1024);
 						j->spr.__int_angle &= 2047;
 						j->spr.xvel += 32;
 						j->spr.pos.Z += 3;

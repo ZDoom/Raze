@@ -1190,7 +1190,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		for (j = 0; j < 48; j++)
 		{
 			fi.shoot(targ, BLOODSPLAT1);
-			targ->spr.__int_angle += 333;
+			targ->add_int_ang(333);
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
@@ -1377,7 +1377,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 								spawned->spr.pos.Z += 4;
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-								spawned->spr.__int_angle += 32 - (krand() & 63);
+								spawned->add_int_ang(32 - (krand() & 63));
 							}
 						}
 

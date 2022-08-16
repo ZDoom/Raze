@@ -2333,7 +2333,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 								spawned->spr.pos.Z += 4;
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-								spawned->spr.__int_angle += 32 - (krand() & 63);
+								spawned->add_int_ang(32 - (krand() & 63));
 							}
 						}
 

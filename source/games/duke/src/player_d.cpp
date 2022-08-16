@@ -442,7 +442,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 					jib->spr.pos.Z += 4;
 					jib->spr.xvel = 16;
 					jib->spr.xrepeat = jib->spr.yrepeat = 24;
-					jib->spr.__int_angle += 64 - (krand() & 127);
+					jib->add_int_ang(64 - (krand() & 127));
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -651,7 +651,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 				spawned->spr.xvel = 1024;
 				ssp(spawned, CLIPMASK0);
 				spawned->spr.xvel = l;
-				spawned->spr.__int_angle += 128 - (krand() & 255);
+				spawned->add_int_ang(128 - (krand() & 255));
 			}
 		}
 
@@ -770,7 +770,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			}
 
 			spawned->add_int_pos({ xoffs, yoffs, 0 });
-			spawned->spr.__int_angle += aoffs;
+			spawned->add_int_ang(aoffs);
 
 			spawned->spr.xrepeat = 42;
 			spawned->spr.yrepeat = 42;
@@ -804,7 +804,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	else if ((isWW2GI() && aplWeaponWorksLike(ps[p].curr_weapon, p) == DEVISTATOR_WEAPON) || (!isWW2GI() && ps[p].curr_weapon == DEVISTATOR_WEAPON))
 	{
 		spawned->spr.extra >>= 2;
-		spawned->spr.__int_angle += 16 - (krand() & 31);
+		spawned->add_int_ang(16 - (krand() & 31));
 		spawned->spr.zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
@@ -2219,7 +2219,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			k = hits(pact);
 			if (k < 512)
 			{
-				spawned->spr.__int_angle += 1024;
+				spawned->add_int_ang(1024);
 				spawned->spr.zvel /= 3;
 				spawned->spr.xvel /= 3;
 			}
@@ -2347,9 +2347,9 @@ static void operateweapon(int snum, ESyncBits actions)
 			auto j = spawn(pact, SHOTGUNSHELL);
 			if (j)
 			{
-				j->spr.__int_angle += 1024;
+				j->add_int_ang(1024);
 				ssp(j, CLIPMASK0);
-				j->spr.__int_angle += 1024;
+				j->add_int_ang(1024);
 			}
 			p->kickback_pic++;
 			break;
@@ -2375,7 +2375,7 @@ static void operateweapon(int snum, ESyncBits actions)
 					auto j = spawn(pact, SHELL);
 					if (j)
 					{
-						j->spr.__int_angle += 1024;
+						j->add_int_ang(1024);
 						j->spr.__int_angle &= 2047;
 						j->spr.xvel += 32;
 						j->spr.pos.Z += 3;

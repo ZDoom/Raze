@@ -485,7 +485,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
-		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.__int_angle += 768;
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->add_int_ang(768);
 	}
 	else
 	{
@@ -2382,8 +2382,8 @@ static void greenslime(DDukeActor *actor)
 			if (actor->spr.xvel < 32) actor->spr.xvel += 4;
 			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
 
-			actor->spr.__int_angle += getincangle(actor->int_ang(),
-				getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3;
+			actor->add_int_ang(
+				getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
 			// TJR
 		}
 
@@ -3513,11 +3513,11 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		else goalang = getangle(ps[playernum].pos.XY() - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 	if (a & spin)
-		actor->spr.__int_angle += bsin(actor->temp_data[0] << 3, -6);
+		actor->add_int_ang(bsin(actor->temp_data[0] << 3, -6));
 
 	if (a & face_player_slow)
 	{
@@ -3530,7 +3530,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			angdif = 0;
 			actor->set_int_ang(goalang);
 		}
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 
@@ -3547,7 +3547,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->spr.__int_angle += angdif;
+		actor->add_int_ang(angdif);
 	}
 
 	if (actor->temp_data[1] == 0 || a == 0)

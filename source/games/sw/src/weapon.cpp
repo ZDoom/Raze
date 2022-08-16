@@ -15369,7 +15369,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
-    actorNew->spr.__int_angle += RandomRange(30) - 15;
+    actorNew->add_int_ang(RandomRange(30) - 15);
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
@@ -15544,7 +15544,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
-    actorNew->spr.__int_angle += RandomRange(30) - 15;
+    actorNew->add_int_ang(RandomRange(30) - 15);
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());

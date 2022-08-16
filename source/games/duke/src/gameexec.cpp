@@ -1416,14 +1416,14 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 				j = 0;
 			else
 			{
-				actor->spr.__int_angle += angdif; j = hitasprite(actor, &hit); actor->spr.__int_angle -= angdif;
+				actor->add_int_ang(angdif); j = hitasprite(actor, &hit); actor->spr.__int_angle -= angdif;
 				if (j > sclip)
 				{
 					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
 						j = 0;
 					else
 					{
-						actor->spr.__int_angle -= angdif; j = hitasprite(actor, &hit); actor->spr.__int_angle += angdif;
+						actor->spr.__int_angle -= angdif; j = hitasprite(actor, &hit); actor->add_int_ang(angdif);
 						if (j > 768)
 						{
 							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)

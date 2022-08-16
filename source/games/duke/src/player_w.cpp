@@ -117,15 +117,15 @@ void DoSpawn(player_struct *p, int snum)
 	if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
 		// like shotgun shells
-		j->spr.__int_angle += 1024;
+		j->add_int_ang(1024);
 		ssp(j,CLIPMASK0);
-		j->spr.__int_angle += 1024;
+		j->add_int_ang(1024);
 //		p->kickback_pic++;
 	}
 	else if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE3 ) )
 	{
 		// like chaingun shells
-		j->spr.__int_angle += 1024;
+		j->add_int_ang(1024);
 		j->spr.__int_angle &= 2047;
 		j->spr.xvel += 32;
 		j->add_int_z(3<<8);
@@ -367,7 +367,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				k = hits(p->GetActor());
 				if (k < 512)
 				{
-					j->spr.__int_angle += 1024;
+					j->add_int_ang(1024);
 					j->spr.zvel /= 3;
 					j->spr.xvel /= 3;
 				}
