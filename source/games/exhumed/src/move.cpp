@@ -622,9 +622,7 @@ Collision MoveCreature(DExhumedActor* pActor)
 
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 {
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-    int z = pActor->int_pos().Z;
+	auto oldv = pActor->spr.pos;
     auto pSectorPre = pActor->sector();
 
     auto ecx = MoveCreature(pActor);
@@ -640,7 +638,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
         if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
         {
-            pActor->set_int_pos({ x, y, z });
+			pActor->spr.pos = oldv;
 
             ChangeActorSect(pActor, pSectorPre);
 

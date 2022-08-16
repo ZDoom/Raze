@@ -7974,12 +7974,8 @@ int DoPlasmaFountain(DSWActor* actor)
 int DoPlasma(DSWActor* actor)
 {
     int32_t dax, day, daz;
-    int ox,oy,oz;
-
-    ox = actor->int_pos().X;
-    oy = actor->int_pos().Y;
-    oz = actor->int_pos().Z;
-
+	
+	auto oldv = actor->spr.pos;
     DoBlurExtend(actor, 0, 4);
 
     dax = MOVEx(actor->spr.xvel, actor->int_ang());
@@ -8001,7 +7997,7 @@ int DoPlasma(DSWActor* actor)
 
                 if (hitActor->hasU() && hitActor != actor->user.WpnGoalActor)
                 {
-                    actor->set_int_pos({ ox, oy, oz });
+					actor->spr.pos = oldv;
 
                     hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                     actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10729,9 +10725,7 @@ int DoFindGroundPoint(DSWActor* actor)
 
 int DoNapalm(DSWActor* actor)
 {
-    int ox, oy, oz;
-
-    DoBlurExtend(actor, 1, 7);
+     DoBlurExtend(actor, 1, 7);
 
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
@@ -10744,9 +10738,7 @@ int DoNapalm(DSWActor* actor)
         }
     }
 
-    ox = actor->int_pos().X;
-    oy = actor->int_pos().Y;
-    oz = actor->int_pos().Z;
+	auto oldv = actor->spr.pos;
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -10766,7 +10758,7 @@ int DoNapalm(DSWActor* actor)
             {
                 auto hcstat = hitActor->spr.cstat;
 
-                actor->set_int_pos({ ox, oy, oz });
+				actor->spr.pos = oldv;
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10905,11 +10897,7 @@ int DoMeteor(DSWActor* actor)
 
 int DoSerpMeteor(DSWActor* actor)
 {
-    int ox, oy, oz;
-
-    ox = actor->int_pos().X;
-    oy = actor->int_pos().Y;
-    oz = actor->int_pos().Z;
+	auto oldv = actor->spr.pos;
 
     actor->spr.xrepeat += MISSILEMOVETICS * 2;
     if (actor->spr.xrepeat > 80)
@@ -10929,7 +10917,7 @@ int DoSerpMeteor(DSWActor* actor)
             {
                 auto hcstat = hitActor->spr.cstat;
 
-                actor->set_int_pos({ ox, oy, oz });
+				actor->spr.pos = oldv;
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
