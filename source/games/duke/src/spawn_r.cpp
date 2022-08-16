@@ -283,7 +283,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case TONGUE:
 		if (actj)
-			act->spr.ang = actj->spr.ang;
+			act->spr.__int_angle = actj->spr.__int_angle;
 		act->spr.pos.Z -= gs.playerheight;
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
@@ -583,7 +583,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
 			act->spr.xrepeat = act->spr.yrepeat = 8;
-			act->spr.ang = krand() & 2047;
+			act->spr.__int_angle = krand() & 2047;
 		}
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -617,7 +617,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SMALLSMOKE:
 		if (actj)
 		{
-			act->spr.ang = actj->spr.ang;
+			act->spr.__int_angle = actj->spr.__int_angle;
 			act->spr.shade = -64;
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
@@ -688,7 +688,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
-				act->spr.ang = actj->spr.ang;
+				act->spr.__int_angle = actj->spr.__int_angle;
 			act->spr.xrepeat = act->spr.yrepeat = 1 + (krand() & 7);
 		}
 		else
@@ -703,7 +703,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case TRASH:
 
-		if (act->spr.picnum != WATERDRIP) act->spr.ang = krand() & 2047;
+		if (act->spr.picnum != WATERDRIP) act->spr.__int_angle = krand() & 2047;
 
 		act->spr.xrepeat = 24;
 		act->spr.yrepeat = 24;
@@ -1034,7 +1034,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			if (act->spr.picnum == RAT)
 			{
-				act->spr.ang = krand() & 2047;
+				act->spr.__int_angle = krand() & 2047;
 				act->spr.xrepeat = act->spr.yrepeat = 48;
 				act->spr.cstat = 0;
 			}
@@ -1355,7 +1355,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case STEAM:
 		if (actj)
 		{
-			act->spr.ang = actj->spr.ang;
+			act->spr.__int_angle = actj->spr.__int_angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.xrepeat = act->spr.yrepeat = 1;
 			act->spr.xvel = -8;

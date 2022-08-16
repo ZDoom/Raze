@@ -1310,12 +1310,12 @@ void AITrap::Tick(RunListEvent* ev)
                 return;
             }
 
-            auto pBullet = BuildBullet(pActor, nType, 0, pActor->spr.ang, nullptr, 1);
+            auto pBullet = BuildBullet(pActor, nType, 0, pActor->spr.__int_angle, nullptr, 1);
             if (pBullet)
             {
                 if (nType == 15)
                 {
-                    pBullet->spr.ang = (pBullet->spr.ang - 512) & kAngleMask;
+                    pBullet->spr.__int_angle = (pBullet->spr.__int_angle - 512) & kAngleMask;
                     D3PlayFX(StaticSound[kSound32], pBullet);
                 }
                 else
@@ -1382,7 +1382,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     }
     else
     {
-        int nAngle = (pActor->spr.ang + 256) - RandomSize(9);
+        int nAngle = (pActor->spr.__int_angle + 256) - RandomSize(9);
 
         if (nVal)
         {
@@ -1502,7 +1502,7 @@ void DoFinale()
         if (!(dword_96788 & 2))
         {
             int nAng = RandomSize(11);
-            pFinaleSpr->spr.ang = nAng;
+            pFinaleSpr->spr.__int_angle = nAng;
             BuildSpark(pFinaleSpr, 1);
         }
 
@@ -1675,7 +1675,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     for (int i = 0; i < 20; i++)
     {
-        pActor->spr.ang = RandomSize(11);
+        pActor->spr.__int_angle = RandomSize(11);
         BuildSpark(pActor, 1); // shoot out blue orbs
     }
 
@@ -1741,7 +1741,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
 
         auto pActor2 = insertActor(lasthitsect, 0);
 
-        pActor2->spr.ang = ev->nParam;
+        pActor2->spr.__int_angle = ev->nParam;
         pActor2->set_int_pos({ lasthitx, lasthity, lasthitz });
 
         BuildSpark(pActor2, 0); // shoot out blue orb when damaged

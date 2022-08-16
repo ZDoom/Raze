@@ -101,7 +101,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	{
 		pos = parentTSprite->pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
-		pTSprite->ang = parentTSprite->ang;
+		pTSprite->__int_angle = parentTSprite->__int_angle;
 	}
 	pos.X += gCameraAng.fcos() * 2;
 	pos.Y += gCameraAng.fsin() * 2;
@@ -272,7 +272,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	}
 	case kViewEffectTrail:
 	{
-		int nAng = pTSprite->ang;
+		int nAng = pTSprite->__int_angle;
 		if (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 		{
 			nAng = (nAng + 512) & 2047;
@@ -451,7 +451,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->ang = pTSprite->ang;
+		pNSprite->__int_angle = pTSprite->__int_angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -469,7 +469,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->ang = pTSprite->ang;
+		pNSprite->__int_angle = pTSprite->__int_angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -507,17 +507,17 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			pNSprite->ang = (gView->actor->spr.ang + 512) & 2047; // always face viewer
+			pNSprite->__int_angle = (gView->actor->spr.__int_angle + 512) & 2047; // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->add_int_x(MulScale(128, Cos(gView->actor->spr.ang), 30));
-				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->spr.ang), 30));
+				pNSprite->add_int_x(MulScale(128, Cos(gView->actor->spr.__int_angle), 30));
+				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->spr.__int_angle), 30));
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
-				pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
+				pNSprite->__int_angle = (pNSprite->__int_angle + 512) & 2047; // offset angle 90 degrees
 		}
 		break;
 	}
@@ -579,7 +579,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
 			pTSprite->pos = owneractor->interpolatedvec3(gInterpolate);
-			pTSprite->ang = owneractor->interpolatedang(gInterpolate);
+			pTSprite->__int_angle = owneractor->interpolatedang(gInterpolate);
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {
@@ -610,7 +610,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->ang);
+			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
 			{
@@ -632,7 +632,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->ang);
+			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
 			nAnim = GetOctant(dX, dY);
 			break;
 		}
@@ -669,7 +669,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					pTSprite->picnum = voxelIndex[pTSprite->picnum];
 					if ((picanm[nTile].extra & 7) == 7)
 					{
-						pTSprite->ang = myclock & 2047;
+						pTSprite->__int_angle = myclock & 2047;
 					}
 				}
 			}
@@ -902,8 +902,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-						pNTSprite->add_int_x(MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28));
-						pNTSprite->add_int_y(MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28));
+						pNTSprite->add_int_x(MulScale(pPosture->zOffset, Cos(pTSprite->__int_angle), 28));
+						pNTSprite->add_int_y(MulScale(pPosture->zOffset, Sin(pTSprite->__int_angle), 28));
 						pNTSprite->set_int_z(pPlayer->actor->int_pos().Z - pPosture->xOffset);
 					}
 				}
@@ -979,7 +979,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->ang);
+			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
 			{
@@ -996,7 +996,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->ang);
+			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
 			nAnim = GetOctant(dX, dY);
 			break;
 		}

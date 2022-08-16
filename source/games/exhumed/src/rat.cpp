@@ -69,8 +69,8 @@ void InitRats()
 
 void SetRatVel(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.ang, -2);
-    pActor->spr.yvel = bsin(pActor->spr.ang, -2);
+    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
+    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
 }
 
 void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
@@ -84,7 +84,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->int_pos().Z;
-        nAngle = pActor->spr.ang;
+        nAngle = pActor->spr.__int_angle;
 
         ChangeActorStat(pActor, 108);
     }
@@ -97,7 +97,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 30;
-    pActor->spr.ang = nAngle;
+    pActor->spr.__int_angle = nAngle;
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;
     pActor->spr.xvel = 0;
@@ -332,7 +332,7 @@ void AIRat::Tick(RunListEvent* ev)
                     return;
                 }
 
-                pActor->spr.ang = RandomSize(11);
+                pActor->spr.__int_angle = RandomSize(11);
                 SetRatVel(pActor);
                 return;
             }

@@ -838,9 +838,9 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
         0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024) + (RANDOM_NEG(256, 6) >> 6);
+        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024) + (RANDOM_NEG(256, 6) >> 6);
     else
-        actor->spr.ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.__int_angle = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -868,8 +868,8 @@ int DoBunnyMoveJump(DSWActor* actor)
         int nx, ny;
 
         // Move while jumping
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
         move_actor(actor, nx, ny, 0L);
 
@@ -1025,12 +1025,12 @@ int DoBunnyQuickJump(DSWActor* actor)
                 }
 
                 actor->copyXY(hitActor);
-                actor->spr.ang = hitActor->spr.ang;
-                actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
+                actor->spr.__int_angle = hitActor->spr.__int_angle;
+                actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
                 HelpMissileLateral(actor, 2000);
-                actor->spr.ang = hitActor->spr.ang;
-                actor->user.Vis = actor->spr.ang;  // Remember angles for later
-                hitActor->user.Vis = hitActor->spr.ang;
+                actor->spr.__int_angle = hitActor->spr.__int_angle;
+                actor->user.Vis = actor->spr.__int_angle;  // Remember angles for later
+                hitActor->user.Vis = hitActor->spr.__int_angle;
 
                 NewStateGroup(actor, sg_BunnyScrew);
                 NewStateGroup(hitActor, sg_BunnyScrew);
@@ -1084,7 +1084,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face bunny
-    target->spr.ang = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
+    target->spr.__int_angle = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
     return 0;
 }
 
@@ -1115,7 +1115,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
-        actorNew->spr.ang = rip_ang[i];
+        actorNew->spr.__int_angle = rip_ang[i];
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
         actorNew->spr.shade = actor->spr.shade;
@@ -1171,7 +1171,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.pos = actor->spr.pos;
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
-    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.__int_angle = RANDOM_P2(2048);
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
     actorNew->spr.shade = actor->spr.shade;
@@ -1200,8 +1200,8 @@ DSWActor* BunnyHatch2(DSWActor* actor)
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
         actorNew->spr.xvel = 150 + RandomRange(1000);
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
-        actorNew->spr.ang -= RandomRange(128);
-        actorNew->spr.ang += RandomRange(128);
+        actorNew->spr.__int_angle -= RandomRange(128);
+        actorNew->spr.__int_angle += RandomRange(128);
     }
     else
         PickJumpMaxSpeed(actorNew, -600);
@@ -1282,7 +1282,7 @@ int DoBunnyMove(DSWActor* actor)
             NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
-            actor->spr.ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
+            actor->spr.__int_angle = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
             actor->user.ActorActionFunc = DoActorMoveJump;

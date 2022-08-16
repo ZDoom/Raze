@@ -438,10 +438,10 @@ int DoHornetCircle(DSWActor* actor)
 {
     int nx,ny,bound;
 
-    actor->spr.ang = NORM_ANGLE(actor->spr.ang + actor->user.Counter2);
+    actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + actor->user.Counter2);
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     if (!move_actor(actor, nx, ny, 0L))
     {
@@ -449,9 +449,9 @@ int DoHornetCircle(DSWActor* actor)
 
         // try moving in the opposite direction
         actor->user.Counter2 = -actor->user.Counter2;
-        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
         if (!move_actor(actor, nx, ny, 0L))
         {
@@ -507,8 +507,8 @@ int DoHornetDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 

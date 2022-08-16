@@ -83,7 +83,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     pActor->spr.xrepeat = nRepeat;
     pActor->spr.yrepeat = nRepeat;
     pActor->spr.picnum = 1;
-    pActor->spr.ang = 0;
+    pActor->spr.__int_angle = 0;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.xvel = 0;

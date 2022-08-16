@@ -265,8 +265,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->set_int_pos(nNStartSprite->int_pos());
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = buildang(nNStartSprite->spr.ang&kAngleMask);
-		pActor->spr.ang = plr->angle.ang.asbuild();
+		plr->angle.ang = buildang(nNStartSprite->spr.__int_angle&kAngleMask);
+		pActor->spr.__int_angle = plr->angle.ang.asbuild();
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -280,7 +280,7 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
-		pActor->spr.ang = plr->angle.ang.asbuild();
+		pActor->spr.__int_angle = plr->angle.ang.asbuild();
 
 		floorsprt = nullptr;
 	}
@@ -317,7 +317,7 @@ void RestartPlayer(int nPlayer)
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->spr.ang = pActor->spr.ang;
+	pDActor->spr.__int_angle = pActor->spr.__int_angle;
 	pDActor->spr.cstat = pActor->spr.cstat;
 
 	pDActor->spr.lotag = runlist_HeadRun() + 1;
@@ -593,7 +593,7 @@ static void pickupMessage(int no)
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang.asbuild();
-    if (pPlayer->pActor) pPlayer->pActor->spr.ang = inita;
+    if (pPlayer->pActor) pPlayer->pActor->spr.__int_angle = inita;
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -924,7 +924,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite) & kAngleMask;
             PlayerList[nPlayer].angle.settarget(buildang(ang), true);
-            pPlayerActor->spr.ang = ang;
+            pPlayerActor->spr.__int_angle = ang;
 
             PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
 
@@ -1017,7 +1017,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             {
                 if ((sect->hitag == 45) && bTouchFloor)
                 {
-                    int nDiff = AngleDiff(nNormal, (pPlayerActor->spr.ang + 1024) & kAngleMask);
+                    int nDiff = AngleDiff(nNormal, (pPlayerActor->spr.__int_angle + 1024) & kAngleMask);
 
                     if (nDiff < 0) {
                         nDiff = -nDiff;
@@ -1284,7 +1284,7 @@ sectdone:
         HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->spr.ang, near, 1024, 2);
+        neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->spr.__int_angle, near, 1024, 2);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), &pActorB, var_30, 768);
@@ -2182,7 +2182,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), pPlayerActor->spr.ang);
+                    SetSavePoint(nPlayer, pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), pPlayerActor->spr.__int_angle);
                     break;
                 }
 
@@ -2530,7 +2530,7 @@ sectdone:
         inity = pPlayerActor->int_pos().Y;
         initz = pPlayerActor->int_pos().Z;
         initsectp = pPlayerActor->sector();
-        inita = pPlayerActor->spr.ang;
+        inita = pPlayerActor->spr.__int_angle;
     }
 
     if (!PlayerList[nPlayer].nHealth)
@@ -2576,7 +2576,7 @@ sectdone:
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
-        pDopple->spr.ang = pPlayerActor->spr.ang;
+        pDopple->spr.__int_angle = pPlayerActor->spr.__int_angle;
         ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
@@ -2737,7 +2737,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->spr.ang);
+    ACTION_RETURN_INT(self->pActor->spr.__int_angle);
 }
 
 

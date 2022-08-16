@@ -47,7 +47,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        angle = pActor->spr.ang;
+        angle = pActor->spr.__int_angle;
     }
 
     pActor->set_int_pos({ x, y, z });
@@ -58,7 +58,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 60;
-    pActor->spr.ang = angle;
+    pActor->spr.__int_angle = angle;
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->spr.xvel = 0;
@@ -93,8 +93,8 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
 
 void GoRoach(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.ang, -1) - bcos(pActor->spr.ang, -3);
-    pActor->spr.yvel = bsin(pActor->spr.ang, -1) - bsin(pActor->spr.ang, -3);
+    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1) - bcos(pActor->spr.__int_angle, -3);
+    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1) - bsin(pActor->spr.__int_angle, -3);
 }
 
 void AIRoach::Draw(RunListEvent* ev)
@@ -275,19 +275,19 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.ang = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
 
                 pActor->nFrame = 0;
             }
             else
             {
-                pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
                 GoRoach(pActor);
             }
         }
         else if (nMov.type == kHitWall)
         {
-            pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
             GoRoach(pActor);
         }
         else
@@ -304,7 +304,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.ang = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
 
                 pActor->nFrame = 0;
             }
@@ -340,7 +340,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, -1, pActor->spr.ang, pTarget, 1);
+                BuildBullet(pActor, 13, -1, pActor->spr.__int_angle, pTarget, 1);
             }
         }
 

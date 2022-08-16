@@ -136,7 +136,7 @@ void BuildSnake(int nPlayer, int zVal)
     int x = pPlayerActor->int_pos().X;
     int y = pPlayerActor->int_pos().Y;
     int z = (pPlayerActor->int_pos().Z + zVal) - 2560;
-    int nAngle = pPlayerActor->spr.ang;
+    int nAngle = pPlayerActor->spr.__int_angle;
 
     HitInfo hit{};
     hitscan({ x, y, z }, pPlayerActor->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
@@ -212,7 +212,7 @@ void BuildSnake(int nPlayer, int zVal)
             pActor->spr.pal = 0;
             pActor->spr.xoffset = 0;
             pActor->spr.yoffset = 0;
-            pActor->spr.ang = pPlayerActor->spr.ang;
+            pActor->spr.__int_angle = pPlayerActor->spr.__int_angle;
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
             pActor->spr.zvel = 0;
@@ -259,7 +259,7 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;
 
-    int nAngle = pActor->spr.ang;
+    int nAngle = pActor->spr.__int_angle;
     auto pSector =pActor->sector();
 
     int esi = 2048;
@@ -320,8 +320,8 @@ void AISnake::Tick(RunListEvent* ev)
     {
     SEARCH_ENEMY:
         nMov = movesprite(pActor,
-            600 * bcos(pActor->spr.ang),
-            600 * bsin(pActor->spr.ang),
+            600 * bcos(pActor->spr.__int_angle),
+            600 * bsin(pActor->spr.__int_angle),
             bsin(SnakeList[nSnake].nAngle, -5),
             0, 0, CLIPMASK1);
 
@@ -356,7 +356,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        int nAngle = pActor->spr.ang;
+        int nAngle = pActor->spr.__int_angle;
         int var_30 = -bcos(nAngle, 6);
         int var_34 = -bsin(nAngle, 6);
 
@@ -376,7 +376,7 @@ void AISnake::Tick(RunListEvent* ev)
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
 
-            pActor2->spr.ang = nAngle;
+            pActor2->spr.__int_angle = nAngle;
             pActor2->set_int_pos({ x, y, z });
 
             ChangeActorSect(pActor2, pSector);

@@ -481,7 +481,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
     int nAngle = GetMyAngle(nCamerax - pTSprite->int_pos().X, nCameray - pTSprite->int_pos().Y);
 
-    int nSeqOffset = ((((pTSprite->ang + 512) - nAngle) + 128) & kAngleMask) >> 8;
+    int nSeqOffset = ((((pTSprite->__int_angle + 512) - nAngle) + 128) & kAngleMask) >> 8;
 
     int16_t nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
 
@@ -538,7 +538,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     }
     else
     {
-        val = (((pTSprite->ang - nAngle) + 128) & kAngleMask) >> 8;
+        val = (((pTSprite->__int_angle - nAngle) + 128) & kAngleMask) >> 8;
     }
 
     int eax = SeqBase[edx] + nFrame;
@@ -587,7 +587,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->pal = pTSprite->pal;
         tsp->xrepeat = pTSprite->xrepeat;
         tsp->yrepeat = pTSprite->yrepeat;
-        tsp->ang = pTSprite->ang;
+        tsp->__int_angle = pTSprite->__int_angle;
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;

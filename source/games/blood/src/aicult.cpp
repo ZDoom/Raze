@@ -75,8 +75,8 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.ang);
-	int dy = bsin(actor->spr.ang);
+	int dx = bcos(actor->spr.__int_angle);
+	int dy = bsin(actor->spr.__int_angle);
 	int dz = actor->dudeSlope;
 	dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 	dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -89,8 +89,8 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
-		int dx = bcos(actor->spr.ang);
-		int dy = bsin(actor->spr.ang);
+		int dx = bcos(actor->spr.__int_angle);
+		int dy = bsin(actor->spr.__int_angle);
 		int dz = actor->dudeSlope;
 		dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 		dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -102,8 +102,8 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.ang);
-	int dy = bsin(actor->spr.ang);
+	int dx = bcos(actor->spr.__int_angle);
+	int dy = bsin(actor->spr.__int_angle);
 	int dz = actor->dudeSlope;
 	dx += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
 	dy += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
@@ -199,7 +199,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 5120 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
+	if (nDist < 5120 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
 	{
 		switch (actor->xspr.medium)
 		{
@@ -273,7 +273,7 @@ static void cultThinkChase(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist > 0 && nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{

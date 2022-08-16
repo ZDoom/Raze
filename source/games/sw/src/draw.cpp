@@ -104,7 +104,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
     angle2 = getangle(tsp->int_pos().X - viewx, tsp->int_pos().Y - viewy);
-    rotation = ((tsp->ang + 3072 + 128 - angle2) & 2047);
+    rotation = ((tsp->__int_angle + 3072 + 128 - angle2) & 2047);
     rotation = (rotation >> 8) & 7;
 
     if (ownerActor->user.RotNum == 5)
@@ -353,7 +353,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     int xrepeat, yrepeat, repeat_adj = 0;
     int z_amt_per_pixel;
 
-    ang = NORM_ANGLE(tsp->ang + 1024);
+    ang = NORM_ANGLE(tsp->__int_angle + 1024);
 
     if (!ownerActor->hasU() || tsp->xvel == 0)
     {
@@ -526,7 +526,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.yrepeat = tsp->yrepeat;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
-    actorNew->spr.ang = tsp->ang;
+    actorNew->spr.__int_angle = tsp->__int_angle;
     actorNew->spr.xvel = tsp->xvel;
     actorNew->spr.yvel = tsp->yvel;
     actorNew->spr.zvel = tsp->zvel;
@@ -669,7 +669,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
+                    tsp->__int_angle = NORM_ANGLE(tsp->__int_angle - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
@@ -733,7 +733,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
-                tsp->ang = NORM_ANGLE(tsp->ang - 512);
+                tsp->__int_angle = NORM_ANGLE(tsp->__int_angle - 512);
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
@@ -764,8 +764,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->ang);
-                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->ang);
+                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->__int_angle);
+                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->__int_angle);
                     }
                     else
                     {
@@ -775,7 +775,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
 
                     pos.Z = tsp->int_pos().Z + pp->si.Z;
                     tsp->set_int_pos(pos);
-                    tsp->ang = pp->siang;
+                    tsp->__int_angle = pp->siang;
                     //continue;
                 }
                 else
@@ -792,7 +792,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
                 tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
                 tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
-                tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
+                tsp->__int_angle -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
         }
 
@@ -1073,7 +1073,7 @@ void PrintSpriteInfo(PLAYER* pp)
             Printf("POSX:%d, ", actor->int_pos().X);
             Printf("POSY:%d, ", actor->int_pos().Y);
             Printf("POSZ:%d,", actor->int_pos().Z);
-            Printf("ANG:%d\n", actor->spr.ang);
+            Printf("ANG:%d\n", actor->spr.__int_angle);
         }
     }
 }
@@ -1101,7 +1101,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         while (auto actor = it.Next())
         {
             ang = bvectangbam(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
-            ang_test = getincangle(ang.asbuild(), actor->spr.ang) < actor->spr.lotag;
+            ang_test = getincangle(ang.asbuild(), actor->spr.__int_angle) < actor->spr.lotag;
 
             FAFcansee_test =
                 (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
@@ -1448,7 +1448,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         DSWActor* ractor = pp->remoteActor;
         if (TEST_BOOL1(ractor))
-            tang = buildang(ractor->spr.ang);
+            tang = buildang(ractor->spr.__int_angle);
         else
             tang = bvectangbam(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
     }
@@ -1654,7 +1654,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->spr.ang : actor->interpolatedang(smoothratio)) - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->spr.__int_angle : actor->interpolatedang(smoothratio)) - cang) & 2047;
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;
@@ -1684,7 +1684,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     xoff = (int)tileLeftOffset(tilenum) + (int)actor->spr.xoffset;
                     if ((actor->spr.cstat & CSTAT_SPRITE_XFLIP) > 0)
                         xoff = -xoff;
-                    k = actor->spr.ang;
+                    k = actor->spr.__int_angle;
                     l = actor->spr.xrepeat;
                     dax = bsin(k) * l;
                     day = -bcos(k) * l;
@@ -1719,7 +1719,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                         if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
-                        k = actor->spr.ang;
+                        k = actor->spr.__int_angle;
                         cosang = bcos(k);
                         sinang = bsin(k);
                         xspan = tileWidth(tilenum);

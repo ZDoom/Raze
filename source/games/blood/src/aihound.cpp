@@ -44,8 +44,8 @@ AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, 
 
 void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.ang);
-	int dy = bsin(actor->spr.ang);
+	int dx = bcos(actor->spr.__int_angle);
+	int dy = bsin(actor->spr.__int_angle);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -64,7 +64,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-	actFireMissile(actor, 0, 0, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileFlameHound);
+	actFireMissile(actor, 0, 0, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), 0, kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)
@@ -86,7 +86,7 @@ static void houndThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &houndSearch);
 	aiThinkTarget(actor);
 }
@@ -121,7 +121,7 @@ static void houndThinkChase(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{

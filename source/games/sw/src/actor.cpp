@@ -127,7 +127,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.RotNum = 0;
         actor->spr.xvel <<= 1;
         actor->user.ActorActionFunc = nullptr;
-        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
         break;
 
     case NINJA_RUN_R0:
@@ -158,7 +158,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                 actor->spr.xvel = 200 + RandomRange(200);
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
-                actor->spr.ang = weapActor->spr.ang;
+                actor->spr.__int_angle = weapActor->spr.__int_angle;
             }
         }
         else
@@ -177,7 +177,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.ActorActionFunc = nullptr;
         //actor->user.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
-            actor->spr.ang = weapActor->spr.ang;
+            actor->spr.__int_angle = weapActor->spr.__int_angle;
         break;
 
     case COOLG_RUN_R0:
@@ -211,7 +211,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -234,7 +234,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024);
         break;
 
     default:
@@ -259,7 +259,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->spr.xvel = 300 + RandomRange(400);
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
-            actor->spr.ang = weapActor->spr.ang;
+            actor->spr.__int_angle = weapActor->spr.__int_angle;
             break;
         }
         break;
@@ -413,16 +413,16 @@ int DoActorDebris(DSWActor* actor)
         }
         else
         {
-            //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.ang) >> 14;
-            //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.ang) >> 14;
-            nx = MulScale(ACTORMOVETICS, bcos(actor->spr.ang), 14);
-            ny = MulScale(ACTORMOVETICS, bsin(actor->spr.ang), 14);
+            //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.__int_angle) >> 14;
+            //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.__int_angle) >> 14;
+            nx = MulScale(ACTORMOVETICS, bcos(actor->spr.__int_angle), 14);
+            ny = MulScale(ACTORMOVETICS, bsin(actor->spr.__int_angle), 14);
 
             //actor->spr.clipdist = (256+128)>>2;
 
             if (!move_debris(actor, nx, ny, 0L))
             {
-                actor->spr.ang = RANDOM_P2(2048);
+                actor->spr.__int_angle = RANDOM_P2(2048);
             }
         }
 
@@ -445,13 +445,13 @@ int DoFireFly(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = 4 * ACTORMOVETICS * bcos(actor->spr.ang) >> 14;
-    ny = 4 * ACTORMOVETICS * bsin(actor->spr.ang) >> 14;
+    nx = 4 * ACTORMOVETICS * bcos(actor->spr.__int_angle) >> 14;
+    ny = 4 * ACTORMOVETICS * bsin(actor->spr.__int_angle) >> 14;
 
     actor->spr.clipdist = 256>>2;
     if (!move_actor(actor, nx, ny, 0L))
     {
-        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
     }
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;
@@ -476,7 +476,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 200);
 
         SetOwner(actor, spawned);
     }
@@ -737,8 +737,8 @@ int DoActorStopFall(DSWActor* actor)
     // don't stand on face or wall sprites - jump again
     if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
-        //actor->spr.ang = NORM_ANGLE(actor->spr.ang + (RANDOM_P2(64<<8)>>8) - 32);
-        actor->spr.ang = NORM_ANGLE(actor->spr.ang + 1024 + (RANDOM_P2(512<<8)>>8));
+        //actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (RANDOM_P2(64<<8)>>8) - 32);
+        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024 + (RANDOM_P2(512<<8)>>8));
         actor->user.jump_speed = -350;
 
         DoActorBeginJump(actor);
@@ -782,8 +782,8 @@ int DoActorDeathMove(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     actor->spr.clipdist = (128+64)>>2;
     move_actor(actor, nx, ny, 0);

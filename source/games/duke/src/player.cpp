@@ -175,7 +175,7 @@ int hits(DDukeActor* actor)
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
-	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), 0 }, hit, CLIPMASK1);
 	return (FindDistance2D(hit.hitpos.vec2 - actor->int_pos().vec2));
 }
 
@@ -196,7 +196,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else zoff = 0;
 
 	auto pos = actor->int_pos();
-	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
@@ -236,7 +236,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
 
-	a = actor->spr.ang;
+	a = actor->spr.__int_angle;
 
 	// Autoaim from DukeGDX.
 	if (actor->isPlayer())
@@ -252,7 +252,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 				int zvel = -plr->horizon.sum().asq16() >> 5;
 
 				HitInfo hit{};
-				hitscan(plr->player_int_pos().withZOffset(1024), actor->sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), zvel }, hit, CLIPMASK1);
+				hitscan(plr->player_int_pos().withZOffset(1024), actor->sector(), { bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), zvel }, hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -1058,7 +1058,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				{
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
-					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
+					spawned->spr.__int_angle = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
 					spawned->set_int_pos(hit.hitpos);
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);

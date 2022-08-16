@@ -245,7 +245,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
 {
     auto pActor = PlayerList[nPlayer].pActor;
 
-    int ang = pActor->spr.ang;
+    int ang = pActor->spr.__int_angle;
     int xVect = bcos(ang);
     int yVect = bsin(ang);
 
@@ -647,7 +647,7 @@ loc_flag:
             }
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            int nAngle = pPlayerActor->spr.ang;
+            int nAngle = pPlayerActor->spr.__int_angle;
             int theX = pPlayerActor->int_pos().X;
             int theY = pPlayerActor->int_pos().Y;
             int theZ = pPlayerActor->int_pos().Z;
@@ -809,7 +809,7 @@ loc_flag:
                         // only autoaim if target is in front of the player.
 						assert(t->sector());
                         int angletotarget = bvectangbam(t->int_pos().X - pPlayerActor->int_pos().X, t->int_pos().Y - pPlayerActor->int_pos().Y).asbuild();
-                        int anglediff = (pPlayerActor->spr.ang - angletotarget) & 2047;
+                        int anglediff = (pPlayerActor->spr.__int_angle - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {
                             target = t;
@@ -831,8 +831,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    PlayerList[nPlayer].nDamage.X -= bcos(pPlayerActor->spr.ang, 9);
-                    PlayerList[nPlayer].nDamage.Y -= bsin(pPlayerActor->spr.ang, 9);
+                    PlayerList[nPlayer].nDamage.X -= bcos(pPlayerActor->spr.__int_angle, 9);
+                    PlayerList[nPlayer].nDamage.Y -= bsin(pPlayerActor->spr.__int_angle, 9);
                     break;
                 }
                 case kWeaponRing:

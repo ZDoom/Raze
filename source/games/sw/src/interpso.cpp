@@ -208,7 +208,7 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->curelement = soi_sprang;
     data->oldipos =
         data->lastipos =
-        data->lastoldipos = actor->spr.ang;
+        data->lastoldipos = actor->spr.__int_angle;
     data->lastangdiff = 0;
     data->actorofang = actor;
 }
@@ -336,7 +336,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                         actorofang->user.oangdiff = 0;
                     if (!interpolating)
                         data->lastangdiff = 0;
-                    data->oldipos = actorofang->spr.ang;
+                    data->oldipos = actorofang->spr.__int_angle;
                 }
             }
             else
@@ -376,7 +376,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 continue; // target went poof.
 
             interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
-                                      (double)actorofang->spr.ang :
+                                      (double)actorofang->spr.__int_angle :
                                       getvalue(interp->data[i]);
         }
         if (interp->tic == 0) // Only if the SO has just moved
@@ -443,7 +443,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->spr.ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+                actor->spr.__int_angle = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
             }
             else
             {
@@ -472,7 +472,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             if (data->curelement == soi_sprang)
             {
                 auto actorofang = interp->data[i].actorofang;
-                if (actorofang) actorofang->spr.ang = data->bakipos;
+                if (actorofang) actorofang->spr.__int_angle = data->bakipos;
             }
             else
             {

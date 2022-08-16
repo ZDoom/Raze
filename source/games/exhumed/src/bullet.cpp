@@ -229,7 +229,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                int nAngle = (pActor->spr.ang + 256) - RandomSize(9);
+                int nAngle = (pActor->spr.__int_angle + 256) - RandomSize(9);
 
                 pHitActor->spr.xvel = bcos(nAngle, 1);
                 pHitActor->spr.yvel = bsin(nAngle, 1);
@@ -240,8 +240,8 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 int xVel = pHitActor->spr.xvel;
                 int yVel = pHitActor->spr.yvel;
 
-                pHitActor->spr.xvel = bcos(pActor->spr.ang, -2);
-                pHitActor->spr.yvel = bsin(pActor->spr.ang, -2);
+                pHitActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
+                pHitActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
 
                 MoveCreature(pHitActor);
 
@@ -433,7 +433,7 @@ MOVEEND:
                 dz = -bsin(pBullet->nPitch, 3);
             else
                 dz = -pBullet->nPitch * 512;
-            hitscan(startPos, pActor->sector(), { bcos(pActor->spr.ang), bsin(pActor->spr.ang), dz }, hit, CLIPMASK1);
+            hitscan(startPos, pActor->sector(), { bcos(pActor->spr.__int_angle), bsin(pActor->spr.__int_angle), dz }, hit, CLIPMASK1);
             x2 = hit.hitpos.X;
             y2 = hit.hitpos.Y;
             z2 = hit.hitpos.Z;
@@ -501,7 +501,7 @@ HITSPRITE:
             {
                 if (pHitWall != nullptr)
                 {
-                    BackUpBullet(&x2, &y2, pActor->spr.ang);
+                    BackUpBullet(&x2, &y2, pActor->spr.__int_angle);
 
                     if (nType != 3 || RandomSize(2) == 0)
                     {
@@ -563,7 +563,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.nDoubleDamage = nDoubleDamage;
 
                 sBullet.pActor = insertActor(pActor->sector(), 200);
-                sBullet.pActor->spr.ang = nAngle;
+                sBullet.pActor->spr.__int_angle = nAngle;
 
                 int nHeight = GetActorHeight(pTarget);
 
@@ -631,7 +631,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletActor->spr.yrepeat = (uint8_t)nRepeat;
     pBulletActor->spr.xoffset = 0;
     pBulletActor->spr.yoffset = 0;
-    pBulletActor->spr.ang = nAngle;
+    pBulletActor->spr.__int_angle = nAngle;
     pBulletActor->spr.xvel = 0;
     pBulletActor->spr.yvel = 0;
     pBulletActor->spr.zvel = 0;
@@ -744,7 +744,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 y -= pBulletActor->int_pos().Y;
 
                 nAngle = GetMyAngle(x, y);
-                pActor->spr.ang = nAngle;
+                pActor->spr.__int_angle = nAngle;
             }
             else
             {

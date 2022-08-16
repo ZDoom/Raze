@@ -464,7 +464,7 @@ struct spritetypebase
 	ESpriteFlags cstat;
 	int16_t picnum;
 	int16_t statnum;
-	int16_t ang;
+	int16_t __int_angle;
 	int16_t xvel;
 	int16_t yvel;
 	union { int16_t zvel, inittype; }; // inittype, type and flags are for Blood.
@@ -492,6 +492,17 @@ struct spritetypebase
 	{
 		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
 	}
+
+	const int16_t int_ang() const
+	{
+ 		return __int_angle;
+	}
+
+	void set_int_ang(int a)
+	{
+		__int_angle = int16_t(a);
+	}
+
 };
 
 

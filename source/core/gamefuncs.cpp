@@ -104,7 +104,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			else
 			{
 				// same as wall calculation.
-				daang = buildang(act->spr.ang - 512);
+				daang = buildang(act->spr.__int_angle - 512);
 				newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 				if (abs(nx) > abs(ny))
@@ -305,8 +305,8 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset);
 	}
 
-	int x = bsin(spr->ang) * spr->xrepeat;
-	int y = -bcos(spr->ang) * spr->xrepeat;
+	int x = bsin(spr->__int_angle) * spr->xrepeat;
+	int y = -bcos(spr->__int_angle) * spr->xrepeat;
 
 	int xoff = leftofs;
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
@@ -356,8 +356,8 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 	int sprcenterx = (width >> 1) + leftofs;
 	int sprcentery = (height >> 1) + topofs;
 
-	int cosang = bcos(spr->ang);
-	int sinang = bsin(spr->ang);
+	int cosang = bcos(spr->__int_angle);
+	int sinang = bsin(spr->__int_angle);
 	int cosangslope = DivScale(cosang, ratio, 12);
 	int sinangslope = DivScale(sinang, ratio, 12);
 
@@ -571,7 +571,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->yoffset = actor->spr.yoffset;
 	tspr->sectp = actor->spr.sectp;
 	tspr->statnum = actor->spr.statnum;
-	tspr->ang = actor->spr.ang;
+	tspr->__int_angle = actor->spr.__int_angle;
 	tspr->xvel = actor->spr.xvel;
 	tspr->yvel = actor->spr.yvel;
 	tspr->zvel = actor->spr.zvel;

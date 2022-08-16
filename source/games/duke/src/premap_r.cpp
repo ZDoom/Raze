@@ -574,7 +574,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			{
 				ambienthitag[ambientfx] = ac->spr.hitag;
 				ambientlotag[ambientfx] = ac->spr.lotag;
-				ac->spr.ang = ambientfx;
+				ac->spr.__int_angle = ambientfx;
 				ambientfx++;
 				ac->spr.lotag = 0;
 				ac->spr.hitag = 0;

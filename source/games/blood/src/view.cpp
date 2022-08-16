@@ -601,7 +601,7 @@ void renderCrystalBall()
 	int vd4 = pOther->actor->spr.y;
 	int vd0 = pOther->zView;
 	int vcc = pOther->actor->spr.sectnum;
-	int v50 = pOther->actor->spr.ang;
+	int v50 = pOther->actor->spr.__int_angle;
 	int v54 = 0;
 	if (pOther->flickerEffect)
 	{
@@ -854,7 +854,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f",
-		gMe->actor->int_pos().X, gMe->actor->int_pos().Y, gMe->actor->int_pos().Z, gMe->actor->spr.ang * BAngToDegree);
+		gMe->actor->int_pos().X, gMe->actor->int_pos().Y, gMe->actor->int_pos().Z, gMe->actor->spr.__int_angle * BAngToDegree);
 
 	return out;
 }

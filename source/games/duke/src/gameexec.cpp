@@ -1232,8 +1232,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else*/ SetGameVarID(lVar2, act->spr.statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) act->spr.ang = lValue;
-		else SetGameVarID(lVar2, act->spr.ang, sActor, sPlayer);
+		if (bSet) act->spr.__int_angle = lValue;
+		else SetGameVarID(lVar2, act->spr.__int_angle, sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
@@ -1416,14 +1416,14 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 				j = 0;
 			else
 			{
-				actor->spr.ang += angdif; j = hitasprite(actor, &hit); actor->spr.ang -= angdif;
+				actor->spr.__int_angle += angdif; j = hitasprite(actor, &hit); actor->spr.__int_angle -= angdif;
 				if (j > sclip)
 				{
 					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
 						j = 0;
 					else
 					{
-						actor->spr.ang -= angdif; j = hitasprite(actor, &hit); actor->spr.ang += angdif;
+						actor->spr.__int_angle -= angdif; j = hitasprite(actor, &hit); actor->spr.__int_angle += angdif;
 						if (j > 768)
 						{
 							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
@@ -1561,7 +1561,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
-			g_ac->spr.ang = krand() & 2047;
+			g_ac->spr.__int_angle = krand() & 2047;
 		insptr++;
 		break;
 	case concmd_action:
@@ -1601,10 +1601,10 @@ int ParseState::parse(void)
 		switch (krand() & 1)
 		{
 		case 0:
-			g_ac->spr.ang = (+512 + g_ac->spr.ang + (krand() & 511)) & 2047;
+			g_ac->spr.__int_angle = (+512 + g_ac->spr.__int_angle + (krand() & 511)) & 2047;
 			break;
 		case 1:
-			g_ac->spr.ang = (-512 + g_ac->spr.ang - (krand() & 511)) & 2047;
+			g_ac->spr.__int_angle = (-512 + g_ac->spr.__int_angle - (krand() & 511)) & 2047;
 			break;
 		}
 		insptr++;
@@ -1615,7 +1615,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_rndmove:
-		g_ac->spr.ang = krand() & 2047;
+		g_ac->spr.__int_angle = krand() & 2047;
 		g_ac->spr.xvel = 25;
 		insptr++;
 		break;
@@ -1761,23 +1761,23 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifsoundid:
 		insptr++;
-		parseifelse((short)*insptr == ambientlotag[g_ac->spr.ang]);
+		parseifelse((short)*insptr == ambientlotag[g_ac->spr.__int_angle]);
 		break;
 	case concmd_ifsounddist:
 		insptr++;
 		if (*insptr == 0)
-			parseifelse(ambienthitag[g_ac->spr.ang] > g_x);
+			parseifelse(ambienthitag[g_ac->spr.__int_angle] > g_x);
 		else if (*insptr == 1)
-			parseifelse(ambienthitag[g_ac->spr.ang] < g_x);
+			parseifelse(ambienthitag[g_ac->spr.__int_angle] < g_x);
 		break;
 	case concmd_soundtag:
 		insptr++;
-		S_PlayActorSound(ambientlotag[g_ac->spr.ang], g_ac);
+		S_PlayActorSound(ambientlotag[g_ac->spr.__int_angle], g_ac);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
-		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_ac->spr.ang]))
-			S_PlayActorSound(ambientlotag[g_ac->spr.ang], g_ac);
+		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_ac->spr.__int_angle]))
+			S_PlayActorSound(ambientlotag[g_ac->spr.__int_angle], g_ac);
 		break;
 	case concmd_soundonce:
 		insptr++;
@@ -1973,11 +1973,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, -bsin(g_ac->spr.ang, -10), bcos(g_ac->spr.ang, -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, -bsin(g_ac->spr.__int_angle, -10), bcos(g_ac->spr.__int_angle, -10), g_ac->spr.zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, bsin(g_ac->spr.ang, -10), -bcos(g_ac->spr.ang, -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, bsin(g_ac->spr.__int_angle, -10), -bcos(g_ac->spr.__int_angle, -10), g_ac->spr.zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
@@ -2122,7 +2122,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = *insptr;
 		insptr++;
 		if(g_ac->spr.hitag&random_angle)
-			g_ac->spr.ang = krand()&2047;
+			g_ac->spr.__int_angle = krand()&2047;
 		break;
 	case concmd_spawn:
 		insptr++;
@@ -2484,7 +2484,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->spr.ang, hit, 768, 1);
+			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->spr.__int_angle, hit, 768, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2846,7 +2846,7 @@ int ParseState::parse(void)
 
 	case concmd_ifangdiffl:
 		insptr++;
-		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_ac->spr.ang));
+		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_ac->spr.__int_angle));
 		parseifelse( j <= *insptr);
 		break;
 
@@ -3162,7 +3162,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, g_ac->spr.ang, g_ac, g_p);
+		SetGameVarID(i, g_ac->spr.__int_angle, g_ac, g_p);
 		break;
 	}
 	case concmd_setactorangle:
@@ -3170,8 +3170,8 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		g_ac->spr.ang = GetGameVarID(i, g_ac, g_p).safeValue();
-		g_ac->spr.ang &= 2047;
+		g_ac->spr.__int_angle = GetGameVarID(i, g_ac, g_p).safeValue();
+		g_ac->spr.__int_angle &= 2047;
 		break;
 	}
 	case concmd_randvar:

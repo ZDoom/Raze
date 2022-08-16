@@ -186,7 +186,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (splash)
 			{
 				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
-				splash->spr.ang = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->spr.__int_angle = ps[p].angle.ang.asbuild(); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, 0);
 				splash->spr.xvel = 0;
@@ -337,7 +337,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 					l->spr.pos.Z += 4;
 					l->spr.xvel = 16;
 					l->spr.xrepeat = l->spr.yrepeat = 24;
-					l->spr.ang += 64 - (krand() & 127);
+					l->spr.__int_angle += 64 - (krand() & 127);
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -411,7 +411,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							{
 								hole->spr.xvel = -1;
 								auto delta = hit.hitWall->delta();
-								hole->spr.ang = getangle(-delta.X, -delta.Y) + 512;
+								hole->spr.__int_angle = getangle(-delta.X, -delta.Y) + 512;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -489,8 +489,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		sz -= (4 << 7);
 		if (actor->spr.picnum == 4649)
 		{
-			sx += bcos(actor->spr.ang + 256, -6);
-			sy += bsin(actor->spr.ang + 256, -6);
+			sx += bcos(actor->spr.__int_angle + 256, -6);
+			sy += bsin(actor->spr.__int_angle + 256, -6);
 			sz += (12 << 8);
 		}
 		if (actor->spr.picnum == VIXEN)
@@ -503,8 +503,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		sx += bcos(actor->spr.ang + 160, -7);
-		sy += bsin(actor->spr.ang + 160, -7);
+		sx += bcos(actor->spr.__int_angle + 160, -7);
+		sy += bsin(actor->spr.__int_angle + 160, -7);
 
 		if (aimed)
 		{
@@ -578,7 +578,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = actor->spr.ang + 32 - (krand() & 63);
+		sa = actor->spr.__int_angle + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		if (atwith == FIRELASER)
@@ -657,7 +657,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			sa = actor->spr.ang + (krand() & 31) - 16;
+			sa = actor->spr.__int_angle + (krand() & 31) - 16;
 	}
 
 	if (p < 0) aimed = nullptr;
@@ -717,7 +717,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	else if (ps[p].curr_weapon == TIT_WEAPON)
 	{
 		spawned->spr.extra >>= 2;
-		spawned->spr.ang += 16 - (krand() & 31);
+		spawned->spr.__int_angle += 16 - (krand() & 31);
 		spawned->spr.zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
@@ -809,7 +809,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = actor->spr.ang + 32 - (krand() & 63);
+		sa = actor->spr.__int_angle + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		scount--;
@@ -845,7 +845,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	else
 	{
 		p = -1;
-		sa = actor->spr.ang;
+		sa = actor->spr.__int_angle;
 		sx = actor->int_pos().X;
 		sy = actor->int_pos().Y;
 		sz = actor->int_pos().Z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
@@ -894,7 +894,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 32;
-			j->spr.ang = actor->spr.ang;
+			j->spr.__int_angle = actor->spr.__int_angle;
 			j->add_int_z(-(5 << 8));
 		}
 		break;
@@ -905,7 +905,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 250;
-			j->spr.ang = actor->spr.ang;
+			j->spr.__int_angle = actor->spr.__int_angle;
 			j->add_int_z(-(15 << 8));
 		}
 		break;
@@ -1506,7 +1506,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.ang = p->angle.ang.asbuild();
+				j->spr.__int_angle = p->angle.ang.asbuild();
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1525,7 +1525,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.ang = p->angle.ang.asbuild();
+				j->spr.__int_angle = p->angle.ang.asbuild();
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -2761,7 +2761,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				k = hits(p->GetActor());
 				if (k < 512)
 				{
-					spawned->spr.ang += 1024;
+					spawned->spr.__int_angle += 1024;
 					spawned->spr.zvel /= 3;
 					spawned->spr.xvel /= 3;
 				}
@@ -2977,8 +2977,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					if (j)
 					{
 
-						j->spr.ang += 1024;
-						j->spr.ang &= 2047;
+						j->spr.__int_angle += 1024;
+						j->spr.__int_angle &= 2047;
 						j->spr.xvel += 32;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
@@ -4048,7 +4048,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		{
 			p->pos.X = motosprite->spr.pos.X;
 			p->pos.Y = motosprite->spr.pos.Y;
-			p->angle.ang = buildang(motosprite->spr.ang);
+			p->angle.ang = buildang(motosprite->spr.__int_angle);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
 		}
@@ -4106,7 +4106,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.ang = p->angle.ang.asbuild();
+			spawned->spr.__int_angle = p->angle.ang.asbuild();
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
@@ -4128,7 +4128,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		{
 			p->pos.X = boat->spr.pos.X;
 			p->pos.Y = boat->spr.pos.Y;
-			p->angle.ang = buildang(boat->spr.ang);
+			p->angle.ang = buildang(boat->spr.__int_angle);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
 		}
@@ -4173,7 +4173,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.ang = p->angle.ang.asbuild();
+			spawned->spr.__int_angle = p->angle.ang.asbuild();
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];

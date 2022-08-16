@@ -438,7 +438,7 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->spr.ang, near, 1024, NTAG_SEARCH_LO_HI);
+        neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->spr.__int_angle, near, 1024, NTAG_SEARCH_LO_HI);
     }
 
     if (near.hitSector != nullptr && near.hitpos.X < 1024)
@@ -816,7 +816,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->spr.ang = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
+        actor->spr.__int_angle = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
 
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
@@ -836,8 +836,8 @@ int DoActorMoveCloser(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0))
@@ -867,7 +867,7 @@ int DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            actor->spr.ang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y);
+            actor->spr.__int_angle = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y);
         }
     }
 
@@ -1048,7 +1048,7 @@ int InitActorRunAway(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+        actor->spr.__int_angle = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags |= (SPR_RUN_AWAY);
     }
@@ -1128,7 +1128,7 @@ int InitActorAttack(DSWActor* actor)
     //NewStateGroup(actor, actor->user.ActorActionSet->Stand);
 
     // face player when attacking
-    actor->spr.ang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    actor->spr.__int_angle = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
 
     // If it's your own kind, lay off!
     if (actor->user.ID == actor->user.targetActor->user.ID && !actor->user.targetActor->user.PlayerP)
@@ -1208,7 +1208,7 @@ int InitActorEvade(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->spr.ang = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+        actor->spr.__int_angle = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
         DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
         actor->user.Flags &= ~(SPR_RUN_AWAY);
@@ -1228,7 +1228,7 @@ int InitActorWanderAround(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->spr.ang = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
+        actor->spr.__int_angle = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
         DoActorSetSpeed(actor, NORM_SPEED);
     }
 
@@ -1244,7 +1244,7 @@ int InitActorFindPlayer(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->spr.ang = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
+        actor->spr.__int_angle = getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y);
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
@@ -1309,8 +1309,8 @@ int DoActorMoveJump(DSWActor* actor)
 
     // Move while jumping
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     move_actor(actor, nx, ny, 0L);
 
@@ -1341,7 +1341,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     x = actor->int_pos().X;
     y = actor->int_pos().Y;
     z = actor->int_pos().Z;
-    sang = actor->spr.ang;
+    sang = actor->spr.__int_angle;
     loz = actor->user.loz;
     hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
@@ -1351,9 +1351,9 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     ssp = actor->sector();
 
     // do the move
-    actor->spr.ang = ang;
-    nx = MulScale(dist, bcos(actor->spr.ang), 14);
-    ny = MulScale(dist, bsin(actor->spr.ang), 14);
+    actor->spr.__int_angle = ang;
+    nx = MulScale(dist, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(dist, bsin(actor->spr.__int_angle), 14);
 
     Collision ret = move_sprite(actor, nx, ny, 0, actor->user.ceiling_dist, actor->user.floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
@@ -1367,7 +1367,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 
     // reset position information
     actor->set_int_pos({ x, y, z });
-    actor->spr.ang = sang;
+    actor->spr.__int_angle = sang;
     actor->user.loz = loz;
     actor->user.hiz = hiz;
     actor->user.lowActor = lowActor;
@@ -1452,13 +1452,13 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         // look directly ahead for a ledge
         if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD)))
         {
-            actor->spr.ang = new_ang;
+            actor->spr.__int_angle = new_ang;
             if (DropAhead(actor, actor->user.lo_step))
             {
-                actor->spr.ang = oang;
+                actor->spr.__int_angle = oang;
                 continue;
             }
-            actor->spr.ang = oang;
+            actor->spr.__int_angle = oang;
         }
 #endif
 
@@ -1497,7 +1497,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         if (actor->user.TargetDist > 4000)
             actor->user.TargetDist -= 3500;
 
-        actor->spr.ang = save_ang;
+        actor->spr.__int_angle = save_ang;
         return save_ang;
     }
 
@@ -1576,7 +1576,7 @@ int InitActorReposition(DSWActor* actor)
             return 0;
         }
 
-        actor->spr.ang = ang;
+        actor->spr.__int_angle = ang;
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags &= ~(SPR_RUN_AWAY);
     }
@@ -1606,7 +1606,7 @@ int InitActorReposition(DSWActor* actor)
                 DoActorSetSpeed(actor, MID_SPEED);
         }
 
-        actor->spr.ang = ang;
+        actor->spr.__int_angle = ang;
     }
 
 
@@ -1623,8 +1623,8 @@ int DoActorReposition(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
 
     // still might hit something and have to handle it.
     if (!move_actor(actor, nx, ny, 0L))

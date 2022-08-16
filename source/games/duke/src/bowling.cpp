@@ -190,7 +190,7 @@ void resetpins(sectortype* sect)
 				{
 					spawned->spr.clipdist = (1 + (krand() % 1)) * 16 + 32;
 				}
-				spawned->spr.ang -= ((krand() & 32) - (krand() & 64)) & 2047;
+				spawned->spr.__int_angle -= ((krand() & 32) - (krand() & 64)) & 2047;
 			}
 		}
 		if (a2->spr.picnum == 280)

@@ -51,7 +51,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        nAngle = pActor->spr.ang;
+        nAngle = pActor->spr.__int_angle;
     }
 
     pActor->set_int_pos({ x, y, z });
@@ -66,7 +66,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.ang = nAngle;
+    pActor->spr.__int_angle = nAngle;
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -106,7 +106,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    pActor->spr.ang = RandomSize(11);
+    pActor->spr.__int_angle = RandomSize(11);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
@@ -141,7 +141,7 @@ void AISoul::Tick(RunListEvent* ev)
 
     int nVel = bcos(pActor->spr.extra, -7);
 
-	auto coll = movesprite(pActor, bcos(pActor->spr.ang) * nVel, bsin(pActor->spr.ang) * nVel, pActor->spr.zvel, 5120, 0, CLIPMASK0);
+	auto coll = movesprite(pActor, bcos(pActor->spr.__int_angle) * nVel, bsin(pActor->spr.__int_angle) * nVel, pActor->spr.zvel, 5120, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
 		DExhumedActor* pSet = pActor->pTarget;
@@ -297,8 +297,8 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
                 pActor->pTarget = pTarget;
 
-                pActor->spr.xvel = bcos(pActor->spr.ang, -1);
-                pActor->spr.yvel = bsin(pActor->spr.ang, -1);
+                pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
+                pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
             }
         }
 
@@ -390,7 +390,7 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-            int nAngle = pActor->spr.ang & 0xFFF8;
+            int nAngle = pActor->spr.__int_angle & 0xFFF8;
             pActor->spr.xvel = bcos(nAngle, -1);
             pActor->spr.yvel = bsin(nAngle, -1);
 
@@ -420,9 +420,9 @@ void AISet::Tick(RunListEvent* ev)
                     }
                 }
 
-                pActor->spr.ang = (pActor->spr.ang + 256) & kAngleMask;
-                pActor->spr.xvel = bcos(pActor->spr.ang, -1);
-                pActor->spr.yvel = bsin(pActor->spr.ang, -1);
+                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
+                pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
                 break;
             }
             else if (nMov.type == kHitSprite)
@@ -430,7 +430,7 @@ void AISet::Tick(RunListEvent* ev)
                 if (pTarget == nMov.actor())
                 {
                     int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
-                    if (AngleDiff(pActor->spr.ang, nAng) < 64)
+                    if (AngleDiff(pActor->spr.__int_angle, nAng) < 64)
                     {
                         pActor->nAction = 4;
                         pActor->nFrame = 0;
@@ -494,7 +494,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            auto pBullet = BuildBullet(pActor, 11, -1, pActor->spr.ang, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 11, -1, pActor->spr.__int_angle, pTarget, 1);
             if (pBullet)
 				SetBulletEnemy(pBullet->nPhase, pTarget);
 
@@ -524,8 +524,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nAction = 8;
             pActor->nFrame = 0;
 
-            pActor->spr.xvel = bcos(pActor->spr.ang);
-            pActor->spr.yvel = bsin(pActor->spr.ang);
+            pActor->spr.xvel = bcos(pActor->spr.__int_angle);
+            pActor->spr.yvel = bsin(pActor->spr.__int_angle);
         }
         return;
     }

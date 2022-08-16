@@ -427,8 +427,8 @@ void UpdateAimVector(PLAYER* pPlayer)
 	int y = plActor->int_pos().Y;
 	int z = pPlayer->zWeapon;
 	Aim aim;
-	aim.dx = bcos(plActor->spr.ang);
-	aim.dy = bsin(plActor->spr.ang);
+	aim.dx = bcos(plActor->spr.__int_angle);
+	aim.dy = bsin(plActor->spr.__int_angle);
 	aim.dz = pPlayer->slope;
 	WEAPONTRACK* pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
 	DBloodActor* targetactor = nullptr;
@@ -461,8 +461,8 @@ void UpdateAimVector(PLAYER* pPlayer)
 				y2 += (actor->vel.Y * t) >> 12;
 				z2 += (actor->vel.Z * t) >> 8;
 			}
-			int lx = x + MulScale(Cos(plActor->spr.ang), nDist, 30);
-			int ly = y + MulScale(Sin(plActor->spr.ang), nDist, 30);
+			int lx = x + MulScale(Cos(plActor->spr.__int_angle), nDist, 30);
+			int ly = y + MulScale(Sin(plActor->spr.__int_angle), nDist, 30);
 			int lz = z + MulScale(pPlayer->slope, nDist, 10);
 			int zRange = MulScale(9460, nDist, 10);
 			int top, bottom;
@@ -470,7 +470,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 			if (lz - zRange > bottom || lz + zRange < top)
 				continue;
 			int angle = getangle(x2 - x, y2 - y);
-			if (abs(((angle - plActor->spr.ang + 1024) & 2047) - 1024) > pWeaponTrack->angleRange)
+			if (abs(((angle - plActor->spr.__int_angle + 1024) & 2047) - 1024) > pWeaponTrack->angleRange)
 				continue;
 			if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), x2, y2, z2, actor->sector()))
 				pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
@@ -511,8 +511,8 @@ void UpdateAimVector(PLAYER* pPlayer)
 				int nDist = approxDist(dx, dy);
 				if (nDist == 0 || nDist > 51200)
 					continue;
-				int lx = x + MulScale(Cos(plActor->spr.ang), nDist, 30);
-				int ly = y + MulScale(Sin(plActor->spr.ang), nDist, 30);
+				int lx = x + MulScale(Cos(plActor->spr.__int_angle), nDist, 30);
+				int ly = y + MulScale(Sin(plActor->spr.__int_angle), nDist, 30);
 				int lz = z + MulScale(pPlayer->slope, nDist, 10);
 				int zRange = MulScale(9460, nDist, 10);
 				int top, bottom;
@@ -520,7 +520,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				if (lz - zRange > bottom || lz + zRange < top)
 					continue;
 				int angle = getangle(dx, dy);
-				if (abs(((angle - plActor->spr.ang + 1024) & 2047) - 1024) > pWeaponTrack->thingAngle)
+				if (abs(((angle - plActor->spr.__int_angle + 1024) & 2047) - 1024) > pWeaponTrack->thingAngle)
 					continue;
 				if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
 					pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
@@ -544,13 +544,13 @@ void UpdateAimVector(PLAYER* pPlayer)
 	}
 	Aim aim2;
 	aim2 = aim;
-	RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -plActor->spr.ang);
+	RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -plActor->spr.__int_angle);
 	aim2.dz -= pPlayer->slope;
 	pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
 	pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
 	pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
 	pPlayer->aim = pPlayer->relAim;
-	RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, plActor->spr.ang);
+	RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, plActor->spr.__int_angle);
 	pPlayer->aim.dz += pPlayer->slope;
 	pPlayer->aimTarget = targetactor;
 }
@@ -1970,7 +1970,7 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 	if (missileActor)
 	{
 		missileActor->SetTarget(pPlayer->aimTarget);
-		missileActor->spr.ang = (nTrigger == 2) ? 1024 : 0;
+		missileActor->spr.__int_angle = (nTrigger == 2) ? 1024 : 0;
 	}
 	if (checkAmmo2(pPlayer, 8, 1))
 		UseAmmo(pPlayer, 8, 1);

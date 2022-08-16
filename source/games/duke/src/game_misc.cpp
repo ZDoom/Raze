@@ -433,8 +433,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y1 = DMulScale(oy, xvect, ox, yvect, 16);
 
-				ox = bcos(act->spr.ang, -7);
-				oy = bsin(act->spr.ang, -7);
+				ox = bcos(act->spr.__int_angle, -7);
+				oy = bsin(act->spr.__int_angle, -7);
 				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
@@ -454,7 +454,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 					tilenum = act->spr.picnum;
 					xoff = tileLeftOffset(tilenum) + act->spr.xoffset;
 					if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-					k = act->spr.ang;
+					k = act->spr.__int_angle;
 					l = act->spr.xrepeat;
 					dax = bsin(k) * l;
 					day = -bcos(k) * l;
@@ -495,7 +495,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 				if ((act->spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 
-				k = act->spr.ang;
+				k = act->spr.__int_angle;
 				cosang = bcos(k);
 				sinang = bsin(k);
 				xspan = tileWidth(tilenum);
@@ -567,7 +567,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		int xx = twod->GetWidth() / 2. + x1 / 4096.;
 		int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
-		daang = ((!SyncInput() ? act->spr.ang : act->interpolatedang(smoothratio)) - cang) & 2047;
+		daang = ((!SyncInput() ? act->spr.__int_angle : act->interpolatedang(smoothratio)) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{

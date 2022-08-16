@@ -107,6 +107,17 @@ public:
 		spr.pos.Y = y * inttoworld;
 	}
 
+	const int16_t int_ang() const
+	{
+		return spr.__int_angle;
+	}
+
+	void set_int_ang(int a)
+	{
+		spr.__int_angle = int16_t(a);
+	}
+
+
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
 	DVector3 render_pos() const
 	{
@@ -174,7 +185,7 @@ public:
 
 	int16_t interpolatedang(double const smoothratio)
 	{
-		return interpolatedangle(oang, spr.ang, smoothratio, 16);
+		return interpolatedangle(oang, spr.__int_angle, smoothratio, 16);
 	}
 
 	void backupx()
@@ -205,7 +216,7 @@ public:
 
 	void backupang()
 	{
-		oang = spr.ang;
+		oang = spr.__int_angle;
 	}
 
 	void backuploc()

@@ -504,7 +504,7 @@ void GameInterface::UpdateSounds()
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
         pos = pSnake->pSprites[0]->int_pos();
-        ang = pSnake->pSprites[0]->spr.ang;
+        ang = pSnake->pSprites[0]->spr.__int_angle;
     }
     else
     {

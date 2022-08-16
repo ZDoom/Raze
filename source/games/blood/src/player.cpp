@@ -809,8 +809,8 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(-(bottom - actor->int_pos().Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.ang = pStartZone->ang;
-	pPlayer->angle.ang = buildang(actor->spr.ang);
+	actor->spr.__int_angle = pStartZone->ang;
+	pPlayer->angle.ang = buildang(actor->spr.__int_angle);
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->spr.clipdist = pDudeInfo->clipdist;
 	actor->spr.flags = 15;
@@ -1421,8 +1421,8 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->actor;
 	*out = {};
-	int x = bcos(plActor->spr.ang);
-	int y = bsin(plActor->spr.ang);
+	int x = bcos(plActor->spr.__int_angle);
+	int y = bsin(plActor->spr.__int_angle);
 	int z = pPlayer->slope;
 	int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
 	int hitDist = approxDist(plActor->int_pos().X - gHitInfo.hitpos.X, plActor->int_pos().Y - gHitInfo.hitpos.Y) >> 4;
@@ -1504,7 +1504,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->spr.ang = pPlayer->angle.ang.asbuild();
+	pPlayer->actor->spr.__int_angle = pPlayer->angle.ang.asbuild();
 }
 
 //---------------------------------------------------------------------------
@@ -1518,7 +1518,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 	auto plActor = pPlayer->actor;
 	int const florhit = pPlayer->actor->hit.florhit.type;
 	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->horizon.calcviewpitch(plActor->int_pos().vec2, buildang(plActor->spr.ang), va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
+	pPlayer->horizon.calcviewpitch(plActor->int_pos().vec2, buildang(plActor->spr.__int_angle), va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
@@ -1593,8 +1593,8 @@ void ProcessInput(PLAYER* pPlayer)
 	}
 	if (pPlayer->posture == 1)
 	{
-		int x = Cos(actor->spr.ang);
-		int y = Sin(actor->spr.ang);
+		int x = Cos(actor->spr.__int_angle);
+		int y = Sin(actor->spr.__int_angle);
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -1618,8 +1618,8 @@ void ProcessInput(PLAYER* pPlayer)
 		int speed = 0x10000;
 		if (actor->xspr.height > 0)
 			speed -= DivScale(actor->xspr.height, 256, 16);
-		int x = Cos(actor->spr.ang);
-		int y = Sin(actor->spr.ang);
+		int x = Cos(actor->spr.__int_angle);
+		int y = Sin(actor->spr.__int_angle);
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -1763,9 +1763,9 @@ void ProcessInput(PLAYER* pPlayer)
 			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->spr.clipdist << 1, 0);
 			if (spawned)
 			{
-				spawned->spr.ang = (pPlayer->actor->spr.ang + 1024) & 2047;
-				int x = bcos(pPlayer->actor->spr.ang);
-				int y = bsin(pPlayer->actor->spr.ang);
+				spawned->spr.__int_angle = (pPlayer->actor->spr.__int_angle + 1024) & 2047;
+				int x = bcos(pPlayer->actor->spr.__int_angle);
+				int y = bsin(pPlayer->actor->spr.__int_angle);
 				spawned->vel.X = pPlayer->actor->vel.X + MulScale(0x155555, x, 14);
 				spawned->vel.Y = pPlayer->actor->vel.Y + MulScale(0x155555, y, 14);
 				spawned->vel.Z = pPlayer->actor->vel.Z;

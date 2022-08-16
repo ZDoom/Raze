@@ -56,7 +56,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
         x = ap->int_pos().X;
         y = ap->int_pos().Y;
         z = ap->sector()->int_floorz();
-        nAngle = ap->spr.ang;
+        nAngle = ap->spr.__int_angle;
     }
 
     ap->set_int_pos({ x, y, z });
@@ -67,7 +67,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     ap->spr.picnum = 1;
     ap->spr.pal = ap->sector()->ceilingpal;
     ap->spr.clipdist = 60;
-    ap->spr.ang = nAngle;
+    ap->spr.__int_angle = nAngle;
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;
     ap->spr.xvel = 0;
@@ -159,8 +159,8 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
 
-                ap->spr.xvel = bcos(ap->spr.ang, -2);
-                ap->spr.yvel = bsin(ap->spr.ang, -2);
+                ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
+                ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
             }
         }
         return;
@@ -171,7 +171,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(ap, pTarget);
 
-            int nAngle = ap->spr.ang & 0xFFF8;
+            int nAngle = ap->spr.__int_angle & 0xFFF8;
             ap->spr.xvel = bcos(nAngle, -2);
             ap->spr.yvel = bsin(nAngle, -2);
         }
@@ -183,7 +183,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             if (move.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
-                int nAngDiff = AngleDiff(ap->spr.ang, nAng);
+                int nAngDiff = AngleDiff(ap->spr.__int_angle, nAng);
 
                 if (nAngDiff < 64)
                 {
@@ -197,9 +197,9 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            ap->spr.ang = (ap->spr.ang + 256) & kAngleMask;
-            ap->spr.xvel = bcos(ap->spr.ang, -2);
-            ap->spr.yvel = bsin(ap->spr.ang, -2);
+            ap->spr.__int_angle = (ap->spr.__int_angle + 256) & kAngleMask;
+            ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
+            ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
             break;
         }
 
@@ -220,7 +220,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     {
                         ap->spr.xvel = 0;
                         ap->spr.yvel = 0;
-                        ap->spr.ang = GetMyAngle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
+                        ap->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -262,8 +262,8 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->nAction = 1;
 
-            ap->spr.xvel = bcos(ap->spr.ang, -2);
-            ap->spr.yvel = bsin(ap->spr.ang, -2);
+            ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
+            ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
             ap->nFrame = 0;
         }
         else
@@ -271,7 +271,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, -1, ap->spr.ang, pTarget, 1);
+                BuildBullet(ap, 8, -1, ap->spr.__int_angle, pTarget, 1);
             }
         }
 

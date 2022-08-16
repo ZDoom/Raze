@@ -149,7 +149,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->int_pos().Z;
-        nAngle = pActor->spr.ang;
+        nAngle = pActor->spr.__int_angle;
         ChangeActorStat(pActor, 103);
     }
 
@@ -166,7 +166,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
-    pActor->spr.ang = nAngle;
+    pActor->spr.__int_angle = nAngle;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;
@@ -187,11 +187,11 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
 
 void IdleFish(DExhumedActor* pActor, int edx)
 {
-    pActor->spr.ang += (256 - RandomSize(9)) + 1024;
-    pActor->spr.ang &= kAngleMask;
+    pActor->spr.__int_angle += (256 - RandomSize(9)) + 1024;
+    pActor->spr.__int_angle &= kAngleMask;
 
-    pActor->spr.xvel = bcos(pActor->spr.ang, -8);
-    pActor->spr.yvel = bsin(pActor->spr.ang, -8);
+    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -8);
+    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -8);
 
     pActor->nAction = 0;
     pActor->nFrame = 0;
@@ -377,8 +377,8 @@ void AIFish::Tick(RunListEvent* ev)
 
             if (z <= nHeight)
             {
-                pActor->spr.xvel = bcos(pActor->spr.ang, -5) - bcos(pActor->spr.ang, -7);
-                pActor->spr.yvel = bsin(pActor->spr.ang, -5) - bsin(pActor->spr.ang, -7);
+                pActor->spr.xvel = bcos(pActor->spr.__int_angle, -5) - bcos(pActor->spr.__int_angle, -7);
+                pActor->spr.yvel = bsin(pActor->spr.__int_angle, -5) - bsin(pActor->spr.__int_angle, -7);
             }
             else
             {
@@ -460,7 +460,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->spr.ang = GetMyAngle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y);
+                    pActor->spr.__int_angle = GetMyAngle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y);
 
                     if (nAction != 3)
                     {

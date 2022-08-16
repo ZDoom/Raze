@@ -262,7 +262,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
 		return NULL;
 
-	int angle = origin->spr.ang;
+	int angle = origin->spr.__int_angle;
 	int x, y, z = a4 + origin->int_pos().Z;
 	if (a3 < 0)
 	{
@@ -279,7 +279,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	SetActor(pDudeActor, &pos);
 
 	pDudeActor->spr.type = nType;
-	pDudeActor->spr.ang = angle;
+	pDudeActor->spr.__int_angle = angle;
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 	pDudeActor->spr.clipdist = getDudeInfo(nType)->clipdist;
@@ -1342,8 +1342,8 @@ void nnExtProcessSuperSprites()
 						int nSpeed = approxDist(pact->vel.X, pact->vel.Y);
 						nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-						debrisactor->vel.X += MulScale(nSpeed, Cos(pPlayer->actor->spr.ang), 30);
-						debrisactor->vel.Y += MulScale(nSpeed, Sin(pPlayer->actor->spr.ang), 30);
+						debrisactor->vel.X += MulScale(nSpeed, Cos(pPlayer->actor->spr.__int_angle), 30);
+						debrisactor->vel.Y += MulScale(nSpeed, Sin(pPlayer->actor->spr.__int_angle), 30);
 
 						debrisactor->hit.hit.setSprite(pPlayer->actor);
 					}
@@ -1357,21 +1357,21 @@ void nnExtProcessSuperSprites()
 			if (debrisactor->vel.X || debrisactor->vel.Y)
 				debrisactor->xspr.goalAng = getangle(debrisactor->vel.X, debrisactor->vel.Y) & 2047;
 
-			int ang = debrisactor->spr.ang & 2047;
+			int ang = debrisactor->spr.__int_angle & 2047;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
 				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
 				if (ang == debrisactor->xspr.goalAng)
 				{
-					debrisactor->xspr.goalAng = (debrisactor->spr.ang + Random3(kAng60)) & 2047;
+					debrisactor->xspr.goalAng = (debrisactor->spr.__int_angle + Random3(kAng60)) & 2047;
 					debrisBubble(debrisactor);
 				}
 			}
 
 			int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->vel.X) + abs(debrisactor->vel.Y)) >> 5)), (uwater) ? 1 : 0);
-			if (ang < debrisactor->xspr.goalAng) debrisactor->spr.ang = ClipHigh(ang + angStep, debrisactor->xspr.goalAng);
-			else if (ang > debrisactor->xspr.goalAng) debrisactor->spr.ang = ClipLow(ang - angStep, debrisactor->xspr.goalAng);
+			if (ang < debrisactor->xspr.goalAng) debrisactor->spr.__int_angle = ClipHigh(ang + angStep, debrisactor->xspr.goalAng);
+			else if (ang > debrisactor->xspr.goalAng) debrisactor->spr.__int_angle = ClipLow(ang - angStep, debrisactor->xspr.goalAng);
 
 			auto pSector = debrisactor->sector();
 			int cz = getceilzofslopeptr(pSector, debrisactor->int_pos().X, debrisactor->int_pos().Y);
@@ -2791,7 +2791,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 						// set random goal ang for swimming so they start turning
 						if ((flags & kPhysDebrisSwim) && !targetactor->vel.X && !targetactor->vel.Y && !targetactor->vel.Z)
-							targetactor->xspr.goalAng = (targetactor->spr.ang + Random3(kAng45)) & 2047;
+							targetactor->xspr.goalAng = (targetactor->spr.__int_angle + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
 							targetactor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -3065,9 +3065,9 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		}
 		else
 		{
-			if (toEvnAng)       nAng = initiator->spr.ang;
-			else if (toSrcAng)  nAng = actor->spr.ang;
-			else                nAng = pSprite->spr.ang;
+			if (toEvnAng)       nAng = initiator->spr.__int_angle;
+			else if (toSrcAng)  nAng = actor->spr.__int_angle;
+			else                nAng = pSprite->spr.__int_angle;
 
 			nAng = nAng & 2047;
 
@@ -3281,11 +3281,11 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (pPlayer)
 		{
-			pPlayer->angle.settarget(buildang(sourceactor->spr.ang));
+			pPlayer->angle.settarget(buildang(sourceactor->spr.__int_angle));
 			pPlayer->angle.lockinput();
 		}
-		else if (isDude) sourceactor->xspr.goalAng = actor->spr.ang = sourceactor->spr.ang;
-		else actor->spr.ang = sourceactor->spr.ang;
+		else if (isDude) sourceactor->xspr.goalAng = actor->spr.__int_angle = sourceactor->spr.__int_angle;
+		else actor->spr.__int_angle = sourceactor->spr.__int_angle;
 	}
 #endif
 
@@ -3299,7 +3299,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		if (sourceactor->xspr.data3 & kModernTypeFlag2)
 		{
 			int vAng = getVelocityAngle(actor);
-			RotatePoint(&actor->vel.X, &actor->vel.Y, (sourceactor->spr.ang - vAng) & 2047, actor->int_pos().X, actor->int_pos().Y);
+			RotatePoint(&actor->vel.X, &actor->vel.Y, (sourceactor->spr.__int_angle - vAng) & 2047, actor->int_pos().X, actor->int_pos().Y);
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
@@ -3307,7 +3307,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 
 	if (sourceactor->xspr.data2 == 1)
-		changeSpriteAngle(actor, sourceactor->spr.ang);
+		changeSpriteAngle(actor, sourceactor->spr.__int_angle);
 
 	viewBackupSpriteLoc(actor);
 
@@ -3402,7 +3402,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 			if (sourceactor->spr.flags & kModernTypeFlag4)
 			{
-				pEffect->spr.ang = sourceactor->spr.ang;
+				pEffect->spr.__int_angle = sourceactor->spr.__int_angle;
 			}
 
 			if (pEffect->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
@@ -3453,29 +3453,29 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 	if ((sourceactor->spr.flags & kModernTypeFlag1))
 		pXSector->panAlways = pXSector->windAlways = 1;
 
-	int ang = sourceactor->spr.ang;
+	int ang = sourceactor->spr.__int_angle;
 	if (sourceactor->xspr.data4 <= 0)
 	{
 		if ((sourceactor->xspr.data1 & 0x0002))
 		{
-			while (sourceactor->spr.ang == ang)
-				sourceactor->spr.ang = nnExtRandom(-kAng360, kAng360) & 2047;
+			while (sourceactor->spr.__int_angle == ang)
+				sourceactor->spr.__int_angle = nnExtRandom(-kAng360, kAng360) & 2047;
 		}
 	}
-	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.ang += sourceactor->xspr.data4;
-	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.ang -= sourceactor->xspr.data4;
+	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.__int_angle += sourceactor->xspr.data4;
+	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.__int_angle -= sourceactor->xspr.data4;
 	else if (sourceactor->xspr.sysData1 == 0)
 	{
 		if ((ang += sourceactor->xspr.data4) >= kAng180) sourceactor->xspr.sysData1 = 1;
-		sourceactor->spr.ang = ClipHigh(ang, kAng180);
+		sourceactor->spr.__int_angle = ClipHigh(ang, kAng180);
 	}
 	else
 	{
 		if ((ang -= sourceactor->xspr.data4) <= -kAng180) sourceactor->xspr.sysData1 = 0;
-		sourceactor->spr.ang = ClipLow(ang, -kAng180);
+		sourceactor->spr.__int_angle = ClipLow(ang, -kAng180);
 	}
 
-	pXSector->windAng = sourceactor->spr.ang;
+	pXSector->windAng = sourceactor->spr.__int_angle;
 
 	if (sourceactor->xspr.data3 > 0 && sourceactor->xspr.data3 < 4)
 	{
@@ -3835,7 +3835,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
 					if (sourceactor->spr.flags & kModernTypeFlag4)
 					{
-						spawned->spr.ang = sourceactor->spr.ang;
+						spawned->spr.__int_angle = sourceactor->spr.__int_angle;
 					}
 
 					// should be: the more is seqs, the shorter is timer
@@ -4481,7 +4481,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			var = cansee(objActor->int_pos().X, objActor->int_pos().Y, objActor->int_pos().Z, objActor->sector(), targ->int_pos().X, targ->int_pos().Y, targ->int_pos().Z - eyeAboveZ, targ->sector());
 			if (cond == 4 && var > 0)
 			{
-				var = ((1024 + getangle(dx, dy) - objActor->spr.ang) & 2047) - 1024;
+				var = ((1024 + getangle(dx, dy) - objActor->spr.__int_angle) & 2047) - 1024;
 				var = (abs(var) < ((arg1 <= 0) ? pInfo->periphery : ClipHigh(arg1, 2048)));
 			}
 			break;
@@ -4604,7 +4604,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		switch (cond)
 		{
 		default: break;
-		case 0: return condCmp((arg3 == 0) ? (objActor->spr.ang & 2047) : objActor->spr.ang, arg1, arg2, cmpOp);
+		case 0: return condCmp((arg3 == 0) ? (objActor->spr.__int_angle & 2047) : objActor->spr.__int_angle, arg1, arg2, cmpOp);
 		case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
 		case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
 		case 7: return condCmp(spriteGetSlope(objActor), arg1, arg2, cmpOp);
@@ -4665,15 +4665,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
 				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
 			else if (objActor->IsDudeActor())
-				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->spr.__int_angle), bsin(objActor->spr.__int_angle), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
 				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 0x10000 << 1 : -(0x10000 << 1);
-				var = HitScan(objActor, objActor->int_pos().Z, Cos(objActor->spr.ang) >> 16, Sin(objActor->spr.ang) >> 16, var3, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->int_pos().Z, Cos(objActor->spr.__int_angle) >> 16, Sin(objActor->spr.__int_angle) >> 16, var3, arg1, arg3 << 1);
 			}
 			else
 			{
-				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->spr.ang), bsin(objActor->spr.ang), 0, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->spr.__int_angle), bsin(objActor->spr.__int_angle), 0, arg1, arg3 << 1);
 			}
 
 			if (var < 0)
@@ -5189,7 +5189,7 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 		if (cansee(dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z, dudeactor->sector(), targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z - eyeAboveZ, targetactor->sector()))
 		{
 			/*int nAngle = getangle(dx, dy);
-			int losAngle = ((1024 + nAngle - dudeactor->spr.ang) & 2047) - 1024;
+			int losAngle = ((1024 + nAngle - dudeactor->spr.__int_angle) & 2047) - 1024;
 
 			// is the target visible?
 			if (abs(losAngle) < 2048) // 360 deg periphery here*/
@@ -6099,7 +6099,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.settarget(buildang(actor->spr.ang));
+				pPlayer->angle.settarget(buildang(actor->spr.__int_angle));
 				pPlayer->angle.lockinput();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
@@ -6537,8 +6537,8 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 	else
 	{
-		dx = bcos(actor->spr.ang);
-		dy = bsin(actor->spr.ang);
+		dx = bcos(actor->spr.__int_angle);
+		dy = bsin(actor->spr.__int_angle);
 		dz = sourceactor->xspr.data3 << 6; // add slope controlling
 		if (dz > 0x10000) dz = 0x10000;
 		else if (dz < -0x10000) dz = -0x10000;
@@ -7742,35 +7742,35 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
-	int vc = ((a3 + 1024 - actor->spr.ang) & 2047) - 1024;
-	int t1 = DMulScale(actor->vel.X, Cos(actor->spr.ang), actor->vel.Y, Sin(actor->spr.ang), 30);
+	int vc = ((a3 + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+	int t1 = DMulScale(actor->vel.X, Cos(actor->spr.__int_angle), actor->vel.Y, Sin(actor->spr.__int_angle), 30);
 	int vsi = ((t1 * 15) >> 12) / 2;
 	int v8 = 341;
 
 	if (vc < 0)
 		v8 = -341;
 
-	if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang + vc, vsi))
-		actor->xspr.goalAng = actor->spr.ang + vc;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang + vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.ang + vc / 2;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang - vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.ang - vc / 2;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang + v8, vsi))
-		actor->xspr.goalAng = actor->spr.ang + v8;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang, vsi))
-		actor->xspr.goalAng = actor->spr.ang;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang - v8, vsi))
-		actor->xspr.goalAng = actor->spr.ang - v8;
+	if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle + vc;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc / 2, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle + vc / 2;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle - vc / 2, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle - vc / 2;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle + v8, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle + v8;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle - v8, vsi))
+		actor->xspr.goalAng = actor->spr.__int_angle - v8;
 	else
-		actor->xspr.goalAng = actor->spr.ang + 341;
+		actor->xspr.goalAng = actor->spr.__int_angle + 341;
 
 	if (actor->xspr.dodgeDir)
 	{
-		if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang + actor->xspr.dodgeDir * 512, 512))
+		if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
 		{
 			actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-			if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.ang + actor->xspr.dodgeDir * 512, 512))
+			if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
 				actor->xspr.dodgeDir = 0;
 		}
 	}
@@ -8098,7 +8098,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 		if (mytarget && mytarget->spr.type == kMarkerPath)
 		{
-			if (targetactor == nullptr) actor->spr.ang = mytarget->spr.ang & 2047;
+			if (targetactor == nullptr) actor->spr.__int_angle = mytarget->spr.__int_angle & 2047;
 			actor->SetTarget(nullptr);
 		}
 
@@ -8144,7 +8144,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 	if (Chance(0x8000))
 		goal = -goal;
 
-	actor->xspr.goalAng = (actor->spr.ang + goal) & 2047;
+	actor->xspr.goalAng = (actor->spr.__int_angle + goal) & 2047;
 }
 
 //---------------------------------------------------------------------------
@@ -8156,8 +8156,8 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 void aiPatrolTurn(DBloodActor* actor)
 {
 	int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
-	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 
 }
 
@@ -8204,8 +8204,8 @@ void aiPatrolMove(DBloodActor* actor)
 	}
 
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
-	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
@@ -8241,8 +8241,8 @@ void aiPatrolMove(DBloodActor* actor)
 		}
 
 		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
-		actor->vel.X += MulScale(frontSpeed, Cos(actor->spr.ang), 30);
-		actor->vel.Y += MulScale(frontSpeed, Sin(actor->spr.ang), 30);
+		actor->vel.X += MulScale(frontSpeed, Cos(actor->spr.__int_angle), 30);
+		actor->vel.Y += MulScale(frontSpeed, Sin(actor->spr.__int_angle), 30);
 	}
 
 	vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
@@ -8411,7 +8411,7 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 	if (approxDist(dx, dy) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
 		return false;
 
-	return (abs(((getangle(dx, dy) + 1024 - victim->spr.ang) & 2047) - 1024) <= kAng45);
+	return (abs(((getangle(dx, dy) + 1024 - victim->spr.__int_angle) & 2047) - 1024) <= kAng45);
 }
 
 //---------------------------------------------------------------------------
@@ -8600,7 +8600,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			if (seeDist)
 			{
 				int periphery = ClipLow(pDudeInfo->periphery, kAng60);
-				int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024);
+				int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024);
 				if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true)
 				{
 					int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));
@@ -8886,7 +8886,7 @@ void aiPatrolThink(DBloodActor* actor)
 	else if (aiPatrolTurning(actor->xspr.aiState))
 	{
 		//viewSetSystemMessage("TURN");
-		if ((int)actor->spr.ang == (int)actor->xspr.goalAng)
+		if ((int)actor->spr.__int_angle == (int)actor->xspr.goalAng)
 		{
 			// save imer for waiting
 			stateTimer = actor->xspr.stateTimer;
@@ -8917,8 +8917,8 @@ void aiPatrolThink(DBloodActor* actor)
 			// take marker's angle
 			if (!(markeractor->spr.flags & kModernTypeFlag4))
 			{
-				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->spr.ang + kAng180 : markeractor->spr.ang) & 2047;
-				if ((int)actor->spr.ang != (int)actor->xspr.goalAng) // let the enemy play move animation while turning
+				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->spr.__int_angle + kAng180 : markeractor->spr.__int_angle) & 2047;
+				if ((int)actor->spr.__int_angle != (int)actor->xspr.goalAng) // let the enemy play move animation while turning
 					return;
 			}
 
@@ -9235,7 +9235,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
 		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
-		burstactor->spr.ang = ((actor->spr.ang + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047);
+		burstactor->spr.__int_angle = ((actor->spr.__int_angle + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047);
 		burstactor->SetOwner(actor);
 
 		actBuildMissile(burstactor, actor);
@@ -9334,7 +9334,7 @@ void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
 void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 {
 	if (!pSpr->IsDudeActor())
-		pSpr->spr.ang = nAng;
+		pSpr->spr.__int_angle = nAng;
 	else
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
@@ -9342,9 +9342,9 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 			pPlayer->angle.ang = buildang(nAng);
 		else
 		{
-			pSpr->spr.ang = nAng;
+			pSpr->spr.__int_angle = nAng;
 			if (pSpr->hasX())
-				pSpr->xspr.goalAng = pSpr->spr.ang;
+				pSpr->xspr.goalAng = pSpr->spr.__int_angle;
 		}
 	}
 }

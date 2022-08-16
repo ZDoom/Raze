@@ -293,7 +293,7 @@ int DoWallBloodDrip(DSWActor* actor)
 void SpawnMidSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->spr.ang, 0);
+                      actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->spr.__int_angle, 0);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -316,7 +316,7 @@ void SpawnMidSplash(DSWActor* actor)
 void SpawnFloorSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 0);
+                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 0);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -391,9 +391,9 @@ int DoBloodSpray(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->spr.ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.__int_angle);
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hitActor->spr.ang);
+                QueueWallBlood(actor, hitActor->spr.__int_angle);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -401,7 +401,7 @@ int DoBloodSpray(DSWActor* actor)
             {
                 actor->user.change.X = actor->user.change.Y = 0;
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hitActor->spr.ang);
+                QueueWallBlood(actor, hitActor->spr.__int_angle);
                 KillActor(actor);
                 return true;
             }
@@ -420,7 +420,7 @@ int DoBloodSpray(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, actor->user.ID);
+                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -516,7 +516,7 @@ int DoBloodSpray(DSWActor* actor)
     {
 
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 100);
+                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 100);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -12;
@@ -582,7 +582,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->spr.ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.__int_angle);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -615,7 +615,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, actor->user.ID);
+                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -718,7 +718,7 @@ int DoPhosphorus(DSWActor* actor)
     {
 
         auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 100);
+                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 100);
 
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
         SetOwner(actor, actorNew);
@@ -789,7 +789,7 @@ int DoChemBomb(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->spr.ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.__int_angle);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -818,7 +818,7 @@ int DoChemBomb(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, actor->user.ID);
+                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -941,7 +941,7 @@ int DoChemBomb(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 100);
+                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 100);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -1014,7 +1014,7 @@ int DoCaltrops(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->spr.ang);
+                wall_ang = NORM_ANGLE(hitActor->spr.__int_angle);
                 WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 10000);
             }
@@ -1034,7 +1034,7 @@ int DoCaltrops(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, actor->user.ID);
+                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -1170,7 +1170,7 @@ int SpawnRadiationCloud(DSWActor* actor)
         return -1;
 
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - RANDOM_P2(Z(8)), actor->spr.ang, 0);
+                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - RANDOM_P2(Z(8)), actor->spr.__int_angle, 0);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->user.WaitTics = 1 * 120;
@@ -1189,7 +1189,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     //if (RANDOM_P2(1024) < 512)
     //actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
-    actorNew->spr.ang = RANDOM_P2(2048);
+    actorNew->spr.__int_angle = RANDOM_P2(2048);
     actorNew->spr.xvel = RANDOM_P2(32);
 
     actorNew->user.Counter = 0;
@@ -1198,14 +1198,14 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121)
     {
         actorNew->user.Radius = 2000;
-        actorNew->user.change.X = (MOVEx(actorNew->spr.xvel>>2, actorNew->spr.ang));
-        actorNew->user.change.Y = (MOVEy(actorNew->spr.xvel>>2, actorNew->spr.ang));
+        actorNew->user.change.X = (MOVEx(actorNew->spr.xvel>>2, actorNew->spr.__int_angle));
+        actorNew->user.change.Y = (MOVEy(actorNew->spr.xvel>>2, actorNew->spr.__int_angle));
         actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
     }
     else
     {
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
         actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
         actorNew->user.Radius = 4000;
     }
@@ -1286,8 +1286,8 @@ int PlayerInitChemBomb(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
@@ -1313,7 +1313,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->sector(),
-                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
+                    nx, ny, nz, actor->spr.__int_angle, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -1333,8 +1333,8 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // Smoke will come out for this many seconds
@@ -1355,7 +1355,7 @@ int InitChemBomb(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->sector(),
-                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY);
+                    nx, ny, nz, actor->spr.__int_angle, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -1388,8 +1388,8 @@ int InitChemBomb(DSWActor* actor)
     }
     else
     {
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
         actorNew->user.change.Z = actorNew->spr.zvel >> 1;
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 3*120;
@@ -1569,7 +1569,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     }
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.ang, 0);
+                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 0);
 
     if (actor != nullptr)
         actor->user.flameActor = actorNew;
@@ -1645,7 +1645,7 @@ int PlayerInitCaltrops(PLAYER* pp)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // They go out at different angles
-//        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
+//        spawnedActor->spr.__int_angle = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 
@@ -1658,8 +1658,8 @@ int PlayerInitCaltrops(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
@@ -1683,7 +1683,7 @@ int InitCaltrops(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->sector(),
-                    nx, ny, nz, actor->spr.ang, CHEMBOMB_VELOCITY / 2);
+                    nx, ny, nz, actor->spr.__int_angle, CHEMBOMB_VELOCITY / 2);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -1703,8 +1703,8 @@ int InitCaltrops(DSWActor* actor)
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
@@ -1752,8 +1752,8 @@ int InitPhosphorus(DSWActor* actor)
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = (actorNew->spr.zvel >> 1);
 
     return 0;
@@ -1781,7 +1781,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         PlaySound(DIGI_GIBS3, actor, v3df_none);
     //    }
 
-    ang = actor->spr.ang;
+    ang = actor->spr.__int_angle;
     vel = velocity;
 
     for (i=0; i<cnt; i++)
@@ -1825,8 +1825,8 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
         actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
         if (!GlobalSkipZrange)
@@ -1920,7 +1920,7 @@ int DoCarryFlag(DSWActor* actor)
     {
         vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.ang = NORM_ANGLE(attached->spr.ang + 1536);
+        actor->spr.__int_angle = NORM_ANGLE(attached->spr.__int_angle + 1536);
     }
 
     // not activated yet
@@ -2069,7 +2069,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.ang = NORM_ANGLE(attached->spr.ang + 1536);
+        actor->spr.__int_angle = NORM_ANGLE(attached->spr.__int_angle + 1536);
         actor->set_int_z(attached->int_pos().Z - (ActorSizeZ(attached) >> 1));
     }
 
@@ -2179,7 +2179,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), nx, ny, nz, actor->spr.ang, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), nx, ny, nz, actor->spr.__int_angle, 64);
 
     actorNew->spr.zvel = -(velocity);
 
@@ -2195,22 +2195,22 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         if (ShellNum == -3)
         {
-            actorNew->spr.ang = actor->spr.ang;
+            actorNew->spr.__int_angle = actor->spr.__int_angle;
             HelpMissileLateral(actorNew,2500);
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-512);
+            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-512);
             HelpMissileLateral(actorNew,1000); // Was 1500
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+712);
+            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+712);
         }
         else
         {
-            actorNew->spr.ang = actor->spr.ang;
+            actorNew->spr.__int_angle = actor->spr.__int_angle;
             HelpMissileLateral(actorNew,2500);
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);
+            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+512);
             HelpMissileLateral(actorNew,1500);
-            actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128);
+            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-128);
         }
-        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - (128 / 2);
-        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
+        actorNew->spr.__int_angle += (RANDOM_P2(128<<5)>>5) - (128 / 2);
+        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle);
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
@@ -2218,13 +2218,13 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     case SHOT_SHELL:
         actorNew->add_int_z(-Z(13));
-        actorNew->spr.ang = actor->spr.ang;
+        actorNew->spr.__int_angle = actor->spr.__int_angle;
         HelpMissileLateral(actorNew,2500);
-        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang+512);
+        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+512);
         HelpMissileLateral(actorNew,1300);
-        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang-128-64);
-        actorNew->spr.ang += (RANDOM_P2(128<<5)>>5) - (128 / 2);
-        actorNew->spr.ang = NORM_ANGLE(actorNew->spr.ang);
+        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-128-64);
+        actorNew->spr.__int_angle += (RANDOM_P2(128<<5)>>5) - (128 / 2);
+        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle);
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
@@ -2241,8 +2241,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags &= ~(SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.ang);
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.ang);
+    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->spr.__int_angle);
+    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->spr.__int_angle);
     actorNew->user.change.Z = actorNew->spr.zvel;
 
     actorNew->user.jump_speed = 200;

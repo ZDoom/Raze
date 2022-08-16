@@ -51,7 +51,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        nAngle = pActor->spr.ang;
+        nAngle = pActor->spr.__int_angle;
     }
 
 	pActor->set_int_pos({ x, y, z });
@@ -64,7 +64,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.ang = nAngle;
+    pActor->spr.__int_angle = nAngle;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -220,8 +220,8 @@ void AIScorp::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound41], pActor);
 
                     pActor->nFrame = 0;
-                    pActor->spr.xvel = bcos(pActor->spr.ang);
-                    pActor->spr.yvel = bsin(pActor->spr.ang);
+                    pActor->spr.xvel = bcos(pActor->spr.__int_angle);
+                    pActor->spr.yvel = bsin(pActor->spr.__int_angle);
 
                     pActor->nAction = 1;
                     pActor->pTarget = pTarget;
@@ -249,7 +249,7 @@ void AIScorp::Tick(RunListEvent* ev)
                 if (pTarget == nMov.actor())
                 {
                     int nAngle = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
-                    if (AngleDiff(pActor->spr.ang, nAngle) < 64)
+                    if (AngleDiff(pActor->spr.__int_angle, nAngle) < 64)
                     {
                         pActor->nAction = 2;
                         pActor->nFrame = 0;
@@ -305,8 +305,8 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 1;
 
-                pActor->spr.xvel = bcos(pActor->spr.ang);
-                pActor->spr.yvel = bsin(pActor->spr.ang);
+                pActor->spr.xvel = bcos(pActor->spr.__int_angle);
+                pActor->spr.yvel = bsin(pActor->spr.__int_angle);
 
                 pActor->nFrame = 0;
                 return;
@@ -317,7 +317,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->spr.ang, pTarget, 1);
+        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->spr.__int_angle, pTarget, 1);
         if (nBulletSprite)
         {
             PlotCourseToSprite(nBulletSprite, pTarget);
@@ -367,15 +367,15 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.ang);
+        auto pSpiderActor = BuildSpider(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.__int_angle);
         if (pSpiderActor)
         {
-            pSpiderActor->spr.ang = RandomSize(11);
+            pSpiderActor->spr.__int_angle = RandomSize(11);
 
             int nVel = RandomSize(5) + 1;
 
-            pSpiderActor->spr.xvel = bcos(pSpiderActor->spr.ang, -8) * nVel;
-            pSpiderActor->spr.yvel = bsin(pSpiderActor->spr.ang, -8) * nVel;
+            pSpiderActor->spr.xvel = bcos(pSpiderActor->spr.__int_angle, -8) * nVel;
+            pSpiderActor->spr.yvel = bsin(pSpiderActor->spr.__int_angle, -8) * nVel;
             pSpiderActor->spr.zvel = (-(RandomSize(5) + 3)) << 8;
         }
 
@@ -410,11 +410,11 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
     if (mode == 0)
     {
         PlotCourseToSprite(pActor, pTarget);
-        pActor->spr.ang += RandomSize(7) - 63;
-        pActor->spr.ang &= kAngleMask;
+        pActor->spr.__int_angle += RandomSize(7) - 63;
+        pActor->spr.__int_angle &= kAngleMask;
 
-        pActor->spr.xvel = bcos(pActor->spr.ang);
-        pActor->spr.yvel = bsin(pActor->spr.ang);
+        pActor->spr.xvel = bcos(pActor->spr.__int_angle);
+        pActor->spr.yvel = bsin(pActor->spr.__int_angle);
     }
     if (mode <= 1)
     {
@@ -431,7 +431,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             {
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.ang = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 

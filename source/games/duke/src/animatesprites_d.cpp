@@ -84,7 +84,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				break;
 			}
 
-			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = (((t->__int_angle + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -219,9 +219,9 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->xrepeat = 0;
 				else
 				{
-					t->ang = getangle(x - t->int_pos().X, y - t->int_pos().Y);
-					t->pos.X = OwnerAc->spr.pos.X + buildang(t->ang).fcos();
-					t->pos.Y = OwnerAc->spr.pos.Y + buildang(t->ang).fsin();
+					t->__int_angle = getangle(x - t->int_pos().X, y - t->int_pos().Y);
+					t->pos.X = OwnerAc->spr.pos.X + buildang(t->__int_angle).fcos();
+					t->pos.Y = OwnerAc->spr.pos.Y + buildang(t->__int_angle).fsin();
 				}
 			}
 			break;
@@ -261,7 +261,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			}
 
 			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
-			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
+			k = (((h->spr.__int_angle + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -280,8 +280,8 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
 			if (h->temp_data[0] < 4)
-				k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
-			else k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
+				k = (((h->spr.__int_angle + 3072 + 128 - k) & 2047) / 170);
+			else k = (((h->spr.__int_angle + 3072 + 128 - k) & 2047) / 170);
 
 			if (k > 6)
 			{
@@ -372,7 +372,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				}
 				else
 				{
-					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = (((h->spr.__int_angle + 3072 + 128 - a) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -495,12 +495,12 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else switch (l) 
 				{
 				case 2:
-					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 1;
+					k = (((h->spr.__int_angle + 3072 + 128 - a) & 2047) >> 8) & 1;
 					break;
 
 				case 3:
 				case 4:
-					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 7) & 7;
+					k = (((h->spr.__int_angle + 3072 + 128 - a) & 2047) >> 7) & 7;
 					if (k > 3)
 					{
 						t->cstat |= CSTAT_SPRITE_XFLIP;
@@ -511,7 +511,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 				case 5:
 					k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
-					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
+					k = (((h->spr.__int_angle + 3072 + 128 - k) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -521,7 +521,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					break;
 				case 7:
 					k = getangle(h->int_pos().X - x, h->int_pos().Y - y);
-					k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
+					k = (((h->spr.__int_angle + 3072 + 128 - k) & 2047) / 170);
 					if (k > 6)
 					{
 						k = 12 - k;
@@ -530,7 +530,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 8:
-					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = (((h->spr.__int_angle + 3072 + 128 - a) & 2047) >> 8) & 7;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				default:
@@ -662,7 +662,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			}
 			else
 			{
-			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = (((t->__int_angle + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -705,7 +705,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->picnum = OwnerAc->dispicnum;
 					t->pal = OwnerAc->spr.pal;
 					t->shade = OwnerAc->spr.shade;
-					t->ang = OwnerAc->spr.ang;
+					t->__int_angle = OwnerAc->spr.__int_angle;
 					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
 				}
 			}
@@ -719,7 +719,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				break;
 			}
 
-			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = (((t->__int_angle + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)
 			{
 				k = 8 - k;

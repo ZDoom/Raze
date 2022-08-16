@@ -337,7 +337,7 @@ DEFINE_PROPERTY(statnum, I, CoreActor)
 DEFINE_PROPERTY(angle, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.ang = i;
+	bag.Info->ActorInfo()->defsprite.__int_angle = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_ANG;
 }
 

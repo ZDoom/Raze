@@ -41,7 +41,7 @@ static inline void get_wallspr_points(DCoreActor* actor, int32_t *x1, int32_t *x
     //These lines get the 2 points of the rotated sprite
     //Given: (x1, y1) starts out as the center point
 
-    const int32_t tilenum=actor->spr.picnum, ang=actor->spr.ang;
+    const int32_t tilenum=actor->spr.picnum, ang=actor->spr.__int_angle;
     const int32_t xrepeat = actor->spr.xrepeat;
     int32_t xoff = tileLeftOffset(tilenum) + actor->spr.xoffset;
     int32_t k, l, dax, day;
@@ -69,8 +69,8 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
                                        int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4, int heinum = 0)
 {
     const int32_t tilenum = spr->spr.picnum;
-    const int32_t cosang = bcos(spr->spr.ang);
-    const int32_t sinang = bsin(spr->spr.ang);
+    const int32_t cosang = bcos(spr->spr.__int_angle);
+    const int32_t sinang = bsin(spr->spr.__int_angle);
 
     vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
     vec2_t const repeat = { spr->spr.xrepeat, spr->spr.yrepeat };
@@ -141,7 +141,7 @@ static int32_t spriteGetZOfSlope(DCoreActor* actor, int32_t dax, int32_t day)
     if (heinum == 0)
         return actor->int_pos().Z;
 
-    int const j = DMulScale(bsin(actor->spr.ang + 1024), day - actor->int_pos().Y, -bsin(actor->spr.ang + 512), dax - actor->int_pos().X, 4);
+    int const j = DMulScale(bsin(actor->spr.__int_angle + 1024), day - actor->int_pos().Y, -bsin(actor->spr.__int_angle + 512), dax - actor->int_pos().X, 4);
     return actor->int_pos().Z + MulScale(heinum, j, 18);
 }
 
@@ -642,8 +642,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                     if (clipinsideboxline(cent.X, cent.Y, p1.X, p1.Y, p2.X, p2.Y, rad) != 0)
                     {
-                        vec2_t v = { MulScale(bcos(actor->spr.ang + 256), walldist, 14),
-                                     MulScale(bsin(actor->spr.ang + 256), walldist, 14) };
+                        vec2_t v = { MulScale(bcos(actor->spr.__int_angle + 256), walldist, 14),
+                                     MulScale(bsin(actor->spr.__int_angle + 256), walldist, 14) };
 
                         if ((p1.X-pos->X) * (p2.Y-pos->Y) >= (p2.X-pos->X) * (p1.Y-pos->Y))  // Front
                             addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.Y, p2.Y-v.X, obj, false);
@@ -692,8 +692,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     get_floorspr_points(actor, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3], heinum);
 
-                    vec2_t v = { MulScale(bcos(actor->spr.ang - 256), walldist, 14),
-                                 MulScale(bsin(actor->spr.ang - 256), walldist, 14) };
+                    vec2_t v = { MulScale(bcos(actor->spr.__int_angle - 256), walldist, 14),
+                                 MulScale(bsin(actor->spr.__int_angle - 256), walldist, 14) };
 
                     if ((rxi[0]-pos->X) * (ryi[1]-pos->Y) < (rxi[1]-pos->X) * (ryi[0]-pos->Y))
                     {
@@ -723,8 +723,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 // the rest is for slope sprites only.
                 const int32_t tilenum = actor->spr.picnum;
-                const int32_t cosang = bcos(actor->spr.ang);
-                const int32_t sinang = bsin(actor->spr.ang);
+                const int32_t cosang = bcos(actor->spr.__int_angle);
+                const int32_t sinang = bsin(actor->spr.__int_angle);
                 vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum) };
                 vec2_t const repeat = { actor->spr.xrepeat, actor->spr.yrepeat };
                 vec2_t adjofs = { tileLeftOffset(tilenum), tileTopOffset(tilenum) };
@@ -752,8 +752,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     int32_t x2 = x1 - MulScale(sinang, rspanx, 16);
                     int32_t y2 = y1 + MulScale(cosang, rspanx, 16);
 
-                    vec2_t const v = { MulScale(bcos(actor->spr.ang - 256), walldist, 14),
-                                       MulScale(bsin(actor->spr.ang - 256), walldist, 14) };
+                    vec2_t const v = { MulScale(bcos(actor->spr.__int_angle - 256), walldist, 14),
+                                       MulScale(bsin(actor->spr.__int_angle - 256), walldist, 14) };
 
                     if (clipinsideboxline(cent.X, cent.Y, x1, y1, x2, y2, rad) != 0)
                     {
@@ -1202,8 +1202,8 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         get_floorspr_points(actor, pos.X, pos.Y, &v1.X, &v2.X, &v3.X, &v4.X,
                                             &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(actor));
 
-                        vec2_t const da = { MulScale(bcos(actor->spr.ang - 256), walldist + 4, 14),
-                                            MulScale(bsin(actor->spr.ang - 256), walldist + 4, 14) };
+                        vec2_t const da = { MulScale(bcos(actor->spr.__int_angle - 256), walldist + 4, 14),
+                                            MulScale(bsin(actor->spr.__int_angle - 256), walldist + 4, 14) };
 
                         v1.X += da.X; v2.X -= da.Y; v3.X -= da.X; v4.X += da.Y;
                         v1.Y += da.Y; v2.Y += da.X; v3.Y -= da.Y; v4.Y -= da.X;
@@ -1512,8 +1512,8 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             {
                 int32_t x3, y3, x4, y4;
                 int32_t const heinum = spriteGetSlope(actor);
-                int32_t const dax = (heinum * sintable[(actor->spr.ang + 1024) & 2047]) << 1;
-                int32_t const day = (heinum * sintable[(actor->spr.ang + 512) & 2047]) << 1;
+                int32_t const dax = (heinum * sintable[(actor->spr.__int_angle + 1024) & 2047]) << 1;
+                int32_t const day = (heinum * sintable[(actor->spr.__int_angle + 512) & 2047]) << 1;
                 int32_t const j = (vz << 8) - DMulScale(dax, vy, -day, vx, 15);
                 if (j == 0) continue;
                 if ((cstat & 64) != 0)

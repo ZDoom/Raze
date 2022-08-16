@@ -938,7 +938,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			a = actor->spr.ang - 256 + (krand() & 511) + 1024;
+			a = actor->spr.__int_angle - 256 + (krand() & 511) + 1024;
 			EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
@@ -968,7 +968,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-			a = actor->spr.ang - 1024;
+			a = actor->spr.__int_angle - 1024;
 			EGS(actor->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
@@ -2063,7 +2063,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case BOWLINGBALL:
 		proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-		proj->spr.ang -= (krand() & 16);
+		proj->spr.__int_angle -= (krand() & 16);
 		S_PlayActorSound(355, targ);
 		break;
 
@@ -2076,23 +2076,23 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.ang -= (targ->spr.ang << 1) + 1024;
-			targ->spr.ang = getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512;
+			proj->spr.__int_angle -= (targ->spr.__int_angle << 1) + 1024;
+			targ->spr.__int_angle = getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
 		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.ang -= ((targ->spr.ang << 1) + krand()) & 64;
-			targ->spr.ang = (targ->spr.ang + krand()) & 16;
+			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 64;
+			targ->spr.__int_angle = (targ->spr.__int_angle + krand()) & 16;
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.ang -= ((targ->spr.ang << 1) + krand()) & 16;
-			targ->spr.ang = (targ->spr.ang + krand()) & 16;
+			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 16;
+			targ->spr.__int_angle = (targ->spr.__int_angle + krand()) & 16;
 			S_PlayActorSound(355, targ);
 		}
 		else
@@ -2100,7 +2100,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->spr.ang = proj->spr.ang;
+				targ->spr.__int_angle = proj->spr.__int_angle;
 			}
 		}
 		break;
@@ -2205,7 +2205,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.ang = krand() & 2047;
+		targ->spr.__int_angle = krand() & 2047;
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
@@ -2333,7 +2333,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 								spawned->spr.pos.Z += 4;
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-								spawned->spr.ang += 32 - (krand() & 63);
+								spawned->spr.__int_angle += 32 - (krand() & 63);
 							}
 						}
 
@@ -2363,7 +2363,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				targ->attackertype = proj->spr.picnum;
 				targ->hitextra += proj->spr.extra;
 				if (targ->spr.picnum != COW)
-					targ->hitang = proj->spr.ang;
+					targ->hitang = proj->spr.__int_angle;
 				targ->SetHitOwner(proj->GetOwner());
 			}
 

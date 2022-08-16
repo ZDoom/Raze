@@ -276,10 +276,10 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						int t = DivScale(nDist, 0x1aaaaa, 12);
 						x += (target->vel.X * t) >> 12;
 						y += (target->vel.Y * t) >> 12;
-						int angBak = actor->spr.ang;
-						actor->spr.ang = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
-						int dx = bcos(actor->spr.ang);
-						int dy = bsin(actor->spr.ang);
+						int angBak = actor->spr.__int_angle;
+						actor->spr.__int_angle = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
+						int dx = bcos(actor->spr.__int_angle);
+						int dy = bsin(actor->spr.__int_angle);
 						int tz = target->int_pos().Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
 						int dz = DivScale(tz - top - 256, nDist, 10);
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
@@ -298,7 +298,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 							if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
 								missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 						}
-						actor->spr.ang = angBak;
+						actor->spr.__int_angle = angBak;
 					}
 				}
 			}
@@ -936,7 +936,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			if (ang)
 				RotatePoint(&x, &y, ang, a4, a5);
 			viewBackupSpriteLoc(actor);
-			actor->spr.ang = (actor->spr.ang + v14) & 2047;
+			actor->spr.__int_angle = (actor->spr.__int_angle + v14) & 2047;
 			actor->set_int_xy(x + vc - a4, y + v8 - a5);
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -944,7 +944,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			if (ang)
 				RotatePoint((int*)&x, (int*)&y, -ang, a4, sprDy);
 			viewBackupSpriteLoc(actor);
-			actor->spr.ang = (actor->spr.ang - v14) & 2047;
+			actor->spr.__int_angle = (actor->spr.__int_angle - v14) & 2047;
 			actor->set_int_xy(x - vc + a4, y - v8 + a5);
 		}
 		else if (pXSector->Drag)
@@ -961,7 +961,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					RotatePoint(&pos.X, &pos.Y, v14, v20, v24);
 					actor->set_int_pos(pos);
 				}
-				actor->spr.ang = (actor->spr.ang + v14) & 2047;
+				actor->spr.__int_angle = (actor->spr.__int_angle + v14) & 2047;
 				actor->add_int_pos({ v28, v2c, 0 });
 			}
 		}
@@ -988,7 +988,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					if (ang)
 						RotatePoint(&x, &y, ang, a4, a5);
 					viewBackupSpriteLoc(ac);
-					ac->spr.ang = (ac->spr.ang + v14) & 2047;
+					ac->spr.__int_angle = (ac->spr.__int_angle + v14) & 2047;
 					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -996,7 +996,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					if (ang)
 						RotatePoint(&x, &y, -ang, a4, sprDy);
 					viewBackupSpriteLoc(ac);
-					ac->spr.ang = (ac->spr.ang - v14) & 2047;
+					ac->spr.__int_angle = (ac->spr.__int_angle - v14) & 2047;
 					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 			}
@@ -1388,7 +1388,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!pXSector->marker0 || !pXSector->marker1) return 0;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.__int_angle, pSector->type == kSectorSlide);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1419,7 +1419,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveB;
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, pSector->type == kSectorRotate);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1448,13 +1448,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	int vbp;
 	if (pXSector->busy < a2)
 	{
-		vbp = pXSector->data + marker0->spr.ang;
+		vbp = pXSector->data + marker0->spr.__int_angle;
 		int nWave = pXSector->busyWaveA;
 		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, marker0->int_pos().X, marker0->int_pos().Y, vbp, 1);
 	}
 	else
 	{
-		vbp = pXSector->data - marker0->spr.ang;
+		vbp = pXSector->data - marker0->spr.__int_angle;
 		int nWave = pXSector->busyWaveB;
 		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, vbp, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, 1);
 	}
@@ -1510,7 +1510,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, 1);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.__int_angle, 1);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
@@ -1636,7 +1636,7 @@ void OperateTeleport(sectortype* pSector)
 				}
 				actor->set_int_xy(destactor->int_pos().X, destactor->int_pos().Y);
 				actor->add_int_z(destactor->sector()->int_floorz() - pSector->int_floorz());
-				actor->spr.ang = destactor->spr.ang;
+				actor->spr.__int_angle = destactor->spr.__int_angle;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
 				actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
@@ -1646,7 +1646,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->angle.settarget(buildang(actor->spr.ang), true);
+					pPlayer->angle.settarget(buildang(actor->spr.__int_angle), true);
 				}
 			}
 		}
@@ -2352,9 +2352,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			{
 				auto marker0 = pXSector->marker0;
 				auto marker1 = pXSector->marker1;
-				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.__int_angle, pSector->type == kSectorSlide);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.ang, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.__int_angle, pSector->type == kSectorSlide);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2362,9 +2362,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kSectorRotate:
 			{
 				auto marker0 = pXSector->marker0;
-				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, pSector->type == kSectorRotate);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.ang, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.__int_angle, pSector->type == kSectorRotate);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2543,7 +2543,7 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
 	if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 		actFireMissile(actor, 0, 0, 0, 0, (actor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 0x4000 : -0x4000, kMissileFireball);
 	else
-		actFireMissile(actor, 0, 0, bcos(actor->spr.ang), bsin(actor->spr.ang), 0, kMissileFireball);
+		actFireMissile(actor, 0, 0, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), 0, kMissileFireball);
 }
 
 
@@ -2563,8 +2563,8 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 			if (actor->xspr.data2 == 0)
 				evPostActor(actor, 1, kCmdOff, actor);
 		}
-		int dx = bcos(actor->spr.ang) + Random2(1000);
-		int dy = bsin(actor->spr.ang) + Random2(1000);
+		int dx = bcos(actor->spr.__int_angle) + Random2(1000);
+		int dy = bsin(actor->spr.__int_angle) + Random2(1000);
 		int dz = Random2(1000);
 		actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
 		sfxPlay3DSound(actor, 359, -1, 0);

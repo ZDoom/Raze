@@ -36,8 +36,8 @@ static actionSeq WaspSeq[] = {
 
 void SetWaspVel(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.ang);
-    pActor->spr.yvel = bsin(pActor->spr.ang);
+    pActor->spr.xvel = bcos(pActor->spr.__int_angle);
+    pActor->spr.yvel = bsin(pActor->spr.__int_angle);
 }
 
 DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, bool bEggWasp)
@@ -50,7 +50,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     }
     else
     {
-        nAngle = pActor->spr.ang;
+        nAngle = pActor->spr.__int_angle;
         ChangeActorStat(pActor, 107);
     }
 
@@ -73,7 +73,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.ang = nAngle;
+    pActor->spr.__int_angle = nAngle;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -156,8 +156,8 @@ void AIWasp::Damage(RunListEvent* ev)
             }
 
             pActor->nAction = 1;
-            pActor->spr.ang += RandomSize(9) + 768;
-            pActor->spr.ang &= kAngleMask;
+            pActor->spr.__int_angle += RandomSize(9) + 768;
+            pActor->spr.__int_angle &= kAngleMask;
 
             pActor->nVel = 3000;
 
@@ -170,7 +170,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->spr.cstat = 0;
-            pActor->spr.ang = (pActor->spr.ang + 1024) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->spr.__int_angle + 1024) & kAngleMask;
 
             SetWaspVel(pActor);
 
@@ -304,8 +304,8 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pActor->spr.ang += RandomSize(9) + 768;
-            pActor->spr.ang &= kAngleMask;
+            pActor->spr.__int_angle += RandomSize(9) + 768;
+            pActor->spr.__int_angle &= kAngleMask;
             pActor->spr.zvel = (-20) - RandomSize(6);
 
             pActor->nAction = 1;

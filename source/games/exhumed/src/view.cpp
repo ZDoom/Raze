@@ -74,7 +74,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         {
             // interpolate sprite position
             pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio);
-            pTSprite->ang = pTSprite->ownerActor->interpolatedang(smoothratio);
+            pTSprite->__int_angle = pTSprite->ownerActor->interpolatedang(smoothratio);
         }
     }
 
@@ -88,7 +88,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
 
     auto pSector =pPlayerActor->sector();
 
-    int nAngle = (2048 - pPlayerActor->spr.ang) & kAngleMask;
+    int nAngle = (2048 - pPlayerActor->spr.__int_angle) & kAngleMask;
 
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
@@ -211,7 +211,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerY = pActor->int_pos().Y;
         playerZ = pActor->int_pos().Z;
         pSector = pActor->sector();
-        nAngle = buildang(pActor->spr.ang);
+        nAngle = buildang(pActor->spr.__int_angle);
         rotscrnang = buildang(0);
 
         SetGreenPal();
@@ -374,7 +374,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraa.asbuild() - pPlayerActor->spr.ang;
+                    int ang2 = nCameraa.asbuild() - pPlayerActor->spr.__int_angle;
                     if (ang2 < 0)
                         ang2 = -ang2;
 
