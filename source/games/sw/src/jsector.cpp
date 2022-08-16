@@ -309,7 +309,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(itActor) = itActor->spr.__int_angle;      // Set current angle to
+                            SP_TAG5(itActor) = itActor->int_ang();      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
                         }
@@ -323,7 +323,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(itActor) = itActor->spr.__int_angle;      // Set current angle to
+                            SP_TAG5(itActor) = itActor->int_ang();      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
                         }
@@ -580,7 +580,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                             SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(camactor->spr.__int_angle, SP_TAG5(camactor))) >= SP_TAG6(camactor))
+                            if (abs(getincangle(camactor->int_ang(), SP_TAG5(camactor))) >= SP_TAG6(camactor))
                             {
                                 SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
                                 RESET_BOOL3(camactor);    // Reverse turn
@@ -593,7 +593,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                             SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(camactor->spr.__int_angle, SP_TAG5(camactor))) >= SP_TAG6(camactor))
+                            if (abs(getincangle(camactor->int_ang(), SP_TAG5(camactor))) >= SP_TAG6(camactor))
                             {
                                 SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
                                 SET_BOOL3(camactor);      // Reverse turn
@@ -603,7 +603,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                     }
                     else if (!TEST_BOOL2(camactor))
                     {
-                        SP_TAG5(camactor) = camactor->spr.__int_angle;      // Copy sprite angle to
+                        SP_TAG5(camactor) = camactor->int_ang();      // Copy sprite angle to
                         // tag5
                     }
 

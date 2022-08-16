@@ -51,7 +51,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
     }
 
 	pActor->set_int_pos({ x, y, z });
@@ -249,7 +249,7 @@ void AIScorp::Tick(RunListEvent* ev)
                 if (pTarget == nMov.actor())
                 {
                     int nAngle = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
-                    if (AngleDiff(pActor->spr.__int_angle, nAngle) < 64)
+                    if (AngleDiff(pActor->int_ang(), nAngle) < 64)
                     {
                         pActor->nAction = 2;
                         pActor->nFrame = 0;
@@ -317,7 +317,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->spr.__int_angle, pTarget, 1);
+        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->int_ang(), pTarget, 1);
         if (nBulletSprite)
         {
             PlotCourseToSprite(nBulletSprite, pTarget);
@@ -374,8 +374,8 @@ void AIScorp::Tick(RunListEvent* ev)
 
             int nVel = RandomSize(5) + 1;
 
-            pSpiderActor->spr.xvel = bcos(pSpiderActor->spr.__int_angle, -8) * nVel;
-            pSpiderActor->spr.yvel = bsin(pSpiderActor->spr.__int_angle, -8) * nVel;
+            pSpiderActor->spr.xvel = bcos(pSpiderActor->int_ang(), -8) * nVel;
+            pSpiderActor->spr.yvel = bsin(pSpiderActor->int_ang(), -8) * nVel;
             pSpiderActor->spr.zvel = (-(RandomSize(5) + 3)) << 8;
         }
 

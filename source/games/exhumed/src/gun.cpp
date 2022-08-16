@@ -245,7 +245,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
 {
     auto pActor = PlayerList[nPlayer].pActor;
 
-    int ang = pActor->spr.__int_angle;
+    int ang = pActor->int_ang();
     int xVect = bcos(ang);
     int yVect = bsin(ang);
 
@@ -647,7 +647,7 @@ loc_flag:
             }
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            int nAngle = pPlayerActor->spr.__int_angle;
+            int nAngle = pPlayerActor->int_ang();
             int theX = pPlayerActor->int_pos().X;
             int theY = pPlayerActor->int_pos().Y;
             int theZ = pPlayerActor->int_pos().Z;
@@ -831,8 +831,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    PlayerList[nPlayer].nDamage.X -= bcos(pPlayerActor->spr.__int_angle, 9);
-                    PlayerList[nPlayer].nDamage.Y -= bsin(pPlayerActor->spr.__int_angle, 9);
+                    PlayerList[nPlayer].nDamage.X -= bcos(pPlayerActor->int_ang(), 9);
+                    PlayerList[nPlayer].nDamage.Y -= bsin(pPlayerActor->int_ang(), 9);
                     break;
                 }
                 case kWeaponRing:

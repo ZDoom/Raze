@@ -69,8 +69,8 @@ void InitRats()
 
 void SetRatVel(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+    pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+    pActor->spr.yvel = bsin(pActor->int_ang(), -2);
 }
 
 void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
@@ -84,7 +84,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->int_pos().Z;
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
 
         ChangeActorStat(pActor, 108);
     }

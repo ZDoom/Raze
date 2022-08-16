@@ -317,7 +317,7 @@ void RestartPlayer(int nPlayer)
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->spr.__int_angle = pActor->spr.__int_angle;
+	pDActor->spr.__int_angle = pActor->int_ang();
 	pDActor->spr.cstat = pActor->spr.cstat;
 
 	pDActor->spr.lotag = runlist_HeadRun() + 1;
@@ -1284,7 +1284,7 @@ sectdone:
         HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->spr.__int_angle, near, 1024, 2);
+        neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->int_ang(), near, 1024, 2);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), &pActorB, var_30, 768);
@@ -2530,7 +2530,7 @@ sectdone:
         inity = pPlayerActor->int_pos().Y;
         initz = pPlayerActor->int_pos().Z;
         initsectp = pPlayerActor->sector();
-        inita = pPlayerActor->spr.__int_angle;
+        inita = pPlayerActor->int_ang();
     }
 
     if (!PlayerList[nPlayer].nHealth)
@@ -2576,7 +2576,7 @@ sectdone:
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
-        pDopple->spr.__int_angle = pPlayerActor->spr.__int_angle;
+        pDopple->spr.__int_angle = pPlayerActor->int_ang();
         ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }

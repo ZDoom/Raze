@@ -1059,7 +1059,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->spr.__int_angle = proj->spr.__int_angle;
+				targ->spr.__int_angle = proj->int_ang();
 			}
 			else
 			{
@@ -1431,7 +1431,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 				targ->attackertype = hitpic;
 				targ->hitextra += proj->spr.extra;
-				targ->hitang = proj->spr.__int_angle;
+				targ->hitang = proj->int_ang();
 				targ->SetHitOwner(Owner);
 			}
 

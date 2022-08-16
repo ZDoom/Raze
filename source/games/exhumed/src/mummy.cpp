@@ -48,7 +48,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->int_pos().Z;
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
 
         ChangeActorStat(pActor, 102);
     }
@@ -181,8 +181,8 @@ void AIMummy::Tick(RunListEvent* ev)
                     pActor->nAction = 1;
                     pActor->nCount = 90;
 
-                    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-                    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+                    pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                    pActor->spr.yvel = bsin(pActor->int_ang(), -2);
                 }
             }
         }
@@ -223,8 +223,8 @@ void AIMummy::Tick(RunListEvent* ev)
         // loc_2B5A8
         if (!pActor->nFrame)
         {
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
+            pActor->spr.xvel = bcos(pActor->int_ang(), -1);
+            pActor->spr.yvel = bsin(pActor->int_ang(), -1);
         }
 
         if (pActor->spr.xvel || pActor->spr.yvel)
@@ -265,8 +265,8 @@ void AIMummy::Tick(RunListEvent* ev)
         case kHitWall:
         {
             pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+            pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+            pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             return;
         }
 
@@ -275,7 +275,7 @@ void AIMummy::Tick(RunListEvent* ev)
             if (nMov.actor() == pTarget)
             {
                 int nAngle = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
-                if (AngleDiff(pActor->spr.__int_angle, nAngle) < 64)
+                if (AngleDiff(pActor->int_ang(), nAngle) < 64)
                 {
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
@@ -328,7 +328,7 @@ void AIMummy::Tick(RunListEvent* ev)
             SetQuake(pActor, 100);
 
             // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-            auto pBullet = BuildBullet(pActor, 9, -15360, pActor->spr.__int_angle, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 9, -15360, pActor->int_ang(), pTarget, 1);
             CheckMummyRevive(pActor);
 
             if (pBullet)

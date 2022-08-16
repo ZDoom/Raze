@@ -208,7 +208,7 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->curelement = soi_sprang;
     data->oldipos =
         data->lastipos =
-        data->lastoldipos = actor->spr.__int_angle;
+        data->lastoldipos = actor->int_ang();
     data->lastangdiff = 0;
     data->actorofang = actor;
 }
@@ -336,7 +336,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                         actorofang->user.oangdiff = 0;
                     if (!interpolating)
                         data->lastangdiff = 0;
-                    data->oldipos = actorofang->spr.__int_angle;
+                    data->oldipos = actorofang->int_ang();
                 }
             }
             else

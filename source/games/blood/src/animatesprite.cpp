@@ -101,7 +101,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	{
 		pos = parentTSprite->pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
-		pTSprite->__int_angle = parentTSprite->__int_angle;
+		pTSprite->__int_angle = parentTSprite->int_ang();
 	}
 	pos.X += gCameraAng.fcos() * 2;
 	pos.Y += gCameraAng.fsin() * 2;
@@ -272,7 +272,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	}
 	case kViewEffectTrail:
 	{
-		int nAng = pTSprite->__int_angle;
+		int nAng = pTSprite->int_ang();
 		if (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 		{
 			nAng = (nAng + 512) & 2047;
@@ -451,7 +451,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->__int_angle = pTSprite->__int_angle;
+		pNSprite->__int_angle = pTSprite->int_ang();
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -469,7 +469,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->__int_angle = pTSprite->__int_angle;
+		pNSprite->__int_angle = pTSprite->int_ang();
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -513,8 +513,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->add_int_x(MulScale(128, Cos(gView->actor->spr.__int_angle), 30));
-				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->spr.__int_angle), 30));
+				pNSprite->add_int_x(MulScale(128, Cos(gView->actor->int_ang()), 30));
+				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->int_ang()), 30));
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->__int_angle = (pNSprite->int_ang() + 512) & 2047; // offset angle 90 degrees
@@ -902,8 +902,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-						pNTSprite->add_int_x(MulScale(pPosture->zOffset, Cos(pTSprite->__int_angle), 28));
-						pNTSprite->add_int_y(MulScale(pPosture->zOffset, Sin(pTSprite->__int_angle), 28));
+						pNTSprite->add_int_x(MulScale(pPosture->zOffset, Cos(pTSprite->int_ang()), 28));
+						pNTSprite->add_int_y(MulScale(pPosture->zOffset, Sin(pTSprite->int_ang()), 28));
 						pNTSprite->set_int_z(pPlayer->actor->int_pos().Z - pPosture->xOffset);
 					}
 				}

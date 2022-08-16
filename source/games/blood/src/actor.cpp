@@ -2724,7 +2724,7 @@ static void actNapalmMove(DBloodActor* actor)
 		int spawnparam[2];
 		spawnparam[0] = actor->xspr.data4 >> 1;
 		spawnparam[1] = actor->xspr.data4 - spawnparam[0];
-		int ang = actor->spr.__int_angle;
+		int ang = actor->int_ang();
 		actor->vel.X = 0;
 		actor->vel.Y = 0;
 		actor->vel.Z = 0;
@@ -3862,7 +3862,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
-			if (missileActor->spr.__int_angle == 1024) sfxPlay3DSound(missileActor, 307, -1, 0);
+			if (missileActor->int_ang() == 1024) sfxPlay3DSound(missileActor, 307, -1, 0);
 			missileActor->spr.type = kSpriteDecoration;
 			seqSpawn(9, missileActor, -1);
 		}
@@ -3974,7 +3974,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
 				missileActor->xspr.TargetPos.Z = missileActor->int_pos().Z - actorHit->int_pos().Z;
-				missileActor->xspr.goalAng = getangle(missileActor->int_pos().X - actorHit->int_pos().X, missileActor->int_pos().Y - actorHit->int_pos().Y) - actorHit->spr.__int_angle;
+				missileActor->xspr.goalAng = getangle(missileActor->int_pos().X - actorHit->int_pos().X, missileActor->int_pos().Y - actorHit->int_pos().Y) - actorHit->int_ang();
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -5953,8 +5953,8 @@ static void actCheckTraps()
 				int y = actor->int_pos().Y;
 				int z = actor->int_pos().Z;
 				int t = (actor->xspr.data1 << 23) / 120;
-				int dx = MulScale(t, Cos(actor->spr.__int_angle), 30);
-				int dy = MulScale(t, Sin(actor->spr.__int_angle), 30);
+				int dx = MulScale(t, Cos(actor->int_ang()), 30);
+				int dy = MulScale(t, Sin(actor->int_ang()), 30);
 				for (int i = 0; i < 2; i++)
 				{
 					auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, z, 0);
@@ -6150,8 +6150,8 @@ void actCheckFlares()
 		}
 		if (target->hasX() && target->xspr.health > 0)
 		{
-			int x = target->int_pos().X + mulscale30r(Cos(actor->xspr.goalAng + target->spr.__int_angle), target->spr.clipdist * 2);
-			int y = target->int_pos().Y + mulscale30r(Sin(actor->xspr.goalAng + target->spr.__int_angle), target->spr.clipdist * 2);
+			int x = target->int_pos().X + mulscale30r(Cos(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
+			int y = target->int_pos().Y + mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
 			int z = target->int_pos().Z + actor->xspr.TargetPos.Z;
 			vec3_t pos = { x, y, z };
 			SetActor(actor, &pos);
@@ -6243,7 +6243,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 {
 	auto spawned = actSpawnSprite(source, kStatDude);
 	if (!spawned) return nullptr;
-	int angle = source->spr.__int_angle;
+	int angle = source->int_ang();
 	int nDude = nType - kDudeBase;
 	int x, y, z;
 	z = a4 + source->int_pos().Z;
@@ -6410,18 +6410,18 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	int x = actor->int_pos().X + MulScale(a2, Cos(actor->int_ang() + 512), 30);
 	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
 	int z = actor->int_pos().Z + a3;
-	x += MulScale(actor->spr.clipdist, Cos(actor->spr.__int_angle), 28);
-	y += MulScale(actor->spr.clipdist, Sin(actor->spr.__int_angle), 28);
+	x += MulScale(actor->spr.clipdist, Cos(actor->int_ang()), 28);
+	y += MulScale(actor->spr.clipdist, Sin(actor->int_ang()), 28);
 	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->spr.clipdist) != -1)
 	{
-		x = gHitInfo.hitpos.X - MulScale(actor->spr.clipdist << 1, Cos(actor->spr.__int_angle), 28);
-		y = gHitInfo.hitpos.Y - MulScale(actor->spr.clipdist << 1, Sin(actor->spr.__int_angle), 28);
+		x = gHitInfo.hitpos.X - MulScale(actor->spr.clipdist << 1, Cos(actor->int_ang()), 28);
+		y = gHitInfo.hitpos.Y - MulScale(actor->spr.clipdist << 1, Sin(actor->int_ang()), 28);
 	}
 	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
 	fired->SetOwner(actor);
-	fired->spr.__int_angle = actor->spr.__int_angle;
-	fired->vel.X = MulScale(a6, Cos(fired->spr.__int_angle), 30);
-	fired->vel.Y = MulScale(a6, Sin(fired->spr.__int_angle), 30);
+	fired->spr.__int_angle = actor->int_ang();
+	fired->vel.X = MulScale(a6, Cos(fired->int_ang()), 30);
+	fired->vel.Y = MulScale(a6, Sin(fired->int_ang()), 30);
 	fired->vel.Z = MulScale(a6, a4, 14);
 	fired->vel.X += actor->vel.X / 2;
 	fired->vel.Y += actor->vel.Y / 2;
@@ -6523,21 +6523,21 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
 	int z = actor->int_pos().Z + a3;
 	int clipdist = pMissileInfo->clipDist + actor->spr.clipdist;
-	x += MulScale(clipdist, Cos(actor->spr.__int_angle), 28);
-	y += MulScale(clipdist, Sin(actor->spr.__int_angle), 28);
+	x += MulScale(clipdist, Cos(actor->int_ang()), 28);
+	y += MulScale(clipdist, Sin(actor->int_ang()), 28);
 	int hit = HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, clipdist);
 	if (hit != -1)
 	{
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			x = gHitInfo.hitpos.X - MulScale(Cos(actor->spr.__int_angle), 16, 30);
-			y = gHitInfo.hitpos.Y - MulScale(Sin(actor->spr.__int_angle), 16, 30);
+			x = gHitInfo.hitpos.X - MulScale(Cos(actor->int_ang()), 16, 30);
+			y = gHitInfo.hitpos.Y - MulScale(Sin(actor->int_ang()), 16, 30);
 		}
 		else
 		{
-			x = gHitInfo.hitpos.X - MulScale(pMissileInfo->clipDist << 1, Cos(actor->spr.__int_angle), 28);
-			y = gHitInfo.hitpos.Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->spr.__int_angle), 28);
+			x = gHitInfo.hitpos.X - MulScale(pMissileInfo->clipDist << 1, Cos(actor->int_ang()), 28);
+			y = gHitInfo.hitpos.Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->int_ang()), 28);
 		}
 	}
 	auto spawned = actSpawnSprite(actor->sector(), x, y, z, 5, 1);

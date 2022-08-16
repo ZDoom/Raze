@@ -41,7 +41,7 @@ static inline void get_wallspr_points(DCoreActor* actor, int32_t *x1, int32_t *x
     //These lines get the 2 points of the rotated sprite
     //Given: (x1, y1) starts out as the center point
 
-    const int32_t tilenum=actor->spr.picnum, ang=actor->spr.__int_angle;
+    const int32_t tilenum=actor->spr.picnum, ang=actor->int_ang();
     const int32_t xrepeat = actor->spr.xrepeat;
     int32_t xoff = tileLeftOffset(tilenum) + actor->spr.xoffset;
     int32_t k, l, dax, day;

@@ -282,7 +282,7 @@ void DestroyAllEggs()
 
 void SetHeadVel(DExhumedActor* pActor)
 {
-    int nAngle = pActor->spr.__int_angle;
+    int nAngle = pActor->int_ang();
 
     pActor->spr.xvel = bcos(nAngle, nVelShift);
     pActor->spr.yvel = bsin(nAngle, nVelShift);
@@ -295,7 +295,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
     if (pActor2 == nullptr)
     {
         pActor->spr.zvel = 0;
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
     }
     else
     {
@@ -320,7 +320,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         int var_14 = GetMyAngle(nSqrt, edx);
 
-        int nAngDelta = AngleDelta(pActor->spr.__int_angle, nMyAngle, 1024);
+        int nAngDelta = AngleDelta(pActor->int_ang(), nMyAngle, 1024);
 
         if (abs(nAngDelta) > 127)
         {
@@ -337,7 +337,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
                 nAngDelta = val2;
         }
 
-        nAngle = (nAngDelta + pActor->spr.__int_angle) & kAngleMask;
+        nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
         pActor->spr.zvel = (AngleDelta(pActor->spr.zvel, var_14, 24) + pActor->spr.zvel) & kAngleMask;
     }
@@ -448,7 +448,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     int y = pActor->int_pos().Y;
     auto pSector =pActor->sector();
     int nFloorZ = pSector->int_floorz();
-    int nAngle = pActor->spr.__int_angle;
+    int nAngle = pActor->int_ang();
 
     auto pActor2 = insertActor(pSector, 121);
 
@@ -588,7 +588,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
                 nAngle = GetWallNormal(nMov.hitWall);
                 break;
             case kHitSprite:
-                nAngle = nMov.actor()->spr.__int_angle;
+                nAngle = nMov.actor()->int_ang();
                 break;
             }
 
@@ -626,8 +626,8 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         case kHitWall:
             pActor->spr.__int_angle += (RandomSize(9) + 768);
             pActor->spr.__int_angle &= kAngleMask;
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle, -3);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle, -3);
+            pActor->spr.xvel = bcos(pActor->int_ang(), -3);
+            pActor->spr.yvel = bsin(pActor->int_ang(), -3);
             pActor->spr.zvel = -RandomSize(5);
             break;
         }
@@ -651,7 +651,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.__int_angle, true);
+            auto pWaspSprite = BuildWasp(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->int_ang(), true);
             pActor->set_int_z(pWaspSprite->int_pos().Z);
 
             DestroyEgg(nEgg);
@@ -704,7 +704,7 @@ void BuildQueenHead(int nQueen)
 
     int x = pActor->int_pos().X;
     int y = pActor->int_pos().Y;
-    int nAngle = pActor->spr.__int_angle;
+    int nAngle = pActor->int_ang();
     auto pSector = pActor->sector();
     int z = pSector->int_floorz();
 
@@ -812,11 +812,11 @@ void AIQueenHead::Tick(RunListEvent* ev)
             auto nMov = MoveCreature(pActor);
 
             // original BUG - this line doesn't exist in original code?
-            int nNewAng = pActor->spr.__int_angle;
+            int nNewAng = pActor->int_ang();
 
             if (nMov.exbits == 0)
             {
-                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.__int_angle;
+                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->int_ang();
                 else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
             }
             else if (nMov.exbits == kHitAux2)
@@ -923,7 +923,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         MoveQZ[nQHead] = pActor->int_pos().Z;
         assert(pActor->sector());
         MoveQS[nQHead] = pActor->sector();
-        MoveQA[nQHead] = pActor->spr.__int_angle;
+        MoveQA[nQHead] = pActor->int_ang();
 
         nHd = nQHead;
 
@@ -1114,7 +1114,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
     }
 
     pActor->set_int_pos({ x, y, z });
@@ -1158,8 +1158,8 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
 void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
 {
-    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -(2 - nSpeed));
-    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -(2 - nSpeed));
+    pActor->spr.xvel = bcos(pActor->int_ang(), -(2 - nSpeed));
+    pActor->spr.yvel = bsin(pActor->int_ang(), -(2 - nSpeed));
 }
 
 void AIQueen::Tick(RunListEvent* ev)
@@ -1346,7 +1346,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
                 if (!si)
                 {
-                    BuildBullet(pActor, 12, -1, pActor->spr.__int_angle, pTarget, 1);
+                    BuildBullet(pActor, 12, -1, pActor->int_ang(), pTarget, 1);
                 }
                 else
                 {

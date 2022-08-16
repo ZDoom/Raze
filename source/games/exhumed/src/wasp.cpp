@@ -50,7 +50,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     }
     else
     {
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
         ChangeActorStat(pActor, 107);
     }
 

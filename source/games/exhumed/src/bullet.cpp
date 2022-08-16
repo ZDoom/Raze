@@ -240,8 +240,8 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 int xVel = pHitActor->spr.xvel;
                 int yVel = pHitActor->spr.yvel;
 
-                pHitActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-                pHitActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+                pHitActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                pHitActor->spr.yvel = bsin(pActor->int_ang(), -2);
 
                 MoveCreature(pHitActor);
 
@@ -433,7 +433,7 @@ MOVEEND:
                 dz = -bsin(pBullet->nPitch, 3);
             else
                 dz = -pBullet->nPitch * 512;
-            hitscan(startPos, pActor->sector(), { bcos(pActor->spr.__int_angle), bsin(pActor->spr.__int_angle), dz }, hit, CLIPMASK1);
+            hitscan(startPos, pActor->sector(), { bcos(pActor->int_ang()), bsin(pActor->int_ang()), dz }, hit, CLIPMASK1);
             x2 = hit.hitpos.X;
             y2 = hit.hitpos.Y;
             z2 = hit.hitpos.Z;

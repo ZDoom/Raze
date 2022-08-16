@@ -781,7 +781,7 @@ short FindViewSectorInScene(sectortype* cursect, short level)
             if (cursect == actor->sector())
             {
                 // ignore case if sprite is pointing up
-                if (actor->spr.__int_angle == 1536)
+                if (actor->int_ang() == 1536)
                     continue;
 
                 // only gets to here is sprite is pointing down

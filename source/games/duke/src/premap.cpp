@@ -71,7 +71,7 @@ void premapcontroller(DDukeActor* ac)
 		cyclers[numcyclers].shade1 = ac->spr.shade;
 		cyclers[numcyclers].shade2 = ac->sector()->floorshade;
 		cyclers[numcyclers].hitag = ac->spr.hitag;
-		cyclers[numcyclers].state = (ac->spr.__int_angle == 1536);
+		cyclers[numcyclers].state = (ac->int_ang() == 1536);
 		numcyclers++;
 		deletesprite(ac);
 		break;
@@ -616,7 +616,7 @@ void resetpspritevars(int g)
 		}
 
 		po[numplayersprites].opos = act->spr.pos;
-		po[numplayersprites].oa = act->spr.__int_angle;
+		po[numplayersprites].oa = act->int_ang();
 		po[numplayersprites].os = act->sector();
 
 		numplayersprites++;

@@ -467,7 +467,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 28);
 	int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 28);
 	gFX.fxSpawnActor(FX_48, actor->sector(), x, y, actor->int_pos().Z, 0);
-	if (actor->spr.__int_angle == 1024)
+	if (actor->int_ang() == 1024)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
 		sfxPlay3DSound(actor, 385, nChannel, 1);
@@ -653,7 +653,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int nDist = Random(16) << 4;
 	int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 28);
 	int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 28);
-	if (actor->spr.__int_angle == 1024 && actor->spr.type == 53)
+	if (actor->int_ang() == 1024 && actor->spr.type == 53)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
 		assert(nChannel < 32);
@@ -709,7 +709,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->set_int_pos({ actor2->int_pos().X, actor2->int_pos().Y, actor2->sector()->int_floorz() - (bottom - actor->int_pos().Z) });
-	actor->spr.__int_angle = actor2->spr.__int_angle;
+	actor->spr.__int_angle = actor2->int_ang();
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
 	actor->vel.X = actor->vel.Y = actor->vel.Z = 0;

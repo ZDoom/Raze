@@ -526,7 +526,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.yrepeat = tsp->yrepeat;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
-    actorNew->spr.__int_angle = tsp->__int_angle;
+    actorNew->spr.__int_angle = tsp->int_ang();
     actorNew->spr.xvel = tsp->xvel;
     actorNew->spr.yvel = tsp->yvel;
     actorNew->spr.zvel = tsp->zvel;
@@ -1101,7 +1101,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         while (auto actor = it.Next())
         {
             ang = bvectangbam(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
-            ang_test = getincangle(ang.asbuild(), actor->spr.__int_angle) < actor->spr.lotag;
+            ang_test = getincangle(ang.asbuild(), actor->int_ang()) < actor->spr.lotag;
 
             FAFcansee_test =
                 (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
@@ -1684,7 +1684,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     xoff = (int)tileLeftOffset(tilenum) + (int)actor->spr.xoffset;
                     if ((actor->spr.cstat & CSTAT_SPRITE_XFLIP) > 0)
                         xoff = -xoff;
-                    k = actor->spr.__int_angle;
+                    k = actor->int_ang();
                     l = actor->spr.xrepeat;
                     dax = bsin(k) * l;
                     day = -bcos(k) * l;
@@ -1719,7 +1719,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                         if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
-                        k = actor->spr.__int_angle;
+                        k = actor->int_ang();
                         cosang = bcos(k);
                         sinang = bsin(k);
                         xspan = tileWidth(tilenum);

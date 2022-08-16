@@ -87,7 +87,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 					pZone->y = actor->int_pos().Y;
 					pZone->z = actor->int_pos().Z;
 					pZone->sector = actor->sector();
-					pZone->ang = actor->spr.__int_angle;
+					pZone->ang = actor->int_ang();
 				}
 				DeleteSprite(actor);
 				break;
@@ -100,7 +100,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 						pZone->y = actor->int_pos().Y;
 						pZone->z = actor->int_pos().Z;
 						pZone->sector = actor->sector();
-						pZone->ang = actor->spr.__int_angle;
+						pZone->ang = actor->int_ang();
 
 #ifdef NOONE_EXTENSIONS
 						// fill player spawn position according team of player in TEAMS mode.
@@ -111,7 +111,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 								pZone->y = actor->int_pos().Y;
 								pZone->z = actor->int_pos().Z;
 								pZone->sector = actor->sector();
-								pZone->ang = actor->spr.__int_angle;
+								pZone->ang = actor->int_ang();
 								team1++;
 
 							}
@@ -121,7 +121,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 								pZone->y = actor->int_pos().Y;
 								pZone->z = actor->int_pos().Z;
 								pZone->sector = actor->sector();
-								pZone->ang = actor->spr.__int_angle;
+								pZone->ang = actor->int_ang();
 								team2++;
 							}
 						}

@@ -201,7 +201,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case TONGUE:
 		if (actj)
-			act->spr.__int_angle = actj->spr.__int_angle;
+			act->spr.__int_angle = actj->int_ang();
 		act->spr.pos.Z -= gs.playerheight;
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
@@ -340,7 +340,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ssp(act, CLIPMASK0);
 		act->temp_data[0] = 17;
 		act->temp_data[2] = 0;
-		act->temp_data[5] = act->spr.__int_angle;
+		act->temp_data[5] = act->int_ang();
 		[[fallthrough]];
 
 	case SPACEMARINE:
@@ -607,7 +607,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			act->spr.__int_angle = actj->spr.__int_angle;
+			act->spr.__int_angle = actj->int_ang();
 			act->spr.shade = -64;
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
@@ -683,7 +683,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
-				act->spr.__int_angle = actj->spr.__int_angle;
+				act->spr.__int_angle = actj->int_ang();
 			act->spr.xrepeat = act->spr.yrepeat = 4;
 		}
 		else act->spr.xrepeat = act->spr.yrepeat = 32;
@@ -1105,7 +1105,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case STEAM:
 		if (actj)
 		{
-			act->spr.__int_angle = actj->spr.__int_angle;
+			act->spr.__int_angle = actj->int_ang();
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.xrepeat = act->spr.yrepeat = 1;
 			act->spr.xvel = -8;

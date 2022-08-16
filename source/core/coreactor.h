@@ -185,7 +185,7 @@ public:
 
 	int16_t interpolatedang(double const smoothratio)
 	{
-		return interpolatedangle(oang, spr.__int_angle, smoothratio, 16);
+		return interpolatedangle(oang, int_ang(), smoothratio, 16);
 	}
 
 	void backupx()
@@ -216,7 +216,7 @@ public:
 
 	void backupang()
 	{
-		oang = spr.__int_angle;
+		oang = int_ang();
 	}
 
 	void backuploc()

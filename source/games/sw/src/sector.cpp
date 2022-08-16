@@ -2601,8 +2601,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 20);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 20);
+        nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 20);
+        ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 20);
 
         sectp->addfloorxpan((float)nx);
         sectp->addfloorypan((float)ny);
@@ -2613,8 +2613,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 20);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 20);
+        nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 20);
+        ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 20);
 
         sectp->addceilingxpan((float)nx);
         sectp->addceilingypan((float)ny);
@@ -2625,8 +2625,8 @@ void DoPanning(void)
     {
         wallp = actor->tempwall;
 
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 20);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 20);
+        nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 20);
+        ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 20);
 
         wallp->addxpan((float)nx);
         wallp->addypan((float)ny);

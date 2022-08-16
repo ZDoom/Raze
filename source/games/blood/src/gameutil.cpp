@@ -393,8 +393,8 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	if (nRange)
 	{
-		hitscangoal.X = x + MulScale(nRange << 4, Cos(actor->spr.__int_angle), 30);
-		hitscangoal.Y = y + MulScale(nRange << 4, Sin(actor->spr.__int_angle), 30);
+		hitscangoal.X = x + MulScale(nRange << 4, Cos(actor->int_ang()), 30);
+		hitscangoal.Y = y + MulScale(nRange << 4, Sin(actor->int_ang()), 30);
 	}
 	else
 	{
@@ -442,8 +442,8 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	if (nRange)
 	{
-		hitscangoal.X = x1 + MulScale(nRange << 4, Cos(actor->spr.__int_angle), 30);
-		hitscangoal.Y = y1 + MulScale(nRange << 4, Sin(actor->spr.__int_angle), 30);
+		hitscangoal.X = x1 + MulScale(nRange << 4, Cos(actor->int_ang()), 30);
+		hitscangoal.Y = y1 + MulScale(nRange << 4, Sin(actor->int_ang()), 30);
 	}
 	else
 	{

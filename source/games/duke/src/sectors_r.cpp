@@ -2100,7 +2100,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->spr.__int_angle = proj->spr.__int_angle;
+				targ->spr.__int_angle = proj->int_ang();
 			}
 		}
 		break;
@@ -2363,7 +2363,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				targ->attackertype = proj->spr.picnum;
 				targ->hitextra += proj->spr.extra;
 				if (targ->spr.picnum != COW)
-					targ->hitang = proj->spr.__int_angle;
+					targ->hitang = proj->int_ang();
 				targ->SetHitOwner(proj->GetOwner());
 			}
 

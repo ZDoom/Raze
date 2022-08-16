@@ -56,7 +56,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
         x = ap->int_pos().X;
         y = ap->int_pos().Y;
         z = ap->sector()->int_floorz();
-        nAngle = ap->spr.__int_angle;
+        nAngle = ap->int_ang();
     }
 
     ap->set_int_pos({ x, y, z });
@@ -159,8 +159,8 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
 
-                ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
-                ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
+                ap->spr.xvel = bcos(ap->int_ang(), -2);
+                ap->spr.yvel = bsin(ap->int_ang(), -2);
             }
         }
         return;
@@ -183,7 +183,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             if (move.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
-                int nAngDiff = AngleDiff(ap->spr.__int_angle, nAng);
+                int nAngDiff = AngleDiff(ap->int_ang(), nAng);
 
                 if (nAngDiff < 64)
                 {
@@ -198,8 +198,8 @@ void AIAnubis::Tick(RunListEvent* ev)
         case kHitWall:
         {
             ap->spr.__int_angle = (ap->int_ang() + 256) & kAngleMask;
-            ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
-            ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
+            ap->spr.xvel = bcos(ap->int_ang(), -2);
+            ap->spr.yvel = bsin(ap->int_ang(), -2);
             break;
         }
 
@@ -262,8 +262,8 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->nAction = 1;
 
-            ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
-            ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
+            ap->spr.xvel = bcos(ap->int_ang(), -2);
+            ap->spr.yvel = bsin(ap->int_ang(), -2);
             ap->nFrame = 0;
         }
         else
@@ -271,7 +271,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, -1, ap->spr.__int_angle, pTarget, 1);
+                BuildBullet(ap, 8, -1, ap->int_ang(), pTarget, 1);
             }
         }
 

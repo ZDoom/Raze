@@ -55,14 +55,14 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     DExhumedActor* pActor = PlayerList[nPlayer].pPlayerGrenade;
     auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    int nAngle = pPlayerActor->spr.__int_angle;
+    int nAngle = pPlayerActor->int_ang();
 
     ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
     pActor->set_int_pos(pPlayerActor->int_pos());
 
     if (nAngle < 0) {
-        nAngle = pPlayerActor->spr.__int_angle;
+        nAngle = pPlayerActor->int_ang();
     }
 
     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -112,7 +112,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.clipdist = 30;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = pPlayerActor->spr.__int_angle;
+    pActor->spr.__int_angle = pPlayerActor->int_ang();
     pActor->spr.intowner = nPlayer;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
@@ -171,7 +171,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     if (pActor->nTurn < 0)
     {
         auto pPlayerActor = PlayerList[nPlayer].pActor;
-        int nAngle = pPlayerActor->spr.__int_angle;
+        int nAngle = pPlayerActor->int_ang();
 
         pActor->set_int_pos({ bcos(nAngle, -5) + pPlayerActor->int_pos().X, bsin(nAngle, -5) + pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z });
 

@@ -684,7 +684,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 				if ((actor->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
 					(r_voxels && tiletovox[actor->spr.picnum] >= 0 && voxmodels[tiletovox[actor->spr.picnum]]) ||
 					(r_voxels && gi->Voxelize(actor->spr.picnum) > -1) ||
-					DMulScale(bcos(actor->spr.__int_angle), -sx, bsin(actor->spr.__int_angle), -sy, 6) > 0)
+					DMulScale(bcos(actor->int_ang()), -sx, bsin(actor->int_ang()), -sy, 6) > 0)
 					if (!renderAddTsprite(di->tsprites, actor))
 						break;
 			}

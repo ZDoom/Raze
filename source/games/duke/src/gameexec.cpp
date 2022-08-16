@@ -1233,7 +1233,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_ANG:
 		if (bSet) act->spr.__int_angle = lValue;
-		else SetGameVarID(lVar2, act->spr.__int_angle, sActor, sPlayer);
+		else SetGameVarID(lVar2, act->int_ang(), sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
@@ -1973,11 +1973,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, -bsin(g_ac->spr.__int_angle, -10), bcos(g_ac->spr.__int_angle, -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, -bsin(g_ac->int_ang(), -10), bcos(g_ac->int_ang(), -10), g_ac->spr.zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, bsin(g_ac->spr.__int_angle, -10), -bcos(g_ac->spr.__int_angle, -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, bsin(g_ac->int_ang(), -10), -bcos(g_ac->int_ang(), -10), g_ac->spr.zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
@@ -2484,7 +2484,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->spr.__int_angle, hit, 768, 1);
+			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->int_ang(), hit, 768, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2846,7 +2846,7 @@ int ParseState::parse(void)
 
 	case concmd_ifangdiffl:
 		insptr++;
-		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_ac->spr.__int_angle));
+		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_ac->int_ang()));
 		parseifelse( j <= *insptr);
 		break;
 
@@ -3162,7 +3162,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, g_ac->spr.__int_angle, g_ac, g_p);
+		SetGameVarID(i, g_ac->int_ang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setactorangle:

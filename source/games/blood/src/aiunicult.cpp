@@ -139,7 +139,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 
 		for (int i = -8191; i < 8192; i += by)
 		{
-			HitScan(actor, actor->int_pos().Z, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), i, clipMask, dist);
+			HitScan(actor, actor->int_pos().Z, bcos(actor->int_ang()), bsin(actor->int_ang()), i, clipMask, dist);
 			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = i;
 			else if (fStart && actor->GetTarget() != gHitInfo.actor())
 			{
@@ -516,7 +516,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int losAngle = ((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+	int losAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
 	int eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 
 	if (dist > pDudeInfo->seeDist || !cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(),
@@ -744,9 +744,9 @@ static void unicultThinkChase(DBloodActor* actor)
 				{
 					int objDist = -1; int targetDist = -1; int hit = -1;
 					if (weaponType == kGenDudeWeaponHitscan)
-						hit = HitScan(actor, actor->int_pos().Z, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), actor->dudeSlope, CLIPMASK1, dist);
+						hit = HitScan(actor, actor->int_pos().Z, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, CLIPMASK1, dist);
 					else if (weaponType == kGenDudeWeaponMissile)
-						hit = HitScan(actor, actor->int_pos().Z, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), actor->dudeSlope, CLIPMASK0, dist);
+						hit = HitScan(actor, actor->int_pos().Z, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, CLIPMASK0, dist);
 
 					if (hit >= 0)
 					{
@@ -859,7 +859,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								if (genDudeAdjustSlope(actor, dist, weaponType)) break;
-								VectorScan(actor, 0, 0, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), actor->dudeSlope, dist, 1);
+								VectorScan(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, dist, 1);
 								if (actor == gHitInfo.actor()) break;
 
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
@@ -919,7 +919,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-								if (masked) VectorScan(actor, 0, 0, bcos(actor->spr.__int_angle), bsin(actor->spr.__int_angle), actor->dudeSlope, dist, 1);
+								if (masked) VectorScan(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, dist, 1);
 
 								if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked))
 								{
@@ -1114,7 +1114,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 	if (pExtra->canFly)
 	{
-		int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+		int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
 		int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 		actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 		int nAccel = pDudeInfo->frontSpeed << 2;
@@ -1142,7 +1142,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	}
 	else
 	{
-		int dang = ((kAng180 + actor->xspr.goalAng - actor->spr.__int_angle) & 2047) - kAng180;
+		int dang = ((kAng180 + actor->xspr.goalAng - actor->int_ang()) & 2047) - kAng180;
 		actor->spr.__int_angle = ((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
 
 		// don't move forward if trying to turn around
@@ -1174,8 +1174,8 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 
 	// TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
-	int vc = ((a3 + 1024 - actor->spr.__int_angle) & 2047) - 1024;
-	int t1 = DMulScale(xvel, Cos(actor->spr.__int_angle), yvel, Sin(actor->spr.__int_angle), 30);
+	int vc = ((a3 + 1024 - actor->int_ang()) & 2047) - 1024;
+	int t1 = DMulScale(xvel, Cos(actor->int_ang()), yvel, Sin(actor->int_ang()), 30);
 	int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
 
 	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
@@ -1186,8 +1186,8 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 		actor->xspr.goalAng = actor->int_ang() - vc / 2;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
 		actor->xspr.goalAng = actor->int_ang() + v8;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
+		actor->xspr.goalAng = actor->int_ang();
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
 		actor->xspr.goalAng = actor->int_ang() - v8;
 	else
@@ -1800,7 +1800,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				int t = DivScale(nDist, 0x1aaaaa, 12);
 				x += (actTarget->vel.X * t) >> 12;
 				y += (actTarget->vel.Y * t) >> 12;
-				int angBak = actor->spr.__int_angle;
+				int angBak = actor->int_ang();
 				actor->spr.__int_angle = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
 				int dx = bcos(actor->int_ang());
 				int dy = bsin(actor->int_ang());
@@ -1875,7 +1875,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 {
 	auto spawned = actSpawnSprite(actor, kStatDude);
-	int x, y, z = actor->int_pos().Z, nAngle = actor->spr.__int_angle, nType = kDudeModernCustom;
+	int x, y, z = actor->int_pos().Z, nAngle = actor->int_ang(), nType = kDudeModernCustom;
 
 	if (nDist > 0)
 	{

@@ -461,8 +461,8 @@ void UpdateAimVector(PLAYER* pPlayer)
 				y2 += (actor->vel.Y * t) >> 12;
 				z2 += (actor->vel.Z * t) >> 8;
 			}
-			int lx = x + MulScale(Cos(plActor->spr.__int_angle), nDist, 30);
-			int ly = y + MulScale(Sin(plActor->spr.__int_angle), nDist, 30);
+			int lx = x + MulScale(Cos(plActor->int_ang()), nDist, 30);
+			int ly = y + MulScale(Sin(plActor->int_ang()), nDist, 30);
 			int lz = z + MulScale(pPlayer->slope, nDist, 10);
 			int zRange = MulScale(9460, nDist, 10);
 			int top, bottom;
@@ -511,8 +511,8 @@ void UpdateAimVector(PLAYER* pPlayer)
 				int nDist = approxDist(dx, dy);
 				if (nDist == 0 || nDist > 51200)
 					continue;
-				int lx = x + MulScale(Cos(plActor->spr.__int_angle), nDist, 30);
-				int ly = y + MulScale(Sin(plActor->spr.__int_angle), nDist, 30);
+				int lx = x + MulScale(Cos(plActor->int_ang()), nDist, 30);
+				int ly = y + MulScale(Sin(plActor->int_ang()), nDist, 30);
 				int lz = z + MulScale(pPlayer->slope, nDist, 10);
 				int zRange = MulScale(9460, nDist, 10);
 				int top, bottom;

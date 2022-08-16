@@ -1179,7 +1179,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
 
-            delta_ang = short(abs(getincangle(angle2, actor->spr.__int_angle)));
+            delta_ang = short(abs(getincangle(angle2, actor->int_ang())));
 
             // If delta_ang not in the range skip this one
             if (delta_ang > (int)max_delta_ang)
@@ -1305,7 +1305,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          nx, ny, ActorZOfTop(actor) + Z(16),
-                         actor->spr.__int_angle, 0);
+                         actor->int_ang(), 0);
 
     SetActorZ(effectActor, effectActor->int_pos());
 
@@ -1323,7 +1323,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) + Z(16),
-                         actor->spr.__int_angle, 0);
+                         actor->int_ang(), 0);
 
     SetActorZ(effectActor, effectActor->int_pos());
 

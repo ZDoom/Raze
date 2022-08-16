@@ -288,7 +288,7 @@ void TrackAddPoint(TRACK* t, TRACK_POINT* tp, DSWActor* actor)
     tpoint->x = actor->int_pos().X;
     tpoint->y = actor->int_pos().Y;
     tpoint->z = actor->int_pos().Z;
-    tpoint->ang = actor->spr.__int_angle;
+    tpoint->ang = actor->int_ang();
     tpoint->tag_low = actor->spr.lotag;
     tpoint->tag_high = actor->spr.hitag;
 
@@ -304,7 +304,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
     actorNew->spr.pos = actor->spr.pos;
-    actorNew->spr.__int_angle = actor->spr.__int_angle;
+    actorNew->spr.__int_angle = actor->int_ang();
     actorNew->spr.lotag = actor->spr.lotag;
     actorNew->spr.hitag = actor->spr.hitag;
 
@@ -350,12 +350,12 @@ void QuickJumpSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        actor->add_int_pos({ MulScale(64, bcos(actor->spr.__int_angle), 14), MulScale(64, bsin(actor->spr.__int_angle), 14), 0 });
+        actor->add_int_pos({ MulScale(64, bcos(actor->int_ang()), 14), MulScale(64, bsin(actor->int_ang()), 14), 0 });
         actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(2048, bcos(end_sprite->spr.__int_angle), 14), MulScale(2048, bsin(end_sprite->spr.__int_angle), 14), 0 });
+        end_sprite->add_int_pos({ MulScale(2048, bcos(end_sprite->int_ang()), 14), MulScale(2048, bsin(end_sprite->int_ang()), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -403,7 +403,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->add_int_pos({ MulScale(64, -bcos(start_sprite->spr.__int_angle), 14), MulScale(64, -bsin(start_sprite->spr.__int_angle), 14), 0 });
+        start_sprite->add_int_pos({ MulScale(64, -bcos(start_sprite->int_ang()), 14), MulScale(64, -bsin(start_sprite->int_ang()), 14), 0 });
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -411,7 +411,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(64, bcos(end_sprite->spr.__int_angle), 14), MulScale(64, bsin(end_sprite->spr.__int_angle), 14), 0 });
+        end_sprite->add_int_pos({ MulScale(64, bcos(end_sprite->int_ang()), 14), MulScale(64, bsin(end_sprite->int_ang()), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -461,7 +461,7 @@ void QuickExitSetup(short stat, short type)
         KillActor(actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(1024, bcos(end_sprite->spr.__int_angle), 14), MulScale(1024, bsin(end_sprite->spr.__int_angle), 14), 0 });
+        end_sprite->add_int_pos({ MulScale(1024, bcos(end_sprite->int_ang()), 14), MulScale(1024, bsin(end_sprite->int_ang()), 14), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -514,7 +514,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MOVEx(512,end_sprite->spr.__int_angle), MOVEy(512,end_sprite->spr.__int_angle), 0 });
+        end_sprite->add_int_pos({ MOVEx(512,end_sprite->int_ang()), MOVEy(512,end_sprite->int_ang()), 0 });
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -878,7 +878,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
-                itActor->user.sang = itActor->spr.__int_angle;
+                itActor->user.sang = itActor->int_ang();
                 itActor->user.spal = itActor->spr.pal;
 
                 // search SO's sectors to make sure that it is not on a
@@ -1225,7 +1225,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
-                    sop->limit_ang_center = actor->spr.__int_angle;
+                    sop->limit_ang_center = actor->int_ang();
                     sop->limit_ang_delta = actor->spr.lotag;
                     KillActor(actor);
                     break;
@@ -1246,7 +1246,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
-                    sop->ang = sop->ang_moving = actor->spr.__int_angle;
+                    sop->ang = sop->ang_moving = actor->int_ang();
                     sop->last_ang = sop->ang_orig = sop->ang;
                     sop->spin_ang = 0;
                     KillActor(actor);
@@ -1716,7 +1716,7 @@ PlayerPart:
             }
         }
 
-        int16_t oldang = actor->spr.__int_angle;
+        int16_t oldang = actor->int_ang();
         actor->spr.__int_angle = actor->user.sang;
 
         if (actor->user.Flags & (SPR_ON_SO_SECTOR))
@@ -3005,8 +3005,8 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
                 FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(24), actor->sector(),      // Start position
-                           bcos(actor->spr.__int_angle),    // X vector of 3D ang
-                           bsin(actor->spr.__int_angle),    // Y vector of 3D ang
+                           bcos(actor->int_ang()),    // X vector of 3D ang
+                           bsin(actor->int_ang()),    // Y vector of 3D ang
                            0,                // Z vector of 3D ang
                            hit, CLIPMASK_MISSILE);
 
@@ -3107,7 +3107,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
-            neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->spr.__int_angle, near, 1024, NTAG_SEARCH_LO_HI);
+            neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
 
             if (near.actor() != nullptr && near.hitpos.X < 1024)
             {
@@ -3323,7 +3323,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->spr.__int_angle, near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {
@@ -3528,8 +3528,8 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         else
         {
             // calculate a new x and y
-            nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-            ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+            nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+            ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
         }
 
         nz = 0;

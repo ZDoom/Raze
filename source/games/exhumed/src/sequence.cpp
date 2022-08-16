@@ -587,7 +587,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->pal = pTSprite->pal;
         tsp->xrepeat = pTSprite->xrepeat;
         tsp->yrepeat = pTSprite->yrepeat;
-        tsp->__int_angle = pTSprite->__int_angle;
+        tsp->__int_angle = pTSprite->int_ang();
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;

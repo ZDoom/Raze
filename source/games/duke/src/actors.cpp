@@ -225,8 +225,8 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 	Collision c;
 
 	return movesprite_ex(actor,
-		MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14),
-		MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14), actor->spr.zvel,
+		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
+		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->spr.zvel,
 		cliptype, c) == kHitNone;
 }
 
@@ -278,8 +278,8 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.X += actor->spr.xvel * buildang(actor->spr.__int_angle).fcos() * inttoworld;
-	actor->spr.pos.Y += actor->spr.xvel * buildang(actor->spr.__int_angle).fsin() * inttoworld;
+	actor->spr.pos.X += actor->spr.xvel * buildang(actor->int_ang()).fcos() * inttoworld;
+	actor->spr.pos.Y += actor->spr.xvel * buildang(actor->int_ang()).fsin() * inttoworld;
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -1120,7 +1120,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 	if (actor->temp_data[5] == 1) return;
 
 	p = checkcursectnums(actor->sector());
-	if (p >= 0 && (ps[p].on_ground || actor->spr.__int_angle == 512))
+	if (p >= 0 && (ps[p].on_ground || actor->int_ang() == 512))
 	{
 		if (actor->temp_data[0] == 0 && !check_activator_motion(actor->spr.lotag))
 		{
@@ -1258,8 +1258,8 @@ void movecanwithsomething(DDukeActor* actor)
 
 void bounce(DDukeActor* actor)
 {
-	int xvect = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 10);
-	int yvect = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 10);
+	int xvect = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 10);
+	int yvect = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 10);
 	int zvect = actor->spr.zvel;
 
 	auto sectp = actor->sector();
@@ -1317,14 +1317,14 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 			return;
 		}
 
-	actor->spr.__int_angle = Owner->spr.__int_angle;
+	actor->spr.__int_angle = Owner->int_ang();
 	actor->spr.pos = Owner->spr.pos.plusZ(Owner->isPlayer() ? -34 : 0);
 
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
 		auto q = EGS(actor->sector(),
-			actor->int_pos().X + MulScale(k, bcos(actor->spr.__int_angle), 9),
-			actor->int_pos().Y + MulScale(k, bsin(actor->spr.__int_angle), 9),
+			actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
+			actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
 			actor->int_pos().Z + ((k * Sgn(actor->spr.zvel)) * abs(actor->spr.zvel / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
@@ -1335,8 +1335,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	}
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
 	auto spawned = EGS(actor->sector(),
-		actor->int_pos().X + MulScale(k, bcos(actor->spr.__int_angle), 9),
-		actor->int_pos().Y + MulScale(k, bsin(actor->spr.__int_angle), 9),
+		actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
+		actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
 		actor->int_pos().Z + ((k * Sgn(actor->spr.zvel)) * abs(actor->spr.zvel / 12)), jaw, -40,
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
@@ -1465,8 +1465,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		auto sect = actor->sector();
 		auto pos = actor->int_pos();
 		int j = clipmove(pos, &sect,
-			(MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14) * TICSPERFRAME) << 11,
-			(MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14) * TICSPERFRAME) << 11,
+			(MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14) * TICSPERFRAME) << 11,
+			(MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
 		actor->set_int_pos(pos);
 		actor->setsector(sect);
@@ -1474,7 +1474,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (j == kHitWall)
 		{
 			int k = getangle(coll.hitWall->delta());
-			actor->spr.__int_angle = ((k << 1) - actor->spr.__int_angle) & 2047;
+			actor->spr.__int_angle = ((k << 1) - actor->int_ang()) & 2047;
 		}
 		else if (j == kHitSprite)
 		{
@@ -1670,7 +1670,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 15) == 0)
 		{
-			a = actor->spr.__int_angle;
+			a = actor->int_ang();
 			actor->spr.__int_angle = actor->tempang;
 			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
 			fi.shoot(actor, firelaser);
@@ -1710,7 +1710,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.__int_angle += getincangle(actor->spr.__int_angle, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2;
+		actor->spr.__int_angle += getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1718,7 +1718,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		int l = ldist(Owner, actor);
 		if (l <= 1524)
 		{
-			a = actor->spr.__int_angle;
+			a = actor->int_ang();
 			actor->spr.xvel >>= 1;
 		}
 		else a = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
@@ -1745,7 +1745,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			{
 				actor->temp_data[0] = 2 + (krand() & 2);
 				actor->temp_data[2] = 0;
-				actor->tempang = actor->spr.__int_angle;
+				actor->tempang = actor->int_ang();
 			}
 		}
 
@@ -1769,7 +1769,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->SetOwner(NewOwner);
 		}
 
-		actor->temp_data[3] = getincangle(actor->spr.__int_angle, a);
+		actor->temp_data[3] = getincangle(actor->int_ang(), a);
 		actor->spr.__int_angle += actor->temp_data[3] >> 3;
 
         if (actor->spr.pos.Z < Owner->spr.pos.Z - 2)
@@ -1981,7 +1981,7 @@ void camera(DDukeActor *actor)
 			}
 
 			// update angle accordingly.
-			if (actor->spr.__int_angle == minimum || actor->spr.__int_angle == maximum)
+			if (actor->int_ang() == minimum || actor->int_ang() == maximum)
 			{
 				increment = -increment;
 				actor->spr.__int_angle += increment;
@@ -2239,7 +2239,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			else actor->spr.zvel += gs.gravity - 50;
 		}
 
-		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14), MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14), 0 });
+		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), 0 });
 		actor->add_int_z(actor->spr.zvel);
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
@@ -2514,7 +2514,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			}
 		}
 		if (actor->spr.zvel < 4096) actor->spr.zvel += gs.gravity - 50;
-		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14), MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14), actor->spr.zvel });
+		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->spr.zvel });
 	}
 	else
 	{
@@ -2792,7 +2792,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	if (actor->spr.xvel)
 	{
 		int x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
-		int q = getincangle(actor->spr.__int_angle, x) >> 3;
+		int q = getincangle(actor->int_ang(), x) >> 3;
 
 		actor->temp_data[2] += q;
 		actor->spr.__int_angle += q;
@@ -2810,7 +2810,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				int p = findplayer(actor, &x);
 				if (x < 20480)
 				{
-					j = actor->spr.__int_angle;
+					j = actor->int_ang();
 					actor->spr.__int_angle = getangle(actor->spr.pos.XY() - ps[p].pos.XY());
 					fi.shoot(actor, RPG);
 					actor->spr.__int_angle = j;
@@ -2843,8 +2843,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		int m = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-		x = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+		int m = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+		x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 		double mm = m * inttoworld;
 		double xx = x * inttoworld;
 
@@ -3008,8 +3008,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if (actor->spr.xvel)
 	{
-		int l = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-		int x = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+		int l = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+		int x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
 		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
 			if (ud.clipping == 0)
@@ -3159,8 +3159,8 @@ void handle_se02(DDukeActor* actor)
 			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
 		}
 
-		int m = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-		int x = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+		int m = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+		int x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3316,7 +3316,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	int x, p = findplayer(actor, &x);
 	if (x < 8192)
 	{
-		j = actor->spr.__int_angle;
+		j = actor->int_ang();
 		actor->spr.__int_angle = getangle(actor->spr.pos.XY() - ps[p].pos);
 		fi.shoot(actor, FIRELASER);
 		actor->spr.__int_angle = j;
@@ -3350,7 +3350,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	if (ldist(Owner, actor) < 1024)
 	{
-		auto ta = actor->spr.__int_angle;
+		auto ta = actor->int_ang();
 		actor->spr.__int_angle = getangle(ps[p].pos.XY() - actor->spr.pos.XY());
 		actor->spr.__int_angle = ta;
 		actor->SetOwner(nullptr);
@@ -3360,7 +3360,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	else actor->spr.xvel = 256;
 
 	x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
-	int q = getincangle(actor->spr.__int_angle, x) >> 3;
+	int q = getincangle(actor->int_ang(), x) >> 3;
 	actor->spr.__int_angle += q;
 
 	if (rnd(32))
@@ -3667,7 +3667,7 @@ void handle_se13(DDukeActor* actor)
 	{
 		int j = (actor->spr.yvel << 5) | 1;
 
-		if (actor->spr.__int_angle == 512)
+		if (actor->int_ang() == 512)
 		{
 			if (actor->spriteextra)
 			{
@@ -3699,7 +3699,7 @@ void handle_se13(DDukeActor* actor)
 			actor->temp_data[3]++;
 			sc->ceilingstat ^= CSTAT_SECTOR_SKY;
 
-			if (actor->spr.__int_angle == 512)
+			if (actor->int_ang() == 512)
 			{
 				for (auto& wal : wallsofsector(sc))
 					wal.shade = actor->spr.shade;
@@ -3931,7 +3931,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		double extra = sc->extra * zmaptoworld;
 		if (actor->spr.pal)
 		{
-			if (actor->spr.__int_angle == 512)
+			if (actor->int_ang() == 512)
 			{
 				sc->add_int_ceilingz(-sc->extra);
 				if (sc->int_ceilingz() <= actor->temp_data[1])
@@ -3968,7 +3968,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		}
 		else
 		{
-			if (actor->spr.__int_angle == 512)
+			if (actor->int_ang() == 512)
 			{
 				sc->add_int_ceilingz(sc->extra);
 				if (sc->int_ceilingz() >= actor->int_pos().Z)
@@ -4141,8 +4141,8 @@ void handle_se20(DDukeActor* actor)
 
 	if (actor->spr.xvel) //Moving
 	{
-		int x = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-		int l = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+		int x = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+		int l = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
 		actor->temp_data[3] += actor->spr.xvel;
 
@@ -4202,7 +4202,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (actor->temp_data[0] == 0) return;
 
-	if (actor->spr.__int_angle == 1536)
+	if (actor->int_ang() == 1536)
 		lp = sc->int_ceilingz();
 	else
 		lp = sc->int_floorz();
@@ -4223,7 +4223,7 @@ void handle_se21(DDukeActor* actor)
 			deletesprite(actor);
 		}
 
-		if (actor->spr.__int_angle == 1536)
+		if (actor->int_ang() == 1536)
 			sc->set_int_ceilingz(lp);
 		else
 			sc->set_int_floorz(lp);
@@ -4261,8 +4261,8 @@ void handle_se26(DDukeActor* actor)
 	int x, l;
 
 	actor->spr.xvel = 32;
-	l = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-	x = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+	l = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+	x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
@@ -4309,7 +4309,7 @@ void handle_se27(DDukeActor* actor)
 
 	if (ud.recstat == 0) return;
 
-	actor->tempang = actor->spr.__int_angle;
+	actor->tempang = actor->int_ang();
 
 	p = findplayer(actor, &x);
 	if (ps[p].GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
@@ -4327,7 +4327,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->spr.__int_angle += getincangle(actor->spr.__int_angle, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3;
+					actor->spr.__int_angle += getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3;
 					actor->spr.yvel = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
 
 				}
@@ -4366,8 +4366,8 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 {
 	if (actor->temp_data[4]) return;
 
-	int x = MulScale(actor->spr.yvel, bcos(actor->spr.__int_angle), 18);
-	int y = MulScale(actor->spr.yvel, bsin(actor->spr.__int_angle), 18);
+	int x = MulScale(actor->spr.yvel, bcos(actor->int_ang()), 18);
+	int y = MulScale(actor->spr.yvel, bsin(actor->int_ang()), 18);
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -4909,7 +4909,7 @@ int dodge(DDukeActor* actor)
 		bxvect = bcos(ac->int_ang());
 		byvect = bsin(ac->int_ang());
 
-		if (bcos(actor->spr.__int_angle) * bx + bsin(actor->spr.__int_angle) * by >= 0)
+		if (bcos(actor->int_ang()) * bx + bsin(actor->int_ang()) * by >= 0)
 			if (bxvect * bx + byvect * by < 0)
 			{
 				d = bxvect * by - byvect * bx;
@@ -4941,7 +4941,7 @@ int furthestangle(DDukeActor *actor, int angs)
 	if (!actor->isPlayer())
 		if ((actor->temp_data[0] & 63) > 2) return(actor->int_ang() + 1024);
 
-	for (j = actor->spr.__int_angle; j < (2048 + actor->int_ang()); j += angincs)
+	for (j = actor->int_ang(); j < (2048 + actor->int_ang()); j += angincs)
 	{
 		hitscan({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8) }, actor->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
 
@@ -4974,7 +4974,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 		angincs = 2048 / 2;
 	else angincs = 2048 / (1 + (krand() & 1));
 
-	for (j = tosee->spr.__int_angle; j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
+	for (j = tosee->int_ang(); j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
 	{
 		hitscan({ tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - (16 << 8) }, tosee->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
 
@@ -5007,7 +5007,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	ticselapsed = (actor->temp_data[0]) & 31;
 
-	aang = actor->spr.__int_angle;
+	aang = actor->int_ang();
 
 	actor->spr.xvel += (*moveptr - actor->spr.xvel) / 5;
 	if (actor->spr.zvel < 648) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->spr.zvel) / 5;
@@ -5244,7 +5244,7 @@ void movefta(void)
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
 						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
 							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
-							(bcos(act->spr.__int_angle) * (px - sx) + bsin(act->spr.__int_angle) * (py - sy) >= 0))
+							(bcos(act->int_ang()) * (px - sx) + bsin(act->int_ang()) * (py - sy) >= 0))
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);

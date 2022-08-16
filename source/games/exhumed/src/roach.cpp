@@ -47,7 +47,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        angle = pActor->spr.__int_angle;
+        angle = pActor->int_ang();
     }
 
     pActor->set_int_pos({ x, y, z });
@@ -93,8 +93,8 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
 
 void GoRoach(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1) - bcos(pActor->spr.__int_angle, -3);
-    pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1) - bsin(pActor->spr.__int_angle, -3);
+    pActor->spr.xvel = bcos(pActor->int_ang(), -1) - bcos(pActor->int_ang(), -3);
+    pActor->spr.yvel = bsin(pActor->int_ang(), -1) - bsin(pActor->int_ang(), -3);
 }
 
 void AIRoach::Draw(RunListEvent* ev)
@@ -340,7 +340,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, -1, pActor->spr.__int_angle, pTarget, 1);
+                BuildBullet(pActor, 13, -1, pActor->int_ang(), pTarget, 1);
             }
         }
 

@@ -287,7 +287,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			act->spr.__int_angle = actj->spr.__int_angle;
+			act->spr.__int_angle = actj->int_ang();
 	}
 }
 
@@ -324,7 +324,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 
 	act->spr.shade = -127;
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	act->spr.__int_angle = actj->spr.__int_angle;
+	act->spr.__int_angle = actj->int_ang();
 
 	act->spr.xvel = 128;
 	ChangeActorStat(act, STAT_MISC);
@@ -407,7 +407,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if ((ps[actj->spr.yvel].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		act->spr.__int_angle = actj->spr.__int_angle;
+		act->spr.__int_angle = actj->int_ang();
 	}
 
 	act->set_int_z(sect->int_floorz());
@@ -441,7 +441,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		}
 		else
 		{
-			a = act->spr.__int_angle;
+			a = act->int_ang();
 			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
 		}
 
@@ -638,7 +638,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			break;
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
-			if (actor->spr.__int_angle == 512)
+			if (actor->int_ang() == 512)
 			{
 				actor->temp_data[1] = sectp->int_ceilingz();
 				if (actor->spr.pal)
@@ -697,7 +697,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			bool ceiling = (abs(actor->temp_data[0] - actor->int_pos().Z) < abs(actor->temp_data[1] - actor->int_pos().Z));
 			actor->spriteextra = ceiling;
 
-			if (actor->spr.__int_angle == 512)
+			if (actor->int_ang() == 512)
 			{
 				if (ceiling)
 					sectp->setceilingz(actor->spr.pos.Z);
@@ -715,7 +715,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 				actor->temp_data[3] = 1;
 
-				if (!ceiling && actor->spr.__int_angle == 512)
+				if (!ceiling && actor->int_ang() == 512)
 				{
 					sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 					actor->temp_data[3] = 0;
@@ -724,7 +724,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingshade =
 					sectp->floorshade;
 
-				if (actor->spr.__int_angle == 512)
+				if (actor->int_ang() == 512)
 				{
 					for (auto& wl : wallsofsector(sectp))
 					{
@@ -931,7 +931,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 							act2->spr.lotag == SE_1_PIVOT &&
 							act2->spr.hitag == actor->spr.hitag)
 						{
-							if (actor->spr.__int_angle == 512)
+							if (actor->int_ang() == 512)
 							{
 								actor->copyXY(act2);
 							}

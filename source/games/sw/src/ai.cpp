@@ -438,7 +438,7 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->spr.__int_angle, near, 1024, NTAG_SEARCH_LO_HI);
+        neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
     }
 
     if (near.hitSector != nullptr && near.hitpos.X < 1024)
@@ -836,8 +836,8 @@ int DoActorMoveCloser(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0))
@@ -1309,8 +1309,8 @@ int DoActorMoveJump(DSWActor* actor)
 
     // Move while jumping
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
     move_actor(actor, nx, ny, 0L);
 
@@ -1341,7 +1341,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     x = actor->int_pos().X;
     y = actor->int_pos().Y;
     z = actor->int_pos().Z;
-    sang = actor->spr.__int_angle;
+    sang = actor->int_ang();
     loz = actor->user.loz;
     hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
@@ -1352,8 +1352,8 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 
     // do the move
     actor->spr.__int_angle = ang;
-    nx = MulScale(dist, bcos(actor->spr.__int_angle), 14);
-    ny = MulScale(dist, bsin(actor->spr.__int_angle), 14);
+    nx = MulScale(dist, bcos(actor->int_ang()), 14);
+    ny = MulScale(dist, bsin(actor->int_ang()), 14);
 
     Collision ret = move_sprite(actor, nx, ny, 0, actor->user.ceiling_dist, actor->user.floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
@@ -1623,8 +1623,8 @@ int DoActorReposition(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
     // still might hit something and have to handle it.
     if (!move_actor(actor, nx, ny, 0L))

@@ -106,7 +106,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     else
     {
         pSector = pActor->sector();
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
 
@@ -312,7 +312,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             if (coll.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
-                if (AngleDiff(pActor->spr.__int_angle, nAng) < 64)
+                if (AngleDiff(pActor->int_ang(), nAng) < 64)
                 {
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
@@ -353,7 +353,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             int nHeight = GetActorHeight(pActor);
             GetUpAngle(pActor, -64000, pTarget, (-(nHeight >> 1)));
 
-            BuildBullet(pActor, 10, -1, pActor->spr.__int_angle, pTarget, 1);
+            BuildBullet(pActor, 10, -1, pActor->int_ang(), pTarget, 1);
         }
         else if (var_1C)
         {

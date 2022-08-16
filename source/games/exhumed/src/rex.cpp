@@ -48,7 +48,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         x = pActor->int_pos().X;
         y = pActor->int_pos().Y;
         z = pActor->sector()->int_floorz();
-        nAngle = pActor->spr.__int_angle;
+        nAngle = pActor->int_ang();
 
         ChangeActorStat(pActor, 119);
     }
@@ -206,7 +206,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (pTarget == nullptr)
                 {
-                    auto nAngle = pActor->spr.__int_angle; // make backup of this variable
+                    auto nAngle = pActor->int_ang(); // make backup of this variable
                     pActor->pTarget = FindPlayer(pActor, 60);
                     pActor->spr.__int_angle = nAngle;
                 }
@@ -224,8 +224,8 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
 
-                pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-                pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+                pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                pActor->spr.yvel = bsin(pActor->int_ang(), -2);
 
                 D3PlayFX(StaticSound[kSound48], pActor);
 
@@ -290,8 +290,8 @@ void AIRex::Tick(RunListEvent* ev)
         case kHitWall:
         {
             pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+            pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+            pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             pActor->nAction = 1;
             pActor->nFrame = 0;
             nAction = 1;
@@ -309,8 +309,8 @@ void AIRex::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(pActor, pTarget);
 
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
+            pActor->spr.xvel = bcos(pActor->int_ang(), -1);
+            pActor->spr.yvel = bsin(pActor->int_ang(), -1);
 
             auto nMov = MoveCreatureWithCaution(pActor);
 
@@ -322,8 +322,8 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nCount = 60;
 
                 pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
-                pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
-                pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
+                pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                pActor->spr.yvel = bsin(pActor->int_ang(), -2);
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
                 nAction = 1;
@@ -338,7 +338,7 @@ void AIRex::Tick(RunListEvent* ev)
 
                 if (pHitActor->spr.statnum && pHitActor->spr.statnum < 107)
                 {
-                    int nAngle = pActor->spr.__int_angle;
+                    int nAngle = pActor->int_ang();
 
                     runlist_DamageEnemy(nMov.actor(), pActor, 15);
 

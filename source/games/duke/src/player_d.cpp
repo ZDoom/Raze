@@ -1026,7 +1026,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 	else
 	{
-		sa = actor->spr.__int_angle;
+		sa = actor->int_ang();
 		sx = actor->int_pos().X;
 		sy = actor->int_pos().Y;
 		sz = actor->int_pos().Z - (actor->spr.yrepeat * tileHeight(actor->spr.picnum) << 1) + (4 << 8);

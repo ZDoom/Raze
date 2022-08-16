@@ -845,7 +845,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	else
 	{
 		p = -1;
-		sa = actor->spr.__int_angle;
+		sa = actor->int_ang();
 		sx = actor->int_pos().X;
 		sy = actor->int_pos().Y;
 		sz = actor->int_pos().Z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
@@ -894,7 +894,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 32;
-			j->spr.__int_angle = actor->spr.__int_angle;
+			j->spr.__int_angle = actor->int_ang();
 			j->add_int_z(-(5 << 8));
 		}
 		break;
@@ -905,7 +905,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 250;
-			j->spr.__int_angle = actor->spr.__int_angle;
+			j->spr.__int_angle = actor->int_ang();
 			j->add_int_z(-(15 << 8));
 		}
 		break;

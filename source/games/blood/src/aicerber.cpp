@@ -104,8 +104,8 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 			y2 += (actor2->vel.Y * t) >> 12;
 			z2 += (actor2->vel.Z * t) >> 8;
 		}
-		int tx = x + MulScale(Cos(actor->spr.__int_angle), nDist, 30);
-		int ty = y + MulScale(Sin(actor->spr.__int_angle), nDist, 30);
+		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
+		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
 		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
 		int tsr = MulScale(9460, nDist, 10);
 		int top, bottom;
@@ -181,8 +181,8 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 			y2 += (actor->vel.Y * t) >> 12;
 			z2 += (actor->vel.Z * t) >> 8;
 		}
-		int tx = x + MulScale(Cos(actor->spr.__int_angle), nDist, 30);
-		int ty = y + MulScale(Sin(actor->spr.__int_angle), nDist, 30);
+		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
+		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
 		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
 		int tsr = MulScale(9460, nDist, 10);
 		int top, bottom;
@@ -269,7 +269,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 				continue;
 			if (!cansee(x, y, z, pSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
 				continue;
-			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -371,7 +371,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.__int_angle) & 2047) - 1024;
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		if (cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
 		{

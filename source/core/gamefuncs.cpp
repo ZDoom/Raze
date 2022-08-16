@@ -305,8 +305,8 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset);
 	}
 
-	int x = bsin(spr->__int_angle) * spr->xrepeat;
-	int y = -bcos(spr->__int_angle) * spr->xrepeat;
+	int x = bsin(spr->int_ang()) * spr->xrepeat;
+	int y = -bcos(spr->int_ang()) * spr->xrepeat;
 
 	int xoff = leftofs;
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
@@ -571,7 +571,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->yoffset = actor->spr.yoffset;
 	tspr->sectp = actor->spr.sectp;
 	tspr->statnum = actor->spr.statnum;
-	tspr->__int_angle = actor->spr.__int_angle;
+	tspr->__int_angle = actor->int_ang();
 	tspr->xvel = actor->spr.xvel;
 	tspr->yvel = actor->spr.yvel;
 	tspr->zvel = actor->spr.zvel;

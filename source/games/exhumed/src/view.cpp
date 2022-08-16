@@ -88,7 +88,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
 
     auto pSector =pPlayerActor->sector();
 
-    int nAngle = (2048 - pPlayerActor->spr.__int_angle) & kAngleMask;
+    int nAngle = (2048 - pPlayerActor->int_ang()) & kAngleMask;
 
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
@@ -374,7 +374,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraa.asbuild() - pPlayerActor->spr.__int_angle;
+                    int ang2 = nCameraa.asbuild() - pPlayerActor->int_ang();
                     if (ang2 < 0)
                         ang2 = -ang2;
 

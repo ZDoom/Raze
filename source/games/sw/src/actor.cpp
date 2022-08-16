@@ -158,7 +158,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                 actor->spr.xvel = 200 + RandomRange(200);
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
-                actor->spr.__int_angle = weapActor->spr.__int_angle;
+                actor->spr.__int_angle = weapActor->int_ang();
             }
         }
         else
@@ -177,7 +177,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.ActorActionFunc = nullptr;
         //actor->user.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
-            actor->spr.__int_angle = weapActor->spr.__int_angle;
+            actor->spr.__int_angle = weapActor->int_ang();
         break;
 
     case COOLG_RUN_R0:
@@ -259,7 +259,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->spr.xvel = 300 + RandomRange(400);
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
-            actor->spr.__int_angle = weapActor->spr.__int_angle;
+            actor->spr.__int_angle = weapActor->int_ang();
             break;
         }
         break;
@@ -415,8 +415,8 @@ int DoActorDebris(DSWActor* actor)
         {
             //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.__int_angle) >> 14;
             //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.__int_angle) >> 14;
-            nx = MulScale(ACTORMOVETICS, bcos(actor->spr.__int_angle), 14);
-            ny = MulScale(ACTORMOVETICS, bsin(actor->spr.__int_angle), 14);
+            nx = MulScale(ACTORMOVETICS, bcos(actor->int_ang()), 14);
+            ny = MulScale(ACTORMOVETICS, bsin(actor->int_ang()), 14);
 
             //actor->spr.clipdist = (256+128)>>2;
 
@@ -445,8 +445,8 @@ int DoFireFly(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = 4 * ACTORMOVETICS * bcos(actor->spr.__int_angle) >> 14;
-    ny = 4 * ACTORMOVETICS * bsin(actor->spr.__int_angle) >> 14;
+    nx = 4 * ACTORMOVETICS * bcos(actor->int_ang()) >> 14;
+    ny = 4 * ACTORMOVETICS * bsin(actor->int_ang()) >> 14;
 
     actor->spr.clipdist = 256>>2;
     if (!move_actor(actor, nx, ny, 0L))
@@ -476,7 +476,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.__int_angle, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 200);
 
         SetOwner(actor, spawned);
     }
@@ -782,8 +782,8 @@ int DoActorDeathMove(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
     actor->spr.clipdist = (128+64)>>2;
     move_actor(actor, nx, ny, 0);

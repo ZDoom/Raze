@@ -868,8 +868,8 @@ int DoBunnyMoveJump(DSWActor* actor)
         int nx, ny;
 
         // Move while jumping
-        nx = MulScale(actor->spr.xvel, bcos(actor->spr.__int_angle), 14);
-        ny = MulScale(actor->spr.xvel, bsin(actor->spr.__int_angle), 14);
+        nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
+        ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
         move_actor(actor, nx, ny, 0L);
 
@@ -1025,12 +1025,12 @@ int DoBunnyQuickJump(DSWActor* actor)
                 }
 
                 actor->copyXY(hitActor);
-                actor->spr.__int_angle = hitActor->spr.__int_angle;
+                actor->spr.__int_angle = hitActor->int_ang();
                 actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                 HelpMissileLateral(actor, 2000);
-                actor->spr.__int_angle = hitActor->spr.__int_angle;
-                actor->user.Vis = actor->spr.__int_angle;  // Remember angles for later
-                hitActor->user.Vis = hitActor->spr.__int_angle;
+                actor->spr.__int_angle = hitActor->int_ang();
+                actor->user.Vis = actor->int_ang();  // Remember angles for later
+                hitActor->user.Vis = hitActor->int_ang();
 
                 NewStateGroup(actor, sg_BunnyScrew);
                 NewStateGroup(hitActor, sg_BunnyScrew);
