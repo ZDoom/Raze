@@ -288,7 +288,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
     vec3_t hitv = { sv.X+vx, sv.Y+vy, 0 };
 
     result.clearObj();
-    result.hitpos.X = 0;
+    result.__int_hitpos.X = 0;
 
     if (!sect || (tagsearch & 3) == 0)
         return;
@@ -324,7 +324,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
                 {
                     if (good & 1) result.hitSector = nextsect;
                     if (good & 2) result.hitWall = wal;
-                    result.hitpos.X = DMulScale(intx - sv.X, bcos(ange), inty - sv.Y, bsin(ange), 14);
+                    result.__int_hitpos.X = DMulScale(intx - sv.X, bcos(ange), inty - sv.Y, bsin(ange), 14);
                     hitv.X = intx; hitv.Y = inty; hitv.Z = intz;
                 }
 
@@ -349,7 +349,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
                 if (try_facespr_intersect(actor, sv, vx, vy, 0, &hitv, 1))
                 {
                     result.hitActor = actor;
-                    result.hitpos.X = DMulScale(hitv.X-sv.X, bcos(ange), hitv.Y-sv.Y, bsin(ange), 14);
+                    result.__int_hitpos.X = DMulScale(hitv.X-sv.X, bcos(ange), hitv.Y-sv.Y, bsin(ange), 14);
                 }
             }
         }

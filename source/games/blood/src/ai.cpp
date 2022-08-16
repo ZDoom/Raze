@@ -135,7 +135,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	int y = actor->int_pos().Y;
 	int z = actor->int_pos().Z;
 	HitScan(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
-	int nDist = approxDist(x - gHitInfo.hitpos.X, y - gHitInfo.hitpos.Y);
+	int nDist = approxDist(x - gHitInfo.__int_hitpos.X, y - gHitInfo.__int_hitpos.Y);
 	if (nDist - (actor->spr.clipdist << 2) < nRange)
 	{
 		if (gHitInfo.actor() == nullptr || target == nullptr || target != gHitInfo.actor())

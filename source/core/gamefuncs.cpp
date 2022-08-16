@@ -52,8 +52,8 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 	hitscan({ *px, *py, *pz }, *psect, np, hitinfo, CLIPMASK1);
 	act->spr.cstat = bakcstat;
 
-	int hx = hitinfo.hitpos.X - *px;
-	int hy = hitinfo.hitpos.Y - *py;
+	int hx = hitinfo.__int_hitpos.X - *px;
+	int hy = hitinfo.__int_hitpos.Y - *py;
 
 	if (*psect == nullptr)
 	{

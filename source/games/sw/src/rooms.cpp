@@ -142,17 +142,17 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         if ((hit.hitWall->cstat & CSTAT_WALL_WARP_HITSCAN))
         {
             // back it up a bit to get a correct warp location
-            hit.hitpos.X -= xvect>>9;
-            hit.hitpos.Y -= yvect>>9;
+            hit.__int_hitpos.X -= xvect>>9;
+            hit.__int_hitpos.Y -= yvect>>9;
 
             // warp to new x,y,z, sectnum
-            if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &hit.hitSector))
+            if (Warp(&hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z, &hit.hitSector))
             {
                 // hitscan needs to pass through dest sect
                 ResetWallWarpHitscan(hit.hitSector);
 
                 // NOTE: This could be recursive I think if need be
-                auto pos = hit.hitpos;
+                auto pos = hit.__int_hitpos;
                 hitscan(pos, hit.hitSector, { xvect, yvect, zvect }, hit, startclipmask);
 
                 // reset hitscan block for dest sect
@@ -177,9 +177,9 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             {
                 // hit the floor of a sector that is a warping sector
                 sectortype* newsect = nullptr;
-                if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
+                if (Warp(&hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z, &newsect))
                 {
-                    auto pos = hit.hitpos;
+                    auto pos = hit.__int_hitpos;
                     hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
                     return;
                 }
@@ -187,29 +187,29 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             else
             {
                 sectortype* newsect = nullptr;
-                if (WarpPlane(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
+                if (WarpPlane(&hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z, &newsect))
                 {
-                    auto pos = hit.hitpos;
+                    auto pos = hit.__int_hitpos;
                     hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
                     return;
                 }
             }
         }
 
-        getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
-        if (abs(hit.hitpos.Z - loz) < Z(4))
+        getzsofslopeptr(hit.hitSector, hit.__int_hitpos.X, hit.__int_hitpos.Y, &hiz, &loz);
+        if (abs(hit.__int_hitpos.Z - loz) < Z(4))
         {
             if (FAF_ConnectFloor(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z + Z(12), &newsector);
+                updatesectorz(hit.__int_hitpos.X, hit.__int_hitpos.Y, hit.__int_hitpos.Z + Z(12), &newsector);
                 plax_found = true;
             }
         }
-        else if (labs(hit.hitpos.Z - hiz) < Z(4))
+        else if (labs(hit.__int_hitpos.Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z - Z(12), &newsector);
+                updatesectorz(hit.__int_hitpos.X, hit.__int_hitpos.Y, hit.__int_hitpos.Z - Z(12), &newsector);
                 plax_found = true;
             }
         }
@@ -217,7 +217,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
 
     if (plax_found)
     {
-        auto pos = hit.hitpos;
+        auto pos = hit.__int_hitpos;
         hitscan(pos, newsector, { xvect, yvect, zvect }, hit, clipmask);
     }
 }
@@ -272,20 +272,20 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     // make sure it hit JUST a sector before doing a check
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
-        getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
-        if (labs(hit.hitpos.Z - loz) < Z(4))
+        getzsofslopeptr(hit.hitSector, hit.__int_hitpos.X, hit.__int_hitpos.Y, &hiz, &loz);
+        if (labs(hit.__int_hitpos.Z - loz) < Z(4))
         {
             if (FAF_ConnectFloor(hit.hitSector))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z + Z(12), &newsect);
+                updatesectorz(hit.__int_hitpos.X, hit.__int_hitpos.Y, hit.__int_hitpos.Z + Z(12), &newsect);
                 plax_found = true;
             }
         }
-        else if (labs(hit.hitpos.Z - hiz) < Z(4))
+        else if (labs(hit.__int_hitpos.Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z - Z(12), &newsect);
+                updatesectorz(hit.__int_hitpos.X, hit.__int_hitpos.Y, hit.__int_hitpos.Z - Z(12), &newsect);
                 plax_found = true;
             }
         }
@@ -296,7 +296,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     }
 
     if (plax_found)
-        return !!cansee(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, newsect, xe, ye, ze, secte);
+        return !!cansee(hit.__int_hitpos.X, hit.__int_hitpos.Y, hit.__int_hitpos.Z, newsect, xe, ye, ze, secte);
 
     return false;
 }

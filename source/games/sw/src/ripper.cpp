@@ -938,7 +938,7 @@ int InitRipperHang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(actor->int_pos().X, actor->int_pos().Y, hit.hitpos.X, hit.hitpos.Y);
+        dist = Distance(actor->int_pos().X, actor->int_pos().Y, hit.__int_hitpos.X, hit.__int_hitpos.Y);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {

@@ -5349,9 +5349,9 @@ int MoveMissile(DBloodActor* actor)
 		}
 		CheckLink(actor);
 		gHitInfo.hitSector = actor->sector();
-		gHitInfo.hitpos.X = actor->int_pos().X;
-		gHitInfo.hitpos.Y = actor->int_pos().Y;
-		gHitInfo.hitpos.Z = actor->int_pos().Z;
+		gHitInfo.__int_hitpos.X = actor->int_pos().X;
+		gHitInfo.__int_hitpos.Y = actor->int_pos().Y;
+		gHitInfo.__int_hitpos.Z = actor->int_pos().Z;
 		break;
 	}
 	if (Owner) Owner->spr.cstat = bakCstat;
@@ -6410,8 +6410,8 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	y += MulScale(actor->spr.clipdist, Sin(actor->int_ang()), 28);
 	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->spr.clipdist) != -1)
 	{
-		x = gHitInfo.hitpos.X - MulScale(actor->spr.clipdist << 1, Cos(actor->int_ang()), 28);
-		y = gHitInfo.hitpos.Y - MulScale(actor->spr.clipdist << 1, Sin(actor->int_ang()), 28);
+		x = gHitInfo.__int_hitpos.X - MulScale(actor->spr.clipdist << 1, Cos(actor->int_ang()), 28);
+		y = gHitInfo.__int_hitpos.Y - MulScale(actor->spr.clipdist << 1, Sin(actor->int_ang()), 28);
 	}
 	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
 	fired->SetOwner(actor);
@@ -6527,13 +6527,13 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			x = gHitInfo.hitpos.X - MulScale(Cos(actor->int_ang()), 16, 30);
-			y = gHitInfo.hitpos.Y - MulScale(Sin(actor->int_ang()), 16, 30);
+			x = gHitInfo.__int_hitpos.X - MulScale(Cos(actor->int_ang()), 16, 30);
+			y = gHitInfo.__int_hitpos.Y - MulScale(Sin(actor->int_ang()), 16, 30);
 		}
 		else
 		{
-			x = gHitInfo.hitpos.X - MulScale(pMissileInfo->clipDist << 1, Cos(actor->int_ang()), 28);
-			y = gHitInfo.hitpos.Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->int_ang()), 28);
+			x = gHitInfo.__int_hitpos.X - MulScale(pMissileInfo->clipDist << 1, Cos(actor->int_ang()), 28);
+			y = gHitInfo.__int_hitpos.Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->int_ang()), 28);
 		}
 	}
 	auto spawned = actSpawnSprite(actor->sector(), x, y, z, 5, 1);
@@ -6702,16 +6702,16 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
 				gHitInfo.hitActor = shooter;
-				gHitInfo.hitpos = shooter->int_pos();
+				gHitInfo.__int_hitpos = shooter->int_pos();
 			}
 		}
 	}
-	int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-	int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-	int z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
+	int x = gHitInfo.__int_hitpos.X - MulScale(a4, 16, 14);
+	int y = gHitInfo.__int_hitpos.Y - MulScale(a5, 16, 14);
+	int z = gHitInfo.__int_hitpos.Z - MulScale(a6, 256, 14);
 	auto pSector = gHitInfo.hitSector;
 	uint8_t nSurf = kSurfNone;
-	if (nRange == 0 || approxDist(gHitInfo.hitpos.X - shooter->int_pos().X, gHitInfo.hitpos.Y - shooter->int_pos().Y) < nRange)
+	if (nRange == 0 || approxDist(gHitInfo.__int_hitpos.X - shooter->int_pos().X, gHitInfo.__int_hitpos.Y - shooter->int_pos().Y) < nRange)
 	{
 		switch (hit)
 		{
@@ -6737,9 +6737,9 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(pWall))
 			{
-				int xx = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-				int yy = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-				int zz = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
+				int xx = gHitInfo.__int_hitpos.X - MulScale(a4, 16, 14);
+				int yy = gHitInfo.__int_hitpos.Y - MulScale(a5, 16, 14);
+				int zz = gHitInfo.__int_hitpos.Z - MulScale(a6, 256, 14);
 				int nnSurf = surfType[pWall->picnum];
 				assert(nnSurf < kSurfMax);
 				if (pVectorData->surfHit[nnSurf].fx1 >= 0)
@@ -6829,17 +6829,17 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(actor, gHitInfo.hitpos.Z, a4, a5, a6, CLIPMASK1, tt) == 0)
+					if (HitScan(actor, gHitInfo.__int_hitpos.Z, a4, a5, a6, CLIPMASK1, tt) == 0)
 					{
-						if (approxDist(gHitInfo.hitpos.X - actor->int_pos().X, gHitInfo.hitpos.Y - actor->int_pos().Y) <= tt)
+						if (approxDist(gHitInfo.__int_hitpos.X - actor->int_pos().X, gHitInfo.__int_hitpos.Y - actor->int_pos().Y) <= tt)
 						{
 							auto pWall = gHitInfo.hitWall;
 							auto pSector1 = gHitInfo.hitSector;
 							if (actCanSplatWall(pWall))
 							{
-								int xx = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
-								int yy = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-								int zz = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
+								int xx = gHitInfo.__int_hitpos.X - MulScale(a4, 16, 14);
+								int yy = gHitInfo.__int_hitpos.Y - MulScale(a5, 16, 14);
+								int zz = gHitInfo.__int_hitpos.Z - MulScale(a6, 16 << 4, 14);
 								int nnSurf = surfType[pWall->picnum];
 								const VECTORDATA* pVectorData1 = &gVectorData[19];
 								FX_ID t2 = pVectorData1->surfHit[nnSurf].fx2;

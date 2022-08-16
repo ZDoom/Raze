@@ -871,7 +871,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.hi_sectp = actor->sector();
 }
 
-DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVector3& pos, int init_ang, int vel)
+DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVector3& pos, DAngle init_ang, int vel)
 {
     if (sect == nullptr)
         return nullptr;
@@ -893,7 +893,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
 
     spawnedActor->spr.xrepeat = 64;
     spawnedActor->spr.yrepeat = 64;
-    spawnedActor->set_int_ang(NORM_ANGLE(init_ang));
+    spawnedActor->spr.angle = init_ang;
     spawnedActor->spr.xvel = vel;
 
     return spawnedActor;

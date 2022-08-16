@@ -399,8 +399,8 @@ void AILion::Tick(RunListEvent* ev)
 
                 if (hit.hitWall)
                 {
-                    int theX = abs(hit.hitpos.X - x);
-                    int theY = abs(hit.hitpos.Y - y);
+                    int theX = abs(hit.__int_hitpos.X - x);
+                    int theY = abs(hit.__int_hitpos.Y - y);
 
                     if ((theX + theY) < nCheckDist)
                     {

@@ -254,8 +254,8 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
 
     int ecx = bsin(150, -3);
 
-    uint32_t yDiff = abs(hit.hitpos.Y - *y);
-    uint32_t xDiff = abs(hit.hitpos.X - *x);
+    uint32_t yDiff = abs(hit.__int_hitpos.Y - *y);
+    uint32_t xDiff = abs(hit.__int_hitpos.X - *x);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -270,9 +270,9 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
     if (ksqrt(sqrtNum) >= ecx)
         return c;
 
-    *x = hit.hitpos.X;
-    *y = hit.hitpos.Y;
-    *z = hit.hitpos.Z;
+    *x = hit.__int_hitpos.X;
+    *y = hit.__int_hitpos.Y;
+    *z = hit.__int_hitpos.Z;
     *ppSector = hit.hitSector;
 
     if (hit.actor()) {

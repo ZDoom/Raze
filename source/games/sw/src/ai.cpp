@@ -441,7 +441,7 @@ int DoActorOperate(DSWActor* actor)
         neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
     }
 
-    if (near.hitSector != nullptr && near.hitpos.X < 1024)
+    if (near.hitSector != nullptr && near.__int_hitpos.X < 1024)
     {
         if (OperateSector(near.hitSector, false))
         {
