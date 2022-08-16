@@ -7,7 +7,7 @@ class CoreActor native
 	//native int16 picnum; // access is disabled to allow later refactoring.
 	native readonly Vector3 pos;
 	native readonly int16 statnum;
-	native int16 ang;
+	//native int16 ang;
 	native int16 xvel;
 	native int16 yvel;
 	native int16 zvel, inittype; // inittype, type and flags are for Blood.

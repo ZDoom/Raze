@@ -460,11 +460,12 @@ struct spritetypebase
 	DVector3 pos;
 
 	sectortype* sectp;
+	DAngle angle;
 
 	ESpriteFlags cstat;
 	int16_t picnum;
 	int16_t statnum;
-	int16_t __int_angle;
+	int16_t intangle;	// needs to be kept for SW's SP_TAG4
 	int16_t xvel;
 	int16_t yvel;
 	union { int16_t zvel, inittype; }; // inittype, type and flags are for Blood.
@@ -495,22 +496,22 @@ struct spritetypebase
 
 	constexpr int16_t int_ang() const
 	{
- 		return __int_angle;
+ 		return angle.Buildang();
 	}
 
 	void set_int_ang(int a)
 	{
-		__int_angle = int16_t(a);
+		angle = DAngle::fromDeg(a);
 	}
 
 	void add_int_ang(int a)
 	{
-		__int_angle += int16_t(a);
+		angle += DAngle::fromDeg(a);
 	}
 
 	void copy_ang(const spritetypebase* other)
 	{
-		__int_angle = other->int_ang();
+		angle = other->angle;
 	}
 
 };

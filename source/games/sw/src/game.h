@@ -1998,7 +1998,7 @@ inline int TEST_BOOL11(DSWActor* sp) { return sp->spr.extra & SPRX_BOOL11; }
 inline int16_t SP_TAG1(DSWActor* actor) { return actor->spr.hitag; }
 inline int16_t& SP_TAG2(DSWActor* actor) { return actor->spr.lotag; }
 inline uint8_t& SP_TAG3(DSWActor* actor) { return actor->spr.clipdist; }
-inline int16_t& SP_TAG4(DSWActor* actor) { return actor->spr.__int_angle; } // this may not be transitioned to a real angular type
+inline int16_t& SP_TAG4(DSWActor* actor) { return actor->spr.intangle; } // this may not be transitioned to a real angular type
 inline int16_t& SP_TAG5(DSWActor* actor) { return actor->spr.xvel; }
 inline int16_t& SP_TAG6(DSWActor* actor) { return actor->spr.yvel; }
 inline uint8_t& SP_TAG7(DSWActor* actor) { return MSB_VAR(actor->spr.zvel); }

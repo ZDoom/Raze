@@ -379,7 +379,7 @@ void StartRegenerate(DExhumedActor* pActor)
 
     if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
     {
-        pActor->spr.__int_angle /= 5;
+        pActor->spr.intangle /= 5; // what is this?
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;

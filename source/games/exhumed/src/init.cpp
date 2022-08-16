@@ -628,7 +628,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             {
                 auto pSector = pActor->sector();
                 pSector->Speed = nSpeed;
-                pSector->Flag |= pActor->spr.int_ang();
+                pSector->Flag |= pActor->spr.intangle;
 
                 DeleteActor(pActor);
                 return;

@@ -276,7 +276,7 @@ struct tspritetype native
 	native int16 cstat;
 	//native int16 picnum;
 	native int16 statnum;
-	native int16 ang;
+	//native int16 ang;
 	/* these are not needed for tsprites
 	native int16 xvel;
 	native int16 yvel;

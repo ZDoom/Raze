@@ -109,22 +109,21 @@ public:
 
 	constexpr int16_t int_ang() const
 	{
-		return spr.__int_angle;
+		return spr.angle.Buildang();
 	}
 
 	void set_int_ang(int a)
 	{
-		spr.__int_angle = int16_t(a);
+		spr.angle = DAngle::fromBuild(a);
 	}
 
 	void add_int_ang(int a)
 	{
-		spr.__int_angle += int16_t(a);
+		spr.angle += DAngle::fromBuild(a);
 	}
 
 	void norm_ang()
 	{
-		spr.__int_angle &= 2047;
 	}
 
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
