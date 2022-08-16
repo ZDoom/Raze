@@ -1189,7 +1189,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     //if (RANDOM_P2(1024) < 512)
     //actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
-    actorNew->spr.__int_angle = RANDOM_P2(2048);
+    actorNew->set_int_ang(RANDOM_P2(2048));
     actorNew->spr.xvel = RANDOM_P2(32);
 
     actorNew->user.Counter = 0;
@@ -1920,7 +1920,7 @@ int DoCarryFlag(DSWActor* actor)
     {
         vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.__int_angle = NORM_ANGLE(attached->int_ang() + 1536);
+        actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
     }
 
     // not activated yet
@@ -2069,7 +2069,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
-        actor->spr.__int_angle = NORM_ANGLE(attached->int_ang() + 1536);
+        actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
         actor->set_int_z(attached->int_pos().Z - (ActorSizeZ(attached) >> 1));
     }
 
@@ -2195,22 +2195,22 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         if (ShellNum == -3)
         {
-            actorNew->spr.__int_angle = actor->int_ang();
+            actorNew->set_int_ang(actor->int_ang());
             HelpMissileLateral(actorNew,2500);
-            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-512);
+            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 512));
             HelpMissileLateral(actorNew,1000); // Was 1500
-            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+712);
+            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 712));
         }
         else
         {
-            actorNew->spr.__int_angle = actor->int_ang();
+            actorNew->set_int_ang(actor->int_ang());
             HelpMissileLateral(actorNew,2500);
-            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+512);
+            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
             HelpMissileLateral(actorNew,1500);
-            actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-128);
+            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128));
         }
         actorNew->spr.__int_angle += (RANDOM_P2(128<<5)>>5) - (128 / 2);
-        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->int_ang());
+        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
@@ -2218,13 +2218,13 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     case SHOT_SHELL:
         actorNew->add_int_z(-Z(13));
-        actorNew->spr.__int_angle = actor->int_ang();
+        actorNew->set_int_ang(actor->int_ang());
         HelpMissileLateral(actorNew,2500);
-        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle+512);
+        actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
         HelpMissileLateral(actorNew,1300);
-        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->spr.__int_angle-128-64);
+        actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128 - 64));
         actorNew->spr.__int_angle += (RANDOM_P2(128<<5)>>5) - (128 / 2);
-        actorNew->spr.__int_angle = NORM_ANGLE(actorNew->int_ang());
+        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;

@@ -443,7 +443,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->spr.__int_angle = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+                actor->set_int_ang(NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16)));
             }
             else
             {
@@ -472,7 +472,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             if (data->curelement == soi_sprang)
             {
                 auto actorofang = interp->data[i].actorofang;
-                if (actorofang) actorofang->spr.__int_angle = data->bakipos;
+                if (actorofang) actorofang->set_int_ang(data->bakipos);
             }
             else
             {

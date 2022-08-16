@@ -955,7 +955,7 @@ int InitRipper2Hang(DSWActor* actor)
         }
 
         Found = true;
-        actor->spr.__int_angle = tang;
+        actor->set_int_ang(tang;
         break;
     }
 
@@ -1022,7 +1022,7 @@ int DoRipper2MoveHang(DSWActor* actor)
                 actor->user.WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            actor->spr.__int_angle = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512);
+            actor->set_int_ang(NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512);
 
             return 0;
         }
@@ -1072,9 +1072,9 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
 							   0, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
     if (coll.type != kHitNone)
-        actor->spr.__int_angle = NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
+        actor->set_int_ang(NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
-        actor->spr.__int_angle = NORM_ANGLE(tang);
+        actor->set_int_ang(NORM_ANGLE(tang);
 
 
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -1171,7 +1171,7 @@ int DoRipper2RipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper2
-    target->spr.__int_angle = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
+    target->set_int_ang(getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
     return 0;
 }
 
@@ -1202,7 +1202,7 @@ void Ripper2Hatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
 
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->spr.__int_angle = rip_ang[i];
+        actorNew->set_int_ang(rip_ang[i];
         actorNew->spr.pal = 0;
         actorNew->spr.shade = -10;
         SetupRipper2(actorNew);

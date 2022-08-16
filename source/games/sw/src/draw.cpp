@@ -526,7 +526,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.yrepeat = tsp->yrepeat;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
-    actorNew->spr.__int_angle = tsp->int_ang();
+    actorNew->set_int_ang(tsp->int_ang());
     actorNew->spr.xvel = tsp->xvel;
     actorNew->spr.yvel = tsp->yvel;
     actorNew->spr.zvel = tsp->zvel;

@@ -1456,14 +1456,14 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     plActor->backupang();
-    plActor->spr.__int_angle = pp->angle.ang.asbuild();
+    plActor->set_int_ang(pp->angle.ang.asbuild();
 
     plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->spr.__int_angle = pp->angle.ang.asbuild();
+        plActor->set_int_ang(pp->angle.ang.asbuild();
     }
 }
 
@@ -1495,7 +1495,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
         if (MultiClipTurn(pp, NORM_ANGLE(sum.asbuild()), z, floor_dist))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.__int_angle = pp->angle.ang.asbuild();
+            pp->actor->set_int_ang(pp->angle.ang.asbuild();
         }
     }
 }
@@ -1523,7 +1523,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, int *x, int *y, int *ox, int *oy)
         if (RectClipTurn(pp, NORM_ANGLE(sum.asbuild()), x, y, ox, oy))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.__int_angle = pp->angle.ang.asbuild();
+            pp->actor->set_int_ang(pp->angle.ang.asbuild();
         }
     }
 }
@@ -1563,7 +1563,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->actor->spr.__int_angle = pp->angle.ang.asbuild();
+        pp->actor->set_int_ang(pp->angle.ang.asbuild();
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->pmid.X, pp->sop->pmid.Y);
@@ -1748,7 +1748,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->spr.__int_angle = pp->angle.ang.asbuild();
+        actor->set_int_ang(pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1823,7 +1823,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    actor->spr.__int_angle = pp->angle.ang.asbuild();
+    actor->set_int_ang(pp->angle.ang.asbuild();
 }
 
 void DoPlayerZrange(PLAYER* pp)
@@ -2278,7 +2278,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2286,7 +2286,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -2299,7 +2299,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2307,7 +2307,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -2320,7 +2320,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2328,7 +2328,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -5754,7 +5754,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->set_int_pos({ pp->pos.X, pp->pos.Y, pp->pos.Z + PLAYER_HEIGHT });
-        plActor->spr.__int_angle = pp->angle.ang.asbuild();
+        plActor->set_int_ang(pp->angle.ang.asbuild();
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);

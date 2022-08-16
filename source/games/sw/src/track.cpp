@@ -304,7 +304,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
     actorNew->spr.pos = actor->spr.pos;
-    actorNew->spr.__int_angle = actor->int_ang();
+    actorNew->set_int_ang(actor->int_ang();
     actorNew->spr.lotag = actor->spr.lotag;
     actorNew->spr.hitag = actor->spr.hitag;
 
@@ -1493,7 +1493,7 @@ void PlaceActorsOnTracks(void)
         }
 
         // check angle in the "forward" direction
-        actor->spr.__int_angle = getangle((tpoint + actor->user.point)->x - actor->int_pos().X, (tpoint + actor->user.point)->y - actor->int_pos().Y);
+        actor->set_int_ang(getangle((tpoint + actor->user.point)->x - actor->int_pos().X, (tpoint + actor->user.point)->y - actor->int_pos().Y);
     }
 }
 
@@ -1717,7 +1717,7 @@ PlayerPart:
         }
 
         int16_t oldang = actor->int_ang();
-        actor->spr.__int_angle = actor->user.sang;
+        actor->set_int_ang(actor->user.sang;
 
         if (actor->user.Flags & (SPR_ON_SO_SECTOR))
         {
@@ -1733,12 +1733,12 @@ PlayerPart:
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, -delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() - delta_ang);
+                actor->set_int_ang(NORM_ANGLE(actor->int_ang() - delta_ang);
             }
             else
             {
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + delta_ang);
+                actor->set_int_ang(NORM_ANGLE(actor->int_ang() + delta_ang);
             }
             actor->set_int_pos(pos);
 
@@ -1750,7 +1750,7 @@ PlayerPart:
                 // NOT part of a sector - independant of any sector
                 auto pos = actor->int_pos();
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + delta_ang);
+                actor->set_int_ang(NORM_ANGLE(actor->int_ang() + delta_ang);
                 actor->set_int_pos(pos);
             }
 
@@ -2832,7 +2832,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
 
         if (actor->user.track >= 0)
         {
-            actor->spr.__int_angle = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+            actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
         }
         else
         {
@@ -2848,7 +2848,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
 
         if (actor->user.track >= 0)
         {
-            actor->spr.__int_angle = NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+            actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
         }
         else
         {
@@ -2971,7 +2971,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_JUMP:
         if (actor->user.ActorActionSet->Jump)
         {
-            actor->spr.__int_angle = tpoint->ang;
+            actor->set_int_ang(tpoint->ang;
 
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -2991,7 +2991,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             int zdiff;
             HitInfo hit{};
 
-            actor->spr.__int_angle = tpoint->ang;
+            actor->set_int_ang(tpoint->ang;
 
 
             ActorLeaveTrack(actor);
@@ -3040,7 +3040,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.ActorActionSet->Jump)
         {
-            actor->spr.__int_angle = tpoint->ang;
+            actor->set_int_ang(tpoint->ang;
 
             ActorLeaveTrack(actor);
 
@@ -3074,7 +3074,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.Rot != actor->user.ActorActionSet->Duck)
         {
-            actor->spr.__int_angle = tpoint->ang;
+            actor->set_int_ang(tpoint->ang;
 
             ActorLeaveTrack(actor);
 
@@ -3100,7 +3100,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
             return false;
 
-        actor->spr.__int_angle = tpoint->ang;
+        actor->set_int_ang(tpoint->ang;
 
         z[0] = actor->int_pos().Z - ActorSizeZ(actor) + Z(5);
         z[1] = actor->int_pos().Z - (ActorSizeZ(actor) >> 1);
@@ -3317,7 +3317,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             actor->set_int_xy(lActor->int_pos().X + nx, lActor->int_pos().Y + ny);
 
-            actor->spr.__int_angle = NORM_ANGLE(lActor->int_ang() + 1024);
+            actor->set_int_ang(NORM_ANGLE(lActor->int_ang() + 1024);
 
             //
             // Get the z height to climb
@@ -3442,7 +3442,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
     {
-        actor->spr.__int_angle = getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
+        actor->set_int_ang(getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
     }
 
     if ((dist = Distance(actor->int_pos().X, actor->int_pos().Y, tpoint->x, tpoint->y)) < 200) // 64
@@ -3457,7 +3457,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
         {
             // calculate a new angle to the target
-            actor->spr.__int_angle = getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
+            actor->set_int_ang(getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
         }
 
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
@@ -3511,7 +3511,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 actor->spr.zvel = 0;
 
-                actor->spr.__int_angle = getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
+                actor->set_int_ang(getangle(tpoint->x - actor->int_pos().X, tpoint->y - actor->int_pos().Y);
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);

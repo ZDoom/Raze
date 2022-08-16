@@ -893,7 +893,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, int x, in
 
     spawnedActor->spr.xrepeat = 64;
     spawnedActor->spr.yrepeat = 64;
-    spawnedActor->spr.__int_angle = NORM_ANGLE(init_ang);
+    spawnedActor->set_int_ang(NORM_ANGLE(init_ang);
     spawnedActor->spr.xvel = vel;
 
     return spawnedActor;
@@ -1874,7 +1874,7 @@ void SpriteSetup(void)
                         actor->spr.xvel = 0;
                     else
                         actor->spr.xvel = actor->spr.lotag;
-                    actor->spr.__int_angle = SP_TAG6(actor);
+                    actor->set_int_ang(SP_TAG6(actor);
                     // attach to the sector that contains the wall
                     ChangeActorSect(actor, hit.hitSector);
                     StartInterpolation(hit.hitWall, Interp_Wall_PanX);
@@ -2491,7 +2491,7 @@ void SpriteSetup(void)
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
                     actorNew->spr.pos = actor->spr.pos;
-                    actorNew->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                    actorNew->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024);
                     actorNew->spr.picnum = actor->spr.picnum;
 
                     actorNew->add_int_pos({ MOVEx(256 + 128, actor->int_ang()), MOVEy(256 + 128, actor->int_ang()), 0 });
@@ -3519,7 +3519,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
-        actorNew->spr.__int_angle = 0;
+        actorNew->set_int_ang(0;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3558,7 +3558,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
-        actorNew->spr.__int_angle = 0;
+        actorNew->set_int_ang(0;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3584,7 +3584,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
-        actorNew->spr.__int_angle = 0;
+        actorNew->set_int_ang(0;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3613,7 +3613,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
             actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
-            actorNew->spr.__int_angle = 0;
+            actorNew->set_int_ang(0;
             actorNew->spr.extra = 0;
 
             // vel
@@ -3673,7 +3673,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
-        actorNew->spr.__int_angle = 0;
+        actorNew->set_int_ang(0;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3729,7 +3729,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorLowerZ(actor) + Z(10) });
-        actorNew->spr.__int_angle = actor->int_ang();
+        actorNew->set_int_ang(actor->int_ang();
 
         // vel
         SP_TAG7(actorNew) = 10;
@@ -3792,16 +3792,16 @@ int SpawnItemsMatch(short match)
         case 90:
             spawnedActor = BunnyHatch2(itActor);
             spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER8; // Boy
-            spawnedActor->spr.__int_angle = itActor->int_ang();
+            spawnedActor->set_int_ang(itActor->int_ang();
             break;
         case 91:
             spawnedActor = BunnyHatch2(itActor);
             spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER0; // Girl
-            spawnedActor->spr.__int_angle = itActor->int_ang();
+            spawnedActor->set_int_ang(itActor->int_ang();
             break;
         case 92:
             spawnedActor = BunnyHatch2(itActor);
-            spawnedActor->spr.__int_angle = itActor->int_ang();
+            spawnedActor->set_int_ang(itActor->int_ang();
              break;
 
         case 40:
@@ -4736,7 +4736,7 @@ int DoGrating(DSWActor* actor)
 
 int DoKey(DSWActor* actor)
 {
-    actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (14 * ACTORMOVETICS));
+    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (14 * ACTORMOVETICS));
 
     DoGet(actor);
     return 0;

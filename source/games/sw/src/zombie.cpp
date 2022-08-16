@@ -779,7 +779,7 @@ void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
     SetOwner(actorNew, ownerActor);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
-    actorNew->spr.__int_angle = RANDOM_P2(2048);
+    actorNew->set_int_ang(RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
@@ -826,7 +826,7 @@ void SpawnZombie2(DSWActor* actor)
     actorNew->user.Counter3 = 0;
     SetOwner(ownerActor, actorNew);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
-    actorNew->spr.__int_angle = RANDOM_P2(2048);
+    actorNew->set_int_ang(RANDOM_P2(2048);
     SetupZombie(actorNew);
     actorNew->spr.shade = -10;
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);

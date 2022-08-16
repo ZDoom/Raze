@@ -707,7 +707,7 @@ int DoCoolgCircle(DSWActor* actor)
 {
     int nx,ny,bound;
 
-    actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + actor->user.Counter2);
+    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
 
     nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);

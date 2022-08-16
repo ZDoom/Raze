@@ -838,9 +838,9 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
         0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6);
+        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
-        actor->spr.__int_angle = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
+        actor->set_int_ang(NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6)));
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1025,10 +1025,10 @@ int DoBunnyQuickJump(DSWActor* actor)
                 }
 
                 actor->copyXY(hitActor);
-                actor->spr.__int_angle = hitActor->int_ang();
-                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
+                actor->set_int_ang(hitActor->int_ang());
+                actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
                 HelpMissileLateral(actor, 2000);
-                actor->spr.__int_angle = hitActor->int_ang();
+                actor->set_int_ang(hitActor->int_ang());
                 actor->user.Vis = actor->int_ang();  // Remember angles for later
                 hitActor->user.Vis = hitActor->int_ang();
 
@@ -1084,7 +1084,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face bunny
-    target->spr.__int_angle = getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
+    target->set_int_ang(getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y));
     return 0;
 }
 
@@ -1115,7 +1115,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
-        actorNew->spr.__int_angle = rip_ang[i];
+        actorNew->set_int_ang(rip_ang[i]);
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
         actorNew->spr.shade = actor->spr.shade;
@@ -1171,7 +1171,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.pos = actor->spr.pos;
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
-    actorNew->spr.__int_angle = RANDOM_P2(2048);
+    actorNew->set_int_ang(RANDOM_P2(2048));
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
     actorNew->spr.shade = actor->spr.shade;
@@ -1282,7 +1282,7 @@ int DoBunnyMove(DSWActor* actor)
             NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
-            actor->spr.__int_angle = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
+            actor->set_int_ang(NORM_ANGLE(RandomRange(2048 << 6) >> 6));
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
             actor->user.ActorActionFunc = DoActorMoveJump;

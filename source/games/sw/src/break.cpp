@@ -589,7 +589,7 @@ int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int
         auto breakActor = insertActor(0, STAT_DEFAULT);
         breakActor->spr.cstat = 0;
         breakActor->spr.extra = 0;
-        breakActor->spr.__int_angle = ang;
+        breakActor->set_int_ang(ang);
         breakActor->spr.picnum = ST1;
         breakActor->spr.xrepeat = breakActor->spr.yrepeat = 64;
         SetActorZ(breakActor, &hit_pos);
