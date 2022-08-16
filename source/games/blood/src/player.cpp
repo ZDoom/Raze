@@ -809,7 +809,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(-(bottom - actor->int_pos().Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.__int_angle = pStartZone->ang;
+	actor->set_int_ang(pStartZone->ang);
 	pPlayer->angle.ang = buildang(actor->int_ang());
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->spr.clipdist = pDudeInfo->clipdist;
@@ -1504,7 +1504,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->spr.__int_angle = pPlayer->angle.ang.asbuild();
+	pPlayer->actor->set_int_ang(pPlayer->angle.ang.asbuild());
 }
 
 //---------------------------------------------------------------------------
@@ -1763,7 +1763,7 @@ void ProcessInput(PLAYER* pPlayer)
 			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->spr.clipdist << 1, 0);
 			if (spawned)
 			{
-				spawned->spr.__int_angle = (pPlayer->actor->int_ang() + 1024) & 2047;
+				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);
 				int x = bcos(pPlayer->actor->int_ang());
 				int y = bsin(pPlayer->actor->int_ang());
 				spawned->vel.X = pPlayer->actor->vel.X + MulScale(0x155555, x, 14);

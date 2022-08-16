@@ -1970,7 +1970,7 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 	if (missileActor)
 	{
 		missileActor->SetTarget(pPlayer->aimTarget);
-		missileActor->spr.__int_angle = (nTrigger == 2) ? 1024 : 0;
+		missileActor->set_int_ang((nTrigger == 2) ? 1024 : 0);
 	}
 	if (checkAmmo2(pPlayer, 8, 1))
 		UseAmmo(pPlayer, 8, 1);

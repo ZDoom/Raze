@@ -198,7 +198,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
 	if (pFX)
 	{
-		pFX->spr.__int_angle = 0;
+		pFX->set_int_ang(0);
 		pFX->vel.X = actor->vel.X >> 8;
 		pFX->vel.Y = actor->vel.Y >> 8;
 		pFX->vel.Z = actor->vel.Z >> 8;
@@ -476,7 +476,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	{
 		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), x, y, floorZ - 64, 0);
 		if (pFX)
-			pFX->spr.__int_angle = nAngle;
+			pFX->set_int_ang(nAngle);
 	}
 	gFX.remove(actor);
 }
@@ -625,7 +625,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
 	if (pFX)
 	{
-		pFX->spr.__int_angle = 0;
+		pFX->set_int_ang(0);
 		pFX->vel.X = actor->vel.X >> 8;
 		pFX->vel.Y = actor->vel.Y >> 8;
 		pFX->vel.Z = actor->vel.Z >> 8;
@@ -665,13 +665,13 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 		if (Chance(0x500) || actor->spr.type == kThingPodGreenBall)
 			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), x, y, floorZ - 64, 0);
 		if (pFX)
-			pFX->spr.__int_angle = nAngle;
+			pFX->set_int_ang(nAngle);
 	}
 	else
 	{
 		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, floorZ - 64, 0);
 		if (pFX)
-			pFX->spr.__int_angle = nAngle;
+			pFX->set_int_ang(nAngle);
 	}
 	gFX.remove(actor);
 }
@@ -709,7 +709,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->set_int_pos({ actor2->int_pos().X, actor2->int_pos().Y, actor2->sector()->int_floorz() - (bottom - actor->int_pos().Z) });
-	actor->spr.__int_angle = actor2->int_ang();
+	actor->set_int_ang(actor2->int_ang());
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
 	actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
@@ -746,7 +746,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 		evPostActor(actor, 0, kCallbackRemove);
 		return;
 	}
-	actor->spr.__int_angle = getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y);
+	actor->set_int_ang(getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y));
 	if (actor->hasX())
 	{
 		if (actor->xspr.data1 == 0)

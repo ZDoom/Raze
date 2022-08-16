@@ -1116,12 +1116,12 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	{
 		int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
 		int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-		actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+		actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 		int nAccel = pDudeInfo->frontSpeed << 2;
 		if (abs(nAng) > 341)
 			return;
 		if (actor->GetTarget() == nullptr)
-			actor->spr.__int_angle = (actor->int_ang() + 256) & 2047;
+			actor->set_int_ang((actor->int_ang() + 256) & 2047);
 		int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
 		int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 		int nDist = approxDist(dx, dy);
@@ -1143,7 +1143,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	else
 	{
 		int dang = ((kAng180 + actor->xspr.goalAng - actor->int_ang()) & 2047) - kAng180;
-		actor->spr.__int_angle = ((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
+		actor->set_int_ang(((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047));
 
 		// don't move forward if trying to turn around
 		if (abs(dang) > kAng60)
@@ -1801,7 +1801,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				x += (actTarget->vel.X * t) >> 12;
 				y += (actTarget->vel.Y * t) >> 12;
 				int angBak = actor->int_ang();
-				actor->spr.__int_angle = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
+				actor->set_int_ang(getangle(x - actor->int_pos().X, y - actor->int_pos().Y));
 				int dx = bcos(actor->int_ang());
 				int dy = bsin(actor->int_ang());
 				int tz = actTarget->int_pos().Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * 4;
@@ -1820,7 +1820,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 					evPostActor(actor, t2, kCallbackLeechStateTimer);
 					actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 				}
-				actor->spr.__int_angle = angBak;
+				actor->set_int_ang(angBak);
 			}
 		}
 
@@ -1891,7 +1891,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 
 	}
 
-	spawned->spr.type = nType; spawned->spr.__int_angle = nAngle;
+	spawned->spr.type = nType; spawned->set_int_ang(nAngle);
 	vec3_t pos = { x, y, z };
 	SetActor(spawned, &pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;

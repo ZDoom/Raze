@@ -279,7 +279,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	SetActor(pDudeActor, &pos);
 
 	pDudeActor->spr.type = nType;
-	pDudeActor->spr.__int_angle = angle;
+	pDudeActor->set_int_ang(angle);
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 	pDudeActor->spr.clipdist = getDudeInfo(nType)->clipdist;
@@ -1370,8 +1370,8 @@ void nnExtProcessSuperSprites()
 			}
 
 			int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->vel.X) + abs(debrisactor->vel.Y)) >> 5)), (uwater) ? 1 : 0);
-			if (ang < debrisactor->xspr.goalAng) debrisactor->spr.__int_angle = ClipHigh(ang + angStep, debrisactor->xspr.goalAng);
-			else if (ang > debrisactor->xspr.goalAng) debrisactor->spr.__int_angle = ClipLow(ang - angStep, debrisactor->xspr.goalAng);
+			if (ang < debrisactor->xspr.goalAng) debrisactor->set_int_ang(ClipHigh(ang + angStep, debrisactor->xspr.goalAng));
+			else if (ang > debrisactor->xspr.goalAng) debrisactor->set_int_ang(ClipLow(ang - angStep, debrisactor->xspr.goalAng));
 
 			auto pSector = debrisactor->sector();
 			int cz = getceilzofslopeptr(pSector, debrisactor->int_pos().X, debrisactor->int_pos().Y);
@@ -3402,7 +3402,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 			if (sourceactor->spr.flags & kModernTypeFlag4)
 			{
-				pEffect->spr.__int_angle = sourceactor->int_ang();
+				pEffect->set_int_ang(sourceactor->int_ang());
 			}
 
 			if (pEffect->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
@@ -3459,7 +3459,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 		if ((sourceactor->xspr.data1 & 0x0002))
 		{
 			while (sourceactor->int_ang() == ang)
-				sourceactor->spr.__int_angle = nnExtRandom(-kAng360, kAng360) & 2047;
+				sourceactor->set_int_ang(nnExtRandom(-kAng360, kAng360) & 2047);
 		}
 	}
 	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->spr.__int_angle += sourceactor->xspr.data4;
@@ -3467,12 +3467,12 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 	else if (sourceactor->xspr.sysData1 == 0)
 	{
 		if ((ang += sourceactor->xspr.data4) >= kAng180) sourceactor->xspr.sysData1 = 1;
-		sourceactor->spr.__int_angle = ClipHigh(ang, kAng180);
+		sourceactor->set_int_ang(ClipHigh(ang, kAng180));
 	}
 	else
 	{
 		if ((ang -= sourceactor->xspr.data4) <= -kAng180) sourceactor->xspr.sysData1 = 0;
-		sourceactor->spr.__int_angle = ClipLow(ang, -kAng180);
+		sourceactor->set_int_ang(ClipLow(ang, -kAng180));
 	}
 
 	pXSector->windAng = sourceactor->int_ang();
@@ -3835,7 +3835,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
 					if (sourceactor->spr.flags & kModernTypeFlag4)
 					{
-						spawned->spr.__int_angle = sourceactor->int_ang();
+						spawned->set_int_ang(sourceactor->int_ang());
 					}
 
 					// should be: the more is seqs, the shorter is timer
@@ -8098,7 +8098,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 		if (mytarget && mytarget->spr.type == kMarkerPath)
 		{
-			if (targetactor == nullptr) actor->spr.__int_angle = mytarget->spr.__int_angle & 2047;
+			if (targetactor == nullptr) actor->set_int_ang(mytarget->spr.__int_angle & 2047);
 			actor->SetTarget(nullptr);
 		}
 
@@ -8157,7 +8157,7 @@ void aiPatrolTurn(DBloodActor* actor)
 {
 	int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 }
 
@@ -8205,7 +8205,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
@@ -9235,7 +9235,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
 		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
-		burstactor->spr.__int_angle = ((actor->int_ang() + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047);
+		burstactor->set_int_ang(((actor->int_ang() + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047));
 		burstactor->SetOwner(actor);
 
 		actBuildMissile(burstactor, actor);
@@ -9334,7 +9334,7 @@ void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
 void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 {
 	if (!pSpr->IsDudeActor())
-		pSpr->spr.__int_angle = nAng;
+		pSpr->set_int_ang(nAng);
 	else
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
@@ -9342,7 +9342,7 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 			pPlayer->angle.ang = buildang(nAng);
 		else
 		{
-			pSpr->spr.__int_angle = nAng;
+			pSpr->set_int_ang(nAng);
 			if (pSpr->hasX())
 				pSpr->xspr.goalAng = pSpr->int_ang();
 		}
