@@ -4469,7 +4469,7 @@ int DoFireballFlames(DSWActor* actor)
     DSWActor* attach = actor->user.attachActor;
     if (attach != nullptr)
     {
-        actor->set_int_pos({ attach->int_pos().X, attach->int_pos().Y, int_ActorZOfMiddle(attach) });
+        actor->spr.pos = DVector3(attach->spr.pos.XY(), ActorZOfMiddle(attach));
 
         if ((attach->spr.extra & SPRX_BURNABLE))
         {
@@ -11137,7 +11137,7 @@ int DoRing(DSWActor* actor)
     else
         z = int_ActorZOfMiddle(own) + Z(30);
 
-    actor->set_int_pos({ own->int_pos().X, own->int_pos().Y, z });
+	actor->spr.pos = DVector3(own->spr.pos.XY(), z * zinttoworld);
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
@@ -11271,7 +11271,7 @@ int DoSerpRing(DSWActor* actor)
         z = own->int_pos().Z - actor->user.pos.Z;
 
     // move the center with the player
-    actor->set_int_pos({ own->int_pos().X, own->int_pos().Y, z });
+	actor->spr.pos = DVector3(own->spr.pos.XY(), z * zinttoworld);
 
 
     // go out until its time to come back in
@@ -15112,9 +15112,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
     auto sect = actor->sector();
 
     Collision coll;
-    auto pos = actor->int_pos();
-    clipmove(pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
-    actor->set_int_pos(pos);
+    clipmove(actor->spr.pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
 
     if (actor->sector() != sect)
         ChangeActorSect(actor, sect);
@@ -17433,9 +17431,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    auto pos = spawnedActor->int_pos();
-    clipmove(pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
-    spawnedActor->set_int_pos(pos);
+    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
@@ -17746,9 +17742,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    auto pos = spawnedActor->int_pos();
-    clipmove(pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
-    spawnedActor->set_int_pos(pos);
+    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);

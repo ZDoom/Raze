@@ -509,7 +509,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 
     auto actorNew = insertActor(newsector, STAT_FAF_COPY);
 
-    actorNew->set_int_pos(tsp->int_pos());
+	actorNew->spr.pos = tsp->pos;
     actorNew->spr.cstat = tsp->cstat;
     actorNew->spr.picnum = tsp->picnum;
     actorNew->spr.pal = tsp->pal;
