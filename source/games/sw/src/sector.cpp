@@ -836,7 +836,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
     SectorMidPoint(sectp, &x, &y, &z);
     // randomize the explosions
-    actor->set_int_ang(orig_ang + RANDOM_P2(256) - 128;
+    actor->set_int_ang(orig_ang + RANDOM_P2(256) - 128);
     actor->set_int_pos({ x + RANDOM_P2(256) - 128, y + RANDOM_P2(1024) - 512, zh });
     
     // setup vars needed by SectorExp

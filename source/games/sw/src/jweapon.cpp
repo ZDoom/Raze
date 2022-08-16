@@ -2224,7 +2224,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         HelpMissileLateral(actorNew,1300);
         actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128 - 64));
         actorNew->spr.__int_angle += (RANDOM_P2(128<<5)>>5) - (128 / 2);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;

@@ -946,7 +946,7 @@ int InitRipperHang(DSWActor* actor)
         }
 
         Found = true;
-        actor->set_int_ang(tang;
+        actor->set_int_ang(tang);
         break;
     }
 
@@ -1002,7 +1002,7 @@ int DoRipperMoveHang(DSWActor* actor)
             actor->user.WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
-            actor->set_int_ang(NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512);
+            actor->set_int_ang(NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512));
 
             return 0;
         }
@@ -1051,9 +1051,9 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 							   0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->set_int_ang(NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
+        actor->set_int_ang(NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6)));
     else
-        actor->set_int_ang(NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
+        actor->set_int_ang(NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6)));
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1149,7 +1149,7 @@ int DoRipperRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper
-    target->set_int_ang(getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y);
+    target->set_int_ang(getangle(actor->int_pos().X - target->int_pos().X, actor->int_pos().Y - target->int_pos().Y));
     return 0;
 }
 
@@ -1176,7 +1176,7 @@ void RipperHatch(DSWActor* actor)
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->set_int_ang(rip_ang[i];
+        actorNew->set_int_ang(rip_ang[i]);
         actorNew->spr.pal = 0;
         SetupRipper(actorNew);
 
