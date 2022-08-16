@@ -2957,16 +2957,11 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	else
 		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
-	double dx = Owner->int_pos().X - ps[p].GetActor()->int_pos().X;
-	double dy = Owner->int_pos().Y - ps[p].GetActor()->int_pos().Y;
-	double dist = sqrt(dx * dx + dy * dy);
-	if (dist != 0.0) 
-	{
-		dx /= dist;
-		dy /= dist;
-	}
+	auto dvec = Owner->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY();
+	double dist = dvec.Length();
 
-	actor->set_int_pos({ (int)(Owner->int_pos().X - (dx * -10.0)), (int)(Owner->int_pos().Y - (dy * -10.0)), Owner->int_pos().Z + 2048 });
+	if (dist != 0.0) dvec /= dist;
+	actor->spr.pos = Owner->spr.pos + DVector3(dvec.X * -0.625, dvec.Y * -0.625, 8);
 
 	if (Owner->spr.extra <= 0) 
 	{

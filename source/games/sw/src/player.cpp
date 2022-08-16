@@ -1716,7 +1716,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
     DSWActor* act_under = pp->PlayerUnderActor;
 
-    act_under->set_int_pos(act_over->int_pos());
+    act_under->spr.pos = act_over->spr.pos;
     ChangeActorSect(act_under, act_over->sector());
 
     SpriteWarpToUnderwater(act_under);

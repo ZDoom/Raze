@@ -427,7 +427,6 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 void WarpCopySprite(tspriteArray& tsprites)
 {
     int spnum;
-    int xoff,yoff,zoff;
     int match;
 
     // look for the first one
@@ -456,15 +455,7 @@ void WarpCopySprite(tspriteArray& tsprites)
 
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
-
-                    xoff = itActor->int_pos().X - newTSpr->int_pos().X;
-                    yoff = itActor->int_pos().Y - newTSpr->int_pos().Y;
-                    zoff = itActor->int_pos().Z - newTSpr->int_pos().Z;
-
-                    newTSpr->set_int_pos({
-                        itActor1->int_pos().X - xoff,
-                        itActor1->int_pos().Y - yoff,
-                        itActor1->int_pos().Z - zoff });
+					newTSpr->pos += itActor1->spr.pos - itActor->spr.pos;
                     newTSpr->sectp = itActor1->sector();
                 }
 
@@ -481,7 +472,7 @@ void WarpCopySprite(tspriteArray& tsprites)
                     newTSpr->statnum = 0;
 
                     auto off = itActor1->int_pos() - newTSpr->int_pos();
-                    newTSpr->set_int_pos(itActor->int_pos() - off);
+                    newTSpr->pos += itActor->spr.pos - itActor1->spr.pos;
                     newTSpr->sectp = itActor->sector();
                 }
             }

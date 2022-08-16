@@ -977,7 +977,7 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
 			if (spawned)
 			{
 				sourceactor->xspr.dropMsg = uint8_t(spawned->spr.type); // store dropped item type in dropMsg
-				spawned->set_int_pos(sourceactor->int_pos());
+				spawned->spr.pos = sourceactor->spr.pos;
 
 				if ((sourceactor->spr.flags & kModernTypeFlag1) && (sourceactor->xspr.txID > 0 || (sourceactor->xspr.txID != 3 && sourceactor->xspr.lockMsg > 0)))
 				{
@@ -1676,10 +1676,8 @@ void debrisMove(int listIndex)
 		auto oldcstat = actor->spr.cstat;
 		actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		auto pos = actor->int_pos();
-		ClipMove(pos, &pSector, actor->vel.X >> 12,
+		ClipMove(actor->spr.pos, &pSector, actor->vel.X >> 12,
 			actor->vel.Y >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
-		actor->set_int_pos(pos);
 		actor->hit.hit = moveHit;
 
 		actor->spr.cstat = oldcstat;

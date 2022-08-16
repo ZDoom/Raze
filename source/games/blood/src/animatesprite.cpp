@@ -444,7 +444,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->int_ceilingz() });
+		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->ceilingz };
 
 		pNSprite->picnum = 624;
 		pNSprite->shade = ((pTSprite->int_pos().Z - pSector->int_ceilingz()) >> 8) - 64;
@@ -462,7 +462,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		sectortype* pSector = pTSprite->sectp;
-		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pSector->int_floorz() });
+		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->floorz };
 		pNSprite->picnum = 624;
 		uint8_t nShade = (pSector->int_floorz() - pTSprite->int_pos().Z) >> 8;
 		pNSprite->shade = nShade - 32;
@@ -499,7 +499,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		pNSprite->set_int_pos({ pTSprite->int_pos().X, pTSprite->int_pos().Y, pTSprite->int_pos().Z - (32 << 8) - (weaponIcon.zOffset << 8) });
+		pNSprite->pos = pTSprite->pos.plusZ(-32 - weaponIcon.zOffset);
 		pNSprite->picnum = nTile;
 		pNSprite->shade = pTSprite->shade;
 		pNSprite->xrepeat = 32;
