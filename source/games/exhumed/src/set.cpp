@@ -390,7 +390,7 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-            int nAngle = pActor->spr.__int_angle & 0xFFF8;
+            int nAngle = pActor->int_ang() & 0xFFF8;
             pActor->spr.xvel = bcos(nAngle, -1);
             pActor->spr.yvel = bsin(nAngle, -1);
 

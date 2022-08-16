@@ -276,7 +276,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(pActor, pTarget);
 
-            int nAng = pActor->spr.__int_angle & 0xFFF8;
+            int nAng = pActor->int_ang() & 0xFFF8;
 
             if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
             {

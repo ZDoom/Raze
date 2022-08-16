@@ -171,7 +171,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(ap, pTarget);
 
-            int nAngle = ap->spr.__int_angle & 0xFFF8;
+            int nAngle = ap->int_ang() & 0xFFF8;
             ap->spr.xvel = bcos(nAngle, -2);
             ap->spr.yvel = bsin(nAngle, -2);
         }

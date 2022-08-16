@@ -117,6 +117,10 @@ public:
 		spr.__int_angle = int16_t(a);
 	}
 
+	void add_int_ang(int a)
+	{
+		spr.__int_angle += int16_t(a);
+	}
 
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
 	DVector3 render_pos() const

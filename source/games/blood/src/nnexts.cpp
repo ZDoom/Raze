@@ -1357,7 +1357,7 @@ void nnExtProcessSuperSprites()
 			if (debrisactor->vel.X || debrisactor->vel.Y)
 				debrisactor->xspr.goalAng = getangle(debrisactor->vel.X, debrisactor->vel.Y) & 2047;
 
-			int ang = debrisactor->spr.__int_angle & 2047;
+			int ang = debrisactor->int_ang() & 2047;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
@@ -4604,7 +4604,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		switch (cond)
 		{
 		default: break;
-		case 0: return condCmp((arg3 == 0) ? (objActor->spr.__int_angle & 2047) : objActor->int_ang(), arg1, arg2, cmpOp);
+		case 0: return condCmp((arg3 == 0) ? (objActor->int_ang() & 2047) : objActor->int_ang(), arg1, arg2, cmpOp);
 		case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
 		case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
 		case 7: return condCmp(spriteGetSlope(objActor), arg1, arg2, cmpOp);
@@ -8098,7 +8098,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 		if (mytarget && mytarget->spr.type == kMarkerPath)
 		{
-			if (targetactor == nullptr) actor->set_int_ang(mytarget->spr.__int_angle & 2047);
+			if (targetactor == nullptr) actor->set_int_ang(mytarget->int_ang() & 2047);
 			actor->SetTarget(nullptr);
 		}
 

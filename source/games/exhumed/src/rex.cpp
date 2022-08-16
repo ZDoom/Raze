@@ -257,7 +257,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (((PlotCourseToSprite(pActor, pTarget) >> 8) >= 60) || pActor->nCount > 0)
                 {
-                    int nAngle = pActor->spr.__int_angle & 0xFFF8;
+                    int nAngle = pActor->int_ang() & 0xFFF8;
                     pActor->spr.xvel = bcos(nAngle, -2);
                     pActor->spr.yvel = bsin(nAngle, -2);
                 }

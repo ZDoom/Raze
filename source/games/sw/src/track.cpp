@@ -1457,7 +1457,7 @@ void PlaceActorsOnTracks(void)
         actor->user.track = tag - TAG_ACTOR_TRACK_BEGIN;
 
         // if facing left go backward
-        if (actor->spr.__int_angle >= 513 && actor->spr.__int_angle <= 1535)
+        if (actor->int_ang() >= 513 && actor->int_ang() <= 1535)
         {
             actor->user.track_dir = -1;
         }

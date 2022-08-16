@@ -2661,7 +2661,7 @@ void handle_se00(DDukeActor* actor)
 			return;
 		}
 
-		if (Owner->spr.__int_angle > 1024)
+		if (Owner->int_ang() > 1024)
 			l = -1;
 		else l = 1;
 		if (actor->temp_data[3] == 0)
@@ -4497,7 +4497,7 @@ void handle_se32(DDukeActor *actor)
 			return;
 		}
 
-		if ((actor->spr.__int_angle & 2047) == 1536)
+		if ((actor->int_ang() & 2047) == 1536)
 		{
 			if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
 			{
@@ -4721,7 +4721,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			return;
 		}
 
-		if ((actor->spr.__int_angle & 2047) == 1536)
+		if ((actor->int_ang() & 2047) == 1536)
 		{
 			if (abs(actor->int_pos().Z - sec->int_floorz()) < actor->spr.yvel)
 			{

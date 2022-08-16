@@ -4700,7 +4700,7 @@ int DoGrating(DSWActor* actor)
     const int GRATE_FACTOR = 3;
 
     // reduce to 0 to 3 value
-    dir = actor->spr.__int_angle >> 9;
+    dir = actor->int_ang() >> 9;
 
     int x = 0, y = 0;
     if ((dir & 1) == 0)

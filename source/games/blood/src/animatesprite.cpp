@@ -101,7 +101,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	{
 		pos = parentTSprite->pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
-		pTSprite->__int_angle = parentTSprite->int_ang();
+		pTSprite->copy_ang(parentTSprite);
 	}
 	pos.X += gCameraAng.fcos() * 2;
 	pos.Y += gCameraAng.fsin() * 2;
@@ -451,7 +451,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->__int_angle = pTSprite->int_ang();
+		pNSprite->copy_ang(pTSprite);
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -469,7 +469,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->__int_angle = pTSprite->int_ang();
+		pNSprite->copy_ang(pTSprite);
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -507,7 +507,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			pNSprite->__int_angle = (gView->actor->int_ang() + 512) & 2047; // always face viewer
+			pNSprite->set_int_ang((gView->actor->int_ang() + 512) & 2047); // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
@@ -517,7 +517,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->int_ang()), 30));
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
-				pNSprite->__int_angle = (pNSprite->int_ang() + 512) & 2047; // offset angle 90 degrees
+				pNSprite->set_int_ang((pNSprite->int_ang() + 512) & 2047); // offset angle 90 degrees
 		}
 		break;
 	}
@@ -579,7 +579,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
 			pTSprite->pos = owneractor->interpolatedvec3(gInterpolate);
-			pTSprite->__int_angle = owneractor->interpolatedang(gInterpolate);
+			pTSprite->set_int_ang(owneractor->interpolatedang(gInterpolate));
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {
@@ -669,7 +669,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					pTSprite->picnum = voxelIndex[pTSprite->picnum];
 					if ((picanm[nTile].extra & 7) == 7)
 					{
-						pTSprite->__int_angle = myclock & 2047;
+						pTSprite->set_int_ang( myclock & 2047);
 					}
 				}
 			}
