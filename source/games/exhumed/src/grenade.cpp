@@ -66,7 +66,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     }
 
     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
 
     if (push1 >= -3000)
     {
@@ -112,7 +112,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.clipdist = 30;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = pPlayerActor->int_ang();
+    pActor->set_int_ang(pPlayerActor->int_ang());
     pActor->spr.intowner = nPlayer;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;

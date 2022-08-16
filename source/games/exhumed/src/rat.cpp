@@ -97,7 +97,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 30;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;
     pActor->spr.xvel = 0;
@@ -332,7 +332,7 @@ void AIRat::Tick(RunListEvent* ev)
                     return;
                 }
 
-                pActor->spr.__int_angle = RandomSize(11);
+                pActor->set_int_ang(RandomSize(11));
                 SetRatVel(pActor);
                 return;
             }

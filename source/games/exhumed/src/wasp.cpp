@@ -73,7 +73,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -170,7 +170,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->spr.cstat = 0;
-            pActor->spr.__int_angle = (pActor->int_ang() + 1024) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + 1024) & kAngleMask);
 
             SetWaspVel(pActor);
 

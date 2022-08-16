@@ -563,7 +563,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.nDoubleDamage = nDoubleDamage;
 
                 sBullet.pActor = insertActor(pActor->sector(), 200);
-                sBullet.pActor->spr.__int_angle = nAngle;
+                sBullet.pActor->set_int_ang(nAngle);
 
                 int nHeight = GetActorHeight(pTarget);
 
@@ -631,7 +631,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletActor->spr.yrepeat = (uint8_t)nRepeat;
     pBulletActor->spr.xoffset = 0;
     pBulletActor->spr.yoffset = 0;
-    pBulletActor->spr.__int_angle = nAngle;
+    pBulletActor->set_int_ang(nAngle);
     pBulletActor->spr.xvel = 0;
     pBulletActor->spr.yvel = 0;
     pBulletActor->spr.zvel = 0;
@@ -744,7 +744,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 y -= pBulletActor->int_pos().Y;
 
                 nAngle = GetMyAngle(x, y);
-                pActor->spr.__int_angle = nAngle;
+                pActor->set_int_ang(nAngle);
             }
             else
             {

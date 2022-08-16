@@ -342,7 +342,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
         pActor->spr.zvel = (AngleDelta(pActor->spr.zvel, var_14, 24) + pActor->spr.zvel) & kAngleMask;
     }
 
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
 
     int da = pActor->spr.zvel;
     int x = abs(bcos(da));
@@ -459,7 +459,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
     pActor2->spr.picnum = 1;
-    pActor2->spr.__int_angle = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
+    pActor2->set_int_ang((RandomSize(9) + (nAngle - 256)) & kAngleMask);
     pActor2->backuppos();
 
     if (!nVal)
@@ -592,7 +592,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
                 break;
             }
 
-            pActor->spr.__int_angle = nAngle;
+            pActor->set_int_ang(nAngle);
             pActor->spr.xvel = bcos(nAngle, -1);
             pActor->spr.yvel = bsin(nAngle, -1);
         }
@@ -720,7 +720,7 @@ void BuildQueenHead(int nQueen)
     pActor2->spr.pal = 0;
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
-    pActor2->spr.__int_angle = nAngle;
+    pActor2->set_int_ang(nAngle);
 
     nVelShift = 2;
     SetHeadVel(pActor2);
@@ -831,7 +831,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
 
             // original BUG - var_18 isn't being set if the check above == 0x20000 ?
-            pActor->spr.__int_angle = nNewAng;
+            pActor->set_int_ang(nNewAng);
             nVelShift++;
 
             if (nVelShift < 5)
@@ -946,7 +946,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 }
 
                 pTActor->set_int_pos({ MoveQX[nHd], MoveQY[nHd], MoveQZ[nHd] });
-                pTActor->spr.__int_angle = MoveQA[nHd];
+                pTActor->set_int_ang(MoveQA[nHd]);
             }
         }
 
@@ -1127,7 +1127,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;

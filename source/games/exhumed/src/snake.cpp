@@ -212,7 +212,7 @@ void BuildSnake(int nPlayer, int zVal)
             pActor->spr.pal = 0;
             pActor->spr.xoffset = 0;
             pActor->spr.yoffset = 0;
-            pActor->spr.__int_angle = pPlayerActor->int_ang();
+            pActor->set_int_ang(pPlayerActor->int_ang());
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
             pActor->spr.zvel = 0;
@@ -376,7 +376,7 @@ void AISnake::Tick(RunListEvent* ev)
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
 
-            pActor2->spr.__int_angle = nAngle;
+            pActor2->set_int_ang(nAngle);
             pActor2->set_int_pos({ x, y, z });
 
             ChangeActorSect(pActor2, pSector);

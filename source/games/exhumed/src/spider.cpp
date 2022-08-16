@@ -64,7 +64,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
     spp->spr.pal = spp->sector()->ceilingpal;
     spp->spr.xoffset = 0;
     spp->spr.yoffset = 0;
-    spp->spr.__int_angle = nAngle;
+    spp->set_int_ang(nAngle);
     spp->spr.picnum = 1;
     spp->spr.hitag = 0;
     spp->spr.lotag = runlist_HeadRun() + 1;
@@ -301,7 +301,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            spp->spr.__int_angle = (spp->int_ang() + 256) & 0x7EF;
+            spp->set_int_ang((spp->int_ang() + 256) & 0x7EF);
             spp->spr.xvel = bcos(spp->int_ang());
             spp->spr.yvel = bsin(spp->int_ang());
             return;

@@ -166,7 +166,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;
@@ -460,7 +460,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->spr.__int_angle = GetMyAngle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y);
+                    pActor->set_int_ang(GetMyAngle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y));
 
                     if (nAction != 3)
                     {

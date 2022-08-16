@@ -66,7 +66,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -170,7 +170,7 @@ void AILion::Damage(RunListEvent* ev)
                         PlotCourseToSprite(pActor, pTarget);
                         pActor->nAction = 5;
                         pActor->nCount = RandomSize(3);
-                        pActor->spr.__int_angle = (pActor->int_ang() - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
+                        pActor->set_int_ang((pActor->int_ang() - (RandomSize(1) << 8)) + (RandomSize(1) << 8)); // NOTE: no angle mask in original code
                     }
                     else
                     {
@@ -253,7 +253,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 if (RandomBit())
                 {
-                    pActor->spr.__int_angle = RandomWord() & kAngleMask;
+                    pActor->set_int_ang(RandomWord() & kAngleMask);
                     pActor->spr.xvel = bcos(pActor->int_ang(), -1);
                     pActor->spr.yvel = bsin(pActor->int_ang(), -1);
                 }
@@ -293,7 +293,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             // loc_378FA:
-            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang(), -1);
             pActor->spr.yvel = bsin(pActor->int_ang(), -1);
             break;
@@ -325,7 +325,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 pActor->spr.xvel = bcos(pActor->int_ang(), -1);
                 pActor->spr.yvel = bsin(pActor->int_ang(), -1);
                 break;
@@ -413,7 +413,7 @@ void AILion::Tick(RunListEvent* ev)
                 nScanAngle &= kAngleMask;
             }
 
-            pActor->spr.__int_angle = nAngle;
+            pActor->set_int_ang(nAngle);
 
             pActor->nAction = 6;
             pActor->spr.xvel = bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3);
@@ -436,7 +436,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             pActor->nAction = 7;
-            pActor->spr.__int_angle = (GetWallNormal(nMov.hitWall) + 1024) & kAngleMask;
+            pActor->set_int_ang((GetWallNormal(nMov.hitWall) + 1024) & kAngleMask);
             pActor->nCount = RandomSize(4);
             return;
         }
@@ -454,7 +454,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 pActor->spr.xvel = bcos(pActor->int_ang(), -1);
                 pActor->spr.yvel = bsin(pActor->int_ang(), -1);
                 break;
@@ -477,7 +477,7 @@ void AILion::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->spr.__int_angle = (RandomSize(9) + (pActor->int_ang() + 768)) & kAngleMask;
+                pActor->set_int_ang((RandomSize(9) + (pActor->int_ang() + 768)) & kAngleMask);
             }
 
             pActor->spr.zvel = -1000;

@@ -63,7 +63,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -208,7 +208,7 @@ void AIRex::Tick(RunListEvent* ev)
                 {
                     auto nAngle = pActor->int_ang(); // make backup of this variable
                     pActor->pTarget = FindPlayer(pActor, 60);
-                    pActor->spr.__int_angle = nAngle;
+                    pActor->set_int_ang(nAngle);
                 }
                 else
                 {
@@ -289,7 +289,7 @@ void AIRex::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang(), -2);
             pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             pActor->nAction = 1;
@@ -321,7 +321,7 @@ void AIRex::Tick(RunListEvent* ev)
                 SetQuake(pActor, 25);
                 pActor->nCount = 60;
 
-                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 pActor->spr.xvel = bcos(pActor->int_ang(), -2);
                 pActor->spr.yvel = bsin(pActor->int_ang(), -2);
                 pActor->nAction = 1;

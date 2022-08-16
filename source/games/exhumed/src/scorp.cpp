@@ -64,7 +64,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
@@ -370,7 +370,7 @@ void AIScorp::Tick(RunListEvent* ev)
         auto pSpiderActor = BuildSpider(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->int_ang());
         if (pSpiderActor)
         {
-            pSpiderActor->spr.__int_angle = RandomSize(11);
+            pSpiderActor->set_int_ang(RandomSize(11));
 
             int nVel = RandomSize(5) + 1;
 
@@ -431,7 +431,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             {
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->set_int_ang(GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 

@@ -126,7 +126,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
 
@@ -290,7 +290,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             ChangeActorSect(pActor, pSector);
             pActor->set_int_pos({ x, y, z });
 
-            pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang());
             pActor->spr.yvel = bsin(pActor->int_ang());
             break;
@@ -302,7 +302,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (coll.type == kHitWall)
         {
-            pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang());
             pActor->spr.yvel = bsin(pActor->int_ang());
             break;

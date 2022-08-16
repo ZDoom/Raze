@@ -266,7 +266,7 @@ void RestartPlayer(int nPlayer)
 		pActor->set_int_pos(nNStartSprite->int_pos());
 		ChangeActorSect(pActor, nNStartSprite->sector());
 		plr->angle.ang = buildang(nNStartSprite->spr.__int_angle&kAngleMask);
-		pActor->spr.__int_angle = plr->angle.ang.asbuild();
+		pActor->set_int_ang(plr->angle.ang.asbuild());
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -280,7 +280,7 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
-		pActor->spr.__int_angle = plr->angle.ang.asbuild();
+		pActor->set_int_ang(plr->angle.ang.asbuild());
 
 		floorsprt = nullptr;
 	}
@@ -317,7 +317,7 @@ void RestartPlayer(int nPlayer)
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->spr.__int_angle = pActor->int_ang();
+	pDActor->set_int_ang(pActor->int_ang());
 	pDActor->spr.cstat = pActor->spr.cstat;
 
 	pDActor->spr.lotag = runlist_HeadRun() + 1;
@@ -593,7 +593,7 @@ static void pickupMessage(int no)
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang.asbuild();
-    if (pPlayer->pActor) pPlayer->pActor->spr.__int_angle = inita;
+    if (pPlayer->pActor) pPlayer->pActor->set_int_ang(inita);
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -924,7 +924,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite) & kAngleMask;
             PlayerList[nPlayer].angle.settarget(buildang(ang), true);
-            pPlayerActor->spr.__int_angle = ang;
+            pPlayerActor->set_int_ang(ang);
 
             PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
 
@@ -2576,7 +2576,7 @@ sectdone:
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
-        pDopple->spr.__int_angle = pPlayerActor->int_ang();
+        pDopple->set_int_ang(pPlayerActor->int_ang());
         ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }

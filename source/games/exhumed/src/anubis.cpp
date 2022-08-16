@@ -67,7 +67,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     ap->spr.picnum = 1;
     ap->spr.pal = ap->sector()->ceilingpal;
     ap->spr.clipdist = 60;
-    ap->spr.__int_angle = nAngle;
+    ap->set_int_ang(nAngle);
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;
     ap->spr.xvel = 0;
@@ -197,7 +197,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            ap->spr.__int_angle = (ap->int_ang() + 256) & kAngleMask;
+            ap->set_int_ang((ap->int_ang() + 256) & kAngleMask);
             ap->spr.xvel = bcos(ap->int_ang(), -2);
             ap->spr.yvel = bsin(ap->int_ang(), -2);
             break;
@@ -220,7 +220,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     {
                         ap->spr.xvel = 0;
                         ap->spr.yvel = 0;
-                        ap->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
+                        ap->set_int_ang(GetMyAngle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y));
 
                         ap->nAction = 3;
                         ap->nFrame = 0;

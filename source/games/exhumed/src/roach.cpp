@@ -58,7 +58,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 60;
-    pActor->spr.__int_angle = angle;
+    pActor->set_int_ang(angle);
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->spr.xvel = 0;
@@ -275,19 +275,19 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->set_int_ang(GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
 
                 pActor->nFrame = 0;
             }
             else
             {
-                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 GoRoach(pActor);
             }
         }
         else if (nMov.type == kHitWall)
         {
-            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             GoRoach(pActor);
         }
         else
@@ -304,7 +304,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->spr.__int_angle = GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                pActor->set_int_ang(GetMyAngle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
 
                 pActor->nFrame = 0;
             }

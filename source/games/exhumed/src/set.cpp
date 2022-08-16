@@ -66,7 +66,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -106,7 +106,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    pActor->spr.__int_angle = RandomSize(11);
+    pActor->set_int_ang(RandomSize(11));
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
@@ -420,7 +420,7 @@ void AISet::Tick(RunListEvent* ev)
                     }
                 }
 
-                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 pActor->spr.xvel = bcos(pActor->int_ang(), -1);
                 pActor->spr.yvel = bsin(pActor->int_ang(), -1);
                 break;

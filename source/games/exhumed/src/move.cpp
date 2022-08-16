@@ -644,7 +644,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
             ChangeActorSect(pActor, pSectorPre);
 
-            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
+            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang(), -2);
             pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             Collision c;
@@ -672,7 +672,7 @@ int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
     int x = pActor2->int_pos().X - pActor1->int_pos().X;
     int y = pActor2->int_pos().Y - pActor1->int_pos().Y;
 
-    pActor1->spr.__int_angle = GetMyAngle(x, y);
+    pActor1->set_int_ang(GetMyAngle(x, y));
 
     uint32_t x2 = abs(x);
     uint32_t y2 = abs(y);
@@ -1202,7 +1202,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         pActor->spr.zvel = (pActor->spr.zvel + nAngDeltaD) & kAngleMask;
     }
 
-    pActor->spr.__int_angle = nAngle;
+    pActor->set_int_ang(nAngle);
 
     int eax = abs(bcos(pActor->spr.zvel));
 
