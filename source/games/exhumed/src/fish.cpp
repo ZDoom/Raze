@@ -47,7 +47,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->nCount = anim + 40;
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
-    pChunkActor->set_int_pos(pActor->int_pos());
+	pChunkActor->spr.pos = pActor->spr.pos;
     pChunkActor->spr.cstat = 0;
     pChunkActor->spr.shade = -12;
     pChunkActor->spr.pal = 0;

@@ -604,7 +604,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         nZOffset = -nHeight;
     }
 
-    pBulletActor->set_int_pos(pActor->int_pos());
+    pBulletActor->spr.pos = pActor->spr.pos;
 
     Bullet *pBullet = &BulletList[nBullet];
 

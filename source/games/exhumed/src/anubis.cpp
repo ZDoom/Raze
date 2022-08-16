@@ -397,7 +397,7 @@ void AIAnubis::Damage(RunListEvent* ev)
                 {
                     auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
 
-                    pDrumActor->set_int_pos({ ap->int_pos().X, ap->int_pos().Y, pDrumActor->sector()->int_floorz() });
+                    pDrumActor->spr.pos = { ap->spr.pos.X, ap->spr.pos.Y, pDrumActor->sector()->floorz };
                     pDrumActor->spr.xrepeat = 40;
                     pDrumActor->spr.yrepeat = 40;
                     pDrumActor->spr.shade = -64;

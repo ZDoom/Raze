@@ -1355,7 +1355,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     if (pActor == nullptr) {
         return nullptr;
     }
-    pActor->set_int_pos(pSrc->int_pos());
+    pActor->spr.pos = pSrc->spr.pos;
 
     ChangeActorSect(pActor, pSrc->sector());
 

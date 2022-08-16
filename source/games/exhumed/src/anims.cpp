@@ -134,7 +134,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
         if (pIgniter)
         {
-            pActor->set_int_pos(pIgniter->int_pos());
+			pActor->spr.pos = pIgniter->spr.pos;
 
             if (pIgniter->sector() != pActor->sector())
             {

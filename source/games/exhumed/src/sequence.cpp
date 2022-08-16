@@ -581,7 +581,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         }
 
         tspritetype* tsp = mytspriteArray->newTSprite();
-        tsp->set_int_pos(pTSprite->int_pos());
+        tsp->pos = pTSprite->pos;
 
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;

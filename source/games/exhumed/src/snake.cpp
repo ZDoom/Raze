@@ -193,7 +193,7 @@ void BuildSnake(int nPlayer, int zVal)
 
             if (i == 0)
             {
-                pActor->set_int_pos({ pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z + zVal });
+                pActor->spr.pos = pPlayerActor->spr.pos.plusZ(zVal * zinttoworld);
                 pActor->spr.xrepeat = 32;
                 pActor->spr.yrepeat = 32;
                 pViewSect = pActor->sector();
@@ -201,7 +201,7 @@ void BuildSnake(int nPlayer, int zVal)
             }
             else
             {
-                pActor->set_int_pos(sprt->int_pos());
+				pActor->spr.pos = sprt->spr.pos;
                 pActor->spr.xrepeat = 40 - 3 * i;
                 pActor->spr.yrepeat = 40 - 3 * i;
             }

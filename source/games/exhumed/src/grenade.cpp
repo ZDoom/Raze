@@ -59,7 +59,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
     ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
-    pActor->set_int_pos(pPlayerActor->int_pos());
+    pActor->spr.pos = pPlayerActor->spr.pos;
 
     if (nAngle < 0) {
         nAngle = pPlayerActor->int_ang();
@@ -102,7 +102,7 @@ void BuildGrenade(int nPlayer)
 
 	auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    pActor->set_int_pos({ pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z - 3840 });
+	pActor->spr.pos = pPlayerActor->spr.pos.plusZ(-15);
     pActor->spr.shade = -64;
     pActor->spr.xrepeat = 20;
     pActor->spr.yrepeat = 20;
