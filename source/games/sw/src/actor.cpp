@@ -127,7 +127,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.RotNum = 0;
         actor->spr.xvel <<= 1;
         actor->user.ActorActionFunc = nullptr;
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
         break;
 
     case NINJA_RUN_R0:
@@ -451,7 +451,7 @@ int DoFireFly(DSWActor* actor)
     actor->spr.clipdist = 256>>2;
     if (!move_actor(actor, nx, ny, 0L))
     {
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
     }
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;
@@ -738,7 +738,7 @@ int DoActorStopFall(DSWActor* actor)
     if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         //actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (RANDOM_P2(64<<8)>>8) - 32);
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024 + (RANDOM_P2(512<<8)>>8));
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024 + (RANDOM_P2(512<<8)>>8));
         actor->user.jump_speed = -350;
 
         DoActorBeginJump(actor);

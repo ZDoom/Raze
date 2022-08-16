@@ -838,7 +838,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
         0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024) + (RANDOM_NEG(256, 6) >> 6);
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6);
     else
         actor->spr.__int_angle = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
@@ -1026,7 +1026,7 @@ int DoBunnyQuickJump(DSWActor* actor)
 
                 actor->copyXY(hitActor);
                 actor->spr.__int_angle = hitActor->spr.__int_angle;
-                actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                 HelpMissileLateral(actor, 2000);
                 actor->spr.__int_angle = hitActor->spr.__int_angle;
                 actor->user.Vis = actor->spr.__int_angle;  // Remember angles for later

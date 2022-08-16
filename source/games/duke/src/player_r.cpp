@@ -489,8 +489,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		sz -= (4 << 7);
 		if (actor->spr.picnum == 4649)
 		{
-			sx += bcos(actor->spr.__int_angle + 256, -6);
-			sy += bsin(actor->spr.__int_angle + 256, -6);
+			sx += bcos(actor->int_ang() + 256, -6);
+			sy += bsin(actor->int_ang() + 256, -6);
 			sz += (12 << 8);
 		}
 		if (actor->spr.picnum == VIXEN)
@@ -503,8 +503,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		sx += bcos(actor->spr.__int_angle + 160, -7);
-		sy += bsin(actor->spr.__int_angle + 160, -7);
+		sx += bcos(actor->int_ang() + 160, -7);
+		sy += bsin(actor->int_ang() + 160, -7);
 
 		if (aimed)
 		{
@@ -578,7 +578,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = actor->spr.__int_angle + 32 - (krand() & 63);
+		sa = actor->int_ang() + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		if (atwith == FIRELASER)
@@ -657,7 +657,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			sa = actor->spr.__int_angle + (krand() & 31) - 16;
+			sa = actor->int_ang() + (krand() & 31) - 16;
 	}
 
 	if (p < 0) aimed = nullptr;
@@ -809,7 +809,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = actor->spr.__int_angle + 32 - (krand() & 63);
+		sa = actor->int_ang() + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		scount--;
@@ -4048,7 +4048,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		{
 			p->pos.X = motosprite->spr.pos.X;
 			p->pos.Y = motosprite->spr.pos.Y;
-			p->angle.ang = buildang(motosprite->spr.__int_angle);
+			p->angle.ang = buildang(motosprite->int_ang());
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
 		}
@@ -4128,7 +4128,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		{
 			p->pos.X = boat->spr.pos.X;
 			p->pos.Y = boat->spr.pos.Y;
-			p->angle.ang = buildang(boat->spr.__int_angle);
+			p->angle.ang = buildang(boat->int_ang());
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
 		}

@@ -77,8 +77,8 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	}
 
 	auto target = actor->GetTarget();
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
@@ -155,7 +155,7 @@ static void eelThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &eelSearch);
 	eelThinkTarget(actor);
 }
@@ -219,9 +219,9 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int dx = actor->vel.X;
 	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
@@ -242,11 +242,11 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (actor->xspr.dodgeDir == 0)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int dx = actor->vel.X;
 	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
@@ -322,19 +322,19 @@ static void eelMoveForward(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->spr.__int_angle = (actor->spr.__int_angle + 256) & 2047;
+		actor->spr.__int_angle = (actor->int_ang() + 256) & 2047;
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
 	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -353,7 +353,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
@@ -362,8 +362,8 @@ static void eelMoveSwoop(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -380,7 +380,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
@@ -389,8 +389,8 @@ static void eelMoveAscend(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);

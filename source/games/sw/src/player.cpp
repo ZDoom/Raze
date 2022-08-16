@@ -1297,8 +1297,8 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     extern STATE s_TeleportEffect[];
     int nx, ny;
 
-    nx = MOVEx(512, actor->spr.__int_angle);
-    ny = MOVEy(512, actor->spr.__int_angle);
+    nx = MOVEx(512, actor->int_ang());
+    ny = MOVEy(512, actor->int_ang());
 
     nx += actor->int_pos().X;
     ny += actor->int_pos().Y;
@@ -1364,7 +1364,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
     default:
     {
         auto pos = act_warp->int_pos();
-        DoPlayerTeleportToSprite(pp, &pos, act_warp->spr.__int_angle);
+        DoPlayerTeleportToSprite(pp, &pos, act_warp->int_ang());
         act_warp->set_int_pos(pos);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -2278,7 +2278,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2286,7 +2286,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -2299,7 +2299,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2307,7 +2307,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -2320,7 +2320,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
                 else
@@ -2328,7 +2328,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     }
                 }
 
@@ -3341,8 +3341,8 @@ void DoPlayerClimb(PLAYER* pp)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lActor->spr.__int_angle);
-            ny = MOVEy(100, lActor->spr.__int_angle);
+            nx = MOVEx(100, lActor->int_ang());
+            ny = MOVEy(100, lActor->int_ang());
 
             // set ladder sector
             pp->LadderSector = near.hitWall->twoSided()? near.hitWall->nextSector() : near.hitWall->sectorp();
@@ -3353,7 +3353,7 @@ void DoPlayerClimb(PLAYER* pp)
             pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
             pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-            pp->angle.settarget(buildang(lActor->spr.__int_angle + 1024));
+            pp->angle.settarget(buildang(lActor->int_ang() + 1024));
         }
     }
 }
@@ -3724,8 +3724,8 @@ bool PlayerOnLadder(PLAYER* pp)
 
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
-    nx = MOVEx(100, lActor->spr.__int_angle);
-    ny = MOVEy(100, lActor->spr.__int_angle);
+    nx = MOVEx(100, lActor->int_ang());
+    ny = MOVEy(100, lActor->int_ang());
 
     pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 
@@ -3735,7 +3735,7 @@ bool PlayerOnLadder(PLAYER* pp)
     pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
     pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-    pp->angle.settarget(buildang(lActor->spr.__int_angle + 1024));
+    pp->angle.settarget(buildang(lActor->int_ang() + 1024));
 
     return true;
 }
@@ -4518,8 +4518,8 @@ void DoPlayerDive(PLAYER* pp)
         if (bubble != nullptr)
         {
             // back it up a bit to get it out of your face
-            nx = MOVEx((128+64), NORM_ANGLE(bubble->spr.__int_angle + 1024));
-            ny = MOVEy((128+64), NORM_ANGLE(bubble->spr.__int_angle + 1024));
+            nx = MOVEx((128+64), NORM_ANGLE(bubble->int_ang() + 1024));
+            ny = MOVEy((128+64), NORM_ANGLE(bubble->int_ang() + 1024));
 
             move_sprite(bubble, nx, ny, 0L, plActor->user.ceiling_dist, plActor->user.floor_dist, 0, synctics);
         }
@@ -5121,7 +5121,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->angle.ang = pp->angle.oang = buildang(rsp->spr.__int_angle);
+            pp->angle.ang = pp->angle.oang = buildang(rsp->int_ang());
         else
             pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }
@@ -5894,7 +5894,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
                 break;
 
 
-            wall_ang = NORM_ANGLE(hitActor->spr.__int_angle);
+            wall_ang = NORM_ANGLE(hitActor->int_ang());
             dang = getincangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
@@ -6865,7 +6865,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     ASSERT(spawn_sprite != nullptr);
 
     pp->pos = pp->opos = spawn_sprite->int_pos();
-    pp->angle.ang = pp->angle.oang = buildang(spawn_sprite->spr.__int_angle);
+    pp->angle.ang = pp->angle.oang = buildang(spawn_sprite->int_ang());
     pp->setcursector(spawn_sprite->sector());
 
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);

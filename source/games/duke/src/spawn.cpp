@@ -1088,7 +1088,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			a = actor->spr.__int_angle - 256 + (krand() & 511) + 1024;
+			a = actor->int_ang() - 256 + (krand() & 511) + 1024;
 			EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
@@ -1113,7 +1113,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-			a = actor->spr.__int_angle - 1024;
+			a = actor->int_ang() - 1024;
 			EGS(actor->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
@@ -1202,7 +1202,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
 		if (z < -(32 << 8) || z >(32 << 8))
 			z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-		a = actor->spr.__int_angle - 1024;
+		a = actor->int_ang() - 1024;
 		auto k = EGS(actor->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
 		if (k) k->spr.pal = krand() & 7;
 	}

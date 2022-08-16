@@ -66,8 +66,8 @@ void sub_71BD4(int, DBloodActor* actor)
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
-	aim.dx = bcos(actor->spr.__int_angle);
-	aim.dy = bsin(actor->spr.__int_angle);
+	aim.dx = bcos(actor->int_ang());
+	aim.dy = bsin(actor->int_ang());
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -103,7 +103,7 @@ void sub_71BD4(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->spr.__int_angle + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
@@ -130,8 +130,8 @@ void sub_720AC(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int height = actor->spr.yrepeat * pDudeInfo->eyeHeight;
 	int ax, ay, az;
-	ax = bcos(actor->spr.__int_angle);
-	ay = bsin(actor->spr.__int_angle);
+	ax = bcos(actor->int_ang());
+	ay = bsin(actor->int_ang());
 	int x = actor->int_pos().X;
 	int y = actor->int_pos().Y;
 	int z = height;
@@ -175,7 +175,7 @@ void sub_720AC(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->spr.__int_angle + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
@@ -268,7 +268,7 @@ static void sub_72850(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &tchernobogSearch);
 	aiThinkTarget(actor);
 }

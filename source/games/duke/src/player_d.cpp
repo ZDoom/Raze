@@ -174,7 +174,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 			zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
-			sa = (short)(actor->spr.__int_angle + (krand() & 31) - 16);
+			sa = (short)(actor->int_ang() + (krand() & 31) - 16);
 
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -658,7 +658,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->spr.clipdist = 4;
 
-		sa = actor->spr.__int_angle + 32 - (krand() & 63);
+		sa = actor->int_ang() + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		scount--;
@@ -724,7 +724,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			sa = actor->spr.__int_angle + (krand() & 31) - 16;
+			sa = actor->int_ang() + (krand() & 31) - 16;
 	}
 	if (p < 0) aimed = nullptr;
 

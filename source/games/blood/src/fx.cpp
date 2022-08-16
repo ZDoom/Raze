@@ -324,15 +324,15 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 {
 	int x = actor->int_pos().X + MulScale(actor->spr.clipdist - 4, Cos(actor->spr.__int_angle), 28);
 	int y = actor->int_pos().Y + MulScale(actor->spr.clipdist - 4, Sin(actor->spr.__int_angle), 28);
-	x += MulScale(a3, Cos(actor->spr.__int_angle + 512), 30);
-	y += MulScale(a3, Sin(actor->spr.__int_angle + 512), 30);
+	x += MulScale(a3, Cos(actor->int_ang() + 512), 30);
+	y += MulScale(a3, Sin(actor->int_ang() + 512), 30);
 	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), x, y, z, 0);
 	if (pBrass)
 	{
 		if (!VanillaMode())
 			pBrass->spr.__int_angle = Random(2047);
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
-		int nAngle = actor->spr.__int_angle + Random2(56) + 512;
+		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pBrass->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pBrass->vel.Y = MulScale(nDist, Sin(nAngle), 30);
 		pBrass->vel.Z = actor->vel.Z - (0x20000 + (Random2(40) << 18) / 120);
@@ -349,15 +349,15 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 {
 	int x = actor->int_pos().X + MulScale(actor->spr.clipdist - 4, Cos(actor->spr.__int_angle), 28);
 	int y = actor->int_pos().Y + MulScale(actor->spr.clipdist - 4, Sin(actor->spr.__int_angle), 28);
-	x += MulScale(a3, Cos(actor->spr.__int_angle + 512), 30);
-	y += MulScale(a3, Sin(actor->spr.__int_angle + 512), 30);
+	x += MulScale(a3, Cos(actor->int_ang() + 512), 30);
+	y += MulScale(a3, Sin(actor->int_ang() + 512), 30);
 	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), x, y, z, 0);
 	if (pShell)
 	{
 		if (!VanillaMode())
 			pShell->spr.__int_angle = Random(2047);
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
-		int nAngle = actor->spr.__int_angle + Random2(56) + 512;
+		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pShell->vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pShell->vel.Y = MulScale(nDist, Sin(nAngle), 30);
 		pShell->vel.Z = actor->vel.Z - (0x20000 + (Random2(20) << 18) / 120);

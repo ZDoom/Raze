@@ -810,7 +810,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->add_int_z(-(bottom - actor->int_pos().Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.__int_angle = pStartZone->ang;
-	pPlayer->angle.ang = buildang(actor->spr.__int_angle);
+	pPlayer->angle.ang = buildang(actor->int_ang());
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->spr.clipdist = pDudeInfo->clipdist;
 	actor->spr.flags = 15;
@@ -1421,8 +1421,8 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->actor;
 	*out = {};
-	int x = bcos(plActor->spr.__int_angle);
-	int y = bsin(plActor->spr.__int_angle);
+	int x = bcos(plActor->int_ang());
+	int y = bsin(plActor->int_ang());
 	int z = pPlayer->slope;
 	int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
 	int hitDist = approxDist(plActor->int_pos().X - gHitInfo.hitpos.X, plActor->int_pos().Y - gHitInfo.hitpos.Y) >> 4;
@@ -1593,8 +1593,8 @@ void ProcessInput(PLAYER* pPlayer)
 	}
 	if (pPlayer->posture == 1)
 	{
-		int x = Cos(actor->spr.__int_angle);
-		int y = Sin(actor->spr.__int_angle);
+		int x = Cos(actor->int_ang());
+		int y = Sin(actor->int_ang());
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -1618,8 +1618,8 @@ void ProcessInput(PLAYER* pPlayer)
 		int speed = 0x10000;
 		if (actor->xspr.height > 0)
 			speed -= DivScale(actor->xspr.height, 256, 16);
-		int x = Cos(actor->spr.__int_angle);
-		int y = Sin(actor->spr.__int_angle);
+		int x = Cos(actor->int_ang());
+		int y = Sin(actor->int_ang());
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -1763,9 +1763,9 @@ void ProcessInput(PLAYER* pPlayer)
 			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->spr.clipdist << 1, 0);
 			if (spawned)
 			{
-				spawned->spr.__int_angle = (pPlayer->actor->spr.__int_angle + 1024) & 2047;
-				int x = bcos(pPlayer->actor->spr.__int_angle);
-				int y = bsin(pPlayer->actor->spr.__int_angle);
+				spawned->spr.__int_angle = (pPlayer->actor->int_ang() + 1024) & 2047;
+				int x = bcos(pPlayer->actor->int_ang());
+				int y = bsin(pPlayer->actor->int_ang());
 				spawned->vel.X = pPlayer->actor->vel.X + MulScale(0x155555, x, 14);
 				spawned->vel.Y = pPlayer->actor->vel.Y + MulScale(0x155555, y, 14);
 				spawned->vel.Z = pPlayer->actor->vel.Z;

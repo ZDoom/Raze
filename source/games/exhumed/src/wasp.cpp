@@ -36,8 +36,8 @@ static actionSeq WaspSeq[] = {
 
 void SetWaspVel(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-    pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+    pActor->spr.xvel = bcos(pActor->int_ang());
+    pActor->spr.yvel = bsin(pActor->int_ang());
 }
 
 DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, bool bEggWasp)
@@ -170,7 +170,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->spr.cstat = 0;
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + 1024) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + 1024) & kAngleMask;
 
             SetWaspVel(pActor);
 

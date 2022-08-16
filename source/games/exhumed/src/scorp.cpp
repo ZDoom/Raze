@@ -220,8 +220,8 @@ void AIScorp::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound41], pActor);
 
                     pActor->nFrame = 0;
-                    pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-                    pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+                    pActor->spr.xvel = bcos(pActor->int_ang());
+                    pActor->spr.yvel = bsin(pActor->int_ang());
 
                     pActor->nAction = 1;
                     pActor->pTarget = pTarget;
@@ -305,8 +305,8 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 1;
 
-                pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-                pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+                pActor->spr.xvel = bcos(pActor->int_ang());
+                pActor->spr.yvel = bsin(pActor->int_ang());
 
                 pActor->nFrame = 0;
                 return;
@@ -367,7 +367,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.__int_angle);
+        auto pSpiderActor = BuildSpider(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->int_ang());
         if (pSpiderActor)
         {
             pSpiderActor->spr.__int_angle = RandomSize(11);
@@ -413,8 +413,8 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->spr.__int_angle += RandomSize(7) - 63;
         pActor->spr.__int_angle &= kAngleMask;
 
-        pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-        pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+        pActor->spr.xvel = bcos(pActor->int_ang());
+        pActor->spr.yvel = bsin(pActor->int_ang());
     }
     if (mode <= 1)
     {

@@ -420,7 +420,7 @@ void AISet::Tick(RunListEvent* ev)
                     }
                 }
 
-                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
                 pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
                 pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
                 break;
@@ -524,8 +524,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nAction = 8;
             pActor->nFrame = 0;
 
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->spr.yvel = bsin(pActor->int_ang());
         }
         return;
     }

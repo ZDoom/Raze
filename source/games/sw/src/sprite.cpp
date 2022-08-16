@@ -2491,7 +2491,7 @@ void SpriteSetup(void)
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
                     actorNew->spr.pos = actor->spr.pos;
-                    actorNew->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
+                    actorNew->spr.__int_angle = NORM_ANGLE(actor->int_ang() + 1024);
                     actorNew->spr.picnum = actor->spr.picnum;
 
                     actorNew->add_int_pos({ MOVEx(256 + 128, actor->spr.__int_angle), MOVEy(256 + 128, actor->spr.__int_angle), 0 });
@@ -3500,8 +3500,8 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
         actor->spr.zvel = -(((int)SP_TAG8(spawner))<<5);
 
-        actor->user.change.X = MOVEx(actor->spr.xvel, actor->spr.__int_angle);
-        actor->user.change.Y = MOVEy(actor->spr.xvel, actor->spr.__int_angle);
+        actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
+        actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
         actor->user.change.Z = actor->spr.zvel;
     }
 }
@@ -4367,8 +4367,8 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         // Calculate all 4 points of the floor sprite.
         // (x1,y1),(x2,y2),(x3,y3),(x4,y4)
         // These points will already have (x,y) subtracted from them
-        cosang = bcos(itActor->spr.__int_angle);
-        sinang = bsin(itActor->spr.__int_angle);
+        cosang = bcos(itActor->int_ang());
+        sinang = bsin(itActor->int_ang());
         xspan = tileWidth(tilenum);
         dax = ((xspan >> 1) + xoff) * itActor->spr.xrepeat;
         yspan = tileHeight(tilenum);
@@ -4577,8 +4577,8 @@ bool DropAhead(DSWActor* actor, int  min_height)
     // dax = actor->spr.x + MOVEx(128, actor->spr.__int_angle);
     // day = actor->spr.y + MOVEy(128, actor->spr.__int_angle);
 
-    dax = actor->int_pos().X + MOVEx(256, actor->spr.__int_angle);
-    day = actor->int_pos().Y + MOVEy(256, actor->spr.__int_angle);
+    dax = actor->int_pos().X + MOVEx(256, actor->int_ang());
+    day = actor->int_pos().Y + MOVEy(256, actor->int_ang());
 
     auto newsector = actor->sector();
     updatesector(dax, day, &newsector);
@@ -4736,7 +4736,7 @@ int DoGrating(DSWActor* actor)
 
 int DoKey(DSWActor* actor)
 {
-    actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (14 * ACTORMOVETICS));
+    actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (14 * ACTORMOVETICS));
 
     DoGet(actor);
     return 0;

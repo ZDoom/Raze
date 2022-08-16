@@ -1017,7 +1017,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             {
                 if ((sect->hitag == 45) && bTouchFloor)
                 {
-                    int nDiff = AngleDiff(nNormal, (pPlayerActor->spr.__int_angle + 1024) & kAngleMask);
+                    int nDiff = AngleDiff(nNormal, (pPlayerActor->int_ang() + 1024) & kAngleMask);
 
                     if (nDiff < 0) {
                         nDiff = -nDiff;
@@ -2182,7 +2182,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), pPlayerActor->spr.__int_angle);
+                    SetSavePoint(nPlayer, pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), pPlayerActor->int_ang());
                     break;
                 }
 
@@ -2737,7 +2737,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->spr.__int_angle);
+    ACTION_RETURN_INT(self->pActor->int_ang());
 }
 
 

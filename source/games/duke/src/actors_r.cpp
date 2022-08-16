@@ -1097,7 +1097,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 						j->spr.xrepeat = 8;
 						j->spr.yrepeat = 8;
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-						j->spr.__int_angle = (j->spr.__int_angle + 512) & 2047;
+						j->spr.__int_angle = (j->int_ang() + 512) & 2047;
 						j->spr.clipdist = MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7);
 					}
 				}
@@ -1447,7 +1447,7 @@ void movetransports_r(void)
 									ps[k].GetActor()->spr.extra = 0;
 								}
 
-							ps[p].angle.ang = buildang(Owner->spr.__int_angle);
+							ps[p].angle.ang = buildang(Owner->int_ang());
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -2292,7 +2292,7 @@ void rr_specialstats()
 				{
 					if (act2->spr.picnum == RRTILE297)
 					{
-						ps[p].angle.ang = buildang(act2->spr.__int_angle);
+						ps[p].angle.ang = buildang(act2->int_ang());
 						ps[p].getposfromactor(act2, -36);
 						ps[p].backupxyz();
 						ps[p].setbobpos();

@@ -281,13 +281,13 @@ void AIRoach::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
                 GoRoach(pActor);
             }
         }
         else if (nMov.type == kHitWall)
         {
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
             GoRoach(pActor);
         }
         else

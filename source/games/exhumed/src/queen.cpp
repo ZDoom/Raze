@@ -466,8 +466,8 @@ void BuildQueenEgg(int nQueen, int nVal)
     {
         pActor2->spr.xrepeat = 30;
         pActor2->spr.yrepeat = 30;
-        pActor2->spr.xvel = bcos(pActor2->spr.__int_angle);
-        pActor2->spr.yvel = bsin(pActor2->spr.__int_angle);
+        pActor2->spr.xvel = bcos(pActor2->int_ang());
+        pActor2->spr.yvel = bsin(pActor2->int_ang());
         pActor2->spr.zvel = -6000;
         pActor2->spr.cstat = 0;
     }

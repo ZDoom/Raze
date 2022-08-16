@@ -661,7 +661,7 @@ void resetpspritevars(int g)
 			ps[j].backupxyz();
 			ps[j].setbobpos();
 			act->backuppos();
-			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.__int_angle);
+			ps[j].angle.oang = ps[j].angle.ang = buildang(act->int_ang());
 
 			updatesector(act->int_pos().X, act->int_pos().Y, &ps[j].cursector);
 

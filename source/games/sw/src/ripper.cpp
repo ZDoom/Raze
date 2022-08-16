@@ -927,7 +927,7 @@ int InitRipperHang(DSWActor* actor)
 
     for (dang = 0; dang < 2048; dang += 128)
     {
-        tang = NORM_ANGLE(actor->spr.__int_angle + dang);
+        tang = NORM_ANGLE(actor->int_ang() + dang);
 
         FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ActorSizeZ(actor), actor->sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
@@ -1051,7 +1051,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 							   0L, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->spr.__int_angle = NORM_ANGLE((actor->spr.__int_angle + 1024) + (RANDOM_NEG(256, 6) >> 6));
+        actor->spr.__int_angle = NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
         actor->spr.__int_angle = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 

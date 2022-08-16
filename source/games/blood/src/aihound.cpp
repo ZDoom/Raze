@@ -44,8 +44,8 @@ AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, 
 
 void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -86,7 +86,7 @@ static void houndThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &houndSearch);
 	aiThinkTarget(actor);
 }

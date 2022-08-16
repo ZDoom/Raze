@@ -84,8 +84,8 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
 	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
 	int dz = height - height2;
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
 	int r1 = Random(50);
 	int r2 = Random(50);
@@ -111,8 +111,8 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
-	aim.dx = bcos(actor->spr.__int_angle);
-	aim.dy = bsin(actor->spr.__int_angle);
+	aim.dx = bcos(actor->int_ang());
+	aim.dy = bsin(actor->int_ang());
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -148,7 +148,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->spr.__int_angle + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
@@ -267,7 +267,7 @@ static void gargThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &gargoyleFSearch);
 	aiThinkTarget(actor);
 }
@@ -281,9 +281,9 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int dx = actor->vel.X;
 	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
@@ -307,11 +307,11 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (actor->xspr.dodgeDir == 0)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int dx = actor->vel.X;
 	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
@@ -525,19 +525,19 @@ static void gargMoveForward(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->spr.__int_angle = (actor->spr.__int_angle + 256) & 2047;
+		actor->spr.__int_angle = (actor->int_ang() + 256) & 2047;
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
 	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -559,11 +559,11 @@ static void gargMoveSlow(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 	{
-		actor->xspr.goalAng = (actor->spr.__int_angle + 512) & 2047;
+		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
@@ -571,8 +571,8 @@ static void gargMoveSlow(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -600,11 +600,11 @@ static void gargMoveSwoop(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 	{
-		actor->xspr.goalAng = (actor->spr.__int_angle + 512) & 2047;
+		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
@@ -612,8 +612,8 @@ static void gargMoveSwoop(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -640,11 +640,11 @@ static void gargMoveFly(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 	{
-		actor->spr.__int_angle = (actor->spr.__int_angle + 512) & 2047;
+		actor->spr.__int_angle = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
@@ -652,8 +652,8 @@ static void gargMoveFly(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int vx = actor->vel.X;
 	int vy = actor->vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);

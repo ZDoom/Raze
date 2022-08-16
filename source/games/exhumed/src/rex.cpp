@@ -289,7 +289,7 @@ void AIRex::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
             pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
             pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
             pActor->nAction = 1;
@@ -321,7 +321,7 @@ void AIRex::Tick(RunListEvent* ev)
                 SetQuake(pActor, 25);
                 pActor->nCount = 60;
 
-                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
                 pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
                 pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
                 pActor->nAction = 1;

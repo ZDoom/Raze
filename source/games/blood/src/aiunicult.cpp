@@ -198,8 +198,8 @@ void punchCallback(int, DBloodActor* actor)
 		if (target->IsDudeActor())
 			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat << 2;
 
-		int dx = bcos(actor->spr.__int_angle);
-		int dy = bsin(actor->spr.__int_angle);
+		int dx = bcos(actor->int_ang());
+		int dy = bsin(actor->int_ang());
 		int dz = nZOffset1 - nZOffset2;
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
@@ -229,7 +229,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
 	if (pExtra->weaponType == kGenDudeWeaponHitscan)
 	{
-		dx = bcos(actor->spr.__int_angle); dy = bsin(actor->spr.__int_angle); dz = actor->dudeSlope;
+		dx = bcos(actor->int_ang()); dy = bsin(actor->int_ang()); dz = actor->dudeSlope;
 		// dispersal modifiers here in case if non-melee enemy
 		if (!dudeIsMelee(actor))
 		{
@@ -266,7 +266,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	}
 	else if (pExtra->weaponType == kGenDudeWeaponMissile)
 	{
-		dx = bcos(actor->spr.__int_angle); dy = bsin(actor->spr.__int_angle); dz = actor->dudeSlope;
+		dx = bcos(actor->int_ang()); dy = bsin(actor->int_ang()); dz = actor->dudeSlope;
 
 		// dispersal modifiers here
 		dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
@@ -426,7 +426,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (approxDist(dx, dy) < 5120 && abs(actor->spr.__int_angle - nAngle) < getDudeInfo(actor->spr.type)->periphery)
+	if (approxDist(dx, dy) < 5120 && abs(actor->int_ang() - nAngle) < getDudeInfo(actor->spr.type)->periphery)
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -1116,19 +1116,19 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	{
 		int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 		int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-		actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+		actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 		int nAccel = pDudeInfo->frontSpeed << 2;
 		if (abs(nAng) > 341)
 			return;
 		if (actor->GetTarget() == nullptr)
-			actor->spr.__int_angle = (actor->spr.__int_angle + 256) & 2047;
+			actor->spr.__int_angle = (actor->int_ang() + 256) & 2047;
 		int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
 		int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 		int nDist = approxDist(dx, dy);
 		if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 			return;
-		int nCos = Cos(actor->spr.__int_angle);
-		int nSin = Sin(actor->spr.__int_angle);
+		int nCos = Cos(actor->int_ang());
+		int nSin = Sin(actor->int_ang());
 		int vx = actor->vel.X;
 		int vy = actor->vel.Y;
 		int t1 = DMulScale(vx, nCos, vy, nSin, 30);
@@ -1143,14 +1143,14 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	else
 	{
 		int dang = ((kAng180 + actor->xspr.goalAng - actor->spr.__int_angle) & 2047) - kAng180;
-		actor->spr.__int_angle = ((actor->spr.__int_angle + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
+		actor->spr.__int_angle = ((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
 
 		// don't move forward if trying to turn around
 		if (abs(dang) > kAng60)
 			return;
 
-		int sin = Sin(actor->spr.__int_angle);
-		int cos = Cos(actor->spr.__int_angle);
+		int sin = Sin(actor->int_ang());
+		int cos = Cos(actor->int_ang());
 
 		int frontSpeed = actor->genDudeExtra.moveSpeed;
 		actor->vel.X += MulScale(cos, frontSpeed, 30);
@@ -1178,27 +1178,27 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 	int t1 = DMulScale(xvel, Cos(actor->spr.__int_angle), yvel, Sin(actor->spr.__int_angle), 30);
 	int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
 
-	if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + vc;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle - vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle - vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + v8, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + v8;
+	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
+		actor->xspr.goalAng = actor->int_ang() + vc;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
+		actor->xspr.goalAng = actor->int_ang() + vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
+		actor->xspr.goalAng = actor->int_ang() - vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
+		actor->xspr.goalAng = actor->int_ang() + v8;
 	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle, vsi))
 		actor->xspr.goalAng = actor->spr.__int_angle;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle - v8, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle - v8;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
+		actor->xspr.goalAng = actor->int_ang() - v8;
 	else
-		actor->xspr.goalAng = actor->spr.__int_angle + 341;
+		actor->xspr.goalAng = actor->int_ang() + 341;
 
 	actor->xspr.dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-	if (!CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
+	if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
 	{
 		actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-		if (!CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
+		if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
 			actor->xspr.dodgeDir = 0;
 	}
 }
@@ -1404,7 +1404,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 {
 	if (actLeech != nullptr)
 	{
-		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->int_pos().X, actLeech->int_pos().Y, actLeech->int_pos().Z, actLeech->spr.__int_angle);
+		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->int_pos().X, actLeech->int_pos().Y, actLeech->int_pos().Z, actLeech->int_ang());
 		if (effectactor != nullptr)
 		{
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -1802,8 +1802,8 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				y += (actTarget->vel.Y * t) >> 12;
 				int angBak = actor->spr.__int_angle;
 				actor->spr.__int_angle = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
-				int dx = bcos(actor->spr.__int_angle);
-				int dy = bsin(actor->spr.__int_angle);
+				int dx = bcos(actor->int_ang());
+				int dy = bsin(actor->int_ang());
 				int tz = actTarget->int_pos().Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * 4;
 				int dz = DivScale(tz - top - 256, nDist, 10);
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);

@@ -104,7 +104,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
     angle2 = getangle(tsp->int_pos().X - viewx, tsp->int_pos().Y - viewy);
-    rotation = ((tsp->__int_angle + 3072 + 128 - angle2) & 2047);
+    rotation = ((tsp->int_ang() + 3072 + 128 - angle2) & 2047);
     rotation = (rotation >> 8) & 7;
 
     if (ownerActor->user.RotNum == 5)
@@ -353,7 +353,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     int xrepeat, yrepeat, repeat_adj = 0;
     int z_amt_per_pixel;
 
-    ang = NORM_ANGLE(tsp->__int_angle + 1024);
+    ang = NORM_ANGLE(tsp->int_ang() + 1024);
 
     if (!ownerActor->hasU() || tsp->xvel == 0)
     {
@@ -669,7 +669,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->__int_angle = NORM_ANGLE(tsp->__int_angle - 512 - 24);
+                    tsp->__int_angle = NORM_ANGLE(tsp->int_ang() - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
@@ -733,7 +733,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
-                tsp->__int_angle = NORM_ANGLE(tsp->__int_angle - 512);
+                tsp->__int_angle = NORM_ANGLE(tsp->int_ang() - 512);
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
@@ -764,8 +764,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->__int_angle);
-                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->__int_angle);
+                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->int_ang());
+                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->int_ang());
                     }
                     else
                     {
@@ -1073,7 +1073,7 @@ void PrintSpriteInfo(PLAYER* pp)
             Printf("POSX:%d, ", actor->int_pos().X);
             Printf("POSY:%d, ", actor->int_pos().Y);
             Printf("POSZ:%d,", actor->int_pos().Z);
-            Printf("ANG:%d\n", actor->spr.__int_angle);
+            Printf("ANG:%d\n", actor->int_ang());
         }
     }
 }
@@ -1448,7 +1448,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         DSWActor* ractor = pp->remoteActor;
         if (TEST_BOOL1(ractor))
-            tang = buildang(ractor->spr.__int_angle);
+            tang = buildang(ractor->int_ang());
         else
             tang = bvectangbam(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
     }

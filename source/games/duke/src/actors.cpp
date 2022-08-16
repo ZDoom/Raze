@@ -704,7 +704,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				ps[p].angle.settarget(buildang(actor->spr.__int_angle + 1024));
+				ps[p].angle.settarget(buildang(actor->int_ang() + 1024));
 			}
 			else
 			{
@@ -1975,8 +1975,8 @@ void camera(DDukeActor *actor)
 			if (setupflag != 1)
 			{
 				increment = 8;
-				minimum = actor->spr.__int_angle - actor->spr.hitag - increment;
-				maximum = actor->spr.__int_angle + actor->spr.hitag - increment;
+				minimum = actor->int_ang() - actor->spr.hitag - increment;
+				maximum = actor->int_ang() + actor->spr.hitag - increment;
 				setupflag = 1;
 			}
 
@@ -1986,11 +1986,11 @@ void camera(DDukeActor *actor)
 				increment = -increment;
 				actor->spr.__int_angle += increment;
 			}
-			else if (actor->spr.__int_angle + increment < minimum)
+			else if (actor->int_ang() + increment < minimum)
 			{
 				actor->spr.__int_angle = minimum;
 			}
-			else if (actor->spr.__int_angle + increment > maximum)
+			else if (actor->int_ang() + increment > maximum)
 			{
 				actor->spr.__int_angle = maximum;
 			}
@@ -4906,8 +4906,8 @@ int dodge(DDukeActor* actor)
 
 		bx = ac->int_pos().X - mx;
 		by = ac->int_pos().Y - my;
-		bxvect = bcos(ac->spr.__int_angle);
-		byvect = bsin(ac->spr.__int_angle);
+		bxvect = bcos(ac->int_ang());
+		byvect = bsin(ac->int_ang());
 
 		if (bcos(actor->spr.__int_angle) * bx + bsin(actor->spr.__int_angle) * by >= 0)
 			if (bxvect * bx + byvect * by < 0)
@@ -4939,9 +4939,9 @@ int furthestangle(DDukeActor *actor, int angs)
 	angincs = 2048 / angs;
 
 	if (!actor->isPlayer())
-		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.__int_angle + 1024);
+		if ((actor->temp_data[0] & 63) > 2) return(actor->int_ang() + 1024);
 
-	for (j = actor->spr.__int_angle; j < (2048 + actor->spr.__int_angle); j += angincs)
+	for (j = actor->spr.__int_angle; j < (2048 + actor->int_ang()); j += angincs)
 	{
 		hitscan({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8) }, actor->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
 
@@ -4974,7 +4974,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 		angincs = 2048 / 2;
 	else angincs = 2048 / (1 + (krand() & 1));
 
-	for (j = tosee->spr.__int_angle; j < (2048 + tosee->spr.__int_angle); j += (angincs - (krand() & 511)))
+	for (j = tosee->spr.__int_angle; j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
 	{
 		hitscan({ tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - (16 << 8) }, tosee->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
 

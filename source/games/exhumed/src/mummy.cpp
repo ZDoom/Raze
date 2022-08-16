@@ -264,7 +264,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
             pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
             pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
             return;

@@ -89,7 +89,7 @@ static void burnThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
 		switch (actor->spr.type)
 		{

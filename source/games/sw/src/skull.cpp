@@ -254,8 +254,8 @@ int DoSkullMove(DSWActor* actor)
 {
     int32_t dax, day, daz;
 
-    dax = MOVEx(actor->spr.xvel, actor->spr.__int_angle);
-    day = MOVEy(actor->spr.xvel, actor->spr.__int_angle);
+    dax = MOVEx(actor->spr.xvel, actor->int_ang());
+    day = MOVEy(actor->spr.xvel, actor->int_ang());
     daz = actor->spr.zvel;
 
     actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
@@ -347,7 +347,7 @@ int DoSkullJump(DSWActor* actor)
     if (actor->spr.xvel)
         DoSkullMove(actor);
     else
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (64 * ACTORMOVETICS));
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS));
 
     if (actor->user.Flags & (SPR_JUMPING))
     {
@@ -453,7 +453,7 @@ int DoSkullWait(DSWActor* actor)
     else
     // above the floor type
     {
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (48 * ACTORMOVETICS));
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (48 * ACTORMOVETICS));
 
         DoSkullBob(actor);
 
@@ -639,8 +639,8 @@ int DoBettyMove(DSWActor* actor)
 {
     int32_t dax, day, daz;
 
-    dax = MOVEx(actor->spr.xvel, actor->spr.__int_angle);
-    day = MOVEy(actor->spr.xvel, actor->spr.__int_angle);
+    dax = MOVEx(actor->spr.xvel, actor->int_ang());
+    day = MOVEy(actor->spr.xvel, actor->int_ang());
     daz = actor->spr.zvel;
 
     actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
@@ -692,7 +692,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (i*(2048/num_ord)));
+            actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (i*(2048/num_ord)));
             InitSpriteGrenade(actor);
         }
         break;
@@ -726,7 +726,7 @@ int DoBettyJump(DSWActor* actor)
     if (actor->spr.xvel)
         DoBettyMove(actor);
     else
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (64 * ACTORMOVETICS));
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS));
 
     if (actor->user.Flags & (SPR_JUMPING))
     {
@@ -825,7 +825,7 @@ int DoBettyWait(DSWActor* actor)
     else
     // above the floor type
     {
-        actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (48 * ACTORMOVETICS));
+        actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + (48 * ACTORMOVETICS));
 
         DoBettyBob(actor);
 

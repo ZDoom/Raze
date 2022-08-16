@@ -197,7 +197,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            ap->spr.__int_angle = (ap->spr.__int_angle + 256) & kAngleMask;
+            ap->spr.__int_angle = (ap->int_ang() + 256) & kAngleMask;
             ap->spr.xvel = bcos(ap->spr.__int_angle, -2);
             ap->spr.yvel = bsin(ap->spr.__int_angle, -2);
             break;

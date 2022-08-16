@@ -809,7 +809,7 @@ loc_flag:
                         // only autoaim if target is in front of the player.
 						assert(t->sector());
                         int angletotarget = bvectangbam(t->int_pos().X - pPlayerActor->int_pos().X, t->int_pos().Y - pPlayerActor->int_pos().Y).asbuild();
-                        int anglediff = (pPlayerActor->spr.__int_angle - angletotarget) & 2047;
+                        int anglediff = (pPlayerActor->int_ang() - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {
                             target = t;

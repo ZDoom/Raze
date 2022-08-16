@@ -75,8 +75,8 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	int dz = actor->dudeSlope;
 	dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 	dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -89,8 +89,8 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
-		int dx = bcos(actor->spr.__int_angle);
-		int dy = bsin(actor->spr.__int_angle);
+		int dx = bcos(actor->int_ang());
+		int dy = bsin(actor->int_ang());
 		int dz = actor->dudeSlope;
 		dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 		dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -102,8 +102,8 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	int dz = actor->dudeSlope;
 	dx += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
 	dy += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
@@ -199,7 +199,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 5120 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 5120 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
 		switch (actor->xspr.medium)
 		{

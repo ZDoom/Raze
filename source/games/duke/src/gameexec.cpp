@@ -1601,10 +1601,10 @@ int ParseState::parse(void)
 		switch (krand() & 1)
 		{
 		case 0:
-			g_ac->spr.__int_angle = (+512 + g_ac->spr.__int_angle + (krand() & 511)) & 2047;
+			g_ac->spr.__int_angle = (+512 + g_ac->int_ang() + (krand() & 511)) & 2047;
 			break;
 		case 1:
-			g_ac->spr.__int_angle = (-512 + g_ac->spr.__int_angle - (krand() & 511)) & 2047;
+			g_ac->spr.__int_angle = (-512 + g_ac->int_ang() - (krand() & 511)) & 2047;
 			break;
 		}
 		insptr++;

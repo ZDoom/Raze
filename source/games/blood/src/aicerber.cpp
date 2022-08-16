@@ -57,8 +57,8 @@ AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &c
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->spr.__int_angle);
-	int dy = bsin(actor->spr.__int_angle);
+	int dx = bcos(actor->int_ang());
+	int dy = bsin(actor->int_ang());
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -82,8 +82,8 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	int z = height; // ???
 	TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
-	aim.dx = bcos(actor->spr.__int_angle);
-	aim.dy = bsin(actor->spr.__int_angle);
+	aim.dx = bcos(actor->int_ang());
+	aim.dy = bsin(actor->int_ang());
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -119,7 +119,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->spr.__int_angle + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt1.at8)
 			{
 				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
@@ -158,8 +158,8 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
 	int ax, ay, az;
-	aim.dx = ax = bcos(actor->spr.__int_angle);
-	aim.dy = ay = bsin(actor->spr.__int_angle);
+	aim.dx = ax = bcos(actor->int_ang());
+	aim.dy = ay = bsin(actor->int_ang());
 	aim.dz = actor->dudeSlope;
 	az = 0;
 	int nClosest = 0x7fffffff;
@@ -196,7 +196,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->spr.__int_angle + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt1.at8)
 			{
 				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2->spr.type);
@@ -301,7 +301,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->spr.__int_angle - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
 		switch (actor->spr.type) {
 		case kDudeCerberusTwoHead:

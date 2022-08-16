@@ -251,8 +251,8 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	int vc = ((a3 + 1024 - actor->spr.__int_angle) & 2047) - 1024;
-	int nCos = Cos(actor->spr.__int_angle);
-	int nSin = Sin(actor->spr.__int_angle);
+	int nCos = Cos(actor->int_ang());
+	int nSin = Sin(actor->int_ang());
 	int dx = actor->vel.X;
 	int dy = actor->vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
@@ -260,30 +260,30 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	int v8 = 341;
 	if (vc < 0)
 		v8 = -341;
-	if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + vc;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle - vc / 2, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle - vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + v8, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle + v8;
+	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
+		actor->xspr.goalAng = actor->int_ang() + vc;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
+		actor->xspr.goalAng = actor->int_ang() + vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
+		actor->xspr.goalAng = actor->int_ang() - vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
+		actor->xspr.goalAng = actor->int_ang() + v8;
 	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle, vsi))
 		actor->xspr.goalAng = actor->spr.__int_angle;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.__int_angle - v8, vsi))
-		actor->xspr.goalAng = actor->spr.__int_angle - v8;
+	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
+		actor->xspr.goalAng = actor->int_ang() - v8;
 	//else if (actor->spr.flags&2)
 		//actor->xspr.goalAng = actor->spr.__int_angle+341;
 	else // Weird..
-		actor->xspr.goalAng = actor->spr.__int_angle + 341;
+		actor->xspr.goalAng = actor->int_ang() + 341;
 	if (Chance(0x8000))
 		actor->xspr.dodgeDir = 1;
 	else
 		actor->xspr.dodgeDir = -1;
-	if (!CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
+	if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
 	{
 		actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-		if (!CanMove(actor, actor->GetTarget(), actor->spr.__int_angle + actor->xspr.dodgeDir * 512, 512))
+		if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
 			actor->xspr.dodgeDir = 0;
 	}
 }
@@ -300,7 +300,7 @@ void aiMoveForward(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (abs(nAng) > 341)
 		return;
 	actor->vel.X += MulScale(pDudeInfo->frontSpeed, Cos(actor->spr.__int_angle), 30);
@@ -319,7 +319,7 @@ void aiMoveTurn(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 }
 
 //---------------------------------------------------------------------------
@@ -334,11 +334,11 @@ void aiMoveDodge(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.__int_angle) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->spr.__int_angle = (actor->spr.__int_angle + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	actor->spr.__int_angle = (actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (actor->xspr.dodgeDir)
 	{
-		int nCos = Cos(actor->spr.__int_angle);
-		int nSin = Sin(actor->spr.__int_angle);
+		int nCos = Cos(actor->int_ang());
+		int nSin = Sin(actor->int_ang());
 		int dx = actor->vel.X;
 		int dy = actor->vel.Y;
 		int t1 = DMulScale(dx, nCos, dy, nSin, 30);

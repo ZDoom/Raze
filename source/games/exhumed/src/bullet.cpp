@@ -229,7 +229,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                int nAngle = (pActor->spr.__int_angle + 256) - RandomSize(9);
+                int nAngle = (pActor->int_ang() + 256) - RandomSize(9);
 
                 pHitActor->spr.xvel = bcos(nAngle, 1);
                 pHitActor->spr.yvel = bsin(nAngle, 1);
@@ -501,7 +501,7 @@ HITSPRITE:
             {
                 if (pHitWall != nullptr)
                 {
-                    BackUpBullet(&x2, &y2, pActor->spr.__int_angle);
+                    BackUpBullet(&x2, &y2, pActor->int_ang());
 
                     if (nType != 3 || RandomSize(2) == 0)
                     {

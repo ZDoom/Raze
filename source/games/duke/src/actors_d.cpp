@@ -1797,7 +1797,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].angle.ang = buildang(Owner->spr.__int_angle);
+							ps[p].angle.ang = buildang(Owner->int_ang());
 
 							if (Owner->GetOwner() != Owner)
 							{

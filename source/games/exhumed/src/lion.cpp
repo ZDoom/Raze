@@ -170,7 +170,7 @@ void AILion::Damage(RunListEvent* ev)
                         PlotCourseToSprite(pActor, pTarget);
                         pActor->nAction = 5;
                         pActor->nCount = RandomSize(3);
-                        pActor->spr.__int_angle = (pActor->spr.__int_angle - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
+                        pActor->spr.__int_angle = (pActor->int_ang() - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
                     }
                     else
                     {
@@ -293,7 +293,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             // loc_378FA:
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
             pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
             pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
             break;
@@ -325,7 +325,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
                 pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
                 pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
                 break;
@@ -389,7 +389,7 @@ void AILion::Tick(RunListEvent* ev)
             int nCheckDist = 0x7FFFFFFF;
 
             int nAngle = pActor->spr.__int_angle;
-            int nScanAngle = (pActor->spr.__int_angle - 512) & kAngleMask;
+            int nScanAngle = (pActor->int_ang() - 512) & kAngleMask;
 
             for (int i = 0; i < 5; i++)
             {
@@ -454,7 +454,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+                pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
                 pActor->spr.xvel = bcos(pActor->spr.__int_angle, -1);
                 pActor->spr.yvel = bsin(pActor->spr.__int_angle, -1);
                 break;
@@ -477,7 +477,7 @@ void AILion::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->spr.__int_angle = (RandomSize(9) + (pActor->spr.__int_angle + 768)) & kAngleMask;
+                pActor->spr.__int_angle = (RandomSize(9) + (pActor->int_ang() + 768)) & kAngleMask;
             }
 
             pActor->spr.zvel = -1000;

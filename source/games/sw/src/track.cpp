@@ -506,7 +506,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->add_int_pos({ MOVEx(256,start_sprite->spr.__int_angle + 1024), MOVEy(256,start_sprite->spr.__int_angle + 1024), 0 });
+        start_sprite->add_int_pos({ MOVEx(256,start_sprite->int_ang() + 1024), MOVEy(256,start_sprite->int_ang() + 1024), 0 });
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
@@ -1733,12 +1733,12 @@ PlayerPart:
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, -delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle - delta_ang);
+                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() - delta_ang);
             }
             else
             {
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + delta_ang);
+                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + delta_ang);
             }
             actor->set_int_pos(pos);
 
@@ -1750,7 +1750,7 @@ PlayerPart:
                 // NOT part of a sector - independant of any sector
                 auto pos = actor->int_pos();
                 rotatepoint(sop->pmid.vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + delta_ang);
+                actor->spr.__int_angle = NORM_ANGLE(actor->int_ang() + delta_ang);
                 actor->set_int_pos(pos);
             }
 
@@ -1760,7 +1760,7 @@ PlayerPart:
                 SetActorZ(sop->so_actors[i], actor->int_pos());
         }
 
-        actor->user.oangdiff += getincangle(oldang, actor->spr.__int_angle);
+        actor->user.oangdiff += getincangle(oldang, actor->int_ang());
 
         if ((actor->spr.extra & SPRX_BLADE))
         {
@@ -3312,12 +3312,12 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lActor->spr.__int_angle);
-            ny = MOVEy(100, lActor->spr.__int_angle);
+            nx = MOVEx(100, lActor->int_ang());
+            ny = MOVEy(100, lActor->int_ang());
 
             actor->set_int_xy(lActor->int_pos().X + nx, lActor->int_pos().Y + ny);
 
-            actor->spr.__int_angle = NORM_ANGLE(lActor->spr.__int_angle + 1024);
+            actor->spr.__int_angle = NORM_ANGLE(lActor->int_ang() + 1024);
 
             //
             // Get the z height to climb

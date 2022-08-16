@@ -507,7 +507,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			pNSprite->__int_angle = (gView->actor->spr.__int_angle + 512) & 2047; // always face viewer
+			pNSprite->__int_angle = (gView->actor->int_ang() + 512) & 2047; // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
@@ -517,7 +517,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 				pNSprite->add_int_y(MulScale(128, Sin(gView->actor->spr.__int_angle), 30));
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
-				pNSprite->__int_angle = (pNSprite->__int_angle + 512) & 2047; // offset angle 90 degrees
+				pNSprite->__int_angle = (pNSprite->int_ang() + 512) & 2047; // offset angle 90 degrees
 		}
 		break;
 	}
@@ -610,7 +610,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
+			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
 			{
@@ -632,7 +632,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
+			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
 			nAnim = GetOctant(dX, dY);
 			break;
 		}
@@ -979,7 +979,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
+			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
 			nAnim = GetOctant(dX, dY);
 			if (nAnim <= 4)
 			{
@@ -996,7 +996,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 			int dX = cX - pTSprite->int_pos().X;
 			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->__int_angle);
+			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
 			nAnim = GetOctant(dX, dY);
 			break;
 		}

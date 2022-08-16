@@ -322,7 +322,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         }
         else if (nMov.type == kHitSprite)
         {
-            BounceGrenade(pActor, nMov.actor()->spr.__int_angle);
+            BounceGrenade(pActor, nMov.actor()->int_ang());
         }
 
         pActor->nHealth = 0;

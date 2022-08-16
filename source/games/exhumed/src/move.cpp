@@ -644,7 +644,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
             ChangeActorSect(pActor, pSectorPre);
 
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + 256) & kAngleMask;
+            pActor->spr.__int_angle = (pActor->int_ang() + 256) & kAngleMask;
             pActor->spr.xvel = bcos(pActor->spr.__int_angle, -2);
             pActor->spr.yvel = bsin(pActor->spr.__int_angle, -2);
             Collision c;

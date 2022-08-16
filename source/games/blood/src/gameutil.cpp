@@ -435,8 +435,8 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 
 	int nNum = 256;
 	gHitInfo.clearObj();
-	int x1 = actor->int_pos().X + MulScale(nOffset, Cos(actor->spr.__int_angle + 512), 30);
-	int y1 = actor->int_pos().Y + MulScale(nOffset, Sin(actor->spr.__int_angle + 512), 30);
+	int x1 = actor->int_pos().X + MulScale(nOffset, Cos(actor->int_ang() + 512), 30);
+	int y1 = actor->int_pos().Y + MulScale(nOffset, Sin(actor->int_ang() + 512), 30);
 	int z1 = actor->int_pos().Z + nZOffset;
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;

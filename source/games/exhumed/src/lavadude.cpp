@@ -265,8 +265,8 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->spr.yvel = bsin(pActor->int_ang());
 
             if (pTarget && !RandomSize(1))
             {
@@ -290,9 +290,9 @@ void AILavaDude::Tick(RunListEvent* ev)
             ChangeActorSect(pActor, pSector);
             pActor->set_int_pos({ x, y, z });
 
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+            pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->spr.yvel = bsin(pActor->int_ang());
             break;
         }
 
@@ -302,9 +302,9 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (coll.type == kHitWall)
         {
-            pActor->spr.__int_angle = (pActor->spr.__int_angle + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-            pActor->spr.xvel = bcos(pActor->spr.__int_angle);
-            pActor->spr.yvel = bsin(pActor->spr.__int_angle);
+            pActor->spr.__int_angle = (pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->spr.yvel = bsin(pActor->int_ang());
             break;
         }
         else if (coll.type == kHitSprite)

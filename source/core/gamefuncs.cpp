@@ -104,7 +104,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			else
 			{
 				// same as wall calculation.
-				daang = buildang(act->spr.__int_angle - 512);
+				daang = buildang(act->int_ang() - 512);
 				newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 				if (abs(nx) > abs(ny))
@@ -356,8 +356,8 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 	int sprcenterx = (width >> 1) + leftofs;
 	int sprcentery = (height >> 1) + topofs;
 
-	int cosang = bcos(spr->__int_angle);
-	int sinang = bsin(spr->__int_angle);
+	int cosang = bcos(spr->int_ang());
+	int sinang = bsin(spr->int_ang());
 	int cosangslope = DivScale(cosang, ratio, 12);
 	int sinangslope = DivScale(sinang, ratio, 12);
 

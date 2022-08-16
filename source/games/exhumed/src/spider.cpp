@@ -144,8 +144,8 @@ void AISpider::Tick(RunListEvent* ev)
                     spp->nFrame = 0;
                     spp->pTarget = pTarget;
 
-                    spp->spr.xvel = bcos(spp->spr.__int_angle);
-                    spp->spr.yvel = bsin(spp->spr.__int_angle);
+                    spp->spr.xvel = bcos(spp->int_ang());
+                    spp->spr.yvel = bsin(spp->int_ang());
                     return;
                 }
             }
@@ -195,8 +195,8 @@ void AISpider::Tick(RunListEvent* ev)
 
                 if (RandomSize(3))
                 {
-                    spp->spr.xvel = bcos(spp->spr.__int_angle);
-                    spp->spr.yvel = bsin(spp->spr.__int_angle);
+                    spp->spr.xvel = bcos(spp->int_ang());
+                    spp->spr.yvel = bsin(spp->int_ang());
                 }
                 else
                 {
@@ -301,9 +301,9 @@ void AISpider::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            spp->spr.__int_angle = (spp->spr.__int_angle + 256) & 0x7EF;
-            spp->spr.xvel = bcos(spp->spr.__int_angle);
-            spp->spr.yvel = bsin(spp->spr.__int_angle);
+            spp->spr.__int_angle = (spp->int_ang() + 256) & 0x7EF;
+            spp->spr.xvel = bcos(spp->int_ang());
+            spp->spr.yvel = bsin(spp->int_ang());
             return;
         }
         case kHitSprite:

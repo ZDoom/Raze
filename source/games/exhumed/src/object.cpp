@@ -1315,7 +1315,7 @@ void AITrap::Tick(RunListEvent* ev)
             {
                 if (nType == 15)
                 {
-                    pBullet->spr.__int_angle = (pBullet->spr.__int_angle - 512) & kAngleMask;
+                    pBullet->spr.__int_angle = (pBullet->int_ang() - 512) & kAngleMask;
                     D3PlayFX(StaticSound[kSound32], pBullet);
                 }
                 else
@@ -1382,7 +1382,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     }
     else
     {
-        int nAngle = (pActor->spr.__int_angle + 256) - RandomSize(9);
+        int nAngle = (pActor->int_ang() + 256) - RandomSize(9);
 
         if (nVal)
         {

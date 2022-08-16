@@ -938,7 +938,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			a = actor->spr.__int_angle - 256 + (krand() & 511) + 1024;
+			a = actor->int_ang() - 256 + (krand() & 511) + 1024;
 			EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
@@ -968,7 +968,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-			a = actor->spr.__int_angle - 1024;
+			a = actor->int_ang() - 1024;
 			EGS(actor->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
@@ -2085,14 +2085,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 64;
-			targ->spr.__int_angle = (targ->spr.__int_angle + krand()) & 16;
+			targ->spr.__int_angle = (targ->int_ang() + krand()) & 16;
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 16;
-			targ->spr.__int_angle = (targ->spr.__int_angle + krand()) & 16;
+			targ->spr.__int_angle = (targ->int_ang() + krand()) & 16;
 			S_PlayActorSound(355, targ);
 		}
 		else

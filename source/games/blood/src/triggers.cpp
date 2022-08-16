@@ -278,8 +278,8 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						y += (target->vel.Y * t) >> 12;
 						int angBak = actor->spr.__int_angle;
 						actor->spr.__int_angle = getangle(x - actor->int_pos().X, y - actor->int_pos().Y);
-						int dx = bcos(actor->spr.__int_angle);
-						int dy = bsin(actor->spr.__int_angle);
+						int dx = bcos(actor->int_ang());
+						int dy = bsin(actor->int_ang());
 						int tz = target->int_pos().Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
 						int dz = DivScale(tz - top - 256, nDist, 10);
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
@@ -936,7 +936,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			if (ang)
 				RotatePoint(&x, &y, ang, a4, a5);
 			viewBackupSpriteLoc(actor);
-			actor->spr.__int_angle = (actor->spr.__int_angle + v14) & 2047;
+			actor->spr.__int_angle = (actor->int_ang() + v14) & 2047;
 			actor->set_int_xy(x + vc - a4, y + v8 - a5);
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -944,7 +944,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			if (ang)
 				RotatePoint((int*)&x, (int*)&y, -ang, a4, sprDy);
 			viewBackupSpriteLoc(actor);
-			actor->spr.__int_angle = (actor->spr.__int_angle - v14) & 2047;
+			actor->spr.__int_angle = (actor->int_ang() - v14) & 2047;
 			actor->set_int_xy(x - vc + a4, y - v8 + a5);
 		}
 		else if (pXSector->Drag)
@@ -961,7 +961,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					RotatePoint(&pos.X, &pos.Y, v14, v20, v24);
 					actor->set_int_pos(pos);
 				}
-				actor->spr.__int_angle = (actor->spr.__int_angle + v14) & 2047;
+				actor->spr.__int_angle = (actor->int_ang() + v14) & 2047;
 				actor->add_int_pos({ v28, v2c, 0 });
 			}
 		}
@@ -988,7 +988,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					if (ang)
 						RotatePoint(&x, &y, ang, a4, a5);
 					viewBackupSpriteLoc(ac);
-					ac->spr.__int_angle = (ac->spr.__int_angle + v14) & 2047;
+					ac->spr.__int_angle = (ac->int_ang() + v14) & 2047;
 					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -996,7 +996,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					if (ang)
 						RotatePoint(&x, &y, -ang, a4, sprDy);
 					viewBackupSpriteLoc(ac);
-					ac->spr.__int_angle = (ac->spr.__int_angle - v14) & 2047;
+					ac->spr.__int_angle = (ac->int_ang() - v14) & 2047;
 					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 			}
