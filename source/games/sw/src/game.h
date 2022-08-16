@@ -2026,6 +2026,11 @@ inline int int_ActorZOfMiddle(DSWActor* actor)
     return (ActorZOfTop(actor) + ActorZOfBottom(actor)) >> 1;
 }
 
+inline double ActorZOfMiddle(DSWActor* actor)
+{
+	return (ActorZOfTop(actor) + ActorZOfBottom(actor)) * zinttoworld * 0.5;
+}
+
 inline int ActorSizeZ(DSWActor* actor)
 {
     return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;

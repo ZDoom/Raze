@@ -1918,8 +1918,8 @@ int DoCarryFlag(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, int_ActorZOfMiddle(attached) };
-        SetActorZ(actor, &pos);
+        DVector3 pos(attached->spr.pos.XY(), ActorZOfMiddle(attached));
+        SetActorZ(actor, pos);
         actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
     }
 

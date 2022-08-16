@@ -3518,7 +3518,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
+        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3557,7 +3557,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
+        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3583,7 +3583,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
+        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3612,7 +3612,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
-            actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
+	        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
             actorNew->set_int_ang(0);
             actorNew->spr.extra = 0;
 
@@ -3672,7 +3672,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
+        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
