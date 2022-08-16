@@ -3463,7 +3463,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 		}
 	}
 	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD) sourceactor->add_int_ang(sourceactor->xspr.data4);
-	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.__int_angle -= sourceactor->xspr.data4;
+	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->add_int_ang(-sourceactor->xspr.data4);
 	else if (sourceactor->xspr.sysData1 == 0)
 	{
 		if ((ang += sourceactor->xspr.data4) >= kAng180) sourceactor->xspr.sysData1 = 1;
@@ -8918,7 +8918,7 @@ void aiPatrolThink(DBloodActor* actor)
 			if (!(markeractor->spr.flags & kModernTypeFlag4))
 			{
 				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->int_ang() + kAng180 : markeractor->int_ang()) & 2047;
-				if ((int)actor->spr.__int_angle != (int)actor->xspr.goalAng) // let the enemy play move animation while turning
+				if ((int)actor->int_ang() != (int)actor->xspr.goalAng) // let the enemy play move animation while turning
 					return;
 			}
 

@@ -125,8 +125,7 @@ void DoSpawn(player_struct *p, int snum)
 	else if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE3 ) )
 	{
 		// like chaingun shells
-		j->add_int_ang(1024);
-		j->spr.__int_angle &= 2047;
+		j->set_int_ang((j->int_ang() + 1024) & 2047);
 		j->spr.xvel += 32;
 		j->add_int_z(3<<8);
 		ssp(j,CLIPMASK0);

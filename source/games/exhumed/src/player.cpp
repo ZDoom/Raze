@@ -265,7 +265,7 @@ void RestartPlayer(int nPlayer)
 
 		pActor->set_int_pos(nNStartSprite->int_pos());
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = buildang(nNStartSprite->spr.__int_angle&kAngleMask);
+		plr->angle.ang = buildang(nNStartSprite->int_ang() & kAngleMask);
 		pActor->set_int_ang(plr->angle.ang.asbuild());
 
 		floorsprt = insertActor(pActor->sector(), 0);

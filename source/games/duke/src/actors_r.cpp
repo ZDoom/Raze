@@ -943,12 +943,12 @@ static void chickenarrow(DDukeActor* actor)
 			if (ang3 > 1023)
 				actor->add_int_ang(51);
 			else
-				actor->spr.__int_angle -= 51;
+				actor->add_int_ang(-51);
 		}
 		else if (ang2 > 100)
 		{
 			if (ang3 > 1023)
-				actor->spr.__int_angle -= 51;
+				actor->add_int_ang(-51);
 			else
 				actor->add_int_ang(51);
 		}

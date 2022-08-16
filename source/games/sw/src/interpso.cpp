@@ -376,7 +376,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 continue; // target went poof.
 
             interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
-                                      (double)actorofang->spr.__int_angle :
+                                      (double)actorofang->int_ang() :
                                       getvalue(interp->data[i]);
         }
         if (interp->tic == 0) // Only if the SO has just moved

@@ -2382,8 +2382,8 @@ static void greenslime(DDukeActor *actor)
 			if (actor->spr.xvel < 32) actor->spr.xvel += 4;
 			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
 
-			actor->add_int_ang(
-				getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
+			actor->add_int_ang(getincangle(actor->int_ang(),
+				getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
 			// TJR
 		}
 

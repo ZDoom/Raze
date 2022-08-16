@@ -284,7 +284,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         if (num_ord > 3) num_ord = 3;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->spr.__int_angle+(i*1024)));
+            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (i*1024)));
             InitSpriteChemBomb(actor);
         }
         break;
@@ -664,7 +664,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         if (num_ord > 3) num_ord = 3;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->spr.__int_angle+(i*1024)));
+            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (i*1024)));
             InitSpriteChemBomb(actor);
         }
         break;

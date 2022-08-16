@@ -669,7 +669,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->__int_angle = NORM_ANGLE(tsp->int_ang() - 512 - 24);
+                    tsp->set_int_ang(NORM_ANGLE(tsp->int_ang() - 512 - 24));
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
@@ -733,7 +733,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
-                tsp->__int_angle = NORM_ANGLE(tsp->int_ang() - 512);
+                tsp->set_int_ang(NORM_ANGLE(tsp->int_ang() - 512));
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
@@ -775,7 +775,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
 
                     pos.Z = tsp->int_pos().Z + pp->si.Z;
                     tsp->set_int_pos(pos);
-                    tsp->__int_angle = pp->siang;
+                    tsp->set_int_ang(pp->siang);
                     //continue;
                 }
                 else
@@ -792,7 +792,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
                 tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
                 tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
-                tsp->__int_angle -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
+                tsp->add_int_ang(-MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16));
             }
         }
 
@@ -1654,7 +1654,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->spr.__int_angle : actor->interpolatedang(smoothratio)) - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->int_ang() : actor->interpolatedang(smoothratio)) - cang) & 2047;
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;

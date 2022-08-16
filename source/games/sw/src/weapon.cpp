@@ -7678,7 +7678,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
                 delta_ang = -32;
         } 
 
-        actor->spr.__int_angle -= delta_ang;
+        actor->add_int_ang(-delta_ang);
 
         zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
@@ -7744,7 +7744,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
                 delta_ang = -32;
         }
 
-        actor->spr.__int_angle -= delta_ang;
+        actor->add_int_ang(-delta_ang);
 
         actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
         actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
@@ -9670,8 +9670,8 @@ int SpawnCoolieExp(DSWActor* actor)
     actor->user.Counter = RandomRange(120);  // This is the wait til birth time!
 
     zh = actor->int_pos().Z - ActorSizeZ(actor) + (ActorSizeZ(actor) >> 2);
-    nx = actor->int_pos().X + MOVEx(64, actor->spr.__int_angle+1024);
-    ny = actor->int_pos().Y + MOVEy(64, actor->spr.__int_angle+1024);
+    nx = actor->int_pos().X + MOVEx(64, actor->int_ang() + 1024);
+    ny = actor->int_pos().Y + MOVEy(64, actor->int_ang() + 1024);
 
     PlaySound(DIGI_COOLIEEXPLODE, actor, v3df_none);
 
@@ -15066,7 +15066,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
             if ((RANDOM_P2(1024<<5)>>5) < 256)
             {
                 if (!hitActor->user.PlayerP)
-                    SpawnBlood(hitActor, nullptr, NORM_ANGLE(actor->spr.__int_angle+1024),hit_x, hit_y, hit_z);
+                    SpawnBlood(hitActor, nullptr, NORM_ANGLE(actor->int_ang() + 1024),hit_x, hit_y, hit_z);
                 if (hitActor->user.ID != TRASHCAN && hitActor->user.ID != ZILLA_RUN_R0)
                     QueueWallBlood(hitActor, actor->int_ang());  //QueueWallBlood needs bullet angle.
             }

@@ -118,7 +118,7 @@ void GameInterface::UpdateSounds()
 
 	if (gMe->actor)
 	{
-		listener.angle = -gMe->actor->spr.__int_angle * float(BAngRadian); // Build uses a period of 2048.
+		listener.angle = -gMe->actor->spr.int_ang() * float(BAngRadian); // Build uses a period of 2048.
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(gMe->actor->int_pos());
 		listener.valid = true;

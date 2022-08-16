@@ -833,7 +833,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_31_FLOOR_RISE_FALL:
 			actor->temp_data[1] = sectp->int_floorz();
 			//	actor->temp_data[2] = actor->spr.hitag;
-			if (actor->spr.__int_angle != 1536) sectp->setfloorz(actor->spr.pos.Z);
+			if (actor->int_ang() != 1536) sectp->setfloorz(actor->spr.pos.Z);
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
@@ -844,7 +844,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_32_CEILING_RISE_FALL:
 			actor->temp_data[1] = sectp->int_ceilingz();
 			actor->temp_data[2] = actor->spr.hitag;
-			if (actor->spr.__int_angle != 1536) sectp->setceilingz(actor->spr.pos.Z);
+			if (actor->int_ang() != 1536) sectp->setceilingz(actor->spr.pos.Z);
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;

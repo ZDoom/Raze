@@ -503,6 +503,11 @@ struct spritetypebase
 		__int_angle = int16_t(a);
 	}
 
+	void add_int_ang(int a)
+	{
+		__int_angle += int16_t(a);
+	}
+
 	void copy_ang(const spritetypebase* other)
 	{
 		__int_angle = other->int_ang();

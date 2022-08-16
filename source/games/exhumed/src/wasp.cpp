@@ -157,7 +157,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             pActor->nAction = 1;
             pActor->add_int_ang(RandomSize(9) + 768);
-            pActor->spr.__int_angle &= kAngleMask;
+            pActor->norm_ang();
 
             pActor->nVel = 3000;
 
@@ -305,7 +305,7 @@ void AIWasp::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->add_int_ang(RandomSize(9) + 768);
-            pActor->spr.__int_angle &= kAngleMask;
+            pActor->norm_ang();
             pActor->spr.zvel = (-20) - RandomSize(6);
 
             pActor->nAction = 1;

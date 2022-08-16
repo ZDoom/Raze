@@ -213,7 +213,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->xrepeat = 0;
 				else
 				{
-					t->__int_angle = getangle(x - t->int_pos().X, y - t->int_pos().Y);
+					t->set_int_ang(getangle(x - t->int_pos().X, y - t->int_pos().Y));
 					t->pos.X = OwnerAc->spr.pos.X + buildang(t->int_ang()).fcos();
 					t->pos.Y = OwnerAc->spr.pos.Y + buildang(t->int_ang()).fsin();
 				}
@@ -938,7 +938,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						t->picnum = OwnerAc->dispicnum;
 					t->pal = OwnerAc->spr.pal;
 					t->shade = OwnerAc->spr.shade;
-					t->__int_angle = OwnerAc->int_ang();
+					t->set_int_ang(OwnerAc->int_ang());
 					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
 				}
 			}

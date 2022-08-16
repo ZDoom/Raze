@@ -2709,7 +2709,7 @@ void handle_se00(DDukeActor* actor)
 				}
 
 				act2->add_int_ang((l * q));
-				act2->spr.__int_angle &= 2047;
+				act2->norm_ang();
 
 				act2->add_int_z(zchange);
 
@@ -3722,7 +3722,7 @@ void handle_se13(DDukeActor* actor)
 	}
 
 
-	if (actor->temp_data[2] == 4 && actor->spr.__int_angle != 512)
+	if (actor->temp_data[2] == 4 && actor->int_ang() != 512)
 		for (int x = 0; x < 7; x++) RANDOMSCRAP(actor);
 }
 
@@ -4472,7 +4472,7 @@ void handle_se32(DDukeActor *actor)
 
 		if (actor->temp_data[2] == 1) // Retract
 		{
-			if (actor->spr.__int_angle != 1536)
+			if (actor->int_ang() != 1536)
 			{
 				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
 				{
@@ -4660,7 +4660,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 
 		if (actor->temp_data[2] == 1) // Retract
 		{
-			if (actor->spr.__int_angle != 1536)
+			if (actor->int_ang() != 1536)
 			{
 				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yvel)
 				{
@@ -4915,7 +4915,7 @@ int dodge(DDukeActor* actor)
 				d = bxvect * by - byvect * bx;
 				if (abs(d) < 65536 * 64)
 				{
-					actor->spr.__int_angle -= 512 + (krand() & 1024);
+					actor->add_int_ang(-(512 + (krand() & 1024)));
 					return 1;
 				}
 			}
@@ -5041,7 +5041,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 					j = 128 - (krand() & 256);
 					actor->add_int_ang(j);
 					if (hits(actor) < 844)
-						actor->spr.__int_angle -= j;
+						actor->add_int_ang(-j);
 				}
 			}
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose

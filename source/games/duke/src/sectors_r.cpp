@@ -2063,7 +2063,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case BOWLINGBALL:
 		proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-		proj->spr.__int_angle -= (krand() & 16);
+		proj->add_int_ang(-(krand() & 16));
 		S_PlayActorSound(355, targ);
 		break;
 
@@ -2076,7 +2076,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.__int_angle -= (targ->int_ang() << 1) + 1024;
+			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
 			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
@@ -2084,14 +2084,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.__int_angle -= ((targ->int_ang() << 1) + krand()) & 64;
+			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 64));
 			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
-			proj->spr.__int_angle -= ((targ->int_ang() << 1) + krand()) & 16;
+			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 16));
 			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);
 		}

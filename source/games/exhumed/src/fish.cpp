@@ -188,7 +188,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
 void IdleFish(DExhumedActor* pActor, int edx)
 {
     pActor->add_int_ang((256 - RandomSize(9)) + 1024);
-    pActor->spr.__int_angle &= kAngleMask;
+    pActor->norm_ang();
 
     pActor->spr.xvel = bcos(pActor->int_ang(), -8);
     pActor->spr.yvel = bsin(pActor->int_ang(), -8);

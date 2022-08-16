@@ -789,7 +789,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			}
 
 			spawned->add_int_pos({ -xoffs, -yoffs, 0 });
-			spawned->spr.__int_angle -= aoffs;
+			spawned->add_int_ang(-aoffs);
 
 			spawned->spr.xrepeat = 24;
 			spawned->spr.yrepeat = 24;
@@ -2375,8 +2375,7 @@ static void operateweapon(int snum, ESyncBits actions)
 					auto j = spawn(pact, SHELL);
 					if (j)
 					{
-						j->add_int_ang(1024);
-						j->spr.__int_angle &= 2047;
+						j->set_int_ang((j->int_ang() + 1024) & 2047);
 						j->spr.xvel += 32;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
