@@ -300,6 +300,11 @@ struct HitInfoBase
 		hitWall = nullptr;
 		hitActor = nullptr;
 	}
+	
+	const vec3_t int_hitpos() const
+	{
+		return __int_hitpos;
+	}
 };
 
 template<class T>

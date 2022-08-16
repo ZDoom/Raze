@@ -1607,7 +1607,7 @@ enum
 short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int _PlaySound(int num, DSWActor* sprite, PLAYER* player, vec3_t *pos, int flags, int channel, EChanFlags sndflags);
+int _PlaySound(int num, DSWActor* sprite, PLAYER* player, const vec3_t *const pos, int flags, int channel, EChanFlags sndflags);
 void InitAmbient(int num, DSWActor* actor);
 
 inline void PlaySound(int num, PLAYER* player, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
@@ -1621,6 +1621,10 @@ inline void PlaySound(int num, int flags, int channel = 8, EChanFlags sndflags =
 inline void PlaySound(int num, vec3_t *pos, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(num, nullptr, nullptr, pos, flags, channel, sndflags);
+}
+inline void PlaySound(int num, const vec3_t &pos, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
+{
+	_PlaySound(num, nullptr, nullptr, &pos, flags, channel, sndflags);
 }
 
 int _PlayerSound(int num, PLAYER* pp);

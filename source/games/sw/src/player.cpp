@@ -1931,18 +1931,10 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        static int count = 0;
-
         pp->pos.X = pp->oldpos.X;
         pp->pos.Y = pp->oldpos.Y;
         pp->pos.Z = pp->oldpos.Z;
         pp->cursector = pp->lastcursector;
-
-        // if stuck here for more than 10 seconds
-        if (count++ > 40 * 10)
-        {
-            ASSERT(true == false);
-        }
     }
 }
 
@@ -2621,7 +2613,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                     { MOVEx(256, pp->angle.ang.Buildang()), MOVEy(256, pp->angle.ang.Buildang()), 0 },
                     hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hit.__int_hitpos.vec2 - hit_pos.vec2) < 800)
+                if (FindDistance2D(hit.int_hitpos().vec2 - hit_pos.vec2) < 800)
                 {
                     if (hit.hitWall)
                         actor->user.coll.setWall(wallnum(hit.hitWall));
@@ -3378,7 +3370,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
 
             if (hit.hitSector != nullptr && labs(hit.hitSector->int_floorz() - pp->pos.Z) < Z(50))
             {
-                if (Distance(pp->pos.X, pp->pos.Y, hit.__int_hitpos.X, hit.__int_hitpos.Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
+                if (Distance(pp->pos.X, pp->pos.Y, hit.int_hitpos().X, hit.int_hitpos().Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3682,7 +3674,7 @@ bool PlayerOnLadder(PLAYER* pp)
     {
         neartag(pp->pos, pp->cursector, NORM_ANGLE(pp->angle.ang.Buildang() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
 
-        if (near.hitWall == nullptr || near.__int_hitpos.X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
+        if (near.hitWall == nullptr || near.int_hitpos().X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
         FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector,
@@ -3691,7 +3683,7 @@ bool PlayerOnLadder(PLAYER* pp)
                    0,
                    hit, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->pos.X, pp->pos.Y, hit.__int_hitpos.X, hit.__int_hitpos.Y);
+        dist = DIST(pp->pos.X, pp->pos.Y, hit.int_hitpos().X, hit.int_hitpos().Y);
 
         if (hit.actor() != nullptr)
         {

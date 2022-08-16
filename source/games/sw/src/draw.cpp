@@ -950,8 +950,8 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, f
 
     actor->spr.cstat = bakcstat;              // Restore cstat
 
-    hx = hit.__int_hitpos.X - (*nx);
-    hy = hit.__int_hitpos.Y - (*ny);
+    hx = hit.int_hitpos().X - (*nx);
+    hy = hit.int_hitpos().Y - (*ny);
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary
     if (abs(vx) + abs(vy) > abs(hx) + abs(hy))

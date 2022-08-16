@@ -176,7 +176,7 @@ int hits(DDukeActor* actor)
 
 	auto pos = actor->int_pos();
 	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.__int_hitpos.vec2 - actor->int_pos().vec2));
+	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -202,7 +202,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.__int_hitpos.vec2 - actor->int_pos().vec2));
+	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2));
 }
 
 //---------------------------------------------------------------------------
@@ -218,7 +218,7 @@ int hitawall(player_struct* p, walltype** hitw)
 	hitscan(p->player_int_pos(), p->cursector, { int(p->angle.ang.Cos() * (1 << 14)), int(p->angle.ang.Sin() * (1 << 14)), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.__int_hitpos.vec2 - p->player_int_pos().vec2));
+	return (FindDistance2D(hit.int_hitpos().vec2 - p->player_int_pos().vec2));
 }
 
 
@@ -1027,7 +1027,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	// oh my...
-	if (FindDistance2D(sx - hit.__int_hitpos.X, sy - hit.__int_hitpos.Y) < 1024 &&
+	if (FindDistance2D(sx - hit.int_hitpos().X, sy - hit.int_hitpos().Y) < 1024 &&
 		(hit.hitWall != nullptr && hit.hitWall->overpicnum != BIGFORCE) &&
 		((hit.hitWall->twoSided() && hit.hitSector != nullptr &&
 			hit.hitWall->nextSector()->lotag == 0 &&
@@ -1059,7 +1059,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
 					spawned->set_int_ang(getangle(-delta.X, -delta.Y) + 512); // note the '-' sign here!
-					spawned->set_int_pos(hit.__int_hitpos);
+					spawned->set_int_pos(hit.int_hitpos());
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->int_pos());

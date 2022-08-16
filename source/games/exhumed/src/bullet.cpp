@@ -434,9 +434,9 @@ MOVEEND:
             else
                 dz = -pBullet->nPitch * 512;
             hitscan(startPos, pActor->sector(), { bcos(pActor->int_ang()), bsin(pActor->int_ang()), dz }, hit, CLIPMASK1);
-            x2 = hit.__int_hitpos.X;
-            y2 = hit.__int_hitpos.Y;
-            z2 = hit.__int_hitpos.Z;
+            x2 = hit.int_hitpos().X;
+            y2 = hit.int_hitpos().Y;
+            z2 = hit.int_hitpos().Z;
             hitactor = hit.actor();
             pHitSect = hit.hitSector;
             pHitWall = hit.hitWall;

@@ -751,7 +751,7 @@ static void unicultThinkChase(DBloodActor* actor)
 					if (hit >= 0)
 					{
 						targetDist = dist - (target->spr.clipdist << 2);
-						objDist = approxDist(gHitInfo.__int_hitpos.X - actor->int_pos().X, gHitInfo.__int_hitpos.Y - actor->int_pos().Y);
+						objDist = approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y);
 					}
 
 					if (actor != gHitInfo.actor() && targetDist > objDist)
@@ -865,7 +865,7 @@ static void unicultThinkChase(DBloodActor* actor)
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
 								if (!(hitactor->hasX() && (!immune || (immune && hitactor->spr.statnum == kStatThing && hitactor->xspr.Vector)) && !hitactor->xspr.locked))
 								{
-									if ((approxDist(gHitInfo.__int_hitpos.X - actor->int_pos().X, gHitInfo.__int_hitpos.Y - actor->int_pos().Y) <= 1500 && !blck)
+									if ((approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y) <= 1500 && !blck)
 										|| (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1))))
 									{
 										//viewSetSystemMessage("GO CHASE");
@@ -940,8 +940,8 @@ static void unicultThinkChase(DBloodActor* actor)
 								case kMissileFireballTchernobog:
 								{
 									// allow attack if dude is far from object, but target is close to it
-									int dudeDist = approxDist(gHitInfo.__int_hitpos.X - actor->int_pos().X, gHitInfo.__int_hitpos.Y - actor->int_pos().Y);
-									int targetDist1 = approxDist(gHitInfo.__int_hitpos.X - target->int_pos().X, gHitInfo.__int_hitpos.Y - target->int_pos().Y);
+									int dudeDist = approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y);
+									int targetDist1 = approxDist(gHitInfo.int_hitpos().X - target->int_pos().X, gHitInfo.int_hitpos().Y - target->int_pos().Y);
 									if (dudeDist < mdist)
 									{
 										//viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);

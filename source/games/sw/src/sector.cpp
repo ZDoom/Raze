@@ -1977,7 +1977,7 @@ bool NearThings(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.__int_hitpos.X, hit.__int_hitpos.Y, pp->pos.X, pp->pos.Y) > 1500)
+        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->pos.X, pp->pos.Y) > 1500)
             return false;
 
         // hit a sprite?
@@ -2023,7 +2023,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = ntsec->lotag;
         save_hitag = ntsec->hitag;
 
-        ntip->dist = near.__int_hitpos.X;
+        ntip->dist = near.int_hitpos().X;
         ntip->sectp = ntsec;
         ntip->wallp = nullptr;
         ntip->actor = nullptr;
@@ -2050,7 +2050,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = ntwall->lotag;
         save_hitag = ntwall->hitag;
 
-        ntip->dist = near.__int_hitpos.X;
+        ntip->dist = near.int_hitpos().X;
         ntip->sectp = nullptr;
         ntip->wallp = ntwall;
         ntip->actor = nullptr;
@@ -2077,7 +2077,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = actor->spr.lotag;
         save_hitag = actor->spr.hitag;
 
-        ntip->dist = near.__int_hitpos.X;
+        ntip->dist = near.int_hitpos().X;
         ntip->sectp = nullptr;
         ntip->wallp = nullptr;
         ntip->actor = actor;

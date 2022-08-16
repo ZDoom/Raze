@@ -631,7 +631,7 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const vec3_t* const ppos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;

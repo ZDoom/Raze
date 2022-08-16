@@ -7710,7 +7710,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 	int x = actor->int_pos().X, y = actor->int_pos().Y, z = actor->int_pos().Z;
 	auto pSector = actor->sector();
 	HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
-	int nDist = approxDist(x - gHitInfo.__int_hitpos.X, y - gHitInfo.__int_hitpos.Y);
+	int nDist = approxDist(x - gHitInfo.int_hitpos().X, y - gHitInfo.int_hitpos().Y);
 	if (target != nullptr && nDist - (actor->spr.clipdist << 2) < nRange)
 		return (target == gHitInfo.actor());
 

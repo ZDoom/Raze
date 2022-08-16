@@ -1329,7 +1329,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
         }
     }
 
-    if ((x1 != INT32_MAX) && (abs(x1-sv->X)+abs(y1-sv->Y) < abs((hit->__int_hitpos.X)-sv->X)+abs((hit->__int_hitpos.Y)-sv->Y)))
+    if ((x1 != INT32_MAX) && (abs(x1-sv->X)+abs(y1-sv->Y) < abs((hit->int_hitpos().X)-sv->X)+abs((hit->int_hitpos().Y)-sv->Y)))
     {
         if (inside(x1,y1,sec) == 1)
         {
@@ -1386,7 +1386,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 < compat_maybe_truncate_to_int32((coord_t)(x2-sv->X)*(y1-sv->Y))) continue;
             if (rintersect(sv->X,sv->Y,sv->Z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
-            if (abs(intx-sv->X)+abs(inty-sv->Y) >= abs((hitinfo.__int_hitpos.X)-sv->X)+abs((hitinfo.__int_hitpos.Y)-sv->Y))
+            if (abs(intx-sv->X)+abs(inty-sv->Y) >= abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
                 continue;
 
             if ((!wal->twoSided()) || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
@@ -1454,7 +1454,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 ucoefup16 = rintersect(sv->X,sv->Y,sv->Z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
 
-                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.__int_hitpos.X)-sv->X)+abs((hitinfo.__int_hitpos.Y)-sv->Y))
+                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
                     continue;
 
                 daz = actor->int_pos().Z + actor->GetOffsetAndHeight(k);
@@ -1496,7 +1496,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 intx = int(sv->X + (int64_t(intz) - sv->Z) * vx / vz);
                 inty = int(sv->Y + (int64_t(intz) - sv->Z) * vy / vz);
 
-                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.__int_hitpos.X)-sv->X)+abs((hitinfo.__int_hitpos.Y)-sv->Y))
+                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
@@ -1526,7 +1526,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 inty = sv->Y + MulScale(vy, dist2, 30);
                 intz = sv->Z + MulScale(vz, dist2, 30);
 
-                if (abs(intx - sv->X) + abs(inty - sv->Y) > abs((hitinfo.__int_hitpos.X) - sv->X) + abs((hitinfo.__int_hitpos.Y) - sv->Y))
+                if (abs(intx - sv->X) + abs(inty - sv->Y) > abs((hitinfo.int_hitpos().X) - sv->X) + abs((hitinfo.int_hitpos().Y) - sv->Y))
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,

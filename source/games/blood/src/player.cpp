@@ -1425,7 +1425,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 	int y = bsin(plActor->int_ang());
 	int z = pPlayer->slope;
 	int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
-	int hitDist = approxDist(plActor->int_pos().X - gHitInfo.__int_hitpos.X, plActor->int_pos().Y - gHitInfo.__int_hitpos.Y) >> 4;
+	int hitDist = approxDist(plActor->int_pos().X - gHitInfo.int_hitpos().X, plActor->int_pos().Y - gHitInfo.int_hitpos().Y) >> 4;
 	if (hitDist < 64)
 	{
 		switch (hit)

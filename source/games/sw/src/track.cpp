@@ -3107,7 +3107,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         {
             neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
 
-            if (near.actor() != nullptr && near.__int_hitpos.X < 1024)
+            if (near.actor() != nullptr && near.int_hitpos().X < 1024)
             {
                 if (OperateSprite(near.actor(), false))
                 {
@@ -3121,7 +3121,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
         }
 
-        if (near.hitSector != nullptr && near.__int_hitpos.X < 1024)
+        if (near.hitSector != nullptr && near.int_hitpos().X < 1024)
         {
             if (OperateSector(near.hitSector, false))
             {
