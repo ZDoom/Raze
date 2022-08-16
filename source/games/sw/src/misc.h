@@ -20,7 +20,21 @@ int32_t CONFIG_ReadSetup(void);
 
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
 DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
+inline DSWActor* Warp(DVector3& pos, sectortype** sect)
+{
+	vec3_t vv = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+	auto act = Warp(&vv.X, &vv.Y, &vv.Z, sect);
+	pos = { vv.X * inttoworld, vv.Y * inttoworld, vv.Z * zinttoworld };
+	return act;
+}
 DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
+inline DSWActor* WarpPlane(DVector3& pos, sectortype** sect)
+{
+	vec3_t vv = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+	auto act = WarpPlane(&vv.X, &vv.Y, &vv.Z, sect);
+	pos = { vv.X * inttoworld, vv.Y * inttoworld, vv.Z * zinttoworld };
+	return act;
+}
 
 
 
