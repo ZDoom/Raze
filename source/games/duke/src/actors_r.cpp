@@ -394,9 +394,9 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		if (dasectp == nullptr || (dasectp != nullptr && actor->actorstayput != nullptr && actor->actorstayput != dasectp))
 		{
 			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER)
-				actor->spr.__int_angle = (krand() & 2047);
+				actor->set_int_ang((krand() & 2047));
 			else if ((actor->temp_data[0] & 3) == 1)
-				actor->spr.__int_angle = (krand() & 2047);
+				actor->set_int_ang((krand() & 2047));
 			SetActor(actor, actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
@@ -660,7 +660,7 @@ void movefallers_r(void)
 					act->spr.extra = x;
 				}
 			}
-			act->spr.__int_angle = act->temp_data[1];
+			act->set_int_ang(act->temp_data[1]);
 			act->spr.pos.Z += 16;
 		}
 		else if (act->temp_data[0] == 1)
@@ -740,7 +740,7 @@ static void movecrack(DDukeActor* actor)
 		else
 		{
 			actor->spr.cstat = ESpriteFlags::FromInt(actor->temp_data[0]);
-			actor->spr.__int_angle = actor->temp_data[1];
+			actor->set_int_ang(actor->temp_data[1]);
 			actor->spr.extra = 0;
 		}
 	}
@@ -953,7 +953,7 @@ static void chickenarrow(DDukeActor* actor)
 				actor->spr.__int_angle += 51;
 		}
 		else
-			actor->spr.__int_angle = ang;
+			actor->set_int_ang(ang);
 
 		if (actor->spr.hitag > 180)
 			if (actor->spr.zvel <= 0)
@@ -1053,7 +1053,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT && proj->spr.picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
 		int k = getangle(wal->delta());
-		proj->spr.__int_angle = ((k << 1) - proj->int_ang()) & 2047;
+		proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
 		return true;
@@ -1076,7 +1076,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 			}
 
 			int k = getangle(wal->delta());
-			proj->spr.__int_angle = ((k << 1) - proj->int_ang()) & 2047;
+			proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 			return true;
 		}
 		if (proj->spr.picnum == SHRINKSPARK)
@@ -1097,7 +1097,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 						j->spr.xrepeat = 8;
 						j->spr.yrepeat = 8;
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-						j->spr.__int_angle = (j->int_ang() + 512) & 2047;
+						j->set_int_ang((j->int_ang() + 512) & 2047);
 						j->spr.clipdist = MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7);
 					}
 				}
@@ -1111,7 +1111,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 			}
 
 			int k = getangle(wal->delta());
-			proj->spr.__int_angle = ((k << 1) - proj->int_ang()) & 2047;
+			proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 			return true;
 		}
 	}
@@ -1658,7 +1658,7 @@ void movetransports_r(void)
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									spawned->spr.xvel = act2->spr.xvel >> 1;
-									spawned->spr.__int_angle = act2->int_ang();
+									spawned->set_int_ang(act2->int_ang());
 									ssp(spawned, CLIPMASK0);
 								}
 							}
@@ -1671,7 +1671,7 @@ void movetransports_r(void)
 									if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
 									{
 										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->int_floorz()) });
-										act2->spr.__int_angle = Owner->int_ang();
+										act2->set_int_ang(Owner->int_ang());
 
 										act2->backupang();
 
@@ -2175,7 +2175,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3190)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3190)->set_int_ang(act->int_ang());
 					act->spr.lotag = 128;
 				}
 				break;
@@ -2183,7 +2183,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3192)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3192)->set_int_ang(act->int_ang());
 					act->spr.lotag = 256;
 				}
 				break;
@@ -2208,7 +2208,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3120)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3120)->set_int_ang(act->int_ang());
 					act->spr.lotag = 448;
 				}
 				break;
@@ -2216,7 +2216,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3122)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3122)->set_int_ang(act->int_ang());
 					act->spr.lotag = 64;
 				}
 				break;
@@ -2224,7 +2224,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3123)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3123)->set_int_ang(act->int_ang());
 					act->spr.lotag = 512;
 				}
 				break;
@@ -2232,7 +2232,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3124)->spr.__int_angle = act->int_ang();
+					spawn(act, RRTILE3124)->set_int_ang(act->int_ang());
 					act->spr.lotag = 224;
 				}
 				break;
@@ -2444,7 +2444,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->spr.xvel = 0;
 			goto DETONATEB;
 		}
-		actor->spr.__int_angle = ((k << 1) - actor->int_ang()) & 2047;
+		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
 		actor->spr.xvel >>= 1;
 	}
 
@@ -2575,7 +2575,7 @@ static int henstand(DDukeActor *actor)
 			if (coll.type == kHitWall)
 			{
 				int k = getangle(coll.hitWall->delta());
-				actor->spr.__int_angle = ((k << 1) - actor->int_ang()) & 2047;
+				actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
 			}
 			else if (coll.type == kHitSprite)
 			{
@@ -2589,7 +2589,7 @@ static int henstand(DDukeActor *actor)
 					{
 						ns->spr.xvel = 32;
 						ns->spr.lotag = 40;
-						ns->spr.__int_angle = actor->int_ang();
+						ns->set_int_ang(actor->int_ang());
 					}
 				}
 			}
@@ -3511,7 +3511,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;
-			actor->spr.__int_angle = goalang;
+			actor->set_int_ang(goalang);
 		}
 		actor->spr.__int_angle += angdif;
 	}
@@ -3527,7 +3527,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (angdif > -32 && angdif < 0)
 			{
 				angdif = 0;
-				actor->spr.__int_angle = goalang;
+				actor->set_int_ang(goalang);
 			}
 			actor->spr.__int_angle += angdif;
 		}

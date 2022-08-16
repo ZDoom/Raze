@@ -360,7 +360,7 @@ void movedummyplayers(void)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->set_int_z(act->sector()->int_ceilingz() + (27 << 8));
-				act->spr.__int_angle = ps[p].angle.ang.asbuild();
+				act->set_int_ang(ps[p].angle.ang.asbuild());
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
@@ -400,7 +400,7 @@ void moveplayers(void)
 			{
 				act->spr.pos = p->opos.plusZ(gs.playerheight);
 				act->backupz();
-				act->spr.__int_angle = p->angle.oang.asbuild();
+				act->set_int_ang(p->angle.oang.asbuild());
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -464,7 +464,7 @@ void moveplayers(void)
 						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) >> 1);
 					}
 				}
-				act->spr.__int_angle = p->angle.ang.asbuild();
+				act->set_int_ang(p->angle.ang.asbuild());
 			}
 		}
 		else
@@ -497,13 +497,13 @@ void moveplayers(void)
 			if (act->spr.extra < 8)
 			{
 				act->spr.xvel = 128;
-				act->spr.__int_angle = p->angle.ang.asbuild();
+				act->set_int_ang(p->angle.ang.asbuild());
 				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
 			else
 			{
-				act->spr.__int_angle = 2047 - (p->angle.ang.asbuild());
+				act->set_int_ang(2047 - (p->angle.ang.asbuild()));
 				SetActor(act, act->spr.pos);
 			}
 		}
@@ -641,7 +641,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				actor->spr.__int_angle = getangle(cpt.pole - actor->spr.pos.XY());
+				actor->set_int_ang(getangle(cpt.pole - actor->spr.pos.XY()));
 				SetActor(a2, DVector3( cpt.pole.X, cpt.pole.Y, a2->spr.pos.Z ));
 				actor->temp_data[0]++;
 				return;
@@ -750,7 +750,7 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (actor->spr.xvel < 192)
 			actor->spr.xvel += 8;
-		actor->spr.__int_angle = getangle(cpt.pos.XY() - actor->spr.pos.XY());
+		actor->set_int_ang(getangle(cpt.pos.XY() - actor->spr.pos.XY()));
 		ssp(actor, CLIPMASK0);
 		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (8 * 8))
 			actor->temp_data[0]++;
@@ -1288,7 +1288,7 @@ void bounce(DDukeActor* actor)
 
 	actor->spr.zvel = zvect;
 	actor->spr.xvel = ksqrt(DMulScale(xvect, xvect, yvect, yvect, 8));
-	actor->spr.__int_angle = getangle(xvect, yvect);
+	actor->set_int_ang(getangle(xvect, yvect));
 }
 
 //---------------------------------------------------------------------------
@@ -1317,7 +1317,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 			return;
 		}
 
-	actor->spr.__int_angle = Owner->int_ang();
+	actor->set_int_ang(Owner->int_ang());
 	actor->spr.pos = Owner->spr.pos.plusZ(Owner->isPlayer() ? -34 : 0);
 
 	for (int k = 0; k < actor->temp_data[0]; k++)
@@ -1433,7 +1433,7 @@ bool rat(DDukeActor* actor, bool makesound)
 			deletesprite(actor);
 			return false;
 		}
-		else actor->spr.__int_angle = (krand() & 2047);
+		else actor->set_int_ang((krand() & 2047));
 	}
 	if (actor->spr.xvel < 128)
 		actor->spr.xvel += 2;
@@ -1474,7 +1474,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (j == kHitWall)
 		{
 			int k = getangle(coll.hitWall->delta());
-			actor->spr.__int_angle = ((k << 1) - actor->int_ang()) & 2047;
+			actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
 		}
 		else if (j == kHitSprite)
 		{
@@ -1522,7 +1522,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 							if (actor->spr.pal == 12)
 								actor->spr.xvel = 164;
 							else actor->spr.xvel = 140;
-							actor->spr.__int_angle = ps[p].angle.ang.asbuild();
+							actor->set_int_ang(ps[p].angle.ang.asbuild());
 							ps[p].toggle_key_flag = 2;
 						}
 					}
@@ -1530,7 +1530,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 512 && actor->sector() == ps[p].cursector)
 		{
-			actor->spr.__int_angle = getangle(actor->spr.pos.XY() - ps[p].pos.XY());
+			actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 			actor->spr.xvel = 48;
 		}
 	}
@@ -1558,7 +1558,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				{
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
 					k->spr.clipdist = 64;
-					k->spr.__int_angle = j;
+					k->set_int_ang(j);
 					k->spr.zvel = bsin(l, -5);
 					k->spr.xvel = bcos(l, -9);
 					k->SetOwner(actor);
@@ -1671,10 +1671,10 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		if ((actor->temp_data[2] & 15) == 0)
 		{
 			a = actor->int_ang();
-			actor->spr.__int_angle = actor->tempang;
+			actor->set_int_ang(actor->tempang);
 			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
 			fi.shoot(actor, firelaser);
-			actor->spr.__int_angle = a;
+			actor->set_int_ang(a);
 		}
 		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].pos, ps[p].cursector))
 		{
@@ -1988,11 +1988,11 @@ void camera(DDukeActor *actor)
 			}
 			else if (actor->int_ang() + increment < minimum)
 			{
-				actor->spr.__int_angle = minimum;
+				actor->set_int_ang(minimum);
 			}
 			else if (actor->int_ang() + increment > maximum)
 			{
-				actor->spr.__int_angle = maximum;
+				actor->set_int_ang(maximum);
 			}
 			else
 			{
@@ -2811,9 +2811,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				if (x < 20480)
 				{
 					j = actor->int_ang();
-					actor->spr.__int_angle = getangle(actor->spr.pos.XY() - ps[p].pos.XY());
+					actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 					fi.shoot(actor, RPG);
-					actor->spr.__int_angle = j;
+					actor->set_int_ang(j);
 				}
 			}
 		}
@@ -3317,9 +3317,9 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	if (x < 8192)
 	{
 		j = actor->int_ang();
-		actor->spr.__int_angle = getangle(actor->spr.pos.XY() - ps[p].pos);
+		actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos));
 		fi.shoot(actor, FIRELASER);
-		actor->spr.__int_angle = j;
+		actor->set_int_ang(j);
 	}
 
 	auto Owner = actor->GetOwner();
@@ -3351,8 +3351,8 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	if (ldist(Owner, actor) < 1024)
 	{
 		auto ta = actor->int_ang();
-		actor->spr.__int_angle = getangle(ps[p].pos.XY() - actor->spr.pos.XY());
-		actor->spr.__int_angle = ta;
+		actor->set_int_ang(getangle(ps[p].pos.XY() - actor->spr.pos.XY()));
+		actor->set_int_ang(ta);
 		actor->SetOwner(nullptr);
 		return;
 
@@ -4342,7 +4342,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->spr.__int_angle = getangle(ps[p].pos.XY() - actor->spr.pos.XY());
+				actor->set_int_ang(getangle(ps[p].pos.XY() - actor->spr.pos.XY()));
 
 				if (actor->temp_data[0] == 999)
 				{
@@ -5013,7 +5013,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	if (actor->spr.zvel < 648) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->spr.zvel) / 5;
 
 	if (isRRRA() && (ang & windang))
-		actor->spr.__int_angle = WindDir;
+		actor->set_int_ang(WindDir);
 	else if (ang & seekplayer)
 	{
 		DDukeActor* holoduke = !isRR()? ps[playernum].holoduke_on.Get() : nullptr;
@@ -5046,11 +5046,11 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 			}
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose
 			{
-				if (abs(angdif >> 2) < 128) actor->spr.__int_angle = goalang;
+				if (abs(angdif >> 2) < 128) actor->set_int_ang(goalang);
 				else actor->spr.__int_angle += angdif >> 2;
 			}
 		}
-		else actor->spr.__int_angle = goalang;
+		else actor->set_int_ang(goalang);
 	}
 
 	if (ticselapsed < 1)
@@ -5059,14 +5059,14 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		if (ang & furthestdir)
 		{
 			goalang = furthestangle(actor, j);
-			actor->spr.__int_angle = goalang;
+			actor->set_int_ang(goalang);
 			actor->SetOwner(ps[playernum].GetActor());
 		}
 
 		if (ang & fleeenemy)
 		{
 			goalang = furthestangle(actor, j);
-			actor->spr.__int_angle = goalang; // += angdif; //  = getincangle(aang,goalang)>>1;
+			actor->set_int_ang(goalang); // += angdif; //  = getincangle(aang,goalang)>>1;
 		}
 	}
 }

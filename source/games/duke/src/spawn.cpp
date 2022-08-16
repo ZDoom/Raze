@@ -70,7 +70,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.yrepeat = s_yr;
 	act->spr.pal = 0;
 
-	act->spr.__int_angle = s_a;
+	act->set_int_ang(s_a);
 	act->spr.xvel = s_ve;
 	act->spr.zvel = s_zv;
 	act->spr.xoffset = 0;
@@ -287,7 +287,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			act->spr.__int_angle = actj->int_ang();
+			act->set_int_ang(actj->int_ang());
 	}
 }
 
@@ -324,7 +324,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 
 	act->spr.shade = -127;
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	act->spr.__int_angle = actj->int_ang();
+	act->set_int_ang(actj->int_ang());
 
 	act->spr.xvel = 128;
 	ChangeActorStat(act, STAT_MISC);
@@ -407,7 +407,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if ((ps[actj->spr.yvel].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		act->spr.__int_angle = actj->int_ang();
+		act->set_int_ang(actj->int_ang());
 	}
 
 	act->set_int_z(sect->int_floorz());
@@ -452,12 +452,12 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		if (isNamWW2GI())
 		{
 			// to the right, with feeling
-			act->spr.__int_angle = a + 512;
+			act->set_int_ang(a + 512);
 			act->spr.xvel = 30;
 		}
 		else
 		{
-			act->spr.__int_angle = a - 512;
+			act->set_int_ang(a - 512);
 			act->spr.xvel = 20;
 		}
 
@@ -530,7 +530,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 			actor->add_int_z(-(18 << 8));
 		}
 		else actor->add_int_z(-(13 << 8));
-		actor->spr.__int_angle = getangle(ps[connecthead].player_int_pos().X - actor->int_pos().X, ps[connecthead].player_int_pos().Y - actor->int_pos().Y);
+		actor->set_int_ang(getangle(ps[connecthead].player_int_pos().X - actor->int_pos().X, ps[connecthead].player_int_pos().Y - actor->int_pos().Y));
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}

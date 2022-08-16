@@ -186,7 +186,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (splash)
 			{
 				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
-				splash->spr.__int_angle = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->set_int_ang(ps[p].angle.ang.asbuild()); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, 0);
 				splash->spr.xvel = 0;
@@ -411,7 +411,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							{
 								hole->spr.xvel = -1;
 								auto delta = hit.hitWall->delta();
-								hole->spr.__int_angle = getangle(-delta.X, -delta.Y) + 512;
+								hole->set_int_ang(getangle(-delta.X, -delta.Y) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -894,7 +894,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 32;
-			j->spr.__int_angle = actor->int_ang();
+			j->set_int_ang(actor->int_ang());
 			j->add_int_z(-(5 << 8));
 		}
 		break;
@@ -905,7 +905,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 250;
-			j->spr.__int_angle = actor->int_ang();
+			j->set_int_ang(actor->int_ang());
 			j->add_int_z(-(15 << 8));
 		}
 		break;
@@ -1506,7 +1506,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.__int_angle = p->angle.ang.asbuild();
+				j->set_int_ang(p->angle.ang.asbuild());
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1525,7 +1525,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.__int_angle = p->angle.ang.asbuild();
+				j->set_int_ang(p->angle.ang.asbuild());
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -4106,7 +4106,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.__int_angle = p->angle.ang.asbuild();
+			spawned->set_int_ang(p->angle.ang.asbuild());
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
@@ -4173,7 +4173,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.__int_angle = p->angle.ang.asbuild();
+			spawned->set_int_ang(p->angle.ang.asbuild());
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];

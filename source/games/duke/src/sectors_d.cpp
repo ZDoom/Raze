@@ -682,7 +682,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					{
 						spawned->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
 						auto delta = wal->delta();
-						spawned->spr.__int_angle = getangle(-delta.X, -delta.Y) - 512;
+						spawned->set_int_ang(getangle(-delta.X, -delta.Y) - 512);
 
 						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 					}
@@ -1050,7 +1050,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= (targ->spr.__int_angle << 1) + 1024;
-			targ->spr.__int_angle = getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512;
+			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -1059,7 +1059,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->spr.__int_angle = proj->int_ang();
+				targ->set_int_ang(proj->int_ang());
 			}
 			else
 			{
@@ -1177,7 +1177,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
@@ -1303,21 +1303,21 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	{
 		targ->spr.extra -= proj->spr.extra;
 		if (targ->spr.extra > 0) break;
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT4);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		fi.shoot(targ, BLOODSPLAT4);
 		fi.guts(targ, JIBS1, 1, myconnectindex);
 		fi.guts(targ, JIBS2, 2, myconnectindex);
@@ -1395,7 +1395,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				if (targ->spr.picnum != TANK && !bossguy(targ) && targ->spr.picnum != RECON && targ->spr.picnum != ROTATEGUN)
 				{
 					if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
-						targ->spr.__int_angle = (proj->int_ang() + 1024) & 2047;
+						targ->set_int_ang((proj->int_ang() + 1024) & 2047);
 					targ->spr.xvel = -(proj->spr.extra << 2);
 					auto sp = targ->sector();
 					pushmove(targ, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);

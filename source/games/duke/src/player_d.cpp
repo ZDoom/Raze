@@ -201,7 +201,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	spawned->set_int_pos({ sx + bsin(sa + 630) / 448, sy + bsin(sa + 112) / 448, sz - 256 });
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-	spawned->spr.__int_angle = sa;
+	spawned->set_int_ang(sa);
 	spawned->spr.xrepeat = 2;
 	spawned->spr.yrepeat = 2;
 	spawned->spr.clipdist = 40;
@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			if (splash)
 			{
 				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
-				splash->spr.__int_angle = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->set_int_ang(ps[p].angle.ang.asbuild()); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, CLIPMASK0);
 				splash->spr.xvel = 0;
@@ -512,7 +512,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							{
 								hole->spr.xvel = -1;
 								auto delta = hit.hitWall->delta();
-								hole->spr.__int_angle = getangle(-delta.X, -delta.Y) + 512;
+								hole->set_int_ang(getangle(-delta.X, -delta.Y) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -889,7 +889,8 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
-			bomb->temp_data[5] = bomb->spr.__int_angle = getangle(-delta.X, -delta.Y) - 512;
+			bomb->set_int_ang(getangle(-delta.X, -delta.Y) - 512);
+			bomb->temp_data[5] = bomb->int_ang();
 
 			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
@@ -1060,7 +1061,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			{
 				k->setsector(sect);
 				k->set_int_pos({ sx, sy, sz });
-				k->spr.__int_angle = sa;
+				k->set_int_ang(sa);
 				k->spr.xvel = 500;
 				k->spr.zvel = 0;
 			}

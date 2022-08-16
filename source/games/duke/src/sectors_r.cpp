@@ -2077,7 +2077,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= (targ->spr.__int_angle << 1) + 1024;
-			targ->spr.__int_angle = getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512;
+			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -2085,14 +2085,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 64;
-			targ->spr.__int_angle = (targ->int_ang() + krand()) & 16;
+			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.__int_angle -= ((targ->spr.__int_angle << 1) + krand()) & 16;
-			targ->spr.__int_angle = (targ->int_ang() + krand()) & 16;
+			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);
 		}
 		else
@@ -2100,7 +2100,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->spr.__int_angle = proj->int_ang();
+				targ->set_int_ang(proj->int_ang());
 			}
 		}
 		break;
@@ -2205,7 +2205,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.__int_angle = krand() & 2047;
+		targ->set_int_ang(krand() & 2047);
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;

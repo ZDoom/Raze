@@ -1232,7 +1232,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else*/ SetGameVarID(lVar2, act->spr.statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) act->spr.__int_angle = lValue;
+		if (bSet) act->set_int_ang(lValue);
 		else SetGameVarID(lVar2, act->int_ang(), sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
@@ -1561,7 +1561,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
-			g_ac->spr.__int_angle = krand() & 2047;
+			g_ac->set_int_ang(krand() & 2047);
 		insptr++;
 		break;
 	case concmd_action:
@@ -1601,10 +1601,10 @@ int ParseState::parse(void)
 		switch (krand() & 1)
 		{
 		case 0:
-			g_ac->spr.__int_angle = (+512 + g_ac->int_ang() + (krand() & 511)) & 2047;
+			g_ac->set_int_ang((+512 + g_ac->int_ang() + (krand() & 511)) & 2047);
 			break;
 		case 1:
-			g_ac->spr.__int_angle = (-512 + g_ac->int_ang() - (krand() & 511)) & 2047;
+			g_ac->set_int_ang((-512 + g_ac->int_ang() - (krand() & 511)) & 2047);
 			break;
 		}
 		insptr++;
@@ -1615,7 +1615,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_rndmove:
-		g_ac->spr.__int_angle = krand() & 2047;
+		g_ac->set_int_ang(krand() & 2047);
 		g_ac->spr.xvel = 25;
 		insptr++;
 		break;
@@ -1761,23 +1761,23 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifsoundid:
 		insptr++;
-		parseifelse((short)*insptr == ambientlotag[g_ac->spr.__int_angle]);
+		parseifelse((short)*insptr == ambientlotag[g_ac->spr.detail]);
 		break;
 	case concmd_ifsounddist:
 		insptr++;
 		if (*insptr == 0)
-			parseifelse(ambienthitag[g_ac->spr.__int_angle] > g_x);
+			parseifelse(ambienthitag[g_ac->spr.detail] > g_x);
 		else if (*insptr == 1)
-			parseifelse(ambienthitag[g_ac->spr.__int_angle] < g_x);
+			parseifelse(ambienthitag[g_ac->spr.detail] < g_x);
 		break;
 	case concmd_soundtag:
 		insptr++;
-		S_PlayActorSound(ambientlotag[g_ac->spr.__int_angle], g_ac);
+		S_PlayActorSound(ambientlotag[g_ac->spr.detail], g_ac);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
-		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_ac->spr.__int_angle]))
-			S_PlayActorSound(ambientlotag[g_ac->spr.__int_angle], g_ac);
+		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_ac->spr.detail]))
+			S_PlayActorSound(ambientlotag[g_ac->spr.detail], g_ac);
 		break;
 	case concmd_soundonce:
 		insptr++;
@@ -2122,7 +2122,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = *insptr;
 		insptr++;
 		if(g_ac->spr.hitag&random_angle)
-			g_ac->spr.__int_angle = krand()&2047;
+			g_ac->set_int_ang(krand()&2047);
 		break;
 	case concmd_spawn:
 		insptr++;
@@ -3170,8 +3170,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		g_ac->spr.__int_angle = GetGameVarID(i, g_ac, g_p).safeValue();
-		g_ac->spr.__int_angle &= 2047;
+		g_ac->set_int_ang(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_randvar:

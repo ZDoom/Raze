@@ -478,9 +478,9 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		 )
 		{
 			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && actor->spr.picnum == LIZMAN)
-				actor->spr.__int_angle = (krand()&2047);
+				actor->set_int_ang((krand()&2047));
 			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != COMMANDER)
-				actor->spr.__int_angle = (krand()&2047);
+				actor->set_int_ang((krand()&2047));
 			SetActor(actor,actor->int_pos());
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
@@ -739,7 +739,7 @@ void movefallers_d(void)
 					act->spr.extra = x;
 				}
 			}
-			act->spr.__int_angle = act->temp_data[1];
+			act->set_int_ang(act->temp_data[1]);
 			act->add_int_z(+(16 << 8));
 		}
 		else if (act->temp_data[0] == 1)
@@ -831,7 +831,7 @@ static void movetripbomb(DDukeActor *actor)
 			auto spawned = spawn(actor, EXPLOSION2);
 			if (spawned)
 			{
-				spawned->spr.__int_angle = actor->int_ang();
+				spawned->set_int_ang(actor->int_ang());
 				spawned->spr.xvel = 348;
 				ssp(spawned, CLIPMASK0);
 			}
@@ -857,7 +857,7 @@ static void movetripbomb(DDukeActor *actor)
 			actor->temp_data[2] = 16; 
 		}
 		actor->spr.extra = x;
-		actor->spr.__int_angle = l;
+		actor->set_int_ang(l);
 	}
 
 	if (actor->temp_data[0] < 32)
@@ -869,7 +869,7 @@ static void movetripbomb(DDukeActor *actor)
 	if (actor->temp_data[0] == 32)
 	{
 		int16_t l = actor->int_ang();
-		actor->spr.__int_angle = actor->temp_data[5];
+		actor->set_int_ang(actor->temp_data[5]);
 
 		actor->temp_data[3] = actor->int_pos().X; actor->temp_data[4] = actor->int_pos().Y;
 		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
@@ -886,7 +886,7 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->ovel.X = x;
 
-		actor->spr.__int_angle = l;
+		actor->set_int_ang(l);
 
 		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -984,7 +984,7 @@ static void movecrack(DDukeActor* actor)
 		else
 		{
 			actor->spr.cstat = ESpriteFlags::FromInt(actor->temp_data[0]);
-			actor->spr.__int_angle = actor->temp_data[1];
+			actor->set_int_ang(actor->temp_data[1]);
 			actor->spr.extra = 0;
 		}
 	}
@@ -1417,7 +1417,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 		(wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
 		int k = getangle(wal->delta());
-		proj->spr.__int_angle = ((k << 1) - proj->int_ang()) & 2047;
+		proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
 		return true;
@@ -1436,7 +1436,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 			}
 
 			int k = getangle(wal->delta());
-			proj->spr.__int_angle = ((k << 1) - proj->int_ang()) & 2047;
+			proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 			return true;
 		}
 	}
@@ -1979,7 +1979,7 @@ void movetransports_d(void)
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									k->spr.xvel = act2->spr.xvel >> 1;
-									k->spr.__int_angle = act2->int_ang();
+									k->set_int_ang(act2->int_ang());
 									ssp(k, CLIPMASK0);
 								}
 							}
@@ -1992,7 +1992,7 @@ void movetransports_d(void)
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
 										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->int_floorz()) });
-										act2->spr.__int_angle = Owner->int_ang();
+										act2->set_int_ang(Owner->int_ang());
 
 										act2->backupang();
 
@@ -2148,7 +2148,7 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->spr.__int_angle = ps[p].angle.ang.asbuild();
+		actor->set_int_ang(ps[p].angle.ang.asbuild());
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
@@ -2650,7 +2650,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		int k = getangle(wal->delta());
 
-		actor->spr.__int_angle = ((k << 1) - actor->int_ang()) & 2047;
+		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
 		actor->spr.xvel >>= 1;
 	}
 
@@ -3528,7 +3528,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;
-			actor->spr.__int_angle = goalang;
+			actor->set_int_ang(goalang);
 		}
 		actor->spr.__int_angle += angdif;
 	}
