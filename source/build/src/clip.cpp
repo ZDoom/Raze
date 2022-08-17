@@ -28,7 +28,6 @@ BitArray clipsectormap;
 int32_t quickloadboard=0;
 
 vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
-int32_t hitallsprites = 0;
 
 ////////// CLIPMOVE //////////
 inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
@@ -66,43 +65,16 @@ static inline void get_wallspr_points(DCoreActor* actor, int32_t *x1, int32_t *x
 // rest x/y: out
 static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
                                        int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4, int heinum = 0)
+                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
-    const int32_t tilenum = spr->spr.picnum;
-    const int32_t cosang = bcos(spr->int_ang());
-    const int32_t sinang = bsin(spr->int_ang());
+    DVector2 out[4];
+    // very messed up interface... :(
+    GetFlatSpritePosition(spr, DVector2((*x1 - px) * inttoworld, (*y1 - py) * inttoworld), out);
+    *x1 = int(out[0].X * worldtoint); *y1 = int(out[0].Y * worldtoint);
+    *x2 = int(out[1].X * worldtoint); *y2 = int(out[1].Y * worldtoint);
+    *x3 = int(out[2].X * worldtoint); *y3 = int(out[2].Y * worldtoint);
+    *x4 = int(out[3].X * worldtoint); *y4 = int(out[3].Y * worldtoint);
 
-    vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
-    vec2_t const repeat = { spr->spr.xrepeat, spr->spr.yrepeat };
-
-    vec2_t adjofs = { tileLeftOffset(tilenum), tileTopOffset(tilenum) };
-    if (heinum == 0)
-    {
-        adjofs.X += spr->spr.xoffset;
-        adjofs.Y += spr->spr.yoffset;
-    }
-
-    int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
-
-    if (spr->spr.cstat & CSTAT_SPRITE_XFLIP)
-        adjofs.X = -adjofs.X;
-
-    if (spr->spr.cstat & CSTAT_SPRITE_YFLIP)
-        adjofs.Y = -adjofs.Y;
-
-    vec2_t const center = { ((span.X >> 1) + adjofs.X) * repeat.X, ((span.Y >> 1) + adjofs.Y) * repeat.Y };
-    vec2_t const rspan  = { span.X * repeat.X, span.Y * repeat.Y };
-    vec2_t const ofs    = { -DivScale(MulScale(cosang, rspan.Y, 16), ratio, 12), -DivScale(MulScale(sinang, rspan.Y, 16), ratio, 12) };
-    vec2_t const cossinslope = { DivScale(cosang, ratio, 12), DivScale(sinang, ratio, 12) };
-
-    *x1 += DMulScale(sinang, center.X, cossinslope.X, center.Y, 16) - px;
-    *y1 += DMulScale(cossinslope.Y, center.Y, -cosang, center.X, 16) - py;
-
-    *x2 = *x1 - MulScale(sinang, rspan.X, 16);
-    *y2 = *y1 + MulScale(cosang, rspan.X, 16);
-
-    *x3 = *x2 + ofs.X, *x4 = *x1 + ofs.X;
-    *y3 = *y2 + ofs.Y, *y4 = *y1 + ofs.Y;
 }
 
 //
@@ -690,7 +662,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     ryi[0] = p1.Y;
 
                     get_floorspr_points(actor, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                        &ryi[0], &ryi[1], &ryi[2], &ryi[3], heinum);
+                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     vec2_t v = { MulScale(bcos(actor->int_ang() - 256), walldist, 14),
                                  MulScale(bsin(actor->int_ang() - 256), walldist, 14) };
@@ -1178,7 +1150,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                         vec2_t v2, v3, v4;
                         get_floorspr_points(actor, pos.X, pos.Y, &v1.X, &v2.X, &v3.X, &v4.X,
-                                            &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(actor));
+                                            &v1.Y, &v2.Y, &v3.Y, &v4.Y);
 
                         vec2_t const da = { MulScale(bcos(actor->int_ang() - 256), walldist + 4, 14),
                                             MulScale(bsin(actor->int_ang() - 256), walldist + 4, 14) };
@@ -1395,11 +1367,8 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
 
-#ifdef USE_OPENGL
-            if (!hitallsprites)
-#endif
-                if ((cstat&dasprclipmask) == 0)
-                    continue;
+            if ((cstat&dasprclipmask) == 0)
+                continue;
 
             x1 = actor->int_pos().X; y1 = actor->int_pos().Y; z1 = actor->int_pos().Z;
             switch (cstat&CSTAT_SPRITE_ALIGNMENT_MASK)
@@ -1478,7 +1447,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                                    &y1, &y2, &y3, &y4, spriteGetSlope(actor));
+                                    &y1, &y2, &y3, &y4);
 
                 if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
                     hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
@@ -1508,7 +1477,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
                 get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                    &y1, &y2, &y3, &y4, spriteGetSlope(actor));
+                    &y1, &y2, &y3, &y4);
 
                 if (get_floorspr_clipyou({ x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 }))
                     hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
