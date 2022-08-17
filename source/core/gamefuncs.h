@@ -266,8 +266,8 @@ int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
 void setWallSectors();
 void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
-void GetFlatSpritePosition(DCoreActor* spr, vec2_t pos, vec2_t* out, bool render = false);
-void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz = nullptr, bool render = false);
+void GetFlatSpritePosition(DCoreActor* spr, const DVector2& pos, DVector2* out, bool render = false);
+void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2* out, double* outz, bool render = false);
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
 void dragpoint(walltype* wal, int newx, int newy);

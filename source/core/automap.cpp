@@ -616,13 +616,13 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	for (auto actor : floorsprites)
 	{
 		if (!gFullMap && !(actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
-		vec2_t pp[4];
-		GetFlatSpritePosition(actor, actor->int_pos().vec2, pp, true);
+		DVector2 pp[4];
+		GetFlatSpritePosition(actor, actor->spr.pos.XY(), pp, true);
 
 		for (unsigned j = 0; j < 4; j++)
 		{
-			int ox = pp[j].X - cposx;
-			int oy = pp[j].Y - cposy;
+			int ox = int(pp[j].X * worldtoint) - cposx;
+			int oy = int(pp[j].Y * worldtoint) - cposy;
 			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };

@@ -323,49 +323,51 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 //
 //==========================================================================
 
-void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, int* outz, int heinum, bool render)
+void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, double* outz, int heinum, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
 
-	int width, height, leftofs, topofs;
-	int ratio = ksqrt(heinum * heinum + 4096 * 4096);
+	double width, height, leftofs, topofs;
+	double sloperatio = sqrt(heinum * heinum + 4096 * 4096) * (1. / 4096.);
+	double xrepeat = spr->xrepeat * (1. / 64.);
+	double yrepeat = spr->yrepeat * (1. / 64.);
 
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;
 
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * spr->xrepeat;
-		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * spr->yrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + xo) * spr->xrepeat;
-		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + yo) * spr->yrepeat;
+		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * xrepeat;
+		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * yrepeat;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + xo) * xrepeat;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + yo) * yrepeat;
 	}
 	else
 	{
-		width = (int)tex->GetDisplayWidth() * spr->xrepeat;
-		height = (int)tex->GetDisplayHeight() * spr->yrepeat;
-		leftofs = ((int)tex->GetDisplayLeftOffset() + xo) * spr->xrepeat;
-		topofs = ((int)tex->GetDisplayTopOffset() + yo) * spr->yrepeat;
+		width = (int)tex->GetDisplayWidth() * xrepeat;
+		height = (int)tex->GetDisplayHeight() * yrepeat;
+		leftofs = ((int)tex->GetDisplayLeftOffset() + xo) * xrepeat;
+		topofs = ((int)tex->GetDisplayTopOffset() + yo) * yrepeat;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) leftofs = -leftofs;
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) topofs = -topofs;
 
-	int sprcenterx = (width >> 1) + leftofs;
-	int sprcentery = (height >> 1) + topofs;
+	double sprcenterx = (width * 0.5) + leftofs;
+	double sprcentery = (height * 0.5) + topofs;
 
-	int cosang = bcos(spr->int_ang());
-	int sinang = bsin(spr->int_ang());
-	int cosangslope = DivScale(cosang, ratio, 12);
-	int sinangslope = DivScale(sinang, ratio, 12);
+	double cosang = spr->angle.Cos();
+	double sinang = spr->angle.Sin();
+	double cosangslope = cosang / sloperatio;
+	double sinangslope = sinang / sloperatio;
 
-	out[0].X = pos.X + DMulScale(sinang, sprcenterx, cosangslope, sprcentery, 16);
-	out[0].Y = pos.Y + DMulScale(sinangslope, sprcentery, -cosang, sprcenterx, 16);
+	out[0].X = pos.X + sinang * sprcenterx + cosangslope * sprcentery;
+	out[0].Y = pos.Y + sinangslope * sprcentery - cosang * sprcenterx;
 
-	out[1].X = out[0].X - MulScale(sinang, width, 16);
-	out[1].Y = out[0].Y + MulScale(cosang, width, 16);
+	out[1].X = out[0].X - sinang * width;
+	out[1].Y = out[0].Y + cosang * width;
 
-	vec2_t sub = { MulScale(cosangslope, height, 16), MulScale(sinangslope, height, 16) };
+	DVector2 sub = { cosangslope * height, sinangslope * height };
 	out[2] = out[1] - sub;
 	out[3] = out[0] - sub;
 	if (outz)
@@ -375,19 +377,19 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				int spos = DMulScale(-sinang, out[i].Y - pos.Y, -cosang, out[i].X - pos.X, 4);
-				outz[i] = MulScale(heinum, spos, 18);
+				outz[i] = (sinang * (out[i].Y - pos.Y) + cosang * (out[i].X - pos.X)) * heinum * (1. / 4096);
 			}
 		}
 	}
 }
 
-void GetFlatSpritePosition(DCoreActor* actor, vec2_t pos, vec2_t* out, bool render)
+
+void GetFlatSpritePosition(DCoreActor* actor, const DVector2& pos, DVector2* out, bool render)
 {
 	TGetFlatSpritePosition(&actor->spr, pos, out, nullptr, spriteGetSlope(actor), render);
 }
 
-void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz, bool render)
+void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2* out, double* outz, bool render)
 {
 	TGetFlatSpritePosition(spr, pos, out, outz, tspriteGetSlope(spr), render);
 }
