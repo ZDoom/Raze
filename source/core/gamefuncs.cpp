@@ -395,6 +395,48 @@ void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2
 
 //==========================================================================
 //
+// checks if the given point is sufficiently close to the given line segment.
+//
+//==========================================================================
+
+EClose IsCloseToLine(const DVector2& point, const DVector2& start, const DVector2& end, double maxdist)
+{
+	auto const v1 = start - point;
+	auto const v2 = end - point;
+
+	// trivially outside the box.
+	if (
+		((v1.X < -maxdist) && (v2.X < -maxdist)) || // fully to the left
+		((v1.Y < -maxdist) && (v2.Y < -maxdist)) || // fully below
+		((v1.X >= maxdist) && (v2.X >= maxdist)) || // fully to the right
+		((v1.Y >= maxdist) && (v2.Y >= maxdist)))   // fully above
+		return EClose::Outside;
+
+	auto waldelta = end - start;
+
+	if (waldelta.X * v1.Y <= waldelta.Y * v1.X)
+	{
+		// is it in front?
+		waldelta.X *= waldelta.X > 0 ? v1.Y + maxdist : v1.Y - maxdist;
+		waldelta.Y *= waldelta.Y > 0 ? v1.X - maxdist : v1.X + maxdist;
+		return waldelta.X > waldelta.Y ? EClose::InFront : EClose::Outside;
+	}
+	else
+	{
+		// or behind?
+		waldelta.X *= waldelta.X > 0 ? v1.Y - maxdist : v1.Y + maxdist;
+		waldelta.Y *= waldelta.Y > 0 ? v1.X + maxdist : v1.X - maxdist;
+		return (waldelta.X <= waldelta.Y) ? EClose::Behind : EClose::Outside;
+	}
+}
+
+EClose IsCloseToWall(const DVector2& point, walltype* wal, double maxdist)
+{
+	return IsCloseToLine(point, wal->pos, wal->point2Wall()->pos, maxdist);
+}
+
+//==========================================================================
+//
 // Check if some walls are set to use rotated textures.
 // Ideally this should just have been done with texture rotation,
 // but the effects on the render code would be too severe due to the alignment mess.

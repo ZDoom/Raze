@@ -232,8 +232,8 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 		count += outl[i].Size();
 		for (unsigned j = 0; j < outl[i].Size(); j++)
 		{
-			float X = RenderX(outl[i][j].X);
-			float Y = RenderY(outl[i][j].Y);
+			float X = (outl[i][j].X) * inttoworld;
+			float Y = (outl[i][j].Y) * -inttoworld;
 			if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
 			{
 				// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
@@ -241,8 +241,8 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 				return -1;
 			}
 			polygon[i][j] = { X, Y };
-			}
 		}
+	}
 	return count;
 }
 

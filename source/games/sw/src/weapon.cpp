@@ -13840,36 +13840,9 @@ int InitSerpSlash(DSWActor* actor)
 
 bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 {
-    int x1, y1, x2, y2;
-    int xoff;
-    int dax, day;
-    int xsiz, mid_dist;
-
-    x1 = wactor->int_pos().X;
-    y1 = wactor->int_pos().Y;
-
-    xoff = (int) tileLeftOffset(wactor->spr.picnum) + (int) wactor->spr.xoffset;
-
-    if ((wactor->spr.cstat & CSTAT_SPRITE_XFLIP))
-        xoff = -xoff;
-
-    // x delta
-    dax = bsin(wactor->int_ang()) * wactor->spr.xrepeat;
-    // y delta
-    day = -bcos(wactor->int_ang()) * wactor->spr.xrepeat;
-
-    xsiz = tileWidth(wactor->spr.picnum);
-    mid_dist = (xsiz >> 1) + xoff;
-
-    // starting from the center find the first point
-    x1 -= MulScale(dax, mid_dist, 16);
-    // starting from the first point find the end point
-    x2 = x1 + MulScale(dax, xsiz, 16);
-
-    y1 -= MulScale(day, mid_dist, 16);
-    y2 = y1 + MulScale(day, xsiz, 16);
-
-    return !!clipinsideboxline(actor->int_pos().X, actor->int_pos().Y, x1, y1, x2, y2, ((int) actor->spr.clipdist) << 2);
+    DVector2 out[2];
+    GetWallSpritePosition(&wactor->spr, wactor->spr.pos, out);
+    return IsCloseToLine(actor->spr.pos.XY(), out[0], out[1], (((int) actor->spr.clipdist) << 2) * inttoworld) != EClose::Outside;
 }
 
 

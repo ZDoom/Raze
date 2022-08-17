@@ -60,67 +60,11 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
 }
 
 //
-// clipinsidebox
-//
-int clipinsidebox(const vec2_t &vect, int wallnum, int walldist)
-{
-    int const r = walldist << 1;
-
-    auto const wal1 = &wall[wallnum];
-    auto const wal2 = wal1->point2Wall();
-
-    vec2_t const v1 = { wal1->wall_int_pos().X + walldist - vect.X, wal1->wall_int_pos().Y + walldist - vect.Y };
-    vec2_t       v2 = { wal2->wall_int_pos().X + walldist - vect.X, wal2->wall_int_pos().Y + walldist - vect.Y };
-
-    if (((v1.X < 0) && (v2.X < 0)) || ((v1.Y < 0) && (v2.Y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.Y >= r) && (v2.Y >= r)))
-        return 0;
-
-    v2.X -= v1.X; v2.Y -= v1.Y;
-
-    if (v2.X * (walldist - v1.Y) >= v2.Y * (walldist - v1.X))  // Front
-    {
-        v2.X *= ((v2.X > 0) ? (0 - v1.Y) : (r - v1.Y));
-        v2.Y *= ((v2.Y > 0) ? (r - v1.X) : (0 - v1.X));
-        return v2.X < v2.Y;
-    }
-
-    v2.X *= ((v2.X > 0) ? (r - v1.Y) : (0 - v1.Y));
-    v2.Y *= ((v2.Y > 0) ? (0 - v1.X) : (r - v1.X));
-    return (v2.X >= v2.Y) << 1;
-}
-
-//
 // clipinsideboxline
 //
-int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist)
+static int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist)
 {
-    int const r = walldist << 1;
-
-    x1 += walldist - x;
-    x2 += walldist - x;
-
-    if (((x1 < 0) && (x2 < 0)) || ((x1 >= r) && (x2 >= r)))
-        return 0;
-
-    y1 += walldist - y;
-    y2 += walldist - y;
-
-    if (((y1 < 0) && (y2 < 0)) || ((y1 >= r) && (y2 >= r)))
-        return 0;
-
-    x2 -= x1;
-    y2 -= y1;
-
-    if (x2 * (walldist - y1) >= y2 * (walldist - x1))  // Front
-    {
-        x2 *= ((x2 > 0) ? (0 - y1) : (r - y1));
-        y2 *= ((y2 > 0) ? (r - x1) : (0 - x1));
-        return x2 < y2;
-    }
-
-    x2 *= ((x2 > 0) ? (r - y1) : (0 - y1));
-    y2 *= ((y2 > 0) ? (0 - x1) : (r - x1));
-    return (x2 >= y2) << 1;
+    return (int)IsCloseToLine(DVector2(x * inttoworld, y * inttoworld), DVector2(x1 * inttoworld, y1 * inttoworld), DVector2(x2 * inttoworld, y2 * inttoworld), walldist * inttoworld);
 }
 
 static int32_t clipmove_warned;
@@ -896,7 +840,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
             int i;
 
             for (i=startwall, wal=&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
-                if (clipinsidebox(vect->vec2, i, walldist-4) == 1)
+                if (IsCloseToWall(DVector2(vect->X * inttoworld, vect->Y * inttoworld), &wall[i], (walldist-4) * inttoworld) == EClose::InFront)
                 {
                     int j = 0;
                     if (wal->nextsector < 0 || wal->cstat & EWallFlags::FromInt(dawalclipmask)) j = 1;
@@ -918,7 +862,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         {
                             vect->X = (vect->X) + dx; vect->Y = (vect->Y) + dy;
                             bad2--; if (bad2 == 0) break;
-                        } while (clipinsidebox(vect->vec2, i, walldist-4) != 0);
+                        } while (IsCloseToWall(DVector2(vect->X * inttoworld, vect->Y * inttoworld), &wall[i], (walldist - 4) * inttoworld) != EClose::Outside);
                         bad = -1;
                         k--; if (k <= 0) return bad;
                         clipupdatesector(vect->vec2, sectnum, walldist);
@@ -1451,4 +1395,3 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
     return 0;
 }
-

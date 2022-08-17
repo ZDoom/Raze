@@ -3537,7 +3537,7 @@ void handle_se11(DDukeActor *actor)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
-				if (ac->spr.extra > 0 && badguy(ac) && clipinsidebox(ac->int_pos().vec2, wallnum(&wal), 256) == 1)
+				if (ac->spr.extra > 0 && badguy(ac) && IsCloseToWall(ac->spr.pos.XY(), &wal, 16) == EClose::InFront)
 					return;
 			}
 		}
@@ -3553,7 +3553,7 @@ void handle_se11(DDukeActor *actor)
 			DukeStatIterator it(STAT_PLAYER);
 			while (auto ac = it.Next())
 			{
-				if (ac->GetOwner() && clipinsidebox(ac->int_pos().vec2, wallnum(&wal), 144) == 1)
+				if (ac->GetOwner() && IsCloseToWall(ac->spr.pos.XY(), &wal, 9) == EClose::InFront)
 				{
 					actor->temp_data[5] = 8; // Delay
 					actor->temp_data[2] -= k;

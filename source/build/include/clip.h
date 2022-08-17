@@ -21,9 +21,6 @@ typedef struct
 
 extern int clipsectorlist[MAXCLIPSECTORS];
 
-int clipinsidebox(const vec2_t &vect, int wallnum, int walldist);
-int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
-
 struct CollisionBase;
 
 CollisionBase clipmove_(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,

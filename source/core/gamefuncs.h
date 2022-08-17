@@ -268,6 +268,16 @@ void setWallSectors();
 void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render = false);
 void GetFlatSpritePosition(DCoreActor* spr, const DVector2& pos, DVector2* out, bool render = false);
 void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2* out, double* outz, bool render = false);
+
+enum class EClose
+{
+	Outside,
+	InFront,
+	Behind
+};
+EClose IsCloseToLine(const DVector2& vect, const DVector2& start, const DVector2& end, double walldist);
+EClose IsCloseToWall(const DVector2& vect, walltype* wal, double walldist);
+
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
 void dragpoint(walltype* wal, int newx, int newy);
@@ -287,11 +297,6 @@ inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
 inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
 {
 	return getflorzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
-}
-[[deprecated]]
-inline void getzsofslopeptrf(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
-{
-	getzsofslopeptr(sec, dax, day, ceilz, florz);
 }
 
 
@@ -313,19 +318,6 @@ enum EFindNextSector
 sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags);
 
 
-
-// y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
-// The render code should NOT use Build coordinates for anything!
-
-inline double RenderX(int x)
-{
-	return x * (1 / 16.);
-}
-
-inline double RenderY(int y)
-{
-	return y * (1 / -16.);
-}
 
 inline double WallStartX(int wallnum)
 {

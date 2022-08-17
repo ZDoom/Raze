@@ -237,7 +237,7 @@ void clipwall()
 
 }
 
-int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
+int BelowNear(DExhumedActor* pActor, double walldist)
 {
     auto pSector = pActor->sector();
     int z = pActor->int_pos().Z;
@@ -263,8 +263,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
                 {
                     if (!search.Check(wal.nextSector()))
                     {
-                        vec2_t pos = { x, y };
-                        if (clipinsidebox(pos, wallnum(&wal), walldist))
+                        if (IsCloseToWall(pActor->spr.pos, &wal, walldist) != EClose::Outside)
                         {
                             search.Add(wal.nextSector());
                         }
@@ -470,7 +469,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pActor->spr.statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, pActor->int_pos().X, pActor->int_pos().Y, clipdist + (clipdist / 2));
+        nRet.exbits |= BelowNear(pActor, clipdist * (inttoworld * 1.5));
     }
 
     return nRet;
