@@ -5349,9 +5349,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		CheckLink(actor);
 		gHitInfo.hitSector = actor->sector();
-		gHitInfo.__int_hitpos.X = actor->int_pos().X;
-		gHitInfo.__int_hitpos.Y = actor->int_pos().Y;
-		gHitInfo.__int_hitpos.Z = actor->int_pos().Z;
+		gHitInfo.hitpos = actor->spr.pos;
 		break;
 	}
 	if (Owner) Owner->spr.cstat = bakCstat;
@@ -6702,7 +6700,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
 				gHitInfo.hitActor = shooter;
-				gHitInfo.__int_hitpos = shooter->int_pos();
+				gHitInfo.hitpos = shooter->spr.pos;
 			}
 		}
 	}

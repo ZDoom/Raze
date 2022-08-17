@@ -156,7 +156,9 @@ void BuildSnake(int nPlayer, int zVal)
 
     if (nSqrt < bsin(512, -4))
     {
-        BackUpBullet(&hit.__int_hitpos.X, &hit.__int_hitpos.Y, nAngle);
+		auto v = hit.int_hitpos();
+        BackUpBullet(&v.X, &v.Y, nAngle);
+		hit.set_int_hitpos_xy(v.X, v.Y);
         auto pActor = insertActor(hit.hitSector, 202);
         pActor->set_int_pos(hit.int_hitpos());
 

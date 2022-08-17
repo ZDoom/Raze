@@ -12753,7 +12753,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
     {
         if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
         {
-            hit.__int_hitpos.Z += Z(16);
+            hit.hitpos.Z += 16;
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
@@ -12886,7 +12886,7 @@ int InitShotgun(PLAYER* pp)
         {
             if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
             {
-                hit.__int_hitpos.Z += Z(16);
+                hit.hitpos.Z += 16;
                 cstat |= (CSTAT_SPRITE_YFLIP);
 
                 if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
@@ -12894,7 +12894,7 @@ int InitShotgun(PLAYER* pp)
 
                 if (SectorIsUnderwaterArea(hit.hitSector))
                 {
-                    WarpToSurface(&hit.hitSector, &hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z);
+                    WarpToSurface(hit.hitpos, &hit.hitSector);
                     ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang, xvect, yvect, zvect);
                     continue;
                 }
@@ -12907,7 +12907,7 @@ int InitShotgun(PLAYER* pp)
 
                     if (SectorIsDiveArea(hit.hitSector))
                     {
-                        WarpToUnderwater(&hit.hitSector, &hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z);
+						WarpToUnderwater(hit.hitpos, &hit.hitSector);
                         ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang, xvect, yvect, zvect);
                     }
 
@@ -15215,7 +15215,7 @@ int InitUzi(PLAYER* pp)
     {
         if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
         {
-            hit.__int_hitpos.Z += Z(16);
+            hit.hitpos.Z += 16;
             cstat |= (CSTAT_SPRITE_YFLIP);
 
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
@@ -15223,7 +15223,7 @@ int InitUzi(PLAYER* pp)
 
             if (SectorIsUnderwaterArea(hit.hitSector))
             {
-                WarpToSurface(&hit.hitSector, &hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z);
+				WarpToSurface(hit.hitpos, &hit.hitSector);
                 ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, xvect, yvect, zvect);
                 return 0;
             }
@@ -15236,7 +15236,7 @@ int InitUzi(PLAYER* pp)
 
                 if (SectorIsDiveArea(hit.hitSector))
                 {
-                    WarpToUnderwater(&hit.hitSector, &hit.__int_hitpos.X, &hit.__int_hitpos.Y, &hit.__int_hitpos.Z);
+					WarpToUnderwater(hit.hitpos, &hit.hitSector);
                     ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, xvect, yvect, zvect);
                     return 0;
                 }
@@ -15704,7 +15704,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     {
         if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
         {
-            hit.__int_hitpos.Z += Z(16);
+            hit.hitpos.Z += 16;
             cstat |= (CSTAT_SPRITE_YFLIP);
 
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
@@ -16085,7 +16085,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             {
                 if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
                 {
-                    hit.__int_hitpos.Z += Z(16);
+                    hit.hitpos.Z += 16;
                     cstat |= (CSTAT_SPRITE_YFLIP);
 
                     if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))

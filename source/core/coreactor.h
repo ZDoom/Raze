@@ -289,7 +289,7 @@ enum EHitBits
 // Not all utilities use all variables.
 struct HitInfoBase
 {
-	vec3_t __int_hitpos;
+	DVector3 hitpos;
 	sectortype* hitSector;
 	walltype* hitWall;
 	DCoreActor* hitActor;
@@ -303,7 +303,20 @@ struct HitInfoBase
 	
 	const vec3_t int_hitpos() const
 	{
-		return __int_hitpos;
+		return { int(hitpos.X * worldtoint), int(hitpos.Y * worldtoint), int(hitpos.Z * zworldtoint), };
+	}
+	
+	void set_int_hitpos(int x, int y, int z)
+	{
+		hitpos.X = x * inttoworld;
+		hitpos.Y = y * inttoworld;
+		hitpos.Z = z * zinttoworld;
+	}
+
+	void set_int_hitpos_xy(int x, int y)
+	{
+		hitpos.X = x * inttoworld;
+		hitpos.Y = y * inttoworld;
 	}
 };
 
