@@ -137,7 +137,7 @@ int SpawnDemonFist(DSWActor*);
 void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize);
-int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
+int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& pos, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,sectortype*);
 DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 
@@ -12801,7 +12801,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
             return 0;
         }
 
-        if (BulletHitSprite(pp->actor, hit.actor(), hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, 0))
+        if (BulletHitSprite(pp->actor, hit.actor(), hit.hitpos, 0))
             return 0;
 
         // hit a switch?
@@ -12967,7 +12967,7 @@ int InitShotgun(PLAYER* pp)
                 continue;
             }
 
-            if (BulletHitSprite(pp->actor, hitActor, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->actor, hitActor, hit.hitpos, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
@@ -15003,9 +15003,8 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     return 0;
 }
 
-int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID)
+int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos, short ID)
 {
-    vec3_t hit_pos = { hit_x, hit_y, hit_z };
     short id;
 
     // hit a NPC or PC?
@@ -15023,7 +15022,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
 
         if (ID>0) id = ID;
 
-        auto actorNew = SpawnActor(STAT_MISSILE, id, s_UziSmoke, &sector[0], hit_x, hit_y, hit_z, actor->int_ang(), 0);
+        auto actorNew = SpawnActor(STAT_MISSILE, id, s_UziSmoke, &sector[0], hit_pos, actor->spr.angle, 0);
         actorNew->spr.shade = -40;
 
         if (hitActor->user.PlayerP)
@@ -15054,10 +15053,13 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         SetOwner(actor, actorNew);
         actorNew->spr.angle = actor->spr.angle;
 
-        SetActorZ(actorNew, &hit_pos);
+        SetActorZ(actorNew, hit_pos);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
+		int hit_x = int(hit_pos.X * worldtoint);
+		int hit_y = int(hit_pos.Y * worldtoint);
+		int hit_z = int(hit_pos.Z * zworldtoint);
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
         {
             if (!hitActor->user.PlayerP)
@@ -15298,7 +15300,7 @@ int InitUzi(PLAYER* pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->actor, hitActor, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, 0))
+        if (BulletHitSprite(pp->actor, hitActor, hit.hitpos, 0))
             return 0;
 
         // hit a switch?
@@ -15741,7 +15743,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->actor, hit.actor(), hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, 0))
+        if (BulletHitSprite(pp->actor, hit.actor(), hit.hitpos, 0))
             return 0;
 
         // hit a switch?
@@ -16141,7 +16143,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                     continue;
                 }
 
-                if (BulletHitSprite(actor, hit.actor(), hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, 0))
+                if (BulletHitSprite(actor, hit.actor(), hit.hitpos, 0))
                     continue;
 
                 // hit a switch?
@@ -16259,7 +16261,7 @@ int InitEnemyUzi(DSWActor* actor)
 
     if (hit.actor() != nullptr)
     {
-        if (BulletHitSprite(actor, hit.actor(), hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, 0))
+        if (BulletHitSprite(actor, hit.actor(), hit.hitpos, 0))
             return 0;
     }
 
