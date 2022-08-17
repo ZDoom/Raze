@@ -62,15 +62,15 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
 //
 // clipinsidebox
 //
-int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
+int clipinsidebox(const vec2_t &vect, int wallnum, int walldist)
 {
     int const r = walldist << 1;
 
     auto const wal1 = &wall[wallnum];
     auto const wal2 = wal1->point2Wall();
 
-    vec2_t const v1 = { wal1->wall_int_pos().X + walldist - vect->X, wal1->wall_int_pos().Y + walldist - vect->Y };
-    vec2_t       v2 = { wal2->wall_int_pos().X + walldist - vect->X, wal2->wall_int_pos().Y + walldist - vect->Y };
+    vec2_t const v1 = { wal1->wall_int_pos().X + walldist - vect.X, wal1->wall_int_pos().Y + walldist - vect.Y };
+    vec2_t       v2 = { wal2->wall_int_pos().X + walldist - vect.X, wal2->wall_int_pos().Y + walldist - vect.Y };
 
     if (((v1.X < 0) && (v2.X < 0)) || ((v1.Y < 0) && (v2.Y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.Y >= r) && (v2.Y >= r)))
         return 0;
@@ -88,17 +88,6 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     v2.Y *= ((v2.Y > 0) ? (0 - v1.X) : (r - v1.X));
     return (v2.X >= v2.Y) << 1;
 }
-
-static int32_t spriteGetZOfSlope(DCoreActor* actor, int32_t dax, int32_t day)
-{
-    int16_t const heinum = spriteGetSlope(actor);
-    if (heinum == 0)
-        return actor->int_pos().Z;
-
-    int const j = DMulScale(bsin(actor->int_ang() + 1024), day - actor->int_pos().Y, -bsin(actor->int_ang() + 512), dax - actor->int_pos().X, 4);
-    return actor->int_pos().Z + MulScale(heinum, j, 18);
-}
-
 
 //
 // clipinsideboxline
@@ -621,18 +610,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
             {
-                int heinum, sz;
-
-                if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK)) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
-                {
-                    heinum = spriteGetSlope(actor);
-                    sz = spriteGetZOfSlope(actor, pos->X, pos->Y);
-                }
-                else
-                {
-                    heinum = 0;
-                    sz = actor->int_pos().Z;
-                }
+                int heinum = spriteGetSlope(actor);
+                int sz = spriteGetZOfSlope(&actor->spr, pos->X, pos->Y, heinum);
 
                 if (pos->Z > sz - flordist && pos->Z < sz + ceildist)
                 {
@@ -917,7 +896,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
             int i;
 
             for (i=startwall, wal=&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
-                if (clipinsidebox(&vect->vec2, i, walldist-4) == 1)
+                if (clipinsidebox(vect->vec2, i, walldist-4) == 1)
                 {
                     int j = 0;
                     if (wal->nextsector < 0 || wal->cstat & EWallFlags::FromInt(dawalclipmask)) j = 1;
@@ -939,7 +918,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         {
                             vect->X = (vect->X) + dx; vect->Y = (vect->Y) + dy;
                             bad2--; if (bad2 == 0) break;
-                        } while (clipinsidebox(&vect->vec2, i, walldist-4) != 0);
+                        } while (clipinsidebox(vect->vec2, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return bad;
                         clipupdatesector(vect->vec2, sectnum, walldist);
@@ -1123,8 +1102,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     case CSTAT_SPRITE_ALIGNMENT_FLOOR:
                     case CSTAT_SPRITE_ALIGNMENT_SLOPE:
                     {
-                        if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = actor->int_pos().Z; 
-                        else daz = spriteGetZOfSlope(actor, pos.X, pos.Y);
+                        daz = spriteGetZOfSlope(&actor->spr, pos.X, pos.Y, spriteGetSlope(actor));
                         daz2 = daz;
 
                         if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.Z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))

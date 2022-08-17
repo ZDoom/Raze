@@ -264,7 +264,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
                     if (!search.Check(wal.nextSector()))
                     {
                         vec2_t pos = { x, y };
-                        if (clipinsidebox(&pos, wallnum(&wal), walldist))
+                        if (clipinsidebox(pos, wallnum(&wal), walldist))
                         {
                             search.Add(wal.nextSector());
                         }

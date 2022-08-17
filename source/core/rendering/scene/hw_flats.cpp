@@ -139,7 +139,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 
 			// Make adjustments for poorly aligned slope sprites on floors or ceilings
 			constexpr float ONPLANE_THRESHOLD = 3.f;
-			if (tspriteGetZOfSlope(Sprite, posx, posy) < posz)
+			if (spriteGetZOfSlope(Sprite, posx, posy, tspriteGetSlope(Sprite)) < posz)
 			{
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
@@ -436,7 +436,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	if ((sprite->cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
 	{
 		double myz = !(sprite->clipdist & TSPR_SLOPESPRITE) ? z :
-			tspriteGetZOfSlope(sprite, int(di->Viewpoint.Pos.X * 16), int(di->Viewpoint.Pos.Y * -16)) * -(1. / 256.);
+			spriteGetZOfSlope(sprite, int(di->Viewpoint.Pos.X * 16), int(di->Viewpoint.Pos.Y * -16), tspriteGetSlope(sprite)) * -(1. / 256.);
 		if ((di->Viewpoint.Pos.Z < myz) == ((sprite->cstat & CSTAT_SPRITE_YFLIP) == 0))
 			return;
 	}

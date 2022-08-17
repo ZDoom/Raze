@@ -434,9 +434,8 @@ inline int tspriteGetSlope(const tspritetype* spr)
 	return !(spr->clipdist & TSPR_SLOPESPRITE) ? 0 : uint8_t(spr->xoffset) + (int8_t(spr->yoffset) << 8);
 }
 
-inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
+inline int32_t spriteGetZOfSlope(const spritetypebase* tspr, int dax, int day, int heinum)
 {
-	int heinum = tspriteGetSlope(tspr);
 	if (heinum == 0) return tspr->int_pos().Z;
 
 	int const j = DMulScale(bsin(tspr->int_ang() + 1024), day - tspr->int_pos().Y, -bsin(tspr->int_ang() + 512), dax - tspr->int_pos().X, 4);
