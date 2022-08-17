@@ -4262,7 +4262,7 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
     int spa_tos, spa_bos, spb_tos, spb_bos, overlap_z;
 
     if (!actor_a->hasU() || !actor_b->hasU()) return false;
-    if ((unsigned)Distance(actor_a->int_pos().X, actor_a->int_pos().Y, actor_b->int_pos().X, actor_b->int_pos().Y) > actor_a->user.Radius + actor_b->user.Radius)
+    if ((unsigned)DistanceI(actor_a->spr.pos, actor_b->spr.pos) > actor_a->user.Radius + actor_b->user.Radius)
     {
         return false;
     }

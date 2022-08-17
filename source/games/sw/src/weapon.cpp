@@ -11414,7 +11414,7 @@ int InitLavaThrow(DSWActor* actor)
     MissileSetPos(actorNew, DoLavaBoulder, 1200);
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+    dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -11690,7 +11690,7 @@ int InitEnemyNapalm(DSWActor* actor)
         }
 
         // find the distance to the target (player)
-        dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
         if (dist != 0)
             actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -11780,7 +11780,7 @@ int InitEnemyMirv(DSWActor* actor)
     MissileSetPos(actorNew, DoMirv, 600);
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -12210,7 +12210,7 @@ int InitSumoNapalm(DSWActor* actor)
             }
 
             // find the distance to the target (player)
-            dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+			dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
             if (dist != 0)
                 actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -12298,7 +12298,7 @@ int InitSumoStompAttack(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+			dist = DistanceI(actor->spr.pos, itActor->spr.pos);
 
             reach = 16384;
 
@@ -12322,7 +12322,7 @@ int InitMiniSumoClap(DSWActor* actor)
     auto targetActor = actor->user.targetActor;
     if (!targetActor) return 0;
 
-    dist = Distance(actor->int_pos().X, actor->int_pos().Y, targetActor->int_pos().X, targetActor->int_pos().Y);
+	dist = DistanceI(actor->spr.pos, targetActor->spr.pos);
 
     reach = 10000;
 
@@ -13725,7 +13725,7 @@ int InitMicro(PLAYER* pp)
 
         if (picked)
         {
-            dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, picked->int_pos().X, picked->int_pos().Y);
+			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
             if (dist != 0)
             {
                 int zh;
@@ -14096,7 +14096,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
 
         // find the distance to the target (player)
-        dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
         if (dist != 0)
             actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
 
@@ -14194,7 +14194,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
 
         // find the distance to the target (player)
-        dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
         if (dist != 0)
             actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
 
@@ -14273,7 +14273,7 @@ int InitEnemyRocket(DSWActor* actor)
     MissileSetPos(actorNew, DoBoltThinMan, 400);
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -14354,7 +14354,7 @@ int InitEnemyRail(DSWActor* actor)
     }
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -14429,7 +14429,7 @@ int InitZillaRocket(DSWActor* actor)
         MissileSetPos(actorNew, DoBoltThinMan, mp[i].dist_out);
 
         // find the distance to the target (player)
-        dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
         if (dist != 0)
             actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -14468,7 +14468,7 @@ int InitEnemyStar(DSWActor* actor)
     MissileSetPos(actorNew, DoStar, 400);
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -14512,7 +14512,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     MissileSetPos(actorNew, DoStar, 400);
 
     // find the distance to the target (player)
-    dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
@@ -14550,7 +14550,7 @@ int InitSkelSpell(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     // find the distance to the target (player)
-    dist = Distance(nx, ny, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         actorNew->spr.zvel = (actorNew->spr.xvel * (ActorUpperZ(actor->user.targetActor) - nz)) / dist;
@@ -14603,7 +14603,7 @@ int InitCoolgFire(DSWActor* actor)
     PlaySound(DIGI_MAGIC1, actorNew, v3df_follow|v3df_doppler);
 
     // find the distance to the target (player)
-    dist = Distance(nx, ny, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
         // (velocity * difference between the target and the throwing star) /
@@ -15457,7 +15457,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 
         if (picked)
         {
-            dist = Distance(actorNew->int_pos().X, actorNew->int_pos().Y, picked->int_pos().X, picked->int_pos().Y);
+			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
             if (dist != 0)
             {
                 int zh;
@@ -17689,7 +17689,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
         return nullptr;
 
     const int WALLBLOOD_DIST_MAX = 2500;
-    if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, actor->int_pos().X, actor->int_pos().Y) > WALLBLOOD_DIST_MAX)
+    if (DistanceI(hit.hitpos, actor->spr.pos) > WALLBLOOD_DIST_MAX)
         return nullptr;
 
     // hit a sprite?

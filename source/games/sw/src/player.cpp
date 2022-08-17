@@ -3632,7 +3632,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     SWStatIterator it(stat);
     while (auto itActor = it.Next())
     {
-        dist = Distance(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+        dist = DistanceI(actor->spr.pos, itActor->spr.pos);
 
         if (dist < near_dist)
         {

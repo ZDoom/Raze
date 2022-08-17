@@ -518,7 +518,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
         DoActorOperate(actor);
 
         // if far enough away and cannot see the player
-        dist = Distance(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+        dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
 
         if (dist > 30000 && !ICanSee)
         {
@@ -609,7 +609,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
             DoActorPickClosePlayer(actor);
 
         // if close by
-        dist = Distance(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+		dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
         if (dist < 15000 || ICanSee)
         {
             if ((Facing(actor, actor->user.targetActor) && dist < 10000) || ICanSee)
@@ -1273,7 +1273,7 @@ int InitActorDuck(DSWActor* actor)
     actor->user.ActorActionFunc = DoActorDuck;
     NewStateGroup(actor, actor->user.ActorActionSet->Duck);
 
-    dist = Distance(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist > 8000)
     {
@@ -1561,7 +1561,7 @@ int InitActorReposition(DSWActor* actor)
     actor->user.Dist = 0;
 
     rnum = RANDOM_P2(8<<8)>>8;
-    dist = Distance(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y);
+	dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist < PlayerDist[rnum] || (actor->user.Flags & SPR_RUN_AWAY))
     {

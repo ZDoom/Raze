@@ -326,7 +326,7 @@ int DoRotator(DSWActor* actor)
     {
         if (itActor->spr.lotag == actor->spr.lotag)
         {
-            dist = Distance(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+			dist = DistanceI(actor->spr.pos, itActor->spr.pos);
             if (dist < closest)
             {
                 closest = dist;
