@@ -460,9 +460,7 @@ inline int I_GetBuildTime()
 
 inline int32_t getangle(walltype* wal)
 {
-	return getangle(
-		wal->point2Wall()->wall_int_pos().X - wal->wall_int_pos().X,
-		wal->point2Wall()->wall_int_pos().Y - wal->wall_int_pos().Y);
+	return getangle(wal->fdelta());
 }
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
