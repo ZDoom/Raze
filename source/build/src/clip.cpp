@@ -37,28 +37,10 @@ inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n
 // rest x/y: out
 static inline void get_wallspr_points(DCoreActor* actor, int32_t *x1, int32_t *x2, int32_t *y1, int32_t *y2)
 {
-    //These lines get the 2 points of the rotated sprite
-    //Given: (x1, y1) starts out as the center point
-
-    const int32_t tilenum=actor->spr.picnum, ang=actor->int_ang();
-    const int32_t xrepeat = actor->spr.xrepeat;
-    int32_t xoff = tileLeftOffset(tilenum) + actor->spr.xoffset;
-    int32_t k, l, dax, day;
-
-    if (actor->spr.cstat & CSTAT_SPRITE_XFLIP)
-        xoff = -xoff;
-
-    dax = bsin(ang) * xrepeat;
-    day = -bcos(ang) * xrepeat;
-
-    l = tileWidth(tilenum);
-    k = (l>>1)+xoff;
-
-    *x1 -= MulScale(dax,k, 16);
-    *x2 = *x1 + MulScale(dax,l, 16);
-
-    *y1 -= MulScale(day,k, 16);
-    *y2 = *y1 + MulScale(day,l, 16);
+    DVector2 out[2];
+    GetWallSpritePosition(&actor->spr, DVector2(*x1 * inttoworld, *y1 * inttoworld), out);
+    *x1 = int(out[0].X * worldtoint); *y1 = int(out[0].Y * worldtoint);
+    *x2 = int(out[1].X * worldtoint); *y2 = int(out[1].Y * worldtoint);
 }
 
 // x1, y1: in/out

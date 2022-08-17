@@ -287,33 +287,32 @@ double SquareDistToSector(double px, double py, const sectortype* sect, DVector2
 //
 //==========================================================================
 
-void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render)
+void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
 
-	int width, leftofs;
+	double width, xoffset;
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
 		width = TileFiles.tiledata[spr->picnum].hiofs.xsize;
-		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset);
+		xoffset = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset);
 	}
 	else
 	{
-		width = (int)tex->GetDisplayWidth();
-		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset);
+		width = tex->GetDisplayWidth();
+		xoffset = tex->GetDisplayLeftOffset() + spr->xoffset;
 	}
 
-	int x = bsin(spr->int_ang()) * spr->xrepeat;
-	int y = -bcos(spr->int_ang()) * spr->xrepeat;
+	double x = spr->angle.Sin() * spr->xrepeat * (1. / 64.);
+	double y = -spr->angle.Cos() * spr->xrepeat * (1. / 64.);
 
-	int xoff = leftofs;
-	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
-	int origin = (width >> 1) + xoff;
+	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoffset = -xoffset;
+	double origin = (width * 0.5) + xoffset;
 
-	out[0].X = pos.X - MulScale(x, origin, 16);
-	out[0].Y = pos.Y - MulScale(y, origin, 16);
-	out[1].X = out[0].X + MulScale(x, width, 16);
-	out[1].Y = out[0].Y + MulScale(y, width, 16);
+	out[0].X = pos.X - x * origin;
+	out[0].Y = pos.Y - y * origin;
+	out[1].X = out[0].X + x * width;
+	out[1].Y = out[0].Y + y * width;
 }
 
 
