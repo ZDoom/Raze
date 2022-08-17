@@ -969,30 +969,8 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                     if (wal->nextsector < 0 || wal->cstat & EWallFlags::FromInt(dawalclipmask)) j = 1;
                     else
                     {
-                        int32_t daz2;
-                        vec2_t closest;
-
-                        if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                            closest = vect->vec2;
-                        else
-                        {
-                            //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                            int32_t dax = wal->point2Wall()->wall_int_pos().X-wal->wall_int_pos().X;
-                            int32_t day = wal->point2Wall()->wall_int_pos().Y-wal->wall_int_pos().Y;
-                            int32_t daz = dax*((vect->X)-wal->wall_int_pos().X) + day*((vect->Y)-wal->wall_int_pos().Y);
-                            int32_t t;
-                            if (daz <= 0)
-                                t = 0;
-                            else
-                            {
-                                daz2 = dax*dax+day*day;
-                                if (daz >= daz2) t = (1<<30); else t = DivScale(daz, daz2, 30);
-                            }
-                            dax = wal->wall_int_pos().X + MulScale(dax, t, 30);
-                            day = wal->wall_int_pos().Y + MulScale(day, t, 30);
-
-                            closest = { dax, day };
-                        }
+                        auto pvect = NearestPointOnWall(vect->X * inttoworld, vect->Y * inttoworld, wal);
+                        vec2_t closest = { int(pvect.X * worldtoint), int(pvect.Y * worldtoint) };
 
                         j = cliptestsector(clipsectorlist[clipsectcnt], wal->nextsector, flordist, ceildist, closest, vect->Z);
                     }
