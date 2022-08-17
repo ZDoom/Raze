@@ -36,23 +36,21 @@ static actionSeq SpiderSeq[] = {
 };
 
 
-DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* pSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* pSector, int nAngle)
 {
     if (spp == nullptr)
     {
         spp = insertActor(pSector, 99);
+		spp->spr.pos = pos;
     }
     else
     {
         ChangeActorStat(spp, 99);
 
-        x = spp->int_pos().X;
-        y = spp->int_pos().Y;
-        z = spp->sector()->int_floorz();
+        spp->spr.pos.Z = spp->sector()->floorz;
         nAngle = spp->int_ang();
     }
 
-    spp->set_int_pos({ x, y, z });
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     spp->spr.shade = -12;
     spp->spr.clipdist = 15;

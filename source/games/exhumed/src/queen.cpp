@@ -651,7 +651,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->int_ang(), true);
+            auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos, pActor->sector(), pActor->int_ang(), true);
             pActor->set_int_z(pWaspSprite->int_pos().Z);
 
             DestroyEgg(nEgg);
@@ -1095,7 +1095,7 @@ void AIQueenHead::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
 
-void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
+void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
 {
     QueenCount--;
 
@@ -1107,17 +1107,15 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 121);
-    }
-    else
-    {
-        ChangeActorStat(pActor, 121);
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->sector()->int_floorz();
+		pActor->spr.pos = pos;
+	}
+	else
+	{
+		ChangeActorStat(pActor, 121);
+		pActor->spr.pos.Z = pActor->sector()->floorz;
         nAngle = pActor->int_ang();
     }
 
-    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.pal = 0;
     pActor->spr.shade = -12;

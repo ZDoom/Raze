@@ -41,22 +41,20 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
+void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 104);
+		pActor->spr.pos = pos;
     }
     else
     {
         ChangeActorStat(pActor, 104);
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->sector()->int_floorz();
+        pActor->spr.pos.Z = pActor->sector()->floorz;
         nAngle = pActor->int_ang();
     }
 
-    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.clipdist = 60;
     pActor->spr.shade = -12;

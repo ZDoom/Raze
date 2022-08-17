@@ -40,13 +40,13 @@ void SetWaspVel(DExhumedActor* pActor)
     pActor->spr.yvel = bsin(pActor->int_ang());
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, bool bEggWasp)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 107);
 
-        pActor->set_int_pos({ x, y, z });
+		pActor->spr.pos = pos;
     }
     else
     {

@@ -39,22 +39,20 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
-void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
+void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 120);
+		pActor->spr.pos = pos;
     }
     else
     {
         ChangeActorStat(pActor, 120);
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->sector()->int_floorz();
+		pActor->spr.pos.Z = pActor->sector()->floorz;
         nAngle = pActor->int_ang();
     }
 
-    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 110;

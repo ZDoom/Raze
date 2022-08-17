@@ -37,23 +37,19 @@ static actionSeq MummySeq[] = {
 };
 
 
-void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
+void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 102);
+		pActor->spr.pos = pos;
     }
     else
     {
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->int_pos().Z;
         nAngle = pActor->int_ang();
-
         ChangeActorStat(pActor, 102);
     }
 
-    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 32;

@@ -37,23 +37,20 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
-void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
+void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 119);
-    }
-    else
-    {
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->sector()->int_floorz();
-        nAngle = pActor->int_ang();
-
+		pActor->spr.pos = pos;
+	}
+	else
+	{
+		nAngle = pActor->int_ang();
+		pActor->spr.pos.Z = pActor->sector()->floorz;
         ChangeActorStat(pActor, 119);
     }
 
-    pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.clipdist = 80;
     pActor->spr.shade = -12;

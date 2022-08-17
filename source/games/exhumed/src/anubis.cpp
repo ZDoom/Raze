@@ -43,23 +43,21 @@ static const actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
-void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, int nAngle, uint8_t bIsDrummer)
+void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, int nAngle, uint8_t bIsDrummer)
 {
     if (ap == nullptr)
     {
         ap = insertActor(pSector, 101);
+		ap->spr.pos = pos;
     }
     else
     {
         ChangeActorStat(ap, 101);
 
-        x = ap->int_pos().X;
-        y = ap->int_pos().Y;
-        z = ap->sector()->int_floorz();
+		ap->spr.pos.Z = ap->sector()->floorz;
         nAngle = ap->int_ang();
     }
 
-    ap->set_int_pos({ x, y, z });
     ap->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     ap->spr.xoffset = 0;
     ap->spr.shade = -12;

@@ -73,23 +73,20 @@ void SetRatVel(DExhumedActor* pActor)
     pActor->spr.yvel = bsin(pActor->int_ang(), -2);
 }
 
-void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
+void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
 {
-    if (pActor == nullptr)
-    {
-        pActor = insertActor(pSector, 108);
-    }
-    else
-    {
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
-        z = pActor->int_pos().Z;
-        nAngle = pActor->int_ang();
+	if (pActor == nullptr)
+	{
+		pActor = insertActor(pSector, 108);
+		pActor->spr.pos = pos;
+	}
+	else
+	{
+		ChangeActorStat(pActor, 108);
+		pActor->spr.pos.Z = pActor->sector()->floorz;
+		nAngle = pActor->int_ang();
+	}
 
-        ChangeActorStat(pActor, 108);
-    }
-
-	pActor->set_int_pos({ x, y, z });
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.xoffset = 0;

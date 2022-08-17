@@ -97,23 +97,22 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, int nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
         pActor = insertActor(pSector, 118);
+		pActor->spr.pos = pos;
     }
     else
     {
         pSector = pActor->sector();
         nAngle = pActor->int_ang();
-        x = pActor->int_pos().X;
-        y = pActor->int_pos().Y;
+		pActor->spr.pos.Z = pSector->floorz;
 
         ChangeActorStat(pActor, 118);
     }
 
-    pActor->set_int_pos({ x, y, pSector->int_floorz() });
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xrepeat = 200;
     pActor->spr.yrepeat = 200;
