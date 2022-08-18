@@ -15957,7 +15957,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
     short delta;
     int xvect,yvect,zvect;
 
-    PlaySound(DIGI_BOATFIRE, &sop->__int_pmid, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BOATFIRE, sop->pmid, v3df_dontpan|v3df_doppler);
 
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {

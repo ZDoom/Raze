@@ -103,11 +103,11 @@ static double getvalue(so_interp::interp_data& element)
     case soi_floor:
         return sector[index].floorz;
     case soi_sox:
-        return SectorObject[index].__int_pmid.X;
+        return SectorObject[index].pmid.X;
     case soi_soy:
-        return SectorObject[index].__int_pmid.Y;
+        return SectorObject[index].pmid.Y;
     case soi_soz:
-        return SectorObject[index].__int_pmid.Z;
+        return SectorObject[index].pmid.Z;
     case soi_sprx:
 		if (element.actorofang)
 			return element.actorofang->spr.pos.X;
@@ -147,13 +147,13 @@ static void setvalue(so_interp::interp_data& element, double value)
         sector[index].setfloorz(value);
         break;
     case soi_sox:
-        SectorObject[index].__int_pmid.X = (int)value;
+        SectorObject[index].pmid.X = value;
         break;
     case soi_soy:
-        SectorObject[index].__int_pmid.Y = (int)value;
+        SectorObject[index].pmid.Y = value;
         break;
     case soi_soz:
-        SectorObject[index].__int_pmid.Z = (int)value;
+        SectorObject[index].pmid.Z = value;
         break;
     case soi_sprx:
         if (element.actorofang)

@@ -707,9 +707,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     BoundActor = FindBoundSprite(SECT_SO_CENTER);
     if (BoundActor)
     {
-        sop->__int_pmid.X = BoundActor->int_pos().X;
-        sop->__int_pmid.Y = BoundActor->int_pos().Y;
-        sop->__int_pmid.Z = BoundActor->int_pos().Z;
+        sop->pmid = BoundActor->spr.pos;
         KillActor(BoundActor);
     }
 
@@ -934,7 +932,7 @@ cont:
 
         ASSERT(zmid != -9999999);
 
-        sop->__int_pmid.Z = zmid;
+        sop->pmid.Z = zmid * inttoworld;
 
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{
@@ -1028,7 +1026,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
     case TAG_OBJECT_CENTER - 500:
 
         sop->mid_sector = sectp;
-        SectorMidPoint(sectp, &sop->__int_pmid.X, &sop->__int_pmid.Y, &sop->__int_pmid.Z);
+        sop->pmid = SectorMidPoint(sectp);
 
         sop->dir = 1;
         sop->track = sectp->hitag;
@@ -1582,25 +1580,24 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
     int i, rot_ang;
     bool PlayerMove = true;
 
-    if (sop->int_pmid().X >= MAXSO)
+    if (SO_EMPTY(sop))
         PlayerMove = false;
 
     // move along little midpoint
-    sop->__int_pmid.X += nx;
-    sop->__int_pmid.Y += ny;
+    sop->pmid.X += nx * inttoworld;
+    sop->pmid.Y += ny * inttoworld;
 
-    if (sop->int_pmid().X >= MAXSO)
+    if (SO_EMPTY(sop))
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->set_int_xy(sop->int_pmid().X, sop->int_pmid().Y);
-
+    sop->sp_child->spr.pos.XY() = sop->pmid.XY();
 
     // setting floor z if need be
     if ((sop->flags & SOBJ_ZMID_FLOOR))
-        sop->__int_pmid.Z = sop->mid_sector->int_floorz();
+        sop->pmid.Z = sop->mid_sector->floorz;
 
-    DVector2 pivot = { sop->int_pmid().X * inttoworld, sop->int_pmid().Y * inttoworld};
+    DVector2 pivot = sop->pmid.XY();
     DVector2 move = { nx * inttoworld, ny * inttoworld };
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -1756,7 +1753,7 @@ PlayerPart:
 
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
-            if (sop->int_pmid().X < MAXSO) // special case for operating SO's
+            if (!SO_EMPTY(sop)) // special case for operating SO's
                 SetActorZ(sop->so_actors[i], actor->int_pos());
         }
 
@@ -1778,7 +1775,7 @@ PlayerPart:
             // update here AFTER sectors/player has been manipulated
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
-            //if (sop->xmid < MAXSO)
+            //if (!SO_EMPTY(sop))
             updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
 
             // in case you are in a whirlpool

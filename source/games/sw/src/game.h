@@ -1406,7 +1406,7 @@ struct SECTOR_OBJECT
 {
     vec3_t int_pmid() const
     {
-        return __int_pmid;
+        return { int(pmid.X * worldtoint), int(pmid.Y * worldtoint),int(pmid.Z * zworldtoint) };
     }
 
     soANIMATORp PreMoveAnimator;
@@ -1416,7 +1416,7 @@ struct SECTOR_OBJECT
 
     TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object
 
-    vec3_t __int_pmid;  // midpoints of the sector object
+    DVector3 pmid;  // midpoints of the sector object
 
 	TObjPtr<DSWActor*> so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	TObjPtr<DSWActor*> match_event_actor; // spritenum of the match event sprite
@@ -1567,10 +1567,11 @@ enum
     SO_TURRET = 97,
     SO_VEHICLE = 98,
     // #define SO_SPEED_BOAT 99
-    MAXSO = INT32_MAX / 2
 };
 
-inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->__int_pmid.X == MAXSO); }
+constexpr double MAXSO = INT32_MAX / 32; // make sure this does not overflow when converted to a Build int coordinate.
+
+inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == MAXSO); }
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
@@ -2141,7 +2142,7 @@ struct ANIM
 		case ANIM_Floorz:
             return sector[animindex].int_floorz();
 		case ANIM_SopZ:
-			return SectorObject[animindex].__int_pmid.Z;
+			return SectorObject[animindex].int_pmid().Z;
 		case ANIM_Spritez:
             if (animactor == nullptr) return 0;
 			return animactor->spr.int_pos().Z;
@@ -2163,7 +2164,7 @@ struct ANIM
             sector[animindex].set_int_floorz(value);
 			break;
         case ANIM_SopZ:
-            SectorObject[animindex].__int_pmid.Z = value;
+            SectorObject[animindex].pmid.Z = value * zinttoworld;
 			break;
         case ANIM_Spritez:
             if (animactor == nullptr) return;
