@@ -4602,7 +4602,7 @@ bool DropAhead(DSWActor* actor, int  min_height)
 
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    int x, y, z, loz, hiz;
+    int loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp;
@@ -4618,9 +4618,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     }
 
     // save off x,y values
-    x = actor->int_pos().X;
-    y = actor->int_pos().Y;
-    z = actor->int_pos().Z;
+    auto apos = actor->spr.pos;
     loz = actor->user.loz;
     hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
@@ -4640,7 +4638,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         if (labs(actor->int_pos().Z - globloz) > actor->user.lo_step)
         {
             // cancel move
-            actor->set_int_pos({ x, y, z });
+            actor->spr.pos = apos;
             //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;
@@ -4656,7 +4654,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         if (ActorDrop(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), actor->user.lo_step))
         {
             // cancel move
-            actor->set_int_pos({ x, y, z });
+            actor->spr.pos = apos;
             //actor->spr.z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;
@@ -4675,7 +4673,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     if (actor->user.coll.type == kHitNone)
     {
         // Keep track of how far sprite has moved
-        dist = Distance(x, y, actor->int_pos().X, actor->int_pos().Y);
+        dist = DistanceI(apos, actor->spr.pos);
         actor->user.TargetDist -= dist;
         actor->user.Dist += dist;
         actor->user.DistCheck += dist;
@@ -6307,20 +6305,19 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     if ((actor->sector()->extra & SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
-        pos = actor->int_pos();
-        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
+        auto posv = actor->spr.pos;
+        if ((sp_warp = WarpPlane(posv, &dasect)))
         {
-            actor->set_int_pos(pos);
+            actor->spr.pos = posv;
             ActorWarpUpdatePos(actor, dasect);
             ActorWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            pos = actor->int_pos();
-            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
+            if ((sp_warp = Warp(posv, &dasect)))
             {
-                actor->set_int_pos(pos);
+                actor->spr.pos = posv;
                 ActorWarpUpdatePos(actor, dasect);
                 ActorWarpType(actor, sp_warp);
             }
@@ -6498,20 +6495,19 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         DSWActor* sp_warp;
 
-        auto pos = actor->int_pos();
-        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
+        auto pos = actor->spr.pos;
+        if ((sp_warp = WarpPlane(pos, &dasect)))
         {
-            actor->set_int_pos(pos);
+            actor->spr.pos = pos;
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            pos = actor->int_pos();
-            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
+            if ((sp_warp = Warp(pos, &dasect)))
             {
-                actor->set_int_pos(pos);
+                actor->spr.pos = pos;
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }
@@ -6632,20 +6628,19 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     {
         DSWActor* sp_warp;
 
-        auto pos = actor->int_pos();
-        if ((sp_warp = WarpPlane(&pos.X, &pos.Y, &pos.Z, &dasect)))
+        auto pos = actor->spr.pos;
+        if ((sp_warp = WarpPlane(pos, &dasect)))
         {
-            actor->set_int_pos(pos);
+            actor->spr.pos = pos;
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
         if (actor->sector() != lastsect)
         {
-            pos = actor->int_pos();
-            if ((sp_warp = Warp(&pos.X, &pos.Y, &pos.Z, &dasect)))
+            if ((sp_warp = Warp(pos, &dasect)))
             {
-                actor->set_int_pos(pos);
+                actor->spr.pos = pos;
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }
