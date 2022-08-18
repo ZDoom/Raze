@@ -1566,7 +1566,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         pp->actor->set_int_ang(pp->angle.ang.Buildang());
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->sop->pmid.X, pp->sop->pmid.Y);
+    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->sop->__int_pmid.X, pp->sop->__int_pmid.Y);
 }
 
 void SlipSlope(PLAYER* pp)
@@ -2567,8 +2567,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                     x[count] = wal.wall_int_pos().X;
                     y[count] = wal.wall_int_pos().Y;
 
-                    ox[count] = sop->pmid.X - sop->xorig[wallcount];
-                    oy[count] = sop->pmid.Y - sop->yorig[wallcount];
+                    ox[count] = sop->__int_pmid.X - sop->xorig[wallcount];
+                    oy[count] = sop->__int_pmid.Y - sop->yorig[wallcount];
 
                     count++;
                 }
@@ -4821,15 +4821,15 @@ void FindMainSector(SECTOR_OBJECT* sop)
     // find the main sector - only do this once for each sector object
     if (sop->op_main_sector == nullptr)
     {
-        int sx = sop->pmid.X;
-        int sy = sop->pmid.Y;
+        int sx = sop->__int_pmid.X;
+        int sy = sop->__int_pmid.Y;
 
         PlaceSectorObject(sop, MAXSO, MAXSO);
 
         // set it to something valid
         sop->op_main_sector = &sector[0];
 
-        updatesectorz(sx, sy, sop->pmid.Z, &sop->op_main_sector);
+        updatesectorz(sx, sy, sop->__int_pmid.Z, &sop->op_main_sector);
 
         PlaceSectorObject(sop, sx, sy);
     }
@@ -4902,8 +4902,8 @@ void DoPlayerBeginOperate(PLAYER* pp)
     sop->controller = pp->actor;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->pos.X = sop->pmid.X;
-    pp->pos.Y = sop->pmid.Y;
+    pp->pos.X = sop->__int_pmid.X;
+    pp->pos.Y = sop->__int_pmid.Y;
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
@@ -4987,8 +4987,8 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     auto save_sect = pp->cursector;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->pos.X = sop->pmid.X;
-    pp->pos.Y = sop->pmid.Y;
+    pp->pos.X = sop->__int_pmid.X;
+    pp->pos.Y = sop->__int_pmid.Y;
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHT;
@@ -5111,7 +5111,7 @@ void DoPlayerStopOperate(PLAYER* pp)
         if (TEST_BOOL1(rsp))
             pp->angle.ang = pp->angle.oang = rsp->spr.angle;
         else
-            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
+            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->__int_pmid.X - pp->pos.X, pp->sop_remote->__int_pmid.Y - pp->pos.Y);
     }
 
     if (pp->sop_control)

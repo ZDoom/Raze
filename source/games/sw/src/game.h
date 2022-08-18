@@ -1412,7 +1412,7 @@ struct SECTOR_OBJECT
 
     TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object
 
-    vec3_t pmid;  // midpoints of the sector object
+    vec3_t __int_pmid;  // midpoints of the sector object
 
 	TObjPtr<DSWActor*> so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	TObjPtr<DSWActor*> match_event_actor; // spritenum of the match event sprite
@@ -1566,7 +1566,7 @@ enum
     MAXSO = INT32_MAX / 2
 };
 
-inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == MAXSO); }
+inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->__int_pmid.X == MAXSO); }
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
@@ -2131,7 +2131,7 @@ struct ANIM
 		case ANIM_Floorz:
             return sector[animindex].int_floorz();
 		case ANIM_SopZ:
-			return SectorObject[animindex].pmid.Z;
+			return SectorObject[animindex].__int_pmid.Z;
 		case ANIM_Spritez:
             if (animactor == nullptr) return 0;
 			return animactor->spr.int_pos().Z;
@@ -2153,7 +2153,7 @@ struct ANIM
             sector[animindex].set_int_floorz(value);
 			break;
         case ANIM_SopZ:
-            SectorObject[animindex].pmid.Z = value;
+            SectorObject[animindex].__int_pmid.Z = value;
 			break;
         case ANIM_Spritez:
             if (animactor == nullptr) return;

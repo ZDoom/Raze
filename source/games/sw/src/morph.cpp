@@ -310,8 +310,8 @@ void MorphTornado(SECTOR_OBJECT* sop)
         return;
 
     // place at correct x,y offset from center
-    x = sop->pmid.X - sop->morph_xoff;
-    y = sop->pmid.Y - sop->morph_yoff;
+    x = sop->__int_pmid.X - sop->morph_xoff;
+    y = sop->__int_pmid.Y - sop->morph_yoff;
 
     sx = x;
     sy = y;
@@ -321,10 +321,10 @@ void MorphTornado(SECTOR_OBJECT* sop)
     my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
 
     // bound check radius
-    if (ksqrt(SQ(sop->pmid.X - mx) + SQ(sop->pmid.Y - my)) > sop->morph_dist_max + sop->scale_dist)
+    if (ksqrt(SQ(sop->__int_pmid.X - mx) + SQ(sop->__int_pmid.Y - my)) > sop->morph_dist_max + sop->scale_dist)
     {
         // find angle
-        sop->morph_ang = NORM_ANGLE(getangle(mx - sop->pmid.X, my - sop->pmid.Y));
+        sop->morph_ang = NORM_ANGLE(getangle(mx - sop->__int_pmid.X, my - sop->__int_pmid.Y));
         // reverse angle
         sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
 
@@ -332,13 +332,13 @@ void MorphTornado(SECTOR_OBJECT* sop)
         mx = sx + MulScale(sop->morph_speed << 1, bcos(sop->morph_ang), 14);
         my = sy + MulScale(sop->morph_speed << 1, bsin(sop->morph_ang), 14);
 
-        sop->morph_xoff = sop->pmid.X - mx;
-        sop->morph_yoff = sop->pmid.Y - my;
+        sop->morph_xoff = sop->__int_pmid.X - mx;
+        sop->morph_yoff = sop->__int_pmid.Y - my;
     }
 
     // save x,y back as offset info
-    sop->morph_xoff = sop->pmid.X - mx;
-    sop->morph_yoff = sop->pmid.Y - my;
+    sop->morph_xoff = sop->__int_pmid.X - mx;
+    sop->morph_yoff = sop->__int_pmid.Y - my;
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
         sop->morph_ang = RANDOM_P2(2048);
@@ -390,19 +390,19 @@ void MorphFloor(SECTOR_OBJECT* sop)
         return;
 
     // place at correct x,y offset from center
-    x = sop->pmid.X - sop->morph_xoff;
-    y = sop->pmid.Y - sop->morph_yoff;
+    x = sop->__int_pmid.X - sop->morph_xoff;
+    y = sop->__int_pmid.Y - sop->morph_yoff;
 
     // move it from last x,y
     mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
     my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
 
     // save x,y back as offset info
-    sop->morph_xoff = sop->pmid.X - mx;
-    sop->morph_yoff = sop->pmid.Y - my;
+    sop->morph_xoff = sop->__int_pmid.X - mx;
+    sop->morph_yoff = sop->__int_pmid.Y - my;
 
     // bound check radius
-    if (Distance(sop->pmid.X, sop->pmid.Y, mx, my) > sop->morph_dist_max)
+    if (Distance(sop->__int_pmid.X, sop->__int_pmid.Y, mx, my) > sop->morph_dist_max)
     {
         // go in the other direction
         //sop->morph_speed *= -1;
@@ -411,8 +411,8 @@ void MorphFloor(SECTOR_OBJECT* sop)
         // back it up and save it off
         mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
         my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
-        sop->morph_xoff = sop->pmid.X - mx;
-        sop->morph_yoff = sop->pmid.Y - my;
+        sop->morph_xoff = sop->__int_pmid.X - mx;
+        sop->morph_yoff = sop->__int_pmid.Y - my;
 
         // turn it all the way around and then do a random -512 to 512 from there
         //sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024 + (RANDOM_P2(1024) - 512));
@@ -514,8 +514,8 @@ void SpikeFloor(SECTOR_OBJECT* sop)
         return;
 
     // place at correct x,y offset from center
-    x = sop->pmid.X - sop->morph_xoff;
-    y = sop->pmid.Y - sop->morph_yoff;
+    x = sop->__int_pmid.X - sop->morph_xoff;
+    y = sop->__int_pmid.Y - sop->morph_yoff;
 
     // move it from last x,y
     mx = x;
