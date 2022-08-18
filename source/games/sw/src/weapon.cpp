@@ -15058,33 +15058,6 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
     return false;
 }
 
-// not used
-DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z)
-{
-    short w,nw,wall_ang;
-
-    auto actor = insertActor(hit_sect, STAT_DEFAULT);
-    actor->spr.xrepeat = actor->spr.yrepeat = 16;
-    actor->spr.cstat = 0;
-    actor->spr.pal = 0;
-    actor->spr.shade = 0;
-    actor->spr.extra = 0;
-    actor->spr.clipdist = 0;
-    actor->spr.xoffset = actor->spr.yoffset = 0;
-    actor->set_int_pos({ hit_x, hit_y, hit_z });
-    actor->spr.picnum = 2151;
-
-    //actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
-    actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
-    actor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
-
-    wall_ang = NORM_ANGLE(getangle(hit_wall->delta())-512);
-
-    actor->set_int_ang(NORM_ANGLE(wall_ang + 1024));
-
-    return actor;
-}
-
 bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
     int16_t ang;
