@@ -308,6 +308,8 @@ template<class vec_t>
 struct TVector3
 {
 	typedef TVector2<vec_t> Vector2;
+	// this does not compile - should be true on all relevant hardware.
+	//static_assert(myoffsetof(TVector3, X) == myoffsetof(Vector2, X) && myoffsetof(TVector3, Y) == myoffsetof(Vector2, Y), "TVector2 and TVector3 are not aligned");
 
 	vec_t X, Y, Z;
 
@@ -492,9 +494,14 @@ struct TVector3
 	}
 
 	// returns the XY fields as a 2D-vector.
-	Vector2 XY() const
+	const Vector2& XY() const
 	{
-		return{ X, Y };
+		return *reinterpret_cast<const Vector2*>(this);
+	}
+
+	Vector2& XY()
+	{
+		return *reinterpret_cast<Vector2*>(this);
 	}
 
 	// Add a 3D vector and a 2D vector.
