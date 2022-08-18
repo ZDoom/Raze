@@ -84,7 +84,7 @@ void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt);
 SECTOR_OBJECT* DetectSectorObject(sectortype*);
 SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
 void ScaleSpriteVector(DSWActor* actor, int scale);
-void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z);
+void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos);
 DSWActor* QueueWallBlood(DSWActor* hit, short ang);
 bool SlopeBounce(DSWActor*, bool *hit_wall);
 int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);

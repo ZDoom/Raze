@@ -12781,7 +12781,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
             return 0;
         }
 
-        QueueHole(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos);
     }
 
     // hit a sprite?
@@ -12935,7 +12935,7 @@ int InitShotgun(PLAYER* pp)
                 continue;
             }
 
-            QueueHole(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z);
+            QueueHole(hit.hitSector, hit.hitWall, hit.hitpos);
         }
 
         // hit a sprite?
@@ -15241,7 +15241,7 @@ int InitUzi(PLAYER* pp)
             return 0;
         }
 
-        QueueHole(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos);
     }
 
     // hit a sprite?
@@ -16096,7 +16096,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                     continue;
                 }
 
-                QueueHole(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z);
+                QueueHole(hit.hitSector, hit.hitWall, hit.hitpos);
             }
 
             // hit a sprite?
@@ -16229,7 +16229,7 @@ int InitEnemyUzi(DSWActor* actor)
             return 0;
         }
 
-        QueueHole(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos);
     }
 
     if (hit.actor() != nullptr)
@@ -17380,7 +17380,7 @@ int QueueStar(DSWActor* actor)
     return 0;
 }
 
-void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z)
+void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 {
     short w,nw,wall_ang;
     DSWActor* spawnedActor;
@@ -17403,7 +17403,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->set_int_pos({ hit_x, hit_y, hit_z });
+    spawnedActor->spr.pos = pos;
     spawnedActor->spr.picnum = 2151;
     ChangeActorSect(spawnedActor, hit_sect);
 
