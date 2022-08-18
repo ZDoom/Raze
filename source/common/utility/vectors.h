@@ -344,7 +344,7 @@ struct TVector3
 		return X == 0 && Y == 0 && Z == 0;
 	}
 
-	TVector3 plusZ(double z)
+	TVector3 plusZ(double z) const
 	{
 		return { X, Y, Z + z };
 	}

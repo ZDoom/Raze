@@ -9957,7 +9957,7 @@ void SpawnBoltExp(DSWActor* actor)
     DoExpDamageTest(expActor);
 
     SetExpQuake(actor); // !JIM! made rocket launcher shake things
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
 int SpawnBunnyExp(DSWActor* actor)
@@ -10003,7 +10003,7 @@ void SpawnTankShellExp(DSWActor* actor)
 
     SpawnExpZadjust(actor, expActor, Z(40), Z(40));
     DoExpDamageTest(expActor);
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
 
@@ -10184,7 +10184,7 @@ void SpawnMicroExp(DSWActor* actor)
     //
 
     SpawnExpZadjust(actor, expActor, Z(20), Z(20));
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
 void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
@@ -10375,7 +10375,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     DoExpDamageTest(expActor);
 
     SetExpQuake(expActor);
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 0);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 0);
 }
 
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize)
@@ -10450,7 +10450,7 @@ void SpawnMineExp(DSWActor* actor)
     //
 
     SpawnExpZadjust(actor, expActor, Z(100), Z(20));
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 
     SetExpQuake(expActor);
 }
@@ -10491,7 +10491,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 
     DoExpDamageTest(expActor);
     SetExpQuake(expActor);
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 
     return expActor;
 }
@@ -10517,7 +10517,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
     SetExpQuake(expActor);
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 
     return expActor;
 }
@@ -10577,7 +10577,7 @@ void SpawnLittleExp(DSWActor* actor)
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_BASIC_EXP].radius;
     DoExpDamageTest(expActor);
-    SpawnVis(nullptr, expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, expActor->int_pos().Z, 16);
+    SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
 int DoFireball(DSWActor* actor)
@@ -15768,7 +15768,7 @@ int InitSobjGun(PLAYER* pp)
             {
             case 32:
             case 0:
-                SpawnVis(actor, nullptr, -1, -1, -1, 8);
+                SpawnVis(actor, nullptr, {}, 8);
                 SpawnBigGunFlames(actor, pp->actor, pp->sop, false);
                 SetGunQuake(actor);
                 InitTankShell(actor, pp);
@@ -15778,7 +15778,7 @@ int InitSobjGun(PLAYER* pp)
                     pp->FirePause = SP_TAG5(actor);
                 break;
             case 1:
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 SpawnBigGunFlames(actor, pp->actor, pp->sop, true);
                 InitSobjMachineGun(actor, pp);
                 if (!SP_TAG5(actor))
@@ -15788,7 +15788,7 @@ int InitSobjGun(PLAYER* pp)
                 break;
             case 2:
                 if (SW_SHAREWARE) break;
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 InitTurretLaser(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 120;
@@ -15797,7 +15797,7 @@ int InitSobjGun(PLAYER* pp)
                 break;
             case 3:
                 if (SW_SHAREWARE) break;
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 InitTurretRail(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 120;
@@ -15806,7 +15806,7 @@ int InitSobjGun(PLAYER* pp)
                 break;
             case 4:
                 if (SW_SHAREWARE) break;
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 InitTurretFireball(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 20;
@@ -15815,7 +15815,7 @@ int InitSobjGun(PLAYER* pp)
                 break;
             case 5:
                 if (SW_SHAREWARE) break;
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 InitTurretRocket(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 100;
@@ -15824,7 +15824,7 @@ int InitSobjGun(PLAYER* pp)
                 break;
             case 6:
                 if (SW_SHAREWARE) break;
-                SpawnVis(actor, nullptr, -1, -1, -1, 32);
+                SpawnVis(actor, nullptr, {}, 32);
                 InitTurretMicro(actor, pp);
                 if (!SP_TAG5(actor))
                     pp->FirePause = 100;

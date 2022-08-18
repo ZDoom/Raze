@@ -2283,7 +2283,7 @@ void pUziFire(PANEL_SPRITE* psp)
     }
     else
     {
-        SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 32);
+        SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
 
         if (!WeaponOK(psp->PlayerP))
             return;
@@ -2923,7 +2923,7 @@ void pShotgunAction(PANEL_SPRITE* psp)
 
 void pShotgunFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 32);
+    SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
     InitShotgun(psp->PlayerP);
     //SpawnShotgunShell(psp);
 }
@@ -3281,7 +3281,7 @@ void pRailAction(PANEL_SPRITE* psp)
 
 void pRailFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 16);
+    SpawnVis(psp->PlayerP->actor, nullptr, {}, 16);
     InitRail(psp->PlayerP);
 }
 
@@ -3675,15 +3675,15 @@ void pHotheadAttack(PANEL_SPRITE* psp)
     switch (psp->PlayerP->WpnFlameType)
     {
     case 0:
-        SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 32);
+        SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
         InitFireball(psp->PlayerP);
         break;
     case 1:
-        SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 20);
+        SpawnVis(psp->PlayerP->actor, nullptr, {}, 20);
         InitSpellRing(psp->PlayerP);
         break;
     case 2:
-        SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 16);
+        SpawnVis(psp->PlayerP->actor, nullptr, {}, 16);
         InitSpellNapalm(psp->PlayerP);
         break;
     }
@@ -4212,7 +4212,7 @@ void pMicroAction(PANEL_SPRITE* psp)
 
 void pMicroFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 20);
+    SpawnVis(psp->PlayerP->actor, nullptr, {}, 20);
     switch (psp->PlayerP->WpnRocketType)
     {
     case 0:
@@ -5000,7 +5000,7 @@ void pGrenadeAction(PANEL_SPRITE* psp)
 
 void pGrenadeFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, -1, -1, -1, 32);
+    SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
     InitGrenade(psp->PlayerP);
 }
 

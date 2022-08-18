@@ -120,7 +120,7 @@ void VisViewChange(PLAYER* pp, int *vis)
     *vis = BrightestVis;
 }
 
-void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int amt)
+void SpawnVis(DSWActor* parentActor, sectortype* sect, const DVector3& pos, int amt)
 {
     DSWActor* actorNew = nullptr;
     if (parentActor != nullptr)
@@ -159,7 +159,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
 
         actorNew = insertActor(sect, STAT_VIS_ON);
 
-        actorNew->set_int_pos({ x, y, z - Z(20) });
+        actorNew->spr.pos = pos.plusZ(-20);
     }
 
     actorNew->spr.cstat = 0;

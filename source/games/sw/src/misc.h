@@ -40,7 +40,7 @@ inline DSWActor* WarpPlane(DVector3& pos, sectortype** sect)
 
 void ProcessVisOn(void);
 void VisViewChange(PLAYER* pp, int* vis);
-void SpawnVis(DSWActor* Parent, sectortype* sect, int x, int y, int z, int amt);
+void SpawnVis(DSWActor* Parent, sectortype* sect, const DVector3& pos, int amt);
 
 enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
