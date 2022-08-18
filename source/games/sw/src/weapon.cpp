@@ -10210,8 +10210,8 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 
     actor->user.Flags |= (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
 
-    actor->user.pos.X = sop->__int_pmid.X - actor->int_pos().X;
-    actor->user.pos.Y = sop->__int_pmid.Y - actor->int_pos().Y;
+    actor->user.pos.X = sop->int_pmid().X - actor->int_pos().X;
+    actor->user.pos.Y = sop->int_pmid().Y - actor->int_pos().Y;
     actor->user.pos.Z = sop->mid_sector->int_floorz() - actor->int_pos().Z;
 
     actor->user.sang = actor->int_ang();

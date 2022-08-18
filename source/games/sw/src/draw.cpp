@@ -1440,7 +1440,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         if (TEST_BOOL1(ractor))
             tang = ractor->spr.angle;
         else
-            tang = VecToAngle(pp->sop_remote->__int_pmid.X - tx, pp->sop_remote->__int_pmid.Y - ty);
+            tang = VecToAngle(pp->sop_remote->int_pmid().X - tx, pp->sop_remote->int_pmid().Y - ty);
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
