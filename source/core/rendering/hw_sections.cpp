@@ -73,29 +73,30 @@ struct sectionbuildsector
 	TArray<sectionbuild> sections;
 };
 
-static bool cmpLess(int a, int b)
+static bool cmpLess(double a, double b)
 {
 	return a < b;
 }
 
-static bool cmpGreater(int a, int b)
+static bool cmpGreater(double a, double b)
 {
 	return a > b;
 }
 
-static int sgn(int v)
+static int sgn(double v)
 {
-	return (v > 0) - (v < 0);
+	// Don't try to be smart here - the compiler won't like it.
+	return (v > 0)? 1: (v < 0)? -1 : 0;
 }
 
-static int dist(const vec2_t& a, const vec2_t& b)
+static int dist(const DVector2& a, const DVector2& b)
 {
 	// We only need to know if it's 1 or higher, so this is enough.
-	return abs(a.X - b.X) + abs(a.Y - b.Y);
+	return fabs(a.X - b.X) + fabs(a.Y - b.Y);
 }
 
 
-using cmp = bool(*)(int, int);
+using cmp = bool(*)(double, double);
 
 //==========================================================================
 //
@@ -103,7 +104,7 @@ using cmp = bool(*)(int, int);
 //
 //==========================================================================
 
-void StripLoop(TArray<vec2_t>& points)
+void StripLoop(TArray<DVector2>& points)
 {
 	for (int p = 0; p < (int)points.Size(); p++)
 	{
@@ -126,7 +127,7 @@ void StripLoop(TArray<vec2_t>& points)
 		}
 		else if ((points[prev].X == points[p].X && points[next].X == points[p].X && sgn(points[next].Y - points[p].Y) == sgn(points[prev].Y - points[p].Y)) ||
 			(points[prev].Y == points[p].Y && points[next].Y == points[p].Y && sgn(points[next].X - points[p].X) == sgn(points[prev].X - points[p].X)) ||
-			dist(points[prev], points[next]) <= 1) // if the two points are extremely close together, we may also ignore the intermediate point.
+			dist(points[prev], points[next]) <= 1/256.) // if the two points are extremely close together, we may also ignore the intermediate point.
 		{
 			// both connections exit the point into the same direction. Here it is sufficient to just delete it so that the neighboring ones connect directly.
 			points.Delete(p);
@@ -144,11 +145,11 @@ void StripLoop(TArray<vec2_t>& points)
 //
 //==========================================================================
 
-int GetWindingOrder(TArray<vec2_t>& poly, cmp comp1 = cmpLess, cmp comp2 = cmpGreater)
+int GetWindingOrder(TArray<DVector2>& poly, cmp comp1 = cmpLess, cmp comp2 = cmpGreater)
 {
 	int n = poly.Size();
-	int minx = poly[0].X;
-	int miny = poly[0].Y;
+	double minx = poly[0].X;
+	double miny = poly[0].Y;
 	int m = 0;
 
 	for (int i = 0; i < n; i++) 
@@ -186,11 +187,11 @@ int GetWindingOrder(TArray<int>& poly)
 {
 	// This is more complicated than it should be due to how doors are designed in Build. 
 	// Overlapping and backtracking lines are quite common and need to be removed from the data before determining the winding order.
-	TArray<vec2_t> points(poly.Size(), true);
+	TArray<DVector2> points(poly.Size(), true);
 	int i = 0;
 	for (auto& index : poly)
 	{
-		points[i++] = wall[index].wall_int_pos();
+		points[i++] = wall[index].pos;
 	}
 	StripLoop(points);
 	if (points.Size() == 0) return 1; // Sector has no dimension. We must accept this as valid here.

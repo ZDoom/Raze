@@ -19,8 +19,8 @@ struct SectionLine
 	int wall;
 	int partner;
 
-	vec2_t v1() const { return ::wall[startpoint].wall_int_pos(); }
-	vec2_t v2() const { return ::wall[endpoint].wall_int_pos(); }
+	DVector2 v1() const { return ::wall[startpoint].pos; }
+	DVector2 v2() const { return ::wall[endpoint].pos; }
 	walltype* wallp() const { return &::wall[wall]; }
 	SectionLine* partnerLine() const;
 
@@ -53,7 +53,7 @@ extern TArray<Section> sections;
 extern TArrayView<TArrayView<int>> sectionsPerSector;
 
 void hw_CreateSections();
-using Outline = TArray<TArray<vec2_t>>;
+using Outline = TArray<TArray<DVector2>>;
 using Point = std::pair<float, float>;
 using FOutline = std::vector<std::vector<Point>>; // Data type was chosen so it can be passed directly into Earcut.
 Outline BuildOutline(Section* section);

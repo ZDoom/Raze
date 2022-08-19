@@ -232,8 +232,8 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 		count += outl[i].Size();
 		for (unsigned j = 0; j < outl[i].Size(); j++)
 		{
-			float X = (outl[i][j].X) * inttoworld;
-			float Y = (outl[i][j].Y) * -inttoworld;
+			float X = outl[i][j].X;
+			float Y = -(outl[i][j].Y);
 			if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
 			{
 				// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
@@ -437,9 +437,9 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
-	int fz = sectorp->int_floorz(), cz = sectorp->int_ceilingz();
-	sectorp->set_int_floorz(0, true);
-	sectorp->set_int_ceilingz(0, true);
+	double fz = sectorp->floorz, cz = sectorp->ceilingz;
+	sectorp->setfloorz(0, true);
+	sectorp->setceilingz(0, true);
 
 	UVCalculator uvcalc(sectorp, plane, texture, offset);
 
@@ -456,8 +456,8 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 		PlanesAtPoint(sectorp, pt.X, -pt.Y, plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(pt.X, -pt.Y, pt.Z);
 	}
-	sectorp->set_int_floorz(fz, true);
-	sectorp->set_int_ceilingz(cz, true);
+	sectorp->setfloorz(fz, true);
+	sectorp->setceilingz(cz, true);
 	entry.normal = CalcNormal(sectorp, plane);
 }
 
