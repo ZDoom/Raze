@@ -149,6 +149,13 @@ extern vec2_t hitscangoal;
 
 struct HitInfoBase;
 int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype);
+inline int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& direction, HitInfoBase& hitinfo, unsigned cliptype)
+{
+	vec3_t istart(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint) );
+	vec3_t idir( int(direction.X * worldtoint), int(direction.Y * worldtoint), int(direction.Z * zworldtoint) );
+	return hitscan(istart, startsect, idir, hitinfo, cliptype);
+}
+
 void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);

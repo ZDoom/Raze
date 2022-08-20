@@ -241,38 +241,25 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSector)
+Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 {
     auto pActor = PlayerList[nPlayer].pActor;
 
     int ang = pActor->int_ang();
-    int xVect = bcos(ang);
-    int yVect = bsin(ang);
 
     HitInfo hit{};
-    hitscan({ *x, *y, *z }, *ppSector, { xVect, yVect, 0 }, hit, CLIPMASK1);
+    hitscan(pos, *ppSector, DVector3(pActor->spr.angle.ToVector() * 1024, 0 ), hit, CLIPMASK1);
 
-    int ecx = bsin(150, -3);
+	const double ecx = 56.84; // bsin(150, -3)
+	double sqrtNum = (hit.hitpos.XY() - pos.XY()).LengthSquared();
 
-    uint32_t yDiff = abs(hit.int_hitpos().Y - *y);
-    uint32_t xDiff = abs(hit.int_hitpos().X - *x);
-
-    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
-
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
     Collision c;
     c.setNone();
 
-    if (ksqrt(sqrtNum) >= ecx)
+    if (sqrtNum >= ecx * ecx)
         return c;
 
-    *x = hit.int_hitpos().X;
-    *y = hit.int_hitpos().Y;
-    *z = hit.int_hitpos().Z;
+	pos = hit.hitpos;
     *ppSector = hit.hitSector;
 
     if (hit.actor()) {
@@ -648,9 +635,7 @@ loc_flag:
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
             int nAngle = pPlayerActor->int_ang();
-            int theX = pPlayerActor->int_pos().X;
-            int theY = pPlayerActor->int_pos().Y;
-            int theZ = pPlayerActor->int_pos().Z;
+			auto thePos = pPlayerActor->spr.pos;
 
             int ebp = bcos(nAngle) * (pPlayerActor->spr.clipdist << 3);
             int ebx = bsin(nAngle) * (pPlayerActor->spr.clipdist << 3);
@@ -696,7 +681,7 @@ loc_flag:
                 {
                     nHeight += -PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 10;
 
-                    theZ += nHeight;
+                    thePos.Z += nHeight * zinttoworld;
 
                     int var_28;
 
@@ -707,7 +692,7 @@ loc_flag:
                         var_28 = 9;
                     }
 
-                    auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &pSectorB);
+                    auto cRange = CheckCloseRange(nPlayer, thePos, &pSectorB);
 
                     if (cRange.type != kHitNone)
                     {
@@ -742,7 +727,7 @@ loc_flag:
                                     else if (pActor2->spr.statnum == 102)
                                     {
                                         // loc_27370:
-                                        BuildAnim(nullptr, 12, 0, DVector3(theX * inttoworld, theY * inttoworld, theZ * zinttoworld), pSectorB, 30, 0);
+                                        BuildAnim(nullptr, 12, 0, thePos, pSectorB, 30, 0);
                                     }
                                     else if (pActor2->spr.statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
@@ -754,7 +739,7 @@ loc_flag:
                                 else
                                 {
                                     // loc_27370:
-                                    BuildAnim(nullptr, 12, 0, DVector3(theX * inttoworld, theY * inttoworld, theZ * zinttoworld), pSectorB, 30, 0);
+                                    BuildAnim(nullptr, 12, 0, thePos, pSectorB, 30, 0);
                                 }
                             }
                         }
