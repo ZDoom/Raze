@@ -969,8 +969,8 @@ struct USER
 
     double oz; // serialized copy of sprite.oz
     double z_tgt;
-    int16_t ceiling_dist;
-    int16_t floor_dist;
+    double ceiling_dist;
+    double floor_dist;
 
     int Flags;
     int Flags2;

@@ -502,8 +502,8 @@ int DoCoolgMatchPlayerZ(DSWActor* actor);
 void CoolgCommon(DSWActor* actor)
 {
     actor->spr.clipdist = (200) >> 2;
-    actor->user.floor_dist = Z(16);
-    actor->user.ceiling_dist = Z(20);
+    actor->user.floor_dist = (16);
+    actor->user.ceiling_dist = (20);
 
     actor->user.pos.Z = actor->int_pos().Z;
 
@@ -758,7 +758,7 @@ int DoCoolgDeath(DSWActor* actor)
     else
     {
         DoFindGroundPoint(actor);
-        actor->user.floor_dist = 0;
+        actor->user._floor_dist = 0;
         DoBeginFall(actor);
     }
 

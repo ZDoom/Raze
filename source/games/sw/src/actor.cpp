@@ -90,7 +90,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     actor->user.Flags |= (SPR_DEAD);
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
-    actor->user.floor_dist = Z(40);
+    actor->user.floor_dist = (40);
 
     // test for gibable dead bodies
     actor->spr.extra |= (SPRX_BREAKABLE);

@@ -309,8 +309,8 @@ int SetupHornet(DSWActor* actor)
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actor->spr.clipdist = (100) >> 2;
-    actor->user.floor_dist = Z(16);
-    actor->user.ceiling_dist = Z(16);
+    actor->user.floor_dist = (16);
+    actor->user.ceiling_dist = (16);
 
     actor->user.pos.Z = actor->int_pos().Z;
 
@@ -497,7 +497,7 @@ int DoHornetDeath(DSWActor* actor)
     {
         actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         actor->user.jump_speed = 0;
-        actor->user.floor_dist = 0;
+        actor->user._floor_dist = 0;
         DoBeginFall(actor);
         DoFindGroundPoint(actor);
         actor->user.zclip = actor->user.int_loz();

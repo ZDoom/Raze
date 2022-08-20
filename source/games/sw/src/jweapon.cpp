@@ -1266,8 +1266,8 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -1323,8 +1323,8 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -1364,8 +1364,8 @@ int InitChemBomb(DSWActor* actor)
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
     // invis.
@@ -1636,8 +1636,8 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
 //      spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
@@ -1695,8 +1695,8 @@ int InitCaltrops(DSWActor* actor)
     actorNew->spr.clipdist = actor->spr.clipdist;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
@@ -1746,8 +1746,8 @@ int InitPhosphorus(DSWActor* actor)
         actorNew->spr.clipdist = actor->spr.clipdist;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 600;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
@@ -1819,8 +1819,8 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->spr.clipdist = actor->spr.clipdist;
         actorNew->user.WeaponNum = actor->user.WeaponNum;
         actorNew->user.Radius = 600;
-        actorNew->user.ceiling_dist = Z(3);
-        actorNew->user.floor_dist = Z(3);
+        actorNew->user.ceiling_dist = (3);
+        actorNew->user.floor_dist = (3);
         actorNew->user.Counter = 0;
 
         actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
@@ -2234,8 +2234,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -15;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);

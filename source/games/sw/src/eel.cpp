@@ -360,9 +360,9 @@ int DoEelMatchPlayerZ(DSWActor* actor);
 void EelCommon(DSWActor* actor)
 {
     actor->spr.clipdist = (100) >> 2;
-    actor->user.floor_dist = Z(16);
-    actor->user.floor_dist = Z(16);
-    actor->user.ceiling_dist = Z(20);
+    actor->user.floor_dist = (16);
+    actor->user.floor_dist = (16);
+    actor->user.ceiling_dist = (20);
 
     actor->user.pos.Z = actor->int_pos().Z;
 
@@ -519,7 +519,7 @@ int DoEelDeath(DSWActor* actor)
     else
     {
         DoFindGroundPoint(actor);
-        actor->user.floor_dist = 0;
+        actor->user._floor_dist = 0;
         DoBeginFall(actor);
     }
 

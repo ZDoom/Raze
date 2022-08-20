@@ -410,8 +410,8 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->user.zclip = Z(48);
     actor->user.lo_step = Z(32);
 
-    actor->user.floor_dist = actor->user.zclip - actor->user.lo_step;
-    actor->user.ceiling_dist = ActorSizeZ(actor) - actor->user.zclip;
+    actor->user._floor_dist = actor->user.zclip - actor->user.lo_step;
+    actor->user._ceiling_dist = ActorSizeZ(actor) - actor->user.zclip;
 
     actor->user.Radius = 400;
 

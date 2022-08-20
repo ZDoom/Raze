@@ -5527,8 +5527,8 @@ void DoPlayerBeginDie(PLAYER* pp)
         //pp->floor_dist = Z(0);
 
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        plActor->user.ceiling_dist = Z(10);
-        plActor->user.floor_dist = Z(0);
+        plActor->user.ceiling_dist = (10);
+        plActor->user.floor_dist = (0);
         DoFindGround(pp->actor);
         DoBeginJump(pp->actor);
         plActor->user.jump_speed = -400;

@@ -857,8 +857,8 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     // default
 
     // based on clipmove z of 48 pixels off the floor
-    actor->user.floor_dist = Z(48) - Z(28);
-    actor->user.ceiling_dist = Z(8);
+    actor->user.floor_dist = 48 - 28;
+    actor->user.ceiling_dist = 8;
 
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
@@ -1515,8 +1515,8 @@ void SpriteSetupPost(void)
 
             SpawnUser(jActor, 0, nullptr);
             change_actor_stat(jActor, STAT_NO_STATE);
-            jActor->user.ceiling_dist = Z(4);
-            jActor->user.floor_dist = -Z(2);
+            jActor->user.ceiling_dist = (4);
+            jActor->user._floor_dist = -Z(2);
 
             jActor->user.ActorActionFunc = DoActorDebris;
 
@@ -3491,8 +3491,8 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
     if (SP_TAG7(spawner))
     {
         change_actor_stat(actor, STAT_SKIP4);
-        actor->user.ceiling_dist = Z(6);
-        actor->user.floor_dist = Z(0);
+        actor->user.ceiling_dist = (6);
+        actor->user.floor_dist = (0);
         actor->user.Counter = 0;
 
         actor->spr.xvel = (int)SP_TAG7(spawner)<<2;

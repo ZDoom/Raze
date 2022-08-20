@@ -3765,8 +3765,8 @@ AutoShrap:
             actor->spr.xvel = p->min_vel*2;
             actor->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
-            actor->user.floor_dist = shrap_floor_dist;
-            actor->user.ceiling_dist = shrap_ceiling_dist;
+            actor->user._floor_dist = shrap_floor_dist;
+            actor->user._ceiling_dist = shrap_ceiling_dist;
             actor->user.jump_speed = p->min_jspeed;
             actor->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actor->user.jump_speed = -actor->user.jump_speed;
@@ -4137,7 +4137,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             // so add it in
             actorNew->spr.xvel += actor->spr.xvel;
 
-            actorNew->user.ceiling_dist = actorNew->user.floor_dist = Z(2);
+            actorNew->user._ceiling_dist = actorNew->user.floor_dist = (2);
             actorNew->user.jump_speed = p->min_jspeed;
             actorNew->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actorNew->user.jump_speed = -actorNew->user.jump_speed;
@@ -7455,8 +7455,8 @@ int DoStar(DSWActor* actor)
                 actor->spr.yrepeat -= 16;
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->spr.clipdist = 16L >> 2;
-                actor->user.ceiling_dist = Z(2);
-                actor->user.floor_dist = Z(2);
+                actor->user.ceiling_dist = (2);
+                actor->user.floor_dist = (2);
                 // treat this just like a KillSprite but don't kill
                 QueueStar(actor);
                 return 0;
@@ -9396,8 +9396,8 @@ int SpawnExtraMicroMini(DSWActor* actor)
     NewStateGroup(actorNew, &sg_MicroMini[0]);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = actor->user.Radius;
-    actorNew->user.ceiling_dist = actor->user.int_ceiling_dist();
-    actorNew->user.floor_dist = actor->user.int_floor_dist();
+    actorNew->user._ceiling_dist = actor->user.int_ceiling_dist();
+    actorNew->user._floor_dist = actor->user.int_floor_dist();
     actorNew->spr.cstat = actor->spr.cstat;
 
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(64) - 32));
@@ -9800,7 +9800,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
             return;
         }
 
-        actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
+        actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
 
         DoFindGround(actorNew);
         actorNew->user.jump_speed = 0;
@@ -9829,7 +9829,7 @@ int SpawnBreakFlames(DSWActor* actor)
 
     actorNew->user.Radius = 200;
 
-    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
+    actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
 
     DoFindGround(actorNew);
     actorNew->user.jump_speed = 0;
@@ -9861,7 +9861,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.Radius = 200;
-    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
+    actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
     actorNew->set_int_z(getflorzofslopeptr(actorNew->sector(), actorNew->int_pos().X, actorNew->int_pos().Y));
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
@@ -10020,8 +10020,8 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->spr.xrepeat = 218;
     expActor->spr.yrepeat = 152;
     expActor->spr.clipdist = actor->spr.clipdist;
-    expActor->user.ceiling_dist = Z(16);
-    expActor->user.floor_dist = Z(16);
+    expActor->user.ceiling_dist = (16);
+    expActor->user.floor_dist = (16);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10291,8 +10291,8 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->spr.xrepeat = 32;
     expActor->spr.yrepeat = 32;
     expActor->spr.clipdist = actor->spr.clipdist;
-    expActor->user.ceiling_dist = Z(16);
-    expActor->user.floor_dist = Z(16);
+    expActor->user.ceiling_dist = (16);
+    expActor->user.floor_dist = (16);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -11015,8 +11015,8 @@ int DoMirv(DSWActor* actor)
             actorNew->spr.zvel = 0;
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-            actorNew->user.ceiling_dist = Z(16);
-            actorNew->user.floor_dist = Z(16);
+            actorNew->user.ceiling_dist = (16);
+            actorNew->user.floor_dist = (16);
             actorNew->user.Dist = 200;
             //actorNew->user.Dist = 0;
 
@@ -11250,8 +11250,8 @@ void InitSpellRing(PLAYER* pp)
         actorNew->user.Dist = RING_INNER_DIST;
         actorNew->user.Counter = max_missiles;
         actorNew->user.Counter2 = 0;
-        actorNew->user.ceiling_dist = Z(10);
-        actorNew->user.floor_dist = Z(10);
+        actorNew->user.ceiling_dist = (10);
+        actorNew->user.floor_dist = (10);
 
         // put it out there
         actorNew->add_int_pos({ MulScale(actorNew->user.Dist, bcos(actorNew->int_ang()), 14), MulScale(actorNew->user.Dist, bsin(actorNew->int_ang()), 14),
@@ -11404,8 +11404,8 @@ int InitLavaThrow(DSWActor* actor)
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
-    actorNew->user.ceiling_dist = Z(14);
-    actorNew->user.floor_dist = Z(14);
+    actorNew->user.ceiling_dist = (14);
+    actorNew->user.floor_dist = (14);
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
@@ -11465,8 +11465,8 @@ void InitVulcanBoulder(DSWActor* actor)
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
-    actorNew->user.ceiling_dist = zsize/2;
-    actorNew->user.floor_dist = zsize/2;
+    actorNew->user._ceiling_dist = zsize/2;
+    actorNew->user._floor_dist = zsize/2;
     if (RANDOM_P2(1024) > 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
@@ -11602,8 +11602,8 @@ void InitSpellNapalm(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actor->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
-        actor->user.floor_dist = Z(1);
-        actor->user.ceiling_dist = Z(1);
+        actor->user.floor_dist = (1);
+        actor->user.ceiling_dist = (1);
         actor->user.Dist = 200;
 
         auto oclipdist = plActor->spr.clipdist;
@@ -11675,8 +11675,8 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
-        actorNew->user.floor_dist = Z(1);
-        actorNew->user.ceiling_dist = Z(1);
+        actorNew->user.floor_dist = (1);
+        actorNew->user.ceiling_dist = (1);
         actorNew->user.Dist = 200;
 
         auto oclipdist = actor->spr.clipdist;
@@ -11730,8 +11730,8 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    actorNew->user.floor_dist = Z(16);
-    actorNew->user.ceiling_dist = Z(16);
+    actorNew->user.floor_dist = (16);
+    actorNew->user.ceiling_dist = (16);
     actorNew->user.Dist = 200;
 
     DSWActor* plActor = pp->actor;
@@ -11769,8 +11769,8 @@ int InitEnemyMirv(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    actorNew->user.floor_dist = Z(16);
-    actorNew->user.ceiling_dist = Z(16);
+    actorNew->user.floor_dist = (16);
+    actorNew->user.ceiling_dist = (16);
     actorNew->user.Dist = 200;
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
@@ -12195,8 +12195,8 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
 
-            actorNew->user.floor_dist = Z(1);
-            actorNew->user.ceiling_dist = Z(1);
+            actorNew->user.floor_dist = (1);
+            actorNew->user.ceiling_dist = (1);
             actorNew->user.Dist = 200;
 
             auto oclipdist = actor->spr.clipdist;
@@ -12615,8 +12615,8 @@ int InitStar(PLAYER* pp)
     // long var
     zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
 
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 100;
     actorNew->user.Counter = 0;
@@ -12658,8 +12658,8 @@ int InitStar(PLAYER* pp)
         actorNew2->spr.clipdist = actorNew->spr.clipdist;
         actorNew2->user.WeaponNum = actorNew->user.WeaponNum;
         actorNew2->user.Radius = actorNew->user.Radius;
-        actorNew2->user.ceiling_dist = actorNew->user.int_ceiling_dist();
-        actorNew2->user.floor_dist = actorNew->user.int_floor_dist();
+        actorNew2->user._ceiling_dist = actorNew->user.int_ceiling_dist();
+        actorNew2->user._floor_dist = actorNew->user.int_floor_dist();
         actorNew2->user.Flags2 = actorNew->user.Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
@@ -12717,8 +12717,8 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->user.floor_dist = Z(1);
-    actorNew->user.ceiling_dist = Z(1);
+    actorNew->user.floor_dist = (1);
+    actorNew->user.ceiling_dist = (1);
     actorNew->user.Dist = 200;
 
     auto oclipdist = plActor->spr.clipdist;
@@ -13020,8 +13020,8 @@ int InitLaser(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13123,8 +13123,8 @@ int InitRail(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = RAIL_RADIUS;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13199,8 +13199,8 @@ int InitZillaRail(DSWActor* actor)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = RAIL_RADIUS;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13292,8 +13292,8 @@ int InitRocket(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 2000;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13400,8 +13400,8 @@ int InitBunnyRocket(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 2000;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -13504,8 +13504,8 @@ int InitNuke(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13588,8 +13588,8 @@ int InitEnemyNuke(DSWActor* actor)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13687,8 +13687,8 @@ int InitMicro(PLAYER* pp)
 
         actorNew->user.WeaponNum = actor->user.WeaponNum;
         actorNew->user.Radius = 200;
-        actorNew->user.ceiling_dist = Z(2);
-        actorNew->user.floor_dist = Z(2);
+        actorNew->user.ceiling_dist = (2);
+        actorNew->user.floor_dist = (2);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
@@ -14057,8 +14057,8 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->spr.zvel = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-        actorNew->user.ceiling_dist = Z(16);
-        actorNew->user.floor_dist = Z(16);
+        actorNew->user.ceiling_dist = (16);
+        actorNew->user.floor_dist = (16);
         actorNew->user.Dist = 200;
 
         auto oclipdist = actor->spr.clipdist;
@@ -14154,8 +14154,8 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->spr.zvel = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-        actorNew->user.ceiling_dist = Z(16);
-        actorNew->user.floor_dist = Z(16);
+        actorNew->user.ceiling_dist = (16);
+        actorNew->user.floor_dist = (16);
 
         actorNew->user.Dist = 200;
 
@@ -14308,8 +14308,8 @@ int InitEnemyRail(DSWActor* actor)
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -14566,8 +14566,8 @@ int InitCoolgFire(DSWActor* actor)
     actorNew->spr.zvel = 0;
     actorNew->set_int_ang(nang);
     actorNew->spr.clipdist = 32>>2;
-    actorNew->user.ceiling_dist = Z(4);
-    actorNew->user.floor_dist = Z(4);
+    actorNew->user.ceiling_dist = (4);
+    actorNew->user.floor_dist = (4);
     if (actor->user.ID == RIPPER_RUN_R0)
         actorNew->user.spal = actorNew->spr.pal = 27; // Bright Green
     else
@@ -14628,8 +14628,8 @@ int InitCoolgDrip(DSWActor* actor)
     actorNew->spr.shade = -5;
     actorNew->spr.zvel = 0;
     actorNew->spr.clipdist = 16L>>2;
-    actorNew->user.ceiling_dist = Z(4);
-    actorNew->user.floor_dist = Z(4);
+    actorNew->user.ceiling_dist = (4);
+    actorNew->user.floor_dist = (4);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     DoFindGroundPoint(actor);
@@ -14667,8 +14667,8 @@ int GenerateDrips(DSWActor* actor)
         actorNew->spr.shade = -10;
         actorNew->spr.zvel = 0;
         actorNew->spr.clipdist = 16L>>2;
-        actorNew->user.ceiling_dist = Z(4);
-        actorNew->user.floor_dist = Z(4);
+        actorNew->user.ceiling_dist = (4);
+        actorNew->user.floor_dist = (4);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         if (TEST_BOOL1(actor))
             actorNew->user.spal = actorNew->spr.pal = PALETTE_BLUE_LIGHTING;
@@ -14849,8 +14849,8 @@ int InitTracerUzi(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
@@ -14916,8 +14916,8 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
@@ -14961,8 +14961,8 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
@@ -15308,8 +15308,8 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(4);
-    actorNew->user.floor_dist = Z(4);
+    actorNew->user.ceiling_dist = (4);
+    actorNew->user.floor_dist = (4);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
@@ -15393,8 +15393,8 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 
         actorNew->user.WeaponNum = plActor->user.WeaponNum;
         actorNew->user.Radius = 200;
-        actorNew->user.ceiling_dist = Z(2);
-        actorNew->user.floor_dist = Z(2);
+        actorNew->user.ceiling_dist = (2);
+        actorNew->user.floor_dist = (2);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
@@ -15447,8 +15447,8 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(4);
-    actorNew->user.floor_dist = Z(4);
+    actorNew->user.ceiling_dist = (4);
+    actorNew->user.floor_dist = (4);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -15484,8 +15484,8 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
-    actorNew->user.ceiling_dist = Z(4);
-    actorNew->user.floor_dist = Z(4);
+    actorNew->user.ceiling_dist = (4);
+    actorNew->user.floor_dist = (4);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -15535,8 +15535,8 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -15583,8 +15583,8 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 11;
 
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -16308,8 +16308,8 @@ int InitGrenade(PLAYER* pp)
     actorNew->spr.clipdist = 32L>>2;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -16386,8 +16386,8 @@ int InitSpriteGrenade(DSWActor* actor)
     actorNew->spr.clipdist = 32L>>2;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(3);
-    actorNew->user.floor_dist = Z(3);
+    actorNew->user.ceiling_dist = (3);
+    actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -16443,8 +16443,8 @@ int InitMine(PLAYER* pp)
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(5);
-    actorNew->user.floor_dist = Z(5);
+    actorNew->user.ceiling_dist = (5);
+    actorNew->user.floor_dist = (5);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -16495,8 +16495,8 @@ int InitEnemyMine(DSWActor* actor)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = Z(5);
-    actorNew->user.floor_dist = Z(5);
+    actorNew->user.ceiling_dist = (5);
+    actorNew->user.floor_dist = (5);
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -16572,8 +16572,8 @@ int InitFireball(PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Radius = 100;
 
-    actorNew->user.ceiling_dist = Z(6);
-    actorNew->user.floor_dist = Z(6);
+    actorNew->user.ceiling_dist = (6);
+    actorNew->user.floor_dist = (6);
     zvel = -MulScale(pp->horizon.horiz.asq16(), 240, 16);
 
     // at certain angles the clipping box was big enough to block the
@@ -17087,8 +17087,8 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->spr.yrepeat = actorNew->spr.xrepeat;
     actorNew->user.pos.X = actorNew->spr.xrepeat;
     actorNew->user.pos.Y = actorNew->spr.yrepeat;
-    actorNew->user.ceiling_dist = Z(1);
-    actorNew->user.floor_dist = Z(1);
+    actorNew->user.ceiling_dist = (1);
+    actorNew->user.floor_dist = (1);
     actorNew->spr.shade = actor->sector()->floorshade - 10;
     actorNew->user.WaitTics = 120 * 120;
     actorNew->spr.zvel = 512;
