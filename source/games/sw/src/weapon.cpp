@@ -16957,7 +16957,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->set_int_z(overActor->sector()->int_floorz() - Z(2));
+    actor->spr.pos.Z = overActor->sector()->floorz - 2;
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);
