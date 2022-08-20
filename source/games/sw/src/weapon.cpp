@@ -3724,7 +3724,7 @@ AutoShrap:
                 break;
             case Vomit1:
                 shrap_bounce = false;
-                actor->add_int_z(-Z(4));
+				actor->spr.pos.Z -= 4;
                 shrap_xsize = actor->user.pos.X = 12 + (RANDOM_P2(32<<8)>>8);
                 shrap_ysize = actor->user.pos.Y = 12 + (RANDOM_P2(32<<8)>>8);
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
@@ -3739,7 +3739,7 @@ AutoShrap:
                 break;
             case EMP:
                 shrap_bounce = false;
-                actor->add_int_z(-Z(4));
+				actor->spr.pos.Z -= 4;
                 shrap_xsize = actor->user.pos.X = 5 + (RANDOM_P2(4<<8)>>8);
                 shrap_ysize = actor->user.pos.Y = 5 + (RANDOM_P2(4<<8)>>8);
                 break;
@@ -4459,13 +4459,13 @@ bool WeaponMoveHit(DSWActor* actor)
 
 int DoUziSmoke(DSWActor* actor)
 {
-    actor->add_int_z(-200); // !JIM! Make them float up
+	actor->spr.pos.Z -= 0.78125; // !JIM! Make them float up
     return 0;
 }
 
 int DoShotgunSmoke(DSWActor* actor)
 {
-    actor->add_int_z(-200); // !JIM! Make them float up
+	actor->spr.pos.Z -= 0.78125; // !JIM! Make them float up
     return 0;
 }
 
@@ -7393,7 +7393,7 @@ int DoStar(DSWActor* actor)
                 SpawnBubble(actor);
         }
 
-        actor->add_int_z(128 * MISSILEMOVETICS);
+        actor->spr.pos.Z += 0.5 * MISSILEMOVETICS;
 
         DoActorZrange(actor);
         MissileWaterAdjust(actor);
@@ -17453,8 +17453,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.extra = 0;
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
-    spawnedActor->spr.pos = actor->spr.pos;
-    spawnedActor->add_int_z(Z(1));
+    spawnedActor->spr.pos = actor->spr.pos.plusZ(1);
     spawnedActor->set_int_ang(RANDOM_P2(2048)); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
 
@@ -17785,7 +17784,7 @@ int DoWallBlood(DSWActor* actor)
     if (actor->spr.yrepeat < 80)
     {
         actor->spr.yrepeat++;
-        actor->add_int_z(128);
+        actor->spr.pos.Z += 0.5;
     }
 
     return 0;

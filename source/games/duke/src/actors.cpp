@@ -491,7 +491,7 @@ void moveplayers(void)
 				if (act->sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
 				if (act->spr.zvel == 0 && act->sector()->lotag == ST_1_ABOVE_WATER)
-					act->add_int_z((32 << 8));
+					act->spr.pos.Z += 32;
 			}
 
 			if (act->spr.extra < 8)
@@ -663,7 +663,7 @@ void movecrane(DDukeActor *actor, int crane)
 	}
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 7)
 	{
-		actor->add_int_z((1024 + 512));
+		actor->spr.pos.Z += 6;
 
 		if (actor->temp_data[0] == 2)
 		{
@@ -923,7 +923,7 @@ void detonate(DDukeActor *actor, int explosion)
 		}
 	}
 
-	actor->add_int_z(-(32 << 8));
+	actor->spr.pos.Z -= 32;
 
 	if ((actor->temp_data[3] == 1 && actor->spr.xrepeat) || actor->spr.lotag == -99)
 	{
@@ -1371,7 +1371,7 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 		else
 		{
 			explosion->spr.cstat |= CSTAT_SPRITE_YFLIP;
-			explosion->add_int_z((48 << 8));
+			explosion->spr.pos.Z += 48;
 		}
 	}
 	if (newextra > 0) actor->spr.extra = newextra;
@@ -1634,7 +1634,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 	if (actor->temp_data[0] == -1)
 	{
-		actor->add_int_z(1024);
+		actor->spr.pos.Z += 4;
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 3) == 0) spawn(actor, explosion);
 		getglobalz(actor);

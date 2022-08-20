@@ -4584,7 +4584,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
 	{
-		actor->add_int_z(455);
+		actor->spr.pos.Z += 1.777;
 		actor->vel.Z += 58254;
 		if (actor->spr.type == kThingZombieHead)
 		{

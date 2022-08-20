@@ -894,7 +894,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		{
 			j->spr.xvel = 32;
 			j->spr.angle = actor->spr.angle;
-			j->add_int_z(-(5 << 8));
+			j->spr.pos.Z -= 5;
 		}
 		break;
 	}
@@ -905,7 +905,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		{
 			j->spr.xvel = 250;
 			j->spr.angle = actor->spr.angle;
-			j->add_int_z(-(15 << 8));
+			j->spr.pos.Z -= 15;
 		}
 		break;
 	}

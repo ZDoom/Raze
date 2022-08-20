@@ -617,7 +617,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 		else
 		{
-			actor->add_int_z(-512);
+			actor->spr.pos.Z -= 2;
 			actor->spr.zvel = -348;
 		}
 

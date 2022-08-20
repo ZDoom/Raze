@@ -324,7 +324,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BLOOD:
 		act->spr.xrepeat = act->spr.yrepeat = 4;
-		act->add_int_z(-(26 << 8));
+		act->spr.pos.Z -= 26;
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case BLOODPOOL:
@@ -1155,7 +1155,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.lotag = 0;
 			if (act->spr.picnum != BOWLINGBALLSPRITE)
 			{
-				act->add_int_z(-(32 << 8));
+				act->spr.pos.Z -= 32;
 				act->spr.zvel = -(4 << 8);
 			}
 			else

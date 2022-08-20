@@ -6556,12 +6556,12 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         {
             if (actor->user.z_tgt > actor->int_pos().Z)
             {
-                actor->add_int_z(Z(30));
+				actor->spr.pos.Z += 30;
                 return retval;
             }
             else
             {
-                actor->add_int_z(-Z(30));
+                actor->spr.pos.Z -= 30;
                 return retval;
             }
         }

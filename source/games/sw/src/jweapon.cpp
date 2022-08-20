@@ -1838,7 +1838,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
 int BloodSprayFall(DSWActor* actor)
 {
-    actor->add_int_z(1500);
+	actor->spr.pos.Z += 5.86;
     return 0;
 }
 
@@ -2191,7 +2191,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     switch (actorNew->user.ID)
     {
     case UZI_SHELL:
-        actorNew->add_int_z(-Z(13));
+		actorNew->spr.pos.Z -= 13;
 
         if (ShellNum == -3)
         {
@@ -2217,7 +2217,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 13;
         break;
     case SHOT_SHELL:
-        actorNew->add_int_z(-Z(13));
+		actorNew->spr.pos.Z -= 13;
         actorNew->spr.angle = actor->spr.angle;
         HelpMissileLateral(actorNew,2500);
         actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));

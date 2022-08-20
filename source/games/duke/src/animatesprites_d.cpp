@@ -183,7 +183,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		switch (h->spr.picnum)
 		{
 		case DUKELYINGDEAD:
-			t->add_int_z(24 << 8);
+			t->pos.Z += 24;
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -299,7 +299,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			p = h->spr.yvel;
 
-			if (t->pal == 1) t->add_int_z(-(18 << 8));
+			if (t->pal == 1) t->pos.Z -= 18;
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{

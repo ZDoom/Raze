@@ -740,7 +740,7 @@ void movefallers_d(void)
 				}
 			}
 			act->set_int_ang(act->temp_data[1]);
-			act->add_int_z(+(16 << 8));
+			act->spr.pos.Z += 16;
 		}
 		else if (act->temp_data[0] == 1)
 		{
@@ -1645,7 +1645,7 @@ static void weaponcommon_d(DDukeActor* proj)
 						if (proj->spr.zvel < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; 
-							spawned->add_int_z(72 << 8);
+							spawned->spr.pos.Z += 72;
 						}
 					}
 				}
@@ -2610,7 +2610,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (actor->sector()->lotag == 1 && actor->spr.zvel == 0)
 	{
-		actor->add_int_z(32 << 8);
+		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
 		{
 			actor->temp_data[5] = 1;

@@ -262,7 +262,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BLOOD:
 		act->spr.xrepeat = act->spr.yrepeat = 16;
-		act->add_int_z(-(26 << 8));
+		act->spr.pos.Z -= 26;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		ChangeActorStat(act, STAT_MISC);
@@ -297,7 +297,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			int fz = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
 			if (fz != act->int_pos().Z)
 				act->set_int_z(fz);
-			act->add_int_z(-200);
+			act->spr.pos.Z -= 0.78125;
 		}
 		[[fallthrough]];
 
@@ -1000,7 +1000,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			act->spr.lotag = 0;
-			act->add_int_z(-(32 << 8));
+			act->spr.pos.Z -= 32;
 			act->spr.zvel = -1024;
 			ssp(act, CLIPMASK0);
 			if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;

@@ -181,7 +181,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 			if (h->spr.extra > 0)
-				t->add_int_z(6 << 8);
+				t->pos.Z += 6;
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -341,7 +341,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 			p = h->spr.yvel;
 
-			if (t->pal == 1) t->add_int_z(-(18 << 8));
+			if (t->pal == 1) t->pos.Z -= 18;
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{

@@ -313,7 +313,7 @@ void operaterespawns_r(int low)
 			if (badguypic(act->spr.hitag) && ud.monsters_off) break;
 
 			auto star = spawn(act, TRANSPORTERSTAR);
-			if (star) star->add_int_z(-(32 << 8));
+			if (star) star->spr.pos.Z -= 32;
 
 			act->spr.extra = 66 - 12;   // Just a way to killit
 			break;

@@ -1309,7 +1309,7 @@ static void weaponcommon_r(DDukeActor *proj)
 						if (proj->spr.zvel < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
-							spawned->add_int_z(72 << 8);
+							spawned->spr.pos.Z += 72;
 						}
 					}
 				}

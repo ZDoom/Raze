@@ -318,7 +318,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 64;
 			if (actj->spr.statnum == 10 || badguy(actj))
-				act->add_int_z(-(32 << 8));
+				act->spr.pos.Z -= 32;
 		}
 	}
 
@@ -527,9 +527,9 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		if (actj->spr.pal != 1)
 		{
 			actor->spr.pal = 2;
-			actor->add_int_z(-(18 << 8));
+			actor->spr.pos.Z -= 18;
 		}
-		else actor->add_int_z(-(13 << 8));
+		else actor->spr.pos.Z -= 13;
 		actor->set_int_ang(getangle(ps[connecthead].player_int_pos().X - actor->int_pos().X, ps[connecthead].player_int_pos().Y - actor->int_pos().Y));
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);

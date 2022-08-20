@@ -199,7 +199,7 @@ void operaterespawns_d(int low)
 			auto star = spawn(act, TRANSPORTERSTAR);
 			if (star)
 			{
-				star->add_int_z(-(32 << 8));
+				star->spr.pos.Z -= 32;
 
 				act->spr.extra = 66 - 12;   // Just a way to killit
 			}
