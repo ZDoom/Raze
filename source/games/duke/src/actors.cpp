@@ -359,15 +359,15 @@ void movedummyplayers(void)
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector->lotag == 1)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-				act->set_int_z(act->sector()->int_ceilingz() + (27 << 8));
-				act->set_int_ang(ps[p].angle.ang.Buildang());
+				act->spr.pos.Z = act->sector()->ceilingz + 27;
+				act->spr.angle = ps[p].angle.ang;
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
 			}
 			else
 			{
-				if (act->sector()->lotag != 2) act->set_int_z(act->sector()->int_floorz());
+				if (act->sector()->lotag != 2) act->spr.pos.Z = act->sector()->floorz;
 				act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			}
 		}
@@ -1063,10 +1063,10 @@ void movewaterdrip(DDukeActor *actor, int drip)
 void movedoorshock(DDukeActor* actor)
 {
 	auto sectp = actor->sector();
-	int j = abs(sectp->int_ceilingz() - sectp->int_floorz()) >> 9;
+	int j = int(abs(sectp->ceilingz - sectp->floorz) * 0.5);
 	actor->spr.yrepeat = j + 4;
 	actor->spr.xrepeat = 16;
-	actor->set_int_z(sectp->int_floorz());
+	actor->spr.pos.Z = sectp->floorz;
 }
 
 //---------------------------------------------------------------------------
@@ -2269,9 +2269,9 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			}
 			actor->temp_data[2]++;
 		}
-		l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+		double ll = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 
-		actor->set_int_z(l - (2 << 8));
+		actor->spr.pos.Z = ll - 2;
 		actor->spr.xvel = 0;
 
 		if (actor->spr.picnum == JIBS6)
@@ -3900,8 +3900,8 @@ void handle_se17(DDukeActor* actor)
 			}
 			else if (act3->spr.statnum != STAT_EFFECTOR)
 			{
-				act3->add_int_pos({ act2->int_pos().X - actor->int_pos().X ,act2->int_pos().Y - actor->int_pos().Y, 0 });
-				act3->set_int_z(act2->sector()->int_floorz() - (sc->int_floorz() - act3->int_pos().Z));
+				act3->spr.pos += act2->spr.pos.XY() - actor->spr.pos.XY();
+				act3->spr.pos.Z = act2->sector()->floorz - (sc->floorz - act3->spr.pos.Z);
 
 				act3->backupz();
 
