@@ -4965,7 +4965,6 @@ int furthestangle(DDukeActor *actor, int angs)
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
 	int j, angincs;
-	int d, da;//, d, cd, ca,tempx,tempy,cx,cy;
 	HitInfo hit{};
 
 	if ((actor->temp_data[0] & 63)) return -1;
@@ -4976,13 +4975,13 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 
 	for (j = tosee->int_ang(); j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
 	{
-		hitscan(vec3_t( tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - (16 << 8) ), tosee->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
+		hitscan(tosee->spr.pos.plusZ(-16), tosee->sector(), vec3_t(bcos(j), bsin(j), 16384 - (krand() & 32767)), hit, CLIPMASK1);
 
-		d = abs(hit.int_hitpos().X - tosee->int_pos().X) + abs(hit.int_hitpos().Y - tosee->int_pos().Y);
-		da = abs(hit.int_hitpos().X - actor->int_pos().X) + abs(hit.int_hitpos().Y - actor->int_pos().Y);
+		double d = abs(hit.hitpos.X - tosee->spr.pos.X) + abs(hit.hitpos.Y - tosee->spr.pos.Y);
+		double da = abs(hit.hitpos.X - actor->spr.pos.X) + abs(hit.hitpos.Y - actor->spr.pos.Y);
 
 		if (d < da && hit.hitSector)
-			if (cansee(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, hit.hitSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (16 << 8), actor->sector()))
+			if (cansee(hit.hitpos, hit.hitSector, actor->spr.pos.plusZ(-16), actor->sector()))
 			{
 				*dax = hit.int_hitpos().X;
 				*day = hit.int_hitpos().Y;

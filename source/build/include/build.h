@@ -155,6 +155,11 @@ inline int hitscan(const DVector3& start, const sectortype* startsect, const DVe
 	vec3_t idir( int(direction.X * worldtoint), int(direction.Y * worldtoint), int(direction.Z * zworldtoint) );
 	return hitscan(istart, startsect, idir, hitinfo, cliptype);
 }
+inline int hitscan(const DVector3& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
+{
+    vec3_t istart(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint));
+    return hitscan(istart, startsect, direction, hitinfo, cliptype);
+}
 
 void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
 
