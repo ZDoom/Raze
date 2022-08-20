@@ -234,7 +234,7 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pActor->int_pos().Z == pActor->sector()->int_floorz())
+    else if (pActor->spr.pos.Z == pActor->sector()->floorz)
     {
         edx = 34;
     }

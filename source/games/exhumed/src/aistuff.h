@@ -68,9 +68,7 @@ extern bulletInfo BulletInfo[];
 
 extern int nRadialBullet;
 extern sectortype* lasthitsect;
-extern int lasthitz;
-extern int lasthitx;
-extern int lasthity;
+extern DVector3 lasthit;
 extern TArray<DExhumedActor*> EnergyBlocks;
 
 void InitBullets();

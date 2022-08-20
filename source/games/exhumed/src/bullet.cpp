@@ -53,7 +53,7 @@ struct Bullet
 };
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
-int lasthitz, lasthitx, lasthity;
+DVector3 lasthit;
 sectortype* lasthitsect;
 
 size_t MarkBullets()
@@ -103,9 +103,7 @@ void SerializeBullet(FSerializer& arc)
     if (arc.BeginObject("bullets"))
     {
         arc ("list", BulletList)
-            ("lasthitx", lasthitx)
-            ("lasthity", lasthity)
-            ("lasthitz", lasthitz)
+            ("lasthit", lasthit)
             ("lasthitsect", lasthitsect)
             ("radialbullet", nRadialBullet)
             .EndObject();
@@ -311,12 +309,9 @@ int MoveBullet(int nBullet)
 
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-    int z = pActor->int_pos().Z; // ebx
+	auto apos = pActor->spr.pos;
     int nSectFlag = pActor->sector()->Flag;
 
-    int x2, y2, z2;
 	DVector3 pos;
 
     int nVal = 0;
@@ -371,9 +366,6 @@ MOVEEND:
         if (coll.type || coll.exbits)
         {
             nVal = 1;
-            x2 = pActor->int_pos().X;
-            y2 = pActor->int_pos().Y;
-            z2 = pActor->int_pos().Z;
 			pos = pActor->spr.pos;
             pHitSect = pActor->sector();
 
@@ -422,33 +414,22 @@ MOVEEND:
         if (BulletList[nBullet].pEnemy)
         {
             hitactor = BulletList[nBullet].pEnemy;
-            x2 = hitactor->int_pos().X;
-            y2 = hitactor->int_pos().Y;
-            z2 = hitactor->int_pos().Z - (GetActorHeight(hitactor) >> 1);
+            pos = hitactor->spr.pos.plusZ(-GetActorHeightF(hitactor) * 0.5);
             pHitSect = hitactor->sector();
         }
         else
         {
-            vec3_t startPos = { x, y, z };
+
             HitInfo hit{};
-            int dz;
-            if (bVanilla)
-                dz = -bsin(pBullet->nPitch, 3);
-            else
-                dz = -pBullet->nPitch * 512;
-            hitscan(startPos, pActor->sector(), { bcos(pActor->int_ang()), bsin(pActor->int_ang()), dz }, hit, CLIPMASK1);
-            x2 = hit.int_hitpos().X;
-            y2 = hit.int_hitpos().Y;
-            z2 = hit.int_hitpos().Z;
+            double dz = -pBullet->nPitch *2;
+			hitscan(apos, pActor->sector(), DVector3(pActor->spr.angle.ToVector() * 1024, dz), hit, CLIPMASK1);
+            pos = hit.hitpos;
             hitactor = hit.actor();
             pHitSect = hit.hitSector;
             pHitWall = hit.hitWall;
         }
-		pos = {x2 * inttoworld, y2 * inttoworld, z2 * zinttoworld};
 
-        lasthitx = x2;
-        lasthity = y2;
-        lasthitz = z2;
+        lasthit = pos;
         lasthitsect = pHitSect;
 
         if (hitactor)
@@ -505,7 +486,8 @@ HITSPRITE:
             {
                 if (pHitWall != nullptr)
                 {
-                    BackUpBullet(&x2, &y2, pActor->int_ang());
+					pos.X -= pActor->spr.angle.Cos() * 0.5;
+					pos.Y -= pActor->spr.angle.Sin() * 0.5;
 
                     if (nType != 3 || RandomSize(2) == 0)
                     {

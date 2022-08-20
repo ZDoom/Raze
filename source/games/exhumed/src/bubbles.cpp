@@ -91,7 +91,7 @@ void AIBubble::Tick(RunListEvent* ev)
 
     auto pSector = pActor->sector();
 
-    if (pActor->int_pos().Z <= pSector->int_ceilingz())
+    if (pActor->spr.pos.Z <= pSector->ceilingz)
     {
         auto pSectAbove = pSector->pAbove;
 
