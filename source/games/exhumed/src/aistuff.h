@@ -177,7 +177,7 @@ void FuncLava(int, int, int, int);
 
 
 void InitLights();
-void AddFlash(sectortype* pSector, int x, int y, int z, int val);
+void AddFlash(sectortype* pSector, const DVector3& pos, int val);
 void SetTorch(int nPlayer, int bTorchOnOff);
 void UndoFlashes();
 void DoLights();

@@ -408,7 +408,7 @@ MOVEEND:
 
         if (nVal == 0 && nType != 15 && nType != 3)
         {
-            AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 0);
+            AddFlash(pActor->sector(), pActor->spr.pos, 0);
 
             if (pActor->spr.pal != 5) {
                 pActor->spr.pal = 1;
@@ -534,7 +534,7 @@ HITSPRITE:
 
                     nRadialBullet = -1;
 
-                    AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 128);
+                    AddFlash(pActor->sector(), pActor->spr.pos, 128);
                 }
             }
         }

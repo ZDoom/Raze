@@ -209,7 +209,7 @@ void DoRedAlert(int nVal)
         if (nVal)
         {
             PlayFXAtXYZ(StaticSound[kSoundAlarm], ac->int_pos().X, ac->int_pos().Y, ac->int_pos().Z);
-            AddFlash(ac->sector(), ac->int_pos().X, ac->int_pos().Y, ac->int_pos().Z, 192);
+            AddFlash(ac->sector(), ac->spr.pos, 192);
         }
     }
 }

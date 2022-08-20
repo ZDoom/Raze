@@ -1930,7 +1930,7 @@ void AIObject::Tick(RunListEvent* ev)
             var_18 = 34;
         }
 
-        AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 128);
+        AddFlash(pActor->sector(), pActor->spr.pos, 128);
         BuildAnim(nullptr, var_18, 0, DVector3(pActor->spr.pos.XY(), pActor->sector()->floorz), pActor->sector(), 240, 4);
 
         //				int edi = nSprite | 0x4000;

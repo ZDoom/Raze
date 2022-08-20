@@ -772,10 +772,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             if (nPlayer != nLocalPlayer)
             {
                 nFlashDepth = 5;
-                AddFlash(pPlayerActor->sector(),
-                    pPlayerActor->int_pos().X,
-                    pPlayerActor->int_pos().Y,
-                    pPlayerActor->int_pos().Z, 0);
+                AddFlash(pPlayerActor->sector(), pPlayerActor->spr.pos, 0);
             }
         }
     }

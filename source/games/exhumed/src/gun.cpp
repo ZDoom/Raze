@@ -601,9 +601,7 @@ loc_flag:
             BuildFlash(nPlayer, 512);
             AddFlash(
                 pPlayerActor->sector(),
-                pPlayerActor->int_pos().X,
-                pPlayerActor->int_pos().Y,
-                pPlayerActor->int_pos().Z,
+                pPlayerActor->spr.pos,
                 0);
         }
 

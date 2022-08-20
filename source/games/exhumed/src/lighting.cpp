@@ -226,7 +226,7 @@ void InitLights()
     nLastFlash  = -1;
 }
 
-void AddFlash(sectortype* pSector, int x, int y, int z, int val)
+void AddFlash(sectortype* pSector, const DVector3& pos, int val)
 {
     int var_28 = 0;
     int var_1C = val >> 8;
@@ -254,7 +254,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
         if (!var_18)
         {
-            walldist = (int)sqrt(SquareDistToWall(x * inttoworld, y * inttoworld, &wal)) - 255;
+            walldist = (int)sqrt(SquareDistToWall(pos.X, pos.Y, &wal)) - 255;
         }
 
         if (walldist < 0)
@@ -281,7 +281,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     if (!var_1C && !wal.overpicnum && pNextSector)
                     {
-                        AddFlash(pNextSector, x, y, z, val);
+                        AddFlash(pNextSector, pos, val);
                     }
                 }
             }
@@ -353,17 +353,10 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     if (!var_18)
                     {
-                        int xDiff = x - pActor->int_pos().X;
-                        if (xDiff < 0) {
-                            xDiff = -xDiff;
-                        }
+                        double xDiff = fabs(pos.X - pActor->spr.pos.X);
+                        double yDiff = fabs(pos.Y - pActor->spr.pos.Y);
 
-                        int yDiff = y - pActor->int_pos().Y;
-                        if (yDiff < 0) {
-                            yDiff = -yDiff;
-                        }
-
-                        eax = ((xDiff + yDiff) >> 4) - 255;
+                        eax += int(xDiff + yDiff);
                     }
 
                     if (eax < 0)
