@@ -163,7 +163,7 @@ void MoveRaToEnemy(int nPlayer)
         pTarget = PlayerList[nPlayer].pActor;
     }
 
-    pActor->spr.pos = pTarget->spr.pos.plusZ(-GetActorHeight(pTarget) * zinttoworld);
+    pActor->spr.pos = pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget));
 
     if (pActor->sector() != pTarget->sector()) {
         ChangeActorSect(pActor, pTarget->sector());

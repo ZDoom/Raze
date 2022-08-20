@@ -202,8 +202,8 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 if (RandomBit() && pTarget)
                 {
-                    if (cansee(pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z - GetActorHeight(pActor), pActor->sector(),
-                        pTarget->int_pos().X, pTarget->int_pos().Y, pTarget->int_pos().Z - GetActorHeight(pTarget), pTarget->sector()))
+                    if (cansee(pActor->spr.pos.plusZ(-GetActorHeightF(pActor)), pActor->sector(),
+                        pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;

@@ -368,9 +368,8 @@ void AIFish::Tick(RunListEvent* ev)
         else
         {
             PlotCourseToSprite(pActor, pTargetActor);
-            int nHeight = GetActorHeight(pActor) >> 1;
-
-            int z = abs(pTargetActor->int_pos().Z - pActor->int_pos().Z);
+            double nHeight = GetActorHeightF(pActor) * 0.5;
+            double z = fabs(pTargetActor->spr.pos.Z - pActor->spr.pos.Z);
 
             if (z <= nHeight)
             {

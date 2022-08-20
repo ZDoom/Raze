@@ -211,8 +211,8 @@ void AIAnubis::Tick(RunListEvent* ev)
 
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(ap->int_pos().X, ap->int_pos().Y, ap->int_pos().Z - GetActorHeight(ap), ap->sector(),
-                        pTarget->int_pos().X, pTarget->int_pos().Y, pTarget->int_pos().Z - GetActorHeight(pTarget), pTarget->sector()))
+                    if (cansee(ap->spr.pos.plusZ(-GetActorHeightF(ap)), ap->sector(),
+                        pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
                     {
                         ap->spr.xvel = 0;
                         ap->spr.yvel = 0;

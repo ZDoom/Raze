@@ -220,6 +220,10 @@ Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 DVector3 WheresMyMouth(int nPlayer, sectortype** sectnum);
 int GetActorHeight(DExhumedActor* nSprite);
+double GetActorHeightF(DExhumedActor* nSprite)
+{
+	return GetActorHeight(nSprite) * zinttoworld;
+}
 DExhumedActor* insertActor(sectortype* s, int st);
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();

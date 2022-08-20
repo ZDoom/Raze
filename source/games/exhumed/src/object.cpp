@@ -1848,7 +1848,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 // in-game destructable wall mounted screen
 void ExplodeScreen(DExhumedActor* pActor)
 {
-    pActor->add_int_z(-GetActorHeight(pActor) / 2);
+    pActor->spr.pos.Z -= GetActorHeightF(pActor) * 0.5;
 
     for (int i = 0; i < 30; i++) {
         BuildSpark(pActor, 0); // shoot out blue orbs

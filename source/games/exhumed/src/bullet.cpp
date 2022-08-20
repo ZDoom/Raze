@@ -569,11 +569,11 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.pActor = insertActor(pActor->sector(), 200);
                 sBullet.pActor->set_int_ang(nAngle);
 
-                int nHeight = GetActorHeight(pTarget);
+                double nHeight = GetActorHeightF(pTarget);
 
 				assert(pTarget->sector());
 
-                BulletHitsSprite(&sBullet, pActor, pTarget, pTarget->spr.pos.plusZ(-(nHeight >> 1) * zinttoworld), pTarget->sector());
+                BulletHitsSprite(&sBullet, pActor, pTarget, pTarget->spr.pos.plusZ(-(nHeight * 0.5)), pTarget->sector());
                 DeleteActor(sBullet.pActor);
                 return nullptr;
             }
