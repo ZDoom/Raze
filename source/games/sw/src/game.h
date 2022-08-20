@@ -966,6 +966,8 @@ struct USER
     TObjPtr<DSWActor*> WpnGoalActor;
 
     double oz; // serialized copy of sprite.oz
+    double z_tgt;
+
     int Flags;
     int Flags2;
     int Tics;
@@ -1006,8 +1008,6 @@ struct USER
 
     // precalculated vectors
     vec3_t change;
-
-    int  z_tgt;
 
     // velocity
     int  vel_tgt;

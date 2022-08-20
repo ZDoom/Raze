@@ -2043,7 +2043,7 @@ void SpriteSetup(void)
                     {
                         // start off
                         actor->user.pos.Z = sectp->int_floorz();
-                        actor->user.z_tgt = actor->int_pos().Z;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
@@ -2051,7 +2051,7 @@ void SpriteSetup(void)
 
                             // start in the on position
                             sectp->add_int_floorz(amt);
-                            actor->user.z_tgt = actor->user.pos.Z;
+                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
 
                             MoveSpritesWithSector(actor->sector(), amt, false); // floor
                         }
@@ -2064,7 +2064,7 @@ void SpriteSetup(void)
                     {
                         // start off
                         actor->user.pos.Z = sectp->int_ceilingz();
-                        actor->user.z_tgt = actor->int_pos().Z;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             int amt;
@@ -2072,7 +2072,7 @@ void SpriteSetup(void)
 
                             // starting in the on position
                             sectp->add_int_ceilingz(amt);
-                            actor->user.z_tgt = actor->user.pos.Z;
+                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
 
                             MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
                         }
@@ -2251,12 +2251,12 @@ void SpriteSetup(void)
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
-                        actor->user.z_tgt = actor->int_pos().Z;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // start in the on position
                             actor->user.zclip = actor->int_pos().Z;
-                            actor->user.z_tgt = actor->user.pos.Z;
+                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 
@@ -2270,12 +2270,12 @@ void SpriteSetup(void)
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
-                        actor->user.z_tgt = actor->int_pos().Z;
+                        actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
                             actor->user.zclip = actor->int_pos().Z;
-                            actor->user.z_tgt = actor->user.pos.Z;
+                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 

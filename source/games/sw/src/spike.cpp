@@ -52,16 +52,16 @@ void ReverseSpike(DSWActor* actor)
     if (actor->user.int_z_tgt() == actor->user.int_oz())
     {
         if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->user.pos.Z;
+            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
         else if (actor->user.pos.Z == actor->user.int_oz())
-            actor->user.z_tgt = actor->int_pos().Z;
+            actor->user.z_tgt = actor->spr.pos.Z;
     }
     else if (actor->user.int_z_tgt() == actor->user.pos.Z)
     {
         if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->int_pos().Z;
+            actor->user.z_tgt = actor->spr.pos.Z;
         else if (actor->user.pos.Z == actor->user.int_oz())
-            actor->user.z_tgt = actor->user.pos.Z;
+            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
     }
 
     actor->user.vel_rate = -actor->user.vel_rate;
@@ -285,7 +285,7 @@ int DoSpike(DSWActor* actor)
         if (actor->user.int_z_tgt() == actor->int_pos().Z)
         {
             // change target
-            actor->user.z_tgt = actor->user.pos.Z;
+            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
             actor->user.vel_rate = -actor->user.vel_rate;
 
             SetSpikeInactive(actor);
@@ -302,7 +302,7 @@ int DoSpike(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = (short)abs(actor->user.vel_rate);
-            actor->user.z_tgt = actor->int_pos().Z;
+            actor->user.z_tgt = actor->spr.pos.Z;
 
             SetSpikeInactive(actor);
 
@@ -390,7 +390,7 @@ int DoSpikeAuto(DSWActor* actor)
         if (actor->user.int_z_tgt() == actor->int_pos().Z)
         {
             // change target
-            actor->user.z_tgt = actor->user.pos.Z;
+            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
             actor->user.vel_rate = -actor->user.vel_rate;
             actor->user.Tics = actor->user.WaitTics;
 
@@ -404,7 +404,7 @@ int DoSpikeAuto(DSWActor* actor)
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;
             actor->user.vel_rate = (short)abs(actor->user.vel_rate);
-            actor->user.z_tgt = actor->int_pos().Z;
+            actor->user.z_tgt = actor->spr.pos.Z;
             actor->user.Tics = actor->user.WaitTics;
 
             if (SP_TAG6(actor) && TEST_BOOL5(actor))
