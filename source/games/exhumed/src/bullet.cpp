@@ -747,7 +747,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 x -= pBulletActor->int_pos().X;
                 y -= pBulletActor->int_pos().Y;
 
-                nAngle = GetMyAngle(x, y);
+                nAngle = getangle(x, y);
                 pActor->set_int_ang(nAngle);
             }
             else

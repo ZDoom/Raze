@@ -1024,7 +1024,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                         int xvel = sPlayerInput[nPlayer].xVel;
                         int yvel = sPlayerInput[nPlayer].yVel;
-                        int nMyAngle = GetMyAngle(xvel, yvel);
+                        int nMyAngle = getangle(xvel, yvel);
 
                         setsectinterpolate(sect);
                         MoveSector(sect, nMyAngle, &xvel, &yvel);

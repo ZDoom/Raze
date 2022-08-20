@@ -658,7 +658,7 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     if (!a1 || !a2)
         return -1;
 
-    return GetMyAngle(a2->int_pos().X - a1->int_pos().X, a2->int_pos().Y - a1->int_pos().Y);
+    return getangle(a2->int_pos().X - a1->int_pos().X, a2->int_pos().Y - a1->int_pos().Y);
 }
 
 int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
@@ -669,7 +669,7 @@ int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
     int x = pActor2->int_pos().X - pActor1->int_pos().X;
     int y = pActor2->int_pos().Y - pActor1->int_pos().Y;
 
-    pActor1->set_int_ang(GetMyAngle(x, y));
+    pActor1->set_int_ang(getangle(x, y));
 
     uint32_t x2 = abs(x);
     uint32_t y2 = abs(y);
@@ -775,7 +775,7 @@ int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx
 
     int nSqrt = lsqrt(x * x + y * y);
 
-    return GetMyAngle(nSqrt, ebx);
+    return getangle(nSqrt, ebx);
 }
 
 void InitPushBlocks()
@@ -858,7 +858,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     {
         nXVect = *nXVel;
         nYVect = *nYVel;
-        nAngle = GetMyAngle(nXVect, nYVect);
+        nAngle = getangle(nXVect, nYVect);
     }
     else
     {
@@ -1152,7 +1152,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
     {
         int nHeight = tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat * 2;
 
-        int nMyAngle = GetMyAngle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
+        int nMyAngle = getangle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
 
         uint32_t xDiff = abs(pActor2->int_pos().X - pActor->int_pos().X);
         uint32_t yDiff = abs(pActor2->int_pos().Y - pActor->int_pos().Y);
@@ -1167,7 +1167,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
         int nSqrt = ksqrt(sqrtNum);
 
-        int var_18 = GetMyAngle(nSqrt, ((pActor2->int_pos().Z - nHeight) - pActor->int_pos().Z) >> 8);
+        int var_18 = getangle(nSqrt, ((pActor2->int_pos().Z - nHeight) - pActor->int_pos().Z) >> 8);
 
         int nAngDelta = AngleDelta(pActor->int_ang(), nMyAngle, 1024);
         int nAngDelta2 = abs(nAngDelta);
@@ -1226,7 +1226,7 @@ int GetWallNormal(walltype* pWall)
 {
 	auto delta = pWall->delta();
 
-    int nAngle = GetMyAngle(delta.X, delta.Y);
+    int nAngle = getangle(delta.X, delta.Y);
     return (nAngle + 512) & kAngleMask;
 }
 

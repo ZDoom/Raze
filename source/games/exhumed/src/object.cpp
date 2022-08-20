@@ -2346,7 +2346,7 @@ void DoMovingSects()
         //		TrailPoint *pTrail = &sTrailPoint[nTrail];
 
                 // loc_23872:
-        int nAngle = GetMyAngle(sTrailPoint[nTrail].x - pBlockInfo->x, sTrailPoint[nTrail].y - pBlockInfo->y);
+        int nAngle = getangle(sTrailPoint[nTrail].x - pBlockInfo->x, sTrailPoint[nTrail].y - pBlockInfo->y);
 
         int nXVel = bcos(nAngle, 4) * sMoveSect[i].field_10;
         int nYVel = bsin(nAngle, 4) * sMoveSect[i].field_10;

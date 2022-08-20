@@ -297,7 +297,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
     {
         int nTileY = (tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat) * 2;
 
-        int nMyAngle = GetMyAngle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
+        int nMyAngle = getangle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
 
         int edx = ((pActor2->int_pos().Z - nTileY) - pActor->int_pos().Z) >> 8;
 
@@ -314,7 +314,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         int nSqrt = ksqrt(sqrtVal);
 
-        int var_14 = GetMyAngle(nSqrt, edx);
+        int var_14 = getangle(nSqrt, edx);
 
         int nAngDelta = AngleDelta(pActor->int_ang(), nMyAngle, 1024);
 

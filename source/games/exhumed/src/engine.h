@@ -123,8 +123,6 @@ int RandomSize(int nSize);
 // trigdat
 
 
-int GetMyAngle(int x, int y);
-
 int AngleDiff(DAngle a, DAngle b);
 int AngleDelta(int a, int b, int c);
 

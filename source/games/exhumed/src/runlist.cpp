@@ -1657,7 +1657,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             }
             else if (edi > 20)
             {
-                int nAngle = GetMyAngle(x, y);
+                int nAngle = getangle(x, y);
 
                 pActor->spr.xvel += (edi * bcos(nAngle)) >> 3;
                 pActor->spr.yvel += (edi * bsin(nAngle)) >> 3;
