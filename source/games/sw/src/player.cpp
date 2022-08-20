@@ -3441,7 +3441,7 @@ void DoPlayerCrawl(PLAYER* pp)
         if (FAF_ConnectArea(pp->cursector))
         {
             // adjust the z
-            pp->set_int_ppos_Z(pp->cursector->int_ceilingz() + Z(12));
+            pp->pos.Z = pp->cursector->ceilingz + 12;
         }
 
         DoPlayerBeginDiveNoWarp(pp);
@@ -3766,7 +3766,7 @@ int PlayerCanDive(PLAYER* pp)
     {
         if (PlayerInDiveArea(pp))
         {
-            pp->add_int_ppos_Z(Z(20));
+            pp->pos.Z += 20;
             pp->z_speed = Z(20);
             pp->jump_speed = 0;
 
@@ -4888,8 +4888,8 @@ void DoPlayerBeginOperate(PLAYER* pp)
     sop->controller = pp->actor;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->set_int_ppos_XY(sop->int_pmid().XY());
-    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+    pp->pos.XY() = sop->pmid.XY();
+    updatesector(pp->pos, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
     pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
 
@@ -4972,8 +4972,8 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     auto save_sect = pp->cursector;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->set_int_ppos_XY(sop->int_pmid().XY());
-    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+    pp->pos.XY() = sop->pmid.XY();
+    updatesector(pp->pos, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
     pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
 
@@ -5060,8 +5060,8 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->lastcursector = pp->cursector;
 
     auto rsp = pp->remoteActor;
-    pp->set_int_ppos_XY(rsp->int_pos().XY());
-    pp->set_int_ppos_Z(sect->int_floorz() - PLAYER_HEIGHT);
+    pp->pos.XY() = rsp->spr.pos.XY();
+    pp->pos.Z = sect->floorz - PLAYER_HEIGHTF;
 
     pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_vect.Y = 0;
 
@@ -5883,7 +5883,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         }
     }
 
-    pp->set_int_ppos_XY(plActor->int_pos().XY());
+    pp->pos.XY() = plActor->spr.pos.XY();
     pp->setcursector(plActor->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
@@ -5959,7 +5959,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
 
         if ((pp->Flags & PF_FALLING))
         {
-            pp->add_int_ppos_Z(Z(2));
+            pp->pos.Z += 2;
             if (MoveSkip2 == 0)
                 actor->add_int_z(Z(4));
 
