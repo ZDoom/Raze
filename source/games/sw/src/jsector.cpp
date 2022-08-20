@@ -429,8 +429,8 @@ JS_ProcessEchoSpot()
     {
         dist = 0x7fffffff;
 
-        j = abs(actor->int_pos().X - pp->pos.X);
-        j += abs(actor->int_pos().Y - pp->pos.Y);
+        j = abs(actor->int_pos().X - pp->__int_ppos.X);
+        j += abs(actor->int_pos().Y - pp->__int_ppos.Y);
         if (j < dist)
             dist = j;
 
@@ -612,7 +612,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
-                    if (pp->pos.X == pp->opos.X && pp->pos.Y == pp->opos.Y && pp->pos.Z == pp->opos.Z)
+                    if (pp->__int_ppos.X == pp->__int_popos.X && pp->__int_ppos.Y == pp->__int_popos.Y && pp->__int_ppos.Z == pp->__int_popos.Z)
                         DoCam = true;
 
 
@@ -626,7 +626,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->__int_ppos.X, cp->__int_ppos.Y, cp->__int_ppos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {

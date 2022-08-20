@@ -577,7 +577,23 @@ struct REMOTE_CONTROL
 struct PLAYER
 {
     // variable that fit in the sprite or user structure
-    vec3_t pos, opos, oldpos;
+
+    // hackery to make the transition easier
+    union
+    {
+        vec3_t __int_ppos;
+        vec3_t pos;
+    };
+    union
+    {
+        vec3_t __int_popos;
+        vec3_t opos;
+    };
+    union
+    {
+        vec3_t __int_poldpos;
+        vec3_t oldpos;
+    };
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -1979,7 +1995,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, int range)
 {
-    return (abs(getincangle(getangle(a->int_pos().X - (pp)->pos.X, a->int_pos().Y - (pp)->pos.Y), (pp)->angle.ang.Buildang())) < (range));
+    return (abs(getincangle(getangle(a->int_pos().X - (pp)->__int_ppos.X, a->int_pos().Y - (pp)->__int_ppos.Y), (pp)->angle.ang.Buildang())) < (range));
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, int range)

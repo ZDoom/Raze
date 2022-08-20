@@ -1186,7 +1186,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
                 continue;
 
             if (actor->hasU() && actor->user.PlayerP)
-                zh = actor->user.PlayerP->pos.Z;
+                zh = actor->user.PlayerP->__int_ppos.Z;
             else
                 zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
@@ -1271,24 +1271,24 @@ void DoPlayerTeleportPause(PLAYER* pp)
 void DoPlayerTeleportToSprite(PLAYER* pp, vec3_t* pos, int ang)
 {
     pp->angle.ang = pp->angle.oang = DAngle::fromBuild(ang);
-    pp->pos.X = pp->opos.X = pp->oldpos.X = pos->X;
-    pp->pos.Y = pp->opos.Y = pp->oldpos.Y = pos->Y;
+    pp->__int_ppos.X = pp->__int_popos.X = pp->__int_poldpos.X = pos->X;
+    pp->__int_ppos.Y = pp->__int_popos.Y = pp->__int_poldpos.Y = pos->Y;
 
     //getzsofslopeptr(actor->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
-    pp->pos.Z = pp->opos.Z = pos->Z - PLAYER_HEIGHT;
+    pp->__int_ppos.Z = pp->__int_popos.Z = pos->Z - PLAYER_HEIGHT;
 
-    updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
+    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->opos.X = pp->oldpos.X = pp->pos.X;
-    pp->opos.Y = pp->oldpos.Y = pp->pos.Y;
+    pp->__int_popos.X = pp->__int_poldpos.X = pp->__int_ppos.X;
+    pp->__int_popos.Y = pp->__int_poldpos.Y = pp->__int_ppos.Y;
 
-    updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
+    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -1350,7 +1350,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
             TAG 5 to 8 = random match locations
 #endif
 
-    if ((act_warp = Warp(&pp->pos.X, &pp->pos.Y, &pp->pos.Z, &pp->cursector)) == nullptr)
+    if ((act_warp = Warp(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector)) == nullptr)
     {
         return;
     }
@@ -1417,7 +1417,7 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
     if ((sectp->extra & SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->pos.Z + PLAYER_HEIGHT > pp->lo_sectp->int_floorz() - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
+        if (pp->__int_ppos.Z + PLAYER_HEIGHT > pp->lo_sectp->int_floorz() - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
             pp->WadeDepth = FixedToInt(pp->lo_sectp->depth_fixed);
     }
 }
@@ -1427,18 +1427,18 @@ void DoPlayerHeight(PLAYER* pp)
 {
     int diff;
 
-    diff = pp->pos.Z - (pp->loz - PLAYER_HEIGHT);
+    diff = pp->__int_ppos.Z - (pp->loz - PLAYER_HEIGHT);
 
-    pp->pos.Z = pp->pos.Z - ((diff >> 2) + (diff >> 3));
+    pp->__int_ppos.Z = pp->__int_ppos.Z - ((diff >> 2) + (diff >> 3));
 }
 
 void DoPlayerJumpHeight(PLAYER* pp)
 {
     if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_DYNAMIC_AREA))
     {
-        if (pp->pos.Z + PLAYER_HEIGHT > pp->loz)
+        if (pp->__int_ppos.Z + PLAYER_HEIGHT > pp->loz)
         {
-            pp->pos.Z = pp->loz - PLAYER_HEIGHT;
+            pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT;
             DoPlayerBeginRun(pp);
         }
     }
@@ -1448,8 +1448,8 @@ void DoPlayerCrawlHeight(PLAYER* pp)
 {
     int diff;
 
-    diff = pp->pos.Z - (pp->loz - PLAYER_CRAWL_HEIGHT);
-    pp->pos.Z = pp->pos.Z - ((diff >> 2) + (diff >> 3));
+    diff = pp->__int_ppos.Z - (pp->loz - PLAYER_CRAWL_HEIGHT);
+    pp->__int_ppos.Z = pp->__int_ppos.Z - ((diff >> 2) + (diff >> 3));
 }
 
 void UpdatePlayerSpriteAngle(PLAYER* pp)
@@ -1592,7 +1592,7 @@ void SlipSlope(PLAYER* pp)
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
-    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
+    pp->horizon.calcviewpitch(pp->__int_ppos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -1603,7 +1603,7 @@ void DoPlayerBob(PLAYER* pp)
 
     dist = 0;
 
-    dist = Distance(pp->pos.X, pp->pos.Y, pp->oldpos.X, pp->oldpos.Y);
+    dist = Distance(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_poldpos.X, pp->__int_poldpos.Y);
 
     if (dist > 512)
         dist = 0;
@@ -1671,7 +1671,7 @@ void DoPlayerSpriteBob(PLAYER* pp, short player_height, short bob_amt, short bob
 
     pp->bob_amt = MulScale(bob_amt, bsin(pp->bob_ndx), 14);
 
-    pp->actor->set_int_z((pp->pos.Z + player_height) + pp->bob_amt);
+    pp->actor->set_int_z((pp->__int_ppos.Z + player_height) + pp->bob_amt);
 }
 
 void UpdatePlayerUnderSprite(PLAYER* pp)
@@ -1742,7 +1742,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     // Update sprite representation of player
 
-    actor->set_int_xy(pp->pos.X, pp->pos.Y);
+    actor->set_int_xy(pp->__int_ppos.X, pp->__int_ppos.Y);
 
     // there are multiple death functions
     if (pp->Flags & (PF_DEAD))
@@ -1760,7 +1760,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
-        actor->set_int_z(pp->pos.Z + PLAYER_CRAWL_HEIGHT);
+        actor->set_int_z(pp->__int_ppos.Z + PLAYER_CRAWL_HEIGHT);
         ChangeActorSect(pp->actor, pp->cursector);
     }
 #if 0
@@ -1772,7 +1772,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
-        actor->set_int_z(pp->pos.Z + PLAYER_HEIGHT);
+        actor->set_int_z(pp->__int_ppos.Z + PLAYER_HEIGHT);
         ChangeActorSect(pp->actor, pp->cursector);
 
         if (pp->WadeDepth > Z(29))
@@ -1783,12 +1783,12 @@ void UpdatePlayerSprite(PLAYER* pp)
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
-        actor->set_int_z(pp->pos.Z + Z(10));
+        actor->set_int_z(pp->__int_ppos.Z + Z(10));
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
-        actor->set_int_z(pp->pos.Z + Z(17));
+        actor->set_int_z(pp->__int_ppos.Z + Z(17));
 
         ChangeActorSect(pp->actor, pp->cursector);
     }
@@ -1803,12 +1803,12 @@ void UpdatePlayerSprite(PLAYER* pp)
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
-        actor->set_int_z(pp->pos.Z + PLAYER_HEIGHT);
+        actor->set_int_z(pp->__int_ppos.Z + PLAYER_HEIGHT);
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
-        actor->set_int_z(pp->pos.Z + PLAYER_HEIGHT);
+        actor->set_int_z(pp->__int_ppos.Z + PLAYER_HEIGHT);
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else
@@ -1834,7 +1834,7 @@ void DoPlayerZrange(PLAYER* pp)
     // for an entire box, NOT just a point.  -Useful for clipping
     auto bakcstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-    vec3_t pos = pp->pos;
+    vec3_t pos = pp->__int_ppos;
     pos.Z += Z(8);
     FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->spr.clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = bakcstat;
@@ -1895,7 +1895,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1909,10 +1909,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->__int_ppos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1931,9 +1931,9 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->pos.X = pp->oldpos.X;
-        pp->pos.Y = pp->oldpos.Y;
-        pp->pos.Z = pp->oldpos.Z;
+        pp->__int_ppos.X = pp->__int_poldpos.X;
+        pp->__int_ppos.Y = pp->__int_poldpos.Y;
+        pp->__int_ppos.Z = pp->__int_poldpos.Z;
         pp->cursector = pp->lastcursector;
     }
 }
@@ -1954,13 +1954,13 @@ void PlayerSectorBound(PLAYER* pp, int amt)
     // called from DoPlayerMove() but can be called
     // from anywhere it is needed
 
-    getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
+    getzsofslopeptr(pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, &cz, &fz);
 
-    if (pp->pos.Z > fz - amt)
-        pp->pos.Z = fz - amt;
+    if (pp->__int_ppos.Z > fz - amt)
+        pp->__int_ppos.Z = fz - amt;
 
-    if (pp->pos.Z < cz + amt)
-        pp->pos.Z = cz + amt;
+    if (pp->__int_ppos.Z < cz + amt)
+        pp->__int_ppos.Z = cz + amt;
 
 }
 
@@ -1989,9 +1989,9 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->oldpos.X = pp->pos.X;
-    pp->oldpos.Y = pp->pos.Y;
-    pp->oldpos.Z = pp->pos.Z;
+    pp->__int_poldpos.X = pp->__int_ppos.X;
+    pp->__int_poldpos.Y = pp->__int_ppos.Y;
+    pp->__int_poldpos.Z = pp->__int_ppos.Z;
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -2039,18 +2039,18 @@ void DoPlayerMove(PLAYER* pp)
         auto sect = pp->cursector;
         if (interpolate_ride)
         {
-            pp->opos.X = pp->pos.X;
-            pp->opos.Y = pp->pos.Y;
+            pp->__int_popos.X = pp->__int_ppos.X;
+            pp->__int_popos.Y = pp->__int_ppos.Y;
         }
-        pp->pos.X += pp->vect.X >> 14;
-        pp->pos.Y += pp->vect.Y >> 14;
-        updatesector(pp->pos.X, pp->pos.Y, &sect);
+        pp->__int_ppos.X += pp->vect.X >> 14;
+        pp->__int_ppos.Y += pp->vect.Y >> 14;
+        updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
     }
     else
     {
-        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2066,20 +2066,20 @@ void DoPlayerMove(PLAYER* pp)
 
         if (interpolate_ride)
         {
-            pp->opos.X = pp->pos.X;
-            pp->opos.Y = pp->pos.Y;
+            pp->__int_popos.X = pp->__int_ppos.X;
+            pp->__int_popos.Y = pp->__int_ppos.Y;
         }
 
         auto save_cstat = actor->spr.cstat;
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
-        updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+        updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
+        clipmove(pp->__int_ppos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(&pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2096,12 +2096,12 @@ void DoPlayerMove(PLAYER* pp)
 
     if (interpolate_ride)
     {
-        pp->opos.Z = pp->pos.Z;
+        pp->__int_popos.Z = pp->__int_ppos.Z;
         pp->angle.backup();
     }
 
     // check for warp - probably can remove from CeilingHit
-    if (WarpPlane(&pp->pos.X, &pp->pos.Y, &pp->pos.Z, &pp->cursector))
+    if (WarpPlane(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector))
     {
         PlayerWarpUpdatePos(pp);
     }
@@ -2125,19 +2125,19 @@ void DoPlayerMove(PLAYER* pp)
     {
         if (pp->Flags & (PF_FLYING|PF_JUMPING|PF_FALLING))
         {
-            if (pp->pos.Z > pp->loz)
-                pp->pos.Z = pp->loz - PLAYER_HEIGHT;
+            if (pp->__int_ppos.Z > pp->loz)
+                pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT;
 
-            if (pp->pos.Z < pp->hiz)
-                pp->pos.Z = pp->hiz + PLAYER_HEIGHT;
+            if (pp->__int_ppos.Z < pp->hiz)
+                pp->__int_ppos.Z = pp->hiz + PLAYER_HEIGHT;
         }
         else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
         {
-            if (pp->pos.Z > pp->loz)
-                pp->pos.Z = pp->loz - PLAYER_SWIM_HEIGHT;
+            if (pp->__int_ppos.Z > pp->loz)
+                pp->__int_ppos.Z = pp->loz - PLAYER_SWIM_HEIGHT;
 
-            if (pp->pos.Z < pp->hiz)
-                pp->pos.Z = pp->hiz + PLAYER_SWIM_HEIGHT;
+            if (pp->__int_ppos.Z < pp->hiz)
+                pp->__int_ppos.Z = pp->hiz + PLAYER_SWIM_HEIGHT;
         }
     }
 }
@@ -2151,21 +2151,21 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 
     if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &sect);
+        updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->pos.X, pp->pos.Y, &sect);
+            updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &sect);
         }
         ASSERT(sect);
     }
     else if (FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &sect);
+        updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->pos.X, pp->pos.Y, &sect);
+            updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &sect);
         }
         ASSERT(sect);
     }
@@ -2181,7 +2181,7 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
     // need to do updatesectorz if in connect area
     if (sect != nullptr && FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &pp->cursector);
+        updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, &pp->cursector);
 
         // can mess up if below
         if (!pp->insector())
@@ -2189,15 +2189,15 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
             pp->setcursector(sect);
 
             // adjust the posz to be in a sector
-            getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
-            if (pp->pos.Z > fz)
-                pp->pos.Z = fz;
+            getzsofslopeptr(pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, &cz, &fz);
+            if (pp->__int_ppos.Z > fz)
+                pp->__int_ppos.Z = fz;
 
-            if (pp->pos.Z < cz)
-                pp->pos.Z = cz;
+            if (pp->__int_ppos.Z < cz)
+                pp->__int_ppos.Z = cz;
 
             // try again
-            updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &pp->cursector);
+            updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, &pp->cursector);
         }
     }
     else
@@ -2332,17 +2332,17 @@ void SetupDriveCrush(PLAYER* pp, int *x, int *y)
 {
     int radius = pp->sop_control->clipdist;
 
-    x[0] = pp->pos.X - radius;
-    y[0] = pp->pos.Y - radius;
+    x[0] = pp->__int_ppos.X - radius;
+    y[0] = pp->__int_ppos.Y - radius;
 
-    x[1] = pp->pos.X + radius;
-    y[1] = pp->pos.Y - radius;
+    x[1] = pp->__int_ppos.X + radius;
+    y[1] = pp->__int_ppos.Y - radius;
 
-    x[2] = pp->pos.X + radius;
-    y[2] = pp->pos.Y + radius;
+    x[2] = pp->__int_ppos.X + radius;
+    y[2] = pp->__int_ppos.Y + radius;
 
-    x[3] = pp->pos.X - radius;
-    y[3] = pp->pos.Y + radius;
+    x[3] = pp->__int_ppos.X - radius;
+    y[3] = pp->__int_ppos.Y + radius;
 }
 
 void DriveCrush(PLAYER* pp, int *x, int *y)
@@ -2554,7 +2554,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
-    z = pp->pos.Z + Z(10);
+    z = pp->__int_ppos.Z + Z(10);
 
     if (RectClip)
     {
@@ -2652,11 +2652,11 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
-            vec3_t clippos = { pp->pos.X, pp->pos.Y, z };
+            vec3_t clippos = { pp->__int_ppos.X, pp->__int_ppos.Y, z };
             Collision coll;
             clipmove(clippos, &pp->cursector, pp->vect.X, pp->vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
 
-            pp->pos.vec2 = clippos.vec2;
+            pp->__int_ppos.vec2 = clippos.vec2;
         }
         else
         {
@@ -2686,7 +2686,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { pp->pos.X * inttoworld, pp->pos.Y * inttoworld });
+    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { pp->__int_ppos.X * inttoworld, pp->__int_ppos.Y * inttoworld });
     pp->cursector = save_sect; // for speed
 
     if (!SyncInput())
@@ -2819,14 +2819,14 @@ void DoPlayerJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->pos.Z += pp->jump_speed;
+        pp->__int_ppos.Z += pp->jump_speed;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->hiz + Z(4);
+            pp->__int_ppos.Z = pp->hiz + Z(4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -2842,7 +2842,7 @@ void DoPlayerJump(PLAYER* pp)
         // if player gets to close the floor while jumping
         if (PlayerFloorHit(pp, pp->loz - pp->floor_dist))
         {
-            pp->pos.Z = pp->loz - pp->floor_dist;
+            pp->__int_ppos.Z = pp->loz - pp->floor_dist;
 
             pp->jump_speed = 0;
             PlayerSectorBound(pp, Z(1));
@@ -2888,14 +2888,14 @@ void DoPlayerForceJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->pos.Z += pp->jump_speed;
+        pp->__int_ppos.Z += pp->jump_speed;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->hiz + Z(4);
+            pp->__int_ppos.Z = pp->hiz + Z(4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -2936,7 +2936,7 @@ void StackedWaterSplash(PLAYER* pp)
     {
         auto sect = pp->cursector;
 
-        updatesectorz(pp->pos.X, pp->pos.Y, ActorZOfBottom(pp->actor), &sect);
+        updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, ActorZOfBottom(pp->actor), &sect);
 
         if (SectorIsUnderwaterArea(sect))
         {
@@ -2972,7 +2972,7 @@ void DoPlayerFall(PLAYER* pp)
             pp->jump_speed = 4100;
 
         // adjust player height by jump speed
-        pp->pos.Z += pp->jump_speed;
+        pp->__int_ppos.Z += pp->jump_speed;
 
         if (pp->jump_speed > 2000)
         {
@@ -3002,7 +3002,7 @@ void DoPlayerFall(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + pp->ceiling_dist))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->hiz + pp->ceiling_dist;
+            pp->__int_ppos.Z = pp->hiz + pp->ceiling_dist;
             // don't return or anything - allow to fall until
             // hit floor
         }
@@ -3029,14 +3029,14 @@ void DoPlayerFall(PLAYER* pp)
             // i any kind of crawl key get rid of recoil
             if (DoPlayerTestCrawl(pp) || (pp->input.actions & SB_CROUCH))
             {
-                pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
+                pp->__int_ppos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
             }
             else
             {
                 // this was causing the z to snap immediately
                 // changed it so it stays gradual
 
-                pp->pos.Z += recoil_amt;
+                pp->__int_ppos.Z += recoil_amt;
                 DoPlayerHeight(pp);
             }
 
@@ -3162,26 +3162,26 @@ void DoPlayerClimb(PLAYER* pp)
             const int ADJ_AMT = 8;
 
             // player
-            if (pp->pos.X != pp->LadderPosition.X)
+            if (pp->__int_ppos.X != pp->LadderPosition.X)
             {
-                if (pp->pos.X < pp->LadderPosition.X)
-                    pp->pos.X += ADJ_AMT;
-                else if (pp->pos.X > pp->LadderPosition.X)
-                    pp->pos.X -= ADJ_AMT;
+                if (pp->__int_ppos.X < pp->LadderPosition.X)
+                    pp->__int_ppos.X += ADJ_AMT;
+                else if (pp->__int_ppos.X > pp->LadderPosition.X)
+                    pp->__int_ppos.X -= ADJ_AMT;
 
-                if (labs(pp->pos.X - pp->LadderPosition.X) <= ADJ_AMT)
-                    pp->pos.X = pp->LadderPosition.X;
+                if (labs(pp->__int_ppos.X - pp->LadderPosition.X) <= ADJ_AMT)
+                    pp->__int_ppos.X = pp->LadderPosition.X;
             }
 
-            if (pp->pos.Y != pp->LadderPosition.Y)
+            if (pp->__int_ppos.Y != pp->LadderPosition.Y)
             {
-                if (pp->pos.Y < pp->LadderPosition.Y)
-                    pp->pos.Y += ADJ_AMT;
-                else if (pp->pos.Y > pp->LadderPosition.Y)
-                    pp->pos.Y -= ADJ_AMT;
+                if (pp->__int_ppos.Y < pp->LadderPosition.Y)
+                    pp->__int_ppos.Y += ADJ_AMT;
+                else if (pp->__int_ppos.Y > pp->LadderPosition.Y)
+                    pp->__int_ppos.Y -= ADJ_AMT;
 
-                if (labs(pp->pos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
-                    pp->pos.Y = pp->LadderPosition.Y;
+                if (labs(pp->__int_ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
+                    pp->__int_ppos.Y = pp->LadderPosition.Y;
             }
 
             // sprite
@@ -3226,13 +3226,13 @@ void DoPlayerClimb(PLAYER* pp)
 
         pp->climb_ndx &= 1023;
 
-        pp->pos.Z -= climb_amt;
+        pp->__int_ppos.Z -= climb_amt;
 
         // if player gets to close the ceiling while climbing
         if (PlayerCeilingHit(pp, pp->hiz))
         {
             // put player at the hiz
-            pp->pos.Z = pp->hiz;
+            pp->__int_ppos.Z = pp->hiz;
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
@@ -3240,14 +3240,14 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->LadderSector->int_ceilingz() + Z(4);
+            pp->__int_ppos.Z = pp->LadderSector->int_ceilingz() + Z(4);
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
         // if floor is ABOVE you && your head goes above it, do a jump up to
         // terrace
 
-        if (pp->pos.Z < pp->LadderSector->int_floorz() - Z(6))
+        if (pp->__int_ppos.Z < pp->LadderSector->int_floorz() - Z(6))
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
@@ -3265,14 +3265,14 @@ void DoPlayerClimb(PLAYER* pp)
         pp->climb_ndx &= 1023;
 
         // pp->posz += MulScale(climb_amt, bsin(pp->climb_ndx), 14);
-        pp->pos.Z += climb_amt;
+        pp->__int_ppos.Z += climb_amt;
 
         // if you are touching the floor
         //if (pp->posz >= pp->loz - Z(4) - PLAYER_HEIGHT)
         if (PlayerFloorHit(pp, pp->loz - Z(4) - PLAYER_HEIGHT))
         {
             // stand on floor
-            pp->pos.Z = pp->loz - Z(4) - PLAYER_HEIGHT;
+            pp->__int_ppos.Z = pp->loz - Z(4) - PLAYER_HEIGHT;
 
             // if moving backwards start running
             if (climbvel < 0)
@@ -3290,7 +3290,7 @@ void DoPlayerClimb(PLAYER* pp)
     }
 
     // setsprite to players location
-    plActor->set_int_z(pp->pos.Z + PLAYER_HEIGHT);
+    plActor->set_int_z(pp->__int_ppos.Z + PLAYER_HEIGHT);
     ChangeActorSect(pp->actor, pp->cursector);
 
     if (!SyncInput())
@@ -3304,11 +3304,11 @@ void DoPlayerClimb(PLAYER* pp)
 
     if (FAF_ConnectArea(pp->cursector))
     {
-        updatesectorz(pp->pos.X, pp->pos.Y, pp->pos.Z, &pp->cursector);
+        updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, &pp->cursector);
         LadderUpdate = true;
     }
 
-    if (WarpPlane(&pp->pos.X, &pp->pos.Y, &pp->pos.Z, &pp->cursector))
+    if (WarpPlane(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector))
     {
         PlayerWarpUpdatePos(pp);
         LadderUpdate = true;
@@ -3320,7 +3320,7 @@ void DoPlayerClimb(PLAYER* pp)
         HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->pos, pp->cursector, pp->angle.ang.Buildang(), near, 800, NTAG_SEARCH_LO_HI);
+        neartag(pp->__int_ppos, pp->cursector, pp->angle.ang.Buildang(), near, 800, NTAG_SEARCH_LO_HI);
 
         if (near.hitWall)
         {
@@ -3359,7 +3359,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
 
     for (i = 0; i < SIZ(angs); i++)
     {
-        FAFhitscan(pp->pos.X, pp->pos.Y, zh, pp->cursector,    // Start position
+        FAFhitscan(pp->__int_ppos.X, pp->__int_ppos.Y, zh, pp->cursector,    // Start position
                    bcos(pp->angle.ang.Buildang() + angs[i]),   // X vector of 3D ang
                    bsin(pp->angle.ang.Buildang() + angs[i]),   // Y vector of 3D ang
                    0, hit, CLIPMASK_MISSILE);            // Z vector of 3D ang
@@ -3368,9 +3368,9 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
         {
             hit.hitSector = hit.hitWall->nextSector();
 
-            if (hit.hitSector != nullptr && labs(hit.hitSector->int_floorz() - pp->pos.Z) < Z(50))
+            if (hit.hitSector != nullptr && labs(hit.hitSector->int_floorz() - pp->__int_ppos.Z) < Z(50))
             {
-                if (Distance(pp->pos.X, pp->pos.Y, hit.int_hitpos().X, hit.int_hitpos().Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
+                if (Distance(pp->__int_ppos.X, pp->__int_ppos.Y, hit.int_hitpos().X, hit.int_hitpos().Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3412,7 +3412,7 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 bool PlayerFallTest(PLAYER* pp, int player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
-    if (labs(pp->pos.Z - pp->loz) > player_height + PLAYER_FALL_HEIGHT)
+    if (labs(pp->__int_ppos.Z - pp->loz) > player_height + PLAYER_FALL_HEIGHT)
     {
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
@@ -3443,7 +3443,7 @@ void DoPlayerCrawl(PLAYER* pp)
         if (FAF_ConnectArea(pp->cursector))
         {
             // adjust the z
-            pp->pos.Z = pp->cursector->int_ceilingz() + Z(12);
+            pp->__int_ppos.Z = pp->cursector->int_ceilingz() + Z(12);
         }
 
         DoPlayerBeginDiveNoWarp(pp);
@@ -3497,7 +3497,7 @@ void DoPlayerCrawl(PLAYER* pp)
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
+        pp->__int_ppos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
 
     DoPlayerBob(pp);
@@ -3536,16 +3536,16 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->opos.X = pp->pos.X;
-    pp->opos.Y = pp->pos.Y;
-    pp->opos.Z = pp->pos.Z;
+    pp->__int_popos.X = pp->__int_ppos.X;
+    pp->__int_popos.Y = pp->__int_ppos.Y;
+    pp->__int_popos.Z = pp->__int_ppos.Z;
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
 
 bool PlayerCeilingHit(PLAYER* pp, int zlimit)
 {
-    if (pp->pos.Z < zlimit)
+    if (pp->__int_ppos.Z < zlimit)
     {
         return true;
     }
@@ -3555,7 +3555,7 @@ bool PlayerCeilingHit(PLAYER* pp, int zlimit)
 
 bool PlayerFloorHit(PLAYER* pp, int zlimit)
 {
-    if (pp->pos.Z > zlimit)
+    if (pp->__int_ppos.Z > zlimit)
     {
         return true;
     }
@@ -3589,7 +3589,7 @@ void DoPlayerFly(PLAYER* pp)
 
     pp->z_speed = MulScale(pp->z_speed, 58000, 16);
 
-    pp->pos.Z += pp->z_speed;
+    pp->__int_ppos.Z += pp->z_speed;
 
     // Make the min distance from the ceiling/floor match bobbing amount
     // so the player never goes into the ceiling/floor
@@ -3597,14 +3597,14 @@ void DoPlayerFly(PLAYER* pp)
     // Only get so close to the ceiling
     if (PlayerCeilingHit(pp, pp->hiz + PLAYER_FLY_BOB_AMT + Z(8)))
     {
-        pp->pos.Z = pp->hiz + PLAYER_FLY_BOB_AMT + Z(8);
+        pp->__int_ppos.Z = pp->hiz + PLAYER_FLY_BOB_AMT + Z(8);
         pp->z_speed = 0;
     }
 
     // Only get so close to the floor
     if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT - PLAYER_FLY_BOB_AMT))
     {
-        pp->pos.Z = pp->loz - PLAYER_HEIGHT - PLAYER_FLY_BOB_AMT;
+        pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT - PLAYER_FLY_BOB_AMT;
         pp->z_speed = 0;
     }
 
@@ -3660,7 +3660,7 @@ bool PlayerOnLadder(PLAYER* pp)
     if (Prediction)
         return false;
 
-    neartag(pp->pos, pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
+    neartag(pp->__int_ppos, pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
     dir = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
@@ -3672,18 +3672,18 @@ bool PlayerOnLadder(PLAYER* pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->pos, pp->cursector, NORM_ANGLE(pp->angle.ang.Buildang() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
+        neartag(pp->__int_ppos, pp->cursector, NORM_ANGLE(pp->angle.ang.Buildang() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
 
         if (near.hitWall == nullptr || near.int_hitpos().X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
-        FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector,
+        FAFhitscan(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector,
                    bcos(pp->angle.ang.Buildang() + angles[i]),
                    bsin(pp->angle.ang.Buildang() + angles[i]),
                    0,
                    hit, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->pos.X, pp->pos.Y, hit.int_hitpos().X, hit.int_hitpos().Y);
+        dist = DIST(pp->__int_ppos.X, pp->__int_ppos.Y, hit.int_hitpos().X, hit.int_hitpos().Y);
 
         if (hit.actor() != nullptr)
         {
@@ -3770,11 +3770,11 @@ int PlayerCanDive(PLAYER* pp)
     {
         if (PlayerInDiveArea(pp))
         {
-            pp->pos.Z += Z(20);
+            pp->__int_ppos.Z += Z(20);
             pp->z_speed = Z(20);
             pp->jump_speed = 0;
 
-            if (pp->pos.Z > pp->loz - Z(pp->WadeDepth) - Z(2))
+            if (pp->__int_ppos.Z > pp->loz - Z(pp->WadeDepth) - Z(2))
             {
                 DoPlayerBeginDive(pp);
             }
@@ -3798,14 +3798,14 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
         {
             auto sect = pp->cursector;
 
-            updatesectorz(pp->pos.X, pp->pos.Y, ActorZOfBottom(pp->actor), &sect);
+            updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, ActorZOfBottom(pp->actor), &sect);
 
             if (SectorIsUnderwaterArea(sect))
             {
                 pp->setcursector(sect);
-                pp->pos.Z = sect->int_ceilingz();
+                pp->__int_ppos.Z = sect->int_ceilingz();
 
-                pp->pos.Z += Z(20);
+                pp->__int_ppos.Z += Z(20);
                 pp->z_speed = Z(20);
                 pp->jump_speed = 0;
 
@@ -4025,28 +4025,28 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    plActor->user.pos.X = over_act->int_pos().X - pp->pos.X;
-    plActor->user.pos.Y = over_act->int_pos().Y - pp->pos.Y;
+    plActor->user.pos.X = over_act->int_pos().X - pp->__int_ppos.X;
+    plActor->user.pos.Y = over_act->int_pos().Y - pp->__int_ppos.Y;
 
     // update to the new x y position
-    pp->pos.X = under_act->int_pos().X - plActor->user.pos.X;
-    pp->pos.Y = under_act->int_pos().Y - plActor->user.pos.Y;
+    pp->__int_ppos.X = under_act->int_pos().X - plActor->user.pos.X;
+    pp->__int_ppos.Y = under_act->int_pos().Y - plActor->user.pos.Y;
 
     auto over  = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under) == 2)
+    if (GetOverlapSector(pp->__int_ppos.X, pp->__int_ppos.Y, &over, &under) == 2)
     {
         pp->setcursector(under);
     }
     else
         pp->setcursector(over);
 
-    pp->pos.Z = under_act->sector()->int_ceilingz() + Z(6);
+    pp->__int_ppos.Z = under_act->sector()->int_ceilingz() + Z(6);
 
-    pp->opos.X = pp->pos.X;
-    pp->opos.Y = pp->pos.Y;
-    pp->opos.Z = pp->pos.Z;
+    pp->__int_popos.X = pp->__int_ppos.X;
+    pp->__int_popos.Y = pp->__int_ppos.Y;
+    pp->__int_popos.Z = pp->__int_ppos.Z;
 
     DoPlayerZrange(pp);
     return;
@@ -4095,32 +4095,32 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    plActor->user.pos.X = under_act->int_pos().X - pp->pos.X;
-    plActor->user.pos.Y = under_act->int_pos().Y - pp->pos.Y;
+    plActor->user.pos.X = under_act->int_pos().X - pp->__int_ppos.X;
+    plActor->user.pos.Y = under_act->int_pos().Y - pp->__int_ppos.Y;
 
     // update to the new x y position
-    pp->pos.X = over_act->int_pos().X - plActor->user.pos.X;
-    pp->pos.Y = over_act->int_pos().Y - plActor->user.pos.Y;
+    pp->__int_ppos.X = over_act->int_pos().X - plActor->user.pos.X;
+    pp->__int_ppos.Y = over_act->int_pos().Y - plActor->user.pos.Y;
 
     auto over = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->pos.X, pp->pos.Y, &over, &under))
+    if (GetOverlapSector(pp->__int_ppos.X, pp->__int_ppos.Y, &over, &under))
     {
         pp->setcursector(over);
     }
 
-    pp->pos.Z = over_act->sector()->int_floorz() - Z(2);
+    pp->__int_ppos.Z = over_act->sector()->int_floorz() - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
     DoPlayerSetWadeDepth(pp);
 
-    pp->pos.Z -= Z(pp->WadeDepth);
+    pp->__int_ppos.Z -= Z(pp->WadeDepth);
 
-    pp->opos.X = pp->pos.X;
-    pp->opos.Y = pp->pos.Y;
-    pp->opos.Z = pp->pos.Z;
+    pp->__int_popos.X = pp->__int_ppos.X;
+    pp->__int_popos.Y = pp->__int_ppos.Y;
+    pp->__int_popos.Z = pp->__int_ppos.Z;
 
     return;
 }
@@ -4402,22 +4402,22 @@ void DoPlayerDive(PLAYER* pp)
     if (labs(pp->z_speed) < 16)
         pp->z_speed = 0;
 
-    pp->pos.Z += pp->z_speed;
+    pp->__int_ppos.Z += pp->z_speed;
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector))
     {
-        if (pp->pos.Z < pp->cursector->int_ceilingz() + Z(10))
+        if (pp->__int_ppos.Z < pp->cursector->int_ceilingz() + Z(10))
         {
             auto sect = pp->cursector;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(pp->pos.X, pp->pos.Y, pp->cursector->int_ceilingz() - Z(8), &sect);
+            updatesectorz(pp->__int_ppos.X, pp->__int_ppos.Y, pp->cursector->int_ceilingz() - Z(8), &sect);
 
             if (!SectorIsUnderwaterArea(sect))
             {
                 // if not underwater sector we must surface
                 // force into above sector
-                pp->pos.Z = pp->cursector->int_ceilingz() - Z(8);
+                pp->__int_ppos.Z = pp->cursector->int_ceilingz() - Z(8);
                 pp->setcursector(sect);
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
@@ -4432,9 +4432,9 @@ void DoPlayerDive(PLAYER* pp)
     if (sectu && (sectu->number == 0 || (sectu->flags & SECTFU_CANT_SURFACE)))
     {
         // for room over room water the hiz will be the top rooms ceiling
-        if (pp->pos.Z < pp->hiz + pp->ceiling_dist)
+        if (pp->__int_ppos.Z < pp->hiz + pp->ceiling_dist)
         {
-            pp->pos.Z = pp->hiz + pp->ceiling_dist;
+            pp->__int_ppos.Z = pp->hiz + pp->ceiling_dist;
         }
     }
     else
@@ -4443,7 +4443,7 @@ void DoPlayerDive(PLAYER* pp)
         // !JIM! FRANK - I added !pp->hiActor so that you don't warp to surface when
         //     there is a sprite above you since getzrange returns a hiz < ceiling height
         //     if you are clipping into a sprite and not the ceiling.
-        if (pp->pos.Z < pp->hiz + Z(4) && !pp->highActor)
+        if (pp->__int_ppos.Z < pp->hiz + Z(4) && !pp->highActor)
         {
             DoPlayerStopDive(pp);
             return;
@@ -4451,9 +4451,9 @@ void DoPlayerDive(PLAYER* pp)
     }
 
     // Only get so close to the floor
-    if (pp->pos.Z >= pp->loz - PLAYER_DIVE_HEIGHT)
+    if (pp->__int_ppos.Z >= pp->loz - PLAYER_DIVE_HEIGHT)
     {
-        pp->pos.Z = pp->loz - PLAYER_DIVE_HEIGHT;
+        pp->__int_ppos.Z = pp->loz - PLAYER_DIVE_HEIGHT;
     }
 
     // make player bob if sitting still
@@ -4478,13 +4478,13 @@ void DoPlayerDive(PLAYER* pp)
     }
 
     // Reverse bobbing when getting close to the floor
-    if (pp->pos.Z + pp->bob_amt >= pp->loz - PLAYER_DIVE_HEIGHT)
+    if (pp->__int_ppos.Z + pp->bob_amt >= pp->loz - PLAYER_DIVE_HEIGHT)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((1024 + 512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
     }
     // Reverse bobbing when getting close to the ceiling
-    if (pp->pos.Z + pp->bob_amt < pp->hiz + pp->ceiling_dist)
+    if (pp->__int_ppos.Z + pp->bob_amt < pp->hiz + pp->ceiling_dist)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
@@ -4541,7 +4541,7 @@ void DoPlayerCurrent(PLAYER* pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4557,10 +4557,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->__int_ppos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(&pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(&pp->__int_ppos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4736,7 +4736,7 @@ void DoPlayerWade(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (labs(pp->pos.Z - pp->loz) > PLAYER_HEIGHT + PLAYER_FALL_HEIGHT)
+    if (labs(pp->__int_ppos.Z - pp->loz) > PLAYER_HEIGHT + PLAYER_FALL_HEIGHT)
     {
         pp->jump_speed = Z(1);
         DoPlayerBeginFall(pp);
@@ -4753,7 +4753,7 @@ void DoPlayerWade(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (labs(pp->pos.Z - pp->loz) > PLAYER_HEIGHT + PLAYER_FALL_HEIGHT)
+    if (labs(pp->__int_ppos.Z - pp->loz) > PLAYER_HEIGHT + PLAYER_FALL_HEIGHT)
     {
         pp->jump_speed = Z(1);
         DoPlayerBeginFall(pp);
@@ -4901,11 +4901,11 @@ void DoPlayerBeginOperate(PLAYER* pp)
     sop->controller = pp->actor;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->pos.X = sop->int_pmid().X;
-    pp->pos.Y = sop->int_pmid().Y;
-    updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
-    pp->pos.Z = fz - PLAYER_HEIGHT;
+    pp->__int_ppos.X = sop->int_pmid().X;
+    pp->__int_ppos.Y = sop->int_pmid().Y;
+    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
+    getzsofslopeptr(pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, &cz, &fz);
+    pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -4930,7 +4930,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->pos.Z = fz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -4939,7 +4939,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->pos.Z = fz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateTurret(pp);
         break;
 #if 0
@@ -4986,11 +4986,11 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     auto save_sect = pp->cursector;
 
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
-    pp->pos.X = sop->int_pmid().X;
-    pp->pos.Y = sop->int_pmid().Y;
-    updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
-    pp->pos.Z = fz - PLAYER_HEIGHT;
+    pp->__int_ppos.X = sop->int_pmid().X;
+    pp->__int_ppos.Y = sop->int_pmid().Y;
+    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
+    getzsofslopeptr(pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, &cz, &fz);
+    pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -5018,7 +5018,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->pos.Z = fz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -5027,7 +5027,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->pos.Z = fz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateTurret(pp);
         break;
     default:
@@ -5042,9 +5042,9 @@ void PlayerToRemote(PLAYER* pp)
     pp->remote.cursectp = pp->cursector;
     pp->remote.lastcursectp = pp->lastcursector;
 
-    pp->remote.pos.X = pp->pos.X;
-    pp->remote.pos.Y = pp->pos.Y;
-    pp->remote.pos.Z = pp->pos.Z;
+    pp->remote.pos.X = pp->__int_ppos.X;
+    pp->remote.pos.Y = pp->__int_ppos.Y;
+    pp->remote.pos.Z = pp->__int_ppos.Z;
 
     pp->remote.vect.X = pp->vect.X;
     pp->remote.vect.Y = pp->vect.Y;
@@ -5059,9 +5059,9 @@ void RemoteToPlayer(PLAYER* pp)
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
 
-    pp->pos.X = pp->remote.pos.X;
-    pp->pos.Y = pp->remote.pos.Y;
-    pp->pos.Z = pp->remote.pos.Z;
+    pp->__int_ppos.X = pp->remote.pos.X;
+    pp->__int_ppos.Y = pp->remote.pos.Y;
+    pp->__int_ppos.Z = pp->remote.pos.Z;
 
     pp->vect.X = pp->remote.vect.X;
     pp->vect.Y = pp->remote.vect.Y;
@@ -5077,9 +5077,9 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->lastcursector = pp->cursector;
 
     auto rsp = pp->remoteActor;
-    pp->pos.X = rsp->int_pos().X;
-    pp->pos.Y = rsp->int_pos().Y;
-    pp->pos.Z = sect->int_floorz() - PLAYER_HEIGHT;
+    pp->__int_ppos.X = rsp->int_pos().X;
+    pp->__int_ppos.Y = rsp->int_pos().Y;
+    pp->__int_ppos.Z = sect->int_floorz() - PLAYER_HEIGHT;
 
     pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_vect.Y = 0;
 
@@ -5110,7 +5110,7 @@ void DoPlayerStopOperate(PLAYER* pp)
         if (TEST_BOOL1(rsp))
             pp->angle.ang = pp->angle.oang = rsp->spr.angle;
         else
-            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->int_pmid().X - pp->pos.X, pp->sop_remote->int_pmid().Y - pp->pos.Y);
+            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->int_pmid().X - pp->__int_ppos.X, pp->sop_remote->int_pmid().Y - pp->__int_ppos.Y);
     }
 
     if (pp->sop_control)
@@ -5218,14 +5218,14 @@ void DoPlayerDeathJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->pos.Z += pp->jump_speed;
+        pp->__int_ppos.Z += pp->jump_speed;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->pos.Z = pp->hiz + Z(4);
+            pp->__int_ppos.Z = pp->hiz + Z(4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -5250,7 +5250,7 @@ void DoPlayerDeathFall(PLAYER* pp)
         pp->jump_speed += PLAYER_DEATH_GRAV;
 
         // adjust player height by jump speed
-        pp->pos.Z += pp->jump_speed;
+        pp->__int_ppos.Z += pp->jump_speed;
 
         if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
         {
@@ -5270,7 +5270,7 @@ void DoPlayerDeathFall(PLAYER* pp)
             else
                 PlaySound(DIGI_BODYFALL2, pp, v3df_dontpan);
 
-            pp->pos.Z = loz - PLAYER_DEATH_HEIGHT;
+            pp->__int_ppos.Z = loz - PLAYER_DEATH_HEIGHT;
             pp->Flags &= ~(PF_FALLING);
         }
     }
@@ -5705,9 +5705,9 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, ActorZOfTop(killer), killer->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
+        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, ActorZOfTop(killer), killer->sector(), pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector))
         {
-            pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->pos.X, killer->int_pos().Y - pp->pos.Y)) * (1. / 16.));
+            pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->__int_ppos.X, killer->int_pos().Y - pp->__int_ppos.Y)) * (1. / 16.));
         }
     }
 }
@@ -5740,7 +5740,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->set_int_pos({ pp->pos.X, pp->pos.Y, pp->pos.Z + PLAYER_HEIGHT });
+        plActor->set_int_pos({ pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z + PLAYER_HEIGHT });
         plActor->set_int_ang(pp->angle.ang.Buildang());
 
         DoSpawnTeleporterEffect(plActor);
@@ -5901,26 +5901,26 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         }
     }
 
-    pp->pos.X = plActor->int_pos().X;
-    pp->pos.Y = plActor->int_pos().Y;
+    pp->__int_ppos.X = plActor->int_pos().X;
+    pp->__int_ppos.Y = plActor->int_pos().Y;
     pp->setcursector(plActor->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
-    updatesector(pp->pos.X, pp->pos.Y, &sect);
+    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &sect);
     if (sect == nullptr)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->actor, pp->lv_sector);
-        pp->pos.X = pp->lv.X;
-        pp->pos.Y = pp->lv.Y;
-        plActor->set_int_xy(pp->pos.X, pp->pos.Y);
+        pp->__int_ppos.X = pp->lv.X;
+        pp->__int_ppos.Y = pp->lv.Y;
+        plActor->set_int_xy(pp->__int_ppos.X, pp->__int_ppos.Y);
     }
     else
     {
         pp->lv_sector = sect;
-        pp->lv.X = pp->pos.X;
-        pp->lv.Y = pp->pos.Y;
+        pp->lv.X = pp->__int_ppos.X;
+        pp->lv.Y = pp->__int_ppos.Y;
     }
 }
 
@@ -5980,14 +5980,14 @@ void DoPlayerDeathDrown(PLAYER* pp)
 
         if ((pp->Flags & PF_FALLING))
         {
-            pp->pos.Z += Z(2);
+            pp->__int_ppos.Z += Z(2);
             if (MoveSkip2 == 0)
                 actor->add_int_z(Z(4));
 
             // Stick like glue when you hit the ground
-            if (pp->pos.Z > pp->loz - PLAYER_DEATH_HEIGHT)
+            if (pp->__int_ppos.Z > pp->loz - PLAYER_DEATH_HEIGHT)
             {
-                pp->pos.Z = pp->loz - PLAYER_DEATH_HEIGHT;
+                pp->__int_ppos.Z = pp->loz - PLAYER_DEATH_HEIGHT;
                 pp->Flags &= ~(PF_FALLING);
             }
         }
@@ -6075,7 +6075,7 @@ void DoPlayerDeathCrumble(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->set_int_z(pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
+    plActor->set_int_z(pp->__int_ppos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
     DoPlayerHeadDebris(pp);
 }
 
@@ -6128,7 +6128,7 @@ void DoPlayerDeathExplode(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->set_int_z(pp->pos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
+    plActor->set_int_z(pp->__int_ppos.Z+PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
     DoPlayerHeadDebris(pp);
 }
 
@@ -6202,7 +6202,7 @@ void DoPlayerRun(PLAYER* pp)
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
-            pp->pos.Z = pp->loz - PLAYER_HEIGHT;
+            pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT;
             DoPlayerBeginJump(pp);
             return;
         }
@@ -6297,7 +6297,7 @@ void DoPlayerRun(PLAYER* pp)
 
     if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        pp->pos.Z = pp->loz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT;
     }
 
     // Adjust height moving up and down sectors
@@ -6369,9 +6369,9 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->opos.X = pp->pos.X;
-        pp->opos.Y = pp->pos.Y;
-        pp->opos.Z = pp->pos.Z;
+        pp->__int_popos.X = pp->__int_ppos.X;
+        pp->__int_popos.Y = pp->__int_ppos.Y;
+        pp->__int_popos.Z = pp->__int_ppos.Z;
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -6630,8 +6630,8 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            int deltax = Player[myconnectindex].pos.X - Player[screenpeek].pos.X;
-            int deltay = Player[myconnectindex].pos.Y - Player[screenpeek].pos.Y;
+            int deltax = Player[myconnectindex].__int_ppos.X - Player[screenpeek].__int_ppos.X;
+            int deltay = Player[myconnectindex].__int_ppos.Y - Player[screenpeek].__int_ppos.Y;
             Player[screenpeek].angle.settarget(VecToAngle(deltax, deltay));
         }
 
@@ -6701,9 +6701,9 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->pos.X = pp->opos.X = pfirst->pos.X;
-        pp->pos.Y = pp->opos.Y = pfirst->pos.Y;
-        pp->pos.Z = pp->opos.Z = pfirst->pos.Z;
+        pp->__int_ppos.X = pp->__int_popos.X = pfirst->__int_ppos.X;
+        pp->__int_ppos.Y = pp->__int_popos.Y = pfirst->__int_ppos.Y;
+        pp->__int_ppos.Z = pp->__int_popos.Z = pfirst->__int_ppos.Z;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -6712,8 +6712,8 @@ void InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->oldpos.X = 0;
-        pp->oldpos.Y = 0;
+        pp->__int_poldpos.X = 0;
+        pp->__int_poldpos.Y = 0;
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
         pp->Kills = 0;
@@ -6773,7 +6773,7 @@ int SearchSpawnPosition(PLAYER* pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(spawn_sprite->int_pos() - opp->pos) < 1000)
+                if (FindDistance3D(spawn_sprite->int_pos() - opp->__int_ppos) < 1000)
                 {
                     blocked = true;
                     break;
@@ -6851,15 +6851,15 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->pos = pp->opos = spawn_sprite->int_pos();
+    pp->__int_ppos = pp->__int_popos = spawn_sprite->int_pos();
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
-    getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);
+    getzsofslopeptr(pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, &cz, &fz);
     // if too close to the floor - stand up
-    if (pp->pos.Z > fz - PLAYER_HEIGHT)
+    if (pp->__int_ppos.Z > fz - PLAYER_HEIGHT)
     {
-        pp->pos.Z = pp->opos.Z = fz - PLAYER_HEIGHT;
+        pp->__int_ppos.Z = pp->__int_popos.Z = fz - PLAYER_HEIGHT;
     }
 }
 
@@ -6909,7 +6909,7 @@ void InitMultiPlayerInfo(void)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.Buildang(), 0);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->angle.ang.Buildang(), 0);
         start0->clearUser();
         start0->spr.picnum = ST1;
     }

@@ -58,7 +58,7 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
         // allowing you to move through wall
         ang = NORM_ANGLE(pp->angle.ang.Buildang() + sop->clipbox_ang[i]);
 
-        vec3_t spos = { pp->pos.X, pp->pos.Y, z };
+        vec3_t spos = { pp->__int_ppos.X, pp->__int_ppos.Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
@@ -71,8 +71,8 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].X = pos[i].X = pp->pos.X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
-            opos[i].Y = pos[i].Y = pp->pos.Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
+            opos[i].X = pos[i].X = pp->__int_ppos.X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
+            opos[i].Y = pos[i].Y = pp->__int_ppos.Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
             // spos.x is where it hit
             pos[i].X = spos.X;
@@ -111,8 +111,8 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
     }
 
     // put posx and y off from offset
-    pp->pos.X += pos[min_ndx].X - opos[min_ndx].X;
-    pp->pos.Y += pos[min_ndx].Y - opos[min_ndx].Y;
+    pp->__int_ppos.X += pos[min_ndx].X - opos[min_ndx].X;
+    pp->__int_ppos.Y += pos[min_ndx].Y - opos[min_ndx].Y;
 
     return min_ret;
 }
@@ -131,7 +131,7 @@ short MultiClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist)
     {
         ang = NORM_ANGLE(new_ang + sop->clipbox_ang[i]);
 
-        vec3_t pos = { pp->pos.X, pp->pos.Y, z };
+        vec3_t pos = { pp->__int_ppos.X, pp->__int_ppos.Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
@@ -201,8 +201,8 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->pos.X += (pp->vect.X>>14);
-        pp->pos.Y += (pp->vect.Y>>14);
+        pp->__int_ppos.X += (pp->vect.X>>14);
+        pp->__int_ppos.Y += (pp->vect.Y>>14);
         return true;
     }
 
@@ -218,8 +218,8 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->pos.X -= (pp->vect.Y>>15);
-            pp->pos.Y += (pp->vect.X>>15);
+            pp->__int_ppos.X -= (pp->vect.Y>>15);
+            pp->__int_ppos.Y += (pp->vect.X>>15);
         }
 
         return false;
@@ -234,8 +234,8 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->pos.X += (pp->vect.Y>>15);
-            pp->pos.Y -= (pp->vect.X>>15);
+            pp->__int_ppos.X += (pp->vect.Y>>15);
+            pp->__int_ppos.Y -= (pp->vect.X>>15);
         }
 
         return false;
@@ -277,7 +277,7 @@ short RectClipTurn(PLAYER* pp, short new_ang, int *qx, int *qy, int *ox, int *oy
     for (i = 0; i < 4; i++)
     {
         vec2_t const p = { ox[i], oy[i] };
-        rotatepoint(pp->pos.vec2, p, rot_ang, &xy[i]);
+        rotatepoint(pp->__int_ppos.vec2, p, rot_ang, &xy[i]);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
         //rotatepoint(&sop->xmid, p, rot_ang, &xy[i]);
     }

@@ -780,9 +780,9 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             {
                 pp = tActor->user.PlayerP;
                 int sr = 65536 - int(smoothratio);
-                tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
-                tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
-                tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
+                tsp->add_int_x(-MulScale(pp->__int_ppos.X - pp->__int_popos.X, sr, 16));
+                tsp->add_int_y(-MulScale(pp->__int_ppos.Y - pp->__int_popos.Y, sr, 16));
+                tsp->add_int_z(-MulScale(pp->__int_ppos.Z - pp->__int_popos.Z, sr, 16));
                 tsp->add_int_ang(-MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16));
             }
         }
@@ -1023,9 +1023,9 @@ FString GameInterface::GetCoordString()
 {
     PLAYER* pp = Player + myconnectindex;
     FString out;
-    out.AppendFormat("POSX:%d ", pp->pos.X);
-    out.AppendFormat("POSY:%d ", pp->pos.Y);
-    out.AppendFormat("POSZ:%d ", pp->pos.Z);
+    out.AppendFormat("POSX:%d ", pp->__int_ppos.X);
+    out.AppendFormat("POSY:%d ", pp->__int_ppos.Y);
+    out.AppendFormat("POSZ:%d ", pp->__int_ppos.Z);
     out.AppendFormat("ANG:%d\n", pp->angle.ang.Buildang());
 
     return out;
@@ -1383,9 +1383,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     else
         camerapp = pp;
 
-    tx = interpolatedvalue(camerapp->opos.X, camerapp->pos.X, sr);
-    ty = interpolatedvalue(camerapp->opos.Y, camerapp->pos.Y, sr);
-    tz = interpolatedvalue(camerapp->opos.Z, camerapp->pos.Z, sr);
+    tx = interpolatedvalue(camerapp->__int_popos.X, camerapp->__int_ppos.X, sr);
+    ty = interpolatedvalue(camerapp->__int_popos.Y, camerapp->__int_ppos.Y, sr);
+    tz = interpolatedvalue(camerapp->__int_popos.Z, camerapp->__int_ppos.Z, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1410,9 +1410,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         if (pp->sop_control &&
             (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tx = pp->pos.X;
-            ty = pp->pos.Y;
-            tz = pp->pos.Z;
+            tx = pp->__int_ppos.X;
+            ty = pp->__int_ppos.Y;
+            tz = pp->__int_ppos.Z;
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
@@ -1421,7 +1421,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     pp->si.X = tx;
     pp->si.Y = ty;
-    pp->si.Z = tz - pp->pos.Z;
+    pp->si.Z = tz - pp->__int_ppos.Z;
     pp->siang = tang.Buildang();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);

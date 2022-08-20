@@ -403,7 +403,7 @@ void InitLevel(MapRecord *maprec)
     currentLevel = maprec;
     int cursect;
     SpawnSpriteDef sprites;
-    loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &cursect, sprites);
+    loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].__int_ppos, &ang, &cursect, sprites);
     spawnactors(sprites);
     Player[0].cursector = &sector[cursect];
 

@@ -1513,15 +1513,15 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.X = pp->pos.X;
-        pp->Revolve.Y = pp->pos.Y;
+        pp->Revolve.X = pp->__int_ppos.X;
+        pp->Revolve.Y = pp->__int_ppos.Y;
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->pos.X += nx;
-    pp->pos.Y += ny;
+    pp->__int_ppos.X += nx;
+    pp->__int_ppos.Y += ny;
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {
@@ -1537,8 +1537,8 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.X = pp->pos.X;
-        pp->Revolve.Y = pp->pos.Y;
+        pp->Revolve.X = pp->__int_ppos.X;
+        pp->Revolve.Y = pp->__int_ppos.Y;
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1558,7 +1558,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng = (pp->RevolveDeltaAng + GlobSpeedSO).Normalized360();
 
-    rotatepoint(sop->int_pmid().vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng.Buildang(), &pp->pos.vec2);
+    rotatepoint(sop->int_pmid().vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng.Buildang(), &pp->__int_ppos.vec2);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
@@ -1774,7 +1774,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (!SO_EMPTY(sop))
-            updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
+            updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction
@@ -1783,7 +1783,7 @@ PlayerPart:
                 // move up some for really fast moving plats
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
-                pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
+                pp->__int_ppos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
                 pp->actor->set_int_z(pp->loz);
             }
             else
@@ -1794,7 +1794,7 @@ PlayerPart:
 
                 if (!(pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING)))
                 {
-                    pp->pos.Z = pp->loz - PLAYER_HEIGHT;
+                    pp->__int_ppos.Z = pp->loz - PLAYER_HEIGHT;
                     pp->actor->set_int_z(pp->loz);
                 }
             }
@@ -3404,7 +3404,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->pos.X, pp->pos.Y) < actor->user.Dist)
+                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->__int_ppos.X, pp->__int_ppos.Y) < actor->user.Dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);

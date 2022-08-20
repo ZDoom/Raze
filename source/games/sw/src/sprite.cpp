@@ -1469,10 +1469,10 @@ void PreMapCombineFloors(void)
             {
                 if (itsect == dasect)
                 {
-                    pp->pos.X += dx;
-                    pp->pos.Y += dy;
-                    pp->opos.X = pp->oldpos.X = pp->pos.X;
-                    pp->opos.Y = pp->oldpos.Y = pp->pos.Y;
+                    pp->__int_ppos.X += dx;
+                    pp->__int_ppos.Y += dy;
+                    pp->__int_popos.X = pp->__int_poldpos.X = pp->__int_ppos.X;
+                    pp->__int_popos.Y = pp->__int_poldpos.Y = pp->__int_ppos.Y;
                     break;
                 }
             }
@@ -5024,7 +5024,7 @@ int DoGet(DSWActor* actor)
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        DISTANCE(pp->pos.X, pp->pos.Y, actor->int_pos().X, actor->int_pos().Y, dist, a,b,c);
+        DISTANCE(pp->__int_ppos.X, pp->__int_ppos.Y, actor->int_pos().X, actor->int_pos().Y, dist, a,b,c);
         if ((unsigned)dist > (plActor->user.Radius + actor->user.Radius))
         {
             continue;
@@ -5038,7 +5038,7 @@ int DoGet(DSWActor* actor)
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
-                            pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector);
+                            pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector);
         actor->spr.cstat = cstat_bak;
 
         if (!can_see)
@@ -6059,7 +6059,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->pos.X, pp->pos.Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+                DISTANCE(pp->__int_ppos.X, pp->__int_ppos.Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
 
                 AdjustActiveRange(pp, actor, dist);
 

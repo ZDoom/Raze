@@ -541,7 +541,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (actor->user.targetActor->user.PlayerP)
     {
         pp = actor->user.targetActor->user.PlayerP;
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->pos.X, pp->pos.Y, pdist, a, b, c);
+        DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->__int_ppos.X, pp->__int_ppos.Y, pdist, a, b, c);
     }
     else
         return 0;
