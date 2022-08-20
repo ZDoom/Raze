@@ -4626,7 +4626,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     auto sect = actor->sector();
 
     actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
-                         actor->user.ceiling_dist, actor->user.floor_dist, cliptype, ACTORMOVETICS);
+                         actor->user.int_ceiling_dist(), actor->user.floor_dist, cliptype, ACTORMOVETICS);
 
     ASSERT(actor->insector());
 

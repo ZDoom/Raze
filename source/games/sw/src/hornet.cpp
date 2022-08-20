@@ -380,9 +380,9 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
     // upper bound
     if (actor->user.highActor)
-        bound = hiz + actor->user.ceiling_dist;
+        bound = hiz + actor->user.int_ceiling_dist();
     else
-        bound = hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
+        bound = hiz + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
 
     if (actor->user.pos.Z < bound)
     {
@@ -390,12 +390,12 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     }
 
     actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.floor_dist);    
-    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.ceiling_dist);    
+    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.int_ceiling_dist());    
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->set_int_z(actor->user.pos.Z + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14));
 
-    bound = actor->user.int_hiz() + actor->user.ceiling_dist + HORNET_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
     if (actor->int_pos().Z < bound)
     {
         // bumped something
@@ -463,7 +463,7 @@ int DoHornetCircle(DSWActor* actor)
     // move in the z direction
     actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS;
 
-    bound = actor->user.int_hiz() + actor->user.ceiling_dist + HORNET_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
     if (actor->user.pos.Z < bound)
     {
         // bumped something
@@ -510,7 +510,7 @@ int DoHornetDeath(DSWActor* actor)
     nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
-    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.int_ceiling_dist(), actor->user.floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
     if (actor->spr.pos.Z >= actor->user.loz)

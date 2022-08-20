@@ -4497,7 +4497,7 @@ void DoPlayerDive(PLAYER* pp)
             nx = MOVEx((128+64), NORM_ANGLE(bubble->int_ang() + 1024));
             ny = MOVEy((128+64), NORM_ANGLE(bubble->int_ang() + 1024));
 
-            move_sprite(bubble, nx, ny, 0L, plActor->user.ceiling_dist, plActor->user.floor_dist, 0, synctics);
+            move_sprite(bubble, nx, ny, 0L, plActor->user.int_ceiling_dist(), plActor->user.floor_dist, 0, synctics);
         }
     }
 }

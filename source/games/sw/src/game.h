@@ -934,6 +934,7 @@ struct USER
     int int_loz() const { return loz * zworldtoint; }
     int int_hiz() const { return hiz * zworldtoint; }
     int int_z_tgt() const { return z_tgt * zworldtoint; }
+    int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
 
     //
     // Variables that can be used by actors and Player
@@ -967,6 +968,8 @@ struct USER
 
     double oz; // serialized copy of sprite.oz
     double z_tgt;
+    int16_t ceiling_dist;
+    int16_t floor_dist;
 
     int Flags;
     int Flags2;
@@ -988,8 +991,6 @@ struct USER
     int16_t jump_grav;
 
     // clipmove
-    int16_t ceiling_dist;
-    int16_t floor_dist;
     int16_t lo_step;
     double hiz, loz;
     int zclip; // z height to move up for clipmove

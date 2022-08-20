@@ -1070,7 +1070,7 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     // Always jump at player if mad.
 
 	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
-							   0, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
+							   0, actor->user.int_ceiling_dist(), actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
     if (coll.type != kHitNone)
         actor->set_int_ang(NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6)));
     else
