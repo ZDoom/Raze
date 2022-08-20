@@ -519,7 +519,7 @@ int DoEelDeath(DSWActor* actor)
     else
     {
         DoFindGroundPoint(actor);
-        actor->user._floor_dist = 0;
+        actor->user.floor_dist = 0;
         DoBeginFall(actor);
     }
 

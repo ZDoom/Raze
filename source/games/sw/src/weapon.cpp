@@ -3765,8 +3765,8 @@ AutoShrap:
             actor->spr.xvel = p->min_vel*2;
             actor->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
-            actor->user._floor_dist = shrap_floor_dist;
-            actor->user._ceiling_dist = shrap_ceiling_dist;
+            actor->user.floor_dist = shrap_floor_dist * zinttoworld;
+            actor->user.ceiling_dist = shrap_ceiling_dist * zinttoworld;
             actor->user.jump_speed = p->min_jspeed;
             actor->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actor->user.jump_speed = -actor->user.jump_speed;
@@ -4137,7 +4137,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             // so add it in
             actorNew->spr.xvel += actor->spr.xvel;
 
-            actorNew->user._ceiling_dist = actorNew->user.floor_dist = (2);
+            actorNew->user.ceiling_dist = actorNew->user.floor_dist = 2;
             actorNew->user.jump_speed = p->min_jspeed;
             actorNew->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actorNew->user.jump_speed = -actorNew->user.jump_speed;
@@ -9396,8 +9396,8 @@ int SpawnExtraMicroMini(DSWActor* actor)
     NewStateGroup(actorNew, &sg_MicroMini[0]);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = actor->user.Radius;
-    actorNew->user._ceiling_dist = actor->user.int_ceiling_dist();
-    actorNew->user._floor_dist = actor->user.int_floor_dist();
+    actorNew->user.ceiling_dist = actor->user.ceiling_dist;
+    actorNew->user.floor_dist = actor->user.floor_dist;
     actorNew->spr.cstat = actor->spr.cstat;
 
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(64) - 32));
@@ -9800,7 +9800,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
             return;
         }
 
-        actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
+        actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
 
         DoFindGround(actorNew);
         actorNew->user.jump_speed = 0;
@@ -9829,7 +9829,7 @@ int SpawnBreakFlames(DSWActor* actor)
 
     actorNew->user.Radius = 200;
 
-    actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
+    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
 
     DoFindGround(actorNew);
     actorNew->user.jump_speed = 0;
@@ -9861,7 +9861,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     actorNew->user.Radius = 200;
-    actorNew->user._floor_dist = actorNew->user._ceiling_dist = 0;
+    actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
     actorNew->set_int_z(getflorzofslopeptr(actorNew->sector(), actorNew->int_pos().X, actorNew->int_pos().Y));
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
@@ -11465,8 +11465,8 @@ void InitVulcanBoulder(DSWActor* actor)
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
-    actorNew->user._ceiling_dist = zsize/2;
-    actorNew->user._floor_dist = zsize/2;
+    actorNew->user.ceiling_dist = zsize/2 * inttoworld;
+    actorNew->user.floor_dist = zsize/2 * inttoworld;
     if (RANDOM_P2(1024) > 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
@@ -12658,8 +12658,8 @@ int InitStar(PLAYER* pp)
         actorNew2->spr.clipdist = actorNew->spr.clipdist;
         actorNew2->user.WeaponNum = actorNew->user.WeaponNum;
         actorNew2->user.Radius = actorNew->user.Radius;
-        actorNew2->user._ceiling_dist = actorNew->user.int_ceiling_dist();
-        actorNew2->user._floor_dist = actorNew->user.int_floor_dist();
+        actorNew2->user.ceiling_dist = actorNew->user.ceiling_dist;
+        actorNew2->user.floor_dist = actorNew->user.floor_dist;
         actorNew2->user.Flags2 = actorNew->user.Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))

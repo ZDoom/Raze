@@ -497,7 +497,7 @@ int DoHornetDeath(DSWActor* actor)
     {
         actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         actor->user.jump_speed = 0;
-        actor->user._floor_dist = 0;
+        actor->user.floor_dist = 0;
         DoBeginFall(actor);
         DoFindGroundPoint(actor);
         actor->user.zclip = actor->user.int_loz();

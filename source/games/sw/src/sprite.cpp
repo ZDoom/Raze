@@ -1515,8 +1515,8 @@ void SpriteSetupPost(void)
 
             SpawnUser(jActor, 0, nullptr);
             change_actor_stat(jActor, STAT_NO_STATE);
-            jActor->user.ceiling_dist = (4);
-            jActor->user._floor_dist = -Z(2);
+            jActor->user.ceiling_dist = 4;
+            jActor->user.floor_dist = -2;
 
             jActor->user.ActorActionFunc = DoActorDebris;
 
