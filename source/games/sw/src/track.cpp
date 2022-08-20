@@ -1520,8 +1520,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->__int_ppos.X += nx;
-    pp->__int_ppos.Y += ny;
+    pp->add_int_ppos_XY({ nx, ny });
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {

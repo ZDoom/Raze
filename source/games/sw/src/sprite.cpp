@@ -1469,8 +1469,7 @@ void PreMapCombineFloors(void)
             {
                 if (itsect == dasect)
                 {
-                    pp->__int_ppos.X += dx;
-                    pp->__int_ppos.Y += dy;
+                    pp->add_int_ppos_XY({ dx, dy });
                     pp->__int_popos.X = pp->__int_poldpos.X = pp->__int_ppos.X;
                     pp->__int_popos.Y = pp->__int_poldpos.Y = pp->__int_ppos.Y;
                     break;

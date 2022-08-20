@@ -111,8 +111,7 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
     }
 
     // put posx and y off from offset
-    pp->__int_ppos.X += pos[min_ndx].X - opos[min_ndx].X;
-    pp->__int_ppos.Y += pos[min_ndx].Y - opos[min_ndx].Y;
+    pp->add_int_ppos_XY({ pos[min_ndx].X - opos[min_ndx].X, pos[min_ndx].Y - opos[min_ndx].Y });
 
     return min_ret;
 }
@@ -201,8 +200,7 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->__int_ppos.X += (pp->vect.X>>14);
-        pp->__int_ppos.Y += (pp->vect.Y>>14);
+        pp->add_int_ppos_XY({ (pp->vect.X >> 14), (pp->vect.Y >> 14) });
         return true;
     }
 
@@ -218,8 +216,7 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->__int_ppos.X -= (pp->vect.Y>>15);
-            pp->__int_ppos.Y += (pp->vect.X>>15);
+            pp->add_int_ppos_XY({ -(pp->vect.Y >> 15), (pp->vect.X >> 15) });
         }
 
         return false;
@@ -234,8 +231,7 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->__int_ppos.X += (pp->vect.Y>>15);
-            pp->__int_ppos.Y -= (pp->vect.X>>15);
+            pp->add_int_ppos_XY({ (pp->vect.Y >> 15), -(pp->vect.X >> 15) });
         }
 
         return false;

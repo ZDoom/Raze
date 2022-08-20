@@ -614,6 +614,10 @@ struct PLAYER
     {
         __int_ppos.Z += z;
     }
+    void add_int_ppos_XY(vec2_t z)
+    {
+        __int_ppos.XY() += z;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
