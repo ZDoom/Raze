@@ -416,7 +416,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             ap->spr.xvel = 0;
             ap->spr.yvel = 0;
             ap->spr.zvel = 0;
-            ap->set_int_z(ap->sector()->int_floorz());
+			ap->spr.pos.Z = ap->sector()->floorz;
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;

@@ -640,7 +640,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (pEgg->nCounter <= 0)
         {
             auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos, pActor->sector(), pActor->int_ang(), true);
-            pActor->set_int_z(pWaspSprite->int_pos().Z);
+            pActor->spr.pos.Z = pWaspSprite->spr.pos.Z;
 
             DestroyEgg(nEgg);
         }

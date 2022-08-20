@@ -685,11 +685,11 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     pSector = pBulletActor->sector();
 
-    while (pBulletActor->int_pos().Z < pSector->int_ceilingz())
+    while (pBulletActor->spr.pos.Z < pSector->ceilingz)
     {
         if (pSector->pAbove == nullptr)
         {
-            pBulletActor->set_int_z(pSector->int_ceilingz());
+            pBulletActor->spr.pos.Z = pSector->ceilingz;
             break;
         }
 

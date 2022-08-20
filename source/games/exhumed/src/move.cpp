@@ -1408,7 +1408,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->set_int_z(pSector->int_floorz());
+        pActor->spr.pos.Z = pSector->floorz;
     }
     else
     {

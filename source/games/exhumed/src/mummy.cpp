@@ -444,7 +444,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
         pActor->spr.zvel = 0;
-        pActor->set_int_z(pActor->sector()->int_floorz());
+        pActor->spr.pos.Z = pActor->sector()->floorz;
     }
     else
     {

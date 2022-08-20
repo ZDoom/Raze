@@ -175,7 +175,7 @@ void AISpider::Tick(RunListEvent* ev)
             if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
             {
                 spp->spr.zvel = 0;
-                spp->set_int_z(pSector->int_ceilingz() + (tileHeight(spp->spr.picnum) << 5));
+                spp->spr.pos.Z = pSector->ceilingz + (tileHeight(spp->spr.picnum) / 8.); // was << 5 in Build coordinates
 
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
                 {

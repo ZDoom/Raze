@@ -630,19 +630,19 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
 }
 
 // done
-void MoveSectorSprites(sectortype* pSector, int z)
+void MoveSectorSprites(sectortype* pSector, double z)
 {
-    int newz = pSector->int_floorz();
-    int oldz = newz - z;
-    int minz = min(newz, oldz);
-    int maxz = max(newz, oldz);
+    double newz = pSector->floorz;
+    double oldz = newz - z;
+    double minz = min(newz, oldz);
+    double maxz = max(newz, oldz);
     ExhumedSectIterator it(pSector);
     while (auto pActor = it.Next())
     {
-        int actz = pActor->int_pos().Z;
+        int actz = pActor->spr.pos.Z;
         if ((pActor->spr.statnum != 200 && actz >= minz && actz <= maxz) || pActor->spr.statnum >= 900)
         {
-            pActor->set_int_z(newz);
+			pActor->spr.pos.Z = newz;
         }
     }
 }
@@ -788,7 +788,7 @@ void AIElev::Tick(RunListEvent* ev)
         }
         else
         {
-            MoveSectorSprites(pSector, nVal);
+            MoveSectorSprites(pSector, nVal * inttoworld);
 
             if (nVal < 0 && CheckSectorSprites(pSector, 2))
             {
@@ -1399,7 +1399,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
         pSpark->spr.picnum = kTile985 + nVal;
     }
 
-    pSpark->set_int_z(pActor->int_pos().Z);
+    pSpark->spr.pos.Z = pActor->spr.pos.Z;
     pSpark->spr.lotag = runlist_HeadRun() + 1;
     pSpark->spr.clipdist = 1;
     pSpark->spr.hitag = 0;
@@ -1580,7 +1580,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     //	GrabTimeSlot(3);
 
-    pActor->set_int_z(pSector->firstWall()->nextSector()->int_floorz());
+    pActor->spr.pos.Z = pSector->firstWall()->nextSector()->floorz;
 
     // CHECKME - name of this variable?
     int nRepeat = (pActor->int_pos().Z - pSector->int_floorz()) >> 8;
@@ -1660,7 +1660,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     pSector->extra = -1;
     pSector->set_int_floorz(pActor->int_pos().Z);
 
-    pActor->set_int_z((pActor->int_pos().Z + pSector->int_floorz()) / 2);
+    pActor->spr.pos.Z = (pActor->spr.pos.Z + pSector->floorz) * 0.5;
 
     BuildSpark(pActor, 3);
 
@@ -2119,11 +2119,9 @@ void DoDrips()
         }
         else
         {
-            int nFloorZ = pSector->int_floorz();
-
+            double nFloorZ = pSector->floorz;
             pSector->set_int_floorz(edx + sBob[i].z);
-
-            MoveSectorSprites(pSector, pSector->int_floorz() - nFloorZ);
+            MoveSectorSprites(pSector, pSector->floorz - nFloorZ);
         }
     }
 }

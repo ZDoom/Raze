@@ -877,7 +877,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         vec3_t pos = pPlayerActor->int_pos();
         SetActor(pPlayerActor, &pos);
 
-        pPlayerActor->set_int_z(pPlayerActor->sector()->int_floorz());
+        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
     }
     else
     {
@@ -1257,7 +1257,7 @@ sectdone:
                 ChangeActorSect(pFloorActor, pPlayerActor->sector());
             }
 
-            pFloorActor->set_int_z(pPlayerActor->sector()->int_floorz());
+			pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
 
         int var_30 = 0;
@@ -2444,7 +2444,7 @@ sectdone:
                     {
                         pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
                         pPlayerActor->spr.cstat = 0;
-                        pPlayerActor->set_int_z(pPlayerActor->sector()->int_floorz());
+						pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
                     }
 
                     // will invalidate nPlayerSprite
