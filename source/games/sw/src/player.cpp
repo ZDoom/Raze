@@ -3155,9 +3155,9 @@ void DoPlayerClimb(PLAYER* pp)
         // move player to center of ladder
         for (i = synctics; i; i--)
         {
-            const int ADJ_AMT = 8;
+            const int ADJ_AMT = 0.5;
 
-            auto ppos = pp->int_ppos().XY();
+            auto ppos = pp->pos.XY();
             // player
             if (ppos.X != pp->LadderPosition.X)
             {
@@ -3166,7 +3166,7 @@ void DoPlayerClimb(PLAYER* pp)
                 else if (ppos.X > pp->LadderPosition.X)
                     ppos.X -= ADJ_AMT;
 
-                if (abs(ppos.X - pp->LadderPosition.X) <= ADJ_AMT)
+                if (fabs(ppos.X - pp->LadderPosition.X) <= ADJ_AMT)
                     ppos.X = pp->LadderPosition.X;
             }
 
@@ -3177,10 +3177,10 @@ void DoPlayerClimb(PLAYER* pp)
                 else if (ppos.Y > pp->LadderPosition.Y)
                     ppos.Y -= ADJ_AMT;
 
-                if (abs(ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
+                if (fabs(ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
                     ppos.Y = pp->LadderPosition.Y;
             }
-            pp->set_int_ppos_XY(ppos);
+            pp->pos.XY() = ppos;
 
             // sprite
             auto pos = plActor->int_pos();
@@ -3336,8 +3336,8 @@ void DoPlayerClimb(PLAYER* pp)
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
 
-            pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
-            pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
+            pp->LadderPosition.X = lActor->spr.pos.X + nx * 5 * inttoworld;
+            pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5 * inttoworld;
 
             pp->angle.settarget(lActor->spr.angle + DAngle180);
         }
@@ -3716,8 +3716,8 @@ bool PlayerOnLadder(PLAYER* pp)
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-    pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
-    pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
+    pp->LadderPosition.X = lActor->spr.pos.X + nx * 5 * inttoworld;
+    pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5 * inttoworld;
 
     pp->angle.settarget(lActor->spr.angle + DAngle180);
 
