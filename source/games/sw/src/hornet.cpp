@@ -490,7 +490,7 @@ int DoHornetDeath(DSWActor* actor)
 
     if (actor->user.Flags & (SPR_FALLING))
     {
-        actor->user.loz = actor->user.zclip * zinttoworld;
+        actor->user.loz = actor->user.int_zclip() * zinttoworld;
         DoFall(actor);
     }
     else

@@ -2250,7 +2250,7 @@ void SpriteSetup(void)
                         actor->user.zclip = florz;
 
                         // start off
-                        actor->user.pos.Z = actor->user.zclip;
+                        actor->user.pos.Z = actor->user.int_zclip();
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2261,7 +2261,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.zclip * zinttoworld;
+                        actor->user.oz = actor->user.int_zclip() * zinttoworld;
                         actor->opos.Z = actor->user.oz;
                     }
                     else
@@ -2269,7 +2269,7 @@ void SpriteSetup(void)
                         actor->user.zclip = ceilz;
 
                         // start off
-                        actor->user.pos.Z = actor->user.zclip;
+                        actor->user.pos.Z = actor->user.int_zclip();
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2280,7 +2280,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.zclip * zinttoworld;
+                        actor->user.oz = actor->user.int_zclip() * zinttoworld;
                         actor->opos.Z = actor->user.oz;
                     }
 
@@ -6232,7 +6232,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     else
     {
         // move the center point up for moving
-        zh = actor->user.zclip;
+        zh = actor->user.int_zclip();
         clippos.Z -= zh;
     }
 
@@ -6426,7 +6426,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
     else
     {
-        zh = actor->user.zclip;
+        zh = actor->user.int_zclip();
         clippos.Z -= zh;
     }
 

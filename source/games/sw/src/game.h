@@ -936,6 +936,7 @@ struct USER
     int int_z_tgt() const { return z_tgt * zworldtoint; }
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
+    int int_zclip() const { return zclip/* * zworldtoint*/; }
 
     //
     // Variables that can be used by actors and Player
@@ -967,6 +968,7 @@ struct USER
     TObjPtr<DSWActor*> flagOwnerActor;
     TObjPtr<DSWActor*> WpnGoalActor;
 
+    double hiz, loz;
     double oz; // serialized copy of sprite.oz
     double z_tgt;
     double ceiling_dist;
@@ -993,7 +995,6 @@ struct USER
 
     // clipmove
     int16_t lo_step;
-    double hiz, loz;
     int zclip; // z height to move up for clipmove
     int active_range;
     sectortype* hi_sectp, *lo_sectp;
