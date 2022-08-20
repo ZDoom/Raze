@@ -2015,7 +2015,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, int range)
 {
-    return (abs(getincangle(getangle(a->int_pos().X - (pp)->__int_ppos.X, a->int_pos().Y - (pp)->__int_ppos.Y), (pp)->angle.ang.Buildang())) < (range));
+    return (abs(getincangle(getangle(a->int_pos().X - (pp)->int_ppos().X, a->int_pos().Y - (pp)->int_ppos().Y), (pp)->angle.ang.Buildang())) < (range));
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, int range)

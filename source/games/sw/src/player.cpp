@@ -1280,16 +1280,16 @@ void DoPlayerTeleportToSprite(PLAYER* pp, vec3_t* pos, int ang)
     pp->set_int_ppos_Z(pos->Z - PLAYER_HEIGHT);
     pp->__int_popos.Z = pp->int_ppos().Z;
 
-    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
+    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->__int_popos.X = pp->__int_poldpos.X = pp->__int_ppos.X;
-    pp->__int_popos.Y = pp->__int_poldpos.Y = pp->__int_ppos.Y;
+    pp->__int_popos.X = pp->__int_poldpos.X = pp->int_ppos().X;
+    pp->__int_popos.Y = pp->__int_poldpos.Y = pp->int_ppos().Y;
 
-    updatesector(pp->__int_ppos.X, pp->__int_ppos.Y, &pp->cursector);
+    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -1988,7 +1988,7 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->__int_poldpos = pp->__int_ppos;
+    pp->__int_poldpos = pp->int_ppos();
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -2036,8 +2036,7 @@ void DoPlayerMove(PLAYER* pp)
         auto sect = pp->cursector;
         if (interpolate_ride)
         {
-            pp->__int_popos.X = pp->__int_ppos.X;
-            pp->__int_popos.Y = pp->__int_ppos.Y;
+            pp->__int_popos.XY() = pp->int_ppos().XY();
         }
         pp->__int_ppos.X += pp->vect.X >> 14;
         pp->__int_ppos.Y += pp->vect.Y >> 14;
@@ -2063,8 +2062,7 @@ void DoPlayerMove(PLAYER* pp)
 
         if (interpolate_ride)
         {
-            pp->__int_popos.X = pp->__int_ppos.X;
-            pp->__int_popos.Y = pp->__int_ppos.Y;
+            pp->__int_popos.XY() = pp->int_ppos().XY();
         }
 
         auto save_cstat = actor->spr.cstat;
@@ -2093,7 +2091,7 @@ void DoPlayerMove(PLAYER* pp)
 
     if (interpolate_ride)
     {
-        pp->__int_popos.Z = pp->__int_ppos.Z;
+        pp->__int_popos.Z = pp->int_ppos().Z;
         pp->angle.backup();
     }
 
@@ -3533,7 +3531,7 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->__int_popos = pp->__int_ppos;
+    pp->__int_popos = pp->int_ppos();
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
@@ -4036,7 +4034,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     pp->set_int_ppos_Z(under_act->sector()->int_ceilingz() + Z(6));
 
-    pp->__int_popos = pp->__int_ppos;
+    pp->__int_popos = pp->int_ppos();
 
     DoPlayerZrange(pp);
     return;
@@ -4106,7 +4104,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     pp->add_int_ppos_Z(-Z(pp->WadeDepth));
 
-    pp->__int_popos = pp->__int_ppos;
+    pp->__int_popos = pp->int_ppos();
 
     return;
 }
@@ -6347,7 +6345,7 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->__int_popos = pp->__int_ppos;
+        pp->__int_popos = pp->int_ppos();
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -6677,7 +6675,7 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->__int_ppos = pp->__int_popos = pfirst->__int_ppos;
+        pp->__int_ppos = pp->__int_popos = pfirst->int_ppos();
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
