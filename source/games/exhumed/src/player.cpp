@@ -860,9 +860,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         y /= 2;
     }
 
-    int spr_x = pPlayerActor->int_pos().X;
-    int spr_y = pPlayerActor->int_pos().Y;
-    int spr_z = pPlayerActor->int_pos().Z;
+	auto spr_pos = pPlayerActor->spr.pos;
     auto spr_sect = pPlayerActor->sector();
 
     // TODO
@@ -898,7 +896,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         ChangeActorSect(pPlayerActor, spr_sect);
 
-        pPlayerActor->set_int_xy(spr_x, spr_y);
+		pPlayerActor->spr.pos.XY() = spr_pos.XY();
 
         if (zVel < pPlayerActor->spr.zvel) {
             pPlayerActor->spr.zvel = zVel;
@@ -1041,7 +1039,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         }
                         else
                         {
-                            pPlayerActor->set_int_pos({ spr_x, spr_y, spr_z });
+                            pPlayerActor->spr.pos = spr_pos;
                             ChangeActorSect(pPlayerActor, spr_sect);
                         }
 
@@ -1067,7 +1065,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 sectdone:
     if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerActor->int_pos().Z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((int(spr_pos.Z * zworldtoint) - pPlayerActor->int_pos().Z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     playerX -= pPlayerActor->int_pos().X;
@@ -1108,26 +1106,23 @@ sectdone:
         {
             if (nMove.type == kHitWall)
             {
-                int var_C4 = pPlayerActor->int_pos().X;
-                int var_D4 = pPlayerActor->int_pos().Y;
-                int var_C8 = pPlayerActor->int_pos().Z;
+				auto pos = pPlayerActor->spr.pos;
 
                 ChangeActorSect(pPlayerActor, pViewSect);
 
 
-                int var_FC = pViewSect->int_floorz() + (-5120);
-                pPlayerActor->set_int_pos({ spr_x, spr_y, var_FC });
+                double fz = pViewSect->floorz - 20;
+                pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
 
                 auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
                     ChangeActorSect(pPlayerActor, pPlayerActor->sector());
-
-                    pPlayerActor->set_int_pos({ var_C4, var_D4, var_C8 });
+                    pPlayerActor->spr.pos = pos;
                 }
                 else
                 {
-                    pPlayerActor->set_int_z(var_FC - 256);
+                    pPlayerActor->spr.pos.Z = fz-1;
                     D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
             }
@@ -1137,8 +1132,8 @@ sectdone:
     // loc_1ADAF
     PlayerList[nPlayer].pPlayerViewSect = pViewSect;
 
-    PlayerList[nPlayer].nPlayerD.X = pPlayerActor->int_pos().X - spr_x;
-    PlayerList[nPlayer].nPlayerD.Y = pPlayerActor->int_pos().Y - spr_y;
+    PlayerList[nPlayer].nPlayerD.X = int((pPlayerActor->spr.pos.X - spr_pos.X) * worldtoint);
+    PlayerList[nPlayer].nPlayerD.Y = int((pPlayerActor->spr.pos.Y - spr_pos.Y) * worldtoint);
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 

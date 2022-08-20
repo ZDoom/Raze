@@ -369,17 +369,13 @@ void AISnake::Tick(RunListEvent* ev)
         int var_28 = (nAngle + 512) & kAngleMask;
         auto pSector = pActor->sector();
 
-        int x = pActor->int_pos().X;
-        int y = pActor->int_pos().Y;
-        int z = pActor->int_pos().Z;
-
         for (int i = 7; i > 0; i--)
         {
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
 
             pActor2->set_int_ang(nAngle);
-            pActor2->set_int_pos({ x, y, z });
+			pActor2->spr.pos = pActor->spr.pos;
 
             ChangeActorSect(pActor2, pSector);
 

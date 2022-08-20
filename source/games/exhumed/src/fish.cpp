@@ -412,9 +412,7 @@ void AIFish::Tick(RunListEvent* ev)
     }
     }
 
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-    int z = pActor->int_pos().Z;
+	auto pos = pActor->spr.pos;
     auto pSector =pActor->sector();
 
     // loc_2EF54
@@ -423,7 +421,7 @@ void AIFish::Tick(RunListEvent* ev)
     if (!(pActor->sector()->Flag & kSectUnderwater))
     {
         ChangeActorSect(pActor, pSector);
-        pActor->set_int_pos({ x, y, z });
+        pActor->spr.pos = pos;
 
         IdleFish(pActor, 0);
         return;

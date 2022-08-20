@@ -277,9 +277,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             }
         }
 
-        int x = pActor->int_pos().X;
-        int y = pActor->int_pos().Y;
-        int z = pActor->int_pos().Z;
+		auto pos = pActor->spr.pos;
         auto pSector =pActor->sector();
 
         auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, 0, 0, 0, CLIPMASK0);
@@ -287,7 +285,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (pSector != pActor->sector())
         {
             ChangeActorSect(pActor, pSector);
-            pActor->set_int_pos({ x, y, z });
+			pActor->spr.pos = pos;
 
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
             pActor->spr.xvel = bcos(pActor->int_ang());

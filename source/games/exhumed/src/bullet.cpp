@@ -493,7 +493,7 @@ HITSPRITE:
             {
                 if ((pHitSect->pBelow != nullptr && (pHitSect->pBelow->Flag & kSectUnderwater)) || pHitSect->Depth)
                 {
-                    pActor->set_int_pos({ x2, y2, z2 });
+					pActor->spr.pos = pos;
                     BuildSplash(pActor, pHitSect);
                 }
                 else
@@ -521,7 +521,7 @@ HITSPRITE:
                 }
                 else
                 {
-                    pActor->set_int_pos({ x2, y2, z2 });
+					pActor->spr.pos = pos;
 
                     ChangeActorSect(pActor, pHitSect);
                 }
