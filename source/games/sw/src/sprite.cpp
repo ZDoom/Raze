@@ -2247,7 +2247,7 @@ void SpriteSetup(void)
 
                     if (floor_vator)
                     {
-                        actor->user.zclip = florz;
+                        actor->user.zclip = florz * zinttoworld;
 
                         // start off
                         actor->user.pos.Z = actor->user.int_zclip();
@@ -2255,18 +2255,18 @@ void SpriteSetup(void)
                         if (start_on)
                         {
                             // start in the on position
-                            actor->user.zclip = actor->int_pos().Z;
+                            actor->user.zclip = actor->spr.pos.Z;
                             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.int_zclip() * zinttoworld;
+                        actor->user.oz = actor->user.zclip;
                         actor->opos.Z = actor->user.oz;
                     }
                     else
                     {
-                        actor->user.zclip = ceilz;
+                        actor->user.zclip = ceilz * zinttoworld;
 
                         // start off
                         actor->user.pos.Z = actor->user.int_zclip();
@@ -2274,13 +2274,13 @@ void SpriteSetup(void)
                         if (start_on)
                         {
                             // starting in the on position
-                            actor->user.zclip = actor->int_pos().Z;
+                            actor->user.zclip = actor->spr.pos.Z;
                             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.int_zclip() * zinttoworld;
+                        actor->user.oz = actor->user.zclip;
                         actor->opos.Z = actor->user.oz;
                     }
 

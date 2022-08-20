@@ -936,7 +936,7 @@ struct USER
     int int_z_tgt() const { return z_tgt * zworldtoint; }
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
-    int int_zclip() const { return zclip/* * zworldtoint*/; }
+    int int_zclip() const { return zclip * zworldtoint; }
 
     //
     // Variables that can be used by actors and Player
@@ -973,6 +973,7 @@ struct USER
     double z_tgt;
     double ceiling_dist;
     double floor_dist;
+    double zclip; // z height to move up for clipmove
 
     int Flags;
     int Flags2;
@@ -995,7 +996,6 @@ struct USER
 
     // clipmove
     int16_t lo_step;
-    int zclip; // z height to move up for clipmove
     int active_range;
     sectortype* hi_sectp, *lo_sectp;
 

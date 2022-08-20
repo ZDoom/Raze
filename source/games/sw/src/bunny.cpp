@@ -781,7 +781,7 @@ int SetupBunny(DSWActor* actor)
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
 
-    actor->user.zclip = Z(16);
+    actor->user.zclip = (16);
     actor->user.floor_dist = (8);
     actor->user.ceiling_dist = (8);
     actor->user.lo_step = Z(16);

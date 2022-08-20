@@ -394,7 +394,7 @@ int SetupEel(DSWActor* actor)
     EelCommon(actor);
 
     actor->user.Flags &= ~(SPR_SHADOW); // Turn off shadows
-    actor->user.zclip = Z(8);
+    actor->user.zclip = (8);
 
     return 0;
 }

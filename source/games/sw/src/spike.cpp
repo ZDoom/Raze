@@ -49,7 +49,7 @@ void ReverseSpike(DSWActor* actor)
     }
 
     // moving toward to OFF pos
-    if (actor->user.int_z_tgt() == actor->user.int_oz())
+    if (actor->user.z_tgt == actor->user.oz)
     {
         if (actor->spr.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
@@ -102,7 +102,7 @@ void SetSpikeActive(DSWActor* actor)
     actor->user.Tics = 0;
 
     // moving to the ON position
-    if (actor->user.int_z_tgt() == actor->int_pos().Z)
+    if (actor->user.z_tgt == actor->spr.pos.Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
@@ -190,35 +190,35 @@ bool TestSpikeMatchActive(short match)
     return false;
 }
 
-int DoSpikeMove(DSWActor* actor, int *lptr)
+int DoSpikeMove(DSWActor* actor, double *lptr)
 {
-    int zval;
+    double zval;
 
     zval = *lptr;
 
     // if LESS THAN goal
-    if (zval < actor->user.int_z_tgt())
+    if (zval < actor->user.z_tgt)
     {
         // move it DOWN
-        zval += (synctics * actor->user.jump_speed);
+        zval += (synctics * actor->user.jump_speed) * zinttoworld;
 
         actor->user.jump_speed += actor->user.vel_rate * synctics;
 
         // if the other way make it equal
-        if (zval > actor->user.int_z_tgt())
-            zval = actor->user.int_z_tgt();
+        if (zval > actor->user.z_tgt)
+            zval = actor->user.z_tgt;
     }
 
     // if GREATER THAN goal
-    if (zval > actor->user.int_z_tgt())
+    if (zval > actor->user.z_tgt)
     {
         // move it UP
-        zval -= (synctics * actor->user.jump_speed);
+        zval -= (synctics * actor->user.jump_speed) * zinttoworld;
 
         actor->user.jump_speed += actor->user.vel_rate * synctics;
 
-        if (zval < actor->user.int_z_tgt())
-            zval = actor->user.int_z_tgt();
+        if (zval < actor->user.z_tgt)
+            zval = actor->user.z_tgt;
     }
 
     *lptr = zval;
@@ -275,10 +275,10 @@ int DoSpike(DSWActor* actor)
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
-    if (actor->user.int_zclip() == actor->user.int_z_tgt())
+    if (actor->user.zclip == actor->user.z_tgt)
     {
         // in the ON position
-        if (actor->user.int_z_tgt() == actor->int_pos().Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
@@ -322,16 +322,16 @@ int DoSpike(DSWActor* actor)
         }
 
         // setup to go back to the original z
-        if (actor->user.int_zclip() != actor->user.int_oz())
+        if (actor->user.zclip != actor->user.oz)
         {
             if (actor->user.WaitTics)
                 actor->user.Tics = actor->user.WaitTics;
         }
     }
-    else // if (*lptr == actor->user.int_z_tgt())
+    else // if (*lptr == actor->user.z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(actor) && actor->user.int_z_tgt() == actor->user.int_oz())
+        if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.oz)
         {
             bool found = false;
 
@@ -376,10 +376,10 @@ int DoSpikeAuto(DSWActor* actor)
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
-    if (actor->user.int_zclip() == actor->user.int_z_tgt())
+    if (actor->user.zclip == actor->user.z_tgt)
     {
         // in the UP position
-        if (actor->user.int_z_tgt() == actor->int_pos().Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;

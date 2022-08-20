@@ -54,7 +54,7 @@ void ReverseVator(DSWActor* actor)
     }
 
     // moving toward to OFF pos
-    if (actor->user.int_z_tgt() == actor->user.int_oz())
+    if (actor->user.z_tgt == actor->user.oz)
     {
         if (actor->spr.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
@@ -447,7 +447,7 @@ int DoVator(DSWActor* actor)
     else // if (*lptr == actor->user.int_z_tgt())
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(actor) && actor->user.int_z_tgt() == actor->user.int_oz())
+        if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.oz)
         {
             int i;
             bool found = false;
@@ -457,7 +457,7 @@ int DoVator(DSWActor* actor)
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->int_ceilingz() - sectp->int_floorz()) < ActorSizeZ(itActor))
+                    if (abs(sectp->int_ceilingz() - sectp->int_floorz()) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
@@ -545,7 +545,7 @@ int DoVatorAuto(DSWActor* actor)
     if (zval == actor->user.int_z_tgt())
     {
         // in the UP position
-        if (actor->user.int_z_tgt() == actor->int_pos().Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
             actor->user.z_tgt = actor->user.pos.Z * zinttoworld;

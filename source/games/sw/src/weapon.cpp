@@ -10851,7 +10851,7 @@ int DoBloodWorm(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (!actor->user.int_z_tgt())
+    if (!actor->user.z_tgt)
     {
         // stay alive for 10 seconds
         if (++actor->user.Counter3 > 3)
