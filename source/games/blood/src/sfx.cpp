@@ -164,14 +164,13 @@ FSoundID getSfx(FSoundID soundId, float& attenuation, int& pitch, int& relvol)
 //
 //---------------------------------------------------------------------------
 
-void sfxPlay3DSound(int x, int y, int z, int soundId, sectortype* pSector)
+void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector)
 {
 	if (!SoundEnabled() || soundId < 0) return;
 	auto sid = soundEngine->FindSoundByResID(soundId);
 	if (sid == 0) return;
 
-	vec3_t xyz = { x, y, z };
-	auto svec = GetSoundPos(xyz);
+	auto svec = GetSoundPos(pos);
 
 	float attenuation;
 	int pitch = -1;
