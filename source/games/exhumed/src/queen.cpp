@@ -249,7 +249,7 @@ void DestroyEgg(int nEgg)
 
     if (QueenEgg[nEgg].nAction != 4)
     {
-        BuildAnim(nullptr, 34, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), pActor->spr.xrepeat, 4);
+        BuildAnim(nullptr, 34, 0, pActor->spr.pos, pActor->sector(), pActor->spr.xrepeat, 4);
     }
     else
     {
@@ -1461,7 +1461,7 @@ void AIQueen::Damage(RunListEvent* ev)
                 QueenList[nQueen].nHealth = 4000;
                 QueenList[nQueen].nAction = 7;
 
-                BuildAnim(nullptr, 36, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z - 7680, pActor->sector(), pActor->spr.xrepeat, 4);
+                BuildAnim(nullptr, 36, 0, pActor->spr.pos.plusZ(-30), pActor->sector(), pActor->spr.xrepeat, 4);
                 break;
             case 2:
                 QueenList[nQueen].nHealth = 4000;

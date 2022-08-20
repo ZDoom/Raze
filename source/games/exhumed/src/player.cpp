@@ -2506,11 +2506,10 @@ sectdone:
 
             if (!RandomSize(5))
             {
-                vec3_t pos;
                 sectortype* mouthSect;
-                WheresMyMouth(nPlayer, &pos, &mouthSect);
+                auto pos = WheresMyMouth(nPlayer, &mouthSect);
 
-                BuildAnim(nullptr, 71, 0, pos.X, pos.Y, pPlayerActor->int_pos().Z + 3840, mouthSect, 75, 128);
+                BuildAnim(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 75, 128);
             }
             break;
         case 17:

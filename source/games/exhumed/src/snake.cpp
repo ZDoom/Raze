@@ -117,7 +117,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     pActor->pTarget = nOwner;
 
-    BuildAnim(nullptr, 23, 0, pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector(), 40, 4);
+    BuildAnim(nullptr, 23, 0, pActor->spr.pos, pActor->sector(), 40, 4);
 
     AddFlash(pActor->sector(), pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, 128);
 
@@ -160,7 +160,7 @@ void BuildSnake(int nPlayer, int zVal)
         BackUpBullet(&v.X, &v.Y, nAngle);
 		hit.set_int_hitpos_xy(v.X, v.Y);
         auto pActor = insertActor(hit.hitSector, 202);
-        pActor->set_int_pos(hit.int_hitpos());
+        pActor->spr.pos = hit.hitpos;
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);

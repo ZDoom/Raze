@@ -1230,20 +1230,20 @@ int GetWallNormal(walltype* pWall)
     return (nAngle + 512) & kAngleMask;
 }
 
-void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
+DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].pActor;
     int height = GetActorHeight(pActor) >> 1;
 
     *sectnum = pActor->sector();
-    *pos = pActor->int_pos();
-    pos->Z -= height;
+	auto pos = pActor->spr.pos.plusZ(-height * zinttoworld);
 
     Collision scratch;
-    clipmove(*pos, sectnum,
+    clipmove(pos, sectnum,
         bcos(pActor->int_ang(), 7),
         bsin(pActor->int_ang(), 7),
         5120, 1280, 1280, CLIPMASK1, scratch);
+	return pos;
 }
 
 void InitChunks()

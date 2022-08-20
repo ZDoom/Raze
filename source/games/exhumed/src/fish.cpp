@@ -72,9 +72,9 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
-void BuildBlood(int x, int y, int z, sectortype* pSector)
+void BuildBlood(const DVector3& pos, sectortype* pSector)
 {
-    BuildAnim(nullptr, kSeqFish, 36, x, y, z, pSector, 75, 128);
+    BuildAnim(nullptr, kSeqFish, 36, pos, pSector, 75, 128);
 }
 
 void AIFishLimb::Tick(RunListEvent* ev)
@@ -94,7 +94,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z, pActor->sector());
+            BuildBlood(pActor->spr.pos, pActor->sector());
         }
     }
 
