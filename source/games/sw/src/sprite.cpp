@@ -6549,11 +6549,11 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     daz = actor->int_pos().Z;
 
     // climbing a wall
-    if (actor->user.z_tgt)
+    if (actor->user.int_z_tgt())
     {
-        if (labs(actor->user.z_tgt - actor->int_pos().Z) > Z(40))
+        if (labs(actor->user.int_z_tgt() - actor->int_pos().Z) > Z(40))
         {
-            if (actor->user.z_tgt > actor->int_pos().Z)
+            if (actor->user.int_z_tgt() > actor->int_pos().Z)
             {
 				actor->spr.pos.Z += 30;
                 return retval;

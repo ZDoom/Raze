@@ -933,6 +933,7 @@ struct USER
     int int_oz() const { return oz * zworldtoint; }
     int int_loz() const { return loz * zworldtoint; }
     int int_hiz() const { return hiz * zworldtoint; }
+    int int_z_tgt() const { return z_tgt * zworldtoint; }
 
     //
     // Variables that can be used by actors and Player
