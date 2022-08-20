@@ -803,7 +803,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case FIRE:
 		case BURNING:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->set_int_z(t->sectp->int_floorz());
+				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:

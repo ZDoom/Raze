@@ -210,9 +210,9 @@ void CFX::fxProcess(void)
 		actAirDrag(actor, pFXData->drag);
 		actor->add_int_pos({ actor->vel.X >> 12, actor->vel.Y >> 12, actor->vel.Z >> 8 });
 		// Weird...
-		if (actor->vel.X || (actor->vel.Y && actor->int_pos().Z >= actor->sector()->int_floorz()))
+		if (actor->vel.X || (actor->vel.Y && actor->spr.pos.Z >= actor->sector()->floorz))
 		{
-			updatesector(actor->int_pos().X, actor->int_pos().Y, &pSector);
+			updatesector(actor->spr.pos, &pSector);
 			if (pSector == nullptr)
 			{
 				remove(actor);

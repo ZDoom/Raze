@@ -1634,8 +1634,8 @@ void OperateTeleport(sectortype* pSector)
 				{
 					TeleFrag(pXSector->actordata, destactor->sector());
 				}
-				actor->set_int_xy(destactor->int_pos().X, destactor->int_pos().Y);
-				actor->add_int_z(destactor->sector()->int_floorz() - pSector->int_floorz());
+				actor->spr.pos.XY() = destactor->spr.pos.XY();
+				actor->spr.pos.Z += destactor->sector()->floorz - pSector->floorz;
 				actor->spr.angle = destactor->spr.angle;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);

@@ -770,14 +770,14 @@ void movefallers_d(void)
 						x = gs.gravity;
 				}
 
-				if (act->int_pos().Z < (sectp->int_floorz() - FOURSLEIGHT))
+				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
 					act->add_int_z(act->spr.zvel);
 				}
-				if ((sectp->int_floorz() - act->int_pos().Z) < (16 << 8))
+				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
 					j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -3133,7 +3133,7 @@ void moveexplosions_d(void)  // STATNUM 5
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(act, (sectp->int_floorz() + (24 << 8)) < act->int_pos().Z);
+			shell(act, sectp->floorz + 24 < act->spr.pos.Z);
 			continue;
 
 		case GLASSPIECES:

@@ -689,14 +689,14 @@ void movefallers_r(void)
 						x = gs.gravity;
 				}
 
-				if (act->int_pos().Z < (sectp->int_floorz() - FOURSLEIGHT))
+				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->spr.zvel += x;
 					if (act->spr.zvel > 6144)
 						act->spr.zvel = 6144;
 					act->add_int_z(act->spr.zvel);
 				}
-				if ((sectp->int_floorz() - act->int_pos().Z) < (16 << 8))
+				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
 					int j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -2137,8 +2137,8 @@ void rr_specialstats()
 		if (act->spr.hitag == 100)
 		{
 			act->spr.pos.Z += 4;
-			if (act->int_pos().Z >= act->sector()->int_floorz() + 15168)
-				act->set_int_z(act->sector()->int_floorz() + 15168);
+			if (act->spr.pos.Z >= act->sector()->floorz + 59.25)
+				act->spr.pos.Z = act->sector()->floorz + 59.25;
 		}
 
 		if (act->spr.picnum == LUMBERBLADE)
@@ -2147,7 +2147,7 @@ void rr_specialstats()
 			if (act->spr.extra == 192)
 			{
 				act->spr.hitag = 0;
-				act->set_int_z(act->sector()->int_floorz() - 15168);
+				act->spr.pos.Z = act->sector()->floorz - 59.25;
 				act->spr.extra = 0;
 				act->spr.picnum = RRTILE3410;
 				DukeStatIterator it2(STAT_DEFAULT);
@@ -2692,7 +2692,7 @@ void moveactors_r(void)
 						act->spr.picnum = RRTILE3192;
 						break;
 					case 903:
-						if (act->int_pos().Z >= sectp->int_floorz() - (8<<8))
+						if (act->spr.pos.Z >= sectp->floorz - 8)
 						{
 							deletesprite(act);
 							continue;
@@ -2731,7 +2731,7 @@ void moveactors_r(void)
 				}
 				if (sectp->lotag == 903)
 				{
-					if (act->int_pos().Z >= sectp->int_floorz() - (4<<8))
+					if (act->spr.pos.Z >= sectp->floorz - 4)
 					{
 						deletesprite(act);
 						continue;
@@ -2755,12 +2755,12 @@ void moveactors_r(void)
 					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
 					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
 					act->spr.zvel,CLIPMASK0, coll);
-				if (act->int_pos().Z >= sectp->int_floorz() - (8<<8))
+				if (act->spr.pos.Z >= sectp->floorz - 8)
 				{
 					if (sectp->lotag == 1)
 					{
 						auto j = spawn(act, WATERSPLASH2);
-						if (j) j->set_int_z(j->sector()->int_floorz());
+						if (j) j->spr.pos.Z = j->sector()->floorz;
 					}
 					deletesprite(act);
 					continue;
@@ -2929,7 +2929,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		{
 		case SHOTGUNSPRITE:
 			if (act->sector()->lotag == 800)
-				if (act->int_pos().Z >= act->sector()->int_floorz() - (8 << 8))
+				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
 					deletesprite(act);
 					continue;
@@ -3084,7 +3084,7 @@ void moveexplosions_r(void)  // STATNUM 5
 				isRRRA() && (act->spr.picnum == RRTILE2465 || act->spr.picnum == RRTILE2560))) continue;
 
 			if (act->sector()->lotag == 800)
-				if (act->int_pos().Z >= act->sector()->int_floorz() - (8 << 8))
+				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
 					deletesprite(act);
 					continue;
@@ -3096,7 +3096,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (!bloodpool(act, false)) continue;
 
 			if (act->sector()->lotag == 800)
-				if (act->int_pos().Z >= act->sector()->int_floorz() - (8 << 8))
+				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
 					deletesprite(act);
 				}
@@ -3185,7 +3185,7 @@ void handle_se06_r(DDukeActor *actor)
 					{
 						ns->spr.cstat = 0;
 						ns->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-						ns->set_int_z(actor->sector()->int_floorz() - 6144);
+						ns->spr.pos.Z = actor->sector()->floorz - 24;
 					}
 					deletesprite(actor);
 					return;
@@ -3941,8 +3941,8 @@ void destroyit(DDukeActor *actor)
 						destwal->nextWall()->cstat = 0;
 					}
 				}
-				destsect->set_int_floorz(srcsect->int_floorz());
-				destsect->set_int_ceilingz(srcsect->int_ceilingz());
+				destsect->setfloorz(srcsect->floorz);
+				destsect->setceilingz(srcsect->ceilingz);
 				destsect->ceilingstat = srcsect->ceilingstat;
 				destsect->floorstat = srcsect->floorstat;
 				destsect->ceilingpicnum = srcsect->ceilingpicnum;

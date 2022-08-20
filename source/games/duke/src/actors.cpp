@@ -576,7 +576,7 @@ void movefx(void)
 					act->temp_data[0] = 0;
 				}
 			}
-			else if (act->spr.lotag < 999 && (unsigned)act->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->sector()->int_floorz() != act->sector()->int_ceilingz())
+			else if (act->spr.lotag < 999 && (unsigned)act->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->sector()->floorz != act->sector()->ceilingz)
 			{
 				int flags = S_GetUserFlags(act->spr.lotag);
 				if (flags & SF_MSFX)
@@ -4429,7 +4429,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 {
 	auto sec = actor->sector();
 
-	if (sec->int_floorz() <= sec->int_ceilingz())
+	if (sec->floorz <= sec->ceilingz)
 		actor->spr.shade = 0;
 	else if (sec->int_ceilingz() <= actor->temp_data[t_index])
 		actor->spr.shade = 1;
@@ -4437,9 +4437,9 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	if (actor->spr.shade)
 	{
 		sec->add_int_ceilingz(actor->spr.yvel << 4);
-		if (sec->int_ceilingz() > sec->int_floorz())
+		if (sec->ceilingz > sec->floorz)
 		{
-			sec->set_int_ceilingz(sec->int_floorz());
+			sec->ceilingz = sec->floorz;
 			if (pistonsound && snd1 >= 0)
 				S_PlayActorSound(snd1, actor);
 		}
@@ -4551,9 +4551,9 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	{
 	case 0:
 		sc->add_int_ceilingz(actor->spr.yvel);
-		if (sc->int_ceilingz() > sc->int_floorz())
-			sc->set_int_floorz(sc->int_ceilingz());
-		if (sc->int_ceilingz() > actor->int_pos().Z + (32 << 8))
+		if (sc->ceilingz > sc->floorz)
+			sc->floorz = sc->ceilingz;
+		if (sc->ceilingz > actor->spr.pos.Z + 32)
 			actor->temp_data[0]++;
 		break;
 	case 1:
