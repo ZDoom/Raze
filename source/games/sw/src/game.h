@@ -1597,6 +1597,7 @@ double Distance(const DVector2& pos1, const DVector2& pos2)
 
 int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
 void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);
+DVector3 SectorMidPoint(sectortype* sectp);
 void SpawnUser(DSWActor* actor, short id, STATE* state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
@@ -1639,6 +1640,11 @@ inline void PlaySound(int num, vec3_t *pos, int flags, int channel = 8, EChanFla
 inline void PlaySound(int num, const vec3_t &pos, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
 	_PlaySound(num, nullptr, nullptr, &pos, flags, channel, sndflags);
+}
+inline void PlaySound(int num, const DVector3& pos, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
+{
+    vec3_t ppos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+    _PlaySound(num, nullptr, nullptr, &ppos, flags, channel, sndflags);
 }
 
 int _PlayerSound(int num, PLAYER* pp);

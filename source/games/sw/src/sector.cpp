@@ -604,6 +604,18 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
     *zmid = (sectp->int_floorz() + sectp->int_ceilingz()) >> 1;
 }
 
+DVector3 SectorMidPoint(sectortype* sectp)
+{
+    DVector3 sum(0,0,0);
+
+    for (auto& wal : wallsofsector(sectp))
+    {
+        sum += wal.pos;
+    }
+    sum /= sectp->wallnum;
+    sum.Z = (sectp->floorz + sectp->ceilingz) * 0.5;
+    return sum;
+}
 
 void DoSpringBoard(PLAYER* pp)
 {
