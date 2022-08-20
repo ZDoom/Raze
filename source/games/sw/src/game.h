@@ -578,45 +578,31 @@ struct PLAYER
 {
     // variable that fit in the sprite or user structure
 
-    // hackery to make the transition easier
-    union
-    {
-        vec3_t __int_ppos;
-        vec3_t pos;
-    };
-    union
-    {
-        vec3_t __int_popos;
-        vec3_t opos;
-    };
-    union
-    {
-        vec3_t __int_poldpos;
-        vec3_t oldpos;
-    };
+    DVector3 pos, opos, oldpos;
+
     const vec3_t int_ppos() const
     {
-        return __int_ppos;
+        return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
     }
     void set_int_ppos(vec3_t z)
     {
-        __int_ppos = z;
+        pos = { z.X * inttoworld, z.Y * inttoworld, z.Z * zinttoworld };
     }
     void set_int_ppos_XY(vec2_t z)
     {
-        __int_ppos.XY() = z;
+        pos.XY() = {z.X * inttoworld, z.Y * inttoworld };
     }
     void set_int_ppos_Z(int z)
     {
-        __int_ppos.Z = z;
+        pos.Z = z * zinttoworld;
     }
     void add_int_ppos_Z(int z)
     {
-        __int_ppos.Z += z;
+        pos.Z += z * zinttoworld;
     }
     void add_int_ppos_XY(vec2_t z)
     {
-        __int_ppos.XY() += z;
+        pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
     }
 
     DSWActor* actor;    // this may not be a TObjPtr!

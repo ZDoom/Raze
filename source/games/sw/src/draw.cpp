@@ -779,11 +779,9 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                int sr = 65536 - int(smoothratio);
-                tsp->add_int_x(-MulScale(pp->int_ppos().X - pp->__int_popos.X, sr, 16));
-                tsp->add_int_y(-MulScale(pp->int_ppos().Y - pp->__int_popos.Y, sr, 16));
-                tsp->add_int_z(-MulScale(pp->int_ppos().Z - pp->__int_popos.Z, sr, 16));
-                tsp->add_int_ang(-MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16));
+                double sr = 1. - smoothratio * (1. / 65536.);
+                tsp->pos -= (pp->pos - pp->opos) * sr;
+                tsp->angle = interpolatedangle(pp->angle.oang, pp->angle.ang, sr, 0);
             }
         }
 
@@ -1383,9 +1381,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     else
         camerapp = pp;
 
-    tx = interpolatedvalue(camerapp->__int_popos.X, camerapp->int_ppos().X, sr);
-    ty = interpolatedvalue(camerapp->__int_popos.Y, camerapp->int_ppos().Y, sr);
-    tz = interpolatedvalue(camerapp->__int_popos.Z, camerapp->int_ppos().Z, sr);
+    tx = int(interpolatedvalue(camerapp->opos.X, camerapp->pos.X, sr) * worldtoint);
+    ty = int(interpolatedvalue(camerapp->opos.Y, camerapp->pos.Y, sr) * worldtoint);
+    tz = int(interpolatedvalue(camerapp->opos.Z, camerapp->pos.Z, sr) * zworldtoint);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.

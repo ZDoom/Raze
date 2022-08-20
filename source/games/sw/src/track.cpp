@@ -1557,7 +1557,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng = (pp->RevolveDeltaAng + GlobSpeedSO).Normalized360();
 
-    rotatepoint(sop->int_pmid().vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng.Buildang(), &pp->__int_ppos.vec2);
+    pp->pos.XY() = rotatepoint(sop->pmid.XY(), {pp->Revolve.X * inttoworld, pp->Revolve.Y * inttoworld}, pp->RevolveDeltaAng);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector

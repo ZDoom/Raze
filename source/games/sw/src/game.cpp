@@ -405,7 +405,7 @@ void InitLevel(MapRecord *maprec)
     SpawnSpriteDef sprites;
     vec3_t ppos;
     loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
-    Player[0].__int_ppos = ppos;
+    Player[0].set_int_ppos(ppos);
     spawnactors(sprites);
     Player[0].cursector = &sector[cursect];
 

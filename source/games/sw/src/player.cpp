@@ -1271,8 +1271,7 @@ void DoPlayerTeleportPause(PLAYER* pp)
 void DoPlayerTeleportToSprite(PLAYER* pp, vec3_t* pos, int ang)
 {
     pp->angle.ang = pp->angle.oang = DAngle::fromBuild(ang);
-    pp->__int_ppos.X = pos->X;
-    pp->__int_ppos.Y = pos->Y;
+    pp->set_int_ppos_XY(pos->XY());
 
     pp->oldpos.XY() = pp->opos.XY() = pp->pos.XY();
 
@@ -1354,7 +1353,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
             TAG 5 to 8 = random match locations
 #endif
 
-    if ((act_warp = Warp(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector)) == nullptr)
+    if ((act_warp = Warp(pp->pos, &pp->cursector)) == nullptr)
     {
         return;
     }
@@ -1607,7 +1606,7 @@ void DoPlayerBob(PLAYER* pp)
 
     dist = 0;
 
-    dist = Distance(pp->int_ppos().X, pp->int_ppos().Y, pp->__int_poldpos.X, pp->__int_poldpos.Y);
+    dist = DistanceI(pp->pos, pp->oldpos);
 
     if (dist > 512)
         dist = 0;
@@ -1899,7 +1898,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
-    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1913,10 +1912,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->__int_ppos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2048,7 +2047,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2071,12 +2070,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->__int_ppos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2098,7 +2097,7 @@ void DoPlayerMove(PLAYER* pp)
     }
 
     // check for warp - probably can remove from CeilingHit
-    if (WarpPlane(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector))
+    if (WarpPlane(pp->pos, &pp->cursector))
     {
         PlayerWarpUpdatePos(pp);
     }
@@ -3307,7 +3306,7 @@ void DoPlayerClimb(PLAYER* pp)
         LadderUpdate = true;
     }
 
-    if (WarpPlane(&pp->__int_ppos.X, &pp->__int_ppos.Y, &pp->__int_ppos.Z, &pp->cursector))
+    if (WarpPlane(pp->pos, &pp->cursector))
     {
         PlayerWarpUpdatePos(pp);
         LadderUpdate = true;
@@ -4529,7 +4528,7 @@ void DoPlayerCurrent(PLAYER* pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(&pp->__int_ppos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4545,10 +4544,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->__int_ppos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(&pp->__int_ppos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -6827,7 +6826,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->__int_ppos = spawn_sprite->int_pos();
+    pp->pos = spawn_sprite->spr.pos;
     pp->opos = pp->pos;
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
