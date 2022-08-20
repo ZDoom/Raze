@@ -746,8 +746,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 
 		// very quick fix for floor sprites with Touch trigger flag if their Z is equals sector florz / ceilgz
 		if (actor->insector() && actor->xspr.Touch && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
-			if (actor->int_pos().Z == actor->sector()->int_floorz()) actor->spr.pos.Z -= zmaptoworld;
-			else if (actor->int_pos().Z == actor->sector()->int_ceilingz()) actor->spr.pos.Z += zmaptoworld;
+			if (actor->spr.pos.Z == actor->sector()->floorz) actor->spr.pos.Z -= zmaptoworld;
+			else if (actor->spr.pos.Z == actor->sector()->ceilingz) actor->spr.pos.Z += zmaptoworld;
 		}
 
 		// make Proximity flag work not just for dudes and things...

@@ -3167,7 +3167,7 @@ void handle_se06_r(DDukeActor *actor)
 				auto ns = spawn(actor, HULK);
 				if (ns)
 				{
-					ns->set_int_z(ns->sector()->int_ceilingz());
+					ns->spr.pos.Z = ns->sector()->ceilingz;
 					ns->spr.pal = 33;
 				}
 				if (!hulkspawn)
@@ -3225,7 +3225,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				else pn = UFO1_RRRA;
 				auto ns = spawn(actor, pn);
-				if (ns) ns->set_int_z(ns->sector()->int_ceilingz());
+				if (ns) ns->spr.pos.Z = ns->sector()->ceilingz;
 			}
 		}
 	}

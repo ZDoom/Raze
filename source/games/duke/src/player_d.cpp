@@ -1728,7 +1728,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	if (p->player_int_pos().Z > (fz - (k << 8)))
 		p->pos.Z += (((fz - (k << 8)) - p->player_int_pos().Z) >> 1) * zinttoworld;
-	if (p->player_int_pos().Z < (pact->actor_int_ceilingz() + (18 << 8)))
+	if (p->pos.Z < pact->ceilingz + 18)
 		p->pos.Z = pact->ceilingz + 18;
 
 }

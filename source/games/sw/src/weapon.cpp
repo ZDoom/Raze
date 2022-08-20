@@ -11937,7 +11937,7 @@ int InitSwordAttack(PLAYER* pp)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -12131,7 +12131,7 @@ int InitFistAttack(PLAYER* pp)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -12922,7 +12922,7 @@ int InitShotgun(PLAYER* pp)
             {
                 if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                 {
-                    if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                    if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                     {
                         continue;
                     }
@@ -15200,7 +15200,7 @@ int InitUzi(PLAYER* pp)
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -16056,7 +16056,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                 {
                     if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
                     {
-                        if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                        if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -16189,7 +16189,7 @@ int InitEnemyUzi(DSWActor* actor)
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -17189,7 +17189,7 @@ int DoBubble(DSWActor* actor)
     actor->spr.xrepeat = actor->user.pos.X + (RANDOM_P2(8 << 8) >> 8) - 4;
     actor->spr.yrepeat = actor->user.pos.Y + (RANDOM_P2(8 << 8) >> 8) - 4;
 
-    if (actor->int_pos().Z < actor->sector()->int_ceilingz())
+    if (actor->spr.pos.Z < actor->sector()->ceilingz)
     {
         if (SectorIsUnderwaterArea(actor->user.hi_sectp))
         {

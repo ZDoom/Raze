@@ -2821,7 +2821,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		if (actor->spr.xvel <= 64 && statstate)
 			S_StopSound(actor->tempsound, actor);
 
-		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
+		if ((sc->floorz - sc->ceilingz) < 108)
 		{
 			if (ud.clipping == 0 && actor->spr.xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -2910,7 +2910,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
 		//SetActor(actor, actor->spr.pos);
 
-		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
+		if ((sc->floorz - sc->ceilingz) < 108)
 		{
 			if (ud.clipping == 0 && actor->spr.xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3011,7 +3011,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		int l = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
 		int x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
-		if ((sc->int_floorz() - sc->int_ceilingz()) < (108 << 8))
+		if ((sc->floorz - sc->ceilingz) < 108)
 			if (ud.clipping == 0)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 					{
@@ -3775,7 +3775,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	auto sc = actor->sector();
 
 	actor->temp_data[2] += 32;
-	if (sc->int_floorz() < sc->int_ceilingz()) actor->spr.shade = 0;
+	if (sc->floorz < sc->ceilingz) actor->spr.shade = 0;
 
 	else if (sc->int_ceilingz() < actor->temp_data[3])
 	{
@@ -3800,8 +3800,8 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 		else actor->spr.shade = 1;
 	}
 
-	if (actor->spr.shade) sc->add_int_ceilingz(1024);
-	else sc->add_int_ceilingz(-512);
+	if (actor->spr.shade) sc->addceilingz(4);
+	else sc->addceilingz(-2);
 
 	ms(actor);
 	//SetActor(actor, actor->spr.pos);
@@ -4062,11 +4062,11 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 			}
 		}
 
-		if (sc->int_ceilingz() < sc->int_floorz())
+		if (sc->ceilingz < sc->floorz)
 			sc->add_int_ceilingz(actor->spr.yvel);
 		else
 		{
-			sc->set_int_ceilingz(sc->int_floorz());
+			sc->setceilingz(sc->floorz);
 
 			DukeStatIterator it(STAT_EFFECTOR);
 			while (auto a2 = it.Next())

@@ -881,7 +881,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         nZVal = pSector->int_ceilingz();
         pos.Z = pNextSector->int_ceilingz() + 256;
 
-        pSector->set_int_ceilingz(pNextSector->int_ceilingz());
+        pSector->setceilingz(pNextSector->ceilingz);
     }
     else
     {

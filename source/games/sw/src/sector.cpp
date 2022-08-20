@@ -879,7 +879,7 @@ void DoExplodeSector(short match)
 
         sectp = actor->sector();
 
-        sectp->add_int_ceilingz(-Z(SP_TAG4(actor)));
+        sectp->addceilingz(-SP_TAG4(actor));
 
         if (SP_TAG5(actor))
         {
@@ -1255,7 +1255,7 @@ void DoChangorMatch(short match)
         if (TEST_BOOL1(actor))
         {
             sectp->ceilingpicnum = SP_TAG4(actor);
-            sectp->add_int_ceilingz(Z(SP_TAG5(actor)));
+            sectp->addceilingz(SP_TAG5(actor));
             sectp->ceilingheinum += SP_TAG6(actor);
 
             if (sectp->ceilingheinum)
