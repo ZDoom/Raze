@@ -459,7 +459,7 @@ int DoSkullWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+            actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
             actor->spr.xvel = 128 + (RANDOM_P2(256<<8)>>8);
             actor->user.jump_speed = -700;
             NewStateGroup(actor, sg_SkullJump);
@@ -831,7 +831,7 @@ int DoBettyWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+            actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
             actor->spr.xvel = 128 + (RANDOM_P2(256<<8)>>8);
             actor->user.jump_speed = -700;
             NewStateGroup(actor, sg_BettyJump);

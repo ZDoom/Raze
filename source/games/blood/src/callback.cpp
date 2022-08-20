@@ -746,7 +746,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 		evPostActor(actor, 0, kCallbackRemove);
 		return;
 	}
-	actor->set_int_ang(getangle(Owner->int_pos().X - actor->int_pos().X, Owner->int_pos().Y - actor->int_pos().Y));
+	actor->spr.angle = VecToAngle(Owner->spr.pos - actor->spr.pos);
 	if (actor->hasX())
 	{
 		if (actor->xspr.data1 == 0)

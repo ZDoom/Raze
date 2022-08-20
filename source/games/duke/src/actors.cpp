@@ -750,7 +750,7 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (actor->spr.xvel < 192)
 			actor->spr.xvel += 8;
-		actor->set_int_ang(getangle(cpt.pos.XY() - actor->spr.pos.XY()));
+		actor->spr.angle = VecToAngle(cpt.pos.XY() - actor->spr.pos.XY());
 		ssp(actor, CLIPMASK0);
 		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (8 * 8))
 			actor->temp_data[0]++;
@@ -1530,7 +1530,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 512 && actor->sector() == ps[p].cursector)
 		{
-			actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
+			actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
 			actor->spr.xvel = 48;
 		}
 	}
@@ -2811,7 +2811,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				if (x < 20480)
 				{
 					j = actor->int_ang();
-					actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
+					actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
 					fi.shoot(actor, RPG);
 					actor->set_int_ang(j);
 				}
@@ -3316,10 +3316,10 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	int x, p = findplayer(actor, &x);
 	if (x < 8192)
 	{
-		j = actor->int_ang();
-		actor->set_int_ang(getangle(actor->spr.pos.XY() - ps[p].pos));
+		auto ang = actor->spr.angle;
+		actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos);
 		fi.shoot(actor, FIRELASER);
-		actor->set_int_ang(j);
+		actor->spr.angle = ang;
 	}
 
 	auto Owner = actor->GetOwner();
@@ -3350,9 +3350,10 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	if (ldist(Owner, actor) < 1024)
 	{
-		auto ta = actor->int_ang();
-		actor->set_int_ang(getangle(ps[p].pos.XY() - actor->spr.pos.XY()));
-		actor->set_int_ang(ta);
+		// Huh?
+		//auto ta = actor->spr.angle;
+		//actor->spr.angle = vectangle(ps[p].pos.XY() - actor->spr.pos.XY());
+		//actor->spr.angle = ta;
 		actor->SetOwner(nullptr);
 		return;
 
@@ -4342,7 +4343,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->set_int_ang(getangle(ps[p].pos.XY() - actor->spr.pos.XY()));
+				actor->spr.angle = VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY());
 
 				if (actor->temp_data[0] == 999)
 				{
