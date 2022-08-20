@@ -930,7 +930,7 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
-    int int_oz() const { return oz; }
+    int int_oz() const { return oz * zworldtoint; }
     int int_loz() const { return loz * zworldtoint; }
     int int_hiz() const { return hiz * zworldtoint; }
 
@@ -964,10 +964,10 @@ struct USER
     TObjPtr<DSWActor*> flagOwnerActor;
     TObjPtr<DSWActor*> WpnGoalActor;
 
+    double oz; // serialized copy of sprite.oz
     int Flags;
     int Flags2;
     int Tics;
-    int oz; // serialized copy of sprite.oz
 
     int16_t RotNum;
     int16_t ID;

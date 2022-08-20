@@ -850,7 +850,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.motion_blur_dist = 256;
 
     actor->backuppos();
-    actor->user.oz = actor->opos.Z * zworldtoint;
+    actor->user.oz = actor->opos.Z;
 
     actor->user.active_range = MIN_ACTIVE_RANGE;
 
@@ -2058,7 +2058,7 @@ void SpriteSetup(void)
 
                         // set orig z
                         actor->opos.Z = sectp->floorz;
-                        actor->user.oz = actor->opos.Z * zworldtoint;
+                        actor->user.oz = actor->opos.Z;
                     }
                     else
                     {
@@ -2079,7 +2079,7 @@ void SpriteSetup(void)
 
                         // set orig z
                         actor->opos.Z = sectp->ceilingz;
-                        actor->user.oz = actor->opos.Z * zworldtoint;
+                        actor->user.oz = actor->opos.Z;
                     }
 
 
@@ -2261,8 +2261,8 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.int_oz() *  zinttoworld;
+                        actor->user.oz = actor->user.zclip * zinttoworld;
+                        actor->opos.Z = actor->user.oz;
                     }
                     else
                     {
@@ -2280,8 +2280,8 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.int_oz() *  zinttoworld;
+                        actor->user.oz = actor->user.zclip * zinttoworld;
+                        actor->opos.Z = actor->user.oz;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
@@ -6328,7 +6328,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     actor->backuppos();
-    actor->user.oz = actor->opos.Z * zworldtoint;
+    actor->user.oz = actor->opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
@@ -6336,7 +6336,7 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     actor->backuppos();
-    actor->user.oz = actor->opos.Z * zworldtoint;
+    actor->user.oz = actor->opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }

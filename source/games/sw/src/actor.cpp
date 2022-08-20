@@ -514,7 +514,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->set_int_z(actor->user.oz = actor->user.int_loz());
+                actor->spr.pos.Z = actor->user.oz = actor->user.loz;
                 actor->backupz();
                 return;
             }
@@ -525,7 +525,7 @@ void KeepActorOnFloor(DSWActor* actor)
             }
 
             // are swimming
-            actor->set_int_z(actor->user.oz = actor->user.int_loz() - Z(depth));
+            actor->spr.pos.Z = actor->user.oz = actor->user.loz - depth;
             actor->backupz();
         }
         else
@@ -534,7 +534,7 @@ void KeepActorOnFloor(DSWActor* actor)
             if (actor->user.Rot == actor->user.ActorActionSet->Run || actor->user.Rot == actor->user.ActorActionSet->Swim)
             {
                 NewStateGroup(actor, actor->user.ActorActionSet->Swim);
-                actor->set_int_z(actor->user.oz = actor->user.int_loz() - Z(depth));
+                actor->spr.pos.Z = actor->user.oz = actor->user.loz - depth;
                 actor->backupz();
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -543,7 +543,7 @@ void KeepActorOnFloor(DSWActor* actor)
             {
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->set_int_z(actor->user.oz = actor->user.int_loz());
+                actor->spr.pos.Z = actor->user.oz = actor->user.loz;
                 actor->backupz();
             }
         }
@@ -558,17 +558,17 @@ void KeepActorOnFloor(DSWActor* actor)
 #if 1
     if (actor->user.Flags & (SPR_MOVED))
     {
-        actor->set_int_z(actor->user.oz = actor->user.int_loz());
+        actor->spr.pos.Z = actor->user.oz = actor->user.loz;
         actor->backupz();
     }
     else
     {
-        int ceilz, florz;
+        double ceilz, florz;
         Collision ctrash, ftrash;
         FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
-        actor->set_int_z(actor->user.oz = florz);
+        actor->spr.pos.Z = actor->user.oz = florz;
         actor->backupz();
     }
 #endif
