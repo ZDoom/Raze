@@ -1763,9 +1763,9 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
         return;
     }
 
-    int nFloorZ = pSector->int_floorz();
+    double nFloorZ = pSector->floorz;
 
-    pSector->set_int_floorz(pActor->int_pos().Z);
+    pSector->setfloorz(pActor->spr.pos.Z);
 	pActor->spr.pos.Z--;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
@@ -1919,7 +1919,7 @@ void AIObject::Tick(RunListEvent* ev)
         int var_18;
 
         // red branch
-        if ((nStat == kStatExplodeTarget) || (pActor->int_pos().Z < pActor->sector()->int_floorz()))
+        if ((nStat == kStatExplodeTarget) || (pActor->spr.pos.Z < pActor->sector()->floorz))
         {
             var_18 = 36;
         }

@@ -404,9 +404,9 @@ void AISet::Tick(RunListEvent* ev)
 
                 if (pSector)
                 {
-                    if ((pActor->int_pos().Z - pSector->int_floorz()) < 55000)
+                    if ((pActor->spr.pos.Z - pSector->floorz) < (55000/256.))
                     {
-                        if (pActor->int_pos().Z > pSector->int_ceilingz())
+                        if (pActor->spr.pos.Z > pSector->ceilingz)
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;

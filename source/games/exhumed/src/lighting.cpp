@@ -264,7 +264,7 @@ void AddFlash(sectortype* pSector, const DVector3& pos, int val)
 
             if (wal.pal < 5)
             {
-                if (!pNextSector || pNextSector->int_floorz() < pSector->int_floorz())
+                if (!pNextSector || pNextSector->floorz < pSector->floorz)
                 {
                     int nFlash = GrabFlash();
                     if (nFlash < 0) {

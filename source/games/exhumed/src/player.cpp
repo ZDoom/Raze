@@ -1215,7 +1215,7 @@ sectdone:
         {
             auto pTmpSect = pPlayerActor->sector();
 
-            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->int_pos().Z > pTmpSect->int_floorz())
+            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
             {
                 if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
                 {
@@ -2492,7 +2492,8 @@ sectdone:
         case 16:
             PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
-            if (pPlayerActor->int_pos().Z < pPlayerActor->sector()->int_floorz()) {
+            if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
+            {
 				pPlayerActor->spr.pos.Z++;
             }
 

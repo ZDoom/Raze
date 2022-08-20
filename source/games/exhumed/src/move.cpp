@@ -888,7 +888,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         nZVal = pSector->int_floorz();
         pos.Z = pNextSector->int_floorz() - 256;
 
-        pSector->set_int_floorz(pNextSector->int_floorz());
+        pSector->setfloorz(pNextSector->floorz);
     }
 
     auto pSectorB = pSector;
@@ -1377,7 +1377,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
     auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
 
-    if (pActor->int_pos().Z >= pSector->int_floorz())
+    if (pActor->spr.pos.Z >= pSector->floorz)
     {
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
         pSector = pActor->sector();
