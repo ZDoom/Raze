@@ -236,7 +236,7 @@ int SetupSkull(DSWActor* actor)
     {
         actor->set_int_z(actor->user.int_loz() + Z(tileTopOffset(actor->spr.picnum)));
 
-        actor->user.loz = actor->int_pos().Z;
+        actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
         actor->add_int_z(ActorSizeToTop(actor) - Z(3));
     }
@@ -621,7 +621,7 @@ int SetupBetty(DSWActor* actor)
     {
         actor->set_int_z(actor->user.int_loz() + Z(tileTopOffset(actor->spr.picnum)));
 
-        actor->user.loz = actor->int_pos().Z;
+        actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
         actor->add_int_z(ActorSizeToTop(actor) - Z(3));
     }

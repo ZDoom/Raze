@@ -424,13 +424,13 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         if (actor->user.hi_sectp)
         {
-            actor->user.hiz = actor->sector()->int_ceilingz() + Z(16);
+            actor->user.hiz = actor->sector()->ceilingz + 16;
             actor->user.hi_sectp = actor->sector();
         }
         else
         {
-            if (actor->user.hiz < actor->sector()->int_ceilingz() + Z(16))
-                actor->user.hiz = actor->sector()->int_ceilingz() + Z(16);
+            if (actor->user.hiz < actor->sector()->ceilingz + 16)
+                actor->user.hiz = actor->sector()->ceilingz + 16;
         }
     }
 

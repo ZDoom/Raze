@@ -1328,8 +1328,6 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
 
-    int sang;
-    int loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp, *ssp;
@@ -1339,9 +1337,9 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 
     // save off position info
 	auto pos = actor->spr.pos;
-    sang = actor->int_ang();
-    loz = actor->user.int_loz();
-    hiz = actor->user.int_hiz();
+    auto sang = actor->spr.angle;
+    auto loz = actor->user.loz;
+    auto hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
     highActor = actor->user.highActor;
     lo_sectp = actor->user.lo_sectp;
@@ -1365,7 +1363,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 
     // reset position information
 	actor->spr.pos = pos;
-    actor->set_int_ang(sang);
+    actor->spr.angle = sang;
     actor->user.loz = loz;
     actor->user.hiz = hiz;
     actor->user.lowActor = lowActor;

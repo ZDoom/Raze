@@ -863,8 +863,8 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    actor->user.loz = actor->sector()->int_floorz();
-    actor->user.hiz = actor->sector()->int_ceilingz();
+    actor->user.loz = actor->sector()->floorz;
+    actor->user.hiz = actor->sector()->ceilingz;
     actor->user.lowActor = nullptr;
     actor->user.highActor = nullptr;
     actor->user.lo_sectp = actor->sector();
@@ -4488,8 +4488,8 @@ void DoActorZrange(DSWActor* actor)
 
 int DoActorGlobZ(DSWActor* actor)
 {
-    actor->user.loz = globloz;
-    actor->user.hiz = globhiz;
+    actor->user.loz = globloz * zinttoworld;
+    actor->user.hiz = globhiz * zinttoworld;
 
     actor->user.lo_sectp = actor->user.hi_sectp = nullptr;
     actor->user.highActor = nullptr;
@@ -4601,7 +4601,6 @@ bool DropAhead(DSWActor* actor, int  min_height)
 
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    int loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp;
@@ -4618,8 +4617,8 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
     // save off x,y values
     auto apos = actor->spr.pos;
-    loz = actor->user.int_loz();
-    hiz = actor->user.int_hiz();
+    auto loz = actor->user.loz;
+    auto hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
     highActor = actor->user.highActor;
     lo_sectp = actor->user.lo_sectp;
@@ -6385,7 +6384,7 @@ int MissileWaterAdjust(DSWActor* actor)
     if (sectp && sectp->hasU())
     {
         if (FixedToInt(sectp->depth_fixed))
-            actor->user.loz -= Z(FixedToInt(sectp->depth_fixed));
+            actor->user.loz -= FixedToInt(sectp->depth_fixed);
     }
     return 0;
 }

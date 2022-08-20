@@ -851,7 +851,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
     
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
-    getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.hiz, &actor->user.loz);
+    getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.hiz, &actor->user.loz);
 
     // spawn explosion
     auto exp = SpawnSectorExp(actor);

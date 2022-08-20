@@ -930,8 +930,8 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
-    int int_loz() const { return loz; }
-    int int_hiz() const { return hiz; }
+    int int_loz() const { return loz * zworldtoint; }
+    int int_hiz() const { return hiz * zworldtoint; }
 
     //
     // Variables that can be used by actors and Player
@@ -987,7 +987,7 @@ struct USER
     int16_t ceiling_dist;
     int16_t floor_dist;
     int16_t lo_step;
-    int hiz,loz;
+    double hiz, loz;
     int zclip; // z height to move up for clipmove
     int active_range;
     sectortype* hi_sectp, *lo_sectp;
@@ -1763,10 +1763,30 @@ void FAFgetzrange(vec3_t pos, sectortype* sect,
                   int32_t* loz, Collision* florhit,
                   int32_t clipdist, int32_t clipmask);
 
+inline void FAFgetzrange(vec3_t pos, sectortype* sect,
+                  double* hiz, Collision* ceilhit,
+                  double* loz, Collision* florhit,
+                  int32_t clipdist, int32_t clipmask)
+{
+    int32_t hi, lo;
+    FAFgetzrange(pos, sect, &hi, ceilhit, &lo, florhit, clipdist, clipmask);
+    *hiz = hi * zinttoworld;
+    *loz = lo * zinttoworld;
+}
+
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit);
 
+inline void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
+                       double* hiz, Collision* ceilhit,
+                       double* loz, Collision* florhit)
+{
+    int32_t hi, lo;
+    FAFgetzrangepoint(x, y, z, sect, &hi, ceilhit, &lo, florhit);
+    *hiz = hi * zinttoworld;
+    *loz = lo * zinttoworld;
+}
 
 enum SoundType
 {
