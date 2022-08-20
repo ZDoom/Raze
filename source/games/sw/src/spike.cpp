@@ -49,18 +49,18 @@ void ReverseSpike(DSWActor* actor)
     }
 
     // moving toward to OFF pos
-    if (actor->user.z_tgt == actor->user.oz)
+    if (actor->user.z_tgt == actor->user.int_oz())
     {
-        if (actor->int_pos().Z == actor->user.oz)
+        if (actor->int_pos().Z == actor->user.int_oz())
             actor->user.z_tgt = actor->user.pos.Z;
-        else if (actor->user.pos.Z == actor->user.oz)
+        else if (actor->user.pos.Z == actor->user.int_oz())
             actor->user.z_tgt = actor->int_pos().Z;
     }
     else if (actor->user.z_tgt == actor->user.pos.Z)
     {
-        if (actor->int_pos().Z == actor->user.oz)
+        if (actor->int_pos().Z == actor->user.int_oz())
             actor->user.z_tgt = actor->int_pos().Z;
-        else if (actor->user.pos.Z == actor->user.oz)
+        else if (actor->user.pos.Z == actor->user.int_oz())
             actor->user.z_tgt = actor->user.pos.Z;
     }
 
@@ -326,7 +326,7 @@ int DoSpike(DSWActor* actor)
         }
 
         // setup to go back to the original z
-        if (*lptr != actor->user.oz)
+        if (*lptr != actor->user.int_oz())
         {
             if (actor->user.WaitTics)
                 actor->user.Tics = actor->user.WaitTics;
@@ -335,7 +335,7 @@ int DoSpike(DSWActor* actor)
     else // if (*lptr == actor->user.z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.oz)
+        if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.int_oz())
         {
             bool found = false;
 

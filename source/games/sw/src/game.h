@@ -930,6 +930,7 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
+    int int_oz() const { return oz; }
     int int_loz() const { return loz * zworldtoint; }
     int int_hiz() const { return hiz * zworldtoint; }
 

@@ -2262,7 +2262,7 @@ void SpriteSetup(void)
 
                         // set orig z
                         actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.oz * zinttoworld;
+                        actor->opos.Z = actor->user.int_oz() *  zinttoworld;
                     }
                     else
                     {
@@ -2281,7 +2281,7 @@ void SpriteSetup(void)
 
                         // set orig z
                         actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.oz * zinttoworld;
+                        actor->opos.Z = actor->user.int_oz() *  zinttoworld;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
