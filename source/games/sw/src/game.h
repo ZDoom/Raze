@@ -598,6 +598,10 @@ struct PLAYER
     {
         return __int_ppos;
     }
+    void set_int_ppos_Z(int z)
+    {
+        __int_ppos.Z = z;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;

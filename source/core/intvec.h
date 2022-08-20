@@ -43,6 +43,7 @@ struct vec3_t
 	vec3_t& operator-=(const vec3_t& other) { X -= other.X; Y -= other.Y; Z += other.Z; return *this; };
 	vec3_t withZOffset(int ofs) { return { X, Y, Z + ofs }; }
 	vec2_t& XY() { return vec2; }
+	const vec2_t& XY() const { return vec2; }
 
 };
 
