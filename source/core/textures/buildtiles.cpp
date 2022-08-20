@@ -371,10 +371,6 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 	{
 		// Creates an empty writable tile.
 		// Current use cases are:
-		// Camera textures (should be made to be creatable by the hardware renderer instead of falling back on the software renderer.)
-		// thumbnails for savegame and loadgame (should bypass the texture manager entirely.)
-		// view tilting in the software renderer (this should just use a local buffer instead of relying on the texture manager.)
-		// Movie playback (like thumbnails this should bypass the texture manager entirely.)
 		// Blood's 'lens' effect (apparently MP only) - combination of a camera texture with a distortion map - should be made a shader effect to be applied to the camera texture.
 		replacement = new FImageTexture(new FWritableTile);
 	}

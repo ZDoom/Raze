@@ -1856,7 +1856,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
                         }
                     }
 
-                    if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
+                    if (wal.extra & WALLFX_LOOP_OUTER)
                     {
                         dragpoint(&wal, dx, dy);
                     }
@@ -2568,7 +2568,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
 }
 
 
-void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int newy, short locktics)
+void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2& pos, short locktics)
 {
     int i;
     sectortype* *sectp;
@@ -2604,18 +2604,18 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int 
     sop->spin_ang = 0;
     sop->ang = newang;
 
-    RefreshPoints(sop, newx - sop->int_pmid().X, newy - sop->int_pmid().Y, false);
+    RefreshPoints(sop, int((pos.X - sop->pmid.X) * worldtoint), int((pos.Y - sop->pmid.Y) * worldtoint), false);
 }
 
-void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy)
+void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& pos)
 {
-    OperateSectorObjectForTics(sop, newang, newx, newy, synctics);
+    OperateSectorObjectForTics(sop, newang, pos, synctics);
 }
 
-void PlaceSectorObject(SECTOR_OBJECT* sop, int newx, int newy)
+void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
 {
     so_setinterpolationtics(sop, synctics);
-    RefreshPoints(sop, newx - sop->int_pmid().X, newy - sop->int_pmid().Y, false);
+    RefreshPoints(sop, int((pos.X - sop->pmid.X) * worldtoint), int((pos.Y - sop->pmid.Y) * worldtoint), false);
 }
 
 void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
@@ -2707,7 +2707,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     pos.Y = sop->int_pmid().Y;
     pos.Z = floor_dist;
 
-    PlaceSectorObject(sop, MAXSO, MAXSO);
+    PlaceSectorObject(sop, {MAXSO, MAXSO});
     Collision coll;
     clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR, coll);
 
@@ -2810,7 +2810,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->ang, sop->int_pmid().X, sop->int_pmid().Y, 2*synctics);
+        OperateSectorObjectForTics(sop, sop->ang, sop->pmid, 2*synctics);
     }
 }
 

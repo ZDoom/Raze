@@ -1569,7 +1569,9 @@ enum
     // #define SO_SPEED_BOAT 99
 };
 
-constexpr double MAXSO = INT32_MAX / 32; // make sure this does not overflow when converted to a Build int coordinate.
+// make sure this does not overflow when converted to a Build int coordinate and survives a round trip through conversions.
+constexpr double MAXSO = 0x7fffffe0 / 32; 
+static_assert(MAXSO == int(MAXSO * worldtoint) * inttoworld);
 
 inline bool SO_EMPTY(SECTOR_OBJECT* sop) { return (sop->pmid.X == MAXSO); }
 

@@ -161,7 +161,7 @@ void DoPlayerBeginDive(PLAYER* pp);
 void DoPlayerDive(PLAYER* pp);
 void DoPlayerTeleportPause(PLAYER* pp);
 bool PlayerFlyKey(void);
-void OperateSectorObject(SECTOR_OBJECT* sop, short newang, int newx, int newy);
+void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& newpos);
 void CheckFootPrints(PLAYER* pp);
 bool DoPlayerTestCrawl(PLAYER* pp);
 void DoPlayerDeathFlip(PLAYER* pp);
@@ -1566,7 +1566,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         pp->actor->set_int_ang(pp->angle.ang.Buildang());
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->sop->int_pmid().X, pp->sop->int_pmid().Y);
+    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->sop->pmid);
 }
 
 void SlipSlope(PLAYER* pp)
@@ -2581,7 +2581,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
 
     auto save_sect = pp->cursector;
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), MAXSO, MAXSO);
+    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
@@ -2686,7 +2686,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->pos.X, pp->pos.Y);
+    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { pp->pos.X * inttoworld, pp->pos.Y * inttoworld });
     pp->cursector = save_sect; // for speed
 
     if (!SyncInput())
@@ -4821,17 +4821,16 @@ void FindMainSector(SECTOR_OBJECT* sop)
     // find the main sector - only do this once for each sector object
     if (sop->op_main_sector == nullptr)
     {
-        int sx = sop->int_pmid().X;
-        int sy = sop->int_pmid().Y;
+        auto oldpos = sop->pmid;
 
-        PlaceSectorObject(sop, MAXSO, MAXSO);
+        PlaceSectorObject(sop, { MAXSO, MAXSO });
 
         // set it to something valid
         sop->op_main_sector = &sector[0];
 
-        updatesectorz(sx, sy, sop->int_pmid().Z, &sop->op_main_sector);
+        updatesectorz(oldpos, &sop->op_main_sector);
 
-        PlaceSectorObject(sop, sx, sy);
+        PlaceSectorObject(sop, oldpos.XY());
     }
 }
 
