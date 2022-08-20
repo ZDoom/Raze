@@ -11822,7 +11822,7 @@ int InitSwordAttack(PLAYER* pp)
                 nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
                 ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
 
-                move_missile(bubble, nx, ny, 0, plActor->user.ceiling_dist, plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
+                move_missile(bubble, nx, ny, 0, plActor->user.int_ceiling_dist(), plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -11993,7 +11993,7 @@ int InitFistAttack(PLAYER* pp)
                 nx = MOVEx((1024+256)*3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
                 ny = MOVEy((1024+256)*3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
 
-                move_missile(bubble, nx, ny, 0, plActor->user.ceiling_dist, plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
+                move_missile(bubble, nx, ny, 0, plActor->user.int_ceiling_dist(), plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -14590,7 +14590,7 @@ int InitCoolgFire(DSWActor* actor)
     nx = MulScale(728, bcos(nang), 14);
     ny = MulScale(728, bsin(nang), 14);
 
-    move_missile(actorNew, nx, ny, 0, actorNew->user.ceiling_dist, actorNew->user.int_floor_dist(), 0, 3);
+    move_missile(actorNew, nx, ny, 0, actorNew->user.int_ceiling_dist(), actorNew->user.int_floor_dist(), 0, 3);
 
     return 0;
 }
