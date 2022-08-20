@@ -582,18 +582,22 @@ struct PLAYER
     union
     {
         vec3_t __int_ppos;
-        vec3_t pos;
+        //vec3_t pos;
     };
     union
     {
         vec3_t __int_popos;
-        vec3_t opos;
+        //vec3_t opos;
     };
     union
     {
         vec3_t __int_poldpos;
-        vec3_t oldpos;
+        //vec3_t oldpos;
     };
+    const vec3_t int_ppos() const
+    {
+        return __int_ppos;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;

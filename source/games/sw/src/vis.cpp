@@ -110,7 +110,7 @@ void VisViewChange(PLAYER* pp, int *vis)
         }
 
         // save off the brightest vis that you can see
-        if (FAFcansee(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector, x, y, z, sectp))
+        if (FAFcansee(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, x, y, z, sectp))
         {
             if (VIS_VisCur(actor) < BrightestVis)
                 BrightestVis = VIS_VisCur(actor);

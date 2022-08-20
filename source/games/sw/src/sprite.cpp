@@ -5024,7 +5024,7 @@ int DoGet(DSWActor* actor)
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        DISTANCE(pp->__int_ppos.X, pp->__int_ppos.Y, actor->int_pos().X, actor->int_pos().Y, dist, a,b,c);
+        DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a,b,c);
         if ((unsigned)dist > (plActor->user.Radius + actor->user.Radius))
         {
             continue;
@@ -5038,7 +5038,7 @@ int DoGet(DSWActor* actor)
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
-                            pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector);
+                            pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector);
         actor->spr.cstat = cstat_bak;
 
         if (!can_see)
@@ -6059,7 +6059,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->__int_ppos.X, pp->__int_ppos.Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+                DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
 
                 AdjustActiveRange(pp, actor, dist);
 

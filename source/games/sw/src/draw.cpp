@@ -780,9 +780,9 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             {
                 pp = tActor->user.PlayerP;
                 int sr = 65536 - int(smoothratio);
-                tsp->add_int_x(-MulScale(pp->__int_ppos.X - pp->__int_popos.X, sr, 16));
-                tsp->add_int_y(-MulScale(pp->__int_ppos.Y - pp->__int_popos.Y, sr, 16));
-                tsp->add_int_z(-MulScale(pp->__int_ppos.Z - pp->__int_popos.Z, sr, 16));
+                tsp->add_int_x(-MulScale(pp->int_ppos().X - pp->__int_popos.X, sr, 16));
+                tsp->add_int_y(-MulScale(pp->int_ppos().Y - pp->__int_popos.Y, sr, 16));
+                tsp->add_int_z(-MulScale(pp->int_ppos().Z - pp->__int_popos.Z, sr, 16));
                 tsp->add_int_ang(-MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16));
             }
         }
@@ -1410,9 +1410,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         if (pp->sop_control &&
             (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tx = pp->__int_ppos.X;
-            ty = pp->__int_ppos.Y;
-            tz = pp->__int_ppos.Z;
+            tx = pp->int_ppos().X;
+            ty = pp->int_ppos().Y;
+            tz = pp->int_ppos().Z;
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
@@ -1421,7 +1421,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     pp->si.X = tx;
     pp->si.Y = ty;
-    pp->si.Z = tz - pp->__int_ppos.Z;
+    pp->si.Z = tz - pp->int_ppos().Z;
     pp->siang = tang.Buildang();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);

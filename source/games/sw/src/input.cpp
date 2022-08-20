@@ -186,7 +186,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_VEHICLE))
         {
-            DoPlayerTurnVehicle(pp, input.avel, pp->__int_ppos.Z + Z(10), labs(pp->__int_ppos.Z + Z(10) - pp->sop->floor_loz));
+            DoPlayerTurnVehicle(pp, input.avel, pp->int_ppos().Z + Z(10), labs(pp->int_ppos().Z + Z(10) - pp->sop->floor_loz));
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_TURRET))

@@ -1242,9 +1242,9 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->__int_ppos.X;
-    ny = pp->__int_ppos.Y;
-    nz = pp->__int_ppos.Z + pp->bob_z + Z(8);
+    nx = pp->int_ppos().X;
+    ny = pp->int_ppos().Y;
+    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -1615,9 +1615,9 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->__int_ppos.X;
-    ny = pp->__int_ppos.Y;
-    nz = pp->__int_ppos.Z + pp->bob_z + Z(8);
+    nx = pp->int_ppos().X;
+    ny = pp->int_ppos().Y;
+    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
 
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
                     nx, ny, nz, pp->angle.ang.Buildang(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);

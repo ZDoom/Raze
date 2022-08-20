@@ -58,7 +58,7 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
         // allowing you to move through wall
         ang = NORM_ANGLE(pp->angle.ang.Buildang() + sop->clipbox_ang[i]);
 
-        vec3_t spos = { pp->__int_ppos.X, pp->__int_ppos.Y, z };
+        vec3_t spos = { pp->int_ppos().X, pp->int_ppos().Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
@@ -71,8 +71,8 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].X = pos[i].X = pp->__int_ppos.X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
-            opos[i].Y = pos[i].Y = pp->__int_ppos.Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
+            opos[i].X = pos[i].X = pp->int_ppos().X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
+            opos[i].Y = pos[i].Y = pp->int_ppos().Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
             // spos.x is where it hit
             pos[i].X = spos.X;
@@ -131,7 +131,7 @@ short MultiClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist)
     {
         ang = NORM_ANGLE(new_ang + sop->clipbox_ang[i]);
 
-        vec3_t pos = { pp->__int_ppos.X, pp->__int_ppos.Y, z };
+        vec3_t pos = { pp->int_ppos().X, pp->int_ppos().Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);

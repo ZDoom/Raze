@@ -1385,7 +1385,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (ActorSizeZ(actor) >> 1), actor->sector()))
+        if (!FAFcansee(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (ActorSizeZ(actor) >> 1), actor->sector()))
             return false;
     }
 
@@ -1842,7 +1842,7 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->__int_ppos.X, pp->__int_ppos.Y) < dist)
+                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->__int_ppos.Y) < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -1973,7 +1973,7 @@ bool NearThings(PLAYER* pp)
         HitInfo hit{};
         short dang = pp->angle.ang.Buildang();
 
-        FAFhitscan(pp->__int_ppos.X, pp->__int_ppos.Y, pp->__int_ppos.Z - Z(30), pp->cursector,    // Start position
+        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z - Z(30), pp->cursector,    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang
@@ -1982,7 +1982,7 @@ bool NearThings(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->__int_ppos.X, pp->__int_ppos.Y) > 1500)
+        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->int_ppos().X, pp->__int_ppos.Y) > 1500)
             return false;
 
         // hit a sprite?
@@ -2019,7 +2019,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
     HitInfo near;
 
 
-    neartag({ pp->__int_ppos.X, pp->__int_ppos.Y, z }, pp->cursector, pp->angle.ang.Buildang(), near, dist, type);
+    neartag({ pp->int_ppos().X, pp->int_ppos().Y, z }, pp->cursector, pp->angle.ang.Buildang(), near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2133,7 +2133,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if (FindDistance3D(actor->int_pos().X - pp->__int_ppos.X, actor->int_pos().Y - pp->__int_ppos.Y, actor->int_pos().Z - pp->__int_ppos.Z + Z(12)) < 500)
+            if (FindDistance3D(actor->int_pos().X - pp->int_ppos().X, actor->int_pos().Y - pp->int_ppos().Y, actor->int_pos().Z - pp->int_ppos().Z + Z(12)) < 500)
             {
                 break;
             }
@@ -2187,7 +2187,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->__int_ppos.Z, 2048L, NTAG_SEARCH_LO_HI, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->int_ppos().Z, 2048L, NTAG_SEARCH_LO_HI, 8);
 
             found = false;
 
@@ -2670,7 +2670,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->__int_ppos.X, pp->__int_ppos.Y, sop->int_pmid().X, sop->int_pmid().Y, dist, a, b, c);
+                DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, sop->int_pmid().X, sop->int_pmid().Y, dist, a, b, c);
                 if (dist < min_dist)
                     min_dist = dist;
             }
