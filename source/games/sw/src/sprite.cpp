@@ -1470,8 +1470,7 @@ void PreMapCombineFloors(void)
                 if (itsect == dasect)
                 {
                     pp->add_int_ppos_XY({ dx, dy });
-                    pp->__int_popos.X = pp->__int_poldpos.X = pp->__int_ppos.X;
-                    pp->__int_popos.Y = pp->__int_poldpos.Y = pp->__int_ppos.Y;
+                    pp->opos.XY() = pp->oldpos.XY() = pp->pos.XY();
                     break;
                 }
             }

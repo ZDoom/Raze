@@ -436,9 +436,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.__int_ppos.X)
-			("y", w.__int_ppos.Y)
-			("z", w.__int_ppos.Z)
+		arc("x", w.pos.X)
+			("y", w.pos.Y)
+			("z", w.pos.Z)
 			("lv_sectnum", w.lv_sector)
 			("lv_x", w.lv.X)
 			("lv_y", w.lv.Y)
@@ -489,9 +489,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("recoil_ndx", w.recoil_ndx)
 			("recoil_horizoff", w.recoil_horizoff)
 			("recoil_ohorizoff", w.recoil_ohorizoff)
-			("oldposx", w.__int_poldpos.X)
-			("oldposy", w.__int_poldpos.Y)
-			("oldposz", w.__int_poldpos.Z)
+			("oldposx", w.oldpos.X)
+			("oldposy", w.oldpos.Y)
+			("oldposz", w.oldpos.Z)
 			("revolvex", w.Revolve.X)
 			("revolvey", w.Revolve.Y)
 			("RevolveDeltaAng", w.RevolveDeltaAng)
@@ -580,7 +580,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	}
 	if (arc.isReading())
 	{
-		w.__int_popos = w.__int_ppos;
+		w.opos = w.pos;
 		w.oz_speed = w.z_speed;
 		w.ovect.X = w.vect.X;
 		w.ovect.Y = w.vect.Y;
