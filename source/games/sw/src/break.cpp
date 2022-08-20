@@ -751,15 +751,15 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
         ASSERT(wp->twoSided());
 
         // floor and ceiling meet
-        if (next_sect->int_floorz() == next_sect->int_ceilingz())
+        if (next_sect->floorz == next_sect->ceilingz)
             *z = ((*sectp)->int_floorz() + (*sectp)->int_ceilingz()) >> 1;
         else
         // floor is above other sector
-        if (next_sect->int_floorz() < (*sectp)->int_floorz())
+        if (next_sect->floorz < (*sectp)->floorz)
             *z = (next_sect->int_floorz() + (*sectp)->int_floorz()) >> 1;
         else
         // ceiling is below other sector
-        if (next_sect->int_ceilingz() > (*sectp)->int_ceilingz())
+        if (next_sect->ceilingz > (*sectp)->ceilingz)
             *z = (next_sect->int_ceilingz() + (*sectp)->int_ceilingz()) >> 1;
     }
 

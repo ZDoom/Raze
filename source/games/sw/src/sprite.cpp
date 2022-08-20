@@ -4687,7 +4687,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->set_int_z(actor->sector()->int_floorz());
+    actor->spr.pos.Z = actor->sector()->floorz;
     return 0;
 }
 
@@ -6515,7 +6515,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->ceilingstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z < actor->sector()->int_ceilingz())
+        if (actor->spr.pos.Z < actor->sector()->ceilingz)
         {
             retval.setVoid();
         }
@@ -6523,7 +6523,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && (actor->sector()->floorstat & CSTAT_SECTOR_SKY))
     {
-        if (actor->int_pos().Z > actor->sector()->int_floorz())
+        if (actor->spr.pos.Z > actor->sector()->floorz)
         {
             retval.setVoid();
         }

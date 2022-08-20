@@ -643,7 +643,7 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
 
     if (sln == 2)
     {
-        if (sectorlist[0]->int_floorz() < sectorlist[1]->int_floorz())
+        if (sectorlist[0]->floorz < sectorlist[1]->floorz)
         {
             // swap
             // make sectorlist[0] the LOW sector

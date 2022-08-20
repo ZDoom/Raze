@@ -3275,7 +3275,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
-            actor->set_int_z(actor->sector()->int_floorz());
+            actor->spr.pos.Z = actor->sector()->floorz;
             actor->spr.zvel = 0;
         }
         else

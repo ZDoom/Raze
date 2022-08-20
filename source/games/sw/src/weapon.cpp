@@ -4514,7 +4514,7 @@ int DoFireballFlames(DSWActor* actor)
         {
             if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 0)
             {
-                if (labs(actor->sector()->int_floorz() - actor->int_pos().Z) <= Z(4))
+                if (abs(actor->sector()->floorz - actor->spr.pos.Z) <= 4)
                 {
                     KillActor(actor);
                     return 0;
@@ -4587,7 +4587,7 @@ int DoBreakFlames(DSWActor* actor)
     {
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 0)
         {
-            if (labs(actor->sector()->int_floorz() - actor->int_pos().Z) <= Z(4))
+            if (abs(actor->sector()->floorz - actor->spr.pos.Z) <= 4)
             {
                 KillActor(actor);
                 return 0;
@@ -12751,13 +12751,13 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
 
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
+        if (abs(hit.hitpos.Z - hit.hitSector->ceilingz) <= 1)
         {
             hit.hitpos.Z += 16;
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
-        else if (labs(hit.int_hitpos().Z - hit.hitSector->int_floorz()) <= Z(1))
+        else if (abs(hit.hitpos.Z - hit.hitSector->floorz) <= 1)
         {
         }
     }
@@ -12768,7 +12768,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
         {
             if ((hit.hitWall->nextSector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (hit.int_hitpos().Z < hit.hitWall->nextSector()->int_ceilingz())
+                if (hit.hitpos.Z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -12884,7 +12884,7 @@ int InitShotgun(PLAYER* pp)
 
         if (hit.actor() == nullptr && hit.hitWall == nullptr)
         {
-            if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
+            if (abs(hit.hitpos.Z - hit.hitSector->ceilingz) <= 1)
             {
                 hit.hitpos.Z += 16;
                 cstat |= (CSTAT_SPRITE_YFLIP);
@@ -12899,7 +12899,7 @@ int InitShotgun(PLAYER* pp)
                     continue;
                 }
             }
-            else if (labs(hit.int_hitpos().Z - hit.hitSector->int_floorz()) <= Z(1))
+            else if (abs(hit.hitpos.Z - hit.hitSector->floorz) <= 1)
             {
                 if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
@@ -15161,7 +15161,7 @@ int InitUzi(PLAYER* pp)
     // check to see what you hit
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
+        if (abs(hit.hitpos.Z - hit.hitSector->ceilingz) <= 1)
         {
             hit.hitpos.Z += 16;
             cstat |= (CSTAT_SPRITE_YFLIP);
@@ -15176,7 +15176,7 @@ int InitUzi(PLAYER* pp)
                 return 0;
             }
         }
-        else if (labs(hit.int_hitpos().Z - hit.hitSector->int_floorz()) <= Z(1))
+        else if (abs(hit.hitpos.Z - hit.hitSector->floorz) <= 1)
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
@@ -15650,7 +15650,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
 
     if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
+        if (abs(hit.hitpos.Z - hit.hitSector->ceilingz) <= 1)
         {
             hit.hitpos.Z += 16;
             cstat |= (CSTAT_SPRITE_YFLIP);
@@ -15658,7 +15658,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
             if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                 return 0;
         }
-        else if (labs(hit.int_hitpos().Z - hit.hitSector->int_floorz()) <= Z(1))
+        else if (abs(hit.hitpos.Z - hit.hitSector->floorz) <= 1)
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
@@ -16031,7 +16031,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
 
             if (hit.actor() == nullptr && hit.hitWall == nullptr)
             {
-                if (labs(hit.int_hitpos().Z - hit.hitSector->int_ceilingz()) <= Z(1))
+                if (abs(hit.hitpos.Z - hit.hitSector->ceilingz) <= 1)
                 {
                     hit.hitpos.Z += 16;
                     cstat |= (CSTAT_SPRITE_YFLIP);
@@ -16039,7 +16039,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                     if ((hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY))
                         continue;
                 }
-                else if (labs(hit.int_hitpos().Z - hit.hitSector->int_floorz()) <= Z(1))
+                else if (abs(hit.hitpos.Z - hit.hitSector->floorz) <= 1)
                 {
                     if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
@@ -17047,7 +17047,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             // Check added by Jim because of sprite bridge over water
-            if (actor->int_pos().Z < (hit_sect->int_floorz()-Z(20)))
+            if (actor->spr.pos.Z < hit_sect->floorz - 20)
                 return false;
 
             actor->user.Flags |= (SPR_UNDERWATER);

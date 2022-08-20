@@ -1420,7 +1420,7 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
     if ((sectp->extra & SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->int_ppos().Z + PLAYER_HEIGHT > pp->lo_sectp->int_floorz() - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
+        if (pp->pos.Z + PLAYER_HEIGHTF > pp->lo_sectp->floorz - FixedToInt(pp->lo_sectp->depth_fixed))
             pp->WadeDepth = FixedToInt(pp->lo_sectp->depth_fixed);
     }
 }
@@ -1758,7 +1758,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     if (pp->sop_control)
     {
-        actor->set_int_z(pp->cursector->int_floorz());
+        actor->spr.pos.Z = pp->cursector->floorz;
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
@@ -3246,7 +3246,7 @@ void DoPlayerClimb(PLAYER* pp)
         // if floor is ABOVE you && your head goes above it, do a jump up to
         // terrace
 
-        if (pp->int_ppos().Z < pp->LadderSector->int_floorz() - Z(6))
+        if (pp->pos.Z < pp->LadderSector->floorz - 6)
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
@@ -3865,7 +3865,7 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sf[0]->int_floorz() > sf[1]->int_floorz())
+        if (sf[0]->floorz > sf[1]->floorz)
         {
             *under = sf[0];
             *over = sf[1];
@@ -3955,7 +3955,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sf[0]->int_floorz() > sf[1]->int_floorz())
+        if (sf[0]->floorz > sf[1]->floorz)
         {
             *under = sf[0];
             *over = sf[1];
@@ -4100,7 +4100,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
         pp->setcursector(over);
     }
 
-    pp->set_int_ppos_Z(over_act->sector()->int_floorz() - Z(2));
+    pp->pos.Z = over_act->sector()->floorz - 2;
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);

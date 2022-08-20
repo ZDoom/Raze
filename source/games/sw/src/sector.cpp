@@ -1269,7 +1269,7 @@ void DoChangorMatch(short match)
         else
         {
             sectp->floorpicnum = SP_TAG4(actor);
-            sectp->add_int_floorz(Z(SP_TAG5(actor)));
+            sectp->addfloorz(SP_TAG5(actor));
             sectp->floorheinum += SP_TAG6(actor);
 
             if (sectp->floorheinum)
