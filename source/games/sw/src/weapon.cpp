@@ -12559,7 +12559,7 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
     ang = NORM_ANGLE(getangle(hitActor->int_pos().X - actor->int_pos().X, hitActor->int_pos().Y - actor->int_pos().Y));
 
     // find the distance to the target
-    dist = ksqrt(SQ(actor->int_pos().X - hitActor->int_pos().X) + SQ(actor->int_pos().Y - hitActor->int_pos().Y));
+	dist = int((actor->spr.pos.XY() - hitActor->spr.pos.XY()).Length() * worldtoint);
 
     if (dist != 0)
     {
