@@ -3155,28 +3155,30 @@ void DoPlayerClimb(PLAYER* pp)
         {
             const int ADJ_AMT = 8;
 
+            auto ppos = pp->int_ppos().XY();
             // player
-            if (pp->__int_ppos.X != pp->LadderPosition.X)
+            if (ppos.X != pp->LadderPosition.X)
             {
-                if (pp->__int_ppos.X < pp->LadderPosition.X)
-                    pp->__int_ppos.X += ADJ_AMT;
-                else if (pp->__int_ppos.X > pp->LadderPosition.X)
-                    pp->__int_ppos.X -= ADJ_AMT;
+                if (ppos.X < pp->LadderPosition.X)
+                    ppos.X += ADJ_AMT;
+                else if (ppos.X > pp->LadderPosition.X)
+                    ppos.X -= ADJ_AMT;
 
-                if (labs(pp->int_ppos().X - pp->LadderPosition.X) <= ADJ_AMT)
-                    pp->__int_ppos.X = pp->LadderPosition.X;
+                if (abs(ppos.X - pp->LadderPosition.X) <= ADJ_AMT)
+                    ppos.X = pp->LadderPosition.X;
             }
 
-            if (pp->__int_ppos.Y != pp->LadderPosition.Y)
+            if (ppos.Y != pp->LadderPosition.Y)
             {
-                if (pp->__int_ppos.Y < pp->LadderPosition.Y)
-                    pp->__int_ppos.Y += ADJ_AMT;
-                else if (pp->__int_ppos.Y > pp->LadderPosition.Y)
-                    pp->__int_ppos.Y -= ADJ_AMT;
+                if (ppos.Y < pp->LadderPosition.Y)
+                    ppos.Y += ADJ_AMT;
+                else if (ppos.Y > pp->LadderPosition.Y)
+                    ppos.Y -= ADJ_AMT;
 
-                if (labs(pp->int_ppos().Y - pp->LadderPosition.Y) <= ADJ_AMT)
-                    pp->__int_ppos.Y = pp->LadderPosition.Y;
+                if (abs(ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
+                    ppos.Y = pp->LadderPosition.Y;
             }
+            pp->set_int_ppos_XY(ppos);
 
             // sprite
             auto pos = plActor->int_pos();
