@@ -693,7 +693,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 400 + RANDOM_P2(256);
-    if (labs(actor->user.pos.Z - actor->user.int_hiz()) < abs(actor->user.pos.Z - actor->user.int_loz()))
+    if (abs(actor->user.pos.Z - actor->user.int_hiz()) < abs(actor->user.pos.Z - actor->user.int_loz()))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;
@@ -773,7 +773,7 @@ int DoCoolgDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (actor->int_pos().Z >= actor->user.int_loz())
+    if (actor->spr.pos.Z >= actor->user.loz)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it

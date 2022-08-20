@@ -304,7 +304,7 @@ void DoDebrisCurrent(DSWActor* actor)
         move_sprite(actor, nx, ny, 0, actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
     }
 
-    actor->set_int_z(actor->user.int_loz());
+    actor->spr.pos.Z = actor->user.loz;
 }
 
 int DoActorSectorDamage(DSWActor* actor)
@@ -349,7 +349,7 @@ int DoActorSectorDamage(DSWActor* actor)
     }
 
     // note that most squishing is done in vator.c
-    if (actor->user.lo_sectp && actor->user.hi_sectp && labs(actor->user.int_loz() - actor->user.int_hiz()) < (ActorSizeZ(actor) >> 1))
+    if (actor->user.lo_sectp && actor->user.hi_sectp && abs(actor->user.int_loz() - actor->user.int_hiz()) < (ActorSizeZ(actor) >> 1))
     {
         actor->user.Health = 0;
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
@@ -434,7 +434,7 @@ int DoActorDebris(DSWActor* actor)
     }
     else
     {
-        actor->set_int_z(actor->user.int_loz());
+        actor->spr.pos.Z = actor->user.loz;
     }
 
     return 0;
@@ -718,7 +718,7 @@ int DoActorFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->int_pos().Z > actor->user.int_loz())
+    if (actor->spr.pos.Z > actor->user.loz)
     {
         DoActorStopFall(actor);
     }
@@ -728,7 +728,7 @@ int DoActorFall(DSWActor* actor)
 
 int DoActorStopFall(DSWActor* actor)
 {
-    actor->set_int_z(actor->user.int_loz());
+    actor->spr.pos.Z = actor->user.loz;
 
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);

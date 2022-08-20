@@ -4483,7 +4483,7 @@ void DoActorZrange(DSWActor* actor)
     }
 }
 
-// !AIC - puts getzrange results into USER varaible actor->user.int_loz(). actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
+// !AIC - puts getzrange results into USER varaible actor->user.loz. actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
 // The loz and hiz are used a lot.
 
 int DoActorGlobZ(DSWActor* actor)
@@ -4637,7 +4637,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         {
             // cancel move
             actor->spr.pos = apos;
-            //actor->spr.z = actor->user.int_loz();             // place on ground in case you are in the air
+            //actor->spr.pos.Z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;
             actor->user.lowActor = lowActor;
@@ -4653,7 +4653,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
         {
             // cancel move
             actor->spr.pos = apos;
-            //actor->spr.z = actor->user.int_loz();             // place on ground in case you are in the air
+            //actor->spr.pos.Z = actor->user.loz;             // place on ground in case you are in the air
             actor->user.loz = loz;
             actor->user.hiz = hiz;
             actor->user.lowActor = lowActor;
@@ -6271,7 +6271,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     actor->spr.cstat = tempstat;
 
-    // !AIC - puts getzrange results into USER varaible actor->user.int_loz(). actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
+    // !AIC - puts getzrange results into USER varaible actor->user.loz. actor->user.hiz, actor->user.lo_sectp, actor->user.hi_sectp, etc.
     // Takes info from global variables
     DoActorGlobZ(actor);
 
@@ -6613,9 +6613,9 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     actor->user.hi_sectp = actor->user.lo_sectp = actor->sector();
     actor->user.highActor = nullptr; actor->user.lowActor = nullptr;
-    actor->set_int_z(actor->user.int_loz() - Z(8));
+    actor->spr.pos.Z = actor->user.loz - 8;
 
-    if (labs(actor->user.int_hiz() - actor->user.int_loz()) < Z(12))
+    if (abs(actor->user.hiz - actor->user.loz) < 12)
     {
         // we've gone into a very small place - kill it
         retval.setVoid();

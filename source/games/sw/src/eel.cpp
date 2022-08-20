@@ -534,7 +534,7 @@ int DoEelDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (actor->int_pos().Z >= actor->user.int_loz())
+    if (actor->spr.pos.Z >= actor->user.loz)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)

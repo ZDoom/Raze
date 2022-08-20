@@ -513,7 +513,7 @@ int DoHornetDeath(DSWActor* actor)
     actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
-    if (actor->int_pos().Z >= actor->user.int_loz())
+    if (actor->spr.pos.Z >= actor->user.loz)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it

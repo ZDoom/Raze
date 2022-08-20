@@ -234,7 +234,7 @@ int SetupSkull(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.int_loz() - Z(16))
     {
-        actor->set_int_z(actor->user.int_loz() + Z(tileTopOffset(actor->spr.picnum)));
+        actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
@@ -373,9 +373,9 @@ int DoSkullJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((actor->int_pos().Z > actor->user.int_loz() - Z(36)))
+            if (actor->spr.pos.Z > actor->user.loz - 36)
             {
-                actor->set_int_z(actor->user.int_loz() - Z(36));
+                actor->spr.pos.Z = actor->user.loz - 36;
                 UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
                 return 0;
@@ -439,7 +439,7 @@ int DoSkullWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (actor->int_pos().Z > actor->user.int_loz())
+    if (actor->spr.pos.Z > actor->user.loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)
@@ -619,7 +619,7 @@ int SetupBetty(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.int_loz() - Z(16))
     {
-        actor->set_int_z(actor->user.int_loz() + Z(tileTopOffset(actor->spr.picnum)));
+        actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
@@ -751,9 +751,9 @@ int DoBettyJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((actor->int_pos().Z > actor->user.int_loz() - Z(36)))
+            if (actor->spr.pos.Z > actor->user.loz - 36)
             {
-                actor->set_int_z(actor->user.int_loz() - Z(36));
+                actor->spr.pos.Z = actor->user.loz - 36;
                 UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
                 return 0;
@@ -811,7 +811,7 @@ int DoBettyWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (actor->int_pos().Z > actor->user.int_loz())
+    if (actor->spr.pos.Z > actor->user.loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)
