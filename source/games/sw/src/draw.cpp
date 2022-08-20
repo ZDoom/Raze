@@ -1023,9 +1023,9 @@ FString GameInterface::GetCoordString()
 {
     PLAYER* pp = Player + myconnectindex;
     FString out;
-    out.AppendFormat("POSX:%d ", pp->__int_ppos.X);
-    out.AppendFormat("POSY:%d ", pp->__int_ppos.Y);
-    out.AppendFormat("POSZ:%d ", pp->__int_ppos.Z);
+    out.AppendFormat("POSX:%d ", pp->int_ppos().X);
+    out.AppendFormat("POSY:%d ", pp->int_ppos().Y);
+    out.AppendFormat("POSZ:%d ", pp->int_ppos().Z);
     out.AppendFormat("ANG:%d\n", pp->angle.ang.Buildang());
 
     return out;
@@ -1383,9 +1383,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     else
         camerapp = pp;
 
-    tx = interpolatedvalue(camerapp->__int_popos.X, camerapp->__int_ppos.X, sr);
-    ty = interpolatedvalue(camerapp->__int_popos.Y, camerapp->__int_ppos.Y, sr);
-    tz = interpolatedvalue(camerapp->__int_popos.Z, camerapp->__int_ppos.Z, sr);
+    tx = interpolatedvalue(camerapp->__int_popos.X, camerapp->int_ppos().X, sr);
+    ty = interpolatedvalue(camerapp->__int_popos.Y, camerapp->int_ppos().Y, sr);
+    tz = interpolatedvalue(camerapp->__int_popos.Z, camerapp->int_ppos().Z, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.

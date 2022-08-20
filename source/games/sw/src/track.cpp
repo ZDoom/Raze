@@ -3404,7 +3404,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->__int_ppos.Y) < actor->user.Dist)
+                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y) < actor->user.Dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);

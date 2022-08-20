@@ -11875,7 +11875,7 @@ int InitSwordAttack(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->__int_ppos - hit.int_hitpos()) < 700)
+        if (FindDistance3D(pp->int_ppos() - hit.int_hitpos()) < 700)
         {
 
             if (hit.actor() != nullptr)
@@ -12056,7 +12056,7 @@ int InitFistAttack(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->__int_ppos - hit.int_hitpos()) < 700)
+        if (FindDistance3D(pp->int_ppos() - hit.int_hitpos()) < 700)
         {
 
             if (hit.actor() != nullptr)

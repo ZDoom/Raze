@@ -39,7 +39,7 @@ inline int AngToSprite(DSWActor* actor, DSWActor* other)
 
 inline int AngToPlayer(PLAYER* player, DSWActor* other)
 {
-    return (getangle(player->__int_ppos.X - other->int_pos().X, player->__int_ppos.Y - other->int_pos().Y));
+    return (getangle(player->int_ppos().X - other->int_pos().X, player->int_ppos().Y - other->int_pos().Y));
 }
 
 

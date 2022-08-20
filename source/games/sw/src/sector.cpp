@@ -1842,7 +1842,7 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->__int_ppos.Y) < dist)
+                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y) < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -1939,7 +1939,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->__int_ppos, pp->cursector, pp->angle.ang.Buildang(), near, 1024, NTAG_SEARCH_LO_HI);
+    neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024, NTAG_SEARCH_LO_HI);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -1982,7 +1982,7 @@ bool NearThings(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->int_ppos().X, pp->__int_ppos.Y) > 1500)
+        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->int_ppos().X, pp->int_ppos().Y) > 1500)
             return false;
 
         // hit a sprite?

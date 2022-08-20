@@ -429,8 +429,8 @@ JS_ProcessEchoSpot()
     {
         dist = 0x7fffffff;
 
-        j = abs(actor->int_pos().X - pp->__int_ppos.X);
-        j += abs(actor->int_pos().Y - pp->__int_ppos.Y);
+        j = abs(actor->int_pos().X - pp->int_ppos().X);
+        j += abs(actor->int_pos().Y - pp->int_ppos().Y);
         if (j < dist)
             dist = j;
 
@@ -626,7 +626,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->__int_ppos.X, cp->__int_ppos.Y, cp->__int_ppos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->int_ppos().X, cp->int_ppos().Y, cp->int_ppos().Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
