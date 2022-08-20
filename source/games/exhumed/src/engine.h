@@ -125,7 +125,7 @@ int RandomSize(int nSize);
 
 int GetMyAngle(int x, int y);
 
-int AngleDiff(int a, int b);
+int AngleDiff(DAngle a, DAngle b);
 int AngleDelta(int a, int b, int c);
 
 END_PS_NS

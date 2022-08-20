@@ -310,8 +310,8 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos - pActor->spr.pos);
-                if (AngleDiff(pActor->int_ang(), nAng) < 64)
+				auto nAngDiff = AngleDiff(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+				if (nAngDiff < 64)
                 {
                     pActor->nAction = 2;
                     pActor->nFrame = 0;

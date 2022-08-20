@@ -1014,7 +1014,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             {
                 if ((sect->hitag == 45) && bTouchFloor)
                 {
-                    int nDiff = AngleDiff(nNormal, (pPlayerActor->int_ang() + 1024) & kAngleMask);
+                    int nDiff = AngleDiff(DAngle::fromBuild(nNormal), DAngle::fromBuild((pPlayerActor->int_ang() + 1024) & kAngleMask));
 
                     if (nDiff < 0) {
                         nDiff = -nDiff;

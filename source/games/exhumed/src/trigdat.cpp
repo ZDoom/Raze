@@ -120,9 +120,9 @@ int GetMyAngle(int x, int y)
 }
 
 // 100% done
-int AngleDiff(int a, int b)
+int AngleDiff(DAngle a, DAngle b)
 {
-    int diff = (b - a) & kAngleMask;
+    int diff = (b - a).Buildang();
 
     if (diff > 1024) {
         diff = 2048 - diff;

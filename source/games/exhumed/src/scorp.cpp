@@ -245,8 +245,8 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAngle = getangle(pTarget->spr.pos - pActor->spr.pos);
-                    if (AngleDiff(pActor->int_ang(), nAngle) < 64)
+					auto nAngDiff = AngleDiff(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+					if (nAngDiff < 64)
                     {
                         pActor->nAction = 2;
                         pActor->nFrame = 0;
