@@ -1572,6 +1572,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
 
 void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
 {
+    auto deltaangle = DAngle::fromBuild(delta_ang);
     int j;
     vec2_t rxy;
     int pnum;
@@ -1726,29 +1727,26 @@ PlayerPart:
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            auto pos = actor->int_pos();
             if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
             {
-                rotatepoint(sop->int_pmid().vec2, actor->int_pos().vec2, -delta_ang, &pos.vec2);
-                actor->set_int_ang(NORM_ANGLE(actor->int_ang() - delta_ang));
+                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), -deltaangle);
+                actor->spr.angle -= deltaangle;
             }
             else
             {
-                rotatepoint(sop->int_pmid().vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->set_int_ang(NORM_ANGLE(actor->int_ang() + delta_ang));
+                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
+                actor->spr.angle += deltaangle;
             }
-            actor->set_int_pos(pos);
-
+			actor->norm_ang();
         }
         else
         {
             if (!(sop->flags & SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                auto pos = actor->int_pos();
-                rotatepoint(sop->int_pmid().vec2, actor->int_pos().vec2, delta_ang, &pos.vec2);
-                actor->set_int_ang(NORM_ANGLE(actor->int_ang() + delta_ang));
-                actor->set_int_pos(pos);
+                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
+                actor->spr.angle += deltaangle;
+				actor->norm_ang();
             }
 
             // Does not necessarily move with the sector so must accout for
