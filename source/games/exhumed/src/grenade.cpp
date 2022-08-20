@@ -152,7 +152,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     }
     else
     {
-        if (pActor->int_pos().Z < pGrenadeSect->int_floorz())
+        if (pActor->spr.pos.Z < pGrenadeSect->floorz)
         {
             var_20 = 200;
             var_28 = 36;
@@ -171,9 +171,10 @@ void ExplodeGrenade(DExhumedActor* pActor)
     if (pActor->nTurn < 0)
     {
         auto pPlayerActor = PlayerList[nPlayer].pActor;
-        int nAngle = pPlayerActor->int_ang();
-
-        pActor->set_int_pos({ bcos(nAngle, -5) + pPlayerActor->int_pos().X, bsin(nAngle, -5) + pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z });
+        auto nAngle = pPlayerActor->spr.angle;
+		
+		DVector2 vect = nAngle.ToVector() * 32;
+		pActor->spr.pos = pPlayerActor->spr.pos + vect;
 
         ChangeActorSect(pActor, pPlayerActor->sector());
 

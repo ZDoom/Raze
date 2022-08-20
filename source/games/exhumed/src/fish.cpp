@@ -98,13 +98,13 @@ void AIFishLimb::Tick(RunListEvent* ev)
         }
     }
 
-    int FloorZ = pActor->sector()->int_floorz();
+    double FloorZ = pActor->sector()->floorz;
 
-    if (FloorZ <= pActor->int_pos().Z)
+    if (FloorZ <= pActor->spr.pos.Z)
     {
 		pActor->spr.pos.Z++;
 
-        if ((pActor->int_pos().Z - FloorZ) > 25600)
+        if ((pActor->spr.pos.Z - FloorZ) > 100)
         {
             pActor->spr.zvel = 0;
             runlist_DoSubRunRec(pActor->spr.intowner);
@@ -112,7 +112,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
             runlist_SubRunRec(pActor->spr.hitag);
             DeleteActor(pActor);
         }
-        else if ((pActor->int_pos().Z - FloorZ) > 0)
+        else if ((pActor->spr.pos.Z - FloorZ) > 0)
         {
             pActor->spr.zvel = 1024;
         }
@@ -382,7 +382,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->spr.yvel = 0;
             }
 
-            pActor->spr.zvel = (pTargetActor->int_pos().Z - pActor->int_pos().Z) >> 3;
+            pActor->spr.zvel = int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8);
         }
         break;
     }
