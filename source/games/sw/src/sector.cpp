@@ -841,15 +841,13 @@ int AnimateSwitch(DSWActor* actor, int tgt_value)
 }
 
 
-void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
+void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 {
-    int x,y,z;
-
     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SectorMidPoint(sectp, &x, &y, &z);
+    auto mid = SectorMidPoint(sectp);
     // randomize the explosions
-    actor->set_int_ang(orig_ang + RANDOM_P2(256) - 128);
-    actor->set_int_pos({ x + RANDOM_P2(256) - 128, y + RANDOM_P2(1024) - 512, zh });
+    actor->spr.angle = DAngle::fromBuild(RANDOM_P2(256) - 128);
+    actor->spr.pos = { mid.X + RANDOM_P2F(256) - 16, mid.Y + RANDOM_P2F(1024) - 64, zh };
     
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
@@ -868,12 +866,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 
 void DoExplodeSector(short match)
 {
-    short orig_ang;
-    int zh;
-
     sectortype* sectp;
-
-    orig_ang = 0;
 
     SWStatIterator it(STAT_EXPLODING_CEIL_FLOOR);
     while (auto actor = it.Next())
@@ -898,9 +891,9 @@ void DoExplodeSector(short match)
             sectp->setceilingslope(SP_TAG6(actor));
         }
 
-        for (zh = sectp->int_ceilingz(); zh < sectp->int_floorz(); zh += Z(60))
+        for (double zh = sectp->ceilingz; zh < sectp->floorz; zh += 60)
         {
-            SectorExp(actor, actor->sector(), orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
+            SectorExp(actor, actor->sector(), zh + RANDOM_P2(64) - 32);
         }
 
         // don't need it any more

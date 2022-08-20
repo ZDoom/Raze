@@ -3728,7 +3728,8 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorLowerZ(actor) + Z(10) });
+        actorNew->spr.pos.XY() = actor->spr.pos.XY();
+        actorNew->spr.pos.Z = ActorLowerZ(actor) + 10;
         actorNew->spr.angle = actor->spr.angle;
 
         // vel

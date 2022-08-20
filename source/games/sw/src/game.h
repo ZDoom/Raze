@@ -115,6 +115,7 @@ inline int RANDOM(void)
     return randomseed;
 }
 int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
+double RANDOM_P2F(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)) * maptoworld; }
 
 //
 // Map directions/degrees
@@ -2068,9 +2069,14 @@ inline int ActorUpperZ(DSWActor* actor)
     return (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2));
 }
 
-inline int ActorLowerZ(DSWActor* actor)
+inline int int_ActorLowerZ(DSWActor* actor)
 {
     return (ActorZOfBottom(actor) - (ActorSizeZ(actor) >> 2));
+}
+
+inline double ActorLowerZ(DSWActor* actor)
+{
+    return (ActorZOfBottom(actor) - (ActorSizeZ(actor) * 0.25)) * zinttoworld;
 }
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
