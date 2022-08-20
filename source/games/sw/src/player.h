@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define PLAYER_HEIGHT Z(58)
 constexpr double PLAYER_HEIGHTF = 58;
 #define PLAYER_CRAWL_HEIGHT Z(36)
+constexpr double PLAYER_CRAWL_HEIGHTF = 36;
 #define PLAYER_SWIM_HEIGHT Z(26)
 #define PLAYER_DIVE_HEIGHT Z(26)
 #define PLAYER_DIE_DOWN_HEIGHT Z(4)
@@ -109,7 +110,7 @@ constexpr double PLAYER_HEIGHTF = 58;
 
 // dead head height - used in DeathFall
 #define PLAYER_DEATH_HEIGHT (Z(16))
-#define PLAYER_DEAD_HEAD_FLOORZ_OFFSET (Z(7))
+constexpr double PLAYER_DEAD_HEAD_FLOORZ_OFFSET = 7;
 
 //#define PLAYER_NINJA_XREPEAT (56)
 //#define PLAYER_NINJA_YREPEAT (56)

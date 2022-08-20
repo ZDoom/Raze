@@ -1763,7 +1763,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
-        actor->set_int_z(pp->int_ppos().Z + PLAYER_CRAWL_HEIGHT);
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_CRAWL_HEIGHTF;
         ChangeActorSect(pp->actor, pp->cursector);
     }
 #if 0
@@ -1775,7 +1775,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
-        actor->set_int_z(pp->int_ppos().Z + PLAYER_HEIGHT);
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHTF;
         ChangeActorSect(pp->actor, pp->cursector);
 
         if (pp->WadeDepth > Z(29))
@@ -1786,12 +1786,12 @@ void UpdatePlayerSprite(PLAYER* pp)
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
-        actor->set_int_z(pp->int_ppos().Z + Z(10));
+        actor->spr.pos.Z = pp->pos.Z + 10;
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
-        actor->set_int_z(pp->int_ppos().Z + Z(17));
+        actor->spr.pos.Z = pp->pos.Z + 17;
 
         ChangeActorSect(pp->actor, pp->cursector);
     }
@@ -1806,12 +1806,12 @@ void UpdatePlayerSprite(PLAYER* pp)
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
-        actor->set_int_z(pp->int_ppos().Z + PLAYER_HEIGHT);
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHTF;
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
-        actor->set_int_z(pp->int_ppos().Z + PLAYER_HEIGHT);
+        actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHTF;
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else
@@ -3289,7 +3289,7 @@ void DoPlayerClimb(PLAYER* pp)
     }
 
     // setsprite to players location
-    plActor->set_int_z(pp->int_ppos().Z + PLAYER_HEIGHT);
+    plActor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHTF;
     ChangeActorSect(pp->actor, pp->cursector);
 
     if (!SyncInput())
@@ -6055,7 +6055,7 @@ void DoPlayerDeathCrumble(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->set_int_z(pp->int_ppos().Z + PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
+    plActor->spr.pos.Z = pp->pos.Z + PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
@@ -6108,7 +6108,7 @@ void DoPlayerDeathExplode(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->set_int_z(pp->int_ppos().Z + PLAYER_DEAD_HEAD_FLOORZ_OFFSET);
+    plActor->spr.pos.Z = pp->pos.Z + PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
