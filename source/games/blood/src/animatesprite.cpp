@@ -464,7 +464,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		sectortype* pSector = pTSprite->sectp;
 		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->floorz };
 		pNSprite->picnum = 624;
-		uint8_t nShade = (pSector->int_floorz() - pTSprite->int_pos().Z) >> 8;
+		uint8_t nShade = (uint8_t)clamp(pSector->floorz - pTSprite->pos.Z, 0., 255.);
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
@@ -848,13 +848,15 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				if (pTSprite->type != kMissileFlareRegular) break;
 				sectortype* pSector1 = pTSprite->sectp;
 
-				int zDiff = (pTSprite->int_pos().Z - pSector1->int_ceilingz()) >> 8;
-				if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
+				double zDiff = pTSprite->pos.Z - pSector1->ceilingz;
+				if ((pSector1->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) 
+				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectCeilGlow);
 				}
 
-				zDiff = (pSector1->int_floorz() - pTSprite->int_pos().Z) >> 8;
-				if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
+				zDiff = (pSector1->floorz - pTSprite->pos.Z);
+				if ((pSector1->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) 
+				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectFloorGlow);
 				}
 				break;
