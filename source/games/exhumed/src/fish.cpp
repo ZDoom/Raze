@@ -339,7 +339,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = getangle(pTargetActor->int_pos().X - pActor->int_pos().X, pTargetActor->int_pos().Z - pActor->int_pos().Z);
+                int nAngle = getangle(pTargetActor->spr.pos - pActor->spr.pos);
                 pActor->spr.zvel = bsin(nAngle, -5);
 
                 pActor->nCount = RandomSize(6) + 90;
@@ -454,7 +454,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->set_int_ang(getangle(pHitAct->int_pos().X - pActor->int_pos().X, pHitAct->int_pos().Y - pActor->int_pos().Y));
+                    pActor->spr.angle = VecToAngle(pHitAct->spr.pos - pActor->spr.pos);
 
                     if (nAction != 3)
                     {

@@ -216,7 +216,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     {
                         ap->spr.xvel = 0;
                         ap->spr.yvel = 0;
-                        ap->set_int_ang(getangle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y));
+                        ap->spr.angle = VecToAngle(pTarget->spr.pos - ap->spr.pos);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;

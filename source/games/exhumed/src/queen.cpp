@@ -297,22 +297,12 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
     {
         int nTileY = (tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat) * 2;
 
-        int nMyAngle = getangle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
+		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
+        int nMyAngle = getangle(vect);
 
         int edx = ((pActor2->int_pos().Z - nTileY) - pActor->int_pos().Z) >> 8;
 
-        uint32_t xDiff = abs(pActor2->int_pos().X - pActor->int_pos().X);
-        uint32_t yDiff = abs(pActor2->int_pos().Y - pActor->int_pos().Y);
-
-        uint32_t sqrtVal = xDiff * xDiff + yDiff * yDiff;
-
-        if (sqrtVal > INT_MAX)
-        {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-            sqrtVal = INT_MAX;
-        }
-
-        int nSqrt = ksqrt(sqrtVal);
+        int nSqrt = int(vect.Length() * worldtoint);
 
         int var_14 = getangle(nSqrt, edx);
 

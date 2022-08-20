@@ -273,7 +273,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->set_int_ang(getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
+                pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
                 pActor->nFrame = 0;
             }
@@ -302,7 +302,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->set_int_ang(getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
+				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
                 pActor->nFrame = 0;
             }

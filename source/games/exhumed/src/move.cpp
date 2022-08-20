@@ -658,31 +658,18 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     if (!a1 || !a2)
         return -1;
 
-    return getangle(a2->int_pos().X - a1->int_pos().X, a2->int_pos().Y - a1->int_pos().Y);
+    return getangle(a2->spr.pos - a1->spr.pos);
 }
 
 int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
     if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
+	
+	auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
+	pActor1->spr.angle = VecToAngle(vect);
+	return int(vect.Length() * worldtoint);
 
-    int x = pActor2->int_pos().X - pActor1->int_pos().X;
-    int y = pActor2->int_pos().Y - pActor1->int_pos().Y;
-
-    pActor1->set_int_ang(getangle(x, y));
-
-    uint32_t x2 = abs(x);
-    uint32_t y2 = abs(y);
-
-    uint32_t diff = x2 * x2 + y2 * y2;
-
-    if (diff > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        diff = INT_MAX;
-    }
-
-    return ksqrt(diff);
 }
 
 DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
@@ -1152,20 +1139,10 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
     {
         int nHeight = tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat * 2;
 
-        int nMyAngle = getangle(pActor2->int_pos().X - pActor->int_pos().X, pActor2->int_pos().Y - pActor->int_pos().Y);
+		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
+        int nMyAngle = getangle(vect);
 
-        uint32_t xDiff = abs(pActor2->int_pos().X - pActor->int_pos().X);
-        uint32_t yDiff = abs(pActor2->int_pos().Y - pActor->int_pos().Y);
-
-        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
-
-        if (sqrtNum > INT_MAX)
-        {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-            sqrtNum = INT_MAX;
-        }
-
-        int nSqrt = ksqrt(sqrtNum);
+        int nSqrt = int(vect.Length() * worldtoint);
 
         int var_18 = getangle(nSqrt, ((pActor2->int_pos().Z - nHeight) - pActor->int_pos().Z) >> 8);
 

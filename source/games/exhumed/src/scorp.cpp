@@ -428,7 +428,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             {
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
-                pActor->set_int_ang(getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y));
+				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 
