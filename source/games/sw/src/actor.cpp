@@ -349,7 +349,7 @@ int DoActorSectorDamage(DSWActor* actor)
     }
 
     // note that most squishing is done in vator.c
-    if (actor->user.lo_sectp && actor->user.hi_sectp && labs(actor->user.int_loz() - actor->user.hiz) < (ActorSizeZ(actor) >> 1))
+    if (actor->user.lo_sectp && actor->user.hi_sectp && labs(actor->user.int_loz() - actor->user.int_hiz()) < (ActorSizeZ(actor) >> 1))
     {
         actor->user.Health = 0;
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
@@ -663,7 +663,7 @@ int DoActorJump(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // if player gets to close the ceiling while jumping
-    int minh = actor->user.hiz + (tileHeight(actor->spr.picnum) << 8);
+    int minh = actor->user.int_hiz() + (tileHeight(actor->spr.picnum) << 8);
     if (actor->int_pos().Z < minh)
     {
         // put player at the ceiling
@@ -829,7 +829,7 @@ int DoJump(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // if player gets to close the ceiling while jumping
-    int minh = actor->user.hiz + (tileHeight(actor->spr.picnum) << 8);
+    int minh = actor->user.int_hiz() + (tileHeight(actor->spr.picnum) << 8);
     if (actor->int_pos().Z < minh)
     {
         // put player at the ceiling

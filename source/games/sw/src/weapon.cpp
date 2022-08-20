@@ -4263,7 +4263,7 @@ bool WeaponMoveHit(DSWActor* actor)
         ASSERT(sectp->extra != -1);
 
         // hit floor - closer to floor than ceiling
-        if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+        if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
         {
             // hit a floor sprite
             if (actor->user.lowActor)
@@ -7481,7 +7481,7 @@ int DoStar(DSWActor* actor)
             bool did_hit_wall;
             auto hit_sect = actor->user.coll.hitSector;
 
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
             {
                 if (hit_sect->hasU() && FixedToInt(hit_sect->depth_fixed) > 0)
                 {
@@ -7511,7 +7511,7 @@ int DoStar(DSWActor* actor)
             actor->user.change.X = MulScale(actor->user.change.X, 64000 + (RandomRange(64000) - 32000), 16);
             actor->user.change.Y = MulScale(actor->user.change.Y, 64000 + (RandomRange(64000) - 32000), 16);
 
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 actor->user.change.Z = MulScale(actor->user.change.Z, 50000, 16); // floor
             else
                 actor->user.change.Z = MulScale(actor->user.change.Z, 40000, 16); // ceiling
@@ -7553,7 +7553,7 @@ int DoStar(DSWActor* actor)
             // 32000 to 96000
             actor->user.change.X = MulScale(actor->user.change.X, 64000 + (RandomRange(64000) - 32000), 16);
             actor->user.change.Y = MulScale(actor->user.change.Y, 64000 + (RandomRange(64000) - 32000), 16);
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 actor->user.change.Z = MulScale(actor->user.change.Z, 50000, 16); // floor
             else
                 actor->user.change.Z = MulScale(actor->user.change.Z, 40000, 16); // ceiling
@@ -8303,7 +8303,7 @@ int DoGrenade(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
@@ -8339,7 +8339,7 @@ int DoGrenade(DSWActor* actor)
             else
             {
                 // hit floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 {
                     if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE); // no bouncing underwater
@@ -8502,7 +8502,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 else
                 {
                     // hit a sloped sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         actor->user.change.X = MulScale(actor->user.change.X, 30000, 16);
@@ -8527,7 +8527,7 @@ int DoVulcanBoulder(DSWActor* actor)
             else
             {
                 // hit unsloped floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 {
                     actor->user.coll.setNone();
                     actor->user.Counter = 0;
@@ -8855,7 +8855,7 @@ int DoMine(DSWActor* actor)
                 else if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                         actor->user.Flags2 |= (SPR2_ATTACH_FLOOR);
                     else
                         actor->user.Flags2 |= (SPR2_ATTACH_CEILING);
@@ -8907,7 +8907,7 @@ int DoMine(DSWActor* actor)
             SetMineStuck(actor);
 
             // hit floor
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 actor->user.Flags2 |= (SPR2_ATTACH_FLOOR);
             else
                 actor->user.Flags2 |= (SPR2_ATTACH_CEILING);
@@ -10389,9 +10389,9 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
         tos_z = expActor->int_pos().Z - upper_zsize;
         bos_z = expActor->int_pos().Z + lower_zsize;
 
-        if (tos_z <= actor->user.hiz + Z(4))
+        if (tos_z <= actor->user.int_hiz() + Z(4))
         {
-            expActor->set_int_z(actor->user.hiz + upper_zsize);
+            expActor->set_int_z(actor->user.int_hiz() + upper_zsize);
             expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > actor->user.int_loz())
@@ -17043,7 +17043,7 @@ bool MissileHitDiveArea(DSWActor* actor)
         if (SpriteInDiveArea(actor))
         {
             // make sure you are close to the floor
-            if (actor->int_pos().Z < ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z < ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 return false;
 
             // Check added by Jim because of sprite bridge over water
@@ -17060,7 +17060,7 @@ bool MissileHitDiveArea(DSWActor* actor)
         else if (SpriteInUnderwaterArea(actor))
         {
             // make sure you are close to the ceiling
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 return false;
 
             actor->user.Flags &= ~(SPR_UNDERWATER);
@@ -17952,7 +17952,7 @@ int DoShrapVelocity(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
@@ -17981,7 +17981,7 @@ int DoShrapVelocity(DSWActor* actor)
             else
             {
                 // hit floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+                if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
                 {
                     actor->set_int_z(actor->user.int_loz());
                     if (actor->user.Flags & (SPR_UNDERWATER))
@@ -18254,7 +18254,7 @@ int DoItemFly(DSWActor* actor)
         case kHitSector:
         {
             // hit floor
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
+            if (actor->int_pos().Z > ((actor->user.int_hiz() + actor->user.int_loz()) >> 1))
             {
                 actor->set_int_z(actor->user.int_loz());
                 actor->user.Counter = 0;

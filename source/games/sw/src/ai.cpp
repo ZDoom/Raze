@@ -1341,7 +1341,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 	auto pos = actor->spr.pos;
     sang = actor->int_ang();
     loz = actor->user.int_loz();
-    hiz = actor->user.hiz;
+    hiz = actor->user.int_hiz();
     lowActor = actor->user.lowActor;
     highActor = actor->user.highActor;
     lo_sectp = actor->user.lo_sectp;

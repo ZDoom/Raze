@@ -361,7 +361,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
     // save off lo and hi z
     loz = actor->user.int_loz();
-    hiz = actor->user.hiz;
+    hiz = actor->user.int_hiz();
 
     // adjust loz/hiz for water depth
     if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
@@ -395,7 +395,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->set_int_z(actor->user.pos.Z + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14));
 
-    bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.ceiling_dist + HORNET_BOB_AMT;
     if (actor->int_pos().Z < bound)
     {
         // bumped something
@@ -424,7 +424,7 @@ int InitHornetCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 200 + RANDOM_P2(128);
-    if (labs(actor->user.pos.Z - actor->user.hiz) < labs(actor->user.pos.Z - actor->user.int_loz()))
+    if (labs(actor->user.pos.Z - actor->user.int_hiz()) < abs(actor->user.pos.Z - actor->user.int_loz()))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
@@ -463,7 +463,7 @@ int DoHornetCircle(DSWActor* actor)
     // move in the z direction
     actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS;
 
-    bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.ceiling_dist + HORNET_BOB_AMT;
     if (actor->user.pos.Z < bound)
     {
         // bumped something

@@ -899,7 +899,7 @@ int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 
     while (true)
     {
-        if (zh - Z(GetJumpHeight(actor->user.jump_speed, actor->user.jump_grav)) - Z(16) > actor->user.hiz)
+        if (zh - Z(GetJumpHeight(actor->user.jump_speed, actor->user.jump_grav)) - Z(16) > actor->user.int_hiz())
             break;
 
         actor->user.jump_speed += 100;

@@ -453,7 +453,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     // save off lo and hi z
     loz = actor->user.int_loz();
-    hiz = actor->user.hiz;
+    hiz = actor->user.int_hiz();
 
     // adjust loz/hiz for water depth
     if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
@@ -499,7 +499,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->set_int_z(actor->user.pos.Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
 
-    bound = actor->user.hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.ceiling_dist + EEL_BOB_AMT;
     if (actor->int_pos().Z < bound)
     {
         // bumped something

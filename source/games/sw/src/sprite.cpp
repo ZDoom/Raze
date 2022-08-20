@@ -4619,7 +4619,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     // save off x,y values
     auto apos = actor->spr.pos;
     loz = actor->user.int_loz();
-    hiz = actor->user.hiz;
+    hiz = actor->user.int_hiz();
     lowActor = actor->user.lowActor;
     highActor = actor->user.highActor;
     lo_sectp = actor->user.lo_sectp;
@@ -6469,10 +6469,10 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (clippos.Z - zh <= actor->user.hiz + ceildist)
+    if (clippos.Z - zh <= actor->user.int_hiz() + ceildist)
     {
         // normal code
-        actor->set_int_z(actor->user.hiz + zh + ceildist);
+        actor->set_int_z(actor->user.int_hiz() + zh + ceildist);
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
@@ -6616,7 +6616,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     actor->user.highActor = nullptr; actor->user.lowActor = nullptr;
     actor->set_int_z(actor->user.int_loz() - Z(8));
 
-    if (labs(actor->user.hiz - actor->user.int_loz()) < Z(12))
+    if (labs(actor->user.int_hiz() - actor->user.int_loz()) < Z(12))
     {
         // we've gone into a very small place - kill it
         retval.setVoid();

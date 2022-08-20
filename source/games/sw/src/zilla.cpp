@@ -633,16 +633,6 @@ int SetupZilla(DSWActor* actor)
 
 int NullZilla(DSWActor* actor)
 {
-#if 0
-    if (actor->user.State == s_ZillaDie)
-    {
-        getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->spr.y, &actor->user.hiz, &actor->user.int_loz());
-        actor->user.lo_sectp = actor->sector();
-        actor->user.hi_sectp = actor->sector();
-        actor->spr.z = actor->user.int_loz();
-    }
-#endif
-
     getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.hiz, &actor->user.loz);
     actor->user.lo_sectp = actor->sector();
     actor->user.hi_sectp = actor->sector();

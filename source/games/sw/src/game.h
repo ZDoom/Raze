@@ -931,6 +931,7 @@ struct USER
     }
 
     int int_loz() const { return loz; }
+    int int_hiz() const { return hiz; }
 
     //
     // Variables that can be used by actors and Player

@@ -630,7 +630,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
     // save off lo and hi z
     loz = actor->user.int_loz();
-    hiz = actor->user.hiz;
+    hiz = actor->user.int_hiz();
 
     // adjust loz/hiz for water depth
     if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
@@ -664,7 +664,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS<<3)) & 2047;
     actor->set_int_z(actor->user.pos.Z + MulScale(COOLG_BOB_AMT, bsin(actor->user.Counter), 14));
 
-    bound = actor->user.hiz + actor->user.ceiling_dist + COOLG_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.ceiling_dist + COOLG_BOB_AMT;
     if (actor->int_pos().Z < bound)
     {
         // bumped something
@@ -693,7 +693,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 400 + RANDOM_P2(256);
-    if (labs(actor->user.pos.Z - actor->user.hiz) < labs(actor->user.pos.Z - actor->user.int_loz()))
+    if (labs(actor->user.pos.Z - actor->user.int_hiz()) < abs(actor->user.pos.Z - actor->user.int_loz()))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;
@@ -721,7 +721,7 @@ int DoCoolgCircle(DSWActor* actor)
     // move in the z direction
     actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS;
 
-    bound = actor->user.hiz + actor->user.ceiling_dist + COOLG_BOB_AMT;
+    bound = actor->user.int_hiz() + actor->user.ceiling_dist + COOLG_BOB_AMT;
     if (actor->user.pos.Z < bound)
     {
         // bumped something
