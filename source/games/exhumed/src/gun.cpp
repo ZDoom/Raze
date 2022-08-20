@@ -813,10 +813,11 @@ loc_flag:
                         if (anglediff < 512 || anglediff > 1536)
                         {
                             target = t;
+                            h = 0;
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C);
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C, h);
                     break;
                 }
 
