@@ -49,7 +49,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 	auto bakcstat = act->spr.cstat;
 	act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	updatesectorz(*px, *py, *pz, psect);
-	hitscan({ *px, *py, *pz }, *psect, np, hitinfo, CLIPMASK1);
+	hitscan(vec3_t( *px, *py, *pz ), *psect, np, hitinfo, CLIPMASK1);
 	act->spr.cstat = bakcstat;
 
 	int hx = hitinfo.int_hitpos().X - *px;

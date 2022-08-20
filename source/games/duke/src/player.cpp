@@ -1024,7 +1024,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	zvel = 1024 - (krand() & 2047);
 
 
-	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	// oh my...
 	if (FindDistance2D(sx - hit.int_hitpos().X, sy - hit.int_hitpos().Y) < 1024 &&

@@ -393,7 +393,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 HitInfo hit{};
 
-                hitscan({ x, y, z }, pActor->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
+                hitscan(vec3_t( x, y, z ), pActor->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
 
                 if (hit.hitWall)
                 {

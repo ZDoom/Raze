@@ -103,7 +103,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		sa = getangle(pspr->int_pos().X - sx, pspr->int_pos().Y - sy);
 	}
 
-	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr)
@@ -125,7 +125,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				{
 					nz = effector->GetOwner()->sector()->int_ceilingz();
 				}
-				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				hitscan(vec3_t( nx, ny, nz ), effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
 			}
 		}
@@ -258,7 +258,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr))
@@ -280,7 +280,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				{
 					nz = effector->GetOwner()->sector()->int_ceilingz();
 				}
-				hitscan({ nx, ny, nz }, effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				hitscan(vec3_t( nx, ny, nz ), effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 				break;
 			}
 		}

@@ -245,7 +245,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		sa = getangle(pactor->int_pos().X - sx, pactor->int_pos().Y - sy);
 	}
 
-	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 
 	if (hit.hitSector == nullptr) return;
@@ -396,7 +396,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 
@@ -843,7 +843,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
 	else zvel = 0;
 
-	hitscan({ sx, sy, sz - ps[p].pyoff }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz - ps[p].pyoff ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	j = 0;
 	if (hit.actor()) return;
@@ -957,7 +957,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan({ sx, sy, sz }, sect, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz ), sect, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 

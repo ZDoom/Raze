@@ -4943,7 +4943,7 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = actor->int_ang(); j < (2048 + actor->int_ang()); j += angincs)
 	{
-		hitscan({ actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8) }, actor->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
+		hitscan(vec3_t( actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8) ), actor->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
 
 		d = abs(hit.int_hitpos().X - actor->int_pos().X) + abs(hit.int_hitpos().Y - actor->int_pos().Y);
 
@@ -4976,7 +4976,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 
 	for (j = tosee->int_ang(); j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
 	{
-		hitscan({ tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - (16 << 8) }, tosee->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
+		hitscan(vec3_t( tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - (16 << 8) ), tosee->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
 
 		d = abs(hit.int_hitpos().X - tosee->int_pos().X) + abs(hit.int_hitpos().Y - tosee->int_pos().Y);
 		da = abs(hit.int_hitpos().X - actor->int_pos().X) + abs(hit.int_hitpos().Y - actor->int_pos().Y);

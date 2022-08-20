@@ -131,7 +131,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     if (clipmask == CLIPMASK_MISSILE)
         startclipmask = CLIPMASK_WARP_HITSCAN;
 
-    hitscan({ x, y, z }, sect, { xvect, yvect, zvect }, hit, startclipmask);
+    hitscan(vec3_t( x, y, z ), sect, { xvect, yvect, zvect }, hit, startclipmask);
 
     if (hit.hitSector == nullptr)
         return;

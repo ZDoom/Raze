@@ -944,7 +944,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, f
     // Make sure sector passed to hitscan is correct
     //updatesector(*nx, *ny, vsect);
 
-    hitscan({ *nx, *ny, *nz }, *vsect, { vx, vy, vz }, hit, CLIPMASK_MISSILE);
+    hitscan(vec3_t( *nx, *ny, *nz ), *vsect, { vx, vy, vz }, hit, CLIPMASK_MISSILE);
 
     actor->spr.cstat = bakcstat;              // Restore cstat
 
