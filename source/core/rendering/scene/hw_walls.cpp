@@ -753,7 +753,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	auto setv = [=](float hl, float hr, float frac) -> float
 	{
 		float h = hl + (hr - hl) * frac;
-		h = (-(float)(refheight + (h * 256)) / ((th * 2048.0f) / (float)(wal->yrepeat))) + ypanning;
+		h = (-(float)((refheight + h) * 256) / ((th * 2048.0f) / (float)(wal->yrepeat))) + ypanning;
 		if (refwall->cstat & CSTAT_WALL_YFLIP) h = -h;
 		return h;
 	};
@@ -784,19 +784,19 @@ void HWWall::DoOneSidedTexture(HWDrawInfo* di, walltype* wal, sectortype* fronts
 	float topleft, float topright, float bottomleft, float bottomright)
 {
 	// get the alignment reference position.
-	int refheight;
+	float refheight;
 
 	if ((wal->cstat & CSTAT_WALL_1WAY) && backsector)
 	{
 		if ((!(wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->cstat & CSTAT_WALL_1WAY)) ||
 			((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->nextWall()->cstat & CSTAT_WALL_ALIGN_BOTTOM)))
-			refheight = frontsector->int_ceilingz();
+			refheight = frontsector->ceilingz;
 		else
-			refheight = backsector->int_floorz();
+			refheight = backsector->floorz;
 	}
 	else
 	{
-		refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_floorz() : frontsector->int_ceilingz();
+		refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->floorz : frontsector->ceilingz;
 	}
 
 	type = RENDERWALL_M1S;
@@ -813,7 +813,7 @@ void HWWall::DoUpperTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	float topleft, float topright, float bottomleft, float bottomright)
 {
 	// get the alignment reference position.
-	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_ceilingz() : backsector->int_ceilingz();
+	float refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->ceilingz;
 
 	type = RENDERWALL_TOP;
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
@@ -829,9 +829,8 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	float topleft, float topright, float bottomleft, float bottomright)
 {
 	// get the alignment reference position.
-	int refheight;
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? wal->nextWall() : wal;
-	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->int_ceilingz() : backsector->int_floorz();
+	float refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
 	shade = refwall->shade;
 	palette = refwall->pal;
@@ -851,22 +850,22 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 	float bch1, float bch2, float bfh1, float bfh2)
 {
 	float topleft,bottomleft,topright,bottomright;
-	int refheight;
+	float refheight;
 
 	const int swapit = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM);
 
 	if (wal->cstat & CSTAT_WALL_1WAY)
 	{
 		// 1-sided wall
-		refheight = swapit ? front->int_ceilingz() : back->int_ceilingz();
+		refheight = swapit ? front->ceilingz : back->ceilingz;
 	}
 	else
 	{
 		// masked wall
 		if (swapit)
-			refheight = min(front->int_floorz(), back->int_floorz());
+			refheight = min(front->floorz, back->floorz);
 		else
-			refheight = max(front->int_ceilingz(), back->int_ceilingz());
+			refheight = max(front->ceilingz, back->ceilingz);
 	}
 	if ((bch1 - fch1) * (bch2 - fch2) >= 0)
 	{

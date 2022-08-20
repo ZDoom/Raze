@@ -306,7 +306,7 @@ void MarkSectorSeen(sectortype* sec)
 			if (wal.nextWall()->cstat & bits) continue;
 			auto osec = wal.nextSector();
 			if (osec->lotag == 32767) continue;
-			if (osec->int_ceilingz() >= osec->int_floorz()) continue;
+			if (osec->ceilingz >= osec->floorz) continue;
 			show2dsector.Set(sectnum(osec));
 		}
 	}
@@ -420,8 +420,8 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 	{
 		if (!gFullMap && !show2dsector[i]) continue;
 
-		int z1 = sector[i].int_ceilingz();
-		int z2 = sector[i].int_floorz();
+		double z1 = sector[i].ceilingz;
+		double z2 = sector[i].floorz;
 
 		for (auto& wal : wallsofsector(i))
 		{
@@ -429,7 +429,7 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 
 			auto osec = wal.nextSector();
 
-			if (osec->int_ceilingz() == z1 && osec->int_floorz() == z2)
+			if (osec->ceilingz == z1 && osec->floorz == z2)
 				if (((wal.cstat | wal.nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0) continue;
 
 			if (ShowRedLine(wallnum(&wal), i))

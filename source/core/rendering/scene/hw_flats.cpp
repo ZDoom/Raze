@@ -104,7 +104,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 
 		auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
 		auto vp = ret.first;
-		float base = (plane == 0 ? sec->int_floorz() : sec->int_ceilingz()) * (1 / -256.f);
+		float base = -(plane == 0 ? sec->floorz : sec->ceilingz);
 		for (unsigned i = 0; i < pIndices->Size(); i++)
 		{
 			auto ii = (*pIndices)[i];
