@@ -1749,7 +1749,7 @@ void moveweapons_d(void)
 void movetransports_d(void)
 {
 	int warpspriteto;
-	int ll;
+	double ll;
 
 	DukeStatIterator iti(STAT_TRANSPORT);
 	while (auto act = iti.Next())
@@ -1932,17 +1932,17 @@ void movetransports_d(void)
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
 
-				ll = abs(act2->spr.zvel);
+				ll = abs(act2->spr.zvel) * zinttoworld;
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && act2->int_pos().Z < (sectp->int_ceilingz() + ll))
+					if (ll && sectlotag == 2 && act2->spr.pos.Z < (sectp->ceilingz + ll))
 						warpspriteto = 1;
 
-					if (ll && sectlotag == 1 && act2->int_pos().Z > (sectp->int_floorz() - ll))
+					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll))
 						warpspriteto = 1;
 
-					if (sectlotag == 0 && (onfloorz || abs(act2->int_pos().Z - act->int_pos().Z) < 4096))
+					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
 					{
 						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->temp_data[0] > 0 && act2->spr.statnum != STAT_MISC)
 						{
@@ -1991,7 +1991,7 @@ void movetransports_d(void)
 								{
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
-										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->int_floorz()) });
+										act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
 										act2->spr.angle = Owner->spr.angle;
 
 										act2->backupang();
@@ -2016,24 +2016,21 @@ void movetransports_d(void)
 								}
 								else
 								{
-									act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
-									act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+									act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 									act2->spr.pos.Z = Owner->spr.pos.Z + 16;
 									act2->backupz();
 									ChangeActorSect(act2, Owner->sector());
 								}
 								break;
 							case ST_1_ABOVE_WATER:
-								act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
-								act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
-								act2->set_int_z(Owner->sector()->int_ceilingz() + ll);
+								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
 								break;
 							case ST_2_UNDERWATER:
-								act2->spr.pos.X += Owner->spr.pos.X - act->spr.pos.X;
-								act2->spr.pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
-								act2->set_int_z(Owner->sector()->int_floorz() - ll);
+								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+								act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
 								act2->backupz();
 								ChangeActorSect(act2, Owner->sector());
 								break;
