@@ -930,6 +930,8 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
+    int int_loz() const { return loz; }
+
     //
     // Variables that can be used by actors and Player
     //

@@ -304,7 +304,7 @@ void DoDebrisCurrent(DSWActor* actor)
         move_sprite(actor, nx, ny, 0, actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
     }
 
-    actor->set_int_z(actor->user.loz);
+    actor->set_int_z(actor->user.int_loz());
 }
 
 int DoActorSectorDamage(DSWActor* actor)
@@ -349,7 +349,7 @@ int DoActorSectorDamage(DSWActor* actor)
     }
 
     // note that most squishing is done in vator.c
-    if (actor->user.lo_sectp && actor->user.hi_sectp && labs(actor->user.loz - actor->user.hiz) < (ActorSizeZ(actor) >> 1))
+    if (actor->user.lo_sectp && actor->user.hi_sectp && labs(actor->user.int_loz() - actor->user.hiz) < (ActorSizeZ(actor) >> 1))
     {
         actor->user.Health = 0;
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
@@ -429,12 +429,12 @@ int DoActorDebris(DSWActor* actor)
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 10) // JBF: added null check
         {
             actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 3)) & 1023;
-            actor->set_int_z(actor->user.loz - MulScale(Z(2), bsin(actor->user.WaitTics), 14));
+            actor->set_int_z(actor->user.int_loz() - MulScale(Z(2), bsin(actor->user.WaitTics), 14));
         }
     }
     else
     {
-        actor->set_int_z(actor->user.loz);
+        actor->set_int_z(actor->user.int_loz());
     }
 
     return 0;
@@ -514,7 +514,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->set_int_z(actor->user.oz = actor->user.loz);
+                actor->set_int_z(actor->user.oz = actor->user.int_loz());
                 actor->backupz();
                 return;
             }
@@ -525,7 +525,7 @@ void KeepActorOnFloor(DSWActor* actor)
             }
 
             // are swimming
-            actor->set_int_z(actor->user.oz = actor->user.loz - Z(depth));
+            actor->set_int_z(actor->user.oz = actor->user.int_loz() - Z(depth));
             actor->backupz();
         }
         else
@@ -534,7 +534,7 @@ void KeepActorOnFloor(DSWActor* actor)
             if (actor->user.Rot == actor->user.ActorActionSet->Run || actor->user.Rot == actor->user.ActorActionSet->Swim)
             {
                 NewStateGroup(actor, actor->user.ActorActionSet->Swim);
-                actor->set_int_z(actor->user.oz = actor->user.loz - Z(depth));
+                actor->set_int_z(actor->user.oz = actor->user.int_loz() - Z(depth));
                 actor->backupz();
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -543,7 +543,7 @@ void KeepActorOnFloor(DSWActor* actor)
             {
                 actor->user.Flags &= ~(SPR_SWIMMING);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->set_int_z(actor->user.oz = actor->user.loz);
+                actor->set_int_z(actor->user.oz = actor->user.int_loz());
                 actor->backupz();
             }
         }
@@ -558,7 +558,7 @@ void KeepActorOnFloor(DSWActor* actor)
 #if 1
     if (actor->user.Flags & (SPR_MOVED))
     {
-        actor->set_int_z(actor->user.oz = actor->user.loz);
+        actor->set_int_z(actor->user.oz = actor->user.int_loz());
         actor->backupz();
     }
     else
@@ -718,7 +718,7 @@ int DoActorFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->int_pos().Z > actor->user.loz)
+    if (actor->int_pos().Z > actor->user.int_loz())
     {
         DoActorStopFall(actor);
     }
@@ -728,7 +728,7 @@ int DoActorFall(DSWActor* actor)
 
 int DoActorStopFall(DSWActor* actor)
 {
-    actor->set_int_z(actor->user.loz);
+    actor->set_int_z(actor->user.int_loz());
 
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
@@ -867,9 +867,9 @@ int DoFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->int_pos().Z > actor->user.loz - actor->user.floor_dist)
+    if (actor->int_pos().Z > actor->user.int_loz() - actor->user.floor_dist)
     {
-        actor->set_int_z(actor->user.loz - actor->user.floor_dist);
+        actor->set_int_z(actor->user.int_loz() - actor->user.floor_dist);
         actor->user.Flags &= ~(SPR_FALLING);
     }
 

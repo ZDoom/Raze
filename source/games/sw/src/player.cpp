@@ -5631,7 +5631,7 @@ void DoPlayerDeathZrange(PLAYER* pp)
     DoFindGround(pp->actor);
 
     // update player values with results from DoFindGround
-    pp->loz = plActor->user.loz;
+    pp->loz = plActor->user.int_loz();
     pp->lowActor = plActor->user.lowActor;
     pp->lo_sectp = plActor->user.lo_sectp;
 }

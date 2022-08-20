@@ -279,9 +279,9 @@ int DoWallBloodDrip(DSWActor* actor)
         actor->add_int_z(actor->spr.zvel);
     }
 
-    if (actor->int_pos().Z >= actor->user.loz)
+    if (actor->int_pos().Z >= actor->user.int_loz())
     {
-        actor->set_int_z(actor->user.loz);
+        actor->set_int_z(actor->user.int_loz());
         SpawnFloorSplash(actor);
         KillActor(actor);
         return 0;
@@ -468,7 +468,7 @@ int DoBloodSpray(DSWActor* actor)
         case kHitSector:
         {
             // hit floor
-            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+            if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
             {
                 if (actor->user.Flags & (SPR_UNDERWATER))
                     actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
@@ -643,7 +643,7 @@ int DoPhosphorus(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
@@ -672,7 +672,7 @@ int DoPhosphorus(DSWActor* actor)
             else
             {
                 // hit floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                 {
                     if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
@@ -849,7 +849,7 @@ int DoChemBomb(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
@@ -888,7 +888,7 @@ int DoChemBomb(DSWActor* actor)
             else
             {
                 // hit floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                 {
                     if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing
@@ -1064,7 +1064,7 @@ int DoCaltrops(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                    if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                     {
                         // hit a floor
                         if (!(actor->user.Flags & SPR_BOUNCE))
@@ -1094,7 +1094,7 @@ int DoCaltrops(DSWActor* actor)
             else
             {
                 // hit floor
-                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.loz) >> 1))
+                if (actor->int_pos().Z > ((actor->user.hiz + actor->user.int_loz()) >> 1))
                 {
                     if (actor->user.Flags & (SPR_UNDERWATER))
                         actor->user.Flags |= (SPR_BOUNCE);  // no bouncing

@@ -199,7 +199,7 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
     // USES TSPRITE !!!!!
     auto ownerActor = static_cast<DSWActor*>(tspr->ownerActor);
     Collision ceilhit, florhit;
-    int hiz, loz = ownerActor->user.loz;
+    int hiz, loz = ownerActor->user.int_loz();
     ESpriteFlags save_cstat, bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -282,7 +282,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
         xrepeat = tsp->xrepeat;
     }
 
-    loz = ownerActor->user.loz;
+    loz = ownerActor->user.int_loz();
     if (ownerActor->user.lowActor)
     {
         if (!(ownerActor->user.lowActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR)))

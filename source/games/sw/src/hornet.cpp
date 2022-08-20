@@ -360,7 +360,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     }
 
     // save off lo and hi z
-    loz = actor->user.loz;
+    loz = actor->user.int_loz();
     hiz = actor->user.hiz;
 
     // adjust loz/hiz for water depth
@@ -424,7 +424,7 @@ int InitHornetCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 200 + RANDOM_P2(128);
-    if (labs(actor->user.pos.Z - actor->user.hiz) < labs(actor->user.pos.Z - actor->user.loz))
+    if (labs(actor->user.pos.Z - actor->user.hiz) < labs(actor->user.pos.Z - actor->user.int_loz()))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
@@ -500,7 +500,7 @@ int DoHornetDeath(DSWActor* actor)
         actor->user.floor_dist = 0;
         DoBeginFall(actor);
         DoFindGroundPoint(actor);
-        actor->user.zclip = actor->user.loz;
+        actor->user.zclip = actor->user.int_loz();
     }
 
     if (actor->user.Flags & (SPR_SLIDING))
@@ -513,7 +513,7 @@ int DoHornetDeath(DSWActor* actor)
     actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 
     // on the ground
-    if (actor->int_pos().Z >= actor->user.loz)
+    if (actor->int_pos().Z >= actor->user.int_loz())
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it

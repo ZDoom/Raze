@@ -3345,7 +3345,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             bos_z = ActorZOfBottom(actor);
-            if (bos_z > actor->user.loz)
+            if (bos_z > actor->user.int_loz())
             {
                 actor->user.pos.Y = (bos_z - actor->int_pos().Z);
                 actor->add_int_z(-actor->user.pos.Y);

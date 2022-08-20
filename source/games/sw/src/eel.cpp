@@ -452,7 +452,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     const int EEL_BOB_AMT = (Z(4));
 
     // save off lo and hi z
-    loz = actor->user.loz;
+    loz = actor->user.int_loz();
     hiz = actor->user.hiz;
 
     // adjust loz/hiz for water depth
@@ -534,7 +534,7 @@ int DoEelDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (actor->int_pos().Z >= actor->user.loz)
+    if (actor->int_pos().Z >= actor->user.int_loz())
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)
