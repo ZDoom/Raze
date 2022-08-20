@@ -598,9 +598,21 @@ struct PLAYER
     {
         return __int_ppos;
     }
+    void set_int_ppos(vec3_t z)
+    {
+        __int_ppos = z;
+    }
+    void set_int_ppos_XY(vec2_t z)
+    {
+        __int_ppos.XY() = z;
+    }
     void set_int_ppos_Z(int z)
     {
         __int_ppos.Z = z;
+    }
+    void add_int_ppos_Z(int z)
+    {
+        __int_ppos.Z += z;
     }
 
     DSWActor* actor;    // this may not be a TObjPtr!
