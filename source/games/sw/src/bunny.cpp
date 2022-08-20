@@ -835,7 +835,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     tang = getangle(target->int_pos().X - actor->int_pos().X, target->int_pos().Y - actor->int_pos().Y);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
-        0L, actor->user.int_ceiling_dist(), actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
+        0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));

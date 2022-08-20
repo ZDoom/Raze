@@ -466,10 +466,10 @@ int DoEelMatchPlayerZ(DSWActor* actor)
         if (dist <= 300)
             bound = actor->user.pos.Z;
         else
-            bound = loz - actor->user.floor_dist;
+            bound = loz - actor->user.int_floor_dist();
     }
     else
-        bound = loz - actor->user.floor_dist - EEL_BOB_AMT;
+        bound = loz - actor->user.int_floor_dist() - EEL_BOB_AMT;
 
     if (actor->user.pos.Z > bound)
     {
@@ -493,7 +493,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
         actor->user.pos.Z = bound;
     }
 
-    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.floor_dist);
+    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.int_floor_dist());
     actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.int_ceiling_dist());
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
@@ -530,7 +530,7 @@ int DoEelDeath(DSWActor* actor)
     nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
     ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 
-    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.int_ceiling_dist(), actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground

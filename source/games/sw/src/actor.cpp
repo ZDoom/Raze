@@ -291,7 +291,7 @@ void DoDebrisCurrent(DSWActor* actor)
     nx = MulScale((sectp->speed >> 2), bcos(sectp->ang), 14);
     ny = MulScale((sectp->speed >> 2), bsin(sectp->ang), 14);
 
-    Collision ret = move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.floor_dist, 0, ACTORMOVETICS);
+    Collision ret = move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
 
     // attempt to move away from wall
     if (ret.type != kHitNone)
@@ -301,7 +301,7 @@ void DoDebrisCurrent(DSWActor* actor)
         nx = MulScale((sectp->speed >> 2), bcos(sectp->ang + rang), 14);
         nx = MulScale((sectp->speed >> 2), bsin(sectp->ang + rang), 14);
 
-        move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.floor_dist, 0, ACTORMOVETICS);
+        move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
     }
 
     actor->spr.pos.Z = actor->user.loz;
@@ -373,7 +373,7 @@ int DoActorSectorDamage(DSWActor* actor)
 bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
-                         actor->user.int_ceiling_dist(), actor->user.floor_dist, 0, ACTORMOVETICS);
+                         actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
 
     return actor->user.coll.type == kHitNone;
 }
@@ -867,9 +867,9 @@ int DoFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->int_pos().Z > actor->user.int_loz() - actor->user.floor_dist)
+    if (actor->int_pos().Z > actor->user.int_loz() - actor->user.int_floor_dist())
     {
-        actor->set_int_z(actor->user.int_loz() - actor->user.floor_dist);
+        actor->set_int_z(actor->user.int_loz() - actor->user.int_floor_dist());
         actor->user.Flags &= ~(SPR_FALLING);
     }
 

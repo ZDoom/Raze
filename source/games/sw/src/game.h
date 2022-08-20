@@ -935,6 +935,7 @@ struct USER
     int int_hiz() const { return hiz * zworldtoint; }
     int int_z_tgt() const { return z_tgt * zworldtoint; }
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
+    int int_floor_dist() const { return floor_dist * zworldtoint; }
 
     //
     // Variables that can be used by actors and Player

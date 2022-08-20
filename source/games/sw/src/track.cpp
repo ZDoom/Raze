@@ -3530,7 +3530,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             nz = actor->spr.zvel * locktics;
     }
 
-    actor->user.coll = move_sprite(actor, nx, ny, nz, actor->user.int_ceiling_dist(), actor->user.floor_dist, 0, locktics);
+    actor->user.coll = move_sprite(actor, nx, ny, nz, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, locktics);
 
 
     if (actor->user.coll.type != kHitNone)
