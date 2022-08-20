@@ -855,7 +855,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         }
         else
         {
-            pActor->add_int_z(-2048);
+			pActor->spr.pos.Z -= 8;
             goto __MOVEQS;
         }
         break;

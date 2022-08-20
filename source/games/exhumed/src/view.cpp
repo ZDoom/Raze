@@ -109,8 +109,8 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
         {
             pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
-            int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
-            pTSprite->add_int_z(-nTileY);
+            double nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2 * zinttoworld;
+            pTSprite->pos.Z -= nTileY;
         }
 
         if (pTSprite->pal == 4 && pTSprite->shade >= numshades) pTSprite->shade = numshades - 1;

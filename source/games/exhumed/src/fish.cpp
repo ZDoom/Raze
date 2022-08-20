@@ -102,7 +102,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
     if (FloorZ <= pActor->int_pos().Z)
     {
-        pActor->add_int_z(256);
+		pActor->spr.pos.Z++;
 
         if ((pActor->int_pos().Z - FloorZ) > 25600)
         {

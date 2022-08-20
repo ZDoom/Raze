@@ -355,7 +355,7 @@ int MoveBullet(int nBullet)
                     pActor->spr.xrepeat = 40;
                     pActor->spr.yrepeat = 40;
                     pActor->spr.shade = 0;
-                    pActor->add_int_z(512);
+					pActor->spr.pos.Z += 2;
                 }
             }
             else

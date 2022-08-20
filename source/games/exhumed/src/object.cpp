@@ -1768,13 +1768,13 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     int nFloorZ = pSector->int_floorz();
 
     pSector->set_int_floorz(pActor->int_pos().Z);
-    pActor->add_int_z(-256);
+	pActor->spr.pos.Z--;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
     pSector->set_int_floorz(nFloorZ);
-    pActor->add_int_z(256);
+	pActor->spr.pos.Z++;
 
     if (ev->nDamage <= 0) {
         return;

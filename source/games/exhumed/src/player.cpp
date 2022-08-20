@@ -2493,7 +2493,7 @@ sectdone:
             PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
             if (pPlayerActor->int_pos().Z < pPlayerActor->sector()->int_floorz()) {
-                pPlayerActor->add_int_z(256);
+				pPlayerActor->spr.pos.Z++;
             }
 
             if (!RandomSize(5))
