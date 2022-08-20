@@ -85,7 +85,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 	int x = actor->int_pos().X;
 	int y = actor->int_pos().Y;
 	int z = actor->int_pos().Z;
-	int vc = 400;
+	const int vc = 400;
 	auto pSector = actor->sector();
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
@@ -95,7 +95,6 @@ void StompSeqCallback(int, DBloodActor* actor)
 	DBloodActor* actorh = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actorh);
 
-	vc <<= 4;
 	BloodStatIterator it1(kStatDude);
 	while (auto actor2 = it1.Next())
 	{
@@ -107,22 +106,20 @@ void StompSeqCallback(int, DBloodActor* actor)
 					continue;
 				if (actor2->spr.flags & 32)
 					continue;
-				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
+				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc << 4))
 				{
 					int top, bottom;
 					GetActorExtents(actor, &top, &bottom);
 					if (abs(bottom - pSector->int_floorz()) == 0)
 					{
-						int dx = abs(actor->int_pos().X - actor2->int_pos().X);
-						int dy = abs(actor->int_pos().Y - actor2->int_pos().Y);
-						int nDist2 = ksqrt(dx * dx + dy * dy);
+						double nDist2 = (actor->spr.pos.XY() - actor2->spr.pos.XY()).Length();
 						if (nDist2 <= vc)
 						{
 							int nDamage;
-							if (!nDist2)
+							if (nDist2 <= 0)
 								nDamage = v1c + v10;
 							else
-								nDamage = v1c + ((vc - nDist2) * v10) / vc;
+								nDamage = v1c + v10 *  ((vc - nDist2) / vc);
 							if (actor2->IsPlayerActor())
 								gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
 							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
@@ -137,20 +134,20 @@ void StompSeqCallback(int, DBloodActor* actor)
 	{
 		if (actor2->spr.flags & 32)
 			continue;
-		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
+		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc << 4))
 		{
 			if (actor2->xspr.locked)
 				continue;
-			int dx = abs(actor->int_pos().X - actor2->int_pos().X);
-			int dy = abs(actor->int_pos().Y - actor2->int_pos().Y);
-			int nDist2 = ksqrt(dx * dx + dy * dy);
+
+			double nDist2 = (actor->spr.pos.XY() - actor2->spr.pos.XY()).Length();
 			if (nDist2 <= vc)
 			{
 				int nDamage;
-				if (!nDist2)
+				if (nDist2 <= 0)
 					nDamage = v1c + v10;
 				else
-					nDamage = v1c + ((vc - nDist2) * v10) / vc;
+					nDamage = v1c + v10 * ((vc - nDist2) / vc);
+
 				if (actor2->IsPlayerActor())
 					gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
 				actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
