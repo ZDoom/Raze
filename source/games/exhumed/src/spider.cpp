@@ -308,7 +308,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->int_pos().X - spp->int_pos().X, pTarget->int_pos().Y - spp->int_pos().Y);
+                int nAng = getangle(pTarget->spr.pos - spp->spr.pos);
                 if (AngleDiff(spp->int_ang(), nAng) < 64)
                 {
                     spp->nAction = 2;

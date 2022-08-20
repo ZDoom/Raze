@@ -427,7 +427,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAng = getangle(pTarget->int_pos().X - pActor->int_pos().X, pTarget->int_pos().Y - pActor->int_pos().Y);
+                    int nAng = getangle(pTarget->spr.pos - pActor->spr.pos);
                     if (AngleDiff(pActor->int_ang(), nAng) < 64)
                     {
                         pActor->nAction = 4;

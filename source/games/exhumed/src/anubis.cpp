@@ -180,7 +180,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->int_pos().X - ap->int_pos().X, pTarget->int_pos().Y - ap->int_pos().Y);
+                int nAng = getangle(pTarget->spr.pos - ap->spr.pos);
                 int nAngDiff = AngleDiff(ap->int_ang(), nAng);
 
                 if (nAngDiff < 64)
