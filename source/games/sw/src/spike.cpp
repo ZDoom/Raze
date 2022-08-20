@@ -265,21 +265,17 @@ void MoveSpritesWithSpike(sectortype* sect)
 
 int DoSpike(DSWActor* actor)
 {
-    int *lptr;
-
     // zclip = floor or ceiling z
     // oz = original z
     // z_tgt = target z - on pos
     // sz = starting z - off pos
 
-    lptr = &actor->user.zclip;
-
-    DoSpikeMove(actor, lptr);
+    DoSpikeMove(actor, &actor->user.zclip);
     MoveSpritesWithSpike(actor->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
-    if (*lptr == actor->user.int_z_tgt())
+    if (actor->user.int_zclip() == actor->user.int_z_tgt())
     {
         // in the ON position
         if (actor->user.int_z_tgt() == actor->int_pos().Z)
@@ -326,7 +322,7 @@ int DoSpike(DSWActor* actor)
         }
 
         // setup to go back to the original z
-        if (*lptr != actor->user.int_oz())
+        if (actor->user.int_zclip() != actor->user.int_oz())
         {
             if (actor->user.WaitTics)
                 actor->user.Tics = actor->user.WaitTics;
@@ -375,16 +371,12 @@ int DoSpike(DSWActor* actor)
 
 int DoSpikeAuto(DSWActor* actor)
 {
-    int *lptr;
-
-    lptr = &actor->user.zclip;
-
-    DoSpikeMove(actor, lptr);
+    DoSpikeMove(actor, &actor->user.zclip);
     MoveSpritesWithSpike(actor->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
-    if (*lptr == actor->user.int_z_tgt())
+    if (actor->user.int_zclip() == actor->user.int_z_tgt())
     {
         // in the UP position
         if (actor->user.int_z_tgt() == actor->int_pos().Z)
