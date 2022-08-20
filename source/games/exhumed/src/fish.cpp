@@ -272,7 +272,7 @@ void AIFish::Damage(RunListEvent* ev)
                 BuildFishLimb(pActor, i);
             }
 
-            PlayFXAtXYZ(StaticSound[kSound40], pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z);
+            PlayFXAtXYZ(StaticSound[kSound40], pActor->spr.pos);
             DestroyFish(pActor);
         }
         else

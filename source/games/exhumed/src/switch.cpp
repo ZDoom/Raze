@@ -290,7 +290,7 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
     if (var_14 != sRunChannels[nChannel].c)
     {
         auto pWall = pSector->firstWall();
-        PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->wall_int_pos().X, pWall->wall_int_pos().Y, pSector->int_floorz());
+        PlayFXAtXYZ(StaticSound[nSwitchSound], DVector3(pWall->pos, pSector->floorz));
 
         assert(sRunChannels[nChannel].c < 8);
 
@@ -442,8 +442,7 @@ void AISWPressSector::Use(RunListEvent* ev)
     {
         if (SwitchData[nSwitch].nKeyMask)
         {
-            auto& pos = PlayerList[nPlayer].pActor->int_pos();
-            PlayFXAtXYZ(StaticSound[nSwitchSound], pos.X, pos.Y, 0, CHANF_LISTENERZ);
+            PlayFXAtXYZ(StaticSound[nSwitchSound], PlayerList[nPlayer].pActor->spr.pos, CHANF_LISTENERZ);
 
             StatusMessage(300, GStrings("TXT_EX_NEEDKEY"));
         }
@@ -510,7 +509,7 @@ void AISWPressWall::Use(RunListEvent* ev)
     auto pWall = SwitchData[nSwitch].pWall;
     auto pSector = SwitchData[nSwitch].pSector;
 
-    PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->wall_int_pos().X, pWall->wall_int_pos().Y, 0, CHANF_LISTENERZ);
+    PlayFXAtXYZ(StaticSound[nSwitchSound], DVector3(pWall->pos, 0), CHANF_LISTENERZ);
 }
 
 END_PS_NS

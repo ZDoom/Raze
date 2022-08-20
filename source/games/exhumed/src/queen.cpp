@@ -685,7 +685,7 @@ void BuildQueenHead(int nQueen)
 
     auto pActor2 = insertActor(pSector, 121);
 
-	pActor2->spr.pos.XY() = pActor->spr.pos();
+	pActor2->spr.pos.XY() = pActor->spr.pos.XY();
 	pActor2->spr.pos.Z = pSector->floorz;
     pActor2->spr.clipdist = 70;
     pActor2->spr.xrepeat = 80;
@@ -1368,9 +1368,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
                     PlayFXAtXYZ(
                         StaticSound[kSound40],
-                        pActor->int_pos().X,
-                        pActor->int_pos().Y,
-                        pActor->int_pos().Z);
+                        pActor->spr.pos);
 
                     BuildQueenHead(nQueen);
 

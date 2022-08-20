@@ -606,9 +606,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
                 if (pActor->spr.statnum == 100 && PlayerList[GetPlayerFromActor(pActor)].nHealth <= 0)
                 {
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
-                        pActor->int_pos().X,
-                        pActor->int_pos().Y,
-                        pActor->int_pos().Z,
+                        pActor->spr.pos,
                         CHANF_NONE, 0x4000);
                 }
             }
@@ -836,7 +834,7 @@ void AIElev::Tick(RunListEvent* ev)
                     SetQuake(pElevSpr, 30);
                 }
 
-                PlayFXAtXYZ(StaticSound[kSound26], pElevSpr->int_pos().X, pElevSpr->int_pos().Y, pElevSpr->int_pos().Z);
+                PlayFXAtXYZ(StaticSound[kSound26], pElevSpr->spr.pos);
             }
 
             if (var_18 & 0x4)

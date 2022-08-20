@@ -549,9 +549,7 @@ void GameInterface::UpdateSounds()
 //
 //==========================================================================
 
-int soundx, soundy, soundz;
-
-void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
+void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags, const DVector3* soundpos)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -565,10 +563,9 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     {
         fullvol = (sprflags & 0x2000) != 0;
         hiprio = (sprflags & 0x4000) != 0;
-        soundx = pActor->int_pos().X;
-        soundy = pActor->int_pos().Y;
-        soundz = pActor->int_pos().Z;
+		soundpos = &pActor->spr.pos;
     }
+	if (!soundpos) return;
 
     int nVolume = 255;
 
@@ -588,8 +585,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
 
     GetSpriteSoundPitch(&nVolume, &nPitch);
 
-    vec3_t v = { soundx, soundy, soundz };
-    FVector3 vv = GetSoundPos(v);
+    FVector3 vv = GetSoundPos(*soundpos);
 
     // Check if this sound is allowed to play or if it must stop some other sound.
     if (!forcePlay)
@@ -652,12 +648,9 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
 //
 //==========================================================================
 
-void PlayFXAtXYZ(int ax, int x, int y, int z, EChanFlags chanflags, int sectf)
+void PlayFXAtXYZ(int ax, const DVector3& pos, EChanFlags chanflags, int sectf)
 {
-    soundx = x;
-    soundy = y;
-    soundz = z;
-    PlayFX2(ax, nullptr, sectf, chanflags);
+    PlayFX2(ax, nullptr, sectf, chanflags, 0, &pos);
 }
 
 //==========================================================================
