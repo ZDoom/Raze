@@ -552,11 +552,10 @@ void SetBulletEnemy(int nBullet, DExhumedActor* pEnemy)
     }
 }
 
-DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int nAngle, DExhumedActor* pTarget, int nDoubleDamage)
+DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int nAngle, DExhumedActor* pTarget, int nDoubleDamage, int nPitch)
 {
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
-    int nPitch = 0;
 
     if (pBulletInfo->field_4 > 30000)
     {

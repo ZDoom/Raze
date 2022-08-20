@@ -78,7 +78,7 @@ int GrabBullet();
 void DestroyBullet(int nRun);
 int MoveBullet(int nBullet);
 void SetBulletEnemy(int nBullet, DExhumedActor* nEnemy);
-DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngle, DExhumedActor* pTarget, int val3);
+DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngle, DExhumedActor* pTarget, int val3, int horiz = 0);
 
 void IgniteSprite(DExhumedActor* nSprite);
 void FuncBullet(int, int, int, int);
