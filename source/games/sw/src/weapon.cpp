@@ -14601,11 +14601,11 @@ int InitCoolgFire(DSWActor* actor)
 int DoCoolgDrip(DSWActor* actor)
 {
     actor->user.Counter += 220;
-    actor->add_int_z(actor->user.Counter);
+    actor->spr.pos.Z += actor->user.Counter * maptoworld;
 
-    if (actor->int_pos().Z > actor->user.int_loz() - actor->user.int_floor_dist())
+    if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
-        actor->set_int_z(actor->user.int_loz() - actor->user.int_floor_dist());
+        actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
         actor->spr.yrepeat = actor->spr.xrepeat = 32;
         ChangeState(actor, s_GoreFloorSplash);
         if (actor->user.spal == PALETTE_BLUE_LIGHTING)

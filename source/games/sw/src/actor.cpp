@@ -349,7 +349,7 @@ int DoActorSectorDamage(DSWActor* actor)
     }
 
     // note that most squishing is done in vator.c
-    if (actor->user.lo_sectp && actor->user.hi_sectp && abs(actor->user.int_loz() - actor->user.int_hiz()) < (int_ActorSizeZ(actor) >> 1))
+    if (actor->user.lo_sectp && actor->user.hi_sectp && abs(actor->user.loz - actor->user.hiz) < (ActorSizeZ(actor) * 0.5))
     {
         actor->user.Health = 0;
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
@@ -429,7 +429,7 @@ int DoActorDebris(DSWActor* actor)
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 10) // JBF: added null check
         {
             actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 3)) & 1023;
-            actor->set_int_z(actor->user.int_loz() - MulScale(Z(2), bsin(actor->user.WaitTics), 14));
+            actor->spr.pos.Z = actor->user.loz - 2 * DAngle::fromBuild(actor->user.WaitTics).Sin();
         }
     }
     else
@@ -867,9 +867,9 @@ int DoFall(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // Stick like glue when you hit the ground
-    if (actor->int_pos().Z > actor->user.int_loz() - actor->user.int_floor_dist())
+    if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
-        actor->set_int_z(actor->user.int_loz() - actor->user.int_floor_dist());
+        actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
         actor->user.Flags &= ~(SPR_FALLING);
     }
 

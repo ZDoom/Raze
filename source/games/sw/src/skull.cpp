@@ -232,7 +232,7 @@ int SetupSkull(DSWActor* actor)
 
     actor->user.Radius = 400;
 
-    if (int_ActorZOfBottom(actor) > actor->user.int_loz() - Z(16))
+    if (ActorZOfBottom(actor) > actor->user.loz - 16)
     {
         actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
 
@@ -617,7 +617,7 @@ int SetupBetty(DSWActor* actor)
 
     actor->user.Radius = 400;
 
-    if (int_ActorZOfBottom(actor) > actor->user.int_loz() - Z(16))
+    if (ActorZOfBottom(actor) > actor->user.loz - 16)
     {
         actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
 
