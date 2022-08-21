@@ -1406,8 +1406,6 @@ struct TRACK_POINT
 
     int int_tx() const { return pos.X * worldtoint; }
     int int_ty() const { return pos.Y * worldtoint; }
-    int int_tz() const { return pos.Z * worldtoint; }
-    int int_tang() const { return angle.Buildang(); }
 };
 
 struct TRACK
@@ -1485,6 +1483,9 @@ struct SECTOR_OBJECT
     walltype
         * morph_wall_point;       // actual wall point to drag
 
+    double
+           zdelta;         // z delta from original
+
 
     int    vel,            // velocity
            vel_tgt,        // target velocity
@@ -1492,7 +1493,6 @@ struct SECTOR_OBJECT
            player_yoff,    // player y offset from the ymid
            zorig_floor[MAX_SO_SECTOR],      // original z values for all sectors
            zorig_ceiling[MAX_SO_SECTOR],      // original z values for all sectors
-           zdelta,         // z delta from original
            z_tgt,          // target z delta
            z_rate,         // rate at which z aproaches target
            update,         // Distance from player at which you continue updating
