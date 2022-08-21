@@ -3183,30 +3183,29 @@ void DoPlayerClimb(PLAYER* pp)
             pp->pos.XY() = ppos;
 
             // sprite
-            const int IADJ_AMT = 8;
-            auto pos = plActor->int_pos();
-            if (pos.X != plActor->user.int_upos().X)
+            ppos = plActor->spr.pos.XY();
+            if (ppos.X != plActor->user.pos.X)
             {
-                if (pos.X < plActor->user.int_upos().X)
-                    pos.X += IADJ_AMT;
-                else if (pos.X > plActor->user.int_upos().X)
-                    pos.X -= IADJ_AMT;
+                if (ppos.X < plActor->user.pos.X)
+                    ppos.X += ADJ_AMT;
+                else if (ppos.X > plActor->user.pos.X)
+                    ppos.X -= ADJ_AMT;
 
-                if (labs(pos.X - plActor->user.int_upos().X) <= IADJ_AMT)
-                    pos.X = plActor->user.int_upos().X;
+                if (abs(ppos.X - plActor->user.pos.X) <= ADJ_AMT)
+                    ppos.X = plActor->user.pos.X;
             }
 
-            if (pos.Y != plActor->user.int_upos().Y)
+            if (ppos.Y != plActor->user.pos.Y)
             {
-                if (pos.Y < plActor->user.int_upos().Y)
-                    pos.Y += IADJ_AMT;
-                else if (pos.Y > plActor->user.int_upos().Y)
-                    pos.Y -= IADJ_AMT;
+                if (ppos.Y < plActor->user.pos.Y)
+                    ppos.Y += ADJ_AMT;
+                else if (ppos.Y > plActor->user.pos.Y)
+                    ppos.Y -= ADJ_AMT;
 
-                if (labs(pos.Y - plActor->user.int_upos().Y) <= IADJ_AMT)
-                    pos.Y = plActor->user.int_upos().Y;
+                if (abs(ppos.Y - plActor->user.pos.Y) <= ADJ_AMT)
+                    ppos.Y = plActor->user.pos.Y;
             }
-            plActor->set_int_pos(pos);
+            plActor->spr.pos.XY() = ppos;
         }
     }
 
