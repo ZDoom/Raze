@@ -55,7 +55,6 @@ DAngle GlobSpeedSO;
 short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
 {
     TRACK_POINT* end_point;
-    int end_dist, start_dist;
 
     // determine which end of the Track we are starting from
     if (start_point == t->TrackPoint)
@@ -67,22 +66,15 @@ short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
         end_point = t->TrackPoint;
     }
 
-    end_dist = Distance(end_point->int_tx(), end_point->int_ty(), actor->int_pos().X, actor->int_pos().Y);
-    start_dist = Distance(start_point->int_tx(), start_point->int_ty(), actor->int_pos().X, actor->int_pos().Y);
+    auto end_dist = (end_point->pos.XY() - actor->spr.pos.XY()).Length();
+    auto start_dist = (start_point->pos.XY() - actor->spr.pos.XY()).Length();
 
-    if (end_dist < start_dist)
-    {
-        return true;
-    }
-
-    return false;
-
+    return (end_dist < start_dist);
 }
 
 short TrackStartCloserThanEnd(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
 {
     TRACK_POINT* end_point;
-    int end_dist, start_dist;
 
     // determine which end of the Track we are starting from
     if (start_point == t->TrackPoint)
@@ -94,16 +86,10 @@ short TrackStartCloserThanEnd(DSWActor* actor, TRACK* t, TRACK_POINT* start_poin
         end_point = t->TrackPoint;
     }
 
-    end_dist = Distance(end_point->int_tx(), end_point->int_ty(), actor->int_pos().X, actor->int_pos().Y);
-    start_dist = Distance(start_point->int_tx(), start_point->int_ty(), actor->int_pos().X, actor->int_pos().Y);
+    auto end_dist = (end_point->pos.XY() - actor->spr.pos.XY()).Length();
+    auto start_dist = (start_point->pos.XY() - actor->spr.pos.XY()).Length();
 
-    if (start_dist < end_dist)
-    {
-        return true;
-    }
-
-    return false;
-
+    return (start_dist < end_dist);
 }
 
 /*
@@ -115,7 +101,8 @@ point to the sprite.
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* track_point_num, int* track_dir)
 {
-    int dist, near_dist = 999999, zdiff;
+    const double threshold = 15000 * maptoworld;
+    double near_dist = 999999;
 
     int i;
     short end_point[2] = { 0,0 };
@@ -189,20 +176,20 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
             break;
         }
 
-        zdiff = Z(16);
+        double zdiff = 16;
 
         // Look at both track end points to see wich is closer
         for (i = 0; i < 2; i++)
         {
             tp = t->TrackPoint + end_point[i];
 
-            dist = Distance(tp->int_tx(), tp->int_ty(), actor->int_pos().X, actor->int_pos().Y);
+            double dist = (tp->pos.XY() - actor->spr.pos.XY()).Length();
 
-            if (dist < 15000 && dist < near_dist)
+            if (dist < threshold && dist < near_dist)
             {
                 // make sure track start is on approximate z level - skip if
                 // not
-                if (labs(actor->int_pos().Z - tp->int_tz()) > zdiff)
+                if (abs(actor->spr.pos.Z - tp->pos.Z) > zdiff)
                 {
                     continue;
                 }
@@ -243,13 +230,13 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
     }
 
     auto track_sect = &sector[0];
-    if (near_dist < 15000)
+    if (near_dist < threshold)
     {
         // get the sector number of the point
-        updatesector(near_tp->int_tx(), near_tp->int_ty(), &track_sect);
+        updatesector(near_tp->pos, &track_sect);
 
         // if can see the point, return the track number
-        if (track_sect && FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(16), actor->sector(), near_tp->int_tx(), near_tp->int_ty(), track_sect->int_floorz() - Z(32), track_sect))
+        if (track_sect && FAFcansee(actor->spr.pos.plusZ(-16), actor->sector(), DVector3(near_tp->pos.XY(), track_sect->floorz - 32), track_sect))
         {
             return short(near_track - &Track[0]);
         }
