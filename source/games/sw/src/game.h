@@ -612,6 +612,14 @@ struct PLAYER
     {
         return int(hiz * zworldtoint);
     }
+    int player_int_ceiling_dist() const
+    {
+        return p_ceiling_dist * 256;
+    }
+    int player_int_floor_dist() const
+    {
+        return p_floor_dist * 256;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;

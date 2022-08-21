@@ -1892,7 +1892,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1906,10 +1906,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2041,7 +2041,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist() - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2064,12 +2064,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist() - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2829,9 +2829,9 @@ void DoPlayerJump(PLAYER* pp)
         // added this because jumping up to slopes or jumping on steep slopes
         // sometimes caused the view to go into the slope
         // if player gets to close the floor while jumping
-        if (PlayerFloorHit(pp, pp->int_ploz() - pp->p_floor_dist))
+        if (PlayerFloorHit(pp, pp->int_ploz() - pp->player_int_floor_dist()))
         {
-            pp->set_int_ppos_Z(pp->int_ploz() - pp->p_floor_dist);
+            pp->pos.Z = pp->loz - pp->p_floor_dist;
 
             pp->jump_speed = 0;
             PlayerSectorBound(pp, Z(1));
@@ -2989,10 +2989,10 @@ void DoPlayerFall(PLAYER* pp)
 
         // need a test for head hits a sloped ceiling while falling
         // if player gets to close the Ceiling while Falling
-        if (PlayerCeilingHit(pp, pp->int_phiz() + pp->p_ceiling_dist))
+        if (PlayerCeilingHit(pp, pp->int_phiz() + pp->player_int_ceiling_dist()))
         {
             // put player at the ceiling
-            pp->set_int_ppos_Z(pp->int_phiz() + pp->p_ceiling_dist);
+            pp->pos.Z = pp->hiz + pp->p_ceiling_dist;
             // don't return or anything - allow to fall until
             // hit floor
         }
@@ -4413,9 +4413,9 @@ void DoPlayerDive(PLAYER* pp)
     if (sectu && (sectu->number == 0 || (sectu->flags & SECTFU_CANT_SURFACE)))
     {
         // for room over room water the hiz will be the top rooms ceiling
-        if (pp->int_ppos().Z < pp->int_phiz() + pp->p_ceiling_dist)
+        if (pp->pos.Z < pp->hiz + pp->p_ceiling_dist)
         {
-            pp->set_int_ppos_Z(pp->int_phiz() + pp->p_ceiling_dist);
+            pp->pos.Z = pp->hiz + pp->p_ceiling_dist;
         }
     }
     else
@@ -4465,7 +4465,7 @@ void DoPlayerDive(PLAYER* pp)
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
     }
     // Reverse bobbing when getting close to the ceiling
-    if (pp->int_ppos().Z + pp->bob_amt < pp->int_phiz() + pp->p_ceiling_dist)
+    if (pp->int_ppos().Z + pp->bob_amt < pp->int_phiz() + pp->player_int_ceiling_dist())
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
@@ -4522,7 +4522,7 @@ void DoPlayerCurrent(PLAYER* pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4538,10 +4538,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
