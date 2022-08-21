@@ -604,6 +604,14 @@ struct PLAYER
     {
         pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
     }
+    int int_ploz() const
+    {
+        return _loz;
+    }
+    int int_phiz() const
+    {
+        return _hiz;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -624,7 +632,7 @@ struct PLAYER
     int16_t down_speed, up_speed; // diving
     int z_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
-    int hiz,loz;
+    int _hiz,_loz;
     int ceiling_dist,floor_dist;
     sectortype* hi_sectp, *lo_sectp;
 
@@ -2302,6 +2310,7 @@ struct USERSAVE
 // save player info when moving to a new level (shortened to only cover the fields that actually are copied back.)
 extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
+constexpr double JUMP_FACTOR = 1. / 256.;
 
 END_SW_NS
 

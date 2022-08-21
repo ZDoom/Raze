@@ -3689,7 +3689,7 @@ AutoShrap:
             }
 
             // for FastShrap
-            actor->user.change.Z = labs(actor->user.jump_speed*4) - RandomRange(labs(actor->user.jump_speed)*8)*2;
+            actor->user.change.Z = abs(actor->user.jump_speed*4) - RandomRange(labs(actor->user.jump_speed)*8)*2;
             actor->user.WaitTics = WaitTics + RandomRange(WaitTics/2);
 
             switch (actor->user.ID)
@@ -4152,7 +4152,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
 
             // for FastShrap
-            actorNew->user.change.Z = labs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8);
+            actorNew->user.change.Z = abs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8);
             actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
             actor->user.Flags |= (SPR_BOUNCE);

@@ -715,7 +715,7 @@ int DoCoolgCircle(DSWActor* actor)
     }
 
     // move in the z direction
-    actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS * zinttoworld;
+    actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     bound = actor->user.hiz + actor->user.ceiling_dist + COOLG_BOB_AMT;
     if (actor->user.pos.Z < bound)

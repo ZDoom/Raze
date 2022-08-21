@@ -969,7 +969,6 @@ int InitRipper2Hang(DSWActor* actor)
     actor->user.StateFallOverride = sg_Ripper2HangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
-    //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
     actor->user.Flags |= (SPR_JUMPING);
@@ -1079,7 +1078,6 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
-    //actor->user.jump_speed = -800;
     PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
     actor->user.Flags |= (SPR_JUMPING);

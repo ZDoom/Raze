@@ -1975,8 +1975,6 @@ int DoNinjaGrabThroat(DSWActor* actor)
 
         ChangeState(actor, actor->user.StateEnd);
         actor->spr.xvel = 0;
-        //actor->user.jump_speed = -300;
-        //DoActorBeginJump(actor);
         PlaySound(DIGI_NINJASCREAM, actor, v3df_follow);
     }
 

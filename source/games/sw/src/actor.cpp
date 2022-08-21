@@ -660,7 +660,7 @@ int DoActorJump(DSWActor* actor)
     }
 
     // adjust height by jump speed
-    actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
+    actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // if player gets to close the ceiling while jumping
     double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
@@ -715,7 +715,7 @@ int DoActorFall(DSWActor* actor)
     actor->user.jump_speed += actor->user.jump_grav * ACTORMOVETICS;
 
     // adjust player height by jump speed
-    actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
+    actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // Stick like glue when you hit the ground
     if (actor->spr.pos.Z > actor->user.loz)
@@ -826,7 +826,7 @@ int DoJump(DSWActor* actor)
     }
 
     // adjust height by jump speed
-    actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
+    actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // if player gets to close the ceiling while jumping
     double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
@@ -864,7 +864,7 @@ int DoFall(DSWActor* actor)
     actor->user.jump_speed += actor->user.jump_grav * ACTORMOVETICS;
 
     // adjust player height by jump speed
-    actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
+    actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // Stick like glue when you hit the ground
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)

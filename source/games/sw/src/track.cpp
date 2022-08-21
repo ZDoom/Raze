@@ -1781,8 +1781,8 @@ PlayerPart:
                 // move up some for really fast moving plats
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
-                pp->set_int_ppos_Z(pp->loz - PLAYER_CRAWL_HEIGHT);
-                pp->actor->set_int_z(pp->loz);
+                pp->set_int_ppos_Z(pp->int_ploz() - PLAYER_CRAWL_HEIGHT);
+                pp->actor->set_int_z(pp->int_ploz());
             }
             else
             {
@@ -1792,8 +1792,8 @@ PlayerPart:
 
                 if (!(pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING)))
                 {
-                    pp->set_int_ppos_Z(pp->loz - PLAYER_HEIGHT);
-                    pp->actor->set_int_z(pp->loz);
+                    pp->set_int_ppos_Z(pp->int_ploz() - PLAYER_HEIGHT);
+                    pp->actor->set_int_z(pp->int_ploz());
                 }
             }
         }

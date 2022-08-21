@@ -332,7 +332,7 @@ int DoVatorMove(DSWActor* actor, double *lptr)
     if (zval < actor->user.z_tgt)
     {
         // move it DOWN
-        zval += (synctics * actor->user.jump_speed) * zinttoworld;
+        zval += (synctics * actor->user.jump_speed) * JUMP_FACTOR;
 
         actor->user.jump_speed += actor->user.vel_rate * synctics;
 
@@ -345,7 +345,7 @@ int DoVatorMove(DSWActor* actor, double *lptr)
     if (zval > actor->user.z_tgt)
     {
         // move it UP
-        zval -= (synctics * actor->user.jump_speed) * zinttoworld;
+        zval -= (synctics * actor->user.jump_speed) * JUMP_FACTOR;
 
         actor->user.jump_speed += actor->user.vel_rate * synctics;
 
