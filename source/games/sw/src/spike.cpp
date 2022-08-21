@@ -52,16 +52,16 @@ void ReverseSpike(DSWActor* actor)
     if (actor->user.z_tgt == actor->user.oz)
     {
         if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
-        else if (actor->user.int_upos().Z == actor->user.int_oz())
+            actor->user.z_tgt = actor->user.pos.Z;
+        else if (actor->user.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->spr.pos.Z;
     }
-    else if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+    else if (actor->user.z_tgt == actor->user.pos.Z)
     {
         if (actor->spr.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->spr.pos.Z;
-        else if (actor->user.int_upos().Z == actor->user.int_oz())
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+        else if (actor->user.pos.Z == actor->user.oz)
+            actor->user.z_tgt = actor->user.pos.Z;
     }
 
     actor->user.vel_rate = -actor->user.vel_rate;

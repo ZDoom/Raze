@@ -57,16 +57,16 @@ void ReverseVator(DSWActor* actor)
     if (actor->user.z_tgt == actor->user.oz)
     {
         if (actor->spr.pos.Z == actor->user.oz)
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
-        else if (actor->user.int_upos().Z == actor->user.int_oz())
+            actor->user.z_tgt = actor->user.pos.Z;
+        else if (actor->user.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->spr.pos.Z;
     }
-    else if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+    else if (actor->user.z_tgt == actor->user.pos.Z)
     {
         if (actor->spr.pos.Z == actor->user.oz)
             actor->user.z_tgt = actor->spr.pos.Z;
-        else if (actor->user.int_upos().Z == actor->user.int_oz())
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+        else if (actor->user.pos.Z == actor->user.oz)
+            actor->user.z_tgt = actor->user.pos.Z;
     }
 
     actor->user.vel_rate = -actor->user.vel_rate;
@@ -392,10 +392,10 @@ int DoVator(DSWActor* actor)
     if (zval == actor->user.int_z_tgt())
     {
         // in the ON position
-        if (actor->user.int_z_tgt() == actor->int_pos().Z)
+        if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+            actor->user.z_tgt = actor->user.pos.Z;
             actor->user.vel_rate = -actor->user.vel_rate;
 
             SetVatorInactive(actor);
@@ -406,7 +406,7 @@ int DoVator(DSWActor* actor)
         }
         else
         // in the OFF position
-        if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+        if (actor->user.z_tgt == actor->user.pos.Z)
         {
             short match = SP_TAG2(actor);
 
@@ -503,7 +503,7 @@ int DoVator(DSWActor* actor)
             {
                 if (itActor->spr.statnum == STAT_ENEMY)
                 {
-                    if (labs(sectp->int_ceilingz() - sectp->int_floorz()) < ActorSizeZ(itActor))
+                    if (abs(sectp->int_ceilingz() - sectp->int_floorz()) < ActorSizeZ(itActor))
                     {
                         InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
