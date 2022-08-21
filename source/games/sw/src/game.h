@@ -2203,6 +2203,12 @@ inline double ActorLowerZ(DSWActor* actor)
     return (int_ActorZOfBottom(actor) - (int_ActorSizeZ(actor) * 0.25)) * zinttoworld;
 }
 
+inline DVector3 ActorLowerVect(DSWActor* actor)
+{
+    return DVector3(actor->spr.pos.XY(), ActorLowerZ(actor));
+}
+
+
 // Z size of top (TOS) and bottom (BOS) part of sprite
 inline int ActorSizeToTop(DSWActor* a)
 {

@@ -7042,7 +7042,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (actor->user.Radius > 200)
             {
-                if (!FAFcansee_(itActor->int_pos().X,itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
+                if (!FAFcansee(ActorUpperVect(itActor), itActor->sector(),actor->spr.pos,actor->sector()))
                     continue;
             }
 
@@ -7259,8 +7259,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector()) &&
-                    !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorLowerZ(actor), itActor->sector()))
+                if (!FAFcansee(actor->spr.pos, actor->sector(), ActorUpperVect(itActor), itActor->sector()) &&
+                    !FAFcansee(actor->spr.pos, actor->sector(), ActorLowerVect(itActor), itActor->sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -8603,7 +8603,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (!FAFcansee_(itActor->int_pos().X,itActor->int_pos().Y,int_ActorUpperZ(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
+            if (!FAFcansee(ActorUpperVect(actor),itActor->sector(),actor->spr.pos,actor->sector()))
                 continue;
 
             return true;
