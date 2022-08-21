@@ -1448,7 +1448,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     }
     else
     {
-        bob_amt = camerapp->bob_amt;
+        bob_amt = camerapp->int_bob_amt();
 
         if (CameraTestMode)
         {

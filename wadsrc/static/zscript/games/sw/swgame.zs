@@ -220,7 +220,7 @@ struct SWPlayer native
     //native int16 LadderSector;
     native int16 JumpDuration;
     native int16 WadeDepth;
-    native int16 bob_amt;
+    //native double bob_amt;
     native int16 bob_ndx;
     native int16 bcnt; // bob count
     native int bob_z, obob_z;

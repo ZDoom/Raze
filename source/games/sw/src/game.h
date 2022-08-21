@@ -620,6 +620,10 @@ struct PLAYER
     {
         return p_floor_dist * 256;
     }
+    int int_bob_amt() const
+    {
+        return p_bob_amt * zworldtoint;
+    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -637,6 +641,7 @@ struct PLAYER
     SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
     double hiz, loz;
+    double p_bob_amt;
 
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving
@@ -687,7 +692,6 @@ struct PLAYER
 
     int16_t JumpDuration;
     int16_t WadeDepth;
-    int16_t bob_amt;
     int16_t bob_ndx;
     int16_t bcnt; // bob count
     int bob_z, obob_z;
