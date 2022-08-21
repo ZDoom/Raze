@@ -1770,8 +1770,6 @@ inline bool FAF_ConnectArea(sectortype* sect)
     return sect && (FAF_ConnectCeiling(sect) || FAF_ConnectFloor(sect));
 }
 
-bool PlayerCeilingHit(PLAYER* pp, int zlimit);
-bool PlayerFloorHit(PLAYER* pp, int zlimit);
 
 void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,

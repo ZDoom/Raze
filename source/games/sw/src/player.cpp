@@ -2776,6 +2776,16 @@ void DoPlayerBeginForceJump(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
+bool PlayerCeilingHit(PLAYER* pp, double zlimit)
+{
+    return (pp->pos.Z < zlimit);
+}
+
+bool PlayerFloorHit(PLAYER* pp, double zlimit)
+{
+    return (pp->pos.Z > zlimit);
+}
+
 void DoPlayerJump(PLAYER* pp)
 {
     short i;
@@ -2812,7 +2822,7 @@ void DoPlayerJump(PLAYER* pp)
         pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
-        if (PlayerCeilingHit(pp, pp->int_phiz() + Z(4)))
+        if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
             pp->pos.Z = pp->hiz + 4;
@@ -2829,7 +2839,7 @@ void DoPlayerJump(PLAYER* pp)
         // added this because jumping up to slopes or jumping on steep slopes
         // sometimes caused the view to go into the slope
         // if player gets to close the floor while jumping
-        if (PlayerFloorHit(pp, pp->int_ploz() - pp->player_int_floor_dist()))
+        if (PlayerFloorHit(pp, pp->loz - pp->p_floor_dist))
         {
             pp->pos.Z = pp->loz - pp->p_floor_dist;
 
@@ -2881,7 +2891,7 @@ void DoPlayerForceJump(PLAYER* pp)
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
-        if (PlayerCeilingHit(pp, pp->int_phiz() + Z(4)))
+        if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
             pp->pos.Z = pp->hiz + 4;
@@ -2989,7 +2999,7 @@ void DoPlayerFall(PLAYER* pp)
 
         // need a test for head hits a sloped ceiling while falling
         // if player gets to close the Ceiling while Falling
-        if (PlayerCeilingHit(pp, pp->int_phiz() + pp->player_int_ceiling_dist()))
+        if (PlayerCeilingHit(pp, pp->hiz + pp->p_ceiling_dist))
         {
             // put player at the ceiling
             pp->pos.Z = pp->hiz + pp->p_ceiling_dist;
@@ -2997,7 +3007,7 @@ void DoPlayerFall(PLAYER* pp)
             // hit floor
         }
 
-        if (PlayerFloorHit(pp, (pp->loz - PLAYER_HEIGHTF + recoil_amnt) * worldtoint))
+        if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF + recoil_amnt))
         {
             sectortype* sectp = pp->cursector;
 
@@ -3221,7 +3231,7 @@ void DoPlayerClimb(PLAYER* pp)
         pp->add_int_ppos_Z(-climb_amt);
 
         // if player gets to close the ceiling while climbing
-        if (PlayerCeilingHit(pp, pp->int_phiz()))
+        if (PlayerCeilingHit(pp, pp->hiz))
         {
             // put player at the hiz
             pp->pos.Z = pp->hiz;
@@ -3229,7 +3239,7 @@ void DoPlayerClimb(PLAYER* pp)
         }
 
         // if player gets to close the ceiling while climbing
-        if (PlayerCeilingHit(pp, pp->int_phiz() + Z(4)))
+        if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
             pp->set_int_ppos_Z(pp->LadderSector->int_ceilingz() + Z(4));
@@ -3260,8 +3270,7 @@ void DoPlayerClimb(PLAYER* pp)
         pp->add_int_ppos_Z(climb_amt);
 
         // if you are touching the floor
-        //if (pp->posz >= pp->loz - Z(4) - PLAYER_HEIGHT)
-        if (PlayerFloorHit(pp, pp->int_ploz() - Z(4) - PLAYER_HEIGHT))
+        if (PlayerFloorHit(pp, pp->loz - 4 - PLAYER_HEIGHTF))
         {
             // stand on floor
             pp->pos.Z = pp->loz - 4 - PLAYER_HEIGHTF;
@@ -3401,10 +3410,10 @@ void DoPlayerBeginCrawl(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
 }
 
-bool PlayerFallTest(PLAYER* pp, int player_height)
+bool PlayerFallTest(PLAYER* pp, double player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
-    if (abs(pp->int_ppos().Z - pp->int_ploz()) > player_height + PLAYER_FALL_HEIGHT)
+    if (abs(pp->pos.Z - pp->loz) > player_height + PLAYER_FALL_HEIGHTF)
     {
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
@@ -3477,7 +3486,7 @@ void DoPlayerCrawl(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (PlayerFallTest(pp, PLAYER_CRAWL_HEIGHT))
+    if (PlayerFallTest(pp, PLAYER_CRAWL_HEIGHTF))
     {
         pp->jump_speed = Z(1);
         pp->Flags &= ~(PF_CRAWLING);
@@ -3533,26 +3542,6 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     UpdatePlayerSprite(pp);
 }
 
-bool PlayerCeilingHit(PLAYER* pp, int zlimit)
-{
-    if (pp->int_ppos().Z < zlimit)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool PlayerFloorHit(PLAYER* pp, int zlimit)
-{
-    if (pp->int_ppos().Z > zlimit)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void DoPlayerFly(PLAYER* pp)
 {
     if (SectorIsUnderwaterArea(pp->cursector))
@@ -3585,14 +3574,14 @@ void DoPlayerFly(PLAYER* pp)
     // so the player never goes into the ceiling/floor
 
     // Only get so close to the ceiling
-    if (PlayerCeilingHit(pp, pp->int_phiz() + PLAYER_FLY_BOB_AMT + Z(8)))
+    if (PlayerCeilingHit(pp, pp->hiz + PLAYER_FLY_BOB_AMTF + 8))
     {
         pp->pos.Z = pp->hiz + PLAYER_FLY_BOB_AMTF + 8;
         pp->z_speed = 0;
     }
 
     // Only get so close to the floor
-    if (PlayerFloorHit(pp, pp->int_ploz() - PLAYER_HEIGHT - PLAYER_FLY_BOB_AMT))
+    if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMTF))
     {
         pp->pos.Z = pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMTF;
         pp->z_speed = 0;
@@ -5198,7 +5187,7 @@ void DoPlayerDeathJump(PLAYER* pp)
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
-        if (PlayerCeilingHit(pp, pp->int_phiz() + Z(4)))
+        if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
             pp->pos.Z = pp->hiz + 4;
@@ -5234,7 +5223,7 @@ void DoPlayerDeathFall(PLAYER* pp)
         else
             loz = pp->loz;
 
-        if (PlayerFloorHit(pp, loz * worldtoint - PLAYER_DEATH_HEIGHT))
+        if (PlayerFloorHit(pp, loz - PLAYER_DEATH_HEIGHTF))
         {
             if (loz != pp->loz)
                 SpawnSplash(pp->actor);
@@ -5694,7 +5683,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
     {
         // Spawn a dead LoWang body for non-head deaths
         // Hey Frank, if you think of a better check, go ahead and put it in.
-        if (PlayerFloorHit(pp, pp->int_ploz() - PLAYER_HEIGHT))
+        if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF))
         {
             if (pp->DeathType == PLAYER_DEATH_FLIP || pp->DeathType == PLAYER_DEATH_RIPPER)
                 QueueLoWangs(pp->actor);
@@ -6257,7 +6246,7 @@ void DoPlayerRun(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (PlayerFallTest(pp, PLAYER_HEIGHT))
+    if (PlayerFallTest(pp, PLAYER_HEIGHTF))
     {
         pp->jump_speed = Z(1);
         DoPlayerBeginFall(pp);
