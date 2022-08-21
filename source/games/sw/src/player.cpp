@@ -1194,9 +1194,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = int_ActorZOfBottom(itActor) - (int_ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
-                !FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhm, itActor->sector()) &&
-                !FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhl, itActor->sector())
+            if (!FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
+                !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhm, itActor->sector()) &&
+                !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhl, itActor->sector())
                 )
                 continue;
 
@@ -5660,7 +5660,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, int_ActorZOfTop(killer), killer->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
+        if (FAFcansee_(killer->int_pos().X, killer->int_pos().Y, int_ActorZOfTop(killer), killer->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
         {
             pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->int_ppos().X, killer->int_pos().Y - pp->int_ppos().Y)) * (1. / 16.));
         }

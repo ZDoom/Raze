@@ -5034,7 +5034,7 @@ int DoGet(DSWActor* actor)
 
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
+        can_see = FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
                             pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector);
         actor->spr.cstat = cstat_bak;
 
@@ -5901,7 +5901,7 @@ void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
 
     // if actor can still see the player
     look_height = int_ActorZOfTop(actor);
-    if (FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
+    if (FAFcansee_(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
     {
         // Player is visible
         // adjust update range of this sprite

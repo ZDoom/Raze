@@ -1771,10 +1771,10 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HitInfo& hit, int32_t clipmask);
 
-bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
+bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
 inline bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte)
 {
-    return FAFcansee(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sects,
+    return FAFcansee_(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sects,
         int(end.X * worldtoint), int(end.Y * worldtoint), int(end.Z * zworldtoint), secte);
 }
 

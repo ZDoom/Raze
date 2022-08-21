@@ -1088,8 +1088,8 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
             ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
 
             FAFcansee_test =
-                (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz + int_ActorSizeZ(pp->actor), pp->cursector));
+                (FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz + int_ActorSizeZ(pp->actor), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 

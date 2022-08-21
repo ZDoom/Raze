@@ -222,7 +222,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     }
 }
 
-bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
+bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
           int32_t xe, int32_t ye, int32_t ze, sectortype* secte)
 {
     int loz, hiz;

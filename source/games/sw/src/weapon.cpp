@@ -7042,7 +7042,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (actor->user.Radius > 200)
             {
-                if (!FAFcansee(itActor->int_pos().X,itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
+                if (!FAFcansee_(itActor->int_pos().X,itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
                     continue;
             }
 
@@ -7187,7 +7187,7 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
                 sectortype* sectp = nullptr;
                 if (WallBreakPosition(&wal, &sectp, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
-                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectp))
+                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee_(x, y, z, start_sect, hit_x, hit_y, hit_z, sectp))
                     {
                         HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
 
@@ -7259,8 +7259,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector()) &&
-                    !FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorLowerZ(actor), itActor->sector()))
+                if (!FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(actor), itActor->sector()) &&
+                    !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorLowerZ(actor), itActor->sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -8603,7 +8603,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(itActor->int_pos().X,itActor->int_pos().Y,int_ActorUpperZ(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
+            if (!FAFcansee_(itActor->int_pos().X,itActor->int_pos().Y,int_ActorUpperZ(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
                 continue;
 
             return true;
