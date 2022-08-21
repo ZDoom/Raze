@@ -363,7 +363,7 @@ int DoSkullJump(DSWActor* actor)
 
             int dist,a,b,c;
 
-            DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, Z(32)))
@@ -424,7 +424,7 @@ int DoSkullWait(DSWActor* actor)
 {
     int a,b,c,dist;
 
-    DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 
@@ -740,7 +740,7 @@ int DoBettyJump(DSWActor* actor)
         {
             int dist,a,b,c;
 
-            DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, Z(32)))
@@ -798,7 +798,7 @@ int DoBettyWait(DSWActor* actor)
 {
     int a,b,c,dist;
 
-    DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 

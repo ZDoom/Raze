@@ -459,7 +459,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     double bound;
     if (actor->user.lowActor && actor->user.targetActor == actor->user.highActor) // this doesn't look right...
     {
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.lowActor->int_pos().X, actor->user.lowActor->int_pos().Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos, actor->user.lowActor->spr.pos, dist, a, b, c);
         if (dist <= 300)
             bound = actor->user.pos.Z;
         else
@@ -476,7 +476,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // upper bound
     if (actor->user.highActor && actor->user.targetActor == actor->user.highActor)
     {
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.highActor->int_pos().X, actor->user.highActor->int_pos().Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos, actor->user.highActor->spr.pos, dist, a, b, c);
         if (dist <= 300)
             bound = actor->user.pos.Z;
         else

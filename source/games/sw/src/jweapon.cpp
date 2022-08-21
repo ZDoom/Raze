@@ -1425,7 +1425,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
             if (itActor == pp->actor)
                 break;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
@@ -1484,7 +1484,7 @@ int InitFlashBomb(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
@@ -1880,7 +1880,7 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 

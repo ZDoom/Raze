@@ -2670,7 +2670,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, sop->int_pmid().X, sop->int_pmid().Y, dist, a, b, c);
+                DISTANCE(pp->pos, sop->pmid, dist, a, b, c);
                 if (dist < min_dist)
                     min_dist = dist;
             }

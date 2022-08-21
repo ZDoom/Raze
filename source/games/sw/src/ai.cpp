@@ -324,7 +324,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
 
         if (dist < near_dist)
         {
@@ -350,7 +350,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
                 continue;
         }
 
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
 
         DSWActor* plActor = pp->actor;
         if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
@@ -377,7 +377,7 @@ TARGETACTOR:
             if ((itActor->user.Flags & (SPR_SUICIDE | SPR_DEAD)))
                 continue;
 
-            DISTANCE(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y, dist, a, b, c);
+            DISTANCE(actor->spr.pos, itActor->spr.pos, dist, a, b, c);
 
             if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(itActor), itActor->sector()))
             {
@@ -1169,7 +1169,7 @@ int DoActorAttack(DSWActor* actor)
 
     DoActorNoise(ChooseAction(actor->user.Personality->Broadcast),actor);
 
-    DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
 
     auto pActor = GetPlayerSpriteNum(actor);
     if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||

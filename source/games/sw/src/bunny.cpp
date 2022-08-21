@@ -903,7 +903,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (itActor->user.ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
         if (dist > near_dist) continue;
 

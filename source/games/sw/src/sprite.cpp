@@ -5021,7 +5021,7 @@ int DoGet(DSWActor* actor)
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a,b,c);
+        DISTANCE(pp->pos, actor->spr.pos, dist, a,b,c);
         if ((unsigned)dist > (plActor->user.Radius + actor->user.Radius))
         {
             continue;
@@ -6056,7 +6056,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->int_ppos().X, pp->int_ppos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+                DISTANCE(pp->pos, actor->spr.pos, dist, tx, ty, tmin);
 
                 AdjustActiveRange(pp, actor, dist);
 

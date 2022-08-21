@@ -5292,7 +5292,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
         int damage_per_pixel, damage_force, damage_amt;
 
 
-        DISTANCE(weapActor->int_pos().X,weapActor->int_pos().Y,actor->int_pos().X,actor->int_pos().Y,dist,a,b,c);
+        DISTANCE(weapActor->spr.pos, actor->spr.pos,dist,a,b,c);
 
         // take off the box around the player or else you'll never get
         // the max_damage;
@@ -7028,7 +7028,7 @@ int DoDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
 
@@ -7099,7 +7099,7 @@ int DoFlamesDamageTest(DSWActor* actor)
                 continue;
             }
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
 
             if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
@@ -7236,7 +7236,7 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
 
             if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
                 continue;
@@ -7281,7 +7281,7 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatBreakList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
@@ -7309,7 +7309,7 @@ int DoExpDamageTest(DSWActor* actor)
     SWStatIterator it(STAT_WALL_MOVE);
     while (auto itActor = it.Next())
     {
-        DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
         if ((unsigned)dist > actor->user.Radius/4)
             continue;
 
@@ -7355,7 +7355,7 @@ int DoMineExpMine(DSWActor* actor)
     SWStatIterator it(STAT_MINE_STUCK);
     while (auto itActor = it.Next())
     {
-        DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
         if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
             continue;
 
@@ -8583,7 +8583,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, tx, ty, tmin);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
@@ -9296,7 +9296,7 @@ int DoRocket(DSWActor* actor)
 
     if ((actor->user.FlagOwner -= ACTORMOVETICS)<=0 && actor->user.spal == 20)
     {
-        DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a, b, c);
+        DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
         actor->user.FlagOwner = dist>>6;
         // Special warn sound attached to each seeker spawned
         PlaySound(DIGI_MINEBEEP, actor, v3df_follow);
@@ -11336,7 +11336,7 @@ int DoSerpRing(DSWActor* actor)
             !(tActor->user.PlayerP->Flags & PF_DEAD))
         {
             actor->user.targetActor = own->user.targetActor;
-            DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, dist, a,b,c);
+            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a,b,c);
 
             // if ((dist ok and random ok) OR very few skulls left)
             if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
@@ -13768,7 +13768,7 @@ int InitRipperSlash(DSWActor* actor)
             if ((unsigned)FindDistance3D(actor->int_pos() - itActor->int_pos()) > itActor->user.Radius + actor->user.Radius)
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -13796,7 +13796,7 @@ int InitBunnySlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -13825,7 +13825,7 @@ int InitSerpSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,150))
             {
@@ -13862,7 +13862,7 @@ int DoBladeDamage(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist > 2000)
                 continue;
@@ -13899,7 +13899,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist > 2000)
                 continue;
@@ -13942,7 +13942,7 @@ int InitCoolgBash(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -13970,7 +13970,7 @@ int InitSkelSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -13998,7 +13998,7 @@ int InitGoroChop(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,150))
             {
@@ -14696,7 +14696,7 @@ int InitEelFire(DSWActor* actor)
             if ((unsigned)FindDistance3D(actor->int_pos() - itActor->int_pos()) > itActor->user.Radius + actor->user.Radius)
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, actor->int_pos().X, actor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -17755,7 +17755,7 @@ int DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y, dist, a, b, c);
+            DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
 
             if (dist < near_dist)
             {

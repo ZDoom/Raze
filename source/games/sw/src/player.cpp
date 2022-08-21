@@ -5779,7 +5779,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->int_pos().X, itActor->int_pos().Y, plActor->int_pos().X, plActor->int_pos().Y, dist, a, b, c);
+            DISTANCE(itActor->spr.pos, plActor->spr.pos, dist, a, b, c);
 
             if (unsigned(dist) < itActor->user.Radius + 100)
             {

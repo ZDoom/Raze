@@ -209,12 +209,12 @@ inline int DIST(int x1, int y1, int x2, int y2)
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
-inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty, int& tmin)
+inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx, int& ty, int& tmin)
 {
-	tx = abs(x2 - x1);
-	ty = abs(y2 - y1);
-	tmin = min(tx, ty);
-	dist = tx + ty - (tmin >> 1);
+    tx = int(abs(p2.X - p1.X) * worldtoint);
+    ty = int(abs(p2.Y - p1.Y) * worldtoint);
+    tmin = min(tx, ty);
+    dist = tx + ty - (tmin >> 1);
 }
 
 inline int GetSpriteSizeY(const spritetypebase* sp)
