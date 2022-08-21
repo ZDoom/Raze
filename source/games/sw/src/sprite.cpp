@@ -6201,12 +6201,12 @@ void SpriteControl(void)
 Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     Collision retval{};
-    int zh;
+    double zH;
 	short tempshort;
 
     ASSERT(actor->hasU());
 
-    vec3_t clippos = actor->int_pos();
+    auto clip_pos = actor->spr.pos;
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
@@ -6215,24 +6215,24 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YCENTER))
     {
-        zh = 0;
+        zH = 0;
     }
     else
     {
         // move the center point up for moving
-        zh = actor->user.int_zclip();
-        clippos.Z -= zh;
+        zH = actor->user.zclip;
+        clip_pos.Z -= zH;
     }
 
 
 //    ASSERT(inside(actor->spr.x,actor->spr.y,dasectnum));
 
-    clipmove(clippos, &dasect,
+    clipmove(clip_pos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
 
 
-    actor->set_int_xy(clippos.X, clippos.Y);
+    actor->spr.pos.XY() = clip_pos.XY();
 
     if (dasect == nullptr)
     {
@@ -6251,8 +6251,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // I subtracted 8 from the clipdist because actors kept going up on
     // ledges they were not supposed to go up on.  Did the same for the
     // player. Seems to work ok!
-    vec3_t pos = actor->int_pos();
-    pos.Z -= zh + 1;
+    auto pos = actor->spr.pos.plusZ(-zH - maptoworld);
     FAFgetzrange(pos, actor->sector(),
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
@@ -6263,16 +6262,16 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // Takes info from global variables
     DoActorGlobZ(actor);
 
-    clippos.Z = actor->int_pos().Z + ((zchange * numtics) >> 3);
+    clip_pos.Z = actor->spr.pos.Z + ((zchange * numtics) * 0.125) * inttoworld;
 
     // test for hitting ceiling or floor
-    if ((clippos.Z - zh <= globhiz * zworldtoint) || (clippos.Z - zh > globloz * zworldtoint))
+    if ((clip_pos.Z - zH <= globhiz) || (clip_pos.Z - zH > globloz))
     {
         if (retval.type == kHitNone)
         {
             if (actor->user.Flags & (SPR_CLIMBING))
             {
-                actor->set_int_z(clippos.Z);
+                actor->spr.pos.Z = clip_pos.Z;
                 return retval;
             }
 
@@ -6281,7 +6280,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     }
     else
     {
-        actor->set_int_z(clippos.Z);
+        actor->spr.pos.Z = clip_pos.Z;
     }
 
     // extra processing for Stacks and warping
