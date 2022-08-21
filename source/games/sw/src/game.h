@@ -116,6 +116,7 @@ inline int RANDOM(void)
 }
 int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
 double RANDOM_P2F(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)) * maptoworld; }
+DAngle RANDOM_ANGLE() { return DAngle::fromBuild(RANDOM_P2(2048)); }
 
 //
 // Map directions/degrees

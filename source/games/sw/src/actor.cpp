@@ -127,7 +127,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.RotNum = 0;
         actor->spr.xvel <<= 1;
         actor->user.ActorActionFunc = nullptr;
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+        actor->spr.angle += DAngle180;
         break;
 
     case NINJA_RUN_R0:
@@ -370,9 +370,9 @@ int DoActorSectorDamage(DSWActor* actor)
 }
 
 
-bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
+bool move_debris(DSWActor* actor, const DVector2& change)
 {
-    actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
+    actor->user.coll = move_sprite(actor, change.X * worldtoint, change.Y * worldtoint, 0,
                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
 
     return actor->user.coll.type == kHitNone;
@@ -384,7 +384,6 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 int DoActorDebris(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
-    int nx, ny;
 
     // This was move from DoActorDie so actor's can't be walked through until they are on the floor
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -413,16 +412,12 @@ int DoActorDebris(DSWActor* actor)
         }
         else
         {
-            //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.angle) >> 14;
-            //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.angle) >> 14;
-            nx = MulScale(ACTORMOVETICS, bcos(actor->int_ang()), 14);
-            ny = MulScale(ACTORMOVETICS, bsin(actor->int_ang()), 14);
+            // todo: check correctness
+            DVector2 nvec(ACTORMOVETICS * maptoworld * actor->spr.angle.Cos(), ACTORMOVETICS * maptoworld * actor->spr.angle.Sin());
 
-            //actor->spr.clipdist = (256+128)>>2;
-
-            if (!move_debris(actor, nx, ny, 0L))
+            if (!move_debris(actor, nvec))
             {
-                actor->set_int_ang(RANDOM_P2(2048));
+                actor->spr.angle = RANDOM_ANGLE();
             }
         }
 

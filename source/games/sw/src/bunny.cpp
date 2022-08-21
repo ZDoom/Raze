@@ -1169,7 +1169,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.pos = actor->spr.pos;
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
-    actorNew->set_int_ang(RANDOM_P2(2048));
+    actorNew->spr.angle = RANDOM_ANGLE();
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
     actorNew->spr.shade = actor->spr.shade;
