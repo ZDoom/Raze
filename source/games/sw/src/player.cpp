@@ -5004,9 +5004,7 @@ void PlayerToRemote(PLAYER* pp)
     pp->remote.cursectp = pp->cursector;
     pp->remote.lastcursectp = pp->lastcursector;
 
-    pp->remote.pos.X = pp->int_ppos().X;
-    pp->remote.pos.Y = pp->int_ppos().Y;
-    pp->remote.pos.Z = pp->int_ppos().Z;
+    pp->remote.pos = pp->pos;
 
     pp->remote.vect.X = pp->vect.X;
     pp->remote.vect.Y = pp->vect.Y;
@@ -5021,7 +5019,7 @@ void RemoteToPlayer(PLAYER* pp)
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
 
-    pp->set_int_ppos(pp->remote.pos);
+    pp->pos = pp->remote.pos;
 
     pp->vect.X = pp->remote.vect.X;
     pp->vect.Y = pp->remote.vect.Y;

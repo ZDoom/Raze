@@ -570,7 +570,7 @@ struct REMOTE_CONTROL
     sectortype* cursectp, * lastcursectp;
     int pang;
     vec2_t vect, ovect, slide_vect;
-    vec3_t pos;
+    DVector3 pos;
     SECTOR_OBJECT* sop_control;
 };
 
