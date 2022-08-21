@@ -8412,9 +8412,7 @@ int DoGrenade(DSWActor* actor)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        actorNew->user.change.X = actor->user.change.X;
-        actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.change.Z = actor->user.change.Z;
+        actorNew->user.change = actor->user.change;
 
         ScaleSpriteVector(actorNew, 22000);
 

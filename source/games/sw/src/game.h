@@ -606,11 +606,11 @@ struct PLAYER
     }
     int int_ploz() const
     {
-        return _loz;
+        return int(loz * zworldtoint);
     }
     int int_phiz() const
     {
-        return _hiz;
+        return int(hiz * zworldtoint);
     }
 
     DSWActor* actor;    // this may not be a TObjPtr!
@@ -628,11 +628,12 @@ struct PLAYER
     SECTOR_OBJECT* sop_remote;
     SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
+    double hiz, loz;
+
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving
     int z_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
-    int _hiz,_loz;
     int ceiling_dist,floor_dist;
     sectortype* hi_sectp, *lo_sectp;
 

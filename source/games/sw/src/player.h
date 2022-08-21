@@ -36,7 +36,9 @@ constexpr double PLAYER_HEIGHTF = 58;
 #define PLAYER_CRAWL_HEIGHT Z(36)
 constexpr double PLAYER_CRAWL_HEIGHTF = 36;
 #define PLAYER_SWIM_HEIGHT Z(26)
+constexpr double PLAYER_SWIM_HEIGHTF = 26;
 #define PLAYER_DIVE_HEIGHT Z(26)
+constexpr double PLAYER_DIVE_HEIGHTF = 26;
 #define PLAYER_DIE_DOWN_HEIGHT Z(4)
 #define PLAYER_DIE_UP_HEIGHT Z(8)
 
@@ -98,10 +100,10 @@ constexpr double PLAYER_CRAWL_HEIGHTF = 36;
 #define PLAYER_FLY_MAX_SPEED       (2560)
 #define PLAYER_FLY_INC             (1000)
 #define PLAYER_FLY_BOB_AMT (Z(12))
-
+constexpr double PLAYER_FLY_BOB_AMTF = 12;
 // Height from which Player will actually call DoPlayerBeginFall()
-//#define PLAYER_FALL_HEIGHT Z(16)
 #define PLAYER_FALL_HEIGHT Z(28)
+constexpr double PLAYER_FALL_HEIGHTF = 28;
 #define PLAYER_FALL_DAMAGE_AMOUNT (10)
 
 //
@@ -110,6 +112,7 @@ constexpr double PLAYER_CRAWL_HEIGHTF = 36;
 
 // dead head height - used in DeathFall
 #define PLAYER_DEATH_HEIGHT (Z(16))
+constexpr double PLAYER_DEATH_HEIGHTF = 16;
 constexpr double PLAYER_DEAD_HEAD_FLOORZ_OFFSET = 7;
 
 //#define PLAYER_NINJA_XREPEAT (56)
