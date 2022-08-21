@@ -6395,12 +6395,14 @@ int MissileZrange(DSWActor* actor)
 
 Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
+    double ceil_dist = ceildist * zinttoworld, flor_dist = flordist * zinttoworld;
+
     Collision retval{};
-    int zh;
+    double zH;
 
     ASSERT(actor->hasU());
 
-    vec3_t clippos = actor->int_pos();
+    auto clip_pos = actor->spr.pos;
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
@@ -6409,19 +6411,19 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YCENTER))
     {
-        zh = 0;
+        zH = 0;
     }
     else
     {
-        zh = actor->user.int_zclip();
-        clippos.Z -= zh;
+        zH = actor->user.zclip;
+        clip_pos.Z -= zH;
     }
 
 
-    clipmove(clippos, &dasect,
+    clipmove(clip_pos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-    actor->set_int_xy(clippos.X, clippos.Y);
+    actor->spr.pos.XY() = clip_pos.XY();
 
     if (dasect == nullptr)
     {
@@ -6448,28 +6450,28 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // missiles don't need the water to be down
     MissileWaterAdjust(actor);
 
-    clippos.Z = actor->int_pos().Z + ((zchange * numtics) >> 3);
+    clip_pos.Z = actor->spr.pos.Z + ((zchange * numtics) >> 3) * zinttoworld;
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (clippos.Z - zh <= actor->user.int_hiz() + ceildist)
+    if (clip_pos.Z - zH <= actor->user.hiz + ceil_dist)
     {
         // normal code
-        actor->set_int_z(actor->user.int_hiz() + zh + ceildist);
+        actor->spr.pos.Z = actor->user.hiz + zH + ceil_dist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
-    else if (clippos.Z - zh > actor->user.int_loz() - flordist)
+    else if (clip_pos.Z - zH > actor->user.loz - flor_dist)
     {
-        actor->set_int_z(actor->user.int_loz() + zh - flordist);
+        actor->spr.pos.Z = actor->user.loz + zH - flor_dist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else
     {
-        actor->set_int_z(clippos.Z);
+        actor->spr.pos.Z = clip_pos.Z;
     }
 
     if (FAF_ConnectArea(actor->sector()))
