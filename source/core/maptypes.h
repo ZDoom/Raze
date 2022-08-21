@@ -260,8 +260,6 @@ struct sectortype
 
 	int int_ceilingz() const { return ceilingz * zworldtoint; }
 	int int_floorz() const { return floorz * zworldtoint; }
-	float render_ceilingz() const { return (float)-ceilingz; }
-	float render_floorz() const { return (float)-floorz; }
 
 
 	// panning byte fields were promoted to full floats to enable panning interpolation.
@@ -509,12 +507,6 @@ struct spritetypebase
 	{
 		angle += DAngle::fromBuild(a);
 	}
-
-	void copy_ang(const spritetypebase* other)
-	{
-		angle = other->angle;
-	}
-
 };
 
 

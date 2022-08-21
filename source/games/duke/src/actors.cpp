@@ -1795,7 +1795,7 @@ void ooz(DDukeActor *actor)
 {
 	getglobalz(actor);
 
-	int j = (actor->actor_int_floorz() - actor->actor_int_ceilingz()) >> 9;
+	int j = int(actor->floorz - actor->ceilingz) >> 1;
 	if (j > 255) j = 255;
 
 	int x = 25 - (j >> 1);

@@ -1219,7 +1219,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
 		float polyh = (ztop[0] - zbottom[0]);
-		float ceilingz = sector->render_ceilingz();
+		float ceilingz = -sector->ceilingz;
 		if (ceilingz < ztop[0] && ceilingz >= zbottom[0])
 		{
 			float newv = (ceilingz - zbottom[0]) / polyh;
@@ -1230,7 +1230,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
 	{
 		float polyh = (ztop[0] - zbottom[0]);
-		float floorz = sector->render_floorz();
+		float floorz = -sector->floorz;
 		if (floorz <= ztop[0] && floorz > zbottom[0])
 		{
 			float newv = (floorz - zbottom[0]) / polyh;

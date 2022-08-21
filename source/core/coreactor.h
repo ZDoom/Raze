@@ -128,11 +128,7 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
-	DVector3 render_pos() const
-	{
-		return { spr.pos.X, -spr.pos.Y, -spr.pos.Z };
-	}
+	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)
 	{

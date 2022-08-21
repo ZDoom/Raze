@@ -121,17 +121,6 @@ public:
 
 	void Serialize(FSerializer& arc) override;
 
-	int actor_int_ceilingz() const
-	{
-		return ceilingz * zworldtoint;
-	}
-
-	int actor_int_floorz() const
-	{
-		return floorz * zworldtoint;
-	}
-
-
 	void ChangeType(PClass* newtype)
 	{
 		if (newtype->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && newtype->Size == RUNTIME_CLASS(DDukeActor)->Size && GetClass()->Size == RUNTIME_CLASS(DDukeActor)->Size)
