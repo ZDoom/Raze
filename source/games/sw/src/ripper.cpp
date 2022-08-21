@@ -895,7 +895,7 @@ int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
     actor->user.jump_speed = max_speed;
     actor->user.jump_grav = 8;
 
-    zh = ActorZOfTop(actor);
+    zh = int_ActorZOfTop(actor);
 
     while (true)
     {

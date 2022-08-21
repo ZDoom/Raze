@@ -2298,7 +2298,7 @@ void PlayerOperateEnv(PLAYER* pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((ActorZOfBottom(pp->actor) >= sectp->int_floorz()) && !(pp->Flags & PF_DIVING))
+        else if ((int_ActorZOfBottom(pp->actor) >= sectp->int_floorz()) && !(pp->Flags & PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }

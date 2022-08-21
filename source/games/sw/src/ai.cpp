@@ -217,7 +217,7 @@ int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
 bool CanSeePlayer(DSWActor* actor)
 {
     // if actor can still see the player
-    int look_height = ActorZOfTop(actor);
+    int look_height = int_ActorZOfTop(actor);
 
     if (actor->user.targetActor && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
         return true;
@@ -279,7 +279,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     int pnum;
     PLAYER* pp;
     // if actor can still see the player
-    int look_height = ActorZOfTop(actor);
+    int look_height = int_ActorZOfTop(actor);
     bool found = false;
     int i;
 

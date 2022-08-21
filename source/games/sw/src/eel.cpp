@@ -436,7 +436,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.int_upos().Z;
+    zdiff = (int_ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.int_upos().Z;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(64)); // put a random amount

@@ -1188,11 +1188,11 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (actor->hasU() && actor->user.PlayerP)
                 zh = actor->user.PlayerP->int_ppos().Z;
             else
-                zh = ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
+                zh = int_ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
 
-            ezh = ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 2);
-            ezhm = ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 1);
-            ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
+            ezh = int_ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 2);
+            ezhm = int_ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 1);
+            ezhl = int_ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
             if (!FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
@@ -1307,7 +1307,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     ny += actor->int_pos().Y;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         nx, ny, ActorZOfTop(actor) + Z(16),
+                         nx, ny, int_ActorZOfTop(actor) + Z(16),
                          actor->int_ang(), 0);
 
     SetActorZ(effectActor, effectActor->int_pos());
@@ -1325,7 +1325,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     extern STATE s_TeleportEffect[];
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) + Z(16),
+                         actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) + Z(16),
                          actor->int_ang(), 0);
 
     SetActorZ(effectActor, effectActor->int_pos());
@@ -1693,7 +1693,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     water_level_z = act_over->sector()->int_floorz(); // - Z(pp->WadeDepth);
 
     // if not below water
-    above_water = (ActorZOfBottom(act_over) <= water_level_z);
+    above_water = (int_ActorZOfBottom(act_over) <= water_level_z);
     in_dive_area = SpriteInDiveArea(act_over);
 
     // if not in dive area OR (in dive area AND above the water) - Kill it
@@ -1726,7 +1726,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level
-    zdiff = ActorZOfBottom(act_over) - water_level_z;
+    zdiff = int_ActorZOfBottom(act_over) - water_level_z;
 
     // add diff to ceiling
     act_under->set_int_z(act_under->sector()->int_ceilingz() + zdiff);
@@ -2932,7 +2932,7 @@ void StackedWaterSplash(PLAYER* pp)
     {
         auto sect = pp->cursector;
 
-        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, ActorZOfBottom(pp->actor), &sect);
+        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, int_ActorZOfBottom(pp->actor), &sect);
 
         if (SectorIsUnderwaterArea(sect))
         {
@@ -3795,7 +3795,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
         {
             auto sect = pp->cursector;
 
-            updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, ActorZOfBottom(pp->actor), &sect);
+            updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, int_ActorZOfBottom(pp->actor), &sect);
 
             if (SectorIsUnderwaterArea(sect))
             {
@@ -5688,7 +5688,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, ActorZOfTop(killer), killer->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
+        if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, int_ActorZOfTop(killer), killer->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
         {
             pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->int_ppos().X, killer->int_pos().Y - pp->int_ppos().Y)) * (1. / 16.));
         }

@@ -3314,7 +3314,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ actor->int_pos().X, actor->int_pos().Y, ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {
@@ -3343,7 +3343,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             //
 
             actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-            double bos_z = ActorZOfBottom(actor) * zinttoworld;
+            double bos_z = ActorZOfBottom(actor);
             if (bos_z > actor->user.loz)
             {
                 actor->user.pos.Y = (bos_z - actor->spr.pos.Z);
@@ -3496,7 +3496,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
-            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
+            if (int_ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 

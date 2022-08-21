@@ -4266,11 +4266,11 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
         return false;
     }
 
-    spa_tos = ActorZOfTop(actor_a);
-    spa_bos = ActorZOfBottom(actor_a);
+    spa_tos = int_ActorZOfTop(actor_a);
+    spa_bos = int_ActorZOfBottom(actor_a);
 
-    spb_tos = ActorZOfTop(actor_b);
-    spb_bos = ActorZOfBottom(actor_b);
+    spb_tos = int_ActorZOfTop(actor_b);
+    spb_bos = int_ActorZOfBottom(actor_b);
 
 
     overlap_z = actor_a->user.OverlapZ + actor_b->user.OverlapZ;
@@ -4295,11 +4295,11 @@ bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
 {
     int spa_tos, spa_bos, spb_tos, spb_bos;
 
-    spa_tos = ActorZOfTop(actor_a);
-    spa_bos = ActorZOfBottom(actor_a);
+    spa_tos = int_ActorZOfTop(actor_a);
+    spa_bos = int_ActorZOfBottom(actor_a);
 
-    spb_tos = ActorZOfTop(actor_b);
-    spb_bos = ActorZOfBottom(actor_b);
+    spb_tos = int_ActorZOfTop(actor_b);
+    spb_bos = int_ActorZOfBottom(actor_b);
 
 
     // if the top of sprite a is below the bottom of b
@@ -5900,7 +5900,7 @@ void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
     //
 
     // if actor can still see the player
-    look_height = ActorZOfTop(actor);
+    look_height = int_ActorZOfTop(actor);
     if (FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, ActorUpperZ(plActor), plActor->sector()))
     {
         // Player is visible

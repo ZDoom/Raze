@@ -2104,24 +2104,34 @@ inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(uint8_t(actor->spr.xof
 inline void SET_SP_TAG13(DSWActor* actor, int val) { actor->spr.xoffset = uint8_t(val); actor->spr.yoffset = uint8_t(val >> 8); }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
-inline int ActorZOfTop(DSWActor* actor)
+inline int int_ActorZOfTop(DSWActor* actor)
 {
     return GetSpriteZOfTop(&actor->spr);
 }
 
-inline int ActorZOfBottom(DSWActor* actor)
+inline double ActorZOfTop(DSWActor* actor)
+{
+    return GetSpriteZOfTop(&actor->spr) * zinttoworld;
+}
+
+inline int int_ActorZOfBottom(DSWActor* actor)
 {
     return GetSpriteZOfBottom(&actor->spr);
 }
 
+inline double ActorZOfBottom(DSWActor* actor)
+{
+    return GetSpriteZOfBottom(&actor->spr) * zinttoworld;
+}
+
 inline int int_ActorZOfMiddle(DSWActor* actor)
 {
-    return (ActorZOfTop(actor) + ActorZOfBottom(actor)) >> 1;
+    return (int_ActorZOfTop(actor) + int_ActorZOfBottom(actor)) >> 1;
 }
 
 inline double ActorZOfMiddle(DSWActor* actor)
 {
-	return (ActorZOfTop(actor) + ActorZOfBottom(actor)) * zinttoworld * 0.5;
+	return (int_ActorZOfTop(actor) + int_ActorZOfBottom(actor)) * zinttoworld * 0.5;
 }
 
 inline int ActorSizeZ(DSWActor* actor)
@@ -2131,17 +2141,17 @@ inline int ActorSizeZ(DSWActor* actor)
 
 inline int ActorUpperZ(DSWActor* actor)
 {
-    return (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2));
+    return (int_ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2));
 }
 
 inline int int_ActorLowerZ(DSWActor* actor)
 {
-    return (ActorZOfBottom(actor) - (ActorSizeZ(actor) >> 2));
+    return (int_ActorZOfBottom(actor) - (ActorSizeZ(actor) >> 2));
 }
 
 inline double ActorLowerZ(DSWActor* actor)
 {
-    return (ActorZOfBottom(actor) - (ActorSizeZ(actor) * 0.25)) * zinttoworld;
+    return (int_ActorZOfBottom(actor) - (ActorSizeZ(actor) * 0.25)) * zinttoworld;
 }
 
 // Z size of top (TOS) and bottom (BOS) part of sprite

@@ -1799,7 +1799,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         nx = actor->int_pos().X;
         ny = actor->int_pos().Y;
-        nz = ActorZOfTop(actor)-20;
+        nz = int_ActorZOfTop(actor)-20;
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->sector(),
