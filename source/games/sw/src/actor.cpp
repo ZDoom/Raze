@@ -211,7 +211,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->set_int_ang(NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024));
+        actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos.Y) + DAngle180;
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -234,7 +234,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->set_int_ang(NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024));
+        actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos) + DAngle180;
         break;
 
     default:
