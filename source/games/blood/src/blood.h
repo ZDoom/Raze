@@ -121,7 +121,7 @@ struct GameInterface : public ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	FString GetCoordString() override;
+	std::pair<DVector3, DAngle> GetCoordinates() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
 	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;

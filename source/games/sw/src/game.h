@@ -1953,7 +1953,7 @@ struct GameInterface : public ::GameInterface
 	FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
-    FString GetCoordString() override;
+    std::pair<DVector3, DAngle> GetCoordinates() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void UpdateSounds() override;
     void ErrorCleanup() override;

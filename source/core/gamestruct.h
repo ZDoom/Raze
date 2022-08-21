@@ -91,7 +91,7 @@ struct GameInterface
 	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
-	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
+	virtual std::pair<DVector3, DAngle> GetCoordinates() { return {}; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) {}

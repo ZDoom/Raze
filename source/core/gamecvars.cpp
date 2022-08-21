@@ -232,7 +232,16 @@ ADD_STAT(fps)
 
 ADD_STAT(coord)
 {
-	return gi->GetCoordString();
+	auto coord = gi->GetCoordinates();
+	FString out;
+	if (coord.first.X < DBL_MAX)
+	{
+		out.AppendFormat("X: %d ", int(coord.first.X));
+		out.AppendFormat("Y: %d ", int(coord.first.Y));
+		out.AppendFormat("Z: %d ", int(coord.first.Z));
+		out.AppendFormat("Angle: %d\n", int(coord.second.Degrees()));
+	}
+	return out;
 }
 
 CUSTOM_CVARD(Int, r_showfps, 0, 0, "show the frame rate counter")

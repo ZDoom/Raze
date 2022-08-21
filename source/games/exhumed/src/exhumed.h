@@ -239,6 +239,7 @@ struct GameInterface : public ::GameInterface
     vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 1536.), int(-ang.Sin() * 1536.), (horiz.asq16() * 3) >> 10); }
     void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) override;
     int GetCurrentSkill() override;
+    std::pair<DVector3, DAngle> GetCoordinates() override;
 
 	::GameStats getStats() override;
 };

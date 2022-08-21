@@ -847,14 +847,10 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
-FString GameInterface::GetCoordString()
+std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-	FString out;
-
-	out.Format("pos= %d, %d, %d - angle = %2.3f",
-		gMe->actor->int_pos().X, gMe->actor->int_pos().Y, gMe->actor->int_pos().Z, gMe->actor->spr.int_ang() * BAngToDegree);
-
-	return out;
+	if (!gMe || !gMe->actor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
+	return std::make_pair(gMe->actor->spr.pos, gMe->actor->spr.angle);
 }
 
 

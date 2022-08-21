@@ -35,7 +35,7 @@ struct GameInterface : public ::GameInterface
 	FSavegameInfo GetSaveSig() override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
 	void SerializeGameState(FSerializer& arc) override;
-	FString GetCoordString() override;
+	std::pair<DVector3, DAngle> GetCoordinates() override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;

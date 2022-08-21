@@ -1017,18 +1017,11 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, f
     *nang = ang;
 }
 
-FString GameInterface::GetCoordString()
+std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
     PLAYER* pp = Player + myconnectindex;
-    FString out;
-    out.AppendFormat("POSX:%d ", pp->int_ppos().X);
-    out.AppendFormat("POSY:%d ", pp->int_ppos().Y);
-    out.AppendFormat("POSZ:%d ", pp->int_ppos().Z);
-    out.AppendFormat("ANG:%d\n", pp->angle.ang.Buildang());
-
-    return out;
+    return std::make_pair(pp->pos, pp->angle.ang);
 }
-
 
 void PrintSpriteInfo(PLAYER* pp)
 {

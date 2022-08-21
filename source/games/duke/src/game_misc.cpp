@@ -55,18 +55,10 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-FString GameInterface::GetCoordString()
+std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-	int snum = screenpeek;
-	FString out;
-
-	out.Format("pos= %2.3f, %2.3f, %2.3f - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.Z, ps[snum].angle.ang.Degrees(), sectnum(ps[snum].cursector),
-		ps[snum].cursector->lotag, ps[snum].cursector->hitag);
-
-	return out;
+	return std::make_pair(ps[screenpeek].pos, ps[screenpeek].angle.ang);
 }
-
 
 GameStats GameInterface::getStats()
 {
