@@ -192,7 +192,7 @@ struct SWPlayer native
     native int z_speed; // used for diving and flying instead of down_speed, up_speed
     native int climb_ndx;
     native double hiz,loz;
-    native int ceiling_dist,floor_dist;
+    native int p_ceiling_dist,p_floor_dist;
     native int circle_camera_dist;
     native int16 siang;
 

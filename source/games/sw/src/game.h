@@ -634,7 +634,7 @@ struct PLAYER
     int16_t down_speed, up_speed; // diving
     int z_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
-    int ceiling_dist,floor_dist;
+    int p_ceiling_dist,p_floor_dist;
     sectortype* hi_sectp, *lo_sectp;
 
     int circle_camera_dist;

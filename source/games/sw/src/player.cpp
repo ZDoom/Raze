@@ -1892,7 +1892,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1906,10 +1906,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2041,7 +2041,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2064,12 +2064,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2734,8 +2734,8 @@ void DoPlayerBeginJump(PLAYER* pp)
     pp->Flags &= ~(PF_CRAWLING);
     pp->Flags &= ~(PF_LOCK_CRAWL);
 
-    pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_JUMP_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_JUMP_CEILING_DIST;
     pp->friction = PLAYER_JUMP_FRICTION;
 
     PlayerGravity = PLAYER_JUMP_GRAV;
@@ -2765,8 +2765,8 @@ void DoPlayerBeginForceJump(PLAYER* pp)
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
 
-    pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_JUMP_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_JUMP_CEILING_DIST;
     pp->friction = PLAYER_JUMP_FRICTION;
 
     PlayerGravity = PLAYER_JUMP_GRAV;
@@ -2829,9 +2829,9 @@ void DoPlayerJump(PLAYER* pp)
         // added this because jumping up to slopes or jumping on steep slopes
         // sometimes caused the view to go into the slope
         // if player gets to close the floor while jumping
-        if (PlayerFloorHit(pp, pp->int_ploz() - pp->floor_dist))
+        if (PlayerFloorHit(pp, pp->int_ploz() - pp->p_floor_dist))
         {
-            pp->set_int_ppos_Z(pp->int_ploz() - pp->floor_dist);
+            pp->set_int_ppos_Z(pp->int_ploz() - pp->p_floor_dist);
 
             pp->jump_speed = 0;
             PlayerSectorBound(pp, Z(1));
@@ -2908,8 +2908,8 @@ void DoPlayerBeginFall(PLAYER* pp)
     pp->Flags &= ~(PF_CRAWLING);
     pp->Flags &= ~(PF_LOCK_CRAWL);
 
-    pp->floor_dist = PLAYER_FALL_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_FALL_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_FALL_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_FALL_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerFall;
     pp->friction = PLAYER_FALL_FRICTION;
 
@@ -2989,10 +2989,10 @@ void DoPlayerFall(PLAYER* pp)
 
         // need a test for head hits a sloped ceiling while falling
         // if player gets to close the Ceiling while Falling
-        if (PlayerCeilingHit(pp, pp->int_phiz() + pp->ceiling_dist))
+        if (PlayerCeilingHit(pp, pp->int_phiz() + pp->p_ceiling_dist))
         {
             // put player at the ceiling
-            pp->set_int_ppos_Z(pp->int_phiz() + pp->ceiling_dist);
+            pp->set_int_ppos_Z(pp->int_phiz() + pp->p_ceiling_dist);
             // don't return or anything - allow to fall until
             // hit floor
         }
@@ -3392,8 +3392,8 @@ void DoPlayerBeginCrawl(PLAYER* pp)
     pp->Flags |= (PF_CRAWLING);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
-    pp->floor_dist = PLAYER_CRAWL_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_CRAWL_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_CRAWL_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_CRAWL_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerCrawl;
 
     //pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
@@ -3502,8 +3502,8 @@ void DoPlayerBeginFly(PLAYER* pp)
     pp->Flags |= (PF_FLYING);
 
     pp->friction = PLAYER_FLY_FRICTION;
-    pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_RUN_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerFly;
 
     pp->z_speed = -Z(10);
@@ -4156,8 +4156,8 @@ void DoPlayerBeginDive(PLAYER* pp)
     pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->friction = PLAYER_DIVE_FRICTION;
-    pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
-    pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_DIVE_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_DIVE_FLOOR_DIST;
     plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
 
@@ -4207,8 +4207,8 @@ void DoPlayerBeginDiveNoWarp(PLAYER* pp)
     pp->Flags &= ~(PF_JUMPING | PF_FALLING);
 
     pp->friction = PLAYER_DIVE_FRICTION;
-    pp->ceiling_dist = PLAYER_DIVE_CEILING_DIST;
-    pp->floor_dist = PLAYER_DIVE_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_DIVE_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_DIVE_FLOOR_DIST;
     plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     pp->DoPlayerAction = DoPlayerDive;
     pp->z_speed = 0;
@@ -4413,9 +4413,9 @@ void DoPlayerDive(PLAYER* pp)
     if (sectu && (sectu->number == 0 || (sectu->flags & SECTFU_CANT_SURFACE)))
     {
         // for room over room water the hiz will be the top rooms ceiling
-        if (pp->int_ppos().Z < pp->int_phiz() + pp->ceiling_dist)
+        if (pp->int_ppos().Z < pp->int_phiz() + pp->p_ceiling_dist)
         {
-            pp->set_int_ppos_Z(pp->int_phiz() + pp->ceiling_dist);
+            pp->set_int_ppos_Z(pp->int_phiz() + pp->p_ceiling_dist);
         }
     }
     else
@@ -4465,7 +4465,7 @@ void DoPlayerDive(PLAYER* pp)
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
     }
     // Reverse bobbing when getting close to the ceiling
-    if (pp->int_ppos().Z + pp->bob_amt < pp->int_phiz() + pp->ceiling_dist)
+    if (pp->int_ppos().Z + pp->bob_amt < pp->int_phiz() + pp->p_ceiling_dist)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHT, PLAYER_DIVE_BOB_AMT, 3);
@@ -4522,7 +4522,7 @@ void DoPlayerCurrent(PLAYER* pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4538,10 +4538,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4600,8 +4600,8 @@ void DoPlayerBeginWade(PLAYER* pp)
     pp->Flags &= ~(PF_CRAWLING);
 
     pp->friction = PLAYER_WADE_FRICTION;
-    pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_WADE_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_WADE_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_WADE_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerWade;
 
     DoPlayerFireOutWater(pp);
@@ -4763,8 +4763,8 @@ void DoPlayerBeginOperateVehicle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
-    pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_RUN_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerOperateVehicle;
 
     // temporary set to get weapons down
@@ -4782,8 +4782,8 @@ void DoPlayerBeginOperateTurret(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
-    pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_RUN_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerOperateTurret;
 
     // temporary set to get weapons down
@@ -5479,8 +5479,8 @@ void DoPlayerBeginDie(PLAYER* pp)
 
     pp->friction = PLAYER_RUN_FRICTION;
     pp->slide_vect.X = pp->slide_vect.Y = 0;
-    pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_WADE_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_WADE_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));
     pp->DoPlayerAction = PlayerDeathFunc[pp->DeathType];
     pp->sop_control = nullptr;
@@ -6123,8 +6123,8 @@ void DoPlayerBeginRun(PLAYER* pp)
     }
 
     pp->friction = PLAYER_RUN_FRICTION;
-    pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
+    pp->p_floor_dist = PLAYER_RUN_FLOOR_DIST;
+    pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerRun;
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
@@ -6685,8 +6685,8 @@ void InitAllPlayers(void)
         pp->UziShellLeftAlt = 0;
         pp->UziShellRightAlt = 0;
 
-        pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
-        pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
+        pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
+        pp->p_floor_dist = PLAYER_RUN_FLOOR_DIST;
 
         pp->WpnGotOnceFlags = 0;
         pp->DoPlayerAction = DoPlayerBeginRun;
@@ -7036,8 +7036,8 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, z_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYER, climb_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYER, hiz)
 DEFINE_FIELD_X(SWPlayer, PLAYER, loz)
-DEFINE_FIELD_X(SWPlayer, PLAYER, ceiling_dist)
-DEFINE_FIELD_X(SWPlayer, PLAYER, floor_dist)
+DEFINE_FIELD_X(SWPlayer, PLAYER, p_ceiling_dist)
+DEFINE_FIELD_X(SWPlayer, PLAYER, p_floor_dist)
 DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_dist)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, six)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, siy)
