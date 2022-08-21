@@ -207,7 +207,7 @@ int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
         PlaySpriteSound(actor, attr_extra5, v3df_follow);
     }
     else if (Action == InitActorExtra6Noise)
-    {
+     {
         PlaySpriteSound(actor, attr_extra6, v3df_follow);
     }
 
@@ -222,37 +222,15 @@ bool CanSeePlayer(DSWActor* actor)
 int CanHitPlayer(DSWActor* actor)
 {
     HitInfo hit{};
-    int xvect,yvect,zvect;
-    int ang;
+    DVector3 vect;
     // if actor can still see the player
-    int zhs, zhh;
 
-    zhs = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
+    DSWActor* targ = actor->user.targetActor;
+    DVector3 apos = actor->spr.pos.plusZ(-ActorSizeZ(actor) * 0.5);
+    DVector3 tpos = targ->spr.pos.plusZ(-ActorSizeZ(targ) * 0.5);
+    auto vec = (tpos - apos).Unit() * 1024;
 
-
-    auto targ = actor->user.targetActor;
-
-    // get angle to target
-    ang = getangle(targ->spr.pos - actor->spr.pos);
-
-    // get x,yvect
-    xvect = bcos(ang);
-    yvect = bsin(ang);
-
-    // get zvect
-    zhh = targ->int_pos().Z - (int_ActorSizeZ(targ) >> 1);
-    if (targ->int_pos().X - actor->int_pos().X != 0)
-        zvect = xvect * ((zhh - zhs) / (targ->int_pos().X - actor->int_pos().X));
-    else if (targ->int_pos().Y - actor->int_pos().Y != 0)
-        zvect = yvect * ((zhh - zhs) / (targ->int_pos().Y - actor->int_pos().Y));
-    else
-        return false;
-
-    FAFhitscan(actor->int_pos().X, actor->int_pos().Y, zhs, actor->sector(),
-               xvect,
-               yvect,
-               zvect,
-               hit, CLIPMASK_MISSILE);
+    FAFhitscan(apos, actor->sector(), vec, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
         return false;
