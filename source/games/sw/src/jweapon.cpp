@@ -259,10 +259,10 @@ STATE s_BloodSprayDrip[] =
 int DoWallBloodDrip(DSWActor* actor)
 {
     // sy & sz are the ceiling and floor of the sector you are sliding down
-    if (actor->user.notreallypos.Z != actor->user.notreallypos.Y)
+    if (actor->user.pos.Z != actor->user.pos.Y)
     {
         // if you are between the ceiling and floor fall fast
-        if (actor->int_pos().Z > actor->user.notreallypos.Y && actor->int_pos().Z < actor->user.notreallypos.Z)
+        if (actor->spr.pos.Z > actor->user.pos.Y && actor->spr.pos.Z < actor->user.pos.Z)
         {
             actor->spr.zvel += 300;
             actor->add_int_z(actor->spr.zvel);
@@ -453,9 +453,9 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (bldActor->tempwall->twoSided())
-                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.notreallypos.Y, &actor->user.notreallypos.Z);
+                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.pos.Y, &actor->user.pos.Z);
                     else
-                        actor->user.notreallypos.Y = actor->user.notreallypos.Z; // ceiling and floor are equal - white wall
+                        actor->user.pos.Y = actor->user.pos.Z; // ceiling and floor are equal - white wall
                 }
 
                 actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
@@ -2143,7 +2143,7 @@ int DoFlag(DSWActor* actor)
             // attach weapon to sprite
             actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
-            actor->user.pos.Z = hitActor->int_pos().Z - (ActorSizeZ(hitActor) >> 1);
+            actor->user.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1) * zinttoworld;
         }
     }
 

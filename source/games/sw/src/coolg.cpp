@@ -505,7 +505,7 @@ void CoolgCommon(DSWActor* actor)
     actor->user.floor_dist = (16);
     actor->user.ceiling_dist = (20);
 
-    actor->user.pos.Z = actor->int_pos().Z;
+    actor->user.pos.Z = actor->spr.pos.Z;
 
     actor->spr.xrepeat = 42;
     actor->spr.yrepeat = 42;
@@ -623,9 +623,9 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     if (labs(zdiff) > zdist)
     {
         if (zdiff > 0)
-            actor->user.pos.Z += 170 * ACTORMOVETICS;
+            actor->user.pos.Z += 170 * ACTORMOVETICS * zmaptoworld;
         else
-            actor->user.pos.Z -= 170 * ACTORMOVETICS;
+            actor->user.pos.Z -= 170 * ACTORMOVETICS * zmaptoworld;
     }
 
     // save off lo and hi z
@@ -644,7 +644,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
     if (actor->user.int_upos().Z > bound)
     {
-        actor->user.pos.Z = bound;
+        actor->user.pos.Z = bound * zinttoworld;
     }
 
     // upper bound
@@ -655,11 +655,11 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
     if (actor->user.int_upos().Z < bound)
     {
-        actor->user.pos.Z = bound;
+        actor->user.pos.Z = bound * zinttoworld;
     }
 
-    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist());
-    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist());
+    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist()) * zinttoworld;
+    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist()) * zinttoworld;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS<<3)) & 2047;
     actor->set_int_z(actor->user.int_upos().Z + MulScale(COOLG_BOB_AMT, bsin(actor->user.Counter), 14));
@@ -668,7 +668,8 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     if (actor->int_pos().Z < bound)
     {
         // bumped something
-        actor->set_int_z(actor->user.pos.Z = bound + COOLG_BOB_AMT);
+        actor->set_int_z(bound + COOLG_BOB_AMT);
+        actor->user.pos.Z = actor->spr.pos.Z;
     }
 
     return 0;
@@ -719,13 +720,13 @@ int DoCoolgCircle(DSWActor* actor)
     }
 
     // move in the z direction
-    actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS;
+    actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS * zinttoworld;
 
     bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + COOLG_BOB_AMT;
     if (actor->user.int_upos().Z < bound)
     {
         // bumped something
-        actor->user.pos.Z = bound;
+        actor->user.pos.Z = bound * zinttoworld;
         InitActorReposition(actor);
         return 0;
     }

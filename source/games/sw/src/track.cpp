@@ -870,9 +870,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 }
 
 
-                itActor->user.pos.X = sop->int_pmid().X - itActor->int_pos().X;
-                itActor->user.pos.Y = sop->int_pmid().Y - itActor->int_pos().Y;
-                itActor->user.pos.Z = sop->mid_sector->int_floorz() - itActor->int_pos().Z;
+                itActor->user.pos.XY() = sop->pmid.XY() - itActor->spr.pos.XY();
+                itActor->user.pos.Z = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
@@ -903,7 +902,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                         if (sop->sectp[j] == itActor->sector())
                         {
                             itActor->user.Flags |= (SPR_ON_SO_SECTOR);
-                            itActor->user.pos.Z = itActor->sector()->int_floorz() - itActor->int_pos().Z;
+                            itActor->user.pos.Z = itActor->sector()->floorz - itActor->spr.pos.Z;
                             break;
                         }
                     }
@@ -937,7 +936,7 @@ cont:
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{
             auto actor = sop->so_actors[i];
-            actor->user.pos.Z = sop->int_pmid().Z - actor->int_pos().Z;
+            actor->user.pos.Z = sop->pmid.Z - actor->spr.pos.Z;
         }
     }
 }
@@ -3288,7 +3287,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.ActorActionSet->Jump)
         {
-            int bos_z,nx,ny;
+            int nx,ny;
             HitInfo near;
 
             //
@@ -3333,9 +3332,9 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // destination z for climbing
             if (wal->twoSided())
-                actor->user.pos.Z = wal->nextSector()->int_floorz();
+                actor->user.pos.Z = wal->nextSector()->floorz;
             else
-                actor->user.pos.Z = wal->sectorp()->int_ceilingz(); // don't crash on bad setups.
+                actor->user.pos.Z = wal->sectorp()->ceilingz; // don't crash on bad setups.
 
             DoActorZrange(actor);
 
@@ -3344,11 +3343,11 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             //
 
             actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-            bos_z = ActorZOfBottom(actor);
-            if (bos_z > actor->user.int_loz())
+            double bos_z = ActorZOfBottom(actor) * zinttoworld;
+            if (bos_z > actor->user.loz)
             {
-                actor->user.notreallypos.Y = (bos_z - actor->int_pos().Z);
-                actor->add_int_z(-actor->user.notreallypos.Y);
+                actor->user.pos.Y = (bos_z - actor->spr.pos.Z);
+                actor->spr.pos.Z -= actor->user.pos.Y;
             }
 
             //
@@ -3507,7 +3506,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->add_int_z(actor->user.notreallypos.Y);
+                actor->spr.pos.Z += actor->user.pos.Y;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
                 actor->user.ActorActionFunc = NinjaJumpActionFunc;

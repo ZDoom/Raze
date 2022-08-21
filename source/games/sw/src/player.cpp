@@ -4021,10 +4021,10 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    plActor->user.pos.XY() = over_act->int_pos().XY() - pp->int_ppos().XY();
+    plActor->user.pos.XY() = over_act->spr.pos.XY() - pp->pos.XY();
 
     // update to the new x y position
-    pp->set_int_ppos_XY(under_act->int_pos().XY() - plActor->user.int_upos().XY());
+    pp->pos.XY() = under_act->spr.pos.XY() - plActor->user.pos.XY();
 
     auto over  = over_act->sector();
     auto under = under_act->sector();
@@ -4087,10 +4087,10 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    plActor->user.pos.XY() = under_act->int_pos().XY() - pp->int_ppos().XY();
+    plActor->user.pos.XY() = under_act->spr.pos.XY() - pp->pos.XY();
 
     // update to the new x y position
-    pp->set_int_ppos_XY(over_act->int_pos().XY() - plActor->user.int_upos().XY());
+    pp->pos.XY() = over_act->spr.pos.XY() - plActor->user.pos.XY();
 
     auto over = over_act->sector();
     auto under = under_act->sector();

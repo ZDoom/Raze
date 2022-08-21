@@ -444,9 +444,9 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         if (zdiff > 0)
             // manipulate the z midpoint
-            actor->user.pos.Z += 160 * ACTORMOVETICS;
+            actor->user.pos.Z += 160 * ACTORMOVETICS * zmaptoworld;
         else
-            actor->user.pos.Z -= 160 * ACTORMOVETICS;
+            actor->user.pos.Z -= 160 * ACTORMOVETICS * zmaptoworld;
     }
 
     const int EEL_BOB_AMT = (Z(4));
@@ -473,7 +473,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     if (actor->user.int_upos().Z > bound)
     {
-        actor->user.pos.Z = bound;
+        actor->user.pos.Z = bound * zinttoworld;
     }
 
     // upper bound
@@ -490,11 +490,11 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     if (actor->user.int_upos().Z < bound)
     {
-        actor->user.pos.Z = bound;
+        actor->user.pos.Z = bound * zinttoworld;
     }
 
-    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist());
-    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist());
+    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist()) * zinttoworld;
+    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist()) * zinttoworld;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
     actor->set_int_z(actor->user.int_upos().Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
@@ -503,7 +503,8 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     if (actor->int_pos().Z < bound)
     {
         // bumped something
-        actor->set_int_z(actor->user.pos.Z = bound + EEL_BOB_AMT);
+        actor->set_int_z(bound + EEL_BOB_AMT);
+        actor->user.pos.Z = actor->spr.pos.Z;
     }
 
     return 0;

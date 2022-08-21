@@ -142,8 +142,8 @@ int DoWallMove(DSWActor* actor)
         if (SOsprite)
         {
             // move the sprite offset from center
-            actor->user.pos.X -= nx;
-            actor->user.pos.Y -= ny;
+            actor->user.pos.X -= nx * inttoworld;
+            actor->user.pos.Y -= ny * inttoworld;
         }
         else
         {

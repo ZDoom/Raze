@@ -2042,7 +2042,7 @@ void SpriteSetup(void)
                     if (floor_vator)
                     {
                         // start off
-                        actor->user.pos.Z = sectp->int_floorz();
+                        actor->user.pos.Z = sectp->floorz;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2063,7 +2063,7 @@ void SpriteSetup(void)
                     else
                     {
                         // start off
-                        actor->user.pos.Z = sectp->int_ceilingz();
+                        actor->user.pos.Z = sectp->ceilingz;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
@@ -2250,13 +2250,13 @@ void SpriteSetup(void)
                         actor->user.zclip = florz * zinttoworld;
 
                         // start off
-                        actor->user.pos.Z = actor->user.int_zclip();
+                        actor->user.pos.Z = actor->user.zclip;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // start in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.pos.Z;
                             SpikeAlign(actor);
                         }
 
@@ -2269,13 +2269,13 @@ void SpriteSetup(void)
                         actor->user.zclip = ceilz * zinttoworld;
 
                         // start off
-                        actor->user.pos.Z = actor->user.int_zclip();
+                        actor->user.pos.Z = actor->user.zclip;
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.pos.Z;
                             SpikeAlign(actor);
                         }
 
@@ -5836,7 +5836,7 @@ KeyMain:
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->actor, actorNew);
-            actorNew->user.pos.Z = int_ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
+            actorNew->user.pos.Z = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
             SetOwner(pp->actor, actorNew);  // Player now owns the flag

@@ -243,7 +243,7 @@ int SetupSkull(DSWActor* actor)
     else
     {
         actor->user.Counter = RANDOM_P2(2048);
-        actor->user.pos.Z = actor->int_pos().Z;
+        actor->user.pos.Z = actor->spr.pos.Z;
     }
 
 
@@ -628,7 +628,7 @@ int SetupBetty(DSWActor* actor)
     else
     {
         actor->user.Counter = RANDOM_P2(2048);
-        actor->user.pos.Z = actor->int_pos().Z;
+        actor->user.pos.Z = actor->spr.pos.Z;
     }
 
 

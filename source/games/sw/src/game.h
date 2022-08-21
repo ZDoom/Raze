@@ -937,7 +937,7 @@ struct USER
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
     int int_zclip() const { return zclip * zworldtoint; }
-    const vec3_t int_upos() const { return pos; }
+    const vec3_t int_upos() const { return { int(pos.X * worldtoint), int(pos.Y * worldtoint),int(pos.Z * zworldtoint) }; }
 
     //
     // Variables that can be used by actors and Player
@@ -969,13 +969,7 @@ struct USER
     TObjPtr<DSWActor*> flagOwnerActor;
     TObjPtr<DSWActor*> WpnGoalActor;
 
-    // Some actors hijack this - the second name is supposed to be a marker for these cases
-    union
-    {
-        vec3_t pos;
-        vec3_t notreallypos;
-    };
-
+    DVector3 pos;
     double hiz, loz;
     double oz; // serialized copy of sprite.oz
     double z_tgt;
@@ -2242,7 +2236,7 @@ struct ANIM
 			break;
         case ANIM_Userz:
             if (animactor == nullptr) return;
-            animactor->user.pos.Z = value;
+            animactor->user.pos.Z = value * inttoworld;
 			break;
         case ANIM_SUdepth:
             sector[animindex].depth_fixed = value;
