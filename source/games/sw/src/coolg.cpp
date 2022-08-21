@@ -689,7 +689,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 400 + RANDOM_P2(256);
-    if (abs(actor->user.int_upos().Z - actor->user.int_hiz()) < abs(actor->user.int_upos().Z - actor->user.int_loz()))
+    if (abs(actor->user.pos.Z - actor->user.hiz) < abs(actor->user.pos.Z - actor->user.loz))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;

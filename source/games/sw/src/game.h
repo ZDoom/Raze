@@ -1793,6 +1793,16 @@ inline void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
     *loz = lo * zinttoworld;
 }
 
+inline void FAFgetzrangepoint(const DVector3& pos, sectortype* sect,
+    double* hiz, Collision* ceilhit,
+    double* loz, Collision* florhit)
+{
+    int32_t hi, lo;
+    FAFgetzrangepoint(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), sect, &hi, ceilhit, &lo, florhit);
+    *hiz = hi * zinttoworld;
+    *loz = lo * zinttoworld;
+}
+
 enum SoundType
 {
     SOUND_OBJECT_TYPE,

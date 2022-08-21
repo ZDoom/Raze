@@ -194,12 +194,12 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int view
     return 0;
 }
 
-int DoShadowFindGroundPoint(tspritetype* tspr)
+double DoShadowFindGroundPoint(tspritetype* tspr)
 {
     // USES TSPRITE !!!!!
     auto ownerActor = static_cast<DSWActor*>(tspr->ownerActor);
     Collision ceilhit, florhit;
-    int hiz, loz = ownerActor->user.int_loz();
+    double hiz, loz = ownerActor->user.loz;
     ESpriteFlags save_cstat, bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -211,7 +211,7 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
 
     save_cstat = tspr->cstat;
     tspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(tspr->int_pos().X, tspr->int_pos().Y, tspr->int_pos().Z, tspr->sectp, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(tspr->pos, tspr->sectp, &hiz, &ceilhit, &loz, &florhit);
     tspr->cstat = save_cstat;
 
     switch (florhit.type)
@@ -253,7 +253,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
     int view_dist = 0;
-    int loz;
+    double loz;
     int xrepeat;
     int yrepeat;
 
@@ -282,7 +282,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
         xrepeat = tsp->xrepeat;
     }
 
-    loz = ownerActor->user.int_loz();
+    loz = ownerActor->user.loz;
     if (ownerActor->user.lowActor)
     {
         if (!(ownerActor->user.lowActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR)))
@@ -293,8 +293,10 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
 
     // need to find the ground here
 
+    int iloz = loz * zworldtoint;
+
     // if below or close to sprites z don't bother to draw it
-    if ((viewz - loz) > -Z(8))
+    if ((viewz - iloz) > -Z(8))
     {
         return;
     }
@@ -305,17 +307,17 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     tSpr->statnum = MAXSTATUS;
     tSpr->shade = 127;
     tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-    tSpr->set_int_z(loz);
+    tSpr->pos.Z = loz;
 
     // if close to shadows z shrink it
-    view_dist = labs(loz - viewz) >> 8;
+    view_dist = abs(iloz - viewz) >> 8;
     if (view_dist < 32)
         view_dist = 256/view_dist;
     else
         view_dist = 0;
 
     // make shadow smaller depending on height from ground
-    ground_dist = labs(loz - GetSpriteZOfBottom(tsp)) >> 12;
+    ground_dist = abs(iloz - GetSpriteZOfBottom(tsp)) >> 12;
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
