@@ -220,13 +220,12 @@ void QuakeViewChange(PLAYER* pp, int *z_diff, int *x_diff, int *y_diff, short *a
     }
 }
 
-void SpawnQuake(sectortype* sect, int x, int y, int z,
-               short tics, short amt, int radius)
+void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int radius)
 {
 
     auto actorNew = insertActor(sect, STAT_QUAKE_ON);
 
-    actorNew->set_int_pos({ x, y, z });
+    actorNew->spr.pos = pos;
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
 
@@ -242,43 +241,43 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 
 bool SetQuake(PLAYER* pp, short tics, short amt)
 {
-    SpawnQuake(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z,  tics, amt, 30000);
+    SpawnQuake(pp->cursector, pp->pos,  tics, amt, 30000);
     return false;
 }
 
 int SetExpQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z,  40, 4, 20000); // !JIM! was 8, 40000
+    SpawnQuake(actor->sector(), actor->spr.pos,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
 int SetGunQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z,  40, 8, 40000);
+    SpawnQuake(actor->sector(), actor->spr.pos,  40, 8, 40000);
     return 0;
 }
 
 int SetPlayerQuake(PLAYER* pp)
 {
-    SpawnQuake(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z,  40, 8, 40000);
+    SpawnQuake(pp->cursector, pp->pos,  40, 8, 40000);
     return 0;
 }
 
 int SetNuclearQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 400, 8, 64000);
+    SpawnQuake(actor->sector(), actor->spr.pos, 400, 8, 64000);
     return 0;
 }
 
 int SetSumoQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z,  120, 4, 20000);
+    SpawnQuake(actor->sector(), actor->spr.pos,  120, 4, 20000);
     return 0;
 }
 
 int SetSumoFartQuake(DSWActor* actor)
 {
-    SpawnQuake(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z,  60, 4, 4000);
+    SpawnQuake(actor->sector(), actor->spr.pos,  60, 4, 4000);
     return 0;
 }
 

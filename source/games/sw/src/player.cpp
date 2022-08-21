@@ -5722,7 +5722,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->set_int_pos({ pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z + PLAYER_HEIGHT });
+        plActor->spr.pos = pp->pos.plusZ(PLAYER_HEIGHTF);
         plActor->set_int_ang(pp->angle.ang.Buildang());
 
         DoSpawnTeleporterEffect(plActor);
