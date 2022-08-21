@@ -1128,9 +1128,8 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     const int PICK_DIST = 40000;
 
     short angle2, delta_ang;
-    int dist, zh;
+    int dist;
     int16_t* shp;
-    int ezh, ezhl, ezhm;
     unsigned ndx;
     TARGET_SORT* ts;
     int ang_weight, dist_weight;
@@ -1184,19 +1183,22 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (delta_ang > (int)max_delta_ang)
                 continue;
 
-            if (actor->hasU() && actor->user.PlayerP)
-                zh = actor->user.PlayerP->int_ppos().Z;
-            else
-                zh = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
+            DVector3 apos = actor->spr.pos;
+            DVector2 ipos = itActor->spr.pos.XY();
 
-            ezh = int_ActorZOfTop(itActor) + (int_ActorSizeZ(itActor) >> 2);
-            ezhm = int_ActorZOfTop(itActor) + (int_ActorSizeZ(itActor) >> 1);
-            ezhl = int_ActorZOfBottom(itActor) - (int_ActorSizeZ(itActor) >> 2);
+            double ezh = ActorZOfTop(itActor) + (ActorSizeZ(itActor) * 0.25);
+            double ezhm = ActorZOfTop(itActor) + (ActorSizeZ(itActor) * 0.5);
+            double ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) * 0.25);
+
+            if (actor->hasU() && actor->user.PlayerP)
+                apos.Z = actor->user.PlayerP->pos.Z;
+            else
+                apos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
-                !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhm, itActor->sector()) &&
-                !FAFcansee_(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezhl, itActor->sector())
+            if (!FAFcansee(apos, actor->sector(), DVector3(ipos, ezh), itActor->sector()) &&
+                !FAFcansee(apos, actor->sector(), DVector3(ipos, ezhm), itActor->sector()) &&
+                !FAFcansee(apos, actor->sector(), DVector3(ipos, ezhl), itActor->sector())
                 )
                 continue;
 
@@ -5660,7 +5662,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee_(killer->int_pos().X, killer->int_pos().Y, int_ActorZOfTop(killer), killer->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
+        if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->pos, pp->cursector))
         {
             pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->int_ppos().X, killer->int_pos().Y - pp->int_ppos().Y)) * (1. / 16.));
         }

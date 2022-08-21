@@ -1145,7 +1145,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wActor->user.Radius/2) + radius)
             continue;
 
-        if (!FAFcansee_(wActor->int_pos().X,wActor->int_pos().Y,wActor->int_pos().Z,wActor->sector(),actor->int_pos().X,actor->int_pos().Y,actor->int_pos().Z,actor->sector()))
+        if (!FAFcansee(wActor->spr.pos, wActor->sector(), actor->spr.pos, actor->sector()))
             continue;
 
 
@@ -1382,7 +1382,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee_(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1), actor->sector()))
+        if (!FAFcansee(pp->pos, pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
             return false;
     }
 
