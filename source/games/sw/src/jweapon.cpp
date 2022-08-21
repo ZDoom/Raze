@@ -259,10 +259,10 @@ STATE s_BloodSprayDrip[] =
 int DoWallBloodDrip(DSWActor* actor)
 {
     // sy & sz are the ceiling and floor of the sector you are sliding down
-    if (actor->user.pos.Z != actor->user.pos.Y)
+    if (actor->user.notreallypos.Z != actor->user.notreallypos.Y)
     {
         // if you are between the ceiling and floor fall fast
-        if (actor->int_pos().Z > actor->user.pos.Y && actor->int_pos().Z < actor->user.pos.Z)
+        if (actor->int_pos().Z > actor->user.notreallypos.Y && actor->int_pos().Z < actor->user.notreallypos.Z)
         {
             actor->spr.zvel += 300;
             actor->add_int_z(actor->spr.zvel);
@@ -453,9 +453,9 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (bldActor->tempwall->twoSided())
-                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.pos.Y, &actor->user.pos.Z);
+                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.notreallypos.Y, &actor->user.notreallypos.Z);
                     else
-                        actor->user.pos.Y = actor->user.pos.Z; // ceiling and floor are equal - white wall
+                        actor->user.notreallypos.Y = actor->user.notreallypos.Z; // ceiling and floor are equal - white wall
                 }
 
                 actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);

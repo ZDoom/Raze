@@ -168,8 +168,6 @@ inline int CloseRangeDist(DSWActor* a1, DSWActor* a2, int fudge)
 
 extern short target_ang;
 
-bool SpriteOverlap(short, short);
-
 DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec);
 int GetOverlapSector(int x, int y, sectortype** over, sectortype** under);

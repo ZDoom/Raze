@@ -1690,13 +1690,13 @@ PlayerPart:
             }
         }
 
-        actor->set_int_xy(sop->int_pmid().X - actor->user.pos.X, sop->int_pmid().Y - actor->user.pos.Y);
+        actor->set_int_xy(sop->int_pmid().X - actor->user.int_upos().X, sop->int_pmid().Y - actor->user.int_upos().Y);
 
         // sprites z update
         if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->set_int_z(sop->int_pmid().Z - actor->user.pos.Z);
+            actor->set_int_z(sop->int_pmid().Z - actor->user.int_upos().Z);
         }
         else
         {
@@ -1704,12 +1704,12 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->set_int_z(actor->sector()->int_floorz() - actor->user.pos.Z);
+                actor->set_int_z(actor->sector()->int_floorz() - actor->user.int_upos().Z);
             }
             else
             {
                 // move with the mid sector
-                actor->set_int_z(sop->mid_sector->int_floorz() - actor->user.pos.Z);
+                actor->set_int_z(sop->mid_sector->int_floorz() - actor->user.int_upos().Z);
             }
         }
 
@@ -2130,7 +2130,7 @@ void CallbackSOsink(ANIM* ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.pos.Z - ActorSizeZ(actor) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.int_upos().Z - ActorSizeZ(actor) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -3347,8 +3347,8 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             bos_z = ActorZOfBottom(actor);
             if (bos_z > actor->user.int_loz())
             {
-                actor->user.pos.Y = (bos_z - actor->int_pos().Z);
-                actor->add_int_z(-actor->user.pos.Y);
+                actor->user.notreallypos.Y = (bos_z - actor->int_pos().Z);
+                actor->add_int_z(-actor->user.notreallypos.Y);
             }
 
             //
@@ -3497,7 +3497,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
-            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.pos.Z)
+            if (ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 
@@ -3507,7 +3507,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-                actor->add_int_z(actor->user.pos.Y);
+                actor->add_int_z(actor->user.notreallypos.Y);
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
                 actor->user.ActorActionFunc = NinjaJumpActionFunc;

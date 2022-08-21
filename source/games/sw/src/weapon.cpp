@@ -3725,8 +3725,8 @@ AutoShrap:
             case Vomit1:
                 shrap_bounce = false;
 				actor->spr.pos.Z -= 4;
-                shrap_xsize = actor->user.pos.X = 12 + (RANDOM_P2(32<<8)>>8);
-                shrap_ysize = actor->user.pos.Y = 12 + (RANDOM_P2(32<<8)>>8);
+                shrap_xsize = actor->user.notreallypos.X = 12 + (RANDOM_P2(32<<8)>>8);
+                shrap_ysize = actor->user.notreallypos.Y = 12 + (RANDOM_P2(32<<8)>>8);
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
 
                 nx = bcos(actor->int_ang(), -6);
@@ -3740,8 +3740,8 @@ AutoShrap:
             case EMP:
                 shrap_bounce = false;
 				actor->spr.pos.Z -= 4;
-                shrap_xsize = actor->user.pos.X = 5 + (RANDOM_P2(4<<8)>>8);
-                shrap_ysize = actor->user.pos.Y = 5 + (RANDOM_P2(4<<8)>>8);
+                shrap_xsize = actor->user.notreallypos.X = 5 + (RANDOM_P2(4<<8)>>8);
+                shrap_ysize = actor->user.notreallypos.Y = 5 + (RANDOM_P2(4<<8)>>8);
                 break;
             }
 
@@ -3794,8 +3794,8 @@ void DoShrapMove(DSWActor* actor)
 int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
-    actor->spr.xrepeat = actor->user.pos.X + MulScale(12, bcos(actor->user.Counter), 14);
-    actor->spr.yrepeat = actor->user.pos.Y + MulScale(12, bsin(actor->user.Counter), 14);
+    actor->spr.xrepeat = actor->user.notreallypos.X + MulScale(12, bcos(actor->user.Counter), 14);
+    actor->spr.yrepeat = actor->user.notreallypos.Y + MulScale(12, bsin(actor->user.Counter), 14);
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
@@ -3815,8 +3815,8 @@ int DoVomit(DSWActor* actor)
         MissileWaterAdjust(actor);
         actor->spr.pos.Z = actor->user.loz;
         actor->user.WaitTics = 60;
-        actor->user.pos.X = actor->spr.xrepeat;
-        actor->user.pos.Y = actor->spr.yrepeat;
+        actor->user.notreallypos.X = actor->spr.xrepeat;
+        actor->user.notreallypos.Y = actor->spr.yrepeat;
         return 0;
     }
 
@@ -8627,7 +8627,7 @@ int DoMineStuck(DSWActor* actor)
             actor->user.WaitTics = SEC(1)/2;
         }
 
-        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.pos.Z };
+        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.int_upos().Z };
         SetActorZ(actor, &pos);
         actor->set_int_z(attachActor->int_pos().Z - (ActorSizeZ(attachActor) >> 1));
     }
@@ -9040,7 +9040,7 @@ int DoEMPBurst(DSWActor* actor)
     DSWActor* attachActor = actor->user.attachActor;
     if (attachActor != nullptr)
     {
-        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.pos.Z };
+        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.int_upos().Z };
         SetActorZ(actor, &pos);
         actor->set_int_ang(NORM_ANGLE(attachActor->int_ang() + 1024));
     }
@@ -10262,19 +10262,17 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
     if (actor->user.Flags & (SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        expActor->set_int_z(actor->sector()->int_floorz() - actor->user.pos.Z);
+        expActor->set_int_z(actor->sector()->int_floorz() - actor->user.int_upos().Z);
         expActor->backupz();
     }
     else
     {
         // move with the mid sector
-        expActor->set_int_z(sop->mid_sector->int_floorz() - actor->user.pos.Z);
+        expActor->set_int_z(sop->mid_sector->int_floorz() - actor->user.int_upos().Z);
         expActor->backupz();
     }
 
-    expActor->user.pos.X = actor->user.pos.X;
-    expActor->user.pos.Y = actor->user.pos.Y;
-    expActor->user.pos.Z = actor->user.pos.Z;
+    expActor->user.pos = actor->user.int_upos();
 }
 
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
@@ -11284,8 +11282,8 @@ int DoSerpRing(DSWActor* actor)
     }
 
     int z = actor->int_pos().Z + actor->spr.zvel;
-    if (z > own->int_pos().Z - actor->user.pos.Z)
-        z = own->int_pos().Z - actor->user.pos.Z;
+    if (z > own->int_pos().Z - actor->user.int_upos().Z)
+        z = own->int_pos().Z - actor->user.int_upos().Z;
 
     // move the center with the player
 	actor->spr.pos = DVector3(own->spr.pos.XY(), z * zinttoworld);
@@ -17085,8 +17083,8 @@ DSWActor* SpawnBubble(DSWActor* actor)
 
     actorNew->spr.xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat;
-    actorNew->user.pos.X = actorNew->spr.xrepeat;
-    actorNew->user.pos.Y = actorNew->spr.yrepeat;
+    actorNew->user.notreallypos.X = actorNew->spr.xrepeat;
+    actorNew->user.notreallypos.Y = actorNew->spr.yrepeat;
     actorNew->user.ceiling_dist = (1);
     actorNew->user.floor_dist = (1);
     actorNew->spr.shade = actor->sector()->floorshade - 10;
@@ -17177,17 +17175,17 @@ int DoBubble(DSWActor* actor)
     if (actor->spr.zvel > 768)
         actor->spr.zvel = 768;
 
-    actor->user.pos.X += 1;
-    actor->user.pos.Y += 1;
+    actor->user.notreallypos.X += 1;
+    actor->user.notreallypos.Y += 1;
 
-    if (actor->user.pos.X > 32)
+    if (actor->user.notreallypos.X > 32)
     {
-        actor->user.pos.X = 32;
-        actor->user.pos.Y = 32;
+        actor->user.notreallypos.X = 32;
+        actor->user.notreallypos.Y = 32;
     }
 
-    actor->spr.xrepeat = actor->user.pos.X + (RANDOM_P2(8 << 8) >> 8) - 4;
-    actor->spr.yrepeat = actor->user.pos.Y + (RANDOM_P2(8 << 8) >> 8) - 4;
+    actor->spr.xrepeat = actor->user.notreallypos.X + (RANDOM_P2(8 << 8) >> 8) - 4;
+    actor->spr.yrepeat = actor->user.notreallypos.Y + (RANDOM_P2(8 << 8) >> 8) - 4;
 
     if (actor->spr.pos.Z < actor->sector()->ceilingz)
     {

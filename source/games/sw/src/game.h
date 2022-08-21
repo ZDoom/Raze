@@ -937,6 +937,7 @@ struct USER
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
     int int_zclip() const { return zclip * zworldtoint; }
+    const vec3_t int_upos() const { return pos; }
 
     //
     // Variables that can be used by actors and Player
@@ -967,6 +968,13 @@ struct USER
     TObjPtr<DSWActor*> attachActor;  // attach to sprite if needed - electro snake
     TObjPtr<DSWActor*> flagOwnerActor;
     TObjPtr<DSWActor*> WpnGoalActor;
+
+    // Some actors hijack this - the second name is supposed to be a marker for these cases
+    union
+    {
+        vec3_t pos;
+        vec3_t notreallypos;
+    };
 
     double hiz, loz;
     double oz; // serialized copy of sprite.oz
@@ -1060,7 +1068,6 @@ struct USER
 
     int16_t wait_active_check;  // for enemy checking of player
     int16_t inactive_time; // length of time actor has been unaware of his tgt
-    vec3_t pos;
     int16_t sang;
     uint8_t spal;  // save off default palette number
 
@@ -2211,7 +2218,7 @@ struct ANIM
 			return animactor->spr.int_pos().Z;
 		case ANIM_Userz:
             if (animactor == nullptr) return 0;
-            return animactor->user.pos.Z;
+            return animactor->user.int_upos().Z;
 		case ANIM_SUdepth:
 			return sector[animindex].depth_fixed;
 		default:

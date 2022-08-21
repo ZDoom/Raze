@@ -345,7 +345,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (int_ActorZOfMiddle(actor->user.targetActor)) - actor->user.pos.Z;
+    zdiff = (int_ActorZOfMiddle(actor->user.targetActor)) - actor->user.int_upos().Z;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(200)); // put a random amount
@@ -373,7 +373,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     else
         bound = loz - actor->user.int_floor_dist() - HORNET_BOB_AMT;
 
-    if (actor->user.pos.Z > bound)
+    if (actor->user.int_upos().Z > bound)
     {
         actor->user.pos.Z = bound;
     }
@@ -384,16 +384,16 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     else
         bound = hiz + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
 
-    if (actor->user.pos.Z < bound)
+    if (actor->user.int_upos().Z < bound)
     {
         actor->user.pos.Z = bound;
     }
 
-    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.int_floor_dist());    
-    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.int_ceiling_dist());    
+    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist());
+    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist());
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->set_int_z(actor->user.pos.Z + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14));
+    actor->set_int_z(actor->user.int_upos().Z + MulScale(HORNET_BOB_AMT, bsin(actor->user.Counter), 14));
 
     bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
     if (actor->int_pos().Z < bound)
@@ -424,7 +424,7 @@ int InitHornetCircle(DSWActor* actor)
 
     // z velocity
     actor->user.jump_speed = 200 + RANDOM_P2(128);
-    if (labs(actor->user.pos.Z - actor->user.int_hiz()) < abs(actor->user.pos.Z - actor->user.int_loz()))
+    if (labs(actor->user.int_upos().Z - actor->user.int_hiz()) < abs(actor->user.int_upos().Z - actor->user.int_loz()))
         actor->user.jump_speed = -actor->user.jump_speed;
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
@@ -464,7 +464,7 @@ int DoHornetCircle(DSWActor* actor)
     actor->user.pos.Z -= actor->user.jump_speed * ACTORMOVETICS;
 
     bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + HORNET_BOB_AMT;
-    if (actor->user.pos.Z < bound)
+    if (actor->user.int_upos().Z < bound)
     {
         // bumped something
         actor->user.pos.Z = bound;

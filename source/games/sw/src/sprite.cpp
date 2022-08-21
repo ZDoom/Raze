@@ -2051,7 +2051,7 @@ void SpriteSetup(void)
 
                             // start in the on position
                             sectp->add_int_floorz(amt);
-                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
 
                             MoveSpritesWithSector(actor->sector(), amt, false); // floor
                         }
@@ -2072,7 +2072,7 @@ void SpriteSetup(void)
 
                             // starting in the on position
                             sectp->add_int_ceilingz(amt);
-                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
 
                             MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
                         }
@@ -2256,7 +2256,7 @@ void SpriteSetup(void)
                         {
                             // start in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 
@@ -2275,7 +2275,7 @@ void SpriteSetup(void)
                         {
                             // starting in the on position
                             actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.pos.Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
                             SpikeAlign(actor);
                         }
 
@@ -4612,7 +4612,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        actor->set_int_z(actor->user.pos.Z);
+        actor->set_int_z(actor->user.int_upos().Z);
     }
 
     // save off x,y values

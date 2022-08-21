@@ -436,7 +436,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.pos.Z;
+    zdiff = (ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.int_upos().Z;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(64)); // put a random amount
@@ -464,14 +464,14 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.lowActor->int_pos().X, actor->user.lowActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.pos.Z;
+            bound = actor->user.int_upos().Z;
         else
             bound = loz - actor->user.int_floor_dist();
     }
     else
         bound = loz - actor->user.int_floor_dist() - EEL_BOB_AMT;
 
-    if (actor->user.pos.Z > bound)
+    if (actor->user.int_upos().Z > bound)
     {
         actor->user.pos.Z = bound;
     }
@@ -481,23 +481,23 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.highActor->int_pos().X, actor->user.highActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.pos.Z;
+            bound = actor->user.int_upos().Z;
         else
             bound = hiz + actor->user.int_ceiling_dist();
     }
     else
         bound = hiz + actor->user.int_ceiling_dist() + EEL_BOB_AMT;
 
-    if (actor->user.pos.Z < bound)
+    if (actor->user.int_upos().Z < bound)
     {
         actor->user.pos.Z = bound;
     }
 
-    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.int_floor_dist());
-    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.int_ceiling_dist());
+    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist());
+    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist());
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->set_int_z(actor->user.pos.Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
+    actor->set_int_z(actor->user.int_upos().Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
 
     bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + EEL_BOB_AMT;
     if (actor->int_pos().Z < bound)

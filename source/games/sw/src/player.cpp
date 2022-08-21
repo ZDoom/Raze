@@ -3185,26 +3185,26 @@ void DoPlayerClimb(PLAYER* pp)
             // sprite
             const int IADJ_AMT = 8;
             auto pos = plActor->int_pos();
-            if (pos.X != plActor->user.pos.X)
+            if (pos.X != plActor->user.int_upos().X)
             {
-                if (pos.X < plActor->user.pos.X)
+                if (pos.X < plActor->user.int_upos().X)
                     pos.X += IADJ_AMT;
-                else if (pos.X > plActor->user.pos.X)
+                else if (pos.X > plActor->user.int_upos().X)
                     pos.X -= IADJ_AMT;
 
-                if (labs(pos.X - plActor->user.pos.X) <= IADJ_AMT)
-                    pos.X = plActor->user.pos.X;
+                if (labs(pos.X - plActor->user.int_upos().X) <= IADJ_AMT)
+                    pos.X = plActor->user.int_upos().X;
             }
 
-            if (pos.Y != plActor->user.pos.Y)
+            if (pos.Y != plActor->user.int_upos().Y)
             {
-                if (pos.Y < plActor->user.pos.Y)
+                if (pos.Y < plActor->user.int_upos().Y)
                     pos.Y += IADJ_AMT;
-                else if (pos.Y > plActor->user.pos.Y)
+                else if (pos.Y > plActor->user.int_upos().Y)
                     pos.Y -= IADJ_AMT;
 
-                if (labs(pos.Y - plActor->user.pos.Y) <= IADJ_AMT)
-                    pos.Y = plActor->user.pos.Y;
+                if (labs(pos.Y - plActor->user.int_upos().Y) <= IADJ_AMT)
+                    pos.Y = plActor->user.int_upos().Y;
             }
             plActor->set_int_pos(pos);
         }
@@ -4024,7 +4024,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     plActor->user.pos.XY() = over_act->int_pos().XY() - pp->int_ppos().XY();
 
     // update to the new x y position
-    pp->set_int_ppos_XY(under_act->int_pos().XY() - plActor->user.pos.XY());
+    pp->set_int_ppos_XY(under_act->int_pos().XY() - plActor->user.int_upos().XY());
 
     auto over  = over_act->sector();
     auto under = under_act->sector();
@@ -4090,7 +4090,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     plActor->user.pos.XY() = under_act->int_pos().XY() - pp->int_ppos().XY();
 
     // update to the new x y position
-    pp->set_int_ppos_XY(over_act->int_pos().XY() - plActor->user.pos.XY());
+    pp->set_int_ppos_XY(over_act->int_pos().XY() - plActor->user.int_upos().XY());
 
     auto over = over_act->sector();
     auto under = under_act->sector();

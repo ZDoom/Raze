@@ -456,7 +456,7 @@ int DoFireFly(DSWActor* actor)
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    actor->set_int_z(actor->user.pos.Z + MulScale(Z(32), bsin(actor->user.WaitTics), 14));
+    actor->set_int_z(actor->user.int_upos().Z + MulScale(Z(32), bsin(actor->user.WaitTics), 14));
     return 0;
 }
 
