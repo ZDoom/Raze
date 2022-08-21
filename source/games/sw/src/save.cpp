@@ -581,7 +581,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	if (arc.isReading())
 	{
 		w.opos = w.pos;
-		w.oz_speed = w.z_speed;
 		w.ovect.X = w.vect.X;
 		w.ovect.Y = w.vect.Y;
 		w.obob_z = w.bob_z;

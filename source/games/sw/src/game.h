@@ -622,7 +622,7 @@ struct PLAYER
 
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving
-    int z_speed,oz_speed; // used for diving and flying instead of down_speed, up_speed
+    int z_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
     int hiz,loz;
     int ceiling_dist,floor_dist;

@@ -189,7 +189,7 @@ struct SWPlayer native
 
     native int jump_count, jump_speed;     // jumping
     native int16 down_speed, up_speed; // diving
-    native int z_speed,oz_speed; // used for diving and flying instead of down_speed, up_speed
+    native int z_speed; // used for diving and flying instead of down_speed, up_speed
     native int climb_ndx;
     native int hiz,loz;
     native int ceiling_dist,floor_dist;
