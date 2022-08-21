@@ -8633,9 +8633,8 @@ int DoMineStuck(DSWActor* actor)
             actor->user.WaitTics = SEC(1)/2;
         }
 
-        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.int_upos().Z };
-        SetActorZ(actor, &pos);
-        actor->set_int_z(attachActor->int_pos().Z - (int_ActorSizeZ(attachActor) >> 1));
+        SetActorZ(actor, attachActor->spr.pos.plusZ(-actor->user.pos.Z));
+        actor->spr.pos.Z = attachActor->spr.pos.Z - (ActorSizeZ(attachActor) * 0.5);
     }
 
     // not activated yet
@@ -9046,8 +9045,7 @@ int DoEMPBurst(DSWActor* actor)
     DSWActor* attachActor = actor->user.attachActor;
     if (attachActor != nullptr)
     {
-        vec3_t pos = { attachActor->int_pos().X, attachActor->int_pos().Y, attachActor->int_pos().Z - actor->user.int_upos().Z };
-        SetActorZ(actor, &pos);
+        SetActorZ(actor, attachActor->spr.pos.plusZ(-actor->user.pos.Z));
         actor->set_int_ang(NORM_ANGLE(attachActor->int_ang() + 1024));
     }
 
@@ -11286,12 +11284,12 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    int z = actor->int_pos().Z + actor->spr.zvel;
-    if (z > own->int_pos().Z - actor->user.int_upos().Z)
-        z = own->int_pos().Z - actor->user.int_upos().Z;
+    double zz = actor->int_pos().Z + actor->spr.zvel * zinttoworld;
+    if (zz > own->spr.pos.Z - actor->user.pos.Z)
+        zz = own->spr.pos.Z - actor->user.pos.Z;
 
     // move the center with the player
-	actor->spr.pos = DVector3(own->spr.pos.XY(), z * zinttoworld);
+	actor->spr.pos = DVector3(own->spr.pos.XY(), zz);
 
 
     // go out until its time to come back in

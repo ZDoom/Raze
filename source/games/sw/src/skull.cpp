@@ -404,11 +404,10 @@ int DoSkullJump(DSWActor* actor)
 int DoSkullBob(DSWActor* actor)
 {
     // actor does a sine wave about actor->user.sz - this is the z mid point
-    const int SKULL_BOB_AMT = (Z(16));
+    const int SKULL_BOB_AMT = 16;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->set_int_z(actor->user.int_upos().Z + MulScale(SKULL_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale((SKULL_BOB_AMT / 2), bsin(actor->user.Counter), 14));
+    actor->spr.pos.Z = actor->user.pos.Z + SKULL_BOB_AMT * 1.5 * DAngle::fromBuild(actor->user.Counter).Sin();
 
     return 0;
 }
@@ -781,11 +780,10 @@ int DoBettyJump(DSWActor* actor)
 int DoBettyBob(DSWActor* actor)
 {
     // actor does a sine wave about actor->user.sz - this is the z mid point
-    const int  BETTY_BOB_AMT = (Z(16));
+    const int  BETTY_BOB_AMT = 16;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->set_int_z(actor->user.int_upos().Z + MulScale(BETTY_BOB_AMT, bsin(actor->user.Counter), 14) +
-            MulScale((BETTY_BOB_AMT / 2), bsin(actor->user.Counter), 14));
+    actor->spr.pos.Z = actor->user.pos.Z + BETTY_BOB_AMT * 1.5 * DAngle::fromBuild(actor->user.Counter).Sin();
 
     return 0;
 }

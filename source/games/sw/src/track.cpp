@@ -1689,13 +1689,13 @@ PlayerPart:
             }
         }
 
-        actor->set_int_xy(sop->int_pmid().X - actor->user.int_upos().X, sop->int_pmid().Y - actor->user.int_upos().Y);
+        actor->spr.pos.XY() = sop->pmid.XY() - actor->user.pos.XY();
 
         // sprites z update
         if ((sop->flags & SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            actor->set_int_z(sop->int_pmid().Z - actor->user.int_upos().Z);
+            actor->spr.pos.Z = sop->pmid.Z - actor->user.pos.Z;
         }
         else
         {
@@ -1703,12 +1703,12 @@ PlayerPart:
             if (actor->user.Flags & (SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                actor->set_int_z(actor->sector()->int_floorz() - actor->user.int_upos().Z);
+                actor->spr.pos.Z = actor->sector()->floorz - actor->user.pos.Z;
             }
             else
             {
                 // move with the mid sector
-                actor->set_int_z(sop->mid_sector->int_floorz() - actor->user.int_upos().Z);
+                actor->spr.pos.Z = sop->mid_sector->floorz - actor->user.pos.Z;
             }
         }
 
@@ -3496,7 +3496,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
-            if (int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
+            if (ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25) < actor->user.pos.Z)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 

@@ -281,7 +281,7 @@ int DoSpike(DSWActor* actor)
         if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+            actor->user.z_tgt = actor->user.pos.Z;
             actor->user.vel_rate = -actor->user.vel_rate;
 
             SetSpikeInactive(actor);
@@ -382,7 +382,7 @@ int DoSpikeAuto(DSWActor* actor)
         if (actor->user.z_tgt == actor->spr.pos.Z)
         {
             // change target
-            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+            actor->user.z_tgt = actor->user.pos.Z;
             actor->user.vel_rate = -actor->user.vel_rate;
             actor->user.Tics = actor->user.WaitTics;
 

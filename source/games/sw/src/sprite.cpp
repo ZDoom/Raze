@@ -2051,7 +2051,7 @@ void SpriteSetup(void)
 
                             // start in the on position
                             sectp->add_int_floorz(amt);
-                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, false); // floor
                         }
@@ -2072,7 +2072,7 @@ void SpriteSetup(void)
 
                             // starting in the on position
                             sectp->add_int_ceilingz(amt);
-                            actor->user.z_tgt = actor->user.int_upos().Z * zinttoworld;
+                            actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
                         }
@@ -4612,7 +4612,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        actor->set_int_z(actor->user.int_upos().Z);
+        actor->spr.pos.Z = actor->user.pos.Z;
     }
 
     // save off x,y values
