@@ -2049,7 +2049,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, (sop->zorig_floor[i] + sop->z_tgt) * zinttoworld, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZDOWN);
@@ -2058,7 +2058,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, (sop->zorig_floor[i] + sop->z_tgt) * zinttoworld, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZUP);
@@ -2111,7 +2111,7 @@ void CallbackSOsink(ANIM* ap, void *data)
     {
         if (&sect == destsect)
         {
-            ndx = AnimSet(ANIM_SUdepth, destsect, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
+            ndx = AnimSet(ANIM_SUdepth, destsect, IntToFixed(tgt_depth), ap->vel);
             AnimSetVelAdj(ndx, ap->vel_adj);
             found = true;
             break;
@@ -2127,7 +2127,7 @@ void CallbackSOsink(ANIM* ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.int_upos().Z - int_ActorSizeZ(actor) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.pos.Z - ActorSizeZ(actor) - 100, ap->vel / 256);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2375,9 +2375,9 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
                 if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->int_floorz(), tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
-                AnimSetVelAdj(ndx, 6);
+                AnimSetVelAdj(ndx, 6 * zmaptoworld);
             }
 
             break;
@@ -2395,7 +2395,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
                 {
                     if ((*sectp) && (*sectp)->stag == SECT_SO_FORM_WHIRLPOOL)
                     {
-                        AnimSet(ANIM_Floorz, *sectp, (*sectp)->int_floorz() + Z((*sectp)->height), 128);
+                        AnimSet(ANIM_Floorz, *sectp, (*sectp)->floorz + (*sectp)->height, 128);
                         (*sectp)->floorshade += (*sectp)->height / 6;
 
                         (*sectp)->extra &= ~(SECTFX_NO_RIDE);
@@ -2421,7 +2421,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
             tpoint = Track[sop->track].TrackPoint + sop->point;
 
             // set anim
-            AnimSet(ANIM_SopZ, int(sop-SectorObject), nullptr, tpoint->z, zr);
+            AnimSet(ANIM_SopZ, int(sop-SectorObject), nullptr, tpoint->z * zinttoworld, zr);
 
             // move back to current point by reversing direction
             sop->dir *= -1;
@@ -2516,14 +2516,14 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
             if ((sop->flags & SOBJ_SPRITE_OBJ))
             {
                 // only modify zmid for sprite_objects
-                AnimSet(ANIM_SopZ, int(sop - SectorObject), nullptr, dz, sop->z_rate);
+                AnimSet(ANIM_SopZ, int(sop - SectorObject), nullptr, dz * zinttoworld, sop->z_rate);
             }
             else
             {
                 // churn through sectors setting their new z values
                 for (i = 0; sop->sectp[i] != nullptr; i++)
                 {
-                    AnimSet(ANIM_Floorz, sop->sectp[i], dz - (sop->mid_sector->int_floorz() - sop->sectp[i]->int_floorz()), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sectp[i], dz * zinttoworld - (sop->mid_sector->floorz - sop->sectp[i]->floorz), sop->z_rate);
                 }
             }
         }

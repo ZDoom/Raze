@@ -1718,14 +1718,14 @@ void RefreshInfoLine(PLAYER* pp);
 void DoAnim(int numtics);
 void AnimDelete(int animtype, int animindex, DSWActor*);
 short AnimGetGoal(int animtype, int animindex, DSWActor*);
-int AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
-int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
+int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, int thevel);
+int AnimSet(int animtype, sectortype* animindex, double thegoal, int thevel)
 {
     return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
 }
 
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data);
-short AnimSetVelAdj(short anim_ndx, short vel_adj);
+short AnimSetVelAdj(short anim_ndx, double vel_adj);
 
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* person);
 
@@ -2232,8 +2232,8 @@ struct ANIM
 {
 	int animtype, animindex;
 	double goal;
-	int vel;
-	short vel_adj;
+	double vel;
+	double vel_adj;
 	TObjPtr<DSWActor*> animactor;
 	ANIM_CALLBACKp callback;
 	SECTOR_OBJECT* callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
@@ -2243,15 +2243,15 @@ struct ANIM
 		switch (animtype)
 		{
 		case ANIM_Floorz:
-            return sector[animindex].int_floorz();
+            return sector[animindex].floorz;
 		case ANIM_SopZ:
-			return SectorObject[animindex].int_pmid().Z;
+			return SectorObject[animindex].pmid.Z;
 		case ANIM_Spritez:
             if (animactor == nullptr) return 0;
-			return animactor->spr.int_pos().Z;
+			return animactor->spr.pos.Z;
 		case ANIM_Userz:
             if (animactor == nullptr) return 0;
-            return animactor->user.int_upos().Z;
+            return animactor->user.pos.Z;
 		case ANIM_SUdepth:
 			return sector[animindex].depth_fixed;
 		default:
@@ -2264,18 +2264,17 @@ struct ANIM
         switch (animtype)
         {
         case ANIM_Floorz:
-            sector[animindex].set_int_floorz(value);
+            sector[animindex].setfloorz(value);
 			break;
         case ANIM_SopZ:
-            SectorObject[animindex].pmid.Z = value * zinttoworld;
-			break;
+            SectorObject[animindex].pmid.Z = value;
+            break;
         case ANIM_Spritez:
             if (animactor == nullptr) return;
-            animactor->set_int_z(value);
-			break;
+            animactor->spr.pos.Z = value;
         case ANIM_Userz:
             if (animactor == nullptr) return;
-            animactor->user.pos.Z = value * inttoworld;
+            animactor->user.pos.Z = value;
 			break;
         case ANIM_SUdepth:
             sector[animindex].depth_fixed = value;

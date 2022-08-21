@@ -640,10 +640,7 @@ void DoSpringBoardDown(void)
         {
             if ((sbp->TimeOut -= synctics) <= 0)
             {
-                int destz;
-
-				destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->int_floorz(), Find_FloorDown | Find_Safe)->int_floorz();
-
+				auto destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->int_floorz(), Find_FloorDown | Find_Safe)->floorz;
                 AnimSet(ANIM_Floorz, sbp->sectp, destz, 256);
 
                 sbp->sectp->lotag = TAG_SPRING_BOARD;
@@ -2440,7 +2437,7 @@ void DoAnim(int numtics)
         if (animval < Anim[i].goal)
         {
             // move it
-            animval += (numtics * PIXZ(Anim[i].vel));
+            animval += numtics * (Anim[i].vel);
 
             Anim[i].vel += Anim[i].vel_adj * numtics;
 
@@ -2452,7 +2449,7 @@ void DoAnim(int numtics)
         // if GREATER THAN goal
         if (animval > Anim[i].goal)
         {
-            animval -= (numtics * PIXZ(Anim[i].vel));
+            animval -= numtics * (Anim[i].vel);
 
             Anim[i].vel += Anim[i].vel_adj * numtics;
 
@@ -2534,7 +2531,7 @@ void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 }
 
 
-int AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int thevel)
+int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, int thevel)
 {
     int i, j;
 
@@ -2556,7 +2553,7 @@ int AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, i
     Anim[j].animindex = animindex;
 	Anim[j].animactor = animactor;
     Anim[j].goal = thegoal;
-    Anim[j].vel = Z(thevel);
+    Anim[j].vel = thevel;
     Anim[j].vel_adj = 0;
     Anim[j].callback = nullptr;
     Anim[j].callbackdata = nullptr;
@@ -2580,7 +2577,7 @@ short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data)
     return anim_ndx;
 }
 
-short AnimSetVelAdj(short anim_ndx, short vel_adj)
+short AnimSetVelAdj(short anim_ndx, double vel_adj)
 {
     ASSERT(anim_ndx < AnimCnt);
 
