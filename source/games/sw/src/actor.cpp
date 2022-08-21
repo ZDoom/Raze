@@ -663,11 +663,11 @@ int DoActorJump(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // if player gets to close the ceiling while jumping
-    int minh = actor->user.int_hiz() + (tileHeight(actor->spr.picnum) << 8);
-    if (actor->int_pos().Z < minh)
+    double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
+    if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling
-        actor->set_int_z(minh);
+        actor->spr.pos.Z = minh;
 
         // reverse your speed to falling
         actor->user.jump_speed = -actor->user.jump_speed;
@@ -829,11 +829,11 @@ int DoJump(DSWActor* actor)
     actor->add_int_z(actor->user.jump_speed * ACTORMOVETICS);
 
     // if player gets to close the ceiling while jumping
-    int minh = actor->user.int_hiz() + (tileHeight(actor->spr.picnum) << 8);
-    if (actor->int_pos().Z < minh)
+    double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
+    if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling
-        actor->set_int_z(minh);
+        actor->spr.pos.Z = minh;
 
         // reverse your speed to falling
         actor->user.jump_speed = -actor->user.jump_speed;
