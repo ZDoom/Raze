@@ -2746,8 +2746,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
 
 			if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
             {
-                if (!FAFcansee_(sActor->int_pos().X, sActor->int_pos().Y, sActor->int_pos().Z-Z(4), sActor->sector(),
-                               actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, int_ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
+                if (!FAFcansee(sActor->spr.pos.plusZ(-4), sActor->sector(), ActorUpperVect(actor->user.targetActor), actor->user.targetActor->sector()))
                 {
                     return;
                 }

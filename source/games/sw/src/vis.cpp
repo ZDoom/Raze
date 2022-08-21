@@ -83,7 +83,7 @@ void ProcessVisOn(void)
 void VisViewChange(PLAYER* pp, int *vis)
 {
     short BrightestVis = NormalVisibility;
-    int x,y,z;
+    DVector3 pos;
     sectortype* sectp;
 
     if (paused)
@@ -96,21 +96,17 @@ void VisViewChange(PLAYER* pp, int *vis)
         auto own = GetOwner(actor);
         if (own != nullptr)
         {
-            x = own->int_pos().X;
-            y = own->int_pos().Y;
-            z = own->int_pos().Z;
+            pos = own->spr.pos;
             sectp = own->sector();
         }
         else
         {
-            x = actor->int_pos().X;
-            y = actor->int_pos().Y;
-            z = actor->int_pos().Z;
+            pos = actor->spr.pos;
             sectp = actor->sector();
         }
 
         // save off the brightest vis that you can see
-        if (FAFcansee_(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, x, y, z, sectp))
+        if (FAFcansee(pp->pos, pp->cursector, pos, sectp))
         {
             if (VIS_VisCur(actor) < BrightestVis)
                 BrightestVis = VIS_VisCur(actor);
