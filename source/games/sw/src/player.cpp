@@ -2815,7 +2815,7 @@ void DoPlayerJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->add_int_ppos_Z(pp->jump_speed);
+        pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
@@ -2884,7 +2884,7 @@ void DoPlayerForceJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->add_int_ppos_Z(pp->jump_speed);
+        pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
@@ -2968,7 +2968,7 @@ void DoPlayerFall(PLAYER* pp)
             pp->jump_speed = 4100;
 
         // adjust player height by jump speed
-        pp->add_int_ppos_Z(pp->jump_speed);
+        pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         if (pp->jump_speed > 2000)
         {
@@ -4105,7 +4105,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     DoPlayerZrange(pp);
     DoPlayerSetWadeDepth(pp);
 
-    pp->add_int_ppos_Z(-Z(pp->WadeDepth));
+    pp->pos.Z -= pp->WadeDepth;
 
     pp->opos = pp->pos;
 
@@ -5200,7 +5200,7 @@ void DoPlayerDeathJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->add_int_ppos_Z(pp->jump_speed);
+        pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
@@ -5232,7 +5232,7 @@ void DoPlayerDeathFall(PLAYER* pp)
         pp->jump_speed += PLAYER_DEATH_GRAV;
 
         // adjust player height by jump speed
-        pp->add_int_ppos_Z(pp->jump_speed);
+        pp->pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
         {
