@@ -364,7 +364,7 @@ void EelCommon(DSWActor* actor)
     actor->user.floor_dist = (16);
     actor->user.ceiling_dist = (20);
 
-    actor->user.pos.Z = actor->int_pos().Z;
+    actor->user.pos.Z = actor->spr.pos.Z;
 
     actor->spr.xrepeat = 35;
     actor->spr.yrepeat = 27;
@@ -414,11 +414,7 @@ int NullEel(DSWActor* actor)
 
 int DoEelMatchPlayerZ(DSWActor* actor)
 {
-    int zdiff,zdist;
-    int loz,hiz;
     int dist,a,b,c;
-
-    int bound;
 
     if (FAF_ConnectArea(actor->sector()))
     {
@@ -436,11 +432,11 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about actor->user.sz - this is the z mid point
 
-    zdiff = (int_ActorZOfBottom(actor->user.targetActor) - Z(8)) - actor->user.int_upos().Z;
+    double zdiff = ActorZOfBottom(actor->user.targetActor) - 8 - actor->user.pos.Z;
 
     // check z diff of the player and the sprite
-    zdist = Z(20 + RandomRange(64)); // put a random amount
-    if (labs(zdiff) > zdist)
+    double zdist = 20 + RandomRange(64); // put a random amount
+    if (abs(zdiff) > zdist)
     {
         if (zdiff > 0)
             // manipulate the z midpoint
@@ -449,31 +445,32 @@ int DoEelMatchPlayerZ(DSWActor* actor)
             actor->user.pos.Z -= 160 * ACTORMOVETICS * zmaptoworld;
     }
 
-    const int EEL_BOB_AMT = (Z(4));
+    const int EEL_BOB_AMT = 4;
 
     // save off lo and hi z
-    loz = actor->user.int_loz();
-    hiz = actor->user.int_hiz();
+    double loz = actor->user.loz;
+    double hiz = actor->user.hiz;
 
     // adjust loz/hiz for water depth
     if (actor->user.lo_sectp && actor->user.lo_sectp->hasU() && FixedToInt(actor->user.lo_sectp->depth_fixed))
-        loz -= Z(FixedToInt(actor->user.lo_sectp->depth_fixed)) - Z(8);
+        loz -= FixedToInt(actor->user.lo_sectp->depth_fixed) - 8;
 
     // lower bound
+    double bound;
     if (actor->user.lowActor && actor->user.targetActor == actor->user.highActor) // this doesn't look right...
     {
         DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.lowActor->int_pos().X, actor->user.lowActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.int_upos().Z;
+            bound = actor->user.pos.Z;
         else
-            bound = loz - actor->user.int_floor_dist();
+            bound = loz - actor->user.floor_dist;
     }
     else
-        bound = loz - actor->user.int_floor_dist() - EEL_BOB_AMT;
+        bound = loz - actor->user.floor_dist - EEL_BOB_AMT;
 
-    if (actor->user.int_upos().Z > bound)
+    if (actor->user.pos.Z > bound)
     {
-        actor->user.pos.Z = bound * zinttoworld;
+        actor->user.pos.Z = bound;
     }
 
     // upper bound
@@ -481,29 +478,29 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         DISTANCE(actor->int_pos().X, actor->int_pos().Y, actor->user.highActor->int_pos().X, actor->user.highActor->int_pos().Y, dist, a, b, c);
         if (dist <= 300)
-            bound = actor->user.int_upos().Z;
+            bound = actor->user.pos.Z;
         else
-            bound = hiz + actor->user.int_ceiling_dist();
+            bound = hiz + actor->user.ceiling_dist;
     }
     else
-        bound = hiz + actor->user.int_ceiling_dist() + EEL_BOB_AMT;
+        bound = hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
 
-    if (actor->user.int_upos().Z < bound)
+    if (actor->user.pos.Z < bound)
     {
-        actor->user.pos.Z = bound * zinttoworld;
+        actor->user.pos.Z = bound;
     }
 
-    actor->user.pos.Z = min(actor->user.int_upos().Z, loz - actor->user.int_floor_dist()) * zinttoworld;
-    actor->user.pos.Z = max(actor->user.int_upos().Z, hiz + actor->user.int_ceiling_dist()) * zinttoworld;
+    actor->user.pos.Z = min(actor->user.pos.Z, loz - actor->user.floor_dist);
+    actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.ceiling_dist);
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->set_int_z(actor->user.int_upos().Z + MulScale(EEL_BOB_AMT, bsin(actor->user.Counter), 14));
+    actor->spr.pos.Z = actor->user.pos.Z + EEL_BOB_AMT * DAngle::fromBuild(actor->user.Counter).Sin();
 
-    bound = actor->user.int_hiz() + actor->user.int_ceiling_dist() + EEL_BOB_AMT;
-    if (actor->int_pos().Z < bound)
+    bound = actor->user.hiz + actor->user.ceiling_dist + EEL_BOB_AMT;
+    if (actor->spr.pos.Z < bound)
     {
         // bumped something
-        actor->set_int_z(bound + EEL_BOB_AMT);
+        actor->spr.pos.Z = bound + EEL_BOB_AMT;
         actor->user.pos.Z = actor->spr.pos.Z;
     }
 
