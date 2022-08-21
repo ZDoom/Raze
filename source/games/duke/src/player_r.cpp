@@ -3827,10 +3827,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(p->pos, &p->cursector, 172, (4 << 8), (4 << 8), CLIPMASK0);
 				}
 				else
-					pushmove(p->pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(p->pos, &p->cursector, 172, (4 << 8), (4 << 8), CLIPMASK0);
 			}
 		}
 	}

@@ -604,14 +604,6 @@ struct PLAYER
     {
         pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
     }
-    int int_ploz() const
-    {
-        return int(loz * zworldtoint);
-    }
-    int int_phiz() const
-    {
-        return int(hiz * zworldtoint);
-    }
     int player_int_ceiling_dist() const
     {
         return p_ceiling_dist * 256;
