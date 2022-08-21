@@ -216,13 +216,7 @@ int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
 
 bool CanSeePlayer(DSWActor* actor)
 {
-    // if actor can still see the player
-    int look_height = int_ActorZOfTop(actor);
-
-    if (actor->user.targetActor && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, int_ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
-        return true;
-    else
-        return false;
+    return actor->user.targetActor && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(actor->user.targetActor), actor->user.targetActor->sector());
 }
 
 int CanHitPlayer(DSWActor* actor)
@@ -239,7 +233,7 @@ int CanHitPlayer(DSWActor* actor)
     auto targ = actor->user.targetActor;
 
     // get angle to target
-    ang = getangle(targ->int_pos().X - actor->int_pos().X, targ->int_pos().Y - actor->int_pos().Y);
+    ang = getangle(targ->spr.pos - actor->spr.pos);
 
     // get x,yvect
     xvect = bcos(ang);
@@ -279,7 +273,6 @@ int DoActorPickClosePlayer(DSWActor* actor)
     int pnum;
     PLAYER* pp;
     // if actor can still see the player
-    int look_height = int_ActorZOfTop(actor);
     bool found = false;
     int i;
 
@@ -353,7 +346,8 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
 
         DSWActor* plActor = pp->actor;
-        if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
+
+        if (dist < near_dist && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(plActor), plActor->sector()))
         {
             near_dist = dist;
             actor->user.targetActor = pp->actor;
@@ -379,7 +373,7 @@ TARGETACTOR:
 
             DISTANCE(actor->spr.pos, itActor->spr.pos, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(itActor), itActor->sector()))
+            if (dist < near_dist && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(itActor), itActor->sector()))
             {
                 near_dist = dist;
                 actor->user.targetActor = itActor;

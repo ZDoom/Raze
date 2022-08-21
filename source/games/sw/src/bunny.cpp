@@ -832,7 +832,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     DSWActor* target = actor->user.targetActor;
     int tang;
 
-    tang = getangle(target->int_pos().X - actor->int_pos().X, target->int_pos().Y - actor->int_pos().Y);
+    tang = getangle(target->spr.pos - actor->spr.pos);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
         0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -893,7 +893,6 @@ void DoPickCloseBunny(DSWActor* actor)
     int dist, near_dist = 1000, a,b,c;
 
     // if actor can still see the player
-    int look_height = int_ActorZOfTop(actor);
     bool ICanSee = false;
 
     SWStatIterator it(STAT_ENEMY);
@@ -907,7 +906,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(itActor), itActor->sector());
+        ICanSee = FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(itActor), itActor->sector());
 
         if (ICanSee && dist < near_dist && itActor->user.ID == BUNNY_RUN_R0)
         {
@@ -1002,7 +1001,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(2<<8)>>8;
-                            if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,int_ActorZOfTop(actor),actor->sector(),pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(ActorVectOfTop(actor),actor->sector(),pp->pos, pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1017,8 +1016,8 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = StdRandomRange(3<<8)>>8;
-                            if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,int_ActorZOfTop(actor),actor->sector(),pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector) && Facing(actor, actor->user.targetActor))
-                                PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
+                            if (FAFcansee(ActorVectOfTop(actor), actor->sector(), pp->pos, pp->cursector) && Facing(actor, actor->user.targetActor))
+                                PlayerSound(straightsnds[choose_snd], v3df_doppler | v3df_follow | v3df_dontpan, pp);
                         }
                     }
                 }

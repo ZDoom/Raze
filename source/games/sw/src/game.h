@@ -1772,6 +1772,11 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     HitInfo& hit, int32_t clipmask);
 
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
+inline bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte)
+{
+    return FAFcansee(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sects,
+        int(end.X * worldtoint), int(end.Y * worldtoint), int(end.Z * zworldtoint), secte);
+}
 
 void FAFgetzrange(vec3_t pos, sectortype* sect,
                   int32_t* hiz, Collision* ceilhit,
@@ -1787,6 +1792,15 @@ inline void FAFgetzrange(vec3_t pos, sectortype* sect,
     FAFgetzrange(pos, sect, &hi, ceilhit, &lo, florhit, clipdist, clipmask);
     *hiz = hi * zinttoworld;
     *loz = lo * zinttoworld;
+}
+
+inline void FAFgetzrange(const DVector3& pos, sectortype* sect,
+    double* hiz, Collision* ceilhit,
+    double* loz, Collision* florhit,
+    int32_t clipdist, int32_t clipmask)
+{
+    vec3_t p = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
+    FAFgetzrange(p, sect, hiz, ceilhit, loz, florhit, clipdist, clipmask);
 }
 
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
@@ -2124,6 +2138,11 @@ inline double ActorZOfTop(DSWActor* actor)
     return GetSpriteZOfTop(&actor->spr) * zinttoworld;
 }
 
+inline DVector3 ActorVectOfTop(DSWActor* actor)
+{
+    return DVector3(actor->spr.pos.XY(), ActorZOfTop(actor));
+}
+
 inline int int_ActorZOfBottom(DSWActor* actor)
 {
     return GetSpriteZOfBottom(&actor->spr);
@@ -2162,6 +2181,11 @@ inline int int_ActorUpperZ(DSWActor* actor)
 inline double ActorUpperZ(DSWActor* actor)
 {
     return (ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25));
+}
+
+inline DVector3 ActorUpperVect(DSWActor* actor)
+{
+    return DVector3(actor->spr.pos.XY(), ActorUpperZ(actor));
 }
 
 inline int int_ActorLowerZ(DSWActor* actor)
