@@ -1403,9 +1403,6 @@ struct TRACK_POINT
     DVector3 pos;
     DAngle angle;
     int16_t tag_low, tag_high;
-
-    int int_tx() const { return pos.X * worldtoint; }
-    int int_ty() const { return pos.Y * worldtoint; }
 };
 
 struct TRACK
@@ -1484,6 +1481,7 @@ struct SECTOR_OBJECT
         * morph_wall_point;       // actual wall point to drag
 
     double
+           target_dist,    // distance to next point
            zdelta;         // z delta from original
 
 
@@ -1498,7 +1496,6 @@ struct SECTOR_OBJECT
            update,         // Distance from player at which you continue updating
     // only works for single player.
            bob_diff,       // bobbing difference for the frame
-           target_dist,    // distance to next point
            floor_loz,      // floor low z
            floor_hiz,      // floor hi z
            morph_z,        // morphing point z

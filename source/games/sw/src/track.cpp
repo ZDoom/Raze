@@ -2222,7 +2222,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
     const int TRACK_POINT_SIZE = 200;
-    if (sop->target_dist < 100)
+    if (sop->target_dist < 100 * maptoworld)
     {
         switch (tpoint->tag_low)
         {
@@ -2472,8 +2472,8 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
         NextTrackPoint(sop);
         tpoint = Track[sop->track].TrackPoint + sop->point;
 
-        // calculate distance to target poing
-        sop->target_dist = Distance(sop->int_pmid().X, sop->int_pmid().Y, tpoint->int_tx(), tpoint->int_ty());
+        // calculate distance to target point
+        sop->target_dist = (sop->pmid.XY() - tpoint->pos.XY()).Length();
 
         // calculate a new angle to the target
         sop->ang_moving = sop->ang_tgt = getangle(tpoint->pos - sop->pmid);
@@ -2534,7 +2534,7 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
         *nx = ((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14;
         *ny = ((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14;
 
-        auto dist = Distance(0, 0, *nx, *ny);
+        auto dist = Distance(0, 0, *nx, *ny) * inttoworld;
         sop->target_dist -= dist;
     }
 }
