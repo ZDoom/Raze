@@ -106,7 +106,7 @@ void SetSpikeActive(DSWActor* actor)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
-    if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+    if (actor->user.z_tgt == actor->user.pos.Z)
         VatorSwitch(SP_TAG2(actor), false);
 }
 
@@ -291,8 +291,8 @@ int DoSpike(DSWActor* actor)
         }
         else
         // in the OFF position
-        if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
-        {
+            if (actor->user.z_tgt == actor->user.pos.Z)
+            {
             short match = SP_TAG2(actor);
 
             // change target
@@ -391,7 +391,7 @@ int DoSpikeAuto(DSWActor* actor)
         }
         else
         // in the DOWN position
-        if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+        if (actor->user.z_tgt == actor->user.pos.Z)
         {
             // change target
             actor->user.jump_speed = actor->user.vel_tgt;

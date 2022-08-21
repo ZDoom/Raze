@@ -107,11 +107,11 @@ void SetVatorActive(DSWActor* actor)
     actor->user.Tics = 0;
 
     // moving to the ON position
-    if (actor->user.int_z_tgt() == actor->int_pos().Z)
+    if (actor->user.z_tgt == actor->spr.pos.Z)
         VatorSwitch(SP_TAG2(actor), true);
     else
     // moving to the OFF position
-    if (actor->user.int_z_tgt() == actor->user.int_upos().Z)
+    if (actor->user.z_tgt == actor->user.pos.Z)
         VatorSwitch(SP_TAG2(actor), false);
 }
 
@@ -443,7 +443,7 @@ int DoVator(DSWActor* actor)
                 actor->user.Tics = actor->user.WaitTics;
         }
     }
-    else // if (*lptr == actor->user.int_z_tgt())
+    else // if (*lptr == actor->user.z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(actor) && actor->user.z_tgt == actor->user.oz)
