@@ -1945,8 +1945,8 @@ void SpikeAlign(DSWActor*);   // spike.c
 
 short DoSectorObjectSetScale(short match);  // morph.c
 short DoSOevent(short match,short state);   // morph.c
-void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop,int x,int y,int z);    // morph.c
-void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop,int x,int y,int z);  // morph.c
+void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, const DVector3& pos);    // morph.c
+void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, const DVector3& pos);  // morph.c
 void ScaleSectorObject(SECTOR_OBJECT* sop); // morph.c
 void MorphTornado(SECTOR_OBJECT* sop);  // morph.c
 void MorphFloor(SECTOR_OBJECT* sop);    // morph.c

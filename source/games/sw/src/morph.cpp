@@ -452,7 +452,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
     }
 }
 
-void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
+void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
 {
     sectortype* *sectp;
     int j;
@@ -462,12 +462,12 @@ void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
         if ((*sectp)->hasU() &&
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp, x, y, z);
+            alignflorslope(*sectp, pos);
         }
     }
 }
 
-void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
+void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
 {
     sectortype* *sectp;
     int j;
@@ -477,23 +477,7 @@ void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
         if ((*sectp)->hasU() &&
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignceilslope(*sectp, x, y, z);
-        }
-    }
-}
-
-void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
-{
-    sectortype* *sectp;
-    int j;
-
-    for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
-    {
-        if ((*sectp)->hasU() &&
-            ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
-        {
-            alignflorslope(*sectp, x, y, z);
-            alignceilslope(*sectp, x, y, z);
+            alignceilslope(*sectp, pos);
         }
     }
 }
@@ -501,10 +485,6 @@ void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECT* sop, int x, int y, int z)
 // moves center point around and aligns slope
 void SpikeFloor(SECTOR_OBJECT* sop)
 {
-    int mx, my;
-    int florz;
-    int x,y;
-
     // z direction
     ASSERT(sop->op_main_sector != nullptr);
     sop->morph_z -= Z(sop->morph_z_speed);
@@ -513,16 +493,13 @@ void SpikeFloor(SECTOR_OBJECT* sop)
     if (sop->morph_wall_point == nullptr)
         return;
 
-    // place at correct x,y offset from center
-    x = sop->int_pmid().X - sop->morph_xoff;
-    y = sop->int_pmid().Y - sop->morph_yoff;
+    DVector3 pos;
 
-    // move it from last x,y
-    mx = x;
-    my = y;
+    // place at correct x,y offset from center
+    pos.X = sop->pmid.X - sop->morph_xoff * inttoworld;
+    pos.Y = sop->pmid.Y - sop->morph_yoff * inttoworld;
 
     // bound the Z
-    florz = sop->op_main_sector->int_floorz();
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
@@ -536,8 +513,9 @@ void SpikeFloor(SECTOR_OBJECT* sop)
         sop->morph_z = -MORPH_FLOOR_ZRANGE;
         sop->morph_z_speed *= -1;
     }
+    pos.Z = sop->op_main_sector->floorz + sop->morph_z * inttoworld;
 
-    SOBJ_AlignFloorToPoint(sop, mx, my, florz + sop->morph_z);
+    SOBJ_AlignFloorToPoint(sop, pos);
 }
 
 

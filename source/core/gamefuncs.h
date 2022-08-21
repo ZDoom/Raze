@@ -550,4 +550,14 @@ inline void alignflorslope(sectortype* sect, int x, int y, int z)
 	sect->setfloorslope(getslopeval(sect, x, y, z, sect->int_floorz()));
 }
 
+inline void alignceilslope(sectortype* sect, const DVector3& pos)
+{
+	sect->setceilingslope(getslopeval(sect, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, sect->int_ceilingz()));
+}
+
+inline void alignflorslope(sectortype* sect, const DVector3& pos)
+{
+	sect->setfloorslope(getslopeval(sect, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, sect->int_floorz()));
+}
+
 #include "updatesector.h"

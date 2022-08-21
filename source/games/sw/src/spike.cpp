@@ -232,16 +232,16 @@ void SpikeAlign(DSWActor* actor)
     if ((int8_t)SP_TAG7(actor) < 0)
     {
         if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-            alignceilslope(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->user.int_zclip());
+            alignceilslope(actor->sector(), DVector3(actor->spr.pos.XY(), actor->user.zclip));
         else
-            alignflorslope(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->user.int_zclip());
+            alignflorslope(actor->sector(), DVector3(actor->spr.pos.XY(), actor->user.zclip));
     }
     else
     {
         if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], actor->int_pos().X, actor->int_pos().Y, actor->user.int_zclip());
+            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(actor)], DVector3(actor->spr.pos.XY(), actor->user.zclip));
         else
-            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], actor->int_pos().X, actor->int_pos().Y, actor->user.int_zclip());
+            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(actor)], DVector3(actor->spr.pos.XY(), actor->user.zclip));
     }
 }
 
