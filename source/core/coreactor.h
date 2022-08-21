@@ -555,8 +555,6 @@ inline void SetActorZ(DCoreActor* actor, const DVector3& newpos)
 	SetActorZ(actor, &ipos);
 }
 
-
-
 inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {

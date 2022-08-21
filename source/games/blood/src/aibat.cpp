@@ -317,7 +317,7 @@ static void batMoveForward(DBloodActor* actor)
 	if (abs(nAng) > 341)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->set_int_ang((actor->int_ang() + 256) & 2047);
+		actor->spr.angle += DAngle45;
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
 	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
@@ -377,7 +377,7 @@ static void batMoveFly(DBloodActor* actor)
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 	{
-		actor->set_int_ang((actor->int_ang() + 512) & 2047);
+		actor->spr.angle += DAngle90;
 		return;
 	}
 	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
