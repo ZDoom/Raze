@@ -1670,7 +1670,6 @@ enum
     CHAN_RipHeart = 1004,
 };
 
-short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
 int _PlaySound(int num, DSWActor* sprite, PLAYER* player, const vec3_t *const pos, int flags, int channel, EChanFlags sndflags);

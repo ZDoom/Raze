@@ -116,47 +116,41 @@ enum
 
 const int MAXLEVLDIST = 19000;   // The higher the number, the further away you can hear sound
 
-short SoundDist(int x, int y, int z, int basedist)
+short SoundDist(const DVector3& pos, int basedist)
 {
     double tx, ty, tz;
-    double sqrdist, retval;
+    double sqrdist;
     extern short screenpeek;
 
-    tx = fabs(Player[screenpeek].int_ppos().X - x);
-    ty = fabs(Player[screenpeek].int_ppos().Y - y);
-    tz = fabs((Player[screenpeek].int_ppos().Z - z) >> 4);
-
-    // Use the Pythagreon Theorem to compute the magnitude of a 3D vector
-    sqrdist = fabs(tx * tx + ty * ty + tz * tz);
-    retval = sqrt(sqrdist);
+    double distance = (Player[screenpeek].pos - pos).Length() * 16;
 
     if (basedist < 0) // if basedist is negative
     {
         double decayshift = 2;
-        int decay = labs(basedist) / DECAY_CONST;
+        int decay = abs(basedist) / DECAY_CONST;
 
         for (int i = 0; i < decay; i++)
             decayshift *= 2;
 
-        if (fabs(double(basedist) / decayshift) >= retval)
-            retval = 0;
+        if (fabs(double(basedist) / decayshift) >= distance)
+            distance = 0;
         else
-            retval *= decay;
+            distance *= decay;
     }
     else
     {
-        if (basedist > retval)
-            retval = 0;
+        if (basedist > distance)
+            distance = 0;
         else
-            retval -= basedist;
+            distance -= basedist;
     }
 
-    retval = retval * 256 / MAXLEVLDIST;
+    distance = distance * (256. / MAXLEVLDIST);
 
-    if (retval < 0) retval = 0;
-    if (retval > 255) retval = 255;
+    if (distance < 0) distance = 0;
+    if (distance > 255) distance = 255;
 
-    return short(retval);
+    return short(distance);
 }
 
 //==========================================================================
@@ -375,12 +369,12 @@ static void UpdateAmbients()
     for (auto& amb : ambients)
     {
         auto spot = amb->spot;
-        auto sdist = SoundDist(spot->int_pos().X, spot->int_pos().Y, spot->int_pos().Z, voc[amb->vocIndex].voc_distance);
+        auto sdist = SoundDist(spot->spr.pos, voc[amb->vocIndex].voc_distance);
 
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYER* pp = Player + screenpeek;
-            if (!FAFcansee_(spot->int_pos().X, spot->int_pos().Y, spot->int_pos().Z, spot->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
+            if (!FAFcansee(spot->spr.pos, spot->sector(), pp->pos, pp->cursector))
             {
                 sdist = 255;
             }
@@ -520,7 +514,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     {
         PLAYER* pp = Player + screenpeek;
         FVector3 campos = GetSoundPos(pp->int_ppos());
-        vec3_t vpos = {};
+        DVector3 vPos = {};
         bool pancheck = false;
 
         if (vel) vel->Zero();
@@ -533,9 +527,9 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? ((DSWActor*)source)->spr.int_pos() : ((PLAYER*)source)->int_ppos();
+            vPos = type == SOURCE_Actor ? ((DSWActor*)source)->spr.pos : ((PLAYER*)source)->pos;
             pancheck = true;
-            FVector3 npos = GetSoundPos(vpos);
+            FVector3 npos = GetSoundPos(vPos);
 
             *pos = npos;
 #if 0
@@ -555,14 +549,14 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Ambient)
         {
             auto spot = ((AmbientSound*)source)->spot;
-            vpos = spot->spr.int_pos();
-            FVector3 npos = GetSoundPos(vpos);
+            vPos = spot->spr.pos;
+            FVector3 npos = GetSoundPos(vPos);
             pancheck = true;
 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee_(vpos.X, vpos.Y, vpos.Z, spot->sector(), pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector))
+                if (!FAFcansee(vPos, spot->sector(), pp->pos, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -575,7 +569,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
             *pos = campos;
-            auto sdist = SoundDist(vpos.X, vpos.Y, vpos.Z, voc[chanSound].voc_distance);
+            auto sdist = SoundDist(vPos, voc[chanSound].voc_distance);
             if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
         }
 
