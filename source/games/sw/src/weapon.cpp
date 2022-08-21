@@ -7289,7 +7289,7 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+            if (!FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), actor->spr.pos, actor->sector()))
                 continue;
 
             if ((itActor->spr.extra & SPRX_BREAKABLE))
@@ -11849,7 +11849,7 @@ int InitSwordAttack(PLAYER* pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)))
                 {
-                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorZOfMiddle(plActor), plActor->sector()))
+                    if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, pp->actor);
                 }
             }
@@ -12025,7 +12025,7 @@ int InitFistAttack(PLAYER* pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorZOfMiddle(plActor), plActor->sector()))
+                    if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, plActor);
                     if (face == 190)
                     {
@@ -12303,7 +12303,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
             if (dist < CloseRangeDist(itActor, actor, reach))
             {
-                if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
+                if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
                     DoDamage(itActor, actor);
             }
         }
@@ -12329,7 +12329,7 @@ int InitMiniSumoClap(DSWActor* actor)
     {
         if (SpriteOverlapZ(actor, targetActor, Z(20)))
         {
-            if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, int_ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
+            if (FAFcansee(ActorVectOfMiddle(targetActor), targetActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
                 DoDamage(targetActor, actor);
@@ -12338,7 +12338,7 @@ int InitMiniSumoClap(DSWActor* actor)
     }
     else if (dist < CloseRangeDist(targetActor, actor, reach))
     {
-        if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, int_ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
+        if (FAFcansee(ActorVectOfMiddle(targetActor), targetActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
             SpawnFireballFlames(actor, targetActor);
