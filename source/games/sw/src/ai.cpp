@@ -839,7 +839,7 @@ int DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+            actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
         }
     }
 
@@ -863,7 +863,7 @@ int FindTrackToPlayer(DSWActor* actor)
     int point, track_dir, track;
     int i, size;
     const uint16_t* type;
-    int zdiff;
+    double zdiff;
 
     static const uint16_t PlayerAbove[] =
     {
@@ -894,9 +894,9 @@ int FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    zdiff = int_ActorUpperZ(actor->user.targetActor) - (actor->int_pos().Z - int_ActorSizeZ(actor) + Z(8));
+    zdiff = ActorUpperZ(actor->user.targetActor) - (actor->spr.pos.Z - ActorSizeZ(actor) + 8);
 
-    if (abs(zdiff) <= Z(20))
+    if (abs(zdiff) <= 20)
     {
         type = PlayerOnLevel;
         size = SIZ(PlayerOnLevel);
@@ -1100,7 +1100,7 @@ int InitActorAttack(DSWActor* actor)
     //NewStateGroup(actor, actor->user.ActorActionSet->Stand);
 
     // face player when attacking
-    actor->set_int_ang(NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y)));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
 
     // If it's your own kind, lay off!
     if (actor->user.ID == actor->user.targetActor->user.ID && !actor->user.targetActor->user.PlayerP)

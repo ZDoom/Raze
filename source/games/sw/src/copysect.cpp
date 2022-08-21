@@ -160,20 +160,17 @@ void CopySectorMatch(int match)
                     // don't move ST1 Copy Tags
                     if (SP_TAG1(itActor) != SECT_COPY_SOURCE)
                     {
-                        int sx,sy,dx,dy,src_xoff,src_yoff,trash;
-
                         // move sprites from source to dest - use center offset
 
                         // get center of src and dest sect
-                        SectorMidPoint(sActor->sector(), &sx, &sy, &trash);
-                        SectorMidPoint(dActor->sector(), &dx, &dy, &trash);
+                        auto spos =SectorMidPoint(sActor->sector());
+                        auto dpos = SectorMidPoint(dActor->sector());
 
                         // get offset
-                        src_xoff = sx - itActor->int_pos().X;
-                        src_yoff = sy - itActor->int_pos().Y;
+                        auto src_off = spos.XY() - itActor->spr.pos.XY();
 
                         // move sprite to dest sector
-                        itActor->set_int_xy(dx - src_xoff, dy - src_yoff);
+                        itActor->spr.pos.XY() = dpos.XY() - src_off;
 
                         // change sector
                         ChangeActorSect(itActor, dsectp);

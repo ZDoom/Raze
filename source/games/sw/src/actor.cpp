@@ -471,7 +471,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->spr.pos, actor->spr.angle, 200);
 
         SetOwner(actor, spawned);
     }
@@ -560,8 +560,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         double ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(),
-                          &ceilz, &ctrash, &florz, &ftrash);
+        FAFgetzrangepoint(actor->spr.pos, actor->sector(),&ceilz, &ctrash, &florz, &ftrash);
 
         actor->spr.pos.Z = actor->user.oz = florz;
         actor->backupz();
