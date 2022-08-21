@@ -738,7 +738,7 @@ int SetupSerp(DSWActor* actor)
     actor->user.lo_step = Z(40);
 
     actor->user.floor_dist = actor->user.zclip - actor->user.lo_step * zinttoworld;
-    actor->user.ceiling_dist = ActorSizeZ(actor) * zinttoworld - actor->user.zclip;
+    actor->user.ceiling_dist = int_ActorSizeZ(actor) * zinttoworld - actor->user.zclip;
 
     return 0;
 }

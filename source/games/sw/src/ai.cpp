@@ -100,9 +100,9 @@ bool ActorFlaming(DSWActor* actor)
     {
         int size;
 
-        size = ActorSizeZ(actor) - (ActorSizeZ(actor) >> 2);
+        size = int_ActorSizeZ(actor) - (int_ActorSizeZ(actor) >> 2);
 
-        if (ActorSizeZ(flame) > size)
+        if (int_ActorSizeZ(flame) > size)
             return true;
     }
 
@@ -219,7 +219,7 @@ bool CanSeePlayer(DSWActor* actor)
     // if actor can still see the player
     int look_height = int_ActorZOfTop(actor);
 
-    if (actor->user.targetActor && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
+    if (actor->user.targetActor && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, int_ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
         return true;
     else
         return false;
@@ -233,7 +233,7 @@ int CanHitPlayer(DSWActor* actor)
     // if actor can still see the player
     int zhs, zhh;
 
-    zhs = actor->int_pos().Z - (ActorSizeZ(actor) >> 1);
+    zhs = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
 
 
     auto targ = actor->user.targetActor;
@@ -246,7 +246,7 @@ int CanHitPlayer(DSWActor* actor)
     yvect = bsin(ang);
 
     // get zvect
-    zhh = targ->int_pos().Z - (ActorSizeZ(targ) >> 1);
+    zhh = targ->int_pos().Z - (int_ActorSizeZ(targ) >> 1);
     if (targ->int_pos().X - actor->int_pos().X != 0)
         zvect = xvect * ((zhh - zhs) / (targ->int_pos().X - actor->int_pos().X));
     else if (targ->int_pos().Y - actor->int_pos().Y != 0)
@@ -353,7 +353,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y, dist, a, b, c);
 
         DSWActor* plActor = pp->actor;
-        if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, ActorUpperZ(plActor), plActor->sector()))
+        if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
         {
             near_dist = dist;
             actor->user.targetActor = pp->actor;
@@ -379,7 +379,7 @@ TARGETACTOR:
 
             DISTANCE(actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ActorUpperZ(itActor), itActor->sector()))
+            if (dist < near_dist && FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, int_ActorUpperZ(itActor), itActor->sector()))
             {
                 near_dist = dist;
                 actor->user.targetActor = itActor;
@@ -433,8 +433,8 @@ int DoActorOperate(DSWActor* actor)
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return false;
 
-    z[0] = actor->int_pos().Z - ActorSizeZ(actor) + Z(5);
-    z[1] = actor->int_pos().Z - (ActorSizeZ(actor) >> 1);
+    z[0] = actor->int_pos().Z - int_ActorSizeZ(actor) + Z(5);
+    z[1] = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
 
     for (i = 0; i < SIZ(z); i++)
     {
@@ -922,7 +922,7 @@ int FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    zdiff = ActorUpperZ(actor->user.targetActor) - (actor->int_pos().Z - ActorSizeZ(actor) + Z(8));
+    zdiff = int_ActorUpperZ(actor->user.targetActor) - (actor->int_pos().Z - int_ActorSizeZ(actor) + Z(8));
 
     if (abs(zdiff) <= Z(20))
     {

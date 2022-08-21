@@ -1188,11 +1188,11 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (actor->hasU() && actor->user.PlayerP)
                 zh = actor->user.PlayerP->int_ppos().Z;
             else
-                zh = int_ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2);
+                zh = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
 
-            ezh = int_ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 2);
-            ezhm = int_ActorZOfTop(itActor) + (ActorSizeZ(itActor) >> 1);
-            ezhl = int_ActorZOfBottom(itActor) - (ActorSizeZ(itActor) >> 2);
+            ezh = int_ActorZOfTop(itActor) + (int_ActorSizeZ(itActor) >> 2);
+            ezhm = int_ActorZOfTop(itActor) + (int_ActorSizeZ(itActor) >> 1);
+            ezhl = int_ActorZOfBottom(itActor) - (int_ActorSizeZ(itActor) >> 2);
 
             // If you can't see 'em you can't shoot 'em
             if (!FAFcansee(actor->int_pos().X, actor->int_pos().Y, zh, actor->sector(), itActor->int_pos().X, itActor->int_pos().Y, ezh, itActor->sector()) &&
@@ -5829,7 +5829,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
     DoPlayerZrange(pp);
 
     // sector stomper kick
-    if (labs(pp->loz - pp->hiz) < ActorSizeZ(plActor) - Z(8))
+    if (labs(pp->loz - pp->hiz) < int_ActorSizeZ(plActor) - Z(8))
     {
         plActor->user.slide_ang = RANDOM_P2(2048);
         plActor->user.slide_vel = 1000;

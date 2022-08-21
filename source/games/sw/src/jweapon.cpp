@@ -1432,7 +1432,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, itActor->int_pos().Z, itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ActorSizeZ(actor), actor->sector()))
+            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, itActor->int_pos().Z, itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - int_ActorSizeZ(actor), actor->sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->actor, DMG_FLASHBOMB);
@@ -1491,7 +1491,7 @@ int InitFlashBomb(DSWActor* actor)
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, itActor->int_pos().Z, itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ActorSizeZ(actor), actor->sector()))
+            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, itActor->int_pos().Z, itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - int_ActorSizeZ(actor), actor->sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1541,7 +1541,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
         DSWActor* flameActor = actor->user.flameActor;
         if (flameActor != nullptr)
         {
-            int sizez = (ActorSizeZ(actor) * 5) >> 2;
+            int sizez = (int_ActorSizeZ(actor) * 5) >> 2;
 
             if (flameActor->user.Counter >= GetRepeatFromHeight(flameActor, sizez))
             {
@@ -1579,7 +1579,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (actor->user.flameActor != nullptr)
     {
-        actorNew->user.Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(actor) >> 1) * 4;
+        actorNew->user.Counter = GetRepeatFromHeight(actorNew, int_ActorSizeZ(actor) >> 1) * 4;
     }
     else
         actorNew->user.Counter = 0;                // max flame size
@@ -2070,7 +2070,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
         vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, int_ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
         actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
-        actor->set_int_z(attached->int_pos().Z - (ActorSizeZ(attached) >> 1));
+        actor->set_int_z(attached->int_pos().Z - (int_ActorSizeZ(attached) >> 1));
     }
 
     if (!attached->hasU() || attached->user.Health <= 0)
@@ -2143,7 +2143,7 @@ int DoFlag(DSWActor* actor)
             // attach weapon to sprite
             actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
-            actor->user.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) >> 1) * zinttoworld;
+            actor->user.pos.Z = hitActor->spr.pos.Z - (int_ActorSizeZ(hitActor) >> 1) * zinttoworld;
         }
     }
 

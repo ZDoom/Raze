@@ -4448,7 +4448,7 @@ void DoActorZrange(DSWActor* actor)
     auto save_cstat = actor->spr.cstat & CSTAT_SPRITE_BLOCK;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     vec3_t pos = actor->int_pos();
-    pos.Z -= (ActorSizeZ(actor) >> 1);
+    pos.Z -= (int_ActorSizeZ(actor) >> 1);
     FAFgetzrange(pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     actor->spr.cstat |= save_cstat;
 
@@ -4527,7 +4527,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     // look only at the center point for a floor sprite
     auto save_cstat = (actor->spr.cstat & CSTAT_SPRITE_BLOCK);
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-    FAFgetzrangepoint(x, y, z - (ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(x, y, z - (int_ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
     actor->spr.cstat |= (save_cstat);
 
     if (florhit.type < 0 || ceilhit.type < 0)
@@ -5901,7 +5901,7 @@ void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
 
     // if actor can still see the player
     look_height = int_ActorZOfTop(actor);
-    if (FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, ActorUpperZ(plActor), plActor->sector()))
+    if (FAFcansee(actor->int_pos().X, actor->int_pos().Y, look_height, actor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorUpperZ(plActor), plActor->sector()))
     {
         // Player is visible
         // adjust update range of this sprite

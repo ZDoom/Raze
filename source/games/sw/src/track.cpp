@@ -2129,7 +2129,7 @@ void CallbackSOsink(ANIM* ap, void *data)
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.int_upos().Z - ActorSizeZ(actor) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -actor->user.int_upos().Z - int_ActorSizeZ(actor) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2749,7 +2749,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
 			if (sActor->spr.statnum == STAT_SO_SHOOT_POINT)
             {
                 if (!FAFcansee(sActor->int_pos().X, sActor->int_pos().Y, sActor->int_pos().Z-Z(4), sActor->sector(),
-                               actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
+                               actor->user.targetActor->int_pos().X, actor->user.targetActor->int_pos().Y, int_ActorUpperZ(actor->user.targetActor), actor->user.targetActor->sector()))
                 {
                     return;
                 }
@@ -3093,8 +3093,8 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         actor->set_int_ang(tpoint->ang);
 
-        z[0] = actor->int_pos().Z - ActorSizeZ(actor) + Z(5);
-        z[1] = actor->int_pos().Z - (ActorSizeZ(actor) >> 1);
+        z[0] = actor->int_pos().Z - int_ActorSizeZ(actor) + Z(5);
+        z[1] = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
@@ -3314,7 +3314,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) - (ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
+            neartag({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) - (int_ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {
@@ -3496,7 +3496,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
-            if (int_ActorZOfTop(actor) + (ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
+            if (int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2) < actor->user.int_upos().Z)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 

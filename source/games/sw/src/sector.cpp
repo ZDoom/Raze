@@ -1385,7 +1385,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (ActorSizeZ(actor) >> 1), actor->sector()))
+        if (!FAFcansee(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1), actor->sector()))
             return false;
     }
 
@@ -2210,7 +2210,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 int z[3];
                 DSWActor* plActor = pp->actor;
 
-                z[0] = plActor->int_pos().Z - ActorSizeZ(plActor) - Z(10);
+                z[0] = plActor->int_pos().Z - int_ActorSizeZ(plActor) - Z(10);
                 z[1] = plActor->int_pos().Z;
                 z[2] = (z[0] + z[1]) >> 1;
 
