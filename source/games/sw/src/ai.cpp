@@ -393,7 +393,7 @@ int CloseRangeDist(DSWActor* actor1, DSWActor* actor2)
 int DoActorOperate(DSWActor* actor)
 {
     HitInfo near{};
-    int z[2];
+    double z[2];
     unsigned int i;
 
     if (actor->user.ID == HORNET_RUN_R0 || actor->user.ID == EEL_RUN_R0 || actor->user.ID == BUNNY_RUN_R0)
@@ -405,15 +405,15 @@ int DoActorOperate(DSWActor* actor)
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return false;
 
-    z[0] = actor->int_pos().Z - int_ActorSizeZ(actor) + Z(5);
-    z[1] = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
+    z[0] = -ActorSizeZ(actor) + 5;
+    z[1] = -(ActorSizeZ(actor) * 0.5);
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
+        neartag(actor->spr.pos.plusZ(z[i]), actor->sector(), actor->spr.angle, near, 1024, NTAG_SEARCH_LO_HI);
     }
 
-    if (near.hitSector != nullptr && near.int_hitpos().X < 1024)
+    if (near.hitSector != nullptr && near.hitpos.X < 64)
     {
         if (OperateSector(near.hitSector, false))
         {
