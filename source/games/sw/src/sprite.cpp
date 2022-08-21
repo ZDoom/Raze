@@ -102,7 +102,7 @@ extern STATE s_CarryFlag[];
 extern STATE s_CarryFlagNoDet[];
 
 // beware of mess... :(
-static int globhiz, globloz;
+static double globhiz, globloz;
 static Collision globhihit, globlohit;
 
 short wait_active_check_offset;
@@ -4487,8 +4487,8 @@ void DoActorZrange(DSWActor* actor)
 
 int DoActorGlobZ(DSWActor* actor)
 {
-    actor->user.loz = globloz * zinttoworld;
-    actor->user.hiz = globhiz * zinttoworld;
+    actor->user.loz = globloz;
+    actor->user.hiz = globhiz;
 
     actor->user.lo_sectp = actor->user.hi_sectp = nullptr;
     actor->user.highActor = nullptr;
@@ -4632,7 +4632,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     // try and determine whether you moved > lo_step in the z direction
     if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING)))
     {
-        if (abs(actor->int_pos().Z - globloz) > actor->user.lo_step)
+        if (abs(actor->spr.pos.Z - globloz) > actor->user.lo_step * zinttoworld)
         {
             // cancel move
             actor->spr.pos = apos;
@@ -6266,7 +6266,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     clippos.Z = actor->int_pos().Z + ((zchange * numtics) >> 3);
 
     // test for hitting ceiling or floor
-    if ((clippos.Z - zh <= globhiz) || (clippos.Z - zh > globloz))
+    if ((clippos.Z - zh <= globhiz * zworldtoint) || (clippos.Z - zh > globloz * zworldtoint))
     {
         if (retval.type == kHitNone)
         {
@@ -6384,8 +6384,7 @@ int MissileZrange(DSWActor* actor)
     auto tempshort = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - 1, actor->sector(),
-                      &globhiz, &globhihit, &globloz, &globlohit);
+    FAFgetzrangepoint(actor->spr.pos.plusZ(-maptoworld), actor->sector(), &globhiz, &globhihit, &globloz, &globlohit);
 
     actor->spr.cstat = tempshort;
 
@@ -6439,8 +6438,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     auto tempshort = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - 1, actor->sector(),
-                      &globhiz, &globhihit, &globloz, &globlohit);
+    FAFgetzrangepoint(actor->spr.pos.plusZ(-zmaptoworld), actor->sector(), &globhiz, &globhihit, &globloz, &globlohit);
 
     actor->spr.cstat = tempshort;
 
