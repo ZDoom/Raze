@@ -2163,6 +2163,11 @@ inline double ActorZOfMiddle(DSWActor* actor)
 	return (int_ActorZOfTop(actor) + int_ActorZOfBottom(actor)) * zinttoworld * 0.5;
 }
 
+inline DVector3 ActorVectOfMiddle(DSWActor* actor)
+{
+    return DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor));
+}
+
 inline int int_ActorSizeZ(DSWActor* actor)
 {
     return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;

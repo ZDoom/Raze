@@ -7115,7 +7115,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             if (actor->user.Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(itActor->int_pos().X,itActor->int_pos().Y,int_ActorZOfMiddle(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,int_ActorZOfMiddle(actor),actor->sector()))
+                if (FAFcansee(ActorVectOfMiddle(itActor),itActor->sector(),ActorVectOfMiddle(actor),actor->sector()))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -13913,7 +13913,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 DoDamage(itActor, actor);
             else if (actor->user.Radius > 200)
             {
-                if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,int_ActorZOfMiddle(actor),actor->sector(),itActor->int_pos().X,itActor->int_pos().Y,int_ActorZOfMiddle(itActor),itActor->sector()))
+                if (FAFcansee(ActorVectOfMiddle(actor), actor->sector(), ActorVectOfMiddle(itActor), itActor->sector()))
                     DoDamage(itActor, actor);
             }
         }
