@@ -1400,8 +1400,14 @@ enum
 
 struct TRACK_POINT
 {
-    int x, y, z;
-    int16_t ang, tag_low, tag_high, filler;
+    DVector3 pos;
+    DAngle angle;
+    int16_t tag_low, tag_high;
+
+    int int_tx() const { return pos.X * worldtoint; }
+    int int_ty() const { return pos.Y * worldtoint; }
+    int int_tz() const { return pos.Z * worldtoint; }
+    int int_tang() const { return angle.Buildang(); }
 };
 
 struct TRACK

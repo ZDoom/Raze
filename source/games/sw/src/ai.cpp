@@ -788,7 +788,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->int_tx() - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->int_ty() - actor->int_pos().Y));
 
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
@@ -1020,7 +1020,7 @@ int InitActorRunAway(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y)));
+        actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->int_tx() - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->int_ty() - actor->int_pos().Y)));
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags |= (SPR_RUN_AWAY);
     }
@@ -1180,7 +1180,7 @@ int InitActorEvade(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y)));
+        actor->set_int_ang(NORM_ANGLE(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->int_tx() - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->int_ty() - actor->int_pos().Y)));
         DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
         actor->user.Flags &= ~(SPR_RUN_AWAY);
@@ -1200,7 +1200,7 @@ int InitActorWanderAround(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->int_tx() - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->int_ty() - actor->int_pos().Y));
         DoActorSetSpeed(actor, NORM_SPEED);
     }
 
@@ -1216,7 +1216,7 @@ int InitActorFindPlayer(DSWActor* actor)
 
     if (actor->user.track >= 0)
     {
-        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->x - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->y - actor->int_pos().Y));
+        actor->set_int_ang(getangle((Track[actor->user.track].TrackPoint + actor->user.point)->int_tx() - actor->int_pos().X, (Track[actor->user.track].TrackPoint + actor->user.point)->int_ty() - actor->int_pos().Y));
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 

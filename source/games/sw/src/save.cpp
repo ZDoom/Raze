@@ -1056,13 +1056,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK_POINT& w, TR
 	}
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.x, def->x)
-			("y", w.y, def->y)
-			("z", w.z, def->z)
-			("ang", w.ang, def->ang)
+		arc("pos", w.pos, def->pos)
+			("angle", w.angle, def->angle)
 			("tag_low", w.tag_low, def->tag_low)
 			("tag_high", w.tag_high, def->tag_high)
-			("filler", w.filler, def->filler)
 			.EndObject();
 	}
 	return arc;
