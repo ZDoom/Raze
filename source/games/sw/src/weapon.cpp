@@ -11350,19 +11350,17 @@ int InitLavaFlame(DSWActor* actor)
 
 int InitLavaThrow(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int dist;
     short w;
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
+    double nz = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_LavaBoulder, actor->sector(),
-                    nx, ny, nz, nang, NINJA_BOLT_VELOCITY);
+                    DVector3(actor->spr.pos.XY(), nz), actor->spr.angle, NINJA_BOLT_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -11370,7 +11368,7 @@ int InitLavaThrow(DSWActor* actor)
     actorNew->spr.xrepeat = 72;
     actorNew->spr.shade = -15;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
 
     if (RANDOM_P2(1024) > 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -14451,12 +14449,12 @@ int InitEnemyCrossbow(DSWActor* actor)
 
 int InitSkelSpell(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int nx, ny, nz, dist;
 
     PlaySound(DIGI_SPELEC, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y)));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
@@ -14464,14 +14462,14 @@ int InitSkelSpell(DSWActor* actor)
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, actor->sector(),
-                    nx, ny, nz, actor->user.targetActor->int_ang(), SKEL_ELECTRO_VELOCITY);
+        actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5)), actor->user.targetActor->spr.angle, SKEL_ELECTRO_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.xrepeat -= 20;
     actorNew->spr.yrepeat -= 20;
     actorNew->spr.shade = -40;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -14493,10 +14491,11 @@ int InitSkelSpell(DSWActor* actor)
 
 int InitCoolgFire(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int nx, ny, nz, dist;
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y)));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    int nang = actor->int_ang();
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
@@ -14517,7 +14516,7 @@ int InitCoolgFire(DSWActor* actor)
     actorNew->spr.xrepeat = 18;
     actorNew->spr.shade = -40;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 32>>2;
     actorNew->user.ceiling_dist = (4);
     actorNew->user.floor_dist = (4);
