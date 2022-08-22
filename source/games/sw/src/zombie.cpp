@@ -776,7 +776,7 @@ void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
     if (ownerActor == nullptr)
         return;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->angle.ang.Buildang(), 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->pos, pp->angle.ang, 0);
     SetOwner(actorNew, ownerActor);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
     actorNew->spr.angle = RANDOM_ANGLE();
