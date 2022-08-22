@@ -97,6 +97,7 @@ static void batThinkTarget(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
+			auto ppos = pPlayer->actor->spr.pos;
 			int x = pPlayer->actor->int_pos().X;
 			int y = pPlayer->actor->int_pos().Y;
 			int z = pPlayer->actor->int_pos().Z;
@@ -106,7 +107,8 @@ static void batThinkTarget(DBloodActor* actor)
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->sector()))
+			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -173,7 +175,7 @@ static void batThinkPonder(DBloodActor* actor)
 		int height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->int_pos().X, pTarget->int_pos().Y, pTarget->int_pos().Z, pTarget->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
+		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
 			if (height2 - height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -280,7 +282,7 @@ static void batThinkChase(DBloodActor* actor)
 		int height2 = (pDudeInfo->eyeHeight * pTarget->spr.yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->int_pos().X, pTarget->int_pos().Y, pTarget->int_pos().Z, pTarget->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - height, actor->sector()))
+		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
