@@ -14497,18 +14497,14 @@ int InitCoolgFire(DSWActor* actor)
     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
     int nang = actor->int_ang();
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-
     nz = actor->int_pos().Z - Z(16);
-
     // Spawn a shot
     // Inserting and setting up variables
 
     PlaySound(DIGI_CGMAGIC, actor, v3df_follow);
 
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, actor->sector(),
-                    nx, ny, nz, actor->user.targetActor->int_ang(), COOLG_FIRE_VELOCITY);
+                    actor->spr.pos.plusZ(-16), actor->user.targetActor->spr.angle, COOLG_FIRE_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.hitag = LUMINOUS;
@@ -14565,15 +14561,9 @@ int DoCoolgDrip(DSWActor* actor)
 
 int InitCoolgDrip(DSWActor* actor)
 {
-    int nx, ny, nz;
     short w;
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
-
-    auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
@@ -14591,7 +14581,6 @@ int InitCoolgDrip(DSWActor* actor)
 
 int GenerateDrips(DSWActor* actor)
 {
-    int nx, ny, nz;
     short w = 0;
 
     if ((actor->user.WaitTics-=ACTORMOVETICS) <= 0)
@@ -14607,12 +14596,7 @@ int GenerateDrips(DSWActor* actor)
             return 1;
         }
 
-        nx = actor->int_pos().X;
-        ny = actor->int_pos().Y;
-        nz = actor->int_pos().Z;
-
-        auto actorNew = SpawnActor(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, actor->sector(),
-                        nx, ny, nz, actor->int_ang(), 0);
+        auto actorNew = SpawnActor(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
         SetOwner(actor, actorNew);
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
@@ -14666,18 +14650,12 @@ int InitEelFire(DSWActor* actor)
 
 void InitFireballTrap(DSWActor* actor)
 {
-    int nx, ny, nz;
     short w;
 
     PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - int_ActorSizeZ(actor);
-
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->sector(), nx, ny, nz,
-                    actor->int_ang(), FIREBALL_TRAP_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->spr.angle, FIREBALL_TRAP_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(actor, actorNew);
@@ -14696,18 +14674,12 @@ void InitFireballTrap(DSWActor* actor)
 
 void InitBoltTrap(DSWActor* actor)
 {
-    int nx, ny, nz;
     short w;
 
     PlaySound(DIGI_RIOTFIRE, actor, v3df_none);
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - int_ActorSizeZ(actor);
-
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), nx, ny, nz,
-                    actor->int_ang(), BOLT_TRAP_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->spr.angle, BOLT_TRAP_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = 32;
@@ -14775,20 +14747,16 @@ int InitTracerUzi(PLAYER* pp)
 
     DSWActor* actor = pp->actor;
 
-    int nx, ny, nz;
     int oclipdist;
 
-    short lat_dist[] = {800,-800};
+    static const short lat_dist[] = {800,-800};
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
+    double nz = 8 - MulScaleF(pp->horizon.horiz.asq16(), 72, 24);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), TRACER_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->pos.plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -14845,17 +14813,11 @@ int InitTracerUzi(PLAYER* pp)
 
 int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 {
-    int nx, ny, nz;
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z + -MulScale(q16horiz, 72, 16);
-
     // Spawn a shot
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), TRACER_VELOCITY);
+                    actor->spr.pos.plusZ(-MulScaleF(q16horiz, 72, 24)), actor->spr.angle, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     if (Operator!= nullptr)
@@ -14892,17 +14854,10 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 
 int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    int nx, ny, nz;
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
-
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), TRACER_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(), actor->spr.pos, actor->spr.angle, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.yrepeat = 10;
@@ -15248,8 +15203,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     if (!SW_SHAREWARE)
         PlaySound(DIGI_CANNON, pp, v3df_dontpan|v3df_doppler);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_TankShell, actor->sector(),
-                    actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), TANK_SHELL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_TankShell, actor->sector(), actor->spr.pos, actor->spr.angle, TANK_SHELL_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 8;
@@ -15387,8 +15341,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(),
-                    actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 40;
@@ -15424,8 +15377,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->sector(),
-                    actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), FIREBALL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->sector(), actor->spr.pos, actor->spr.angle, FIREBALL_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 40;
@@ -15460,22 +15412,16 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
 int InitTurretRail(DSWActor* actor, PLAYER* pp)
 {
-    int nx, ny, nz;
-
     if (SW_SHAREWARE) return false; // JBF: verify
 
     if (!pp->insector())
         return 0;
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
-                    nx, ny, nz, actor->int_ang(), 1200);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, actor->spr.pos, actor->spr.angle, 1200);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
@@ -15509,22 +15455,15 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
 
 int InitTurretLaser(DSWActor* actor, PLAYER* pp)
 {
-    int nx, ny, nz;
-
     if (SW_SHAREWARE) return false; // JBF: verify
 
     if (!pp->insector())
         return 0;
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
-
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
-                    nx, ny, nz, actor->int_ang(), 300);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector, actor->spr.pos, actor->spr.angle, 300);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 52;
