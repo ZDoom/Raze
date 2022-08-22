@@ -1377,36 +1377,34 @@ void PickUp(PLAYER* pPlayer, DBloodActor* actor)
 void CheckPickUp(PLAYER* pPlayer)
 {
 	auto plActor = pPlayer->actor;
-	int x = plActor->int_pos().X;
-	int y = plActor->int_pos().Y;
-	int z = plActor->int_pos().Z;
+	auto ppos = plActor->spr.pos;
 	auto pSector = plActor->sector();
 	BloodStatIterator it(kStatItem);
 	while (auto itemactor = it.Next())
 	{
 		if (itemactor->spr.flags & 32)
 			continue;
-		int dx = abs(x - itemactor->int_pos().X) >> 4;
+		double dx = abs(ppos.X - itemactor->spr.pos.X);
 		if (dx > 48)
 			continue;
-		int dy = abs(y - itemactor->int_pos().Y) >> 4;
+		double dy = abs(ppos.Y - itemactor->spr.pos.Y);
 		if (dy > 48)
 			continue;
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(plActor, &top, &bottom);
-		int vb = 0;
-		if (itemactor->int_pos().Z < top)
-			vb = (top - itemactor->int_pos().Z) >> 8;
-		else if (itemactor->int_pos().Z > bottom)
-			vb = (itemactor->int_pos().Z - bottom) >> 8;
+		double vb = 0;
+		if (itemactor->spr.pos.Z < top)
+			vb = (top - itemactor->spr.pos.Z);
+		else if (itemactor->spr.pos.Z > bottom)
+			vb = (itemactor->spr.pos.Z - bottom);
 		if (vb > 32)
 			continue;
-		if (approxDist(dx, dy) > 48)
+		if (DVector2(dx, dy).LengthSquared() > 48*48)
 			continue;
 		GetActorExtents(itemactor, &top, &bottom);
-		if (cansee(x, y, z, pSector, itemactor->int_pos().X, itemactor->int_pos().Y, itemactor->int_pos().Z, itemactor->sector())
-			|| cansee(x, y, z, pSector, itemactor->int_pos().X, itemactor->int_pos().Y, top, itemactor->sector())
-			|| cansee(x, y, z, pSector, itemactor->int_pos().X, itemactor->int_pos().Y, bottom, itemactor->sector()))
+		if (cansee(ppos, pSector, itemactor->spr.pos, itemactor->sector())
+			|| cansee(ppos, pSector, DVector3(itemactor->spr.pos.XY(), top), itemactor->sector())
+			|| cansee(ppos, pSector, DVector3(itemactor->spr.pos.XY(), bottom), itemactor->sector()))
 			PickUp(pPlayer, itemactor);
 	}
 }
