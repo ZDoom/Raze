@@ -83,9 +83,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 			case kMarkerSPStart:
 				if (gGameOptions.nGameType < 2 && actor->xspr.data1 >= 0 && actor->xspr.data1 < kMaxPlayers) {
 					ZONE* pZone = &gStartZone[actor->xspr.data1];
-					pZone->x = actor->int_pos().X;
-					pZone->y = actor->int_pos().Y;
-					pZone->z = actor->int_pos().Z;
+					pZone->pos = actor->spr.pos;
 					pZone->sector = actor->sector();
 					pZone->ang = actor->int_ang();
 				}
@@ -96,9 +94,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 					if (gGameOptions.nGameType >= 2) {
 						// default if BB or teams without data2 specified
 						ZONE* pZone = &gStartZone[actor->xspr.data1];
-						pZone->x = actor->int_pos().X;
-						pZone->y = actor->int_pos().Y;
-						pZone->z = actor->int_pos().Z;
+						pZone->pos = actor->spr.pos;
 						pZone->sector = actor->sector();
 						pZone->ang = actor->int_ang();
 
@@ -107,9 +103,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 						if (gModernMap && gGameOptions.nGameType == 3) {
 							if (actor->xspr.data2 == 1) {
 								pZone = &gStartZoneTeam1[team1];
-								pZone->x = actor->int_pos().X;
-								pZone->y = actor->int_pos().Y;
-								pZone->z = actor->int_pos().Z;
+								pZone->pos = actor->spr.pos;
 								pZone->sector = actor->sector();
 								pZone->ang = actor->int_ang();
 								team1++;
@@ -117,9 +111,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 							}
 							else if (actor->xspr.data2 == 2) {
 								pZone = &gStartZoneTeam2[team2];
-								pZone->x = actor->int_pos().X;
-								pZone->y = actor->int_pos().Y;
-								pZone->z = actor->int_pos().Z;
+								pZone->pos = actor->spr.pos;
 								pZone->sector = actor->sector();
 								pZone->ang = actor->int_ang();
 								team2++;
@@ -333,9 +325,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ZONE& w, ZONE* def
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.x)
-			("y", w.y)
-			("z", w.z)
+		arc("pos", w.pos)
 			("sector", w.sector)
 			("angle", w.ang)
 			.EndObject();

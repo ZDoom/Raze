@@ -58,7 +58,7 @@ void teslaHit(DBloodActor* pMissile, int a2);
 void WeaponPrecache();
 
 struct ZONE {
-	int x, y, z;
+	DVector3 pos;
 	sectortype* sector;
 	short ang;
 };
