@@ -63,7 +63,7 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, angle_t a1, an
 	viewx = view.X * (1/ 16.f);
 	viewy = view.Y * -(1/ 16.f);
 	viewz = (float)di->Viewpoint.Pos.Z;
-	iview = view;
+
 	StartScene();
 
 	gcosang = g_cosbam(di->Viewpoint.RotAngle);
@@ -676,7 +676,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.xrepeat == 0 || actor->spr.yrepeat == 0) // skip invisible sprites
 				continue;
 
-			int sx = actor->int_pos().X - iview.X, sy = actor->int_pos().Y - int(iview.Y);
+			auto viewvec = actor->spr.pos.XY() - DVector2(viewx, -viewy); // note that viewy is in render coordinates
 
 			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
 			//if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[actor->spr.picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
@@ -684,7 +684,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 				if ((actor->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
 					(r_voxels && tiletovox[actor->spr.picnum] >= 0 && voxmodels[tiletovox[actor->spr.picnum]]) ||
 					(r_voxels && gi->Voxelize(actor->spr.picnum) > -1) ||
-					DMulScale(bcos(actor->int_ang()), -sx, bsin(actor->int_ang()), -sy, 6) > 0)
+					(actor->spr.angle.Cos() * viewvec.X) + (actor->spr.angle.Sin() * viewvec.Y) < 0)
 					if (!renderAddTsprite(di->tsprites, actor))
 						break;
 			}
