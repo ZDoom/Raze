@@ -2541,14 +2541,12 @@ void actInit(TArray<DBloodActor*>& actors)
 //
 //---------------------------------------------------------------------------
 
-static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y, int z, int damage)
+static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector3& pos, double damage)
 {
-	int dx = actor->int_pos().X - x;
-	int dy = actor->int_pos().Y - y;
-	int dz = (actor->int_pos().Z - z) >> 4;
-	int dist2 = 0x40000 + dx * dx + dy * dy + dz * dz;
-	assert(dist2 > 0);
-	damage = Scale(0x40000, damage, dist2);
+	auto vect = actor->spr.pos - pos;
+
+	double dist2 = vect.LengthSquared() + 0x4000;
+	damage *= 0x4000 / dist2;
 
 	if (actor->spr.flags & kPhysMove)
 	{
@@ -2577,9 +2575,9 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		{
 			int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
 			int t = Scale(damage, size, mass);
-			actor->vel.X += MulScale(t, dx, 16);
-			actor->vel.Y += MulScale(t, dy, 16);
-			actor->vel.Z += MulScale(t, dz, 16);
+			actor->vel.X += (int)MulScaleF(t, vect.X, 12);
+			actor->vel.Y += (int)MulScaleF(t, vect.Y, 12);
+			actor->vel.Z += (int)MulScaleF(t, vect.Z, 12);
 		}
 	}
 	actDamageSprite(source, actor, kDamageExplode, damage);
@@ -5783,9 +5781,10 @@ static void actCheckExplosion()
 		int nType = actor->spr.type;
 		assert(nType >= 0 && nType < kExplodeMax);
 		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
-		int x = actor->int_pos().X;
-		int y = actor->int_pos().Y;
-		int z = actor->int_pos().Z;
+		const auto apos = actor->spr.pos;
+		const int x = actor->int_pos().X;
+		const int y = actor->int_pos().Y;
+		const int z = actor->int_pos().Z;
 		auto pSector = actor->sector();
 		int radius = pExplodeInfo->radius;
 
@@ -5822,7 +5821,7 @@ static void actCheckExplosion()
 						actor->explosionhackflag = false;
 						actDamageSprite(Owner, dudeactor, kDamageFall, (pExplodeInfo->dmg + Random(pExplodeInfo->dmgRng)) << 4);
 					}
-					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, x, y, z, pExplodeInfo->dmgType);
+					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, apos, pExplodeInfo->dmgType);
 
 					if (pExplodeInfo->burnTime && dudeactor->hasX())
 					{
@@ -5844,7 +5843,7 @@ static void actCheckExplosion()
 				{
 					if (!thingactor->xspr.locked)
 					{
-						if (pExplodeInfo->dmgType) ConcussSprite(Owner, thingactor, x, y, z, pExplodeInfo->dmgType);
+						if (pExplodeInfo->dmgType) ConcussSprite(Owner, thingactor, apos, pExplodeInfo->dmgType);
 
 						if (pExplodeInfo->burnTime)
 						{
