@@ -2658,10 +2658,7 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 					if (!CheckSector(sectorMap, act2)) continue;
 					if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
-					int dx = abs(x - act2->int_pos().X);
-					int dy = abs(y - act2->int_pos().Y);
-					int dz = abs(z - act2->int_pos().Z) >> 4;
-					int dist = ksqrt(dx * dx + dy * dy + dz * dz);
+					int dist = int((pos - act2->spr.pos).Length() * worldtoint);
 					if (dist > nDist) continue;
 
 					int totaldmg;
@@ -2685,9 +2682,7 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 
 			if (act2->xspr.locked) continue;
 
-			int dx = abs(x - act2->int_pos().X);
-			int dy = abs(y - act2->int_pos().Y);
-			int dist = ksqrt(dx * dx + dy * dy);
+			int dist = int((pos.XY() - act2->spr.pos.XY()).Length() * worldtoint);
 			if (dist > nDist) continue;
 
 			int totaldmg;
