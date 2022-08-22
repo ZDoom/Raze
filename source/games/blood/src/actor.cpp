@@ -2638,8 +2638,9 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 //
 //---------------------------------------------------------------------------
 
-void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
+void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
 {
+	int x = pos.X * worldtoint, y = pos.Y * worldtoint, z = pos.Z * worldtoint;
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
@@ -2714,7 +2715,7 @@ static void actNapalmMove(DBloodActor* actor)
 	if (Chance(0x8000)) actor->spr.cstat |= CSTAT_SPRITE_XFLIP;
 
 	sfxPlay3DSound(actor, 303, 24 + (actor->spr.flags & 3), 1);
-	actRadiusDamage(pOwner, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), 128, 0, 60, kDamageExplode, 15, 120);
+	actRadiusDamage(pOwner, actor->spr.pos, actor->sector(), 128, 0, 60, kDamageExplode, 15, 120);
 
 	if (actor->xspr.data4 > 1)
 	{
@@ -3952,7 +3953,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 					evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 				actBurnSprite(missileOwner, actorHit, 480);
-				actRadiusDamage(missileOwner, missileActor->int_pos().X, missileActor->int_pos().Y, missileActor->int_pos().Z, missileActor->sector(), 16, 20, 10, kDamageBullet, 6, 480);
+				actRadiusDamage(missileOwner, missileActor->spr.pos, missileActor->sector(), 16, 20, 10, kDamageBullet, 6, 480);
 
 				// by NoOne: allow additional bullet damage for Flare Gun
 				if (gGameOptions.weaponsV10x && !VanillaMode())
@@ -5721,7 +5722,7 @@ static void actCheckThings()
 					case kThingPodGreenBall:
 						if (hit.type == kHitSector)
 						{
-							actRadiusDamage(actor->GetOwner(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), 200, 1, 20, kDamageExplode, 6, 0);
+							actRadiusDamage(actor->GetOwner(), actor->spr.pos, actor->sector(), 200, 1, 20, kDamageExplode, 6, 0);
 							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
 						}
 						else if (hit.type == kHitSprite)
