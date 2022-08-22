@@ -419,7 +419,7 @@ int DoBloodSpray(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -613,7 +613,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -816,7 +816,7 @@ int DoChemBomb(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -1032,7 +1032,7 @@ int DoCaltrops(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }

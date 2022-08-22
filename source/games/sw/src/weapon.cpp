@@ -4420,7 +4420,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
         if (wph->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+            HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
             actor->user.coll.setNone();
             return true;
         }
@@ -7442,7 +7442,7 @@ int DoStar(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -8278,7 +8278,7 @@ int DoGrenade(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -8478,7 +8478,7 @@ int DoVulcanBoulder(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(wph, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -8880,7 +8880,7 @@ int DoMine(DSWActor* actor)
 
             if (hit_wall->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(hit_wall, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.ID);
+                HitBreakWall(hit_wall, actor->spr.pos, actor->spr.angle, actor->user.ID);
                 actor->user.coll.setNone();
                 break;
             }
@@ -11945,7 +11945,7 @@ int InitSwordAttack(PLAYER* pp)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, plActor->user.ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ang, plActor->user.ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
@@ -12139,7 +12139,7 @@ int InitFistAttack(PLAYER* pp)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, plActor->user.ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ang, plActor->user.ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
