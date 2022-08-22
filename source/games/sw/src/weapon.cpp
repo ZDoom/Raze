@@ -10415,8 +10415,7 @@ void SpawnMineExp(DSWActor* actor)
 
     PlaySound(DIGI_MINEBLOW, actor, v3df_none);
 
-    auto expActor = SpawnActor(STAT_MISSILE, MINE_EXP, s_MineExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, MINE_EXP, s_MineExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10461,8 +10460,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
-    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
@@ -10484,8 +10482,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
 {
     PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
-    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
@@ -10515,14 +10512,12 @@ void SpawnMeteorExp(DSWActor* actor)
 
     if (actor->user.spal == 25)    // Serp ball
     {
-        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_TeleportEffect2, actor->sector(),
-                                actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_TeleportEffect2, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
     }
     else
     {
         PlaySound(DIGI_MEDIUMEXP, actor, v3df_none);
-        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_MeteorExp, actor->sector(),
-                                actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_MeteorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
     }
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
@@ -10550,8 +10545,7 @@ void SpawnLittleExp(DSWActor* actor)
     short explosion;
 
     PlaySound(DIGI_HEADSHOTHIT, actor, v3df_none);
-    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_SectorExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_SectorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -127;
@@ -10775,8 +10769,7 @@ int DoNapalm(DSWActor* actor)
     {
         PlaySound(DIGI_NAPPUFF, actor, v3df_none);
 
-        auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, actor->sector(),
-                                actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+        auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
         expActor->spr.hitag = LUMINOUS; //Always full brightness
         SetOwner(actor, expActor);
@@ -10984,7 +10977,7 @@ int DoMirv(DSWActor* actor)
         for (i = 0; i < 2; i++)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->sector(),
-                              actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, NORM_ANGLE(actor->int_ang() + angs[i]), 800);
+									   actor->spr.pos, actor->spr.angle + DAngle::fromBuild(angs[i]), 800);
 
             actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
@@ -11219,7 +11212,7 @@ void InitSpellRing(PLAYER* pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, DAngle::fromBuild(ang), 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.xvel = 500;
@@ -11494,7 +11487,7 @@ int InitSerpRing(DSWActor* actor)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, ang, 0);
+        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, DAngle::fromBuild(ang), 0);
 
         actorNew->spr.xvel = 500;
         SetOwner(actor, actorNew);
@@ -11566,7 +11559,7 @@ void InitSpellNapalm(PLAYER* pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z + Z(12), pp->angle.ang.Buildang(), NAPALM_VELOCITY*2);
+                                pp->pos.plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -11637,7 +11630,7 @@ int InitEnemyNapalm(DSWActor* actor)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->sector(),
-                        actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2), actor->int_ang(), NAPALM_VELOCITY);
+                        DVector3(actor->spr.pos, ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.angle, NAPALM_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
@@ -11699,8 +11692,7 @@ int InitSpellMirv(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector,
-                            pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z + Z(12), pp->angle.ang.Buildang(), MIRV_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->pos.plusZ(12), pp->angle.ang, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -11739,7 +11731,7 @@ int InitEnemyMirv(DSWActor* actor)
     PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
 
     auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, actor->sector(),
-                    actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2), actor->int_ang(), MIRV_VELOCITY);
+							   DVector3(actor->spr.pos, ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.angle, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -12161,7 +12153,7 @@ int InitSumoNapalm(DSWActor* actor)
         for (size_t i = 0; i < countof(mp); i++)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->sector(),
-                actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor), ang, NAPALM_VELOCITY);
+									   DVector3(actor->spr.pos.XY(), ActorZOfTop(actor)), actor->spr.angle, NAPALM_VELOCITY);
 
             actorNew->spr.hitag = LUMINOUS; //Always full brightness
             if (i == 0) // Only attach sound to first projectile
@@ -12224,8 +12216,8 @@ int InitSumoSkull(DSWActor* actor)
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
-
+    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), DVector3(actor->spr.pos, ActorZOfMiddle(actor)), actor->spr.angle, 0);
+		
     actorNew->spr.xvel = 500;
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -20;
@@ -12686,7 +12678,7 @@ void InitHeartAttack(PLAYER* pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z + Z(12), pp->angle.ang.Buildang(), BLOOD_WORM_VELOCITY*2);
+                            pp->pos.plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -14021,8 +14013,7 @@ int InitSerpSpell(DSWActor* actor)
     {
         actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
 
-        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 1500);
+        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 1500);
 
         actorNew->set_int_z(int_ActorZOfTop(actor));
 
@@ -14077,8 +14068,7 @@ int SpawnDemonFist(DSWActor* actor)
     if (actor->user.Flags & (SPR_SUICIDE))
         return -1;
 
-    auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
@@ -14119,8 +14109,8 @@ int InitSerpMonstSpell(DSWActor* actor)
     {
         actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
 
-        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 500);
+		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(),
+								   actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 500);
 
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->set_int_z(int_ActorZOfTop(actor));

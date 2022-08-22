@@ -177,7 +177,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 			speed = 128;
 
 		predict.spin = min(int(predict.spin) + speed, 0);
-		predict.angle += buildang(speed);
+		predict.angle += DAngle::fromBuild(speed);
 	}
 
 	if (!predict.at71)
