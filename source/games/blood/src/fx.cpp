@@ -138,7 +138,11 @@ void CFX::remove(DBloodActor* actor)
 DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int z, unsigned int a6)
 {
 	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
+	return fxSpawnActor(nFx, pSector, pos, a6);
+}
 
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, unsigned int a6)
+{
 	if (pSector == nullptr)
 		return nullptr;
 	auto pSector2 = pSector;
@@ -275,7 +279,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 		return;
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		return;
-	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
+	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
 	if (bloodactor)
 	{
 		bloodactor->set_int_ang(1024);
@@ -303,9 +307,9 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		return;
 	DBloodActor* spawnactor;
 	if (actor->spr.type == kDudePodGreen)
-		spawnactor = gFX.fxSpawnActor(FX_53, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
+		spawnactor = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos, 0);
 	else
-		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
+		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos, 0);
 	if (spawnactor)
 	{
 		spawnactor->set_int_ang(1024);

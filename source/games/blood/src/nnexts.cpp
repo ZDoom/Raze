@@ -1801,20 +1801,21 @@ void debrisMove(int listIndex)
 
 			moveHit = floorColl;
 			DBloodActor* pFX = NULL, * pFX2 = NULL;
+			double ffloorZ = floorZ * zinttoworld;
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfLava:
-				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), actor->int_pos().X, actor->int_pos().Y, floorZ, 0)) == NULL) break;
+				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), ffloorZ), 0)) == NULL) break;
 				for (i = 0; i < 7; i++)
 				{
-					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->int_pos().X, pFX->int_pos().Y, pFX->int_pos().Z, 0)) == NULL) continue;
+					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
 					pFX2->vel.X = Random2(0x6aaaa);
 					pFX2->vel.Y = Random2(0x6aaaa);
 					pFX2->vel.Z = -(int)Random(0xd5555);
 				}
 				break;
 			case kSurfWater:
-				gFX.fxSpawnActor(FX_9, actor->sector(), actor->int_pos().X, actor->int_pos().Y, floorZ, 0);
+				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos.XY(), ffloorZ), 0);
 				break;
 			}
 
@@ -3345,7 +3346,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 	else if (valueIsBetween(fxId, 0, kFXMax))
 	{
-		int pos, top, bottom;
+		double pos, top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		DBloodActor* pEffect = nullptr;
 
@@ -3356,17 +3357,16 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			pos = bottom;
 			break;
 		case 2: // middle
-			pos = actor->int_pos().Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum));
+			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum));
 			break;
 		case 3:
 		case 4:
 			if (actor->insector())
 			{
 				if (sourceactor->xspr.data4 == 3)
-					pos = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+					pos = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				else
-					pos = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
-
+					pos = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				break;
 			}
 			[[fallthrough]];
@@ -3375,7 +3375,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			break;
 		}
 
-		if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, actor->sector(), actor->int_pos().X, actor->int_pos().Y, pos, 0)) != NULL)
+		if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, actor->sector(), DVector3(actor->spr.pos.XY(), pos), 0)) != nullptr)
 		{
 			pEffect->SetOwner(sourceactor);
 
@@ -6477,9 +6477,9 @@ void useRandomItemGen(DBloodActor* actor)
 		BloodStatIterator it(kStatItem);
 		while (auto iactor = it.Next())
 		{
-			if ((unsigned int)iactor->spr.type == actor->xspr.dropMsg && iactor->int_pos().X == actor->int_pos().X && iactor->int_pos().Y == actor->int_pos().Y && iactor->int_pos().Z == actor->int_pos().Z)
+			if ((unsigned int)iactor->spr.type == actor->xspr.dropMsg && iactor->spr.pos == actor->spr.pos)
 			{
-				gFX.fxSpawnActor((FX_ID)29, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0);
+				gFX.fxSpawnActor((FX_ID)29, actor->sector(), actor->spr.pos, 0);
 				iactor->spr.type = kSpriteDecoration;
 				actPostSprite(iactor, kStatFree);
 				break;

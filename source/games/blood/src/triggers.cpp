@@ -2524,9 +2524,9 @@ void ActivateGenerator(DBloodActor* actor)
 		break;
 	case kGenBubble:
 	case kGenBubbleMulti: {
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), actor->int_pos().X, actor->int_pos().Y, top, 0);
+		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), DVector3(actor->spr.pos.XY(), top), 0);
 		break;
 	}
 	}
