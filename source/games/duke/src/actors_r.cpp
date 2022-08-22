@@ -1059,7 +1059,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 	}
 	else
 	{
-		SetActor(proj, oldpos);
+		SetActor(proj, &oldpos);
 		fi.checkhitwall(proj, wal, proj->int_pos().X, proj->int_pos().Y, proj->int_pos().Z, proj->spr.picnum);
 
 		if (!isRRRA() && proj->spr.picnum == FREEZEBLAST)
@@ -1126,7 +1126,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 
 bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 {
-	SetActor(proj, oldpos);
+	SetActor(proj, &oldpos);
 
 	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->spr.picnum == MAMA)
 	{

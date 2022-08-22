@@ -533,11 +533,6 @@ void InitSpriteLists();
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos);
 void SetActor(DCoreActor* actor, const vec3_t* newpos);
 
-inline void SetActor(DCoreActor* actor, const vec3_t& newpos)
-{
-	SetActor(actor, &newpos);
-}
-
 inline void SetActorZ(DCoreActor* actor, const vec3_t& newpos)
 {
 	SetActorZ(actor, &newpos);

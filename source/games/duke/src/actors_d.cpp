@@ -1424,7 +1424,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 	}
 	else
 	{
-		SetActor(proj, oldpos);
+		SetActor(proj, &oldpos);
 		fi.checkhitwall(proj, wal, proj->int_pos().X, proj->int_pos().Y, proj->int_pos().Z, proj->spr.picnum);
 
 		if (proj->spr.picnum == FREEZEBLAST)
@@ -1451,7 +1451,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 
 static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool fireball)
 {
-	SetActor(proj, oldpos);
+	SetActor(proj, &oldpos);
 
 	if (proj->spr.zvel < 0)
 	{
@@ -2458,9 +2458,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		return;
 	}
 
-	int dax = actor->int_pos().X;
-	int day = actor->int_pos().Y;
-	int daz = actor->int_pos().Z;
+	auto dapos = actor->spr.pos;
 	int xvel = actor->spr.xvel;
 
 	getglobalz(actor);
@@ -2514,12 +2512,12 @@ static void flamethrowerflame(DDukeActor *actor)
 		}
 		else if (coll.type == kHitWall)
 		{
-			SetActor(actor, vec3_t( dax, day, daz ));
+			SetActor(actor, dapos);
 			fi.checkhitwall(actor, coll.hitWall, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
-			SetActor(actor, vec3_t(dax, day, daz));
+			SetActor(actor, dapos);
 			if (actor->spr.zvel < 0)
 				fi.checkhitceiling(actor->sector());
 		}

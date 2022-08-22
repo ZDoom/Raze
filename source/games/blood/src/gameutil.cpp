@@ -86,7 +86,9 @@ bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, i
 
 //---------------------------------------------------------------------------
 //
-//
+// Note: This function features some very bad math.
+// It cannot be redone because some game functionality
+// depends on the math being broken.
 //
 //---------------------------------------------------------------------------
 
