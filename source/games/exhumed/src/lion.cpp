@@ -379,25 +379,21 @@ void AILion::Tick(RunListEvent* ev)
             pActor->spr.zvel = -4000;
             pActor->nCount = 0;
 
-            int x = pActor->int_pos().X;
-            int y = pActor->int_pos().Y;
-            int z = pActor->int_pos().Z - (GetActorHeight(pActor) >> 1);
-
             int nCheckDist = 0x7FFFFFFF;
 
             int nAngle = pActor->int_ang();
-            int nScanAngle = (pActor->int_ang() - 512) & kAngleMask;
+            int nScanAngle = (nAngle - 512) & kAngleMask;
 
             for (int i = 0; i < 5; i++)
             {
                 HitInfo hit{};
 
-                hitscan(vec3_t( x, y, z ), pActor->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
+                hitscan(pActor->spr.pos.plusZ(-GetActorHeightF(pActor) * 0.5), pActor->sector(), DVector3(bcos(nScanAngle), bsin(nScanAngle), 0), hit, CLIPMASK1);
 
                 if (hit.hitWall)
                 {
-                    int theX = abs(hit.int_hitpos().X - x);
-                    int theY = abs(hit.int_hitpos().Y - y);
+                    int theX = abs(hit.int_hitpos().X - pActor->int_pos().X);
+                    int theY = abs(hit.int_hitpos().Y - pActor->int_pos().Y);
 
                     if ((theX + theY) < nCheckDist)
                     {
