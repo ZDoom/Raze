@@ -293,7 +293,7 @@ int DoWallBloodDrip(DSWActor* actor)
 void SpawnMidSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
+                      DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle, 0);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -315,8 +315,7 @@ void SpawnMidSplash(DSWActor* actor)
 
 void SpawnFloorSplash(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -515,8 +514,7 @@ int DoBloodSpray(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)))
     {
 
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -12;

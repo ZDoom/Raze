@@ -1392,7 +1392,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         DistToMove = (DistToMove >> 2) + (DistToMove >> 3);
 
     // Find angle to from the player
-    oang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    oang = NORM_ANGLE(getangle(actor->user.targetActor->spr.pos - actor->spr.pos));
 
     // choose a random angle array
     switch (dir)
