@@ -530,24 +530,19 @@ int ChangeActorStat(DCoreActor* actor, int nStatus, bool forcetail = false);
 void InitSpriteLists();
 
 
-void SetActorZ(DCoreActor* actor, const vec3_t* newpos);
-void SetActor(DCoreActor* actor, const vec3_t* newpos);
+void SetActorZ(DCoreActor* actor, const DVector3& newpos);
+void SetActor(DCoreActor* actor, const DVector3& newpos);
 
-inline void SetActorZ(DCoreActor* actor, const vec3_t& newpos)
+inline void SetActor(DCoreActor* actor, const vec3_t* newpos)
 {
-	SetActorZ(actor, &newpos);
+	DVector3 ipos = { newpos->X * inttoworld, newpos->Y * inttoworld, newpos->Z * zinttoworld };
+	SetActor(actor, ipos);
 }
 
-inline void SetActor(DCoreActor* actor, const DVector3& newpos)
+inline void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 {
-	vec3_t ipos = { int(newpos.X * worldtoint), int(newpos.Y * worldtoint), int(newpos.Z * zworldtoint) };
-	SetActor(actor, &ipos);
-}
-
-inline void SetActorZ(DCoreActor* actor, const DVector3& newpos)
-{
-	vec3_t ipos = { int(newpos.X * worldtoint), int(newpos.Y * worldtoint), int(newpos.Z * zworldtoint) };
-	SetActorZ(actor, &ipos);
+	DVector3 ipos = { newpos->X * inttoworld, newpos->Y * inttoworld, newpos->Z * zinttoworld };
+	SetActorZ(actor, ipos);
 }
 
 inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
