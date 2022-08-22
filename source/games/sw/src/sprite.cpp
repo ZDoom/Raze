@@ -4633,7 +4633,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     // try and determine whether you moved > lo_step in the z direction
     if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING)))
     {
-        if (labs(actor->int_pos().Z - globloz) > actor->user.lo_step)
+        if (abs(actor->int_pos().Z - globloz) > actor->user.lo_step)
         {
             // cancel move
             actor->spr.pos = apos;
