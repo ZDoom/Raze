@@ -5227,7 +5227,7 @@ void aiFightFreeTargets(DBloodActor* actor)
 	{
 		if (!targetactor->IsDudeActor() || !targetactor->hasX()) continue;
 		else if (targetactor->GetTarget() == actor)
-			aiSetTarget(targetactor, targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z);
+			aiSetTarget(targetactor, targetactor->spr.pos);
 	}
 }
 
@@ -5331,7 +5331,7 @@ void aiFightAlarmDudesInSight(DBloodActor* actor, int max)
 			if (dudeactor->GetTarget() != nullptr || dudeactor->xspr.rxID > 0)
 				continue;
 
-			aiSetTarget(dudeactor, dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z);
+			aiSetTarget(dudeactor, dudeactor->spr.pos);
 			aiActivateDude(dudeactor);
 			if (max-- < 1)
 				break;
@@ -7011,14 +7011,14 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 		auto actLeech = leechIsDropped(actor);
 		if (sourceactor->xspr.data4 == 3)
 		{
-			aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+			aiSetTarget(actor, actor->spr.pos);
 			aiSetGenIdleState(actor);
 			if (actor->spr.type == kDudeModernCustom && actLeech)
 				removeLeech(actLeech);
 		}
 		else if (sourceactor->xspr.data4 == 4)
 		{
-			aiSetTarget(actor, playeractor->int_pos().X, playeractor->int_pos().Y, playeractor->int_pos().Z);
+			aiSetTarget(actor, playeractor->spr.pos);
 			if (actor->spr.type == kDudeModernCustom && actLeech)
 				removeLeech(actLeech);
 		}
@@ -7035,7 +7035,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
 		if (!targetactor->IsDudeActor() || targetactor->xspr.health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, targetactor))
 		{
-			aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+			aiSetTarget(actor, actor->spr.pos);
 		}
 		// dude attack or attacked by target that does not fit by data id?
 		else if (sourceactor->xspr.data1 != 666 && targetactor->xspr.data1 != sourceactor->xspr.data1)
@@ -7043,7 +7043,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 			if (aiFightDudeIsAffected(targetactor))
 			{
 				// force stop attack target
-				aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+				aiSetTarget(actor, actor->spr.pos);
 				if (actor->GetBurnSource() == targetactor)
 				{
 					actor->xspr.burnTime = 0;
@@ -7051,7 +7051,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 				}
 
 				// force stop attack dude
-				aiSetTarget(targetactor, targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z);
+				aiSetTarget(targetactor, targetactor->spr.pos);
 				if (targetactor->GetBurnSource() == actor)
 				{
 					targetactor->xspr.burnTime = 0;
@@ -7077,7 +7077,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 				// force mate stop attack dude, if he does
 				if (matetarget == actor)
 				{
-					aiSetTarget(mateactor, mateactor->int_pos().X, mateactor->int_pos().Y, mateactor->int_pos().Z);
+					aiSetTarget(mateactor, mateactor->spr.pos);
 				}
 				else if (actor->xspr.rxID != matetarget->xspr.rxID)
 				{
@@ -7088,13 +7088,13 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 				else
 				{
 					// force mate to stop attack another mate
-					aiSetTarget(mateactor, mateactor->int_pos().X, mateactor->int_pos().Y, mateactor->int_pos().Z);
+					aiSetTarget(mateactor, mateactor->spr.pos);
 				}
 			}
 
 			// force dude stop attack mate, if target was not changed previously
 			if (actor == mateactor)
-				aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+				aiSetTarget(actor, actor->spr.pos);
 
 
 		}
@@ -7121,7 +7121,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 				// Make prev target not aim in dude
 				if (targetactor)
 				{
-					aiSetTarget(targetactor, targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z);
+					aiSetTarget(targetactor, targetactor->spr.pos);
 					if (!isActive(newtargactor))
 						aiActivateDude(newtargactor);
 				}
@@ -8111,7 +8111,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		else
 		{
 			aiInitSprite(actor);
-			aiSetTarget(actor, actor->xspr.int_TargetPos().X, actor->xspr.int_TargetPos().Y, actor->xspr.int_TargetPos().Z);
+			aiSetTarget(actor, actor->xspr.TargetPos);
 		}
 
 		actor->xspr.dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again
@@ -8339,7 +8339,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 				continue;
 
 			if (actor->GetTarget()) aiSetTarget(dudeactor, actor->GetTarget());
-			else aiSetTarget(dudeactor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+			else aiSetTarget(dudeactor, actor->spr.pos);
 			aiActivateDude(dudeactor);
 
 			if (chain)

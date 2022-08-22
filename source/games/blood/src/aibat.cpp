@@ -401,10 +401,7 @@ static void batMoveFly(DBloodActor* actor)
 
 void batMoveToCeil(DBloodActor* actor)
 {
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	int z = actor->int_pos().Z;
-	if (z - actor->xspr.int_TargetPos().Z < 0x1000)
+	if (actor->spr.pos.Z - actor->xspr.TargetPos.Z < 0x10)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->thinkTime = 0;
@@ -412,7 +409,7 @@ void batMoveToCeil(DBloodActor* actor)
 		aiNewState(actor, &batIdle);
 	}
 	else
-		aiSetTarget(actor, x, y, actor->sector()->int_ceilingz());
+		aiSetTarget(actor, DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz));
 }
 
 END_BLD_NS

@@ -655,7 +655,7 @@ static void unicultThinkChase(DBloodActor* actor)
 				// don't attack slaves
 				if (actor->GetTarget() != nullptr && actor->GetTarget()->GetOwner() == actor)
 				{
-					aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+					aiSetTarget(actor, actor->spr.pos);
 					return;
 				}
 				else if (actor->genDudeExtra.slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist)
@@ -2057,7 +2057,7 @@ void genDudeTransform(DBloodActor* actor)
 		aiInitSprite(actor);
 
 		// try to restore target
-		if (target == nullptr) aiSetTarget(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+		if (target == nullptr) aiSetTarget(actor, actor->spr.pos);
 		else aiSetTarget(actor, target);
 
 		// finally activate it
@@ -2140,11 +2140,11 @@ void updateTargetOfSlaves(DBloodActor* actor)
 				if (actTarget != slave[i]->GetTarget()) aiSetTarget(slave[i], actTarget);
 				// check if slave have proper target
 				if (slave[i]->GetTarget() == nullptr || slave[i]->GetTarget()->GetOwner() == actor)
-					aiSetTarget(slave[i], actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+					aiSetTarget(slave[i], actor->spr.pos);
 			}
 			else
 			{
-				aiSetTarget(slave[i], actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z); // try return to master
+				aiSetTarget(slave[i], actor->spr.pos); // try return to master
 			}
 		}
 	}
