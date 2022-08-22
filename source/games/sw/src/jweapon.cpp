@@ -938,8 +938,7 @@ int DoChemBomb(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -1168,7 +1167,7 @@ int SpawnRadiationCloud(DSWActor* actor)
         return -1;
 
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - RANDOM_P2(Z(8)), actor->int_ang(), 0);
+							   actor->spr.pos.plusZ(-RANDOM_P2F(8, 8)), actor->spr.angle, 0);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->user.WaitTics = 1 * 120;
@@ -1567,7 +1566,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     }
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+							   actor->spr.pos, actor->spr.angle, 0);
 
     if (actor != nullptr)
         actor->user.flameActor = actorNew;
@@ -1670,18 +1669,12 @@ int PlayerInitCaltrops(PLAYER* pp)
 
 int InitCaltrops(DSWActor* actor)
 {
-    int nx, ny, nz;
-
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
 
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), CHEMBOMB_VELOCITY / 2);
+							   actor->spr.pos, actor->spr.angle, CHEMBOMB_VELOCITY / 2);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -1711,21 +1704,12 @@ int InitCaltrops(DSWActor* actor)
 
 int InitPhosphorus(DSWActor* actor)
 {
-    int nx, ny, nz;
-    short daang;
-
     PlaySound(DIGI_FIREBALL1, actor, v3df_follow);
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
-
-    daang = NORM_ANGLE(RandomRange(2048));
 
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->sector(),
-                    nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
+							   actor->spr.pos, RANDOM_ANGLE(), CHEMBOMB_VELOCITY/3);
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);

@@ -1017,8 +1017,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->track = sectp->hitag;
 
         // spawn a sprite to make it easier to integrate with sprite routines
-        auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp,
-                          sop->int_pmid().X, sop->int_pmid().Y, sop->int_pmid().Z, 0, 0);
+        auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp, sop->pmid, nullAngle, 0);
         sop->sp_child = actorNew;
         actorNew->user.sop_parent = sop;
         actorNew->user.Flags2 |= (SPR2_SPRITE_FAKE_BLOCK); // for damage test

@@ -6858,7 +6858,7 @@ void InitMultiPlayerInfo(void)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->angle.ang.Buildang(), 0);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->pos, pp->angle.ang, 0);
         start0->clearUser();
         start0->spr.picnum = ST1;
     }
