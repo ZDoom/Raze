@@ -329,7 +329,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	act->spr.xvel = 128;
 	ChangeActorStat(act, STAT_MISC);
 	ssp(act, CLIPMASK0);
-	SetActor(act, act->int_pos());
+	SetActor(act, act->spr.pos);
 }
 
 //---------------------------------------------------------------------------

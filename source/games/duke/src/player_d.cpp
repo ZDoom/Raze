@@ -3054,7 +3054,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, vec3_t( p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + gs.int_playerheight ));
+	SetActor(pact, p->pos.plusZ(gs.playerheight));
 
 	if (psectlotag < 3)
 	{

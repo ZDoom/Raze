@@ -11185,7 +11185,7 @@ int DoRing(DSWActor* actor)
     actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->int_ang()), 14), MulScale(actor->user.Dist, bsin(actor->int_ang()), 14),
         pp ? (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9 : 0 });
 
-    SetActor(actor, actor->int_pos());
+    SetActor(actor, actor->spr.pos);
 
     ASSERT(actor->insector());
 
@@ -11311,7 +11311,7 @@ int DoSerpRing(DSWActor* actor)
     // put it out there
     actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->user.slide_ang), 14), MulScale(actor->user.Dist, bsin(actor->user.slide_ang), 14), 0 });
 
-    SetActor(actor, actor->int_pos());
+    SetActor(actor, actor->spr.pos);
 
     ASSERT(actor->insector());
 

@@ -2523,7 +2523,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			auto spawned = spawn(actor, actor->spr.yvel);
 			if (spawned)
 			{
-				SetActor(spawned, actor->int_pos());
+				SetActor(spawned, actor->spr.pos);
 				getglobalz(spawned);
 				spawned->spr.hitag = spawned->spr.lotag = 0;
 			}
@@ -2925,7 +2925,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 							ps[p].backupxy();
 							ps[p].setCursector(actor->sector());
 
-							SetActor(ps[p].GetActor(), actor->int_pos());
+							SetActor(ps[p].GetActor(), actor->spr.pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3025,7 +3025,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							ps[p].getxyfromactor(actor);
 							ps[p].setCursector(actor->sector());
 
-							SetActor(ps[p].GetActor(), actor->int_pos());
+							SetActor(ps[p].GetActor(), actor->spr.pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3085,7 +3085,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 							ps[p].setCursector(actor->sector());
 
-							SetActor(ps[p].GetActor(), actor->int_pos());
+							SetActor(ps[p].GetActor(), actor->spr.pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3178,7 +3178,7 @@ void handle_se02(DDukeActor* actor)
 			if (a2->spr.picnum != SECTOREFFECTOR)
 			{
 				a2->add_int_pos({ m, x, 0 });
-				SetActor(a2, a2->int_pos());
+				SetActor(a2, a2->spr.pos);
 			}
 		}
 		ms(actor);
@@ -3907,7 +3907,7 @@ void handle_se17(DDukeActor* actor)
 				act3->backupz();
 
 				ChangeActorSect(act3, act2->sector());
-				SetActor(act3, act3->int_pos());
+				SetActor(act3, act3->spr.pos);
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
@@ -4281,7 +4281,7 @@ void handle_se26(DDukeActor* actor)
 		if (a2->spr.statnum != 3 && a2->spr.statnum != 10)
 		{
 			a2->add_int_pos({ l, x, actor->spr.zvel });
-			SetActor(a2, a2->int_pos());
+			SetActor(a2, a2->spr.pos);
 		}
 	}
 
@@ -4395,7 +4395,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 				{
 					a2->add_int_pos({ x >> shift , y >> shift, 0 });
 
-					SetActor(a2, a2->int_pos());
+					SetActor(a2, a2->spr.pos);
 
 					if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
 						if (a2->spr.statnum == STAT_ZOMBIEACTOR)
@@ -4542,7 +4542,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 			{
 				spawned->spr.xvel = 96 + (krand() & 127);
 				ssp(spawned, CLIPMASK0);
-				SetActor(spawned, spawned->int_pos());
+				SetActor(spawned, spawned->spr.pos);
 				if (rnd(16))
 					spawn(actor, EXPLOSION2);
 			}

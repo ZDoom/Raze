@@ -481,7 +481,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 				actor->set_int_ang((krand()&2047));
 			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != COMMANDER)
 				actor->set_int_ang((krand()&2047));
-			SetActor(actor,actor->int_pos());
+			SetActor(actor,actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
@@ -896,7 +896,7 @@ static void movetripbomb(DDukeActor *actor)
 				auto spawned = spawn(actor, LASERLINE);
 				if (spawned)
 				{
-					SetActor(spawned, spawned->int_pos());
+					SetActor(spawned, spawned->spr.pos);
 					spawned->spr.hitag = actor->spr.hitag;
 					spawned->temp_data[1] = spawned->int_pos().Z;
 

@@ -146,7 +146,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WATERSPLASH2:
 		if (actj)
 		{
-			SetActor(act, actj->int_pos());
+			SetActor(act, actj->spr.pos);
 			act->spr.xrepeat = act->spr.yrepeat = 8 + (krand() & 7);
 		}
 		else act->spr.xrepeat = act->spr.yrepeat = 16 + (krand() & 15);
