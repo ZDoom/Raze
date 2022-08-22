@@ -1127,7 +1127,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	seg = nullptr;
 	Sprite = spr;
 	DVector2 pos[2];
-	int sprz = spr->int_pos().Z;
 
 	GetWallSpritePosition(spr, spr->pos.XY(), pos, true);
 	glseg.x1 = pos[0].X;
@@ -1187,13 +1186,14 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)
 		topofs = -topofs;
-
-	sprz -= ((topofs * spr->yrepeat) << 2);
+	
+	float yrepeat = spr->yrepeat * (1.f / 64.f);
+	float sprz = spr->pos.Z - topofs * yrepeat;
 
 	if (spr->cstat & CSTAT_SPRITE_YCENTER)
 	{
-		sprz += ((height * spr->yrepeat) << 1);
-		if (height & 1) sprz += (spr->yrepeat << 1);  // Odd yspans (taken from polymost as-is)
+		sprz += height * yrepeat * 0.5f;
+		if (height & 1) sprz += yrepeat * 0.5f;  // Odd yspans
 	}
 
 	glseg.fracleft = 0;
@@ -1203,8 +1203,8 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
 	tcs[LOLFT].v = tcs[LORGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 
-	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
-	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
+	zbottom[0] = zbottom[1] = -sprz;
+	ztop[0] = ztop[1] = -sprz + height * yrepeat;
 	if (zbottom[0] > ztop[0])
 	{
 		// reorder coordinates to make the clipping code below behave.
