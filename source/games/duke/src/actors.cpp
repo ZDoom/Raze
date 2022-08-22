@@ -1880,8 +1880,8 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 	{
 		actor->temp_data[1]++;
 
-		actor->temp_data[4] = actor->int_pos().Z;
-		actor->set_int_z(sectp->int_floorz() - (krand() % (sectp->int_floorz() - sectp->int_ceilingz())));
+		actor->temp_data[4] = FloatToFixed<8>(actor->spr.pos.Z);
+		actor->spr.pos.Z = sectp->floorz - zrand(sectp->floorz - sectp->ceilingz);
 
 		switch (actor->temp_data[1])
 		{
@@ -1923,7 +1923,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 		for (x = 0; x < 16; x++)
 			RANDOMSCRAP(actor);
 
-		actor->set_int_z(actor->temp_data[4]);
+		actor->spr.pos.Z = FixedToFloat<8>(actor->temp_data[4]);
 		actor->temp_data[4] = 0;
 
 	}

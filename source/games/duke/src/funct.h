@@ -252,10 +252,10 @@ inline double zrand(int spread, int ofs)
 	return r * zmaptoworld;
 }
 
-inline double zrand(int spread)
+inline double zrand(double spread)
 {
-	int r = krand() % (spread << 8);
-	return r * zmaptoworld;
+	int r = krand() % FloatToFixed<8>(spread);
+	return FixedToFloat<8>(r);
 }
 
 END_DUKE_NS
