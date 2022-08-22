@@ -93,13 +93,12 @@ void CheckMummyRevive(DExhumedActor* pActor)
             if (pOther->nAction != 5) {
                 continue;
             }
-            int x = abs(pOther->int_pos().X - pActor->int_pos().X) >> 8;
-            int y = abs(pOther->int_pos().Y - pActor->int_pos().Y) >> 8;
+            double x = abs(pOther->spr.pos.X - pActor->spr.pos.X);
+            double y = abs(pOther->spr.pos.Y - pActor->spr.pos.Y);
 
-            if (x <= 20 && y <= 20)
+            if (x <= 320 && y <= 320)
             {
-                if (cansee(pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z - 8192, pActor->sector(),
-                          pOther->int_pos().X, pOther->int_pos().Y, pOther->int_pos().Z - 8192, pOther->sector()))
+                if (cansee(pActor->spr.pos.plusZ(-32), pActor->sector(), pOther->spr.pos.plusZ(-32), pOther->sector()))
                 {
                     pOther->spr.cstat = 0;
                     pOther->nAction = 6;
