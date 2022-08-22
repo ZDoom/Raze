@@ -1835,7 +1835,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 
 bool doExplosion(DBloodActor* actor, int nType)
 {
-	auto actExplosion = actSpawnSprite(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, kStatExplosion, true);
+	auto actExplosion = actSpawnSprite(actor->sector(), actor->spr.pos, kStatExplosion, true);
 	if (!actExplosion->hasX())
 		return false;
 

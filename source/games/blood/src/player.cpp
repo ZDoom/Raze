@@ -795,7 +795,7 @@ void playerStart(int nPlayer, int bNewLevel)
 		pStartZone = &gStartZone[Random(8)];
 	}
 
-	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
+	auto actor = actSpawnSprite(pStartZone->sector, {pStartZone->x * inttoworld, pStartZone->y * inttoworld, pStartZone->z * zinttoworld}, 6, 1);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
 	DUDEINFO* pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];

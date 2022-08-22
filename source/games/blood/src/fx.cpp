@@ -137,6 +137,8 @@ void CFX::remove(DBloodActor* actor)
 
 DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int z, unsigned int a6)
 {
+	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
+
 	if (pSector == nullptr)
 		return nullptr;
 	auto pSector2 = pSector;
@@ -163,7 +165,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
 		return nullptr;
 	FXDATA* pFX = &gFXData[nFx];
 
-	auto actor = actSpawnSprite(pSector, x, y, z, 1, 0);
+	auto actor = actSpawnSprite(pSector, pos, 1, 0);
 
 	actor->spr.type = nFx;
 	actor->spr.picnum = pFX->picnum;

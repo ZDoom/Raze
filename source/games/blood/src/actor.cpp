@@ -2743,11 +2743,10 @@ static void actNapalmMove(DBloodActor* actor)
 static DBloodActor* actSpawnFloor(DBloodActor* actor)
 {
 	auto pSector = actor->sector();
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	updatesector(x, y, &pSector);
-	int zFloor = getflorzofslopeptr(pSector, x, y);
-	auto spawned = actSpawnSprite(pSector, x, y, zFloor, 3, 0);
+	auto pos = actor->spr.pos;
+	updatesector(pos, &pSector);
+	double zFloor = getflorzofslopeptrf(pSector, pos.X, pos.Y);
+	auto spawned = actSpawnSprite(pSector, DVector3(pos.XY(), zFloor), 3, 0);
 	if (spawned) spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	return spawned;
 }
@@ -5423,7 +5422,7 @@ void actExplodeSprite(DBloodActor* actor)
 
 	case kThingTNTBarrel:
 	{
-		auto spawned = actSpawnSprite(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, 0, 1);
+		auto spawned = actSpawnSprite(actor->sector(), actor->spr.pos, 0, 1);
 		spawned->SetOwner(actor->GetOwner());
 		if (actCheckRespawn(actor))
 		{
@@ -6184,12 +6183,11 @@ void actProcessSprites(void)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnSprite(sectortype* pSector, int x, int y, int z, int nStat, bool setextra)
+DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool setextra)
 {
 	DBloodActor* actor = InsertSprite(pSector, nStat);
 
-	vec3_t pos = { x, y, z };
-	SetActor(actor, &pos);
+	SetActor(actor, pos);
 	actor->spr.type = kSpriteDecoration;
 	if (setextra && !actor->hasX())
 	{
@@ -6302,8 +6300,9 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 
 DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType)
 {
+	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
 	assert(nThingType >= kThingBase && nThingType < kThingMax);
-	auto actor = actSpawnSprite(pSector, x, y, z, 4, 1);
+	auto actor = actSpawnSprite(pSector, pos, 4, 1);
 	int nType = nThingType - kThingBase;
 	actor->spr.type = nThingType;
 	assert(actor->hasX());
@@ -6528,7 +6527,8 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 			y = gHitInfo.int_hitpos().Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->int_ang()), 28);
 		}
 	}
-	auto spawned = actSpawnSprite(actor->sector(), x, y, z, 5, 1);
+	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
+	auto spawned = actSpawnSprite(actor->sector(), pos, 5, 1);
 
 	spawned->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	spawned->spr.type = nType;
