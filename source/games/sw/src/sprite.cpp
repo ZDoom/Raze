@@ -4723,7 +4723,7 @@ int DoGrating(DSWActor* actor)
         actor->clearUser();
     }
 
-    SetActorZ(actor, actor->int_pos());
+    SetActorZ(actor, actor->spr.pos);
 
     return 0;
 }
@@ -6294,7 +6294,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(actor->sector()))
-        SetActorZ(actor, actor->int_pos());
+        SetActorZ(actor, actor->spr.pos);
 
     if ((actor->sector()->extra & SECTFX_WARP_SECTOR))
     {
@@ -6483,7 +6483,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
 
     if (FAF_ConnectArea(actor->sector()))
-        SetActorZ(actor, actor->int_pos());
+        SetActorZ(actor, actor->spr.pos);
 
     if ((actor->sector()->extra & SECTFX_WARP_SECTOR))
     {

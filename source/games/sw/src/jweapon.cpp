@@ -1920,7 +1920,7 @@ int DoCarryFlag(DSWActor* actor)
     {
         DVector3 pos(attached->spr.pos.XY(), ActorZOfMiddle(attached));
         SetActorZ(actor, pos);
-        actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
+		actor->spr.angle = attached->spr.angle + DAngle270;
     }
 
     // not activated yet
@@ -2067,10 +2067,9 @@ int DoCarryFlagNoDet(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, int_ActorZOfMiddle(attached) };
-        SetActorZ(actor, &pos);
-        actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
-        actor->set_int_z(attached->int_pos().Z - (int_ActorSizeZ(attached) >> 1));
+        SetActorZ(actor, DVector3(attached->spr.pos.XY(), ActorZOfMiddle(attached)));
+		actor->spr.angle = attached->spr.angle + DAngle270;
+        actor->spr.pos.Z = attached->spr.pos.Z - (ActorSizeZ(attached) * 0.5);
     }
 
     if (!attached->hasU() || attached->user.Health <= 0)

@@ -1736,7 +1736,7 @@ PlayerPart:
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (!SO_EMPTY(sop)) // special case for operating SO's
-                SetActorZ(sop->so_actors[i], actor->int_pos());
+                SetActorZ(sop->so_actors[i], actor->spr.pos);
         }
 
         actor->user.oangdiff += getincangle(oldang, actor->int_ang());
@@ -1905,7 +1905,7 @@ void UpdateSectorObjectSprites(SECTOR_OBJECT* sop)
         DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
 
-        SetActorZ(actor, actor->int_pos());
+        SetActorZ(actor, actor->spr.pos);
     }
 }
 

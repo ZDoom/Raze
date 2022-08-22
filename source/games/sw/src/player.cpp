@@ -1311,7 +1311,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
                          nx, ny, int_ActorZOfTop(actor) + Z(16),
                          actor->int_ang(), 0);
 
-    SetActorZ(effectActor, effectActor->int_pos());
+    SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
@@ -1329,7 +1329,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
                          actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) + Z(16),
                          actor->int_ang(), 0);
 
-    SetActorZ(effectActor, effectActor->int_pos());
+    SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
     effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;

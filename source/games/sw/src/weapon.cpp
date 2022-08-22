@@ -7965,7 +7965,7 @@ int DoPlasmaFountain(DSWActor* actor)
         if (!attachActor) return 0;
 
         // move with sprite
-        SetActorZ(actor, attachActor->int_pos());
+        SetActorZ(actor, attachActor->spr.pos);
         actor->spr.angle = attachActor->spr.angle;
 
         actor->user.Counter++;
@@ -9450,7 +9450,7 @@ int DoMicro(DSWActor* actor)
         // last smoke
         if ((actor->user.WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            SetActorZ(actorNew, actorNew->int_pos());
+            SetActorZ(actorNew, actorNew->spr.pos);
             NewStateGroup(actor, &sg_MicroMini[0]);
             actor->spr.xrepeat = actor->spr.yrepeat = 10;
             actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
@@ -16121,7 +16121,7 @@ int InitEnemyUzi(DSWActor* actor)
     // Make sprite shade brighter
     actor->user.Vis = 128;
 
-    SetActorZ(actor, actor->int_pos());
+    SetActorZ(actor, actor->spr.pos);
 
     if (actor->user.ID == ZILLA_RUN_R0)
     {
@@ -18306,7 +18306,7 @@ void QueueLoWangs(DSWActor* actor)
     else
     {
         // move old sprite to new sprite's place
-        SetActorZ(LoWangsQueue[LoWangsQueueHead], actor->int_pos());
+        SetActorZ(LoWangsQueue[LoWangsQueueHead], actor->spr.pos);
         spawnedActor = LoWangsQueue[LoWangsQueueHead];
         ASSERT(spawnedActor->spr.statnum != MAXSTATUS);
     }
