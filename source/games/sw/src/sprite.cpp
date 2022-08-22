@@ -2046,11 +2046,10 @@ void SpriteSetup(void)
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
-                            int amt;
-                            amt = actor->int_pos().Z - sectp->int_floorz();
+                            int amt = actor->int_pos().Z - sectp->int_floorz();
 
                             // start in the on position
-                            sectp->add_int_floorz(amt);
+                            sectp->setfloorz(actor->spr.pos.Z);
                             actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, false); // floor
@@ -2071,7 +2070,7 @@ void SpriteSetup(void)
                             amt = actor->int_pos().Z - sectp->int_ceilingz();
 
                             // starting in the on position
-                            sectp->add_int_ceilingz(amt);
+                            sectp->setceilingz(actor->spr.pos.Z);
                             actor->user.z_tgt = actor->user.pos.Z;
 
                             MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
