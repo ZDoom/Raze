@@ -1233,11 +1233,9 @@ void nnExtProcessSuperSprites()
 				continue;
 			}
 
-			int x = pSight->int_pos().X;
-			int y = pSight->int_pos().Y;
-			int z = pSight->int_pos().Z;
+
 			auto pSightSect = pSight->sector();
-			int ztop2, zbot2;
+			double ztop2, zbot2;
 
 			for (int a = connecthead; a >= 0; a = connectpoint2[a])
 			{
@@ -1247,7 +1245,7 @@ void nnExtProcessSuperSprites()
 
 				auto plActor = pPlayer->actor;
 				GetActorExtents(plActor, &ztop2, &zbot2);
-				if (cansee(x, y, z, pSightSect, plActor->int_pos().X, plActor->int_pos().Y, ztop2, plActor->sector()))
+				if (cansee(pSight->spr.pos, pSightSect, DVector3(plActor->spr.pos.XY(), ztop2), plActor->sector()))
 				{
 					if (pSight->xspr.Sight)
 					{
@@ -4460,7 +4458,8 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			condError(aCond, "Dude #%d has no target!", objActor->GetIndex());
 
 		DUDEINFO* pInfo = getDudeInfo(objActor->spr.type);
-		int eyeAboveZ = pInfo->eyeHeight * objActor->spr.yrepeat << 2;
+		double height = (pInfo->eyeHeight * objActor->spr.yrepeat) * REPEAT_SCALE;
+
 		int dx = targ->int_pos().X - objActor->int_pos().X;
 		int dy = targ->int_pos().Y - objActor->int_pos().Y;
 
@@ -4471,7 +4470,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			break;
 		case 3:
 		case 4:
-			var = cansee(objActor->int_pos().X, objActor->int_pos().Y, objActor->int_pos().Z, objActor->sector(), targ->int_pos().X, targ->int_pos().Y, targ->int_pos().Z - eyeAboveZ, targ->sector());
+			var = cansee(objActor->spr.pos, objActor->sector(), targ->spr.pos.plusZ(-height), targ->sector());
 			if (cond == 4 && var > 0)
 			{
 				var = ((1024 + getangle(dx, dy) - objActor->int_ang()) & 2047) - 1024;
@@ -5176,10 +5175,10 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 	// check target
 	if (approxDist(dx, dy) < pDudeInfo->seeDist)
 	{
-		int eyeAboveZ = pDudeInfo->eyeHeight * dudeactor->spr.yrepeat << 2;
+		double height = (pDudeInfo->eyeHeight * dudeactor->spr.yrepeat) * REPEAT_SCALE;
 
 		// is there a line of sight to the target?
-		if (cansee(dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z, dudeactor->sector(), targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z - eyeAboveZ, targetactor->sector()))
+		if (cansee(dudeactor->spr.pos, dudeactor->sector(), targetactor->spr.pos.plusZ(-height), targetactor->sector()))
 		{
 			/*int nAngle = getangle(dx, dy);
 			int losAngle = ((1024 + nAngle - dudeactor->spr.angle) & 2047) - 1024;
@@ -7982,7 +7981,8 @@ void aiPatrolSetMarker(DBloodActor* actor)
 	// select closest marker that dude can see
 	if (targetactor == nullptr)
 	{
-		int zt1, zb1, zt2, zb2, dist;
+		double zt1, zb1, zt2, zb2;
+		int dist;
 		GetActorExtents(actor, &zt2, &zb2);
 
 		BloodStatIterator it(kStatPathMarker);
@@ -7994,7 +7994,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 				continue;
 
 			GetActorExtents(nextactor, &zt1, &zb1);
-			if (cansee(nextactor->int_pos().X, nextactor->int_pos().Y, zt1, nextactor->sector(), actor->int_pos().X, actor->int_pos().Y, zt2, actor->sector()))
+			if (cansee(DVector3(nextactor->spr.pos.XY(), zt1), nextactor->sector(), DVector3(actor->spr.pos.XY(), zt2), actor->sector()))
 			{
 				closest = dist;
 				selected = nextactor;
@@ -8255,7 +8255,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 	if (actor->xspr.health <= 0)
 		return;
 
-	int zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) << 2;
+	double zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) << 2;
 	GetActorExtents(actor, &zt1, &zb1);
 	GetActorExtents(targetactor, &zt2, &zb2);
 
@@ -8268,12 +8268,12 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		int eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) << 2;
+		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) * REPEAT_SCALE;
 		int nDist = approxDist(dudeactor->int_pos().X - actor->int_pos().X, dudeactor->int_pos().Y - actor->int_pos().Y);
-		if (nDist >= kPatrolAlarmSeeDist || !cansee(actor->int_pos().X, actor->int_pos().Y, zt1, actor->sector(), dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z - eaz2, dudeactor->sector()))
+		if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
 			nDist = approxDist(dudeactor->int_pos().X - targetactor->int_pos().X, dudeactor->int_pos().Y - targetactor->int_pos().Y);
-			if (nDist >= kPatrolAlarmSeeDist || !cansee(targetactor->int_pos().X, targetactor->int_pos().Y, zt2, targetactor->sector(), dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z - eaz2, dudeactor->sector()))
+			if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(targetactor->spr.pos, zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 				continue;
 		}
 

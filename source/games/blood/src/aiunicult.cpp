@@ -517,10 +517,10 @@ static void unicultThinkChase(DBloodActor* actor)
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	int losAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
-	int eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
+	double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 
-	if (dist > pDudeInfo->seeDist || !cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(),
-		actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - eyeAboveZ, actor->sector()))
+	if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos, target->sector(),
+		actor->spr.pos.plusZ(-height), actor->sector()))
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -580,8 +580,8 @@ static void unicultThinkChase(DBloodActor* actor)
 						}
 
 						int ldist = aiFightGetTargetDist(target, pDudeInfo, actLeech);
-						if (ldist > 3 || !cansee(target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(),
-							actLeech->int_pos().X, actLeech->int_pos().Y, actLeech->int_pos().Z, actLeech->sector()) || actLeech->GetTarget() == nullptr)
+						if (ldist > 3 || !cansee(target->spr.pos, target->sector(),
+							actLeech->spr.pos, actLeech->sector()) || actLeech->GetTarget() == nullptr)
 						{
 							aiGenDudeNewState(actor, &genDudeThrow2);
 							genDudeThrow2.nextState = &genDudeDodgeShortL;
