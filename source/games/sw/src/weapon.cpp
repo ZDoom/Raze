@@ -14109,8 +14109,7 @@ int InitSerpMonstSpell(DSWActor* actor)
     {
         actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
 
-		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(),
-								   actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 500);
+		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 500);
 
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->set_int_z(int_ActorZOfTop(actor));
@@ -14171,20 +14170,17 @@ int DoTeleRipper(DSWActor* actor)
 
 int InitEnemyRocket(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int dist;
 
     PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1)-Z(8);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->sector(),
-                    nx, ny, nz-Z(8), actor->user.targetActor->int_ang(), NINJA_BOLT_VELOCITY);
+                    actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5)-16), actor->user.targetActor->spr.angle, NINJA_BOLT_VELOCITY);
 
     // Set default palette
     actorNew->spr.pal = actorNew->user.spal = 17; // White
@@ -14198,7 +14194,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->spr.xrepeat = 28;
     actorNew->spr.shade = -15;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
 
     actorNew->user.RotNum = 5;
@@ -14229,7 +14225,7 @@ int InitEnemyRocket(DSWActor* actor)
 
 int InitEnemyRail(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int dist;
     short pnum=0;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -14251,21 +14247,17 @@ int InitEnemyRail(DSWActor* actor)
     PlaySound(DIGI_RAILFIRE, actor, v3df_dontpan|v3df_doppler);
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
     // add a bit of randomness
     if (RANDOM_P2(1024) < 512)
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + RANDOM_P2(128) - 64));
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1)-Z(8);
+        actor->spr.angle += DAngle::fromBuild(RANDOM_P2(128) - 64);
 
     // Spawn a shot
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(),
-                    nx, ny, nz, actor->int_ang(), 1200);
+        actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5) - 8), actor->spr.angle, 1200);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -14311,8 +14303,8 @@ int InitEnemyRail(DSWActor* actor)
 
 int InitZillaRocket(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
-    short w, i;
+    int dist;
+    short w;
 
     static const MISSILE_PLACEMENT mp[] =
     {
@@ -14327,24 +14319,20 @@ int InitZillaRocket(DSWActor* actor)
     PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
-    for (i = 0; i < (int)SIZ(mp); i++)
+    for (int i = 0; i < (int)SIZ(mp); i++)
     {
-        nx = actor->int_pos().X;
-        ny = actor->int_pos().Y;
-        nz = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1)-Z(8);
-
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->sector(),
-                        nx, ny, nz-Z(8), actor->user.targetActor->int_ang(), NINJA_BOLT_VELOCITY);
+                        actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5) - 16), actor->user.targetActor->spr.angle, NINJA_BOLT_VELOCITY);
 
         SetOwner(actor, actorNew);
         actorNew->spr.yrepeat = 28;
         actorNew->spr.xrepeat = 28;
         actorNew->spr.shade = -15;
         actorNew->spr.zvel = 0;
-        actorNew->set_int_ang(nang);
+        actorNew->spr.angle = actor->spr.angle;
         actorNew->spr.clipdist = 64 >>2;
 
         actorNew->user.RotNum = 5;
@@ -14386,25 +14374,21 @@ int InitZillaRocket(DSWActor* actor)
 
 int InitEnemyStar(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int dist;
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y)));
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = int_ActorZOfMiddle(actor);
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, actor->sector(),
-                                 nx, ny, nz, actor->user.targetActor->int_ang(), NINJA_STAR_VELOCITY);
+                                 ActorVectOfMiddle(actor), actor->user.targetActor->spr.angle, NINJA_STAR_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = 16;
     actorNew->spr.xrepeat = 16;
     actorNew->spr.shade = -25;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
@@ -14425,25 +14409,21 @@ int InitEnemyStar(DSWActor* actor)
 
 int InitEnemyCrossbow(DSWActor* actor)
 {
-    int nx, ny, nz, dist, nang;
+    int dist;
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(nang = NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y)));
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = int_ActorZOfMiddle(actor)-Z(14);
+    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(),
-                                 nx, ny, nz, actor->user.targetActor->int_ang(), 800);
+                                 ActorVectOfMiddle(actor).plusZ(-14), actor->user.targetActor->spr.angle, 800);
 
     SetOwner(actor, actorNew);
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
     actorNew->spr.zvel = 0;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64>>2;
 
     actorNew->user.RotNum = 5;
