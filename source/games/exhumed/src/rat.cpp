@@ -124,18 +124,13 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
 DExhumedActor* FindFood(DExhumedActor* pActor)
 {
     auto pSector = pActor->sector();
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-    int z = pActor->int_pos().Z;
 
-    int z2 = (z + pSector->int_ceilingz()) / 2;
-
-    if (nChunkTotal)
+	if (nChunkTotal)
     {
         DExhumedActor* pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
 		if (pActor2 != nullptr)
 		{
-            if (cansee(x, y, z2, pSector, pActor2->int_pos().X, pActor2->int_pos().Y, pActor2->int_pos().Z, pActor2->sector())) {
+            if (cansee(pActor->spr.pos.plusZ(pSector->ceilingz * 0.5), pSector, pActor2->spr.pos, pActor2->sector())) {
                 return pActor2;
             }
         }
@@ -150,7 +145,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     {
         if (nPlayerPic == pActor2->spr.picnum)
         {
-            if (cansee(x, y, z, pSector, pActor2->int_pos().X, pActor2->int_pos().Y, pActor2->int_pos().Z, pActor2->sector())) {
+            if (cansee(pActor->spr.pos, pSector, pActor2->spr.pos, pActor2->sector())) {
                 return pActor2;
             }
         }

@@ -1641,13 +1641,9 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pActor->spr.statnum) <= 1) ||
-            cansee(pRadialActor->int_pos().X,
-                pRadialActor->int_pos().Y,
-                pRadialActor->int_pos().Z - 512,
+            cansee(pRadialActor->spr.pos.plusZ(-2),
                 pRadialActor->sector(),
-                pActor->int_pos().X,
-                pActor->int_pos().Y,
-                pActor->int_pos().Z - 8192,
+                pActor->spr.pos.plusZ(-32),
                 pActor->sector()))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;

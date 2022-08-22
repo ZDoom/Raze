@@ -166,7 +166,7 @@ bool CanSeeWallMove(DSWActor* caller, int match)
         {
             found = true;
 
-            if (cansee(caller->int_pos().X, caller->int_pos().Y, caller->int_pos().Z, caller->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+            if (cansee(caller->spr.pos, caller->sector(), actor->spr.pos, actor->sector()))
             {
                 return true;
             }
