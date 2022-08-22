@@ -1353,11 +1353,11 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 //
 //---------------------------------------------------------------------------
 
-void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
+void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
 {
 	auto explosion = spawn(actor, EXPLOSION2);
 	if (!explosion) return;
-	explosion->set_int_pos(pos);
+	explosion->spr.pos = pos;
 
 	if (actor->spr.xrepeat < 10)
 	{

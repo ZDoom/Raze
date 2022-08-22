@@ -6142,14 +6142,12 @@ void actCheckFlares()
 		}
 		if (target->hasX() && target->xspr.health > 0)
 		{
-			int x = target->int_pos().X + mulscale30r(Cos(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
-			int y = target->int_pos().Y + mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
-			int z = target->int_pos().Z + actor->xspr.int_TargetPos().Z;
-			vec3_t pos = { x, y, z };
-			SetActor(actor, &pos);
-			actor->vel.X = target->vel.X;
-			actor->vel.Y = target->vel.Y;
-			actor->vel.Z = target->vel.Z;
+			DVector3 pos = target->spr.pos;
+			pos.X += mulscale30r(Cos(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2) * inttoworld;
+			pos.Y += mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2) * inttoworld;
+			pos.Z += actor->xspr.TargetPos.Z;
+			SetActor(actor, pos);
+			actor->vel = target->vel;
 		}
 		else
 		{
@@ -6236,24 +6234,21 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	if (!spawned) return nullptr;
 	int angle = source->int_ang();
 	int nDude = nType - kDudeBase;
-	int x, y, z;
-	z = a4 + source->int_pos().Z;
-	if (a3 < 0)
+
+	auto pos = source->spr.pos;
+	pos.Z += a4 * zinttoworld;
+
+	if (a3 >= 0)
 	{
-		x = source->int_pos().X;
-		y = source->int_pos().Y;
-	}
-	else
-	{
-		x = source->int_pos().X + mulscale30r(Cos(angle), a3);
-		y = source->int_pos().Y + mulscale30r(Sin(angle), a3);
+		pos.X += mulscale30r(Cos(angle), a3) * inttoworld;
+		pos.Y += mulscale30r(Sin(angle), a3) * inttoworld;
 	}
 	spawned->spr.type = nType;
 	if (!VanillaMode())
 		 spawned->spr.inittype = nType;
 	spawned->set_int_ang(angle);
-	vec3_t pos = { x, y, z };
-	SetActor(spawned, &pos);
+	SetActor(spawned, pos);
+
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	spawned->spr.clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
 	spawned->xspr.health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;

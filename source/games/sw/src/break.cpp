@@ -584,7 +584,7 @@ int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int
 
     if (hit_x != INT32_MAX)
     {
-        vec3_t hit_pos = { hit_x, hit_y, hit_z };
+        DVector3 hit_pos( hit_x * inttoworld, hit_y * inttoworld, hit_z * zinttoworld);
         // need correct location for spawning shrap
         auto breakActor = insertActor(0, STAT_DEFAULT);
         breakActor->spr.cstat = 0;
@@ -592,7 +592,7 @@ int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int
         breakActor->set_int_ang(ang);
         breakActor->spr.picnum = ST1;
         breakActor->spr.xrepeat = breakActor->spr.yrepeat = 64;
-        SetActorZ(breakActor, &hit_pos);
+        SetActorZ(breakActor, hit_pos);
         SpawnShrap(breakActor, nullptr, -1, break_info);
         KillActor(breakActor);
     }

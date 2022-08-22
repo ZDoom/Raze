@@ -44,7 +44,7 @@ void movetouchplate(DDukeActor* i, int plate);
 void movecanwithsomething(DDukeActor* i);
 void bounce(DDukeActor* i);
 void movetongue(DDukeActor* i, int tongue, int jaw);
-void rpgexplode(DDukeActor* i, int j, const vec3_t& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
+void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
 void moveooz(DDukeActor* i, int seenine, int seeninedead, int ooz, int explosion);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 bool respawnmarker(DDukeActor* i, int yellow, int green);

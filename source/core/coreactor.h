@@ -533,18 +533,6 @@ void InitSpriteLists();
 void SetActorZ(DCoreActor* actor, const DVector3& newpos);
 void SetActor(DCoreActor* actor, const DVector3& newpos);
 
-inline void SetActor(DCoreActor* actor, const vec3_t* newpos)
-{
-	DVector3 ipos = { newpos->X * inttoworld, newpos->Y * inttoworld, newpos->Z * zinttoworld };
-	SetActor(actor, ipos);
-}
-
-inline void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
-{
-	DVector3 ipos = { newpos->X * inttoworld, newpos->Y * inttoworld, newpos->Z * zinttoworld };
-	SetActorZ(actor, ipos);
-}
-
 inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {

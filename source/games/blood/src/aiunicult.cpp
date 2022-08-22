@@ -1875,25 +1875,18 @@ bool doExplosion(DBloodActor* actor, int nType)
 DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 {
 	auto spawned = actSpawnSprite(actor, kStatDude);
-	int x, y, z = actor->int_pos().Z, nAngle = actor->int_ang(), nType = kDudeModernCustom;
+	int nAngle = actor->int_ang(), nType = kDudeModernCustom;
 
+	auto pos = actor->spr.pos;
 	if (nDist > 0)
 	{
-
-		x = actor->int_pos().X + mulscale30r(Cos(nAngle), nDist);
-		y = actor->int_pos().Y + mulscale30r(Sin(nAngle), nDist);
-	}
-	else
-	{
-
-		x = actor->int_pos().X;
-		y = actor->int_pos().Y;
-
+		pos.X += mulscale30r(Cos(nAngle), nDist) * inttoworld;
+		pos.Y += mulscale30r(Sin(nAngle), nDist) * inttoworld;
 	}
 
-	spawned->spr.type = nType; spawned->set_int_ang(nAngle);
-	vec3_t pos = { x, y, z };
-	SetActor(spawned, &pos);
+	spawned->spr.type = nType; 
+	spawned->spr.angle = actor->spr.angle;
+	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	spawned->spr.clipdist = dudeInfo[nType - kDudeBase].clipdist;
 

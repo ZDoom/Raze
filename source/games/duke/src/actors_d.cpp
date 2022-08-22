@@ -1410,7 +1410,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
+static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3 &oldpos)
 {
 	if (proj->spr.picnum != RPG && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT &&
 		(!isWorldTour() || proj->spr.picnum != FIREBALL) &&
@@ -1424,7 +1424,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 	}
 	else
 	{
-		SetActor(proj, &oldpos);
+		SetActor(proj, oldpos);
 		fi.checkhitwall(proj, wal, proj->int_pos().X, proj->int_pos().Y, proj->int_pos().Z, proj->spr.picnum);
 
 		if (proj->spr.picnum == FREEZEBLAST)
@@ -1449,9 +1449,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool fireball)
+static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireball)
 {
-	SetActor(proj, &oldpos);
+	SetActor(proj, oldpos);
 
 	if (proj->spr.zvel < 0)
 	{
@@ -1505,7 +1505,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
 	int k, ll;
-	vec3_t oldpos = proj->int_pos();
+	auto oldpos = proj->spr.pos;
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{

@@ -263,20 +263,15 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 		return NULL;
 
 	int angle = origin->int_ang();
-	int x, y, z = a4 + origin->int_pos().Z;
-	if (a3 < 0)
+	auto pos = origin->spr.pos.plusZ(a4 * zinttoworld);
+
+	if (a3 >= 0)
 	{
-		x = origin->int_pos().X;
-		y = origin->int_pos().Y;
-	}
-	else
-	{
-		x = origin->int_pos().X + mulscale30r(Cos(angle), a3);
-		y = origin->int_pos().Y + mulscale30r(Sin(angle), a3);
+		pos.X += mulscale30r(Cos(angle), a3) * inttoworld;
+		pos.Y += mulscale30r(Sin(angle), a3) * inttoworld;
 	}
 
-	vec3_t pos = { x, y, z };
-	SetActor(pDudeActor, &pos);
+	SetActor(pDudeActor, pos);
 
 	pDudeActor->spr.type = nType;
 	pDudeActor->set_int_ang(angle);

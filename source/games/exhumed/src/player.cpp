@@ -874,9 +874,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         pPlayerActor->add_int_pos({ (x >> 14), (y >> 14), 0 });
 
-        vec3_t pos = pPlayerActor->int_pos();
-        SetActor(pPlayerActor, &pos);
-
+        SetActor(pPlayerActor, pPlayerActor->spr.pos);
         pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
     }
     else
