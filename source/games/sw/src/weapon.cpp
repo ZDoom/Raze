@@ -7937,7 +7937,7 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->sector(),
-                            sActor->int_pos().X, sActor->int_pos().Y, int_ActorZOfBottom(sActor), sActor->int_ang(), 0);
+                            DVector3(sActor->spr.pos.XY(), ActorZOfBottom(sActor)), sActor->spr.angle, 0);
 
     actorNew->spr.shade = -40;
     if (wActor)
@@ -8402,7 +8402,7 @@ int DoGrenade(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE|SPR_UNDERWATER)))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 100);
+                          actor->spr.pos, actor->spr.angle, 100);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -9151,8 +9151,7 @@ int DoLaser(DSWActor* actor)
         spawn_count++;
         if (spawn_count < 256)
         {
-            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_LaserPuff, actor->sector(),
-                              actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_LaserPuff, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = 16;
@@ -9238,8 +9237,7 @@ int DoRail(DSWActor* actor)
         spawn_count++;
         if (spawn_count < 128)
         {
-            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(),
-                              actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 20);
+            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 20);
 
             actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
             actorNew->spr.yvel += (RandomRange(140)-RandomRange(140));
@@ -9387,7 +9385,7 @@ int DoMicroMini(DSWActor* actor)
 int SpawnExtraMicroMini(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(),
-                    actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->spr.xvel);
+							   actor->spr.pos, actor->spr.angle, actor->spr.xvel);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = actor->spr.xrepeat;
@@ -9427,7 +9425,7 @@ int DoMicro(DSWActor* actor)
     if (!actor->user.Counter)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 100);
+								   actor->spr.pos, actor->spr.angle, 100);
 
         SetOwner(GetOwner(actor), actorNew);
         actorNew->spr.shade = -40;
@@ -9502,7 +9500,7 @@ int DoUziBullet(DSWActor* actor)
         {
             WeaponMoveHit(actor);
 
-            auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+            auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
             actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -9513,7 +9511,7 @@ int DoUziBullet(DSWActor* actor)
 
             if (!(actor->user.Flags & SPR_UNDERWATER))
             {
-                actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, actorNew->sector(), actorNew->int_pos().X, actorNew->int_pos().Y, actorNew->int_pos().Z, 0, 0);
+                actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, actorNew->sector(), actorNew->spr.pos, nullAngle, 0);
                 actorNew->spr.shade = -40;
                 actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
                 actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
@@ -9753,8 +9751,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         }
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -9815,7 +9812,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 
 int SpawnBreakFlames(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -9845,8 +9842,7 @@ int SpawnBreakFlames(DSWActor* actor)
 
 void SpawnBreakStaticFlames(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     if (RandomRange(1000) > 500)
         actorNew->spr.picnum = 3143;
@@ -9879,8 +9875,7 @@ void SpawnFireballExp(DSWActor* actor)
 
     PlaySound(DIGI_SMALLEXP, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 52;
     actorNew->spr.yrepeat = 52;
@@ -9911,8 +9906,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
     PlaySound(DIGI_MEDIUMEXP, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 16;
@@ -9940,8 +9934,7 @@ void SpawnBoltExp(DSWActor* actor)
 
     PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
 
-    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -9989,8 +9982,7 @@ void SpawnTankShellExp(DSWActor* actor)
 
     PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
 
-    auto expActor = SpawnActor(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10013,8 +10005,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 {
     ASSERT(actor->hasU());
 
-    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 512);
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->sector(), actor->spr.pos, actor->spr.angle, 512);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10072,8 +10063,7 @@ void SpawnNuclearExp(DSWActor* actor)
     }
 
     // Spawn big mushroom cloud
-    auto expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(own, expActor);
@@ -10089,8 +10079,7 @@ void SpawnNuclearExp(DSWActor* actor)
 
 
     // Do central explosion
-    expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     SetOwner(own, expActor);
     expActor->spr.shade = -128;
@@ -10132,11 +10121,9 @@ void SpawnTracerExp(DSWActor* actor)
         return ;
 
     if (actor->user.ID == BOLT_THINMAN_R1)
-        expActor = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, s_TracerExp, actor->sector(),
-                                actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+        expActor = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, s_TracerExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
     else
-        expActor = SpawnActor(STAT_MISSILE, TRACER_EXP, s_TracerExp, actor->sector(),
-                                actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+        expActor = SpawnActor(STAT_MISSILE, TRACER_EXP, s_TracerExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10164,8 +10151,7 @@ void SpawnMicroExp(DSWActor* actor)
     if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return ;
 
-    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_MicroExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_MicroExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
@@ -10222,8 +10208,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
 {
     unsigned sn;
 
-    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(Operator, expActor);
@@ -10281,8 +10266,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     int vel;
 
     ASSERT(actor->hasU());
-    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 1024);
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, actor->sector(), actor->spr.pos, actor->spr.angle, 1024);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
