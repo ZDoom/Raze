@@ -120,27 +120,21 @@ bool FindSector(int nX, int nY, sectortype** pSector)
 //
 //---------------------------------------------------------------------------
 
-bool CheckProximity(DBloodActor* actor, int nX, int nY, int nZ, sectortype* pSector, int nDist)
+bool CheckProximity(DBloodActor* actor, const DVector3& pos, sectortype* pSector, int nDist)
 {
 	assert(actor != nullptr);
-	int oX = abs(nX - actor->int_pos().X) >> 4;
-	if (oX >= nDist) return 0;
+	auto vec = pos - actor->spr.pos;
+	if (abs(vec.Z) >= nDist) return false;
 
-	int oY = abs(nY - actor->int_pos().Y) >> 4;
-	if (oY >= nDist) return 0;
+	if (vec.LengthSquared() >= nDist * nDist) return false;
 
-	int oZ = abs(nZ - actor->int_pos().Z) >> 8;
-	if (oZ >= nDist) return 0;
-
-	if (approxDist(oX, oY) >= nDist) return 0;
-
-	int bottom, top;
+	double bottom, top;
 	GetActorExtents(actor, &top, &bottom);
-	if (cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), nX, nY, nZ, pSector))
+	if (cansee(actor->spr.pos, actor->sector(), pos, pSector))
 		return 1;
-	if (cansee(actor->int_pos().X, actor->int_pos().Y, bottom, actor->sector(), nX, nY, nZ, pSector))
+	if (cansee(DVector3(actor->spr.pos.XY(), bottom), actor->sector(), pos, pSector))
 		return 1;
-	if (cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), nX, nY, nZ, pSector))
+	if (cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), pos, pSector))
 		return 1;
 	return 0;
 }

@@ -2993,9 +2993,6 @@ void WeaponProcess(PLAYER* pPlayer) {
 void teslaHit(DBloodActor* missileactor, int a2)
 {
 	auto mpos = missileactor->spr.pos;
-	int x = missileactor->int_pos().X;
-	int y = missileactor->int_pos().Y;
-	int z = missileactor->int_pos().Z;
 	int nDist = 300;
 	auto pSector = missileactor->sector();
 	auto owneractor = missileactor->GetOwner();
@@ -3013,7 +3010,7 @@ void teslaHit(DBloodActor* missileactor, int a2)
 		{
 			if (hitactor->spr.flags & 32)
 				continue;
-			if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, x, y, z, pSector, nDist))
+			if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, mpos, pSector, nDist))
 			{
 				int dx = missileactor->int_pos().X - hitactor->int_pos().X;
 				int dy = missileactor->int_pos().Y - hitactor->int_pos().Y;
@@ -3029,7 +3026,7 @@ void teslaHit(DBloodActor* missileactor, int a2)
 	{
 		if (hitactor->spr.flags & 32)
 			continue;
-		if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, x, y, z, pSector, nDist))
+		if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, mpos, pSector, nDist))
 		{
 			if (!hitactor->xspr.locked)
 			{

@@ -35,7 +35,7 @@ enum {
 bool FindSector(int nX, int nY, int nZ, sectortype** ppSector);
 bool FindSector(int nX, int nY, sectortype** ppSector);
 
-bool CheckProximity(DBloodActor* pSprite, int nX, int nY, int nZ, sectortype* pSector, int nDist);
+bool CheckProximity(DBloodActor* pSprite, const DVector3& pos, sectortype* pSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(walltype* pWall, int x, int y, int nDist);
 int GetWallAngle(walltype* pWall);

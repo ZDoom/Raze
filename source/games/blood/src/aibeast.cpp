@@ -82,9 +82,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 {
 	int angx = bcos(actor->int_ang());
 	int angy = bsin(actor->int_ang());
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	int z = actor->int_pos().Z;
+	auto pos = actor->spr.pos;
 	const int vc = 400;
 	auto pSector = actor->sector();
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
@@ -106,11 +104,11 @@ void StompSeqCallback(int, DBloodActor* actor)
 					continue;
 				if (actor2->spr.flags & 32)
 					continue;
-				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc << 4))
+				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, vc << 4))
 				{
-					int top, bottom;
+					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
-					if (abs(bottom - pSector->int_floorz()) == 0)
+					if (abs(bottom - pSector->floorz) == 0)
 					{
 						double nDist2 = (actor->spr.pos.XY() - actor2->spr.pos.XY()).Length();
 						if (nDist2 <= vc)
@@ -134,7 +132,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 	{
 		if (actor2->spr.flags & 32)
 			continue;
-		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc << 4))
+		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, vc << 4))
 		{
 			if (actor2->xspr.locked)
 				continue;

@@ -726,7 +726,7 @@ static void unicultThinkChase(DBloodActor* actor)
 			{
 				int nType = curWeapon - kTrapExploder;
 				const EXPLOSION* pExpl = &explodeInfo[nType];
-				if (CheckProximity(actor, target->int_pos().X, target->int_pos().Y, target->int_pos().Z, target->sector(), pExpl->radius >> 1))
+				if (CheckProximity(actor, target->spr.pos, target->sector(), pExpl->radius >> 1))
 				{
 					actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
 					if (doExplosion(actor, nType) && actor->xspr.health > 0)

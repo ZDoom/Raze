@@ -1180,9 +1180,7 @@ void nnExtProcessSuperSprites()
 				|| pProx->xspr.isTriggered) continue;  // don't process locked or triggered sprites
 
 			int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProx->spr.clipdist * 3, 32);
-			int x = pProx->int_pos().X;
-			int y = pProx->int_pos().Y;
-			int z = pProx->int_pos().Z;
+			auto pos = pProx->spr.pos;
 			auto pSect = pProx->sector();
 
 			if (!pProx->xspr.DudeLockout)
@@ -1191,7 +1189,7 @@ void nnExtProcessSuperSprites()
 				while (auto affected = itr.Next())
 				{
 					if (!affected->hasX() || affected->xspr.health <= 0) continue;
-					else if (CheckProximity(affected, x, y, z, pSect, okDist))
+					else if (CheckProximity(affected, pos, pSect, okDist))
 					{
 						trTriggerSprite(pProx, kCmdSpriteProximity, affected);
 						break;
@@ -1206,7 +1204,7 @@ void nnExtProcessSuperSprites()
 					if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->actor->xspr.health <= 0)
 						continue;
 
-					if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
+					if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, pos, pSect, okDist))
 					{
 						trTriggerSprite(pProx, kCmdSpriteProximity, pPlayer->actor);
 					}
