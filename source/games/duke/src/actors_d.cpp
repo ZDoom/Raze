@@ -290,11 +290,11 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						search.Add(wal.nextSector());
 					}
-					int x1 = (((wal.wall_int_pos().X + wal.point2Wall()->wall_int_pos().X) >> 1) + actor->int_pos().X) >> 1;
-					int y1 = (((wal.wall_int_pos().Y + wal.point2Wall()->wall_int_pos().Y) >> 1) + actor->int_pos().Y) >> 1;
+					DVector3 w1(((wal.pos + wal.point2Wall()->pos) * 0.5 + actor->spr.pos) * 0.5, actor->spr.pos.Z); // half way between the actor and the wall's center.
 					sectortype* sect = wal.sectorp();
-					updatesector(x1, y1, &sect);
-					if (sect && cansee(x1, y1, actor->int_pos().Z, sect, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+					updatesector(w1, &sect);
+
+					if (sect && cansee(w1, sect, actor->spr.pos, actor->sector()))
 						fi.checkhitwall(actor, &wal, wal.wall_int_pos().X, wal.wall_int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
 				}
 			}
@@ -327,7 +327,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(act2->int_pos().X, act2->int_pos().Y, act2->int_pos().Z + q, act2->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z + q, actor->sector()))
+						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q * maptoworld), act2->sector(), actor->spr.pos.plusZ(q * maptoworld), actor->sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
@@ -347,7 +347,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				int d = dist(actor, act2);
 				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
 
-				if (d < r && cansee(act2->int_pos().X, act2->int_pos().Y, act2->int_pos().Z - (8 << 8), act2->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (12 << 8), actor->sector()))
+				if (d < r && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
 					act2->hitang = getangle(act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y);
 

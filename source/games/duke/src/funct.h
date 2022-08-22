@@ -245,6 +245,13 @@ void loadcons();
 void recordoldspritepos();
 void DrawStatusBar();
 
+[[deprecated]]
+inline double zrand(int spread, int ofs)
+{
+	int r = krand() % (spread << 8);
+	return r * zmaptoworld;
+}
+
 inline double zrand(int spread)
 {
 	int r = krand() % (spread << 8);

@@ -1459,7 +1459,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() & ((32 << 8) - 1)), actor->sector(), tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z, tosee->sector());
+		j = cansee(actor->spr.pos.plusZ(-zrand(32)), actor->sector(), tosee->spr.pos, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1471,7 +1471,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() & ((47 << 8))), actor->sector(), tosee->int_pos().X, tosee->int_pos().Y, tosee->int_pos().Z - ((isRR()? 28 : 24) << 8), tosee->sector());
+	j = cansee(actor->spr.pos.plusZ(-zrand(48)), actor->sector(), tosee->spr.pos.plusZ(isRR()? -28 : -24), tosee->sector());
 
 	if (j == 0)
 	{
