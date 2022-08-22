@@ -3927,41 +3927,44 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 {
 	auto sc = actor->sector();
 
+	double extra = sc->extra * zmaptoworld;
+	double goal = FixedToFloat<8>(actor->temp_data[1]);
 	if (actor->temp_data[0])
 	{
-		double extra = sc->extra * zmaptoworld;
 		if (actor->spr.pal)
 		{
-			if (actor->int_ang() == 512)
+			if (actor->spr.intangle == 512)
 			{
-				sc->add_int_ceilingz(-sc->extra);
-				if (sc->int_ceilingz() <= actor->temp_data[1])
+				sc->addceilingz(-extra);
+				if (sc->ceilingz <= goal)
 				{
-					sc->set_int_ceilingz(actor->temp_data[1]);
+					sc->setceilingz(goal);
 					deletesprite(actor);
 					return;
 				}
 			}
 			else
 			{
-				sc->add_int_floorz(sc->extra);
+				sc->addfloorz(extra);
 				if (morecheck)
 				{
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
+						{
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z += extra;
+						}
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
-							a2->add_int_z(sc->extra);
+							a2->spr.pos.Z += extra;
 							a2->floorz = sc->floorz;
 						}
 					}
 				}
-				if (sc->int_floorz() >= actor->temp_data[1])
+				if (sc->floorz >= goal)
 				{
-					sc->set_int_floorz(actor->temp_data[1]);
+					sc->setfloorz(goal);
 					deletesprite(actor);
 					return;
 				}
@@ -3969,10 +3972,10 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		}
 		else
 		{
-			if (actor->int_ang() == 512)
+			if (actor->spr.intangle == 512)
 			{
-				sc->add_int_ceilingz(sc->extra);
-				if (sc->int_ceilingz() >= actor->int_pos().Z)
+				sc->addceilingz(extra);
+				if (sc->ceilingz >= actor->spr.pos.Z)
 				{
 					sc->setceilingz(actor->spr.pos.Z);
 					deletesprite(actor);
@@ -3981,22 +3984,24 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 			}
 			else
 			{
-				sc->add_int_floorz(-sc->extra);
+				sc->addfloorz(-extra);
 				if (morecheck)
 				{
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
+						{
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z -= extra;
+						}
 						if (a2->spr.zvel == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
-							a2->add_int_z(-sc->extra);
+							a2->spr.pos.Z -= extra;
 							a2->floorz = sc->floorz;
 						}
 					}
 				}
-				if (sc->int_floorz() <= actor->int_pos().Z)
+				if (sc->floorz <= actor->spr.pos.Z)
 				{
 					sc->setfloorz(actor->spr.pos.Z);
 					deletesprite(actor);

@@ -638,15 +638,15 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			break;
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
-			if (actor->int_ang() == 512)
+			if (actor->spr.intangle == 512)
 			{
-				actor->temp_data[1] = sectp->int_ceilingz();
+				actor->temp_data[1] = FloatToFixed<8>(sectp->ceilingz);
 				if (actor->spr.pal)
 					sectp->setceilingz(actor->spr.pos.Z);
 			}
 			else
 			{
-				actor->temp_data[1] = sectp->int_floorz();
+				actor->temp_data[1] = FloatToFixed<8>(sectp->floorz);
 				if (actor->spr.pal)
 					sectp->setfloorz(actor->spr.pos.Z);
 			}

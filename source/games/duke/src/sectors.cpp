@@ -523,7 +523,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 			if (act2->spr.hitag == actor->spr.hitag)
 			{
 				act2->temp_data[0] = d;
-				act2->temp_data[1] = d; //Make all check warp
+				if (act2->spr.lotag == SE_17_WARP_ELEVATOR) act2->temp_data[1] = d; //Make all check warp (only SE17, in SE18 this is a coordinate)
 			}
 	}
 	return 0;
