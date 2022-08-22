@@ -142,7 +142,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
 	if (pSector == nullptr)
 		return nullptr;
 	auto pSector2 = pSector;
-	if (!FindSector(x, y, z, &pSector2))
+	if (!FindSector(pos, &pSector2))
 		return nullptr;
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 	{
@@ -271,7 +271,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	if (!actor->insector())
 		return;
 	auto pSector = actor->sector();
-	if (!FindSector(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, &pSector))
+	if (!FindSector(actor->spr.pos, &pSector))
 		return;
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		return;
@@ -297,7 +297,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 	if (!actor->insector())
 		return;
 	auto pSector = actor->sector();
-	if (!FindSector(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, &pSector))
+	if (!FindSector(actor->spr.pos, &pSector))
 		return;
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		return;

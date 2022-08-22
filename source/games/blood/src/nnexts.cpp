@@ -1699,7 +1699,7 @@ void debrisMove(int listIndex)
 		}
 
 	}
-	else if (!FindSector(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, &pSector))
+	else if (!FindSector(actor->spr.pos, &pSector))
 	{
 		return;
 	}
