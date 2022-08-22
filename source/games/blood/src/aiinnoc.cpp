@@ -50,8 +50,8 @@ static void innocThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);

@@ -100,8 +100,22 @@ struct XSPRITE {
 
 	TObjPtr<DBloodActor*> target;           // target sprite
 	TObjPtr<DBloodActor*> burnSource;
+	
+	const vec3_t int_TargetPos() const { return TargetPos; }
+	void set_int_TargetPos(int x, int y, int z)
+	{
+		TargetPos = {x ,y ,z};
+	}
+	void set_int_TargetPos_Z(int z)
+	{
+		TargetPos.Z = z;
+	}
 
-	vec3_t TargetPos;
+	union
+	{
+		vec3_t TargetPos;
+		vec3_t NotReallyTargetPos;
+	};
 	int32_t sysData1;            // used to keep here various system data, so user can't change it in map editor
 	int32_t sysData2;            //
 	int32_t scale;                   // used for scaling SEQ size on sprites

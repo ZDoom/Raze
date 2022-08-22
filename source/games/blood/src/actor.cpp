@@ -2615,9 +2615,9 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 		*z = -(*z - t2);
 		return t2;
 	}
+
 	walltype* pWall = pSector->firstWall();
-	walltype* pWall2 = pWall->point2Wall();
-	int angle = getangle(pWall2->wall_int_pos().X - pWall->wall_int_pos().X, pWall2->wall_int_pos().Y - pWall->wall_int_pos().Y) + 512;
+	int angle = getangle(pWall->fdelta()) + 512;
 	int t2 = pSector->floorheinum << 4;
 	int t3 = approxDist(-0x10000, t2);
 	int t4 = DivScale(-0x10000, t3, 16);
@@ -3965,8 +3965,8 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				missileActor->xspr.TargetPos.Z = missileActor->int_pos().Z - actorHit->int_pos().Z;
-				missileActor->xspr.goalAng = getangle(missileActor->int_pos().X - actorHit->int_pos().X, missileActor->int_pos().Y - actorHit->int_pos().Y) - actorHit->int_ang();
+				missileActor->xspr.set_int_TargetPos_Z(missileActor->int_pos().Z - actorHit->int_pos().Z);
+				missileActor->xspr.goalAng = getangle(missileActor->spr.pos.XY() - actorHit->spr.pos.XY()) - actorHit->int_ang();
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -5226,7 +5226,7 @@ int MoveMissile(DBloodActor* actor)
 
 		if (target->spr.statnum == kStatDude && target->hasX() && target->xspr.health > 0)
 		{
-			int nTargetAngle = getangle(-(target->int_pos().Y - actor->int_pos().Y), target->int_pos().X - actor->int_pos().X);
+			int nTargetAngle = getangle(-(target->int_pos().Y - actor->int_pos().Y), target->int_pos().X - actor->int_pos().X); // X and Y are swapped here!
 			int vx = missileInfo[actor->spr.type - kMissileBase].velocity;
 			int vy = 0;
 			RotatePoint(&vx, &vy, (nTargetAngle + 1536) & 2047, 0, 0);
@@ -5547,7 +5547,7 @@ static void actCheckProximity()
 			case kThingBloodBits:
 			case kThingBloodChunks:
 			case kThingZombieHead:
-				if (actor->xspr.locked && PlayClock >= actor->xspr.TargetPos.X) actor->xspr.locked = 0;
+				if (actor->xspr.locked && PlayClock >= actor->xspr.NotReallyTargetPos.X) actor->xspr.locked = 0;
 				break;
 			}
 
@@ -6140,7 +6140,7 @@ void actCheckFlares()
 		{
 			int x = target->int_pos().X + mulscale30r(Cos(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
 			int y = target->int_pos().Y + mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2);
-			int z = target->int_pos().Z + actor->xspr.TargetPos.Z;
+			int z = target->int_pos().Z + actor->xspr.int_TargetPos().Z;
 			vec3_t pos = { x, y, z };
 			SetActor(actor, &pos);
 			actor->vel.X = target->vel.X;
@@ -6349,7 +6349,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 318;
-		actor->xspr.TargetPos.X = PlayClock + 180;
+		actor->xspr.NotReallyTargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -6362,7 +6362,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 319;
-		actor->xspr.TargetPos.X = PlayClock + 180;
+		actor->xspr.NotReallyTargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -6994,7 +6994,7 @@ void DudeToGibCallback1(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.TargetPos.X = PlayClock;
+	actor->xspr.NotReallyTargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 
@@ -7009,7 +7009,7 @@ void DudeToGibCallback2(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.TargetPos.X = PlayClock;
+	actor->xspr.NotReallyTargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 

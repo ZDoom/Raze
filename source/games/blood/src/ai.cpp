@@ -364,7 +364,7 @@ void aiActivateDude(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->xspr.state)
 	{
-		aiChooseDirection(actor, getangle(actor->xspr.TargetPos.X - actor->int_pos().X, actor->xspr.TargetPos.Y - actor->int_pos().Y));
+		aiChooseDirection(actor, getangle(actor->xspr.int_TargetPos().X - actor->int_pos().X, actor->xspr.int_TargetPos().Y - actor->int_pos().Y));
 		actor->xspr.state = 1;
 	}
 	switch (actor->spr.type)
@@ -916,9 +916,7 @@ void aiActivateDude(DBloodActor* actor)
 void aiSetTarget(DBloodActor* actor, int x, int y, int z)
 {
 	actor->SetTarget(nullptr);
-	actor->xspr.TargetPos.X = x;
-	actor->xspr.TargetPos.Y = y;
-	actor->xspr.TargetPos.Z = z;
+	actor->xspr.set_int_TargetPos(x, y, z);
 }
 
 void aiSetTarget(DBloodActor* actor, DBloodActor* target)
@@ -934,9 +932,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
-			actor->xspr.TargetPos.X = target->int_pos().X;
-			actor->xspr.TargetPos.Y = target->int_pos().Y;
-			actor->xspr.TargetPos.Z = target->int_pos().Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2);
+			actor->xspr.set_int_TargetPos(target->int_pos().X, target->int_pos().Y, target->int_pos().Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2));
 		}
 	}
 }
@@ -1706,9 +1702,9 @@ void aiInitSprite(DBloodActor* actor)
 		{
 			stateTimer = actor->xspr.stateTimer;
 			pTargetMarker = actor->GetTarget();
-			targetX = actor->xspr.TargetPos.X;
-			targetY = actor->xspr.TargetPos.Y;
-			targetZ = actor->xspr.TargetPos.Z;
+			targetX = actor->xspr.int_TargetPos().X;
+			targetY = actor->xspr.int_TargetPos().Y;
+			targetZ = actor->xspr.int_TargetPos().Z;
 		}
 	}
 #endif
@@ -1927,9 +1923,7 @@ void aiInitSprite(DBloodActor* actor)
 			if (pTargetMarker)
 			{
 				actor->SetTarget(pTargetMarker);
-				actor->xspr.TargetPos.X = targetX;
-				actor->xspr.TargetPos.Y = targetY;
-				actor->xspr.TargetPos.Z = targetZ;
+				actor->xspr.set_int_TargetPos(targetX, targetY, targetZ);
 			}
 
 			// reset target spot progress

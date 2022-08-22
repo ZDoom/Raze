@@ -85,8 +85,8 @@ static void gillThinkGoto(DBloodActor* actor)
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -199,8 +199,8 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -274,8 +274,8 @@ static void sub_6CB00(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if (Random(64) < 32 && nDist <= 0x400)
 		return;
@@ -310,8 +310,8 @@ static void sub_6CD74(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int dz = z2 - z;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
@@ -345,8 +345,8 @@ static void sub_6D03C(DBloodActor* actor)
 		actor->spr.angle += DAngle90;
 		return;
 	}
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int dz = (z2 - z) << 3;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x400)

@@ -66,8 +66,8 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat);
 	int height2 = (pDudeInfoT->eyeHeight * target->spr.yrepeat);
-	int tx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int ty = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int tx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int ty = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(tx, ty);
 	int dx = bcos(nAngle);
 	int dy = bsin(nAngle);
@@ -90,8 +90,8 @@ static void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);

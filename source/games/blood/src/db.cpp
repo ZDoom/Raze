@@ -565,9 +565,10 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 			pXSprite->dudeGuard = bitReader.readUnsigned(1);
 			pXSprite->dudeFlag4 = bitReader.readUnsigned(1);
 			/*pXSprite->target_i = */ bitReader.readSigned(16);
-			pXSprite->TargetPos.X = bitReader.readSigned(32);
-			pXSprite->TargetPos.Y = bitReader.readSigned(32);
-			pXSprite->TargetPos.Z = bitReader.readSigned(32);
+			int tx = bitReader.readSigned(32);
+			int ty = bitReader.readSigned(32);
+			int tz = bitReader.readSigned(32);
+			pXSprite->set_int_TargetPos(tx,ty,tz);
 			pXSprite->burnTime = bitReader.readUnsigned(16);
 			/*pXSprite->burnSource =*/ bitReader.readSigned(16);
 			pXSprite->height = bitReader.readUnsigned(16);

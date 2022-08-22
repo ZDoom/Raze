@@ -150,8 +150,8 @@ static void eelThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -328,8 +328,8 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x399)
 		return;
@@ -357,8 +357,8 @@ static void eelMoveSwoop(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
@@ -384,8 +384,8 @@ static void eelMoveAscend(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.TargetPos.X - actor->int_pos().X;
-	int dy = actor->xspr.TargetPos.Y - actor->int_pos().Y;
+	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
+	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;
@@ -406,7 +406,7 @@ void eelMoveToCeil(DBloodActor* actor)
 	int x = actor->int_pos().X;
 	int y = actor->int_pos().Y;
 	int z = actor->int_pos().Z;
-	if (z - actor->xspr.TargetPos.Z < 0x1000)
+	if (z - actor->xspr.int_TargetPos().Z < 0x1000)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->active = 0;
