@@ -42,9 +42,6 @@ int32_t mdtims, omdtims;
 
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
-static int16_t radarang[1280];
-
-
 //
 // Internal Engine Functions
 //
@@ -60,10 +57,6 @@ void engineInit(void)
     for (i=1024; i<2048; i++)
         sintable[i] = -sintable[i-1024];
 
-    for (i=0; i<640; i++)
-        radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
-    for (i=0; i<640; i++)
-        radarang[1279-i] = -radarang[i];
 }
 
 //
@@ -187,30 +180,6 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
     return t;
 }
-
-
-int32_t _getangle(int32_t xvect, int32_t yvect)
-{
-    int32_t rv;
-
-    if ((xvect | yvect) == 0)
-        rv = 0;
-    else if (xvect == 0)
-        rv = 512 + ((yvect < 0) << 10);
-    else if (yvect == 0)
-        rv = ((xvect < 0) << 10);
-    else if (xvect == yvect)
-        rv = 256 + ((xvect < 0) << 10);
-    else if (xvect == -yvect)
-        rv = 768 + ((xvect > 0) << 10);
-    else if (abs(xvect) > abs(yvect))
-        rv = ((radarang[640 + Scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
-    else rv = ((radarang[640 - Scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
-
-    return rv;
-}
-
-
 
 //
 // cansee
