@@ -2865,10 +2865,10 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 
 	if (act2)
 	{
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(act2, &top, &bottom);
-		if (bottom >= act2->int_pos().Z)
-			act2->add_int_z(-(bottom - act2->int_pos().Z));
+		if (bottom >= act2->spr.pos.Z)
+			act2->spr.pos.Z -= (bottom - act2->spr.pos.Z);
 	}
 
 	return act2;
