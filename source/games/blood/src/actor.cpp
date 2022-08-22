@@ -3965,7 +3965,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				missileActor->xspr.set_int_TargetPos_Z(missileActor->int_pos().Z - actorHit->int_pos().Z);
+				missileActor->xspr.TargetPos.Z = (missileActor->spr.pos.Z - actorHit->spr.pos.Z);
 				missileActor->xspr.goalAng = getangle(missileActor->spr.pos.XY() - actorHit->spr.pos.XY()) - actorHit->int_ang();
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
@@ -5547,7 +5547,7 @@ static void actCheckProximity()
 			case kThingBloodBits:
 			case kThingBloodChunks:
 			case kThingZombieHead:
-				if (actor->xspr.locked && PlayClock >= actor->xspr.NotReallyTargetPos.X) actor->xspr.locked = 0;
+				if (actor->xspr.locked && PlayClock >= actor->xspr.TargetPos.X) actor->xspr.locked = 0;
 				break;
 			}
 
@@ -6349,7 +6349,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 318;
-		actor->xspr.NotReallyTargetPos.X = PlayClock + 180;
+		actor->xspr.TargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -6362,7 +6362,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 		actor->xspr.data2 = 0;
 		actor->xspr.data3 = 0;
 		actor->xspr.data4 = 319;
-		actor->xspr.NotReallyTargetPos.X = PlayClock + 180;
+		actor->xspr.TargetPos.X = PlayClock + 180;
 		actor->xspr.locked = 1;
 		actor->xspr.state = 1;
 		actor->xspr.triggerOnce = 0;
@@ -6994,7 +6994,7 @@ void DudeToGibCallback1(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.NotReallyTargetPos.X = PlayClock;
+	actor->xspr.TargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 
@@ -7009,7 +7009,7 @@ void DudeToGibCallback2(int, DBloodActor* actor)
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
 	actor->xspr.locked = 0;
-	actor->xspr.NotReallyTargetPos.X = PlayClock;
+	actor->xspr.TargetPos.X = PlayClock;
 	actor->xspr.state = 1;
 }
 

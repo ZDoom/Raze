@@ -916,7 +916,7 @@ void aiActivateDude(DBloodActor* actor)
 void aiSetTarget(DBloodActor* actor, int x, int y, int z)
 {
 	actor->SetTarget(nullptr);
-	actor->xspr.set_int_TargetPos(x, y, z);
+	actor->xspr.TargetPos = {x * maptoworld, y * maptoworld, z * zmaptoworld };
 }
 
 void aiSetTarget(DBloodActor* actor, DBloodActor* target)
@@ -932,7 +932,8 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
-			actor->xspr.set_int_TargetPos(target->int_pos().X, target->int_pos().Y, target->int_pos().Z - ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2));
+			double eyeHeight = ((pDudeInfo->eyeHeight * target->spr.yrepeat) << 2) * inttoworld;
+			actor->xspr.TargetPos = target->spr.pos.plusZ(-eyeHeight);
 		}
 	}
 }
@@ -1691,7 +1692,7 @@ void aiInitSprite(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 	unsigned int stateTimer = 0;
-	int targetX = 0, targetY = 0, targetZ = 0;
+	DVector3 targetV(0,0,0);
 	DBloodActor* pTargetMarker = nullptr;
 
 	// dude patrol init
@@ -1702,9 +1703,7 @@ void aiInitSprite(DBloodActor* actor)
 		{
 			stateTimer = actor->xspr.stateTimer;
 			pTargetMarker = actor->GetTarget();
-			targetX = actor->xspr.int_TargetPos().X;
-			targetY = actor->xspr.int_TargetPos().Y;
-			targetZ = actor->xspr.int_TargetPos().Z;
+			targetV = actor->xspr.TargetPos;
 		}
 	}
 #endif
@@ -1923,7 +1922,7 @@ void aiInitSprite(DBloodActor* actor)
 			if (pTargetMarker)
 			{
 				actor->SetTarget(pTargetMarker);
-				actor->xspr.set_int_TargetPos(targetX, targetY, targetZ);
+				actor->xspr.TargetPos = targetV;
 			}
 
 			// reset target spot progress

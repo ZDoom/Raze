@@ -7216,7 +7216,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 			{
 				actor->SetTarget(pMateTargetActor);
 				auto pMate = pMateTargetActor->GetTarget();
-				actor->xspr.set_int_TargetPos(pMate->int_pos().X, pMate->int_pos().Y, pMate->int_pos().Z);
+				actor->xspr.TargetPos = pMate->spr.pos;
 				if (!isActive(actor))
 					aiActivateDude(actor);
 				return;
@@ -8030,7 +8030,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		while (auto nextactor = it.Next())
 		{
 			if (nextactor == targetactor || !nextactor->hasX()) continue;
-			else if (actor->xspr.NotReallyTargetPos.X >= 0 && nextactor == prevactor && node)
+			else if (actor->xspr.TargetPos.X >= 0 && nextactor == prevactor && node)
 			{
 				if (targetactor->xspr.data2 == prevactor->xspr.data1)
 					continue;
@@ -8081,7 +8081,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		actor->xspr.unused1 &= ~kDudeFlagCrouch; // reset the crouch status
 		actor->xspr.unused2 = kPatrolMoveForward; // reset path direction
 		actor->prevmarker = nullptr;
-		actor->xspr.NotReallyTargetPos.X = -1; // reset the previous marker index
+		actor->xspr.TargetPos.X = -1; // reset the previous marker index
 		if (actor->xspr.health <= 0)
 			return;
 
