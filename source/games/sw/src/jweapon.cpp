@@ -1299,18 +1299,12 @@ int PlayerInitChemBomb(PLAYER* pp)
 
 int InitSpriteChemBomb(DSWActor* actor)
 {
-    int nx, ny, nz;
-
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
 
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), CHEMBOMB_VELOCITY);
+                   actor->spr.pos, actor->spr.angle, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -1320,8 +1314,8 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -1343,16 +1337,9 @@ int InitSpriteChemBomb(DSWActor* actor)
 
 int InitChemBomb(DSWActor* actor)
 {
-    int nx, ny, nz;
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z;
-
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->sector(),
-                    nx, ny, nz, actor->int_ang(), CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, actor->sector(), actor->spr.pos, actor->spr.angle, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
