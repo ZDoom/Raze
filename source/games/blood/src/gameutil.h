@@ -54,7 +54,7 @@ inline void ClipMove(DVector3& pos, sectortype** pSector, int xv, int yv, int wd
 	ClipMove(ipos, pSector, xv, yv, wd, cd, fd, nMask, hit, tracecount);
 	pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
 }
-BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
+BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
 int picWidth(int nPic, int repeat);
 int picHeight(int nPic, int repeat);
 

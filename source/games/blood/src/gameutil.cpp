@@ -762,8 +762,10 @@ void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd,
 //
 //---------------------------------------------------------------------------
 
-BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
 {
+	int x = pos.X * worldtoint;
+	int y = pos.Y * worldtoint;
 	// by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
 	// E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
 	// E1M2: throwing TNT at the double doors while standing on the train platform
@@ -792,7 +794,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, T
 			}
 			else // new method using proper math and no bad shortcut.
 			{
-				double dist1 = SquareDistToWall(x * inttoworld, y * inttoworld, &wal);
+				double dist1 = SquareDistToWall(pos.X, pos.Y, &wal);
 				withinRange = dist1 <= nDist4sq;
 			}
 			if (withinRange) // if new sector is within range, add it to the processing queue

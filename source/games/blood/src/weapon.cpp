@@ -2992,6 +2992,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 
 void teslaHit(DBloodActor* missileactor, int a2)
 {
+	auto mpos = missileactor->spr.pos;
 	int x = missileactor->int_pos().X;
 	int y = missileactor->int_pos().Y;
 	int z = missileactor->int_pos().Z;
@@ -2999,7 +3000,7 @@ void teslaHit(DBloodActor* missileactor, int a2)
 	auto pSector = missileactor->sector();
 	auto owneractor = missileactor->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(pSector, mpos.XY(), nDist, nullptr, newSectCheckMethod);
 	bool v4 = true;
 	DBloodActor* actor = nullptr;
 	actHitcodeToData(a2, &gHitInfo, &actor);

@@ -90,7 +90,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, vc, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(pSector, actor->spr.pos.XY(), vc, nullptr, newSectCheckMethod);
 	int hit = HitScan(actor, actor->int_pos().Z, angx, angy, 0, CLIPMASK1, 0);
 	DBloodActor* actorh = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actorh);

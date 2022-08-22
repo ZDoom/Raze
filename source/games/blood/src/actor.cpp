@@ -2643,7 +2643,7 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 	int x = pos.X * worldtoint, y = pos.Y * worldtoint, z = pos.Z * worldtoint;
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(pSector, pos.XY(), nDist, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
 	{
@@ -5801,7 +5801,7 @@ static void actCheckExplosion()
 		// so only allow this new checking method for dude spawned explosions
 		affectedXWalls.Clear();
 		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-		auto sectorMap = GetClosestSpriteSectors(pSector, x, y, radius, &affectedXWalls, newSectCheckMethod);
+		auto sectorMap = GetClosestSpriteSectors(pSector, apos.XY(), radius, &affectedXWalls, newSectCheckMethod);
 
 		for (auto pWall : affectedXWalls)
 		{
