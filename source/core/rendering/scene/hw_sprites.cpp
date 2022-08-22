@@ -504,13 +504,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
-	float zpos = (float)(spr->int_pos().Z + ownerActor->sprext.position_offset.Z);
-	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
+	float zpos = (float)(spr->pos.Z + ownerActor->sprext.position_offset.Z);
+	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -1.f/64.f : 1.f/64.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
-	x = (spr->int_pos().X + ownerActor->sprext.position_offset.X) * (1 / 16.f);
-	z = zpos * (1 / -256.f);
-	y = (spr->int_pos().Y + ownerActor->sprext.position_offset.Y) * (1 / -16.f);
+	x = (spr->pos.X + ownerActor->sprext.position_offset.X);
+	z = -zpos;
+	y = -(spr->pos.Y + ownerActor->sprext.position_offset.Y);
 
 	float zoff = voxel->siz.Z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))

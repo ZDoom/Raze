@@ -297,17 +297,17 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 		else if (sc.Compare("mdposxoff") || sc.Compare("mdpositionxoff"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].position_offset.X = sc.Number;
+				sprites.sprext[currentsprite].position_offset.X = sc.Number * maptoworld;
 		}
 		else if (sc.Compare("mdposyoff") || sc.Compare("mdpositionyoff"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].position_offset.X = sc.Number;
+				sprites.sprext[currentsprite].position_offset.X = sc.Number * maptoworld;
 		}
 		else if (sc.Compare("mdposzoff") || sc.Compare("mdpositionzoff"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].position_offset.X = sc.Number;
+				sprites.sprext[currentsprite].position_offset.X = sc.Number * zmaptoworld;
 		}
 		else if (sc.Compare("away1"))
 		{
