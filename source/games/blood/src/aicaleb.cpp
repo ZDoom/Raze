@@ -163,7 +163,7 @@ static void calebThinkChase(DBloodActor* actor)
 				{
 					int dx = dvec.X * worldtoint;
 					int dy = dvec.Y * worldtoint;
-					int hit = HitScan(actor, actor->int_pos().Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:

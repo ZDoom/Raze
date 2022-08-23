@@ -4653,15 +4653,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
 				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
 			else if (objActor->IsDudeActor())
-				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->int_ang()), bsin(objActor->int_ang()), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->int_ang()), bsin(objActor->int_ang()), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
 				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 0x10000 << 1 : -(0x10000 << 1);
-				var = HitScan(objActor, objActor->int_pos().Z, Cos(objActor->int_ang()) >> 16, Sin(objActor->int_ang()) >> 16, var3, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, Cos(objActor->int_ang()) >> 16, Sin(objActor->int_ang()) >> 16, var3, arg1, arg3 << 1);
 			}
 			else
 			{
-				var = HitScan(objActor, objActor->int_pos().Z, bcos(objActor->int_ang()), bsin(objActor->int_ang()), 0, arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, bcos(objActor->int_ang()), bsin(objActor->int_ang()), 0, arg1, arg3 << 1);
 			}
 
 			if (var < 0)

@@ -6819,7 +6819,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(actor, gHitInfo.int_hitpos().Z, a4, a5, a6, CLIPMASK1, tt) == 0)
+					if (HitScan(actor, gHitInfo.hitpos.Z, a4, a5, a6, CLIPMASK1, tt) == 0)
 					{
 						if (approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY()) <= tt)
 						{
