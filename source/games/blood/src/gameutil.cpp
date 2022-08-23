@@ -373,7 +373,7 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 	actor->spr.cstat = bakCstat;
 	while (nNum--)
 	{
-		if (nRange && approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y) > nRange)
+		if (nRange && approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY()) > nRange)
 			return -1;
 		auto other = gHitInfo.actor();
 		if (other != nullptr)
@@ -456,12 +456,12 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 
 			nOfs = (nOfs * pWall->yrepeat) / 8;
 			nOfs += int((nSizY * pWall->ypan_) / 256);
-			int nLength = approxDist(pWall->wall_int_pos().X - pWall->point2Wall()->wall_int_pos().X, pWall->wall_int_pos().Y - pWall->point2Wall()->wall_int_pos().Y);
+			int nLength = approxDist(pWall->pos - pWall->point2Wall()->pos);
 			int nHOffset;
 			if (pWall->cstat & CSTAT_WALL_XFLIP)
-				nHOffset = approxDist(gHitInfo.int_hitpos().X - pWall->point2Wall()->wall_int_pos().X, gHitInfo.int_hitpos().Y - pWall->point2Wall()->wall_int_pos().Y);
+				nHOffset = approxDist(gHitInfo.hitpos.XY() - pWall->point2Wall()->pos);
 			else
-				nHOffset = approxDist(gHitInfo.int_hitpos().X - pWall->wall_int_pos().X, gHitInfo.int_hitpos().Y - pWall->wall_int_pos().Y);
+				nHOffset = approxDist(gHitInfo.hitpos.XY() - pWall->pos);
 
 			nHOffset = pWall->xpan() + ((nHOffset * pWall->xrepeat) << 3) / nLength;
 			nHOffset %= nSizX;

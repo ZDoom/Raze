@@ -1738,7 +1738,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					if (!targetactor) continue;
 					if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
 						continue;
-					int nDist = approxDist(targetactor->int_pos().X - pPlayer->actor->int_pos().X, targetactor->int_pos().Y - pPlayer->actor->int_pos().Y);
+					int nDist = approxDist(targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY());
 					if (nDist > 0 && nDist < 51200)
 					{
 						int vc = pPlayer->ammoCount[9] >> 3;
@@ -1776,7 +1776,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					continue;
 				if (v4 > 0)
 					v4--;
-				int nDist = approxDist(targetactor->int_pos().X - pPlayer->actor->int_pos().X, targetactor->int_pos().Y - pPlayer->actor->int_pos().Y);
+				int nDist = approxDist(targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY());
 				if (nDist > 0 && nDist < 51200)
 				{
 					int vc = pPlayer->ammoCount[9] >> 3;

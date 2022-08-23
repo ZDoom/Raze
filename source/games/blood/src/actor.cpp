@@ -6701,7 +6701,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 	int z = gHitInfo.int_hitpos().Z - MulScale(a6, 256, 14);
 	auto pSector = gHitInfo.hitSector;
 	uint8_t nSurf = kSurfNone;
-	if (nRange == 0 || approxDist(gHitInfo.int_hitpos().X - shooter->int_pos().X, gHitInfo.int_hitpos().Y - shooter->int_pos().Y) < nRange)
+	if (nRange == 0 || approxDist(gHitInfo.hitpos.XY() - shooter->spr.pos.XY()) < nRange)
 	{
 		switch (hit)
 		{
@@ -6821,7 +6821,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a6 += Random3(4000);
 					if (HitScan(actor, gHitInfo.int_hitpos().Z, a4, a5, a6, CLIPMASK1, tt) == 0)
 					{
-						if (approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y) <= tt)
+						if (approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY()) <= tt)
 						{
 							auto pWall = gHitInfo.hitWall;
 							auto pSector1 = gHitInfo.hitSector;

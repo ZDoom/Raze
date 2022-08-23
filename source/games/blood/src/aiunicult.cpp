@@ -751,7 +751,7 @@ static void unicultThinkChase(DBloodActor* actor)
 					if (hit >= 0)
 					{
 						targetDist = dist - (target->spr.clipdist << 2);
-						objDist = approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y);
+						objDist = approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY());
 					}
 
 					if (actor != gHitInfo.actor() && targetDist > objDist)
@@ -940,8 +940,8 @@ static void unicultThinkChase(DBloodActor* actor)
 								case kMissileFireballTchernobog:
 								{
 									// allow attack if dude is far from object, but target is close to it
-									int dudeDist = approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y);
-									int targetDist1 = approxDist(gHitInfo.int_hitpos().X - target->int_pos().X, gHitInfo.int_hitpos().Y - target->int_pos().Y);
+									int dudeDist = approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY());
+									int targetDist1 = approxDist(gHitInfo.hitpos.XY() - target->spr.pos.XY());
 									if (dudeDist < mdist)
 									{
 										//viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);
@@ -1791,16 +1791,17 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			int nType = actTarget->spr.type - kDudeBase;
 			DUDEINFO* pDudeInfo = &dudeInfo[nType];
 			int z1 = (top - actor->int_pos().Z) - 256;
+			auto atpos = actTarget->spr.pos;
 			int x = actTarget->int_pos().X; int y = actTarget->int_pos().Y; int z = actTarget->int_pos().Z;
-			int nDist = approxDist(x - actor->int_pos().X, y - actor->int_pos().Y);
+			int nDist = approxDist(atpos.XY() - actor->spr.pos.XY());
 
 			if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, actTarget->sector()))
 			{
 				int t = DivScale(nDist, 0x1aaaaa, 12);
 				x += (actTarget->vel.X * t) >> 12;
 				y += (actTarget->vel.Y * t) >> 12;
-				int angBak = actor->int_ang();
-				actor->set_int_ang(getangle(x - actor->int_pos().X, y - actor->int_pos().Y));
+				auto angBak = actor->spr.angle;
+				actor->spr.angle = VecToAngle(atpos - actor->spr.pos.XY());
 				int dx = bcos(actor->int_ang());
 				int dy = bsin(actor->int_ang());
 				int tz = actTarget->int_pos().Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * 4;
@@ -1819,7 +1820,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 					evPostActor(actor, t2, kCallbackLeechStateTimer);
 					actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 				}
-				actor->set_int_ang(angBak);
+				actor->spr.angle = angBak;
 			}
 		}
 

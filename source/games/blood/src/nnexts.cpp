@@ -7694,7 +7694,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 	int x = actor->int_pos().X, y = actor->int_pos().Y, z = actor->int_pos().Z;
 	auto pSector = actor->sector();
 	HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
-	int nDist = approxDist(x - gHitInfo.int_hitpos().X, y - gHitInfo.int_hitpos().Y);
+	int nDist = approxDist(actor->spr.pos.XY() - gHitInfo.hitpos.XY());
 	if (target != nullptr && nDist - (actor->spr.clipdist << 2) < nRange)
 		return (target == gHitInfo.actor());
 
@@ -7982,7 +7982,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		{
 			if (!nextactor->hasX()) continue;
 
-			if (nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout || (dist = approxDist(nextactor->int_pos().X - actor->int_pos().X, nextactor->int_pos().Y - actor->int_pos().Y)) > closest)
+			if (nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout || (dist = approxDist(nextactor->spr.pos.XY() - actor->spr.pos.XY())) > closest)
 				continue;
 
 			GetActorExtents(nextactor, &zt1, &zb1);
@@ -8261,10 +8261,10 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 			continue;
 
 		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) * REPEAT_SCALE;
-		int nDist = approxDist(dudeactor->int_pos().X - actor->int_pos().X, dudeactor->int_pos().Y - actor->int_pos().Y);
+		int nDist = approxDist(dudeactor->spr.pos.XY() - actor->spr.pos.XY());
 		if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
-			nDist = approxDist(dudeactor->int_pos().X - targetactor->int_pos().X, dudeactor->int_pos().Y - targetactor->int_pos().Y);
+			nDist = approxDist(dudeactor->spr.pos.XY() - targetactor->spr.pos.XY());
 			if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(targetactor->spr.pos, zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 				continue;
 		}
@@ -8388,13 +8388,11 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 	if (!(hunter->spr.type >= kDudeBase && hunter->spr.type < kDudeMax) || !(victim->spr.type >= kDudeBase && victim->spr.type < kDudeMax))
 		return false;
 
-	int dx, dy;
-	dx = victim->int_pos().X - hunter->int_pos().X;
-	dy = victim->int_pos().Y - hunter->int_pos().Y;
-	if (approxDist(dx, dy) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
+	auto dvect = victim->spr.pos.XY() - hunter->spr.pos.XY();
+	if (approxDist(dvect) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
 		return false;
 
-	return (abs(((getangle(dx, dy) + 1024 - victim->int_ang()) & 2047) - 1024) <= kAng45);
+	return (abs(((getangle(dvect) + 1024 - victim->int_ang()) & 2047) - 1024) <= kAng45);
 }
 
 //---------------------------------------------------------------------------
@@ -8435,7 +8433,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 		newtarget = nullptr;
 		seeChance = hearChance = 0x0000;
-		x = plActor->int_pos().X, y = plActor->int_pos().Y, z = plActor->int_pos().Z, dx = x - actor->int_pos().X, dy = y - actor->int_pos().Y; nDist = approxDist(dx, dy);
+		x = plActor->int_pos().X, y = plActor->int_pos().Y, z = plActor->int_pos().Z,
+		dx = x - actor->int_pos().X, dy = y - actor->int_pos().Y;
+		nDist = approxDist(dx, dy);
 		seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
 		hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
 
@@ -8626,7 +8626,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 						if (steal->xspr.data1 > 0)
 						{
-							if (approxDist(abs(steal->int_pos().X - plActor->int_pos().X) >> 4, abs(steal->int_pos().Y - plActor->int_pos().Y) >> 4) >= steal->xspr.data1)
+							if ((steal->spr.pos.XY() - plActor->spr.pos.XY()).Length() >= steal->xspr.data1)
 								continue;
 
 						}
@@ -8641,7 +8641,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					{
 						if (steal->xspr.data1 > 0)
 						{
-							if (approxDist(abs(steal->int_pos().X - actor->int_pos().X) >> 4, abs(steal->int_pos().Y - actor->int_pos().Y) >> 4) >= steal->xspr.data1)
+							if ((steal->spr.pos.XY() - plActor->spr.pos.XY()).Length() >= steal->xspr.data1)
 								continue;
 
 						}

@@ -276,7 +276,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						int t = DivScale(nDist, 0x1aaaaa, 12);
 						x += (target->vel.X * t) >> 12;
 						y += (target->vel.Y * t) >> 12;
-						int angBak = actor->int_ang();
+						auto angBak = actor->spr.angle;
 						actor->set_int_ang(getangle(x - actor->int_pos().X, y - actor->int_pos().Y));
 						int dx = bcos(actor->int_ang());
 						int dy = bsin(actor->int_ang());
@@ -298,7 +298,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 							if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
 								missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 						}
-						actor->set_int_ang(angBak);
+						actor->spr.angle = angBak;
 					}
 				}
 			}
