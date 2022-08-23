@@ -280,7 +280,7 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
 		plr->angle.ang = DAngle::fromBuild(plr->sPlayerSave.nAngle&kAngleMask);
-		pActor->set_int_ang(plr->angle.ang.Buildang());
+		pActor->spr.angle = plr->angle.ang;
 
 		floorsprt = nullptr;
 	}

@@ -663,7 +663,7 @@ void resetpspritevars(int g)
 			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = act->spr.angle;
 
-			updatesector(act->int_pos().X, act->int_pos().Y, &ps[j].cursector);
+			updatesector(act->spr.pos, &ps[j].cursector);
 
 			j = connectpoint2[j];
 
