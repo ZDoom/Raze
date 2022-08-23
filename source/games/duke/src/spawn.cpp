@@ -1089,7 +1089,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = actor->int_ang() - 256 + (krand() & 511) + 1024;
-			EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			CreateActor(actor->sector(), actor->spr.pos, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}

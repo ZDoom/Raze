@@ -2114,7 +2114,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			for (j = 16; j >= 0; j--)
 			{
-				auto k = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+				auto k = CreateActor(actor->sector(), actor->spr.pos, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 				k->spr.pal = 1;
 			}
 			ps[p].actors_killed++;
