@@ -254,7 +254,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	{
 		if (hit.hitWall || hit.actor())
 		{
-			auto knee = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			auto knee = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 			if (knee)
 			{
 				knee->spr.extra += (krand() & 7);
@@ -408,7 +408,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		if (!spark) return;
 
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
@@ -530,7 +530,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
 		if (spark)
 		{
 			spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
@@ -863,7 +863,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 		if (j == 1)
 		{
-			auto bomb = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, STAT_STANDABLE);
+			auto bomb = CreateActor(hit.hitSector, hit.hitpos, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, STAT_STANDABLE);
 			if (!bomb) return;
 			if (isWW2GI())
 			{

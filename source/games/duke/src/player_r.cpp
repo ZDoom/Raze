@@ -140,13 +140,13 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += 50;
 			}
 			else
 			{
-				wpn = EGS(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += (krand() & 7);
 			}
