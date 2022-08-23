@@ -94,10 +94,9 @@ static void calebThinkGoto(DBloodActor* actor)
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(dx, dy);
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
@@ -212,10 +211,9 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(dx, dy);
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &tinycalebSwimSearch);
@@ -284,9 +282,8 @@ static void sub_65D04(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	if (Random(64) < 32 && nDist <= 0x400)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -321,10 +318,9 @@ static void sub_65F44(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	int dz = z2 - z;
-	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -357,10 +353,9 @@ static void sub_661E0(DBloodActor* actor)
 		actor->spr.angle += DAngle90;
 		return;
 	}
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	int dz = (z2 - z) << 3;
-	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
 	int nCos = Cos(actor->int_ang());

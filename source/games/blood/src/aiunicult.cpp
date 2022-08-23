@@ -419,14 +419,14 @@ static void unicultThinkGoto(DBloodActor* actor)
 		return;
 	}
 
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
 
 	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (approxDist(dx, dy) < 5120 && abs(actor->int_ang() - nAngle) < getDudeInfo(actor->spr.type)->periphery)
+	if (nDist < 5120 && abs(actor->int_ang() - nAngle) < getDudeInfo(actor->spr.type)->periphery)
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -1122,9 +1122,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 			return;
 		if (actor->GetTarget() == nullptr)
 			actor->spr.angle += DAngle45;
-		int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-		int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-		int nDist = approxDist(dx, dy);
+		auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+		int nDist = approxDist(dvec);
 		if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 			return;
 		int nCos = Cos(actor->int_ang());

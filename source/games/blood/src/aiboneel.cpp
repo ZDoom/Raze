@@ -152,10 +152,9 @@ static void eelThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(dx, dy);
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &eelSearch);
@@ -330,9 +329,8 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	if (nDist <= 0x399)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -359,9 +357,8 @@ static void eelMoveSwoop(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -386,9 +383,8 @@ static void eelMoveAscend(DBloodActor* actor)
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
 	if (abs(nAng) > 341)
 		return;
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
+	int nDist = approxDist(dvec);
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;
 	int nCos = Cos(actor->int_ang());
