@@ -551,7 +551,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
+	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset * 256;
 
 	if (badguy(actor) && actor->spr.pal == 6)
 		pal = 6;

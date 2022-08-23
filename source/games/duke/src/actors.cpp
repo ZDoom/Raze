@@ -2546,11 +2546,11 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 		sx = sy = 8;
 	else sx = sy = 32;
 
-	int gutz = actor->int_pos().Z - (8 << 8);
-	int floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
+	double gutz = actor->spr.pos.Z - 8;
+	double floorz = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
+	if (gutz > floorz - 8)
+		gutz = floorz - 8;
 
 	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
 
@@ -2560,7 +2560,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 		int r1 = krand();
 		int r2 = krand();
 		// TRANSITIONAL: owned by a player???
-		EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), gutz), gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 	}
 }
 

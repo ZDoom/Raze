@@ -148,7 +148,7 @@ void initactorflags_d()
 	settileflag(TFLAG_CLEARINVENTORY, { HURTRAIL, FLOORSLIME, FLOORPLASMA });
 	settileflag(TFLAG_SLIME, { FLOORSLIME, FLOORSLIME + 1, FLOORSLIME + 2 });
 
-	gs.actorinfo[COMMANDER].gutsoffset = -(24 << 8);
+	gs.actorinfo[COMMANDER].gutsoffset = -24;
 
 	for (auto &fa : gs.actorinfo)
 	{
