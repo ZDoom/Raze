@@ -599,13 +599,13 @@ void GameInterface::UpdateSounds(void)
         if (TEST_BOOL1(rsp))
             tang = rsp->spr.angle;
         else
-            tang = VecToAngle(pp->sop_remote->int_pmid().X - pp->int_ppos().X, pp->sop_remote->int_pmid().Y - pp->int_ppos().Y);
+            tang = VecToAngle(pp->sop_remote->pmid.XY() - pp->pos.XY());
     }
     else tang = pp->angle.ang;
 
     listener.angle = float(-tang.Radians());
     listener.velocity.Zero();
-    listener.position = GetSoundPos(pp->int_ppos());
+    listener.position = GetSoundPos(pp->pos);
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
