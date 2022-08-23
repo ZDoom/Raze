@@ -10869,7 +10869,7 @@ int DoBloodWorm(DSWActor* actor)
     actor->add_int_pos({ MulScale(amt,xvect, 15), MulScale(amt,yvect, 15), 0 });
 
     auto sect = actor->sector();
-    updatesectorz(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, &sect);
+    updatesectorz(actor->spr.pos, &sect);
     if (sect)
     {
         GlobalSkipZrange = true;
@@ -11319,7 +11319,7 @@ int DoSerpRing(DSWActor* actor)
             if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
             {
                 auto sect = actor->sector();
-                updatesector(actor->int_pos().X, actor->int_pos().Y, &sect);
+                updatesector(actor->spr.pos, &sect);
 
                 // if (valid sector and can see target)
                 if (sect != nullptr && CanSeePlayer(actor))

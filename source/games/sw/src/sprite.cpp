@@ -6558,7 +6558,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     actor->add_int_pos({ xchange / 2, ychange / 2, 0 });
 
-    updatesector(actor->int_pos().X, actor->int_pos().Y, &dasect);
+    updatesector(actor->spr.pos, &dasect);
 
     if (dasect == nullptr)
     {
