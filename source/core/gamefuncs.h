@@ -319,6 +319,10 @@ inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
 {
 	return getflorzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
 }
+inline double getceilzofslopeptrf(const sectortype* sec, const DVector2& pos)
+{
+	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint) * zinttoworld;
+}
 inline double getflorzofslopeptrf(const sectortype* sec, const DVector2& pos)
 {
 	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint) * zinttoworld;

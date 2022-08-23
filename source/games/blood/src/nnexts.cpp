@@ -3796,8 +3796,8 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					case 6:
 						if (!iactor->insector()) pos.Z = top;
 						else pos.Z = ((sourceactor->xspr.data3 == 5) ?
-							getflorzofslopeptr(spawned->sector(), spawned->int_pos().X, spawned->int_pos().Y) :
-							getceilzofslopeptr(spawned->sector(), spawned->int_pos().X, spawned->int_pos().Y));
+							getflorzofslopeptrf(spawned->sector(), spawned->spr.pos) :
+							getceilzofslopeptrf(spawned->sector(), spawned->spr.pos));
 						break;
 					}
 

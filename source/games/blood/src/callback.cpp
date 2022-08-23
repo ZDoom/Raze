@@ -706,9 +706,9 @@ void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
 
 void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 {
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->set_int_pos({ actor2->int_pos().X, actor2->int_pos().Y, actor2->sector()->int_floorz() - (bottom - actor->int_pos().Z) });
+	actor->spr.pos = actor2->spr.pos.plusZ(-(bottom - actor->spr.pos.Z));
 	actor->spr.angle = actor2->spr.angle;
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
