@@ -5359,10 +5359,9 @@ bool aiFightIsMeleeUnit(DBloodActor* dude)
 
 int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* target)
 {
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
+	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
+	int dist = approxDist(dvec);
 
-	int dist = approxDist(dx, dy);
 	if (dist <= pDudeInfo->meleeDist) return 0;
 	if (dist >= pDudeInfo->seeDist) return 13;
 	if (dist <= pDudeInfo->seeDist / 12) return 1;
@@ -5387,11 +5386,8 @@ int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* t
 
 int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
 {
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-
-	int dist = approxDist(dx, dy);
-	return dist;
+	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
+	return approxDist(dvec);
 }
 
 //---------------------------------------------------------------------------

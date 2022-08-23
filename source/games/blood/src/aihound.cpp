@@ -104,9 +104,10 @@ static void houndThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, getangle(dx, dy));
+	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &houndSearch);
@@ -117,10 +118,10 @@ static void houndThinkChase(DBloodActor* actor)
 		aiNewState(actor, &houndSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
+
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = ((nAngle + 1024 - actor->int_ang()) & 2047) - 1024;
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

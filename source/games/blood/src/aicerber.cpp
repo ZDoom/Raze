@@ -341,9 +341,10 @@ static void cerberusThinkChase(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, getangle(dx, dy));
+	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
+	aiChooseDirection(actor, nAngle);
 
 	if (target->xspr.health == 0) {
 		switch (actor->spr.type) {
@@ -369,10 +370,10 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	int nDist = approxDist(dx, dy);
+
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = ((nAngle + 1024 - actor->int_ang()) & 2047) - 1024;
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
@@ -402,6 +403,8 @@ static void cerberusThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x200 && abs(nDeltaAngle) < 85)
 				{
+					int dx = dvec.X * worldtoint;
+					int dy = dvec.Y * worldtoint;
 					int hit = HitScan(actor, actor->int_pos().Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (actor->spr.type) {
 					case kDudeCerberusTwoHead:
