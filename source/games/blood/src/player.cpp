@@ -855,7 +855,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->throwPower = 0;
 	pPlayer->deathTime = 0;
 	pPlayer->nextWeapon = kWeapNone;
-	actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
+	actor->ZeroVelocity();
 	pInput->avel = 0;
 	pInput->actions = 0;
 	pInput->fvel = 0;

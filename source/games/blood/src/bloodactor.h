@@ -118,6 +118,11 @@ public:
 	{
 		return spr.type >= kItemAmmoBase && spr.type < kItemAmmoMax;
 	}
+	
+	void ZeroVelocity()
+	{
+		vel = { 0,0,0 };
+	}
 
 	bool isActive()
 	{

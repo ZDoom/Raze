@@ -291,7 +291,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 		actor->spr.type = actor->spr.inittype;
 		actor->SetOwner(nullptr);
 		actor->spr.flags &= ~kHitagRespawn;
-		actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
+		actor->ZeroVelocity();
 		actor->xspr.respawnPending = 0;
 		actor->xspr.burnTime = 0;
 		actor->xspr.isTriggered = 0;
@@ -556,7 +556,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 void sleeveStopBouncing(DBloodActor* actor)
 {
-	actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
+	actor->ZeroVelocity();
 	if (actor->hasX()) seqKill(actor);
 	sfxKill3DSound(actor, -1, -1);
 
@@ -712,7 +712,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 	actor->spr.angle = actor2->spr.angle;
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
-	actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
+	actor->ZeroVelocity();
 	viewBackupSpriteLoc(actor);
 	if (pPlayer)
 	{

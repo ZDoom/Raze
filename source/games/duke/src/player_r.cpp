@@ -4096,10 +4096,8 @@ void OffMotorcycle(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.X = 0;
-		p->vel.Y = 0;
-		p->vel.X -= p->angle.ang.Cos() * (1 << 7);
-		p->vel.Y -= p->angle.ang.Sin() * (1 << 7);
+		p->vel.X = 0 - p->angle.ang.Cos() * (1 << 7);
+		p->vel.Y = 0 - p->angle.ang.Sin() * (1 << 7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
@@ -4163,10 +4161,8 @@ void OffBoat(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.X = 0;
-		p->vel.Y = 0;
-		p->vel.X -= p->angle.ang.Cos() * (1 << 7);
-		p->vel.Y -= p->angle.ang.Sin() * (1 << 7);
+		p->vel.X = 0 - p->angle.ang.Cos() * (1 << 7);
+		p->vel.Y = 0 - p->angle.ang.Sin() * (1 << 7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
