@@ -42,6 +42,7 @@
 #include "m_crc32.h"
 #include "build.h"
 #include "gamecontrol.h"
+#include "gamefuncs.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"
 #include "c_dispatch.h"
@@ -811,7 +812,7 @@ int tileAnimateOfs(int tilenum, int randomize)
 	int framecount = picanm[tilenum].num;
 	if (framecount > 0)
 	{
-		int frametime = PlayClock;
+		int frametime = !isBlood() ? I_GetBuildTime() : PlayClock;
 	
 		if (isBlood() && randomize)
 		{
