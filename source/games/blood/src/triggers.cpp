@@ -277,7 +277,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						x += (target->vel.X * t) >> 12;
 						y += (target->vel.Y * t) >> 12;
 						auto angBak = actor->spr.angle;
-						actor->set_int_ang(getangle(x - actor->int_pos().X, y - actor->int_pos().Y));
+						actor->spr.angle = VecToAngle(x - actor->int_pos().X, y - actor->int_pos().Y);
 						int dx = bcos(actor->int_ang());
 						int dy = bsin(actor->int_ang());
 						int tz = target->int_pos().Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;

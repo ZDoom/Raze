@@ -4710,7 +4710,7 @@ static Collision MoveThing(DBloodActor* actor)
 		}
 	}
 	if (actor->vel.X || actor->vel.Y)
-		actor->set_int_ang(getangle(actor->vel.X, actor->vel.Y));
+		actor->spr.angle = VecToAngle(actor->vel.X, actor->vel.Y);
 	return lhit;
 }
 

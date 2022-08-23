@@ -1059,7 +1059,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
 					spawned->set_int_ang(getangle(-delta.X, -delta.Y) + 512); // note the '-' sign here!
-					spawned->set_int_pos(hit.int_hitpos());
+					spawned->spr.pos = hit.hitpos;
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);

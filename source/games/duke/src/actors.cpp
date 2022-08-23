@@ -641,7 +641,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				actor->set_int_ang(getangle(cpt.pole - actor->spr.pos.XY()));
+				actor->spr.angle = VecToAngle(cpt.pole - actor->spr.pos.XY());
 				SetActor(a2, DVector3( cpt.pole.X, cpt.pole.Y, a2->spr.pos.Z ));
 				actor->temp_data[0]++;
 				return;
@@ -1288,7 +1288,7 @@ void bounce(DDukeActor* actor)
 
 	actor->spr.zvel = zvect;
 	actor->spr.xvel = ksqrt(DMulScale(xvect, xvect, yvect, yvect, 8));
-	actor->set_int_ang(getangle(xvect, yvect));
+	actor->spr.angle = VecToAngle(xvect, yvect);
 }
 
 //---------------------------------------------------------------------------
@@ -3352,7 +3352,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	{
 		// Huh?
 		//auto ta = actor->spr.angle;
-		//actor->spr.angle = vectangle(ps[p].pos.XY() - actor->spr.pos.XY());
+		//actor->spr.angle = VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY());
 		//actor->spr.angle = ta;
 		actor->SetOwner(nullptr);
 		return;

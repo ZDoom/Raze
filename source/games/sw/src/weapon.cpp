@@ -7853,7 +7853,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
         actor->user.change.Y = (actor->user.change.Y + oy*(turn_speed-1))/turn_speed;
         actor->user.change.Z = (actor->user.change.Z + oz*(turn_speed-1))/turn_speed;
 
-        actor->set_int_ang(getangle(actor->user.change.X, actor->user.change.Y));
+        actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
     }
 
     return 0;
@@ -7909,7 +7909,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
         actor->user.change.Y = (actor->user.change.Y + oy*7)/8;
         actor->user.change.Z = (actor->user.change.Z + oz*7)/8;
 
-        actor->set_int_ang(getangle(actor->user.change.X, actor->user.change.Y));
+		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
     }
 
     return 0;
@@ -8116,7 +8116,7 @@ void WallBounce(DSWActor* actor, short ang)
     actor->user.change.Y = DMulScale(dax, k, -day, l, 14);
 
     old_ang = actor->int_ang();
-    actor->set_int_ang(getangle(actor->user.change.X, actor->user.change.Y));
+	actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
 
     // hack to prevent missile from sticking to a wall
     //
@@ -8124,7 +8124,7 @@ void WallBounce(DSWActor* actor, short ang)
     {
         actor->user.change.X = -actor->user.change.X;
         actor->user.change.Y = -actor->user.change.Y;
-        actor->set_int_ang(getangle(actor->user.change.X, actor->user.change.Y));
+		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
     }
 }
 
@@ -8189,7 +8189,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
         actor->user.change.Y -= MulScale(day, k, 16);
         actor->user.change.Z -= MulScale(daz, k, 12);
 
-        actor->set_int_ang(getangle(actor->user.change.X, actor->user.change.Y));
+		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
     }
 
     return true;
@@ -11326,7 +11326,7 @@ int DoSerpRing(DSWActor* actor)
                 {
                     extern STATE* sg_SkullJump[];
                     actor->user.ID = SKULL_R0;
-                    actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+                    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
                     actor->spr.xvel = dist>>5;
                     actor->spr.xvel += (actor->spr.xvel >> 1);
                     actor->spr.xvel += (RANDOM_P2(128<<8)>>8);
@@ -14009,7 +14009,7 @@ int InitSerpSpell(DSWActor* actor)
 
     for (i = 0; i < 2; i++)
     {
-        actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+		actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 1500);
 
@@ -14105,7 +14105,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
     for (i = 0; i < 1; i++)
     {
-        actor->set_int_ang(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y));
+		actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
 		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 500);
 
