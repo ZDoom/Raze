@@ -1720,8 +1720,8 @@ void debrisMove(int listIndex)
 	if ((actor->xspr.physAttr & kPhysDebrisSwim) && uwater)
 	{
 		int vc = 0;
-		int cz = getceilzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
-		int fz = getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
+		int cz = getceilzofslopeptr(pSector, actor->spr.pos);
+		int fz = getflorzofslopeptr(pSector, actor->spr.pos);
 		int div = ClipLow(bottom - top, 1);
 
 		if (pSector->lowerLink) cz += (cz < 0) ? 0x500 : -0x500;
@@ -6687,12 +6687,12 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 	int slope = 0, z = 0;
 	switch (rel) {
 	default:
-		z = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+		z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z--;
 		slope = pSector->floorheinum;
 		break;
 	case 1:
-		z = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+		z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z++;
 		slope = pSector->ceilingheinum;
 		break;
@@ -9271,9 +9271,9 @@ void clampSprite(DBloodActor* actor, int which)
 	{
 		GetActorExtents(actor, &zTop, &zBot);
 		if (which & 0x01)
-			actor->add_int_z(ClipHigh(getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y) - zBot, 0));
+			actor->add_int_z(ClipHigh(getflorzofslopeptr(actor->sector(), actor->spr.pos) - zBot, 0));
 		if (which & 0x02)
-			actor->add_int_z(ClipLow(getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y) - zTop, 0));
+			actor->add_int_z(ClipLow(getceilzofslopeptr(actor->sector(), actor->spr.pos) - zTop, 0));
 
 	}
 

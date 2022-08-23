@@ -2139,7 +2139,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		deletesprite(actor);
 		return false;
 	}
-	int l = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+	int l = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 
 	if (actor->int_pos().Z > l)
 	{
@@ -2201,8 +2201,8 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		return false;
 	}
 
-	int l = getflorzofslopeptr(sectp, actor->int_pos().X, actor->int_pos().Y);
-	int x = getceilzofslopeptr(sectp, actor->int_pos().X, actor->int_pos().Y);
+	int l = getflorzofslopeptr(sectp, actor->spr.pos);
+	int x = getceilzofslopeptr(sectp, actor->spr.pos);
 	if (x == l)
 	{
 		deletesprite(actor);
@@ -2269,7 +2269,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			}
 			actor->temp_data[2]++;
 		}
-		double ll = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+		double ll = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 
 		actor->spr.pos.Z = ll - 2;
 		actor->spr.xvel = 0;
@@ -2547,7 +2547,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	int gutz = actor->int_pos().Z - (8 << 8);
-	int floorz = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+	int floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);

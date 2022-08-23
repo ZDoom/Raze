@@ -287,7 +287,7 @@ static void batThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				int floorZ = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+				int floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				if (height2 - height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
 					aiNewState(actor, &batBite);
 				else if ((height2 - height > 0x5000 || floorZ - bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)

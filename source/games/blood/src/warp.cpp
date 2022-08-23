@@ -139,7 +139,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->upperLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->set_int_z(getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y));
+				actor->set_int_z(getflorzofslopeptr(actor->sector(), actor->spr.pos));
 				break;
 			case kMarkerLowWater:
 			case kMarkerLowStack:
@@ -147,7 +147,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->lowerLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->set_int_z(getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y));
+				actor->set_int_z(getceilzofslopeptr(actor->sector(), actor->spr.pos));
 				break;
 			}
 		}
@@ -204,7 +204,7 @@ int CheckLink(DBloodActor* actor)
 		if (aUpper->spr.type == kMarkerUpLink)
 			z = aUpper->int_pos().Z;
 		else
-			z = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+			z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 		if (z <= actor->int_pos().Z)
 		{
 			aLower = aUpper->GetOwner();
@@ -218,7 +218,7 @@ int CheckLink(DBloodActor* actor)
 			if (aLower->spr.type == kMarkerLowLink)
 				z2 = aLower->int_pos().Z;
 			else
-				z2 = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 			add.Z = z2 - z;
 			actor->add_int_pos(add);
 			actor->interpolated = false;
@@ -231,7 +231,7 @@ int CheckLink(DBloodActor* actor)
 		if (aLower->spr.type == kMarkerLowLink)
 			z = aLower->int_pos().Z;
 		else
-			z = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+			z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 		if (z >= actor->int_pos().Z)
 		{
 			aUpper = aLower->GetOwner();
@@ -245,7 +245,7 @@ int CheckLink(DBloodActor* actor)
 			if (aUpper->spr.type == kMarkerUpLink)
 				z2 = aUpper->int_pos().Z;
 			else
-				z2 = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 			add.Z = z2 - z;
 			actor->add_int_pos(add);
 			actor->interpolated = false;

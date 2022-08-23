@@ -290,6 +290,23 @@ int getflorzofslopeptr(const sectortype* sec, int dax, int day);
 void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
 void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
 
+inline int getceilzofslopeptr(const sectortype* sec, const DVector3& pos)
+{
+	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
+}
+inline int getflorzofslopeptr(const sectortype* sec, const DVector3& pos)
+{
+	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
+}
+inline void getzsofslopeptr(const sectortype* sec, const DVector3& pos, int* ceilz, int* florz)
+{
+	getzsofslopeptr(sec, int(pos.X * worldtoint), int(pos.Y * worldtoint), ceilz, florz);
+}
+inline void getzsofslopeptr(const sectortype* sec, const DVector3& pos, double* ceilz, double* florz)
+{
+	getzsofslopeptr(sec, pos.X, pos.Y, ceilz, florz);
+}
+
 inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
 {
 	return getceilzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
@@ -297,6 +314,10 @@ inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
 inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
 {
 	return getflorzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
+}
+inline double getflorzofslopeptrf(const sectortype* sec, const DVector2& pos)
+{
+	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint) * zinttoworld;
 }
 
 

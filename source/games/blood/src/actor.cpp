@@ -4882,7 +4882,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			if (bUnderwater)
 			{
-				int cz = getceilzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
+				int cz = getceilzofslopeptr(pSector, actor->spr.pos);
 				if (cz > top)
 					vc += ((bottom - cz) * -80099) / (bottom - top);
 				else
@@ -4890,7 +4890,7 @@ void MoveDude(DBloodActor* actor)
 			}
 			else
 			{
-				int fz = getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
+				int fz = getflorzofslopeptr(pSector, actor->spr.pos);
 				if (fz < bottom)
 					vc += ((bottom - fz) * -80099) / (bottom - top);
 			}
@@ -5665,7 +5665,7 @@ static void actCheckThings()
 			{
 				int top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				if (getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y) <= bottom)
+				if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 				{
 					int angle = pXSector->panAngle;
 					int speed = 0;
@@ -6090,7 +6090,7 @@ static void actCheckDudes()
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y) <= bottom)
+			if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 			{
 				int angle = pXSector->panAngle;
 				int speed = 0;

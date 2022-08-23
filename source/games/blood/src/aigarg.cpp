@@ -370,7 +370,7 @@ static void gargThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				int floorZ = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+				int floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				switch (actor->spr.type)
 				{
 				case kDudeGargoyleFlesh:

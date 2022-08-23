@@ -951,7 +951,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			int floorZ = getflorzofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y);
+			int floorZ = getflorzofslopeptr(pSector, actor->spr.pos);
 			if (!(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
 			{
 				viewBackupSpriteLoc(actor);

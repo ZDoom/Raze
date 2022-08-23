@@ -358,7 +358,7 @@ int DoBloodSpray(DSWActor* actor)
         // special stuff for blood worm
         actor->add_int_z((actor->user.change.Z >> 1));
 
-        getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &cz, &fz);
+        getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
         // pretend like we hit a sector
         if (actor->int_pos().Z >= fz)
         {
@@ -715,8 +715,7 @@ int DoPhosphorus(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
 
-        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(),
-                          actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), 100);
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
 
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
         SetOwner(actor, actorNew);

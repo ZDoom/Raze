@@ -1325,9 +1325,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) + Z(16),
-                         actor->int_ang(), 0);
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfTop(actor).plusZ(16), actor->spr.angle, 0);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 

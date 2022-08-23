@@ -224,7 +224,7 @@ void CFX::fxProcess(void)
 				remove(actor);
 				continue;
 			}
-			if (getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y) <= actor->int_pos().Z)
+			if (getflorzofslopeptr(actor->sector(), actor->spr.pos) <= actor->int_pos().Z)
 			{
 				if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
 				{
@@ -243,7 +243,7 @@ void CFX::fxProcess(void)
 		if (actor->vel.X || actor->vel.Y || actor->vel.Z)
 		{
 			int32_t floorZ, ceilZ;
-			getzsofslopeptr(pSector, actor->int_pos().X, actor->int_pos().Y, &ceilZ, &floorZ);
+			getzsofslopeptr(pSector, actor->spr.pos, &ceilZ, &floorZ);
 			if (ceilZ > actor->int_pos().Z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
 			{
 				remove(actor);

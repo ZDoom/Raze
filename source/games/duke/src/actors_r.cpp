@@ -453,7 +453,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	gutz = actor->int_pos().Z - (8 << 8);
-	floorz = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
+	floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);

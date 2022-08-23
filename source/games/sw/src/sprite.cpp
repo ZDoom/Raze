@@ -1558,7 +1558,7 @@ void SpriteSetup(void)
     while (auto actor = it.Next())
     {
         // not used yetv
-        getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &cz, &fz);
+        getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
         if (actor->int_pos().Z > ((cz + fz) >> 1))
         {
             // closer to a floor
@@ -6590,14 +6590,11 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     actor->user.z_tgt = 0;
     if ((dasect != actor->sector()) && (dasect != nullptr))
     {
-        int new_loz,new_hiz;
-        getzsofslopeptr(dasect, actor->int_pos().X, actor->int_pos().Y, &new_hiz, &new_loz);
-
-        actor->set_int_z(new_loz);
+ 		actor->spr.pos.Z = getflorzofslopeptrf(dasect, actor->spr.pos.X, actor->spr.pos.Y);
         ChangeActorSect(actor, dasect);
     }
 
-    getzsofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y, &actor->user.hiz, &actor->user.loz);
+    getzsofslopeptr(actor->sector(), actor->spr.pos, &actor->user.hiz, &actor->user.loz);
 
     actor->user.hi_sectp = actor->user.lo_sectp = actor->sector();
     actor->user.highActor = nullptr; actor->user.lowActor = nullptr;

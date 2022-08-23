@@ -1929,7 +1929,7 @@ void playerProcess(PLAYER* pPlayer)
 		auto link = actor->sector()->lowerLink;
 		if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
 		{
-			if (getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y) > pPlayer->zView)
+			if (getceilzofslopeptr(actor->sector(), actor->spr.pos) > pPlayer->zView)
 				pPlayer->isUnderwater = 0;
 		}
 	}
