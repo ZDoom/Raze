@@ -16826,11 +16826,8 @@ bool SpriteWarpToSurface(DSWActor* actor)
     if (!Found) return false;
 
     // get the offset from the under sprite
-    sx = underActor->int_pos().X - actor->int_pos().X;
-    sy = underActor->int_pos().Y - actor->int_pos().Y;
-
     // update to the new x y position
-    actor->set_int_xy(overActor->int_pos().X - sx, overActor->int_pos().Y - sy);
+	actor->spr.pos += overActor->spr.pos.XY() - underActor->spr.pos.XY();
 
     auto over = overActor->sector();
     auto under = underActor->sector();
