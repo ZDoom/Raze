@@ -132,7 +132,7 @@ static void eelThinkTarget(DBloodActor* actor)
 			else if (nDist < pDudeInfo->hearDist)
 			{
 				pDudeExtraE->thinkTime = 0;
-				aiSetTarget(actor, x, y, z);
+				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 			}
 			else

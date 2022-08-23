@@ -599,6 +599,12 @@ inline int approxDist(int dx, int dy)
 	return dx + dy;
 }
 
+// this is merely a refactoring aid to allow partial upgrading of certain functions.
+inline int approxDist(const DVector2& vect)
+{
+	return int(vect.Length() * worldtoint);
+}
+
 class Rect {
 public:
 	int x0, y0, x1, y1;

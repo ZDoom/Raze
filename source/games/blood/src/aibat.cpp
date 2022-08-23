@@ -98,19 +98,16 @@ static void batThinkTarget(DBloodActor* actor)
 			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->actor->spr.pos;
-			int x = pPlayer->actor->int_pos().X;
-			int y = pPlayer->actor->int_pos().Y;
-			int z = pPlayer->actor->int_pos().Z;
+			auto dvec = ppos - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->int_pos().X;
-			int dy = y - actor->int_pos().Y;
-			int nDist = approxDist(dx, dy);
+
+			int nDist = approxDist(dvec);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+			int nDeltaAngle = ((getangle(dvec) + 1024 - actor->int_ang()) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, pPlayer->actor);
@@ -118,7 +115,7 @@ static void batThinkTarget(DBloodActor* actor)
 			}
 			else if (nDist < pDudeInfo->hearDist)
 			{
-				aiSetTarget(actor, x, y, z);
+				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 			}
 			else
@@ -138,10 +135,9 @@ static void batThinkGoto(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(dx, dy);
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
+	int nAngle = getangle(dvec);
+	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &batSearch);
@@ -159,18 +155,17 @@ static void batThinkPonder(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
-	int dx = pTarget->int_pos().X - actor->int_pos().X;
-	int dy = pTarget->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, getangle(dx, dy));
+	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
+	aiChooseDirection(actor, getangle(dvec));
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
+	int nDist = approxDist(dvec);
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = ((getangle(dvec) + 1024 - actor->int_ang()) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		int height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) << 2;
 		int top, bottom;
@@ -260,9 +255,9 @@ static void batThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
-	int dx = pTarget->int_pos().X - actor->int_pos().X;
-	int dy = pTarget->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, getangle(dx, dy));
+	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
+
+	aiChooseDirection(actor, getangle(dvec));
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
@@ -273,10 +268,10 @@ static void batThinkChase(DBloodActor* actor)
 		aiNewState(actor, &batSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
+	int nDist = approxDist(dvec);
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = ((getangle(dvec) + 1024 - actor->int_ang()) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		// Should be dudeInfo[pTarget->spr.type-kDudeBase]
 		int height2 = (pDudeInfo->eyeHeight * pTarget->spr.yrepeat) << 2;
@@ -320,9 +315,8 @@ static void batMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
+	int nDist = approxDist(dvec);
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x200)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -352,9 +346,8 @@ static void batMoveSwoop(DBloodActor* actor)
 		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
+	int nDist = approxDist(dvec);
 	if (Chance(0x600) && nDist <= 0x200)
 		return;
 	int nCos = Cos(actor->int_ang());
@@ -382,9 +375,8 @@ static void batMoveFly(DBloodActor* actor)
 		actor->spr.angle += DAngle90;
 		return;
 	}
-	int dx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int dy = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nDist = approxDist(dx, dy);
+	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
+	int nDist = approxDist(dvec);
 	if (Chance(0x4000) && nDist <= 0x200)
 		return;
 	int nCos = Cos(actor->int_ang());

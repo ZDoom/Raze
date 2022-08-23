@@ -1506,20 +1506,17 @@ void aiThinkTarget(DBloodActor* actor)
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->actor->spr.pos;
-			int x = pPlayer->actor->int_pos().X;
-			int y = pPlayer->actor->int_pos().Y;
-			int z = pPlayer->actor->int_pos().Z;
+			auto dvec = ppos - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->int_pos().X;
-			int dy = y - actor->int_pos().Y;
-			int nDist = approxDist(dx, dy);
+
+			int nDist = approxDist(dvec);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 
-			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+			int nDeltaAngle = ((getangle(dvec) + 1024 - actor->int_ang()) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, pPlayer->actor);
@@ -1528,7 +1525,7 @@ void aiThinkTarget(DBloodActor* actor)
 			}
 			else if (nDist < pDudeInfo->hearDist)
 			{
-				aiSetTarget(actor, x, y, z);
+				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1554,19 +1551,16 @@ void aiLookForTarget(DBloodActor* actor)
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->actor->spr.pos;
-			int x = pPlayer->actor->int_pos().X;
-			int y = pPlayer->actor->int_pos().Y;
-			int z = pPlayer->actor->int_pos().Z;
+			auto dvec = ppos - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
-			int dx = x - actor->int_pos().X;
-			int dy = y - actor->int_pos().Y;
-			int nDist = approxDist(dx, dy);
+
+			int nDist = approxDist(dvec);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+			int nDeltaAngle = ((getangle(dvec) + 1024 - actor->int_ang()) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, pPlayer->actor);
@@ -1575,7 +1569,7 @@ void aiLookForTarget(DBloodActor* actor)
 			}
 			else if (nDist < pDudeInfo->hearDist)
 			{
-				aiSetTarget(actor, x, y, z);
+				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1588,9 +1582,7 @@ void aiLookForTarget(DBloodActor* actor)
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())
 			{
-				int dx = actor2->int_pos().X - actor->int_pos().X;
-				int dy = actor2->int_pos().Y - actor->int_pos().Y;
-				int nDist = approxDist(dx, dy);
+				int nDist = approxDist(actor2->spr.pos.XY() - actor->spr.pos.XY());
 				if (actor2->spr.type == kDudeInnocent)
 				{
 					pDudeInfo = getDudeInfo(actor2->spr.type);
