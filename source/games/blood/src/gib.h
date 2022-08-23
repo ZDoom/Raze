@@ -59,11 +59,6 @@ enum GIBTYPE {
 	kGibMax
 };
 
-class CGibPosition {
-public:
-	int x, y, z;
-	CGibPosition(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
-};
 
 class CGibVelocity {
 public:
@@ -71,6 +66,6 @@ public:
 	CGibVelocity(int _vx, int _vy, int _vz) : vx(_vx), vy(_vy), vz(_vz) {}
 };
 
-void GibSprite(DBloodActor* pSprite, GIBTYPE nGibType, CGibPosition* pPos, CGibVelocity* pVel);
+void GibSprite(DBloodActor* pSprite, GIBTYPE nGibType, DVector3* pPos, CGibVelocity* pVel);
 void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity* pVel);
 END_BLD_NS

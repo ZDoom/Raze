@@ -290,19 +290,23 @@ int getflorzofslopeptr(const sectortype* sec, int dax, int day);
 void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
 void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
 
-inline int getceilzofslopeptr(const sectortype* sec, const DVector3& pos)
+template<class Vector>
+inline int getceilzofslopeptr(const sectortype* sec, const Vector& pos)
 {
 	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
 }
-inline int getflorzofslopeptr(const sectortype* sec, const DVector3& pos)
+template<class Vector>
+inline int getflorzofslopeptr(const sectortype* sec, const Vector& pos)
 {
 	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
 }
-inline void getzsofslopeptr(const sectortype* sec, const DVector3& pos, int* ceilz, int* florz)
+template<class Vector>
+inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, int* ceilz, int* florz)
 {
 	getzsofslopeptr(sec, int(pos.X * worldtoint), int(pos.Y * worldtoint), ceilz, florz);
 }
-inline void getzsofslopeptr(const sectortype* sec, const DVector3& pos, double* ceilz, double* florz)
+template<class Vector>
+inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, double* ceilz, double* florz)
 {
 	getzsofslopeptr(sec, pos.X, pos.Y, ceilz, florz);
 }

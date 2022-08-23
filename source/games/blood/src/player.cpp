@@ -2170,9 +2170,9 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 				break;
 			default:
 			{
-				int top, bottom;
+				double top, bottom;
 				GetActorExtents(pActor, &top, &bottom);
-				CGibPosition gibPos(pActor->int_pos().X, pActor->int_pos().Y, top);
+				DVector3 gibPos(pActor->spr.pos.XY(), top);
 				CGibVelocity gibVel(pActor->vel.X >> 1, pActor->vel.Y >> 1, -0xccccc);
 				GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
 				GibSprite(pActor, GIBTYPE_7, NULL, NULL);

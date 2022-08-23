@@ -269,31 +269,31 @@ int ChanceToCount(int a1, int a2)
 //
 //---------------------------------------------------------------------------
 
-void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pVel)
+void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 {
 	auto pSector = actor->sector();
 	if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
 		return;
-	CGibPosition gPos(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
-	if (pPos)
-		gPos = *pPos;
+	
+	auto gPos = pPos? *pPos : actor->spr.pos;
+
 	int32_t ceilZ, floorZ;
-	getzsofslopeptr(pSector, gPos.x, gPos.y, &ceilZ, &floorZ);
+	getzsofslopeptr(pSector, gPos.XY(), &ceilZ, &floorZ);
 	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
-	int dz1 = floorZ - gPos.z;
-	int dz2 = gPos.z - ceilZ;
-	int top, bottom;
+	int dz1 = floorZ - gPos.Z * worldtoint;
+	int dz2 = gPos.Z * worldtoint - ceilZ;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	for (int i = 0; i < nCount; i++)
 	{
 		if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
 			int nAngle = Random(2048);
-			gPos.x = actor->int_pos().X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
-			gPos.y = actor->int_pos().Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
-			gPos.z = bottom - Random(bottom - top);
+			gPos.X = actor->spr.pos.X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30) * inttoworld;
+			gPos.Y = actor->spr.pos.Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30) * inttoworld;
+			gPos.Z = bottom - Random(bottom - top);
 		}
-		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos.x, gPos.y, gPos.z, 0);
+		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos, 0);
 		if (pFX)
 		{
 			if (pGFX->at1 < 0)
@@ -342,7 +342,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, CGibPosition* pPos, CGibVelocity* pV
 //
 //---------------------------------------------------------------------------
 
-void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVelocity* pVel)
+void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocity* pVel)
 {
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		switch (pGThing->type) {
@@ -366,9 +366,9 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 		}
 		else
 		{
-			x = pPos->x;
-			y = pPos->y;
-			z = pPos->z;
+			x = pPos->X * worldtoint;
+			y = pPos->Y * worldtoint;
+			z = pPos->Z * zworldtoint;
 		}
 		int32_t ceilZ, floorZ;
 		getzsofslopeptr(pSector, x, y, &ceilZ, &floorZ);
@@ -419,7 +419,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, CGibPosition* pPos, CGibVel
 //
 //---------------------------------------------------------------------------
 
-void GibSprite(DBloodActor* actor, GIBTYPE nGibType, CGibPosition* pPos, CGibVelocity* pVel)
+void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, CGibVelocity* pVel)
 {
 	assert(actor != NULL);
 	assert(nGibType >= 0 && nGibType < kGibMax);

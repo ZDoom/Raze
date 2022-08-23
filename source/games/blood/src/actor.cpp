@@ -2974,9 +2974,9 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 				else if (Chance(0x2000)) nGibType = GIBTYPE_5;
 				else nGibType = GIBTYPE_17;
 
-				int top, bottom;
+				double top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				CGibPosition gibPos(actor->int_pos().X, actor->int_pos().Y, top);
+				DVector3 gibPos(actor->spr.pos.XY(), top);
 				CGibVelocity gibVel(actor->vel.X >> 1, actor->vel.Y >> 1, -0xccccc);
 				GibSprite(actor, nGibType, &gibPos, &gibVel);
 			}
@@ -3212,9 +3212,9 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 
 static void spawnGibs(DBloodActor* actor, int type, int velz)
 {
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	CGibPosition gibPos(actor->int_pos().X, actor->int_pos().Y, top);
+	DVector3 gibPos(actor->spr.pos.XY(), top);
 	CGibVelocity gibVel(actor->vel.X >> 1, actor->vel.Y >> 1, velz);
 	GibSprite(actor, GIBTYPE_27, &gibPos, &gibVel);
 }
