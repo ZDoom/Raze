@@ -827,27 +827,27 @@ static void unicultThinkChase(DBloodActor* actor)
 												}
 												break;
 											}
-											if (actor->int_pos().X < hitactor->int_pos().X)
+											if (actor->spr.pos.X < hitactor->spr.pos.X)
 											{
-												if (Chance(0x9000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = -1;
+												if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = -1;
 												else actor->xspr.dodgeDir = 1;
 											}
 											else
 											{
-												if (Chance(0x9000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = 1;
+												if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = 1;
 												else actor->xspr.dodgeDir = -1;
 											}
 										}
 										break;
 									default:
-										if (actor->int_pos().X < hitactor->int_pos().X)
+										if (actor->spr.pos.X < hitactor->spr.pos.X)
 										{
-											if (Chance(0x9000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = -1;
+											if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = -1;
 											else actor->xspr.dodgeDir = 1;
 										}
 										else
 										{
-											if (Chance(0x9000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = 1;
+											if (Chance(0x9000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = 1;
 											else actor->xspr.dodgeDir = -1;
 										}
 										break;
@@ -884,14 +884,14 @@ static void unicultThinkChase(DBloodActor* actor)
 										else if (inDuck(actor->xspr.aiState)) aiGenDudeNewState(actor, &genDudeDodgeShorterD);
 										else aiGenDudeNewState(actor, &genDudeDodgeShorterL);
 
-										if (actor->int_pos().X < hitactor->int_pos().X)
+										if (actor->spr.pos.X < hitactor->spr.pos.X)
 										{
-											if (Chance(0x3000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = -1;
+											if (Chance(0x3000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = -1;
 											else actor->xspr.dodgeDir = 1;
 										}
 										else
 										{
-											if (Chance(0x3000) && target->int_pos().X > hitactor->int_pos().X) actor->xspr.dodgeDir = 1;
+											if (Chance(0x3000) && target->spr.pos.X > hitactor->spr.pos.X) actor->xspr.dodgeDir = 1;
 											else actor->xspr.dodgeDir = -1;
 										}
 
