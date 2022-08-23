@@ -980,10 +980,10 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atwith)
+void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atwith)
 {
 	int j;
-	int sn = -1, darkestwall;
+	int darkestwall;
 
 	if (wal->overpicnum == MIRROR && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
 	{
@@ -996,7 +996,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	}
 
 	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
-		if (wal->nextSector()->int_floorz() > z)
+		if (wal->nextSector()->floorz > pos.Z)
 			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
 				{
@@ -1015,7 +1015,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				case RRTILE1973:
 				{
 					sectortype* sptr = nullptr;
-					updatesector(x, y, &sptr);
+					updatesector(pos, &sptr);
 					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
 					lotsofpopcorn(spr, wal, 64);
@@ -1024,7 +1024,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1036,7 +1036,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				case GLASS:
 				{
 					sectortype* sptr = nullptr;
-					updatesector(x, y, &sptr);
+					updatesector(pos, &sptr);
 					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
 					lotsofglass(spr, wal, 10);
@@ -1045,7 +1045,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1056,7 +1056,10 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					return;
 				}
 				case STAINGLASS1:
-					updatesector(x, y, &sn); if (sn < 0) return;
+				{
+					sectortype* sptr = nullptr;
+					updatesector(pos, &sptr);
+					if (sptr == nullptr) return;
 					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
 					if (wal->twoSided())
@@ -1064,6 +1067,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
 					return;
+				}
 				}
 
 	switch (wal->picnum)
@@ -1408,10 +1412,7 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 	{
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal,
-			p->player_int_pos().X + p->angle.ang.Cos() * (1 << 5),
-			p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 5),
-			p->player_int_pos().Z, -1);
+		fi.checkhitwall(p->GetActor(), wal, p->pos + DVector2(p->angle.ang.Cos() * 2, p->angle.ang.Sin() * 2), -1);
 		break;
 
 	}

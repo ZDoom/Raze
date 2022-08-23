@@ -253,7 +253,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					updatesector(w1, &sect);
 
 					if (sect && cansee(w1, sect, actor->spr.pos, actor->sector()))
-						fi.checkhitwall(actor, &wal, wal.wall_int_pos().X, wal.wall_int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
+						fi.checkhitwall(actor, &wal, DVector3(wal.pos, actor->spr.pos.Z), actor->spr.picnum);
 				}
 			}
 		}
@@ -1060,7 +1060,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 	else
 	{
 		SetActor(proj, oldpos);
-		fi.checkhitwall(proj, wal, proj->int_pos().X, proj->int_pos().Y, proj->int_pos().Z, proj->spr.picnum);
+		fi.checkhitwall(proj, wal, proj->spr.pos, proj->spr.picnum);
 
 		if (!isRRRA() && proj->spr.picnum == FREEZEBLAST)
 		{
@@ -2428,7 +2428,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (coll.type == kHitWall)
 	{
 		auto wal = coll.hitWall;
-		fi.checkhitwall(actor, wal, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->spr.picnum);
+		fi.checkhitwall(actor, wal, actor->spr.pos, actor->spr.picnum);
 
 		int k = getangle(wal->delta());
 
