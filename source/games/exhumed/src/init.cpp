@@ -39,7 +39,7 @@ enum
     kTagRamses = 61,
 };
 
-int initx, inity, initz;
+DVector3 initpos;
 int16_t inita;
 sectortype* initsectp;
 
@@ -140,13 +140,9 @@ uint8_t LoadLevel(MapRecord* map)
         nStopSound = 66;
     }
 
-    vec3_t startPos;
     int initsect;
     SpawnSpriteDef spawned;
-    loadMap(currentLevel->fileName, 0, &startPos, &inita, &initsect, spawned);
-    initx = startPos.X;
-    inity = startPos.Y;
-    initz = startPos.Z;
+    loadMap(currentLevel->fileName, 0, &initpos, &inita, &initsect, spawned);
     initsectp = &sector[initsect];
     auto actors = spawnactors(spawned);
 
@@ -175,7 +171,7 @@ void InitLevel(MapRecord* map)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        SetSavePoint(i, initx, inity, initz, initsectp, inita);
+        SetSavePoint(i, initpos, initsectp, inita);
         RestartPlayer(i);
         InitPlayerKeys(i);
     }
@@ -750,7 +746,7 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
     {
         auto pActor = insertActor(initsectp, 0);
 
-        pActor->set_int_pos({ initx, inity, initz });
+        pActor->spr.pos = initpos;
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
@@ -813,18 +809,14 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
         runlist_ReadyChannel(nChannel);
     }
 
-    nCamerax = initx;
-    nCameray = inity;
-    nCameraz = initz;
+    nCamera = initpos;
 }
 
 void SerializeInit(FSerializer& arc)
 {
     if (arc.BeginObject("init"))
     {
-        arc("initx", initx)
-            ("inity", inity)
-            ("initz", initz)
+        arc("init", initpos)
             ("inita", inita)
             ("initsect", initsectp)
             ("curchunk", nCurChunkNum)

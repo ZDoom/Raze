@@ -71,7 +71,6 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
 	auto sectp = initsectp;
-	DVector3 initpos = { initx * inttoworld, inity * inttoworld, sectp->floorz };
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initpos, sectp, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(nullptr, initpos, sectp, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initpos, sectp, inita);

@@ -432,14 +432,14 @@ void fixSectors()
 	}
 }
 
-void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors, bool noabort)
+void validateStartSector(const char* filename, const DVector3& pos, int* cursectnum, unsigned numsectors, bool noabort)
 {
 
 	if ((unsigned)(*cursectnum) >= numsectors)
 	{
 		sectortype* sect = nullptr;
-		updatesectorz(pos.X, pos.Y, pos.Z, &sect);
-		if (!sect) updatesector(pos.X, pos.Y, &sect);
+		updatesectorz(pos, &sect);
+		if (!sect) updatesector(pos, &sect);
 		if (sect || noabort)
 		{
 			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, *cursectnum, numsectors);
@@ -454,7 +454,7 @@ void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnu
 
 }
 
-void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
+void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
 {
 	inputState.ClearAllInput();
 
@@ -466,9 +466,9 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 		I_Error("%s: Invalid map format, expected 5-9, got %d", filename, mapversion);
 	}
 
-	pos->X = fr.ReadInt32();
-	pos->Y = fr.ReadInt32();
-	pos->Z = fr.ReadInt32();
+	pos->X = fr.ReadInt32() * maptoworld;
+	pos->Y = fr.ReadInt32() * maptoworld;
+	pos->Z = fr.ReadInt32() * zmaptoworld;
 	*ang = fr.ReadInt16() & 2047;
 	*cursectnum = fr.ReadUInt16();
 
@@ -533,7 +533,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 
 	//Must be last.
 	fixSectors();
-	updatesector(pos->X, pos->Y, cursectnum);
+	updatesector(*pos, cursectnum);
 	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
@@ -717,24 +717,24 @@ TArray<walltype> loadMapWalls(const char* filename)
 }
 
 
-void qloadboard(const char* filename, uint8_t flags, vec3_t* dapos, int16_t* daang);
+void qloadboard(const char* filename, uint8_t flags, DVector3* dapos, int16_t* daang);
 
 
 // loads a map into the backup buffer.
 void loadMapBackup(const char* filename)
 {
-	vec3_t pos;
+	DVector3 fpos;
 	int16_t scratch;
 	int scratch2;
 	SpawnSpriteDef scratch3;
 
 	if (isBlood())
 	{
-		qloadboard(filename, 0, &pos, &scratch);
+		qloadboard(filename, 0, &fpos, &scratch);
 	}
 	else
 	{
-		loadMap(filename, 0, &pos, &scratch, &scratch2, scratch3);
+		loadMap(filename, 0, &fpos, &scratch, &scratch2, scratch3);
 	}
 }
 

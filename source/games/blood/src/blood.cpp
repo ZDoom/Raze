@@ -250,9 +250,8 @@ void StartLevel(MapRecord* level, bool newgame)
 	//drawLoadingScreen();
 	BloodSpawnSpriteDef sprites;
 	int startsectno;
-	vec3_t startposi;
-	dbLoadMap(currentLevel->fileName, (int*)&startposi.X, (int*)&startposi.Y, (int*)&startposi.Z, &startang, &startsectno, nullptr, sprites);
-	DVector3 startpos(startposi.X * maptoworld, startposi.Y * maptoworld, startposi.Z * maptoworld);
+	DVector3 startpos;
+	dbLoadMap(currentLevel->fileName, startpos, &startang, &startsectno, nullptr, sprites);
 	startsector = &sector[startsectno];
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);

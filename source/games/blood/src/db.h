@@ -101,7 +101,7 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat);
 int DeleteSprite(DBloodActor* actor);
 
 unsigned int dbReadMapCRC(const char* pPath);
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites);
+void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites);
 
 
 END_BLD_NS

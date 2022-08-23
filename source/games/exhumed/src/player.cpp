@@ -101,11 +101,9 @@ size_t MarkPlayers()
     return 5 * kMaxPlayers;
 }
 
-void SetSavePoint(int nPlayer, int x, int y, int z, sectortype* pSector, int nAngle)
+void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, int nAngle)
 {
-    PlayerList[nPlayer].sPlayerSave.x = x;
-    PlayerList[nPlayer].sPlayerSave.y = y;
-    PlayerList[nPlayer].sPlayerSave.z = z;
+    PlayerList[nPlayer].sPlayerSave.pos = pos;
     PlayerList[nPlayer].sPlayerSave.pSector = pSector;
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
@@ -278,7 +276,8 @@ void RestartPlayer(int nPlayer)
 	}
 	else
 	{
-        pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
+        pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
+		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
 		plr->angle.ang = DAngle::fromBuild(plr->sPlayerSave.nAngle&kAngleMask);
 		pActor->spr.angle = plr->angle.ang;
 
@@ -2172,7 +2171,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), pPlayerActor->int_ang());
+                    SetSavePoint(nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->int_ang());
                     break;
                 }
 
@@ -2516,9 +2515,7 @@ sectdone:
     // loc_1C3B4:
     if (nPlayer == nLocalPlayer)
     {
-        initx = pPlayerActor->int_pos().X;
-        inity = pPlayerActor->int_pos().Y;
-        initz = pPlayerActor->int_pos().Z;
+        initpos = pPlayerActor->spr.pos;
         initsectp = pPlayerActor->sector();
         inita = pPlayerActor->int_ang();
     }
@@ -2643,9 +2640,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerSave& w, Pla
 {
     if (arc.BeginObject(keyname))
     {
-        arc("x", w.x)
-            ("y", w.y)
-            ("z", w.z)
+        arc("pos", w.pos)
             ("sector", w.pSector)
             ("angle", w.nAngle)
             .EndObject();

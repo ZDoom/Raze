@@ -1055,9 +1055,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         TODO: Might need to be done elsewhere too?
     */
     auto pActor = PlayerList[nLocalPlayer].pActor;
-    initx = pActor->int_pos().X;
-    inity = pActor->int_pos().Y;
-    initz = pActor->int_pos().Z;
+    initpos = pActor->spr.pos;
     inita = pActor->int_ang();
     initsectp = pActor->sector();
 }

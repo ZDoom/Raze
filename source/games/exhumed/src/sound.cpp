@@ -425,15 +425,15 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        vec3_t campos;
+        DVector3 campos;
         if (nSnakeCam > -1)
         {
             Snake* pSnake = &SnakeList[nSnakeCam];
-            campos = pSnake->pSprites[0]->int_pos();
+            campos = pSnake->pSprites[0]->spr.pos;
         }
         else
         {
-            campos = { initx, inity, initz };
+            campos = initpos;
         }
         auto fcampos = GetSoundPos(campos);
 
@@ -477,7 +477,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             assert(actor != nullptr);
             if (actor != nullptr)
             {
-                *pos = GetSoundPos(actor->int_pos());
+                *pos = GetSoundPos(actor->spr.pos);
             }
         }
         if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
@@ -498,20 +498,19 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
-    vec3_t pos;
+    DVector3 pos;
     int ang;
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
-        pos = pSnake->pSprites[0]->int_pos();
+        pos = pSnake->pSprites[0]->spr.pos;
         ang = pSnake->pSprites[0]->int_ang();
     }
     else
     {
-        pos = { initx, inity, initz };
+        pos = initpos;
         ang = inita;
     }
-    auto fv = GetSoundPos(pos);
     SoundListener listener;
     listener.angle = float(-ang * BAngRadian); // Build uses a period of 2048.
     listener.velocity.Zero();

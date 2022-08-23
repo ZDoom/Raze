@@ -39,11 +39,7 @@ bool bSubTitles = true;
 int zbob;
 
 int16_t dVertPan[kMaxPlayers];
-int nCamerax;
-int nCameray;
-int nCameraz;
-
-
+DVector3 nCamera;
 bool bTouchFloor;
 
 int16_t nQuake[kMaxPlayers] = { 0 };
@@ -291,9 +287,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
     }
-    nCamerax = playerX;
-    nCameray = playerY;
-    nCameraz = playerZ;
+    nCamera = DVector3(playerX * inttoworld, playerY * inttoworld, playerZ * zinttoworld);
 
     if (pSector != nullptr)
     {
@@ -346,7 +340,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
+        render_drawrooms(nullptr, { int(nCamera.X * worldtoint), int(nCamera.Y * worldtoint), viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
 
         if (HavePLURemap())
         {
@@ -460,9 +454,7 @@ void SerializeView(FSerializer& arc)
 {
     if (arc.BeginObject("view"))
     {
-        arc("camerax", nCamerax)
-            ("cameray", nCameray)
-            ("cameraz", nCameraz)
+        arc("camera", nCamera)
             ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
             ("cameraa", nCameraa)

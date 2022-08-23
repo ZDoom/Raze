@@ -52,9 +52,7 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern int initx;
-extern int inity;
-extern int initz;
+extern DVector3 initpos;
 extern int16_t inita;
 extern sectortype* initsectp;
 
