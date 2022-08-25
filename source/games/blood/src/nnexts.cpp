@@ -3142,9 +3142,9 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		if (toAng)
 		{
 			if (toAng180)
-				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, kAng180, pSprite->spr.pos.X, pSprite->spr.pos.Y);
+				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, kAng180, pSprite->int_pos().X, pSprite->int_pos().Y);
 			else
-				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, (nAng - vAng) & 2047, pSprite->spr.pos.X, pSprite->spr.pos.Y);
+				RotatePoint(&pSprite->vel.X, &pSprite->vel.Y, (nAng - vAng) & 2047, pSprite->int_pos().X, pSprite->int_pos().Y);
 
 
 			vAng = getVelocityAngle(pSprite);
@@ -3299,7 +3299,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		if (sourceactor->xspr.data3 & kModernTypeFlag2)
 		{
 			int vAng = getVelocityAngle(actor);
-			RotatePoint(&actor->vel.X, &actor->vel.Y, (sourceactor->spr.ang - vAng) & 2047, actor->spr.pos.X, actor->spr.pos.Y);
+			RotatePoint(&actor->vel.X, &actor->vel.Y, (sourceactor->spr.ang - vAng) & 2047, actor->int_pos().X, actor->int_pos().Y);
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
@@ -3367,9 +3367,9 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			if (actor->insector())
 			{
 				if (sourceactor->xspr.data4 == 3)
-					pos = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					pos = getflorzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
 				else
-					pos = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					pos = getceilzofslopeptr(actor->sector(), actor->int_pos().X, actor->int_pos().Y);
 
 				break;
 			}

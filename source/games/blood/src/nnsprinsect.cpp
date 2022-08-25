@@ -197,8 +197,8 @@ TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, int nDist)
             if (skip.Find(ac))
                 continue;
 
-            sx = ac->spr.pos.X;	qx = sx - wx;
-            sy = ac->spr.pos.Y;	qy = sy - wy;
+            sx = ac->int_pos().X;	qx = sx - wx;
+            sy = ac->int_pos().Y;	qy = sy - wy;
             num = DMulScale(qx, lx, qy, ly, 4);
             den = DMulScale(lx, lx, ly, ly, 4);
 

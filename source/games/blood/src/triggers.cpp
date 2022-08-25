@@ -989,8 +989,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 						RotatePoint(&x, &y, ang, a4, a5);
 					viewBackupSpriteLoc(ac);
 					ac->spr.ang = (ac->spr.ang + v14) & 2047;
-					ac->spr.pos.X = x + vc - a4;
-					ac->spr.pos.Y = y + v8 - a5;
+					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -998,8 +997,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 						RotatePoint(&x, &y, -ang, a4, sprDy);
 					viewBackupSpriteLoc(ac);
 					ac->spr.ang = (ac->spr.ang - v14) & 2047;
-					ac->spr.pos.X = x - (vc - a4);
-					ac->spr.pos.Y = y - (v8 - a5);
+					ac->set_int_xy(x + vc - a4, y + v8 - a5);
 				}
 			}
 		}
@@ -1066,7 +1064,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.Z += pSector->floorz - oldZ;
+					ac->add_int_z(pSector->floorz - oldZ);
 				}
 			}
 		}
@@ -1104,7 +1102,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.Z += pSector->ceilingz - oldZ;
+					ac->add_int_z(pSector->ceilingz - oldZ);
 				}
 			}
 		}
@@ -2272,7 +2270,7 @@ static void UpdateBasePoints(sectortype* pSector)
 		if (ptr1)
 		{
 			for (auto& ac : *ptr1)
-				ac->basePoint = ac->spr.pos;
+				ac->basePoint = ac->int_pos();
 		}
 	}
 #endif
@@ -2284,7 +2282,7 @@ static void UpdateBasePoints(sectortype* pSector)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		actor->basePoint = actor->spr.pos;
+		actor->basePoint = actor->int_pos();
 	}
 
 }
