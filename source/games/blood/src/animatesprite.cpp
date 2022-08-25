@@ -293,7 +293,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			int y = MulScale(nLen, Sin(nAng), 30);
 			pNSprite->set_int_pos({ pTSprite->int_pos().X + x, pTSprite->int_pos().Y + y, pTSprite->int_pos().Z });
 			assert(pSector);
-			FindSector(pNSprite->pos, &pSector);
+			auto pSector2 = pSector;
+			updatesectorz(pNSprite->pos, &pSector2);
+			if (pSector2) pSector = pSector2;
 			pNSprite->sectp = pSector;
 			pNSprite->ownerActor = pTSprite->ownerActor;
 			pNSprite->picnum = pTSprite->picnum;

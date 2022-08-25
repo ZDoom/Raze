@@ -4564,7 +4564,9 @@ static Collision MoveThing(DBloodActor* actor)
 	else
 	{
 		assert(pSector);
-		FindSector(actor->spr.pos, &pSector);
+		auto pSector2 = pSector;
+		updatesectorz(actor->spr.pos, &pSector2);
+		if (pSector2) pSector = pSector2;
 	}
 
 	actor->add_int_z(actor->vel.Z >> 8);
@@ -4746,8 +4748,8 @@ void MoveDude(DBloodActor* actor)
 		if (pPlayer && gNoClip)
 		{
 			actor->add_int_pos({ actor->vel.X >> 12, actor->vel.Y >> 12, 0 });
-			if (!FindSector(actor->spr.pos.XY(), &pSector))
-				pSector = actor->sector();
+			updatesector(actor->spr.pos, &pSector);
+			if (!pSector) pSector = actor->sector();
 		}
 		else
 		{
@@ -4830,7 +4832,9 @@ void MoveDude(DBloodActor* actor)
 	else
 	{
 		assert(pSector);
-		FindSector(actor->spr.pos, &pSector);
+		auto pSector2 = pSector;
+		updatesectorz(actor->spr.pos, &pSector2);
+		if (pSector2) pSector = pSector2;
 	}
 
 	XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;

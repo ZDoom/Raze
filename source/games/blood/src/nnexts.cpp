@@ -1698,9 +1698,10 @@ void debrisMove(int listIndex)
 		}
 
 	}
-	else if (!FindSector(actor->spr.pos, &pSector))
+	else 
 	{
-		return;
+		updatesectorz(actor->spr.pos, &pSector);
+		if (!pSector) return;
 	}
 
 	if (actor->sector() != pSector)
@@ -7708,8 +7709,8 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 
 	x += MulScale(nRange, Cos(nAngle), 30);
 	y += MulScale(nRange, Sin(nAngle), 30);
-	if (!FindSector(x, y, z, &pSector))
-		return false;
+	updatesectorz(x, y, z, &pSector);
+	if (!pSector) return false;
 
 	if (pSector->hasX()) {
 
