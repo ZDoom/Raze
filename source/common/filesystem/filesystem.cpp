@@ -1612,7 +1612,7 @@ FString::FString(ELumpNum lumpnum)
 {
 	auto lumpr = fileSystem.OpenFileReader((int)lumpnum);
 	auto size = lumpr.GetLength();
-	AllocBuffer(size);
+	AllocBuffer(size + 1);
 	auto numread = lumpr.Read(&Chars[0], size);
 	Chars[size] = '\0';
 
