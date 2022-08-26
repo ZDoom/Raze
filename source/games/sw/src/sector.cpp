@@ -2249,7 +2249,7 @@ void PlayerOperateEnv(PLAYER* pp)
                         pp->KeyPressBits &= ~SB_OPEN;
 
                         // crude and very awful hack for wd secret area
-                        if (pp->cursector == &sector[491] && currentLevel->levelNumber == 11 && sector[715].lotag == TAG_SECRET_AREA_TRIGGER) 
+                        if  (sector.Size() > 715 && pp->cursector == &sector[491] && currentLevel->levelNumber == 11 && sector[715].lotag == TAG_SECRET_AREA_TRIGGER) 
                         {
                             TriggerSecret(&sector[715], pp);
                         }
