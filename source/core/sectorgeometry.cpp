@@ -139,7 +139,7 @@ public:
 		}
 
 		DVector2 dv = { (ix2 - ix1), -(iy2 - iy1) };
-		auto vang = dv.Angle() - 90.;
+		auto vang = dv.Angle() - DAngle::fromDeg(90.);
 
 		cosalign = float(vang.Cos());
 		sinalign = float(vang.Sin());

@@ -6,6 +6,7 @@
 ** Copyright 1998-2009 Randy Heit
 ** Copyright (C) 2007-2012 Skulltag Development Team
 ** Copyright (C) 2007-2016 Zandronum Development Team
+** Copyright (C) 2017-2022 GZDoom Development Team
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -49,9 +50,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdexcept>
 #include <process.h>
 #include <time.h>
 #include <map>
+#include <codecvt>
 
 #include <stdarg.h>
 
@@ -61,6 +64,8 @@
 #include <richedit.h>
 #include <wincrypt.h>
 #include <shlwapi.h>
+
+#include <shellapi.h>
 
 #include "hardware.h"
 #include "printf.h"
@@ -955,3 +960,43 @@ void I_SetThreadNumaNode(std::thread &thread, int numaNode)
 		SetThreadAffinityMask(handle, (DWORD_PTR)numaNodes[numaNode].affinityMask);
 	}
 }
+
+FString I_GetCWD()
+{
+	auto len = GetCurrentDirectoryW(0, nullptr);
+	TArray<wchar_t> curdir(len + 1, true);
+	if (!GetCurrentDirectoryW(len + 1, curdir.Data()))
+	{
+		return "";
+	}
+	FString returnv(curdir.Data());
+	FixPathSeperator(returnv);
+	return returnv;
+}
+
+bool I_ChDir(const char* path)
+{
+	return SetCurrentDirectoryW(WideString(path).c_str());
+}
+
+
+void I_OpenShellFolder(const char* infolder)
+{
+	auto len = GetCurrentDirectoryW(0, nullptr);
+	TArray<wchar_t> curdir(len + 1, true);
+	if (!GetCurrentDirectoryW(len + 1, curdir.Data()))
+	{
+		Printf("Unable to retrieve current directory\n");
+	}
+	else if (SetCurrentDirectoryW(WideString(infolder).c_str()))
+	{
+		Printf("Opening folder: %s\n", infolder);
+		ShellExecuteW(NULL, L"open", L"explorer.exe", L".", NULL, SW_SHOWNORMAL);
+		SetCurrentDirectoryW(curdir.Data());
+	}
+	else
+	{
+		Printf("Unable to open directory '%s\n", infolder);
+	}
+}
+

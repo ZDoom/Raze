@@ -150,12 +150,12 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 
 		di->Set3DViewport(RenderState);
 		float flash = 8.f / (r_scenebrightness + 8.f);
-		di->Viewpoint.FieldOfView = fov;	// Set the real FOV for the current scene (it's not necessarily the same as the global setting in r_viewpoint)
+		di->Viewpoint.FieldOfView = FAngle::fromDeg(fov);	// Set the real FOV for the current scene (it's not necessarily the same as the global setting in r_viewpoint)
 
 		// Stereo mode specific perspective projection
 		di->VPUniforms.mProjectionMatrix = eye.GetProjection(fov, ratio, fovratio);
 		// Stereo mode specific viewpoint adjustment
-		vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees);
+		vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees());
 		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
 
 		di->ProcessScene(toscreen);
@@ -199,13 +199,13 @@ FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sec
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.Z / -256.f };
-	r_viewpoint.HWAngles.Yaw = -90.f + angle.asdeg();
-	r_viewpoint.HWAngles.Pitch = -horizon.aspitch();
-	r_viewpoint.HWAngles.Roll = -rollang.asdeg();
-	r_viewpoint.FieldOfView = fov > 0? fov :  (float)r_fov;
+	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(- 90.f + angle.asdeg());
+	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(-horizon.aspitch());
+	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(-rollang.asdeg());
+	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
 	r_viewpoint.RotAngle = angle.asbam();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
-	DAngle an = 270. - r_viewpoint.HWAngles.Yaw.Degrees;
+	DAngle an = DAngle::fromDeg(270. - r_viewpoint.HWAngles.Yaw.Degrees());
 	r_viewpoint.TanSin = FocalTangent * an.Sin();
 	r_viewpoint.TanCos = FocalTangent * an.Cos();
 	r_viewpoint.ViewVector = an.ToVector();
@@ -272,7 +272,7 @@ void RenderToSavePic(FRenderViewpoint& vp, FileWriter* file, int width, int heig
 
 	twodpsp.Clear();
 
-	RenderViewpoint(vp, &bounds, vp.FieldOfView.Degrees, 1.333f, 1.333f, true, false);
+	RenderViewpoint(vp, &bounds, vp.FieldOfView.Degrees(), 1.333f, 1.333f, true, false);
 
 
 	int numpixels = width * height;
@@ -356,7 +356,7 @@ void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sect
 
 	screen->ImageTransitionScene(true); // Only relevant for Vulkan.
 
-	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, true, true);
+	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees(), ratio, fovratio, true, true);
 	All.Unclock();
 }
 
@@ -373,7 +373,7 @@ void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype*
 	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang);
 	if (cl_capfps) r_viewpoint.TicFrac = smoothratio;
 
-	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees, ratio, ratio, false, false);
+	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees(), ratio, ratio, false, false);
 	All.Unclock();
 }
 

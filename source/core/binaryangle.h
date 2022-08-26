@@ -39,6 +39,7 @@
 #include <math.h>
 #include "basics.h"
 #include "m_fixed.h"
+#include "vectors.h"
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
 #include "math/cmath.h"
@@ -136,13 +137,13 @@ public:
 	constexpr fixed_t asq16() const { return value >> 5; }
 	constexpr uint32_t asbam() const { return value; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
-	constexpr double asdeg() const { return AngleToFloat(value); }
+	constexpr double asdeg() const { return DAngle::fromBam(value).Degrees(); }
 	constexpr short signedbuild() const { return tosigned() >> BAMBITS; }
 	constexpr double signedbuildf() const { return tosigned() * (1. / +BAMUNIT); }
 	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
 	constexpr int32_t signedbam() const { return tosigned(); }
 	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }
-	constexpr double signeddeg() const { return AngleToFloat(tosigned()); }
+	constexpr double signeddeg() const { return DAngle::fromBam(tosigned()).Degrees(); }
 
 	double fsin() const { return g_sinbam(asbam()); }
 	double fcos() const { return g_cosbam(asbam()); }
