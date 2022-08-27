@@ -1274,7 +1274,6 @@ void PreDrawStackedWater(void)
 
 void DoPlayerDiveMeter(PLAYER* pp);
 
-void polymost_drawscreen(PLAYER* pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect);
 
 
 void UpdateWallPortalState()
