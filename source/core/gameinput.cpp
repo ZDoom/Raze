@@ -448,16 +448,16 @@ enum
 	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
 };
 
-void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerHorizon::calcviewpitch(vec2_t const pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
-			int const x = pos.X + ang.bcos(shift);
-			int const y = pos.Y + ang.bsin(shift);
+			int const shift = isBlood() ? BLOODSINSHIFT : DEFSINSHIFT;
+			int const x = pos.X + int(ang.Cos() * (1 << (BUILDSINBITS - shift)));
+			int const y = pos.Y + int(ang.Sin() * (1 << (BUILDSINBITS - shift)));
 			auto tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
