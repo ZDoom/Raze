@@ -2451,8 +2451,8 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].vel.X -= ps[g_p].angle.ang.bcos(7);
-		ps[g_p].vel.Y -= ps[g_p].angle.ang.bsin(7);
+		ps[g_p].vel.X -= ps[g_p].angle.ang.Cos() * (1 << 21);
+		ps[g_p].vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 21);
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2460,8 +2460,8 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].vel.X -= ps[g_p].angle.ang.bcos(10);
-			ps[g_p].vel.Y -= ps[g_p].angle.ang.bsin(10);
+			ps[g_p].vel.X -= ps[g_p].angle.ang.Cos() * (1 << 24);
+			ps[g_p].vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 24);
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}

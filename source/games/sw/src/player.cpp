@@ -2254,7 +2254,7 @@ void DoTankTreads(PLAYER* pp)
         return;
 
     vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.bcos(), pp->angle.ang.bsin());
+    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         reverse = true;
 
@@ -3147,7 +3147,7 @@ void DoPlayerClimb(PLAYER* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     climbvel = FindDistance2D(pp->vect.X, pp->vect.Y)>>9;
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.bcos(), pp->angle.ang.bsin());
+    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         climbvel = -climbvel;
 
@@ -3670,7 +3670,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     neartag(pp->pos, pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
-    dir = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.bcos(), pp->angle.ang.bsin());
+    dir = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     if (dir < 0)
         return false;

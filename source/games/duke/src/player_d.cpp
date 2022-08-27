@@ -2010,7 +2010,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 
-	hitscan(p->player_int_pos(), p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11 }, hit, CLIPMASK1);
+	hitscan(p->player_int_pos(), p->cursector, { int(p->angle.ang.Cos() * (1 << 14)), int(p->angle.ang.Sin() * (1 << 14)), -p->horizon.sum().asq16() >> 11 }, hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -2200,8 +2200,8 @@ static void operateweapon(int snum, ESyncBits actions)
 			}
 
 			auto spawned = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.bcos(-6),
-				p->player_int_pos().Y + p->angle.ang.bsin(-6),
+				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
+				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
 

@@ -1498,7 +1498,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				int j = getincangle(ps[p].angle.ang.Buildang()getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
+				int j = getincangle(ps[p].angle.ang.Buildang(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{

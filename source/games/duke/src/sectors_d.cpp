@@ -917,13 +917,13 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		p->hurt_delay = 16;
 		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-		p->vel.X = -p->angle.ang.bcos(8);
-		p->vel.Y = -p->angle.ang.bsin(8);
+		p->vel.X = -p->angle.ang.Cos() * (1 << 22);
+		p->vel.Y = -p->angle.ang.Sin() * (1 << 22);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), wal,
-			p->player_int_pos().X + p->angle.ang.bcos(-9),
-			p->player_int_pos().Y + p->angle.ang.bsin(-9),
+			p->player_int_pos().X + p->angle.ang.Cos() * (1 << 5),
+			p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 5),
 			p->player_int_pos().Z, -1);
 
 		break;
@@ -931,8 +931,8 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal,
-			p->player_int_pos().X + p->angle.ang.bcos(-9),
-			p->player_int_pos().Y + p->angle.ang.bsin(-9),
+			p->player_int_pos().X + p->angle.ang.Cos() * (1 << 5),
+			p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 5),
 			p->player_int_pos().Z, -1);
 		break;
 
@@ -1592,7 +1592,7 @@ void checksectors_d(int snum)
 			neartag({ p->player_int_opos().X, p->player_int_opos().Y, p->player_int_opos().Z }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280L, 1);
 		else
 		{
-			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)

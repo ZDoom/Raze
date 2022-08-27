@@ -1409,8 +1409,8 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal,
-			p->player_int_pos().X + p->angle.ang.bcos(-9),
-			p->player_int_pos().Y + p->angle.ang.bsin(-9),
+			p->player_int_pos().X + p->angle.ang.Cos() * (1 << 5),
+			p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 5),
 			p->player_int_pos().Z, -1);
 		break;
 

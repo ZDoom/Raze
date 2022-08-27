@@ -792,7 +792,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
                 tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
                 tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
-                tsp->ang -= MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16);
+                tsp->add_int_ang(-MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16));
             }
         }
 

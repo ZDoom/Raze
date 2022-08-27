@@ -215,7 +215,7 @@ int hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->player_int_pos(), p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
+	hitscan(p->player_int_pos(), p->cursector, { int(p->angle.ang.Cos() * (1 << 14)), int(p->angle.ang.Sin() * (1 << 14)), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
 	return (FindDistance2D(hit.hitpos.vec2 - p->player_int_pos().vec2));

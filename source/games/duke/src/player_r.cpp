@@ -1321,8 +1321,8 @@ int doincrements_r(player_struct* p)
 		{
 			p->noise_radius = 16384;
 			madenoise(screenpeek);
-			p->vel.X += p->angle.ang.bcos(4);
-			p->vel.Y += p->angle.ang.bsin(4);
+			p->vel.X += p->angle.ang.Cos() * (1 << 18);
+			p->vel.Y += p->angle.ang.Sin() * (1 << 18);
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -2745,8 +2745,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			}
 
 			auto spawned = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.bcos(-6),
-				p->player_int_pos().Y + p->angle.ang.bsin(-6),
+				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
+				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
@@ -2800,8 +2800,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->vel.X -= p->angle.ang.bcos(4);
-				p->vel.Y -= p->angle.ang.bsin(4);
+				p->vel.X -= p->angle.ang.Cos() * (1 << 18);
+				p->vel.Y -= p->angle.ang.Sin() * (1 << 18);
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -2900,14 +2900,14 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.X -= p->angle.ang.bcos(5);
-					p->vel.Y -= p->angle.ang.bsin(5);
+					p->vel.X -= p->angle.ang.Cos() * (1 << 19);
+					p->vel.Y -= p->angle.ang.Sin() * (1 << 19);
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->vel.X -= p->angle.ang.bcos(4);
-				p->vel.Y -= p->angle.ang.bsin(4);
+				p->vel.X -= p->angle.ang.Cos() * (1 << 18);
+				p->vel.Y -= p->angle.ang.Sin() * (1 << 18);
 			}
 		}
 
@@ -2993,8 +2993,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.X -= p->angle.ang.bcos(4);
-					p->vel.Y -= p->angle.ang.bsin(4);
+					p->vel.X -= p->angle.ang.Cos() * (1 << 18);
+					p->vel.Y -= p->angle.ang.Sin() * (1 << 18);
 				}
 				checkavailweapon(p);
 
@@ -3134,8 +3134,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->vel.X -= p->angle.ang.bcos(4);
-			p->vel.Y -= p->angle.ang.bsin(4);
+			p->vel.X -= p->angle.ang.Cos() * (1 << 18);
+			p->vel.Y -= p->angle.ang.Sin() * (1 << 18);
 			p->horizon.addadjustment(buildhoriz(20));
 			p->recoil += 20;
 		}
@@ -3160,8 +3160,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			}
 
 			EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.bcos(-6),
-				p->player_int_pos().Y + p->angle.ang.bsin(-6),
+				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
+				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
 				p->player_int_pos().Z, POWDERKEG, -16, 9, 9,
 				p->angle.ang.Buildang(), k * 2, i, pact, 1);
 		}
@@ -3184,8 +3184,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.X += p->angle.ang.bcos(4);
-			p->vel.Y += p->angle.ang.bsin(4);
+			p->vel.X -= p->angle.ang.Cos() * (1 << 18);
+			p->vel.Y -= p->angle.ang.Sin() * (1 << 18);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -4099,15 +4099,15 @@ void OffMotorcycle(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->vel.X -= p->angle.ang.bcos(7);
-		p->vel.Y -= p->angle.ang.bsin(7);
+		p->vel.X -= p->angle.ang.Cos() * (1 << 7);
+		p->vel.Y -= p->angle.ang.Sin() * (1 << 7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
 			spawned->set_int_ang(p->angle.ang.Buildang());
-			spawned->spr.xvel += p->angle.ang.bcos(7);
-			spawned->spr.yvel += p->angle.ang.bsin(7);
+			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
+			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4166,15 +4166,15 @@ void OffBoat(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->vel.X -= p->angle.ang.bcos(7);
-		p->vel.Y -= p->angle.ang.bsin(7);
+		p->vel.X -= p->angle.ang.Cos() * (1 << 7);
+		p->vel.Y -= p->angle.ang.Sin() * (1 << 7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
 			spawned->set_int_ang(p->angle.ang.Buildang());
-			spawned->spr.xvel += p->angle.ang.bcos(7);
-			spawned->spr.yvel += p->angle.ang.bsin(7);
+			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
+			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}

@@ -2223,8 +2223,8 @@ static void greenslime(DDukeActor *actor)
 
 		actor->spr.xrepeat = 20 + bsin(actor->temp_data[1], -13);
 		actor->spr.yrepeat = 15 + bsin(actor->temp_data[1], -13);
-		actor->spr.pos.X = ps[p].pos.X + ps[p].angle.ang.fcos() * 8;
-		actor->spr.pos.Y = ps[p].pos.Y + ps[p].angle.ang.fsin() * 8;
+		actor->spr.pos.X = ps[p].pos.X + ps[p].angle.ang.Cos() * 8;
+		actor->spr.pos.Y = ps[p].pos.Y + ps[p].angle.ang.Sin() * 8;
 		return;
 	}
 

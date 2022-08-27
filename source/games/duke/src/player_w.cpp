@@ -341,8 +341,8 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			}
 
 			auto j = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.bcos(-6),
-				p->player_int_pos().Y + p->angle.ang.bsin(-6),
+				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
+				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 

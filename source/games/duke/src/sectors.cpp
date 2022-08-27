@@ -1306,8 +1306,8 @@ void moveclouds(double smoothratio)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (float)ps[screenpeek].angle.ang.fcos() * 0.5f;
-		cloudy += (float)ps[screenpeek].angle.ang.fsin() * 0.5f;
+		cloudx += (float)ps[screenpeek].angle.ang.Cos() * 0.5f;
+		cloudy += (float)ps[screenpeek].angle.ang.Sin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
 			// no clamping here!

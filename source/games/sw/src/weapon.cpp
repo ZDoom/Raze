@@ -16508,7 +16508,7 @@ int InitMine(PLAYER* pp)
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
 
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.bcos(), pp->angle.ang.bsin());
+    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     // don't adjust for strafing
     if (labs(dot) > 10000)
