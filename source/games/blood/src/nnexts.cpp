@@ -3281,7 +3281,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (pPlayer)
 		{
-			pPlayer->angle.settarget(buildang(sourceactor->spr.angle));
+			pPlayer->angle.settarget(DAngle::fromBuild(sourceactor->int_ang()));
 			pPlayer->angle.lockinput();
 		}
 		else if (isDude) sourceactor->xspr.goalAng = actor->spr.angle = sourceactor->spr.angle;
@@ -6099,12 +6099,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.settarget(buildang(actor->int_ang()));
+				pPlayer->angle.settarget(DAngle::fromBuild(actor->int_ang()));
 				pPlayer->angle.lockinput();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				pPlayer->angle.settarget(buildang(actor->xspr.data2));
+				pPlayer->angle.settarget(DAngle::fromBuild(actor->xspr.data2));
 				pPlayer->angle.lockinput();
 			}
 			break;

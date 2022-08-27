@@ -704,7 +704,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				ps[p].angle.settarget(buildang(actor->int_ang() + 1024));
+				ps[p].angle.settarget(DAngle::fromBuild(actor->int_ang() + 1024));
 			}
 			else
 			{

@@ -3349,7 +3349,7 @@ void DoPlayerClimb(PLAYER* pp)
             pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
             pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-            pp->angle.settarget(buildang(lActor->int_ang() + 1024));
+            pp->angle.settarget(DAngle::fromBuild(lActor->int_ang() + 1024));
         }
     }
 }
@@ -3731,7 +3731,7 @@ bool PlayerOnLadder(PLAYER* pp)
     pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
     pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-    pp->angle.settarget(buildang(lActor->int_ang() + 1024));
+    pp->angle.settarget(DAngle::fromBuild(lActor->int_ang() + 1024));
 
     return true;
 }
@@ -6641,7 +6641,7 @@ void domovethings(void)
         {
             int deltax = Player[myconnectindex].pos.X - Player[screenpeek].pos.X;
             int deltay = Player[myconnectindex].pos.Y - Player[screenpeek].pos.Y;
-            Player[screenpeek].angle.settarget(bvectangbam(deltax, deltay));
+            Player[screenpeek].angle.settarget(VecToAngle(deltax, deltay));
         }
 
         if (!(pp->Flags & PF_DEAD))

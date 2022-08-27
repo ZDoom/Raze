@@ -1646,7 +1646,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->angle.settarget(buildang(actor->int_ang()), true);
+					pPlayer->angle.settarget(DAngle::fromBuild(actor->int_ang()), true);
 				}
 			}
 		}

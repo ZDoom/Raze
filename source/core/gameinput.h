@@ -156,7 +156,7 @@ struct PlayerAngle
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
-	bool targetset() { return target.asbam(); }
+	bool targetset() { return target.BAMs(); }
 
 	// Input locking helpers.
 	void lockinput() { inputdisabled = true; }
@@ -180,15 +180,15 @@ struct PlayerAngle
 		}
 	}
 
-	void settarget(binangle const value, bool const backup = false)
+	void settarget(const DAngle value, bool const backup = false)
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = value.asbam() ? value : bamang(1);
+			target = value.BAMs() ? value : DAngle::fromBam(1);
 		}
 		else
 		{
-			ang = value;
+			ang = bamang(value.BAMs());
 			if (backup) oang = ang;
 		}
 	}
@@ -197,16 +197,16 @@ struct PlayerAngle
 	{
 		if (targetset())
 		{
-			auto delta = getincanglebam(ang, target).signedbuildf();
+			auto delta = deltaangle(DAngle::fromBam(ang.asbam()), target).Degrees();
 
 			if (abs(delta) > 1)
 			{
-				ang += buildfang(scaleAdjust * delta);
+				ang += degang(scaleAdjust * delta);
 			}
 			else
 			{
-				ang = target;
-				target = bamang(0);
+				ang = bamang(target.BAMs());
+				target = DAngle::fromBam(0);
 			}
 		}
 		else if (adjustment)
@@ -216,7 +216,7 @@ struct PlayerAngle
 	}
 
 private:
-	binangle target;
+	DAngle target;
 	double adjustment;
 	bool inputdisabled;
 };
