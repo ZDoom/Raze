@@ -634,7 +634,6 @@ void renderCrystalBall()
 #endif
 }
 
-void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fixedhoriz cH);
 
 //---------------------------------------------------------------------------
 //
