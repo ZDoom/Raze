@@ -1101,7 +1101,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
         while (auto actor = it.Next())
         {
             ang = VecToAngle(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
-            ang_test = (DAngle::fromBuild(actor->int_ang()) - ang).Normalized180() < DAngle::fromBuild(actor->spr.lotag);
+            ang_test = deltaangle(ang, DAngle::fromBuild(actor->int_ang())) < DAngle::fromBuild(actor->spr.lotag);
 
             FAFcansee_test =
                 (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||

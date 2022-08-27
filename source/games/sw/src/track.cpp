@@ -2801,7 +2801,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
 
         if (sop->limit_ang_center >= nullAngle)
         {
-            diff = (DAngle::fromBuild(sop->ang) - sop->limit_ang_center).Normalized180();
+            diff = deltaangle(sop->limit_ang_center, DAngle::fromBuild(sop->ang));
 
             if (abs(diff) >= sop->limit_ang_delta)
             {

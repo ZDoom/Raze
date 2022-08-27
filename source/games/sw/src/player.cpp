@@ -1551,7 +1551,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
         if (sop->limit_ang_center >= nullAngle)
         {
-            diff = (new_ang - sop->limit_ang_center).Normalized180();
+            diff = deltaangle(sop->limit_ang_center, new_ang);
 
             if (abs(diff) >= sop->limit_ang_delta)
             {
