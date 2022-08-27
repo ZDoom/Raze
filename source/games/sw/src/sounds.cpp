@@ -598,18 +598,18 @@ void GameInterface::UpdateSounds(void)
     PLAYER* pp = Player + screenpeek;
     SoundListener listener;
 
-    binangle tang;
+    DAngle tang;
     if (pp->sop_remote)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            tang = buildang(rsp->int_ang());
+            tang = DAngle::fromBuild(rsp->int_ang());
         else
-            tang = bvectangbam(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
+            tang = VecToAngle(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }
-    else tang = pp->angle.ang;
+    else tang = DAngle::fromBam(pp->angle.ang.asbam());
 
-    listener.angle = float(-tang.asrad());
+    listener.angle = float(-tang.Radians());
     listener.velocity.Zero();
     listener.position = GetSoundPos(pp->pos);
     listener.underwater = false;
