@@ -281,7 +281,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = DAngle::fromBam((!SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio)).asbam());
+		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
 
 #if 0
 		if ((snum == myconnectindex) && (numplayers > 1))

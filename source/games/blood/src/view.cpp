@@ -75,8 +75,8 @@ void viewBackupView(int nPlayer)
 	pView->bobWidth = pPlayer->bobWidth;
 	pView->shakeBobY = pPlayer->swayHeight;
 	pView->shakeBobX = pPlayer->swayWidth;
-	pView->look_ang = DAngle::fromBam(pPlayer->angle.look_ang.asbam());
-	pView->rotscrnang = DAngle::fromBam(pPlayer->angle.rotscrnang.asbam());
+	pView->look_ang = pPlayer->angle.look_ang;
+	pView->rotscrnang = pPlayer->angle.rotscrnang;
 	pPlayer->angle.backup();
 	pPlayer->horizon.backup();
 }
@@ -534,13 +534,13 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		{
 			cA = DAngle::fromBam(gView->angle.sum().asbam());
 			cH = gView->horizon.sum();
-			rotscrnang = DAngle::fromBam(gView->angle.rotscrnang.asbam());
+			rotscrnang = gView->angle.rotscrnang;
 		}
 		else
 		{
 			cA = DAngle::fromBam(gView->angle.interpolatedsum(gInterpolate).asbam());
 			cH = gView->horizon.interpolatedsum(gInterpolate);
-			rotscrnang = DAngle::fromBam(gView->angle.interpolatedrotscrn(gInterpolate).asbam());
+			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
 		}
 	}
 

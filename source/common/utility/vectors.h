@@ -1212,6 +1212,11 @@ public:
 		return TAngle(bang * (90. / 512));
 	}
 
+	static constexpr TAngle fromBuildf(double bang)
+	{
+		return TAngle(bang * (90. / 512));
+	}
+
 	static constexpr TAngle fromQ16(int bang)
 	{
 		return TAngle(bang * (90. / 16384));
@@ -1334,6 +1339,11 @@ public:
 		return int(Degrees_ * (512 / 90.0));
 	}
 
+	constexpr double Buildfang() const
+	{
+		return Degrees_ * (512 / 90.0);
+	}
+
 	constexpr int Q16() const
 	{
 		return int(Degrees_ * (16384 / 90.0));
@@ -1363,6 +1373,12 @@ public:
 	double TanClamped(double max = 5.) const
 	{
 		return clamp(Tan(), -max, max);
+	}
+
+	constexpr int Sgn() const
+	{
+		const auto normalized = (signed int)BAMs();
+		return (normalized > 0) - (normalized < 0);
 	}
 };
 

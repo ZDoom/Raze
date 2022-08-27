@@ -268,7 +268,7 @@ struct player_struct
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;
 
-	short dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
+	short dead_flag, show_empty_weapon;
 	short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
 	short pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;

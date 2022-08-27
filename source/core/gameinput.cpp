@@ -48,9 +48,9 @@ inline static fixedhoriz getscaledhoriz(const double value, const double scaleAd
 	return buildfhoriz(scaleAdjust * ((object.asbuildf() * getTicrateScale(value)) + push));
 }
 
-inline static binangle getscaledangle(const double value, const double scaleAdjust, const binangle& object, const double push)
+inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle& object, const double push)
 {
-	return buildfang(scaleAdjust * ((object.signedbuildf() * getTicrateScale(value)) + push));
+	return DAngle::fromBuildf(scaleAdjust * ((object.Normalized180().Buildfang() * getTicrateScale(value)) + push));
 }
 
 inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
@@ -62,12 +62,12 @@ inline static void scaletozero(fixedhoriz& object, const double value, const dou
 	}
 }
 
-inline static void scaletozero(binangle& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
+inline static void scaletozero(DAngle& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
 {
-	if (auto sgn = Sgn(object.signedbam()))
+	if (auto sgn = object.Sgn())
 	{
 		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
-		if (sgn != Sgn(object.signedbam())) object = bamang(0);
+		if (sgn != object.Sgn()) object = DAngle::fromDeg(0.);
 	}
 }
 
@@ -375,8 +375,8 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & key)
 		{
-			look_ang += buildfang(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction);
-			rotscrnang -= buildfang(getTicrateScale(ROTATESPEED) * scaleAdjust * direction);
+			look_ang += DAngle::fromBuildf(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction);
+			rotscrnang -= DAngle::fromBuildf(getTicrateScale(ROTATESPEED) * scaleAdjust * direction);
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);

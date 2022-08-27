@@ -490,8 +490,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.look_ang = buildang(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.asbuild(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.look_ang = DAngle::fromBuild(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
@@ -713,9 +713,9 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		if (bSet)
 		{
 			ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang;
-			ps[iPlayer].angle.rotscrnang = buildang(lValue);
+			ps[iPlayer].angle.rotscrnang = DAngle::fromBuild(lValue);
 		}
-		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.asbuild(), sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:
@@ -2255,7 +2255,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
-			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildang(0);
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = DAngle::fromDeg(0.);
 
 			ps[g_p].falling_counter = 0;
 

@@ -124,7 +124,8 @@ private:
 
 struct PlayerAngle
 {
-	binangle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang;
+	binangle ang, oang;
+	DAngle look_ang, olook_ang, rotscrnang, orotscrnang;
 	double spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
@@ -147,11 +148,11 @@ struct PlayerAngle
 	}
 
 	// Commonly used getters.
-	binangle osum() { return oang + olook_ang; }
-	binangle sum() { return ang + look_ang; }
+	binangle osum() { return oang + bamang(olook_ang.BAMs()); }
+	binangle sum() { return ang + bamang(look_ang.BAMs()); }
 	binangle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
-	binangle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
-	binangle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
+	DAngle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
+	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
@@ -162,9 +163,9 @@ struct PlayerAngle
 	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() { return targetset() || inputdisabled; }
 
-	// Draw code helpers.
-	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; }
-	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); }
+	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
+	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).Normalized180().Buildfang() * 0.5; }
+	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).Normalized180().Buildfang()) * (1. / 9.); }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(binangle const value)

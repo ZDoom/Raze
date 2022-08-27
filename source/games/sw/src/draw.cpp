@@ -1402,13 +1402,13 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         tang = DAngle::fromBam(camerapp->angle.interpolatedsum(smoothratio).asbam());
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
-        trotscrnang = DAngle::fromBam(camerapp->angle.interpolatedrotscrn(smoothratio).asbam());
+        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio);
     }
     else
     {
         tang = DAngle::fromBam(pp->angle.sum().asbam());
         thoriz = pp->horizon.sum();
-        trotscrnang = DAngle::fromBam(pp->angle.rotscrnang.asbam());
+        trotscrnang = pp->angle.rotscrnang;
     }
     tsect = camerapp->cursector;
 

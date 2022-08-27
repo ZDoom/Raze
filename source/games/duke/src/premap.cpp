@@ -177,8 +177,8 @@ void resetplayerstats(int snum)
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
 
-	p->angle.olook_ang = p->angle.look_ang = buildang(512 - (((~currentLevel->levelNumber) & 1) << 10));
-	p->angle.orotscrnang = p->angle.rotscrnang = buildang(0);
+	p->angle.olook_ang = p->angle.look_ang = DAngle::fromBuild(512 - (((~currentLevel->levelNumber) & 1) << 10));
+	p->angle.orotscrnang = p->angle.rotscrnang = DAngle::fromDeg(0.);
 
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;
