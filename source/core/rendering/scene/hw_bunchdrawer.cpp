@@ -53,10 +53,10 @@
 //
 //==========================================================================
 
-void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, binangle a2)
+void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, angle_t a1, angle_t a2)
 {
-	ang1 = a1.asbam();
-	ang2 = a2.asbam();
+	ang1 = a1;
+	ang2 = a2;
 	angrange = ang2 - ang1;
 	di = _di;
 	clipper = c;
@@ -110,14 +110,14 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal)
+bool BunchDrawer::StartBunch(int sectnum, int linenum, angle_t startan, angle_t endan, bool portal)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
 	bunch->sectornum = sectnum;
 	bunch->startline = bunch->endline = linenum;
-	bunch->startangle = startan.asbam();
-	bunch->endangle = endan.asbam();
+	bunch->startangle = startan;
+	bunch->endangle = endan;
 	bunch->portal = portal;
 	assert(bunch->endangle >= bunch->startangle);
 	return bunch->endangle != angrange;
@@ -129,11 +129,11 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 //
 //==========================================================================
 
-bool BunchDrawer::AddLineToBunch(int line, binangle newan)
+bool BunchDrawer::AddLineToBunch(int line, angle_t newan)
 {
 	Bunches[LastBunch].endline++;
-	assert(newan.asbam() > Bunches[LastBunch].endangle);
-	Bunches[LastBunch].endangle = newan.asbam();
+	assert(newan > Bunches[LastBunch].endangle);
+	Bunches[LastBunch].endangle = newan;
 	assert(Bunches[LastBunch].endangle > Bunches[LastBunch].startangle);
 	return Bunches[LastBunch].endangle != angrange;
 }
@@ -231,15 +231,15 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	auto endAngleBam = ClipAngle(cline->endpoint);
 
 	// Back side, i.e. backface culling	- read: endAngle <= startAngle!
-	if (startAngleBam.asbam() - endAngleBam.asbam() < ANGLE_180)
+	if (startAngleBam - endAngleBam < ANGLE_180)
 	{
 		return CL_Skip;
 	}
 	//if (line >= 0 && blockwall[line]) return CL_Draw;
 
 	// convert to clipper coordinates and clamp to valid range.
-	int startAngle = startAngleBam.asbam();
-	int endAngle = endAngleBam.asbam();
+	int startAngle = startAngleBam;
+	int endAngle = endAngleBam;
 	if (startAngle < 0) startAngle = 0;
 	if (endAngle < 0 || endAngle > (int)angrange) endAngle = angrange;
 
@@ -527,19 +527,19 @@ int BunchDrawer::ColinearBunchInFront(FBunch* b1, FBunch* b2)
 
 int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 {
-	binangle anglecheck, endang;
+	angle_t anglecheck, endang;
 	bool colinear = false;
 
 	if (b2->startangle >= b1->startangle && b2->startangle < b1->endangle)
 	{
 		// we have an overlap at b2->startangle
-		anglecheck = bamang(b2->startangle);
+		anglecheck = b2->startangle;
 
 		// Find the wall in b1 that overlaps b2->startangle
 		for (int i = b1->startline; i <= b1->endline; i++)
 		{
 			endang = ClipAngle(sectionLines[i].endpoint);
-			if (endang.asbam() > anglecheck.asbam())
+			if (endang > anglecheck)
 			{
 				// found a line
 				int ret = WallInFront(b2->startline, i);
@@ -559,13 +559,13 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 	else if (b1->startangle >= b2->startangle && b1->startangle < b2->endangle)
 	{
 		// we have an overlap at b1->startangle
-		anglecheck = bamang(b1->startangle);
+		anglecheck = b1->startangle;
 
 		// Find the wall in b2 that overlaps b1->startangle
 		for (int i = b2->startline; i <= b2->endline; i++)
 		{
 			endang = ClipAngle(sectionLines[i].endpoint);
-			if (endang.asbam() > anglecheck.asbam())
+			if (endang > anglecheck)
 			{
 				// found a line
 				int ret = WallInFront(i, b1->startline);
@@ -711,19 +711,19 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 	{
 		auto thisline = &sectionLines[section->lines[i]];
 
-		binangle walang1 = ClipAngle(thisline->startpoint);
-		binangle walang2 = ClipAngle(thisline->endpoint);
+		angle_t walang1 = ClipAngle(thisline->startpoint);
+		angle_t walang2 = ClipAngle(thisline->endpoint);
 
 		// outside the visible area or seen from the backside.
-		if ((walang1.asbam() > angrange && walang2.asbam() > angrange && walang1.asbam() < walang2.asbam()) ||
-			(walang1.asbam() - walang2.asbam() < ANGLE_180))
+		if ((walang1 > angrange && walang2 > angrange && walang1 < walang2) ||
+			(walang1 - walang2 < ANGLE_180))
 		{
 			inbunch = false;
 		}
 		else
 		{
-			if (walang1.asbam() >= angrange) { walang1 = bamang(0); inbunch = false; }
-			if (walang2.asbam() >= angrange) walang2 = bamang(angrange);
+			if (walang1 >= angrange) { walang1 = 0; inbunch = false; }
+			if (walang2 >= angrange) walang2 = angrange;
 			if (section->lines[i] >= (int)wall.Size()) inbunch = false;
 			if (!inbunch)
 			{
