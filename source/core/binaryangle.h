@@ -299,14 +299,14 @@ inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, int const 
 	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
 }
 
-inline constexpr DAngle interpolatedangle(DAngle oang, DAngle ang, double const smoothratio, int const scale = 16)
+inline DAngle interpolatedangle(DAngle oang, DAngle ang, double const smoothratio, int const scale = 16)
 {
-	return DAngle::fromBam(oang.BAMs() + MulScale(((ang.BAMs() + 0x80000000 - oang.BAMs()) & 0xFFFFFFFF) - 0x80000000, int(smoothratio), scale));
+	return oang + (deltaangle(oang, ang) * smoothratio * (1. / (1 << scale)));
 }
 
-inline constexpr DAngle interpolatedangle(DAngle oang, DAngle ang, int const smoothratio, int const scale = 16)
+inline DAngle interpolatedangle(DAngle oang, DAngle ang, int const smoothratio, int const scale = 16)
 {
-	return DAngle::fromBam(oang.BAMs() + MulScale(((ang.BAMs() + 0x80000000 - oang.BAMs()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
+	return oang + (deltaangle(oang, ang) * smoothratio * (1. / (1 << scale)));
 }
 
 inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, double const smoothratio, int const scale = 16)

@@ -107,7 +107,7 @@ public:
 		spr.pos.Y = y * inttoworld;
 	}
 
-	const int16_t int_ang() const
+	constexpr int16_t int_ang() const
 	{
 		return spr.__int_angle;
 	}

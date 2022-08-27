@@ -493,7 +493,7 @@ struct spritetypebase
 		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
 	}
 
-	const int16_t int_ang() const
+	constexpr int16_t int_ang() const
 	{
  		return __int_angle;
 	}

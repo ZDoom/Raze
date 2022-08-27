@@ -1375,7 +1375,7 @@ public:
 		return clamp(Tan(), -max, max);
 	}
 
-	constexpr int Sgn() const
+	int Sgn() const
 	{
 		const auto normalized = (signed int)BAMs();
 		return (normalized > 0) - (normalized < 0);
