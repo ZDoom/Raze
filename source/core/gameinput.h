@@ -191,7 +191,7 @@ struct PlayerAngle
 	{
 		if (targetset())
 		{
-			auto delta = deltaangle(ang, target).Normalized180().Degrees();
+			auto delta = deltaangle(ang, target).Degrees();
 
 			if (abs(delta) > 1)
 			{
