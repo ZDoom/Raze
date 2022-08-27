@@ -1225,8 +1225,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
-                    sop->limit_ang_center = actor->int_ang();
-                    sop->limit_ang_delta = actor->spr.lotag;
+                    sop->limit_ang_center = DAngle::fromBuild(actor->int_ang());
+                    sop->limit_ang_delta = DAngle::fromBuild(actor->spr.lotag);
                     KillActor(actor);
                     break;
                 case SO_MATCH_EVENT:
@@ -2731,7 +2731,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
     if (!actor) return;
 
     short delta_ang;
-    int diff;
+    DAngle diff;
     short i;
 
     if ((sop->max_damage != -9999 && sop->max_damage <= 0) || !actor->hasU())
@@ -2801,16 +2801,16 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
         sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> 3));
         //sop->ang += delta_ang >> 2;
 
-        if (sop->limit_ang_center >= 0)
+        if (sop->limit_ang_center >= nullAngle)
         {
-            diff = getincangle(sop->limit_ang_center, sop->ang);
+            diff = (DAngle::fromBuild(sop->ang) - sop->limit_ang_center).Normalized180();
 
-            if (labs(diff) >= sop->limit_ang_delta)
+            if (abs(diff) >= sop->limit_ang_delta)
             {
-                if (diff < 0)
-                    sop->ang = sop->limit_ang_center - sop->limit_ang_delta;
+                if (diff < nullAngle)
+                    sop->ang = (sop->limit_ang_center - sop->limit_ang_delta).Buildang();
                 else
-                    sop->ang = sop->limit_ang_center + sop->limit_ang_delta;
+                    sop->ang = (sop->limit_ang_center + sop->limit_ang_delta).Buildang();
 
             }
         }

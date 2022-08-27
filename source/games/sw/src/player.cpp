@@ -1530,7 +1530,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, int *x, int *y, int *ox, int *oy)
 
 void DoPlayerTurnTurret(PLAYER* pp, float avel)
 {
-    binangle new_ang, diff;
+    DAngle new_ang, diff;
     SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
@@ -1547,22 +1547,22 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
     if (fabs(avel) >= FLT_EPSILON)
     {
-        new_ang = pp->angle.ang + degang(avel);
+        new_ang = DAngle::fromBam(pp->angle.ang.asbam()) + DAngle::fromDeg(avel);
 
-        if (sop->limit_ang_center >= 0)
+        if (sop->limit_ang_center >= nullAngle)
         {
-            diff = getincanglebam(buildang(sop->limit_ang_center), new_ang);
+            diff = (new_ang - sop->limit_ang_center).Normalized180();
 
-            if (labs(diff.signedbuild()) >= sop->limit_ang_delta)
+            if (abs(diff) >= sop->limit_ang_delta)
             {
-                if (diff.asbam() > INT32_MAX)
-                    new_ang = buildang(sop->limit_ang_center - sop->limit_ang_delta);
+                if (diff < nullAngle)
+                    new_ang = sop->limit_ang_center - sop->limit_ang_delta;
                 else
-                    new_ang = buildang(sop->limit_ang_center + sop->limit_ang_delta);
+                    new_ang = sop->limit_ang_center + sop->limit_ang_delta;
             }
         }
 
-        pp->angle.ang = new_ang;
+        pp->angle.ang = bamang(new_ang.BAMs());
         pp->actor->set_int_ang(pp->angle.ang.asbuild());
     }
 

@@ -1517,11 +1517,11 @@ struct SECTOR_OBJECT
             morph_dist,             // dist from CENTER
             morph_z_speed,          // z speed for morph point
             morph_xoff,             // save xoff from center
-            morph_yoff,             // save yoff from center
+            morph_yoff;             // save yoff from center
 
-    //scale_rand_reverse,            // random at random interval
+    //scale_rand_reverse;            // random at random interval
     // limit rotation angle
-            limit_ang_center, // for limiting the angle of turning - turrets etc
+    DAngle  limit_ang_center, // for limiting the angle of turning - turrets etc
             limit_ang_delta; //
 
 };
