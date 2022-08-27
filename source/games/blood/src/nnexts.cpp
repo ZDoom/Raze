@@ -3281,11 +3281,11 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (pPlayer)
 		{
-			pPlayer->angle.settarget(buildang(sourceactor->spr.__int_angle));
+			pPlayer->angle.settarget(buildang(sourceactor->spr.angle));
 			pPlayer->angle.lockinput();
 		}
-		else if (isDude) sourceactor->xspr.goalAng = actor->spr.__int_angle = sourceactor->spr.__int_angle;
-		else actor->spr.__int_angle = sourceactor->spr.__int_angle;
+		else if (isDude) sourceactor->xspr.goalAng = actor->spr.angle = sourceactor->spr.angle;
+		else actor->spr.__int_angle = sourceactor->spr.angle;
 	}
 #endif
 
@@ -5189,7 +5189,7 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 		if (cansee(dudeactor->int_pos().X, dudeactor->int_pos().Y, dudeactor->int_pos().Z, dudeactor->sector(), targetactor->int_pos().X, targetactor->int_pos().Y, targetactor->int_pos().Z - eyeAboveZ, targetactor->sector()))
 		{
 			/*int nAngle = getangle(dx, dy);
-			int losAngle = ((1024 + nAngle - dudeactor->spr.__int_angle) & 2047) - 1024;
+			int losAngle = ((1024 + nAngle - dudeactor->spr.angle) & 2047) - 1024;
 
 			// is the target visible?
 			if (abs(losAngle) < 2048) // 360 deg periphery here*/

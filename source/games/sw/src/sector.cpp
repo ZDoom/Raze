@@ -861,7 +861,7 @@ void DoExplodeSector(short match)
 
     sectortype* sectp;
 
-    orig_ang = 0; //actor->spr.__int_angle;
+    orig_ang = 0;
 
     SWStatIterator it(STAT_EXPLODING_CEIL_FLOOR);
     while (auto actor = it.Next())

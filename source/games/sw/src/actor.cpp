@@ -413,8 +413,8 @@ int DoActorDebris(DSWActor* actor)
         }
         else
         {
-            //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.__int_angle) >> 14;
-            //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.__int_angle) >> 14;
+            //nx = actor->spr.xvel * ACTORMOVETICS * bcos(actor->spr.angle) >> 14;
+            //ny = actor->spr.xvel * ACTORMOVETICS * bsin(actor->spr.angle) >> 14;
             nx = MulScale(ACTORMOVETICS, bcos(actor->int_ang()), 14);
             ny = MulScale(ACTORMOVETICS, bsin(actor->int_ang()), 14);
 
@@ -737,7 +737,7 @@ int DoActorStopFall(DSWActor* actor)
     // don't stand on face or wall sprites - jump again
     if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
-        //actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + (RANDOM_P2(64<<8)>>8) - 32);
+        //actor->spr.__int_angle = NORM_ANGLE(actor->spr.angle + (RANDOM_P2(64<<8)>>8) - 32);
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024 + (RANDOM_P2(512<<8)>>8)));
         actor->user.jump_speed = -350;
 

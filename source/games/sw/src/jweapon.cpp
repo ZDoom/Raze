@@ -1645,7 +1645,7 @@ int PlayerInitCaltrops(PLAYER* pp)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // They go out at different angles
-//        spawnedActor->spr.__int_angle = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
+//        spawnedActor->spr.angle = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 

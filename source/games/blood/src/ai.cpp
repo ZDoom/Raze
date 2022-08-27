@@ -273,7 +273,7 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
 		actor->xspr.goalAng = actor->int_ang() - v8;
 	//else if (actor->spr.flags&2)
-		//actor->xspr.goalAng = actor->spr.__int_angle+341;
+		//actor->xspr.goalAng = actor->spr.angle+341;
 	else // Weird..
 		actor->xspr.goalAng = actor->int_ang() + 341;
 	if (Chance(0x8000))

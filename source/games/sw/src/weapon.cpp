@@ -3723,7 +3723,6 @@ AutoShrap:
             case EMP:
                 shrap_bounce = false;
                 actor->add_int_z(-Z(4));
-                //actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1024);
                 shrap_xsize = actor->user.pos.X = 5 + (RANDOM_P2(4<<8)>>8);
                 shrap_ysize = actor->user.pos.Y = 5 + (RANDOM_P2(4<<8)>>8);
                 break;
@@ -5351,7 +5350,6 @@ int PlayerCheckDeath(PLAYER* pp, DSWActor* weapActor)
         DoPlayerBeginDie(pp);
 
         // for death direction
-        //actor->user.slide_ang = weapActor->spr.__int_angle;
         actor->user.slide_ang = getangle(actor->int_pos().X - weapActor->int_pos().X, actor->int_pos().Y - weapActor->int_pos().Y);
         // for death velocity
         actor->user.slide_vel = actor->user.LastDamage * 5;
@@ -6544,7 +6542,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else if (actor->user.PlayerP)
         {
-            PlayerDamageSlide(actor->user.PlayerP, damage, weapActor->spr.__int_angle);
+            PlayerDamageSlide(actor->user.PlayerP, damage, weapActor->spr.angle);
             if (PlayerTakeDamage(actor->user.PlayerP, weapActor))
             {
                 PlayerUpdateHealth(actor->user.PlayerP, damage);
@@ -6556,7 +6554,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(actor, damage);
             ActorPain(actor);
             ActorStdMissile(actor, weapActor);
-            ActorDamageSlide(actor, damage, weapActor->spr.__int_angle);
+            ActorDamageSlide(actor, damage, weapActor->spr.angle);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -8270,7 +8268,7 @@ int DoGrenade(DSWActor* actor)
 
             wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
 
-            //actor->spr.__int_angle = NORM_ANGLE(actor->spr.__int_angle + 1);
+            //actor->spr.angle = NORM_ANGLE(actor->spr.angle + 1);
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 22000);
 
@@ -15507,7 +15505,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
-    //actorNew->spr.__int_angle += RandomRange(30) - 15;
+    //actorNew->spr.angle += RandomRange(30) - 15;
 
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());

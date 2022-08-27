@@ -2855,7 +2855,7 @@ KeyMain:
              *
              * actor->user.State = actor->user.StateStart = &s_FireFly[0]; actor->user.RotNum = 0;
              *
-             * actor->spr.__int_angle = 0; actor->spr.xvel = 4;
+             * actor->spr.angle = 0; actor->spr.xvel = 4;
              *
              * if (labs(actor->spr.z - actor->sector()->int_floorz()) < Z(32)) actor->spr.z =
              * actor->sector()->int_floorz() - Z(32);
@@ -4574,8 +4574,8 @@ bool DropAhead(DSWActor* actor, int  min_height)
 {
     int dax, day;
 
-    // dax = actor->spr.x + MOVEx(128, actor->spr.__int_angle);
-    // day = actor->spr.y + MOVEy(128, actor->spr.__int_angle);
+    // dax = actor->spr.x + MOVEx(128, actor->spr.angle);
+    // day = actor->spr.y + MOVEy(128, actor->spr.angle);
 
     dax = actor->int_pos().X + MOVEx(256, actor->int_ang());
     day = actor->int_pos().Y + MOVEy(256, actor->int_ang());

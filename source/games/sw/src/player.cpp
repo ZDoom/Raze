@@ -1790,10 +1790,6 @@ void UpdatePlayerSprite(PLAYER* pp)
     {
         actor->set_int_z(pp->pos.Z + Z(17));
 
-        // move it forward a bit to look like its on the ladder
-        //actor->spr.x += MOVEx(256+64, actor->spr.__int_angle);
-        //actor->spr.y += MOVEy(256+64, actor->spr.__int_angle);
-
         ChangeActorSect(pp->actor, pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerFly)

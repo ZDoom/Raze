@@ -601,7 +601,7 @@ void renderCrystalBall()
 	int vd4 = pOther->actor->spr.y;
 	int vd0 = pOther->zView;
 	int vcc = pOther->actor->spr.sectnum;
-	int v50 = pOther->actor->spr.__int_angle;
+	int v50 = pOther->actor->spr.angle;
 	int v54 = 0;
 	if (pOther->flickerEffect)
 	{
