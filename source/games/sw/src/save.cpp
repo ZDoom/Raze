@@ -475,7 +475,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("slide_ang", w.slide_ang)
 			("slide_dec", w.slide_dec)
 			("drive_avel", w.drive_avel)
-			("view_outside_dang", w.view_outside_dang)
 			("circle_camera_ang", w.circle_camera_ang)
 			("camera_check_time_delay", w.camera_check_time_delay)
 			("cursectnum", w.cursector)

@@ -611,8 +611,7 @@ struct PLAYER
     int slide_dec;
     float drive_avel;
 
-    int16_t view_outside_dang;  // outside view delta ang
-    int16_t circle_camera_ang;
+    DAngle circle_camera_ang;
     int16_t camera_check_time_delay;
 
 

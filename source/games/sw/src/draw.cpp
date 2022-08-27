@@ -926,19 +926,19 @@ void post_analyzesprites(tspriteArray& tsprites)
 }
 #endif
 
-void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
+void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, fixed_t q16horiz)
 {
     HitInfo hit{};
     int i, vx, vy, vz, hx, hy;
     int daang;
     PLAYER* pp = &Player[screenpeek];
-    binangle ang;
+    DAngle ang;
 
-    ang = *nang + buildang(pp->circle_camera_ang);
+    ang = *nang + pp->circle_camera_ang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = -ang.bcos(-4);
-    vy = -ang.bsin(-4);
+    vx = int(-ang.Cos() * 1024.);
+    vy = int(-ang.Sin() * 1024.);
 
     // lengthen the vector some
     vx += vx >> 1;
@@ -1087,9 +1087,9 @@ void DrawCrosshair(PLAYER* pp)
     }
 }
 
-void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binangle *tang, fixedhoriz *thoriz)
+void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngle *tang, fixedhoriz *thoriz)
 {
-    binangle ang;
+    DAngle ang;
     bool found_camera = false;
     bool player_in_camera = false;
     bool FAFcansee_test;
@@ -1100,8 +1100,8 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         SWStatIterator it(STAT_DEMO_CAMERA);
         while (auto actor = it.Next())
         {
-            ang = bvectangbam(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
-            ang_test = getincangle(ang.asbuild(), actor->int_ang()) < actor->spr.lotag;
+            ang = VecToAngle(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
+            ang_test = (DAngle::fromBuild(actor->int_ang()) - ang).Normalized180() < DAngle::fromBuild(actor->spr.lotag);
 
             FAFcansee_test =
                 (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
@@ -1135,8 +1135,8 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
                     pp->last_camera_act = actor;
 
-                    xvect = ang.bcos(-3);
-                    yvect = ang.bsin(-3);
+                    xvect = int(ang.Cos() * 2048.);
+                    yvect = int(ang.Sin() * 2048.);
 
                     zdiff = actor->int_pos().Z - *tz;
                     if (labs(actor->int_pos().X - *tx) > 1000)
@@ -1188,7 +1188,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         }
         else
         {
-            pp->circle_camera_ang = 0;
+            pp->circle_camera_ang = nullAngle;
             pp->circle_camera_dist = CIRCLE_CAMERA_DIST_MIN;
             pp->Flags &= ~(PF_VIEW_FROM_CAMERA);
         }
@@ -1363,7 +1363,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    binangle tang, trotscrnang;
+    DAngle tang, trotscrnang;
     fixedhoriz thoriz;
     sectortype* tsect;
     short i,j;
@@ -1401,15 +1401,15 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = camerapp->angle.interpolatedsum(smoothratio);
+        tang = DAngle::fromBam(camerapp->angle.interpolatedsum(smoothratio).asbam());
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
-        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio);
+        trotscrnang = DAngle::fromBam(camerapp->angle.interpolatedrotscrn(smoothratio).asbam());
     }
     else
     {
-        tang = pp->angle.sum();
+        tang = DAngle::fromBam(pp->angle.sum().asbam());
         thoriz = pp->horizon.sum();
-        trotscrnang = pp->angle.rotscrnang;
+        trotscrnang = DAngle::fromBam(pp->angle.rotscrnang.asbam());
     }
     tsect = camerapp->cursector;
 
@@ -1423,7 +1423,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
             tx = pp->pos.X;
             ty = pp->pos.Y;
             tz = pp->pos.Z;
-            tang = pp->angle.ang;
+            tang = DAngle::fromBam(pp->angle.ang.asbam());
         }
         tsect = pp->cursector;
         updatesectorz(tx, ty, tz, &tsect);
@@ -1432,7 +1432,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     pp->si.X = tx;
     pp->si.Y = ty;
     pp->si.Z = tz - pp->pos.Z;
-    pp->siang = tang.asbuild();
+    pp->siang = tang.Buildang();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     int vis = g_visibility;
@@ -1442,25 +1442,25 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     tx = tx + quake_x;
     ty = ty + quake_y;
     //thoriz += buildhoriz(quake_x);
-    tang += buildang(quake_ang);
+    tang += DAngle::fromBuild(quake_ang);
 
     if (pp->sop_remote)
     {
         DSWActor* ractor = pp->remoteActor;
         if (TEST_BOOL1(ractor))
-            tang = buildang(ractor->int_ang());
+            tang = DAngle::fromBuild(ractor->int_ang());
         else
-            tang = bvectangbam(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
+            tang = VecToAngle(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
 
-        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, DAngle::fromBam(tang.asbam()), thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, DAngle::fromBam(tang.asbam()), thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio);
         }
     }
     else
@@ -1493,7 +1493,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     if (!sceneonly) UpdatePanel(smoothratio);
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), DAngle::fromBam(tang.asbam()), thoriz, DAngle::fromBam(trotscrnang.asbam()), smoothratio);
+    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
     RestorePortalState();
 
     if (sceneonly)
@@ -1522,7 +1522,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(tx, ty, tang.asbuild(), smoothratio);
+        DrawOverheadMap(tx, ty, tang.Buildang(), smoothratio);
     }
 
     SWSpriteIterator it;

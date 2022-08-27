@@ -201,8 +201,7 @@ struct SWPlayer native
     native int slide_dec;
     native float drive_avel;
 
-    native int16 view_outside_dang;  // outside view delta ang
-    native int16 circle_camera_ang;
+    native double circle_camera_ang;
     native int16 camera_check_time_delay;
 
     //native int /*cursectnum,*/lastcursectnum;

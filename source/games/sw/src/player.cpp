@@ -6521,7 +6521,7 @@ void PlayerGlobal(PLAYER* pp)
 
     // camera stuff that can't be done in drawscreen
     if (pp->circle_camera_dist > CIRCLE_CAMERA_DIST_MIN)
-        pp->circle_camera_ang = NORM_ANGLE(pp->circle_camera_ang + 14);
+        pp->circle_camera_ang += DAngle::fromBuild(14);
 
     if (pp->camera_check_time_delay > 0)
     {
@@ -7097,7 +7097,6 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, friction)
 DEFINE_FIELD_X(SWPlayer, PLAYER, slide_ang)
 DEFINE_FIELD_X(SWPlayer, PLAYER, slide_dec)
 DEFINE_FIELD_X(SWPlayer, PLAYER, drive_avel)
-DEFINE_FIELD_X(SWPlayer, PLAYER, view_outside_dang)
 DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_ang)
 DEFINE_FIELD_X(SWPlayer, PLAYER, camera_check_time_delay)
 DEFINE_FIELD_X(SWPlayer, PLAYER, cursector)
