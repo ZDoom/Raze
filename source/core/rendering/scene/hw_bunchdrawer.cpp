@@ -55,8 +55,8 @@
 
 void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, binangle a2)
 {
-	ang1 = a1;
-	ang2 = a2;
+	ang1 = a1.asbam();
+	ang2 = a2.asbam();
 	angrange = ang2 - ang1;
 	di = _di;
 	clipper = c;
@@ -120,7 +120,7 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 	bunch->endangle = endan.asbam();
 	bunch->portal = portal;
 	assert(bunch->endangle >= bunch->startangle);
-	return bunch->endangle != angrange.asbam();
+	return bunch->endangle != angrange;
 }
 
 //==========================================================================
@@ -135,7 +135,7 @@ bool BunchDrawer::AddLineToBunch(int line, binangle newan)
 	assert(newan.asbam() > Bunches[LastBunch].endangle);
 	Bunches[LastBunch].endangle = newan.asbam();
 	assert(Bunches[LastBunch].endangle > Bunches[LastBunch].startangle);
-	return Bunches[LastBunch].endangle != angrange.asbam();
+	return Bunches[LastBunch].endangle != angrange;
 }
 
 //==========================================================================
@@ -241,7 +241,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	int startAngle = startAngleBam.asbam();
 	int endAngle = endAngleBam.asbam();
 	if (startAngle < 0) startAngle = 0;
-	if (endAngle < 0 || endAngle > (int)angrange.asbam()) endAngle = angrange.asbam();
+	if (endAngle < 0 || endAngle > (int)angrange) endAngle = angrange;
 
 	// since these values are derived from previous calls of this function they cannot be out of range.
 	int sectStartAngle = sectionstartang[section];
@@ -715,15 +715,15 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 		binangle walang2 = ClipAngle(thisline->endpoint);
 
 		// outside the visible area or seen from the backside.
-		if ((walang1.asbam() > angrange.asbam() && walang2.asbam() > angrange.asbam() && walang1.asbam() < walang2.asbam()) ||
+		if ((walang1.asbam() > angrange && walang2.asbam() > angrange && walang1.asbam() < walang2.asbam()) ||
 			(walang1.asbam() - walang2.asbam() < ANGLE_180))
 		{
 			inbunch = false;
 		}
 		else
 		{
-			if (walang1.asbam() >= angrange.asbam()) { walang1 = bamang(0); inbunch = false; }
-			if (walang2.asbam() >= angrange.asbam()) walang2 = angrange;
+			if (walang1.asbam() >= angrange) { walang1 = bamang(0); inbunch = false; }
+			if (walang2.asbam() >= angrange) walang2 = bamang(angrange);
 			if (section->lines[i] >= (int)wall.Size()) inbunch = false;
 			if (!inbunch)
 			{
@@ -751,14 +751,14 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 	//Printf("----------------------------------------- \nstart at sector %d, z = %2.3f\n", viewsectors[0], viewz);
 	auto process = [&]()
 	{
-		clipper->Clear(ang1);
+		clipper->Clear(bamang(ang1));
 
 		for (unsigned i = 0; i < sectcount; i++)
 		{
 			for (auto j : sectionsPerSector[viewsectors[i]])
 			{
 				sectionstartang[j] = 0;
-				sectionendang[j] = int(angrange.asbam());
+				sectionendang[j] = int(angrange);
 			}
 		}
 		for (unsigned i = 0; i < sectcount; i++)
@@ -777,7 +777,7 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 	};
 
 	Bsp.Clock();
-	if (ang1.asbam() != 0 || ang2.asbam() != 0)
+	if (ang1 != 0 || ang2 != 0)
 	{
 		process();
 	}
@@ -786,13 +786,13 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 		// with a 360° field of view we need to split the scene into two halves. 
 		// The BunchInFront check can fail with angles that may wrap around.
 		auto rotang = di->Viewpoint.RotAngle;
-		ang1 = bamang(rotang - ANGLE_90);
-		ang2 = bamang(rotang + ANGLE_90 - 1);
+		ang1 = rotang - ANGLE_90;
+		ang2 = rotang + ANGLE_90 - 1;
 		angrange = ang2 - ang1;
 		process();
 		gotsection2.Zero();
-		ang1 = bamang(rotang + ANGLE_90);
-		ang2 = bamang(rotang - ANGLE_90 - 1);
+		ang1 = rotang + ANGLE_90;
+		ang2 = rotang - ANGLE_90 - 1;
 		angrange = ang2 - ang1;
 		process();
 	}
