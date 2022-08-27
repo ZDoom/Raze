@@ -59,10 +59,10 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, double smoothratio, bool sceneonly, float fov)
+void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, DAngle a, fixedhoriz h, DAngle rotscrnang, double smoothratio, bool sceneonly, float fov)
 {
 	if (!sceneonly) drawweapon(smoothratio);
-	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), DAngle::fromBam(a.asbam()), h, DAngle::fromBam(rotscrnang.asbam()), smoothratio, fov);
+	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio, fov);
 }
 
 //---------------------------------------------------------------------------
@@ -223,7 +223,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double smoothratio, bool sceneonly)
 {
 	int cposx, cposy, cposz, fz, cz;
-	binangle cang, rotscrnang;
+	DAngle cang, rotscrnang;
 	fixedhoriz choriz;
 	player_struct* p;
 
@@ -258,12 +258,12 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (act->spr.yvel < 0) act->spr.yvel = -100;
 		else if (act->spr.yvel > 199) act->spr.yvel = 300;
 
-		cang = buildang(interpolatedangle(ud.cameraactor->tempang, act->int_ang(), smoothratio));
+		cang = DAngle::fromBuild(interpolatedangle(ud.cameraactor->tempang, act->int_ang(), smoothratio));
 
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->sector(), act->int_pos().X, act->int_pos().Y, act->int_pos().Z - (4 << 8), cang, bh, buildang(0), smoothratio, sceneonly, fov);
+		renderView(act, act->sector(), act->int_pos().X, act->int_pos().Y, act->int_pos().Z - (4 << 8), cang, bh, DAngle::fromDeg(0.), smoothratio, sceneonly, fov);
 		act->spr.cstat = cstat;
 
 	}
@@ -281,7 +281,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
+		rotscrnang = DAngle::fromBam((!SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio)).asbam());
 
 #if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
@@ -310,13 +310,13 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
+				cang = DAngle::fromBam(p->angle.interpolatedsum(smoothratio).asbam());
 				choriz = p->horizon.interpolatedsum(smoothratio);
-				cang = p->angle.interpolatedsum(smoothratio);
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = p->angle.sum();
+				cang = DAngle::fromBam(p->angle.sum().asbam());
 				choriz = p->horizon.sum();
 			}
 		}
@@ -326,13 +326,13 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (p->newOwner != nullptr)
 		{
 			auto act = p->newOwner;
-			cang = buildang(act->interpolatedang(smoothratio));
+			cang = DAngle::fromBuild(act->interpolatedang(smoothratio));
 			choriz = buildhoriz(act->spr.shade);
 			cposx = act->int_pos().X;
 			cposy = act->int_pos().Y;
 			cposz = act->int_pos().Z;
 			sect = act->sector();
-			rotscrnang = buildang(0);
+			rotscrnang = DAngle::fromDeg(0.);
 			smoothratio = MaxSmoothRatio;
 			viewer = act;
 			camview = true;
@@ -347,10 +347,10 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			cposz -= isRR() ? 3840 : 3072;
 
 			viewer = p->GetActor();
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, DAngle::fromBam(cang.asbam()), choriz, smoothratio))
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, DAngle::fromBam(cang.asbam()), choriz, smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio);
 			}
 		}
 
@@ -360,7 +360,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{
 			cposz += 256 - (((earthquaketime) & 1) << 9);
-			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
+			cang += DAngle::fromBuild((2 - ((earthquaketime) & 2)) << 2);
 		}
 
 		if (p->GetActor()->spr.pal == 1) cposz -= (18 << 8);

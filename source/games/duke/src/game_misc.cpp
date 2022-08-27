@@ -237,7 +237,8 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 void drawoverlays(double smoothratio)
 {
 	player_struct* pp;
-	int cposx, cposy, cang;
+	int cposx, cposy;
+	DAngle cang;
 
 	pp = &ps[screenpeek];
 	// set palette here, in case the 3D view is off.
@@ -275,22 +276,22 @@ void drawoverlays(double smoothratio)
 				{
 					cposx = interpolatedvalue(omyx, myx, smoothratio);
 					cposy = interpolatedvalue(omyy, myy, smoothratio);
-					cang = (!SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio)).asbuild();
+					cang = !SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio);
 				}
 				else
 				{
 					cposx = interpolatedvalue(pp->player_int_opos().X, pp->player_int_pos().X, smoothratio);
 					cposy = interpolatedvalue(pp->player_int_opos().Y, pp->player_int_pos().Y, smoothratio);
-					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
+					cang = DAngle::fromBam((!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbam());
 				}
 			}
 			else
 			{
 				cposx = pp->player_int_opos().X;
 				cposy = pp->player_int_opos().Y;
-				cang = pp->angle.oang.asbuild();
+				cang = DAngle::fromBam(pp->angle.oang.asbam());
 			}
-			DrawOverheadMap(cposx, cposy, cang, smoothratio);
+			DrawOverheadMap(cposx, cposy, cang.Buildang(), smoothratio);
 			RestoreInterpolations();
 		}
 	}

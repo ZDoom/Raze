@@ -5,7 +5,7 @@ BEGIN_DUKE_NS
 extern int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 extern int globalskillsound;
 extern int mycursectnum, myjumpingcounter;
-extern binangle myang, omyang;
+extern DAngle myang, omyang;
 extern fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 extern uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 extern int fakemovefifoplc;

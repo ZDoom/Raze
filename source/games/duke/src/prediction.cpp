@@ -38,7 +38,7 @@ BEGIN_DUKE_NS
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 int globalskillsound;
-binangle myang, omyang;
+DAngle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 int mycursectnum, myjumpingcounter;
 uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
@@ -54,7 +54,7 @@ void resetmys()
 	myy = omyy = ps[myconnectindex].pos.Y;
 	myz = omyz = ps[myconnectindex].pos.Z;
 	myxvel = myyvel = myzvel = 0;
-	myang = ps[myconnectindex].angle.ang;
+	myang = DAngle::fromBam(ps[myconnectindex].angle.ang.asbam());
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
 	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
 	mycursectnum = sectnum(ps[myconnectindex].cursector);
