@@ -1493,7 +1493,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     if (!sceneonly) UpdatePanel(smoothratio);
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), DAngle::fromBam(tang.asbam()), thoriz, DAngle::fromBam(trotscrnang.asbam()), smoothratio);
     RestorePortalState();
 
     if (sceneonly)

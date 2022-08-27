@@ -346,7 +346,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
+        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), DAngle::fromBam(nCameraa.asbam()), nCamerapan, DAngle::fromBam(rotscrnang.asbam()), smoothRatio);
 
         if (HavePLURemap())
         {

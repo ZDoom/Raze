@@ -62,7 +62,7 @@ BEGIN_DUKE_NS
 void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, double smoothratio, bool sceneonly, float fov)
 {
 	if (!sceneonly) drawweapon(smoothratio);
-	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio, fov);
+	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), DAngle::fromBam(a.asbam()), h, DAngle::fromBam(rotscrnang.asbam()), smoothratio, fov);
 }
 
 //---------------------------------------------------------------------------
@@ -92,11 +92,10 @@ void GameInterface::UpdateCameras(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = camsprite->GetOwner();
-				auto ang = buildang(camera->interpolatedang(smoothratio));
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->int_pos(), camera->sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
+				render_camtex(camera, camera->int_pos(), camera->sector(), DAngle::fromBuild(camera->interpolatedang(smoothratio)), buildhoriz(camera->spr.shade), DAngle::fromDeg(0.), tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});

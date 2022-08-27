@@ -5,8 +5,8 @@
 class FSerializer;
 struct IntRect;
 
-void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio, float fov = -1);
-void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio);
+void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double smoothratio, float fov = -1);
+void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio);
 
 struct PortalDesc
 {

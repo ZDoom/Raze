@@ -192,18 +192,18 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, float fov = -1)
+FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, float fov = -1)
 {
 	FRenderViewpoint r_viewpoint{};
 	r_viewpoint.CameraActor = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.Z / -256.f };
-	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(- 90.f + angle.asdeg());
+	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angle.Degrees());
 	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(-horizon.aspitch());
-	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(-rollang.asdeg());
+	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(-(float)rollang.Degrees());
 	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
-	r_viewpoint.RotAngle = angle.asbam();
+	r_viewpoint.RotAngle = angle.BAMs();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
 	DAngle an = DAngle::fromDeg(270. - r_viewpoint.HWAngles.Yaw.Degrees());
 	r_viewpoint.TanSin = FocalTangent * an.Sin();
@@ -305,7 +305,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio, float fov)
+void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double smoothratio, float fov)
 {
 	checkRotatedWalls();
 
@@ -360,7 +360,7 @@ void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sect
 	All.Unclock();
 }
 
-void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
+void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
 	updatesector(position.X, position.Y, &sect);
 	if (!sect) return;

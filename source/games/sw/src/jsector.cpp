@@ -403,14 +403,14 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     binangle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
+                     DAngle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
     auto canvas = tileGetCanvas(tilenume);
     if (!canvas) return;
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-               render_camtex(nullptr, { daposx, daposy, daposz }, dacursect, ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
+               render_camtex(nullptr, { daposx, daposy, daposz }, dacursect, ang, horiz, DAngle::fromDeg(0.), tileGetTexture(tilenume), rect, smoothratio);
         });
 
 }
@@ -626,11 +626,11 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, DAngle::fromBam(cp->angle.ang.asbam()), cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
-                                drawroomstotile(camactor->int_pos().X, camactor->int_pos().Y, camactor->int_pos().Z, buildang(SP_TAG5(camactor)), camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(camactor->int_pos().X, camactor->int_pos().Y, camactor->int_pos().Z, DAngle::fromBuild(SP_TAG5(camactor)), camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }
