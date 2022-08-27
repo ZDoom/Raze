@@ -198,7 +198,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 				tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
 				tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
 				tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
-				tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
+				tileA = interpolatedangle(DAngle::fromBuild(prevTile->angle), DAngle::fromBuild(thisTile->angle), smoothratio).Buildfang();
 				tileShade = interpolatedvalue(prevTile->shade, thisTile->shade, smoothratio) + shade;
 				auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.;
 				auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.;

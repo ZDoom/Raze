@@ -419,26 +419,14 @@ inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, int const 
 	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
 }
 
-inline constexpr binangle interpolatedangle(binangle oang, binangle ang, double const smoothratio, int const scale = 16)
-{
-	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, int(smoothratio), scale));
-}
-
-inline constexpr binangle interpolatedangle(binangle oang, binangle ang, int const smoothratio, int const scale = 16)
-{
-	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
-}
-
-// FIXME: Can't rely on overloading this to functions we're trying to deprecate. OK for now.
 inline constexpr DAngle interpolatedangle(DAngle oang, DAngle ang, double const smoothratio, int const scale = 16)
 {
-	return DAngle::fromBam(interpolatedangle(bamang(oang.BAMs()), bamang(ang.BAMs()), int(smoothratio), scale).asbam());
+	return DAngle::fromBam(oang.BAMs() + MulScale(((ang.BAMs() + 0x80000000 - oang.BAMs()) & 0xFFFFFFFF) - 0x80000000, int(smoothratio), scale));
 }
 
-// FIXME: Can't rely on overloading this to functions we're trying to deprecate. OK for now.
 inline constexpr DAngle interpolatedangle(DAngle oang, DAngle ang, int const smoothratio, int const scale = 16)
 {
-	return DAngle::fromBam(interpolatedangle(bamang(oang.BAMs()), bamang(ang.BAMs()), smoothratio, scale).asbam());
+	return DAngle::fromBam(oang.BAMs() + MulScale(((ang.BAMs() + 0x80000000 - oang.BAMs()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
 }
 
 inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, double const smoothratio, int const scale = 16)
