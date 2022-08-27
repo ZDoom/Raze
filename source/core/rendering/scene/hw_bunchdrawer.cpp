@@ -751,7 +751,7 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 	//Printf("----------------------------------------- \nstart at sector %d, z = %2.3f\n", viewsectors[0], viewz);
 	auto process = [&]()
 	{
-		clipper->Clear(bamang(ang1));
+		clipper->Clear(ang1);
 
 		for (unsigned i = 0; i < sectcount; i++)
 		{

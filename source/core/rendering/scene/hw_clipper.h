@@ -24,7 +24,7 @@ class Clipper
 	ClipNode * freelist = nullptr;
 
 	ClipNode * cliphead = nullptr;
-	binangle visibleStart, visibleEnd;
+	angle_t visibleStart, visibleEnd;
 
 public:
 	bool IsRangeVisible(int startangle, int endangle);
@@ -34,7 +34,7 @@ public:
 
 public:
 
-	void Clear(binangle rangestart);
+	void Clear(angle_t rangestart);
 
 	void Free(ClipNode *node)
 	{
@@ -78,13 +78,13 @@ public:
 	{
 		if (a2 != 0xffffffff)
 		{
-			visibleStart = bamang(a1 - a2);
-			visibleEnd = bamang(a1 + a2);
+			visibleStart = a1 - a2;
+			visibleEnd = a1 + a2;
 		}
-		else visibleStart = visibleEnd = bamang(0);
+		else visibleStart = visibleEnd = 0;
 	}
 
-	void RestrictVisibleRange(binangle a1, binangle a2)
+	void RestrictVisibleRange(angle_t a1, angle_t a2)
 	{
 		if (visibleStart == visibleEnd)
 		{
@@ -93,8 +93,8 @@ public:
 		}
 		else
 		{
-			if (a1.asbam() - visibleStart.asbam() < visibleEnd.asbam() - visibleStart.asbam()) visibleStart = a1;
-			if (a2.asbam() - visibleStart.asbam() < visibleEnd.asbam() - visibleStart.asbam()) visibleStart = a2;
+			if (a1 - visibleStart < visibleEnd - visibleStart) visibleStart = a1;
+			if (a2 - visibleStart < visibleEnd - visibleStart) visibleStart = a2;
 		}
 	}
 
