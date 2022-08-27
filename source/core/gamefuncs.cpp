@@ -39,7 +39,7 @@ int cameradist, cameraclock;
 bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const smoothratio)
 {
 	HitInfoBase hitinfo;
-	binangle daang;
+	DAngle daang;
 	int newdist;
 
 	if (!*psect) return false;
@@ -67,9 +67,9 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 		{
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
-			daang = bvectangbam(hitinfo.hitWall->point2Wall()->pos.X - hitinfo.hitWall->pos.X,
+			daang = VecToAngle(hitinfo.hitWall->point2Wall()->pos.X - hitinfo.hitWall->pos.X,
 								hitinfo.hitWall->point2Wall()->pos.Y - hitinfo.hitWall->pos.Y);
-			newdist = np.X * daang.bsin() + np.Y * -daang.bcos();
+			newdist = int(np.X * daang.Sin() * (1 << BUILDSINBITS) + np.Y * -daang.Cos() * (1 << BUILDSINBITS));
 
 			if (abs(np.X) > abs(np.Y))
 				hx -= MulScale(np.X, newdist, 28);
@@ -102,8 +102,8 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			else
 			{
 				// same as wall calculation.
-				daang = buildang(act->int_ang() - 512);
-				newdist = np.X * daang.bsin() + np.Y * -daang.bcos();
+				daang = DAngle::fromBuild(act->int_ang() - 512);
+				newdist = int(np.X * daang.Sin() * (1 << BUILDSINBITS) + np.Y * -daang.Cos() * (1 << BUILDSINBITS));
 
 				if (abs(np.X) > abs(np.Y))
 					hx -= MulScale(np.X, newdist, 28);
