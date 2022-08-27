@@ -45,7 +45,7 @@ PLAYER* ppp = &PredictPlayer;
 struct PREDICT
 {
     int x,y,z;
-    binangle ang;
+    DAngle ang;
     fixedhoriz horiz;
     short filler;
 };
