@@ -143,7 +143,7 @@ struct GameInterface : public ::GameInterface
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
 	vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 1280.), int(-ang.Sin() * 1280.), FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8)); }
-	void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+	void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) override;
 	void EnterPortal(DCoreActor* viewer, int type) override;
 	void LeavePortal(DCoreActor* viewer, int type) override;
 	void LoadGameTextures() override;

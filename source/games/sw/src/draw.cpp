@@ -1782,9 +1782,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     return true;
 }
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, viewang.asbuild());
+    analyzesprites(tsprites, viewx, viewy, viewz, viewang.Buildang());
     post_analyzesprites(tsprites);
 }
 

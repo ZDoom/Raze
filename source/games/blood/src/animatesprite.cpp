@@ -1016,9 +1016,9 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
 {
-	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang, int(smoothRatio));
+	viewProcessSprites(tsprites, viewx, viewy, viewz, buildang(viewang.Buildang()), int(smoothRatio));
 }
 
 int display_mirror;
