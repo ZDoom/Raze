@@ -524,7 +524,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 
 	rotmat.loadIdentity();
 	rotmat.translate(x + translatevec.X, z - translatevec.Z, y - translatevec.Y);
-	rotmat.rotate(buildang(ang).asdeg() - 90.f, 0, 1, 0);
+	rotmat.rotate(DAngle::fromBuild(ang).Degrees() - 90.f, 0, 1, 0);
 	rotmat.scale(scalevec.X, scalevec.Z, scalevec.Y);
 	// Apply pivot last
 	rotmat.translate(-voxel->piv.X, zoff, voxel->piv.Y);

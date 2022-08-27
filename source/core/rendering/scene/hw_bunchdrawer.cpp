@@ -66,8 +66,8 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, angle_t a1, an
 	iview = view;
 	StartScene();
 
-	gcosang = bamang(di->Viewpoint.RotAngle).fcos();
-	gsinang = bamang(di->Viewpoint.RotAngle).fsin();
+	gcosang = g_cosbam(di->Viewpoint.RotAngle);
+	gsinang = g_sinbam(di->Viewpoint.RotAngle);
 
 	for (auto& w : wall)
 	{

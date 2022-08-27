@@ -654,6 +654,6 @@ void Clipper::DumpClipper()
 {
 	for (auto node = cliphead; node; node = node->next)
 	{
-		Printf("Range from %2.3f to %2.3f (top = %2.3f, bottom = %2.3f)\n", bamang(node->start).asdeg(), bamang(node->end).asdeg(), node->topclip, node->bottomclip);
+		Printf("Range from %2.3f to %2.3f (top = %2.3f, bottom = %2.3f)\n", DAngle::fromBam(node->start).Degrees(), DAngle::fromBam(node->end).Degrees(), node->topclip, node->bottomclip);
 	}
 }
