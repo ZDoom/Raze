@@ -277,18 +277,17 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-
-	actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14) ,MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14), 0 });
+	actor->spr.pos.X += actor->spr.xvel * buildang(actor->spr.ang).fcos() * inttoworld;
+	actor->spr.pos.Y += actor->spr.xvel * buildang(actor->spr.ang).fsin() * inttoworld;
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
 
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		vec2_t t;
-		rotatepoint({ 0, 0 }, { msx[j], msy[j] }, k & 2047, &t);
+		auto t = rotatepoint({ 0, 0 }, { msx[j] * inttoworld, msy[j] * inttoworld }, buildang(k & 2047));
 
-		dragpoint(&wal, actor->int_pos().X + t.X, actor->int_pos().Y + t.Y);
+		dragpoint(&wal, actor->spr.pos.XY() + t);
 		j++;
 	}
 }
@@ -2713,9 +2712,10 @@ void handle_se00(DDukeActor* actor)
 				act2->spr.ang &= 2047;
 
 				act2->add_int_z(zchange);
-				auto pos = act2->int_pos();
-				rotatepoint(Owner->int_pos().vec2, act2->int_pos().vec2, (q* l), &pos.vec2);
-				act2->set_int_pos(pos);
+
+				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), buildang(q* l));
+				act2->spr.pos.X = pos.X;
+				act2->spr.pos.Y = pos.Y;
 			}
 		}
 
