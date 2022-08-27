@@ -61,7 +61,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %2.3f, %2.3f, %2.3f - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.Z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
+		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.Z, ps[snum].angle.ang.Degrees(), sectnum(ps[snum].cursector),
 		ps[snum].cursector->lotag, ps[snum].cursector->hitag);
 
 	return out;
@@ -282,14 +282,14 @@ void drawoverlays(double smoothratio)
 				{
 					cposx = interpolatedvalue(pp->player_int_opos().X, pp->player_int_pos().X, smoothratio);
 					cposy = interpolatedvalue(pp->player_int_opos().Y, pp->player_int_pos().Y, smoothratio);
-					cang = DAngle::fromBam((!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbam());
+					cang = !SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio);
 				}
 			}
 			else
 			{
 				cposx = pp->player_int_opos().X;
 				cposy = pp->player_int_opos().Y;
-				cang = DAngle::fromBam(pp->angle.oang.asbam());
+				cang = pp->angle.oang;
 			}
 			DrawOverheadMap(cposx, cposy, cang.Buildang(), smoothratio);
 			RestoreInterpolations();

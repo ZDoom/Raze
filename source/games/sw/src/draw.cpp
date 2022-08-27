@@ -792,7 +792,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 tsp->add_int_x(-MulScale(pp->pos.X - pp->opos.X, sr, 16));
                 tsp->add_int_y(-MulScale(pp->pos.Y - pp->opos.Y, sr, 16));
                 tsp->add_int_z(-MulScale(pp->pos.Z - pp->opos.Z, sr, 16));
-                tsp->add_int_ang(-MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16));
+                tsp->ang -= MulScale(pp->angle.ang.Buildang() - pp->angle.oang.Buildang(), sr, 16);
             }
         }
 
@@ -1035,7 +1035,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->pos.X);
     out.AppendFormat("POSY:%d ", pp->pos.Y);
     out.AppendFormat("POSZ:%d ", pp->pos.Z);
-    out.AppendFormat("ANG:%d\n", pp->angle.ang.asbuild());
+    out.AppendFormat("ANG:%d\n", pp->angle.ang.Buildang());
 
     return out;
 }
@@ -1400,13 +1400,13 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = DAngle::fromBam(camerapp->angle.interpolatedsum(smoothratio).asbam());
+        tang = camerapp->angle.interpolatedsum(smoothratio);
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
         trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio);
     }
     else
     {
-        tang = DAngle::fromBam(pp->angle.sum().asbam());
+        tang = pp->angle.sum();
         thoriz = pp->horizon.sum();
         trotscrnang = pp->angle.rotscrnang;
     }
@@ -1422,7 +1422,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
             tx = pp->pos.X;
             ty = pp->pos.Y;
             tz = pp->pos.Z;
-            tang = DAngle::fromBam(pp->angle.ang.asbam());
+            tang = pp->angle.ang;
         }
         tsect = pp->cursector;
         updatesectorz(tx, ty, tz, &tsect);

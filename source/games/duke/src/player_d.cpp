@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			if (splash)
 			{
 				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
-				splash->set_int_ang(ps[p].angle.ang.asbuild()); // Total tweek
+				splash->set_int_ang(ps[p].angle.ang.Buildang()); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, CLIPMASK0);
 				splash->spr.xvel = 0;
@@ -1020,7 +1020,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		sx = ps[p].player_int_pos().X;
 		sy = ps[p].player_int_pos().Y;
 		sz = ps[p].player_int_pos().Z + ps[p].pyoff + (4 << 8);
-		sa = ps[p].angle.ang.asbuild();
+		sa = ps[p].angle.ang.Buildang();
 
 		ps[p].crack_time = CRACK_TIME;
 
@@ -1991,7 +1991,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->add_int_pos({ bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6), bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6), 0 });
+			j->add_int_pos({ bcos(p->angle.ang.Buildang() + 64 - (global_random & 128), -6), bsin(p->angle.ang.Buildang() + 64 - (global_random & 128), -6), 0 });
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->set_int_z(p->player_int_pos().Z + (8 << 8));
@@ -2203,7 +2203,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				p->player_int_pos().X + p->angle.ang.bcos(-6),
 				p->player_int_pos().Y + p->angle.ang.bsin(-6),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
+				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
 
 			if (isNam())
 			{

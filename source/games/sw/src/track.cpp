@@ -723,7 +723,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
         if (pp->posx > xlow && pp->posx < xhigh && pp->posy > ylow && pp->posy < yhigh)
         {
-            pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
+            pp->RevolveAng = pp->angle.ang;
             pp->Revolve.X = pp->pos.X;
             pp->Revolve.Y = pp->pos.Y;
             pp->RevolveDeltaAng = DAngle::fromDeg(0.);
@@ -1514,7 +1514,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     {
         pp->Flags |= (PF_PLAYER_RIDING);
 
-        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
+        pp->RevolveAng = pp->angle.ang;
         pp->Revolve.X = pp->pos.X;
         pp->Revolve.Y = pp->pos.Y;
 
@@ -1538,7 +1538,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // save the current information so when Player stops
         // moving then you
         // know where he was last
-        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
+        pp->RevolveAng = pp->angle.ang;
         pp->Revolve.X = pp->pos.X;
         pp->Revolve.Y = pp->pos.Y;
 
@@ -1554,7 +1554,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Revolve.Y += ny;
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam()) - pp->RevolveDeltaAng;
+        pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->angle.ang);
     }
 
     // increment Players delta angle
@@ -1567,7 +1567,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, DAngle::fromBam(pp->angle.ang.asbam())));
+    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->angle.ang));
 
     UpdatePlayerSprite(pp);
 }

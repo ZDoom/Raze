@@ -98,7 +98,7 @@ void pickrandomspot(int snum)
 	p->pos = po[i].opos;
 	p->backupxyz();
 	p->setbobpos();
-	p->angle.oang = p->angle.ang = buildang(po[i].oa);
+	p->angle.oang = p->angle.ang = DAngle::fromBuild(po[i].oa);
 	p->setCursector(po[i].os);
 }
 
@@ -542,7 +542,7 @@ void resetpspritevars(int g)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	EGS(ps[0].cursector, ps[0].player_int_pos().X, ps[0].player_int_pos().Y, ps[0].player_int_pos().Z,
-		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
+		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -661,7 +661,7 @@ void resetpspritevars(int g)
 			ps[j].backupxyz();
 			ps[j].setbobpos();
 			act->backuppos();
-			ps[j].angle.oang = ps[j].angle.ang = buildang(act->int_ang());
+			ps[j].angle.oang = ps[j].angle.ang = DAngle::fromBuild(act->int_ang());
 
 			updatesector(act->int_pos().X, act->int_pos().Y, &ps[j].cursector);
 
@@ -1012,7 +1012,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
 	
-	p->angle.ang = buildang(lbang);
+	p->angle.ang = DAngle::fromBuild(lbang);
 
 	gotpic.Zero();
 

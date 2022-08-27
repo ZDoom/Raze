@@ -310,13 +310,13 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
-				cang = DAngle::fromBam(p->angle.interpolatedsum(smoothratio).asbam());
+				cang = p->angle.interpolatedsum(smoothratio);
 				choriz = p->horizon.interpolatedsum(smoothratio);
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = DAngle::fromBam(p->angle.sum().asbam());
+				cang = p->angle.sum();
 				choriz = p->horizon.sum();
 			}
 		}

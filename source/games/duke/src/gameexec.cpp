@@ -473,11 +473,11 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_ANG:
 		if (bSet) ps[iPlayer].angle.settarget(DAngle::fromBuild(lValue));
-		else SetGameVarID(lVar2, ps[iPlayer].angle.ang.asbuild(), sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.ang.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_OANG:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].angle.oang.asbuild(), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].angle.oang.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_ANGVEL: // This no longer exists.
@@ -2425,9 +2425,9 @@ int ParseState::parse(void)
 			else if( (l& pfacing) )
 			{
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
+					j = getincangle(ps[otherp].angle.ang.Buildang(), getangle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
+					j = getincangle(ps[g_p].angle.ang.Buildang(), getangle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2846,7 +2846,7 @@ int ParseState::parse(void)
 
 	case concmd_ifangdiffl:
 		insptr++;
-		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_ac->int_ang()));
+		j = abs(getincangle(ps[g_p].angle.ang.Buildang(),g_ac->int_ang()));
 		parseifelse( j <= *insptr);
 		break;
 
@@ -3146,7 +3146,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, ps[g_p].angle.ang.asbuild(), g_ac, g_p);
+		SetGameVarID(i, ps[g_p].angle.ang.Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -3154,7 +3154,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].angle.ang = buildang(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		ps[g_p].angle.ang = DAngle::fromBuild(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_getactorangle:

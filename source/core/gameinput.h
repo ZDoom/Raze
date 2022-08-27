@@ -124,8 +124,7 @@ private:
 
 struct PlayerAngle
 {
-	binangle ang, oang;
-	DAngle look_ang, olook_ang, rotscrnang, orotscrnang;
+	DAngle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang;
 	double spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
@@ -148,9 +147,9 @@ struct PlayerAngle
 	}
 
 	// Commonly used getters.
-	binangle osum() { return oang + bamang(olook_ang.BAMs()); }
-	binangle sum() { return ang + bamang(look_ang.BAMs()); }
-	binangle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
+	DAngle osum() { return oang + olook_ang; }
+	DAngle sum() { return ang + look_ang; }
+	DAngle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
 	DAngle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
 	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
@@ -176,7 +175,7 @@ struct PlayerAngle
 		}
 		else
 		{
-			ang += bamang(value.BAMs());
+			ang += value;
 		}
 	}
 
@@ -188,7 +187,7 @@ struct PlayerAngle
 		}
 		else
 		{
-			ang = bamang(value.BAMs());
+			ang = value;
 			if (backup) oang = ang;
 		}
 	}
@@ -197,21 +196,21 @@ struct PlayerAngle
 	{
 		if (targetset())
 		{
-			auto delta = deltaangle(DAngle::fromBam(ang.asbam()), target).Degrees();
+			auto delta = deltaangle(ang, target).Normalized180().Degrees();
 
 			if (abs(delta) > 1)
 			{
-				ang += degang(scaleAdjust * delta);
+				ang += DAngle::fromDeg(scaleAdjust * delta);
 			}
 			else
 			{
-				ang = bamang(target.BAMs());
+				ang = target;
 				target = DAngle::fromBam(0);
 			}
 		}
 		else if (adjustment)
 		{
-			ang += degang(scaleAdjust * adjustment);
+			ang += DAngle::fromDeg(scaleAdjust * adjustment);
 		}
 	}
 

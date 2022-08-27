@@ -186,7 +186,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (splash)
 			{
 				splash->set_int_xy(hit.hitpos.X, hit.hitpos.Y);
-				splash->set_int_ang(ps[p].angle.ang.asbuild()); // Total tweek
+				splash->set_int_ang(ps[p].angle.ang.Buildang()); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, 0);
 				splash->spr.xvel = 0;
@@ -838,7 +838,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		sx = ps[p].player_int_pos().X;
 		sy = ps[p].player_int_pos().Y;
 		sz = ps[p].player_int_pos().Z + ps[p].pyoff + (4 << 8);
-		sa = ps[p].angle.ang.asbuild();
+		sa = ps[p].angle.ang.Buildang();
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
@@ -1506,7 +1506,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->set_int_ang(p->angle.ang.asbuild());
+				j->set_int_ang(p->angle.ang.Buildang());
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1525,7 +1525,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->set_int_ang(p->angle.ang.asbuild());
+				j->set_int_ang(p->angle.ang.Buildang());
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -1801,17 +1801,17 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->angle.addadjustment(DAngle::fromBam(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)).asbam()));
+		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -10 : 10;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -2045,9 +2045,9 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->angle.addadjustment(DAngle::fromBam(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)).asbam()));
+		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
@@ -2350,7 +2350,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->add_int_pos({ bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6), bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6), 0 });
+			j->add_int_pos({ bcos(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), bsin(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), 0 });
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->set_int_z(p->player_int_pos().Z + (8 << 8));
@@ -2369,7 +2369,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
+	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
@@ -2424,7 +2424,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto delta = wal->delta();
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
+	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
 
@@ -2471,7 +2471,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
+				int ang = int(p->TiltStatus * 20 + p->angle.ang.Buildang());
 				movesprite_ex(victim, bcos(ang, -8), bsin(ang, -8), victim->spr.zvel, CLIPMASK0, coll);
 			}
 		}
@@ -2531,7 +2531,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
+				int ang = int(p->TiltStatus * 20 + p->angle.ang.Buildang());
 				movesprite_ex(victim, bcos(ang, -9), bsin(ang, -9), victim->spr.zvel, CLIPMASK0, coll);
 			}
 		}
@@ -2748,7 +2748,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				p->player_int_pos().X + p->angle.ang.bcos(-6),
 				p->player_int_pos().Y + p->angle.ang.bsin(-6),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
+				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
 			if (spawned)
 			{
@@ -3163,7 +3163,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				p->player_int_pos().X + p->angle.ang.bcos(-6),
 				p->player_int_pos().Y + p->angle.ang.bsin(-6),
 				p->player_int_pos().Z, POWDERKEG, -16, 9, 9,
-				p->angle.ang.asbuild(), k * 2, i, pact, 1);
+				p->angle.ang.Buildang(), k * 2, i, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -4047,7 +4047,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		{
 			p->pos.X = motosprite->spr.pos.X;
 			p->pos.Y = motosprite->spr.pos.Y;
-			p->angle.ang = buildang(motosprite->int_ang());
+			p->angle.ang = DAngle::fromBuild(motosprite->int_ang());
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
 		}
@@ -4105,7 +4105,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->set_int_ang(p->angle.ang.asbuild());
+			spawned->set_int_ang(p->angle.ang.Buildang());
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
@@ -4127,7 +4127,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		{
 			p->pos.X = boat->spr.pos.X;
 			p->pos.Y = boat->spr.pos.Y;
-			p->angle.ang = buildang(boat->int_ang());
+			p->angle.ang = DAngle::fromBuild(boat->int_ang());
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
 		}
@@ -4172,7 +4172,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->set_int_ang(p->angle.ang.asbuild());
+			spawned->set_int_ang(p->angle.ang.Buildang());
 			spawned->spr.xvel += p->angle.ang.bcos(7);
 			spawned->spr.yvel += p->angle.ang.bsin(7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];

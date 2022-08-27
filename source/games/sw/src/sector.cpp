@@ -1934,7 +1934,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->pos, pp->cursector, pp->angle.ang.asbuild(), near, 1024, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang.Buildang(), near, 1024, NTAG_SEARCH_LO_HI);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -1966,7 +1966,7 @@ bool NearThings(PLAYER* pp)
     // This only gets called if nothing else worked, check for nearness to a wall
     {
         HitInfo hit{};
-        short dang = pp->angle.ang.asbuild();
+        short dang = pp->angle.ang.Buildang();
 
         FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z - Z(30), pp->cursector,    // Start position
                    bcos(dang),  // X vector of 3D ang
@@ -2014,7 +2014,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
     HitInfo near;
 
 
-    neartag({ pp->pos.X, pp->pos.Y, z }, pp->cursector, pp->angle.ang.asbuild(), near, dist, type);
+    neartag({ pp->pos.X, pp->pos.Y, z }, pp->cursector, pp->angle.ang.Buildang(), near, dist, type);
 
     if (near.hitSector != nullptr)
     {

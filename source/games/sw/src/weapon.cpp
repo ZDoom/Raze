@@ -11221,7 +11221,7 @@ void InitSpellRing(PLAYER* pp)
 
     ang_diff = 2048 / max_missiles;
 
-    ang_start = NORM_ANGLE(pp->angle.ang.asbuild() - (2048 / 2));
+    ang_start = NORM_ANGLE(pp->angle.ang.Buildang() - (2048 / 2));
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
@@ -11578,7 +11578,7 @@ void InitSpellNapalm(PLAYER* pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
+                                pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.Buildang(), NAPALM_VELOCITY*2);
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -11712,7 +11712,7 @@ int InitSpellMirv(PLAYER* pp)
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector,
-                            pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
+                            pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.Buildang(), MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -11809,7 +11809,7 @@ int InitSwordAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->set_int_ang(pp->angle.ang.asbuild());
+                bubble->set_int_ang(pp->angle.ang.Buildang());
 
                 random_amt = (RANDOM_P2(32 << 8) >> 8) - 16;
 
@@ -11858,7 +11858,7 @@ int InitSwordAttack(PLAYER* pp)
         short daang;
         int daz;
 
-        daang = pp->angle.ang.asbuild();
+        daang = pp->angle.ang.Buildang();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
         FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector,       // Start position
@@ -11980,7 +11980,7 @@ int InitFistAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->set_int_ang(pp->angle.ang.asbuild());
+                bubble->set_int_ang(pp->angle.ang.Buildang());
 
                 random_amt = (RANDOM_P2(32<<8)>>8) - 16;
 
@@ -12039,7 +12039,7 @@ int InitFistAttack(PLAYER* pp)
         short daang;
         int daz;
 
-        daang = pp->angle.ang.asbuild();
+        daang = pp->angle.ang.Buildang();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
         FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector,       // Start position
@@ -12600,7 +12600,7 @@ int InitStar(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.Buildang(), STAR_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
@@ -12698,7 +12698,7 @@ void InitHeartAttack(PLAYER* pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
+                            pp->pos.X, pp->pos.Y, pp->pos.Z + Z(12), pp->angle.ang.Buildang(), BLOOD_WORM_VELOCITY*2);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -12849,7 +12849,7 @@ int InitShotgun(PLAYER* pp)
     else
     {
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16);
-        daang = pp->angle.ang.asbuild();
+        daang = pp->angle.ang.Buildang();
     }
 
     for (i = 0; i < 12; i++)
@@ -13001,7 +13001,7 @@ int InitLaser(PLAYER* pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), 300);
+                    nx, ny, nz, pp->angle.ang.Buildang(), 300);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -13104,7 +13104,7 @@ int InitRail(PLAYER* pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), 1200);
+                    nx, ny, nz, pp->angle.ang.Buildang(), 1200);
 
 
     SetOwner(pp->actor, actorNew);
@@ -13272,7 +13272,7 @@ int InitRocket(PLAYER* pp)
 
     nz = pp->pos.Z + pp->bob_z + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 90;
@@ -13380,7 +13380,7 @@ int InitBunnyRocket(PLAYER* pp)
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->pos.Z + pp->bob_z + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 64;
@@ -13482,7 +13482,7 @@ int InitNuke(PLAYER* pp)
 
     nz = pp->pos.Z + pp->bob_z + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), 700);
+                    nx, ny, nz, pp->angle.ang.Buildang(), 700);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 128;
@@ -13541,7 +13541,7 @@ int InitNuke(PLAYER* pp)
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
     actorNew->user.change.Z = zvel;
 
-    PlayerDamageSlide(pp, -40, NORM_ANGLE(pp->angle.ang.asbuild()+1024)); // Recoil slide
+    PlayerDamageSlide(pp, -40, NORM_ANGLE(pp->angle.ang.Buildang()+1024)); // Recoil slide
 
     return 0;
 }
@@ -13655,7 +13655,7 @@ int InitMicro(PLAYER* pp)
         else
         {
             picked = nullptr;
-            ang = pp->angle.ang.asbuild();
+            ang = pp->angle.ang.Buildang();
         }
 
         nz = pp->pos.Z + pp->bob_z + Z(14);
@@ -14858,7 +14858,7 @@ int InitTracerUzi(PLAYER* pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -15187,8 +15187,8 @@ int InitUzi(PLAYER* pp)
     }
     else
     {
-        //daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
-        daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(24) - 12));
+        //daang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(50) - 25));
+        daang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(24) - 12));
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
     }
 
@@ -16337,7 +16337,7 @@ int InitGrenade(PLAYER* pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -16482,7 +16482,7 @@ int InitMine(PLAYER* pp)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), MINE_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
@@ -16610,7 +16610,7 @@ int InitFireball(PLAYER* pp)
 
     nz = pp->pos.Z + pp->bob_z + Z(15);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.Buildang(), FIREBALL_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 40;

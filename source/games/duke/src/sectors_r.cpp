@@ -1024,7 +1024,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1045,7 +1045,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -2524,21 +2524,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.asbuild(), near , 1280, 3);
+			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.Buildang(), near , 1280, 3);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag({ p->player_int_opos().X, p->player_int_opos().Y, p->player_int_opos().Z }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
+			neartag({ p->player_int_opos().X, p->player_int_opos().Y, p->player_int_opos().Z }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280L, 1);
 		else
 		{
-			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			neartag(p->player_int_pos(), p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				neartag({ p->player_int_pos().X, p->player_int_pos().Y, p->player_int_pos().Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.Buildang(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

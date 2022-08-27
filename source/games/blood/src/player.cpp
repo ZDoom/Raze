@@ -810,7 +810,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->add_int_z(-(bottom - actor->int_pos().Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->set_int_ang(pStartZone->ang);
-	pPlayer->angle.ang = buildang(actor->int_ang());
+	pPlayer->angle.ang = DAngle::fromBuild(actor->int_ang());
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->spr.clipdist = pDudeInfo->clipdist;
 	actor->spr.flags = 15;
@@ -1504,7 +1504,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->set_int_ang(pPlayer->angle.ang.asbuild());
+	pPlayer->actor->set_int_ang(pPlayer->angle.ang.Buildang());
 }
 
 //---------------------------------------------------------------------------
@@ -1559,7 +1559,7 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->angle.addadjustment(deltaangle(DAngle::fromBam(pPlayer->angle.ang.asbam()), VecToAngle(fragger->int_pos().X - actor->int_pos().X, fragger->int_pos().Y - actor->int_pos().Y)));
+			pPlayer->angle.addadjustment(deltaangle(pPlayer->angle.ang, VecToAngle(fragger->int_pos().X - actor->int_pos().X, fragger->int_pos().Y - actor->int_pos().Y)));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)

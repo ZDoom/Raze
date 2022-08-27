@@ -1797,7 +1797,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].angle.ang = buildang(Owner->int_ang());
+							ps[p].angle.ang = DAngle::fromBuild(Owner->int_ang());
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -2126,7 +2126,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
+			j = getincangle(ps[p].angle.ang.Buildang(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2148,7 +2148,7 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->set_int_ang(ps[p].angle.ang.asbuild());
+		actor->set_int_ang(ps[p].angle.ang.Buildang());
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))

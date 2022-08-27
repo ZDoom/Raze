@@ -607,7 +607,7 @@ void GameInterface::UpdateSounds(void)
         else
             tang = VecToAngle(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }
-    else tang = DAngle::fromBam(pp->angle.ang.asbam());
+    else tang = pp->angle.ang;
 
     listener.angle = float(-tang.Radians());
     listener.velocity.Zero();

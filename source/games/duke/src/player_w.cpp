@@ -344,7 +344,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				p->player_int_pos().X + p->angle.ang.bcos(-6),
 				p->player_int_pos().Y + p->angle.ang.bsin(-6),
 				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
+				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 
 			if (j)
 			{

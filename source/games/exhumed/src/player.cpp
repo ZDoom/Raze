@@ -265,8 +265,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->set_int_pos(nNStartSprite->int_pos());
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = buildang(nNStartSprite->int_ang() & kAngleMask);
-		pActor->set_int_ang(plr->angle.ang.asbuild());
+		plr->angle.ang = DAngle::fromBuild(nNStartSprite->int_ang() & kAngleMask);
+		pActor->set_int_ang(plr->angle.ang.Buildang());
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -279,8 +279,8 @@ void RestartPlayer(int nPlayer)
 	else
 	{
         pActor->set_int_pos({ plr->sPlayerSave.x, plr->sPlayerSave.y, plr->sPlayerSave.pSector->int_floorz() });
-		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
-		pActor->set_int_ang(plr->angle.ang.asbuild());
+		plr->angle.ang = DAngle::fromBuild(plr->sPlayerSave.nAngle&kAngleMask);
+		pActor->set_int_ang(plr->angle.ang.Buildang());
 
 		floorsprt = nullptr;
 	}
@@ -592,7 +592,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = pPlayer->angle.ang.asbuild();
+    inita = pPlayer->angle.ang.Buildang();
     if (pPlayer->pActor) pPlayer->pActor->set_int_ang(inita);
 }
 

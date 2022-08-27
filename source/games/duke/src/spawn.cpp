@@ -433,7 +433,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		if (actj->isPlayer())
 		{
 			snum = actj->spr.yvel;
-			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
+			a = ps[snum].angle.ang.Buildang() - (krand() & 63) + 8;  //Fine tune
 
 			act->temp_data[0] = krand() & 1;
 			act->set_int_z((3 << 8) + ps[snum].pyoff + ps[snum].player_int_pos().Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0));

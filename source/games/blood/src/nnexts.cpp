@@ -9339,7 +9339,7 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
 		if (pPlayer)
-			pPlayer->angle.ang = buildang(nAng);
+			pPlayer->angle.ang = DAngle::fromBuild(nAng);
 		else
 		{
 			pSpr->set_int_ang(nAng);

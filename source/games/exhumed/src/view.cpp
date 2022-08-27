@@ -241,13 +241,13 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!SyncInput())
         {
             pan = PlayerList[nLocalPlayer].horizon.sum();
-            nAngle = DAngle::fromBam(PlayerList[nLocalPlayer].angle.sum().asbam());
+            nAngle = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
         }
         else
         {
             pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            nAngle = DAngle::fromBam(PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio).asbam());
+            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio);
             rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio);
         }
 

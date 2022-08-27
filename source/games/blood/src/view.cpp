@@ -63,7 +63,7 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->angle = DAngle::fromBam(pPlayer->angle.ang.asbam());
+	pView->angle = pPlayer->angle.ang;
 	pView->x = pPlayer->actor->int_pos().X;
 	pView->y = pPlayer->actor->int_pos().Y;
 	pView->viewz = pPlayer->zView;
@@ -474,7 +474,7 @@ static void DrawMap(DBloodActor* view)
 	VIEW* pView = &gPrevView[gViewIndex];
 	int x = interpolatedvalue(pView->x, view->int_pos().X, gInterpolate);
 	int y = interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate);
-	int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
+	int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).Buildang();
 	DrawOverheadMap(x, y, ang, gInterpolate);
 	if (tm)
 		setViewport(hud_size);
@@ -532,13 +532,13 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 
 		if (!SyncInput())
 		{
-			cA = DAngle::fromBam(gView->angle.sum().asbam());
+			cA = gView->angle.sum();
 			cH = gView->horizon.sum();
 			rotscrnang = gView->angle.rotscrnang;
 		}
 		else
 		{
-			cA = DAngle::fromBam(gView->angle.interpolatedsum(gInterpolate).asbam());
+			cA = gView->angle.interpolatedsum(gInterpolate);
 			cH = gView->horizon.interpolatedsum(gInterpolate);
 			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
 		}

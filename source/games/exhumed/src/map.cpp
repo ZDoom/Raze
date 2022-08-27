@@ -52,7 +52,7 @@ void DrawMap(double const smoothratio)
 
         int x = pPlayerActor->__interpolatedx(smoothratio);
         int y = pPlayerActor->__interpolatedy(smoothratio);
-        int ang = (!SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio)).asbuild();
+        int ang = (!SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio)).Buildang();
         DrawOverheadMap(x, y, ang, smoothratio);
     }
 }

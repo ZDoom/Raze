@@ -56,7 +56,7 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
     {
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
-        ang = NORM_ANGLE(pp->angle.ang.asbuild() + sop->clipbox_ang[i]);
+        ang = NORM_ANGLE(pp->angle.ang.Buildang() + sop->clipbox_ang[i]);
 
         vec3_t spos = { pp->pos.X, pp->pos.Y, z };
 

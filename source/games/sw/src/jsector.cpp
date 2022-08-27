@@ -626,7 +626,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, DAngle::fromBam(cp->angle.ang.asbam()), cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {

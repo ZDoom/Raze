@@ -54,7 +54,7 @@ void resetmys()
 	myy = omyy = ps[myconnectindex].pos.Y;
 	myz = omyz = ps[myconnectindex].pos.Z;
 	myxvel = myyvel = myzvel = 0;
-	myang = DAngle::fromBam(ps[myconnectindex].angle.ang.asbam());
+	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
 	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
 	mycursectnum = sectnum(ps[myconnectindex].cursector);

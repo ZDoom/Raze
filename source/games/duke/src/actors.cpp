@@ -360,7 +360,7 @@ void movedummyplayers(void)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->set_int_z(act->sector()->int_ceilingz() + (27 << 8));
-				act->set_int_ang(ps[p].angle.ang.asbuild());
+				act->set_int_ang(ps[p].angle.ang.Buildang());
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
@@ -400,7 +400,7 @@ void moveplayers(void)
 			{
 				act->spr.pos = p->opos.plusZ(gs.playerheight);
 				act->backupz();
-				act->set_int_ang(p->angle.oang.asbuild());
+				act->set_int_ang(p->angle.oang.Buildang());
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -441,7 +441,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(deltaangle(DAngle::fromBam(p->angle.ang.asbam()), VecToAngle(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) * (1. / 4.));
+					p->angle.addadjustment(deltaangle(p->angle.ang, VecToAngle(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) * (1. / 4.));
 				}
 
 				if (act->spr.extra > 0)
@@ -461,10 +461,10 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(deltaangle(DAngle::fromBam(p->angle.ang.asbam()), VecToAngle(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) * (1. / 2.));
+						p->angle.addadjustment(deltaangle(p->angle.ang, VecToAngle(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) * (1. / 2.));
 					}
 				}
-				act->set_int_ang(p->angle.ang.asbuild());
+				act->set_int_ang(p->angle.ang.Buildang());
 			}
 		}
 		else
@@ -497,13 +497,13 @@ void moveplayers(void)
 			if (act->spr.extra < 8)
 			{
 				act->spr.xvel = 128;
-				act->set_int_ang(p->angle.ang.asbuild());
+				act->set_int_ang(p->angle.ang.Buildang());
 				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
 			else
 			{
-				act->set_int_ang(2047 - (p->angle.ang.asbuild()));
+				act->set_int_ang(2047 - (p->angle.ang.Buildang()));
 				SetActor(act, act->spr.pos);
 			}
 		}
@@ -788,7 +788,7 @@ void movecrane(DDukeActor *actor, int crane)
 		}
 		else if (actor->IsActiveCrane())
 		{
-			auto ang = ps[p].angle.ang.asbuild();
+			auto ang = ps[p].angle.ang.Buildang();
 			ps[p].backupxyz();
 			ps[p].pos.X = actor->spr.pos.X - CRANE_STEP * buildang(ang).fcos();
 			ps[p].pos.Y = actor->spr.pos.Y - CRANE_STEP * buildang(ang).fsin();
@@ -1498,7 +1498,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				int j = getincangle(ps[p].angle.ang.asbuild(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
+				int j = getincangle(ps[p].angle.ang.Buildang()getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -1508,7 +1508,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								j = getincangle(ps[p].angle.ang.asbuild(), getangle(act2->spr.pos.XY() - ps[p].pos.XY()));
+								j = getincangle(ps[p].angle.ang.Buildang(), getangle(act2->spr.pos.XY() - ps[p].pos.XY()));
 								if (j > -64 && j < 64)
 								{
 									int l;
@@ -1522,7 +1522,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 							if (actor->spr.pal == 12)
 								actor->spr.xvel = 164;
 							else actor->spr.xvel = 140;
-							actor->set_int_ang(ps[p].angle.ang.asbuild());
+							actor->set_int_ang(ps[p].angle.ang.Buildang());
 							ps[p].toggle_key_flag = 2;
 						}
 					}

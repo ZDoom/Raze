@@ -1249,7 +1249,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.Buildang(), CHEMBOMB_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1620,7 +1620,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     nz = pp->pos.Z + pp->bob_z + Z(8);
 
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
+                    nx, ny, nz, pp->angle.ang.Buildang(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1645,7 +1645,7 @@ int PlayerInitCaltrops(PLAYER* pp)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     // They go out at different angles
-//        spawnedActor->spr.angle = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
+//        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(50) - 25));
 
     actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
 

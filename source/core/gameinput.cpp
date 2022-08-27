@@ -397,7 +397,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (avel)
 		{
 			// add player's input
-			ang += degang(avel);
+			ang += DAngle::fromDeg(avel);
 		}
 
 		if (spin < 0)
@@ -411,7 +411,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 				add -= spin;
 				spin = 0;
 			}
-			ang += buildfang(add);
+			ang += DAngle::fromBuildf(add);
 		}
 	}
 	else

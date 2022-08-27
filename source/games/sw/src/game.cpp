@@ -410,7 +410,7 @@ void InitLevel(MapRecord *maprec)
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     TITLE_InformName(currentLevel->name);
-    Player[0].angle.ang = buildang(ang);
+    Player[0].angle.ang = DAngle::fromBuild(ang);
 
     auto vissect = &sector[0]; // hack alert!
     if (vissect->extra != -1)

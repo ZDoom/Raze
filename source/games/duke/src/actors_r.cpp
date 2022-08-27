@@ -1447,7 +1447,7 @@ void movetransports_r(void)
 									ps[k].GetActor()->spr.extra = 0;
 								}
 
-							ps[p].angle.ang = buildang(Owner->int_ang());
+							ps[p].angle.ang = DAngle::fromBuild(Owner->int_ang());
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -2292,7 +2292,7 @@ void rr_specialstats()
 				{
 					if (act2->spr.picnum == RRTILE297)
 					{
-						ps[p].angle.ang = buildang(act2->int_ang());
+						ps[p].angle.ang = DAngle::fromBuild(act2->int_ang());
 						ps[p].getposfromactor(act2, -36);
 						ps[p].backupxyz();
 						ps[p].setbobpos();
