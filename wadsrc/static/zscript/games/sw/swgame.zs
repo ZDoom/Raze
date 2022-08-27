@@ -213,7 +213,7 @@ struct SWPlayer native
     native int16 recoil_ndx;
     native int recoil_horizoff;
 
-    native int16 RevolveDeltaAng;
+    native double RevolveDeltaAng;
 
     native int16 pnum; // carry along the player number
 

@@ -633,8 +633,8 @@ struct PLAYER
     fixed_t recoil_ohorizoff, recoil_horizoff;
 
     vec3_t Revolve;
-    int16_t RevolveDeltaAng;
-    binangle RevolveAng;
+    DAngle RevolveDeltaAng;
+    DAngle RevolveAng;
 
     int16_t pnum; // carry along the player number
 

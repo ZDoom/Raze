@@ -49,7 +49,7 @@ DSWActor* FindNearSprite(DSWActor, short);
 ANIMATOR NinjaJumpActionFunc;
 
 #define ACTOR_STD_JUMP (-384)
-int GlobSpeedSO;
+DAngle GlobSpeedSO;
 
 // determine if moving down the track will get you closer to the player
 short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
@@ -723,10 +723,10 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
         if (pp->posx > xlow && pp->posx < xhigh && pp->posy > ylow && pp->posy < yhigh)
         {
-            pp->RevolveAng = pp->angle.ang;
+            pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
             pp->Revolve.X = pp->pos.X;
             pp->Revolve.Y = pp->pos.Y;
-            pp->RevolveDeltaAng = 0;
+            pp->RevolveDeltaAng = DAngle::fromDeg(0.);
             pp->Flags |= (PF_PLAYER_RIDING);
 
             pp->sop_riding = sop;
@@ -1514,12 +1514,12 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     {
         pp->Flags |= (PF_PLAYER_RIDING);
 
-        pp->RevolveAng = pp->angle.ang;
+        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
         pp->Revolve.X = pp->pos.X;
         pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
-        pp->RevolveDeltaAng = 0;
+        pp->RevolveDeltaAng = DAngle::fromDeg(0.);
     }
 
     pp->pos.X += nx;
@@ -1538,12 +1538,12 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // save the current information so when Player stops
         // moving then you
         // know where he was last
-        pp->RevolveAng = pp->angle.ang;
+        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam());
         pp->Revolve.X = pp->pos.X;
         pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
-        pp->RevolveDeltaAng = 0;
+        pp->RevolveDeltaAng = DAngle::fromDeg(0.);
     }
     else
     {
@@ -1554,20 +1554,20 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Revolve.Y += ny;
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveAng = pp->angle.ang - buildang(pp->RevolveDeltaAng);
+        pp->RevolveAng = DAngle::fromBam(pp->angle.ang.asbam()) - pp->RevolveDeltaAng;
     }
 
     // increment Players delta angle
-    pp->RevolveDeltaAng = NORM_ANGLE(pp->RevolveDeltaAng + GlobSpeedSO);
+    pp->RevolveDeltaAng = (pp->RevolveDeltaAng + GlobSpeedSO).Normalized360();
 
-    rotatepoint(sop->pmid.vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng, &pp->pos.vec2);
+    rotatepoint(sop->pmid.vec2, *(vec2_t *)&pp->Revolve.X, pp->RevolveDeltaAng.Buildang(), &pp->pos.vec2);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment(pp->angle.ang - (pp->RevolveAng + buildang(pp->RevolveDeltaAng)));
+    pp->angle.addadjustment(pp->angle.ang - bamang((pp->RevolveAng + pp->RevolveDeltaAng).BAMs()));
 
     UpdatePlayerSprite(pp);
 }
@@ -2204,13 +2204,12 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
     if (sop->spin_speed)
     {
         // ignore delta angle if spinning
-        GlobSpeedSO = speed;
+        GlobSpeedSO = DAngle::fromBuild(speed);
     }
     else
     {
         // The actual delta from the last frame
-        GlobSpeedSO = speed;
-        GlobSpeedSO += delta_ang;
+        GlobSpeedSO = DAngle::fromBuild(speed + delta_ang);
     }
 
     if ((sop->flags & SOBJ_DYNAMIC))
@@ -2224,7 +2223,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         if ((sop->flags & (SOBJ_UPDATE|SOBJ_UPDATE_ONCE)) ||
             sop->vel ||
             (sop->ang != sop->ang_tgt) ||
-            GlobSpeedSO)
+            GlobSpeedSO.Degrees())
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
             RefreshPoints(sop, nx, ny, false);
@@ -2600,7 +2599,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int 
         }
     }
 
-    GlobSpeedSO = 0;
+    GlobSpeedSO = DAngle::fromDeg(0.);
 
     //sop->ang_tgt = newang;
     sop->ang_moving = newang;
@@ -2683,13 +2682,12 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     if (sop->spin_speed)
     {
         // ignore delta angle if spinning
-        GlobSpeedSO = speed;
+        GlobSpeedSO = DAngle::fromBuild(speed);
     }
     else
     {
         // The actual delta from the last frame
-        GlobSpeedSO = speed;
-        GlobSpeedSO += delta_ang;
+        GlobSpeedSO = DAngle::fromBuild(speed + delta_ang);
     }
 }
 
