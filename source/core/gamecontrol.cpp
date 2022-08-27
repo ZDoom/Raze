@@ -1537,7 +1537,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
 
 int raze_getangle(double x, double y)
 {
-	return bvectangbam(x, y).asbuild();
+	return VecToAngle(x, y).Buildang();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, getangle, raze_getangle)

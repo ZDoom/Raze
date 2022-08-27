@@ -372,14 +372,9 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 //
 //---------------------------------------------------------------------------
 
-inline binangle bvectangbam(double x, double y)
-{
-	return radang(atan2(y, x));
-}
-
 inline int getangle(double xvect, double yvect)
 {
-	return bvectangbam(xvect, yvect).asbuild();
+	return DVector2(xvect, yvect).Angle().Buildang();
 }
 
 inline int getangle(const DVector2& vec)

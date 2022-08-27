@@ -167,7 +167,7 @@ struct SWPlayer native
     SPRITEp last_camera_sp;
     PlayerHorizon horizon;
     PlayerAngle angle;
-    binangle RevolveAng;
+    double RevolveAng;
     // under vars are for wading and swimming
     //int16 PlayerSprite, PlayerUnderSprite;
     SPRITEp SpriteP, UnderSpriteP;

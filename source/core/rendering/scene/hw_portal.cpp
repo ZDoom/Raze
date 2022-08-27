@@ -540,16 +540,16 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	double newx = x * 2 + dx * i / j - view.X;
 	double newy = y * 2 + dy * i / j - view.Y;
 
-	auto myan = bvectangbam(dx, dy);
-	auto newan = myan + myan - bamang(vp.RotAngle);
+	auto myan = RAD2BAM(atan2(dy, dx));
+	auto newan = myan + myan - vp.RotAngle;
 
-	vp.RotAngle = newan.asbam();
+	vp.RotAngle = newan;
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
 
 	vp.Pos.X = newx;
 	vp.Pos.Y = -newy;
-	vp.HWAngles.Yaw = FAngle::fromDeg( - 90.f + newan.asdeg());
+	vp.HWAngles.Yaw = FAngle::fromBam(-ANGLE_90 + newan);
 
 	double FocalTangent = tan(vp.FieldOfView.Radians() / 2);
 	DAngle an = DAngle::fromDeg(270. - vp.HWAngles.Yaw.Degrees());
@@ -613,10 +613,10 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	int dx2 = line->point2Wall()->x - line->x;
 	int dy2 = line->point2Wall()->y - line->y;
 
-	auto srcang = bvectangbam(dx, dy);
-	auto destang = bvectangbam(-dx, -dy);
+	auto srcang = RAD2BAM(atan2(dy, dx));
+	auto destang = RAD2BAM(atan2(-dy, -dx));
 
-	vp.RotAngle += (destang - srcang).asbam();
+	vp.RotAngle += destang - srcang;
 #endif
 
 	// Nothing in the entire setup mandates that both lines have the same length.

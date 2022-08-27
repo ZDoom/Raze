@@ -808,7 +808,7 @@ loc_flag:
                         DExhumedActor* t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
 						assert(t->sector());
-                        int angletotarget = bvectangbam(t->int_pos().X - pPlayerActor->int_pos().X, t->int_pos().Y - pPlayerActor->int_pos().Y).asbuild();
+                        int angletotarget = VecToAngle(t->int_pos().X - pPlayerActor->int_pos().X, t->int_pos().Y - pPlayerActor->int_pos().Y).Buildang();
                         int anglediff = (pPlayerActor->int_ang() - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {
