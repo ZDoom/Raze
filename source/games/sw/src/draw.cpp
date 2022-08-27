@@ -1457,10 +1457,10 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         tz -= 8448;
 
-        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, DAngle::fromBam(tang.asbam()), thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, DAngle::fromBam(tang.asbam()), thoriz, smoothratio);
         }
     }
     else

@@ -36,7 +36,7 @@ IntRect viewport3d;
 
 int cameradist, cameraclock;
 
-bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** psect, binangle ang, fixedhoriz horiz, double const smoothratio)
+bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const smoothratio)
 {
 	HitInfoBase hitinfo;
 	binangle daang;
@@ -44,14 +44,12 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 
 	if (!*psect) return false;
 	// Calculate new pos to shoot backwards, using averaged values from the big three.
-	int nx = gi->chaseCamX(ang);
-	int ny = gi->chaseCamY(ang);
-	int nz = gi->chaseCamZ(horiz);
+	vec3_t np = gi->chaseCamPos(ang, horiz);
 
 	auto bakcstat = act->spr.cstat;
 	act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	updatesectorz(*px, *py, *pz, psect);
-	hitscan({ *px, *py, *pz }, *psect, { nx, ny, nz }, hitinfo, CLIPMASK1);
+	hitscan({ *px, *py, *pz }, *psect, np, hitinfo, CLIPMASK1);
 	act->spr.cstat = bakcstat;
 
 	int hx = hitinfo.hitpos.X - *px;
@@ -63,7 +61,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 	}
 
 	// If something is in the way, make pp->camera_dist lower if necessary
-	if (abs(nx) + abs(ny) > abs(hx) + abs(hy))
+	if (abs(np.X) + abs(np.Y) > abs(hx) + abs(hy))
 	{
 		if (hitinfo.hitWall != nullptr)
 		{
@@ -71,22 +69,22 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			*psect = hitinfo.hitSector;
 			daang = bvectangbam(hitinfo.hitWall->point2Wall()->pos.X - hitinfo.hitWall->pos.X,
 								hitinfo.hitWall->point2Wall()->pos.Y - hitinfo.hitWall->pos.Y);
-			newdist = nx * daang.bsin() + ny * -daang.bcos();
+			newdist = np.X * daang.bsin() + np.Y * -daang.bcos();
 
-			if (abs(nx) > abs(ny))
-				hx -= MulScale(nx, newdist, 28);
+			if (abs(np.X) > abs(np.Y))
+				hx -= MulScale(np.X, newdist, 28);
 			else
-				hy -= MulScale(ny, newdist, 28);
+				hy -= MulScale(np.Y, newdist, 28);
 		}
 		else if (hitinfo.hitActor == nullptr)		
 		{
 			// Push you off the ceiling/floor
 			*psect = hitinfo.hitSector;
 
-			if (abs(nx) > abs(ny))
-				hx -= (nx >> 5);
+			if (abs(np.X) > abs(np.Y))
+				hx -= (np.X >> 5);
 			else
-				hy -= (ny >> 5);
+				hy -= (np.Y >> 5);
 		}
 		else
 		{
@@ -105,28 +103,28 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			{
 				// same as wall calculation.
 				daang = buildang(act->int_ang() - 512);
-				newdist = nx * daang.bsin() + ny * -daang.bcos();
+				newdist = np.X * daang.bsin() + np.Y * -daang.bcos();
 
-				if (abs(nx) > abs(ny))
-					hx -= MulScale(nx, newdist, 28);
+				if (abs(np.X) > abs(np.Y))
+					hx -= MulScale(np.X, newdist, 28);
 				else
-					hy -= MulScale(ny, newdist, 28);
+					hy -= MulScale(np.Y, newdist, 28);
 			}
 		}
 
-		if (abs(nx) > abs(ny))
-			newdist = DivScale(hx, nx, 16);
+		if (abs(np.X) > abs(np.Y))
+			newdist = DivScale(hx, np.X, 16);
 		else
-			newdist = DivScale(hy, ny, 16);
+			newdist = DivScale(hy, np.Y, 16);
 
 		if (newdist < cameradist)
 			cameradist = newdist;
 	}
 
 	// Actually move you! (Camerdist is 65536 if nothing is in the way)
-	*px += MulScale(nx, cameradist, 16);
-	*py += MulScale(ny, cameradist, 16);
-	*pz += MulScale(nz, cameradist, 16);
+	*px += MulScale(np.X, cameradist, 16);
+	*py += MulScale(np.Y, cameradist, 16);
+	*pz += MulScale(np.Z, cameradist, 16);
 
 	// Caculate clock using GameTicRate so it increases the same rate on all speed computers.
 	int myclock = PlayClock + MulScale(120 / GameTicRate, int(smoothratio), 16);

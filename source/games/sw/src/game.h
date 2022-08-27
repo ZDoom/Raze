@@ -1919,9 +1919,7 @@ struct GameInterface : public ::GameInterface
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
-    int chaseCamX(binangle ang) override { return -ang.bcos(-3); }
-    int chaseCamY(binangle ang) override { return -ang.bsin(-3); }
-    int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
+    vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 2048.), int(-ang.Sin() * 2048.), horiz.asq16() >> 8); }
     void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;

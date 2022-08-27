@@ -348,10 +348,10 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			cposz -= isRR() ? 3840 : 3072;
 
 			viewer = p->GetActor();
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio))
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, DAngle::fromBam(cang.asbam()), choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, DAngle::fromBam(cang.asbam()), choriz, smoothratio);
 			}
 		}
 

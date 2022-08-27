@@ -116,9 +116,7 @@ struct GameInterface
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
-	virtual int chaseCamX(binangle ang) { return 0; }
-	virtual int chaseCamY(binangle ang) { return 0; }
-	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
+	virtual vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(0,0,0); }
 	virtual void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(DCoreActor* viewer, int type) {}

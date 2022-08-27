@@ -563,7 +563,7 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 	}
 	else
 	{
-		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, cA, cH, gInterpolate);
+		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, DAngle::fromBam(cA.asbam()), cH, gInterpolate);
 	}
 	if (pSector != nullptr)
 		CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
