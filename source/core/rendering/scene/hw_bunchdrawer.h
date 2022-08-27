@@ -45,7 +45,7 @@ private:
 		CL_Pass = 2,
 	};
 
-	binangle ClipAngle(int wal) { return wall[wal].clipangle - ang1; }
+	binangle ClipAngle(int wal) { return bamang(wall[wal].clipangle) - ang1; }
 	void StartScene();
 	bool StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
 	bool AddLineToBunch(int line, binangle newan);

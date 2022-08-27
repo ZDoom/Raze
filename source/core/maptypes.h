@@ -406,7 +406,7 @@ struct walltype
 	uint8_t yrepeat;
 
 	// extensions not from the binary map format.
-	binangle clipangle;
+	angle_t clipangle;
 	int length; // cached value to avoid calling sqrt repeatedly.
 
 	uint16_t portalnum;

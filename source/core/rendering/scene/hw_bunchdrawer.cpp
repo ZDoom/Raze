@@ -73,7 +73,7 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
 		auto vv = w.wall_int_pos() - view;
-		w.clipangle = bvectangbam(vv.X, vv.Y);
+		w.clipangle = RAD2BAM(atan2(vv.Y, vv.X));
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));
