@@ -50,7 +50,7 @@ int16_t nQuake[kMaxPlayers] = { 0 };
 
 int nChunkTotal = 0;
 
-binangle nCameraa;
+DAngle nCameraa;
 fixedhoriz nCamerapan;
 int nViewTop;
 bool bCamera = false;
@@ -191,7 +191,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     sectortype* pSector = nullptr;
-    binangle nAngle, rotscrnang;
+    DAngle nAngle, rotscrnang;
     fixedhoriz pan = {};
 
     zbob = bsin(2 * bobangle, -3);
@@ -211,8 +211,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerY = pActor->int_pos().Y;
         playerZ = pActor->int_pos().Z;
         pSector = pActor->sector();
-        nAngle = buildang(pActor->int_ang());
-        rotscrnang = buildang(0);
+        nAngle = DAngle::fromBuild(pActor->int_ang());
+        rotscrnang = DAngle::fromDeg(0.);
 
         SetGreenPal();
 
@@ -241,14 +241,14 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!SyncInput())
         {
             pan = PlayerList[nLocalPlayer].horizon.sum();
-            nAngle = PlayerList[nLocalPlayer].angle.sum();
-            rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
+            nAngle = DAngle::fromBam(PlayerList[nLocalPlayer].angle.sum().asbam());
+            rotscrnang = DAngle::fromBam(PlayerList[nLocalPlayer].angle.rotscrnang.asbam());
         }
         else
         {
             pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio);
-            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio);
+            nAngle = DAngle::fromBam(PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio).asbam());
+            rotscrnang = DAngle::fromBam(PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio).asbam());
         }
 
         if (!bCamera)
@@ -279,15 +279,15 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (viewz > floorZ)
             viewz = floorZ;
 
-        nCameraa += buildang((nQuake[nLocalPlayer] >> 7) % 31);
+        nCameraa += DAngle::fromBuild((nQuake[nLocalPlayer] >> 7) % 31);
 
         if (bCamera)
         {
             viewz -= 2560;
-            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, DAngle::fromBam(nAngle.asbam()), pan, smoothRatio))
+            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio))
             {
                 viewz += 2560;
-                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, DAngle::fromBam(nAngle.asbam()), pan, smoothRatio);
+                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio);
             }
         }
     }
@@ -346,7 +346,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), DAngle::fromBam(nCameraa.asbam()), nCamerapan, DAngle::fromBam(rotscrnang.asbam()), smoothRatio);
+        render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
 
         if (HavePLURemap())
         {
@@ -374,7 +374,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraa.asbuild() - pPlayerActor->int_ang();
+                    int ang2 = nCameraa.Buildang() - pPlayerActor->int_ang();
                     if (ang2 < 0)
                         ang2 = -ang2;
 
