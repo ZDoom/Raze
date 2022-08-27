@@ -441,7 +441,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) >> 2);
+					p->angle.addadjustment(deltaangle(DAngle::fromBam(p->angle.ang.asbam()), VecToAngle(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) * (1. / 4.));
 				}
 
 				if (act->spr.extra > 0)
@@ -461,7 +461,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) >> 1);
+						p->angle.addadjustment(deltaangle(DAngle::fromBam(p->angle.ang.asbam()), VecToAngle(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) * (1. / 2.));
 					}
 				}
 				act->set_int_ang(p->angle.ang.asbuild());
@@ -2679,7 +2679,7 @@ void handle_se00(DDukeActor* actor)
 		{
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground == 1)
 			{
-				ps[p].angle.addadjustment(buildang(l * q));
+				ps[p].angle.addadjustment(DAngle::fromBuild(l * q));
 
 				ps[p].player_add_int_z(zchange);
 
@@ -2869,7 +2869,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobpos.X += mm;
 					ps[p].bobpos.Y += xx;
 
-					ps[p].angle.addadjustment(buildang(q));
+					ps[p].angle.addadjustment(DAngle::fromBuild(q));
 
 					if (numplayers > 1)
 					{

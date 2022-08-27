@@ -168,15 +168,15 @@ struct PlayerAngle
 	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).Normalized180().Buildfang()) * (1. / 9.); }
 
 	// Ticrate playsim adjustment setters and processor.
-	void addadjustment(binangle const value)
+	void addadjustment(const DAngle value)
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.signedbuildf();
+			adjustment += value.Normalized180().Degrees();
 		}
 		else
 		{
-			ang += value;
+			ang += bamang(value.BAMs());
 		}
 	}
 
@@ -211,7 +211,7 @@ struct PlayerAngle
 		}
 		else if (adjustment)
 		{
-			ang += buildfang(scaleAdjust * adjustment);
+			ang += degang(scaleAdjust * adjustment);
 		}
 	}
 

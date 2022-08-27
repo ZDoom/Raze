@@ -5716,7 +5716,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(killer->int_pos().X, killer->int_pos().Y, ActorZOfTop(killer), killer->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(killer->int_pos().X - pp->pos.X, killer->int_pos().Y - pp->pos.Y)) >> 4);
+            pp->angle.addadjustment(deltaangle(DAngle::fromBam(pp->angle.ang.asbam()), VecToAngle(killer->int_pos().X - pp->pos.X, killer->int_pos().Y - pp->pos.Y)) * (1. / 16.));
         }
     }
 }

@@ -1559,7 +1559,7 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->int_pos().X - actor->int_pos().X, fragger->int_pos().Y - actor->int_pos().Y)));
+			pPlayer->angle.addadjustment(deltaangle(DAngle::fromBam(pPlayer->angle.ang.asbam()), VecToAngle(fragger->int_pos().X - actor->int_pos().X, fragger->int_pos().Y - actor->int_pos().Y)));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)

@@ -1567,7 +1567,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment(pp->angle.ang - bamang((pp->RevolveAng + pp->RevolveDeltaAng).BAMs()));
+    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, DAngle::fromBam(pp->angle.ang.asbam())));
 
     UpdatePlayerSprite(pp);
 }

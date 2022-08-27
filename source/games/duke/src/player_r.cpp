@@ -1803,7 +1803,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)));
+		p->angle.addadjustment(DAngle::fromBam(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)).asbam()));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -2047,7 +2047,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 		p->vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 		p->vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
-		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)));
+		p->angle.addadjustment(DAngle::fromBam(getincanglebam(p->angle.ang, p->angle.ang - bamang(angAdjustment)).asbam()));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
@@ -2372,7 +2372,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
-	p->angle.addadjustment(buildfang(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
+	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
 
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
@@ -2426,7 +2426,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	auto delta = wal->delta();
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 
-	p->angle.addadjustment(buildfang(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
+	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
 
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
@@ -3054,11 +3054,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(buildang(16));
+			p->angle.addadjustment(DAngle::fromBuild(16));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(buildang(-16));
+			p->angle.addadjustment(DAngle::fromBuild(-16));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3084,11 +3084,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(buildang(4));
+			p->angle.addadjustment(DAngle::fromBuild(4));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(buildang(-4));
+			p->angle.addadjustment(DAngle::fromBuild(-4));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
