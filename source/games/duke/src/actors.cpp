@@ -278,8 +278,8 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.X += actor->spr.xvel * buildang(actor->int_ang()).fcos() * inttoworld;
-	actor->spr.pos.Y += actor->spr.xvel * buildang(actor->int_ang()).fsin() * inttoworld;
+	actor->spr.pos.X += actor->spr.xvel * DAngle::fromBuild(actor->int_ang()).Cos() * inttoworld;
+	actor->spr.pos.Y += actor->spr.xvel * DAngle::fromBuild(actor->int_ang()).Sin() * inttoworld;
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -788,10 +788,10 @@ void movecrane(DDukeActor *actor, int crane)
 		}
 		else if (actor->IsActiveCrane())
 		{
-			auto ang = ps[p].angle.ang.Buildang();
+			auto ang = ps[p].angle.ang;
 			ps[p].backupxyz();
-			ps[p].pos.X = actor->spr.pos.X - CRANE_STEP * buildang(ang).fcos();
-			ps[p].pos.Y = actor->spr.pos.Y - CRANE_STEP * buildang(ang).fsin();
+			ps[p].pos.X = actor->spr.pos.X - CRANE_STEP * ang.Cos();
+			ps[p].pos.Y = actor->spr.pos.Y - CRANE_STEP * ang.Sin();
 			ps[p].pos.Z = actor->spr.pos.Z + 2;
 			SetActor(ps[p].GetActor(), ps[p].pos);
 			ps[p].setCursector(ps[p].GetActor()->sector());

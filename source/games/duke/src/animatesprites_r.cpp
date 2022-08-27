@@ -214,8 +214,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->set_int_ang(getangle(x - t->int_pos().X, y - t->int_pos().Y));
-					t->pos.X = OwnerAc->spr.pos.X + buildang(t->int_ang()).fcos();
-					t->pos.Y = OwnerAc->spr.pos.Y + buildang(t->int_ang()).fsin();
+					t->pos.X = OwnerAc->spr.pos.X + DAngle::fromBuild(t->int_ang()).Cos();
+					t->pos.Y = OwnerAc->spr.pos.Y + DAngle::fromBuild(t->int_ang()).Sin();
 				}
 			}
 			break;
@@ -750,9 +750,9 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 								else
 								{
 									// Alter the shadow's position so that it appears behind the sprite itself.
-									int look = getangle(shadowspr->pos.XY() - ps[screenpeek].pos.XY());
-									shadowspr->pos.X += buildang(look).fcos() * 2;
-									shadowspr->pos.Y += buildang(look).fsin() * 2;
+									auto look = VecToAngle(shadowspr->pos.XY() - ps[screenpeek].pos.XY());
+									shadowspr->pos.X += look.Cos() * 2;
+									shadowspr->pos.Y += look.Sin() * 2;
 								}
 						}
 					}
