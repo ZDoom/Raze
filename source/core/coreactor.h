@@ -188,17 +188,6 @@ public:
 		};
 	}
 
-	vec3_t __interpolatedvec3(double const smoothratio, int const scale = 16)
-	{
-		return
-		{
-			(int)(interpolatedx(smoothratio, scale)* worldtoint),
-			(int)(interpolatedy(smoothratio, scale)* worldtoint),
-			(int)(interpolatedz(smoothratio, scale)* zworldtoint)
-		};
-	}
-
-
 	int16_t interpolatedang(double const smoothratio)
 	{
 		return interpolatedangle(oang, spr.ang, smoothratio, 16);
