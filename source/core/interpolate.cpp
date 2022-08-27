@@ -41,8 +41,8 @@ double Get(int index, DCoreActor* actor, int type)
 {
 	switch(type)
 	{
-	case Interp_Sect_Floorz:			return sector[index].__int_floorz;
-	case Interp_Sect_Ceilingz:			return sector[index].__int_ceilingz;
+	case Interp_Sect_Floorz:			return sector[index].int_floorz();
+	case Interp_Sect_Ceilingz:			return sector[index].int_ceilingz();
 	case Interp_Sect_Floorheinum:		return sector[index].floorheinum;
 	case Interp_Sect_Ceilingheinum:		return sector[index].ceilingheinum;
 	case Interp_Sect_FloorPanX:			return sector[index].floorxpan_;

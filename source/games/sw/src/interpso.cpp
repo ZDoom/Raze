@@ -99,9 +99,9 @@ static double getvalue(so_interp::interp_data& element)
     case soi_wally:
         return wall[index].pos.Y;
     case soi_ceil:
-        return sector[index].__int_ceilingz;
+        return sector[index].int_ceilingz();
     case soi_floor:
-        return sector[index].__int_floorz;
+        return sector[index].int_floorz();
     case soi_sox:
         return SectorObject[index].pmid.X;
     case soi_soy:

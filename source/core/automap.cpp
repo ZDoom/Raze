@@ -389,10 +389,10 @@ bool ShowRedLine(int j, int i)
 		}
 		if (automapMode == am_full)
 		{
-			if (sector[i].__int_floorz != sector[i].__int_ceilingz)
+			if (sector[i].int_floorz() != sector[i].int_ceilingz())
 				if (wal->nextSector()->int_floorz() != wal->nextSector()->int_ceilingz())
 					if (((wal->cstat | wal->nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0)
-						if (sector[i].__int_floorz == wal->nextSector()->int_floorz())
+						if (sector[i].int_floorz() == wal->nextSector()->int_floorz())
 							return false;
 			if (sector[i].floorpicnum != wal->nextSector()->floorpicnum)
 				return false;
@@ -420,8 +420,8 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 	{
 		if (!gFullMap && !show2dsector[i]) continue;
 
-		int z1 = sector[i].__int_ceilingz;
-		int z2 = sector[i].__int_floorz;
+		int z1 = sector[i].int_ceilingz();
+		int z2 = sector[i].int_floorz();
 
 		for (auto& wal : wallsofsector(i))
 		{

@@ -1064,7 +1064,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->__int_floorz - oldZ);
+					ac->add_int_z(pSector->int_floorz() - oldZ);
 				}
 			}
 		}
@@ -1102,7 +1102,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->__int_ceilingz - oldZ);
+					ac->add_int_z(pSector->int_ceilingz() - oldZ);
 				}
 			}
 		}

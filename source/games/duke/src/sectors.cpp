@@ -282,9 +282,9 @@ double getanimatevalue(int type, int index)
 	switch (type)
 	{
 	case anim_floorz:
-		return sector[index].__int_floorz;
+		return sector[index].int_floorz();
 	case anim_ceilingz:
-		return sector[index].__int_ceilingz;
+		return sector[index].int_ceilingz();
 	case anim_vertexx:
 		return wall[index].wall_int_pos().X;
 	case anim_vertexy:
