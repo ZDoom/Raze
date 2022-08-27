@@ -116,11 +116,11 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 
 	bunch->sectornum = sectnum;
 	bunch->startline = bunch->endline = linenum;
-	bunch->startangle = startan;
-	bunch->endangle = endan;
+	bunch->startangle = startan.asbam();
+	bunch->endangle = endan.asbam();
 	bunch->portal = portal;
-	assert(bunch->endangle.asbam() >= bunch->startangle.asbam());
-	return bunch->endangle != angrange;
+	assert(bunch->endangle >= bunch->startangle);
+	return bunch->endangle != angrange.asbam();
 }
 
 //==========================================================================
@@ -132,10 +132,10 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 bool BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
-	assert(newan.asbam() > Bunches[LastBunch].endangle.asbam());
-	Bunches[LastBunch].endangle = newan;
-	assert(Bunches[LastBunch].endangle.asbam() > Bunches[LastBunch].startangle.asbam());
-	return Bunches[LastBunch].endangle != angrange;
+	assert(newan.asbam() > Bunches[LastBunch].endangle);
+	Bunches[LastBunch].endangle = newan.asbam();
+	assert(Bunches[LastBunch].endangle > Bunches[LastBunch].startangle);
+	return Bunches[LastBunch].endangle != angrange.asbam();
 }
 
 //==========================================================================
@@ -530,10 +530,10 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 	binangle anglecheck, endang;
 	bool colinear = false;
 
-	if (b2->startangle.asbam() >= b1->startangle.asbam() && b2->startangle.asbam() < b1->endangle.asbam())
+	if (b2->startangle >= b1->startangle && b2->startangle < b1->endangle)
 	{
 		// we have an overlap at b2->startangle
-		anglecheck = b2->startangle;
+		anglecheck = bamang(b2->startangle);
 
 		// Find the wall in b1 that overlaps b2->startangle
 		for (int i = b1->startline; i <= b1->endline; i++)
@@ -556,10 +556,10 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			}
 		}
 	}
-	else if (b1->startangle.asbam() >= b2->startangle.asbam() && b1->startangle.asbam() < b2->endangle.asbam())
+	else if (b1->startangle >= b2->startangle && b1->startangle < b2->endangle)
 	{
 		// we have an overlap at b1->startangle
-		anglecheck = b1->startangle;
+		anglecheck = bamang(b1->startangle);
 
 		// Find the wall in b2 that overlaps b1->startangle
 		for (int i = b2->startline; i <= b2->endline; i++)

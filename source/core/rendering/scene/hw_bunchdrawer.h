@@ -12,8 +12,8 @@ struct FBunch
 	int startline;
 	int endline;
 	bool portal;
-	binangle startangle;
-	binangle endangle;
+	angle_t startangle;
+	angle_t endangle;
 };
 
 class BunchDrawer
