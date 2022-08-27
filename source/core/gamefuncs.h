@@ -172,7 +172,7 @@ void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
 void dragpoint(walltype* wal, int newx, int newy);
 void dragpoint(walltype* wal, const DVector2& pos);
-DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angle);
+DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, DAngle angle);
 int32_t inside(double x, double y, const sectortype* sect);
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
 int getceilzofslopeptr(const sectortype* sec, int dax, int day);

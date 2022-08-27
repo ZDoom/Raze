@@ -1633,7 +1633,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
             if ((wal.extra & WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
-            auto vec = rotatepoint(pivot, wal.pos, buildang(rot_ang));
+            auto vec = rotatepoint(pivot, wal.pos, DAngle::fromBuild(rot_ang));
 
             if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {

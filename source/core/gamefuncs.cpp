@@ -467,10 +467,10 @@ void dragpoint(walltype* startwall, const DVector2& pos)
 //
 //==========================================================================
 
-DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, binangle angle)
+DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, DAngle angle)
 {
-	auto cosang = g_cosbam(angle.asbam());
-	auto sinang = g_sinbam(angle.asbam());
+	auto cosang = angle.Cos();
+	auto sinang = angle.Sin();
 	auto p = point - pivot;
 	return {
 		p.X * cosang - p.Y * sinang + pivot.X,

@@ -286,7 +286,7 @@ void ms(DDukeActor* const actor)
 
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		auto t = rotatepoint({ 0, 0 }, { msx[j] * inttoworld, msy[j] * inttoworld }, buildang(k & 2047));
+		auto t = rotatepoint({ 0, 0 }, { msx[j] * inttoworld, msy[j] * inttoworld }, DAngle::fromBuild(k & 2047));
 
 		dragpoint(&wal, actor->spr.pos.XY() + t);
 		j++;
@@ -2683,7 +2683,7 @@ void handle_se00(DDukeActor* actor)
 
 				ps[p].player_add_int_z(zchange);
 
-				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), buildang(q * l));
+				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), DAngle::fromBuild(q * l));
 
 				ps[p].bobpos += (result - ps[p].pos.XY());
 
@@ -2713,7 +2713,7 @@ void handle_se00(DDukeActor* actor)
 
 				act2->add_int_z(zchange);
 
-				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), buildang(q* l));
+				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), DAngle::fromBuild(q* l));
 				act2->spr.pos.X = pos.X;
 				act2->spr.pos.Y = pos.Y;
 			}
@@ -2861,7 +2861,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (actor->sector() == psp->sector())
 				{
-					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), buildang(q));
+					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), DAngle::fromBuild(q));
 
 					ps[p].pos.X = result.X + mm;
 					ps[p].pos.Y = result.Y + xx;

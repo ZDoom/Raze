@@ -43,7 +43,8 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 
 	if (ang != INT_MIN)
 	{
-		pPlayer->angle.oang = pPlayer->angle.ang = pView->angle = gView->angle.ang = buildang(ang);
+		pPlayer->angle.oang = pPlayer->angle.ang = gView->angle.ang = buildang(ang);
+		pView->angle = DAngle::fromBuild(ang);
 	}
 
 	if (horz != INT_MIN)

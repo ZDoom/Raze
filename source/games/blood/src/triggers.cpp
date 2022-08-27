@@ -855,12 +855,12 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 
 	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
 	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
-	auto angle = buildang(ang);
+	auto angle = DAngle::fromBuild(ang);
 
-	auto rotatewall = [=](walltype* wal, binangle angle, const DVector2& offset)
+	auto rotatewall = [=](walltype* wal, DAngle angle, const DVector2& offset)
 	{
 		auto vec = wal->baseWall;
-		if (angle.asbam() != 0) 
+		if (angle.Degrees() != 0) 
 			vec = rotatepoint(pivot, vec, angle);
 		vec += offset;
 

@@ -53,8 +53,6 @@ int gViewIndex;
 
 double gInterpolate;
 
-int gScreenTilt;
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -65,7 +63,7 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->angle = pPlayer->angle.ang;
+	pView->angle = DAngle::fromBam(pPlayer->angle.ang.asbam());
 	pView->x = pPlayer->actor->int_pos().X;
 	pView->y = pPlayer->actor->int_pos().Y;
 	pView->viewz = pPlayer->zView;
@@ -77,8 +75,8 @@ void viewBackupView(int nPlayer)
 	pView->bobWidth = pPlayer->bobWidth;
 	pView->shakeBobY = pPlayer->swayHeight;
 	pView->shakeBobX = pPlayer->swayWidth;
-	pView->look_ang = pPlayer->angle.look_ang;
-	pView->rotscrnang = pPlayer->angle.rotscrnang;
+	pView->look_ang = DAngle::fromBam(pPlayer->angle.look_ang.asbam());
+	pView->rotscrnang = DAngle::fromBam(pPlayer->angle.rotscrnang.asbam());
 	pPlayer->angle.backup();
 	pPlayer->horizon.backup();
 }
@@ -374,8 +372,10 @@ void UpdateBlend()
 
 // int gVisibility;
 
-int deliriumTilt, deliriumTurn, deliriumPitch;
-int gScreenTiltO, deliriumTurnO, deliriumPitchO;
+int deliriumTilt, deliriumPitch;
+int deliriumPitchO;
+DAngle deliriumTurnO, deliriumTurn;
+DAngle gScreenTiltO, gScreenTilt;
 
 int gShowFrameRate = 1;
 
@@ -404,25 +404,25 @@ void viewUpdateDelirium(void)
 		}
 		int sin2 = Sin(2 * timer) >> 1;
 		int sin3 = Sin(3 * timer) >> 1;
-		gScreenTilt = MulScale(sin2 + sin3, tilt1, 30);
+		gScreenTilt = DAngle::fromBuild(MulScale(sin2 + sin3, tilt1, 30));
 		int sin4 = Sin(4 * timer) >> 1;
-		deliriumTurn = MulScale(sin3 + sin4, tilt2, 30);
+		deliriumTurn = DAngle::fromBuild(MulScale(sin3 + sin4, tilt2, 30));
 		int sin5 = Sin(5 * timer) >> 1;
 		deliriumPitch = MulScale(sin4 + sin5, pitch, 30);
 		return;
 	}
-	gScreenTilt = ((gScreenTilt + 1024) & 2047) - 1024;
-	if (gScreenTilt > 0)
+	gScreenTilt = gScreenTilt.Normalized180();
+	if (gScreenTilt > DAngle::fromDeg(0.))
 	{
-		gScreenTilt -= 8;
-		if (gScreenTilt < 0)
-			gScreenTilt = 0;
+		gScreenTilt -= DAngle::fromBuild(8);
+		if (gScreenTilt < DAngle::fromDeg(0.))
+			gScreenTilt = DAngle::fromDeg(0.);
 	}
-	else if (gScreenTilt < 0)
+	else if (gScreenTilt < DAngle::fromDeg(0.))
 	{
-		gScreenTilt += 8;
-		if (gScreenTilt >= 0)
-			gScreenTilt = 0;
+		gScreenTilt += DAngle::fromBuild(8);
+		if (gScreenTilt >= DAngle::fromDeg(0.))
+			gScreenTilt = DAngle::fromDeg(0.);
 	}
 }
 
@@ -432,7 +432,7 @@ void viewUpdateDelirium(void)
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateShake(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
+void viewUpdateShake(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
 {
 	auto doEffect = [&](const int& effectType)
 	{
@@ -440,7 +440,7 @@ void viewUpdateShake(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, do
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
 			cH += buildhoriz(QRandom2(nValue >> 8));
-			cA += buildang(QRandom2(nValue >> 8));
+			cA += DAngle::fromBuild(QRandom2(nValue >> 8));
 			cX += QRandom2(nValue >> 4);
 			cY += QRandom2(nValue >> 4);
 			cZ += QRandom2(nValue);
@@ -486,7 +486,7 @@ static void DrawMap(DBloodActor* view)
 //
 //---------------------------------------------------------------------------
 
-void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, binangle& rotscrnang)
+void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang)
 {
 	int bobWidth, bobHeight;
 
@@ -532,15 +532,15 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 
 		if (!SyncInput())
 		{
-			cA = gView->angle.sum();
+			cA = DAngle::fromBam(gView->angle.sum().asbam());
 			cH = gView->horizon.sum();
-			rotscrnang = gView->angle.rotscrnang;
+			rotscrnang = DAngle::fromBam(gView->angle.rotscrnang.asbam());
 		}
 		else
 		{
-			cA = gView->angle.interpolatedsum(gInterpolate);
+			cA = DAngle::fromBam(gView->angle.interpolatedsum(gInterpolate).asbam());
 			cH = gView->horizon.interpolatedsum(gInterpolate);
-			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
+			rotscrnang = DAngle::fromBam(gView->angle.interpolatedrotscrn(gInterpolate).asbam());
 		}
 	}
 
@@ -550,8 +550,8 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 	{
 		if (cl_viewhbob)
 		{
-			cX -= MulScale(bobWidth, Sin(cA.asbuild()), 30) >> 4;
-			cY += MulScale(bobWidth, Cos(cA.asbuild()), 30) >> 4;
+			cX -= MulScale(bobWidth, Sin(cA.Buildang()), 30) >> 4;
+			cY += MulScale(bobWidth, Cos(cA.Buildang()), 30) >> 4;
 		}
 		if (cl_viewvbob)
 		{
@@ -563,7 +563,7 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 	}
 	else
 	{
-		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, DAngle::fromBam(cA.asbam()), cH, gInterpolate);
+		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, cA, cH, gInterpolate);
 	}
 	if (pSector != nullptr)
 		CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
@@ -681,20 +681,19 @@ void viewDrawScreen(bool sceneonly)
 		UpdateBlend();
 
 		int cX, cY, cZ;
-		binangle cA;
+		DAngle cA, rotscrnang;
 		fixedhoriz cH;
 		sectortype* pSector;
 		double zDelta;
 		double shakeX, shakeY;
-		binangle rotscrnang;
 		SetupView(cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang);
 
-		binangle tilt = interpolatedangle(buildang(gScreenTiltO), buildang(gScreenTilt), gInterpolate);
+		DAngle tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate);
 		bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
 		static bool bDeliriumOld = false;
 		//int tiltcs, tiltdim;
 		uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
-		if (tilt.asbam() || bDelirium)
+		if (tilt.Degrees() || bDelirium)
 		{
 			rotscrnang = tilt;
 		}
@@ -712,7 +711,7 @@ void viewDrawScreen(bool sceneonly)
 		if (!bDelirium)
 		{
 			deliriumTilt = 0;
-			deliriumTurn = 0;
+			deliriumTurn = DAngle::fromDeg(0.);
 			deliriumPitch = 0;
 		}
 		int brightness = 0;
@@ -738,7 +737,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0)) - g_visibility;
-		cA += interpolatedangle(buildang(deliriumTurnO), buildang(deliriumTurn), gInterpolate);
+		cA += interpolatedangle(deliriumTurnO, deliriumTurn, gInterpolate);
 
 		if (pSector != nullptr)
 		{
@@ -756,7 +755,7 @@ void viewDrawScreen(bool sceneonly)
 
 		cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
-		if ((tilt.asbam() || bDelirium) && !sceneonly)
+		if ((tilt.Degrees() || bDelirium) && !sceneonly)
 		{
 			if (gDeliriumBlur)
 			{
@@ -772,7 +771,7 @@ void viewDrawScreen(bool sceneonly)
 		fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
 		auto bakCstat = gView->actor->spr.cstat;
 		gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-		render_drawrooms(gView->actor, { cX, cY, cZ }, sectnum(pSector), DAngle::fromBam(cA.asbam()), cH + deliriumPitchI, DAngle::fromBam(rotscrnang.asbam()), gInterpolate);
+		render_drawrooms(gView->actor, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
 		gView->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 

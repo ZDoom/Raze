@@ -43,7 +43,7 @@ struct VIEW {
 	fixedhoriz horiz; // horiz
 	fixedhoriz horizoff; // horizoff
 	int at2c;
-	binangle angle; // angle
+	DAngle angle; // angle
 	int weaponZ; // weapon z
 	int viewz; // view z
 	int at3c;
@@ -70,8 +70,8 @@ struct VIEW {
 	uint8_t at72; // underwater
 	int16_t at73; // sprite flags
 	SPRITEHIT at75;
-	binangle look_ang;
-	binangle rotscrnang;
+	DAngle look_ang;
+	DAngle rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];
@@ -131,9 +131,10 @@ enum { kFontNum = 5 };
 extern FFont* gFont[kFontNum];
 extern VIEWPOS gViewPos;
 extern int gViewIndex;
-extern int gScreenTilt;
-extern int deliriumTilt, deliriumTurn, deliriumPitch;
-extern int gScreenTiltO, deliriumTurnO, deliriumPitchO;
+extern int deliriumTilt, deliriumPitch;
+extern int deliriumPitchO;
+extern DAngle deliriumTurnO, deliriumTurn;
+extern DAngle gScreenTiltO, gScreenTilt;
 extern int gShowFrameRate;
 extern int gLastPal;
 extern double gInterpolate;
