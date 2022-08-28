@@ -124,6 +124,7 @@ public:
 
 	void norm_ang()
 	{
+		spr.angle = spr.angle.Normalized360();
 	}
 
 	// Same as above but with invertex y and z axes to match the renderer's coordinate system.
