@@ -170,7 +170,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			{
 				if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 					if (hit.hitWall->twoSided())
-						if (hit.int_hitpos().Z >= (hit.hitWall->nextSector()->int_floorz()))
+						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall = hit.hitWall->nextWall();
 
 				if (hit.hitWall->picnum != ACCESSSWITCH && hit.hitWall->picnum != ACCESSSWITCH2)
@@ -421,7 +421,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 			if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 				if (hit.hitWall->twoSided())
-					if (hit.int_hitpos().Z >= (hit.hitWall->nextSector()->int_floorz()))
+					if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 						hit.hitWall = hit.hitWall->nextWall();
 
 			fi.checkhitwall(spark, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, SHOTSPARK1);
@@ -3956,7 +3956,7 @@ HORIZONLY:
 		break;
 	}
 
-	if (ud.clipping == 0 && (!p->cursector || (p->cursector && p->cursector->int_ceilingz() > (p->cursector->int_floorz() - (12 << 8)))))
+	if (ud.clipping == 0 && (!p->cursector || (p->cursector && p->cursector->ceilingz > (p->cursector->floorz - 12))))
 	{
 		quickkill(p);
 		return;

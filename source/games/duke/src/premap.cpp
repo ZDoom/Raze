@@ -724,7 +724,7 @@ void prelevel_common(int g)
 		{
 		case 20:
 		case 22:
-			if (sectp->int_floorz() > sectp->int_ceilingz())
+			if (sectp->floorz > sectp->ceilingz)
 				sectp->lotag |= 32768;
 			continue;
 		}
