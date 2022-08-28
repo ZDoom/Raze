@@ -38,26 +38,31 @@ inline static double getTicrateScale(const double value)
 	return value * (1. / GameTicRate);
 }
 
-inline static double getPushScale(const double scaleAdjust)
+inline static double getPushBuild(const double scaleAdjust)
 {
-	return (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.);
+	return 2. / 9. * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.);
 }
 
-inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz& object, const double push)
+inline static DAngle getPushAngle(const double scaleAdjust)
+{
+	return DAngle::fromDeg(getPushBuild(scaleAdjust) * BAngToDegree);
+}
+
+inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz object, const double push)
 {
 	return buildfhoriz(scaleAdjust * ((object.asbuildf() * getTicrateScale(value)) + push));
 }
 
-inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle& object, const double push)
+inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle object, const DAngle push)
 {
-	return DAngle::fromBuildf(scaleAdjust * ((object.Normalized180().Buildfang() * getTicrateScale(value)) + push));
+	return ((object.Normalized180() * getTicrateScale(value)) + push) * scaleAdjust;
 }
 
 inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
 {
 	if (auto sgn = Sgn(object.asq16()))
 	{
-		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
+		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? getPushBuild(scaleAdjust) * sgn : push);
 		if (sgn != Sgn(object.asq16())) object = q16horiz(0);
 	}
 }
@@ -66,7 +71,7 @@ inline static void scaletozero(DAngle& object, const double value, const double 
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
+		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? getPushAngle(scaleAdjust) * sgn : DAngle::fromDeg(push));
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -375,8 +380,8 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & key)
 		{
-			look_ang += DAngle::fromBuildf(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction);
-			rotscrnang -= DAngle::fromBuildf(getTicrateScale(ROTATESPEED) * scaleAdjust * direction);
+			look_ang += DAngle::fromDeg(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction * BAngToDegree);
+			rotscrnang -= DAngle::fromDeg(getTicrateScale(ROTATESPEED) * scaleAdjust * direction * BAngToDegree);
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);
@@ -386,10 +391,10 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & SB_TURNAROUND)
 		{
-			if (spin == 0)
+			if (spin == nullAngle)
 			{
 				// currently not spinning, so start a spin
-				spin = -1024.;
+				spin = -DAngle180;
 			}
 			*actions &= ~SB_TURNAROUND;
 		}
@@ -400,23 +405,23 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 			ang += DAngle::fromDeg(avel);
 		}
 
-		if (spin < 0)
+		if (spin < nullAngle)
 		{
 			// return spin to 0
-			double add = getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) * scaleAdjust;
+			DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) * scaleAdjust * BAngToDegree);
 			spin += add;
-			if (spin > 0)
+			if (spin > nullAngle)
 			{
 				// Don't overshoot our target. With variable factor this is possible.
 				add -= spin;
-				spin = 0;
+				spin = nullAngle;
 			}
-			ang += DAngle::fromBuildf(add);
+			ang += add;
 		}
 	}
 	else
 	{
-		spin = 0;
+		spin = nullAngle;
 	}
 }
 

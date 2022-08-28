@@ -119,8 +119,7 @@ private:
 
 struct PlayerAngle
 {
-	DAngle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang;
-	double spin;
+	DAngle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang, spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
