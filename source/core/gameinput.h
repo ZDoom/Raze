@@ -5,6 +5,7 @@
 #include "interphelpers.h"
 #include "gamecvars.h"
 #include "gamestruct.h"
+#include "gamefuncs.h"
 #include "packet.h"
 
 struct PlayerHorizon
@@ -188,7 +189,7 @@ struct PlayerAngle
 		{
 			auto delta = deltaangle(ang, target).Degrees();
 
-			if (abs(delta) > 1)
+			if (abs(delta) > BAngToDegree)
 			{
 				ang += DAngle::fromDeg(scaleAdjust * delta);
 			}
