@@ -656,7 +656,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
 		if (wal->nextSector()->int_floorz() > z)
-			if (wal->nextSector()->int_floorz() - wal->nextSector()->int_ceilingz())
+			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
 				{
 				case W_FORCEFIELD:
@@ -1288,7 +1288,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->set_int_z(targ->sector()->int_floorz() - (32 << 8));
+			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - 32;
 		}
 		break;
 

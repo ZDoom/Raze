@@ -343,16 +343,16 @@ int spawnbloodpoolpart1(DDukeActor* act)
 	auto s1 = act->sector();
 
 	updatesector(act->int_pos().X + 108, act->int_pos().Y + 108, &s1);
-	if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+	if (s1 && s1->floorz == act->sector()->floorz)
 	{
 		updatesector(act->int_pos().X - 108, act->int_pos().Y - 108, &s1);
-		if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+		if (s1 && s1->floorz == act->sector()->floorz)
 		{
 			updatesector(act->int_pos().X + 108, act->int_pos().Y - 108, &s1);
-			if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+			if (s1 && s1->floorz == act->sector()->floorz)
 			{
 				updatesector(act->int_pos().X - 108, act->int_pos().Y + 108, &s1);
-				if (s1 && s1->int_floorz() != act->sector()->int_floorz())
+				if (s1 && s1->floorz != act->sector()->floorz)
 				{
 					act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true;
 				}
@@ -385,16 +385,16 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		auto s1 = act->sector();
 
 		updatesector(act->int_pos().X + 84, act->int_pos().Y + 84, &s1);
-		if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+		if (s1 && s1->floorz == act->sector()->floorz)
 		{
 			updatesector(act->int_pos().X - 84, act->int_pos().Y - 84, &s1);
-			if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+			if (s1 && s1->floorz == act->sector()->floorz)
 			{
 				updatesector(act->int_pos().X + 84, act->int_pos().Y - 84, &s1);
-				if (s1 && s1->int_floorz() == act->sector()->int_floorz())
+				if (s1 && s1->floorz == act->sector()->floorz)
 				{
 					updatesector(act->int_pos().X - 84, act->int_pos().Y + 84, &s1);
-					if (s1 && s1->int_floorz() != act->sector()->int_floorz())
+					if (s1 && s1->floorz != act->sector()->floorz)
 					{
 						act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return;
 					}
@@ -628,7 +628,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 			else actor->SetOwner(actor);
 
-			actor->temp_data[4] = sectp->int_floorz() == actor->int_pos().Z;
+			actor->temp_data[4] = sectp->floorz == actor->spr.pos.Z;
 			actor->spr.cstat = 0;
 			ChangeActorStat(actor, STAT_TRANSPORT);
 			return;

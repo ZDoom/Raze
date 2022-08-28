@@ -804,7 +804,7 @@ static void handle_st21(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		if (sptr->int_ceilingz() == sptr->int_floorz())
+		if (sptr->ceilingz == sptr->floorz)
 			j = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_FloorDown | Find_Safe)->int_floorz();
 		else j = sptr->int_ceilingz();
 
@@ -1161,13 +1161,13 @@ void operateactivators(int low, int plnum)
 				case 0:
 					break;
 				case 1:
-					if (act->sector()->int_floorz() != act->sector()->int_ceilingz())
+					if (act->sector()->floorz != act->sector()->ceilingz)
 					{
 						continue;
 					}
 					break;
 				case 2:
-					if (act->sector()->int_floorz() == act->sector()->int_ceilingz())
+					if (act->sector()->floorz == act->sector()->ceilingz)
 					{
 						continue;
 					}
@@ -1283,8 +1283,8 @@ void allignwarpelevators(void)
 			{
 				if ((act2->spr.lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->spr.hitag == act2->spr.hitag)
 				{
-					act2->sector()->set_int_floorz(act->sector()->int_floorz());
-					act2->sector()->set_int_ceilingz(act->sector()->int_ceilingz());
+					act2->sector()->floorz = act->sector()->floorz;
+					act2->sector()->ceilingz = act->sector()->ceilingz;
 				}
 			}
 		}
