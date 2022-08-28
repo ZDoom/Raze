@@ -145,8 +145,8 @@ struct PlayerAngle
 	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetadjustment() { adjustment = 0; }
-	bool targetset() { return target.BAMs(); }
+	void resetadjustment() { adjustment = nullAngle; }
+	bool targetset() { return target.Sgn(); }
 
 	// Input locking helpers.
 	void lockinput() { inputdisabled = true; }
@@ -162,7 +162,7 @@ struct PlayerAngle
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.Normalized180().Degrees();
+			adjustment += value.Normalized180();
 		}
 		else
 		{
@@ -174,7 +174,7 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = value.BAMs() ? value : DAngle::fromBam(1);
+			target = value.Sgn() ? value : DAngle::fromBam(1);
 		}
 		else
 		{
@@ -187,11 +187,11 @@ struct PlayerAngle
 	{
 		if (targetset())
 		{
-			auto delta = deltaangle(ang, target).Degrees();
+			auto delta = deltaangle(ang, target);
 
-			if (abs(delta) > BAngToDegree)
+			if (abs(delta) > DAngleBuildToDeg)
 			{
-				ang += DAngle::fromDeg(scaleAdjust * delta);
+				ang += delta * scaleAdjust;
 			}
 			else
 			{
@@ -199,15 +199,14 @@ struct PlayerAngle
 				target = nullAngle;
 			}
 		}
-		else if (adjustment)
+		else if (adjustment.Sgn())
 		{
-			ang += DAngle::fromDeg(scaleAdjust * adjustment);
+			ang += adjustment * scaleAdjust;
 		}
 	}
 
 private:
-	DAngle target;
-	double adjustment;
+	DAngle target, adjustment;
 	bool inputdisabled;
 };
 
