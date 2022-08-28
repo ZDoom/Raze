@@ -4,6 +4,7 @@
 #include "maptypes.h"
 #include "build.h"
 #include "actorinfo.h"
+#include "interphelpers.h"
 
 enum
 {
