@@ -200,7 +200,7 @@ struct PlayerAngle
 			else
 			{
 				ang = target;
-				target = DAngle::fromBam(0);
+				target = nullAngle;
 			}
 		}
 		else if (adjustment)

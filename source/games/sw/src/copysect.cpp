@@ -189,7 +189,7 @@ void CopySectorMatch(int match)
 
                             // update sprites postions so they aren't in the
                             // wrong place for one frame
-                            GlobSpeedSO = DAngle::fromDeg(0.);
+                            GlobSpeedSO = nullAngle;
                             RefreshPoints(sop, 0, 0, true);
                         }
                     }

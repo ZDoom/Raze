@@ -412,17 +412,17 @@ void viewUpdateDelirium(void)
 		return;
 	}
 	gScreenTilt = gScreenTilt.Normalized180();
-	if (gScreenTilt > DAngle::fromDeg(0.))
+	if (gScreenTilt > nullAngle)
 	{
 		gScreenTilt -= DAngle::fromBuild(8);
-		if (gScreenTilt < DAngle::fromDeg(0.))
-			gScreenTilt = DAngle::fromDeg(0.);
+		if (gScreenTilt < nullAngle)
+			gScreenTilt = nullAngle;
 	}
-	else if (gScreenTilt < DAngle::fromDeg(0.))
+	else if (gScreenTilt < nullAngle)
 	{
 		gScreenTilt += DAngle::fromBuild(8);
-		if (gScreenTilt >= DAngle::fromDeg(0.))
-			gScreenTilt = DAngle::fromDeg(0.);
+		if (gScreenTilt >= nullAngle)
+			gScreenTilt = nullAngle;
 	}
 }
 

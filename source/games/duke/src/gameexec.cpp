@@ -2255,7 +2255,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
-			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = DAngle::fromDeg(0.);
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = nullAngle;
 
 			ps[g_p].falling_counter = 0;
 

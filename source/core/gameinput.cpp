@@ -67,7 +67,7 @@ inline static void scaletozero(DAngle& object, const double value, const double 
 	if (auto sgn = object.Sgn())
 	{
 		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? sgn * getPushScale(scaleAdjust) : push);
-		if (sgn != object.Sgn()) object = DAngle::fromDeg(0.);
+		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
 

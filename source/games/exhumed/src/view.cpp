@@ -212,7 +212,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = pActor->int_pos().Z;
         pSector = pActor->sector();
         nAngle = DAngle::fromBuild(pActor->int_ang());
-        rotscrnang = DAngle::fromDeg(0.);
+        rotscrnang = nullAngle;
 
         SetGreenPal();
 

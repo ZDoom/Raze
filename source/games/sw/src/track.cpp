@@ -726,7 +726,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
             pp->RevolveAng = pp->angle.ang;
             pp->Revolve.X = pp->pos.X;
             pp->Revolve.Y = pp->pos.Y;
-            pp->RevolveDeltaAng = DAngle::fromDeg(0.);
+            pp->RevolveDeltaAng = nullAngle;
             pp->Flags |= (PF_PLAYER_RIDING);
 
             pp->sop_riding = sop;
@@ -1519,7 +1519,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
-        pp->RevolveDeltaAng = DAngle::fromDeg(0.);
+        pp->RevolveDeltaAng = nullAngle;
     }
 
     pp->pos.X += nx;
@@ -1543,7 +1543,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Revolve.Y = pp->pos.Y;
 
         // set the delta angle to 0 when moving
-        pp->RevolveDeltaAng = DAngle::fromDeg(0.);
+        pp->RevolveDeltaAng = nullAngle;
     }
     else
     {
@@ -2599,7 +2599,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, int newx, int 
         }
     }
 
-    GlobSpeedSO = DAngle::fromDeg(0.);
+    GlobSpeedSO = nullAngle;
 
     //sop->ang_tgt = newang;
     sop->ang_moving = newang;
