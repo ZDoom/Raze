@@ -143,6 +143,7 @@ struct PlayerAngle
 	DAngle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
 	DAngle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
 	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
+	DAngle renderlookang(double const smoothratio) { return !SyncInput() ? look_ang : interpolatedlookang(smoothratio); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }
@@ -154,8 +155,8 @@ struct PlayerAngle
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
-	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).Normalized180().Buildfang() * 0.5; }
-	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).Normalized180().Buildfang()) * (1. / 9.); }
+	double look_anghalf(double const smoothratio) { return renderlookang(smoothratio).Normalized180().Buildfang() * 0.5; }
+	double looking_arc(double const smoothratio) { return fabs(renderlookang(smoothratio).Normalized180().Buildfang() * (1. / 9.)); }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(const DAngle value)
