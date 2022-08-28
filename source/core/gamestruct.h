@@ -7,7 +7,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "engineerrors.h"
 #include "stats.h"
 #include "packet.h"
-#include "binaryangle.h"
+#include "fixedhorizon.h"
 #include "inputstate.h"
 #include "maptypes.h"
 

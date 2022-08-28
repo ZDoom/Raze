@@ -5,7 +5,6 @@
 #include "memarena.h"
 #include "basics.h"
 #include "vectors.h"
-#include "binaryangle.h"
 #include "intvec.h"
 
 class ClipNode

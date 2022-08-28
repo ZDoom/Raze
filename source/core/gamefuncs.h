@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gamecontrol.h"
-#include "binaryangle.h"
 #include "build.h"
 #include "coreactor.h"
 #include "intrect.h"

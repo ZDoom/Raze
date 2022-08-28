@@ -1,11 +1,10 @@
 /*
-** binaryangle.h
+** fixedhorizon.h
 **
-** type safe representations of high precision angle and horizon values. 
-** Angle uses natural 32 bit overflow to clamp to one rotation.
+** type safe representations of high precision horizon values. 
 **
 **---------------------------------------------------------------------------
-** Copyright 2020 Christoph Oelckers
+** Copyright 2020-2022 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without

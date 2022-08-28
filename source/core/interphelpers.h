@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include "fixedhorizon.h"
+
 inline constexpr int32_t interpolatedvalue(int32_t oval, int32_t val, double const smoothratio, int const scale = 16)
 {
 	return oval + MulScale(val - oval, int(smoothratio), scale);
