@@ -3155,7 +3155,7 @@ void DoPlayerClimb(PLAYER* pp)
         // move player to center of ladder
         for (i = synctics; i; i--)
         {
-            const int ADJ_AMT = 0.5;
+            const double ADJ_AMT = 0.5;
 
             auto ppos = pp->pos.XY();
             // player
@@ -3183,26 +3183,27 @@ void DoPlayerClimb(PLAYER* pp)
             pp->pos.XY() = ppos;
 
             // sprite
+            const int IADJ_AMT = 8;
             auto pos = plActor->int_pos();
             if (pos.X != plActor->user.pos.X)
             {
                 if (pos.X < plActor->user.pos.X)
-                    pos.X += ADJ_AMT;
+                    pos.X += IADJ_AMT;
                 else if (pos.X > plActor->user.pos.X)
-                    pos.X -= ADJ_AMT;
+                    pos.X -= IADJ_AMT;
 
-                if (labs(pos.X - plActor->user.pos.X) <= ADJ_AMT)
+                if (labs(pos.X - plActor->user.pos.X) <= IADJ_AMT)
                     pos.X = plActor->user.pos.X;
             }
 
             if (pos.Y != plActor->user.pos.Y)
             {
                 if (pos.Y < plActor->user.pos.Y)
-                    pos.Y += ADJ_AMT;
+                    pos.Y += IADJ_AMT;
                 else if (pos.Y > plActor->user.pos.Y)
-                    pos.Y -= ADJ_AMT;
+                    pos.Y -= IADJ_AMT;
 
-                if (labs(pos.Y - plActor->user.pos.Y) <= ADJ_AMT)
+                if (labs(pos.Y - plActor->user.pos.Y) <= IADJ_AMT)
                     pos.Y = plActor->user.pos.Y;
             }
             plActor->set_int_pos(pos);
