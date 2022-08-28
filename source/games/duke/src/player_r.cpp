@@ -1505,7 +1505,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->set_int_ang(p->angle.ang.Buildang());
+				j->spr.angle = p->angle.ang;
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1524,7 +1524,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->set_int_ang(p->angle.ang.Buildang());
+				j->spr.angle = p->angle.ang;
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -4102,7 +4102,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->set_int_ang(p->angle.ang.Buildang());
+			spawned->spr.angle = p->angle.ang;
 			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
 			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
@@ -4167,7 +4167,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->set_int_ang(p->angle.ang.Buildang());
+			spawned->spr.angle = p->angle.ang;
 			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
 			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];

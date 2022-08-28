@@ -400,7 +400,7 @@ void moveplayers(void)
 			{
 				act->spr.pos = p->opos.plusZ(gs.playerheight);
 				act->backupz();
-				act->set_int_ang(p->angle.oang.Buildang());
+				act->spr.angle = p->angle.oang;
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -464,7 +464,7 @@ void moveplayers(void)
 						p->angle.addadjustment(deltaangle(p->angle.ang, VecToAngle(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) * (1. / 2.));
 					}
 				}
-				act->set_int_ang(p->angle.ang.Buildang());
+				act->spr.angle = p->angle.ang;
 			}
 		}
 		else
@@ -497,7 +497,7 @@ void moveplayers(void)
 			if (act->spr.extra < 8)
 			{
 				act->spr.xvel = 128;
-				act->set_int_ang(p->angle.ang.Buildang());
+				act->spr.angle = p->angle.ang;
 				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
