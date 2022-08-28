@@ -112,7 +112,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.clipdist = 30;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(pPlayerActor->int_ang());
+    pActor->spr.angle = pPlayerActor->spr.angle;
     pActor->spr.intowner = nPlayer;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;

@@ -1447,7 +1447,7 @@ void movetransports_r(void)
 									ps[k].GetActor()->spr.extra = 0;
 								}
 
-							ps[p].angle.ang = DAngle::fromBuild(Owner->int_ang());
+							ps[p].angle.ang = Owner->spr.angle;
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1658,7 +1658,7 @@ void movetransports_r(void)
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									spawned->spr.xvel = act2->spr.xvel >> 1;
-									spawned->set_int_ang(act2->int_ang());
+									spawned->spr.angle = act2->spr.angle;
 									ssp(spawned, CLIPMASK0);
 								}
 							}
@@ -1671,7 +1671,7 @@ void movetransports_r(void)
 									if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
 									{
 										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X), (Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->int_floorz()) });
-										act2->set_int_ang(Owner->int_ang());
+										act2->spr.angle = Owner->spr.angle;
 
 										act2->backupang();
 
@@ -2175,7 +2175,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3190)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3190)->spr.angle = act->spr.angle;
 					act->spr.lotag = 128;
 				}
 				break;
@@ -2183,7 +2183,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3192)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3192)->spr.angle = act->spr.angle;
 					act->spr.lotag = 256;
 				}
 				break;
@@ -2208,7 +2208,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3120)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3120)->spr.angle = act->spr.angle;
 					act->spr.lotag = 448;
 				}
 				break;
@@ -2216,7 +2216,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3122)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3122)->spr.angle = act->spr.angle;
 					act->spr.lotag = 64;
 				}
 				break;
@@ -2224,7 +2224,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3123)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3123)->spr.angle = act->spr.angle;
 					act->spr.lotag = 512;
 				}
 				break;
@@ -2232,7 +2232,7 @@ void rr_specialstats()
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3124)->set_int_ang(act->int_ang());
+					spawn(act, RRTILE3124)->spr.angle = act->spr.angle;
 					act->spr.lotag = 224;
 				}
 				break;
@@ -2292,7 +2292,7 @@ void rr_specialstats()
 				{
 					if (act2->spr.picnum == RRTILE297)
 					{
-						ps[p].angle.ang = DAngle::fromBuild(act2->int_ang());
+						ps[p].angle.ang = act2->spr.angle;
 						ps[p].getposfromactor(act2, -36);
 						ps[p].backupxyz();
 						ps[p].setbobpos();
@@ -2589,7 +2589,7 @@ static int henstand(DDukeActor *actor)
 					{
 						ns->spr.xvel = 32;
 						ns->spr.lotag = 40;
-						ns->set_int_ang(actor->int_ang());
+						ns->spr.angle = actor->spr.angle;
 					}
 				}
 			}

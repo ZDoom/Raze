@@ -1059,7 +1059,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->spr.xvel = 164;
-				targ->set_int_ang(proj->int_ang());
+				targ->spr.angle = proj->spr.angle;
 			}
 			else
 			{

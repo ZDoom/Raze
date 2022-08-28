@@ -278,8 +278,8 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.X += actor->spr.xvel * DAngle::fromBuild(actor->int_ang()).Cos() * inttoworld;
-	actor->spr.pos.Y += actor->spr.xvel * DAngle::fromBuild(actor->int_ang()).Sin() * inttoworld;
+	actor->spr.pos.X += actor->spr.xvel * actor->spr.angle.Cos() * inttoworld;
+	actor->spr.pos.Y += actor->spr.xvel * actor->spr.angle.Sin() * inttoworld;
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -704,7 +704,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				ps[p].angle.settarget(DAngle::fromBuild(actor->int_ang() + 1024));
+				ps[p].angle.settarget(actor->spr.angle + DAngle180);
 			}
 			else
 			{
@@ -1317,7 +1317,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 			return;
 		}
 
-	actor->set_int_ang(Owner->int_ang());
+	actor->spr.angle = Owner->spr.angle;
 	actor->spr.pos = Owner->spr.pos.plusZ(Owner->isPlayer() ? -34 : 0);
 
 	for (int k = 0; k < actor->temp_data[0]; k++)

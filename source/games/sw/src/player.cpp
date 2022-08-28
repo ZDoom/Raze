@@ -3349,7 +3349,7 @@ void DoPlayerClimb(PLAYER* pp)
             pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
             pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-            pp->angle.settarget(DAngle::fromBuild(lActor->int_ang() + 1024));
+            pp->angle.settarget(lActor->spr.angle + DAngle180);
         }
     }
 }
@@ -3731,7 +3731,7 @@ bool PlayerOnLadder(PLAYER* pp)
     pp->LadderPosition.X = lActor->int_pos().X + nx * 5;
     pp->LadderPosition.Y = lActor->int_pos().Y + ny * 5;
 
-    pp->angle.settarget(DAngle::fromBuild(lActor->int_ang() + 1024));
+    pp->angle.settarget(lActor->spr.angle + DAngle180);
 
     return true;
 }
@@ -5117,7 +5117,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->angle.ang = pp->angle.oang = DAngle::fromBuild(rsp->int_ang());
+            pp->angle.ang = pp->angle.oang = rsp->spr.angle;
         else
             pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }
@@ -6861,7 +6861,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     ASSERT(spawn_sprite != nullptr);
 
     pp->pos = pp->opos = spawn_sprite->int_pos();
-    pp->angle.ang = pp->angle.oang = DAngle::fromBuild(spawn_sprite->int_ang());
+    pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
     getzsofslopeptr(pp->cursector, pp->pos.X, pp->pos.Y, &cz, &fz);

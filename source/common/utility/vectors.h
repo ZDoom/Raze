@@ -46,6 +46,7 @@
 #include <string.h>
 #include "xs_Float.h"
 #include "math/cmath.h"
+#include "basics.h"
 
 
 #define EQUAL_EPSILON (1/65536.)
@@ -1626,6 +1627,11 @@ typedef TAngle<double>			DAngle;
 
 constexpr DAngle nullAngle = DAngle::fromDeg(0.);
 constexpr FAngle nullFAngle = FAngle::fromDeg(0.);
+
+constexpr DAngle DAngle90 = DAngle::fromBam(ANGLE_90);
+constexpr DAngle DAngle180 = DAngle::fromBam(ANGLE_180);
+constexpr DAngle DAngle270 = DAngle::fromBam(ANGLE_270);
+constexpr DAngle DAngle360 = DAngle::fromBam(ANGLE_MAX);
 
 class Plane
 {

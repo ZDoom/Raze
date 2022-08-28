@@ -214,8 +214,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->set_int_ang(getangle(x - t->int_pos().X, y - t->int_pos().Y));
-					t->pos.X = OwnerAc->spr.pos.X + DAngle::fromBuild(t->int_ang()).Cos();
-					t->pos.Y = OwnerAc->spr.pos.Y + DAngle::fromBuild(t->int_ang()).Sin();
+					t->pos.X = OwnerAc->spr.pos.X + t->angle.Cos();
+					t->pos.Y = OwnerAc->spr.pos.Y + t->angle.Sin();
 				}
 			}
 			break;
@@ -938,7 +938,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 						t->picnum = OwnerAc->dispicnum;
 					t->pal = OwnerAc->spr.pal;
 					t->shade = OwnerAc->spr.shade;
-					t->set_int_ang(OwnerAc->int_ang());
+					t->angle = OwnerAc->spr.angle;
 					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
 				}
 			}

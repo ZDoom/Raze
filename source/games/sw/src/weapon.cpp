@@ -7943,7 +7943,7 @@ int DoPlasmaFountain(DSWActor* actor)
 
         // move with sprite
         SetActorZ(actor, attachActor->int_pos());
-        actor->set_int_ang(attachActor->int_ang());
+        actor->spr.angle = attachActor->spr.angle;
 
         actor->user.Counter++;
         if (actor->user.Counter > 3)
@@ -9492,7 +9492,7 @@ int DoUziBullet(DSWActor* actor)
             actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
             actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
             SetOwner(GetOwner(actor), actorNew);
-            actorNew->set_int_ang(actor->int_ang());
+            actorNew->spr.angle = actor->spr.angle;
             actorNew->spr.clipdist = 128 >> 2;
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
@@ -9503,7 +9503,7 @@ int DoUziBullet(DSWActor* actor)
                 actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
                 actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
                 SetOwner(GetOwner(actor), actorNew);
-                actorNew->set_int_ang(actor->int_ang());
+                actorNew->spr.angle = actor->spr.angle;
                 actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             }
 
@@ -15047,7 +15047,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
         }
 
         SetOwner(actor, actorNew);
-        actorNew->set_int_ang(actor->int_ang());
+        actorNew->spr.angle = actor->spr.angle;
 
         SetActorZ(actorNew, &hit_pos);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -17606,7 +17606,7 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos;
-    spawnedActor->set_int_ang(actor->int_ang());
+    spawnedActor->spr.angle = actor->spr.angle;
     spawnedActor->user.Flags &= ~(SPR_SHADOW);
     switch (FootMode)
     {

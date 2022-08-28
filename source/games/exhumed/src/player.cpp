@@ -265,8 +265,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->set_int_pos(nNStartSprite->int_pos());
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = DAngle::fromBuild(nNStartSprite->int_ang() & kAngleMask);
-		pActor->set_int_ang(plr->angle.ang.Buildang());
+		plr->angle.ang = nNStartSprite->spr.angle.Normalized360();
+		pActor->spr.angle = plr->angle.ang;
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -317,7 +317,7 @@ void RestartPlayer(int nPlayer)
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->set_int_ang(pActor->int_ang());
+	pDActor->spr.angle = pActor->spr.angle;
 	pDActor->spr.cstat = pActor->spr.cstat;
 
 	pDActor->spr.lotag = runlist_HeadRun() + 1;
@@ -2576,7 +2576,7 @@ sectdone:
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
-        pDopple->set_int_ang(pPlayerActor->int_ang());
+        pDopple->spr.angle = pPlayerActor->spr.angle;
         ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }

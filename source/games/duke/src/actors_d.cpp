@@ -831,7 +831,7 @@ static void movetripbomb(DDukeActor *actor)
 			auto spawned = spawn(actor, EXPLOSION2);
 			if (spawned)
 			{
-				spawned->set_int_ang(actor->int_ang());
+				spawned->spr.angle = actor->spr.angle;
 				spawned->spr.xvel = 348;
 				ssp(spawned, CLIPMASK0);
 			}
@@ -1797,7 +1797,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].angle.ang = DAngle::fromBuild(Owner->int_ang());
+							ps[p].angle.ang = Owner->spr.angle;
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1979,7 +1979,7 @@ void movetransports_d(void)
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									k->spr.xvel = act2->spr.xvel >> 1;
-									k->set_int_ang(act2->int_ang());
+									k->spr.angle = act2->spr.angle;
 									ssp(k, CLIPMASK0);
 								}
 							}
@@ -1992,7 +1992,7 @@ void movetransports_d(void)
 									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 									{
 										act2->add_int_pos({ (Owner->int_pos().X - act->int_pos().X),(Owner->int_pos().Y - act->int_pos().Y), -(act->int_pos().Z - Owner->sector()->int_floorz()) });
-										act2->set_int_ang(Owner->int_ang());
+										act2->spr.angle = Owner->spr.angle;
 
 										act2->backupang();
 

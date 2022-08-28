@@ -102,7 +102,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 			else
 			{
 				// same as wall calculation.
-				daang = DAngle::fromBuild(act->int_ang() - 512);
+				daang = act->spr.angle - DAngle90;
 				newdist = int(np.X * daang.Sin() * (1 << BUILDSINBITS) + np.Y * -daang.Cos() * (1 << BUILDSINBITS));
 
 				if (abs(np.X) > abs(np.Y))

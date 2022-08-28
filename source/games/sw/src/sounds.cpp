@@ -603,7 +603,7 @@ void GameInterface::UpdateSounds(void)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            tang = DAngle::fromBuild(rsp->int_ang());
+            tang = rsp->spr.angle;
         else
             tang = VecToAngle(pp->sop_remote->pmid.X - pp->pos.X, pp->sop_remote->pmid.Y - pp->pos.Y);
     }

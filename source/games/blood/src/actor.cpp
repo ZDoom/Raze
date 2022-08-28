@@ -6419,7 +6419,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	}
 	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
 	fired->SetOwner(actor);
-	fired->set_int_ang(actor->int_ang());
+	fired->spr.angle = actor->spr.angle;
 	fired->vel.X = MulScale(a6, Cos(fired->int_ang()), 30);
 	fired->vel.Y = MulScale(a6, Sin(fired->int_ang()), 30);
 	fired->vel.Z = MulScale(a6, a4, 14);

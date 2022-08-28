@@ -3729,7 +3729,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorLowerZ(actor) + Z(10) });
-        actorNew->set_int_ang(actor->int_ang());
+        actorNew->spr.angle = actor->spr.angle;
 
         // vel
         SP_TAG7(actorNew) = 10;
@@ -3792,16 +3792,16 @@ int SpawnItemsMatch(short match)
         case 90:
             spawnedActor = BunnyHatch2(itActor);
             spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER8; // Boy
-            spawnedActor->set_int_ang(itActor->int_ang());
+            spawnedActor->spr.angle = itActor->spr.angle;
             break;
         case 91:
             spawnedActor = BunnyHatch2(itActor);
             spawnedActor->user.spal = spawnedActor->spr.pal = PALETTE_PLAYER0; // Girl
-            spawnedActor->set_int_ang(itActor->int_ang());
+            spawnedActor->spr.angle = itActor->spr.angle;
             break;
         case 92:
             spawnedActor = BunnyHatch2(itActor);
-            spawnedActor->set_int_ang(itActor->int_ang());
+            spawnedActor->spr.angle = itActor->spr.angle;
              break;
 
         case 40:

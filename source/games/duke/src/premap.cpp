@@ -661,7 +661,7 @@ void resetpspritevars(int g)
 			ps[j].backupxyz();
 			ps[j].setbobpos();
 			act->backuppos();
-			ps[j].angle.oang = ps[j].angle.ang = DAngle::fromBuild(act->int_ang());
+			ps[j].angle.oang = ps[j].angle.ang = act->spr.angle;
 
 			updatesector(act->int_pos().X, act->int_pos().Y, &ps[j].cursector);
 

@@ -2195,7 +2195,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         if (ShellNum == -3)
         {
-            actorNew->set_int_ang(actor->int_ang());
+            actorNew->spr.angle = actor->spr.angle;
             HelpMissileLateral(actorNew,2500);
             actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 512));
             HelpMissileLateral(actorNew,1000); // Was 1500
@@ -2203,7 +2203,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         }
         else
         {
-            actorNew->set_int_ang(actor->int_ang());
+            actorNew->spr.angle = actor->spr.angle;
             HelpMissileLateral(actorNew,2500);
             actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
             HelpMissileLateral(actorNew,1500);
@@ -2218,7 +2218,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     case SHOT_SHELL:
         actorNew->add_int_z(-Z(13));
-        actorNew->set_int_ang(actor->int_ang());
+        actorNew->spr.angle = actor->spr.angle;
         HelpMissileLateral(actorNew,2500);
         actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
         HelpMissileLateral(actorNew,1300);

@@ -1636,7 +1636,7 @@ void OperateTeleport(sectortype* pSector)
 				}
 				actor->set_int_xy(destactor->int_pos().X, destactor->int_pos().Y);
 				actor->add_int_z(destactor->sector()->int_floorz() - pSector->int_floorz());
-				actor->set_int_ang(destactor->int_ang());
+				actor->spr.angle = destactor->spr.angle;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
 				actor->vel.X = actor->vel.Y = actor->vel.Z = 0;
@@ -1646,7 +1646,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->angle.settarget(DAngle::fromBuild(actor->int_ang()), true);
+					pPlayer->angle.settarget(actor->spr.angle, true);
 				}
 			}
 		}

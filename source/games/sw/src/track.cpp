@@ -304,7 +304,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
     actorNew->spr.pos = actor->spr.pos;
-    actorNew->set_int_ang(actor->int_ang());
+    actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.lotag = actor->spr.lotag;
     actorNew->spr.hitag = actor->spr.hitag;
 
@@ -1225,7 +1225,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
-                    sop->limit_ang_center = DAngle::fromBuild(actor->int_ang());
+                    sop->limit_ang_center = actor->spr.angle;
                     sop->limit_ang_delta = DAngle::fromBuild(actor->spr.lotag);
                     KillActor(actor);
                     break;

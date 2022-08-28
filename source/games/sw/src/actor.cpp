@@ -158,7 +158,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                 actor->spr.xvel = 200 + RandomRange(200);
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
-                actor->set_int_ang(weapActor->int_ang());
+                actor->spr.angle = weapActor->spr.angle;
             }
         }
         else
@@ -177,7 +177,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.ActorActionFunc = nullptr;
         //actor->user.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
-            actor->set_int_ang(weapActor->int_ang());
+            actor->spr.angle = weapActor->spr.angle;
         break;
 
     case COOLG_RUN_R0:
@@ -259,7 +259,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->spr.xvel = 300 + RandomRange(400);
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
-            actor->set_int_ang(weapActor->int_ang());
+            actor->spr.angle = weapActor->spr.angle;
             break;
         }
         break;

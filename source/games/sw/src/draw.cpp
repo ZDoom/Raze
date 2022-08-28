@@ -526,7 +526,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.yrepeat = tsp->yrepeat;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
-    actorNew->set_int_ang(tsp->int_ang());
+    actorNew->spr.angle = tsp->angle;
     actorNew->spr.xvel = tsp->xvel;
     actorNew->spr.yvel = tsp->yvel;
     actorNew->spr.zvel = tsp->zvel;
@@ -1101,7 +1101,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
         while (auto actor = it.Next())
         {
             ang = VecToAngle(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
-            ang_test = deltaangle(ang, DAngle::fromBuild(actor->int_ang())) < DAngle::fromBuild(actor->spr.lotag);
+            ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
 
             FAFcansee_test =
                 (FAFcansee(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
@@ -1447,7 +1447,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         DSWActor* ractor = pp->remoteActor;
         if (TEST_BOOL1(ractor))
-            tang = DAngle::fromBuild(ractor->int_ang());
+            tang = ractor->spr.angle;
         else
             tang = VecToAngle(pp->sop_remote->pmid.X - tx, pp->sop_remote->pmid.Y - ty);
     }

@@ -258,7 +258,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (act->spr.yvel < 0) act->spr.yvel = -100;
 		else if (act->spr.yvel > 199) act->spr.yvel = 300;
 
-		cang = DAngle::fromBuild(interpolatedangle(ud.cameraactor->tempang, act->int_ang(), smoothratio));
+		cang = interpolatedangle(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio);
 
 		auto bh = buildhoriz(act->spr.yvel);
 		auto cstat = act->spr.cstat;

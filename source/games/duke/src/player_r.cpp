@@ -894,7 +894,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 32;
-			j->set_int_ang(actor->int_ang());
+			j->spr.angle = actor->spr.angle;
 			j->add_int_z(-(5 << 8));
 		}
 		break;
@@ -905,7 +905,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 250;
-			j->set_int_ang(actor->int_ang());
+			j->spr.angle = actor->spr.angle;
 			j->add_int_z(-(15 << 8));
 		}
 		break;
@@ -4047,7 +4047,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		{
 			p->pos.X = motosprite->spr.pos.X;
 			p->pos.Y = motosprite->spr.pos.Y;
-			p->angle.ang = DAngle::fromBuild(motosprite->int_ang());
+			p->angle.ang = motosprite->spr.angle;
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
 		}
@@ -4127,7 +4127,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		{
 			p->pos.X = boat->spr.pos.X;
 			p->pos.Y = boat->spr.pos.Y;
-			p->angle.ang = DAngle::fromBuild(boat->int_ang());
+			p->angle.ang = boat->spr.angle;
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
 		}

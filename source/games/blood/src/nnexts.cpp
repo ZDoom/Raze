@@ -3281,7 +3281,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (pPlayer)
 		{
-			pPlayer->angle.settarget(DAngle::fromBuild(sourceactor->int_ang()));
+			pPlayer->angle.settarget(sourceactor->spr.angle);
 			pPlayer->angle.lockinput();
 		}
 		else if (isDude) sourceactor->xspr.goalAng = actor->spr.angle = sourceactor->spr.angle;
@@ -3402,7 +3402,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 			if (sourceactor->spr.flags & kModernTypeFlag4)
 			{
-				pEffect->set_int_ang(sourceactor->int_ang());
+				pEffect->spr.angle = sourceactor->spr.angle;
 			}
 
 			if (pEffect->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
@@ -3835,7 +3835,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
 					if (sourceactor->spr.flags & kModernTypeFlag4)
 					{
-						spawned->set_int_ang(sourceactor->int_ang());
+						spawned->spr.angle = sourceactor->spr.angle;
 					}
 
 					// should be: the more is seqs, the shorter is timer
@@ -6099,7 +6099,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.settarget(DAngle::fromBuild(actor->int_ang()));
+				pPlayer->angle.settarget(actor->spr.angle);
 				pPlayer->angle.lockinput();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))

@@ -287,7 +287,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			act->set_int_ang(actj->int_ang());
+			act->spr.angle = actj->spr.angle;
 	}
 }
 
@@ -324,7 +324,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 
 	act->spr.shade = -127;
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	act->set_int_ang(actj->int_ang());
+	act->spr.angle = actj->spr.angle;
 
 	act->spr.xvel = 128;
 	ChangeActorStat(act, STAT_MISC);
@@ -407,7 +407,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if ((ps[actj->spr.yvel].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		act->set_int_ang(actj->int_ang());
+		act->spr.angle = actj->spr.angle;
 	}
 
 	act->set_int_z(sect->int_floorz());

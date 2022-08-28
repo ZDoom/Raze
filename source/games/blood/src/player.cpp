@@ -810,7 +810,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->add_int_z(-(bottom - actor->int_pos().Z));
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->set_int_ang(pStartZone->ang);
-	pPlayer->angle.ang = DAngle::fromBuild(actor->int_ang());
+	pPlayer->angle.ang = actor->spr.angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->spr.clipdist = pDudeInfo->clipdist;
 	actor->spr.flags = 15;
@@ -1518,7 +1518,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 	auto plActor = pPlayer->actor;
 	int const florhit = pPlayer->actor->hit.florhit.type;
 	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->horizon.calcviewpitch(plActor->int_pos().vec2, DAngle::fromBuild(plActor->int_ang()), va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
+	pPlayer->horizon.calcviewpitch(plActor->int_pos().vec2, plActor->spr.angle, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
