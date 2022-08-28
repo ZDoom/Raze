@@ -501,12 +501,12 @@ struct spritetypebase
 
 	void set_int_ang(int a)
 	{
-		angle = DAngle::fromDeg(a);
+		angle = DAngle::fromBuild(a);
 	}
 
 	void add_int_ang(int a)
 	{
-		angle += DAngle::fromDeg(a);
+		angle += DAngle::fromBuild(a);
 	}
 
 	void copy_ang(const spritetypebase* other)
