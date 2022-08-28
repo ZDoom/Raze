@@ -1653,7 +1653,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->int_ang() : actor->interpolatedang(smoothratio)) - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->spr.angle : actor->interpolatedang(smoothratio)).Buildang() - cang) & 2047;
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;

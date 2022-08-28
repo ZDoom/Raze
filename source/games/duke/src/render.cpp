@@ -95,7 +95,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->int_pos(), camera->sector(), DAngle::fromBuild(camera->interpolatedang(smoothratio)), buildhoriz(camera->spr.shade), DAngle::fromDeg(0.), tex, rect, smoothratio);
+				render_camtex(camera, camera->int_pos(), camera->sector(), camera->interpolatedang(smoothratio), buildhoriz(camera->spr.shade), DAngle::fromDeg(0.), tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -326,7 +326,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (p->newOwner != nullptr)
 		{
 			auto act = p->newOwner;
-			cang = DAngle::fromBuild(act->interpolatedang(smoothratio));
+			cang = act->interpolatedang(smoothratio);
 			choriz = buildhoriz(act->spr.shade);
 			cposx = act->int_pos().X;
 			cposy = act->int_pos().Y;

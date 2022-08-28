@@ -43,7 +43,7 @@ public:
 
 	DVector3 opos;
 	int time;
-	int16_t oang;
+	DAngle oang;
 	int16_t spritesetindex;
 
 
@@ -192,9 +192,9 @@ public:
 		};
 	}
 
-	int16_t interpolatedang(double const smoothratio)
+	DAngle interpolatedang(double const smoothratio)
 	{
-		return interpolatedangle(oang, int_ang(), smoothratio, 16);
+		return interpolatedangle(oang, spr.angle, smoothratio, 16);
 	}
 
 	void backupx()
@@ -225,7 +225,7 @@ public:
 
 	void backupang()
 	{
-		oang = int_ang();
+		oang = spr.angle;
 	}
 
 	void backuploc()
