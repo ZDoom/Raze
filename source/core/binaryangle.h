@@ -185,28 +185,6 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 
 //---------------------------------------------------------------------------
 //
-// High precision vector angle function, mainly for the renderer.
-//
-//---------------------------------------------------------------------------
-
-inline int getangle(double xvect, double yvect)
-{
-	return DVector2(xvect, yvect).Angle().Buildang();
-}
-
-inline int getangle(const DVector2& vec)
-{
-	return getangle(vec.X, vec.Y);
-}
-
-inline int getangle(const vec2_t& vec)
-{
-	return getangle(vec.X, vec.Y);
-}
-
-
-//---------------------------------------------------------------------------
-//
 // Interpolation functions for use throughout games.
 //
 //---------------------------------------------------------------------------
