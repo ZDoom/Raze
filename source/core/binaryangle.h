@@ -47,69 +47,6 @@
 
 class FSerializer;
 
-enum
-{
-	BAMBITS = 21,
-	BAMUNIT = 1 << BAMBITS,
-	SINTABLEBITS = 30,
-	SINTABLEUNIT = 1 << SINTABLEBITS,
-	BUILDSINBITS = 14,
-	BUILDSINSHIFT = SINTABLEBITS - BUILDSINBITS,
-};
-
-//---------------------------------------------------------------------------
-//
-// Constants used for Build sine/cosine functions.
-//
-//---------------------------------------------------------------------------
-
-constexpr double BAngRadian = pi::pi() * (1. / 1024.);
-constexpr double BAngToDegree = 360. / 2048.;
-
-extern int sintable[2048];
-
-inline constexpr double sinscale(const int shift)
-{
-	return shift >= -BUILDSINBITS ? uint64_t(1) << (BUILDSINBITS + shift) : 1. / (uint64_t(1) << abs(BUILDSINBITS + shift));
-}
-
-//---------------------------------------------------------------------------
-//
-// Build sine inline functions.
-//
-//---------------------------------------------------------------------------
-
-inline int bsin(const int ang, int shift = 0)
-{
-	return (shift -= BUILDSINSHIFT) < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
-}
-inline double bsinf(const double ang, const int shift = 0)
-{
-	return g_sinbam(ang * BAMUNIT) * sinscale(shift);
-}
-
-//---------------------------------------------------------------------------
-//
-// Build cosine inline functions.
-// 
-// About shifts:
-// -6 -> * 16
-// -7 -> * 8
-// -8 -> * 4
-// -9 -> * 2
-// -10 -> * 1
-//
-//---------------------------------------------------------------------------
-
-inline int bcos(const int ang, int shift = 0)
-{
-	return (shift -= BUILDSINSHIFT) < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
-}
-inline double bcosf(const double ang, const int shift = 0)
-{
-	return g_cosbam(ang * BAMUNIT) * sinscale(shift);
-}
-
 //---------------------------------------------------------------------------
 //
 // Functions for use with fixedhoriz and friendly functions.
