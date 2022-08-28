@@ -2608,7 +2608,7 @@ void handle_se00(DDukeActor* actor)
 				sect->addfloorz(-2);
 				zchange = -512;
 				if (sect->floorz < actor->spr.pos.Z)
-					sect->floorz = actor->spr.pos.Z;
+					sect->setfloorz(actor->spr.pos.Z);
 			}
 
 			else if (sect->floorz < actor->spr.pos.Z) //z's are touching
@@ -2616,7 +2616,7 @@ void handle_se00(DDukeActor* actor)
 				sect->addfloorz(2);
 				zchange = 512;
 				if (sect->floorz > actor->spr.pos.Z)
-					sect->floorz = actor->spr.pos.Z;
+					sect->setfloorz(actor->spr.pos.Z);
 			}
 		}
 		else if (actor->spr.extra == 3)
@@ -4440,7 +4440,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 		sec->add_int_ceilingz(actor->spr.yvel << 4);
 		if (sec->ceilingz > sec->floorz)
 		{
-			sec->ceilingz = sec->floorz;
+			sec->setceilingz(sec->floorz);
 			if (pistonsound && snd1 >= 0)
 				S_PlayActorSound(snd1, actor);
 		}
@@ -4553,7 +4553,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	case 0:
 		sc->add_int_ceilingz(actor->spr.yvel);
 		if (sc->ceilingz > sc->floorz)
-			sc->floorz = sc->ceilingz;
+			sc->setfloorz(sc->ceilingz);
 		if (sc->ceilingz > actor->spr.pos.Z + 32)
 			actor->temp_data[0]++;
 		break;
