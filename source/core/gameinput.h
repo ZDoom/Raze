@@ -7,11 +7,6 @@
 #include "gamestruct.h"
 #include "packet.h"
 
-inline constexpr int getincangle(int a, int na)
-{
-	return int(unsigned(na << 21) - unsigned(a << 21)) >> 21;
-}
-
 struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;

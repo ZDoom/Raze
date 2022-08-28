@@ -239,6 +239,18 @@ inline int getangle(const vec2_t& vec)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// Returns an angle delta for Build angles.
+//
+//---------------------------------------------------------------------------
+
+inline constexpr int getincangle(int a, int na)
+{
+	return int(unsigned(na << 21) - unsigned(a << 21)) >> 21;
+}
+
+
 extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
