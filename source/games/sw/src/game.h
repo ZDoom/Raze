@@ -198,6 +198,16 @@ inline int MOVEy(int vel, int ang)
     return (MulScale(vel, bsin(ang), 14));
 }
 
+inline double MOVEx(int vel, DAngle ang)
+{
+	return vel * ang.Cos() * inttoworld;
+}
+
+inline double MOVEy(int vel, DAngle ang)
+{
+	return vel * ang.Sin() * inttoworld;
+}
+
 inline int SQ(int val)
 {
     return val * val;

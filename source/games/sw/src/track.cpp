@@ -491,7 +491,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->add_int_pos({ MOVEx(256,start_sprite->int_ang() + 1024), MOVEy(256,start_sprite->int_ang() + 1024), 0 });
+        start_sprite->spr.pos += DVector2(MOVEx(256,start_sprite->spr.angle + DAngle180), MOVEy(256,start_sprite->spr.angle + DAngle180));
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
@@ -499,7 +499,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MOVEx(512,end_sprite->int_ang()), MOVEy(512,end_sprite->int_ang()), 0 });
+        end_sprite->spr.pos += DVector2(MOVEx(512,end_sprite->spr.angle), MOVEy(512,end_sprite->spr.angle));
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -3263,7 +3263,6 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.ActorActionSet->Jump)
         {
-            int nx,ny;
             HitInfo near;
 
             //
@@ -3279,18 +3278,19 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lActor->int_ang());
-            ny = MOVEy(100, lActor->int_ang());
+            double vx = MOVEx(100, lActor->spr.angle);
+            double vy = MOVEy(100, lActor->spr.angle);
 
-            actor->set_int_xy(lActor->int_pos().X + nx, lActor->int_pos().Y + ny);
+			actor->spr.pos.XY() = lActor->spr.pos.XY() + DVector2(vx, vy);
 
-            actor->set_int_ang(NORM_ANGLE(lActor->int_ang() + 1024));
+			actor->spr.angle += DAngle180;
 
             //
             // Get the z height to climb
             //
 
-            neartag({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfTop(actor) - (int_ActorSizeZ(actor) >> 1) }, actor->sector(), actor->int_ang(), near, 600, NTAG_SEARCH_LO_HI);
+			double z = ActorZOfTop(actor) - (ActorSizeZ(actor) * 0.5);
+            neartag(DVector3(actor->spr.pos.XY(), z), actor->sector(), actor->spr.angle, near, 600, NTAG_SEARCH_LO_HI);
 
             if (near.hitWall == nullptr)
             {

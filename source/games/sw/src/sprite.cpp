@@ -2491,7 +2491,7 @@ void SpriteSetup(void)
                     actorNew->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
                     actorNew->spr.picnum = actor->spr.picnum;
 
-                    actorNew->add_int_pos({ MOVEx(256 + 128, actor->int_ang()), MOVEy(256 + 128, actor->int_ang()), 0 });
+                    actorNew->spr.pos += DVector2(MOVEx(256 + 128, actor->spr.angle), MOVEy(256 + 128, actor->spr.angle));
 
                     break;
                 }

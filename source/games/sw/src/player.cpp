@@ -2592,9 +2592,10 @@ void DoPlayerMoveVehicle(PLAYER* pp)
             if (vel > 13000)
             {
                 vec3_t hit_pos = { (x[0] + x[1]) >> 1, (y[0] + y[1]) >> 1, pp->cursector->int_floorz() - Z(10) };
+                DVector3 hitpos(hit_pos.X * inttoworld, hit_pos.Y * inttoworld, pp->cursector->floorz - 10);
 
-                hitscan(hit_pos, pp->cursector,
-                    { MOVEx(256, pp->angle.ang.Buildang()), MOVEy(256, pp->angle.ang.Buildang()), 0 },
+                hitscan(hitpos, pp->cursector,
+                    DVector3(MOVEx(256, pp->angle.ang), MOVEy(256, pp->angle.ang), 0),
                     hit, CLIPMASK_PLAYER);
 
                 if (FindDistance2D(hit.int_hitpos().vec2 - hit_pos.vec2) < 800)
