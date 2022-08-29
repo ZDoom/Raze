@@ -1385,8 +1385,7 @@ public:
 
 	int Sgn() const
 	{
-		const auto normalized = (signed int)BAMs();
-		return (normalized > 0) - (normalized < 0);
+		return ::Sgn(int(BAMs()));
 	}
 };
 

@@ -1950,10 +1950,11 @@ void camera(DDukeActor *actor)
 {
 	if (actor->temp_data[0] == 0)
 	{
+		actor->temp_data[1] += 8;
+
 		if (gs.camerashitable)
 		{
-			int j = fi.ifhitbyweapon(actor);
-			if (j >= 0)
+			if (fi.ifhitbyweapon(actor) >= 0)
 			{
 				actor->temp_data[0] = 1; // static
 				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -1965,38 +1966,18 @@ void camera(DDukeActor *actor)
 
 		if (actor->spr.hitag > 0)
 		{
-			// alias our temp_data array indexes.
-			auto& increment = actor->temp_data[1];
-			auto& minimum = actor->temp_data[2];
-			auto& maximum = actor->temp_data[3];
-			auto& setupflag = actor->temp_data[4];
+			auto const angle = DAngle::fromBuild(8);
 
-			// set up camera if already not.
-			if (setupflag != 1)
-			{
-				increment = 8;
-				minimum = actor->int_ang() - actor->spr.hitag - increment;
-				maximum = actor->int_ang() + actor->spr.hitag - increment;
-				setupflag = 1;
-			}
-
-			// update angle accordingly.
-			if (actor->int_ang() == minimum || actor->int_ang() == maximum)
-			{
-				increment = -increment;
-				actor->add_int_ang(increment);
-			}
-			else if (actor->int_ang() + increment < minimum)
-			{
-				actor->set_int_ang(minimum);
-			}
-			else if (actor->int_ang() + increment > maximum)
-			{
-				actor->set_int_ang(maximum);
-			}
+			if (actor->temp_data[1] < actor->spr.hitag)
+				actor->spr.angle += angle;
+			else if (actor->temp_data[1] < (actor->spr.hitag * 3))
+				actor->spr.angle -= angle;
+			else if (actor->temp_data[1] < (actor->spr.hitag << 2))
+				actor->spr.angle += angle;
 			else
 			{
-				actor->add_int_ang(increment);
+				actor->spr.angle += angle;
+				actor->temp_data[1] = 0;
 			}
 		}
 	}
