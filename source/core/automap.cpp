@@ -494,41 +494,38 @@ static void drawwhitelines(const DVector2& cpos, const double czoom, const DAngl
 //
 //---------------------------------------------------------------------------
 
-static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, int pl_y, const double czoom, const DAngle pl_angle)
+static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const double czoom, const DAngle pl_angle)
 {
-	int arrow[] =
+	static constexpr int arrow[] =
 	{
 		0, 65536, 0, -65536,
 		0, 65536, -32768, 32878,
 		0, 65536, 32768, 32878,
 	};
 
-	int xvect = -cang.Sin() * 16384. * czoom;
-	int yvect = -cang.Cos() * 16384. * czoom;
+	double xvect = -cang.Sin() * czoom * (1. / 1024);
+	double yvect = -cang.Cos() * czoom * (1. / 1024);
 
-	int pxvect = -pl_angle.Sin() * 16384.;
-	int pyvect = -pl_angle.Cos() * 16384.;
+	double pxvect = -pl_angle.Sin();
+	double pyvect = -pl_angle.Cos();
 
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
 	for (int i = 0; i < 12; i += 4)
 	{
+		double px1 = (arrow[i] * pxvect) - (arrow[i+1] * pyvect);
+		double py1 = (arrow[i+1] * pxvect) + (arrow[i] * pyvect) + (height * 0.5);
+		double px2 = (arrow[i+2] * pxvect) - (arrow[i+3] * pyvect);
+		double py2 = (arrow[i+3] * pxvect) + (arrow[i+2] * pyvect) + (height * 0.5);
 
-		int px1 = DMulScale(arrow[i], pxvect, -arrow[i+1], pyvect, 16);
-		int py1 = DMulScale(arrow[i+1], pxvect, arrow[i], pyvect, 16) + (height << 11);
-		int px2 = DMulScale(arrow[i+2], pxvect, -arrow[i + 3], pyvect, 16);
-		int py2 = DMulScale(arrow[i + 3], pxvect, arrow[i+2], pyvect, 16) + (height << 11);
+		auto oxy1 = DVector2(px1, py1) - cpos;
+		auto oxy2 = DVector2(px2, py2) - cpos;
 
-		int ox1 = px1 - cposx;
-		int oy1 = py1 - cposy;
-		int ox2 = px2 - cposx;
-		int oy2 = py2 - cposy;
-
-		int sx1 = DMulScale(ox1, xvect, -oy1, yvect, 16) + (width << 11);
-		int sy1 = DMulScale(oy1, xvect, ox1, yvect, 16) + (height << 11);
-		int sx2 = DMulScale(ox2, xvect, -oy2, yvect, 16) + (width << 11);
-		int sy2 = DMulScale(oy2, xvect, ox2, yvect, 16) + (height << 11);
+		double sx1 = (oxy1.X * xvect) - (oxy1.Y * yvect) + (width * 0.5);
+		double sy1 = (oxy1.Y * xvect) + (oxy1.X * yvect) + (height * 0.5);
+		double sx2 = (oxy2.X * xvect) - (oxy2.Y * yvect) + (width * 0.5);
+		double sy2 = (oxy2.Y * xvect) + (oxy2.X * yvect) + (height * 0.5);
 
 		drawlinergb(sx1, sy1, sx2, sy2, WhiteLineColor());
 	}
@@ -668,7 +665,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 	drawredlines(follow, gZoom, follow_a);
 	drawwhitelines(follow, gZoom, follow_a);
 	if (!gi->DrawAutomapPlayer(pl_x, pl_y, x, y, gZoom, follow_a, smoothratio))
-		DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
+		DrawPlayerArrow(follow, follow_a, gZoom, -pl_angle);
 
 }
 
