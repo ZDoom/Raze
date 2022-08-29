@@ -52,26 +52,6 @@ inline constexpr double interpolatedvaluef(double oval, double val, double const
 	return oval + MulScaleF(val - oval, smoothratio, scale);
 }
 
-inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, double const smoothratio, int const scale = 16)
-{
-	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, int(smoothratio), scale);
-}
-
-inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, int const smoothratio, int const scale = 16)
-{
-	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
-}
-
-inline DAngle interpolatedangle(DAngle oang, DAngle ang, double const smoothratio, int const scale = 16)
-{
-	return oang + (deltaangle(oang, ang) * smoothratio * (1. / (1 << scale)));
-}
-
-inline DAngle interpolatedangle(DAngle oang, DAngle ang, int const smoothratio, int const scale = 16)
-{
-	return oang + (deltaangle(oang, ang) * smoothratio * (1. / (1 << scale)));
-}
-
 inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, double const smoothratio, int const scale = 16)
 {
 	return q16horiz(oval.asq16() + MulScale((val - oval).asq16(), int(smoothratio), scale));

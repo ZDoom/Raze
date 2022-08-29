@@ -783,7 +783,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 pp = tActor->user.PlayerP;
                 double sr = 1. - smoothratio * (1. / 65536.);
                 tsp->pos -= (pp->pos - pp->opos) * sr;
-                tsp->angle = interpolatedangle(pp->angle.oang, pp->angle.ang, sr, 0);
+                tsp->angle = pp->angle.interpolatedang(sr);
             }
         }
 
@@ -1637,7 +1637,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->spr.angle : actor->interpolatedang(smoothratio)).Buildang() - cang) & 2047;
+                            daang = ((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)).Buildang() - cang) & 2047;
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;

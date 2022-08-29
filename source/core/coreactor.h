@@ -180,9 +180,9 @@ public:
 		return interpolatedz(smoothratio, scale) * zworldtoint;
 	}
 
-	DAngle interpolatedang(double const smoothratio)
+	DAngle interpolatedangle(double const smoothratio)
 	{
-		return interpolatedangle(oang, spr.angle, smoothratio, 16);
+		return ::interpolatedangle(oang, spr.angle, smoothratio);
 	}
 
 	void backupx()

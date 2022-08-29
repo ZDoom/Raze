@@ -1454,6 +1454,30 @@ TAngle<T> TVector3<T>::Pitch() const
 	return -VecToAngle(TVector2<T>(X, Y).Length(), Z);
 }
 
+template<class T>
+inline TVector2<T> interpolatedvec2(const TVector2<T> &ovec, const TVector2<T> &vec, const double scale)
+{
+	return ovec + ((vec - ovec) * scale);
+}
+
+template<class T>
+inline TVector3<T> interpolatedvec3(const TVector3<T> &ovec, const TVector3<T> &vec, const double scale)
+{
+	return ovec + ((vec - ovec) * scale);
+}
+
+template<class T>
+inline TVector4<T> interpolatedvec4(const TVector4<T> &ovec, const TVector4<T> &vec, const double scale)
+{
+	return ovec + ((vec - ovec) * scale);
+}
+
+template<class T>
+inline TAngle<T> interpolatedangle(const TAngle<T> &oang, const TAngle<T> &ang, const double scale)
+{
+	return oang + (deltaangle(oang, ang) * scale);
+}
+
 // Much of this is copied from TVector3. Is all that functionality really appropriate?
 template<class vec_t>
 struct TRotator

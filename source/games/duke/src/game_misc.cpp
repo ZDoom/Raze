@@ -559,7 +559,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		int xx = twod->GetWidth() / 2. + x1 / 4096.;
 		int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
-		daang = ((!SyncInput() ? act->spr.angle : act->interpolatedang(smoothratio)).Buildang() - cang) & 2047;
+		daang = ((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio / 65536.)).Buildang() - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{

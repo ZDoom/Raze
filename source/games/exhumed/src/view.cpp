@@ -70,7 +70,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         {
             // interpolate sprite position
             pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio);
-            pTSprite->angle = pTSprite->ownerActor->interpolatedang(smoothratio);
+            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(smoothratio / 65536.);
         }
     }
 
