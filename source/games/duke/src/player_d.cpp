@@ -293,8 +293,8 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
 			if (splash)
 			{
-				splash->set_int_xy(hit.int_hitpos().X, hit.int_hitpos().Y);
-				splash->set_int_ang(ps[p].angle.ang.Buildang()); // Total tweek
+				splash->spr.pos.XY() = hit.hitpos.XY();
+				splash->spr.angle = ps[p].angle.ang; // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, CLIPMASK0);
 				splash->spr.xvel = 0;

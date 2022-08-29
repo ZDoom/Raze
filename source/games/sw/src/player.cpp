@@ -1736,7 +1736,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     // Update sprite representation of player
 
-    actor->set_int_xy(pp->int_ppos().X, pp->int_ppos().Y);
+	actor->spr.pos.XY() = pp->pos.XY();
 
     // there are multiple death functions
     if (pp->Flags & (PF_DEAD))
@@ -5867,7 +5867,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->actor, pp->lv_sector);
         pp->set_int_ppos_XY(pp->lv.XY());
-        plActor->set_int_xy(pp->int_ppos().X, pp->int_ppos().Y);
+		plActor->spr.pos.XY() = pp->pos.XY();
     }
     else
     {
