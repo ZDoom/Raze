@@ -1114,11 +1114,11 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 	if (pExtra->canFly)
 	{
-		int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-		int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-		actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+		auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+		auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+		actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 		int nAccel = pDudeInfo->frontSpeed << 2;
-		if (abs(nAng) > 341)
+		if (abs(nAng) > DAngle60)
 			return;
 		if (actor->GetTarget() == nullptr)
 			actor->spr.angle += DAngle45;

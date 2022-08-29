@@ -278,11 +278,11 @@ static void sub_65D04(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
-	if (abs(nAng) > 341)
+	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
@@ -313,11 +313,11 @@ static void sub_65F44(DBloodActor* actor)
 	auto target = actor->GetTarget();
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
-	if (abs(nAng) > 341)
+	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
 		return;
@@ -348,11 +348,11 @@ static void sub_661E0(DBloodActor* actor)
 	auto target = actor->GetTarget();
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
-	if (abs(nAng) > 341)
+	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;
 		return;

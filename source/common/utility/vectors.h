@@ -1414,6 +1414,12 @@ inline TAngle<T> absangle(const TAngle<T> &a1, const TAngle<T> &a2)
 	return fabs((a1 - a2).Normalized180());
 }
 
+template<class T>
+inline TAngle<T> clamp(const TAngle<T> &angle, const TAngle<T> &min, const TAngle<T> &max)
+{
+	return TAngle<T>::fromDeg(clamp(angle.Degrees(), min.Degrees(), max.Degrees()));
+}
+
 inline TAngle<double> VecToAngle(double x, double y)
 {
 	return TAngle<double>::fromRad(g_atan2(y, x));
@@ -1636,6 +1642,7 @@ constexpr DAngle nullAngle = DAngle::fromDeg(0.);
 constexpr FAngle nullFAngle = FAngle::fromDeg(0.);
 
 constexpr DAngle DAngle45 = DAngle::fromDeg(45);
+constexpr DAngle DAngle60 = DAngle::fromDeg(60);
 constexpr DAngle DAngle90 = DAngle::fromDeg(90);
 constexpr DAngle DAngle180 = DAngle::fromDeg(180);
 constexpr DAngle DAngle270 = DAngle::fromDeg(270);

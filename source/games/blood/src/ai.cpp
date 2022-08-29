@@ -298,10 +298,10 @@ void aiMoveForward(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
-	if (abs(nAng) > 341)
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	if (abs(nAng) > DAngle60)
 		return;
 	actor->vel.X += MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30);
 	actor->vel.Y += MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30);
@@ -317,9 +317,9 @@ void aiMoveTurn(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 }
 
 //---------------------------------------------------------------------------
@@ -332,9 +332,9 @@ void aiMoveDodge(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir)
 	{
 		int nCos = Cos(actor->int_ang());
