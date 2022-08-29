@@ -4241,28 +4241,27 @@ void handle_se22(DDukeActor* actor)
 void handle_se26(DDukeActor* actor)
 {
 	auto sc = actor->sector();
-	int x, l;
+	double zvel = actor->spr.zvel * zinttoworld;
 
 	actor->spr.xvel = 32;
-	l = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-	x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+	DVector2 vect = { 2 * actor->spr.angle.Cos(), 2 * actor->spr.angle.Sin() }; // was: (32 * bsin) >> 14
 
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
 	{
 		actor->set_int_xy( actor->temp_data[3], actor->temp_data[4]);
-		sc->add_int_floorz(-((actor->spr.zvel * actor->spr.shade) - actor->spr.zvel));
+		sc->addfloorz(-((zvel * actor->spr.shade) - zvel));
 		actor->spr.shade = 0;
 	}
 	else
-		sc->add_int_floorz(actor->spr.zvel);
+		sc->addfloorz(zvel);
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
 		if (a2->spr.statnum != 3 && a2->spr.statnum != 10)
 		{
-			a2->add_int_pos({ l, x, actor->spr.zvel });
+			a2->spr.pos = DVector3(vect, zvel);
 			SetActor(a2, a2->spr.pos);
 		}
 	}
@@ -4270,9 +4269,9 @@ void handle_se26(DDukeActor* actor)
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		if (ps[p].GetActor()->sector() == actor->sector() && ps[p].on_ground)
 		{
-			ps[p].fric.X += l << 5;
-			ps[p].fric.Y += x << 5;
-			ps[p].pos.Z += actor->spr.zvel * zmaptoworld;
+			ps[p].fric.X += int(vect.X * 512);
+			ps[p].fric.Y += int(vect.Y * 512);
+			ps[p].pos.Z += zvel;
 		}
 
 	ms(actor);
