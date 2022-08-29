@@ -1554,25 +1554,20 @@ void DoFinale()
 
 DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 {
-    int x = 0;
-    int y = 0;
+	DVector2 apos(0, 0);
 
 	for(auto& wal : wallsofsector(pSector))
     {
-        x += wal.wall_int_pos().X;
-        y += wal.wall_int_pos().Y;
-
+		apos += wal.pos;
+		
         wal.picnum = kClockSymbol16;
         wal.pal = 0;
         wal.shade = 50;
     }
 
-    int xAvg = x / pSector->wallnum;
-    int yAvg = y / pSector->wallnum;
-
     auto pActor = insertActor(pSector, 406);
 
-	pActor->set_int_xy(xAvg, yAvg);
+	pActor->spr.pos.XY() = apos / pSector->wallnum;
 
     pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
 
