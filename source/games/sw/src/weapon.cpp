@@ -10811,7 +10811,6 @@ int DoBloodWorm(DSWActor* actor)
 {
     short ang;
     int xvect,yvect;
-    int bx,by;
     int amt;
 
     actor->user.coll = move_ground_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10862,8 +10861,7 @@ int DoBloodWorm(DSWActor* actor)
     xvect = bcos(ang);
     yvect = bsin(ang);
 
-    bx = actor->int_pos().X;
-    by = actor->int_pos().Y;
+	auto bpos = actor->spr.pos.XY();
 
     amt = RANDOM_P2(2048) - 1024;
     actor->add_int_pos({ MulScale(amt,xvect, 15), MulScale(amt,yvect, 15), 0 });
@@ -10877,7 +10875,7 @@ int DoBloodWorm(DSWActor* actor)
         GlobalSkipZrange = false;
     }
 
-    actor->set_int_xy(bx, by);
+	actor->spr.pos.XY() = bpos;
 
     return false;
 }
