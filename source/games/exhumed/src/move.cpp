@@ -490,9 +490,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 {
     bTouchFloor = false;
 
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-    int z = pActor->int_pos().Z;
+	auto spos = pActor->spr.pos;
 
     int nSpriteHeight = GetActorHeight(pActor);
 
@@ -501,9 +499,9 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     auto pSector = pActor->sector();
     assert(pSector);
 
-    int floorZ = pSector->int_floorz();
+	double floorZ = pSector->floorz;
 
-    if ((pSector->Flag & kSectUnderwater) || (floorZ < z))
+    if ((pSector->Flag & kSectUnderwater) || (floorZ < spos.Z))
     {
         dx >>= 1;
         dy >>= 1;
@@ -552,9 +550,9 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
             dz = 0;
         }
 
-        if ((pSector->int_floorz() - z) < (dz + flordist))
+        if ((pSector->floorz - spos.Z) < (dz + flordist) * zinttoworld)
         {
-            pActor->set_int_xy( x, y);
+			pActor->spr.pos.XY() = spos.XY();
         }
         else
         {
