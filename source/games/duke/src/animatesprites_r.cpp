@@ -215,8 +215,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 				else
 				{
 					t->angle = VecToAngle(viewVec - t->pos.XY());
-					t->pos.X = OwnerAc->spr.pos.X + t->angle.Cos();
-					t->pos.Y = OwnerAc->spr.pos.Y + t->angle.Sin();
+					t->pos.XY() = OwnerAc->spr.pos.XY() + t->angle.ToVector();
 				}
 			}
 			break;
@@ -752,8 +751,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 								{
 									// Alter the shadow's position so that it appears behind the sprite itself.
 									auto look = VecToAngle(shadowspr->pos.XY() - ps[screenpeek].pos.XY());
-									shadowspr->pos.X += look.Cos() * 2;
-									shadowspr->pos.Y += look.Sin() * 2;
+									shadowspr->pos.XY() += look.ToVector() * 2;
 								}
 						}
 					}

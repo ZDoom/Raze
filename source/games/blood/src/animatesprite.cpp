@@ -103,8 +103,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 		pTSprite->ownerActor = parentTSprite->ownerActor;
 		pTSprite->angle = parentTSprite->angle;
 	}
-	pos.X += gCameraAng.Cos() * 2;
-	pos.Y += gCameraAng.Sin() * 2;
+	pos.XY() += gCameraAng.ToVector() * 2;
 	pTSprite->pos = pos;
 	return pTSprite;
 }

@@ -447,7 +447,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
 		}
 
-		act->spr.pos.XY() = actj->spr.pos.XY() + ang.ToVector(8);
+		act->spr.pos.XY() = actj->spr.pos.XY() + ang.ToVector() * 8;
 
 		act->spr.shade = -8;
 

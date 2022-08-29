@@ -872,7 +872,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->spr.angle = actor->temp_angle;
 
 		actor->temp_data[3] = actor->int_pos().X; actor->temp_data[4] = actor->int_pos().Y;
-		actor->spr.pos += actor->temp_angle.ToVector(2);
+		actor->spr.pos += actor->temp_angle.ToVector() * 2;
 		actor->spr.pos.Z -= 3;
 
 		// Laser fix from EDuke32.
@@ -908,7 +908,7 @@ static void movetripbomb(DDukeActor *actor)
 					}
 					x -= 1024;
 
-					actor->spr.pos += actor->temp_angle.ToVector(64);
+					actor->spr.pos += actor->temp_angle.ToVector() * 64;
 					updatesectorneighbor(actor->spr.pos, &curSect, 128);
 
 					if (curSect == nullptr)
@@ -941,7 +941,7 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->temp_data[3] = actor->int_pos().X; 
 		actor->temp_data[4] = actor->int_pos().Y;
-		actor->spr.pos += actor->temp_angle.ToVector(2);
+		actor->spr.pos += actor->temp_angle.ToVector() * 2;
 		actor->spr.pos.Z -= 3;
 		SetActor(actor, actor->spr.pos);
 
@@ -2222,8 +2222,7 @@ static void greenslime(DDukeActor *actor)
 
 		actor->spr.xrepeat = 20 + bsin(actor->temp_data[1], -13);
 		actor->spr.yrepeat = 15 + bsin(actor->temp_data[1], -13);
-		actor->spr.pos.X = ps[p].pos.X + ps[p].angle.ang.Cos() * 8;
-		actor->spr.pos.Y = ps[p].pos.Y + ps[p].angle.ang.Sin() * 8;
+		actor->spr.pos.XY() = ps[p].pos.XY() + ps[p].angle.ang.ToVector() * 8;
 		return;
 	}
 

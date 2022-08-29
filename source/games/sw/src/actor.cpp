@@ -413,7 +413,7 @@ int DoActorDebris(DSWActor* actor)
         else
         {
             // todo: check correctness
-            DVector2 nvec(ACTORMOVETICS * maptoworld * actor->spr.angle.Cos(), ACTORMOVETICS * maptoworld * actor->spr.angle.Sin());
+            DVector2 nvec = ACTORMOVETICS * maptoworld * actor->spr.angle.ToVector();
 
             if (!move_debris(actor, nvec))
             {

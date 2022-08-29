@@ -921,12 +921,12 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		p->vel.Y = -p->angle.ang.Sin() * (1 << 22);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		fi.checkhitwall(p->GetActor(), wal, p->pos + DVector2(p->angle.ang.Cos() * 2, p->angle.ang.Sin() * 2), -1);
+		fi.checkhitwall(p->GetActor(), wal, p->pos + p->angle.ang.ToVector() * 2, -1);
 		break;
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal, p->pos + DVector2(p->angle.ang.Cos() * 2, p->angle.ang.Sin() * 2), -1);
+		fi.checkhitwall(p->GetActor(), wal, p->pos + p->angle.ang.ToVector() * 2, -1);
 		break;
 
 	}

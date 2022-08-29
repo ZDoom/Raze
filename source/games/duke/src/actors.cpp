@@ -790,8 +790,7 @@ void movecrane(DDukeActor *actor, int crane)
 		{
 			auto ang = ps[p].angle.ang;
 			ps[p].backupxyz();
-			ps[p].pos.X = actor->spr.pos.X - CRANE_STEP * ang.Cos();
-			ps[p].pos.Y = actor->spr.pos.Y - CRANE_STEP * ang.Sin();
+			ps[p].pos.XY() = actor->spr.pos.XY() - CRANE_STEP * ang.ToVector();
 			ps[p].pos.Z = actor->spr.pos.Z + 2;
 			SetActor(ps[p].GetActor(), ps[p].pos);
 			ps[p].setCursector(ps[p].GetActor()->sector());
@@ -4244,7 +4243,7 @@ void handle_se26(DDukeActor* actor)
 	double zvel = actor->spr.zvel * zinttoworld;
 
 	actor->spr.xvel = 32;
-	DVector2 vect = { 2 * actor->spr.angle.Cos(), 2 * actor->spr.angle.Sin() }; // was: (32 * bsin) >> 14
+	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * bsin) >> 14
 
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
