@@ -546,15 +546,14 @@ static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, i
 //
 //---------------------------------------------------------------------------
 
-static void renderDrawMapView(int cposx, int cposy, const double czoom, const DAngle cang)
+static void renderDrawMapView(const DVector2& cpos, const double czoom, const DAngle cang)
 {
-	int xvect = -cang.Sin() * 16384. * czoom;
-	int yvect = -cang.Cos() * 16384. * czoom;
+	double xvect = -cang.Sin() * czoom * (1. / 1024.);
+	double yvect = -cang.Cos() * czoom * (1. / 1024.);
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 	TArray<FVector4> vertices;
 	TArray<DCoreActor*> floorsprites;
-
 
 	for (int i = (int)sector.Size() - 1; i >= 0; i--)
 	{
@@ -592,11 +591,10 @@ static void renderDrawMapView(int cposx, int cposy, const double czoom, const DA
 			vertices.Resize(mesh->vertices.Size());
 			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{
-				int ox = int(mesh->vertices[j].X * 16.f) - cposx;
-				int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
-				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
-				vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
+				auto oxy = DVector2(mesh->vertices[j].X - cpos.X, -mesh->vertices[j].Y - cpos.Y);
+				float x1 = (oxy.X * xvect) - (oxy.Y * yvect) + (width * 0.5);
+				float y1 = (oxy.Y * xvect) + (oxy.X * yvect) + (height * 0.5);
+				vertices[j] = { x1, y1, mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
 
 			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
@@ -621,11 +619,10 @@ static void renderDrawMapView(int cposx, int cposy, const double czoom, const DA
 
 		for (unsigned j = 0; j < 4; j++)
 		{
-			int ox = int(pp[j].X * worldtoint) - cposx;
-			int oy = int(pp[j].Y * worldtoint) - cposy;
-			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
-			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
+			auto oxy = pp[j] - cpos;
+			float x1 = (oxy.X * xvect) - (oxy.Y * yvect) + (width * 0.5);
+			float y1 = (oxy.Y * xvect) + (oxy.X * yvect) + (height * 0.5);
+			vertices[j] = { x1, y1, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;
 		if ((actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = actor->sector()->ceilingshade;
@@ -664,13 +661,14 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 	}
 	int x = follow_x * worldtoint;
 	int y = follow_y * worldtoint;
+	const DVector2 follow(follow_x, follow_y);
 	follow_a = am_rotate ? pl_angle : DAngle::fromBuild(1536);
 	AutomapControl();
 
 	if (automapMode == am_full)
 	{
 		twod->ClearScreen();
-		renderDrawMapView(x, y, gZoom, follow_a);
+		renderDrawMapView(follow, gZoom, follow_a);
 	}
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);
