@@ -6521,7 +6521,6 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int daz;
     Collision retval{};
     int ox,oy;
 
@@ -6532,8 +6531,8 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     auto dasect = actor->sector();
     auto lastsect = dasect;
 
-    vec3_t opos = actor->int_pos();
-    daz = actor->int_pos().Z;
+    auto opos = actor->spr.pos;
+    double daz = actor->spr.pos.Z;
 
     // climbing a wall
     if (actor->user.z_tgt)
@@ -6564,12 +6563,12 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         // back up and try again
         dasect = actor->sector();
         lastsect = dasect;
-        opos = actor->int_pos();
+        opos = actor->spr.pos;
         opos.Z = daz;
         clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
-        actor->set_int_xy(opos.X, opos.Y);
+		actor->spr.pos.XY() = opos.XY();
     }
 
     if (dasect == nullptr)
