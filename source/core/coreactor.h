@@ -142,7 +142,7 @@ public:
 
 	double interpolatedz(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(opos.Z, spr.pos.Z, smoothratio, scale);
+		return interpolatedvaluef(opos.Z, spr.pos.Z, smoothratio, scale);
 	}
 
 	DVector2 interpolatedvec2(double const smoothratio, int const scale = 16)
