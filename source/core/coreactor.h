@@ -171,16 +171,6 @@ public:
 		return ::interpolatedangle(oang, spr.angle, smoothratio);
 	}
 
-	void backupx()
-	{
-		opos.X = spr.pos.X;
-	}
-
-	void backupy()
-	{
-		opos.Y = spr.pos.Y;
-	}
-
 	void backupz()
 	{
 		opos.Z = spr.pos.Z;
@@ -188,8 +178,7 @@ public:
 
 	void backupvec2()
 	{
-		backupx();
-		backupy();
+		opos.XY() = spr.pos.XY();
 	}
 
 	void backuppos()
