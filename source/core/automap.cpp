@@ -455,10 +455,10 @@ static void drawredlines(const DVector2& cpos, const double czoom, const DAngle 
 //
 //---------------------------------------------------------------------------
 
-static void drawwhitelines(int cposx, int cposy, const double czoom, const DAngle cang)
+static void drawwhitelines(const DVector2& cpos, const double czoom, const DAngle cang)
 {
-	int xvect = -cang.Sin() * 16384. * czoom;
-	int yvect = -cang.Cos() * 16384. * czoom;
+	double xvect = -cang.Sin() * czoom * (1. / 1024);
+	double yvect = -cang.Cos() * czoom * (1. / 1024);
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -474,17 +474,14 @@ static void drawwhitelines(int cposx, int cposy, const double czoom, const DAngl
 			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			int ox = wal.wall_int_pos().X - cposx;
-			int oy = wal.wall_int_pos().Y - cposy;
-			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
+			auto oxy1 = wal.pos - cpos;
+			double x1 = (oxy1.X * xvect) - (oxy1.Y * yvect) + (width * 0.5);
+			double y1 = (oxy1.Y * xvect) + (oxy1.X * yvect) + (height * 0.5);
 
-			int k = wal.point2;
-			auto wal2 = &wall[k];
-			ox = wal2->wall_int_pos().X - cposx;
-			oy = wal2->wall_int_pos().Y - cposy;
-			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
+			auto wal2 = wal.point2Wall();
+			auto oxy2 = wal2->pos - cpos;
+			double x2 = (oxy2.X * xvect) - (oxy2.Y * yvect) + (width * 0.5);
+			double y2 = (oxy2.Y * xvect) + (oxy2.X * yvect) + (height * 0.5);
 
 			drawlinergb(x1, y1, x2, y2, WhiteLineColor());
 		}
@@ -669,7 +666,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 		renderDrawMapView(follow, gZoom, follow_a);
 	}
 	drawredlines(follow, gZoom, follow_a);
-	drawwhitelines(x, y, gZoom, follow_a);
+	drawwhitelines(follow, gZoom, follow_a);
 	if (!gi->DrawAutomapPlayer(pl_x, pl_y, x, y, gZoom, follow_a, smoothratio))
 		DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
 
