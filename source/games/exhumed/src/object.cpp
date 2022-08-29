@@ -402,35 +402,35 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
 // done
 DExhumedActor* FindWallSprites(sectortype* pSector)
 {
-    int var_24 = 0x7FFFFFFF;
-    int ecx = 0x7FFFFFFF;
+    int min_x = 0x7FFFFFFF;
+    int min_y = 0x7FFFFFFF;
 
-    int esi = 0x80000002;
-    int edi = 0x80000002;
+    int max_x = 0x80000002;
+    int max_y = 0x80000002;
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        if (wal.wall_int_pos().X < var_24) {
-            var_24 = wal.wall_int_pos().X;
+        if (wal.wall_int_pos().X < min_x) {
+            min_x = wal.wall_int_pos().X;
         }
 
-        if (esi < wal.wall_int_pos().X) {
-            esi = wal.wall_int_pos().X;
+        if (max_x < wal.wall_int_pos().X) {
+            max_x = wal.wall_int_pos().X;
         }
 
-        if (ecx > wal.wall_int_pos().Y) {
-            ecx = wal.wall_int_pos().Y;
+        if (min_y > wal.wall_int_pos().Y) {
+            min_y = wal.wall_int_pos().Y;
         }
 
-        if (edi < wal.wall_int_pos().Y) {
-            edi = wal.wall_int_pos().Y;
+        if (max_y < wal.wall_int_pos().Y) {
+            max_y = wal.wall_int_pos().Y;
         }
     }
 
-    ecx -= 5;
-    esi += 5;
-    edi += 5;
-    var_24 -= 5;
+    min_y -= 5;
+    max_x += 5;
+    max_y += 5;
+    min_x -= 5;
 
     DExhumedActor* pAct = nullptr;
 
@@ -441,10 +441,10 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         {
             if ((actor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE)) == (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
             {
-                int var_28 = actor->int_pos().X;
-                int ebx = actor->int_pos().Y;
+                int act_x = actor->int_pos().X;
+                int act_y = actor->int_pos().Y;
 
-                if ((var_28 >= var_24) && (esi >= var_28) && (ebx >= ecx) && (ebx <= edi))
+                if ((act_x >= min_x) && (max_x >= act_x) && (act_y >= min_y) && (act_y <= max_y))
                 {
                     actor->pTarget = pAct;
                     pAct = actor;
@@ -457,7 +457,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     {
         pAct = insertActor(pSector, 401);
 
-        pAct->set_int_pos({ (var_24 + esi) / 2, (ecx + edi) / 2, pSector->int_floorz() });
+        pAct->set_int_pos({ (min_x + max_x) / 2, (min_y + max_y) / 2, pSector->int_floorz() });
         pAct->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         pAct->spr.intowner = -1;
         pAct->spr.lotag = 0;
@@ -466,7 +466,6 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
 
     return pAct;
 }
-
 int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
     auto ElevCount = Elevator.Reserve(1);
