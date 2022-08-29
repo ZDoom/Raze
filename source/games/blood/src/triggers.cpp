@@ -841,7 +841,6 @@ void PathSound(sectortype* pSector, int nSound)
 
 void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
 {
-	int x, y;
 	XSECTOR* pXSector = &pSector->xs();
 	int v20 = interpolatedvalue(a6, a9, a2);
 	int vc = interpolatedvalue(a6, a9, a3);
@@ -855,7 +854,9 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 
 	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
 	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
+	DVector2 aoffset = { (vc) * inttoworld, (v8) * inttoworld };
 	auto angle = DAngle::fromBuild(ang);
+	auto angleofs = DAngle::fromBuild(v14);
 
 	auto rotatewall = [=](walltype* wal, DAngle angle, const DVector2& offset)
 	{
@@ -870,16 +871,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				wal->move(vec);
 			});
 	};
-
-
-#ifdef NOONE_EXTENSIONS
-	// fix Y arg in RotatePoint for reverse (green) moving sprites?
-	int sprDy = (gModernMap) ? a5 : a4;
-#else
-	int sprDy = a4;
-#endif
-
-
+	
 	if (bAllWalls)
 	{
 		for (auto& wal : wallsofsector(pSector))
@@ -914,6 +906,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			}
 		}
 	}
+	
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
@@ -929,23 +922,24 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			break;
 		}
 
-		x = int(actor->basePoint.X * worldtoint);
-		y = int(actor->basePoint.Y * worldtoint);
+		int x = int(actor->basePoint.X * worldtoint);
+		int y = int(actor->basePoint.Y * worldtoint);
 		if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 		{
-			if (ang)
-				RotatePoint(&x, &y, ang, a4, a5);
+			auto spot = rotatepoint(pivot, actor->basePoint, angle);
 			viewBackupSpriteLoc(actor);
-			actor->set_int_ang((actor->int_ang() + v14) & 2047);
-			actor->set_int_xy(x + vc - a4, y + v8 - a5);
+			actor->spr.pos.XY() = spot + aoffset - pivot;
+			actor->spr.angle += angleofs;
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 		{
-			if (ang)
-				RotatePoint((int*)&x, (int*)&y, -ang, a4, sprDy);
+			// fix Y arg in RotatePoint for reverse (green) moving sprites. (Original Blood bug?)
+			DVector2 pivotDy(pivot.X, gModernMap ? pivot.Y : pivot.X);
+
+			auto spot = rotatepoint(pivotDy, actor->basePoint, angle);
 			viewBackupSpriteLoc(actor);
-			actor->set_int_ang((actor->int_ang() - v14) & 2047);
-			actor->set_int_xy(x - vc + a4, y - v8 + a5);
+			actor->spr.pos.XY() = spot - aoffset + pivot;
+			actor->spr.angle += angleofs;
 		}
 		else if (pXSector->Drag)
 		{
@@ -961,7 +955,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					RotatePoint(&pos.X, &pos.Y, v14, v20, v24);
 					actor->set_int_pos(pos);
 				}
-				actor->set_int_ang((actor->int_ang() + v14) & 2047);
+				actor->spr.angle += angleofs;
 				actor->add_int_pos({ v28, v2c, 0 });
 			}
 		}
@@ -981,23 +975,19 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 				if (ac == nullptr)
 					continue;
 
-				x = int(ac->basePoint.X * worldtoint);
-				y = int(ac->basePoint.Y * worldtoint);
 				if (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 				{
-					if (ang)
-						RotatePoint(&x, &y, ang, a4, a5);
+					auto spot = rotatepoint(pivot, ac->basePoint, angle);
 					viewBackupSpriteLoc(ac);
-					ac->set_int_ang((ac->int_ang() + v14) & 2047);
-					ac->set_int_xy(x + vc - a4, y + v8 - a5);
+					ac->spr.pos.XY() = spot + aoffset - pivot;
+					ac->spr.angle += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
-					if (ang)
-						RotatePoint(&x, &y, -ang, a4, sprDy);
+					auto spot = rotatepoint(pivot, ac->basePoint, angle);
 					viewBackupSpriteLoc(ac);
-					ac->set_int_ang((ac->int_ang() - v14) & 2047);
-					ac->set_int_xy(x + vc - a4, y + v8 - a5);
+					ac->spr.pos.XY() = spot - aoffset + pivot;
+					ac->spr.angle += angleofs;
 				}
 			}
 		}

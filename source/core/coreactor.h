@@ -96,12 +96,6 @@ public:
 		spr.pos = { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
 	}
 
-	void set_int_xy(int x, int y)
-	{
-		spr.pos.X = x * inttoworld;
-		spr.pos.Y = y * inttoworld;
-	}
-
 	constexpr int int_ang() const
 	{
 		return spr.angle.Buildang();
