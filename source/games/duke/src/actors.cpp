@@ -3185,18 +3185,14 @@ void handle_se03(DDukeActor *actor)
 
 	int palvals = actor->palvals;
 
-	//	if(actor->temp_data[5] > 0) { actor->temp_data[5]--; break; }
-
 	if ((global_random / (sh + 1) & 31) < 4 && !actor->temp_data[2])
 	{
-		//	   actor->temp_data[5] = 4+(global_random&7);
 		sc->ceilingpal = palvals >> 8;
 		sc->floorpal = palvals & 0xff;
 		actor->temp_data[0] = actor->spr.shade + (global_random & 15);
 	}
 	else
 	{
-		//	   actor->temp_data[5] = 4+(global_random&3);
 		sc->ceilingpal = actor->spr.pal;
 		sc->floorpal = actor->spr.pal;
 		actor->temp_data[0] = actor->temp_data[3];
