@@ -1505,7 +1505,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(tx, ty, tang.Buildang(), smoothratio);
+        DrawOverheadMap(tx, ty, tang, smoothratio);
     }
 
     SWSpriteIterator it;
@@ -1567,11 +1567,11 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, const DAngle cang, double const smoothratio)
 {
     int k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum;
     int xvect, yvect;
     walltype* wal, * wal2;
     short p;
@@ -1579,8 +1579,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     bool sprisplayer = false;
     short txt_x, txt_y;
 
-    xvect = -bsin(cang) * czoom;
-    yvect = -bcos(cang) * czoom;
+    xvect = -cang.Sin() * 16384. * czoom;
+    yvect = -cang.Cos() * 16384. * czoom;
 
     int xdim = twod->GetWidth() << 11;
     int ydim = twod->GetHeight() << 11;
@@ -1637,7 +1637,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
                         if (czoom > 192)
                         {
-                            daang = ((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)).Buildang() - cang) & 2047;
+                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;
@@ -1653,7 +1653,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                             double sc = czoom * (actor->spr.yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
                                     DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),
                                     DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
                             }

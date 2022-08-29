@@ -474,7 +474,7 @@ static void DrawMap(DBloodActor* view)
 	VIEW* pView = &gPrevView[gViewIndex];
 	int x = interpolatedvalue(pView->x, view->int_pos().X, gInterpolate);
 	int y = interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate);
-	int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).Buildang();
+	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate);
 	DrawOverheadMap(x, y, ang, gInterpolate);
 	if (tm)
 		setViewport(hud_size);
@@ -860,15 +860,15 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, const DAngle a, double const smoothratio)
 {
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		PLAYER* pPlayer = &gPlayer[i];
 		auto actor = pPlayer->actor;
 
-		int xvect = -bsin(a) * z;
-		int yvect = -bcos(a) * z;
+		int xvect = -a.Sin() * 16384. * z;
+		int yvect = -a.Cos() * 16384. * z;
 		int ox = mx - x;
 		int oy = my - y;
 		int x1 = DMulScale(ox, xvect, -oy, yvect, 16);

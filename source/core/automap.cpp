@@ -57,7 +57,8 @@ CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 int automapMode;
 static float am_zoomdir;
-int follow_x = INT_MAX, follow_y = INT_MAX, follow_a = INT_MAX;
+int follow_x = INT_MAX, follow_y = INT_MAX;
+DAngle follow_a = DAngle::fromDeg(INT_MAX);
 static int gZoom = 768;
 bool automapping;
 bool gFullMap;
@@ -239,11 +240,11 @@ void AutomapControl()
 			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
 				panvert -= keymove;
 
-			int momx = MulScale(panvert, bcos(follow_a), 9);
-			int momy = MulScale(panvert, bsin(follow_a), 9);
+			int momx = MulScale(panvert, follow_a.Cos() * 16384., 9);
+			int momy = MulScale(panvert, follow_a.Sin() * 16384., 9);
 
-			momx += MulScale(panhorz, bsin(follow_a), 9);
-			momy += MulScale(panhorz, -bcos(follow_a), 9);
+			momx += MulScale(panhorz, follow_a.Sin() * 16384., 9);
+			momy += MulScale(panhorz, -follow_a.Cos() * 16384., 9);
 
 			follow_x += int(momx * j);
 			follow_y += int(momy * j);
@@ -409,10 +410,10 @@ bool ShowRedLine(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-void drawredlines(int cposx, int cposy, int czoom, int cang)
+static void drawredlines(int cposx, int cposy, int czoom, const DAngle cang)
 {
-	int xvect = -bsin(cang) * czoom;
-	int yvect = -bcos(cang) * czoom;
+	int xvect = -cang.Sin() * 16384. * czoom;
+	int yvect = -cang.Cos() * 16384. * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -457,10 +458,10 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 //
 //---------------------------------------------------------------------------
 
-static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
+static void drawwhitelines(int cposx, int cposy, int czoom, const DAngle cang)
 {
-	int xvect = -bsin(cang) * czoom;
-	int yvect = -bcos(cang) * czoom;
+	int xvect = -cang.Sin() * 16384. * czoom;
+	int yvect = -cang.Cos() * 16384. * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -499,7 +500,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 //
 //---------------------------------------------------------------------------
 
-void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoom, int pl_angle)
+static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, int pl_y, int zoom, const DAngle pl_angle)
 {
 	int arrow[] =
 	{
@@ -508,11 +509,11 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 		0, 65536, 32768, 32878,
 	};
 
-	int xvect = -bsin(cang) * zoom;
-	int yvect = -bcos(cang) * zoom;
+	int xvect = -cang.Sin() * 16384. * zoom;
+	int yvect = -cang.Cos() * 16384. * zoom;
 
-	int pxvect = -bsin(pl_angle);
-	int pyvect = -bcos(pl_angle);
+	int pxvect = -pl_angle.Sin() * 16384.;
+	int pyvect = -pl_angle.Cos() * 16384.;
 
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
@@ -546,10 +547,10 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 //
 //---------------------------------------------------------------------------
 
-void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
+static void renderDrawMapView(int cposx, int cposy, int czoom, const DAngle cang)
 {
-	int xvect = -bsin(cang) * czoom;
-	int yvect = -bcos(cang) * czoom;
+	int xvect = -cang.Sin() * 16384. * czoom;
+	int yvect = -cang.Cos() * 16384. * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 	TArray<FVector4> vertices;
@@ -655,7 +656,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 //
 //---------------------------------------------------------------------------
 
-void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
+void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smoothratio)
 {
 	if (am_followplayer || follow_x == INT_MAX)
 	{
@@ -664,7 +665,7 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 	}
 	int x = follow_x;
 	int y = follow_y;
-	follow_a = am_rotate ? pl_angle : 1536;
+	follow_a = am_rotate ? pl_angle : DAngle::fromBuild(1536);
 	AutomapControl();
 
 	if (automapMode == am_full)

@@ -52,7 +52,7 @@ void DrawMap(double const smoothratio)
 
         int x = pPlayerActor->__interpolatedx(smoothratio);
         int y = pPlayerActor->__interpolatedy(smoothratio);
-        int ang = (!SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio)).Buildang();
+        auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio);
         DrawOverheadMap(x, y, ang, smoothratio);
     }
 }
@@ -69,14 +69,14 @@ void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
     }
 }
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, const DAngle a, double const smoothratio)
 {
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
 		auto pPlayerActor = PlayerList[i].pActor;
 
-        int xvect = -bsin(a) * z;
-        int yvect = -bcos(a) * z;
+        int xvect = -a.Sin() * 16384. * z;
+        int yvect = -a.Cos() * 16384. * z;
         int ox = mx - x;
         int oy = my - y;
         int x1 = DMulScale(ox, xvect, -oy, yvect, 16);

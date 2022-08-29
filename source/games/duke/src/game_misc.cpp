@@ -283,7 +283,7 @@ void drawoverlays(double smoothratio)
 				cposy = pp->player_int_opos().Y;
 				cang = pp->angle.oang;
 			}
-			DrawOverheadMap(cposx, cposy, cang.Buildang(), smoothratio);
+			DrawOverheadMap(cposx, cposy, cang, smoothratio);
 			RestoreInterpolations();
 		}
 	}
@@ -385,17 +385,17 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, const DAngle cang, double const smoothratio)
 {
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-	int xrepeat, yrepeat, tilenum, daang;
+	int xrepeat, yrepeat, tilenum;
 	int xvect, yvect;
 	int p;
 	PalEntry col;
 
-	xvect = -bsin(cang) * czoom;
-	yvect = -bcos(cang) * czoom;
+	xvect = -cang.Sin() * 16384. * czoom;
+	yvect = -cang.Cos() * 16384. * czoom;
 
 	int xdim = twod->GetWidth() << 11;
 	int ydim = twod->GetHeight() << 11;
@@ -559,7 +559,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		int xx = twod->GetWidth() / 2. + x1 / 4096.;
 		int yy = twod->GetHeight() / 2. + y1 / 4096.;
 
-		daang = ((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio / 65536.)).Buildang() - cang) & 2047;
+		auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
 
 		if (p == screenpeek || ud.coop == 1)
 		{
@@ -576,7 +576,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
 			DrawTexture(twod, tileGetTexture(i), xx, yy, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
-				DTA_Rotate, daang * -BAngToDegree, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
+				DTA_Rotate, daang, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
 	return true;
