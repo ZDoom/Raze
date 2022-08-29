@@ -149,7 +149,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		{
 			t->pos.X -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.X - pp->opos.X, 16);
 			t->pos.Y -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.Y - pp->opos.Y, 16);
-			t->pos.Z = interpolatedvalue(pp->opos.Z, pp->pos.Z, smoothratio) + gs.playerheight;
+			t->pos.Z = interpolatedvaluef(pp->opos.Z, pp->pos.Z, smoothratio) + gs.playerheight;
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
