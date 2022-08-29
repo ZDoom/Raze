@@ -318,13 +318,11 @@ void HWDrawInfo::DispatchSprites()
 
 		if (actor->sprext.renderflags & SPREXT_AWAY1)
 		{
-			tspr->add_int_x(bcos(tspr->int_ang(), -13));
-			tspr->add_int_y(bsin(tspr->int_ang(), -13));
+			tspr->pos.XY() += tspr->angle.ToVector() * 0.125;
 		}
 		else if (actor->sprext.renderflags & SPREXT_AWAY2)
 		{
-			tspr->add_int_x(-bcos(tspr->int_ang(), -13));
-			tspr->add_int_y(-bsin(tspr->int_ang(), -13));
+			tspr->pos.XY() -= tspr->angle.ToVector() * 0.125;
 		}
 
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
