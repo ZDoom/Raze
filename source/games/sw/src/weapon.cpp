@@ -10821,7 +10821,7 @@ int DoBloodWorm(DSWActor* actor)
         actor->user.change.X = -actor->user.change.X;
         actor->user.change.Y = -actor->user.change.Y;
         actor->user.coll.setNone();
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+        actor->spr.angle += DAngle180;
         return true;
     }
 
@@ -11233,7 +11233,7 @@ void InitSpellRing(PLAYER* pp)
         actorNew->add_int_pos({ MulScale(actorNew->user.Dist, bcos(actorNew->int_ang()), 14), MulScale(actorNew->user.Dist, bsin(actorNew->int_ang()), 14),
                 pp->int_ppos().Z + Z(20) + ((actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9) });
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+        actorNew->spr.angle += DAngle90;
 
         actorNew->backuppos();
 
@@ -13003,9 +13003,9 @@ int InitLaser(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13107,9 +13107,9 @@ int InitRail(PLAYER* pp)
     actor->spr.clipdist = 0;
     actorNew->spr.clipdist = 32L>>2;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 700);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13183,9 +13183,9 @@ int InitZillaRail(DSWActor* actor)
     actor->spr.clipdist = 0;
     actorNew->spr.clipdist = 32L>>2;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 700);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13289,9 +13289,9 @@ int InitRocket(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13394,9 +13394,9 @@ int InitBunnyRocket(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13487,9 +13487,9 @@ int InitNuke(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13566,9 +13566,9 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 500);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13673,10 +13673,10 @@ int InitMicro(PLAYER* pp)
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 0;
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+        actorNew->spr.angle += DAngle90;
         const int MICRO_LATERAL = 5000;
         HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - (MICRO_LATERAL / 2)));
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+        actorNew->spr.angle -= DAngle90;
 
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -14778,12 +14778,12 @@ int InitTracerUzi(PLAYER* pp)
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     if (pp->Flags & (PF_TWO_UZI) && pp->WpnUziType == 0)
         HelpMissileLateral(actorNew, lat_dist[RANDOM_P2(2<<8)>>8]);
     else
         HelpMissileLateral(actorNew, lat_dist[0]);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (MissileSetPos(actorNew, DoTracerStart, 800))
     {
@@ -16212,9 +16212,9 @@ int InitGrenade(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 800);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     // don't do smoke for this movement
     actorNew->user.Flags |= (SPR_BOUNCE);
@@ -16284,9 +16284,9 @@ int InitSpriteGrenade(DSWActor* actor)
     actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
     actorNew->user.change.Z = actorNew->spr.zvel;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 800);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     // don't do smoke for this movement
     actorNew->user.Flags |= (SPR_BOUNCE);
@@ -16389,9 +16389,9 @@ int InitEnemyMine(DSWActor* actor)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
     MissileSetPos(actorNew, DoMine, 300);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
     MissileSetPos(actorNew, DoMine, 300);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
 
     actorNew->user.change.Z = -5000;
     actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
@@ -16464,9 +16464,9 @@ int InitFireball(PLAYER* pp)
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
 
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + 512));
+    actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 2100);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 512));
+    actorNew->spr.angle -= DAngle90;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);

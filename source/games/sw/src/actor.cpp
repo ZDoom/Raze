@@ -446,7 +446,7 @@ int DoFireFly(DSWActor* actor)
     actor->spr.clipdist = 256>>2;
     if (!move_actor(actor, nx, ny, 0L))
     {
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+        actor->spr.angle += DAngle180;
     }
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;

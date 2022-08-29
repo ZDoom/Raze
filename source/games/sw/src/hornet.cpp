@@ -448,7 +448,7 @@ int DoHornetCircle(DSWActor* actor)
 
         // try moving in the opposite direction
         actor->user.Counter2 = -actor->user.Counter2;
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+        actor->spr.angle += DAngle180;
         nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
         ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
 

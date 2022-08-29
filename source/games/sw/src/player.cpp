@@ -2250,7 +2250,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
                 else
@@ -2258,7 +2258,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
 
@@ -2271,7 +2271,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
                 else
@@ -2279,7 +2279,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
 
@@ -2292,7 +2292,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
                 else
@@ -2300,7 +2300,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                        actor->spr.angle += DAngle180;
                     }
                 }
 
