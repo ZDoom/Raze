@@ -871,7 +871,7 @@ static void movetripbomb(DDukeActor *actor)
 		int16_t l = actor->int_ang();
 		actor->spr.angle = actor->temp_angle;
 
-		actor->temp_data[3] = actor->int_pos().X; actor->temp_data[4] = actor->int_pos().Y;
+		actor->temp_pos.XY() = actor->spr.pos.XY();
 		actor->spr.pos += actor->temp_angle.ToVector() * 2;
 		actor->spr.pos.Z -= 3;
 
@@ -923,7 +923,7 @@ static void movetripbomb(DDukeActor *actor)
 		}
 
 		actor->temp_data[0]++;
-		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
+		actor->spr.pos.XY() = actor->temp_pos.XY();
 		actor->spr.pos.Z += 3;//
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
@@ -939,15 +939,14 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[1]++;
 
 
-		actor->temp_data[3] = actor->int_pos().X; 
-		actor->temp_data[4] = actor->int_pos().Y;
+		actor->temp_pos.XY() = actor->spr.pos.XY();
 		actor->spr.pos += actor->temp_angle.ToVector() * 2;
 		actor->spr.pos.Z -= 3;
 		SetActor(actor, actor->spr.pos);
 
 		x = hitasprite(actor, nullptr);
 
-		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
+		actor->spr.pos.XY() = actor->temp_pos.XY();
 		actor->spr.pos.Z += 3;
 		SetActor(actor, actor->spr.pos);
 

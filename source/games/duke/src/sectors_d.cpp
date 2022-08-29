@@ -867,7 +867,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto effector = it.Next())
 		{
-			if (effector->spr.hitag == wal->lotag && effector->spr.lotag == 3)
+			if (effector->spr.hitag == wal->lotag && effector->spr.lotag == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
 			{
 				effector->temp_data[2] = j;
 				effector->temp_data[3] = darkestwall;

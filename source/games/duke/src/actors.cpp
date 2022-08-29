@@ -4248,7 +4248,7 @@ void handle_se26(DDukeActor* actor)
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
 	{
-		actor->set_int_xy( actor->temp_data[3], actor->temp_data[4]);
+		actor->spr.pos.XY() = actor->temp_pos.XY();
 		sc->addfloorz(-((zvel * actor->spr.shade) - zvel));
 		actor->spr.shade = 0;
 	}

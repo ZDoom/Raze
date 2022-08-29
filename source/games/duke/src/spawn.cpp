@@ -917,7 +917,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		{
 			if (actor->spr.lotag == 0)
 			{
-				if (sectp->lotag == 30)
+				if (sectp->lotag == SE_30_TWO_WAY_TRAIN)
 				{
 					if (actor->spr.pal) actor->spr.clipdist = 1;
 					else actor->spr.clipdist = 0;
@@ -1003,8 +1003,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			else if (actor->spr.lotag == SE_26)
 			{
-				actor->temp_data[3] = actor->int_pos().X;
-				actor->temp_data[4] = actor->int_pos().Y;
+				actor->temp_pos.XY() = actor->spr.pos.XY();
 				if (actor->spr.shade == sectp->floorshade) //UP
 					actor->spr.zvel = -256;
 				else
