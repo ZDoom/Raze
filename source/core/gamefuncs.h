@@ -246,9 +246,9 @@ inline int getangle(const vec2_t& vec)
 //
 //---------------------------------------------------------------------------
 
-inline constexpr int getincangle(int a, int na)
+inline constexpr int getincangle(unsigned a, unsigned na)
 {
-	return int(unsigned(na << 21) - unsigned(a << 21)) >> 21;
+	return int((na - a) << 21) >> 21;
 }
 
 

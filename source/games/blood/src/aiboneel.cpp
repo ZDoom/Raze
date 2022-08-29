@@ -118,7 +118,7 @@ static void eelThinkTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			int nDeltaAngle = ((getangle(dvect) + 1024 - actor->int_ang()) & 2047) - 1024;
+			int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvect));
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -180,7 +180,7 @@ static void eelThinkPonder(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((nAngle + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
 		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 		int height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat) << 2;
 		int top, bottom;
@@ -287,7 +287,7 @@ static void eelThinkChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((nAngle + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);

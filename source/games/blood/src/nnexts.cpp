@@ -7724,7 +7724,7 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
-	int vc = ((a3 + 1024 - actor->int_ang()) & 2047) - 1024;
+	int vc = getincangle(actor->int_ang(), a3);
 	int t1 = DMulScale(actor->vel.X, Cos(actor->int_ang()), actor->vel.Y, Sin(actor->int_ang()), 30);
 	int vsi = ((t1 * 15) >> 12) / 2;
 	int v8 = 341;
@@ -8139,7 +8139,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 void aiPatrolTurn(DBloodActor* actor)
 {
 	int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
+	int nAng = getincangle(actor->int_ang(), actor->xspr.goalAng);
 	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 }
@@ -8187,7 +8187,7 @@ void aiPatrolMove(DBloodActor* actor)
 	}
 
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	int nAng = ((actor->xspr.goalAng + 1024 - actor->int_ang()) & 2047) - 1024;
+	int nAng = getincangle(actor->int_ang(), actor->xspr.goalAng);
 	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
@@ -8392,7 +8392,7 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 	if (approxDist(dvect) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
 		return false;
 
-	return (abs(((getangle(dvect) + 1024 - victim->int_ang()) & 2047) - 1024) <= kAng45);
+	return abs(getincangle(victim->int_ang(), getangle(dvect))) <= kAng45;
 }
 
 //---------------------------------------------------------------------------
@@ -8583,7 +8583,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			if (seeDist)
 			{
 				int periphery = ClipLow(pDudeInfo->periphery, kAng60);
-				int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024);
+				int nDeltaAngle = abs(getincangle(actor->int_ang(), getangle(dx, dy)));
 				if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true)
 				{
 					int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));

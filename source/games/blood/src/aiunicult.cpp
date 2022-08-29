@@ -516,7 +516,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int losAngle = ((getangle(dx, dy) + 1024 - actor->int_ang()) & 2047) - 1024;
+	int losAngle = getincangle(actor->int_ang(), getangle(dx, dy));
 	double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 
 	if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos, target->sector(),
@@ -1173,7 +1173,7 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 
 	// TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
-	int vc = ((a3 + 1024 - actor->int_ang()) & 2047) - 1024;
+	int vc = getincangle(actor->int_ang(), a3);
 	int t1 = DMulScale(xvel, Cos(actor->int_ang()), yvel, Sin(actor->int_ang()), 30);
 	int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
 

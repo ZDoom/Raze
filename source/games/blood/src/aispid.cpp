@@ -206,7 +206,7 @@ static void spidThinkChase(DBloodActor* actor)
 	}
 
 	if (nDist <= pDudeInfo->seeDist) {
-		int nDeltaAngle = ((nAngle + 1024 - actor->int_ang()) & 2047) - 1024;
+		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
