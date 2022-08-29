@@ -428,36 +428,37 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 {
 	if (actj)
 	{
-		int snum, a;
+		int snum;
+		DAngle ang;
 
 		if (actj->isPlayer())
 		{
 			snum = actj->spr.yvel;
-			a = ps[snum].angle.ang.Buildang() - (krand() & 63) + 8;  //Fine tune
+			ang = ps[snum].angle.ang - DAngle::fromBuild((krand() & 63) + 8);  //Fine tune
 
 			act->temp_data[0] = krand() & 1;
-			act->set_int_z((3 << 8) + ps[snum].pyoff + ps[snum].player_int_pos().Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0));
+			act->spr.pos.Z = 3 + ps[snum].pos.Z + ps[snum].pyoff * zinttoworld - (ps[snum].horizon.sum().asbuildf() * (1/16.)) + (!isshell ? 3 : 0);
 			act->spr.zvel = -(krand() & 255);
 		}
 		else
 		{
-			a = act->int_ang();
+			ang = act->spr.angle;
 			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
 		}
 
-		act->set_int_xy(actj->int_pos().X + bcos(a, -7), actj->int_pos().Y + bsin(a, -7));
+		act->spr.pos.XY() = actj->spr.pos.XY() + ang.ToVector(8);
 
 		act->spr.shade = -8;
 
 		if (isNamWW2GI())
 		{
 			// to the right, with feeling
-			act->set_int_ang(a + 512);
+			act->spr.angle = ang + DAngle90;
 			act->spr.xvel = 30;
 		}
 		else
 		{
-			act->set_int_ang(a - 512);
+			act->spr.angle = ang - DAngle90;
 			act->spr.xvel = 20;
 		}
 
