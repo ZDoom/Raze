@@ -180,15 +180,6 @@ public:
 		return interpolatedz(smoothratio, scale) * zworldtoint;
 	}
 
-	vec2_t __interpolatedvec2(double const smoothratio, int const scale = 16)
-	{
-		return
-		{
-			(int)(interpolatedx(smoothratio, scale) * worldtoint),
-			(int)(interpolatedy(smoothratio, scale) * worldtoint)
-		};
-	}
-
 	DAngle interpolatedang(double const smoothratio)
 	{
 		return interpolatedangle(oang, spr.angle, smoothratio, 16);
