@@ -1539,7 +1539,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     }
 
     // increment Players delta angle
-    pp->RevolveDeltaAng = (pp->RevolveDeltaAng + GlobSpeedSO).Normalized360();
+    pp->RevolveDeltaAng += GlobSpeedSO;
 
     pp->pos.XY() = rotatepoint(sop->pmid.XY(), {pp->Revolve.X * inttoworld, pp->Revolve.Y * inttoworld}, pp->RevolveDeltaAng);
 

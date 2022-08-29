@@ -263,7 +263,7 @@ void RestartPlayer(int nPlayer)
 
 		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = nNStartSprite->spr.angle.Normalized360();
+		plr->angle.ang = nNStartSprite->spr.angle;
 		pActor->spr.angle = plr->angle.ang;
 
 		floorsprt = insertActor(pActor->sector(), 0);
