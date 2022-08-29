@@ -96,12 +96,6 @@ public:
 		spr.pos = { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
 	}
 
-	void copyXY(DCoreActor* other)
-	{
-		spr.pos.X = other->spr.pos.X;
-		spr.pos.Y = other->spr.pos.Y;
-	}
-
 	void set_int_xy(int x, int y)
 	{
 		spr.pos.X = x * inttoworld;

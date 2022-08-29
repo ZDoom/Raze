@@ -933,7 +933,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 						{
 							if (actor->int_ang() == 512)
 							{
-								actor->copyXY(act2);
+								actor->spr.pos.XY() = act2->spr.pos.XY();
 							}
 							found = true;
 							actor->SetOwner(act2);

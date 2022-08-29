@@ -444,7 +444,7 @@ int DoBloodSpray(DSWActor* actor)
 
                 actor->spr.xvel = actor->spr.yvel = actor->user.change.X = actor->user.change.Y = 0;
                 actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
-                actor->copyXY(bldActor);
+                actor->spr.pos.XY() = bldActor->spr.pos.XY();
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall

@@ -1022,7 +1022,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                     }
                 }
 
-                actor->copyXY(hitActor);
+                actor->spr.pos.XY() = hitActor->spr.pos.XY();
                 actor->spr.angle = hitActor->spr.angle;
                 actor->spr.angle += DAngle180;
                 HelpMissileLateral(actor, 2000);

@@ -2648,7 +2648,7 @@ void handle_se00(DDukeActor* actor)
 		if (actor->temp_data[3] == 0)
 			actor->temp_data[3] = ldist(actor, Owner);
 		actor->spr.xvel = actor->temp_data[3];
-		actor->copyXY(Owner);
+		actor->spr.pos.XY() = Owner->spr.pos.XY();
 		actor->add_int_ang((l * q));
 		actor->temp_data[2] += (l * q);
 	}

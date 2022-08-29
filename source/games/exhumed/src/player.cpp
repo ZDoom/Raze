@@ -1247,7 +1247,7 @@ sectdone:
         DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
-            pFloorActor->copyXY(pPlayerActor);
+            pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
 
             if (pFloorActor->sector() != pPlayerActor->sector())
             {

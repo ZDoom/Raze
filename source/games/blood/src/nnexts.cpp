@@ -3182,7 +3182,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	if (actor->sector() != sourceactor->sector())
 		ChangeActorSect(actor, sourceactor->sector());
 
-	actor->copyXY(sourceactor);
+	actor->spr.pos.XY() =sourceactor->spr.pos.XY();
 	int zTop, zBot;
 	GetActorExtents(sourceactor, &zTop, &zBot);
 	actor->set_int_z(zBot);
