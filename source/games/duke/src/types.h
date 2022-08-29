@@ -63,6 +63,7 @@ public:
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
 	DAngle temp_angle; // only used by TRIPBOMB
+	DVector3 temp_pos; // used by TRIPBOMB and SE_26.
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
