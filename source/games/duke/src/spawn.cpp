@@ -160,6 +160,7 @@ bool initspriteforspawn(DDukeActor* act)
 
 	act->temp_data[0] = act->temp_data[1] = act->temp_data[2] = act->temp_data[3] = act->temp_data[4] = act->temp_data[5] = 0;
 	act->temp_actor = nullptr;
+	act->temp_angle = nullAngle;
 
 	if (wallswitchcheck(act) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 	{

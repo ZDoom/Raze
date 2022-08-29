@@ -887,9 +887,9 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			bomb->spr.xvel = -20;
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-			auto delta = hit.hitWall->delta();
-			bomb->set_int_ang(getangle(-delta.X, -delta.Y) - 512);
-			bomb->temp_data[5] = bomb->int_ang();
+			auto delta = hit.hitWall->fdelta();
+			bomb->spr.angle = VecToAngle(-delta.X, -delta.Y) - DAngle90;
+			bomb->temp_angle = bomb->spr.angle;
 
 			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;

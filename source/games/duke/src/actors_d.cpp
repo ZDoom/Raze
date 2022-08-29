@@ -869,10 +869,11 @@ static void movetripbomb(DDukeActor *actor)
 	if (actor->temp_data[0] == 32)
 	{
 		int16_t l = actor->int_ang();
-		actor->set_int_ang(actor->temp_data[5]);
+		actor->spr.angle = actor->temp_angle;
 
 		actor->temp_data[3] = actor->int_pos().X; actor->temp_data[4] = actor->int_pos().Y;
-		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
+		actor->spr.pos += actor->temp_angle.ToVector(2);
+		actor->spr.pos.Z -= 3;
 
 		// Laser fix from EDuke32.
 		auto const oldSect = actor->sector();
@@ -907,7 +908,7 @@ static void movetripbomb(DDukeActor *actor)
 					}
 					x -= 1024;
 
-					actor->add_int_pos({ bcos(actor->temp_data[5], -4), bsin(actor->temp_data[5], -4), 0 });
+					actor->spr.pos += actor->temp_angle.ToVector(64);
 					updatesectorneighbor(actor->spr.pos, &curSect, 128);
 
 					if (curSect == nullptr)
@@ -923,7 +924,7 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->temp_data[0]++;
 		actor->set_int_xy(actor->temp_data[3], actor->temp_data[4]);
-		actor->spr.pos.Z += 3;
+		actor->spr.pos.Z += 3;//
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
@@ -940,7 +941,8 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->temp_data[3] = actor->int_pos().X; 
 		actor->temp_data[4] = actor->int_pos().Y;
-		actor->add_int_pos({ bcos(actor->temp_data[5], -9), bsin(actor->temp_data[5], -9), -(3 << 8) });
+		actor->spr.pos += actor->temp_angle.ToVector(2);
+		actor->spr.pos.Z -= 3;
 		SetActor(actor, actor->spr.pos);
 
 		x = hitasprite(actor, nullptr);

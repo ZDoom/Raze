@@ -243,7 +243,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = 0;
 		}
 
-		if (actj) act->set_int_ang(actj->temp_data[5] + 512);
+		if (actj) act->spr.angle = actj->temp_angle + DAngle90;
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
@@ -340,7 +340,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ssp(act, CLIPMASK0);
 		act->temp_data[0] = 17;
 		act->temp_data[2] = 0;
-		act->temp_data[5] = act->int_ang();
+		act->temp_angle = act->spr.angle;
 		[[fallthrough]];
 
 	case SPACEMARINE:
