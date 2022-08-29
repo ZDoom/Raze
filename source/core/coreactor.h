@@ -145,23 +145,9 @@ public:
 		return interpolatedvaluef(opos.Z, spr.pos.Z, smoothratio, scale);
 	}
 
-	DVector2 interpolatedvec2(double const smoothratio, int const scale = 16)
+	DVector3 interpolatedvec3(double const smoothratio)
 	{
-		return
-		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale)
-		};
-	}
-
-	DVector3 interpolatedvec3(double const smoothratio, int const scale = 16)
-	{
-		return
-		{
-			interpolatedx(smoothratio, scale),
-			interpolatedy(smoothratio, scale),
-			interpolatedz(smoothratio, scale)
-		};
+		return ::interpolatedvec3(opos, spr.pos, smoothratio);
 	}
 
 

@@ -570,7 +570,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
-    int smr4, smr2;
+    double smr4, smr2;
     static int ang = 0;
     PLAYER* pp = Player + screenpeek;
     int newshade=0;
@@ -580,8 +580,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
 
     ang = NORM_ANGLE(ang + 12);
 
-    smr4 = int(smoothratio) + IntToFixed(MoveSkip4);
-    smr2 = int(smoothratio) + IntToFixed(MoveSkip2);
+    smr4 = smoothratio + IntToFixed(MoveSkip4);
+    smr2 = smoothratio + IntToFixed(MoveSkip2);
 
     for (tSpriteNum = (int)tsprites.Size() - 1; tSpriteNum >= 0; tSpriteNum--)
     {
@@ -618,7 +618,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr4, 18);
+                        tsp->pos = tActor->interpolatedvec3(smr4 / 262144.);
                     }
                 }
 
@@ -626,7 +626,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr2, 17);
+                        tsp->pos = tActor->interpolatedvec3(smr2 / 131072.);
                     }
                 }
             }
