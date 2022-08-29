@@ -57,14 +57,14 @@ CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 int automapMode;
 static float am_zoomdir;
-int follow_x = INT_MAX, follow_y = INT_MAX;
+double follow_x = INT_MAX, follow_y = INT_MAX;
 DAngle follow_a = DAngle::fromDeg(INT_MAX);
 static double gZoom = 768;
 bool automapping;
 bool gFullMap;
 BitArray show2dsector;
 BitArray show2dwall;
-static int x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
+static double x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
 
 CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
 CVAR(Color, am_onesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
@@ -171,10 +171,10 @@ static void CalcMapBounds()
 	for(auto& wal : wall)
 	{
 		// get map min and max coordinates
-		if (wal.wall_int_pos().X < x_min_bound) x_min_bound = wal.wall_int_pos().X;
-		if (wal.wall_int_pos().Y < y_min_bound) y_min_bound = wal.wall_int_pos().Y;
-		if (wal.wall_int_pos().X > x_max_bound) x_max_bound = wal.wall_int_pos().X;
-		if (wal.wall_int_pos().Y > y_max_bound) y_max_bound = wal.wall_int_pos().Y;
+		if (wal.pos.X < x_min_bound) x_min_bound = wal.pos.X;
+		if (wal.pos.Y < y_min_bound) y_min_bound = wal.pos.Y;
+		if (wal.pos.X > x_max_bound) x_max_bound = wal.pos.X;
+		if (wal.pos.Y > y_max_bound) y_max_bound = wal.pos.Y;
 	}
 }
 
@@ -240,14 +240,13 @@ void AutomapControl()
 			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
 				panvert -= keymove;
 
-			int momx = MulScale(panvert, follow_a.Cos() * 16384., 9);
-			int momy = MulScale(panvert, follow_a.Sin() * 16384., 9);
+			auto fcos = follow_a.Cos();
+			auto fsin = follow_a.Sin();
+			auto momx = (panvert * fcos * 8) + (panhorz * fsin * 8);
+			auto momy = (panvert * fsin * 8) - (panhorz * fcos * 8);
 
-			momx += MulScale(panhorz, follow_a.Sin() * 16384., 9);
-			momy += MulScale(panhorz, -follow_a.Cos() * 16384., 9);
-
-			follow_x += int(momx * j);
-			follow_y += int(momy * j);
+			follow_x += momx * j;
+			follow_y += momy * j;
 
 			if (x_min_bound == INT_MAX) CalcMapBounds();
 			follow_x = clamp(follow_x, x_min_bound, x_max_bound);
@@ -660,11 +659,11 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 {
 	if (am_followplayer || follow_x == INT_MAX)
 	{
-		follow_x = pl_x;
-		follow_y = pl_y;
+		follow_x = pl_x * inttoworld;
+		follow_y = pl_y * inttoworld;
 	}
-	int x = follow_x;
-	int y = follow_y;
+	int x = follow_x * worldtoint;
+	int y = follow_y * worldtoint;
 	follow_a = am_rotate ? pl_angle : DAngle::fromBuild(1536);
 	AutomapControl();
 
