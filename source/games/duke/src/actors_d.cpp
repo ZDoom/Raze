@@ -449,13 +449,13 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	auto dasectp = actor->sector();
 
-	vec3_t pos = actor->int_pos();
-	pos.Z -= ((tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 1);
+	auto ppos = actor->spr.pos;
+	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) * REPEAT_SCALE * 0.5;
 
 	if (bg)
 	{
 		if (actor->spr.xrepeat > 60)
-			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
 			if (actor->spr.picnum == LIZMAN)
@@ -465,7 +465,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			else
 				clipdist = 192;
 
-			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -490,11 +490,11 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	else
 	{
 		if (actor->spr.statnum == STAT_PROJECTILE)
-			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->spr.clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->spr.clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
-	actor->set_int_xy(pos.X, pos.Y);
+	actor->spr.pos.XY() = ppos.XY();
 
 	if (dasectp != nullptr && dasectp != actor->sector())
 		ChangeActorSect(actor, dasectp);
