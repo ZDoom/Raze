@@ -59,7 +59,7 @@ int automapMode;
 static float am_zoomdir;
 int follow_x = INT_MAX, follow_y = INT_MAX;
 DAngle follow_a = DAngle::fromDeg(INT_MAX);
-static int gZoom = 768;
+static double gZoom = 768;
 bool automapping;
 bool gFullMap;
 BitArray show2dsector;
@@ -186,9 +186,9 @@ static void CalcMapBounds()
 
 void AutomapControl()
 {
-	static int nonsharedtimer;
-	int ms = (int)screen->FrameTime;
-	int interval;
+	static double nonsharedtimer;
+	double ms = screen->FrameTime;
+	double interval;
 	int panvert = 0, panhorz = 0;
 
 	if (nonsharedtimer > 0 || ms < nonsharedtimer)
@@ -209,22 +209,22 @@ void AutomapControl()
 		const int keymove = 4;
 		if (am_zoomdir > 0)
 		{
-			gZoom = xs_CRoundToInt(gZoom * am_zoomdir);
+			gZoom = gZoom * am_zoomdir;
 		}
 		else if (am_zoomdir < 0)
 		{
-			gZoom = xs_CRoundToInt(gZoom / -am_zoomdir);
+			gZoom = gZoom / -am_zoomdir;
 		}
 		am_zoomdir = 0;
 
 		double j = interval * 35. / gZoom;
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += (int)MulScaleF(j, max(gZoom, 256), 6);
+			gZoom += MulScaleF(j, max(gZoom, 256.), 6);
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= (int)MulScaleF(j, max(gZoom, 256), 6);
+			gZoom -= MulScaleF(j, max(gZoom, 256.), 6);
 
-		gZoom = clamp(gZoom, 48, 2048);
+		gZoom = clamp(gZoom, 48., 2048.);
 
 		if (!am_followplayer)
 		{
@@ -410,7 +410,7 @@ bool ShowRedLine(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-static void drawredlines(int cposx, int cposy, int czoom, const DAngle cang)
+static void drawredlines(int cposx, int cposy, const double czoom, const DAngle cang)
 {
 	int xvect = -cang.Sin() * 16384. * czoom;
 	int yvect = -cang.Cos() * 16384. * czoom;
@@ -458,7 +458,7 @@ static void drawredlines(int cposx, int cposy, int czoom, const DAngle cang)
 //
 //---------------------------------------------------------------------------
 
-static void drawwhitelines(int cposx, int cposy, int czoom, const DAngle cang)
+static void drawwhitelines(int cposx, int cposy, const double czoom, const DAngle cang)
 {
 	int xvect = -cang.Sin() * 16384. * czoom;
 	int yvect = -cang.Cos() * 16384. * czoom;
@@ -500,7 +500,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, const DAngle cang)
 //
 //---------------------------------------------------------------------------
 
-static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, int pl_y, int zoom, const DAngle pl_angle)
+static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, int pl_y, const double czoom, const DAngle pl_angle)
 {
 	int arrow[] =
 	{
@@ -509,8 +509,8 @@ static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, i
 		0, 65536, 32768, 32878,
 	};
 
-	int xvect = -cang.Sin() * 16384. * zoom;
-	int yvect = -cang.Cos() * 16384. * zoom;
+	int xvect = -cang.Sin() * 16384. * czoom;
+	int yvect = -cang.Cos() * 16384. * czoom;
 
 	int pxvect = -pl_angle.Sin() * 16384.;
 	int pyvect = -pl_angle.Cos() * 16384.;
@@ -547,7 +547,7 @@ static void DrawPlayerArrow(int cposx, int cposy, const DAngle cang, int pl_x, i
 //
 //---------------------------------------------------------------------------
 
-static void renderDrawMapView(int cposx, int cposy, int czoom, const DAngle cang)
+static void renderDrawMapView(int cposx, int cposy, const double czoom, const DAngle cang)
 {
 	int xvect = -cang.Sin() * 16384. * czoom;
 	int yvect = -cang.Cos() * 16384. * czoom;

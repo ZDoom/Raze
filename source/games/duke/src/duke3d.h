@@ -50,7 +50,7 @@ struct GameInterface : public ::GameInterface
 	void NextLevel(MapRecord* map, int skill) override;
 	void NewGame(MapRecord* map, int skill, bool) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
-	bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, const DAngle a, double const smoothratio) override;
+	bool DrawAutomapPlayer(int mx, int my, int x, int y, const double z, const DAngle a, double const smoothratio) override;
 	int playerKeyMove() override { return 40; }
 	void WarpToCoords(int x, int y, int z, int a, int h) override;
 	void ToggleThirdPerson() override;

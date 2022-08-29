@@ -107,7 +107,7 @@ struct GameInterface
 	virtual void NextLevel(MapRecord* map, int skill) {}
 	virtual void NewGame(MapRecord* map, int skill, bool special = false) {}
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
-	virtual bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, const DAngle a, double const smoothratio) { return false; }
+	virtual bool DrawAutomapPlayer(int mx, int my, int x, int y, const double z, const DAngle a, double const smoothratio) { return false; }
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
 	virtual fixed_t playerHorizMin() { return IntToFixed(-200); }
 	virtual fixed_t playerHorizMax() { return IntToFixed(200); }

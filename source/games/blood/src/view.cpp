@@ -860,7 +860,7 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, const DAngle a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, const double z, const DAngle a, double const smoothratio)
 {
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{

@@ -385,7 +385,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, const DAngle cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, const double czoom, const DAngle cang, double const smoothratio)
 {
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
