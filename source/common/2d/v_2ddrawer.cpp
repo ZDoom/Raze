@@ -1075,7 +1075,7 @@ void F2DDrawer::AddLine(double x1, double y1, double x2, double y2, const IntRec
 //
 //==========================================================================
 
-void F2DDrawer::AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha)
+void F2DDrawer::AddThickLine(double x1, double y1, double x2, double y2, double thickness, uint32_t color, uint8_t alpha)
 {
 	PalEntry p = (PalEntry)color;
 	p.a = alpha;

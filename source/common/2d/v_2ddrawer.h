@@ -228,7 +228,7 @@ public:
 
 
 	void AddLine(double x1, double y1, double x2, double y2, const IntRect* clip, uint32_t color, uint8_t alpha = 255);
-	void AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha = 255);
+	void AddThickLine(double x1, double y1, double x2, double y2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
 
 	void AddEnableStencil(bool on);
