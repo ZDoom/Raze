@@ -47,6 +47,7 @@
 #include "xs_Float.h"
 #include "math/cmath.h"
 #include "basics.h"
+#include "cmdlib.h"
 
 
 #define EQUAL_EPSILON (1/65536.)
