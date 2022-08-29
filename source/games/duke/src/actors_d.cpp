@@ -878,7 +878,7 @@ static void movetripbomb(DDukeActor *actor)
 		auto const oldSect = actor->sector();
 		auto       curSect = actor->sector();
 
-		updatesectorneighbor(actor->int_pos().X, actor->int_pos().Y, &curSect, 2048);
+		updatesectorneighbor(actor->spr.pos, &curSect, 128);
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
@@ -908,7 +908,7 @@ static void movetripbomb(DDukeActor *actor)
 					x -= 1024;
 
 					actor->add_int_pos({ bcos(actor->temp_data[5], -4), bsin(actor->temp_data[5], -4), 0 });
-					updatesectorneighbor(actor->int_pos().X, actor->int_pos().Y, &curSect, 2048);
+					updatesectorneighbor(actor->spr.pos, &curSect, 128);
 
 					if (curSect == nullptr)
 						break;
