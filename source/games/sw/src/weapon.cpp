@@ -16713,7 +16713,6 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     int i;
     auto sectu = actor->sector();
     bool Found = false;
-    int sx, sy;
     DSWActor* overActor = nullptr;
     DSWActor* underActor = nullptr;
 
@@ -16752,12 +16751,8 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     ASSERT(Found);
 
-    // get the offset from the sprite
-    sx = overActor->int_pos().X - actor->int_pos().X;
-    sy = overActor->int_pos().Y - actor->int_pos().Y;
-
     // update to the new x y position
-    actor->set_int_xy(underActor->int_pos().X - sx, underActor->int_pos().Y - sy);
+	actor->spr.pos.XY() += (underActor->spr.pos.XY() - overActor->spr.pos.XY());
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -16771,7 +16766,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    actor->set_int_z(underActor->sector()->int_ceilingz() + actor->user.int_ceiling_dist() + Z(1));
+    actor->spr.pos.Z = underActor->sector()->ceilingz + actor->user.ceiling_dist+ 1;
 
     actor->backuppos();
 
