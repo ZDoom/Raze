@@ -941,7 +941,10 @@ struct USER
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
 	vec3_t int_change() const { return change; }
-	
+	void set_int_change_x(int x) { change.X = x; }
+	void set_int_change_y(int x) { change.Y = x; }
+	void set_int_change_z(int x) { change.Z = x; }
+
 	// frequently repeated patterns
 	void clearChange() { change.X = change.Y = change.Z = 0; }
 	void clearChangeXY() { change.X = change.Y = 0; }
