@@ -11027,8 +11027,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     actor->spr.zvel = short((actor->spr.zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
-    actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
+	UpdateChangeXY(actor);
     actor->user.change.Z = actor->spr.zvel;
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
@@ -11068,8 +11067,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     zvel = short((zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
-    actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
-    actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
+	UpdateChangeXY(actor);
     actor->user.change.Z = zvel;
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
@@ -11580,8 +11578,7 @@ void InitSpellNapalm(PLAYER* pp)
             actor->set_int_ang(NORM_ANGLE(actor->int_ang() - mp[i].ang));
         }
 
-        actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
-        actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
+		UpdateChangeXY(actor);
         actor->user.change.Z = actor->spr.zvel;
 
         if (MissileSetPos(actor, DoNapalm, mp[i].dist_out))
@@ -12635,8 +12632,7 @@ int InitStar(PLAYER* pp)
         // move the same as middle star
         zvel = actorNew->user.change.Z;
 
-        actorNew2->user.change.X = MOVEx(actorNew2->spr.xvel, actorNew2->int_ang());
-        actorNew2->user.change.Y = MOVEy(actorNew2->spr.xvel, actorNew2->int_ang());
+		UpdateChangeXY(actorNew2);
         actorNew2->user.change.Z = zvel;
 
         actorNew2->backuppos();
@@ -16960,8 +16956,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
 
     actorNew->spr.angle = RANDOM_ANGLE();
     actorNew->spr.xvel = RANDOM_P2(32);
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
 
     return false;

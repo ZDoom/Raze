@@ -1281,8 +1281,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
@@ -1322,8 +1321,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // Smoke will come out for this many seconds
@@ -1639,8 +1637,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     // adjust xvel according to player velocity
@@ -1717,8 +1714,7 @@ int InitPhosphorus(DSWActor* actor)
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = (actorNew->spr.zvel >> 1);
 
     return 0;
@@ -2198,8 +2194,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags &= ~(SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = actorNew->spr.zvel;
 
     actorNew->user.jump_speed = 200;

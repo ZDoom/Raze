@@ -3497,8 +3497,7 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
         actor->spr.zvel = -(((int)SP_TAG8(spawner))<<5);
 
-        actor->user.change.X = MOVEx(actor->spr.xvel, actor->int_ang());
-        actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
+		UpdateChangeXY(actor);
         actor->user.change.Z = actor->spr.zvel;
     }
 }
