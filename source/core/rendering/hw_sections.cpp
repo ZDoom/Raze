@@ -482,7 +482,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 					builder.sections.Last().loops.Push(std::move(loop));
 					for (auto c: outside[a])
 					{
-						if (inside[c] == a)
+						if (inside[c] == (int)a)
 						{
 							auto& iloop = sectloops[c];
 							builder.sections.Last().wallcount += iloop.Size() - 1;
