@@ -380,7 +380,6 @@ struct walltype
 
 	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtoint, pos.Y * worldtoint); };
 	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
-	vec2_t int_center() const { return(point2Wall()->wall_int_pos() + wall_int_pos()) / 2; }
 
 	void setPosFromMap(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
 

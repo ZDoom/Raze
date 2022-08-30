@@ -424,7 +424,7 @@ int DoBloodSpray(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->int_delta()) + 512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             SpawnMidSplash(actor);
             auto bldActor = QueueWallBlood(actor, NORM_ANGLE(wall_ang+1024));
@@ -618,7 +618,7 @@ int DoPhosphorus(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->int_delta()) + 512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -823,7 +823,7 @@ int DoChemBomb(DSWActor* actor)
             if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
-            int wall_ang = NORM_ANGLE(getangle(wph->int_delta()) + 512);
+            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -1037,7 +1037,7 @@ int DoCaltrops(DSWActor* actor)
 
             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
 
-            int wall_ang = NORM_ANGLE(getangle(wph->int_delta()) + 512);
+            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 1000);

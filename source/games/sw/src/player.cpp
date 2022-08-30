@@ -1567,7 +1567,7 @@ void SlipSlope(PLAYER* pp)
     if (!(sectu->flags & SECTFU_SLIDE_SECTOR) || !(pp->cursector->floorstat & CSTAT_SECTOR_SLOPE))
         return;
 
-    ang = getangle(pp->cursector->firstWall()->int_delta());
+    ang = getangle(pp->cursector->firstWall()->delta());
 
     ang = NORM_ANGLE(ang + 512);
 
@@ -5835,7 +5835,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         }
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(plActor->user.coll.hitWall->int_delta())-512);
+            int wall_ang = NORM_ANGLE(getangle(plActor->user.coll.hitWall->delta())-512);
 
             int dang = getincangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);

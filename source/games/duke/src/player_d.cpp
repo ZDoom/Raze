@@ -513,8 +513,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							if (hole)
 							{
 								hole->spr.xvel = -1;
-								auto delta = hit.hitWall->int_delta();
-								hole->set_int_ang(getangle(-delta.X, -delta.Y) + 512);
+								hole->set_int_ang(getangle(-hit.hitWall->delta()) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}

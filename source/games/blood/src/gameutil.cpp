@@ -236,8 +236,7 @@ bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 
 int GetWallAngle(walltype* pWall)
 {
-	auto delta = pWall->int_delta();
-	return getangle(delta.X, delta.Y);
+	return getangle(pWall->delta());
 }
 
 void GetWallNormal(walltype* pWall, int* pX, int* pY)

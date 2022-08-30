@@ -681,8 +681,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (spawned)
 					{
 						spawned->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
-						auto delta = wal->int_delta();
-						spawned->set_int_ang(getangle(-delta.X, -delta.Y) - 512);
+						spawned->set_int_ang(getangle(-wal->delta()) - 512);
 
 						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 					}

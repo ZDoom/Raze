@@ -7472,7 +7472,7 @@ int DoStar(DSWActor* actor)
             if (RANDOM_P2(1024) < STAR_BOUNCE_RNUM)
                 break;
 
-            wall_ang = NORM_ANGLE(getangle(wph->int_delta())+512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 36000);
@@ -8168,7 +8168,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
 
     // get angle of the first wall of the sector
     auto wallp = hit_sector->firstWall();
-    daang = getangle(wallp->int_delta());
+    daang = getangle(wallp->delta());
 
     // k is now the slope of the ceiling or floor
 
@@ -8285,7 +8285,7 @@ int DoGrenade(DSWActor* actor)
 
             PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
-            wall_ang = NORM_ANGLE(getangle(wph->int_delta())+512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
 
             //actor->spr.angle = NORM_ANGLE(actor->spr.angle + 1);
             WallBounce(actor, wall_ang);
@@ -8483,7 +8483,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->int_delta())+512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 40000);
@@ -14970,7 +14970,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 
     if (hit_wall)
     {
-        int16_t const wall_ang = NORM_ANGLE(getangle(hit_wall->int_delta()));
+        int16_t const wall_ang = NORM_ANGLE(getangle(hit_wall->delta()));
         actor->set_int_ang(NORM_ANGLE(wall_ang + 512));
     }
     ang = actor->int_ang();
@@ -17259,7 +17259,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(hit_wall->int_delta())+512);
+    wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
     spawnedActor->set_int_ang(wall_ang);
 
     // move it back some
@@ -17570,7 +17570,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(hit.hitWall->int_delta()) + 512);
+    wall_ang = NORM_ANGLE(getangle(hit.hitWall->delta()) + 512);
     spawnedActor->set_int_ang(wall_ang);
 
     // move it back some
@@ -17802,7 +17802,7 @@ int DoShrapVelocity(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->int_delta())+512);
+            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta())+512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -18118,7 +18118,7 @@ int DoItemFly(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->int_delta())+512);
+            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta())+512);
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;
