@@ -1269,22 +1269,13 @@ void DoPlayerTeleportPause(PLAYER* pp)
     }
 }
 
-void DoPlayerTeleportToSprite(PLAYER* pp, vec3_t* pos, int ang)
+void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
-    pp->angle.ang = pp->angle.oang = DAngle::fromBuild(ang);
-    pp->set_int_ppos_XY(pos->XY());
+    pp->angle.ang = pp->angle.oang = ang;
+	pp->opos = pp->pos= pos.plusZ(-PLAYER_HEIGHTF);
+	pp->oldpos.XY() = pp->pos.XY();
 
-    pp->oldpos.XY() = pp->opos.XY() = pp->pos.XY();
-
-    
-    //getzsofslopeptr(actor->s
-    // ector(), pp->posx, pp->posy, &cz, &fz);
-    //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
-
-    pp->set_int_ppos_Z(pos->Z - PLAYER_HEIGHT);
-    pp->opos.Z = pp->pos.Z;
-
-    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+    updatesector(pp->pos, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -1365,9 +1356,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         break;
     default:
     {
-        auto pos = act_warp->int_pos();
-        DoPlayerTeleportToSprite(pp, &pos, act_warp->int_ang());
-        act_warp->set_int_pos(pos);
+        DoPlayerTeleportToSprite(pp, act_warp->spr.pos, act_warp->spr.angle);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
