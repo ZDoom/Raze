@@ -403,10 +403,6 @@ struct player_struct
 		pos.Z  += z * zinttoworld;
 	}
 
-	void player_set_int_z(int z)
-	{
-		pos.Z  = z * zinttoworld;
-	}
 	void player_add_int_xy(const vec2_t& v)
 	{
 		pos.X  += v.X * inttoworld;
