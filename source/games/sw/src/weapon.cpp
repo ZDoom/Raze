@@ -3693,7 +3693,7 @@ AutoShrap:
             }
 
             // for FastShrap
-            actor->user.change.Z = abs(actor->user.jump_speed*4) - RandomRange(labs(actor->user.jump_speed)*8)*2;
+            actor->user.set_int_change_z(abs(actor->user.jump_speed*4) - RandomRange(labs(actor->user.jump_speed)*8)*2);
             actor->user.WaitTics = WaitTics + RandomRange(WaitTics/2);
 
             switch (actor->user.ID)
@@ -4154,7 +4154,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 			UpdateChangeXY(actorNew);
 
             // for FastShrap
-            actorNew->user.change.Z = abs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8);
+            actorNew->user.set_int_change_z(abs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8));
             actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
             actor->user.Flags |= (SPR_BOUNCE);
@@ -7772,8 +7772,8 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
 
         oz = actor->user.int_change().Z;
 
-        actor->user.change.Z = Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist);
-        actor->user.change.Z = (actor->user.change.Z + oz*15)/16;
+        actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
+        actor->user.set_int_change_z((actor->user.int_change().Z + oz*15)/16);
     }
     return 0;
 }
@@ -7846,13 +7846,13 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
         actor->user.set_int_change_x(Scale(actor->spr.xvel, goal->int_pos().X - actor->int_pos().X, dist));
         actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
-        actor->user.change.Z = Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist);
+        actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
 
         // the large turn_speed is the slower the turn
 
         actor->user.set_int_change_x((actor->user.change.X + ox*(turn_speed-1))/turn_speed);
         actor->user.set_int_change_y((actor->user.change.Y + oy*(turn_speed-1))/turn_speed);
-        actor->user.change.Z = (actor->user.change.Z + oz*(turn_speed-1))/turn_speed;
+        actor->user.set_int_change_z((actor->user.change.Z + oz*(turn_speed-1))/turn_speed);
 
         SetAngleFromChange(actor);
     }
@@ -7904,11 +7904,11 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
 
         actor->user.set_int_change_x(Scale(actor->spr.xvel, goal->int_pos().X - actor->int_pos().X, dist));
         actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
-        actor->user.change.Z = Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist);
+        actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
 
         actor->user.set_int_change_x((actor->user.change.X + ox*7)/8);
         actor->user.set_int_change_y((actor->user.change.Y + oy*7)/8);
-        actor->user.change.Z = (actor->user.change.Z + oz*7)/8;
+        actor->user.set_int_change_z((actor->user.change.Z + oz*7)/8);
 
 		SetAngleFromChange(actor);
     }
@@ -8096,7 +8096,7 @@ void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez)
 {
 	actor->user.set_int_change_x(MulScale(actor->user.int_change().X, scalex, 16));
 	actor->user.set_int_change_y(MulScale(actor->user.int_change().Y, scaley, 16));
-	actor->user.change.Z = MulScale(actor->user.int_change().Z, scalez, 16);
+	actor->user.set_int_change_z(MulScale(actor->user.int_change().Z, scalez, 16));
 }
 
 void ScaleSpriteVector(DSWActor* actor, int scale)
@@ -8521,7 +8521,7 @@ int DoVulcanBoulder(DSWActor* actor)
 
                         // limit to a reasonable bounce value
                         if (actor->user.int_change().Z > Z(32))
-                            actor->user.change.Z = Z(32);
+                            actor->user.set_int_change_z(Z(32));
                     }
                     else
                     {
@@ -8544,7 +8544,7 @@ int DoVulcanBoulder(DSWActor* actor)
 
                     // limit to a reasonable bounce value
                     if (actor->user.int_change().Z > Z(24))
-                        actor->user.change.Z = Z(24);
+                        actor->user.set_int_change_z(Z(24));
 
                     actor->user.invertChangeZ();
 
@@ -11035,7 +11035,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     // reset values
     actor->user.set_int_change_x(oldxc);
     actor->user.set_int_change_y(oldyc);
-    actor->user.change.Z = oldzc;
+    actor->user.set_int_change_z(oldzc);
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -11065,7 +11065,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 
     // some Weapon Animators use this
 	UpdateChangeXY(actor);
-    actor->user.change.Z = zvel;
+    actor->user.set_int_change_z(zvel);
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
@@ -11075,7 +11075,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     // reset values
     actor->user.set_int_change_x(oldxc);
     actor->user.set_int_change_y(oldyc);
-    actor->user.change.Z = oldzc;
+    actor->user.set_int_change_z(oldzc);
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -11376,7 +11376,7 @@ int InitLavaThrow(DSWActor* actor)
     dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
 
     return 0;
 }
@@ -11443,7 +11443,7 @@ void InitVulcanBoulder(DSWActor* actor)
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = -Z(zvel) + -Z(RandomRange(zvel_rand));
+    actorNew->user.set_int_change_z(-Z(zvel) + -Z(RandomRange(zvel_rand)));
 }
 
 int InitSerpRing(DSWActor* actor)
@@ -11732,7 +11732,7 @@ int InitEnemyMirv(DSWActor* actor)
 	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
     return 0;
 }
 
@@ -12585,7 +12585,7 @@ int InitStar(PLAYER* pp)
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -12624,7 +12624,7 @@ int InitStar(PLAYER* pp)
         zvel = actorNew->user.int_change().Z;
 
 		UpdateChangeXY(actorNew2);
-        actorNew2->user.change.Z = zvel;
+        actorNew2->user.set_int_change_z(zvel);
 
         actorNew2->backuppos();
     }
@@ -13099,7 +13099,7 @@ int InitRail(PLAYER* pp)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     return 0;
 }
@@ -13174,7 +13174,7 @@ int InitZillaRail(DSWActor* actor)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     return 0;
 }
@@ -13283,7 +13283,7 @@ int InitRocket(PLAYER* pp)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     return 0;
 }
@@ -13387,7 +13387,7 @@ int InitBunnyRocket(PLAYER* pp)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER1;
 
     return 0;
@@ -13479,7 +13479,7 @@ int InitNuke(PLAYER* pp)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     PlayerDamageSlide(pp, -40, NORM_ANGLE(pp->angle.ang.Buildang()+1024)); // Recoil slide
 
@@ -13555,7 +13555,7 @@ int InitEnemyNuke(DSWActor* actor)
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     return 0;
 }
@@ -14169,7 +14169,7 @@ int InitEnemyRocket(DSWActor* actor)
 	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
 
     return 0;
 }
@@ -14244,7 +14244,7 @@ int InitEnemyRail(DSWActor* actor)
 	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
 
     return 0;
 }
@@ -14313,7 +14313,7 @@ int InitZillaRocket(DSWActor* actor)
 		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
         if (dist != 0)
-            actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+            actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
     }
 
     return 0;
@@ -14346,7 +14346,7 @@ int InitEnemyStar(DSWActor* actor)
 	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
 
     PlaySound(DIGI_STAR, actor, v3df_none);
     return 0;
@@ -14384,7 +14384,7 @@ int InitEnemyCrossbow(DSWActor* actor)
 	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
 
     if (dist != 0)
-        actorNew->user.change.Z = actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
 
     PlaySound(DIGI_STAR, actor, v3df_none);
 
@@ -14806,7 +14806,7 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 
     actorNew->user.set_int_change_x(xchange);
     actorNew->user.set_int_change_y(ychange);
-    actorNew->user.change.Z = zchange;
+    actorNew->user.set_int_change_z(zchange);
 
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -16306,7 +16306,7 @@ int InitEnemyMine(DSWActor* actor)
     MissileSetPos(actorNew, DoMine, 300);
     actorNew->spr.angle += DAngle90;
 
-    actorNew->user.change.Z = -5000;
+    actorNew->user.set_int_change_z(-5000);
 	UpdateChangeXY(actorNew);
 
     return 0;
@@ -16399,7 +16399,7 @@ int InitFireball(PLAYER* pp)
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = zvel;
+    actorNew->user.set_int_change_z(zvel);
 
     return 0;
 }
@@ -16464,7 +16464,7 @@ int InitEnemyFireball(DSWActor* actor)
             // (velocity * difference between the target and the throwing star) /
             // distance
             if (dist != 0)
-                actorNew->user.change.Z = actorNew->spr.zvel = (GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist;
+                actorNew->user.set_int_change_z(actorNew->spr.zvel = (GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist);
 
             // back up first one
             lastvel = actorNew->spr.zvel;
@@ -16472,7 +16472,7 @@ int InitEnemyFireball(DSWActor* actor)
         else
         {
             // use the first calculations so the balls stay together
-            actorNew->user.change.Z = actorNew->spr.zvel = lastvel;
+            actorNew->user.set_int_change_z(actorNew->spr.zvel = lastvel);
         }
     }
 

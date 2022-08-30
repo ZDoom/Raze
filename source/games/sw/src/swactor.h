@@ -45,7 +45,7 @@ inline void UpdateChangeXY(DSWActor* actor)
 inline void UpdateChange(DSWActor* actor, double zfactor = 1.0)
 {
 	UpdateChangeXY(actor);
-	actor->user.change.Z = int(actor->spr.zvel * zfactor);
+	actor->user.set_int_change_z(int(actor->spr.zvel * zfactor));
 }
 
 
