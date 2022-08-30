@@ -607,14 +607,6 @@ struct PLAYER
     {
         pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
     }
-    int player_int_ceiling_dist() const
-    {
-        return p_ceiling_dist * 256;
-    }
-    int player_int_floor_dist() const
-    {
-        return p_floor_dist * 256;
-    }
     int int_bob_amt() const
     {
         return bob_amt * zworldtoint;
@@ -642,7 +634,7 @@ struct PLAYER
     int16_t down_speed, up_speed; // diving
     int z_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
-    int p_ceiling_dist,p_floor_dist;
+    double p_ceiling_dist,p_floor_dist;
     sectortype* hi_sectp, *lo_sectp;
 
     int circle_camera_dist;

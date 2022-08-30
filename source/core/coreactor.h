@@ -500,6 +500,25 @@ inline int clipmove(DVector3& pos, sectortype** const sect, int xvect, int yvect
 	return res;
 }
 
+inline int clipmove(DVector3& pos, sectortype** const sect, int xvect, int yvect,
+	int const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
+{
+	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	int res = clipmove(vect, sect, xvect, yvect, walldist, int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
+	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
+	return res;
+}
+
+// this one should be the final version everything needs to migrate to
+inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec,
+	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
+{
+	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	int res = clipmove(vect, sect, int(mvec.X * worldtoint), int(mvec.Y * worldtoint), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
+	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
+	return res;
+}
+
 
 inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
 	uint32_t const cliptype, bool clear = true)
@@ -516,6 +535,17 @@ inline int pushmove(DVector3& pos, sectortype** const sect, int32_t const walldi
 	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
 	int res = pushmove_(&vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
+	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return res;
+}
+
+inline int pushmove(DVector3& pos, sectortype** const sect, int32_t const walldist, double const ceildist, double const flordist,
+	uint32_t const cliptype, bool clear = true)
+{
+	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	int res = pushmove_(&vect, &sectno, walldist, int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clear);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return res;

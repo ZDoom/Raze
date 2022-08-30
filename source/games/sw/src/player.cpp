@@ -1875,7 +1875,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1889,10 +1889,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2024,7 +2024,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist() - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2047,12 +2047,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist() - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -4495,7 +4495,7 @@ void DoPlayerCurrent(PLAYER* pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4511,10 +4511,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->player_int_ceiling_dist(), pp->player_int_floor_dist(), CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
