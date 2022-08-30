@@ -197,7 +197,7 @@ void CopySectorMatch(int match)
                 dsectp->flags        = ssectp->flags;
                 dsectp->depth_fixed  = ssectp->depth_fixed;
                 dsectp->stag         = ssectp->stag;
-                dsectp->ang          = ssectp->ang;
+                dsectp->angle        = ssectp->angle;
                 dsectp->height       = ssectp->height;
                 dsectp->speed        = ssectp->speed;
                 dsectp->damage       = ssectp->damage;

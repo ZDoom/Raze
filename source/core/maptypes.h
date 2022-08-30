@@ -329,7 +329,7 @@ struct sectortype
 			int flags;
 			int depth_fixed;
 			short stag;    // ST? tag number - for certain things it helps to know it
-			short ang;
+			DAngle angle;
 			short height;
 			short speed;
 			short damage;

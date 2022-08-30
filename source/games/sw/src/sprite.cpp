@@ -1736,7 +1736,7 @@ void SpriteSetup(void)
                 {
                     sectp->u_defined = true;
                     sectp->speed = actor->spr.lotag;
-                    sectp->ang = actor->int_ang();
+                    sectp->angle = actor->spr.angle;
                     KillActor(actor);
                 }
                 else if (bit & (SECTFX_NO_RIDE))

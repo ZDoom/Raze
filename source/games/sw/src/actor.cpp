@@ -287,21 +287,20 @@ void DoDebrisCurrent(DSWActor* actor)
     auto sectp = actor->sector();
 
     //actor->spr.clipdist = (256+128)>>2;
+	double spd = sectp->speed / 64.0;
 
-    nx = MulScale((sectp->speed >> 2), bcos(sectp->ang), 14);
-    ny = MulScale((sectp->speed >> 2), bsin(sectp->ang), 14);
+	auto vect = sectp->angle.ToVector() * spd;
 
-    Collision ret = move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
+    Collision ret = move_sprite(actor, DVector3(vect, 0), actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
 
     // attempt to move away from wall
     if (ret.type != kHitNone)
     {
-        int rang = RANDOM_P2(2048);
+        DAngle rang = RANDOM_ANGLE();
 
-        nx = MulScale((sectp->speed >> 2), bcos(sectp->ang + rang), 14);
-        nx = MulScale((sectp->speed >> 2), bsin(sectp->ang + rang), 14);
+		vect = (sectp->angle + rang).ToVector() * spd;
 
-        move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
+		move_sprite(actor, DVector3(vect, 0), actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
     }
 
     actor->spr.pos.Z = actor->user.loz;

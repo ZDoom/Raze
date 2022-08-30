@@ -4492,8 +4492,9 @@ void DoPlayerCurrent(PLAYER* pp)
     if (!sectu)
         return;
 
-    xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
-    yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
+	auto vect = sectu->angle.ToVector() * 1024; // 16384 >> 4 - Beware of clipmove's odd format for vect!
+    xvect = sectu->speed * synctics * vect.X;
+    yvect = sectu->speed * synctics * vect.Y;
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)

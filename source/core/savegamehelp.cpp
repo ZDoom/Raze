@@ -590,7 +590,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			arc("flags", c.flags, def->flags)
 				("depth_fixed", c.depth_fixed, def->depth_fixed)
 				("stag", c.stag, def->stag)
-				("ang", c.ang, def->ang)
+				("ang", c.angle, def->angle)
 				("height", c.height, def->height)
 				("speed", c.speed, def->speed)
 				("damage", c.damage, def->damage)
