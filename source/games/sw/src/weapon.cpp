@@ -3862,7 +3862,7 @@ int DoFastShrapJumpFall(DSWActor* actor)
 
 int DoTracerShrap(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.change.Z });
+    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z });
 
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
@@ -7850,9 +7850,9 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
         // the large turn_speed is the slower the turn
 
-        actor->user.set_int_change_x((actor->user.change.X + ox*(turn_speed-1))/turn_speed);
-        actor->user.set_int_change_y((actor->user.change.Y + oy*(turn_speed-1))/turn_speed);
-        actor->user.set_int_change_z((actor->user.change.Z + oz*(turn_speed-1))/turn_speed);
+        actor->user.set_int_change_x((actor->user.int_change().X + ox*(turn_speed-1))/turn_speed);
+        actor->user.set_int_change_y((actor->user.int_change().Y + oy*(turn_speed-1))/turn_speed);
+        actor->user.set_int_change_z((actor->user.int_change().Z + oz*(turn_speed-1))/turn_speed);
 
         SetAngleFromChange(actor);
     }
@@ -7906,9 +7906,9 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
         actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
         actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
 
-        actor->user.set_int_change_x((actor->user.change.X + ox*7)/8);
-        actor->user.set_int_change_y((actor->user.change.Y + oy*7)/8);
-        actor->user.set_int_change_z((actor->user.change.Z + oz*7)/8);
+        actor->user.set_int_change_x((actor->user.int_change().X + ox*7)/8);
+        actor->user.set_int_change_y((actor->user.int_change().Y + oy*7)/8);
+        actor->user.set_int_change_z((actor->user.int_change().Z + oz*7)/8);
 
 		SetAngleFromChange(actor);
     }
@@ -8191,9 +8191,9 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     if ((abs(k)>>14) < l)
     {
         k = DivScale(k, l, 17);
-        actor->user.change.X -= MulScale(dax, k, 16);
-        actor->user.change.Y -= MulScale(day, k, 16);
-        actor->user.change.Z -= MulScale(daz, k, 12);
+        actor->user.add_int_change_x(-MulScale(dax, k, 16));
+        actor->user.add_int_change_y(-MulScale(day, k, 16));
+        actor->user.add_int_change_z(-MulScale(daz, k, 12));
 
 		SetAngleFromChange(actor);
     }
@@ -8937,7 +8937,7 @@ int DoMine(DSWActor* actor)
 
 int DoPuff(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.change.Z });
+    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z });
     return 0;
 }
 
@@ -16154,8 +16154,8 @@ int InitGrenade(PLAYER* pp)
     if (!auto_aim)
     {
         // adjust xvel according to player velocity
-        actorNew->user.change.X += pp->vect.X>>14;
-        actorNew->user.change.Y += pp->vect.Y>>14;
+        actorNew->user.add_int_change_x(pp->vect.X>>14);
+        actorNew->user.add_int_change_y(pp->vect.Y>>14);
     }
 
     actorNew->user.Counter2 = true;  // Phosphorus Grenade
@@ -16262,8 +16262,8 @@ int InitMine(PLAYER* pp)
     if (labs(dot) > 10000)
     {
         // adjust xvel according to player velocity
-        actorNew->user.change.X += pp->vect.X>>13;
-        actorNew->user.change.Y += pp->vect.Y>>13;
+        actorNew->user.add_int_change_x(pp->vect.X>>13);
+        actorNew->user.add_int_change_y(pp->vect.Y>>13);
     }
 
     return 0;

@@ -944,6 +944,9 @@ struct USER
 	void set_int_change_x(int x) { change.X = x; }
 	void set_int_change_y(int x) { change.Y = x; }
 	void set_int_change_z(int x) { change.Z = x; }
+	void add_int_change_x(int x) { change.X += x; }
+	void add_int_change_y(int x) { change.Y += x; }
+	void add_int_change_z(int x) { change.Z += x; }
 
 	// frequently repeated patterns
 	void clearChange() { change.X = change.Y = change.Z = 0; }
