@@ -940,6 +940,13 @@ struct USER
 
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
+	
+	// frequently repeated patterns
+	void clearChange() { change.X = change.Y = change.Z = 0; }
+	void clearChangeXY() { change.X = change.Y = 0; }
+	void addCounterToChange() { change.Z += Counter; }
+	void invertChangeZ() { change.Z = -change.Z; }
+	
 
     //
     // Variables that can be used by actors and Player

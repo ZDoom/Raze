@@ -56,6 +56,10 @@ void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYER*);
 void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
+
+void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez);
+void ScaleSpriteVector(DSWActor* actor, int scale);
+
 ANIMATOR DoBettyBeginDeath;
 ANIMATOR DoSkullBeginDeath;
 ANIMATOR DoRipperGrow;
@@ -7416,7 +7420,7 @@ int DoStar(DSWActor* actor)
         if (vel < 800)
         {
             actor->user.Counter += 50;
-            actor->user.change.Z += actor->user.Counter;
+            actor->user.addCounterToChange();
         }
     }
 
@@ -7512,13 +7516,12 @@ int DoStar(DSWActor* actor)
                 break; // will be killed below - actor != 0
 
             // 32000 to 96000
-            actor->user.change.X = MulScale(actor->user.change.X, 64000 + (RandomRange(64000) - 32000), 16);
-            actor->user.change.Y = MulScale(actor->user.change.Y, 64000 + (RandomRange(64000) - 32000), 16);
-
-            if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) * 0.5))
-                actor->user.change.Z = MulScale(actor->user.change.Z, 50000, 16); // floor
-            else
-                actor->user.change.Z = MulScale(actor->user.change.Z, 40000, 16); // ceiling
+			int xscale = 64000 + (RandomRange(64000) - 32000);
+			int yscale = 64000 + (RandomRange(64000) - 32000);
+			int zscale;
+			if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) * 0.5)) zscale = 50000; // floor
+			else zscale = 40000; // ceiling
+			ScaleSpriteVector(actor, xscale, yscale, zscale);
 
             if (SlopeBounce(actor, &did_hit_wall))
             {
@@ -7552,16 +7555,14 @@ int DoStar(DSWActor* actor)
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.motion_blur_num = 0;
             actor->user.coll.setNone();
-            actor->user.change.Z = -actor->user.change.Z;
+            actor->user.invertChangeZ();
 
             // 32000 to 96000
-            actor->user.change.X = MulScale(actor->user.change.X, 64000 + (RandomRange(64000) - 32000), 16);
-            actor->user.change.Y = MulScale(actor->user.change.Y, 64000 + (RandomRange(64000) - 32000), 16);
-            if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) * 0.5))
-                actor->user.change.Z = MulScale(actor->user.change.Z, 50000, 16); // floor
-            else
-                actor->user.change.Z = MulScale(actor->user.change.Z, 40000, 16); // ceiling
-
+			xscale = 64000 + (RandomRange(64000) - 32000);
+			yscale = 64000 + (RandomRange(64000) - 32000);
+			if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) * 0.5)) zscale = 50000; // floor
+			else zscale = 40000; // ceiling
+			ScaleSpriteVector(actor, xscale, yscale, zscale);
             break;
         }
         }
@@ -8087,11 +8088,16 @@ int DoEelFire(DSWActor* actor)
 }
 
 
+void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez)
+{
+	actor->user.change.X = MulScale(actor->user.change.X, scalex, 16);
+	actor->user.change.Y = MulScale(actor->user.change.Y, scaley, 16);
+	actor->user.change.Z = MulScale(actor->user.change.Z, scalez, 16);
+}
+
 void ScaleSpriteVector(DSWActor* actor, int scale)
 {
-    actor->user.change.X = MulScale(actor->user.change.X, scale, 16);
-    actor->user.change.Y = MulScale(actor->user.change.Y, scale, 16);
-    actor->user.change.Z = MulScale(actor->user.change.Z, scale, 16);
+	ScaleSpriteVector(actor, scale, scale, scale);
 }
 
 void WallBounce(DSWActor* actor, short ang)
@@ -8202,12 +8208,12 @@ int DoGrenade(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
     else
     {
         actor->user.Counter += 20;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
@@ -8354,7 +8360,7 @@ int DoGrenade(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.change.Z = -actor->user.change.Z;
+                        actor->user.invertChangeZ();
                         ScaleSpriteVector(actor, 40000); // 18000
                         actor->user.change.Z /= 4;
                         PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
@@ -8377,7 +8383,7 @@ int DoGrenade(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.change.Z = -actor->user.change.Z;
+                    actor->user.invertChangeZ();
                     ScaleSpriteVector(actor, 22000);
                     PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
                 }
@@ -8422,7 +8428,7 @@ int DoGrenade(DSWActor* actor)
 int DoVulcanBoulder(DSWActor* actor)
 {
     actor->user.Counter += 40;
-    actor->user.change.Z += actor->user.Counter;
+    actor->user.addCounterToChange();
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
                           actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -8505,9 +8511,7 @@ int DoVulcanBoulder(DSWActor* actor)
                     if (actor->spr.pos.Z > ((actor->user.hiz + actor->user.loz) * 0.5))
                     {
                         // hit a floor
-                        actor->user.change.X = MulScale(actor->user.change.X, 30000, 16);
-                        actor->user.change.Y = MulScale(actor->user.change.Y, 30000, 16);
-                        actor->user.change.Z = MulScale(actor->user.change.Z, 12000, 16);
+						ScaleSpriteVector(actor, 30000, 30000, 12000);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
 
@@ -8532,21 +8536,19 @@ int DoVulcanBoulder(DSWActor* actor)
                     actor->user.coll.setNone();
                     actor->user.Counter = 0;
 
-                    actor->user.change.X = MulScale(actor->user.change.X, 20000, 16);
-                    actor->user.change.Y = MulScale(actor->user.change.Y, 20000, 16);
-                    actor->user.change.Z = MulScale(actor->user.change.Z, 32000, 16);
+					ScaleSpriteVector(actor, 20000, 20000, 32000);
 
                     // limit to a reasonable bounce value
                     if (actor->user.change.Z > Z(24))
                         actor->user.change.Z = Z(24);
 
-                    actor->user.change.Z = -actor->user.change.Z;
+                    actor->user.invertChangeZ();
 
                 }
                 else
                 // hit unsloped ceiling
                 {
-                    actor->user.change.Z = -actor->user.change.Z;
+                    actor->user.invertChangeZ();
                     ScaleSpriteVector(actor, 30000);
                 }
             }
@@ -8782,13 +8784,13 @@ int DoMine(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
     else
     {
         //actor->user.Counter += 75;
         actor->user.Counter += 40;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
@@ -9249,9 +9251,7 @@ int DoRail(DSWActor* actor)
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-            actorNew->user.change.X = actor->user.change.X;
-            actorNew->user.change.Y = actor->user.change.Y;
-            actorNew->user.change.Z = actor->user.change.Z;
+            actorNew->user.change = actor->user.change;
 
             ScaleSpriteVector(actorNew, 1500);
 
@@ -9342,9 +9342,7 @@ int DoRocket(DSWActor* actor)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        actorNew->user.change.X = actor->user.change.X;
-        actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.change.Z = actor->user.change.Z;
+		actorNew->user.change = actor->user.change;
 
         ScaleSpriteVector(actorNew, 20000);
 
@@ -9431,9 +9429,7 @@ int DoMicro(DSWActor* actor)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        actorNew->user.change.X = actor->user.change.X;
-        actorNew->user.change.Y = actor->user.change.Y;
-        actorNew->user.change.Z = actor->user.change.Z;
+		actorNew->user.change = actor->user.change;
 
         ScaleSpriteVector(actorNew, 20000);
 
@@ -17714,12 +17710,12 @@ int DoShrapVelocity(DSWActor* actor)
         ScaleSpriteVector(actor, 20000);
 
         actor->user.Counter += 8*4;      // These are MoveSkip4 now
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
     else
     {
         actor->user.Counter += 60*4;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
@@ -17814,7 +17810,7 @@ int DoShrapVelocity(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.change.Z = -actor->user.change.Z;
+                        actor->user.invertChangeZ();
                         ScaleSpriteVector(actor, 18000);
                         switch (actor->user.ID)
                         {
@@ -17838,7 +17834,7 @@ int DoShrapVelocity(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.change.Z = -actor->user.change.Z;
+                    actor->user.invertChangeZ();
                     ScaleSpriteVector(actor, 22000);
                 }
             }
@@ -18026,12 +18022,12 @@ int DoItemFly(DSWActor* actor)
         ScaleSpriteVector(actor, 50000);
 
         actor->user.Counter += 20*2;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
     else
     {
         actor->user.Counter += 60*2;
-        actor->user.change.Z += actor->user.Counter;
+        actor->user.addCounterToChange();
     }
 
     actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
@@ -18078,13 +18074,13 @@ int DoItemFly(DSWActor* actor)
                 actor->spr.pos.Z = actor->user.loz;
                 actor->user.Counter = 0;
                 actor->spr.xvel = 0;
-                actor->user.change.Z = actor->user.change.X = actor->user.change.Y = 0;
+                actor->user.clearChange();
                 return false;
             }
             else
             // hit something above
             {
-                actor->user.change.Z = -actor->user.change.Z;
+                actor->user.invertChangeZ();
                 ScaleSpriteVector(actor, 22000);
             }
             break;
