@@ -366,7 +366,7 @@ int DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
+        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
                               actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
     }
 
@@ -553,7 +553,7 @@ int DoPhosphorus(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
+    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
                           actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
@@ -754,7 +754,7 @@ int DoChemBomb(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
+    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
                           actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
@@ -980,7 +980,7 @@ int DoCaltrops(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.change.X, actor->user.change.Y, actor->user.change.Z,
+    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
                           actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
@@ -1201,7 +1201,7 @@ int SpawnRadiationCloud(DSWActor* actor)
 
 int DoRadiationCloud(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.change.X, actor->user.change.Y, -actor->spr.zvel });
+    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, -actor->spr.zvel });
 
     if (actor->user.ID)
     {
