@@ -1916,12 +1916,12 @@ void PlayerCheckValidMove(PLAYER* pp)
     }
 }
 
-void PlayerSectorBound(PLAYER* pp, int amt)
+void PlayerSectorBound(PLAYER* pp, double amt)
 {
     if (!pp->insector())
         return;
 
-    int cz,fz;
+    double cz,fz;
 
     // player should never go into a sector
 
@@ -1932,13 +1932,13 @@ void PlayerSectorBound(PLAYER* pp, int amt)
     // called from DoPlayerMove() but can be called
     // from anywhere it is needed
 
-    getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
+    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
 
-    if (pp->int_ppos().Z > fz - amt)
-        pp->set_int_ppos_Z(fz - amt);
+    if (pp->pos.Z > fz - amt)
+        pp->pos.Z = fz - amt;
 
-    if (pp->int_ppos().Z < cz + amt)
-        pp->set_int_ppos_Z(cz + amt);
+    if (pp->pos.Z < cz + amt)
+        pp->pos.Z = cz + amt;
 
 }
 
@@ -2081,7 +2081,7 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerZrange(pp);
 
-    //PlayerSectorBound(pp, Z(1));
+    //PlayerSectorBound(pp, 1);
 
     DoPlayerSetWadeDepth(pp);
 
@@ -2149,12 +2149,12 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 void DoPlayerSectorUpdatePostMove(PLAYER* pp)
 {
     auto sect = pp->cursector;
-    int fz,cz;
+    double fz,cz;
 
     // need to do updatesectorz if in connect area
     if (sect != nullptr && FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, &pp->cursector);
+        updatesectorz(pp->pos, &pp->cursector);
 
         // can mess up if below
         if (!pp->insector())
@@ -2162,20 +2162,20 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
             pp->setcursector(sect);
 
             // adjust the posz to be in a sector
-            getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
-            if (pp->int_ppos().Z > fz)
-                pp->set_int_ppos_Z(fz);
+            getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+            if (pp->pos.Z > fz)
+                pp->pos.Z = fz;
 
-            if (pp->int_ppos().Z < cz)
-                pp->set_int_ppos_Z(cz);
+            if (pp->pos.Z < cz)
+                pp->pos.Z = cz;
 
             // try again
-            updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, &pp->cursector);
+            updatesectorz(pp->pos, &pp->cursector);
         }
     }
     else
     {
-        PlayerSectorBound(pp, Z(1));
+        PlayerSectorBound(pp, 1);
     }
 
 }
@@ -2828,7 +2828,7 @@ void DoPlayerJump(PLAYER* pp)
             pp->pos.Z = pp->loz - pp->p_floor_dist;
 
             pp->jump_speed = 0;
-            PlayerSectorBound(pp, Z(1));
+            PlayerSectorBound(pp, 1);
             DoPlayerBeginRun(pp);
             DoPlayerHeight(pp);
             return;
@@ -2995,7 +2995,7 @@ void DoPlayerFall(PLAYER* pp)
         {
             sectortype* sectp = pp->cursector;
 
-            PlayerSectorBound(pp, Z(1));
+            PlayerSectorBound(pp, 1);
 
             if (sectp->hasU() && ((sectp->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
             {
@@ -3226,7 +3226,7 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
-            pp->set_int_ppos_Z(pp->LadderSector->int_ceilingz() + Z(4));
+            pp->pos.Z = pp->LadderSector->ceilingz + 4;
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
@@ -3766,7 +3766,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
             if (SectorIsUnderwaterArea(sect))
             {
                 pp->setcursector(sect);
-                pp->set_int_ppos_Z(sect->int_ceilingz() + Z(20));
+                pp->pos.Z = sect->ceilingz + 20;
 
                 pp->z_speed = Z(20);
                 pp->jump_speed = 0;
@@ -4002,7 +4002,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     else
         pp->setcursector(over);
 
-    pp->set_int_ppos_Z(under_act->sector()->int_ceilingz() + Z(6));
+    pp->pos.Z = under_act->sector()->ceilingz + 6;
 
     pp->opos = pp->pos;
 
@@ -4371,7 +4371,7 @@ void DoPlayerDive(PLAYER* pp)
             {
                 // if not underwater sector we must surface
                 // force into above sector
-                pp->set_int_ppos_Z(pp->cursector->int_ceilingz() - Z(8));
+                pp->pos.Z = pp->cursector->ceilingz- 8;
                 pp->setcursector(sect);
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
@@ -4816,7 +4816,7 @@ void DoPlayerOperateMatch(PLAYER* pp, bool starting)
 void DoPlayerBeginOperate(PLAYER* pp)
 {
     SECTOR_OBJECT* sop;
-    int cz, fz;
+    double cz, fz;
     int i;
 
     sop = PlayerOnObject(pp->cursector);
@@ -4857,8 +4857,8 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
-    pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+    pp->pos.Z = fz - PLAYER_HEIGHTF;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -4883,7 +4883,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -4892,7 +4892,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         DoPlayerBeginOperateTurret(pp);
         break;
 #if 0
@@ -4901,7 +4901,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->posz = fz - PLAYER_HEIGHT;
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         DoPlayerBeginOperateBoat(pp);
         break;
 #endif
@@ -4913,7 +4913,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
 
 void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 {
-    int cz, fz;
+    double cz, fz;
     int i;
 
     pp->sop_remote = pp->sop = pp->sop_control = sop;
@@ -4941,8 +4941,8 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
-    pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+	pp->pos.Z = fz - PLAYER_HEIGHTF;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -4970,7 +4970,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -4979,7 +4979,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         DoPlayerBeginOperateTurret(pp);
         break;
     default:
@@ -6727,7 +6727,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 {
     short pnum = short(pp - Player);
     short pos_num = pnum;
-    int fz,cz;
+    double fz,cz;
     int i;
     DSWActor* spawn_sprite = nullptr;
 
@@ -6791,11 +6791,11 @@ void PlayerSpawnPosition(PLAYER* pp)
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
-    getzsofslopeptr(pp->cursector, pp->int_ppos().X, pp->int_ppos().Y, &cz, &fz);
+    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
     // if too close to the floor - stand up
-    if (pp->int_ppos().Z > fz - PLAYER_HEIGHT)
+    if (pp->pos.Z > fz - PLAYER_HEIGHTF)
     {
-        pp->set_int_ppos_Z(fz - PLAYER_HEIGHT);
+		pp->pos.Z = fz - PLAYER_HEIGHTF;
         pp->opos.Z = pp->pos.Z;
     }
 }
