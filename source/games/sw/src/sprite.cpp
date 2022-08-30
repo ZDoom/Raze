@@ -4284,15 +4284,12 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 
 }
 
-bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
+bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, double z_overlap)
 {
-    int spa_tos, spa_bos, spb_tos, spb_bos;
-
-    spa_tos = int_ActorZOfTop(actor_a);
-    spa_bos = int_ActorZOfBottom(actor_a);
-
-    spb_tos = int_ActorZOfTop(actor_b);
-    spb_bos = int_ActorZOfBottom(actor_b);
+    double spa_tos = ActorZOfTop(actor_a);
+    double spa_bos = ActorZOfBottom(actor_a);
+    double spb_tos = ActorZOfTop(actor_b);
+    double spb_bos = ActorZOfBottom(actor_b);
 
 
     // if the top of sprite a is below the bottom of b
