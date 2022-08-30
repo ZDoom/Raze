@@ -845,7 +845,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
 	else zvel = 0;
 
-	hitscan(vec3_t( sx, sy, sz - ps[p].pyoff ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(vec3_t( sx, sy, sz - ps[p].pyoff * zworldtoint ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	j = 0;
 	if (hit.actor()) return;
@@ -1020,7 +1020,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	{
 		sx = ps[p].player_int_pos().X;
 		sy = ps[p].player_int_pos().Y;
-		sz = ps[p].player_int_pos().Z + ps[p].pyoff + (4 << 8);
+		sz = ps[p].player_int_pos().Z + ps[p].pyoff * zworldtoint + (4 << 8);
 		sa = ps[p].angle.ang.Buildang();
 
 		ps[p].crack_time = CRACK_TIME;
@@ -1680,7 +1680,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = bsin(p->pycount, -7);
+	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
 
 	if (p->jetpack_on && S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 	{
@@ -1763,7 +1763,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			i = 34;
 			p->pycount += 32;
 			p->pycount &= 2047;
-			p->pyoff = bsin(p->pycount, -6);
+			p->pyoff = DAngle::fromBuild(p->pycount).Sin() * 2;
 		}
 		else i = 12;
 
@@ -1939,7 +1939,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = bsin(p->pycount, -7);
+	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
 
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
@@ -3050,7 +3050,10 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff = abs(pact->spr.xvel * bsin(p->pycount)) / 1596;
+				p->pyoff = DAngle::fromBuild(p->pycount).Sin() * pact->spr.xvel;
+
+				const double factor = 64. / 1596; // What is 1596?
+				p->pyoff = abs(pact->spr.xvel * DAngle::fromBuild(p->pycount).Sin()) * factor;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)

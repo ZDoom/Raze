@@ -229,7 +229,6 @@ struct player_struct
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	int numloogs, oloogcnt, loogcnt;
 	int invdisptime;
-	int pyoff, opyoff;
 	int last_pissed_time;
 	int player_par, visibility;
 	int bobcounter;
@@ -237,6 +236,7 @@ struct player_struct
 
 	int aim_mode, ftt;
 
+	double pyoff, opyoff;
 	double truefz, truecz;
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references.

@@ -393,13 +393,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_PYOFF:
-		if (bSet) ps[iPlayer].pyoff = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].pyoff, sActor, sPlayer);
+		if (bSet) ps[iPlayer].pyoff = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].pyoff / zmaptoworld, sActor, sPlayer);
 		break;
 
 	case PLAYER_OPYOFF:
-		if (bSet) ps[iPlayer].opyoff = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].opyoff, sActor, sPlayer);
+		if (bSet) ps[iPlayer].opyoff = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].opyoff / zmaptoworld, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSXV:

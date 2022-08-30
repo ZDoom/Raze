@@ -836,7 +836,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 
 		sx = ps[p].player_int_pos().X;
 		sy = ps[p].player_int_pos().Y;
-		sz = ps[p].player_int_pos().Z + ps[p].pyoff + (4 << 8);
+		sz = ps[p].player_int_pos().Z + ps[p].pyoff * zworldtoint + (4 << 8);
 		sa = ps[p].angle.ang.Buildang();
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
@@ -2079,7 +2079,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			i = 34;
 			p->pycount += 32;
 			p->pycount &= 2047;
-			p->pyoff = bsin(p->pycount, -6);
+			p->pyoff = DAngle::fromBuild(p->pycount).Sin() * 2;
 		}
 		else i = 12;
 
@@ -2297,7 +2297,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = bsin(p->pycount, -7);
+	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
 
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
@@ -3603,7 +3603,7 @@ void processinput_r(int snum)
 	{
 		p->pycount += 32;
 		p->pycount &= 2047;
-		p->pyoff = bsin(p->pycount, -(p->SeaSick ? 2 : 7));
+		p->pyoff = DAngle::fromBuild(p->pycount).Sin() * (p->SeaSick? 32 : 1);
 	}
 
 	if (psectlotag == ST_2_UNDERWATER)
@@ -3886,8 +3886,8 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff =
-					abs(pact->spr.xvel * bsin(p->pycount)) / 1596;
+				const double factor = 64. / 1596; // What is 1596?
+				p->pyoff = abs(pact->spr.xvel * DAngle::fromBuild(p->pycount).Sin()) * factor;
 			}
 		}
 		else if (psectlotag != ST_2_UNDERWATER && psectlotag != 1 && (!isRRRA() || !p->sea_sick_stat))

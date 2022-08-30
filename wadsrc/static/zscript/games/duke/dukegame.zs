@@ -159,7 +159,7 @@ struct DukePlayer
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	native int numloogs, loogcnt;
 	native int invdisptime;
-	native int pyoff, opyoff;
+	native double pyoff, opyoff;
 	native int last_pissed_time;
 	native double truefz, truecz;
 	native int player_par, visibility;
