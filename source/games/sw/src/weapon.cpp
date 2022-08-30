@@ -10356,44 +10356,46 @@ void SpawnGrenadeExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 0);
 }
 
-void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize)
+void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize_, int lower_zsize_)
 {
-    int tos_z, bos_z;
+	double upper_zsize = upper_zsize_ * zinttoworld;
+	double lower_zsize = lower_zsize_ * zinttoworld;
+    double tos_z, bos_z;
 
     ASSERT(expActor->hasU());
 
     if (actor->hasU())
     {
-        tos_z = expActor->int_pos().Z - upper_zsize;
-        bos_z = expActor->int_pos().Z + lower_zsize;
+        tos_z = expActor->spr.pos.Z - upper_zsize;
+        bos_z = expActor->spr.pos.Z + lower_zsize;
 
-        if (tos_z <= actor->user.int_hiz() + Z(4))
+        if (tos_z <= actor->user.hiz + 4)
         {
-            expActor->set_int_z(actor->user.int_hiz() + upper_zsize);
+            expActor->spr.pos.Z = actor->user.hiz + upper_zsize;
             expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
-        else if (bos_z > actor->user.int_loz())
+        else if (bos_z > actor->user.loz)
         {
-            expActor->set_int_z(actor->user.int_loz() - lower_zsize);
+            expActor->spr.pos.Z = actor->user.loz - lower_zsize;
         }
     }
     else
     {
-        int cz,fz;
+        double cz,fz;
 
-        getzsofslopeptr(expActor->sector(), expActor->int_pos().X, expActor->int_pos().Y, &cz, &fz);
+        getzsofslopeptr(expActor->sector(), expActor->spr.pos, &cz, &fz);
 
-        tos_z = expActor->int_pos().Z - upper_zsize;
-        bos_z = expActor->int_pos().Z + lower_zsize;
+		tos_z = expActor->spr.pos.Z - upper_zsize;
+		bos_z = expActor->spr.pos.Z + lower_zsize;
 
-        if (tos_z <= cz + Z(4))
+        if (tos_z <= cz + 4)
         {
-            expActor->set_int_z(cz + upper_zsize);
+            expActor->spr.pos.Z = cz + upper_zsize;
             expActor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
         }
         else if (bos_z > fz)
         {
-            expActor->set_int_z(fz - lower_zsize);
+            expActor->spr.pos.Z = fz - lower_zsize;
         }
     }
 
