@@ -3795,7 +3795,7 @@ AutoShrap:
 
 void DoShrapMove(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    actor->user.coll = move_missile(actor, DVector3(actor->user.change.XY(), 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 }
 
 int DoVomit(DSWActor* actor)
@@ -7424,7 +7424,7 @@ int DoStar(DSWActor* actor)
         }
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -7596,7 +7596,7 @@ int DoCrossBolt(DSWActor* actor)
 {
     DoBlurExtend(actor, 0, 2);
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -8061,7 +8061,7 @@ int DoPlasma(DSWActor* actor)
 
 int DoCoolgFire(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -8220,8 +8220,7 @@ int DoGrenade(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -8434,8 +8433,7 @@ int DoVulcanBoulder(DSWActor* actor)
     actor->user.Counter += 40;
     actor->user.addCounterToChange();
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     int32_t const vel = ksqrt(SQ(actor->user.int_change().X) + SQ(actor->user.int_change().Y));
 
@@ -8797,8 +8795,7 @@ int DoMine(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -8987,7 +8984,7 @@ int DoTracer(DSWActor* actor)
 {
     for (int i = 0; i < 4; i++)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9010,7 +9007,7 @@ int DoEMP(DSWActor* actor)
 {
     for (int i = 0; i < 4; i++)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9091,7 +9088,7 @@ int DoTankShell(DSWActor* actor)
 
     for (i = 0; i < 4; i++)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9111,8 +9108,7 @@ int DoTankShell(DSWActor* actor)
 
 int DoTracerStart(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9136,7 +9132,7 @@ int DoLaser(DSWActor* actor)
 
     while (true)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9172,7 +9168,7 @@ int DoLaserStart(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9197,7 +9193,7 @@ int DoRail(DSWActor* actor)
 
     while (true)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9269,7 +9265,7 @@ int DoRailStart(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9305,7 +9301,7 @@ int DoRocket(DSWActor* actor)
         VectorMissileSeek(actor, 30, 16, 128, 768);
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9362,7 +9358,7 @@ int DoMicroMini(DSWActor* actor)
 
     for (i = 0; i < 3; i++)
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
         MissileHitDiveArea(actor);
 
@@ -9410,8 +9406,7 @@ int DoMicro(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9618,8 +9613,7 @@ int DoElectro(DSWActor* actor)
 
 int DoLavaBoulder(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -9643,8 +9637,7 @@ int DoLavaBoulder(DSWActor* actor)
 
 int DoSpear(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -10564,7 +10557,7 @@ int DoFireball(DSWActor* actor)
         }
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -10728,7 +10721,7 @@ int DoNapalm(DSWActor* actor)
 
 	auto oldv = actor->spr.pos;
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -10749,7 +10742,7 @@ int DoNapalm(DSWActor* actor)
 				actor->spr.pos = oldv;
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
                 hitActor->spr.cstat = hcstat;
             }
         }
@@ -10888,7 +10881,7 @@ int DoSerpMeteor(DSWActor* actor)
     if (actor->spr.xrepeat > 80)
         actor->spr.xrepeat = 80;
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (actor->user.coll.type != kHitNone)
     {
@@ -10905,7 +10898,7 @@ int DoSerpMeteor(DSWActor* actor)
 				actor->spr.pos = oldv;
 
                 hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
                 hitActor->spr.cstat = hcstat;
             }
         }
@@ -10927,7 +10920,7 @@ int DoMirvMissile(DSWActor* actor)
     if (actor->spr.xrepeat > 80)
         actor->spr.xrepeat = 80;
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -10946,7 +10939,7 @@ int DoMirvMissile(DSWActor* actor)
 
 int DoMirv(DSWActor* actor)
 {
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -17686,8 +17679,7 @@ int DoShrapVelocity(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
 
@@ -17998,8 +17990,7 @@ int DoItemFly(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
 

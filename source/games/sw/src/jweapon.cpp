@@ -366,8 +366,7 @@ int DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                              actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
     }
 
 
@@ -553,8 +552,7 @@ int DoPhosphorus(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
 
@@ -754,8 +752,7 @@ int DoChemBomb(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -980,8 +977,7 @@ int DoCaltrops(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    actor->user.coll = move_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z,
-                          actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
