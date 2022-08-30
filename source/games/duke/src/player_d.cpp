@@ -1063,8 +1063,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 			if (k)
 			{
 				k->setsector(sect);
-				k->set_int_pos({ sx, sy, sz });
-				k->set_int_ang(sa);
+				k->spr.pos = spos;
+				k->spr.angle = sang;
 				k->spr.xvel = 500;
 				k->spr.zvel = 0;
 			}
