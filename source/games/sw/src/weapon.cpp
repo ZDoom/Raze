@@ -9463,7 +9463,6 @@ int DoMicro(DSWActor* actor)
 
 int DoUziBullet(DSWActor* actor)
 {
-    int32_t dax, day, daz;
     int sx,sy;
     short i;
 
@@ -9471,13 +9470,12 @@ int DoUziBullet(DSWActor* actor)
     // otherwize the moves are in too big an increment
     for (i = 0; i < 2; i++)
     {
-        dax = MOVEx((actor->spr.xvel >> 1), actor->int_ang());
-        day = MOVEy((actor->spr.xvel >> 1), actor->int_ang());
-        daz = actor->spr.zvel >> 1;
+		auto vec = MOVExy((actor->spr.xvel >> 1), actor->spr.angle);
+		double daz = (actor->spr.zvel >> 1) * zinttoworld;
 
         sx = actor->int_pos().X;
         sy = actor->int_pos().Y;
-        actor->user.coll = move_missile(actor, dax, day, daz, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+        actor->user.coll = move_missile(actor, DVector3(vec, daz), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
         actor->user.Dist += Distance(sx, sy, actor->int_pos().X, actor->int_pos().Y);
 
         MissileHitDiveArea(actor);
@@ -10010,8 +10008,8 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->user.set_int_change_x(MOVEx(vel, ang));
     expActor->user.set_int_change_y(MOVEy(vel, ang));
     expActor->user.Radius = 200; // was NUKE_RADIUS
-    expActor->user.coll = move_missile(expActor, expActor->user.int_change().X, expActor->user.int_change().Y, 0,
-                           expActor->user.int_ceiling_dist(),expActor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
+									   expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (FindDistance3D(expActor->int_pos() - actor->int_pos()) < 1024)
     {
@@ -10271,8 +10269,8 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->user.set_int_change_x(MOVEx(vel, ang));
     expActor->user.set_int_change_y(MOVEy(vel, ang));
 
-    expActor->user.coll = move_missile(expActor, expActor->user.int_change().X, expActor->user.int_change().Y, 0,
-                           expActor->user.int_ceiling_dist(),expActor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
+                           expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (FindDistance3D(expActor->int_pos() - actor->int_pos()) < 1024)
     {
@@ -11742,12 +11740,10 @@ int InitSwordAttack(PLAYER* pp)
     if (pp->Flags & (PF_DIVING))
     {
         DSWActor* bubble;
-        int nx, ny;
-        short random_amt;
 
-        static const int16_t dangs[] =
+        static const DAngle dangs[] =
         {
-            -256, -128, 0, 128, 256
+            -DAngle45, -DAngle22_5, nullAngle, DAngle22_5, DAngle45
         };
 
         for (size_t i = 0; i < countof(dangs); i++)
@@ -11758,13 +11754,12 @@ int InitSwordAttack(PLAYER* pp)
             {
                 bubble->set_int_ang(pp->angle.ang.Buildang());
 
-                random_amt = (RANDOM_P2(32 << 8) >> 8) - 16;
+				auto random_amt = DAngle::fromBuild((RANDOM_P2(32<<8)>>8) - 16);
 
                 // back it up a bit to get it out of your face
-                nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
-                ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
+                auto vec = MOVExy((1024 + 256) * 3, bubble->spr.angle + dangs[i] + random_amt);
 
-                move_missile(bubble, nx, ny, 0, plActor->user.int_ceiling_dist(), plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
+                move_missile(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -11914,12 +11909,10 @@ int InitFistAttack(PLAYER* pp)
     if (pp->Flags & (PF_DIVING))
     {
         DSWActor* bubble;
-        int nx,ny;
-        short random_amt;
 
-        static int16_t dangs[] =
+        static const DAngle dangs[] =
         {
-            -128,128
+            -DAngle22_5, DAngle22_5
         };
 
         for (size_t i = 0; i < countof(dangs); i++)
@@ -11929,13 +11922,12 @@ int InitFistAttack(PLAYER* pp)
             {
                 bubble->set_int_ang(pp->angle.ang.Buildang());
 
-                random_amt = (RANDOM_P2(32<<8)>>8) - 16;
+                auto random_amt = DAngle::fromBuild((RANDOM_P2(32<<8)>>8) - 16);
 
                 // back it up a bit to get it out of your face
-                nx = MOVEx((1024+256)*3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
-                ny = MOVEy((1024+256)*3, NORM_ANGLE(bubble->int_ang() + dangs[i] + random_amt));
-
-                move_missile(bubble, nx, ny, 0, plActor->user.int_ceiling_dist(), plActor->user.int_floor_dist(), CLIPMASK_PLAYER, 1);
+                auto vec = MOVExy((1024+256)*3, bubble->spr.angle + dangs[i] + random_amt);
+ 
+                move_missile(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -14431,7 +14423,6 @@ int InitCoolgFire(DSWActor* actor)
 
     // get angle to player and also face player when attacking
     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
-    int nang = actor->int_ang();
 
     nz = actor->int_pos().Z - Z(16);
     // Spawn a shot
@@ -14469,10 +14460,9 @@ int InitCoolgFire(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-	nx = MulScale(728, bcos(nang), 14);
-    ny = MulScale(728, bsin(nang), 14);
+	auto vec = actor->spr.angle.ToVector() * 45.5;
 
-    move_missile(actorNew, nx, ny, 0, actorNew->user.int_ceiling_dist(), actorNew->user.int_floor_dist(), 0, 3);
+    move_missile(actorNew, DVector3(vec, 0), actorNew->user.ceiling_dist, actorNew->user.floor_dist, 0, 3);
 
     return 0;
 }

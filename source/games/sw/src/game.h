@@ -198,6 +198,11 @@ inline int MOVEy(int vel, int ang)
     return (MulScale(vel, bsin(ang), 14));
 }
 
+inline DVector2 MOVExy(int vel, DAngle ang)
+{
+	return { vel * ang.Cos() * inttoworld, vel * ang.Sin() * inttoworld };
+}
+
 inline double MOVEx(int vel, DAngle ang)
 {
 	return vel * ang.Cos() * inttoworld;
@@ -1734,6 +1739,11 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
 
 void getzrangepoint(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
 Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+inline Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
+{
+	return move_sprite(actor, change.X * worldtoint, change.Y * worldtoint, change.Z * zworldtoint, ceildist * zworldtoint, flordist * zworldtoint, cliptype, numtics);
+}
+
 Collision move_missile(DSWActor*, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 inline Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
