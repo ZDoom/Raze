@@ -3348,7 +3348,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			pos = bottom;
 			break;
 		case 2: // middle
-			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum));
+			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.yrepeat * REPEAT_SCALE;
 			break;
 		case 3:
 		case 4:
@@ -3774,14 +3774,12 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 				auto spawned = InsertSprite(iactor->sector(), kStatDecoration);
 				if (spawned != nullptr)
 				{
-					int top, bottom; GetActorExtents(spawned, &top, &bottom);
-					vec3_t pos;
-					pos.X = iactor->int_pos().X;
-					pos.Y = iactor->int_pos().Y;
+					double top, bottom;
+					GetActorExtents(spawned, &top, &bottom);
+					DVector3 pos = iactor->spr.pos;
 					switch (sourceactor->xspr.data3)
 					{
 					default:
-						pos.Z = iactor->int_pos().Z;
 						break;
 					case 2:
 						pos.Z = bottom;
@@ -3790,7 +3788,8 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						pos.Z = top;
 						break;
 					case 4:
-						pos.Z = iactor->int_pos().Z + tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum);
+						// this had no value shift and no yrepeat handling, which looks like a bug.
+						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.yrepeat * REPEAT_SCALE;
 						break;
 					case 5:
 					case 6:
@@ -3801,7 +3800,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						break;
 					}
 
-					spawned->set_int_pos(pos);
+					spawned->spr.pos = pos;
 
 					spawned->addX();
 					seqSpawn(sourceactor->xspr.data2, spawned, -1);
