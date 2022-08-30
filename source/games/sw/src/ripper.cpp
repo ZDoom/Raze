@@ -888,18 +888,16 @@ int PickJumpSpeed(DSWActor* actor, int pix_height)
 
 int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 {
-    int zh;
-
     ASSERT(max_speed < 0);
 
     actor->user.jump_speed = max_speed;
     actor->user.jump_grav = 8;
 
-    zh = int_ActorZOfTop(actor);
+    double zh = ActorZOfTop(actor);
 
     while (true)
     {
-        if (zh - Z(GetJumpHeight(actor->user.jump_speed, actor->user.jump_grav)) - Z(16) > actor->user.int_hiz())
+        if (zh - GetJumpHeight(actor->user.jump_speed, actor->user.jump_grav) - 16 > actor->user.hiz)
             break;
 
         actor->user.jump_speed += 100;
