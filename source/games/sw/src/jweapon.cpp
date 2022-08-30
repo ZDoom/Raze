@@ -388,7 +388,7 @@ int DoBloodSpray(DSWActor* actor)
                 wall_ang = NORM_ANGLE(hitActor->int_ang());
                 SpawnMidSplash(actor);
                 QueueWallBlood(actor, hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -573,8 +573,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -611,9 +610,7 @@ int DoPhosphorus(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
-
-            WallBounce(actor, wall_ang);
+            WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -776,8 +773,7 @@ int DoChemBomb(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -813,9 +809,7 @@ int DoChemBomb(DSWActor* actor)
             if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
-            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
-
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -997,8 +991,7 @@ int DoCaltrops(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 10000);
             }
             else
@@ -1024,9 +1017,7 @@ int DoCaltrops(DSWActor* actor)
 
             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
 
-            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
-
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 1000);
             break;
         }

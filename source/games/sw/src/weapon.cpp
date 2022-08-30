@@ -7470,9 +7470,7 @@ int DoStar(DSWActor* actor)
             if (RANDOM_P2(1024) < STAR_BOUNCE_RNUM)
                 break;
 
-            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
-
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 36000);
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.motion_blur_num = 0;
@@ -8086,29 +8084,24 @@ void ScaleSpriteVector(DSWActor* actor, int scale)
 	actor->user.change *= FixedToFloat(scale);
 }
 
-void WallBounce(DSWActor* actor, short ang)
+void WallBounce(DSWActor* actor, DAngle ang)
 {
-    int old_ang;
-    int k,l;
-    int dax, day;
-
     actor->user.bounce++;
 
-    k = MulScale(bcos(ang), bsin(ang), 13);
-    l = bcos(ang << 1);
+	double k = ang.Cos() * ang.Sin() * 2;
+	double l = (ang * 2).Cos();
 
-    dax = -actor->user.int_change().X;
-    day = -actor->user.int_change().Y;
+	auto davec = -actor->user.change.XY();
 
-    actor->user.set_int_change_x(DMulScale(day, k, dax, l, 14));
-    actor->user.set_int_change_y(DMulScale(dax, k, -day, l, 14));
+	actor->user.change.X = davec.Y * k + davec.X * l;
+    actor->user.change.Y = davec.X * k - davec.Y * l;
 
-    old_ang = actor->int_ang();
+    auto old_ang = actor->spr.angle;
 	SetAngleFromChange(actor);
 
     // hack to prevent missile from sticking to a wall
     //
-    if (old_ang == actor->int_ang())
+	if (old_ang == actor->spr.angle)
     {
         actor->user.change.XY() = -actor->user.change.XY();
 		SetAngleFromChange(actor);
@@ -8232,8 +8225,7 @@ int DoGrenade(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -8271,10 +8263,7 @@ int DoGrenade(DSWActor* actor)
 
             PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
-            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
-
-            //actor->spr.angle = NORM_ANGLE(actor->spr.angle + 1);
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 22000);
 
             break;
@@ -8440,8 +8429,7 @@ int DoVulcanBoulder(DSWActor* actor)
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 40000);
             }
             else
@@ -8468,9 +8456,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->delta())+512);
-
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, wph->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 40000);
             break;
         }
@@ -17645,8 +17631,7 @@ int DoShrapVelocity(DSWActor* actor)
 
             auto hit_sprite = actor->user.coll.actor();
 
-            wall_ang = NORM_ANGLE(hit_sprite->int_ang());
-            WallBounce(actor, wall_ang);
+            WallBounce(actor, hit_sprite->spr.angle);
             ScaleSpriteVector(actor, 32000);
 
             break;
@@ -17654,9 +17639,7 @@ int DoShrapVelocity(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta())+512);
-
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, actor->user.coll.hitWall->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -17954,8 +17937,7 @@ int DoItemFly(DSWActor* actor)
 
             if ((hit_sprite->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hit_sprite->int_ang());
-                WallBounce(actor, wall_ang);
+                WallBounce(actor, hit_sprite->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -17968,8 +17950,7 @@ int DoItemFly(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(actor->user.coll.hitWall->delta())+512);
-            WallBounce(actor, wall_ang);
+			WallBounce(actor, actor->user.coll.hitWall->delta().Angle() + DAngle90);
             ScaleSpriteVector(actor, 32000);
             break;
         }
