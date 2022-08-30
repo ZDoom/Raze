@@ -297,8 +297,8 @@ constexpr int SEC(int value)
 
 enum
 {
-    CEILING_DIST = (Z(4)),
-    FLOOR_DIST = (Z(4))
+    CEILING_DIST = 4,
+    FLOOR_DIST = 4
 };
 
 // Clip Sprite adjustment

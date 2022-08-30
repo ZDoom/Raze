@@ -252,13 +252,10 @@ int SetupSkull(DSWActor* actor)
 
 int DoSkullMove(DSWActor* actor)
 {
-    int32_t dax, day, daz;
+    auto vect = MOVExy(actor->spr.xvel, actor->spr.angle);
+    double daz = actor->spr.zvel * zinttoworld;
 
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
-
-    actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
+    actor->user.coll = move_missile(actor, DVector3(vect, daz), 16, 16, CLIPMASK_MISSILE, ACTORMOVETICS);
 
     DoFindGroundPoint(actor);
     return 0;
@@ -636,16 +633,7 @@ int SetupBetty(DSWActor* actor)
 
 int DoBettyMove(DSWActor* actor)
 {
-    int32_t dax, day, daz;
-
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
-
-    actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
-
-    DoFindGroundPoint(actor);
-    return 0;
+	return DoSkullMove(actor);
 }
 
 int DoBettyBeginDeath(DSWActor* actor)

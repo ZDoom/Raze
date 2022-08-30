@@ -3735,9 +3735,7 @@ AutoShrap:
                 actor->user.pos.Y = shrap_ysize;
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
 
-                nx = bcos(actor->int_ang(), -6);
-                ny = bsin(actor->int_ang(), -6);
-                move_missile(actor, nx, ny, 0, Z(8), Z(8), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                move_missile(actor, DVector3(actor->spr.angle.ToVector() * 16, 0), 8, 8, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
                 if (RANDOM_P2(1024)<700)
                     actor->user.ID = 0;
@@ -7997,16 +7995,13 @@ int DoPlasmaFountain(DSWActor* actor)
 
 int DoPlasma(DSWActor* actor)
 {
-    int32_t dax, day, daz;
-	
 	auto oldv = actor->spr.pos;
     DoBlurExtend(actor, 0, 4);
 
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
+    auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+    double daz = actor->spr.zvel * zinttoworld;
 
-    actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     {
         // this sprite is supposed to go through players/enemys
@@ -8024,7 +8019,7 @@ int DoPlasma(DSWActor* actor)
 					actor->spr.pos = oldv;
 
                     hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                    actor->user.coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                    actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
                     hitActor->spr.cstat = hcstat;
                 }
             }
@@ -8948,15 +8943,12 @@ int DoRailPuff(DSWActor* actor)
 
 int DoBoltThinMan(DSWActor* actor)
 {
-    int32_t dax, day, daz;
-
     DoBlurExtend(actor, 0, 4);
 
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
+	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	double daz = actor->spr.zvel * zinttoworld;
 
-    actor->user.coll = move_missile(actor, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -9522,16 +9514,13 @@ int DoUziBullet(DSWActor* actor)
 
 int DoBoltSeeker(DSWActor* actor)
 {
-    int32_t dax, day, daz;
-
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
     DoBlurExtend(actor, 0, 4);
 
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
+	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	double daz = actor->spr.zvel * zinttoworld;
 
-    actor->user.coll = move_missile(actor, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -9561,19 +9550,16 @@ int DoBoltFatMan(DSWActor* actor)
 
 int DoElectro(DSWActor* actor)
 {
-    int32_t dax, day, daz;
-
     DoBlurExtend(actor, 0, 4);
 
     // only seek on Electro's after a hit on an actor
     if (actor->user.Counter > 0)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
-    dax = MOVEx(actor->spr.xvel, actor->int_ang());
-    day = MOVEy(actor->spr.xvel, actor->int_ang());
-    daz = actor->spr.zvel;
+	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	double daz = actor->spr.zvel * zinttoworld;
 
-    actor->user.coll = move_missile(actor, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -16297,18 +16283,16 @@ int InitEnemyMine(DSWActor* actor)
 
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
-    int xchange, ychange;
-
     auto old_xvel = actor->spr.xvel;
     auto old_clipdist = actor->spr.clipdist;
 
     actor->spr.xvel = dist;
-    xchange = MOVEx(actor->spr.xvel, actor->int_ang());
-    ychange = MOVEy(actor->spr.xvel, actor->int_ang());
+	
+	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
 
     actor->spr.clipdist = 32L >> 2;
 
-    actor->user.coll = move_missile(actor, xchange, ychange, 0, Z(16), Z(16), 0, 1);
+    actor->user.coll = move_missile(actor, DVector3(vec, 0), 16, 16, 0, 1);
 
     actor->spr.xvel = old_xvel;
     actor->spr.clipdist = old_clipdist;
