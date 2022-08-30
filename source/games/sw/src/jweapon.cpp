@@ -1200,8 +1200,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     }
     else
     {
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+		UpdateChangeXY(actorNew);
         actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
         actorNew->user.Radius = 4000;
     }
@@ -1371,8 +1370,7 @@ int InitChemBomb(DSWActor* actor)
     }
     else
     {
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+		UpdateChangeXY(actorNew);
         actorNew->user.change.Z = actorNew->spr.zvel >> 1;
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 3*120;
@@ -1680,8 +1678,7 @@ int InitCaltrops(DSWActor* actor)
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
-    actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-    actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
@@ -1793,8 +1790,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
-        actorNew->user.change.X = MOVEx(actorNew->spr.xvel, actorNew->int_ang());
-        actorNew->user.change.Y = MOVEy(actorNew->spr.xvel, actorNew->int_ang());
+		UpdateChangeXY(actorNew);
         actorNew->user.change.Z = actorNew->spr.zvel >> 1;
 
         if (!GlobalSkipZrange)
