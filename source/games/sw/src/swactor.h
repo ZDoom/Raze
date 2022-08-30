@@ -42,6 +42,12 @@ inline void UpdateChangeXY(DSWActor* actor)
 	actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
 }
 
+inline void UpdateChange(DSWActor* actor, double zfactor = 1.0)
+{
+	UpdateChangeXY(actor);
+	actor->user.change.Z = int(actor->spr.zvel * zfactor);
+}
+
 
 // subclassed to add a game specific actor() method
 

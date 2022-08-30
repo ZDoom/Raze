@@ -1272,8 +1272,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
     actorNew->user.change.X += pp->vect.X >> 14;
@@ -1312,8 +1311,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     actorNew->spr.clipdist = 80L >> 2;
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+	UpdateChange(actorNew, 0.5);
 
     // Smoke will come out for this many seconds
     actorNew->user.WaitTics = CHEMTICS;
@@ -1357,8 +1355,7 @@ int InitChemBomb(DSWActor* actor)
     }
     else
     {
-		UpdateChangeXY(actorNew);
-        actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+		UpdateChange(actorNew, 0.5);
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 3*120;
     }
@@ -1626,8 +1623,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     plActor->spr.clipdist = uint8_t(oclipdist);
     actorNew->spr.clipdist = 80L >> 2;
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
     actorNew->user.change.X += pp->vect.X >> 14;
@@ -1664,8 +1660,7 @@ int InitCaltrops(DSWActor* actor)
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+	UpdateChange(actorNew, 0.5);
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;
@@ -1703,8 +1698,7 @@ int InitPhosphorus(DSWActor* actor)
 
     actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = (actorNew->spr.zvel >> 1);
+	UpdateChange(actorNew, 0.5);
 
     return 0;
 }
@@ -1769,8 +1763,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
-		UpdateChangeXY(actorNew);
-        actorNew->user.change.Z = actorNew->spr.zvel >> 1;
+		UpdateChange(actorNew, 0.5);
 
         if (!GlobalSkipZrange)
             DoActorZrange(actorNew);
@@ -2183,8 +2176,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags &= ~(SPR_BOUNCE|SPR_UNDERWATER); // Make em' bounce
 
-	UpdateChangeXY(actorNew);
-    actorNew->user.change.Z = actorNew->spr.zvel;
+	UpdateChange(actorNew);
 
     actorNew->user.jump_speed = 200;
     actorNew->user.jump_speed += RandomRange(400);
