@@ -136,7 +136,7 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
 void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
-void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize);
+void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& pos, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,sectortype*);
 DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
@@ -9886,7 +9886,7 @@ void SpawnFireballExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor, actorNew, Z(15), Z(15));
+    SpawnExpZadjust(actor, actorNew, 15, 15);
 
     if (RANDOM_P2(1024) < 150)
         SpawnFireballFlames(actorNew, nullptr);
@@ -9917,7 +9917,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor, actorNew, Z(15), Z(15));
+    SpawnExpZadjust(actor, actorNew, 15, 15);
 }
 
 void SpawnBoltExp(DSWActor* actor)
@@ -9942,7 +9942,7 @@ void SpawnBoltExp(DSWActor* actor)
         expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     expActor->user.Radius = DamageData[DMG_BOLT_EXP].radius;
 
-    SpawnExpZadjust(actor, expActor, Z(40), Z(40));
+    SpawnExpZadjust(actor, expActor, 40, 40);
 
     DoExpDamageTest(expActor);
 
@@ -9990,7 +9990,7 @@ void SpawnTankShellExp(DSWActor* actor)
         expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     expActor->user.Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
-    SpawnExpZadjust(actor, expActor, Z(40), Z(40));
+    SpawnExpZadjust(actor, expActor, 40, 40);
     DoExpDamageTest(expActor);
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
@@ -10027,7 +10027,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
         return;
     }
 
-    SpawnExpZadjust(actor, expActor, Z(50), Z(10));
+    SpawnExpZadjust(actor, expActor, 50, 10);
     InitChemBomb(expActor);
 }
 
@@ -10087,7 +10087,7 @@ void SpawnNuclearExp(DSWActor* actor)
 
     expActor->user.Radius = NUKE_RADIUS;
 
-    SpawnExpZadjust(actor, expActor, Z(30), Z(30));
+    SpawnExpZadjust(actor, expActor, 30, 30);
 
     DoExpDamageTest(expActor);
 
@@ -10166,7 +10166,7 @@ void SpawnMicroExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor, expActor, Z(20), Z(20));
+    SpawnExpZadjust(actor, expActor, 20, 20);
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
@@ -10288,7 +10288,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
         return;
     }
 
-    SpawnExpZadjust(actor, expActor, Z(50), Z(10));
+    SpawnExpZadjust(actor, expActor, 50, 10);
     expActor->backuppos();
 }
 
@@ -10348,7 +10348,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor, expActor, Z(100), Z(30));
+    SpawnExpZadjust(actor, expActor, 100, 30);
 
     DoExpDamageTest(expActor);
 
@@ -10356,10 +10356,8 @@ void SpawnGrenadeExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 0);
 }
 
-void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize_, int lower_zsize_)
+void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize)
 {
-	double upper_zsize = upper_zsize_ * zinttoworld;
-	double lower_zsize = lower_zsize_ * zinttoworld;
     double tos_z, bos_z;
 
     ASSERT(expActor->hasU());
@@ -10428,7 +10426,7 @@ void SpawnMineExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor, expActor, Z(100), Z(20));
+    SpawnExpZadjust(actor, expActor, 100, 20);
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 
     SetExpQuake(expActor);
@@ -10489,7 +10487,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_SECTOR_EXP].radius;
 
-    SpawnExpZadjust(actor, expActor, Z(50), Z(50));
+    SpawnExpZadjust(actor, expActor, 50, 50);
 
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
