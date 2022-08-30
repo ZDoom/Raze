@@ -6390,10 +6390,8 @@ int MissileZrange(DSWActor* actor)
 }
 
 
-Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist, double flor_dist, uint32_t cliptype, int numtics)
 {
-    double ceil_dist = ceildist * zinttoworld, flor_dist = flordist * zinttoworld;
-
     Collision retval{};
     double zH;
 
@@ -6417,9 +6415,10 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
 
 
+	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
     clipmove(clip_pos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
+                      (((int) actor->spr.clipdist) << 2), ceil_dist, flor_dist, cliptype, retval, 1);
     actor->spr.pos.XY() = clip_pos.XY();
 
     if (dasect == nullptr)
@@ -6447,7 +6446,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // missiles don't need the water to be down
     MissileWaterAdjust(actor);
 
-    clip_pos.Z = actor->spr.pos.Z + ((zchange * numtics) >> 3) * zinttoworld;
+    clip_pos.Z = actor->spr.pos.Z + ((change.Z * numtics) * 0.125);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
