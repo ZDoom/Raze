@@ -329,7 +329,7 @@ int DoSkullBeginDeath(DSWActor* actor)
     actor->user.Tics = 0;
     actor->user.ID = SKULL_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusSkull;
-    actor->user.OverlapZ = Z(64);
+    actor->user.OverlapZ = 64;
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     actor->spr.shade = -40;
 
@@ -698,7 +698,7 @@ int DoBettyBeginDeath(DSWActor* actor)
     actor->user.Tics = 0;
     actor->user.ID = BETTY_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusBetty;
-    actor->user.OverlapZ = Z(64);
+    actor->user.OverlapZ = 64;
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     actor->spr.shade = -40;
 

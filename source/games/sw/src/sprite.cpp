@@ -843,7 +843,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.Radius = 220;
     actor->user.Sibling = -1;
     actor->user.WaitTics = 0;
-    actor->user.OverlapZ = Z(4);
+    actor->user.OverlapZ = 4;
     actor->user.bounce = 0;
 
     actor->user.motion_blur_num = 0;
@@ -4255,22 +4255,18 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 
 bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 {
-    int spa_tos, spa_bos, spb_tos, spb_bos, overlap_z;
-
     if (!actor_a->hasU() || !actor_b->hasU()) return false;
     if ((unsigned)DistanceI(actor_a->spr.pos, actor_b->spr.pos) > actor_a->user.Radius + actor_b->user.Radius)
     {
         return false;
     }
 
-    spa_tos = int_ActorZOfTop(actor_a);
-    spa_bos = int_ActorZOfBottom(actor_a);
+    double spa_tos = ActorZOfTop(actor_a);
+    double spa_bos = ActorZOfBottom(actor_a);
+    double spb_tos = ActorZOfTop(actor_b);
+    double spb_bos = ActorZOfBottom(actor_b);
 
-    spb_tos = int_ActorZOfTop(actor_b);
-    spb_bos = int_ActorZOfBottom(actor_b);
-
-
-    overlap_z = actor_a->user.OverlapZ + actor_b->user.OverlapZ;
+    double overlap_z = actor_a->user.OverlapZ + actor_b->user.OverlapZ;
 
     // if the top of sprite a is below the bottom of b
     if (spa_tos - overlap_z > spb_bos)

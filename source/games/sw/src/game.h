@@ -1035,7 +1035,7 @@ struct USER
     int16_t BladeDamageTics;
 
     unsigned int Radius;    // for distance checking
-    int  OverlapZ;  // for z overlap variable
+    double  OverlapZ;  // for z overlap variable
 
     //
     // Only have a place for actors
