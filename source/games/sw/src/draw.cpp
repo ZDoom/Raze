@@ -338,9 +338,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     else
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(tSpr->int_pos().X - Player[screenpeek].si.X, tSpr->int_pos().Y - Player[screenpeek].si.Y);
-        tSpr->add_int_x(bcos(look, -9));
-        tSpr->add_int_y(bsin(look, -9));
+        auto look = VecToAngle(tSpr->pos.XY() - Player[screenpeek].si.XY());
+		tSpr->pos.XY() += look.ToVector() * 2;
     }
 
     // Check for voxel items and use a round generic pic if so
@@ -752,13 +751,13 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
                         tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
-                    vec3_t pos;
+                    DVector3 pos;
                     if (pp->Flags & (PF_CLIMBING))
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->int_ang());
-                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->int_ang());
+                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->angle);
+                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->angle);
                     }
                     else
                     {
@@ -766,8 +765,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                         pos.Y = pp->si.Y;
                     }
 
-                    pos.Z = tsp->int_pos().Z + pp->si.Z;
-                    tsp->set_int_pos(pos);
+                    pos.Z = tsp->pos.Z + pp->si.Z;
+					tsp->pos = pos;
                     tsp->set_int_ang(pp->siang);
                     //continue;
                 }
@@ -1412,9 +1411,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         updatesectorz(tx, ty, tz, &tsect);
     }
 
-    pp->si.X = tx;
-    pp->si.Y = ty;
-    pp->si.Z = tz - pp->int_ppos().Z;
+    pp->si.X = tx * inttoworld;
+    pp->si.Y = ty * inttoworld;
+    pp->si.Z = tz * zinttoworld - pp->pos.Z;
     pp->siang = tang.Buildang();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);

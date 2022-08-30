@@ -654,7 +654,7 @@ struct PLAYER
     sectortype* hi_sectp, *lo_sectp;
 
     int circle_camera_dist;
-    vec3_t si; // save player interp position for PlayerSprite
+    DVector3 si; // save player interp position for PlayerSprite
     int16_t siang;
 
     vec2_t vect, ovect, slide_vect;
