@@ -7833,9 +7833,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
         dist = ksqrt(SQ(actor->int_pos().X - goal->int_pos().X) + SQ(actor->int_pos().Y - goal->int_pos().Y) + (SQ(actor->int_pos().Z - zh)>>8));
 
-        ox = actor->user.int_change().X;
-        oy = actor->user.int_change().Y;
-        oz = actor->user.int_change().Z;
+		auto oc = actor->user.change;
 
         actor->user.set_int_change_x(Scale(actor->spr.xvel, goal->int_pos().X - actor->int_pos().X, dist));
         actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
@@ -7843,9 +7841,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
         // the large turn_speed is the slower the turn
 
-        actor->user.set_int_change_x((actor->user.int_change().X + ox*(turn_speed-1))/turn_speed);
-        actor->user.set_int_change_y((actor->user.int_change().Y + oy*(turn_speed-1))/turn_speed);
-        actor->user.set_int_change_z((actor->user.int_change().Z + oz*(turn_speed-1))/turn_speed);
+        actor->user.change += (oc * (turn_speed-1)) / turn_speed;
 
         SetAngleFromChange(actor);
     }
