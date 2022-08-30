@@ -8109,20 +8109,17 @@ void WallBounce(DSWActor* actor, DAngle ang)
 }
 
 
-bool SlopeBounce(DSWActor* actor, bool *hit_wall)
+bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 {
-    int k,l;
-    int hiz,loz;
+    double hiz, loz;
     int slope;
-    int dax,day,daz;
-    short daang;
 
     auto hit_sector = actor->user.coll.hitSector;
 
     getzsofslopeptr(hit_sector, actor->spr.pos, &hiz, &loz);
 
     // detect the ceiling and the hit_wall
-    if (actor->int_pos().Z < ((hiz+loz) >> 1))
+    if (actor->spr.pos.Z < ((hiz + loz) * 0.5))
     {
         if (!(hit_sector->ceilingstat & CSTAT_SECTOR_SLOPE))
             slope = 0;
@@ -8141,39 +8138,37 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
         return false;
 
     // if greater than a 45 degree angle
-    if (labs(slope) > 4096)
+    if (abs(slope) > 4096)
         *hit_wall = true;
     else
         *hit_wall = false;
 
     // get angle of the first wall of the sector
     auto wallp = hit_sector->firstWall();
-    daang = getangle(wallp->delta());
+    DAngle daang = VecToAngle(wallp->delta());
 
     // k is now the slope of the ceiling or floor
 
     // normal vector of the slope
-    dax = MulScale(slope, bsin(daang), 14);
-    day = MulScale(slope, -bcos(daang), 14);
-    daz = 4096; // 4096 = 45 degrees
+    double dax = slope * daang.Sin();
+    double day = slope * -daang.Cos();
+    double daz = 256; // 4096/256 = 45 degrees
 
     // reflection code
-    k = ((actor->user.int_change().X*dax) + (actor->user.int_change().Y*day)) + MulScale(actor->user.int_change().Z, daz, 4);
-    l = (dax*dax) + (day*day) + (daz*daz);
+    double k = actor->user.change.X * dax + actor->user.change.Y * day + actor->user.change.Z * daz;
+    double l = (dax * dax) + (day * day) + (daz * daz);
 
-    // make sure divscale doesn't overflow
-    if ((abs(k)>>14) < l)
-    {
-        k = DivScale(k, l, 17);
-        actor->user.add_int_change_x(-MulScale(dax, k, 16));
-        actor->user.add_int_change_y(-MulScale(day, k, 16));
-        actor->user.add_int_change_z(-MulScale(daz, k, 12));
+    k /= l;
 
-		SetAngleFromChange(actor);
-    }
+    actor->user.change.X = dax * k;
+    actor->user.change.Y = day * k;
+    actor->user.change.Z = daz * k * 16;
+
+    SetAngleFromChange(actor);
 
     return true;
 }
+
 
 extern STATE s_Phosphorus[];
 
