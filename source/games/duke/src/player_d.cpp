@@ -146,46 +146,47 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 //
 //---------------------------------------------------------------------------
 
-static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
+static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAngle sang)
 {
-	int vel, zvel = 0;
+	double vel, zvel = 0;
 
 	if (actor->spr.extra >= 0)
 		actor->spr.shade = -96;
-	vel = 400;
+	vel = 25;
 
 	DDukeActor* spawned = nullptr;
 	if (p < 0)
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].player_int_opos().X - sx, ps[j].player_int_opos().Y - sy);
+		sang = VecToAngle(ps[j].opos.XY() - spos.XY());
 
 		if (actor->spr.picnum == BOSS5)
 		{
-			vel = 528;
-			sz += 6144;
+			vel = 33;
+			spos.Z += 24;
 		}
 		else if (actor->spr.picnum == BOSS3)
-			sz -= 8192;
+			spos.Z -= 32;
 
-		int l = ldist(ps[j].GetActor(), actor);
+		double l = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		if (l != 0)
-			zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
+			zvel = ((ps[j].opos.Z - spos.Z) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
-			sa = (short)(actor->int_ang() + (krand() & 31) - 16);
+			sang = actor->spr.angle + DAngle::fromBuild((krand() & 31) - 16);
 
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
 	else
 	{
-		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
+		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16) * zinttoworld;
+		
+		// WTF???
+		DAngle myang = (DAngle90 - (DAngle180 - fabs(fabs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180)));
 		if (ps[p].GetActor()->spr.xvel != 0)
-			vel = (int)((((512 - (1024
-				- abs(abs(getangle(sx - ps[p].player_int_opos().X, sy - ps[p].player_int_opos().Y) - sa) - 1024)))
-				* 0.001953125f) * ps[p].GetActor()->spr.xvel) + 400);
+			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->spr.xvel) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
@@ -194,14 +195,15 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	{
 		spawned = spawn(actor, FLAMETHROWERFLAME);
 		if (!spawned) return;
-		spawned->spr.xvel = (short)vel;
-		spawned->spr.zvel = (short)zvel;
+		spawned->spr.xvel = (short)(vel * worldtoint);
+		spawned->spr.zvel = (short)(zvel * zworldtoint);
 	}
 
-	spawned->set_int_pos({ sx + bsin(sa + 630) / 448, sy + bsin(sa + 112) / 448, sz - 256 });
+	spawned->spr.pos = spos + (sang + DAngle::fromBuild(112)).ToVector() * 7;
+	spawned->spr.pos.Z--;
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-	spawned->set_int_ang(sa);
+	spawned->spr.angle = sang;
 	spawned->spr.xrepeat = 2;
 	spawned->spr.yrepeat = 2;
 	spawned->spr.clipdist = 40;
@@ -212,7 +214,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	{
 		if (actor->spr.picnum == BOSS5)
 		{
-			spawned->add_int_pos({ -bsin(sa) / 56, bcos(sa) / 56, 0 });
+			spawned->spr.pos += sang.ToVector() * (128. / 7);
 			spawned->spr.xrepeat = 10;
 			spawned->spr.yrepeat = 10;
 		}
@@ -1040,6 +1042,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 			}
 		}
 	}
+	DVector3 spos(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
+	DAngle sang = DAngle::fromBuild(sa);
 
 	if (isWorldTour()) 
 	{ // Twentieth Anniversary World Tour
@@ -1050,7 +1054,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			return;
 
 		case FLAMETHROWERFLAME:
-			shootflamethrowerflame(actor, p, sx, sy, sz, sa);
+			shootflamethrowerflame(actor, p, spos, sang);
 			return;
 
 		case FIREFLY: // BOSS5 shot
