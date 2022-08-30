@@ -241,14 +241,14 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	}
 	case kViewEffectTrail:
 	{
-		int nAng = pTSprite->int_ang();
+		auto nAng = pTSprite->angle;
 		if (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 		{
-			nAng = (nAng + 512) & 2047;
+			nAng += DAngle90;
 		}
 		else
 		{
-			nAng = (nAng + 1024) & 2047;
+			nAng += DAngle180;
 		}
 		for (int i = 0; i < 5; i++)
 		{
@@ -257,10 +257,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			if (!pNSprite)
 				break;
 
-			int nLen = 128 + (i << 7);
-			int x = MulScale(nLen, Cos(nAng), 30);
-			int y = MulScale(nLen, Sin(nAng), 30);
-			pNSprite->set_int_pos({ pTSprite->int_pos().X + x, pTSprite->int_pos().Y + y, pTSprite->int_pos().Z });
+			double nLen = 8.0 * (i + 1);
+			auto vect = nAng.ToVector() * nLen;
+			pNSprite->pos = pTSprite->pos + vect;
 			assert(pSector);
 			auto pSector2 = pSector;
 			updatesectorz(pNSprite->pos, &pSector2);
