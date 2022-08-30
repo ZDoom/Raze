@@ -7555,7 +7555,7 @@ int DoStar(DSWActor* actor)
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.motion_blur_num = 0;
             actor->user.coll.setNone();
-            actor->user.invertChangeZ();
+            actor->user.change.Z = -actor->user.change.Z;
 
             // 32000 to 96000
 			xscale = 64000 + (RandomRange(64000) - 32000);
@@ -8364,7 +8364,7 @@ int DoGrenade(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.invertChangeZ();
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 40000); // 18000
                         actor->user.change.Z /= 4;
                         PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
@@ -8387,7 +8387,7 @@ int DoGrenade(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 22000);
                     PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
                 }
@@ -8546,13 +8546,13 @@ int DoVulcanBoulder(DSWActor* actor)
                     if (actor->user.int_change().Z > Z(24))
                         actor->user.set_int_change_z(Z(24));
 
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
 
                 }
                 else
                 // hit unsloped ceiling
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 30000);
                 }
             }
@@ -9163,7 +9163,7 @@ int DoLaser(DSWActor* actor)
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-            actorNew->user.clearChange();
+            actor->user.change.Zero();
         }
     }
 }
@@ -17778,7 +17778,7 @@ int DoShrapVelocity(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.invertChangeZ();
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 18000);
                         switch (actor->user.ID)
                         {
@@ -17802,7 +17802,7 @@ int DoShrapVelocity(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 22000);
                 }
             }
@@ -18042,13 +18042,13 @@ int DoItemFly(DSWActor* actor)
                 actor->spr.pos.Z = actor->user.loz;
                 actor->user.Counter = 0;
                 actor->spr.xvel = 0;
-                actor->user.clearChange();
+                actor->user.change.Zero();
                 return false;
             }
             else
             // hit something above
             {
-                actor->user.invertChangeZ();
+                actor->user.change.Z = -actor->user.change.Z;
                 ScaleSpriteVector(actor, 22000);
             }
             break;

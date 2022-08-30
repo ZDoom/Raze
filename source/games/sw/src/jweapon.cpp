@@ -305,7 +305,7 @@ void SpawnMidSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
-	actorNew->user.clearChange();
+	actor->user.change.Zero();
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -325,7 +325,7 @@ void SpawnFloorSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
-	actorNew->user.clearChange();
+	actor->user.change.Zero();
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -394,7 +394,7 @@ int DoBloodSpray(DSWActor* actor)
             }
             else
             {
-                actor->user.clearChangeXY();
+                actor->user.change.X = actor->user.change.Y = 0;
                 SpawnMidSplash(actor);
                 QueueWallBlood(actor, hitActor->int_ang());
                 KillActor(actor);
@@ -439,7 +439,7 @@ int DoBloodSpray(DSWActor* actor)
                 }
 
                 actor->spr.xvel = actor->spr.yvel = 0;
-                actor->user.clearChangeXY();
+                actor->user.change.X = actor->user.change.Y = 0;
                 actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
                 actor->spr.pos.XY() = bldActor->spr.pos.XY();
 
@@ -488,7 +488,7 @@ int DoBloodSpray(DSWActor* actor)
                 else
 #endif
                 {
-                    actor->user.clearChangeXY();
+                    actor->user.change.X = actor->user.change.Y = 0;
                     SpawnFloorSplash(actor);
                     KillActor(actor);
                     return true;
@@ -497,7 +497,7 @@ int DoBloodSpray(DSWActor* actor)
             else
             // hit something above
             {
-                actor->user.invertChangeZ();
+                actor->user.change.Z = -actor->user.change.Z;
                 ScaleSpriteVector(actor, 32000);       // was 22000
             }
             break;
@@ -590,7 +590,7 @@ int DoPhosphorus(DSWActor* actor)
                         SpawnFireballFlames(actor, hitActor);
                     DoFlamesDamageTest(actor);
                 }
-                actor->user.clearChangeXY();
+                actor->user.change.X = actor->user.change.Y = 0;
                 KillActor(actor);
                 return true;
             }
@@ -649,7 +649,7 @@ int DoPhosphorus(DSWActor* actor)
                         }
                         else
                         {
-                            actor->user.clearChangeXY();
+                            actor->user.change.X = actor->user.change.Y = 0;
                             SpawnFireballExp(actor);
                             KillActor(actor);
                             return true;
@@ -680,13 +680,13 @@ int DoPhosphorus(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.invertChangeZ();
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
                         actor->user.change.Z /= 6;
                     }
                     else
                     {
-                        actor->user.clearChangeXY();
+                        actor->user.change.X = actor->user.change.Y = 0;
                         SpawnFireballExp(actor);
                         KillActor(actor);
                         return true;
@@ -695,7 +695,7 @@ int DoPhosphorus(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
@@ -791,7 +791,7 @@ int DoChemBomb(DSWActor* actor)
                     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                     PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
                 }
-                actor->user.clearChangeXY();
+                actor->user.change.X = actor->user.change.Y = 0;
                 actor->user.WaitTics -= (MISSILEMOVETICS * 2);
                 if (actor->user.WaitTics <= 0)
                     KillActor(actor);
@@ -861,7 +861,7 @@ int DoChemBomb(DSWActor* actor)
                                 PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
                             }
                             SpawnRadiationCloud(actor);
-                            actor->user.clearChangeXY();
+                            actor->user.change.X = actor->user.change.Y = 0;
                             actor->user.WaitTics -= (MISSILEMOVETICS * 2);
                             if (actor->user.WaitTics <= 0)
                                 KillActor(actor);
@@ -895,7 +895,7 @@ int DoChemBomb(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.invertChangeZ();
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
                         actor->user.change.Z /= 6;
                     }
@@ -908,7 +908,7 @@ int DoChemBomb(DSWActor* actor)
                             PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
                         }
                         SpawnRadiationCloud(actor);
-                        actor->user.clearChangeXY();
+                        actor->user.change.X = actor->user.change.Y = 0;
                         actor->user.WaitTics -= (MISSILEMOVETICS * 2);
                         if (actor->user.WaitTics <= 0)
                             KillActor(actor);
@@ -918,7 +918,7 @@ int DoChemBomb(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
@@ -1008,7 +1008,7 @@ int DoCaltrops(DSWActor* actor)
             else
             {
                 // fall to the ground
-                actor->user.clearChangeXY();
+                actor->user.change.X = actor->user.change.Y = 0;
             }
 
 
@@ -1064,7 +1064,7 @@ int DoCaltrops(DSWActor* actor)
                         }
                         else
                         {
-                            actor->user.clearChangeXY();
+                            actor->user.change.X = actor->user.change.Y = 0;
                             actor->spr.extra |= (SPRX_BREAKABLE);
                             actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
                             ChangeState(actor, s_CaltropsStick);
@@ -1097,12 +1097,12 @@ int DoCaltrops(DSWActor* actor)
                         actor->user.Flags |= (SPR_BOUNCE);
                         actor->user.coll.setNone();
                         actor->user.Counter = 0;
-                        actor->user.invertChangeZ();
+                        actor->user.change.Z = -actor->user.change.Z;
                         ScaleSpriteVector(actor, 1000);    // Was 18000
                     }
                     else
                     {
-                        actor->user.clearChangeXY();
+                        actor->user.change.X = actor->user.change.Y = 0;
                         actor->spr.extra |= (SPRX_BREAKABLE);
                         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
                         ChangeState(actor, s_CaltropsStick);
@@ -1112,7 +1112,7 @@ int DoCaltrops(DSWActor* actor)
                 else
                 // hit something above
                 {
-                    actor->user.invertChangeZ();
+                    actor->user.change.Z = -actor->user.change.Z;
                     ScaleSpriteVector(actor, 1000);        // was 22000
                 }
             }
@@ -1348,7 +1348,7 @@ int InitChemBomb(DSWActor* actor)
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
-		actorNew->user.clearChange();
+		actor->user.change.Zero();
         actorNew->spr.xvel = actorNew->spr.yvel = actorNew->spr.zvel = 0;
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 40*120;

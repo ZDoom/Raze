@@ -949,10 +949,7 @@ struct USER
 	void add_int_change_z(int x) { change.Z += x * zinttoworld; }
 
 	// frequently repeated patterns
-	void clearChange() { change.X = change.Y = change.Z = 0; }
-	void clearChangeXY() { change.X = change.Y = 0; }
 	void addCounterToChange() { change.Z += Counter * zinttoworld; }
-	void invertChangeZ() { change.Z = -change.Z; }
 	
 
     //
