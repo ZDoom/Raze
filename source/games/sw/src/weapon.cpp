@@ -7778,6 +7778,11 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
     return 0;
 }
 
+void SetAngleFromChange(DSWActor* actor)
+{
+	actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+}
+
 // completely vector manipulation
 int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
@@ -7849,7 +7854,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
         actor->user.change.Y = (actor->user.change.Y + oy*(turn_speed-1))/turn_speed;
         actor->user.change.Z = (actor->user.change.Z + oz*(turn_speed-1))/turn_speed;
 
-        actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+        SetAngleFromChange(actor);
     }
 
     return 0;
@@ -7905,7 +7910,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
         actor->user.change.Y = (actor->user.change.Y + oy*7)/8;
         actor->user.change.Z = (actor->user.change.Z + oz*7)/8;
 
-		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+		SetAngleFromChange(actor);
     }
 
     return 0;
@@ -8117,7 +8122,7 @@ void WallBounce(DSWActor* actor, short ang)
     actor->user.change.Y = DMulScale(dax, k, -day, l, 14);
 
     old_ang = actor->int_ang();
-	actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+	SetAngleFromChange(actor);
 
     // hack to prevent missile from sticking to a wall
     //
@@ -8125,7 +8130,7 @@ void WallBounce(DSWActor* actor, short ang)
     {
         actor->user.change.X = -actor->user.change.X;
         actor->user.change.Y = -actor->user.change.Y;
-		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+		SetAngleFromChange(actor);
     }
 }
 
@@ -8190,7 +8195,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
         actor->user.change.Y -= MulScale(day, k, 16);
         actor->user.change.Z -= MulScale(daz, k, 12);
 
-		actor->spr.angle = VecToAngle(actor->user.change.X, actor->user.change.Y);
+		SetAngleFromChange(actor);
     }
 
     return true;

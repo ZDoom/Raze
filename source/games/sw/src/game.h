@@ -940,6 +940,7 @@ struct USER
 
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
+	vec3_t int_change() const { return change; }
 	
 	// frequently repeated patterns
 	void clearChange() { change.X = change.Y = change.Z = 0; }
