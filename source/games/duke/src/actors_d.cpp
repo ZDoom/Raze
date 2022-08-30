@@ -1321,7 +1321,7 @@ static bool movefireball(DDukeActor* actor)
 					if (trail)
 					{
 						FireProj* proj = &trail->fproj;
-						ball->set_int_pos(proj->pos);
+						ball->spr.pos = trail->temp_pos;
 						ball->spr.xvel = proj->vel.X;
 						ball->spr.yvel = proj->vel.Y;
 						ball->spr.zvel = proj->vel.Z;
@@ -1331,7 +1331,8 @@ static bool movefireball(DDukeActor* actor)
 				ball->spr.cstat = actor->spr.cstat;
 				ball->spr.extra = 0;
 
-				ball->fproj = { ball->int_pos(), { ball->spr.xvel, ball->spr.yvel, ball->spr.zvel } };
+				ball->temp_pos = ball->spr.pos;
+				ball->fproj.vel = { ball->spr.xvel, ball->spr.yvel, ball->spr.zvel };
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
