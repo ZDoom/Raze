@@ -767,7 +767,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
 
                     pos.Z = tsp->pos.Z + pp->si.Z;
 					tsp->pos = pos;
-                    tsp->set_int_ang(pp->siang);
+                    tsp->angle = pp->siang;
                     //continue;
                 }
                 else
@@ -1414,7 +1414,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     pp->si.X = tx * inttoworld;
     pp->si.Y = ty * inttoworld;
     pp->si.Z = tz * zinttoworld - pp->pos.Z;
-    pp->siang = tang.Buildang();
+    pp->siang = tang;
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     int vis = g_visibility;

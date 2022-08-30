@@ -655,7 +655,7 @@ struct PLAYER
 
     int circle_camera_dist;
     DVector3 si; // save player interp position for PlayerSprite
-    int16_t siang;
+    DAngle siang;
 
     vec2_t vect, ovect, slide_vect;
     int friction;
