@@ -1197,7 +1197,8 @@ int SpawnRadiationCloud(DSWActor* actor)
 
 int DoRadiationCloud(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, -actor->spr.zvel });
+	actor->spr.pos.XY() += actor->user.change;
+    actor->add_int_z(-actor->spr.zvel);
 
     if (actor->user.ID)
     {

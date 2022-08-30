@@ -7887,17 +7887,13 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
 
         dist = ksqrt(SQ(actor->int_pos().X - goal->int_pos().X) + SQ(actor->int_pos().Y - goal->int_pos().Y) + (SQ(actor->int_pos().Z - zh)>>8));
 
-        ox = actor->user.int_change().X;
-        oy = actor->user.int_change().Y;
-        oz = actor->user.int_change().Z;
+		auto oc = actor->user.change;
 
         actor->user.set_int_change_x(Scale(actor->spr.xvel, goal->int_pos().X - actor->int_pos().X, dist));
         actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
         actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
 
-        actor->user.set_int_change_x((actor->user.int_change().X + ox*7)/8);
-        actor->user.set_int_change_y((actor->user.int_change().Y + oy*7)/8);
-        actor->user.set_int_change_z((actor->user.int_change().Z + oz*7)/8);
+        actor->user.change += oc * (7./8);
 
 		SetAngleFromChange(actor);
     }
@@ -8080,14 +8076,14 @@ int DoEelFire(DSWActor* actor)
 
 void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez)
 {
-	actor->user.set_int_change_x(MulScale(actor->user.int_change().X, scalex, 16));
-	actor->user.set_int_change_y(MulScale(actor->user.int_change().Y, scaley, 16));
-	actor->user.set_int_change_z(MulScale(actor->user.int_change().Z, scalez, 16));
+	actor->user.change.X *= FixedToFloat(scalex);
+	actor->user.change.Y *= FixedToFloat(scaley);
+	actor->user.change.Z *= FixedToFloat(scalez);
 }
 
 void ScaleSpriteVector(DSWActor* actor, int scale)
 {
-	ScaleSpriteVector(actor, scale, scale, scale);
+	actor->user.change *= FixedToFloat(scale);
 }
 
 void WallBounce(DSWActor* actor, short ang)
@@ -8114,8 +8110,7 @@ void WallBounce(DSWActor* actor, short ang)
     //
     if (old_ang == actor->int_ang())
     {
-        actor->user.set_int_change_x(-actor->user.int_change().X);
-        actor->user.set_int_change_y(-actor->user.int_change().Y);
+        actor->user.change.XY() = -actor->user.change.XY();
 		SetAngleFromChange(actor);
     }
 }
@@ -8504,8 +8499,8 @@ int DoVulcanBoulder(DSWActor* actor)
                         actor->user.Counter = 0;
 
                         // limit to a reasonable bounce value
-                        if (actor->user.int_change().Z > Z(32))
-                            actor->user.set_int_change_z(Z(32));
+                        if (actor->user.change.Z > 32)
+                            actor->user.change.Z = 32;
                     }
                     else
                     {
@@ -8527,8 +8522,8 @@ int DoVulcanBoulder(DSWActor* actor)
 					ScaleSpriteVector(actor, 20000, 20000, 32000);
 
                     // limit to a reasonable bounce value
-                    if (actor->user.int_change().Z > Z(24))
-                        actor->user.set_int_change_z(Z(24));
+					if (actor->user.change.Z > 24)
+						actor->user.change.Z = 24;
 
                     actor->user.change.Z = -actor->user.change.Z;
 
@@ -8920,7 +8915,7 @@ int DoMine(DSWActor* actor)
 
 int DoPuff(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z });
+    actor->spr.pos += actor->user.change;
     return 0;
 }
 
@@ -10408,7 +10403,7 @@ int DoMineExp(DSWActor* actor)
 
 int DoSectorExp(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, 0 });
+	actor->spr.pos += actor->user.change.XY();
     return 0;
 }
 
@@ -10779,8 +10774,7 @@ int DoBloodWorm(DSWActor* actor)
 
     if (actor->user.coll.type != kHitNone)
     {
-        actor->user.set_int_change_x(-actor->user.int_change().X);
-        actor->user.set_int_change_y(-actor->user.int_change().Y);
+		actor->user.change.XY() = -actor->user.change.XY();
         actor->user.coll.setNone();
         actor->spr.angle += DAngle180;
         return true;
@@ -10977,13 +10971,10 @@ int DoMirv(DSWActor* actor)
 bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 {
     int oldvel, oldzvel;
-    int oldxc, oldyc, oldzc;
     bool retval = false;
 
     // backup values
-    oldxc = actor->user.int_change().X;
-    oldyc = actor->user.int_change().Y;
-    oldzc = actor->user.int_change().Z;
+	auto oldc = actor->user.change;
     oldvel = actor->spr.xvel;
     oldzvel = actor->spr.zvel;
 
@@ -11001,9 +10992,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     actor->user.Flags &= ~(SPR_SET_POS_DONT_KILL);
 
     // reset values
-    actor->user.set_int_change_x(oldxc);
-    actor->user.set_int_change_y(oldyc);
-    actor->user.set_int_change_z(oldzc);
+	actor->user.change = oldc;
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -11016,13 +11005,10 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 {
     int oldvel, oldzvel;
-    int oldxc, oldyc, oldzc;
     bool retval = false;
 
     // backup values
-    oldxc = actor->user.int_change().X;
-    oldyc = actor->user.int_change().Y;
-    oldzc = actor->user.int_change().Z;
+	auto oldc = actor->user.change;
     oldvel = actor->spr.xvel;
     oldzvel = actor->spr.zvel;
 
@@ -11041,9 +11027,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     actor->user.Flags &= ~(SPR_SET_POS_DONT_KILL);
 
     // reset values
-    actor->user.set_int_change_x(oldxc);
-    actor->user.set_int_change_y(oldyc);
-    actor->user.set_int_change_z(oldzc);
+	actor->user.change = oldc;
     actor->spr.xvel = oldvel;
     actor->spr.zvel = oldzvel;
 
@@ -16266,7 +16250,7 @@ int InitEnemyMine(DSWActor* actor)
     MissileSetPos(actorNew, DoMine, 300);
     actorNew->spr.angle += DAngle90;
 
-    actorNew->user.set_int_change_z(-5000);
+    actorNew->user.change. Z = -5000 / 256.;
 	UpdateChangeXY(actorNew);
 
     return 0;
@@ -16847,7 +16831,8 @@ DSWActor* SpawnBubble(DSWActor* actor)
 
 int DoVehicleSmoke(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, -actor->spr.zvel });
+	actor->spr.pos.XY() += actor->user.change.XY();
+    actor->add_int_z(-actor->spr.zvel);
     return false;
 }
 
@@ -17975,8 +17960,7 @@ int DoItemFly(DSWActor* actor)
             }
             else
             {
-                actor->user.set_int_change_x(-actor->user.int_change().X);
-                actor->user.set_int_change_y(-actor->user.int_change().Y);
+				actor->user.change.XY() = -actor->user.change.XY();
             }
 
             break;
