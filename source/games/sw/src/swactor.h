@@ -39,7 +39,7 @@ public:
 inline void UpdateChangeXY(DSWActor* actor)
 {
 	actor->user.set_int_change_x(MOVEx(actor->spr.xvel, actor->int_ang()));
-	actor->user.change.Y = MOVEy(actor->spr.xvel, actor->int_ang());
+	actor->user.set_int_change_y(MOVEy(actor->spr.xvel, actor->int_ang()));
 }
 
 inline void UpdateChange(DSWActor* actor, double zfactor = 1.0)

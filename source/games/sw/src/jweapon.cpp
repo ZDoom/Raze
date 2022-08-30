@@ -1186,7 +1186,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     {
         actorNew->user.Radius = 2000;
         actorNew->user.set_int_change_x((MOVEx(actorNew->spr.xvel>>2, actorNew->int_ang())));
-        actorNew->user.change.Y = (MOVEy(actorNew->spr.xvel>>2, actorNew->int_ang()));
+        actorNew->user.set_int_change_y((MOVEy(actorNew->spr.xvel>>2, actorNew->int_ang())));
         actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
     }
     else
