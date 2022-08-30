@@ -98,11 +98,7 @@ bool ActorFlaming(DSWActor* actor)
     auto flame = actor->user.flameActor;
     if (flame != nullptr)
     {
-        int size;
-
-        size = int_ActorSizeZ(actor) - (int_ActorSizeZ(actor) >> 2);
-
-        if (int_ActorSizeZ(flame) > size)
+        if (ActorSizeZ(flame) > ActorSizeZ(actor) * 0.75)
             return true;
     }
 

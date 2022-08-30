@@ -1726,8 +1726,7 @@ int InitPhosphorus(DSWActor* actor)
 
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
-    int nx, ny, nz;
-    short i, cnt, ang, vel, rnd;
+    short cnt, vel, rnd;
 
 
     if (dogib)
@@ -1746,10 +1745,9 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         PlaySound(DIGI_GIBS3, actor, v3df_none);
     //    }
 
-    ang = actor->int_ang();
     vel = velocity;
-
-    for (i=0; i<cnt; i++)
+	DAngle ang = actor->spr.angle;
+    for (int i=0; i<cnt; i++)
     {
 
         if (velocity == -1)
@@ -1758,17 +1756,13 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
             vel = 105+RandomRange(100);
 
         if (dogib)
-            ang = NORM_ANGLE(ang + 512 + RandomRange(200));
+            ang = ang + DAngle90 + DAngle::fromBuild(RandomRange(200));
         else
-            ang = NORM_ANGLE(ang+1024+256 - RandomRange(256));
-
-        nx = actor->int_pos().X;
-        ny = actor->int_pos().Y;
-        nz = int_ActorZOfTop(actor)-20;
+            ang = ang + DAngle180 + DAngle45 - DAngle::fromBuild(RandomRange(256));
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->sector(),
-                        nx, ny, nz, ang, vel*2);
+                        ActorVectOfTop(actor).plusZ(- 20/256.), ang, vel*2);
 
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
         if (dogib)
@@ -2106,7 +2100,7 @@ int DoFlag(DSWActor* actor)
             // attach weapon to sprite
             actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
-            actor->user.pos.Z = hitActor->spr.pos.Z - (int_ActorSizeZ(hitActor) >> 1) * zinttoworld;
+            actor->user.pos.Z = hitActor->spr.pos.Z - ActorSizeZ(hitActor) * 0.5;
         }
     }
 
