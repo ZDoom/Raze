@@ -1290,17 +1290,10 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
 void DoSpawnTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    int nx, ny;
-
-    nx = MOVEx(512, actor->int_ang());
-    ny = MOVEy(512, actor->int_ang());
-
-    nx += actor->int_pos().X;
-    ny += actor->int_pos().Y;
+    DVector2 vect = MOVExy(512, actor->spr.angle);
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         nx, ny, int_ActorZOfTop(actor) + Z(16),
-                         actor->int_ang(), 0);
+                         ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.angle, 0);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 
