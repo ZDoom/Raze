@@ -1462,12 +1462,12 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		Collision coll;
 		auto sect = actor->sector();
-		auto pos = actor->int_pos();
+		auto pos = actor->spr.pos;
 		int j = clipmove(pos, &sect,
 			(MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14) * TICSPERFRAME) << 11,
 			(MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14) * TICSPERFRAME) << 11,
-			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
-		actor->set_int_pos(pos);
+			24, (4 << 8), (4 << 8), CLIPMASK1, coll);
+		actor->spr.pos = pos;;
 		actor->setsector(sect);
 
 		if (j == kHitWall)
@@ -2773,6 +2773,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	{
 		int x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 		int q = getincangle(actor->int_ang(), x) >> 3;
+		DAngle qAngle = DAngle::fromBuild(q);
 
 		actor->temp_data[2] += q;
 		actor->add_int_ang(q);
@@ -2870,14 +2871,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				(a2->spr.picnum != SECTOREFFECTOR || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
 					a2->spr.picnum != LOCATORS)
 			{
-				auto pos = a2->int_pos();
-				rotatepoint(actor->int_pos().vec2, a2->int_pos().vec2, q, &pos.vec2);
-
-				pos.X += m;
-				pos.Y += x;
-				a2->set_int_pos(pos);
-
-				a2->add_int_ang(q);
+				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), qAngle) + DVector2(mm, xx);
+				a2->spr.angle += qAngle;
 
 				if (numplayers > 1)
 				{
