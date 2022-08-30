@@ -91,11 +91,6 @@ public:
 		spr.pos += { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
 	}
 
-	void set_int_pos(const vec3_t& add)
-	{
-		spr.pos = { add.X* inttoworld, add.Y* inttoworld, add.Z* zinttoworld };
-	}
-
 	constexpr int int_ang() const
 	{
 		return spr.angle.Buildang();

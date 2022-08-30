@@ -527,10 +527,6 @@ struct tspritetype : public spritetypebase
 	DCoreActor* ownerActor;
 	int time;
 
-	void set_int_pos(const vec3_t& ipos)
-	{
-		pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
-	}
 	void add_int_x(int x)
 	{
 		pos.X += x * inttoworld;
