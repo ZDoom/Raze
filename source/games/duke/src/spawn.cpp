@@ -1098,7 +1098,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 
 	int x1 = wal->wall_int_pos().X;
 	int y1 = wal->wall_int_pos().Y;
-	auto delta = wal->delta() / (n + 1);
+	auto delta = wal->int_delta() / (n + 1);
 
 	x1 -= Sgn(delta.Y);
 	y1 += Sgn(delta.X);
@@ -1154,7 +1154,7 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 		int x1 = wal.wall_int_pos().X;
 		int y1 = wal.wall_int_pos().Y;
 
-		auto delta = wal.delta() / (n + 1);
+		auto delta = wal.int_delta() / (n + 1);
 
 		for (j = n; j > 0; j--)
 		{
@@ -1193,7 +1193,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 	int x1 = wal->wall_int_pos().X;
 	int y1 = wal->wall_int_pos().Y;
 
-	auto delta = wal->delta() / (n + 1);
+	auto delta = wal->int_delta() / (n + 1);
 
 	for (j = n; j > 0; j--)
 	{

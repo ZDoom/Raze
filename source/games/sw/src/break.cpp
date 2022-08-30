@@ -729,7 +729,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
     int nx,ny;
     int wall_ang;
 
-    wall_ang = NORM_ANGLE(getangle(wp->delta())+512);
+    wall_ang = NORM_ANGLE(getangle(wp->int_delta())+512);
 
     *sectp = wp->sectorp();
     ASSERT(*sectp);

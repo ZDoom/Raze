@@ -303,7 +303,7 @@ static int insideLoop(int vertex, TArray<int>& loop)
 	{
 		// to reliably detect walls where vertices lie directly on outer walls, we must test the wall's center as well.
 		// SW: Wanton Destrcution's $bath.map, sector 601 is an example for that.
-		if (i == 1) pt += wall[vertex].delta() / 2; 
+		if (i == 1) pt += wall[vertex].int_delta() / 2; 
 		bool c = false;
 		for (unsigned ii = 0; ii < loop.Size() - 1; ii++)
 		{

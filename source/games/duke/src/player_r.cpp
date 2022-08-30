@@ -410,7 +410,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							if (hole)
 							{
 								hole->spr.xvel = -1;
-								auto delta = hit.hitWall->delta();
+								auto delta = hit.hitWall->int_delta();
 								hole->set_int_ang(getangle(-delta.X, -delta.Y) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
@@ -2368,7 +2368,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
+	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->int_delta()));
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
@@ -2422,8 +2422,8 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto delta = wal->delta();
-	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
+	auto delta = wal->int_delta();
+	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->int_delta()));
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
 

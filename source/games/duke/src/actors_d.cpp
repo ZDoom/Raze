@@ -1418,7 +1418,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3 &oldpo
 		(!isWorldTour() || proj->spr.picnum != FIREBALL) &&
 		(wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		int k = getangle(wal->delta());
+		int k = getangle(wal->int_delta());
 		proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
@@ -1437,7 +1437,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3 &oldpo
 				proj->spr.yvel--;
 			}
 
-			int k = getangle(wal->delta());
+			int k = getangle(wal->int_delta());
 			proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
 			return true;
 		}
@@ -2641,7 +2641,7 @@ static void heavyhbomb(DDukeActor *actor)
 		auto wal = coll.hitWall;
 		fi.checkhitwall(actor, wal, actor->spr.pos, actor->spr.picnum);
 
-		int k = getangle(wal->delta());
+		int k = getangle(wal->int_delta());
 
 		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
 		actor->spr.xvel >>= 1;

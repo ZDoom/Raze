@@ -949,7 +949,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	int x1 = wal->wall_int_pos().X;
 	int y1 = wal->wall_int_pos().Y;
 
-	auto delta = wal->delta();
+	auto delta = wal->int_delta();
 
 	x1 -= Sgn(delta.X);
 	y1 += Sgn(delta.Y);

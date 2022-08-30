@@ -425,9 +425,9 @@ struct walltype
 	walltype* nextWall() const;
 	walltype* lastWall(bool fast  = true) const;
 	walltype* point2Wall() const;
-	vec2_t delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
+	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
 	DVector2 fdelta() const { return point2Wall()->pos - pos; }
-	vec2_t center() const { return(point2Wall()->wall_int_pos() + wall_int_pos()) / 2; }
+	vec2_t int_center() const { return(point2Wall()->wall_int_pos() + wall_int_pos()) / 2; }
 	DVector2 fcenter() const { return(point2Wall()->pos + pos) / 2; }
 	int deltax() const { return point2Wall()->wall_int_pos().X - wall_int_pos().X; }
 	int deltay() const { return point2Wall()->wall_int_pos().Y - wall_int_pos().Y; }

@@ -959,7 +959,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, f
         {
             *vsect = hit.hitSector;
 
-            daang = getangle(hit.hitWall->delta());
+            daang = getangle(hit.hitWall->int_delta());
 
             i = vx * bsin(daang) + vy * -bcos(daang);
             if (abs(vx) > abs(vy))

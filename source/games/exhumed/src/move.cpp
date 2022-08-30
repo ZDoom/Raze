@@ -1180,7 +1180,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
 int GetWallNormal(walltype* pWall)
 {
-	auto delta = pWall->delta();
+	auto delta = pWall->int_delta();
 
     int nAngle = getangle(delta.X, delta.Y);
     return (nAngle + 512) & kAngleMask;

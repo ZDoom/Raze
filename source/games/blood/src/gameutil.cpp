@@ -236,14 +236,14 @@ bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 
 int GetWallAngle(walltype* pWall)
 {
-	auto delta = pWall->delta();
+	auto delta = pWall->int_delta();
 	return getangle(delta.X, delta.Y);
 }
 
 void GetWallNormal(walltype* pWall, int* pX, int* pY)
 {
 
-	auto delta = pWall->delta();
+	auto delta = pWall->int_delta();
 	int dX = -delta.Y >> 4;
 	int dY = delta.X >> 4;
 

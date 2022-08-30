@@ -62,7 +62,7 @@ void walltype::calcLength()
 {
 	lengthflags &= ~1;
 	point2Wall()->lengthflags &= ~2;
-	auto d = delta();
+	auto d = int_delta();
 	length = (int)sqrt(d.X * d.X + d.Y * d.Y);
 }
 

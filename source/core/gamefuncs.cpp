@@ -170,7 +170,7 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 		int len = wal->Length();
 		if (len != 0)
 		{
-			float fac = (wal->deltax() * (float(ypos - wal->wall_int_pos().Y)) - wal->deltay() * (float(xpos - wal->wall_int_pos().X))) * (1.f / 256.f) / len;
+			float fac = (wal->int_delta().X * (float(ypos - wal->wall_int_pos().Y)) - wal->int_delta().Y * (float(xpos - wal->wall_int_pos().X))) * (1.f / 256.f) / len;
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
@@ -245,7 +245,7 @@ void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
 int getslopeval(sectortype* sect, int x, int y, int z, int basez)
 {
 	auto wal = sect->firstWall();
-	auto delta = wal->delta();
+	auto delta = wal->int_delta();
 	int i = (y - wal->wall_int_pos().Y) * delta.X - (x - wal->wall_int_pos().X) * delta.Y;
 	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
 }

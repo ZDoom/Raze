@@ -244,7 +244,7 @@ void AddFlash(sectortype* pSector, const DVector3& pos, int val)
 
 	for (auto& wal : wallsofsector(pSector))
     {
-		auto average = wal.center();
+		auto average = wal.int_center();
 
         sectortype *pNextSector = NULL;
         if (wal.twoSided())
