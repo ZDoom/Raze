@@ -3852,7 +3852,7 @@ int DoVomitSplash(DSWActor* actor)
 
 int DoFastShrapJumpFall(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.change.X * 2, actor->user.change.Y * 2, actor->user.change.Z * 2 });
+    actor->add_int_pos({ actor->user.int_change().X * 2, actor->user.int_change().Y * 2, actor->user.int_change().Z * 2 });
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
         KillActor(actor);
@@ -8184,7 +8184,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     daz = 4096; // 4096 = 45 degrees
 
     // reflection code
-    k = ((actor->user.change.X*dax) + (actor->user.change.Y*day)) + MulScale(actor->user.int_change().Z, daz, 4);
+    k = ((actor->user.int_change().X*dax) + (actor->user.int_change().Y*day)) + MulScale(actor->user.int_change().Z, daz, 4);
     l = (dax*dax) + (day*day) + (daz*daz);
 
     // make sure divscale doesn't overflow
@@ -8520,7 +8520,7 @@ int DoVulcanBoulder(DSWActor* actor)
                         actor->user.Counter = 0;
 
                         // limit to a reasonable bounce value
-                        if (actor->user.change.Z > Z(32))
+                        if (actor->user.int_change().Z > Z(32))
                             actor->user.change.Z = Z(32);
                     }
                     else
@@ -8543,7 +8543,7 @@ int DoVulcanBoulder(DSWActor* actor)
 					ScaleSpriteVector(actor, 20000, 20000, 32000);
 
                     // limit to a reasonable bounce value
-                    if (actor->user.change.Z > Z(24))
+                    if (actor->user.int_change().Z > Z(24))
                         actor->user.change.Z = Z(24);
 
                     actor->user.invertChangeZ();

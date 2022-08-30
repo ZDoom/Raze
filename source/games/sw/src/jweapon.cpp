@@ -352,7 +352,7 @@ int DoBloodSpray(DSWActor* actor)
     if (actor->spr.xvel <= 2)
     {
         // special stuff for blood worm
-        actor->add_int_z((actor->user.change.Z >> 1));
+        actor->add_int_z((actor->user.int_change().Z >> 1));
 
         getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
         // pretend like we hit a sector
