@@ -3850,7 +3850,7 @@ int DoVomitSplash(DSWActor* actor)
 
 int DoFastShrapJumpFall(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X * 2, actor->user.int_change().Y * 2, actor->user.int_change().Z * 2 });
+    actor->spr.pos += actor->user.change * 2;
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
         KillActor(actor);
@@ -3860,7 +3860,7 @@ int DoFastShrapJumpFall(DSWActor* actor)
 
 int DoTracerShrap(DSWActor* actor)
 {
-    actor->add_int_pos({ actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_change().Z });
+	actor->spr.pos += actor->user.change;
 
     actor->user.WaitTics -= MISSILEMOVETICS;
     if (actor->user.WaitTics <= 0)
@@ -7380,8 +7380,6 @@ int DoMineExpMine(DSWActor* actor)
 
 int DoStar(DSWActor* actor)
 {
-    int vel;
-
     const int STAR_STICK_RNUM = 400;
     const int STAR_BOUNCE_RNUM = 600;
 
@@ -7391,9 +7389,9 @@ int DoStar(DSWActor* actor)
         actor->user.motion_blur_num = 0;
         ScaleSpriteVector(actor, 54000);
 
-        vel = ksqrt(SQ(actor->user.int_change().X) + SQ(actor->user.int_change().Y));
+		auto velsq = actor->user.change.XY().LengthSquared();
 
-        if (vel > 100)
+        if (velsq > 6.25 * 6.25)
         {
             if ((RANDOM_P2(1024 << 4) >> 4) < 128)
                 SpawnBubble(actor);
@@ -7412,10 +7410,10 @@ int DoStar(DSWActor* actor)
     }
     else
     {
-        vel = ksqrt(SQ(actor->user.int_change().X) + SQ(actor->user.int_change().Y));
+		auto velsq = actor->user.change.XY().LengthSquared();
 
 
-        if (vel < 800)
+        if (velsq < 50 * 50)
         {
             actor->user.Counter += 50;
             actor->user.addCounterToChange();
@@ -7508,9 +7506,8 @@ int DoStar(DSWActor* actor)
 
             ScaleSpriteVector(actor, 58000);
 
-            vel = ksqrt(SQ(actor->user.int_change().X) + SQ(actor->user.int_change().Y));
-
-            if (vel < 500)
+			auto velsq = actor->user.change.XY().LengthSquared();
+            if (velsq < 31.25 * 31.25)
                 break; // will be killed below - actor != 0
 
             // 32000 to 96000
@@ -7745,9 +7742,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
     DSWActor* goal = actor->user.WpnGoalActor;
     if (goal != nullptr)
     {
-        int oz;
-
-        // move to correct angle
+         // move to correct angle
         ang2tgt = getangle(goal->int_pos().X - actor->int_pos().X, goal->int_pos().Y - actor->int_pos().Y);
 
         delta_ang = getincangle(ang2tgt, actor->int_ang());
@@ -7768,17 +7763,17 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
 
         dist = ksqrt(SQ(actor->int_pos().X - goal->int_pos().X) + SQ(actor->int_pos().Y - goal->int_pos().Y) + (SQ(actor->int_pos().Z - zh)>>8));
 
-        oz = actor->user.int_change().Z;
+        double oz = actor->user.change.Z;
 
         actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
-        actor->user.set_int_change_z((actor->user.int_change().Z + oz*15)/16);
+		actor->user.change.Z += oz * (15 / 16.);
     }
     return 0;
 }
 
 void SetAngleFromChange(DSWActor* actor)
 {
-	actor->spr.angle = VecToAngle(actor->user.int_change().X, actor->user.int_change().Y);
+	actor->spr.angle = VecToAngle(actor->user.change);
 }
 
 // completely vector manipulation
