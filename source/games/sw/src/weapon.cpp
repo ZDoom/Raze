@@ -53,7 +53,7 @@ struct MISSILE_PLACEMENT
 
 
 void SpawnZombie2(DSWActor*);
-Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYER*);
 void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 
@@ -10784,7 +10784,7 @@ int DoBloodWorm(DSWActor* actor)
     int xvect,yvect;
     int amt;
 
-    actor->user.coll = move_ground_missile(actor, actor->user.int_change().X, actor->user.int_change().Y, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    actor->user.coll = move_ground_missile(actor, actor->user.change.XY(), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (actor->user.coll.type != kHitNone)
     {

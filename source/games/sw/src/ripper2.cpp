@@ -1062,19 +1062,16 @@ int DoRipper2HangJF(DSWActor* actor)
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
     DSWActor* target = actor->user.targetActor;
-    short tang;
 
-    tang = getangle(target->int_pos().X - actor->int_pos().X, target->int_pos().Y - actor->int_pos().Y);
+	// Always jump at player if mad.
 
-    // Always jump at player if mad.
+	auto vec = (target->spr.pos.XY() - actor->spr.pos.XY()).Unit() * 8;
+	Collision coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
-	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
-							   0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_ACTOR, ACTORMOVETICS);
-    if (coll.type != kHitNone)
-        actor->set_int_ang(NORM_ANGLE((actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6)));
-    else
-        actor->set_int_ang(NORM_ANGLE(tang));
-
+	if (coll.type != kHitNone)
+		actor->spr.angle += DAngle180 + DAngle::fromBuild(RANDOM_NEG(256, 6) >> 6);
+	else
+		actor->spr.angle = VecToAngle(vec);
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

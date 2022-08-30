@@ -4598,6 +4598,7 @@ bool DropAhead(DSWActor* actor, int  min_height)
 
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
+	DVector3 change(xchange * inttoworld, ychange * inttoworld, zchange * zinttoworld);
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp;
@@ -4622,8 +4623,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     hi_sectp = actor->user.hi_sectp;
     auto sect = actor->sector();
 
-    actor->user.coll = move_sprite(actor, xchange, ychange, zchange,
-                         actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), cliptype, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, change, actor->user.ceiling_dist, actor->user.floor_dist, cliptype, ACTORMOVETICS);
 
     ASSERT(actor->insector());
 
@@ -6516,8 +6516,9 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist
 }
 
 
-Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
+	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
     Collision retval{};
     int ox,oy;
 
@@ -6551,7 +6552,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
             actor->user.z_tgt = 0;
     }
 
-    actor->add_int_pos({ xchange / 2, ychange / 2, 0 });
+	actor->spr.pos += change * 0.5;
 
     updatesector(actor->spr.pos, &dasect);
 
