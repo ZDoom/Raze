@@ -741,8 +741,6 @@ int DoCoolgCircle(DSWActor* actor)
 
 int DoCoolgDeath(DSWActor* actor)
 {
-    int nx, ny;
-
     actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
     actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
     actor->spr.xrepeat = 42;
@@ -763,10 +761,9 @@ int DoCoolgDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+	auto vec = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
 
-    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground

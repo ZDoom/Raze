@@ -1298,7 +1298,6 @@ int DoActorMoveJump(DSWActor* actor)
 
 Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, int *stopz)
 {
-    int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
 
     DSWActor* highActor;
@@ -1321,10 +1320,9 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
 
     // do the move
     actor->set_int_ang(ang);
-    nx = MulScale(dist, bcos(actor->int_ang()), 14);
-    ny = MulScale(dist, bsin(actor->int_ang()), 14);
+	auto vec = actor->spr.angle.ToVector() * dist * inttoworld;
 
-    Collision ret = move_sprite(actor, nx, ny, 0, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), cliptype, 1);
+    Collision ret = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
 
     // should I look down with a FAFgetzrange to see where I am?

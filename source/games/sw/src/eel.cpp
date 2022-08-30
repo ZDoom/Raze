@@ -509,7 +509,6 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
 int DoEelDeath(DSWActor* actor)
 {
-    int nx, ny;
     if (actor->user.Flags & (SPR_FALLING))
     {
         DoFall(actor);
@@ -525,10 +524,9 @@ int DoEelDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+	auto vec = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
 
-    actor->user.coll = move_sprite(actor, nx, ny, 0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_MISSILE, ACTORMOVETICS);
+    actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);
 
     // on the ground

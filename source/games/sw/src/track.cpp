@@ -3362,7 +3362,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     TRACK_POINT* tpoint;
     short pnum;
-    int nx = 0, ny = 0, nz = 0;
+	DVector3 vec(0,0,0);
 
     // if not on a track then better not go here
     if (actor->user.track == -1)
@@ -3462,8 +3462,6 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             actor->spr.xvel = (actor->user.track_vel) >> 8;
         }
 
-        nx = 0;
-        ny = 0;
 
         if (actor->user.Flags & (SPR_CLIMBING))
         {
@@ -3490,17 +3488,14 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         else
         {
             // calculate a new x and y
-            nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-            ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+			vec.XY() = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
         }
 
-        nz = 0;
-
         if (actor->spr.zvel)
-            nz = actor->spr.zvel * locktics;
+            vec.Z = actor->spr.zvel * locktics * zinttoworld;
     }
 
-    actor->user.coll = move_sprite(actor, nx, ny, nz, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, locktics);
+    actor->user.coll = move_sprite(actor, vec, actor->user.ceiling_dist, actor->user.floor_dist, 0, locktics);
 
 
     if (actor->user.coll.type != kHitNone)

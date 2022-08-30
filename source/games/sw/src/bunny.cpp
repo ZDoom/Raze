@@ -830,17 +830,16 @@ int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     DSWActor* target = actor->user.targetActor;
-    int tang;
 
-    tang = getangle(target->spr.pos - actor->spr.pos);
+    DAngle tang = VecToAngle(target->spr.pos - actor->spr.pos);
 
-    Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
-        0L, actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), CLIPMASK_ACTOR, ACTORMOVETICS);
+    Collision coll = move_sprite(actor, DVector3(tang.ToVector() * 8, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
+	auto rndang = DAngle::fromBuild(RANDOM_NEG(256, 6) >> 6);
     if (coll.type != kHitNone)
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024) + (RANDOM_NEG(256, 6) >> 6));
-    else
-        actor->set_int_ang(NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6)));
+		actor->spr.angle += DAngle180 + rndang; 
+	else
+		actor->spr.angle = tang + rndang;
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

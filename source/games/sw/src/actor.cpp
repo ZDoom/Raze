@@ -371,9 +371,7 @@ int DoActorSectorDamage(DSWActor* actor)
 
 bool move_debris(DSWActor* actor, const DVector2& change)
 {
-    actor->user.coll = move_sprite(actor, change.X * worldtoint, change.Y * worldtoint, 0,
-                         actor->user.int_ceiling_dist(), actor->user.int_floor_dist(), 0, ACTORMOVETICS);
-
+    actor->user.coll = move_sprite(actor, DVector3(change, 0), actor->user.ceiling_dist, actor->user.floor_dist, 0, ACTORMOVETICS);
     return actor->user.coll.type == kHitNone;
 }
 
