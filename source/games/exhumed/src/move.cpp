@@ -535,9 +535,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     }
 
     Collision coll;
-    auto pos = pActor->int_pos();
-    clipmove(pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
-    pActor->set_int_pos(pos);
+    clipmove(pActor->spr.pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -1028,10 +1026,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->int_pos().Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                auto lpos = pActor->int_pos();
-                clipmove(lpos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
-                pActor->set_int_pos(lpos);
-
+                clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
             }
         }
     }

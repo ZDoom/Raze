@@ -2297,11 +2297,8 @@ static void greenslime(DDukeActor *actor)
 		if (s5)
 		{
 			s5->spr.xvel = 0;
-
-			int l = s5->int_ang();
-
-			actor->set_int_pos({ s5->int_pos().X + bcos(l, -11), s5->int_pos().Y + bsin(l, -11), s5->int_pos().Z });
-
+			
+			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
 			if (actor->spr.yrepeat < 64) actor->spr.yrepeat += 2;
