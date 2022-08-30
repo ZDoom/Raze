@@ -2617,7 +2617,7 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 	}
 
 	walltype* pWall = pSector->firstWall();
-	int angle = getangle(pWall->fdelta()) + 512;
+	int angle = getangle(pWall->delta()) + 512;
 	int t2 = pSector->floorheinum << 4;
 	int t3 = approxDist(-0x10000, t2);
 	int t4 = DivScale(-0x10000, t3, 16);

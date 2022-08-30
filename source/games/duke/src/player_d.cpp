@@ -889,7 +889,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			bomb->spr.xvel = -20;
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-			auto delta = hit.hitWall->fdelta();
+			auto delta = hit.hitWall->delta();
 			bomb->spr.angle = VecToAngle(-delta.X, -delta.Y) - DAngle90;
 			bomb->temp_angle = bomb->spr.angle;
 

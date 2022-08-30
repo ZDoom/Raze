@@ -449,25 +449,25 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, point2wall, wall_point2wall)
 double wall_deltax(walltype* wal)
 {
 	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
-	return wal->deltax();
+	return wal->delta().X;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, deltax, wall_point2wall)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
-	ACTION_RETURN_FLOAT(self->deltax());
+	ACTION_RETURN_FLOAT(self->delta().X);
 }
 
 double wall_deltay(walltype* wal)
 {
 	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
-	return wal->deltay();
+	return wal->delta().Y;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, deltay, wall_point2wall)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
-	ACTION_RETURN_FLOAT(self->deltay());
+	ACTION_RETURN_FLOAT(self->delta().Y);
 }
 
 double wall_length(walltype* wal)

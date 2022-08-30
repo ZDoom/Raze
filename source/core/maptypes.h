@@ -379,6 +379,9 @@ struct walltype
 	DVector2 pos;
 
 	vec2_t wall_int_pos() const { return vec2_t(pos.X * worldtoint, pos.Y * worldtoint); };
+	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
+	vec2_t int_center() const { return(point2Wall()->wall_int_pos() + wall_int_pos()) / 2; }
+
 	void setPosFromMap(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
 
 	int32_t point2;
@@ -425,12 +428,8 @@ struct walltype
 	walltype* nextWall() const;
 	walltype* lastWall(bool fast  = true) const;
 	walltype* point2Wall() const;
-	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
-	DVector2 fdelta() const { return point2Wall()->pos - pos; }
-	vec2_t int_center() const { return(point2Wall()->wall_int_pos() + wall_int_pos()) / 2; }
-	DVector2 fcenter() const { return(point2Wall()->pos + pos) / 2; }
-	int deltax() const { return point2Wall()->wall_int_pos().X - wall_int_pos().X; }
-	int deltay() const { return point2Wall()->wall_int_pos().Y - wall_int_pos().Y; }
+	DVector2 delta() const { return point2Wall()->pos - pos; }
+	DVector2 center() const { return(point2Wall()->pos + pos) / 2; }
 	bool twoSided() const { return nextsector >= 0; }
 	int Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.

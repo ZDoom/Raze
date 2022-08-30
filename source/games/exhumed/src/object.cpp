@@ -393,7 +393,7 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
 
     auto pActor = insertActor(pSector, 401);
 
-	pActor->spr.pos = DVector3(wal->fcenter(), (pSector->floorz + pSector->ceilingz) * 0.5);
+	pActor->spr.pos = DVector3(wal->center(), (pSector->floorz + pSector->ceilingz) * 0.5);
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     return pActor;
