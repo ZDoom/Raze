@@ -160,7 +160,7 @@ void viewDrawAimedPlayerName(void)
 static TArray<uint8_t> lensdata;
 int* lensTable;
 
-extern int dword_172CE0[16][3];
+extern DAngle random_angles[16][3];
 
 //---------------------------------------------------------------------------
 //
@@ -187,9 +187,9 @@ void viewInit(void)
 
 	for (int i = 0; i < 16; i++)
 	{
-		dword_172CE0[i][0] = MulScale(wrand(), 2048, 16);
-		dword_172CE0[i][1] = MulScale(wrand(), 2048, 16);
-		dword_172CE0[i][2] = MulScale(wrand(), 2048, 16);
+		random_angles[i][0] = randomAngle();
+		random_angles[i][1] = randomAngle();
+		random_angles[i][2] = randomAngle();
 	}
 }
 

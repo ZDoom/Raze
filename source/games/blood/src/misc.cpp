@@ -52,5 +52,10 @@ void wsrand(int seed)
 	wRandSeed = seed;
 }
 
+DAngle randomAngle()
+{
+	return DAngle::fromQ16(wrand());
+}
+
 
 END_BLD_NS

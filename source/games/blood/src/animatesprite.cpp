@@ -42,41 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 static DAngle gCameraAng;
-int dword_172CE0[16][3];
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void RotateYZ(int*, int* pY, int* pZ, int ang)
-{
-	int oY, oZ, angSin, angCos;
-	oY = *pY;
-	oZ = *pZ;
-	angSin = Sin(ang);
-	angCos = Cos(ang);
-	*pY = dmulscale30r(oY, angCos, oZ, -angSin);
-	*pZ = dmulscale30r(oY, angSin, oZ, angCos);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void RotateXZ(int* pX, int*, int* pZ, int ang)
-{
-	int oX, oZ, angSin, angCos;
-	oX = *pX;
-	oZ = *pZ;
-	angSin = Sin(ang);
-	angCos = Cos(ang);
-	*pX = dmulscale30r(oX, angCos, oZ, -angSin);
-	*pZ = dmulscale30r(oX, angSin, oZ, angCos);
-}
+DAngle random_angles[16][3];
 
 //---------------------------------------------------------------------------
 //
@@ -180,17 +146,21 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			if (!pNSprite)
 				break;
 
-			int ang = (PlayClock * 2048) / 120;
-			int nRand1 = dword_172CE0[i][0];
-			int nRand2 = dword_172CE0[i][1];
-			int nRand3 = dword_172CE0[i][2];
+			auto ang = DAngle::fromBuild((PlayClock * 2048) / 120).Normalized360();
+			auto nRand1 = random_angles[i][0];
+			auto nRand2 = random_angles[i][1];
+			auto nRand3 = random_angles[i][2];
 			ang += nRand3;
-			int x = MulScale(512, Cos(ang), 30);
-			int y = MulScale(512, Sin(ang), 30);
-			int z = 0;
-			RotateYZ(&x, &y, &z, nRand1);
-			RotateXZ(&x, &y, &z, nRand2);
-			pNSprite->set_int_pos({ pTSprite->int_pos().X + x, pTSprite->int_pos().Y + y, pTSprite->int_pos().Z + (z << 4) });
+			auto vect = DVector3(32 * ang.ToVector(), 0);
+			DVector2 pt(vect.Y, vect.Z);
+			pt = rotatepoint({0,0}, pt, nRand1);
+			vect.Y = pt.X;
+			pt.X = vect.X;
+			pt = rotatepoint({0,0}, pt, nRand2);
+			vect.X = pt.X;
+			vect.Z = pt.Y;
+
+			pNSprite->pos = pTSprite->pos + vect;
 			pNSprite->picnum = 1720;
 			pNSprite->shade = -128;
 		}
