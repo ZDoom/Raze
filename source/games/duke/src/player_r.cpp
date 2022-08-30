@@ -2289,10 +2289,12 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
+	double floorz = fz_ * zinttoworld;
+	double ceilingz = cz_ * zinttoworld;
 
 	p->jumping_counter = 0;
 
@@ -2334,14 +2336,14 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->vel.Z > 2048)
 		p->vel.Z >>= 1;
 
-	p->player_add_int_z(p->vel.Z);
+	p->pos.Z += p->vel.Z * zinttoworld;
 
-	if (p->player_int_pos().Z > (fz - (15 << 8)))
-		p->player_add_int_z(((fz - (15 << 8)) - p->player_int_pos().Z) >> 1);
+	if (p->pos.Z > floorz - 15)
+		p->pos.Z += (((floorz - 15) - p->pos.Z) * 0.5);
 
-	if (p->player_int_pos().Z < (cz + (4 << 8)))
+	if (p->pos.Z < ceilingz + 4)
 	{
-		p->player_set_int_z(cz + (4 << 8));
+		p->pos.Z = ceilingz + 4;
 		p->vel.Z = 0;
 	}
 
@@ -2353,7 +2355,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 			j->add_int_pos({ bcos(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), bsin(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), 0 });
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
-			j->set_int_z(p->player_int_pos().Z + (8 << 8));
+			j->spr.pos.Z = p->pos.Z + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
