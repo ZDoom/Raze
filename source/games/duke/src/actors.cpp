@@ -2842,7 +2842,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (actor->sector() == psp->sector())
 				{
-					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), DAngle::fromBuild(q));
+					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), qAngle);
 
 					ps[p].pos.X = result.X + mm;
 					ps[p].pos.Y = result.Y + xx;
@@ -2850,7 +2850,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobpos.X += mm;
 					ps[p].bobpos.Y += xx;
 
-					ps[p].angle.addadjustment(DAngle::fromBuild(q));
+					ps[p].angle.addadjustment(qAngle);
 
 					if (numplayers > 1)
 					{
