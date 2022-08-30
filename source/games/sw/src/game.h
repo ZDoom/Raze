@@ -946,8 +946,6 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
-    int int_loz() const { return loz * zworldtoint; }
-    int int_hiz() const { return hiz * zworldtoint; }
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
     const vec3_t int_upos() const { return { int(pos.X * worldtoint), int(pos.Y * worldtoint),int(pos.Z * zworldtoint) }; }
