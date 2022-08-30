@@ -940,19 +940,19 @@ struct USER
 
     int int_ceiling_dist() const { return ceiling_dist * zworldtoint; }
     int int_floor_dist() const { return floor_dist * zworldtoint; }
-	vec3_t int_change() const { return change; }
-	void set_int_change_x(int x) { change.X = x; }
-	void set_int_change_y(int x) { change.Y = x; }
-	void set_int_change_z(int x) { change.Z = x; }
-	void add_int_change_x(int x) { change.X += x; }
-	void add_int_change_y(int x) { change.Y += x; }
-	void add_int_change_z(int x) { change.Z += x; }
+	vec3_t int_change() const { return { int(change.X * worldtoint), int(change.Y * worldtoint), int(change.Z * zworldtoint) }; }
+	void set_int_change_x(int x) { change.X = x * inttoworld; }
+	void set_int_change_y(int x) { change.Y = x * inttoworld; }
+	void set_int_change_z(int x) { change.Z = x * zinttoworld; }
+	void add_int_change_x(int x) { change.X += x * inttoworld; }
+	void add_int_change_y(int x) { change.Y += x * inttoworld; }
+	void add_int_change_z(int x) { change.Z += x * zinttoworld; }
 
 	// frequently repeated patterns
 	void clearChange() { change.X = change.Y = change.Z = 0; }
 	void clearChangeXY() { change.X = change.Y = 0; }
-	void addCounterToChange() { change.Z += Counter; }
-	void invertChangeZ() { change.Z = -int_change().Z; }
+	void addCounterToChange() { change.Z += Counter * zinttoworld; }
+	void invertChangeZ() { change.Z = -change.Z; }
 	
 
     //
@@ -986,12 +986,14 @@ struct USER
     TObjPtr<DSWActor*> WpnGoalActor;
 
     DVector3 pos;
+	DVector3 change; // precalculated vectors
     double hiz, loz;
     double oz; // serialized copy of sprite.oz
     double z_tgt;
     double ceiling_dist;
     double floor_dist;
     double zclip; // z height to move up for clipmove
+		
 
     int Flags;
     int Flags2;
@@ -1026,9 +1028,6 @@ struct USER
     //
     // Possibly used by both.
     //
-
-    // precalculated vectors
-    vec3_t change;
 
     // velocity
     int  vel_tgt;
