@@ -233,11 +233,6 @@ inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx,
     dist = tx + ty - (tmin >> 1);
 }
 
-inline int GetSpriteSizeY(const spritetypebase* sp)
-{
-	return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
-}
-
 inline int GetSpriteSizeZ(const spritetypebase* sp)
 {
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;

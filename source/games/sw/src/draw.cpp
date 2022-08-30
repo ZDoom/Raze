@@ -273,7 +273,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
 
     if ((tsp->yrepeat >> 2) > 4)
     {
-        yrepeat = (tsp->yrepeat >> 2) - (GetSpriteSizeY(tsp) / 64) * 2;
+		int sizey = MulScale(tileHeight(tsp->picnum), tsp->yrepeat, 6);
+        yrepeat = (tsp->yrepeat >> 2) - (sizey / 64) * 2;
         xrepeat = tsp->xrepeat;
     }
     else
