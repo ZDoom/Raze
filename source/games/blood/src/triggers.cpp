@@ -949,11 +949,10 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 			if (!(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
 			{
 				viewBackupSpriteLoc(actor);
-				if (v14)
+				if (angleofs != nullAngle)
 				{
-					auto pos = actor->int_pos();
-					RotatePoint(&pos.X, &pos.Y, v14, v20, v24);
-					actor->set_int_pos(pos);
+					DVector2 mypivot(v20 * inttoworld, v24 * inttoworld);
+					actor->spr.pos.XY() = rotatepoint(mypivot, actor->spr.pos.XY(), angleofs);
 				}
 				actor->spr.angle += angleofs;
 				actor->add_int_pos({ v28, v2c, 0 });
