@@ -775,52 +775,45 @@ void CreatePushBlock(sectortype* pSector)
 {
     int nBlock = GrabPushBlock();
 
-    int xSum = 0;
-    int ySum = 0;
+    double xSumm = 0;
+    double ySumm = 0;
 
     for (auto& wal : wallsofsector(pSector))
     {
-        xSum += wal.wall_int_pos().X;
-        ySum += wal.wall_int_pos().Y;
+        xSumm += wal.pos.X;
+        ySumm += wal.pos.Y;
     }
 
-    int xAvg = xSum / pSector->wallnum;
-    int yAvg = ySum / pSector->wallnum;
+    double xAvgg = xSumm / pSector->wallnum;
+    double yAvgg = ySumm / pSector->wallnum;
 
-    sBlockInfo[nBlock].x = xAvg;
-    sBlockInfo[nBlock].y = yAvg;
+    sBlockInfo[nBlock].x = xAvgg * worldtoint;
+    sBlockInfo[nBlock].y = yAvgg * worldtoint;
 
     auto pActor = insertActor(pSector, 0);
 
     sBlockInfo[nBlock].pActor = pActor;
 
-    pActor->set_int_pos({ xAvg, yAvg, pSector->int_floorz() - 256 });
+    pActor->spr.pos = { xAvgg, yAvgg, pSector->floorz- 1 };
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
-    int var_28 = 0;
+    double mindist = 0;
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        uint32_t xDiff = abs(xAvg - wal.wall_int_pos().X);
-        uint32_t yDiff = abs(yAvg - wal.wall_int_pos().Y);
+        double xDiff = abs(xAvgg - wal.pos.X);
+        double yDiff = abs(yAvgg - wal.pos.Y);
 
-        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+        double nSqrt = g_sqrt(xDiff * xDiff + yDiff * yDiff);
 
-        if (sqrtNum > INT_MAX)
-        {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-            sqrtNum = INT_MAX;
-        }
-
-        int nSqrt = ksqrt(sqrtNum);
-        if (nSqrt > var_28) {
-            var_28 = nSqrt;
+        if (nSqrt > mindist) {
+            mindist = nSqrt;
         }
     }
 
-    sBlockInfo[nBlock].field_8 = var_28;
+    sBlockInfo[nBlock].field_8 = mindist * worldtoint;
 
-    pActor->spr.clipdist = (var_28 & 0xFF) << 2;
+    pActor->spr.clipdist = (int(mindist * worldtoint) & 0xFF) << 2;
     pSector->extra = nBlock;
 }
 
