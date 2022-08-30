@@ -5241,17 +5241,15 @@ int MoveMissile(DBloodActor* actor)
 			actor->vel.Z += deltaz;
 		}
 	}
-	int vx = actor->vel.X >> 12;
-	int vy = actor->vel.Y >> 12;
-	int vz = actor->vel.Z >> 8;
-	int top, bottom;
+	auto vel = actor->fVel();
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	int i = 1;
 	const int bakCompat = enginecompatibility_mode;
 	const bool isFlameSprite = (actor->spr.type == kMissileFlameSpray || actor->spr.type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
 	while (1)
 	{
-		vec3_t pos = actor->int_pos();
+		auto ppos = actor->spr.pos;
 		auto pSector2 = actor->sector();
 		const auto bakSpriteCstat = actor->spr.cstat;
 		if (Owner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
@@ -5260,7 +5258,7 @@ int MoveMissile(DBloodActor* actor)
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
-		ClipMove(pos, &pSector2, vx, vy, actor->spr.clipdist << 2, (pos.Z - top) / 4, (bottom - pos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
+		ClipMove(ppos, &pSector2, vel.XY(), actor->spr.clipdist << 2, (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakSpriteCstat;
 		auto pSector = pSector2;
@@ -5280,9 +5278,9 @@ int MoveMissile(DBloodActor* actor)
 			if (!gHitInfo.hitWall->twoSided()) cliptype = 0;
 			else
 			{
-				int32_t fz, cz;
-				getzsofslopeptr(clipmoveresult.hitWall->nextSector(), pos.X, pos.Y, &cz, &fz);
-				if (pos.Z <= cz || pos.Z >= fz) cliptype = 0;
+				double fz, cz;
+				getzsofslopeptr(clipmoveresult.hitWall->nextSector(), ppos, &cz, &fz);
+				if (ppos.Z <= cz || ppos.Z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
 		}
@@ -5308,35 +5306,32 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (cliptype >= 0 && cliptype != 3)
 		{
-			int nAngle = getangle(actor->vel.X, actor->vel.Y);
-			pos.X -= MulScale(Cos(nAngle), 16, 30);
-			pos.Y -= MulScale(Sin(nAngle), 16, 30);
-			int nVel = approxDist(actor->vel.X, actor->vel.Y);
-			vz -= Scale(0x100, actor->vel.Z, nVel);
-			updatesector(pos.X, pos.Y, &pSector);
+			double nVel = actor->fVel().XY().Length();
+			ppos.XY() -= actor->fVel().XY() / nVel;
+			vel.Z -= actor->fVel().Z / nVel;
+			updatesector(ppos, &pSector);
 			pSector2 = pSector;
 		}
-		int ceilZ, floorZ;
+		double ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(pos.X, pos.Y, pos.Z, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0);
+		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
-		top += vz;
-		bottom += vz;
+		top += vel.Z;
+		bottom += vel.Z;
 		if (bottom >= floorZ)
 		{
 			actor->hit.florhit = floorColl;
-			vz += floorZ - bottom;
+			vel.Z += floorZ - bottom;
 			cliptype = 2;
 		}
 		if (top <= ceilZ)
 		{
 			actor->hit.ceilhit = ceilColl;
-			vz += ClipLow(ceilZ - top, 0);
+			vel.Z += std::max(ceilZ - top, 0.);
 			cliptype = 1;
 		}
-		actor->set_int_pos( pos);
-		actor->add_int_z(vz);
-		updatesector(pos.X, pos.Y, &pSector);
+		actor->spr.pos = ppos.plusZ(vel.Z);
+		updatesector(ppos, &pSector);
 		if (pSector != nullptr && pSector != actor->sector())
 		{
 			assert(pSector);
