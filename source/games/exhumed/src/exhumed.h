@@ -234,7 +234,7 @@ struct GameInterface : public ::GameInterface
     fixed_t playerHorizMin() override { return IntToFixed(-150); }
     fixed_t playerHorizMax() override { return IntToFixed(150); }
     int playerKeyMove() override { return 6; }
-    void WarpToCoords(int x, int y, int z, int a, int h) override;
+    void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
     vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 1536.), int(-ang.Sin() * 1536.), (horiz.asq16() * 3) >> 10); }
     void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) override;

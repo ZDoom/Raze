@@ -138,7 +138,7 @@ struct GameInterface : public ::GameInterface
 	fixed_t playerHorizMin() override { return IntToFixed(-180); }
 	fixed_t playerHorizMax() override { return IntToFixed(120); }
 	int playerKeyMove() override { return 1024; }
-	void WarpToCoords(int x, int y, int z, int a, int h) override;
+	void WarpToCoords(double x, double y, double z, DAngle a, int h) override;
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
