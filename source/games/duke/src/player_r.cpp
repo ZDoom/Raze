@@ -2059,10 +2059,12 @@ static void onBoat(int snum, ESyncBits &actions)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, int cz_, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
+	double floorz = fz_ * zinttoworld;
+	double ceilingz = cz_ * zinttoworld;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -2070,7 +2072,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 	if (p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	int i = 40;
+	double i = 40;
 	if (psectlotag == ST_1_ABOVE_WATER && p->spritebridge == 0)
 	{
 		if (shrunk == 0)
@@ -2113,15 +2115,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		footprints(snum);
 	}
 
-	if (p->player_int_pos().Z < (fz - (i << 8))) //falling
+	if (p->pos.Z < floorz - i) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->player_int_pos().Z >= (fz - (i << 8) - (16 << 8)))
-			p->player_set_int_z(fz - (i << 8));
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->pos.Z >= (floorz - i - 16))
+			p->pos.Z = floorz - i;
 		else
 		{
 			p->on_ground = 0;
 
-			if ((p->OnMotorcycle || p->OnBoat) && fz - (i << 8) * 2 > p->player_int_pos().Z)
+			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->pos.Z)
 			{
 				if (p->MotoOnGround)
 				{
@@ -2151,7 +2153,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if ((p->player_int_pos().Z + p->vel.Z) >= (fz - (i << 8))) // hit the ground
+			if (p->pos.Z + p->vel.Z * zinttoworld >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2211,18 +2213,18 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		{
 			//Smooth on the ground
 
-			int k = ((fz - (i << 8)) - p->player_int_pos().Z) >> 1;
-			if (abs(k) < 256) k = 0;
-			p->player_add_int_z(k);
+			double k = (floorz - i - p->pos.Z) * 0.5;
+			if (abs(k) < 1) k = 0;
+			p->pos.Z += k;
 			p->vel.Z -= 768;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->player_add_int_z(((fz - (i << 7)) - p->player_int_pos().Z) >> 1); //Smooth on the water
-			if (p->on_warping_sector == 0 && p->player_int_pos().Z > fz - (16 << 8))
+			p->pos.Z += ((floorz - i * 0.5) - p->pos.Z) * 0.5; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->pos.Z > floorz - 16)
 			{
-				p->player_set_int_z(fz - (16 << 8));
+				p->pos.Z = floorz - 16;
 				p->vel.Z >>= 1;
 			}
 		}
@@ -2239,7 +2241,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 		else if ((actions & SB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
 		{
-			playerJump(snum, fz, cz);
+			playerJump(snum, fz_, cz_);
 		}
 	}
 
@@ -2269,15 +2271,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 		}
 	}
 
-	p->player_add_int_z(p->vel.Z);
+	p->pos.Z += p->vel.Z * zinttoworld;
 
-	if (p->player_int_pos().Z < (cz + (4 << 8)))
+	if (p->pos.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 128;
-		p->player_set_int_z(cz + (4 << 8));
+		p->pos.Z = ceilingz + 4;
 	}
 }
 
