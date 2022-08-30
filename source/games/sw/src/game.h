@@ -943,7 +943,6 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
-	vec3_t int_change() const { return { int(change.X * worldtoint), int(change.Y * worldtoint), int(change.Z * zworldtoint) }; }
 	void set_int_change_x(int x) { change.X = x * inttoworld; }
 	void set_int_change_y(int x) { change.Y = x * inttoworld; }
 	void set_int_change_z(int x) { change.Z = x * zinttoworld; }

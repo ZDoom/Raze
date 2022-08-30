@@ -8400,9 +8400,9 @@ int DoVulcanBoulder(DSWActor* actor)
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    int32_t const vel = ksqrt(SQ(actor->user.int_change().X) + SQ(actor->user.int_change().Y));
+	auto velsq = actor->user.change.XY().LengthSquared();
 
-    if (vel < 30)
+    if (velsq < 1.875 * 1.875)
     {
         SpawnLittleExp(actor);
         KillActor(actor);
@@ -12548,10 +12548,8 @@ int InitStar(PLAYER* pp)
         }
 
         // move the same as middle star
-        zvel = actorNew->user.int_change().Z;
-
+		actorNew2->user.change.Z = actorNew->user.change.Z;
 		UpdateChangeXY(actorNew2);
-        actorNew2->user.set_int_change_z(zvel);
 
         actorNew2->backuppos();
     }
