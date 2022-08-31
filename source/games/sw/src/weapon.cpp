@@ -14192,16 +14192,10 @@ int InitEnemyCrossbow(DSWActor* actor)
 
 int InitSkelSpell(DSWActor* actor)
 {
-    int nx, ny, nz, dist;
-
     PlaySound(DIGI_SPELEC, actor, v3df_none);
 
     // get angle to player and also face player when attacking
     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, actor->sector(),
@@ -14217,13 +14211,8 @@ int InitSkelSpell(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - nz)) / dist;
-
+    SetZVelFromTarget(actorNew, actor, false, ActorSizeZ(actor) * 0.5);
 	UpdateChange(actorNew);
-
     MissileSetPos(actorNew, DoElectro, 400);
 
     return 0;
