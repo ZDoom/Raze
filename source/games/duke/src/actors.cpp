@@ -1004,7 +1004,7 @@ void movetrash(DDukeActor *actor)
 	if (ssp(actor, CLIPMASK0))
 	{
 		makeitfall(actor);
-		if (krand() & 1) actor->spr.zvel -= 256;
+		if (krand() & 1) actor->add_int_zvel(- 256);
 		if (abs(actor->spr.xvel) < 48)
 			actor->spr.xvel += (krand() & 3);
 	}
@@ -2382,7 +2382,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0] &= 3;
 		}
 		if (actor->int_zvel() < 128) actor->add_int_zvel( (gs.gravity / 13)); // 8
-		else actor->spr.zvel -= 64;
+		else actor->add_int_zvel(- 64);
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel -= 4;
 		else actor->spr.xvel = 0;

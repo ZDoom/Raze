@@ -580,14 +580,14 @@ void Gravity(DExhumedActor* pActor)
             }
             else
             {
-                pActor->spr.zvel -= 64;
+                pActor->add_int_zvel(- 64);
             }
         }
         else
         {
             if (pActor->int_zvel() > 0)
             {
-                pActor->spr.zvel -= 64;
+                pActor->add_int_zvel(- 64);
                 if (pActor->int_zvel() < 0) {
                     pActor->set_int_zvel(0);
                 }

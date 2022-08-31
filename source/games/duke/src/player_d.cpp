@@ -743,7 +743,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->spr.yvel = gs.numfreezebounces;
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
-		spawned->spr.zvel -= (2 << 4);
+		spawned->add_int_zvel(- (2 << 4));
 	}
 
 	if (p == -1)

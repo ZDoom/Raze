@@ -2400,7 +2400,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
 		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
 		if (actor->int_zvel() > -(2048 + 1024))
-			actor->spr.zvel -= 348;
+			actor->add_int_zvel(- 348);
 		actor->add_int_z(actor->int_zvel());
 		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
@@ -3526,7 +3526,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (actor->temp_data[0] < 16)
-			actor->spr.zvel -= bcos(actor->temp_data[0] << 4, -5);
+			actor->add_int_zvel(- bcos(actor->temp_data[0] << 4, -5));
 	}
 
 	if (a & face_player_smart)

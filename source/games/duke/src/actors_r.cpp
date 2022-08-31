@@ -3533,12 +3533,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == CHEER)
 			{
 				if (actor->temp_data[0] < 16)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 40;
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 40);
 			}
 			else
 			{
 				if (actor->temp_data[0] < 16)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4, -5);
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4, -5));
 			}
 		}
 		if (a & justjump1)
@@ -3546,12 +3546,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == RABBIT)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 30;
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 30);
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 35;
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 35);
 			}
 		}
 		if (a & justjump2)
@@ -3559,24 +3559,24 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == RABBIT)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 24;
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 24);
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 28;
+					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 28);
 			}
 		}
 		if (a & windang)
 		{
 			if (actor->temp_data[0] < 8)
-				actor->spr.zvel -= bcos(actor->temp_data[0] << 4) / 24;
+				actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 24);
 		}
 	}
 	else if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (actor->temp_data[0] < 16)
-			actor->spr.zvel -= bcos(actor->temp_data[0] << 4, -5);
+			actor->add_int_zvel(- bcos(actor->temp_data[0] << 4, -5));
 	}
 
 
