@@ -1494,7 +1494,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
         DSWActor* flameActor = actor->user.flameActor;
         if (flameActor != nullptr)
         {
-            int sizez = (int_ActorSizeZ(actor) * 5) >> 2;
+            double sizez = ActorSizeZ(actor) * 1.25;
 
             if (flameActor->user.Counter >= GetRepeatFromHeight(flameActor, sizez))
             {
@@ -1504,7 +1504,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
             else
             {
                 // increase max size
-                flameActor->user.Counter += GetRepeatFromHeight(flameActor, 8 << 8) * 2;
+                flameActor->user.Counter += GetRepeatFromHeight(flameActor, 8) * 2;
             }
 
             // Counter is max size
@@ -1532,7 +1532,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (actor->user.flameActor != nullptr)
     {
-        actorNew->user.Counter = GetRepeatFromHeight(actorNew, int_ActorSizeZ(actor) >> 1) * 4;
+        actorNew->user.Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(actor) * 0.5) * 4;
     }
     else
         actorNew->user.Counter = 0;                // max flame size

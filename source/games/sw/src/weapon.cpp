@@ -9596,7 +9596,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         auto flameActor = enemyActor->user.flameActor;
         if (flameActor != nullptr)
         {
-            int sizez = int_ActorSizeZ(enemyActor) + (int_ActorSizeZ(enemyActor) >> 2);
+            double sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) * 0.25);
 
             if ((enemyActor->spr.extra & SPRX_BURNABLE))
                 return;
@@ -9609,7 +9609,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
             else
             {
                 //increase max size
-                flameActor->user.Counter += GetRepeatFromHeight(flameActor, 8<<8);
+                flameActor->user.Counter += GetRepeatFromHeight(flameActor, 8);
             }
 
             // Counter is max size
@@ -9640,12 +9640,12 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         // large flame for trees and such
         if ((enemyActor->spr.extra & SPRX_BURNABLE))
         {
-            int sizez = int_ActorSizeZ(enemyActor) + (int_ActorSizeZ(enemyActor) >> 2);
+            double sizez = ActorSizeZ(enemyActor) + (ActorSizeZ(enemyActor) * 0.25);
             actorNew->user.Counter = GetRepeatFromHeight(actorNew, sizez);
         }
         else
         {
-            actorNew->user.Counter = GetRepeatFromHeight(actorNew, int_ActorSizeZ(enemyActor)>>1);
+            actorNew->user.Counter = GetRepeatFromHeight(actorNew, ActorSizeZ(enemyActor) * 0.5);
         }
     }
     else

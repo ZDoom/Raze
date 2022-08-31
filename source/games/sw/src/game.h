@@ -2250,9 +2250,9 @@ inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 }
 
 // Given a z height and sprite return the correct y repeat value
-inline int GetRepeatFromHeight(DSWActor* sp, int zh)
+inline int GetRepeatFromHeight(DSWActor* sp, double zh)
 {
-    return zh / (4 * tileHeight(sp->spr.picnum));
+    return int(zh * 64) / tileHeight(sp->spr.picnum);
 }
 
 inline bool SpriteInDiveArea(DSWActor* a)
