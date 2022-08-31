@@ -10980,14 +10980,14 @@ int DoRing(DSWActor* actor)
         }
     }
 
-    int z;
+    double z;
     // move the center with the player
     if (pp)
-        z = pp->int_ppos().Z + Z(20);
+        z = pp->pos.Z + 20;
     else
-        z = int_ActorZOfMiddle(own) + Z(30);
+        z = ActorZOfMiddle(own) + 30;
 
-	actor->spr.pos = DVector3(own->spr.pos.XY(), z * zinttoworld);
+	actor->spr.pos = DVector3(own->spr.pos.XY(), z);
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
