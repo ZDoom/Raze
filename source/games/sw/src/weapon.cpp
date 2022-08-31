@@ -9549,20 +9549,16 @@ int DoSpear(DSWActor* actor)
 
 int SpawnCoolieExp(DSWActor* actor)
 {
-    int zh,nx,ny;
-
     ASSERT(actor->hasU());
 
     actor->user.Counter = RandomRange(120);  // This is the wait til birth time!
 
-    zh = actor->int_pos().Z - int_ActorSizeZ(actor) + (int_ActorSizeZ(actor) >> 2);
-    nx = actor->int_pos().X + MOVEx(64, actor->int_ang() + 1024);
-    ny = actor->int_pos().Y + MOVEy(64, actor->int_ang() + 1024);
+    auto vect = actor->spr.pos + MOVExy(64, actor->spr.angle + DAngle180);
+    vect.Z -= ActorSizeZ(actor) * 0.75;
 
     PlaySound(DIGI_COOLIEEXPLODE, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->sector(),
-                            nx, ny, zh, actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, actor->sector(), vect, actor->spr.angle, 0);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(actor, actorNew);
