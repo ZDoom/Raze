@@ -1111,7 +1111,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
     if (pActor2 == nullptr)
     {
-        pActor->clear_zvel();
+        pActor->angle2 = 0;
         nAngle = pActor->int_ang();
     }
     else
@@ -1150,14 +1150,14 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         }
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
-        int nAngDeltaD = AngleDelta(pActor->int_zvel(), var_18, 24);
+        int nAngDeltaD = AngleDelta(pActor->angle2, var_18, 24);
 
-        pActor->set_int_zvel((pActor->int_zvel() + nAngDeltaD) & kAngleMask);
+        pActor->angle2 = (pActor->angle2 + nAngDeltaD) & kAngleMask;
     }
 
     pActor->set_int_ang(nAngle);
 
-    int eax = abs(bcos(pActor->int_zvel()));
+    int eax = abs(bcos(pActor->angle2));
 
     int x = ((bcos(nAngle) * ebx) >> 14) * eax;
     int y = ((bsin(nAngle) * ebx) >> 14) * eax;

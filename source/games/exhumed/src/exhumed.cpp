@@ -622,6 +622,7 @@ void DExhumedActor::Serialize(FSerializer& arc)
         ("index2", nIndex2)
         ("channel", nChannel)
         ("damage", nDamage)
+        ("angle2", angle2)
 
         ("turn", nTurn)
         ("x", x)

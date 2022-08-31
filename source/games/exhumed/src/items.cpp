@@ -363,10 +363,12 @@ void StartRegenerate(DExhumedActor* pActor)
     auto pos = Regenerates.Find(pActor);
     if (pos >= Regenerates.Size())
     {
-        // ?? CHECKME
-        pActor->spr.xvel = pActor->spr.xrepeat;
-        pActor->set_int_zvel(pActor->spr.shade);
-        pActor->spr.yvel = pActor->spr.pal;
+#if 0
+        // ?? CHECKME (looks like broken multiplayer stuff - fields get never set properly.)
+        pActor->spr. xvel = pActor->spr.xrepeat;
+        pActor->spr. zvel = pActor->spr.shade;
+        pActor->spr. yvel = pActor->spr.pal;
+#endif
     }
     else
     {

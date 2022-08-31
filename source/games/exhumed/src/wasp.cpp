@@ -242,6 +242,7 @@ void AIWasp::Tick(RunListEvent* ev)
             }
             else
             {
+                pActor->angle2 = 0;
                 pActor->clear_zvel();
                 pActor->nAction = 1;
                 pActor->nFrame = 0;

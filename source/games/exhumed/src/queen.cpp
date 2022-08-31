@@ -290,7 +290,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
     if (pActor2 == nullptr)
     {
-        pActor->clear_zvel();
+        pActor->angle2 = 0;
         nAngle = pActor->int_ang();
     }
     else
@@ -325,12 +325,12 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
-        pActor->set_int_zvel((AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->int_zvel()) & kAngleMask); // not really avelocity
+        pActor->angle2 = (AngleDelta(pActor->angle2, var_14, 24) + pActor->angle2) & kAngleMask;
     }
 
     pActor->set_int_ang(nAngle);
 
-    int da = pActor->int_zvel();
+    int da = pActor->angle2;
     int x = abs(bcos(da));
 
     int v26 = x * ((val1 * bcos(nAngle)) >> 14);
