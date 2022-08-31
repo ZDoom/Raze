@@ -773,7 +773,7 @@ void movefallers_d(void)
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->add_int_zvel( x);
-					if (act->int_zvel() > 6144)
+					if (act->float_zvel() > 24)
 						act->set_int_zvel(6144);
 					act->add_int_z(act->int_zvel());
 				}
@@ -1339,7 +1339,7 @@ static bool movefireball(DDukeActor* actor)
 		}
 		actor->temp_data[0]++;
 	}
-	if (actor->int_zvel() < 15000)
+	if (actor->float_zvel() < 15000./256.)
 		actor->add_int_zvel( 200);
 	return false;
 }
@@ -1593,7 +1593,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			}
 		}
 	}
-	else if (proj->spr.picnum == SPIT) if (proj->int_zvel() < 6144)
+	else if (proj->spr.picnum == SPIT) if (proj->float_zvel() < 24)
 		proj->add_int_zvel( gs.gravity - 112);
 
 	if (coll.type != 0)
@@ -2399,7 +2399,7 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.picnum = GREENSLIME;
 		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
 		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
-		if (actor->int_zvel() > -(2048 + 1024))
+		if (actor->float_zvel() > -12)
 			actor->add_int_zvel(- 348);
 		actor->spr.pos.Z += actor->float_zvel();
 		if (actor->spr.pos.Z < actor->ceilingz + 16)

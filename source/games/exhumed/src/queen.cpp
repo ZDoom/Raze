@@ -799,7 +799,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             {
                 pActor->set_int_zvel(-(pActor->int_zvel() >> 1));
 
-                if (pActor->int_zvel() > -256)
+                if (pActor->float_zvel() > -1)
                 {
                     nVelShift = 100;
                     pActor->clear_zvel();

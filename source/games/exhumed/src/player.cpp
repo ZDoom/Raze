@@ -850,7 +850,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
     int z = (pPlayerActor->int_zvel() * 4) >> 2;
 
-    if (pPlayerActor->int_zvel() > 8192)
+    if (pPlayerActor->float_zvel() > 32)
         pPlayerActor->set_int_zvel(8192);
 
     if (PlayerList[nPlayer].bIsMummified)

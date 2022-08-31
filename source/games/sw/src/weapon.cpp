@@ -16721,7 +16721,7 @@ int DoBubble(DSWActor* actor)
     actor->spr.pos.Z -= actor->float_zvel();
     actor->add_int_zvel( 32);
 
-    if (actor->int_zvel() > 768)
+    if (actor->float_zvel() > 3)
         actor->set_int_zvel(768);
 
     // notreallypos

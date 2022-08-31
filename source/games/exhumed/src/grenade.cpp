@@ -301,7 +301,7 @@ void AIGrenade::Tick(RunListEvent* ev)
 
                 pActor->set_int_zvel(-(zVel >> 1));
 
-                if (pActor->int_zvel() > -1280)
+                if (pActor->float_zvel() > -5)
                 {
                     D3PlayFX(StaticSound[kSound5], pActor);
                     pActor->nCount = 0;

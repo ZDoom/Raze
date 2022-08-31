@@ -2418,7 +2418,7 @@ void glasspieces(DDukeActor* actor)
 
 	makeitfall(actor);
 
-	if (actor->int_zvel() > 4096) actor->set_int_zvel(4096);
+	if (actor->float_zvel() > 16) actor->set_int_zvel(4096);
 	if (!actor->insector())
 	{
 		deletesprite(actor);
@@ -4847,7 +4847,7 @@ void makeitfall(DDukeActor* actor)
 
 	if( actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 	{
-		if( actor->sector()->lotag == 2 && actor->int_zvel() > 3122 )
+		if( actor->sector()->lotag == 2 && actor->float_zvel() > 3122/256.)
 			actor->set_int_zvel(3144);
 		if(actor->float_zvel() < 24)
 			actor->add_int_zvel( c);
@@ -4985,7 +4985,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	aang = actor->int_ang();
 
 	actor->spr.xvel += (*moveptr - actor->spr.xvel) / 5;
-	if (actor->int_zvel() < 648) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
+	if (actor->float_zvel() < (648/256.)) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
 
 	if (isRRRA() && (ang & windang))
 		actor->set_int_ang(WindDir);
@@ -5082,7 +5082,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			actor->add_int_zvel( c);
 			actor->spr.pos.Z += actor->float_zvel();
 
-			if (actor->int_zvel() > 6144) actor->set_int_zvel(6144);
+			if (actor->float_zvel() > 24) actor->set_int_zvel(6144);
 		}
 		else
 		{
@@ -5091,7 +5091,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			if (badguy(actor) || (actor->isPlayer() && actor->GetOwner()))
 			{
 
-				if (actor->int_zvel() > 3084 && actor->spr.extra <= 1)
+				if (actor->float_zvel() > (3084/256.) && actor->spr.extra <= 1)
 				{
 					if (actor->spr.pal != 1 && actor->spr.picnum != DRONE)
 					{
@@ -5116,7 +5116,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					actor->hitextra = 1;
 					actor->clear_zvel();
 				}
-				else if (actor->int_zvel() > 2048 && actor->sector()->lotag != 1)
+				else if (actor->float_zvel() > 8 && actor->sector()->lotag != 1)
 				{
 
 					auto sect = actor->sector();
