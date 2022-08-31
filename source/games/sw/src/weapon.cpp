@@ -12243,13 +12243,8 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 }
 
 
-DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
+DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_ratio)
 {
-    int dist;
-    int zh;
-    int xvect;
-    int yvect;
-
     DSWActor* hitActor = actor->user.targetActor;
     if (hitActor == nullptr)
         return nullptr;
@@ -12257,29 +12252,30 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
     hitActor->user.Flags |= (SPR_TARGETED);
     hitActor->user.Flags |= (SPR_ATTACKED);
 
-    *ang = getangle(hitActor->int_pos().X - actor->int_pos().X, hitActor->int_pos().Y - actor->int_pos().Y);
+    auto delta = hitActor->spr.pos.XY() - actor->spr.pos.XY();
+    *ang = VecToAngle(delta);
 
     // find the distance to the target
-    dist = ksqrt(SQ(actor->int_pos().X - hitActor->int_pos().X) + SQ(actor->int_pos().Y - hitActor->int_pos().Y));
+    double dist = delta.Length();
 
     if (dist != 0)
     {
-        zh = int_ActorUpperZ(hitActor);
+        double zh = ActorUpperZ(hitActor);
 
-        xvect = bcos(*ang);
-        yvect = bsin(*ang);
-
-        if (hitActor->int_pos().X - actor->int_pos().X != 0)
-            *z = Scale(xvect,zh - *z,hitActor->int_pos().X - actor->int_pos().X);
-        else if (hitActor->int_pos().Y - actor->int_pos().Y != 0)
-            *z = Scale(yvect,zh - *z,hitActor->int_pos().Y - actor->int_pos().Y);
+        // This doesn't look like it makes much sense...
+        auto vect = ang->ToVector() * 1024;
+        
+        if (delta.X != 0)
+            *z = vect.X * (zh - *z) / delta.X;
+        else if (delta.Y != 0)
+            *z = vect.Y * (zh - *z) / delta.Y;
         else
             *z = 0;
 
         // so actors won't shoot straight up at you
         // need to be a bit of a distance away
         // before they have a valid shot
-        if (labs(*z / dist) > z_ratio)
+        if (abs(*z / dist) > z_ratio)
         {
             return nullptr;
         }
@@ -15741,10 +15737,9 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
 
 int InitEnemyUzi(DSWActor* actor)
 {
-    short daang;
+    DAngle daang;
     HitInfo hit{};
-    int daz;
-    int zh;
+    double zh;
     void InitUziShell(PLAYER*);
     static short alternate;
 
@@ -15756,23 +15751,20 @@ int InitEnemyUzi(DSWActor* actor)
 
     if (actor->user.ID == ZILLA_RUN_R0)
     {
-        zh = int_ActorZOfTop(actor);
-        zh += Z(20);
+        zh = ActorZOfTop(actor) + 20;
     }
     else
     {
-        zh = int_ActorSizeZ(actor);
-        zh -= (zh >> 2);
+        zh = ActorSizeZ(actor) * 0.5;
     }
-    daz = actor->int_pos().Z - zh;
+    double daz = actor->spr.pos.Z - zh;
 
     if (AimHitscanToTarget(actor, &daz, &daang, 200) != nullptr)
     {
         // set angle to player and also face player when attacking
-        actor->set_int_ang(daang);
-        daang += RandomRange(24) - 12;
-        daang = NORM_ANGLE(daang);
-        daz += RandomRange(Z(40)) - Z(20);
+        actor->spr.angle = daang;
+        daang += DAngle::fromBuild(RandomRange(24) - 12);
+        daz += RandomRange(40 * 256) / 256. - 20;
     }
     else
     {
@@ -15783,14 +15775,11 @@ int InitEnemyUzi(DSWActor* actor)
             return 0;
 
         daz = 0;
-        daang = NORM_ANGLE(actor->int_ang() + (RANDOM_P2(128)) - 64);
+        daang = actor->spr.angle + DAngle::fromBuild((RANDOM_P2(128)) - 64);
     }
 
-    FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - zh, actor->sector(),      // Start position
-               bcos(daang),      // X vector of 3D ang
-               bsin(daang),      // Y vector of 3D ang
-               daz,              // Z vector of 3D ang
-               hit, CLIPMASK_MISSILE);
+    // todo: confirm the ToVector factor.
+    FAFhitscan(actor->spr.pos.plusZ(-zh), actor->sector(), DVector3(daang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
         return 0;
@@ -15828,7 +15817,7 @@ int InitEnemyUzi(DSWActor* actor)
 
         if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, actor->user.ID);
+            HitBreakWall(hit.hitWall, hit.hitpos, daang, actor->user.ID);
             return 0;
         }
 
@@ -15841,7 +15830,7 @@ int InitEnemyUzi(DSWActor* actor)
             return 0;
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
@@ -15857,7 +15846,7 @@ int InitEnemyUzi(DSWActor* actor)
 
     actorNew->spr.clipdist = 32L >> 2;
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -15868,7 +15857,7 @@ int InitEnemyUzi(DSWActor* actor)
     HitscanSpriteAdjust(actorNew, hit.hitWall);
     DoHitscanDamage(actorNew, hit.actor());
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
