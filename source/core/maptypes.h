@@ -466,7 +466,7 @@ struct spritetypebase
 	int16_t intangle;	// needs to be kept for SW's SP_TAG4
 	int16_t xvel;
 	int16_t yvel;
-	union { int16_t zvel, inittype; }; // inittype, type and flags are for Blood.
+	int16_t inittype; // was zvel. All accesses for that have been wrapped. inittype, type and flags are for Blood.
 	union { int16_t lotag, type; };
 	union { int16_t hitag, flags; };
 	int16_t extra;

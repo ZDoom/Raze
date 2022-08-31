@@ -368,7 +368,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     }
     else
     {
-        z_amt_per_pixel = IntToFixed((int)-tsp->zvel)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-ownerActor->int_zvel())/tsp->xvel;
     }
 
     switch (ownerActor->user.motion_blur_dist)
