@@ -107,7 +107,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->set_int_ang(RandomSize(11));
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = (-256) - RandomSize(10);
+    pActor->set_int_zvel((-256) - RandomSize(10));
     pActor->spr.pos = DVector3(pSet->spr.pos.XY(), RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeightF(pActor));
 
     //pActor->spr.hitag = nSet;
@@ -512,11 +512,11 @@ void AISet::Tick(RunListEvent* ev)
         {
             if (pActor->nIndex)
             {
-                pActor->spr.zvel = -10000;
+                pActor->set_int_zvel(-10000);
             }
             else
             {
-                pActor->spr.zvel = -(PlotCourseToSprite(pActor, pTarget));
+                pActor->set_int_zvel(-(PlotCourseToSprite(pActor, pTarget)));
             }
 
             pActor->nAction = 8;

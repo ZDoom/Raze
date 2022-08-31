@@ -522,7 +522,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.angle = tsp->angle;
     actorNew->spr.xvel = tsp->xvel;
     actorNew->spr.yvel = tsp->yvel;
-    actorNew->spr.zvel = tsp->zvel;
+    actorNew->spr.inittype = tsp->inittype;
     actorNew->spr.shade = tsp->shade;
 
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);

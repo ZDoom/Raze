@@ -376,7 +376,7 @@ void AILion::Tick(RunListEvent* ev)
         pActor->nCount--;
         if (pActor->nCount <= 0)
         {
-            pActor->spr.zvel = -4000;
+            pActor->set_int_zvel(-4000);
             pActor->nCount = 0;
 
             int nCheckDist = 0x7FFFFFFF;
@@ -473,7 +473,7 @@ void AILion::Tick(RunListEvent* ev)
                 pActor->set_int_ang((RandomSize(9) + (pActor->int_ang() + 768)) & kAngleMask);
             }
 
-            pActor->spr.zvel = -1000;
+            pActor->set_int_zvel(-1000);
 
             pActor->nAction = 6;
             pActor->spr.xvel = bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3);

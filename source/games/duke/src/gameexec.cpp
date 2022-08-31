@@ -1245,7 +1245,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.yvel, sActor, sPlayer);
 		break;
 	case ACTOR_ZVEL:
-		if (bSet) act->spr.zvel = lValue;
+		if (bSet) act->set_int_zvel(lValue);
 		else SetGameVarID(lVar2, act->int_zvel(), sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:

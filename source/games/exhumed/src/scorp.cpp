@@ -373,7 +373,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
             pSpiderActor->spr.xvel = bcos(pSpiderActor->int_ang(), -8) * nVel;
             pSpiderActor->spr.yvel = bsin(pSpiderActor->int_ang(), -8) * nVel;
-            pSpiderActor->spr.zvel = (-(RandomSize(5) + 3)) << 8;
+            pSpiderActor->set_int_zvel((-(RandomSize(5) + 3)) << 8);
         }
 
         return;

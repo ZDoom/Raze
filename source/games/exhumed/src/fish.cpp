@@ -57,7 +57,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.yrepeat = 64;
     pChunkActor->spr.xoffset = 0;
     pChunkActor->spr.yoffset = 0;
-    pChunkActor->spr.zvel = (-(RandomByte() + 512)) * 2;
+    pChunkActor->set_int_zvel((-(RandomByte() + 512)) * 2);
 
     seq_GetSeqPicnum(kSeqFish, pChunkActor->nCount, 0);
 
@@ -114,7 +114,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         }
         else if ((pActor->spr.pos.Z - FloorZ) > 0)
         {
-            pActor->spr.zvel = 1024;
+            pActor->set_int_zvel(1024);
         }
     }
     else
@@ -193,17 +193,17 @@ void IdleFish(DExhumedActor* pActor, int edx)
     pActor->nAction = 0;
     pActor->nFrame = 0;
 
-    pActor->spr.zvel = RandomSize(9);
+    pActor->set_int_zvel(RandomSize(9));
 
     if (!edx)
     {
         if (RandomBit()) {
-            pActor->spr.zvel = -pActor->int_zvel();
+            pActor->set_int_zvel(-pActor->int_zvel());
         }
     }
     else if (edx < 0)
     {
-        pActor->spr.zvel = -pActor->int_zvel();
+        pActor->set_int_zvel(-pActor->int_zvel());
     }
 }
 
@@ -340,7 +340,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
 
                 int nAngle = getangle(pTargetActor->spr.pos - pActor->spr.pos);
-                pActor->spr.zvel = bsin(nAngle, -5);
+                pActor->set_int_zvel(bsin(nAngle, -5));
 
                 pActor->nCount = RandomSize(6) + 90;
             }
@@ -382,7 +382,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->spr.yvel = 0;
             }
 
-            pActor->spr.zvel = int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8);
+            pActor->set_int_zvel(int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8));
         }
         break;
     }

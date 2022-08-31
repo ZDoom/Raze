@@ -231,7 +231,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
                 pHitActor->spr.xvel = bcos(nAngle, 1);
                 pHitActor->spr.yvel = bsin(nAngle, 1);
-                pHitActor->spr.zvel = (-(RandomSize(3) + 1)) << 8;
+                pHitActor->set_int_zvel((-(RandomSize(3) + 1)) << 8);
             }
             else
             {

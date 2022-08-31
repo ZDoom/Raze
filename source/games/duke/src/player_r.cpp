@@ -677,7 +677,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		if (atwith == RRTILE1790)
 		{
 			spawned->spr.extra = 10;
-			spawned->spr.zvel = -(10 << 8);
+			spawned->set_int_zvel(-(10 << 8));
 		}
 		else if (atwith == RPG2)
 		{

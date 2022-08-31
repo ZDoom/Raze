@@ -851,7 +851,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int z = (pPlayerActor->spr.zvel * 4) >> 2;
 
     if (pPlayerActor->int_zvel() > 8192)
-        pPlayerActor->spr.zvel = 8192;
+        pPlayerActor->set_int_zvel(8192);
 
     if (PlayerList[nPlayer].bIsMummified)
     {
@@ -896,7 +896,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 		pPlayerActor->spr.pos.XY() = spr_pos.XY();
 
         if (zVel < pPlayerActor->int_zvel()) {
-            pPlayerActor->spr.zvel = zVel;
+            pPlayerActor->set_int_zvel(zVel);
         }
     }
 
@@ -2252,14 +2252,14 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerActor->spr.zvel = -2048;
+                    pPlayerActor->set_int_zvel(-2048);
                     nActionB = 10;
                 }
                 else if (bTouchFloor)
                 {
                     if (nAction < 6 || nAction > 8)
                     {
-                        pPlayerActor->spr.zvel = -3584;
+                        pPlayerActor->set_int_zvel(-3584);
                         nActionB = 3;
                     }
                 }
@@ -2270,7 +2270,7 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerActor->spr.zvel = 2048;
+                    pPlayerActor->set_int_zvel(2048);
                     nActionB = 10;
                 }
                 else

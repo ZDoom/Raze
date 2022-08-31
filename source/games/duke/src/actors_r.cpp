@@ -668,7 +668,7 @@ void movefallers_r(void)
 			{
 				act->spr.lotag -= 3;
 				act->spr.xvel = ((64 + krand()) & 127);
-				act->spr.zvel = -(1024 + (krand() & 1023));
+				act->set_int_zvel(-(1024 + (krand() & 1023)));
 			}
 			else
 			{
@@ -692,7 +692,7 @@ void movefallers_r(void)
 				{
 					act->spr.zvel += x;
 					if (act->int_zvel() > 6144)
-						act->spr.zvel = 6144;
+						act->set_int_zvel(6144);
 					act->add_int_z(act->int_zvel());
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
@@ -1213,7 +1213,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (!isRRRA()) break;
 		if (proj->spr.extra)
 		{
-			proj->spr.zvel = -(proj->spr.extra * 250);
+			proj->set_int_zvel(-(proj->spr.extra * 250));
 			proj->spr.extra--;
 		}
 		else
@@ -1246,14 +1246,14 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (proj->spr.pos.Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
-			proj->spr.zvel = -1;
+			proj->set_int_zvel(-1);
 		}
 		else
 			if (proj->spr.pos.Z > proj->floorz)
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
-					proj->spr.zvel = 1;
+					proj->set_int_zvel(1);
 			}
 	}
 
@@ -2362,7 +2362,7 @@ static void heavyhbomb(DDukeActor *actor)
 				goto DETONATEB;
 			}
 		}
-		actor->spr.zvel = -((4 - actor->spr.yvel) << 8);
+		actor->set_int_zvel(-((4 - actor->spr.yvel) << 8));
 		if (actor->sector()->lotag == 2)
 			actor->spr.zvel >>= 2;
 		actor->spr.yvel++;
@@ -3838,7 +3838,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		if (actor->spr.picnum != APLAYER && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
 			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
-			actor->spr.zvel = 8000;
+			actor->set_int_zvel(8000);
 			actor->spr.extra = 0;
 			actor->spriteextra++;
 			sphit = 1;

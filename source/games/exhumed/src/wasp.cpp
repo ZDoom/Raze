@@ -161,7 +161,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             pActor->nVel = 3000;
 
-            pActor->spr.zvel = (-20) - RandomSize(6);
+            pActor->set_int_zvel((-20) - RandomSize(6));
         }
         else
         {
@@ -174,7 +174,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             SetWaspVel(pActor);
 
-            pActor->spr.zvel = 512;
+            pActor->set_int_zvel(512);
 
             nCreaturesKilled++;
         }
@@ -226,7 +226,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
     case 0:
     {
-        pActor->spr.zvel = bsin(pActor->nAngle, -4);
+        pActor->set_int_zvel(bsin(pActor->nAngle, -4));
 
         pActor->nAngle += pActor->nAngle2;
         pActor->nAngle &= kAngleMask;
@@ -306,7 +306,7 @@ void AIWasp::Tick(RunListEvent* ev)
         {
             pActor->add_int_ang(RandomSize(9) + 768);
             pActor->norm_ang();
-            pActor->spr.zvel = (-20) - RandomSize(6);
+            pActor->set_int_zvel((-20) - RandomSize(6));
 
             pActor->nAction = 1;
             pActor->nVel = 3000;
@@ -321,7 +321,7 @@ void AIWasp::Tick(RunListEvent* ev)
         {
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->spr.zvel = 1024;
+            pActor->set_int_zvel(1024);
             pActor->nAction = 5;
             pActor->nFrame = 0;
         }

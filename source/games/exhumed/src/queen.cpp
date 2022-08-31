@@ -325,7 +325,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
-        pActor->spr.zvel = (AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->int_zvel()) & kAngleMask;
+        pActor->set_int_zvel((AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->int_zvel()) & kAngleMask); // not really avelocity
     }
 
     pActor->set_int_ang(nAngle);
@@ -446,7 +446,7 @@ void BuildQueenEgg(int nQueen, int nVal)
         pActor2->spr.yrepeat = 30;
         pActor2->spr.xvel = bcos(pActor2->int_ang());
         pActor2->spr.yvel = bsin(pActor2->int_ang());
-        pActor2->spr.zvel = -6000;
+        pActor2->set_int_zvel(-6000);
         pActor2->spr.cstat = 0;
     }
     else
@@ -455,7 +455,7 @@ void BuildQueenEgg(int nQueen, int nVal)
         pActor2->spr.yrepeat = 60;
         pActor2->spr.xvel = 0;
         pActor2->spr.yvel = 0;
-        pActor2->spr.zvel = -2000;
+        pActor2->set_int_zvel(-2000);
         pActor2->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
 
@@ -606,7 +606,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             pActor->norm_ang();
             pActor->spr.xvel = bcos(pActor->int_ang(), -3);
             pActor->spr.yvel = bsin(pActor->int_ang(), -3);
-            pActor->spr.zvel = -RandomSize(5);
+            pActor->set_int_zvel(-RandomSize(5));
             break;
         }
 
@@ -619,7 +619,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 
         if (nMov.exbits & kHitAux2)
         {
-            pActor->spr.zvel = -(pActor->spr.zvel - 256);
+            pActor->set_int_zvel(-(pActor->spr.zvel - 256));
             if (pActor->int_zvel() < -512)
             {
                 pActor->set_int_zvel(0);
@@ -701,7 +701,7 @@ void BuildQueenHead(int nQueen)
     nVelShift = 2;
     SetHeadVel(pActor2);
 
-    pActor2->spr.zvel = -8192;
+    pActor2->set_int_zvel(-8192);
     pActor2->spr.lotag = runlist_HeadRun() + 1;
     pActor2->spr.hitag = 0;
     pActor2->spr.extra = -1;
@@ -797,7 +797,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
             else if (nMov.exbits == kHitAux2)
             {
-                pActor->spr.zvel = -(pActor->int_zvel() >> 1);
+                pActor->set_int_zvel(-(pActor->int_zvel() >> 1));
 
                 if (pActor->int_zvel() > -256)
                 {
@@ -885,7 +885,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     pActor->add_int_ang(RandomSize(9) + 768);
                     pActor->norm_ang();
 
-                    pActor->spr.zvel = (-20) - RandomSize(6);
+                    pActor->set_int_zvel((-20) - RandomSize(6));
 
                     SetHeadVel(pActor);
                 }

@@ -269,13 +269,13 @@ int DoWallBloodDrip(DSWActor* actor)
         }
         else
         {
-            actor->spr.zvel = (300+RandomRange(2300)) >> 1;
+            actor->set_int_zvel((300+RandomRange(2300)) >> 1);
             actor->add_int_z(actor->int_zvel());
         }
     }
     else
     {
-        actor->spr.zvel = (300+RandomRange(2300)) >> 1;
+        actor->set_int_zvel((300+RandomRange(2300)) >> 1);
         actor->add_int_z(actor->int_zvel());
     }
 
@@ -1173,12 +1173,12 @@ int SpawnRadiationCloud(DSWActor* actor)
     {
         actorNew->user.Radius = 2000;
         actorNew->user.change.XY() = MOVExy(actorNew->spr.xvel >> 2, actorNew->spr.angle);
-        actorNew->spr.zvel = Z(1) + RANDOM_P2(Z(2));
+        actorNew->set_int_zvel(Z(1) + RANDOM_P2(Z(2)));
     }
     else
     {
 		UpdateChangeXY(actorNew);
-        actorNew->spr.zvel = Z(4) + RANDOM_P2(Z(4));
+        actorNew->set_int_zvel(Z(4) + RANDOM_P2(Z(4)));
         actorNew->user.Radius = 4000;
     }
 
@@ -1248,7 +1248,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
+    actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
 
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
@@ -1294,7 +1294,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
 
     actorNew->spr.clipdist = 80L >> 2;
 
@@ -1330,7 +1330,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
     actorNew->spr.clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1600,7 +1600,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     // They go out at different angles
 //        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(50) - 25));
 
-    actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
+    actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
 
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
@@ -1644,7 +1644,7 @@ int InitCaltrops(DSWActor* actor)
     actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
 
-    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
 
     // spawnedActor->spr.clipdist = 80L>>2;
 
@@ -1684,7 +1684,7 @@ int InitPhosphorus(DSWActor* actor)
     actorNew->user.floor_dist = (3);
     actorNew->user.Counter = 0;
 
-    actorNew->spr.zvel = short(-RandomRange(100) * HORIZ_MULT);
+    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1749,7 +1749,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->user.floor_dist = (3);
         actorNew->user.Counter = 0;
 
-        actorNew->spr.zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
+        actorNew->set_int_zvel(short((-10 - RandomRange(50)) * HORIZ_MULT));
 
 		UpdateChange(actorNew, 0.5);
 
@@ -2098,7 +2098,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 64);
 
-    actorNew->spr.zvel = -(velocity);
+    actorNew->set_int_zvel(-(velocity));
 
     if (actor->user.PlayerP)
     {

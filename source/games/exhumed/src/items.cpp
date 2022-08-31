@@ -365,7 +365,7 @@ void StartRegenerate(DExhumedActor* pActor)
     {
         // ?? CHECKME
         pActor->spr.xvel = pActor->spr.xrepeat;
-        pActor->spr.zvel = pActor->spr.shade;
+        pActor->set_int_zvel(pActor->spr.shade);
         pActor->spr.yvel = pActor->spr.pal;
     }
     else

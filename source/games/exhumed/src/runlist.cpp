@@ -1660,7 +1660,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 pActor->spr.zvel -= edi * 24;
 
                 if (pActor->int_zvel() < -3584) {
-                    pActor->spr.zvel = -3584;
+                    pActor->set_int_zvel(-3584);
                 }
             }
         }

@@ -72,7 +72,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 
 	act->set_int_ang(s_a);
 	act->spr.xvel = s_ve;
-	act->spr.zvel = s_zv;
+	act->set_int_zvel(s_zv);
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
 	act->spr.yvel = 0;
@@ -440,7 +440,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 
 			act->temp_data[0] = krand() & 1;
 			act->spr.pos.Z = 3 + ps[snum].pos.Z + ps[snum].pyoff - (ps[snum].horizon.sum().asbuildf() * (1/16.)) + (!isshell ? 3 : 0);
-			act->spr.zvel = -(krand() & 255);
+			act->set_int_zvel(-(krand() & 255));
 		}
 		else
 		{
@@ -1005,9 +1005,9 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				actor->temp_pos.XY() = actor->spr.pos.XY();
 				if (actor->spr.shade == sectp->floorshade) //UP
-					actor->spr.zvel = -256;
+					actor->set_int_zvel(-256);
 				else
-					actor->spr.zvel = 256;
+					actor->set_int_zvel(256);
 
 				actor->spr.shade = 0;
 			}

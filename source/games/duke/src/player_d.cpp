@@ -196,7 +196,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		spawned = spawn(actor, FLAMETHROWERFLAME);
 		if (!spawned) return;
 		spawned->spr.xvel = (short)(vel * worldtoint);
-		spawned->spr.zvel = (short)(zvel * zworldtoint);
+		spawned->set_int_zvel(zvel * 256);
 	}
 
 	spawned->spr.pos = spos + (sang + DAngle::fromBuild(112)).ToVector() * 7;

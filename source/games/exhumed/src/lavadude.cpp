@@ -47,7 +47,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
     pLimbActor->spr.pal = 1;
     pLimbActor->spr.xvel = (RandomSize(5) - 16) << 8;
     pLimbActor->spr.yvel = (RandomSize(5) - 16) << 8;
-    pLimbActor->spr.zvel = 2560 - (RandomSize(5) << 8);
+    pLimbActor->set_int_zvel(2560 - (RandomSize(5) << 8));
     pLimbActor->spr.xoffset = 0;
     pLimbActor->spr.yoffset = 0;
     pLimbActor->spr.xrepeat = 90;

@@ -1285,7 +1285,7 @@ void bounce(DDukeActor* actor)
 		zvect -= MulScale(daz, k, 16);
 	}
 
-	actor->spr.zvel = zvect;
+	actor->set_int_zvel(zvect);
 	actor->spr.xvel = ksqrt(DMulScale(xvect, xvect, yvect, yvect, 8));
 	actor->spr.angle = VecToAngle(xvect, yvect);
 }
@@ -1558,7 +1558,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
 					k->spr.clipdist = 64;
 					k->set_int_ang(j);
-					k->spr.zvel = bsin(l, -5);
+					k->set_int_zvel(bsin(l, -5));
 					k->spr.xvel = bcos(l, -9);
 					k->SetOwner(actor);
 				}
@@ -2214,7 +2214,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			{
 				if (actor->int_zvel() < 1024)
 					actor->spr.zvel += 48;
-				else actor->spr.zvel = 1024;
+				else actor->set_int_zvel(1024);
 			}
 			else actor->spr.zvel += gs.gravity - 50;
 		}
@@ -2418,7 +2418,7 @@ void glasspieces(DDukeActor* actor)
 
 	makeitfall(actor);
 
-	if (actor->int_zvel() > 4096) actor->spr.zvel = 4096;
+	if (actor->int_zvel() > 4096) actor->set_int_zvel(4096);
 	if (!actor->insector())
 	{
 		deletesprite(actor);
@@ -2427,7 +2427,7 @@ void glasspieces(DDukeActor* actor)
 
 	if (actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F && actor->temp_data[0] < 3)
 	{
-		actor->spr.zvel = -((3 - actor->temp_data[0]) << 8) - (krand() & 511);
+		actor->set_int_zvel(-((3 - actor->temp_data[0]) << 8) - (krand() & 511));
 		if (sectp->lotag == 2)
 			actor->spr.zvel >>= 1;
 		actor->spr.xrepeat >>= 1;
@@ -3316,7 +3316,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 		actor->SetOwner(Owner);
 		if (!Owner) return; // Undefined case - was not checked.
-		actor->spr.zvel = Sgn(Owner->spr.pos.Z - actor->spr.pos.Z) << 4;
+		actor->set_int_zvel(Sgn(Owner->spr.pos.Z - actor->spr.pos.Z) << 4);
 	}
 
 	if (ldist(Owner, actor) < 1024)
@@ -4186,7 +4186,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
 	{
-		actor->spr.zvel = Sgn(actor->int_pos().Z - lp) * (actor->spr.yvel << 4);
+		actor->set_int_zvel(Sgn(actor->int_pos().Z - lp) * (actor->spr.yvel << 4));
 		actor->temp_data[0]++;
 	}
 
@@ -4848,10 +4848,10 @@ void makeitfall(DDukeActor* actor)
 	if( actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 	{
 		if( actor->sector()->lotag == 2 && actor->int_zvel() > 3122 )
-			actor->spr.zvel = 3144;
+			actor->set_int_zvel(3144);
 		if(actor->int_zvel() < 6144)
 			actor->spr.zvel += c;
-		else actor->spr.zvel = 6144;
+		else actor->set_int_zvel(6144);
 		actor->add_int_z(actor->int_zvel());
 	}
 	if (actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F)
@@ -5082,7 +5082,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			actor->spr.zvel += c;
 			actor->add_int_z(actor->int_zvel());
 
-			if (actor->int_zvel() > 6144) actor->spr.zvel = 6144;
+			if (actor->int_zvel() > 6144) actor->set_int_zvel(6144);
 		}
 		else
 		{

@@ -73,7 +73,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
         int nVel = PlayerList[nPlayer].totalvel << 5;
 
         pActor->nTurn = ((90 - pActor->nIndex2) * (90 - pActor->nIndex2)) + nVel;
-        pActor->spr.zvel = (-64 * push1) - 4352;
+        pActor->set_int_zvel((-64 * push1) - 4352);
 
         auto nMov = movesprite(pActor, bcos(nAngle) * (pPlayerActor->spr.clipdist << 3), bsin(nAngle) * (pPlayerActor->spr.clipdist << 3), ecx, 0, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
@@ -85,7 +85,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     else
     {
         pActor->nTurn = 0;
-        pActor->spr.zvel = pPlayerActor->int_zvel();
+        pActor->set_int_zvel(pPlayerActor->int_zvel());
     }
 
     pActor->x = bcos(nAngle, -4) * pActor->nTurn;
@@ -299,7 +299,7 @@ void AIGrenade::Tick(RunListEvent* ev)
 
                 D3PlayFX(StaticSound[kSound3], pActor);
 
-                pActor->spr.zvel = -(zVel >> 1);
+                pActor->set_int_zvel(-(zVel >> 1));
 
                 if (pActor->int_zvel() > -1280)
                 {

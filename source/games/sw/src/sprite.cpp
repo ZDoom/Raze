@@ -2403,7 +2403,8 @@ void SpriteSetup(void)
                     break;
 
                 case DEMO_CAMERA:
-                    actor->spr.yvel = actor->spr.zvel = 100; //attempt horiz control
+                    actor->spr.yvel = 100;
+                    actor->set_int_zvel(100); //attempt horiz control
                     change_actor_stat(actor, STAT_DEMO_CAMERA);
                     break;
 
@@ -3493,7 +3494,7 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         actor->user.Counter = 0;
 
         actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
-        actor->spr.zvel = -(((int)SP_TAG8(spawner))<<5);
+        actor->set_int_zvel(-(((int)SP_TAG8(spawner))<<5));
 
 		UpdateChange(actor);
     }

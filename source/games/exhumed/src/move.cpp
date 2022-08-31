@@ -399,7 +399,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                         runlist_DamageEnemy(loHit.actor(), pActor, nDamage << 1);
                     }
 
-                    pActor->spr.zvel = -z;
+                    pActor->set_int_zvel(-z);
                 }
                 else
                 {
@@ -605,7 +605,7 @@ void Gravity(DExhumedActor* pActor)
     {
         pActor->spr.zvel += 512;
         if (pActor->int_zvel() > 16384) {
-            pActor->spr.zvel = 16384;
+            pActor->set_int_zvel(16384);
         }
     }
 }
@@ -1152,7 +1152,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
         int nAngDeltaD = AngleDelta(pActor->int_zvel(), var_18, 24);
 
-        pActor->spr.zvel = (pActor->int_zvel() + nAngDeltaD) & kAngleMask;
+        pActor->set_int_zvel((pActor->int_zvel() + nAngDeltaD) & kAngleMask);
     }
 
     pActor->set_int_ang(nAngle);
@@ -1316,7 +1316,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 
     pActor->spr.xvel = (RandomSize(5) - 16) << 7;
     pActor->spr.yvel = (RandomSize(5) - 16) << 7;
-    pActor->spr.zvel = (-(RandomSize(8) + 512)) << 3;
+    pActor->set_int_zvel((-(RandomSize(8) + 512)) << 3);
 
     if (bSpecial)
     {
@@ -1381,7 +1381,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             {
                 pActor->spr.xvel >>= 1;
                 pActor->spr.yvel >>= 1;
-                pActor->spr.zvel = -pActor->int_zvel();
+                pActor->set_int_zvel(-pActor->int_zvel());
                 return;
             }
             else if (nVal.type == kHitSprite)

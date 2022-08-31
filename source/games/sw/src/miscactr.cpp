@@ -353,8 +353,7 @@ int SetupWashGirl(DSWActor* actor)
 
     actor->spr.xrepeat = 28;
     actor->spr.yrepeat = 24;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = WASHGIRL_R0;
     actor->user.FlagOwner = 0;
     actor->user.ID = WASHGIRL_R0;
@@ -421,8 +420,7 @@ int DoWashGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }
@@ -549,8 +547,7 @@ int SetupTrashCan(DSWActor* actor)
 
     actor->spr.xrepeat = 46;
     actor->spr.yrepeat = 42;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->user.ID = TRASHCAN;
 
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
@@ -570,8 +567,7 @@ int DoTrashCan(DSWActor* actor)
         KeepActorOnFloor(actor);
     }
 
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }
@@ -642,8 +638,7 @@ int SetupPachinkoLight(DSWActor* actor)
     actor->user.RotNum = 0;
     actor->user.ID = PACHINKOLIGHT_R0;
 
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = TAG_PACHINKOLIGHT;
     actor->spr.shade = -2;
     actor->user.spal = actor->spr.pal;
@@ -1041,6 +1036,7 @@ int SetupPachinko4(DSWActor* actor)
     actor->user.RotNum = 0;
     actor->user.ID = PACHINKO4;
 
+    actor->spr.yvel = 0;
     actor->set_int_zvel(0);
     actor->spr.lotag = PACHINKO4;
 
@@ -1148,8 +1144,7 @@ int SetupCarGirl(DSWActor* actor)
 
     actor->spr.xrepeat = 29;
     actor->spr.yrepeat = 25;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = CARGIRL_R0;
     actor->user.FlagOwner = 0;
     actor->user.ID = CARGIRL_R0;
@@ -1199,8 +1194,7 @@ int DoCarGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }
@@ -1351,8 +1345,7 @@ int SetupMechanicGirl(DSWActor* actor)
 
     actor->spr.xrepeat = 27;
     actor->spr.yrepeat = 26;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = MECHANICGIRL_R0;
     actor->user.FlagOwner = 0;
     actor->user.ID = MECHANICGIRL_R0;
@@ -1401,8 +1394,7 @@ int DoMechanicGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }
@@ -1553,8 +1545,7 @@ int SetupSailorGirl(DSWActor* actor)
 
     actor->spr.xrepeat = 28;
     actor->spr.yrepeat = 26;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = SAILORGIRL_R0;
     actor->user.FlagOwner = 0;
     actor->user.ID = SAILORGIRL_R0;
@@ -1608,8 +1599,7 @@ int DoSailorGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }
@@ -1749,8 +1739,7 @@ int SetupPruneGirl(DSWActor* actor)
 
     actor->spr.xrepeat = 33;
     actor->spr.yrepeat = 28;
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
     actor->spr.lotag = PRUNEGIRL_R0;
     actor->user.FlagOwner = 0;
     actor->user.ID = PRUNEGIRL_R0;
@@ -1815,8 +1804,7 @@ int DoPruneGirl(DSWActor* actor)
 
     // take damage from environment
     DoActorSectorDamage(actor);
-    actor->spr.xvel = actor->spr.yvel = 0;
-    actor->set_int_zvel(0);
+    actor->spr.xvel = actor->spr.yvel = 0; actor->set_int_zvel(0);
 
     return 0;
 }

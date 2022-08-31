@@ -750,7 +750,7 @@ void movefallers_d(void)
 				if (act->spr.lotag <= 0)
 				{
 					act->spr.xvel = (32 + (krand() & 63));
-					act->spr.zvel = -(1024 + (krand() & 1023));
+					act->set_int_zvel(-(1024 + (krand() & 1023)));
 				}
 			}
 			else
@@ -774,7 +774,7 @@ void movefallers_d(void)
 				{
 					act->spr.zvel += x;
 					if (act->int_zvel() > 6144)
-						act->spr.zvel = 6144;
+						act->set_int_zvel(6144);
 					act->add_int_z(act->int_zvel());
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
@@ -1315,7 +1315,7 @@ static bool movefireball(DDukeActor* actor)
 
 				ball->spr.xvel = actor->spr.xvel;
 				ball->spr.yvel = actor->spr.yvel;
-				ball->spr.zvel = actor->int_zvel();
+				ball->set_int_zvel(actor->int_zvel());
 				if (actor->temp_data[0] > 1)
 				{
 					if (trail)
@@ -1324,7 +1324,7 @@ static bool movefireball(DDukeActor* actor)
 						ball->spr.pos = trail->temp_pos;
 						ball->spr.xvel = proj->vel.X;
 						ball->spr.yvel = proj->vel.Y;
-						ball->spr.zvel = proj->vel.Z;
+						ball->set_int_zvel(proj->vel.Z);
 					}
 				}
 				ball->spr.yrepeat = ball->spr.xrepeat = (uint8_t)(actor->spr.xrepeat * siz);
@@ -1557,7 +1557,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->spr.pos.Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
-			proj->spr.zvel = -1;
+			proj->set_int_zvel(-1);
 		}
 		else
 			if ((proj->spr.pos.Z > proj->floorz && proj->sector()->lotag != 1) ||
@@ -1565,7 +1565,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
-					proj->spr.zvel = 1;
+					proj->set_int_zvel(1);
 			}
 	}
 
@@ -2489,14 +2489,14 @@ static void flamethrowerflame(DDukeActor *actor)
 		if (actor->spr.pos.Z < actor->ceilingz)
 		{
 			coll.setSector(actor->sector());
-			actor->spr.zvel = -1;
+			actor->set_int_zvel(-1);
 		}
 		else if ((actor->spr.pos.Z > actor->floorz && actor->sector()->lotag != 1)
 			|| (actor->spr.pos.Z > actor->floorz + 16 && actor->sector()->lotag == 1))
 		{
 			coll.setSector(actor->sector());
 			if (actor->sector()->lotag != 1)
-				actor->spr.zvel = 1;
+				actor->set_int_zvel(1);
 		}
 	}
 
@@ -2584,7 +2584,7 @@ static void heavyhbomb(DDukeActor *actor)
 		{
 			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
-			actor->spr.zvel = -((4 - actor->spr.yvel) << 8);
+			actor->set_int_zvel(-((4 - actor->spr.yvel) << 8));
 			if (actor->sector()->lotag == 2)
 				actor->spr.zvel >>= 2;
 			actor->spr.yvel++;
@@ -3069,7 +3069,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			act->spr.zvel = act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->set_int_zvel(act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y));
 			break;
 		case MONEY:
 		case MAIL:

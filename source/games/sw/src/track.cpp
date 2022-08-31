@@ -3332,7 +3332,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             actor->user.Flags |= (SPR_CLIMBING);
             NewStateGroup(actor, actor->user.ActorActionSet->Climb);
 
-            actor->spr.zvel = -Z(1);
+            actor->set_int_zvel(-Z(1));
         }
 
         break;
@@ -3433,7 +3433,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
             // (velocity * difference between the target and the object) /
             // distance
-            actor->spr.zvel = (int) -((actor->spr.xvel * (actor->spr.pos.Z - tpoint->pos.Z)) / dist);
+            actor->set_int_zvel((int) -((actor->spr.xvel * (actor->spr.pos.Z - tpoint->pos.Z)) / dist));
         }
     }
     else

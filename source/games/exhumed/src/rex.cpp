@@ -347,13 +347,13 @@ void AIRex::Tick(RunListEvent* ev)
                         auto nPlayer = GetPlayerFromActor(nMov.actor());
                         PlayerList[nPlayer].nDamage.X += (xVel << 4);
                         PlayerList[nPlayer].nDamage.Y += (yVel << 4);
-                        pHitActor->spr.zvel = -3584;
+                        pHitActor->set_int_zvel(-3584);
                     }
                     else
                     {
                         pHitActor->spr.xvel += (xVel >> 3);
                         pHitActor->spr.yvel += (yVel >> 3);
-                        pHitActor->spr.zvel = -2880;
+                        pHitActor->set_int_zvel(-2880);
                     }
                 }
 

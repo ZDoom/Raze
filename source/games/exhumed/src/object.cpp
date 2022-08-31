@@ -1393,7 +1393,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
             pSpark->spr.yvel = bsin(nAngle, -6);
         }
 
-        pSpark->spr.zvel = -(RandomSize(4) << 7);
+        pSpark->set_int_zvel(-(RandomSize(4) << 7));
         pSpark->spr.picnum = kTile985 + nVal;
     }
 

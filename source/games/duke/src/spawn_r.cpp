@@ -285,7 +285,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 			act->spr.angle = actj->spr.angle;
 		act->spr.pos.Z -= gs.playerheight;
-		act->spr.zvel = 256 - (krand() & 511);
+		act->set_int_zvel(256 - (krand() & 511));
 		act->spr.xvel = 64 - (krand() & 127);
 		ChangeActorStat(act, 4);
 		break;
@@ -548,7 +548,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
 		act->spr.xvel = 292;
-		act->spr.zvel = 360;
+		act->set_int_zvel(360);
 		[[fallthrough]];
 	case RESPAWNMARKERRED:
 		if (act->spr.picnum == RESPAWNMARKERRED)
@@ -663,7 +663,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
-			act->spr.zvel = 128;
+			act->set_int_zvel(128);
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
@@ -1156,7 +1156,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum != BOWLINGBALLSPRITE)
 			{
 				act->spr.pos.Z -= 32;
-				act->spr.zvel = -(4 << 8);
+				act->set_int_zvel(-(4 << 8));
 			}
 			else
 			{
