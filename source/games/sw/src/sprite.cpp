@@ -4437,8 +4437,8 @@ void DoActorZrange(DSWActor* actor)
 
     auto save_cstat = actor->spr.cstat & CSTAT_SPRITE_BLOCK;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-    vec3_t pos = actor->int_pos();
-    pos.Z -= (int_ActorSizeZ(actor) >> 1);
+    DVector3 pos = actor->spr.pos.plusZ(-ActorSizeZ(actor) * 0.5);
+
     FAFgetzrange(pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     actor->spr.cstat |= save_cstat;
 
@@ -4509,15 +4509,15 @@ int DoActorGlobZ(DSWActor* actor)
 }
 
 
-bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, short min_height)
+bool ActorDrop(DSWActor* actor, const DVector3& pos, sectortype* new_sector, double min_height)
 {
-    int hiz, loz;
+    double hiz, loz;
     Collision ceilhit, florhit;
 
     // look only at the center point for a floor sprite
     auto save_cstat = (actor->spr.cstat & CSTAT_SPRITE_BLOCK);
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-    FAFgetzrangepoint(x, y, z - (int_ActorSizeZ(actor) >> 1), new_sector, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(pos.plusZ(-ActorSizeZ(actor) * 0.5), new_sector, &hiz, &ceilhit, &loz, &florhit);
     actor->spr.cstat |= (save_cstat);
 
     if (florhit.type < 0 || ceilhit.type < 0)
@@ -4533,7 +4533,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
 
         // if its a floor sprite and not too far down
         if ((hsp->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
-            (labs(loz - z) <= min_height))
+            (abs(loz - pos.Z) <= min_height))
         {
             return false;
         }
@@ -4543,7 +4543,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
 
     case kHitSector:
     {
-        if (labs(loz - z) <= min_height)
+        if (abs(loz - pos.Z) <= min_height)
         {
             return false;
         }
@@ -4561,19 +4561,13 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
 // Primarily used in ai.c for now - need to get rid of
 bool DropAhead(DSWActor* actor, int  min_height)
 {
-    int dax, day;
-
-    // dax = actor->spr.x + MOVEx(128, actor->spr.angle);
-    // day = actor->spr.y + MOVEy(128, actor->spr.angle);
-
-    dax = actor->int_pos().X + MOVEx(256, actor->int_ang());
-    day = actor->int_pos().Y + MOVEy(256, actor->int_ang());
+    auto vect = actor->spr.pos + MOVExy(256, actor->spr.angle);
 
     auto newsector = actor->sector();
-    updatesector(dax, day, &newsector);
+    updatesector(vect, &newsector);
 
     // look straight down for a drop
-    if (ActorDrop(actor, dax, day, actor->int_pos().Z, newsector, min_height))
+    if (ActorDrop(actor, vect, newsector, min_height * zinttoworld))
         return true;
 
     return false;
@@ -4639,7 +4633,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(actor, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), actor->user.lo_step))
+        if (ActorDrop(actor, actor->spr.pos, actor->sector(), actor->user.lo_step * zinttoworld))
         {
             // cancel move
             actor->spr.pos = apos;
