@@ -607,10 +607,6 @@ struct PLAYER
     {
         pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
     }
-    int int_bob_amt() const
-    {
-        return bob_amt * zworldtoint;
-    }
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -628,7 +624,7 @@ struct PLAYER
     SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
     double hiz, loz;
-    double bob_amt;
+    double pbob_amt;
 
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving

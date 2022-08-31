@@ -504,7 +504,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("ly", w.LadderPosition.Y)
 			("JumpDuration", w.JumpDuration)
 			("WadeDepth", w.WadeDepth)
-			("bob_amt", w.bob_amt)
+			("bob_amt", w.pbob_amt)
 			("bob_ndx", w.bob_ndx)
 			("bcnt", w.bcnt)
 			("bob_z", w.bob_z)

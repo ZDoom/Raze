@@ -1646,8 +1646,8 @@ void DoPlayerRecoil(PLAYER* pp)
 void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bob_amt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
-    pp->bob_amt = bob_amt * DAngle::fromBuild(pp->bob_ndx).Sin();
-    pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->bob_amt;
+    pp->pbob_amt = bob_amt * DAngle::fromBuild(pp->bob_ndx).Sin();
+    pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->pbob_amt;
 }
 
 void UpdatePlayerUnderSprite(PLAYER* pp)
@@ -2619,11 +2619,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
-            vec3_t clippos = { pp->int_ppos().X, pp->int_ppos().Y, z };
             Collision coll;
-            clipmove(clippos, &pp->cursector, pp->vect.X, pp->vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
-
-            pp->set_int_ppos_XY(clippos.XY());
+            clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -3494,7 +3491,7 @@ void DoPlayerBeginFly(PLAYER* pp)
 
     pp->z_speed = -Z(10);
     pp->jump_speed = 0;
-    pp->bob_amt = 0;
+    pp->pbob_amt = 0;
     pp->bob_ndx = 1024;
 
     NewStateGroup(pp->actor, sg_PlayerNinjaFly);
@@ -3567,7 +3564,7 @@ void DoPlayerFly(PLAYER* pp)
     if (PlayerFlyKey())
     {
         pp->Flags &= ~(PF_FLYING);
-        pp->bob_amt = 0;
+        pp->pbob_amt = 0;
         pp->bob_ndx = 0;
         DoPlayerBeginFall(pp);
         DoPlayerFall(pp);
@@ -4196,7 +4193,7 @@ void DoPlayerStopDiveNoWarp(PLAYER* pp)
     // stop diving no warp
     PlayerSound(DIGI_SURFACE, v3df_dontpan|v3df_follow|v3df_doppler,pp);
 
-    pp->bob_amt = 0;
+    pp->pbob_amt = 0;
 
     pp->Flags &= ~(PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
@@ -4223,7 +4220,7 @@ void DoPlayerStopDive(PLAYER* pp)
     // stop diving with warp
     PlayerSound(DIGI_SURFACE, v3df_dontpan|v3df_follow|v3df_doppler,pp);
 
-    pp->bob_amt = 0;
+    pp->pbob_amt = 0;
     DoPlayerWarpToSurface(pp);
     DoPlayerBeginWade(pp);
     pp->Flags &= ~(PF_DIVING|PF_DIVING_IN_LAVA);
@@ -4412,9 +4409,9 @@ void DoPlayerDive(PLAYER* pp)
     else
     {
         // if bob_amt is approx 0
-        if (abs(pp->bob_amt) < 1)
+        if (abs(pp->pbob_amt) < 1)
         {
-            pp->bob_amt = 0;
+            pp->pbob_amt = 0;
             pp->bob_ndx = 0;
         }
         // else keep bobbing until its back close to 0
@@ -4425,13 +4422,13 @@ void DoPlayerDive(PLAYER* pp)
     }
 
     // Reverse bobbing when getting close to the floor
-    if (pp->pos.Z + pp->bob_amt >= pp->loz - PLAYER_DIVE_HEIGHTF)
+    if (pp->pos.Z + pp->pbob_amt >= pp->loz - PLAYER_DIVE_HEIGHTF)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((1024 + 512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
     }
     // Reverse bobbing when getting close to the ceiling
-    if (pp->pos.Z + pp->bob_amt < pp->hiz + pp->p_ceiling_dist)
+    if (pp->pos.Z + pp->pbob_amt < pp->hiz + pp->p_ceiling_dist)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
@@ -4600,7 +4597,7 @@ void DoPlayerWade(PLAYER* pp)
                 {
                     pp->KeyPressBits &= ~SB_OPEN;
                     DoPlayerBeginOperate(pp);
-                    pp->bob_amt = 0;
+                    pp->pbob_amt = 0;
                     pp->bob_ndx = 0;
                     return;
                 }
@@ -4636,7 +4633,7 @@ void DoPlayerWade(PLAYER* pp)
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
             DoPlayerBeginJump(pp);
-            pp->bob_amt = 0;
+            pp->pbob_amt = 0;
             pp->bob_ndx = 0;
             return;
         }
@@ -4649,7 +4646,7 @@ void DoPlayerWade(PLAYER* pp)
     if (PlayerFlyKey())
     {
         DoPlayerBeginFly(pp);
-        pp->bob_amt = 0;
+        pp->pbob_amt = 0;
         pp->bob_ndx = 0;
         return;
     }
@@ -4692,7 +4689,7 @@ void DoPlayerWade(PLAYER* pp)
 
     if (PlayerCanDive(pp))
     {
-        pp->bob_amt = 0;
+        pp->pbob_amt = 0;
         pp->bob_ndx = 0;
         return;
     }
@@ -4704,7 +4701,7 @@ void DoPlayerWade(PLAYER* pp)
         DoPlayerBeginFall(pp);
         // call PlayerFall now seems to iron out a hitch before falling
         DoPlayerFall(pp);
-        pp->bob_amt = 0;
+        pp->pbob_amt = 0;
         pp->bob_ndx = 0;
         return;
     }
@@ -5737,7 +5734,7 @@ void DoPlayerHeadDebris(PLAYER* pp)
     }
     else
     {
-        pp->bob_amt = 0;
+        pp->pbob_amt = 0;
     }
 }
 
@@ -5842,7 +5839,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
-    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &sect);
+    updatesector(pp->pos, &sect);
     if (sect == nullptr)
     {
         pp->cursector = pp->lv_sector;
@@ -7039,7 +7036,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, LadderSector)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, ly)
 DEFINE_FIELD_X(SWPlayer, PLAYER, JumpDuration)
 DEFINE_FIELD_X(SWPlayer, PLAYER, WadeDepth)
-DEFINE_FIELD_X(SWPlayer, PLAYER, bob_amt)
+//DEFINE_FIELD_X(SWPlayer, PLAYER, bob_amt)
 DEFINE_FIELD_X(SWPlayer, PLAYER, bob_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYER, bcnt)
 DEFINE_FIELD_X(SWPlayer, PLAYER, bob_z)
