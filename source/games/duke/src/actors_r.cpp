@@ -1135,7 +1135,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
-	if (proj->int_zvel() < 0)
+	if (proj->float_zvel() < 0)
 	{
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
@@ -1305,7 +1305,7 @@ static void weaponcommon_r(DDukeActor *proj)
 					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (proj->int_zvel() < 0)
+						if (proj->float_zvel() < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 							spawned->spr.pos.Z += 72;
@@ -3639,7 +3639,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (actor->spr.picnum == DRONE && actor->spr.extra > 0)
 			{
-				if (actor->int_zvel() > 0)
+				if (actor->float_zvel() > 0)
 				{
 					double dist = isRRRA() ? 28 : 30;
 					double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
@@ -3658,9 +3658,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					}
 				}
 			}
-			if (actor->int_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
+			if (actor->float_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
 				actor->spr.pos.Z = actor->floorz;
-			if (actor->int_zvel() < 0)
+			if (actor->float_zvel() < 0)
 			{
 				double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if (actor->spr.pos.Z < c + 66)

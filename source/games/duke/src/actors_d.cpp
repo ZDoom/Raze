@@ -1455,7 +1455,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 {
 	SetActor(proj, oldpos);
 
-	if (proj->int_zvel() < 0)
+	if (proj->float_zvel() < 0)
 	{
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
@@ -1644,7 +1644,7 @@ static void weaponcommon_d(DDukeActor* proj)
 					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (proj->int_zvel() < 0)
+						if (proj->float_zvel() < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; 
 							spawned->spr.pos.Z += 72;
@@ -2401,7 +2401,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
 		if (actor->int_zvel() > -(2048 + 1024))
 			actor->add_int_zvel(- 348);
-		actor->add_int_z(actor->int_zvel());
+		actor->spr.pos.Z += actor->float_zvel();
 		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
 			actor->spr.pos.Z = actor->ceilingz + 16;
@@ -2517,7 +2517,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		else if (coll.type == kHitSector)
 		{
 			SetActor(actor, dapos);
-			if (actor->int_zvel() < 0)
+			if (actor->float_zvel() < 0)
 				fi.checkhitceiling(actor->sector());
 		}
 
@@ -3591,7 +3591,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				}
 				else
 				{
-					if (actor->int_zvel() > 0)
+					if (actor->float_zvel() > 0)
 					{
 						double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 						actor->floorz = f;
@@ -3612,9 +3612,9 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != ORGANTIC)
 			{
-				if (actor->int_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
+				if (actor->float_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
 					actor->spr.pos.Z = actor->floorz;
-				if (actor->int_zvel() < 0)
+				if (actor->float_zvel() < 0)
 				{
 					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					if (actor->spr.pos.Z < c + 66)

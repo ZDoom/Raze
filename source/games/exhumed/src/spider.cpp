@@ -281,7 +281,7 @@ void AISpider::Tick(RunListEvent* ev)
         return;
 
     if (nMov.exbits & kHitAux1
-        && spp->int_zvel() < 0
+        && spp->float_zvel() < 0
         && hiHit.type != kHitSprite
         && !((spp->sector()->ceilingstat) & CSTAT_SECTOR_SKY))
     {

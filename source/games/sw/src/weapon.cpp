@@ -16654,13 +16654,13 @@ DSWActor* SpawnBubble(DSWActor* actor)
 int DoVehicleSmoke(DSWActor* actor)
 {
 	actor->spr.pos.XY() += actor->user.change.XY();
-    actor->add_int_z(-actor->int_zvel());
+    actor->spr.pos.Z -= actor->float_zvel();
     return false;
 }
 
 int DoWaterSmoke(DSWActor* actor)
 {
-    actor->add_int_z(-actor->int_zvel());
+    actor->spr.pos.Z -= actor->float_zvel();
     return false;
 }
 
@@ -16718,7 +16718,7 @@ int SpawnSmokePuff(DSWActor* actor)
 
 int DoBubble(DSWActor* actor)
 {
-    actor->add_int_z(-actor->int_zvel());
+    actor->spr.pos.Z -= actor->float_zvel();
     actor->add_int_zvel( 32);
 
     if (actor->int_zvel() > 768)

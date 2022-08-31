@@ -1365,7 +1365,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 	}
 	else if (hit == kHitSector)
 	{
-		if (actor->int_zvel() > 0 && EXPLOSION2BOT >= 0)
+		if (actor->float_zvel() > 0 && EXPLOSION2BOT >= 0)
 			spawn(actor, EXPLOSION2BOT);
 		else
 		{
@@ -2220,7 +2220,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		}
 
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), 0 });
-		actor->add_int_z(actor->int_zvel());
+		actor->spr.pos.Z += actor->float_zvel();
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
 		{
@@ -3357,7 +3357,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 		}
 	}
 
-	actor->add_int_z(actor->int_zvel());
+	actor->spr.pos.Z += actor->float_zvel();
 	sc->add_int_ceilingz(actor->int_zvel());
 	sector[actor->temp_data[0]].add_int_ceilingz(actor->int_zvel());
 	ms(actor);
@@ -4852,7 +4852,7 @@ void makeitfall(DDukeActor* actor)
 		if(actor->int_zvel() < 6144)
 			actor->add_int_zvel( c);
 		else actor->set_int_zvel(6144);
-		actor->add_int_z(actor->int_zvel());
+		actor->spr.pos.Z += actor->float_zvel();
 	}
 	if (actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F)
 	{
@@ -5080,7 +5080,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		if (actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 		{
 			actor->add_int_zvel( c);
-			actor->add_int_z(actor->int_zvel());
+			actor->spr.pos.Z += actor->float_zvel();
 
 			if (actor->int_zvel() > 6144) actor->set_int_zvel(6144);
 		}
