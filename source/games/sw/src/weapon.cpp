@@ -11253,25 +11253,20 @@ int InitLavaThrow(DSWActor* actor)
 
 void InitVulcanBoulder(DSWActor* actor)
 {
-    int nx, ny, nz, nang;
-    int zsize;
+    DAngle nang;
+    double zsize;
     int zvel, zvel_rand;
-    short delta;
-    short vel;
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - Z(40);
+    int delta;
+    int vel;
 
     if (SP_TAG7(actor))
     {
         delta = SP_TAG5(actor);
-        nang = actor->int_ang() + (RandomRange(delta) - (delta >> 1));
-        nang = NORM_ANGLE(nang);
+        nang = actor->spr.angle + DAngle::fromBuild((RandomRange(delta) - (delta >> 1)));
     }
     else
     {
-        nang = RANDOM_P2(2048);
+        nang = RANDOM_ANGLE();
     }
 
     if (SP_TAG6(actor))
@@ -11280,22 +11275,21 @@ void InitVulcanBoulder(DSWActor* actor)
         vel = 800;
 
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, actor->sector(),
-                    nx, ny, nz, nang, (vel/2 + vel/4) + RandomRange(vel/4));
+    auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, actor->sector(), actor->spr.pos.plusZ(-40), nang, (vel/2 + vel/4) + RandomRange(vel/4));
 
     SetOwner(actor, actorNew);
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 8 + RandomRange(72);
     actorNew->spr.shade = -40;
-    actorNew->set_int_ang(nang);
+    actorNew->spr.angle = nang;
     actorNew->user.Counter = 0;
 
-    zsize = int_ActorSizeZ(actorNew);
+    zsize = ActorSizeZ(actorNew);
 
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.clipdist = 256>>2;
-    actorNew->user.ceiling_dist = zsize/2 * inttoworld;
-    actorNew->user.floor_dist = zsize/2 * inttoworld;
+    actorNew->user.ceiling_dist = zsize/2;
+    actorNew->user.floor_dist = zsize/2;
     if (RANDOM_P2(1024) > 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
     if (RANDOM_P2(1024) > 512)
@@ -11313,7 +11307,7 @@ void InitVulcanBoulder(DSWActor* actor)
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(-Z(zvel) + -Z(RandomRange(zvel_rand)));
+    actorNew->user.change.Z = -zvel -RandomRange(zvel_rand);
 }
 
 int InitSerpRing(DSWActor* actor)
