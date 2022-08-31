@@ -11196,9 +11196,22 @@ int InitLavaFlame(DSWActor* actor)
     return 0;
 }
 
+void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = false)
+{
+    // find the distance to the target (player)
+    double dist = (actorNew->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
+
+    if (dist != 0)
+    {
+        double zdist = (ActorUpperZ(actor->user.targetActor) - actorNew->spr.pos.Z) / dist;
+        double change = zdist * actorNew->spr.xvel * inttoworld;
+        actorNew->spr.zvel = (change * zworldtoint);
+        if (setchange) actorNew->user.change.Z = change;
+    }
+}
+
 int InitLavaThrow(DSWActor* actor)
 {
-    int dist;
     short w;
 
     // get angle to player and also face player when attacking
@@ -11234,11 +11247,7 @@ int InitLavaThrow(DSWActor* actor)
     MissileSetPos(actorNew, DoLavaBoulder, 1200);
 
     // find the distance to the target (player)
-    dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
-
+    SetZVelFromTarget(actorNew, actor, true);
     return 0;
 }
 
@@ -11456,7 +11465,6 @@ void InitSpellNapalm(PLAYER* pp)
 
 int InitEnemyNapalm(DSWActor* actor)
 {
-    short dist;
     unsigned i;
 
     static const MISSILE_PLACEMENT mp[] =
@@ -11507,10 +11515,7 @@ int InitEnemyNapalm(DSWActor* actor)
         }
 
         // find the distance to the target (player)
-		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-        if (dist != 0)
-            actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        SetZVelFromTarget(actorNew, actor);
 
 		UpdateChange(actorNew);
 
@@ -11563,8 +11568,6 @@ int InitSpellMirv(PLAYER* pp)
 
 int InitEnemyMirv(DSWActor* actor)
 {
-    int dist;
-
     PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
 
     auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, actor->sector(),
@@ -11590,10 +11593,7 @@ int InitEnemyMirv(DSWActor* actor)
     MissileSetPos(actorNew, DoMirv, 600);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+    SetZVelFromTarget(actorNew, actor, true);
     return 0;
 }
 
@@ -12014,10 +12014,7 @@ int InitSumoNapalm(DSWActor* actor)
             }
 
             // find the distance to the target (player)
-			dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-            if (dist != 0)
-                actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+            SetZVelFromTarget(actorNew, actor);
 
 			UpdateChange(actorNew);
 
