@@ -239,29 +239,18 @@ inline int GetSpriteSizeZ(const spritetypebase* sp)
 }
 
 
-// Z size of top (TOS) and bottom (BOS) part of sprite
-inline int GetSpriteSizeToTop(const spritetypebase* sp)
-{
-    return ((GetSpriteSizeZ(sp) >> 1) + (tileTopOffset(sp->picnum) << 8));
-}
-
-inline int GetSpriteSizeToBottom(const spritetypebase* sp)
-{
-    return ((GetSpriteSizeZ(sp) >> 1) - (tileTopOffset(sp->picnum) << 8));
-}
-
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline int GetSpriteZOfTop(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->int_pos().Z - GetSpriteSizeToTop(sp) :
+        sp->int_pos().Z - ((GetSpriteSizeZ(sp) >> 1) + (tileTopOffset(sp->picnum) << 8)) :
         sp->int_pos().Z - GetSpriteSizeZ(sp);
 }
 
 inline int GetSpriteZOfBottom(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->int_pos().Z + GetSpriteSizeToBottom(sp) :
+        sp->int_pos().Z + ((GetSpriteSizeZ(sp) >> 1) - (tileTopOffset(sp->picnum) << 8)) :
         sp->int_pos().Z;
 }
 
