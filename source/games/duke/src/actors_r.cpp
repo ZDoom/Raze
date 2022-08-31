@@ -691,9 +691,9 @@ void movefallers_r(void)
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->spr.zvel += x;
-					if (act->spr.zvel > 6144)
+					if (act->int_zvel() > 6144)
 						act->spr.zvel = 6144;
-					act->add_int_z(act->spr.zvel);
+					act->add_int_z(act->int_zvel());
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
@@ -1135,7 +1135,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
-	if (proj->spr.zvel < 0)
+	if (proj->int_zvel() < 0)
 	{
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
@@ -1178,12 +1178,12 @@ static void weaponcommon_r(DDukeActor *proj)
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
 		k = proj->spr.xvel >> 1;
-		ll = proj->spr.zvel >> 1;
+		ll = proj->int_zvel() >> 1;
 	}
 	else if (isRRRA() && proj->spr.picnum == RPG2 && proj->sector()->lotag == 2)
 	{
 		k = proj->spr.xvel >> 1;
-		ll = proj->spr.zvel >> 1;
+		ll = proj->int_zvel() >> 1;
 	}
 	else
 	{
@@ -1264,7 +1264,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			auto x = EGS(proj->sector(),
 				proj->int_pos().X + MulScale(k, bcos(proj->int_ang()), 9),
 				proj->int_pos().Y + MulScale(k, bsin(proj->int_ang()), 9),
-				proj->int_pos().Z + ((k * Sgn(proj->spr.zvel)) * abs(proj->spr.zvel / 24)), FIRELASER, -40 + (k << 2),
+				proj->int_pos().Z + ((k * Sgn(proj->int_zvel())) * abs(proj->spr.zvel / 24)), FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			if (x)
@@ -1274,7 +1274,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			}
 		}
 	}
-	else if (proj->spr.picnum == SPIT) if (proj->spr.zvel < 6144)
+	else if (proj->spr.picnum == SPIT) if (proj->int_zvel() < 6144)
 		proj->spr.zvel += gs.gravity - 112;
 
 	if (coll.type != 0)
@@ -1305,7 +1305,7 @@ static void weaponcommon_r(DDukeActor *proj)
 					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (proj->spr.zvel < 0)
+						if (proj->int_zvel() < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 							spawned->spr.pos.Z += 72;
@@ -1349,7 +1349,7 @@ void moveweapons_r(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (proj->spr.yvel < 1 || proj->spr.extra < 2 || (proj->spr.xvel | proj->spr.zvel) == 0)
+			if (proj->spr.yvel < 1 || proj->spr.extra < 2 || (proj->spr.xvel | proj->int_zvel()) == 0)
 			{
 				auto star = spawn(proj, TRANSPORTERSTAR);
 				if (star)
@@ -1579,7 +1579,7 @@ void movetransports_r(void)
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
 
-				ll = abs(act2->spr.zvel) * zinttoworld;
+				ll = abs(act2->int_zvel()) * zinttoworld;
 				if (isRRRA())
 				{
 					if (act2->spr.zvel >= 0)
@@ -2379,7 +2379,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
-	if (actor->sector()->lotag == 1 && actor->spr.zvel == 0)
+	if (actor->sector()->lotag == 1 && actor->int_zvel() == 0)
 	{
 		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
@@ -3621,7 +3621,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	if (a & geth) actor->spr.xvel += (*moveptr - actor->spr.xvel) >> 1;
-	if (a & getv) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->spr.zvel) >> 1;
+	if (a & getv) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1;
 
 	if (a & dodgebullet)
 		dodge(actor);
@@ -3633,13 +3633,13 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->spr.xvel || actor->spr.zvel)
+	if (actor->spr.xvel || actor->int_zvel())
 	{
 		if (a)
 		{
 			if (actor->spr.picnum == DRONE && actor->spr.extra > 0)
 			{
-				if (actor->spr.zvel > 0)
+				if (actor->int_zvel() > 0)
 				{
 					double dist = isRRRA() ? 28 : 30;
 					double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
@@ -3658,9 +3658,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					}
 				}
 			}
-			if (actor->spr.zvel > 0 && actor->floorz < actor->spr.pos.Z)
+			if (actor->int_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
 				actor->spr.pos.Z = actor->floorz;
-			if (actor->spr.zvel < 0)
+			if (actor->int_zvel() < 0)
 			{
 				double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if (actor->spr.pos.Z < c + 66)

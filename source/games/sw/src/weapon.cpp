@@ -9367,7 +9367,7 @@ int DoUziBullet(DSWActor* actor)
     for (i = 0; i < 2; i++)
     {
 		auto vec = MOVExy((actor->spr.xvel >> 1), actor->spr.angle);
-		double daz = (actor->spr.zvel >> 1) * zinttoworld;
+		double daz = (actor->int_zvel() >> 1) * zinttoworld;
 
         sx = actor->int_pos().X;
         sy = actor->int_pos().Y;
@@ -14042,7 +14042,7 @@ int InitEnemyRail(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 600, actorNew->spr.zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 600, actorNew->int_zvel()))
     {
         KillActor(actorNew);
         return 0;
@@ -16656,13 +16656,13 @@ DSWActor* SpawnBubble(DSWActor* actor)
 int DoVehicleSmoke(DSWActor* actor)
 {
 	actor->spr.pos.XY() += actor->user.change.XY();
-    actor->add_int_z(-actor->spr.zvel);
+    actor->add_int_z(-actor->int_zvel());
     return false;
 }
 
 int DoWaterSmoke(DSWActor* actor)
 {
-    actor->add_int_z(-actor->spr.zvel);
+    actor->add_int_z(-actor->int_zvel());
     return false;
 }
 
@@ -16720,10 +16720,10 @@ int SpawnSmokePuff(DSWActor* actor)
 
 int DoBubble(DSWActor* actor)
 {
-    actor->add_int_z(-actor->spr.zvel);
+    actor->add_int_z(-actor->int_zvel());
     actor->spr.zvel += 32;
 
-    if (actor->spr.zvel > 768)
+    if (actor->int_zvel() > 768)
         actor->spr.zvel = 768;
 
     // notreallypos

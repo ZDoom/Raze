@@ -574,7 +574,7 @@ void Gravity(DExhumedActor* pActor)
         {
             if (pActor->spr.zvel <= 1024)
             {
-                if (pActor->spr.zvel < 2048) {
+                if (pActor->int_zvel() < 2048) {
                     pActor->spr.zvel += 512;
                 }
             }
@@ -585,17 +585,17 @@ void Gravity(DExhumedActor* pActor)
         }
         else
         {
-            if (pActor->spr.zvel > 0)
+            if (pActor->int_zvel() > 0)
             {
                 pActor->spr.zvel -= 64;
-                if (pActor->spr.zvel < 0) {
+                if (pActor->int_zvel() < 0) {
                     pActor->spr.zvel = 0;
                 }
             }
-            else if (pActor->spr.zvel < 0)
+            else if (pActor->int_zvel() < 0)
             {
                 pActor->spr.zvel += 64;
-                if (pActor->spr.zvel > 0) {
+                if (pActor->int_zvel() > 0) {
                     pActor->spr.zvel = 0;
                 }
             }
@@ -604,7 +604,7 @@ void Gravity(DExhumedActor* pActor)
     else
     {
         pActor->spr.zvel += 512;
-        if (pActor->spr.zvel > 16384) {
+        if (pActor->int_zvel() > 16384) {
             pActor->spr.zvel = 16384;
         }
     }
@@ -1152,12 +1152,12 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
         int nAngDeltaD = AngleDelta(pActor->int_zvel(), var_18, 24);
 
-        pActor->spr.zvel = (pActor->spr.zvel + nAngDeltaD) & kAngleMask;
+        pActor->spr.zvel = (pActor->int_zvel() + nAngDeltaD) & kAngleMask;
     }
 
     pActor->set_int_ang(nAngle);
 
-    int eax = abs(bcos(pActor->spr.zvel));
+    int eax = abs(bcos(pActor->int_zvel()));
 
     int x = ((bcos(nAngle) * ebx) >> 14) * eax;
     int y = ((bsin(nAngle) * ebx) >> 14) * eax;
@@ -1173,7 +1173,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         sqrtNum = INT_MAX;
     }
 
-    int z = bsin(pActor->spr.zvel) * ksqrt(sqrtNum);
+    int z = bsin(pActor->int_zvel()) * ksqrt(sqrtNum);
 
     return movesprite(pActor, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }

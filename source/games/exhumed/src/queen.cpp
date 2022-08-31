@@ -325,7 +325,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
-        pActor->spr.zvel = (AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->spr.zvel) & kAngleMask;
+        pActor->spr.zvel = (AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->int_zvel()) & kAngleMask;
     }
 
     pActor->set_int_ang(nAngle);
@@ -620,7 +620,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (nMov.exbits & kHitAux2)
         {
             pActor->spr.zvel = -(pActor->spr.zvel - 256);
-            if (pActor->spr.zvel < -512)
+            if (pActor->int_zvel() < -512)
             {
                 pActor->spr.zvel = 0;
             }
@@ -797,9 +797,9 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
             else if (nMov.exbits == kHitAux2)
             {
-                pActor->spr.zvel = -(pActor->spr.zvel >> 1);
+                pActor->spr.zvel = -(pActor->int_zvel() >> 1);
 
-                if (pActor->spr.zvel > -256)
+                if (pActor->int_zvel() > -256)
                 {
                     nVelShift = 100;
                     pActor->spr.zvel = 0;
@@ -819,7 +819,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
 
-                if (pActor->spr.zvel == 0)
+                if (pActor->int_zvel() == 0)
                 {
                     QueenHead.nIndex = 120;
                 }

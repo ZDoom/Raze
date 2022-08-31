@@ -850,7 +850,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
     int z = (pPlayerActor->spr.zvel * 4) >> 2;
 
-    if (pPlayerActor->spr.zvel > 8192)
+    if (pPlayerActor->int_zvel() > 8192)
         pPlayerActor->spr.zvel = 8192;
 
     if (PlayerList[nPlayer].bIsMummified)
@@ -895,7 +895,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
 		pPlayerActor->spr.pos.XY() = spr_pos.XY();
 
-        if (zVel < pPlayerActor->spr.zvel) {
+        if (zVel < pPlayerActor->int_zvel()) {
             pPlayerActor->spr.zvel = zVel;
         }
     }

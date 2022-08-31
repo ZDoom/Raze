@@ -3490,7 +3490,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 			vec.XY() = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
         }
 
-        if (actor->spr.zvel)
+        if (actor->int_zvel())
             vec.Z = actor->spr.zvel * locktics * zinttoworld;
     }
 
