@@ -2137,11 +2137,6 @@ inline int16_t SP_TAG13(DSWActor* actor) { return int16_t(uint8_t(actor->spr.xof
 inline void SET_SP_TAG13(DSWActor* actor, int val) { actor->spr.xoffset = uint8_t(val); actor->spr.yoffset = uint8_t(val >> 8); }
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
-inline int int_ActorZOfTop(DSWActor* actor)
-{
-    return GetSpriteZOfTop(&actor->spr);
-}
-
 inline double ActorZOfTop(DSWActor* actor)
 {
     return GetSpriteZOfTop(&actor->spr) * zinttoworld;
@@ -2150,11 +2145,6 @@ inline double ActorZOfTop(DSWActor* actor)
 inline DVector3 ActorVectOfTop(DSWActor* actor)
 {
     return DVector3(actor->spr.pos.XY(), ActorZOfTop(actor));
-}
-
-inline int int_ActorZOfBottom(DSWActor* actor)
-{
-    return GetSpriteZOfBottom(&actor->spr);
 }
 
 inline double ActorZOfBottom(DSWActor* actor)
@@ -2170,11 +2160,6 @@ inline double ActorZOfMiddle(DSWActor* actor)
 inline DVector3 ActorVectOfMiddle(DSWActor* actor)
 {
     return DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor));
-}
-
-inline int int_ActorSizeZ(DSWActor* actor)
-{
-    return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 2;
 }
 
 inline double ActorSizeZ(DSWActor* actor)
@@ -2220,7 +2205,7 @@ inline int ActorSizeY(DSWActor* sp)
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 {
-    return (abs(getincangle(getangle(actor1->spr.pos - actor2->spr.pos), actor2->int_ang())) < 512);
+    return absangle(VecToAngle(actor1->spr.pos - actor2->spr.pos), actor2->spr.angle) < DAngle90;
 }
 
 // Given a z height and sprite return the correct y repeat value
