@@ -1567,7 +1567,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 
 	if (actor->temp_data[3] > 0)
 	{
-		if (actor->int_zvel() < 6144)
+		if (actor->float_zvel() < 24)
 			actor->add_int_zvel( 192);
 		actor->spr.pos.Z += actor->int_zvel() * inttoworld;
 		if (actor->spr.pos.Z > sectp->floorz)
@@ -2101,11 +2101,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	{
 		if (sectp->lotag == 2)
 		{
-			if (actor->int_zvel() < 64)
+			if (actor->float_zvel() < 0.25)
 				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
 		}
 		else
-			if (actor->int_zvel() < 144)
+			if (actor->float_zvel() < 0.5625)
 				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
 	}
 
@@ -2166,7 +2166,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		}
 	}
 
-	if (actor->int_zvel() > 1024 && actor->int_zvel() < 1280)
+	if (actor->float_zvel() > 4 && actor->float_zvel() < 5)
 	{
 		SetActor(actor, actor->spr.pos);
 		sectp = actor->sector();
@@ -2208,11 +2208,11 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			}
 		}
 
-		if (actor->int_zvel() < 6144)
+		if (actor->float_zvel() < 24)
 		{
 			if (sectp->lotag == 2)
 			{
-				if (actor->int_zvel() < 1024)
+				if (actor->float_zvel() < 4)
 					actor->add_int_zvel( 48);
 				else actor->set_int_zvel(1024);
 			}
@@ -2381,7 +2381,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->int_zvel() < 128) actor->add_int_zvel( (gs.gravity / 13)); // 8
+		if (actor->float_zvel() < 0.5) actor->add_int_zvel( (gs.gravity / 13)); // 8
 		else actor->add_int_zvel(- 64);
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel -= 4;
@@ -2396,7 +2396,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->int_zvel() < 512) actor->add_int_zvel( (gs.gravity / 3)); // 52;
+		if (actor->float_zvel() < 2) actor->add_int_zvel( (gs.gravity / 3)); // 52;
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel--;
 		else
@@ -2467,13 +2467,13 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 		actor->spr.xvel--;
 	else actor->spr.xvel = 0;
 
-	if (actor->int_zvel() > 1024 && actor->int_zvel() < 1280)
+	if (actor->float_zvel() > 4 && actor->float_zvel() < 5)
 	{
 		SetActor(actor, actor->spr.pos);
 		sectp = actor->sector();
 	}
 
-	if (actor->int_pos().Z < sectp->int_floorz() - (2 << 8))
+	if (actor->spr.pos.Z < sectp->floorz - 2)
 	{
 		if (actor->temp_data[1] < 1) actor->temp_data[1]++;
 		else
@@ -2493,7 +2493,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 				else actor->temp_data[0]++;
 			}
 		}
-		if (actor->int_zvel() < 4096) actor->add_int_zvel( gs.gravity - 50);
+		if (actor->float_zvel() < 16) actor->add_int_zvel( gs.gravity - 50);
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->int_zvel()});
 	}
 	else
@@ -4849,7 +4849,7 @@ void makeitfall(DDukeActor* actor)
 	{
 		if( actor->sector()->lotag == 2 && actor->int_zvel() > 3122 )
 			actor->set_int_zvel(3144);
-		if(actor->int_zvel() < 6144)
+		if(actor->float_zvel() < 24)
 			actor->add_int_zvel( c);
 		else actor->set_int_zvel(6144);
 		actor->spr.pos.Z += actor->float_zvel();

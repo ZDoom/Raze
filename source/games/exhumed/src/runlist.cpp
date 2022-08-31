@@ -1659,7 +1659,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 pActor->spr.yvel += (edi * bsin(nAngle)) >> 3;
                 pActor->add_int_zvel(- edi * 24);
 
-                if (pActor->int_zvel() < -3584) {
+                if (pActor->float_zvel() < -14) {
                     pActor->set_int_zvel(-3584);
                 }
             }

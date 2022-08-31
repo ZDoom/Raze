@@ -572,9 +572,9 @@ void Gravity(DExhumedActor* pActor)
     {
         if (pActor->spr.statnum != 100)
         {
-            if (pActor->int_zvel() <= 1024)
+            if (pActor->float_zvel() <= 4)
             {
-                if (pActor->int_zvel() < 2048) {
+                if (pActor->float_zvel() < 8) {
                     pActor->add_int_zvel( 512);
                 }
             }
