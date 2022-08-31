@@ -13795,14 +13795,14 @@ int InitSerpSpell(DSWActor* actor)
     int dist;
     short i;
 
-    static const short lat_ang[] =
+    static const DAngle lat_ang[] =
     {
-        512, -512
+        DAngle90, -DAngle90
     };
 
-    static const short delta_ang[] =
+    static const DAngle delta_ang[] =
     {
-        -10, 10
+        DAngle::fromBuild(-10), DAngle::fromBuild(10)
     };
 
     for (i = 0; i < 2; i++)
@@ -13834,16 +13834,14 @@ int InitSerpSpell(DSWActor* actor)
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + lat_ang[i]));
+        actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
+        actorNew->spr.angle -= lat_ang[i];
 
         // find the distance to the target (player)
-		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-        if (dist != 0)
-            actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        SetZVelFromTarget(actorNew, actor);
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + delta_ang[i]));
+        actorNew->spr.angle += delta_ang[i];
 
 		UpdateChange(actorNew);
 
@@ -13887,14 +13885,14 @@ int InitSerpMonstSpell(DSWActor* actor)
     int dist;
     short i;
 
-    static const short lat_ang[] =
+    static const DAngle lat_ang[] =
     {
-        512, -512
+        DAngle90, -DAngle90
     };
 
-    static const short delta_ang[] =
+    static const DAngle delta_ang[] =
     {
-        -10, 10
+        DAngle::fromBuild(-10), DAngle::fromBuild(10)
     };
 
     PlaySound(DIGI_MISSLFIRE, actor, v3df_none);
@@ -13928,16 +13926,14 @@ int InitSerpMonstSpell(DSWActor* actor)
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + lat_ang[i]));
+        actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
+        actorNew->spr.angle -= lat_ang[i];
 
         // find the distance to the target (player)
-		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-        if (dist != 0)
-            actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist;
+        SetZVelFromTarget(actorNew, actor);
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + delta_ang[i]));
+        actorNew->spr.angle += delta_ang[i];
 
 		UpdateChange(actorNew);
 
