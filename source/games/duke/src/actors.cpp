@@ -784,7 +784,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 			Owner->opos = actor->spr.pos;
 
-			actor->set_int_zvel(0);
+			actor->clear_zvel();
 		}
 		else if (actor->IsActiveCrane())
 		{
@@ -4857,7 +4857,7 @@ void makeitfall(DDukeActor* actor)
 	if (actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F)
 	{
  		actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
-		actor->set_int_zvel(0);
+		actor->clear_zvel();
 	}
 }
 
@@ -5114,7 +5114,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 					actor->attackertype = SHOTSPARK1;
 					actor->hitextra = 1;
-					actor->set_int_zvel(0);
+					actor->clear_zvel();
 				}
 				else if (actor->int_zvel() > 2048 && actor->sector()->lotag != 1)
 				{
@@ -5129,7 +5129,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			}
 			if (actor->sector()->lotag == 1)
 				actor->add_int_z(gs.actorinfo[actor->spr.picnum].falladjustz);
-			else actor->set_int_zvel(0);
+			else actor->clear_zvel();
 		}
 	}
 }

@@ -302,7 +302,7 @@ void RestartPlayer(int nPlayer)
 	int nHeight = GetActorHeight(pActor);
 	pActor->spr.xvel = 0;
 	pActor->spr.yvel = 0;
-	pActor->set_int_zvel(0);
+	pActor->clear_zvel();
 
 	nStandHeight = nHeight;
 
@@ -925,7 +925,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             pPlayerActor->spr.xvel = 0;
             pPlayerActor->spr.yvel = 0;
-            pPlayerActor->set_int_zvel(0);
+            pPlayerActor->clear_zvel();
 
             if (nFreeze < 1)
             {

@@ -416,7 +416,7 @@ void DoRegenerates()
             }
         }
 
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
         pActor->spr.yrepeat = (uint8_t)pActor->spr.xvel;
         pActor->spr.xrepeat = (uint8_t)pActor->spr.xvel;
         pActor->spr.pal  = (uint8_t)pActor->spr.yvel;

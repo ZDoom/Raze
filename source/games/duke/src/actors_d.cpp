@@ -1605,7 +1605,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				return;
 			}
 			proj->spr.xvel = 0;
-			proj->set_int_zvel(0);
+			proj->clear_zvel();
 		}
 
 		bool fireball = (isWorldTour() && proj->spr.picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->spr.picnum != FIREBALL));
@@ -2349,7 +2349,7 @@ static void greenslime(DDukeActor *actor)
 
 		if (actor->temp_data[0] == 2)
 		{
-			actor->set_int_zvel(0);
+			actor->clear_zvel();
 			actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 
 			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 24) < actor->spr.pos.Z)
@@ -2388,7 +2388,7 @@ static void greenslime(DDukeActor *actor)
 		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
 			fabs(actor->floorz - actor->ceilingz) < 192)
 		{
-			actor->set_int_zvel(0);
+			actor->clear_zvel();
 			actor->temp_data[0]++;
 		}
 
@@ -2502,7 +2502,7 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	if (coll.type != 0) {
 		actor->spr.xvel = actor->spr.yvel = 0;
-		actor->set_int_zvel(0);
+		actor->clear_zvel();
 		if (coll.type == kHitSprite)
 		{
 			fi.checkhitsprite(coll.actor(), actor);
@@ -2592,7 +2592,7 @@ static void heavyhbomb(DDukeActor *actor)
 		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
 		{
 			actor->spr.pos.Z = actor->ceilingz + 3;
-			actor->set_int_zvel(0);
+			actor->clear_zvel();
 		}
 	}
 
@@ -3580,13 +3580,13 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					if (actor->spr.pos.Z > f - 8)
 					{
 						actor->spr.pos.Z = f - 8;
-						actor->set_int_zvel(0);
+						actor->clear_zvel();
 					}
 
 					if (actor->spr.pos.Z < c + 80)
 					{
 						actor->spr.pos.Z = c + 80;
-						actor->set_int_zvel(0);
+						actor->clear_zvel();
 					}
 				}
 				else
@@ -3605,7 +3605,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 						if (actor->spr.pos.Z < c + 50)
 						{
 							actor->spr.pos.Z = c + 50;
-							actor->set_int_zvel(0);
+							actor->clear_zvel();
 						}
 					}
 				}

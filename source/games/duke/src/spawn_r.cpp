@@ -1160,7 +1160,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->set_int_zvel(0);
+				act->clear_zvel();
 			}
 			ssp(act, CLIPMASK0);
 			act->spr.cstat = randomXFlip();

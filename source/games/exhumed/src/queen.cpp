@@ -290,7 +290,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
     if (pActor2 == nullptr)
     {
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
         nAngle = pActor->int_ang();
     }
     else
@@ -622,7 +622,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             pActor->set_int_zvel(-(pActor->int_zvel() - 256));
             if (pActor->int_zvel() < -512)
             {
-                pActor->set_int_zvel(0);
+                pActor->clear_zvel();
             }
         }
 
@@ -802,7 +802,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 if (pActor->int_zvel() > -256)
                 {
                     nVelShift = 100;
-                    pActor->set_int_zvel(0);
+                    pActor->clear_zvel();
                 }
             }
 
@@ -1100,7 +1100,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
     pActor->spr.hitag = 0;
@@ -1421,7 +1421,7 @@ void AIQueen::Damage(RunListEvent* ev)
         {
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->set_int_zvel(0);
+            pActor->clear_zvel();
 
             QueenList[nQueen].nAction2++;
 

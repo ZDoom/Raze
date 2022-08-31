@@ -1065,7 +1065,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 				k->spr.pos = spos;
 				k->spr.angle = sang;
 				k->spr.xvel = 500;
-				k->set_int_zvel(0);
+				k->clear_zvel();
 			}
 			return;
 		}

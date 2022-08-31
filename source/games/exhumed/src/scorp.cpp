@@ -64,7 +64,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
     pActor->spr.hitag = 0;
@@ -129,7 +129,7 @@ void AIScorp::Damage(RunListEvent* ev)
 
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
         nCreaturesKilled++;

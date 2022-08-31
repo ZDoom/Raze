@@ -295,7 +295,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
     {
         pActor->set_int_z(z2);
         overridesect = pSector;
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
 
         bTouchFloor = true;
 
@@ -412,7 +412,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                         nRet = loHit;
                     }
 
-                    pActor->set_int_zvel(0);
+                    pActor->clear_zvel();
                 }
             }
             else
@@ -438,7 +438,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                         }
                     }
 
-                    pActor->set_int_zvel(0);
+                    pActor->clear_zvel();
                 }
             }
         }
@@ -589,14 +589,14 @@ void Gravity(DExhumedActor* pActor)
             {
                 pActor->add_int_zvel(- 64);
                 if (pActor->int_zvel() < 0) {
-                    pActor->set_int_zvel(0);
+                    pActor->clear_zvel();
                 }
             }
             else if (pActor->int_zvel() < 0)
             {
                 pActor->add_int_zvel( 64);
                 if (pActor->int_zvel() > 0) {
-                    pActor->set_int_zvel(0);
+                    pActor->clear_zvel();
                 }
             }
         }
@@ -1111,7 +1111,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
     if (pActor2 == nullptr)
     {
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
         nAngle = pActor->int_ang();
     }
     else
@@ -1361,7 +1361,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
-        pActor->set_int_zvel(0);
+        pActor->clear_zvel();
         pActor->spr.pos.Z = pSector->floorz;
     }
     else

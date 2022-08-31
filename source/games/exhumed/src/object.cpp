@@ -1204,7 +1204,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.extra = -1;
 
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -1448,7 +1448,7 @@ void AISpark::Tick(RunListEvent* ev)
 
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
 
     if (pActor->spr.picnum > kTile3000) {
         nSmokeSparks--;
@@ -1585,7 +1585,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -1786,7 +1786,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     pActor->spr.cstat = (pActor->spr.cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -2033,7 +2033,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         {
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->set_int_zvel(0);
+            pActor->clear_zvel();
         }
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {

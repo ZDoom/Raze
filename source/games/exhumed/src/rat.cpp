@@ -99,7 +99,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.yrepeat = 50;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;

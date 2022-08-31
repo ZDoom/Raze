@@ -900,7 +900,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 
 		if (act->spr.picnum == ROTATEGUN)
-			act->set_int_zvel(0);
+			act->clear_zvel();
 
 		break;
 

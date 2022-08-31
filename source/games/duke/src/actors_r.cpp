@@ -2370,7 +2370,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (actor->spr.picnum != CHEERBOMB && actor->spr.pos.Z < actor->ceilingz + 16 && sectp->lotag != 2)
 	{
 		actor->spr.pos.Z = actor->ceilingz + 16;
-		actor->set_int_zvel(0);
+		actor->clear_zvel();
 	}
 
 	Collision coll;
@@ -3654,7 +3654,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					if (actor->spr.pos.Z < c + 50)
 					{
 						actor->spr.pos.Z = c + 50;
-						actor->set_int_zvel(0);
+						actor->clear_zvel();
 					}
 				}
 			}

@@ -76,7 +76,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     pActor->set_int_ang(nAngle);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
@@ -242,7 +242,7 @@ void AIWasp::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->set_int_zvel(0);
+                pActor->clear_zvel();
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
                 pActor->nVel = 1500;
@@ -344,7 +344,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->set_int_zvel(0);
+            pActor->clear_zvel();
             pActor->nAction = 6;
             pActor->nFrame = 0;
             runlist_SubRunRec(pActor->nRun);

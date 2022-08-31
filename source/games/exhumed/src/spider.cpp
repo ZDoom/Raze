@@ -56,7 +56,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.clipdist = 15;
     spp->spr.xvel = 0;
     spp->spr.yvel = 0;
-    spp->set_int_zvel(0);
+    spp->clear_zvel();
     spp->spr.xrepeat = 40;
     spp->spr.yrepeat = 40;
     spp->spr.pal = spp->sector()->ceilingpal;
@@ -174,7 +174,7 @@ void AISpider::Tick(RunListEvent* ev)
 
             if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
             {
-                spp->set_int_zvel(0);
+                spp->clear_zvel();
                 spp->spr.pos.Z = pSector->ceilingz + (tileHeight(spp->spr.picnum) / 8.); // was << 5 in Build coordinates
 
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
@@ -287,7 +287,7 @@ void AISpider::Tick(RunListEvent* ev)
     {
         spp->spr.cstat |= CSTAT_SPRITE_YFLIP;
 		spp->spr.pos.Z = spp->sector()->ceilingz + GetActorHeightF(spp);
-        spp->set_int_zvel(0);
+        spp->clear_zvel();
 
         spp->nAction = 1;
         spp->nFrame = 0;

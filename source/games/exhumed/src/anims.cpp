@@ -88,7 +88,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
     pActor->spr.yoffset = 0;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->set_int_zvel(0);
+    pActor->clear_zvel();
     pActor->backuppos();
 
     // CHECKME - where is hitag set otherwise?
