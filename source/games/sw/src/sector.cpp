@@ -2112,11 +2112,11 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
     }
 }
 
-void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, int z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
-    NearTagList(ntip, pp, z, dist, type, count);
+    NearTagList(ntip, pp, int(z * zworldtoint), dist, type, count);
 }
 
 
@@ -2184,7 +2184,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->int_ppos().Z, 2048L, NTAG_SEARCH_LO_HI, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 2048, NTAG_SEARCH_LO_HI, 8);
 
             found = false;
 
@@ -2204,16 +2204,16 @@ void PlayerOperateEnv(PLAYER* pp)
             // if not found look at different z positions
             if (!found)
             {
-                int z[3];
+                double z[3];
                 DSWActor* plActor = pp->actor;
 
-                z[0] = plActor->int_pos().Z - int_ActorSizeZ(plActor) - Z(10);
-                z[1] = plActor->int_pos().Z;
-                z[2] = (z[0] + z[1]) >> 1;
+                z[0] = plActor->spr.pos.Z - ActorSizeZ(plActor) - 10;
+                z[1] = plActor->spr.pos.Z;
+                z[2] = (z[0] + z[1]) * 0.5;
 
                 for (unsigned i = 0; i < SIZ(z); i++)
                 {
-                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 1024 + 768L, NTAG_SEARCH_LO_HI, 8);
+                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 1024 + 768, NTAG_SEARCH_LO_HI, 8);
 
                     for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
                     {
