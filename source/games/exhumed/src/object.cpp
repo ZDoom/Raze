@@ -2039,7 +2039,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         {
             pActor->spr.xvel >>= 1;
             pActor->spr.yvel >>= 1;
-            pActor->spr.zvel >>= 1;
+            pActor->mul_int_zvel(0.5);
         }
 
         if (pActor->nHealth > 0) {

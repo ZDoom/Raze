@@ -2429,7 +2429,7 @@ void glasspieces(DDukeActor* actor)
 	{
 		actor->set_int_zvel(-((3 - actor->temp_data[0]) << 8) - (krand() & 511));
 		if (sectp->lotag == 2)
-			actor->spr.zvel >>= 1;
+			actor->mul_int_zvel(0.5);
 		actor->spr.xrepeat >>= 1;
 		actor->spr.yrepeat >>= 1;
 		if (rnd(96))

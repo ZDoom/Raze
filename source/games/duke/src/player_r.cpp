@@ -2763,7 +2763,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if (k < 512)
 				{
 					spawned->add_int_ang(1024);
-					spawned->spr.zvel /= 3;
+					spawned->mul_int_zvel(1./3.);
 					spawned->spr.xvel /= 3;
 				}
 

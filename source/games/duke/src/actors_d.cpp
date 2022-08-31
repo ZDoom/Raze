@@ -2586,7 +2586,7 @@ static void heavyhbomb(DDukeActor *actor)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			actor->set_int_zvel(-((4 - actor->spr.yvel) << 8));
 			if (actor->sector()->lotag == 2)
-				actor->spr.zvel >>= 2;
+				actor->mul_int_zvel(0.25);
 			actor->spr.yvel++;
 		}
 		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
@@ -3620,7 +3620,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					if (actor->spr.pos.Z < c + 66)
 					{
 						actor->spr.pos.Z = c + 66;
-						actor->spr.zvel >>= 1;
+						actor->mul_int_zvel(0.5);
 					}
 				}
 			}

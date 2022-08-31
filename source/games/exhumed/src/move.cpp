@@ -1322,7 +1322,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     {
         pActor->spr.xvel *= 4;
         pActor->spr.yvel *= 4;
-        pActor->spr.zvel *= 2;
+        pActor->mul_int_zvel(2);
     }
 
     pActor->spr.xrepeat = 64;

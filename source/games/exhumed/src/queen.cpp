@@ -619,7 +619,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 
         if (nMov.exbits & kHitAux2)
         {
-            pActor->set_int_zvel(-(pActor->int_vel() - 256));
+            pActor->set_int_zvel(-(pActor->int_zvel() - 256));
             if (pActor->int_zvel() < -512)
             {
                 pActor->set_int_zvel(0);

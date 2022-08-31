@@ -367,7 +367,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				if (k < 512)
 				{
 					j->add_int_ang(1024);
-					j->spr.zvel /= 3;
+					j->mul_int_zvel(1./3.);
 					j->spr.xvel /= 3;
 				}
 

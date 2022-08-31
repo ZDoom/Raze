@@ -125,6 +125,11 @@ public:
 	{
 		spr.zvel += v;
 	}
+
+	void mul_int_zvel(double v)
+	{
+		spr.zvel = int(spr.zvel * v);
+	}
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)
