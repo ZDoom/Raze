@@ -9135,7 +9135,7 @@ int DoRail(DSWActor* actor)
 
             actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
             actorNew->spr.yvel += (RandomRange(140)-RandomRange(140));
-            actorNew->spr.zvel += (RandomRange(140)-RandomRange(140));
+            actorNew->add_int_zvel( (RandomRange(140)-RandomRange(140)));
 
             actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, sg_RailPuff);
@@ -9292,7 +9292,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
 
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(64) - 32));
     actorNew->set_int_zvel(actor->int_zvel());
-    actorNew->spr.zvel += RandomRange(Z(16)) - Z(8);
+    actorNew->add_int_zvel( RandomRange(Z(16)) - Z(8));
 
 	UpdateChange(actorNew);
     return 0;
@@ -13428,7 +13428,7 @@ int InitMicro(PLAYER* pp)
         actorNew->spr.clipdist = 64L>>2;
 
         // randomize zvelocity
-        actorNew->spr.zvel += RandomRange(Z(8)) - Z(5);
+        actorNew->add_int_zvel( RandomRange(Z(8)) - Z(5));
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
@@ -14991,7 +14991,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         actorNew->spr.clipdist = 64L>>2;
 
         // randomize zvelocity
-        actorNew->spr.zvel += RandomRange(Z(8)) - Z(5);
+        actorNew->add_int_zvel( RandomRange(Z(8)) - Z(5));
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
@@ -16720,7 +16720,7 @@ int SpawnSmokePuff(DSWActor* actor)
 int DoBubble(DSWActor* actor)
 {
     actor->add_int_z(-actor->int_zvel());
-    actor->spr.zvel += 32;
+    actor->add_int_zvel( 32);
 
     if (actor->int_zvel() > 768)
         actor->set_int_zvel(768);

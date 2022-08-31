@@ -575,7 +575,7 @@ void Gravity(DExhumedActor* pActor)
             if (pActor->spr.zvel <= 1024)
             {
                 if (pActor->int_zvel() < 2048) {
-                    pActor->spr.zvel += 512;
+                    pActor->add_int_zvel( 512);
                 }
             }
             else
@@ -594,7 +594,7 @@ void Gravity(DExhumedActor* pActor)
             }
             else if (pActor->int_zvel() < 0)
             {
-                pActor->spr.zvel += 64;
+                pActor->add_int_zvel( 64);
                 if (pActor->int_zvel() > 0) {
                     pActor->set_int_zvel(0);
                 }
@@ -603,7 +603,7 @@ void Gravity(DExhumedActor* pActor)
     }
     else
     {
-        pActor->spr.zvel += 512;
+        pActor->add_int_zvel( 512);
         if (pActor->int_zvel() > 16384) {
             pActor->set_int_zvel(16384);
         }

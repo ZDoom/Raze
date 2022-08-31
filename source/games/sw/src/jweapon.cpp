@@ -264,7 +264,7 @@ int DoWallBloodDrip(DSWActor* actor)
         // if you are between the ceiling and floor fall fast
         if (actor->spr.pos.Z > actor->user.pos.Y && actor->spr.pos.Z < actor->user.pos.Z)
         {
-            actor->spr.zvel += 300;
+            actor->add_int_zvel( 300);
             actor->add_int_z(actor->int_zvel());
         }
         else

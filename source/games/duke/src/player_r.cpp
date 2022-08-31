@@ -716,7 +716,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		spawned->spr.extra >>= 2;
 		spawned->add_int_ang(16 - (krand() & 31));
-		spawned->spr.zvel += 256 - (krand() & 511);
+		spawned->add_int_zvel( 256 - (krand() & 511));
 
 		if (ps[p].hbomb_hold_delay)
 		{

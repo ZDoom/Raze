@@ -690,7 +690,7 @@ void movefallers_r(void)
 
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
-					act->spr.zvel += x;
+					act->add_int_zvel( x);
 					if (act->int_zvel() > 6144)
 						act->set_int_zvel(6144);
 					act->add_int_z(act->int_zvel());
@@ -956,7 +956,7 @@ static void chickenarrow(DDukeActor* actor)
 
 		if (actor->spr.hitag > 180)
 			if (actor->spr.zvel <= 0)
-				actor->spr.zvel += 200;
+				actor->add_int_zvel( 200);
 	}
 }
 
@@ -1264,7 +1264,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			auto x = EGS(proj->sector(),
 				proj->int_pos().X + MulScale(k, bcos(proj->int_ang()), 9),
 				proj->int_pos().Y + MulScale(k, bsin(proj->int_ang()), 9),
-				proj->int_pos().Z + ((k * Sgn(proj->int_zvel())) * abs(proj->spr.zvel / 24)), FIRELASER, -40 + (k << 2),
+				proj->int_pos().Z + ((k * Sgn(proj->int_zvel())) * abs(proj->int_zvel() / 24)), FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			if (x)
@@ -1275,7 +1275,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 	}
 	else if (proj->spr.picnum == SPIT) if (proj->int_zvel() < 6144)
-		proj->spr.zvel += gs.gravity - 112;
+		proj->add_int_zvel( gs.gravity - 112);
 
 	if (coll.type != 0)
 	{
@@ -3621,7 +3621,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	if (a & geth) actor->spr.xvel += (*moveptr - actor->spr.xvel) >> 1;
-	if (a & getv) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1;
+	if (a & getv) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1);
 
 	if (a & dodgebullet)
 		dodge(actor);

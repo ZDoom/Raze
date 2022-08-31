@@ -1324,7 +1324,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		auto q = EGS(actor->sector(),
 			actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
 			actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
-			actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->spr.zvel / 12)), tongue, -40 + (k << 1),
+			actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->int_zvel() / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
 		{
@@ -1336,7 +1336,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	auto spawned = EGS(actor->sector(),
 		actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
 		actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
-		actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->spr.zvel / 12)), jaw, -40,
+		actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->int_zvel() / 12)), jaw, -40,
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
 	{
@@ -1568,7 +1568,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 	if (actor->temp_data[3] > 0)
 	{
 		if (actor->int_zvel() < 6144)
-			actor->spr.zvel += 192;
+			actor->add_int_zvel( 192);
 		actor->spr.pos.Z += actor->spr.zvel * inttoworld;
 		if (actor->spr.pos.Z > sectp->floorz)
 			actor->spr.pos.Z = sectp->floorz;
@@ -2102,11 +2102,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		if (sectp->lotag == 2)
 		{
 			if (actor->int_zvel() < 64)
-				actor->spr.zvel += (gs.gravity >> 5) + (krand() & 7);
+				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
 		}
 		else
 			if (actor->int_zvel() < 144)
-				actor->spr.zvel += (gs.gravity >> 5) + (krand() & 7);
+				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
 	}
 
 	ssp(actor, CLIPMASK0);
@@ -2213,10 +2213,10 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			if (sectp->lotag == 2)
 			{
 				if (actor->int_zvel() < 1024)
-					actor->spr.zvel += 48;
+					actor->add_int_zvel( 48);
 				else actor->set_int_zvel(1024);
 			}
-			else actor->spr.zvel += gs.gravity - 50;
+			else actor->add_int_zvel( gs.gravity - 50);
 		}
 
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), 0 });
@@ -2381,7 +2381,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->int_zvel() < 128) actor->spr.zvel += (gs.gravity / 13); // 8
+		if (actor->int_zvel() < 128) actor->add_int_zvel( (gs.gravity / 13)); // 8
 		else actor->spr.zvel -= 64;
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel -= 4;
@@ -2396,7 +2396,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->int_zvel() < 512) actor->spr.zvel += (gs.gravity / 3); // 52;
+		if (actor->int_zvel() < 512) actor->add_int_zvel( (gs.gravity / 3)); // 52;
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel--;
 		else
@@ -2493,7 +2493,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 				else actor->temp_data[0]++;
 			}
 		}
-		if (actor->int_zvel() < 4096) actor->spr.zvel += gs.gravity - 50;
+		if (actor->int_zvel() < 4096) actor->add_int_zvel( gs.gravity - 50);
 		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->spr.zvel });
 	}
 	else
@@ -3352,7 +3352,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 		actor->temp_data[3]++;
 		if (actor->temp_data[3] == 5)
 		{
-			actor->spr.zvel += 1024;
+			actor->add_int_zvel( 1024);
 			FTA(7, &ps[myconnectindex]);
 		}
 	}
@@ -4235,7 +4235,7 @@ void handle_se22(DDukeActor* actor)
 void handle_se26(DDukeActor* actor)
 {
 	auto sc = actor->sector();
-	double zvel = actor->spr.zvel * zinttoworld;
+	double zvel = actor->int_zvel() * zinttoworld;
 
 	actor->spr.xvel = 32;
 	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * bsin) >> 14
@@ -4850,7 +4850,7 @@ void makeitfall(DDukeActor* actor)
 		if( actor->sector()->lotag == 2 && actor->int_zvel() > 3122 )
 			actor->set_int_zvel(3144);
 		if(actor->int_zvel() < 6144)
-			actor->spr.zvel += c;
+			actor->add_int_zvel( c);
 		else actor->set_int_zvel(6144);
 		actor->add_int_z(actor->int_zvel());
 	}
@@ -4985,7 +4985,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	aang = actor->int_ang();
 
 	actor->spr.xvel += (*moveptr - actor->spr.xvel) / 5;
-	if (actor->int_zvel() < 648) actor->spr.zvel += ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5;
+	if (actor->int_zvel() < 648) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
 
 	if (isRRRA() && (ang & windang))
 		actor->set_int_ang(WindDir);
@@ -5079,7 +5079,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 		if (actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 		{
-			actor->spr.zvel += c;
+			actor->add_int_zvel( c);
 			actor->add_int_z(actor->int_zvel());
 
 			if (actor->int_zvel() > 6144) actor->set_int_zvel(6144);
