@@ -834,7 +834,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     Gravity(pPlayerActor);
 
-    if (pPlayerActor->int_zvel() >= 6500 && zVel < 6500)
+    if (pPlayerActor->float_zvel() >= 6500/256. && zVel < 6500)
     {
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
