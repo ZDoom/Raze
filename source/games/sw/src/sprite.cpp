@@ -1401,7 +1401,6 @@ void PreMapCombineFloors(void)
     const int MAX_FLOORS = 32;
     int i, j, k;
     int base_offset;
-    int dx, dy;
     short pnum;
 
     struct BOUND_LIST
@@ -1439,8 +1438,7 @@ void PreMapCombineFloors(void)
             continue;
         }
 
-        dx = BoundList[base_offset].offset->int_pos().X - BoundList[i].offset->int_pos().X;
-        dy = BoundList[base_offset].offset->int_pos().Y - BoundList[i].offset->int_pos().Y;
+        DVector2 dv = BoundList[base_offset].offset->spr.pos.XY() - BoundList[i].offset->spr.pos.XY();
 
         BFSSectorSearch search(BoundList[i].offset->sector());
         while (auto dasect = search.GetNext())
@@ -1448,12 +1446,12 @@ void PreMapCombineFloors(void)
             SWSectIterator it2(dasect);
             while (auto jActor = it2.Next())
             {
-                jActor->add_int_pos({ dx, dy, 0 });
+                jActor->spr.pos += dv;
             }
 
             for (auto& wal : wallsofsector(dasect))
             {
-                wal.movexy(wal.wall_int_pos().X + dx, wal.wall_int_pos().Y + dy);
+                wal.move(wal.pos + dv);
 
                 if (wal.twoSided())
                     search.Add(wal.nextSector());
@@ -1469,7 +1467,7 @@ void PreMapCombineFloors(void)
             {
                 if (itsect == dasect)
                 {
-                    pp->add_int_ppos_XY({ dx, dy });
+                    pp->pos += dv;
                     pp->opos.XY() = pp->oldpos.XY() = pp->pos.XY();
                     break;
                 }

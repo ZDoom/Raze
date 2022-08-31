@@ -3760,7 +3760,7 @@ AutoShrap:
 
             if (shrap_rand_zamt)
             {
-                actor->add_int_z(Z(RandomRange(shrap_rand_zamt) - (shrap_rand_zamt/2)));
+                actor->spr.pos.Z += RandomRange(shrap_rand_zamt) - (shrap_rand_zamt/2);
             }
 
             actor->spr.pal = actor->user.spal = uint8_t(shrap_pal);
