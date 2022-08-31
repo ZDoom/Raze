@@ -3061,20 +3061,19 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_QUICK_OPERATE:
     {
         HitInfo near;
-        int z[2];
-        int i;
+        double z[2];
 
         if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
             return false;
 
         actor->spr.angle = tpoint->angle;
 
-        z[0] = actor->int_pos().Z - int_ActorSizeZ(actor) + Z(5);
-        z[1] = actor->int_pos().Z - (int_ActorSizeZ(actor) >> 1);
+        z[0] = actor->spr.pos.Z - ActorSizeZ(actor) + 5;
+        z[1] = actor->spr.pos.Z - (ActorSizeZ(actor) * 0.5);
 
-        for (i = 0; i < (int)SIZ(z); i++)
+        for (auto& zz : z)
         {
-            neartag({ actor->int_pos().X, actor->int_pos().Y, z[i] }, actor->sector(), actor->int_ang(), near, 1024, NTAG_SEARCH_LO_HI);
+            neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.angle, near, 1024, NTAG_SEARCH_LO_HI);
 
             if (near.actor() != nullptr && near.int_hitpos().X < 1024)
             {
