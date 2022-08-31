@@ -927,27 +927,21 @@ int SetupRipper2(DSWActor* actor)
 
 int InitRipper2Hang(DSWActor* actor)
 {
-    int dist;
-
+    // Except for the states this is identical to InitRipperHang. Merge them?
     HitInfo hit{};
 
     bool Found = false;
-    short dang, tang;
 
-    for (dang = 0; dang < 2048; dang += 128)
+    for (int dang = 0; dang < 2048; dang += 128)
     {
-        tang = NORM_ANGLE(actor->int_ang() + dang);
+        auto tang = actor->spr.angle + DAngle::fromBuild(dang);
 
-        FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - int_ActorSizeZ(actor), actor->sector(),  // Start position
-                   bcos(tang),   // X vector of 3D ang
-                   bsin(tang),   // Y vector of 3D ang
-                   0,            // Z vector of 3D ang
-                   hit, CLIPMASK_MISSILE);
+        FAFhitscan(actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->sector(), DVector3(tang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             continue;
 
-		dist = DistanceI(actor->spr.pos, hit.hitpos);
+		int dist = DistanceI(actor->spr.pos, hit.hitpos);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
@@ -955,7 +949,7 @@ int InitRipper2Hang(DSWActor* actor)
         }
 
         Found = true;
-        actor->set_int_ang(tang);
+        actor->spr.angle = tang;
         break;
     }
 
