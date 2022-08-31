@@ -61,7 +61,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.yrepeat = 40;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = 0;
+    pActor->set_int_zvel(0);
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
@@ -132,7 +132,7 @@ void AIRoach::Damage(RunListEvent* ev)
         {
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->spr.zvel = 0;
+            pActor->set_int_zvel(0);
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;

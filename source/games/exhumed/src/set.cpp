@@ -58,7 +58,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.clipdist = 110;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = 0;
+    pActor->set_int_zvel(0);
     pActor->spr.xrepeat = 87;
     pActor->spr.yrepeat = 96;
     pActor->spr.pal = pActor->sector()->ceilingpal;
@@ -187,7 +187,7 @@ void AISet::Damage(RunListEvent* ev)
         {
             pActor->spr.xvel = 0;
             pActor->spr.yvel = 0;
-            pActor->spr.zvel = 0;
+            pActor->set_int_zvel(0);
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;

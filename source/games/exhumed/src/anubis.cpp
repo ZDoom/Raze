@@ -70,7 +70,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, in
     ap->spr.yrepeat = 40;
     ap->spr.xvel = 0;
     ap->spr.yvel = 0;
-    ap->spr.zvel = 0;
+    ap->set_int_zvel(0);
     ap->spr.hitag = 0;
     ap->spr.lotag = runlist_HeadRun() + 1;
     ap->spr.extra = -1;
@@ -415,7 +415,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             // he ded.
             ap->spr.xvel = 0;
             ap->spr.yvel = 0;
-            ap->spr.zvel = 0;
+            ap->set_int_zvel(0);
 			ap->spr.pos.Z = ap->sector()->floorz;
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 

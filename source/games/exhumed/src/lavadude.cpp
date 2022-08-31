@@ -79,7 +79,7 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
     {
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
-        pActor->spr.zvel = 0;
+        pActor->set_int_zvel(0);
 
         runlist_DoSubRunRec(pActor->spr.intowner);
         runlist_FreeRun(pActor->spr.lotag - 1);
@@ -124,7 +124,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = 0;
+    pActor->set_int_zvel(0);
     pActor->set_int_ang(nAngle);
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;

@@ -1336,7 +1336,8 @@ int InitChemBomb(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
 		actor->user.change.Zero();
-        actorNew->spr.xvel = actorNew->spr.yvel = actorNew->spr.zvel = 0;
+        actorNew->spr.xvel = actorNew->spr.yvel = 0;
+        actorNew->set_int_zvel(0);
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 40*120;
     }

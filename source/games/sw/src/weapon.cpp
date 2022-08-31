@@ -10849,7 +10849,7 @@ int DoMirv(DSWActor* actor)
             actorNew->spr.xrepeat = 40;
             actorNew->spr.yrepeat = 40;
             actorNew->spr.clipdist = 32L >> 2;
-            actorNew->spr.zvel = 0;
+            actorNew->set_int_zvel(0);
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
             actorNew->user.ceiling_dist = (16);
@@ -11066,7 +11066,7 @@ void InitSpellRing(PLAYER* pp)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 32;
         actorNew->spr.yrepeat = 32;
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
 
         actorNew->user.pos.Z = 20;
         actorNew->user.Dist = RING_INNER_DIST;
@@ -11226,7 +11226,7 @@ int InitLavaThrow(DSWActor* actor)
     actorNew->spr.yrepeat = 72;
     actorNew->spr.xrepeat = 72;
     actorNew->spr.shade = -15;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
 
     if (RANDOM_P2(1024) > 512)
@@ -13800,7 +13800,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->spr.xrepeat = 64;
         actorNew->spr.yrepeat = 64;
         actorNew->spr.clipdist = 32L >> 2;
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.ceiling_dist = (16);
@@ -13891,7 +13891,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->spr.xrepeat = 122;
         actorNew->spr.yrepeat = 116;
         actorNew->spr.clipdist = 32L >> 2;
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
         actorNew->user.ceiling_dist = (16);
@@ -13957,7 +13957,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->spr.yrepeat = 28;
     actorNew->spr.xrepeat = 28;
     actorNew->spr.shade = -15;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
 
@@ -14026,7 +14026,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -14085,7 +14085,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->spr.yrepeat = 28;
         actorNew->spr.xrepeat = 28;
         actorNew->spr.shade = -15;
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
         actorNew->spr.angle = actor->spr.angle;
         actorNew->spr.clipdist = 64 >>2;
 
@@ -14136,7 +14136,7 @@ int InitEnemyStar(DSWActor* actor)
     actorNew->spr.yrepeat = 16;
     actorNew->spr.xrepeat = 16;
     actorNew->spr.shade = -25;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
 
@@ -14166,7 +14166,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64>>2;
 
@@ -14203,7 +14203,7 @@ int InitSkelSpell(DSWActor* actor)
     actorNew->spr.xrepeat -= 20;
     actorNew->spr.yrepeat -= 20;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 64L>>2;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14238,7 +14238,7 @@ int InitCoolgFire(DSWActor* actor)
     actorNew->spr.yrepeat = 18;
     actorNew->spr.xrepeat = 18;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.angle = actor->spr.angle;
     actorNew->spr.clipdist = 32>>2;
     actorNew->user.ceiling_dist = (4);
@@ -14286,7 +14286,7 @@ int InitCoolgDrip(DSWActor* actor)
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
     actorNew->spr.shade = -5;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 16L>>2;
     actorNew->user.ceiling_dist = (4);
     actorNew->user.floor_dist = (4);
@@ -14319,7 +14319,7 @@ int GenerateDrips(DSWActor* actor)
         SetOwner(actor, actorNew);
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
         actorNew->spr.shade = -10;
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
         actorNew->spr.clipdist = 16L>>2;
         actorNew->user.ceiling_dist = (4);
         actorNew->user.floor_dist = (4);
@@ -14381,7 +14381,7 @@ void InitFireballTrap(DSWActor* actor)
     actorNew->spr.yrepeat -= 20;
     actorNew->spr.shade = -40;
     actorNew->spr.clipdist = 32>>2;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.WeaponNum = WPN_HOTHEAD;
 
@@ -14401,7 +14401,7 @@ void InitBoltTrap(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     actorNew->user.RotNum = 5;
@@ -14469,7 +14469,7 @@ int InitTracerUzi(PLAYER* pp)
     actorNew->spr.yrepeat = 10;
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     //actorNew->spr.zvel = -pp->horizon.horiz.asq16() >> 9;
     actorNew->spr.clipdist = 32 >> 2;
 
@@ -14529,7 +14529,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->spr.yrepeat = 10;
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 8 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -14565,7 +14565,7 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     actorNew->spr.yrepeat = 10;
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 8 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -14913,7 +14913,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.yrepeat = 8;
     actorNew->spr.xrepeat = 8;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 32 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -15046,7 +15046,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->spr.yrepeat = 40;
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 32 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -15080,7 +15080,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->spr.yrepeat = 40;
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
-    actorNew->spr.zvel = 0;
+    actorNew->set_int_zvel(0);
     actorNew->spr.clipdist = 32 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -16207,7 +16207,7 @@ int InitEnemyFireball(DSWActor* actor)
         actorNew->spr.shade = -40;
 
         SetOwner(actor, actorNew);
-        actorNew->spr.zvel = 0;
+        actorNew->set_int_zvel(0);
         actorNew->spr.clipdist = 16>>2;
 
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + lat_ang[i]));

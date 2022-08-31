@@ -3250,7 +3250,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         {
             actor->user.Flags &= ~(SPR_ZDIFF_MODE);
             actor->spr.pos.Z = actor->sector()->floorz;
-            actor->spr.zvel = 0;
+            actor->set_int_zvel(0);
         }
         else
         {
@@ -3468,7 +3468,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 actor->user.Flags &= ~(SPR_CLIMBING);
 
-                actor->spr.zvel = 0;
+                actor->set_int_zvel(0);
 
                 actor->spr.angle = VecToAngle(tpoint->pos - actor->spr.pos);
 

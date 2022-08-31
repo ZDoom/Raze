@@ -116,7 +116,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.intowner = nPlayer;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = 0;
+    pActor->set_int_zvel(0);
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
@@ -306,7 +306,7 @@ void AIGrenade::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound5], pActor);
                     pActor->nCount = 0;
                     pActor->nHealth = 0;
-                    pActor->spr.zvel = 0;
+                    pActor->set_int_zvel(0);
                     pActor->nIndex = 1;
                 }
             }

@@ -620,7 +620,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletActor->set_int_ang(nAngle);
     pBulletActor->spr.xvel = 0;
     pBulletActor->spr.yvel = 0;
-    pBulletActor->spr.zvel = 0;
+    pBulletActor->set_int_zvel(0);
     pBulletActor->spr.lotag = runlist_HeadRun() + 1;
     pBulletActor->spr.extra = -1;
     pBulletActor->spr.hitag = 0;

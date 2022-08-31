@@ -55,7 +55,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.clipdist = 32;
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
-    pActor->spr.zvel = 0;
+    pActor->set_int_zvel(0);
     pActor->spr.xrepeat = 42;
     pActor->spr.yrepeat = 42;
     pActor->spr.pal = pActor->sector()->ceilingpal;
@@ -442,7 +442,7 @@ void AIMummy::Damage(RunListEvent* ev)
 
         pActor->spr.xvel = 0;
         pActor->spr.yvel = 0;
-        pActor->spr.zvel = 0;
+        pActor->set_int_zvel(0);
         pActor->spr.pos.Z = pActor->sector()->floorz;
     }
     else
