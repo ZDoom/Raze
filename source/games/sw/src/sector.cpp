@@ -856,8 +856,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 
     exp->spr.xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
     exp->spr.yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
-    exp->user.set_int_change_x(MOVEx(92, exp->int_ang()));
-    exp->user.set_int_change_y(MOVEy(92, exp->int_ang()));
+    exp->user.change.XY() = MOVExy(92, exp->spr.angle);
 }
 
 

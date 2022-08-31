@@ -9891,8 +9891,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 
     //ang = RANDOM_P2(2048);
     int32_t const vel = (2048+128) + RandomRange(2048);
-    expActor->user.set_int_change_x(MOVEx(vel, ang));
-    expActor->user.set_int_change_y(MOVEy(vel, ang));
+    expActor->user.change.XY() = MOVExy(vel, DAngle::fromBuild(ang));
     expActor->user.Radius = 200; // was NUKE_RADIUS
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
 									   expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10152,8 +10151,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 
     //ang = RANDOM_P2(2048);
     vel = (1024+512) + RandomRange(1024);
-    expActor->user.set_int_change_x(MOVEx(vel, ang));
-    expActor->user.set_int_change_y(MOVEy(vel, ang));
+    expActor->user.change.XY() = MOVExy(vel, DAngle::fromBuild(ang));
 
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
                            expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
