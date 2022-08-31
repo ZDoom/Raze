@@ -1654,7 +1654,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 {
     DSWActor* act_over = pp->actor;
 
-    int water_level_z, zdiff;
+    double water_level_z, zdiff;
     bool above_water, in_dive_area;
 
     if (Prediction)
@@ -1663,10 +1663,10 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     ASSERT(act_over->hasU());
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = act_over->sector()->int_floorz(); // - Z(pp->WadeDepth);
+    water_level_z = act_over->sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
-    above_water = (int_ActorZOfBottom(act_over) <= water_level_z);
+    above_water = (ActorZOfBottom(act_over) <= water_level_z);
     in_dive_area = SpriteInDiveArea(act_over);
 
     // if not in dive area OR (in dive area AND above the water) - Kill it
@@ -1699,10 +1699,10 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level
-    zdiff = int_ActorZOfBottom(act_over) - water_level_z;
+    zdiff = ActorZOfBottom(act_over) - water_level_z;
 
     // add diff to ceiling
-    act_under->set_int_z(act_under->sector()->int_ceilingz() + zdiff);
+    act_under->spr.pos.Z = act_under->sector()->ceilingz + zdiff;
 
     act_under->user.State = act_over->user.State;
     act_under->user.Rot = act_over->user.Rot;
