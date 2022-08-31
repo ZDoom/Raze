@@ -59,7 +59,7 @@ int automapMode;
 static float am_zoomdir;
 double follow_x = INT_MAX, follow_y = INT_MAX;
 DAngle follow_a = DAngle::fromDeg(INT_MAX);
-static double gZoom = 768;
+static double gZoom = 0.75;
 bool automapping;
 bool gFullMap;
 BitArray show2dsector;
@@ -220,11 +220,11 @@ void AutomapControl()
 		double j = interval * 35. / gZoom;
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += MulScaleF(j, max(gZoom, 256.), 6);
+			gZoom += MulScaleF(j, max(gZoom, 0.25), 16);
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= MulScaleF(j, max(gZoom, 256.), 6);
+			gZoom -= MulScaleF(j, max(gZoom, 0.25), 16);
 
-		gZoom = clamp(gZoom, 48., 2048.);
+		gZoom = clamp(gZoom, 0.05, 2.);
 
 		if (!am_followplayer)
 		{
@@ -245,8 +245,8 @@ void AutomapControl()
 			auto momx = (panvert * fcos * 8) + (panhorz * fsin * 8);
 			auto momy = (panvert * fsin * 8) - (panhorz * fcos * 8);
 
-			follow_x += momx * j;
-			follow_y += momy * j;
+			follow_x += momx * j / 1024.;
+			follow_y += momy * j / 1024.;
 
 			if (x_min_bound == INT_MAX) CalcMapBounds();
 			follow_x = clamp(follow_x, x_min_bound, x_max_bound);
@@ -411,8 +411,8 @@ bool ShowRedLine(int j, int i)
 
 static void drawredlines(const DVector2& cpos, const double czoom, const DAngle cang)
 {
-	double xvect = -cang.Sin() * czoom * (1. / 1024.);
-	double yvect = -cang.Cos() * czoom * (1. / 1024.);
+	double xvect = -cang.Sin() * czoom;
+	double yvect = -cang.Cos() * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -457,8 +457,8 @@ static void drawredlines(const DVector2& cpos, const double czoom, const DAngle 
 
 static void drawwhitelines(const DVector2& cpos, const double czoom, const DAngle cang)
 {
-	double xvect = -cang.Sin() * czoom * (1. / 1024);
-	double yvect = -cang.Cos() * czoom * (1. / 1024);
+	double xvect = -cang.Sin() * czoom;
+	double yvect = -cang.Cos() * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -503,8 +503,8 @@ static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const doubl
 		0, 65536, 32768, 32878,
 	};
 
-	double xvect = -cang.Sin() * czoom * (1. / 1024);
-	double yvect = -cang.Cos() * czoom * (1. / 1024);
+	double xvect = -cang.Sin() * czoom;
+	double yvect = -cang.Cos() * czoom;
 
 	double pxvect = -pl_angle.Sin();
 	double pyvect = -pl_angle.Cos();
@@ -540,8 +540,8 @@ static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const doubl
 
 static void renderDrawMapView(const DVector2& cpos, const double czoom, const DAngle cang)
 {
-	double xvect = -cang.Sin() * czoom * (1. / 1024.);
-	double yvect = -cang.Cos() * czoom * (1. / 1024.);
+	double xvect = -cang.Sin() * czoom;
+	double yvect = -cang.Cos() * czoom;
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 	TArray<FVector4> vertices;
@@ -664,7 +664,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 	}
 	drawredlines(follow, gZoom, follow_a);
 	drawwhitelines(follow, gZoom, follow_a);
-	if (!gi->DrawAutomapPlayer(pl_x, pl_y, x, y, gZoom, follow_a, smoothratio))
+	if (!gi->DrawAutomapPlayer(pl_x, pl_y, x, y, gZoom * 1024, follow_a, smoothratio))
 		DrawPlayerArrow(follow, follow_a, gZoom, -pl_angle);
 
 }
