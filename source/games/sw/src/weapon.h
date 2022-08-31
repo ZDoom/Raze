@@ -30,7 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 #define NEW_ELECTRO 1
-#define HORIZ_MULT 128L
+#define HORIZ_MULT 128
 
 inline int AngToSprite(DSWActor* actor, DSWActor* other)
 {

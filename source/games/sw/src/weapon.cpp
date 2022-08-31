@@ -12931,9 +12931,6 @@ int InitRail(PLAYER* pp)
 
 int InitZillaRail(DSWActor* actor)
 {
-    int nx, ny, nz;
-    int zvel;
-
     if (SW_SHAREWARE) return false; // JBF: verify
 
     PlaySound(DIGI_RAILFIRE, actor, v3df_dontpan|v3df_doppler);
@@ -12941,22 +12938,18 @@ int InitZillaRail(DSWActor* actor)
     // Make sprite shade brighter
     actor->user.Vis = 128;
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-
-    nz = int_ActorZOfTop(actor);
+    auto pos = ActorVectOfTop(actor);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(),
-                    nx, ny, nz, actor->int_ang(), 1200);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(), pos, actor->spr.angle, 1200);
 
     SetOwner(actor, actorNew);
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    zvel = (100 * (HORIZ_MULT+17));
+    int zvel = (100 * (HORIZ_MULT+17));
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -12972,7 +12965,7 @@ int InitZillaRail(DSWActor* actor)
     // initial positioning
     auto oclipdist = actor->spr.clipdist;
     actor->spr.clipdist = 0;
-    actorNew->spr.clipdist = 32L>>2;
+    actorNew->spr.clipdist = 32 >> 2;
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 700);
@@ -12993,7 +12986,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->spr.zvel = zvel >> 1;
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 4));
+        actorNew->spr.angle -= DAngle::fromBuild(4);
     }
     else
         zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
