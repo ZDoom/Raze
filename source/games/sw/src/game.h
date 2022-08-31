@@ -2116,8 +2116,8 @@ inline uint8_t& SP_TAG3(DSWActor* actor) { return actor->spr.clipdist; }
 inline int16_t& SP_TAG4(DSWActor* actor) { return actor->spr.intangle; } // this may not be transitioned to a real angular type
 inline int16_t& SP_TAG5(DSWActor* actor) { return actor->spr.xvel; }
 inline int16_t& SP_TAG6(DSWActor* actor) { return actor->spr.yvel; }
-inline uint8_t& SP_TAG7(DSWActor* actor) { return MSB_VAR(actor->spr.zvel); }
-inline uint8_t& SP_TAG8(DSWActor* actor) { return LSB_VAR(actor->spr.zvel); }
+inline uint8_t& SP_TAG7(DSWActor* actor) { return MSB_VAR(actor->spr.inittype); }
+inline uint8_t& SP_TAG8(DSWActor* actor) { return LSB_VAR(actor->spr.inittype); }
 inline uint8_t& SP_TAG9(DSWActor* actor) { return MSB_VAR(actor->spr.intowner); }
 inline uint8_t& SP_TAG10(DSWActor* actor) { return LSB_VAR(actor->spr.intowner); }
 inline int8_t& SP_TAG11(DSWActor* actor) { return actor->spr.shade; }

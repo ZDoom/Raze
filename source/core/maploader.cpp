@@ -318,7 +318,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 	spr.intowner = fr.ReadInt16();
 	spr.xvel = fr.ReadInt16();
 	spr.yvel = fr.ReadInt16();
-	spr.zvel = fr.ReadInt16();
+	spr.inittype = fr.ReadInt16();
 	spr.lotag = fr.ReadInt16();
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
@@ -344,7 +344,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 	spr.angle = DAngle::fromBuild(spr.intangle);
 	spr.xvel = fr.ReadInt16();
 	spr.yvel = fr.ReadInt16();
-	spr.zvel = fr.ReadInt16();
+	spr.inittype = fr.ReadInt16();
 	spr.intowner = fr.ReadInt16();
 	secno = fr.ReadInt16();
 	spr.statnum = fr.ReadInt16();
@@ -372,7 +372,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 	spr.angle = DAngle::fromBuild(spr.intangle);
 	spr.xvel = fr.ReadInt16();
 	spr.yvel = fr.ReadInt16();
-	spr.zvel = fr.ReadInt16();
+	spr.inittype = fr.ReadInt16();
 	spr.intowner = fr.ReadInt16();
 	secno = fr.ReadInt16();
 	spr.statnum = fr.ReadInt16();
