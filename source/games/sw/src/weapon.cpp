@@ -14416,14 +14416,8 @@ void InitBoltTrap(DSWActor* actor)
 
 void InitSpearTrap(DSWActor* actor)
 {
-    int nx, ny, nz;
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = int_ActorZOfMiddle(actor);
-
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(), nx, ny, nz, actor->int_ang(), 750);
+    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 750);
 
     SetOwner(actor, actorNew);
     actorNew->spr.xrepeat = 16;
@@ -15024,9 +15018,8 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
             if (dist != 0)
             {
-                int zh;
-                zh = int_ActorZOfTop(picked) + (int_ActorSizeZ(picked) >> 2);
-                actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->int_pos().Z)) / dist;
+                double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
+                actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist;
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
@@ -15035,7 +15028,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         }
         else
         {
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + (RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16));
+            actorNew->spr.angle += DAngle::fromBuild((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
 		UpdateChange(actorNew);
