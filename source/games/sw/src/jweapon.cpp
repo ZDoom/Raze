@@ -2076,16 +2076,10 @@ int DoFlag(DSWActor* actor)
 
 int SpawnShell(DSWActor* actor, int ShellNum)
 {
-    int nx, ny, nz;
     short id=0,velocity=0;    
     STATE* p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
-
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = int_ActorZOfMiddle(actor);
 
     switch (ShellNum)
     {
@@ -2102,7 +2096,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), nx, ny, nz, actor->int_ang(), 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 64);
 
     actorNew->spr.zvel = -(velocity);
 
