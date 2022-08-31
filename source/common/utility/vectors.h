@@ -276,7 +276,7 @@ struct TVector2
 	TAngle<vec_t> Angle() const;
 
 	// Returns a rotated vector. angle is in degrees.
-	TVector2 Rotated (double angle)
+	TVector2 Rotated (double angle) const
 	{
 		double cosval = g_cosdeg (angle);
 		double sinval = g_sindeg (angle);
@@ -285,10 +285,16 @@ struct TVector2
 
 	// Returns a rotated vector. angle is in degrees.
 	template<class T>
-	TVector2 Rotated(TAngle<T> angle)
+	TVector2 Rotated(TAngle<T> angle) const
 	{
 		double cosval = angle.Cos();
 		double sinval = angle.Sin();
+		return TVector2(X*cosval - Y*sinval, Y*cosval + X*sinval);
+	}
+
+	// Returns a rotated vector. angle is in degrees.
+	TVector2 Rotated(const double cosval, const double sinval) const
+	{
 		return TVector2(X*cosval - Y*sinval, Y*cosval + X*sinval);
 	}
 
