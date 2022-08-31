@@ -3358,8 +3358,8 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	}
 
 	actor->spr.pos.Z += actor->float_zvel();
-	sc->add_int_ceilingz(actor->int_zvel());
-	sector[actor->temp_data[0]].add_int_ceilingz(actor->int_zvel());
+	sc->ceilingz = actor->float_zvel();
+	sector[actor->temp_data[0]].ceilingz = actor->float_zvel();
 	ms(actor);
 	//SetActor(actor, actor->spr.pos);
 }
@@ -4348,7 +4348,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
-		if (a2->int_zvel() >= 0)
+		if (a2->float_zvel() >= 0)
 		{
 			switch (a2->spr.statnum)
 			{
