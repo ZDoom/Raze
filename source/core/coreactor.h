@@ -111,24 +111,35 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
+	// these use Blood's inittype alias to not get caught up in searches.
 	int int_zvel() const
 	{
-		return spr. zvel;
+		return spr.inittype;
+	}
+
+	double float_zvel() const
+	{
+		return spr.inittype * zinttoworld; 
+	}
+
+	void clear_zvel()
+	{
+		spr.inittype = 0;
 	}
 
 	void set_int_zvel(int v)
 	{
-		spr. zvel = v;
+		spr.inittype = v;
 	}
 
 	void add_int_zvel(int v)
 	{
-		spr.zvel += v;
+		spr.inittype += v;
 	}
 
 	void mul_int_zvel(double v)
 	{
-		spr.zvel = int(spr.zvel * v);
+		spr.inittype = int(spr.inittype * v);
 	}
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 

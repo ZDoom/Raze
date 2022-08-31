@@ -466,7 +466,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("owner", c.intowner, def->intowner)
 			("xvel", c.xvel, def->xvel)
 			("yvel", c.yvel, def->yvel)
-			("zvel", c.zvel, def->zvel)
+			("zvel", c.inittype, def->inittype)
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)

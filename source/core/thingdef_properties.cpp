@@ -367,7 +367,7 @@ DEFINE_PROPERTY(yvel, I, CoreActor)
 DEFINE_PROPERTY(zvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.zvel = i;
+	bag.Info->ActorInfo()->defsprite.inittype = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_ZVEL;
 }
 
