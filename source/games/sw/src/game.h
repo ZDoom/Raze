@@ -2162,14 +2162,9 @@ inline double ActorZOfBottom(DSWActor* actor)
     return GetSpriteZOfBottom(&actor->spr) * zinttoworld;
 }
 
-inline int int_ActorZOfMiddle(DSWActor* actor)
-{
-    return (int_ActorZOfTop(actor) + int_ActorZOfBottom(actor)) >> 1;
-}
-
 inline double ActorZOfMiddle(DSWActor* actor)
 {
-	return (int_ActorZOfTop(actor) + int_ActorZOfBottom(actor)) * zinttoworld * 0.5;
+	return (ActorZOfTop(actor) + ActorZOfBottom(actor)) * 0.5;
 }
 
 inline DVector3 ActorVectOfMiddle(DSWActor* actor)
@@ -2187,11 +2182,6 @@ inline double ActorSizeZ(DSWActor* actor)
     return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) / 64.;
 }
 
-inline int int_ActorUpperZ(DSWActor* actor)
-{
-    return (int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2));
-}
-
 inline double ActorUpperZ(DSWActor* actor)
 {
     return (ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25));
@@ -2202,14 +2192,9 @@ inline DVector3 ActorUpperVect(DSWActor* actor)
     return DVector3(actor->spr.pos.XY(), ActorUpperZ(actor));
 }
 
-inline int int_ActorLowerZ(DSWActor* actor)
-{
-    return (int_ActorZOfBottom(actor) - (int_ActorSizeZ(actor) >> 2));
-}
-
 inline double ActorLowerZ(DSWActor* actor)
 {
-    return (int_ActorZOfBottom(actor) - (int_ActorSizeZ(actor) * 0.25)) * zinttoworld;
+    return (ActorZOfBottom(actor) - (ActorSizeZ(actor) * 0.25));
 }
 
 inline DVector3 ActorLowerVect(DSWActor* actor)
@@ -2217,16 +2202,10 @@ inline DVector3 ActorLowerVect(DSWActor* actor)
     return DVector3(actor->spr.pos.XY(), ActorLowerZ(actor));
 }
 
-
 // Z size of top (TOS) and bottom (BOS) part of sprite
-inline int ActorSizeToTop(DSWActor* a)
+inline double ActorSizeToTop(DSWActor* a)
 {
-    return ((int_ActorSizeZ(a)) + (tileTopOffset(a->spr.picnum) << 8)) >> 1;
-}
-
-inline int ActorSizeToBottom(DSWActor* a)
-{
-    return ((int_ActorSizeZ(a)) - (tileTopOffset(a->spr.picnum) << 8)) >> 1;
+    return (ActorSizeZ(a) + tileTopOffset(a->spr.picnum)) * 0.5;
 }
 
 inline int ActorSizeX(DSWActor* sp)
