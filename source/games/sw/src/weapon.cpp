@@ -11196,14 +11196,14 @@ int InitLavaFlame(DSWActor* actor)
     return 0;
 }
 
-void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = false)
+void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = false, double offset = 0)
 {
     // find the distance to the target (player)
     double dist = (actorNew->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     if (dist != 0)
     {
-        double zdist = (ActorUpperZ(actor->user.targetActor) - actorNew->spr.pos.Z) / dist;
+        double zdist = (ActorUpperZ(actor->user.targetActor) - actorNew->spr.pos.Z - offset) / dist;
         double change = zdist * actorNew->spr.xvel * inttoworld;
         actorNew->spr.zvel = (change * zworldtoint);
         if (setchange) actorNew->user.change.Z = change;
@@ -13480,9 +13480,8 @@ int InitMicro(PLAYER* pp)
 			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
             if (dist != 0)
             {
-                int zh;
-                zh = int_ActorZOfTop(picked) + (int_ActorSizeZ(picked) >> 2);
-                actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->int_pos().Z)) / dist;
+                double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
+                actorNew->spr.zvel = (actorNew->spr.xvel * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist;
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
@@ -13491,7 +13490,7 @@ int InitMicro(PLAYER* pp)
         }
         else
         {
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + (RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16));
+            actorNew->spr.angle += DAngle::fromBuild((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
 		UpdateChange(actorNew);
@@ -14265,13 +14264,7 @@ int InitCoolgFire(DSWActor* actor)
     PlaySound(DIGI_MAGIC1, actorNew, v3df_follow|v3df_doppler);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        // (velocity * difference between the target and the throwing star) /
-        // distance
-        actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - nz)) / dist;
-
+    SetZVelFromTarget(actorNew, actor, false, -16);
 	UpdateChange(actorNew);
 
 	auto vec = actor->spr.angle.ToVector() * 45.5;
@@ -14447,7 +14440,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
-    actorNew->spr.clipdist = 64L>>2;
+    actorNew->spr.clipdist = 64 >> 2;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
