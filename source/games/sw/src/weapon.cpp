@@ -7921,7 +7921,7 @@ int DoPlasma(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
     auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-    double daz = actor->int_zvel() * zinttoworld;
+    double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -8850,7 +8850,7 @@ int DoBoltThinMan(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->int_zvel() * zinttoworld;
+	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9422,7 +9422,7 @@ int DoBoltSeeker(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->int_zvel() * zinttoworld;
+	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9461,7 +9461,7 @@ int DoElectro(DSWActor* actor)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->int_zvel() * zinttoworld;
+	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11103,7 +11103,7 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    double zz = actor->int_pos().Z + actor->int_zvel() * zinttoworld;
+    double zz = actor->int_pos().Z + actor->float_zvel();
     if (zz > own->spr.pos.Z - actor->user.pos.Z)
         zz = own->spr.pos.Z - actor->user.pos.Z;
 

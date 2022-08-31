@@ -4235,7 +4235,7 @@ void handle_se22(DDukeActor* actor)
 void handle_se26(DDukeActor* actor)
 {
 	auto sc = actor->sector();
-	double zvel = actor->int_zvel() * zinttoworld;
+	double zvel = actor->float_zvel();
 
 	actor->spr.xvel = 32;
 	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * bsin) >> 14
