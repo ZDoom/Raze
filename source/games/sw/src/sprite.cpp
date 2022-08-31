@@ -4675,29 +4675,30 @@ int DoStayOnFloor(DSWActor* actor)
 int DoGrating(DSWActor* actor)
 {
     int dir;
-    const int GRATE_FACTOR = 3;
+    const int GRATE_FACTORI = 3;
+    const double GRATE_FACTOR = GRATE_FACTORI * maptoworld;
 
     // reduce to 0 to 3 value
     dir = actor->int_ang() >> 9;
 
-    int x = 0, y = 0;
+    DVector2 v(0, 0);
     if ((dir & 1) == 0)
     {
         if (dir == 0)
-            x = 2 * GRATE_FACTOR;
+            v.X = 2 * GRATE_FACTOR;
         else
-            x = -2 * GRATE_FACTOR;
+            v.X = -2 * GRATE_FACTOR;
     }
     else
     {
         if (dir == 1)
-            y= 2 * GRATE_FACTOR;
+            v.Y= 2 * GRATE_FACTOR;
         else
-            y= -2 * GRATE_FACTOR;
+            v.Y= -2 * GRATE_FACTOR;
     }
-    actor->add_int_pos({ x, y, 0 });
+    actor->spr.pos += v;
 
-    actor->spr.hitag -= GRATE_FACTOR;
+    actor->spr.hitag -= GRATE_FACTORI;
 
     if (actor->spr.hitag <= 0)
     {
