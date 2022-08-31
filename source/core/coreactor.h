@@ -111,6 +111,11 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
+	int int_zvel() const
+	{
+		return spr. zvel;
+	}
+
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)

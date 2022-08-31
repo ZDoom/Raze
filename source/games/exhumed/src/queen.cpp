@@ -325,12 +325,12 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
-        pActor->spr.zvel = (AngleDelta(pActor->spr.zvel, var_14, 24) + pActor->spr.zvel) & kAngleMask;
+        pActor->spr.zvel = (AngleDelta(pActor->int_zvel(), var_14, 24) + pActor->spr.zvel) & kAngleMask;
     }
 
     pActor->set_int_ang(nAngle);
 
-    int da = pActor->spr.zvel;
+    int da = pActor->int_zvel();
     int x = abs(bcos(da));
 
     int v26 = x * ((val1 * bcos(nAngle)) >> 14);

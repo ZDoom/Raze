@@ -1246,7 +1246,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_ZVEL:
 		if (bSet) act->spr.zvel = lValue;
-		else SetGameVarID(lVar2, act->spr.zvel, sActor, sPlayer);
+		else SetGameVarID(lVar2, act->int_zvel(), sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:
 		if (bSet) act->spr.lotag = lValue;
@@ -1969,11 +1969,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, -bsin(g_ac->int_ang(), -10), bcos(g_ac->int_ang(), -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, -bsin(g_ac->int_ang(), -10), bcos(g_ac->int_ang(), -10), g_ac->int_zvel(), CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, bsin(g_ac->int_ang(), -10), -bcos(g_ac->int_ang(), -10), g_ac->spr.zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, bsin(g_ac->int_ang(), -10), -bcos(g_ac->int_ang(), -10), g_ac->int_zvel(), CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;

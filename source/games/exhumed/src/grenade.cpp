@@ -85,7 +85,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     else
     {
         pActor->nTurn = 0;
-        pActor->spr.zvel = pPlayerActor->spr.zvel;
+        pActor->spr.zvel = pPlayerActor->int_zvel();
     }
 
     pActor->x = bcos(nAngle, -4) * pActor->nTurn;
@@ -277,10 +277,10 @@ void AIGrenade::Tick(RunListEvent* ev)
             return;
         }
 
-        int zVel = pActor->spr.zvel;
+        int zVel = pActor->int_zvel();
 
         Gravity(pActor);
-        auto nMov = movesprite(pActor, pActor->x, pActor->y, pActor->spr.zvel, pActor->spr.clipdist >> 1, pActor->spr.clipdist >> 1, CLIPMASK1);
+        auto nMov = movesprite(pActor, pActor->x, pActor->y, pActor->int_zvel(), pActor->spr.clipdist >> 1, pActor->spr.clipdist >> 1, CLIPMASK1);
 
         if (!nMov.type && !nMov.exbits)
             return;

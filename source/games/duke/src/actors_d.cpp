@@ -1315,7 +1315,7 @@ static bool movefireball(DDukeActor* actor)
 
 				ball->spr.xvel = actor->spr.xvel;
 				ball->spr.yvel = actor->spr.yvel;
-				ball->spr.zvel = actor->spr.zvel;
+				ball->spr.zvel = actor->int_zvel();
 				if (actor->temp_data[0] > 1)
 				{
 					if (trail)
@@ -1517,7 +1517,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	else
 	{
 		k = proj->spr.xvel;
-		ll = proj->spr.zvel;
+		ll = proj->int_zvel();
 	}
 
 	getglobalz(proj);
@@ -2476,7 +2476,7 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	Collision coll;
 	movesprite_ex(actor, MulScale(xvel, bcos(actor->int_ang()), 14),
-		MulScale(xvel, bsin(actor->int_ang()), 14), actor->spr.zvel, CLIPMASK1, coll);
+		MulScale(xvel, bsin(actor->int_ang()), 14), actor->int_zvel(), CLIPMASK1, coll);
 
 	if (!actor->insector())
 	{
@@ -2599,7 +2599,7 @@ static void heavyhbomb(DDukeActor *actor)
 	movesprite_ex(actor,
 		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
 		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
-		actor->spr.zvel, CLIPMASK0, coll);
+		actor->int_zvel(), CLIPMASK0, coll);
 
 	if (actor->sector()->lotag == 1 && actor->spr.zvel == 0)
 	{
@@ -3671,7 +3671,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
 			MulScale(daxvel, bcos(angdif), 14),
-			MulScale(daxvel, bsin(angdif), 14), actor->spr.zvel, CLIPMASK0, coll);
+			MulScale(daxvel, bsin(angdif), 14), actor->int_zvel(), CLIPMASK0, coll);
 	}
 
 	if (a)

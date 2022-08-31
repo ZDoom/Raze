@@ -612,7 +612,7 @@ void Gravity(DExhumedActor* pActor)
 
 Collision MoveCreature(DExhumedActor* pActor)
 {
-    return movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->spr.zvel, 15360, -5120, CLIPMASK0);
+    return movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->int_zvel(), 15360, -5120, CLIPMASK0);
 }
 
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
@@ -1150,7 +1150,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         }
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
-        int nAngDeltaD = AngleDelta(pActor->spr.zvel, var_18, 24);
+        int nAngDeltaD = AngleDelta(pActor->int_zvel(), var_18, 24);
 
         pActor->spr.zvel = (pActor->spr.zvel + nAngDeltaD) & kAngleMask;
     }
@@ -1352,7 +1352,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     auto pSector = pActor->sector();
     pActor->spr.pal = pSector->ceilingpal;
 
-    auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
+    auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
 
     if (pActor->spr.pos.Z >= pSector->floorz)
     {
@@ -1381,7 +1381,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             {
                 pActor->spr.xvel >>= 1;
                 pActor->spr.yvel >>= 1;
-                pActor->spr.zvel = -pActor->spr.zvel;
+                pActor->spr.zvel = -pActor->int_zvel();
                 return;
             }
             else if (nVal.type == kHitSprite)

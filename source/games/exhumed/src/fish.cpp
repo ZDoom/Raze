@@ -119,7 +119,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     }
     else
     {
-        auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
+        auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
         if (coll.type != kHitNone)
         {
             pActor->spr.xvel = 0;
@@ -198,12 +198,12 @@ void IdleFish(DExhumedActor* pActor, int edx)
     if (!edx)
     {
         if (RandomBit()) {
-            pActor->spr.zvel = -pActor->spr.zvel;
+            pActor->spr.zvel = -pActor->int_zvel();
         }
     }
     else if (edx < 0)
     {
-        pActor->spr.zvel = -pActor->spr.zvel;
+        pActor->spr.zvel = -pActor->int_zvel();
     }
 }
 

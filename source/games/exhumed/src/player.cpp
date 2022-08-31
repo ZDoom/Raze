@@ -830,7 +830,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // pPlayerActor->spr.zvel is modified within Gravity()
-    int zVel = pPlayerActor->spr.zvel;
+    int zVel = pPlayerActor->int_zvel();
 
     Gravity(pPlayerActor);
 
@@ -865,7 +865,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     // TODO
     // nSectFlag & kSectUnderwater;
 
-    zVel = pPlayerActor->spr.zvel;
+    zVel = pPlayerActor->int_zvel();
 
     Collision nMove;
     nMove.setNone();

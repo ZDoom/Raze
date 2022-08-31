@@ -275,7 +275,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->spr.yvel = 0;
     }
 
-    auto nMov = movesprite(spp, spp->spr.xvel << nVel, spp->spr.yvel << nVel, spp->spr.zvel, 1280, -1280, CLIPMASK0);
+    auto nMov = movesprite(spp, spp->spr.xvel << nVel, spp->spr.yvel << nVel, spp->int_zvel(), 1280, -1280, CLIPMASK0);
 
     if (nMov.type == kHitNone && nMov.exbits == 0)
         return;

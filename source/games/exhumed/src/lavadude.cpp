@@ -73,7 +73,7 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
 
     pActor->spr.shade += 3;
 
-    auto coll = movesprite(pActor, pActor->spr.xvel << 12, pActor->spr.yvel << 12, pActor->spr.zvel, 2560, -2560, CLIPMASK1);
+    auto coll = movesprite(pActor, pActor->spr.xvel << 12, pActor->spr.yvel << 12, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
 
     if (coll.type || pActor->spr.shade > 100)
     {

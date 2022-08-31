@@ -1188,7 +1188,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	else
 	{
 		k = proj->spr.xvel;
-		ll = proj->spr.zvel;
+		ll = proj->int_zvel();
 	}
 
 	auto oldpos = proj->spr.pos;
@@ -2377,7 +2377,7 @@ static void heavyhbomb(DDukeActor *actor)
 	movesprite_ex(actor,
 		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
 		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
-		actor->spr.zvel, CLIPMASK0, coll);
+		actor->int_zvel(), CLIPMASK0, coll);
 
 	if (actor->sector()->lotag == 1 && actor->spr.zvel == 0)
 	{
@@ -2565,7 +2565,7 @@ static int henstand(DDukeActor *actor)
 		movesprite_ex(actor,
 			MulScale(bcos(actor->int_ang()), actor->spr.xvel, 14),
 			MulScale(bsin(actor->int_ang()), actor->spr.xvel, 14),
-			actor->spr.zvel, CLIPMASK0, coll);
+			actor->int_zvel(), CLIPMASK0, coll);
 		if (coll.type)
 		{
 			if (coll.type == kHitWall)
@@ -2681,7 +2681,7 @@ void moveactors_r(void)
 				movesprite_ex(act,
 					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
 					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
-					act->spr.zvel,CLIPMASK0, coll);
+					act->int_zvel(),CLIPMASK0, coll);
 				switch (sectp->lotag)
 				{
 					case 901:
@@ -2722,7 +2722,7 @@ void moveactors_r(void)
 				movesprite_ex(act,
 					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
 					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
-					act->spr.zvel,CLIPMASK0, coll);
+					act->int_zvel(),CLIPMASK0, coll);
 				if (coll.type > kHitSector)
 				{
 					deletesprite(act);
@@ -2753,7 +2753,7 @@ void moveactors_r(void)
 				movesprite_ex(act,
 					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
 					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
-					act->spr.zvel,CLIPMASK0, coll);
+					act->int_zvel(),CLIPMASK0, coll);
 				if (act->spr.pos.Z >= sectp->floorz - 8)
 				{
 					if (sectp->lotag == 1)
@@ -2852,7 +2852,7 @@ void moveactors_r(void)
 						movesprite_ex(act,
 							MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
 							MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
-							act->spr.zvel,CLIPMASK0, coll);
+							act->int_zvel(),CLIPMASK0, coll);
 						act->spr.xvel--;
 					}
 				break;
@@ -3744,7 +3744,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
 			MulScale(daxvel, bcos(angdif), 14),
-			MulScale(daxvel, bsin(angdif), 14), actor->spr.zvel, CLIPMASK0, coll);
+			MulScale(daxvel, bsin(angdif), 14), actor->int_zvel(), CLIPMASK0, coll);
 	}
 
 	if (a)

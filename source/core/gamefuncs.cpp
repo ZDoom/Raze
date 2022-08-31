@@ -615,7 +615,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->angle = actor->spr.angle;
 	tspr->xvel = actor->spr.xvel;
 	tspr->yvel = actor->spr.yvel;
-	tspr->zvel = actor->spr.zvel;
+	tspr->zvel = actor->int_zvel();
 	tspr->lotag = actor->spr.lotag;
 	tspr->hitag = actor->spr.hitag;
 	tspr->extra = actor->spr.extra;

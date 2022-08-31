@@ -9291,7 +9291,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     actorNew->spr.cstat = actor->spr.cstat;
 
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(64) - 32));
-    actorNew->spr.zvel = actor->spr.zvel;
+    actorNew->spr.zvel = actor->int_zvel();
     actorNew->spr.zvel += RandomRange(Z(16)) - Z(8);
 
 	UpdateChange(actorNew);
@@ -9319,7 +9319,7 @@ int DoMicro(DSWActor* actor)
         actorNew->spr.xrepeat = 20;
         actorNew->spr.yrepeat = 20;
         actorNew->opos = actor->opos;
-        actorNew->spr.zvel = actor->spr.zvel;
+        actorNew->spr.zvel = actor->int_zvel();
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10883,7 +10883,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     // backup values
 	auto oldc = actor->user.change;
     oldvel = actor->spr.xvel;
-    oldzvel = actor->spr.zvel;
+    oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
     actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
@@ -10917,7 +10917,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     // backup values
 	auto oldc = actor->user.change;
     oldvel = actor->spr.xvel;
-    oldzvel = actor->spr.zvel;
+    oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
     actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
@@ -12406,7 +12406,7 @@ int InitStar(PLAYER* pp)
 
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) != -1)
     {
-        zvel = actorNew->spr.zvel;
+        zvel = actorNew->int_zvel();
     }
 
 	UpdateChangeXY(actorNew);
@@ -12919,7 +12919,7 @@ int InitRail(PLAYER* pp)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 4));
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -12987,7 +12987,7 @@ int InitZillaRail(DSWActor* actor)
         actorNew->spr.angle -= DAngle::fromBuild(4);
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -13096,7 +13096,7 @@ int InitRocket(PLAYER* pp)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -13200,7 +13200,7 @@ int InitBunnyRocket(PLAYER* pp)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -13292,7 +13292,7 @@ int InitNuke(PLAYER* pp)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -13368,7 +13368,7 @@ int InitEnemyNuke(DSWActor* actor)
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
     }
     else
-        zvel = actorNew->spr.zvel;  // Let autoaiming set zvel now
+        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
     actorNew->user.set_int_change_z(zvel);
@@ -15910,7 +15910,7 @@ int InitGrenade(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    zvel = actorNew->spr.zvel;
+    zvel = actorNew->int_zvel();
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) >= 0)
     {
         auto_aim = true;
@@ -16233,7 +16233,7 @@ int InitEnemyFireball(DSWActor* actor)
                 actorNew->user.set_int_change_z(actorNew->spr.zvel = (GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist);
 
             // back up first one
-            lastvel = actorNew->spr.zvel;
+            lastvel = actorNew->int_zvel();
         }
         else
         {

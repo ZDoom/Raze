@@ -139,7 +139,7 @@ void AISoul::Tick(RunListEvent* ev)
 
     int nVel = bcos(pActor->spr.extra, -7);
 
-	auto coll = movesprite(pActor, bcos(pActor->int_ang()) * nVel, bsin(pActor->int_ang()) * nVel, pActor->spr.zvel, 5120, 0, CLIPMASK0);
+	auto coll = movesprite(pActor, bcos(pActor->int_ang()) * nVel, bsin(pActor->int_ang()) * nVel, pActor->int_zvel(), 5120, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
 		DExhumedActor* pSet = pActor->pTarget;

@@ -226,7 +226,7 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 
 	return movesprite_ex(actor,
 		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
-		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->spr.zvel,
+		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->int_zvel(),
 		cliptype, c) == kHitNone;
 }
 
@@ -1259,7 +1259,7 @@ void bounce(DDukeActor* actor)
 {
 	int xvect = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 10);
 	int yvect = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 10);
-	int zvect = actor->spr.zvel;
+	int zvect = actor->int_zvel();
 
 	auto sectp = actor->sector();
 
@@ -4192,7 +4192,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (sc->extra == 0)
 	{
-		lp += actor->spr.zvel;
+		lp += actor->int_zvel();
 
 		if (abs(lp - actor->int_pos().Z) < 1024)
 		{
