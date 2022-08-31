@@ -7278,7 +7278,7 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            dist = FindDistance3D(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y, int_ActorZOfMiddle(itActor) - actor->int_pos().Z);
+            dist = (ActorVectOfMiddle(itActor) - actor->spr.pos).Length() * worldtoint;
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
