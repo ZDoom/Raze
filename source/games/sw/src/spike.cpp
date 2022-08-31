@@ -247,7 +247,7 @@ void SpikeAlign(DSWActor* actor)
 
 void MoveSpritesWithSpike(sectortype* sect)
 {
-    int cz,fz;
+    double cz,fz;
 
     SWSectIterator it(sect);
     while (auto actor = it.Next())
@@ -259,7 +259,7 @@ void MoveSpritesWithSpike(sectortype* sect)
             continue;
 
         getzsofslopeptr(sect, actor->spr.pos, &cz, &fz);
-        actor->set_int_z(fz);
+        actor->spr.pos.Z = fz;
     }
 }
 

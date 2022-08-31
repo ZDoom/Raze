@@ -9731,7 +9731,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
     actorNew->user.Radius = 200;
     actorNew->user.floor_dist = actorNew->user.ceiling_dist = 0;
-    actorNew->set_int_z(getflorzofslopeptr(actorNew->sector(), actorNew->int_pos().X, actorNew->int_pos().Y));
+    actorNew->spr.pos.Z = getflorzofslopeptrf(actorNew->sector(), actorNew->spr.pos);
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }

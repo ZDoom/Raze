@@ -334,7 +334,7 @@ void SpawnFloorSplash(DSWActor* actor)
 
 int DoBloodSpray(DSWActor* actor)
 {
-    int cz,fz;
+    double cz,fz;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
@@ -356,9 +356,9 @@ int DoBloodSpray(DSWActor* actor)
 
         getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
         // pretend like we hit a sector
-        if (actor->int_pos().Z >= fz)
+        if (actor->spr.pos.Z >= fz)
         {
-            actor->set_int_z(fz);
+            actor->spr.pos.Z = fz;
             SpawnFloorSplash(actor);
             KillActor(actor);
             return true;
