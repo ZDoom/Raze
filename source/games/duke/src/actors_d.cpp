@@ -1332,7 +1332,7 @@ static bool movefireball(DDukeActor* actor)
 				ball->spr.extra = 0;
 
 				ball->temp_pos = ball->spr.pos;
-				ball->fproj.vel = { ball->spr.xvel, ball->spr.yvel, ball->spr.zvel };
+				ball->fproj.vel = { ball->spr.xvel, ball->spr.yvel, ball->int_zvel()};
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}

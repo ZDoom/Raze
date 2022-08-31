@@ -829,12 +829,12 @@ void AIPlayer::Tick(RunListEvent* ev)
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
-    // pPlayerActor->spr.zvel is modified within Gravity()
+    // player.zvel is modified within Gravity()
     int zVel = pPlayerActor->int_zvel();
 
     Gravity(pPlayerActor);
 
-    if (pPlayerActor->spr.zvel >= 6500 && zVel < 6500)
+    if (pPlayerActor->int_zvel() >= 6500 && zVel < 6500)
     {
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
@@ -848,7 +848,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-    int z = (pPlayerActor->spr.zvel * 4) >> 2;
+    int z = (pPlayerActor->int_zvel() * 4) >> 2;
 
     if (pPlayerActor->int_zvel() > 8192)
         pPlayerActor->set_int_zvel(8192);

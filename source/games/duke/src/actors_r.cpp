@@ -955,7 +955,7 @@ static void chickenarrow(DDukeActor* actor)
 			actor->set_int_ang(ang);
 
 		if (actor->spr.hitag > 180)
-			if (actor->spr.zvel <= 0)
+			if (actor->int_zvel() <= 0)
 				actor->add_int_zvel( 200);
 	}
 }
@@ -1582,7 +1582,7 @@ void movetransports_r(void)
 				ll = abs(act2->int_zvel()) * zinttoworld;
 				if (isRRRA())
 				{
-					if (act2->spr.zvel >= 0)
+					if (act2->int_zvel() >= 0)
 						warpdir = 2;
 					else
 						warpdir = 1;

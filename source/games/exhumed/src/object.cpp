@@ -1441,7 +1441,7 @@ void AISpark::Tick(RunListEvent* ev)
             return;
         }
 
-        if (pActor->spr.zvel <= 0) {
+        if (pActor->int_zvel() <= 0) {
             return;
         }
     }

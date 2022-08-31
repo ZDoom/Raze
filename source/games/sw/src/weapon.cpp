@@ -4422,7 +4422,7 @@ bool WeaponMoveHit(DSWActor* actor)
         // on walls, so look with hitscan
 
         HitInfo hit{};
-        hitscan(actor->int_pos(), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), actor->spr.zvel }, hit, CLIPMASK_MISSILE);
+        hitscan(actor->int_pos(), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), actor->int_zvel()}, hit, CLIPMASK_MISSILE);
 
         if (!hit.hitSector)
         {
@@ -7921,7 +7921,7 @@ int DoPlasma(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
     auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-    double daz = actor->spr.zvel * zinttoworld;
+    double daz = actor->int_zvel() * zinttoworld;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -8850,7 +8850,7 @@ int DoBoltThinMan(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->spr.zvel * zinttoworld;
+	double daz = actor->int_zvel() * zinttoworld;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9422,7 +9422,7 @@ int DoBoltSeeker(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->spr.zvel * zinttoworld;
+	double daz = actor->int_zvel() * zinttoworld;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9461,7 +9461,7 @@ int DoElectro(DSWActor* actor)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
 	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
-	double daz = actor->spr.zvel * zinttoworld;
+	double daz = actor->int_zvel() * zinttoworld;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -10887,7 +10887,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 
     // make missile move in smaller increments
     actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
-    actor->set_int_zvel(short((actor->spr.zvel*6) / MISSILEMOVETICS));
+    actor->set_int_zvel(short((actor->int_zvel() * 6) / MISSILEMOVETICS));
 
     // some Weapon Animators use this
 	UpdateChange(actor);
@@ -11103,7 +11103,7 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    double zz = actor->int_pos().Z + actor->spr.zvel * zinttoworld;
+    double zz = actor->int_pos().Z + actor->int_zvel() * zinttoworld;
     if (zz > own->spr.pos.Z - actor->user.pos.Z)
         zz = own->spr.pos.Z - actor->user.pos.Z;
 
@@ -12381,8 +12381,7 @@ int InitStar(PLAYER* pp)
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
     actorNew->spr.shade = -25;
     actorNew->spr.clipdist = 32 >> 2;
-    // actorNew->spr.zvel was overflowing with this calculation - had to move to a local
-    // long var
+    // zvel was overflowing with this calculation - had to move to a local long var
     zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
 
     actorNew->user.ceiling_dist = (1);

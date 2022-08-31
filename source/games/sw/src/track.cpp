@@ -3491,7 +3491,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         }
 
         if (actor->int_zvel())
-            vec.Z = actor->spr.zvel * locktics * zinttoworld;
+            vec.Z = actor->int_zvel() * locktics * zinttoworld;
     }
 
     actor->user.coll = move_sprite(actor, vec, actor->user.ceiling_dist, actor->user.floor_dist, 0, locktics);

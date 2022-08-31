@@ -1569,7 +1569,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 	{
 		if (actor->int_zvel() < 6144)
 			actor->add_int_zvel( 192);
-		actor->spr.pos.Z += actor->spr.zvel * inttoworld;
+		actor->spr.pos.Z += actor->int_zvel() * inttoworld;
 		if (actor->spr.pos.Z > sectp->floorz)
 			actor->spr.pos.Z = sectp->floorz;
 		actor->temp_data[3]--;
@@ -2494,7 +2494,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			}
 		}
 		if (actor->int_zvel() < 4096) actor->add_int_zvel( gs.gravity - 50);
-		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->spr.zvel });
+		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->int_zvel()});
 	}
 	else
 	{
@@ -4348,7 +4348,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
-		if (a2->spr.zvel >= 0)
+		if (a2->int_zvel() >= 0)
 		{
 			switch (a2->spr.statnum)
 			{
