@@ -14001,10 +14001,7 @@ int InitEnemyRocket(DSWActor* actor)
     MissileSetPos(actorNew, DoBoltThinMan, 400);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+    SetZVelFromTarget(actorNew, actor, true);
 
     return 0;
 }
@@ -14076,10 +14073,7 @@ int InitEnemyRail(DSWActor* actor)
     }
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+    SetZVelFromTarget(actorNew, actor, true);
 
     return 0;
 }
@@ -14145,10 +14139,7 @@ int InitZillaRocket(DSWActor* actor)
         MissileSetPos(actorNew, DoBoltThinMan, mp[i].dist_out);
 
         // find the distance to the target (player)
-		dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-        if (dist != 0)
-            actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+        SetZVelFromTarget(actorNew, actor, true);
     }
 
     return 0;
@@ -14178,10 +14169,7 @@ int InitEnemyStar(DSWActor* actor)
     MissileSetPos(actorNew, DoStar, 400);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+    SetZVelFromTarget(actorNew, actor, true);
 
     PlaySound(DIGI_STAR, actor, v3df_none);
     return 0;
@@ -14216,10 +14204,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     MissileSetPos(actorNew, DoStar, 400);
 
     // find the distance to the target (player)
-	dist = DistanceI(actorNew->spr.pos, actor->user.targetActor->spr.pos);
-
-    if (dist != 0)
-        actorNew->user.set_int_change_z(actorNew->spr.zvel = (actorNew->spr.xvel * (int_ActorUpperZ(actor->user.targetActor) - actorNew->int_pos().Z)) / dist);
+    SetZVelFromTarget(actorNew, actor, true);
 
     PlaySound(DIGI_STAR, actor, v3df_none);
 
