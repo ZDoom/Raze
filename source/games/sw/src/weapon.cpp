@@ -12314,7 +12314,7 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 
         if (dist != 0)
         {
-            zh = int_ActorZOfTop(picked) + (int_ActorSizeZ(picked) >> 2);
+            zh = (ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.5)) * zworldtoint;
 
             xvect = bcos(*ang);
             yvect = bsin(*ang);
@@ -12331,34 +12331,24 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
     return picked;
 }
 
-void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
+void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
 {
-    int dist;
-    int zh;
-    int xvect;
-    int yvect;
-    int z;
-    short ang;
-
-    ang = NORM_ANGLE(getangle(hitActor->int_pos().X - actor->int_pos().X, hitActor->int_pos().Y - actor->int_pos().Y));
+    auto delta = hitActor->spr.pos.XY() - actor->spr.pos.XY();
+    DAngle ang = VecToAngle(delta);
 
     // find the distance to the target
-	dist = int((actor->spr.pos.XY() - hitActor->spr.pos.XY()).Length() * worldtoint);
+    double dist = delta.Length();
 
     if (dist != 0)
     {
-        zh = int_ActorZOfBottom(hitActor) + Z(20);
-        z = actor->int_pos().Z;
+        double zh = ActorZOfBottom(hitActor) + 20;
+        double z = actor->spr.pos.Z;
+        auto vect = ang.ToVector() * 1024;
 
-        xvect = bcos(ang);
-        yvect = bsin(ang);
-
-        if (hitActor->int_pos().X - actor->int_pos().X != 0)
-            //*z = xvect * ((zh - *z)/(hitActor->int_pos().X - actor->int_pos().X));
-            *zvect = Scale(xvect,zh - z, hitActor->int_pos().X - actor->int_pos().X);
-        else if (hitActor->int_pos().Y - actor->int_pos().Y != 0)
-            //*z = yvect * ((zh - *z)/(hitActor->int_pos().Y - actor->int_pos().Y));
-            *zvect = Scale(yvect,zh - z, hitActor->int_pos().Y - actor->int_pos().Y);
+        if (delta.X != 0)
+            *zvect = vect.X * (zh - z) / delta.X;
+        else if (delta.Y != 0)
+            *zvect = vect.Y * (zh - z) / delta.Y;
         else
             *zvect = 0;
     }
@@ -15614,7 +15604,9 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(actor, hitt, &daz);
+                        double fdaz = daz * zinttoworld;
+                        WeaponHitscanShootFeet(actor, hitt, &fdaz);
+                        daz = fdaz * zworldtoint;
 
                         daang = actor->int_ang();
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
