@@ -10177,8 +10177,6 @@ int SpawnGrenadeSmallExp(DSWActor* actor)
 
 void SpawnGrenadeExp(DSWActor* actor)
 {
-    int dx,dy,dz;
-
     ASSERT(actor->hasU());
     if (actor->hasU() && (actor->user.Flags & SPR_SUICIDE))
         return;
@@ -10194,19 +10192,16 @@ void SpawnGrenadeExp(DSWActor* actor)
         }
     }
 
-    dx = actor->int_pos().X;
-    dy = actor->int_pos().Y;
-    dz = actor->int_pos().Z;
+    auto pos = actor->spr.pos;
 
     if (actor->user.ID == ZILLA_RUN_R0)
     {
-        dx += RandomRange(1000)-RandomRange(1000);
-        dy += RandomRange(1000)-RandomRange(1000);
-        dz = int_ActorZOfMiddle(actor) + RandomRange(1000)-RandomRange(1000);
+        pos.X += (RandomRange(1000)-RandomRange(1000)) * maptoworld;
+        pos.Y += (RandomRange(1000) - RandomRange(1000)) * maptoworld;
+        pos.Z = ActorZOfMiddle(actor) + (RandomRange(1000)-RandomRange(1000)) * zmaptoworld;
     }
 
-    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->sector(),
-                            dx, dy, dz, actor->int_ang(), 0);
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->sector(), pos, actor->spr.angle, 0);
 
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
