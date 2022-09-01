@@ -73,29 +73,14 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, const double
 {
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-		auto pPlayerActor = PlayerList[i].pActor;
-
-        int xvect = -a.Sin() * 16384. * z;
-        int yvect = -a.Cos() * 16384. * z;
-        int ox = mx - x;
-        int oy = my - y;
-        int x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-        int y1 = DMulScale(oy, xvect, ox, yvect, 16);
-        int xx = twod->GetWidth() / 2. + x1 / 4096.;
-        int yy = twod->GetHeight() / 2. + y1 / 4096.;
-
         if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
         {
-            int nTile = pPlayerActor->spr.picnum;
-            int ceilZ, floorZ;
-            Collision ceilHit, floorHit;
-            getzrange(pPlayerActor->int_pos(), pPlayerActor->sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pPlayerActor->spr.clipdist << 2) + 16, CLIPMASK0);
-            int nTop, nBottom;
-            GetActorExtents(pPlayerActor, &nTop, &nBottom);
-            int nScale = (pPlayerActor->spr.yrepeat + ((floorZ - nBottom) >> 8)) * z;
-            nScale = clamp(nScale, 8000, 65536 << 1);
-            // This very likely needs fixing later
-            DrawTexture(twod, tileGetTexture(nTile /*+ ((PlayClock >> 4) & 3)*/, true), xx, yy, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
+            auto pPlayerActor = PlayerList[i].pActor;
+            auto an = -a;
+            auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
+            auto vect = OutAutomapVector(DVector2(mx, my) - DVector2(x, y), a.Sin(), a.Cos(), z, xydim);
+
+            DrawTexture(twod, tileGetTexture(pPlayerActor->spr.picnum /*+ ((PlayClock >> 4) & 3)*/, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
                 DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (pPlayerActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
             break;
         }
