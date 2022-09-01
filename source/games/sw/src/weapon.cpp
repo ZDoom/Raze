@@ -7685,10 +7685,6 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
 // combination of vector manipulation
 int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    int dist;
-    int zh;
-    short ang2tgt, delta_ang;
-
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
 
@@ -7710,31 +7706,16 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
     DSWActor* goal = actor->user.WpnGoalActor;
     if (goal != nullptr)
     {
-         // move to correct angle
-        ang2tgt = getangle(goal->int_pos().X - actor->int_pos().X, goal->int_pos().Y - actor->int_pos().Y);
+        // move to correct angle
+        auto ang2tgt = VecToAngle(goal->spr.pos - actor->spr.pos);
+        auto delta_ang = clamp(deltaangle(ang2tgt, actor->spr.angle), -DAngle45 / 8, DAngle45 / 8);
+        actor->spr.angle -= delta_ang;
+        UpdateChangeXY(actor);
 
-        delta_ang = getincangle(ang2tgt, actor->int_ang());
+        double zdiff = actor->spr.pos.Z - ActorZOfTop(goal) - (ActorSizeZ(goal) * 0.25);
+        double dist = g_sqrt((actor->spr.pos.XY() - goal->spr.pos.XY()).LengthSquared() + zdiff * zdiff);
 
-        if (labs(delta_ang) > 32)
-        {
-            if (delta_ang > 0)
-                delta_ang = 32;
-            else
-                delta_ang = -32;
-        }
-
-        actor->add_int_ang(-delta_ang);
-
-		UpdateChangeXY(actor);
-
-        zh = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
-
-        dist = ksqrt(SQ(actor->int_pos().X - goal->int_pos().X) + SQ(actor->int_pos().Y - goal->int_pos().Y) + (SQ(actor->int_pos().Z - zh)>>8));
-
-        double oz = actor->user.change.Z;
-
-        actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
-		actor->user.change.Z += oz * (15 / 16.);
+        actor->user.change.Z = (actor->spr.xvel * zinttoworld) * zdiff / dist + actor->user.change.Z * (15 / 16.);
     }
     return 0;
 }
