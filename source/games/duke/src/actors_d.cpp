@@ -1313,7 +1313,7 @@ static bool movefireball(DDukeActor* actor)
 			{
 				actor->temp_actor = ball;
 
-				ball->spr.xvel = actor->spr.xvel;
+				ball->spr.xvel = actor->int_xvel();
 				ball->spr.yvel = actor->spr.yvel;
 				ball->set_int_zvel(actor->int_zvel());
 				if (actor->temp_data[0] > 1)
@@ -1332,7 +1332,7 @@ static bool movefireball(DDukeActor* actor)
 				ball->spr.extra = 0;
 
 				ball->temp_pos = ball->spr.pos;
-				ball->fproj.vel = { ball->spr.xvel, ball->spr.yvel, ball->int_zvel()};
+				ball->fproj.vel = { ball->int_xvel(), ball->spr.yvel, ball->int_zvel()};
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
@@ -1516,7 +1516,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	}
 	else
 	{
-		k = proj->spr.xvel;
+		k = proj->int_xvel();
 		ll = proj->int_zvel();
 	}
 
@@ -1706,7 +1706,7 @@ void moveweapons_d(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (act->spr.yvel < 1 || act->spr.extra < 2 || (act->spr.xvel|act->int_zvel()) == 0)
+			if (act->spr.yvel < 1 || act->spr.extra < 2 || (act->float_xvel() == 0 && act->float_zvel() == 0))
 			{
 				auto spawned = spawn(act,TRANSPORTERSTAR);
 				if (spawned)
@@ -2457,7 +2457,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	auto dapos = actor->spr.pos;
-	int xvel = actor->spr.xvel;
+	int xvel = actor->int_xvel();
 
 	getglobalz(actor);
 
@@ -3182,7 +3182,7 @@ void handle_se06_d(DDukeActor* actor)
 	{
 		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
-			act2->spr.xvel = actor->spr.xvel;
+			act2->spr.xvel = actor->int_xvel();
 			//if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)
@@ -3629,7 +3629,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
 				actor->spr.pos.Z = actor->ceilingz + 32;
 
-		daxvel = actor->spr.xvel;
+		daxvel = actor->int_xvel();
 		angdif = actor->int_ang();
 
 		if (a && actor->spr.picnum != ROTATEGUN)

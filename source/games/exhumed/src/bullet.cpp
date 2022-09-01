@@ -235,7 +235,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
             }
             else
             {
-                int xVel = pHitActor->spr.xvel;
+                int xVel = pHitActor->int_xvel();
                 int yVel = pHitActor->spr.yvel;
 
                 pHitActor->spr.xvel = bcos(pActor->int_ang(), -2);

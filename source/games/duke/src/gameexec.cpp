@@ -1238,7 +1238,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_XVEL:
 		if (bSet) act->spr.xvel = lValue;
-		else SetGameVarID(lVar2, act->spr.xvel, sActor, sPlayer);
+		else SetGameVarID(lVar2, act->int_xvel(), sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
 		if (bSet) act->spr.yvel = lValue;
@@ -2383,7 +2383,7 @@ int ParseState::parse(void)
 			l = *insptr;
 			j = 0;
 
-			s = g_ac->spr.xvel;
+			s = g_ac->int_xvel();
 
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))

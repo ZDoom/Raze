@@ -4121,7 +4121,7 @@ void handle_se20(DDukeActor* actor)
 		int x = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
 		int l = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
-		actor->temp_data[3] += actor->spr.xvel;
+		actor->temp_data[3] += actor->int_xvel();
 
 		actor->add_int_pos({ x, l, 0 });
 

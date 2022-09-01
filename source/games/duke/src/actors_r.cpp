@@ -1187,7 +1187,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	}
 	else
 	{
-		k = proj->spr.xvel;
+		k = proj->int_xvel();
 		ll = proj->int_zvel();
 	}
 
@@ -1724,8 +1724,8 @@ void movetransports_r(void)
 
 								ChangeActorSect(act2, Owner->sector());
 
-								movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->int_ang()), 14),
-									MulScale(act2->spr.xvel, bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
+								movesprite_ex(act2, MulScale(act2->int_xvel(), bcos(act2->int_ang()), 14),
+									MulScale(act2->int_xvel(), bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
 
 								break;
 							case 161:
@@ -1736,8 +1736,8 @@ void movetransports_r(void)
 
 								ChangeActorSect(act2, Owner->sector());
 
-								movesprite_ex(act2, MulScale(act2->spr.xvel, bcos(act2->int_ang()), 14),
-									MulScale(act2->spr.xvel, bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
+								movesprite_ex(act2, MulScale(act2->int_xvel(), bcos(act2->int_ang()), 14),
+									MulScale(act2->int_xvel(), bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
 
 								break;
 							}
@@ -2679,8 +2679,8 @@ void moveactors_r(void)
 				if (sectp->lotag == 903)
 					makeitfall(act);
 				movesprite_ex(act,
-					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
-					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
 					act->int_zvel(),CLIPMASK0, coll);
 				switch (sectp->lotag)
 				{
@@ -2720,8 +2720,8 @@ void moveactors_r(void)
 				}
 				makeitfall(act);
 				movesprite_ex(act,
-					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
-					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
 					act->int_zvel(),CLIPMASK0, coll);
 				if (coll.type > kHitSector)
 				{
@@ -2751,8 +2751,8 @@ void moveactors_r(void)
 				}
 				makeitfall(act);
 				movesprite_ex(act,
-					MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
-					MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
+					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
 					act->int_zvel(),CLIPMASK0, coll);
 				if (act->spr.pos.Z >= sectp->floorz - 8)
 				{
@@ -2850,8 +2850,8 @@ void moveactors_r(void)
 					if (act->spr.xvel)
 					{
 						movesprite_ex(act,
-							MulScale(act->spr.xvel, bcos(act->int_ang()), 14),
-							MulScale(act->spr.xvel, bsin(act->int_ang()), 14),
+							MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
+							MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
 							act->int_zvel(),CLIPMASK0, coll);
 						act->spr.xvel--;
 					}
@@ -3234,7 +3234,7 @@ void handle_se06_r(DDukeActor *actor)
 	{
 		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
-			act2->spr.xvel = actor->spr.xvel;
+			act2->spr.xvel = actor->int_xvel();
 			//						if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)
@@ -3674,7 +3674,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
 				actor->spr.pos.Z = actor->ceilingz + 32;
 
-		daxvel = actor->spr.xvel;
+		daxvel = actor->int_xvel();
 		angdif = actor->int_ang();
 
 		if (a)

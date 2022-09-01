@@ -3546,7 +3546,7 @@ void processinput_r(int snum)
 	if (p->GetActor()->spr.xrepeat < 8 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += p->GetActor()->spr.xvel;
+		p->fistsign += p->GetActor()->int_xvel();
 	}
 
 	if (p->transporter_hold > 0)

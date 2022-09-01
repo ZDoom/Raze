@@ -4135,7 +4135,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             // special case
             // blood coming off of actors should have the acceleration of the actor
             // so add it in
-            actorNew->spr.xvel += actor->spr.xvel;
+            actorNew->spr.xvel += actor->int_xvel();
 
             actorNew->user.ceiling_dist = actorNew->user.floor_dist = 2;
             actorNew->user.jump_speed = p->min_jspeed;
@@ -10881,7 +10881,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 
     // backup values
 	auto oldc = actor->user.change;
-    oldvel = actor->spr.xvel;
+    oldvel = actor->int_xvel();
     oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
@@ -10914,7 +10914,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 
     // backup values
 	auto oldc = actor->user.change;
-    oldvel = actor->spr.xvel;
+    oldvel = actor->int_xvel();
     oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
@@ -12190,7 +12190,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 #if 0
     //formula for leading a player
     dist = Distance(actor->int_pos().X, actor->int_pos().Y, hp->pos.X, hp->pos.Y);
-    time_to_target = dist/missileActor->spr.xvel;
+    time_to_target = dist/missileActor->int_xvel();
     lead_dist = time_to_target*hp->vel;
 #endif
 
@@ -16076,7 +16076,7 @@ int InitEnemyMine(DSWActor* actor)
 
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
-    auto old_xvel = actor->spr.xvel;
+    auto old_xvel = actor->int_xvel();
     auto old_clipdist = actor->spr.clipdist;
 
     actor->spr.xvel = dist;
