@@ -1685,7 +1685,7 @@ int ParseState::parse(void)
 	case concmd_getlastpal:
 		insptr++;
 		if (g_ac->isPlayer())
-			g_ac->spr.pal = ps[g_ac->spr.yvel].palookup;
+			g_ac->spr.pal = ps[g_ac->PlayerIndex()].palookup;
 		else
 		{
 			// Copied from DukeGDX.
@@ -1700,7 +1700,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_tossweapon:
 		insptr++;
-		fi.checkweapons(&ps[g_ac->spr.yvel]);
+		fi.checkweapons(&ps[g_ac->PlayerIndex()]);
 		break;
 	case concmd_nullop:
 		insptr++;

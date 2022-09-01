@@ -241,7 +241,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	// Autoaim from DukeGDX.
 	if (actor->isPlayer())
 	{
-		auto* plr = &ps[actor->spr.yvel];
+		auto* plr = &ps[actor->PlayerIndex()];
 		int autoaim = Autoaim(actor->spr.yvel);
 		if (!autoaim)
 		{
@@ -273,7 +273,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			}
 			else
 			{
-				weap = aplWeaponWorksLike(plr->curr_weapon, actor->spr.yvel);
+				weap = aplWeaponWorksLike(plr->curr_weapon, actor->PlayerIndex());
 			}
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
@@ -287,7 +287,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		}
 	}
 	DDukeActor* aimed = nullptr;
-	//	  if(actor->isPlayer() && ps[actor->spr.yvel].aim_mode) return -1;
+	//	  if(actor->isPlayer() && ps[actor->PlayerIndex()].aim_mode) return -1;
 
 	if (isRR())
 	{
@@ -296,13 +296,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	}
 	else if (isWW2GI())
 	{
-		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(ps[actor->PlayerIndex()].curr_weapon, actor->PlayerIndex()) == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(ps[actor->PlayerIndex()].curr_weapon, actor->PlayerIndex()) == FREEZE_WEAPON;
 	}
 	else
 	{
-		gotshrinker = actor->isPlayer() && ps[actor->spr.yvel].curr_weapon == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && ps[actor->spr.yvel].curr_weapon == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && ps[actor->PlayerIndex()].curr_weapon == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && ps[actor->PlayerIndex()].curr_weapon == FREEZE_WEAPON;
 	}
 
 	smax = 0x7fffffff;
@@ -349,7 +349,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (actor->isPlayer())
-									a = (abs(Scale(act->int_pos().Z - actor->int_pos().Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
+									a = (abs(Scale(act->int_pos().Z - actor->int_pos().Z, 10, sdist) - ps[actor->PlayerIndex()].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
 								cans = cansee(act->spr.pos.plusZ(-32 + gs.actorinfo[act->spr.picnum].aimoffset), act->sector(), actor->spr.pos.plusZ(-32), actor->sector());
@@ -403,8 +403,8 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 
 				if (p->actorsqu->isPlayer())
 				{
-					quickkill(&ps[p->actorsqu->spr.yvel]);
-					ps[p->actorsqu->spr.yvel].frag_ps = snum;
+					quickkill(&ps[p->actorsqu->PlayerIndex()]);
+					ps[p->actorsqu->PlayerIndex()].frag_ps = snum;
 				}
 				else if (badguy(p->actorsqu))
 				{

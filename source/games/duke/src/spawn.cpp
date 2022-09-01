@@ -408,7 +408,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		else { act->spr.xrepeat = act->spr.yrepeat = 0; return; }
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		if ((ps[actj->spr.yvel].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
+		if ((ps[actj->PlayerIndex()].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		act->spr.angle = actj->spr.angle;
 	}
 

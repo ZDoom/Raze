@@ -510,7 +510,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
 			act->spr.shade = actj->spr.shade;
-			act->spr.pal = ps[actj->spr.yvel].palookup;
+			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
 		[[fallthrough]];
 	case DUKECAR:

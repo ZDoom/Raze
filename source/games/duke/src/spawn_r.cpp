@@ -543,7 +543,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
 			act->spr.shade = actj->spr.shade;
-			act->spr.pal = ps[actj->spr.yvel].palookup;
+			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
 		act->spr.cstat = 0;
 		act->spr.extra = 1;

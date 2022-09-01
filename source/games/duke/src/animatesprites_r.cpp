@@ -210,7 +210,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case BURNING:
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
-				if (display_mirror == 0 && OwnerAc->spr.yvel == screenpeek && ps[OwnerAc->spr.yvel].over_shoulder_on == 0)
+				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[OwnerAc->PlayerIndex()].over_shoulder_on == 0)
 					t->xrepeat = 0;
 				else
 				{
