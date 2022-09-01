@@ -12747,7 +12747,6 @@ int InitShotgun(PLAYER* pp)
 int InitLaser(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
 
     DoPlayerBeginRecoil(pp, RAIL_RECOIL_AMT);
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
@@ -12756,16 +12755,12 @@ int InitLaser(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), 300);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector, pos, pp->angle.ang, 300);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -12856,16 +12851,12 @@ int InitRail(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(11);
+    auto pos = pp->pos.plusZ(pp->bob_z + 11);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), 1200);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, pos, pp->angle.ang, 1200);
 
 
     SetOwner(pp->actor, actorNew);
