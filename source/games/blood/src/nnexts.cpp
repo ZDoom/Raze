@@ -1343,10 +1343,10 @@ void nnExtProcessSuperSprites()
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->__int_vel.X || debrisactor->__int_vel.Y || debrisactor->__int_vel.Z || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->int_vel().X != 0 || debrisactor->int_vel().Y != 0 || debrisactor->int_vel().Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
 				debrisMove(i);
 
-			if (debrisactor->__int_vel.X || debrisactor->int_vel().Y)
+			if (debrisactor->int_vel().X != 0 || debrisactor->int_vel().Y)
 				debrisactor->xspr.goalAng = getangle(debrisactor->int_vel().X, debrisactor->int_vel().Y) & 2047;
 
 			int ang = debrisactor->int_ang() & 2047;
@@ -1662,7 +1662,7 @@ void debrisMove(int listIndex)
 		uwater = true;
 	}
 
-	if (actor->__int_vel.X || actor->int_vel().Y)
+	if (actor->int_vel().X != 0 || actor->int_vel().Y)
 	{
 
 		auto oldcstat = actor->spr.cstat;
@@ -1815,7 +1815,7 @@ void debrisMove(int listIndex)
 			}
 
 		}
-		else if (actor->__int_vel.Z == 0)
+		else if (actor->int_vel().Z == 0)
 		{
 			actor->xspr.physAttr &= ~kPhysFalling;
 		}
@@ -4617,7 +4617,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				else if (arg1 == 2) return condCmp(objActor->int_vel().Y, arg1, arg2, cmpOp);
 				else if (arg1 == 3) return condCmp(objActor->int_vel().Z, arg1, arg2, cmpOp);
 			}
-			else if (arg1 == 0) return (objActor->__int_vel.X || objActor->__int_vel.Y || objActor->int_vel().Z);
+			else if (arg1 == 0) return (objActor->int_vel().X != 0 || objActor->int_vel().Y != 0 || objActor->int_vel().Z);
 			else if (arg1 == 1) return (objActor->int_vel().X);
 			else if (arg1 == 2) return (objActor->int_vel().Y);
 			else if (arg1 == 3) return (objActor->int_vel().Z);
@@ -6796,12 +6796,12 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			if (iactor->hasX() && iactor->xspr.physAttr > 0)
 			{
 				iactor->xspr.physAttr |= kPhysFalling;
-				iactor->__int_vel.Z++;
+				iactor->add_int_bvel_z(1);
 			}
 			else if ((iactor->spr.statnum == kStatThing || iactor->spr.statnum == kStatDude) && (iactor->spr.flags & kPhysGravity))
 			{
 				iactor->spr.flags |= kPhysFalling;
-				iactor->__int_vel.Z++;
+				iactor->add_int_bvel_z(1);
 			}
 		}
 	}
@@ -8204,7 +8204,7 @@ void aiPatrolMove(DBloodActor* actor)
 			if (hitactor->hasX() && hitactor->xspr.health)
 			{
 				hitactor->xspr.dodgeDir = (actor->xspr.dodgeDir > 0) ? -1 : 1;
-				if (hitactor->__int_vel.X || hitactor->int_vel().Y)
+				if (hitactor->int_vel().X != 0 || hitactor->int_vel().Y)
 					aiMoveDodge(hitactor);
 			}
 		}
@@ -8574,7 +8574,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			{
 				DBloodActor* act = pPlayer->actor;
 				itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-				if (act && itCanHear && nDist < feelDist && (act->__int_vel.X || act->__int_vel.Y || act->int_vel().Z))
+				if (act && itCanHear && nDist < feelDist && (act->int_vel().X != 0 || act->int_vel().Y != 0 || act->int_vel().Z))
 					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->int_vel().X) + abs(act->int_vel().Y) + abs(act->int_vel().Z))) >> 6, 0)), 0);
 			}
 

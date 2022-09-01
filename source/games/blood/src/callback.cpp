@@ -523,7 +523,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 	int zv = actor->int_vel().Z - actor->sector()->velFloor;
 
-	if (actor->__int_vel.Z == 0) sleeveStopBouncing(actor);
+	if (actor->int_vel().Z == 0) sleeveStopBouncing(actor);
 	else if (zv > 0) {
 		actFloorBounceVector((int*)&actor->__int_vel.X, (int*)&actor->__int_vel.Y, &zv, actor->sector(), 0x9000);
 		actor->set_int_bvel_z(zv);

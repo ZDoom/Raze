@@ -236,6 +236,11 @@ public:
 		__int_vel .Z = x;
 	}
 
+	void set_int_bvel(vec3_t x)
+	{
+		__int_vel = x;
+	}
+
 	void add_int_bvel_x(int x)
 	{
 		__int_vel .X += x;
