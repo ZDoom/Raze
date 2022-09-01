@@ -134,7 +134,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 			spawned->spr.xrepeat = 40;
 			spawned->spr.yrepeat = 40;
 		}
-		spawned->spr.yvel = p;
+		spawned->spr.yint = p;
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->spr.clipdist = 4;
 	}
@@ -207,7 +207,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->spr.xrepeat = 2;
 	spawned->spr.yrepeat = 2;
 	spawned->spr.clipdist = 40;
-	spawned->spr.yvel = p;
+	spawned->spr.yint = p;
 	spawned->SetOwner(actor);
 
 	if (p == -1)
@@ -740,7 +740,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->temp_actor = aimed;
 	else
 	{
-		spawned->spr.yvel = gs.numfreezebounces;
+		spawned->spr.yint = gs.numfreezebounces;
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
 		spawned->add_int_zvel(- (2 << 4));
@@ -2218,7 +2218,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 			if (k == 15)
 			{
-				spawned->spr.yvel = 3;
+				spawned->spr.yint = 3;
 				spawned->spr.pos.Z += 8;
 			}
 

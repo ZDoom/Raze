@@ -290,7 +290,7 @@ void hud_input(int plnum)
 									p->player_int_pos().Z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.Buildang(), 0, 0, nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
-							pactor->spr.yvel = plnum;
+							pactor->spr.yint = plnum;
 							pactor->spr.extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
 							S_PlayActorSound(TELEPORTER, p->holoduke_on);

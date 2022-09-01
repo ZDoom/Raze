@@ -498,7 +498,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 	{
 		if (act2->spr.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->spr.hitag == actor->spr.hitag)
-				if ((abs(sect->int_floorz() - actor->temp_data[2]) > act2->spr.yvel) ||
+				if ((abs(sect->int_floorz() - actor->temp_data[2]) > act2->spr.yint) ||
 					(act2->sector()->hitag == (sect->hitag - d)))
 					break;
 	}
@@ -1216,8 +1216,8 @@ void operatemasterswitches(int low)
 	DukeStatIterator it(STAT_STANDABLE);
 	while (auto act2 = it.Next())
 	{
-		if (act2->spr.picnum == MASTERSWITCH && act2->spr.lotag == low && act2->spr.yvel == 0)
-			act2->spr.yvel = 1;
+		if (act2->spr.picnum == MASTERSWITCH && act2->spr.lotag == low && act2->spr.yint == 0)
+			act2->spr.yint = 1;
 	}
 }
 

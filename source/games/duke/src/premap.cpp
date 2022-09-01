@@ -637,7 +637,7 @@ void resetpspritevars(int g)
 			}
 			else act->spr.extra = ps[j].last_extra;
 
-			act->spr.yvel = j;
+			act->spr.yint = j;
 
 			if (ud.last_level == -1)
 			{

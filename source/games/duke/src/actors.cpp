@@ -210,7 +210,7 @@ void clearcamera(player_struct* ps)
 	while (auto k = it.Next())
 	{
 		if (actorflag(k, SFLAG2_CAMERA))
-			k->spr.yvel = 0;
+			k->spr.yint = 0;
 	}
 }
 
@@ -947,7 +947,7 @@ void detonate(DDukeActor *actor, int explosion)
 
 void movemasterswitch(DDukeActor *actor)
 {
-	if (actor->spr.yvel == 1)
+	if (actor->spr.yint == 1)
 	{
 		actor->spr.hitag--;
 		if (actor->spr.hitag <= 0)
@@ -1545,9 +1545,9 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 void forcesphere(DDukeActor* actor, int forcesphere)
 {
 	auto sectp = actor->sector();
-	if (actor->spr.yvel == 0)
+	if (actor->spr.yint == 0)
 	{
-		actor->spr.yvel = 1;
+		actor->spr.yint = 1;
 
 		for (int l = 512; l < (2048 - 512); l += 128)
 			for (int j = 0; j < 2048; j += 128)
@@ -1897,8 +1897,8 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 			{
 				if (a2->spr.picnum == MASTERSWITCH)
 					if (a2->spr.hitag == actor->spr.hitag)
-						if (a2->spr.yvel == 0)
-							a2->spr.yvel = 1;
+						if (a2->spr.yint == 0)
+							a2->spr.yint = 1;
 			}
 			break;
 		}
@@ -2498,9 +2498,9 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 	}
 	else
 	{
-		if (actor->spr.picnum == SCRAP1 && actor->spr.yvel > 0)
+		if (actor->spr.picnum == SCRAP1 && actor->spr.yint > 0)
 		{
-			auto spawned = spawn(actor, actor->spr.yvel);
+			auto spawned = spawn(actor, actor->spr.yint);
 			if (spawned)
 			{
 				SetActor(spawned, actor->spr.pos);
@@ -3514,7 +3514,7 @@ void handle_se11(DDukeActor *actor)
 			}
 		}
 
-		int k = (actor->spr.yvel >> 3) * actor->temp_data[3];
+		int k = (actor->spr.yint >> 3) * actor->temp_data[3];
 		actor->temp_data[2] += k;
 		actor->temp_data[4] += k;
 		ms(actor);
@@ -3637,7 +3637,7 @@ void handle_se13(DDukeActor* actor)
 	auto sc = actor->sector();
 	if (actor->temp_data[2])
 	{
-		int j = (actor->spr.yvel << 5) | 1;
+		int j = (actor->spr.yint << 5) | 1;
 
 		if (actor->int_ang() == 512)
 		{
@@ -3712,7 +3712,7 @@ void handle_se15(DDukeActor* actor)
 
 		if (actor->temp_data[4] == 1) //Opening
 		{
-			if (actor->temp_data[3] >= (actor->spr.yvel >> 3))
+			if (actor->temp_data[3] >= (actor->spr.yint >> 3))
 			{
 				actor->temp_data[4] = 0; //Turn off the sliders
 				callsound(actor->sector(), actor);
@@ -3790,7 +3790,7 @@ void handle_se17(DDukeActor* actor)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	double q = actor->temp_data[0] * actor->spr.yvel * (1 / 64.);
+	double q = actor->temp_data[0] * actor->spr.yint * (1 / 64.);
 
 	sc->addceilingz(q);
 	sc->addfloorz(q);
@@ -3800,7 +3800,7 @@ void handle_se17(DDukeActor* actor)
 	{
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
-			int p = act1->spr.yvel;
+			int p = act1->spr.yint;
 			if (numplayers < 2) ps[p].backupz();
 			ps[p].pos.Z += q;
 			ps[p].truefz += q;
@@ -3819,7 +3819,7 @@ void handle_se17(DDukeActor* actor)
 
 	if (actor->temp_data[0]) //If in motion
 	{
-		if (abs(sc->int_floorz() - actor->temp_data[2]) <= actor->spr.yvel)
+		if (abs(sc->int_floorz() - actor->temp_data[2]) <= actor->spr.yint)
 		{
 			activatewarpelevators(actor, 0);
 			return;
@@ -4040,7 +4040,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 		}
 
 		if (sc->ceilingz < sc->floorz)
-			sc->add_int_ceilingz(actor->spr.yvel);
+			sc->add_int_ceilingz(actor->spr.yint);
 		else
 		{
 			sc->setceilingz(sc->floorz);
@@ -4125,7 +4125,7 @@ void handle_se20(DDukeActor* actor)
 
 		actor->add_int_pos({ x, l, 0 });
 
-		if (actor->temp_data[3] <= 0 || (actor->temp_data[3] >> 6) >= (actor->spr.yvel >> 6))
+		if (actor->temp_data[3] <= 0 || (actor->temp_data[3] >> 6) >= (actor->spr.yint >> 6))
 		{
 			actor->add_int_pos({ -x, -l, 0 });
 			actor->temp_data[0] = 0;
@@ -4186,7 +4186,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
 	{
-		actor->set_int_zvel(Sgn(actor->int_pos().Z - lp) * (actor->spr.yvel << 4));
+		actor->set_int_zvel(Sgn(actor->int_pos().Z - lp) * (actor->spr.yint << 4));
 		actor->temp_data[0]++;
 	}
 
@@ -4304,7 +4304,7 @@ void handle_se27(DDukeActor* actor)
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
 					actor->add_int_ang(getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
-					actor->spr.yvel = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
+					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
 
 				}
 				else if (actor->temp_data[0] == 999)
@@ -4342,8 +4342,8 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 {
 	if (actor->temp_data[4]) return;
 
-	int x = MulScale(actor->spr.yvel, bcos(actor->int_ang()), 18);
-	int y = MulScale(actor->spr.yvel, bsin(actor->int_ang()), 18);
+	int x = MulScale(actor->spr.yint, bcos(actor->int_ang()), 18);
+	int y = MulScale(actor->spr.yint, bsin(actor->int_ang()), 18);
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -4392,7 +4392,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 			}
 		}
 	}
-	if (scroll) actor->sector()->addfloorxpan(actor->spr.yvel / 128.f);
+	if (scroll) actor->sector()->addfloorxpan(actor->spr.yint / 128.f);
 }
 
 //---------------------------------------------------------------------------
@@ -4412,7 +4412,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 
 	if (actor->spr.shade)
 	{
-		sec->addceilingz(actor->spr.yvel);
+		sec->addceilingz(actor->spr.yint);
 		if (sec->ceilingz > sec->floorz)
 		{
 			sec->setceilingz(sec->floorz);
@@ -4422,7 +4422,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	}
 	else
 	{
-		sec->addceilingz(-actor->spr.yvel);
+		sec->addceilingz(-actor->spr.yint);
 		if (sec->int_ceilingz() < actor->temp_data[t_index])
 		{
 			sec->set_int_ceilingz(actor->temp_data[t_index]);
@@ -4450,49 +4450,49 @@ void handle_se32(DDukeActor *actor)
 		{
 			if (actor->int_ang() != 1536)
 			{
-				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
+				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yint << 1))
 				{
 					sc->setceilingz(actor->spr.pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
+				else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yint);
 			}
 			else
 			{
-				if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yvel << 1))
+				if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yint << 1))
 				{
 					sc->set_int_ceilingz(actor->temp_data[1]);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->temp_data[1] - sc->int_ceilingz()) * actor->spr.yvel);
+				else sc->add_int_ceilingz(Sgn(actor->temp_data[1] - sc->int_ceilingz()) * actor->spr.yint);
 			}
 			return;
 		}
 
 		if ((actor->int_ang() & 2047) == 1536)
 		{
-			if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yvel << 1))
+			if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yint << 1))
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 				sc->setceilingz(actor->spr.pos.Z);
 			}
-			else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
+			else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yint);
 		}
 		else
 		{
-			if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yvel << 1))
+			if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yint << 1))
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 			}
-			else sc->add_int_ceilingz(-Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yvel);
+			else sc->add_int_ceilingz(-Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yint);
 		}
 	}
 
@@ -4526,14 +4526,14 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	switch (actor->temp_data[0])
 	{
 	case 0:
-		sc->add_int_ceilingz(actor->spr.yvel);
+		sc->add_int_ceilingz(actor->spr.yint);
 		if (sc->ceilingz > sc->floorz)
 			sc->setfloorz(sc->ceilingz);
 		if (sc->ceilingz > actor->spr.pos.Z + 32)
 			actor->temp_data[0]++;
 		break;
 	case 1:
-		sc->add_int_ceilingz(-(actor->spr.yvel << 2));
+		sc->add_int_ceilingz(-(actor->spr.yint << 2));
 		if (sc->int_ceilingz() < actor->temp_data[4])
 		{
 			sc->set_int_ceilingz(actor->temp_data[4]);
@@ -4638,7 +4638,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		{
 			if (actor->int_ang() != 1536)
 			{
-				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yvel)
+				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yint)
 				{
 					sec->setfloorz(actor->spr.pos.Z);
 					actor->temp_data[2] = 0;
@@ -4648,7 +4648,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yvel;
+					int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yint;
 					sec->add_int_floorz(l);
 
 					DukeSectIterator it(actor->sector());
@@ -4667,7 +4667,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yvel)
+				if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yint)
 				{
 					sec->set_int_floorz(actor->temp_data[1]);
 					callsound(actor->sector(), actor);
@@ -4677,7 +4677,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->temp_data[1] - sec->int_floorz()) * actor->spr.yvel;
+					int l = Sgn(actor->temp_data[1] - sec->int_floorz()) * actor->spr.yint;
 					sec->add_int_floorz(l);
 
 					DukeSectIterator it(actor->sector());
@@ -4699,7 +4699,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 
 		if ((actor->int_ang() & 2047) == 1536)
 		{
-			if (abs(actor->int_pos().Z - sec->int_floorz()) < actor->spr.yvel)
+			if (abs(actor->int_pos().Z - sec->int_floorz()) < actor->spr.yint)
 			{
 				callsound(actor->sector(), actor);
 				actor->temp_data[0] = 0;
@@ -4708,7 +4708,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yvel;
+				int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yint;
 				sec->add_int_floorz(l);
 
 				DukeSectIterator it(actor->sector());
@@ -4727,7 +4727,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		}
 		else
 		{
-			if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yvel)
+			if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yint)
 			{
 				actor->temp_data[0] = 0;
 				callsound(actor->sector(), actor);
@@ -4736,7 +4736,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yvel;
+				int l = Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yint;
 				sec->add_int_floorz(-l);
 
 				DukeSectIterator it(actor->sector());

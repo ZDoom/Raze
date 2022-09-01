@@ -464,8 +464,8 @@ struct spritetypebase
 	int16_t picnum;
 	int16_t statnum;
 	int16_t intangle;	// needs to be kept for SW's SP_TAG4
-	int16_t xint;
-	union { int16_t yvel, yint; };	// alternative names are for refactoring and later use where repurposed.
+	int16_t xint;		// formerly known as xvel and yvel
+	int16_t yint;
 	int16_t inittype; // was zvel. All accesses for that have been wrapped. inittype, type and flags are for Blood.
 	union { int16_t lotag, type; };
 	union { int16_t hitag, flags; };

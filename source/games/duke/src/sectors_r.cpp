@@ -2381,7 +2381,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
 					{
-						if (actorflag(act, SFLAG2_CAMERA)) act->spr.yvel = 0;
+						if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
 					}
 				}
 				auto Owner = targ->GetHitOwner();

@@ -1241,8 +1241,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->int_xvel(), sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
-		if (bSet) act->spr.yvel = lValue;
-		else SetGameVarID(lVar2, act->spr.yvel, sActor, sPlayer);
+		if (bSet) act->spr.yint = lValue;
+		else SetGameVarID(lVar2, act->spr.yint, sActor, sPlayer);
 		break;
 	case ACTOR_ZVEL:
 		if (bSet) act->set_int_zvel(lValue);
@@ -1707,8 +1707,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_mikesnd:
 		insptr++;
-		if (!S_CheckActorSoundPlaying(g_ac, g_ac->spr.yvel))
-			S_PlayActorSound(g_ac->spr.yvel, g_ac, CHAN_VOICE);
+		if (!S_CheckActorSoundPlaying(g_ac, g_ac->spr.yint))
+			S_PlayActorSound(g_ac->spr.yint, g_ac, CHAN_VOICE);
 		break;
 	case concmd_pkick:
 		insptr++;
@@ -2050,7 +2050,7 @@ int ParseState::parse(void)
 			while (auto actj = it.Next())
 			{
 				if (actorflag(actj, SFLAG2_CAMERA))
-					actj->spr.yvel = 0;
+					actj->spr.yint = 0;
 			}
 		}
 
@@ -2170,8 +2170,8 @@ int ParseState::parse(void)
 				if (spawned)
 				{
 					if (weap)
-						spawned->spr.yvel = gs.weaponsandammosprites[j % 14];
-					else spawned->spr.yvel = -1;
+						spawned->spr.yint = gs.weaponsandammosprites[j % 14];
+					else spawned->spr.yint = -1;
 					spawned->spr.pal = g_ac->spr.pal;
 				}
 			}

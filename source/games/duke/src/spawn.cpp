@@ -75,7 +75,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->set_int_zvel(s_zv);
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
-	act->spr.yvel = 0;
+	act->spr.yint = 0;
 	act->spr.clipdist = 0;
 	act->spr.pal = 0;
 	act->spr.lotag = 0;
@@ -605,7 +605,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 	auto sectp = actor->sector();
 	int d, clostest = 0;
 
-	actor->spr.yvel = sectp->extra;
+	actor->spr.yint = sectp->extra;
 	actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	actor->spr.xrepeat = actor->spr.yrepeat = 0;
 
@@ -770,7 +770,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_24_CONVEYOR:
 			StartInterpolation(sectp, Interp_Sect_FloorPanX);
-			actor->spr.yvel <<= 1;
+			actor->spr.yint <<= 1;
 		case SE_36_PROJ_SHOOTER:
 			break;
 

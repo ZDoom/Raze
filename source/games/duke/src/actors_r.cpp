@@ -1071,7 +1071,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 					proj->spr.xrepeat -= 2;
 				if (proj->spr.yrepeat > 8)
 					proj->spr.yrepeat -= 2;
-				proj->spr.yvel--;
+				proj->spr.yint--;
 			}
 
 			int k = getangle(wal->delta());
@@ -1106,7 +1106,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				proj->spr.extra -= 20;
-				proj->spr.yvel--;
+				proj->spr.yint--;
 			}
 
 			int k = getangle(wal->delta());
@@ -1156,7 +1156,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 			proj->spr.xrepeat -= 2;
 		if (proj->spr.yrepeat > 8)
 			proj->spr.yrepeat -= 2;
-		proj->spr.yvel--;
+		proj->spr.yint--;
 		return true;
 	}
 	return false;
@@ -1349,7 +1349,7 @@ void moveweapons_r(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (proj->spr.yvel < 1 || proj->spr.extra < 2 || (proj->int_xvel() == 0 && proj->int_zvel() == 0))
+			if (proj->spr.yint < 1 || proj->spr.extra < 2 || (proj->int_xvel() == 0 && proj->int_zvel() == 0))
 			{
 				auto star = spawn(proj, TRANSPORTERSTAR);
 				if (star)
@@ -2348,9 +2348,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	makeitfall(actor);
 
-	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yvel < 3)
+	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yint < 3)
 	{
-		if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
+		if (actor->spr.yint > 0 || (actor->spr.yint == 0 && actor->floorz == sectp->floorz))
 		{
 			if (actor->spr.picnum != CHEERBOMB)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
@@ -2362,10 +2362,10 @@ static void heavyhbomb(DDukeActor *actor)
 				goto DETONATEB;
 			}
 		}
-		actor->set_int_zvel(-((4 - actor->spr.yvel) << 8));
+		actor->set_int_zvel(-((4 - actor->spr.yint) << 8));
 		if (actor->sector()->lotag == 2)
 			actor->mul_int_zvel(0.25);
-		actor->spr.yvel++;
+		actor->spr.yint++;
 	}
 	if (actor->spr.picnum != CHEERBOMB && actor->spr.pos.Z < actor->ceilingz + 16 && sectp->lotag != 2)
 	{
@@ -3399,7 +3399,7 @@ void moveeffectors_r(void)   //STATNUM 3
 
 		case SE_29_WAVES:
 			act->spr.hitag += 64;
-			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
+			l = MulScale(act->spr.yint, bsin(act->spr.hitag), 12);
 			sc->set_int_floorz(act->int_pos().Z + l);
 			break;
 
@@ -4008,7 +4008,7 @@ void respawnhitag_r(DDukeActor *actor)
 	case FEM10:
 	case NAKED1:
 	case STATUE:
-		if (actor->spr.yvel) fi.operaterespawns(actor->spr.yvel);
+		if (actor->spr.yint) fi.operaterespawns(actor->spr.yint);
 		break;
 	default:
 		if (actor->spr.hitag >= 0) fi.operaterespawns(actor->spr.hitag);

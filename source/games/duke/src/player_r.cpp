@@ -692,7 +692,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->temp_actor = aimed;
 	else
 	{
-		spawned->spr.yvel = gs.numfreezebounces;
+		spawned->spr.yint = gs.numfreezebounces;
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
 		spawned->add_int_zvel(- (2 << 4));
@@ -2755,7 +2755,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			{
 				if (k == 15)
 				{
-					spawned->spr.yvel = 3;
+					spawned->spr.yint = 3;
 					spawned->spr.pos.Z += 8;
 				}
 

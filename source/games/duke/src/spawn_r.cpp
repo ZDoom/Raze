@@ -438,7 +438,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NAKED1:
 	case STATUE:
 	case TOUGHGAL:
-		act->spr.yvel = act->spr.hitag;
+		act->spr.yint = act->spr.hitag;
 		act->spr.hitag = -1;
 		[[fallthrough]];
 	case QUEBALL:
@@ -564,7 +564,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case MIKE:
 		if (act->spr.picnum == MIKE)
-			act->spr.yvel = act->spr.hitag;
+			act->spr.yint = act->spr.hitag;
 		ChangeActorStat(act, 1);
 		break;
 
@@ -739,7 +739,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.yvel = 0;
+		act->spr.yint = 0;
 		ChangeActorStat(act, 6);
 		break;
 
@@ -1102,7 +1102,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case HEAVYHBOMB:
 		act->SetOwner(act);
 		act->spr.xrepeat = act->spr.yrepeat = 9;
-		act->spr.yvel = 4;
+		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
 	case REACTOR:
@@ -1276,7 +1276,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case POWDERKEG:
 			act->spr.xrepeat = 11;
 			act->spr.yrepeat = 11;
-			act->spr.yvel = 4;
+			act->spr.yint = 4;
 			act->set_int_xvel(32);
 			break;
 		case RPGSPRITE:

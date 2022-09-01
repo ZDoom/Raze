@@ -359,7 +359,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 
 				if (k == 15)
 				{
-					j->spr.yvel = 3;
+					j->spr.yint = 3;
 					j->spr.pos.Z += 8;
 				}
 

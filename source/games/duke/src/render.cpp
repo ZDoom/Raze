@@ -255,12 +255,12 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 	{
 		auto act = ud.cameraactor;
 
-		if (act->spr.yvel < 0) act->spr.yvel = -100;
-		else if (act->spr.yvel > 199) act->spr.yvel = 300;
+		if (act->spr.yint < 0) act->spr.yint = -100;
+		else if (act->spr.yint > 199) act->spr.yint = 300;
 
 		cang = interpolatedangle(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio);
 
-		auto bh = buildhoriz(act->spr.yvel);
+		auto bh = buildhoriz(act->spr.yint);
 		auto cstat = act->spr.cstat;
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 		renderView(act, act->sector(), act->int_pos().X, act->int_pos().Y, act->int_pos().Z - (4 << 8), cang, bh, nullAngle, smoothratio, sceneonly, fov);

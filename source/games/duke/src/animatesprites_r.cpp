@@ -590,8 +590,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		case SCRAP6 + 6:
 		case SCRAP6 + 7:
 
-			if (t->picnum == SCRAP1 && h->spr.yvel >= 0)
-				t->picnum = h->spr.yvel;
+			if (t->picnum == SCRAP1 && h->spr.yint >= 0)
+				t->picnum = h->spr.yint;
 			else t->picnum += h->temp_data[0];
 
 			if (sectp->floorpal)

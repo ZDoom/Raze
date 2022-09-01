@@ -397,8 +397,8 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (isIn(p->actorsqu->spr.picnum, respawnlist))
 				{
-					if (p->actorsqu->spr.yvel)
-						fi.operaterespawns(p->actorsqu->spr.yvel);
+					if (p->actorsqu->spr.yint)
+						fi.operaterespawns(p->actorsqu->spr.yint);
 				}
 
 				if (p->actorsqu->isPlayer())

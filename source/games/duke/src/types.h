@@ -114,7 +114,7 @@ public:
 	int PlayerIndex() const
 	{
 		// only valid for real players - just here to abstract yvel.
-		return spr.yvel;
+		return spr.yint;
 	}
 
 	bool isPlayer() const

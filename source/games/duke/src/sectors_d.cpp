@@ -1429,7 +1429,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 			if (targ->spr.statnum == 10)
 			{
-				p = targ->spr.yvel;
+				p = targ->spr.yint;
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
@@ -1441,7 +1441,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto itActor = it.Next())
 					{
-						if (actorflag(itActor, SFLAG2_CAMERA)) itActor->spr.yvel = 0;
+						if (actorflag(itActor, SFLAG2_CAMERA)) itActor->spr.yint = 0;
 					}
 				}
 
@@ -1477,7 +1477,7 @@ void clearcameras(int i, player_struct* p)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto act = it.Next())
 		{
-			if (actorflag(act, SFLAG2_CAMERA)) act->spr.yvel = 0;
+			if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
 		}
 	}
 	else if (p->newOwner != nullptr)
@@ -1707,13 +1707,13 @@ void checksectors_d(int snum)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto acti = it.Next())
 				{
-					if (actorflag(acti, SFLAG2_CAMERA) && acti->spr.yvel == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
+					if (actorflag(acti, SFLAG2_CAMERA) && acti->spr.yint == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
 					{
-						acti->spr.yvel = 1; //Using this camera
+						acti->spr.yint = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
 						neartagsprite->SetOwner(acti);
-						neartagsprite->spr.yvel = 1;
+						neartagsprite->spr.yint = 1;
 						camsprite = neartagsprite;
 
 						p->newOwner = acti;

@@ -480,7 +480,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NAKED1:
 	case STATUE:
 	case TOUGHGAL:
-		act->spr.yvel = act->spr.hitag;
+		act->spr.yint = act->spr.hitag;
 		act->spr.hitag = -1;
 		if (act->spr.picnum == PODFEM1) act->spr.extra <<= 1;
 		[[fallthrough]];
@@ -536,7 +536,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case MIKE:
 		if (act->spr.picnum == MIKE)
-			act->spr.yvel = act->spr.hitag;
+			act->spr.yint = act->spr.hitag;
 		[[fallthrough]];
 	case WEATHERWARN:
 		ChangeActorStat(act, 1);
@@ -763,7 +763,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.yvel = 0;
+		act->spr.yint = 0;
 		ChangeActorStat(act, 6);
 		break;
 	case TARGET:
@@ -951,7 +951,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else act->SetOwner(act);
 
 		act->spr.xrepeat = act->spr.yrepeat = 9;
-		act->spr.yvel = 4;
+		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
 	case REACTOR:

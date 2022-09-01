@@ -407,11 +407,11 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						if (act2->spr.picnum == APLAYER)
 						{
-							int p = act2->spr.yvel;
+							int p = act2->spr.yint;
 
 							if (isWorldTour() && act2->attackertype == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
-								ps[p].numloogs = -1 - actor->spr.yvel;
+								ps[p].numloogs = -1 - actor->spr.yint;
 							}
 
 							if (ps[p].newOwner != nullptr)
@@ -1054,7 +1054,7 @@ static void moveviewscreen(DDukeActor* actor)
 		if (x >= VIEWSCR_DIST && camsprite == actor)
 		{
 			camsprite = nullptr;
-			actor->spr.yvel = 0;
+			actor->spr.yint = 0;
 			actor->temp_data[0] = 0;
 		}
 	}
@@ -1370,12 +1370,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 	if (targ->spr.picnum == APLAYER)
 	{
-		int p = targ->spr.yvel;
+		int p = targ->spr.yint;
 		auto Owner = proj->GetOwner();
 
 		if (ud.multimode >= 2 && fireball && Owner && Owner->spr.picnum == APLAYER)
 		{
-			ps[p].numloogs = -1 - proj->spr.yvel;
+			ps[p].numloogs = -1 - proj->spr.yint;
 		}
 
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
@@ -1432,7 +1432,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3 &oldpo
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				proj->spr.extra >>= 1;
-				proj->spr.yvel--;
+				proj->spr.yint--;
 			}
 
 			int k = getangle(wal->delta());
@@ -1471,7 +1471,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		{
 			spawned->SetOwner(proj);
 			spawned->SetHitOwner(proj);
-			spawned->spr.yvel = proj->spr.yvel;
+			spawned->spr.yint = proj->spr.yint;
 		}
 		deletesprite(proj);
 		return true;
@@ -1486,7 +1486,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 			proj->spr.xrepeat -= 2;
 		if (proj->spr.yrepeat > 8)
 			proj->spr.yrepeat -= 2;
-		proj->spr.yvel--;
+		proj->spr.yint--;
 		return true;
 	}
 	return false;
@@ -1704,7 +1704,7 @@ void moveweapons_d(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (act->spr.yvel < 1 || act->spr.extra < 2 || (act->float_xvel() == 0 && act->float_zvel() == 0))
+			if (act->spr.yint < 1 || act->spr.extra < 2 || (act->float_xvel() == 0 && act->float_zvel() == 0))
 			{
 				auto spawned = spawn(act,TRANSPORTERSTAR);
 				if (spawned)
@@ -2190,7 +2190,7 @@ static void greenslime(DDukeActor *actor)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
-				if (actorflag(ac, SFLAG2_CAMERA)) ac->spr.yvel = 0;
+				if (actorflag(ac, SFLAG2_CAMERA)) ac->spr.yint = 0;
 			}
 		}
 
@@ -2578,14 +2578,14 @@ static void heavyhbomb(DDukeActor *actor)
 	{
 		makeitfall(actor);
 
-		if (sectp->lotag != 1 && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yvel < 3)
+		if (sectp->lotag != 1 && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yint < 3)
 		{
-			if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
+			if (actor->spr.yint > 0 || (actor->spr.yint == 0 && actor->floorz == sectp->floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
-			actor->set_int_zvel(-((4 - actor->spr.yvel) << 8));
+			actor->set_int_zvel(-((4 - actor->spr.yint) << 8));
 			if (actor->sector()->lotag == 2)
 				actor->mul_int_zvel(0.25);
-			actor->spr.yvel++;
+			actor->spr.yint++;
 		}
 		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
 		{
@@ -3424,7 +3424,7 @@ void moveeffectors_d(void)   //STATNUM 3
 
 		case SE_29_WAVES:
 			act->spr.hitag += 64;
-			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
+			l = MulScale(act->spr.yint, bsin(act->spr.hitag), 12);
 			sc->set_int_floorz(act->int_pos().Z + l);
 			break;
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
@@ -3718,7 +3718,7 @@ void respawnhitag_d(DDukeActor* actor)
 	case PODFEM1:
 	case NAKED1:
 	case STATUE:
-		if (actor->spr.yvel) fi.operaterespawns(actor->spr.yvel);
+		if (actor->spr.yint) fi.operaterespawns(actor->spr.yint);
 		break;
 	default:
 		if (actor->spr.hitag >= 0) fi.operaterespawns(actor->spr.hitag);
