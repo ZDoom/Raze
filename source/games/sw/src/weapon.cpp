@@ -7728,9 +7728,6 @@ void SetAngleFromChange(DSWActor* actor)
 // completely vector manipulation
 int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
-    int dist;
-    int zh;
-
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
 
@@ -7776,17 +7773,14 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
     DSWActor* goal = actor->user.WpnGoalActor;
     if (goal != nullptr)
     {
-        int ox,oy,oz;
-
-        zh = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
-
-        dist = ksqrt(SQ(actor->int_pos().X - goal->int_pos().X) + SQ(actor->int_pos().Y - goal->int_pos().Y) + (SQ(actor->int_pos().Z - zh)>>8));
+        auto delta = (goal->spr.pos.XY() - actor->spr.pos.XY());
+        double zdiff = ActorZOfTop(goal) + (ActorSizeZ(goal) * 0.25) - actor->spr.pos.Z;
+        double dist = g_sqrt(delta.LengthSquared() + zdiff * zdiff);
 
 		auto oc = actor->user.change;
 
-        actor->user.set_int_change_x(Scale(actor->spr.xvel, goal->int_pos().X - actor->int_pos().X, dist));
-        actor->user.set_int_change_y(Scale(actor->spr.xvel, goal->int_pos().Y - actor->int_pos().Y, dist));
-        actor->user.set_int_change_z(Scale(actor->spr.xvel, zh - actor->int_pos().Z, dist));
+        auto vel = (actor->spr.xvel * zinttoworld) / dist;
+        actor->user.change = DVector3(delta, -zdiff) * vel;
 
         // the large turn_speed is the slower the turn
 
