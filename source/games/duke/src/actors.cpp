@@ -1718,7 +1718,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		if (l <= 1524)
 		{
 			a = actor->int_ang();
-			actor->spr.xvel >>= 1;
+			actor->mul_int_xvel(0.5);
 		}
 		else a = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 

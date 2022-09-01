@@ -969,7 +969,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (zVel >= 6500)
             {
-                pPlayerActor->spr.xvel >>= 2;
+                pPlayerActor->mul_int_xvel(0.25);
                 pPlayerActor->spr.yvel >>= 2;
 
                 runlist_DamageEnemy(pPlayerActor, nullptr, ((zVel - 6500) >> 7) + 10);

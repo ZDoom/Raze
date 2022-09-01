@@ -3186,7 +3186,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.ActorActionSet->DeathJump)
         {
             actor->user.Flags |= (SPR_DEAD);
-            actor->spr.xvel <<= 1;
+            actor->mul_int_xvel(2);
             actor->user.jump_speed = -495;
             DoActorBeginJump(actor);
             NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);

@@ -2422,7 +2422,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if(actor->float_xvel() < 0)
 			actor->clear_xvel();
-		if (actor->spr.xvel & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
+		if (int(actor->float_xvel() * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type == kHitWall)

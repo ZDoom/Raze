@@ -2037,7 +2037,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         }
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {
-            pActor->spr.xvel >>= 1;
+            pActor->mul_int_xvel(0.5);
             pActor->spr.yvel >>= 1;
             pActor->mul_int_zvel(0.5);
         }

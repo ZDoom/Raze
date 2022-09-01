@@ -125,7 +125,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case COOLIE_RUN_R0:
         ChangeState(actor, actor->user.StateEnd);
         actor->user.RotNum = 0;
-        actor->spr.xvel <<= 1;
+        actor->mul_int_xvel(2);
         actor->user.ActorActionFunc = nullptr;
         actor->spr.angle += DAngle180;
         break;
@@ -199,7 +199,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
         {
-            actor->spr.xvel <<= 1;
+            actor->mul_int_xvel(2);
             actor->user.jump_speed = -100 - RandomRange(250);
             DoActorBeginJump(actor);
         }

@@ -2634,7 +2634,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if(actor->float_xvel() < 0)
 			actor->clear_xvel();
-		if (actor->spr.xvel & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
+		if (int(actor->float_xvel() * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type== kHitWall)
@@ -2645,7 +2645,7 @@ static void heavyhbomb(DDukeActor *actor)
 		int k = getangle(wal->delta());
 
 		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
-		actor->spr.xvel >>= 1;
+		actor->mul_int_xvel(0.5);
 	}
 
 DETONATEB:

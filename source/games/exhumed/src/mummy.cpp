@@ -373,7 +373,7 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if (nMov.exbits)
         {
-            pActor->spr.xvel >>= 1;
+            pActor->mul_int_xvel(0.5);
             pActor->spr.yvel >>= 1;
         }
 

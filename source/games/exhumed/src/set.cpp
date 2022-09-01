@@ -394,7 +394,7 @@ void AISet::Tick(RunListEvent* ev)
 
             if (pActor->nIndex2)
             {
-                pActor->spr.xvel *= 2;
+                pActor->mul_int_xvel(2);
                 pActor->spr.yvel *= 2;
             }
 
@@ -546,7 +546,7 @@ void AISet::Tick(RunListEvent* ev)
 
     case 9:
     {
-        pActor->spr.xvel >>= 1;
+        pActor->mul_int_xvel(0.5);
         pActor->spr.yvel >>= 1;
 
         if (bVal)

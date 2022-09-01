@@ -3910,7 +3910,7 @@ int DoShrapDamage(DSWActor* actor)
         {
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.jump_speed = -300;
-            actor->spr.xvel >>= 2;
+            actor->mul_int_xvel(0.25);
             DoBeginJump(actor);
             return 0;
         }
