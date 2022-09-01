@@ -85,10 +85,9 @@ constexpr double PLAYER_DIVE_HEIGHTF = 26;
 // DIVE
 //
 
-#define PLAYER_DIVE_MAX_SPEED       (1700)
-#define PLAYER_DIVE_INC             (600)
-#define PLAYER_DIVE_BOB_AMT (Z(8))
-constexpr double PLAYER_DIVE_BOB_AMTF = 8;
+constexpr double PLAYER_DIVE_MAX_SPEED = (1700 * zmaptoworld);
+constexpr double PLAYER_DIVE_INC = (600 * zmaptoworld);
+constexpr double PLAYER_DIVE_BOB_AMT = 8;
 
 #define PLAYER_DIVE_TIME (12*120)       // time before damage is taken
 #define PLAYER_DIVE_DAMAGE_AMOUNT (-1)  // amount of damage accessed
@@ -98,10 +97,9 @@ constexpr double PLAYER_DIVE_BOB_AMTF = 8;
 // FLY
 //
 
-#define PLAYER_FLY_MAX_SPEED       (2560)
-#define PLAYER_FLY_INC             (1000)
-#define PLAYER_FLY_BOB_AMT (Z(12))
-constexpr double PLAYER_FLY_BOB_AMTF = 12;
+constexpr double PLAYER_FLY_MAX_SPEED = 10;
+constexpr double PLAYER_FLY_INC = (1000 * zmaptoworld);
+constexpr double PLAYER_FLY_BOB_AMT = 12;
 // Height from which Player will actually call DoPlayerBeginFall()
 #define PLAYER_FALL_HEIGHT Z(28)
 constexpr double PLAYER_FALL_HEIGHTF = 28;

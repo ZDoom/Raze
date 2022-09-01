@@ -3489,7 +3489,7 @@ void DoPlayerBeginFly(PLAYER* pp)
     pp->p_ceiling_dist = PLAYER_RUN_CEILING_DIST;
     pp->DoPlayerAction = DoPlayerFly;
 
-    pp->z_speed = -Z(10);
+    pp->z_speed = -10;
     pp->jump_speed = 0;
     pp->pbob_amt = 0;
     pp->bob_ndx = 1024;
@@ -3540,24 +3540,24 @@ void DoPlayerFly(PLAYER* pp)
             pp->z_speed = -PLAYER_FLY_MAX_SPEED;
     }
 
-    pp->z_speed = MulScale(pp->z_speed, 58000, 16);
+    pp->z_speed *= FixedToFloat(58000);
 
-    pp->add_int_ppos_Z(pp->z_speed);
+    pp->pos.Z += pp->z_speed;
 
     // Make the min distance from the ceiling/floor match bobbing amount
     // so the player never goes into the ceiling/floor
 
     // Only get so close to the ceiling
-    if (PlayerCeilingHit(pp, pp->hiz + PLAYER_FLY_BOB_AMTF + 8))
+    if (PlayerCeilingHit(pp, pp->hiz + PLAYER_FLY_BOB_AMT + 8))
     {
-        pp->pos.Z = pp->hiz + PLAYER_FLY_BOB_AMTF + 8;
+        pp->pos.Z = pp->hiz + PLAYER_FLY_BOB_AMT + 8;
         pp->z_speed = 0;
     }
 
     // Only get so close to the floor
-    if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMTF))
+    if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMT))
     {
-        pp->pos.Z = pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMTF;
+        pp->pos.Z = pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMT;
         pp->z_speed = 0;
     }
 
@@ -3724,7 +3724,7 @@ int PlayerCanDive(PLAYER* pp)
         if (PlayerInDiveArea(pp))
         {
             pp->pos.Z += 20;
-            pp->z_speed = Z(20);
+            pp->z_speed = 20;
             pp->jump_speed = 0;
 
             if (pp->pos.Z > pp->loz - pp->WadeDepth - 2)
@@ -3758,7 +3758,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
                 pp->setcursector(sect);
                 pp->pos.Z = sect->ceilingz + 20;
 
-                pp->z_speed = Z(20);
+                pp->z_speed = 20;
                 pp->jump_speed = 0;
 
                 PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
@@ -4341,21 +4341,21 @@ void DoPlayerDive(PLAYER* pp)
             pp->z_speed = -PLAYER_DIVE_MAX_SPEED;
     }
 
-    pp->z_speed = MulScale(pp->z_speed, 58000, 16);
+    pp->z_speed *= FixedToFloat(58000);
 
-    if (labs(pp->z_speed) < 16)
+    if (abs(pp->z_speed) < 1./16)
         pp->z_speed = 0;
 
-    pp->add_int_ppos_Z(pp->z_speed);
+    pp->pos.Z += pp->z_speed;
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector))
     {
-        if (pp->int_ppos().Z < pp->cursector->int_ceilingz() + Z(10))
+        if (pp->pos.Z < pp->cursector->ceilingz + 10)
         {
             auto sect = pp->cursector;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->cursector->int_ceilingz() - Z(8), &sect);
+            updatesectorz(DVector3(pp->pos, pp->cursector->ceilingz - 8), &sect);
 
             if (!SectorIsUnderwaterArea(sect))
             {
@@ -4403,7 +4403,7 @@ void DoPlayerDive(PLAYER* pp)
     // make player bob if sitting still
     if (!PLAYER_MOVING(pp) && pp->z_speed == 0 && pp->up_speed == 0)
     {
-        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
+        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
     }
     // player is moving
     else
@@ -4417,7 +4417,7 @@ void DoPlayerDive(PLAYER* pp)
         // else keep bobbing until its back close to 0
         else
         {
-            DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
+            DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
         }
     }
 
@@ -4425,13 +4425,13 @@ void DoPlayerDive(PLAYER* pp)
     if (pp->pos.Z + pp->pbob_amt >= pp->loz - PLAYER_DIVE_HEIGHTF)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((1024 + 512) - pp->bob_ndx) * 2);
-        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
+        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
     }
     // Reverse bobbing when getting close to the ceiling
     if (pp->pos.Z + pp->pbob_amt < pp->hiz + pp->p_ceiling_dist)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
-        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMTF, 3);
+        DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
     }
 
     DoPlayerMove(pp);
