@@ -1608,7 +1608,7 @@ void ProcessInput(PLAYER* pPlayer)
 			int strafe = pInput->svel;
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
 			actor->add_int_bvel_x(MulScale(strafe, y, 30));
-			actor->__int_vel.Y -= MulScale(strafe, x, 30);
+			actor->add_int_bvel_y(-MulScale(strafe, x, 30));
 		}
 	}
 	else if (actor->xspr.height < 256)
@@ -1637,7 +1637,7 @@ void ProcessInput(PLAYER* pPlayer)
 			if (actor->xspr.height)
 				strafe = MulScale(strafe, speed, 16);
 			actor->add_int_bvel_x(MulScale(strafe, y, 30));
-			actor->__int_vel.Y -= MulScale(strafe, x, 30);
+			actor->add_int_bvel_y(-MulScale(strafe, x, 30));
 		}
 	}
 
@@ -1656,7 +1656,7 @@ void ProcessInput(PLAYER* pPlayer)
 	switch (pPlayer->posture) {
 	case 1:
 		if (pInput->actions & SB_JUMP)
-			actor->__int_vel.Z -= pPosture->normalJumpZ;//0x5b05;
+			actor->add_int_bvel_z(-pPosture->normalJumpZ);//0x5b05;
 		if (pInput->actions & SB_CROUCH)
 			actor->add_int_bvel_z(pPosture->normalJumpZ);//0x5b05;
 		break;

@@ -1726,7 +1726,7 @@ void debrisMove(int listIndex)
 
 		if (pSector->lowerLink) cz += (cz < 0) ? 0x500 : -0x500;
 		if (top > cz && (!(actor->xspr.physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-			actor->__int_vel.Z -= DivScale((bottom - ceilZ) >> 6, mass, 8);
+			actor->add_int_bvel_z(-DivScale((bottom - ceilZ) >> 6, mass, 8));
 
 		if (fz < bottom)
 			vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1868,8 +1868,8 @@ void debrisMove(int listIndex)
 	if (actor->xspr.height > 0)
 		nDrag -= Scale(nDrag, actor->xspr.height, 0x100);
 
-	actor->__int_vel.X -= mulscale16r(actor->int_vel().X, nDrag);
-	actor->__int_vel.Y -= mulscale16r(actor->int_vel().Y, nDrag);
+	actor->add_int_bvel_x(-mulscale16r(actor->int_vel().X, nDrag));
+	actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
 	if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
 		actor->clear_vel_xy();
 }

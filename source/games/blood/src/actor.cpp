@@ -4503,7 +4503,7 @@ void actAirDrag(DBloodActor* actor, int a2)
 	}
 	actor->add_int_bvel_x(MulScale(wind_x - actor->int_vel().X, a2, 16));
 	actor->add_int_bvel_y(MulScale(wind_y - actor->int_vel().Y, a2, 16));
-	actor->__int_vel.Z -= MulScale(actor->int_vel().Z, a2, 16);
+	actor->add_int_bvel_z(-MulScale(actor->int_vel().Z, a2, 16));
 }
 
 //---------------------------------------------------------------------------
@@ -4705,8 +4705,8 @@ static Collision MoveThing(DBloodActor* actor)
 		if (nVel > 0)
 		{
 			int t = DivScale(nVelClipped, nVel, 16);
-			actor->__int_vel.X -= MulScale(t, actor->int_vel().X, 16);
-			actor->__int_vel.Y -= MulScale(t, actor->int_vel().Y, 16);
+			actor->add_int_bvel_x(-MulScale(t, actor->int_vel().X, 16));
+			actor->add_int_bvel_y(-MulScale(t, actor->int_vel().Y, 16));
 		}
 	}
 	if (actor->__int_vel.X || actor->int_vel().Y)
@@ -5192,8 +5192,8 @@ void MoveDude(DBloodActor* actor)
 		int nDrag = gDudeDrag;
 		if (actor->xspr.height > 0)
 			nDrag -= Scale(gDudeDrag, actor->xspr.height, 0x100);
-		actor->__int_vel.X -= mulscale16r(actor->int_vel().X, nDrag);
-		actor->__int_vel.Y -= mulscale16r(actor->int_vel().Y, nDrag);
+		actor->add_int_bvel_x(-mulscale16r(actor->int_vel().X, nDrag));
+		actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
 
 		if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
 			actor->clear_vel_xy();
