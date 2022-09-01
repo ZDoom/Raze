@@ -4661,7 +4661,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actor->hit.ceilhit = ceilColl;
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
-		if (actor->__int_vel.Z < 0)
+		if (actor->int_vel().Z < 0)
 		{
 			actor->set_int_bvel_x(MulScale(actor->int_vel().X, 0xc000, 16));
 			actor->set_int_bvel_y(MulScale(actor->int_vel().Y, 0xc000, 16));
@@ -4908,7 +4908,7 @@ void MoveDude(DBloodActor* actor)
 			actor->add_int_bvel_z(vc);
 		}
 	}
-	if (pPlayer && actor->__int_vel.Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
+	if (pPlayer && actor->int_vel().Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
 	{
 		const bool playerAlive = (actor->xspr.health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
 		if (playerAlive)
@@ -5164,7 +5164,7 @@ void MoveDude(DBloodActor* actor)
 		actor->hit.ceilhit = ceilColl;
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
 
-		if (actor->__int_vel.Z <= 0 && (actor->spr.flags & 4))
+		if (actor->int_vel().Z <= 0 && (actor->spr.flags & 4))
 			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x2000, 16));
 	}
 	else
@@ -6140,7 +6140,7 @@ void actCheckFlares()
 			pos.Y += mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2) * inttoworld;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
-			actor->__int_vel = target->__int_vel;
+			actor->set_int_bvel(target->int_vel());
 		}
 		else
 		{
@@ -6206,7 +6206,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 	DBloodActor* actor = InsertSprite(source->sector(), nStat);
 
 	actor->spr.pos = source->spr.pos;
-	actor->__int_vel = source->__int_vel;
+	actor->set_int_bvel(source->int_vel());
 	actor->spr.flags = 0;
 	actor->addX();
 	actor->hit.florhit.setNone();

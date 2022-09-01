@@ -1054,13 +1054,13 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (maxZfound && actor->int_pos().Z <= maxZ)
 		{
 			zdiff = actor->int_pos().Z - maxZ;
-			if (actor->__int_vel.Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
+			if (actor->int_vel().Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
 			continue;
 
 		}
 
 		val = -MulScale(factor * 64, 0x10000, 16);
-		if (actor->__int_vel.Z >= 0) actor->add_int_bvel_z(val);
+		if (actor->int_vel().Z >= 0) actor->add_int_bvel_z(val);
 		else actor->set_int_bvel_z(val);
 
 		actor->add_int_z(actor->int_vel().Z >> 12);
@@ -1353,7 +1353,7 @@ void nnExtProcessSuperSprites()
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
-				if (debrisactor->__int_vel.Z > 0x100) debrisBubble(debrisactor);
+				if (debrisactor->int_vel().Z > 0x100) debrisBubble(debrisactor);
 				if (ang == debrisactor->xspr.goalAng)
 				{
 					debrisactor->xspr.goalAng = (debrisactor->int_ang() + Random3(kAng60)) & 2047;
@@ -1831,7 +1831,7 @@ void debrisMove(int listIndex)
 	{
 		actor->hit.ceilhit = moveHit = ceilColl;
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
-		if (actor->__int_vel.Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
+		if (actor->int_vel().Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
 			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x2000, 16));
 
 	}
@@ -1848,7 +1848,7 @@ void debrisMove(int listIndex)
 		trTriggerSprite(actor, kCmdToggle, actor);
 	}
 
-	if (!actor->__int_vel.X && !actor->int_vel().Y) return;
+	if (actor->int_vel().X == 0 && actor->int_vel().Y == 0) return;
 	else if (floorColl.type == kHitSprite)
 	{
 
@@ -2782,7 +2782,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
 						// set random goal ang for swimming so they start turning
-						if ((flags & kPhysDebrisSwim) && !targetactor->__int_vel.X && !targetactor->__int_vel.Y && !targetactor->int_vel().Z)
+						if ((flags & kPhysDebrisSwim) && targetactor->int_vel().X ==0 && targetactor->int_vel().Y == 0 && targetactor->int_vel().Z == 0)
 							targetactor->xspr.goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)

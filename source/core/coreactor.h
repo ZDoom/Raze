@@ -261,6 +261,13 @@ public:
 		__int_vel .X = __int_vel .Y = 0;
 	}
 
+	void ZeroVelocity()
+	{
+		__int_vel = { 0,0,0 };
+	}
+
+
+
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)
