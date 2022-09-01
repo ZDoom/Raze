@@ -469,61 +469,34 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 				if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 				if ((act->spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 
-				k = act->int_ang();
-				cosang = bcos(k);
-				sinang = bsin(k);
+				an = -cang;
+
+				auto acos = act->spr.angle.Cos();
+				auto asin = act->spr.angle.Sin();
+
 				xspan = tileWidth(tilenum);
-				xrepeat = act->spr.xrepeat;
+				auto xrep = act->spr.xrepeat * (1. / 64.);
 				yspan = tileHeight(tilenum);
-				yrepeat = act->spr.yrepeat;
+				auto yrep = act->spr.yrepeat * (1. / 64.);
 
-				dax = ((xspan >> 1) + xoff) * xrepeat;
-				day = ((yspan >> 1) + yoff) * yrepeat;
-				x1 = sprx + DMulScale(sinang, dax, cosang, day, 16);
-				y1 = spry + DMulScale(sinang, day, -cosang, dax, 16);
-				l = xspan * xrepeat;
-				x2 = x1 - MulScale(sinang, l, 16);
-				y2 = y1 + MulScale(cosang, l, 16);
-				l = yspan * yrepeat;
-				k = -MulScale(cosang, l, 16);
-				x3 = x2 + k;
-				x4 = x1 + k;
-				k = -MulScale(sinang, l, 16);
-				y3 = y2 + k;
-				y4 = y1 + k;
+				auto xscale = DVector2(-asin * xspan * xrep, +acos * xspan * xrep);
+				auto yscale = DVector2(-acos * yspan * yrep, -asin * yspan * yrep);
 
-				ox = x1 - cposx;
-				oy = y1 - cposy;
-				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y1 = DMulScale(oy, xvect, ox, yvect, 16);
+				auto b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
+				b1 = sp + (b0 * asin) + (b0.Rotated90CW() * acos);
+				b2 = b1 + xscale;
+				b3 = b2 + yscale;
+				b4 = b1 + yscale;
 
-				ox = x2 - cposx;
-				oy = y2 - cposy;
-				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y2 = DMulScale(oy, xvect, ox, yvect, 16);
+				v1 = OutAutomapVector(-(b1 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+				v2 = OutAutomapVector(-(b2 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+				v3 = OutAutomapVector(-(b3 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+				v4 = OutAutomapVector(-(b4 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
 
-				ox = x3 - cposx;
-				oy = y3 - cposy;
-				x3 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y3 = DMulScale(oy, xvect, ox, yvect, 16);
-
-				ox = x4 - cposx;
-				oy = y4 - cposy;
-				x4 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y4 = DMulScale(oy, xvect, ox, yvect, 16);
-
-				drawlinergb(x1 + xdim, y1 + ydim,
-					x2 + xdim, y2 + ydim, col);
-
-				drawlinergb(x2 + xdim, y2 + ydim,
-					x3 + xdim, y3 + ydim, col);
-
-				drawlinergb(x3 + xdim, y3 + ydim,
-					x4 + xdim, y4 + ydim, col);
-
-				drawlinergb(x4 + xdim, y4 + ydim,
-					x1 + xdim, y1 + ydim, col);
-
+				drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
+				drawlinergb(v2.X, v2.Y, v3.X, v3.Y, col);
+				drawlinergb(v3.X, v3.Y, v4.X, v4.Y, col);
+				drawlinergb(v4.X, v4.Y, v1.X, v1.Y, col);
 				break;
 			}
 		}
