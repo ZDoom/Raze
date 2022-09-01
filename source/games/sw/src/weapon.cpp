@@ -2848,8 +2848,6 @@ int DoLavaErupt(DSWActor* actor)
 
 int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFO* breakinfo)
 {
-    short i;
-
     /////////////////////////////////////////
     //
     // BREAK shrap types
@@ -3162,25 +3160,22 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     };
 #endif
 
-    int hz[3];
-    short dang = 0;
+    double hZ[3];
+    DAngle dangl = nullAngle;
 
     SHRAP* p = SmallGore;
     short shrap_shade = -15;
     short shrap_xsize = 48, shrap_ysize = 48;
     short retval = true;
     short shrap_pal = PALETTE_DEFAULT;
-    int shrap_floor_dist = Z(2);
-    int shrap_ceiling_dist = Z(2);
-    int nx,ny;
     short jump_grav = ACTOR_GRAVITY;
-    short start_ang = 0;
+    DAngle start_angl = nullAngle;
     DSWActor* ShrapOwner = nullptr;
     int shrap_bounce = false;
     short WaitTics = 64; // for FastShrap
     short shrap_type;
     int shrap_rand_zamt = 0;
-    short shrap_ang = parentActor->int_ang();
+    DAngle shrap_angl = parentActor->spr.angle;
     short shrap_delta_size = 0;
     short shrap_amt = 0;
 
@@ -3665,35 +3660,37 @@ AutoShrap:
             }
     }
 
-    hz[Z_TOP] = int_ActorZOfTop(parentActor);        // top
-    hz[Z_BOT] = int_ActorZOfBottom(parentActor);        // bottom
-    hz[Z_MID] = (hz[0] + hz[2]) >> 1;        // mid
+    hZ[Z_TOP] = ActorZOfTop(parentActor);        // top
+    hZ[Z_BOT] = ActorZOfBottom(parentActor);        // bottom
+    hZ[Z_MID] = (hZ[0] + hZ[2]) * 0.5;        // mid
 
     for (; p->id; p++)
     {
+        auto ang_range = DAngle::fromBuild(p->ang_range);
         if (!p->random_disperse)
         {
             //dang = (2048 / p->num);
-            start_ang = NORM_ANGLE(shrap_ang - (p->ang_range >> 1));
-            dang = (p->ang_range / p->num);
+            start_angl = shrap_angl - (ang_range * 0.5);
+            dangl = (ang_range / p->num);
         }
 
-        for (i = 0; i < p->num; i++)
+        for (int i = 0; i < p->num; i++)
         {
             auto actor = SpawnActor(STAT_SKIP4, p->id, p->state, parentActor->sector(),
-                                    parentActor->int_pos().X, parentActor->int_pos().Y, hz[p->zlevel], shrap_ang, 512);
+                                    DVector3(parentActor->spr.pos.XY(), hZ[p->zlevel]), shrap_angl, 512);
 
             if (p->random_disperse)
             {
-                actor->set_int_ang(NORM_ANGLE(shrap_ang + (RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1)));
+                actor->spr.angle = shrap_angl + DAngle::fromBuild(RANDOM_P2(p->ang_range << 5) >> 5) - (ang_range * 0.5);
             }
             else
             {
-                actor->set_int_ang(NORM_ANGLE(start_ang + (i * dang)));
+                actor->spr.angle = start_angl + (dangl * i);
             }
 
             // for FastShrap
-            actor->user.set_int_change_z(abs(actor->user.jump_speed*4) - RandomRange(labs(actor->user.jump_speed)*8)*2);
+            int vz = abs(actor->user.jump_speed * 4) - RandomRange(abs(actor->user.jump_speed) * 8) * 2;
+            actor->user.change.Z = vz * zmaptoworld;
             actor->user.WaitTics = WaitTics + RandomRange(WaitTics/2);
 
             switch (actor->user.ID)
@@ -3771,8 +3768,8 @@ AutoShrap:
             actor->spr.xvel = p->min_vel*2;
             actor->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
-            actor->user.floor_dist = shrap_floor_dist * zinttoworld;
-            actor->user.ceiling_dist = shrap_ceiling_dist * zinttoworld;
+            actor->user.floor_dist = 2;
+            actor->user.ceiling_dist = 2;
             actor->user.jump_speed = p->min_jspeed;
             actor->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actor->user.jump_speed = -actor->user.jump_speed;
