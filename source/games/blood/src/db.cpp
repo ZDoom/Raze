@@ -477,8 +477,8 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 		pSprite->statnum = LittleShort(load.statnum);
 		pSprite->angle = DAngle::fromBuild(LittleShort(load.ang));
 		pSprite->intowner = LittleShort(load.owner);
-		pSprite->xvel = LittleShort(load.index);
-		pSprite->yvel = LittleShort(load.yvel);
+		pSprite->xint = LittleShort(load.index);
+		pSprite->yint = LittleShort(load.yvel);
 		pSprite->inittype = LittleShort(load.inittype);
 		pSprite->type = LittleShort(load.type);
 		pSprite->flags = LittleShort(load.hitag);

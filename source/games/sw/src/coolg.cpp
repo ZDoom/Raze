@@ -680,9 +680,9 @@ int InitCoolgCircle(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
-    actor->spr.xvel = 400;
+    actor->set_int_zvel(400);
     // angle adjuster
-    actor->user.Counter2 = actor->spr.xvel/3;
+    actor->user.Counter2 = actor->int_xvel() / 3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         actor->user.Counter2 = -actor->user.Counter2;
@@ -761,7 +761,7 @@ int DoCoolgDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-	auto vec = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
+	auto vec = actor->spr.angle.ToVector() * actor->float_xvel();
 
     actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);

@@ -8,9 +8,9 @@ class CoreActor native
 	native readonly Vector3 pos;
 	native readonly int16 statnum;
 	//native int16 ang;
-	native int16 xvel;
-	native int16 yvel;
-	native int16 zvel, inittype; // inittype, type and flags are for Blood.
+	native int16 xint;
+	native int16 yint;
+	native int16 inittype; // inittype, type and flags are for Blood.
 	native int16 lotag, type;
 	native int16 hitag, flags;
 	native int16 extra;

@@ -357,18 +357,18 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 
     ang = NORM_ANGLE(tsp->int_ang() + 1024);
 
-    if (!ownerActor->hasU() || tsp->xvel == 0)
+    if (!ownerActor->hasU() || ownerActor->int_xvel() == 0)
     {
         return;
     }
 
     if ((tsp->extra & SPRX_PLAYER_OR_ENEMY))
     {
-        z_amt_per_pixel = IntToFixed((int)-ownerActor->user.jump_speed * ACTORMOVETICS)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-ownerActor->user.jump_speed * ACTORMOVETICS)/tsp->ownerActor->int_xvel();
     }
     else
     {
-        z_amt_per_pixel = IntToFixed((int)-ownerActor->int_zvel())/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-ownerActor->int_zvel())/tsp->ownerActor->int_xvel();
     }
 
     switch (ownerActor->user.motion_blur_dist)
