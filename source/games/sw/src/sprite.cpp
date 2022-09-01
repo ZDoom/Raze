@@ -4982,7 +4982,7 @@ int DoGet(DSWActor* actor)
         return 0;
     }
 
-    if (actor->spr.xvel)
+    if(actor->float_xvel() != 0)
     {
         if (!DoItemFly(actor))
         {

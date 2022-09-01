@@ -330,7 +330,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						(pic != HULK && pic != MAMA && pic != BILLYPLAY && pic != COOTPLAY && pic != MAMACLOUD) :
 						(pic != HULK && pic != SBMOVE))
 					{
-						if (act2->spr.xvel < 0) act2->clear_xvel();
+						if (act2->int_xvel() < 0) act2->clear_xvel();
 						act2->spr.xvel += (act2->spr.extra << 2);
 					}
 
@@ -672,7 +672,7 @@ void movefallers_r(void)
 			}
 			else
 			{
-				if (act->spr.xvel > 0)
+				if (act->int_xvel() > 0)
 				{
 					act->spr.xvel -= 2;
 					ssp(act, CLIPMASK0);
@@ -2414,13 +2414,13 @@ static void heavyhbomb(DDukeActor *actor)
 		l = Owner->PlayerIndex();
 	else l = -1;
 
-	if (actor->spr.xvel > 0)
+	if(actor->float_xvel() > 0)
 	{
 		actor->spr.xvel -= 5;
 		if (sectp->lotag == 2)
 			actor->spr.xvel -= 10;
 
-		if (actor->spr.xvel < 0)
+		if(actor->float_xvel() < 0)
 			actor->clear_xvel();
 		if (actor->spr.xvel & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
@@ -2558,7 +2558,7 @@ static int henstand(DDukeActor *actor)
 	}
 	if (actor->sector()->lotag == 900)
 		actor->clear_xvel();
-	if (actor->spr.xvel)
+	if(actor->float_xvel() != 0)
 	{
 		makeitfall(actor);
 		Collision coll;
@@ -2591,7 +2591,7 @@ static int henstand(DDukeActor *actor)
 			}
 		}
 		actor->spr.xvel--;
-		if (actor->spr.xvel < 0) actor->clear_xvel();
+		if(actor->float_xvel() < 0) actor->clear_xvel();
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
 		{
@@ -3629,7 +3629,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (actor->spr.picnum != APLAYER)
 		alterang(a, actor, pnum);
 
-	if (actor->spr.xvel > -6 && actor->spr.xvel < 6) actor->clear_xvel();
+	if (actor->int_xvel() > -6 && actor->int_xvel() < 6) actor->clear_xvel();
 
 	a = badguy(actor);
 

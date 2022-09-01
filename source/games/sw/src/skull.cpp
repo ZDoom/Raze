@@ -341,7 +341,7 @@ int DoSkullBeginDeath(DSWActor* actor)
 
 int DoSkullJump(DSWActor* actor)
 {
-    if (actor->spr.xvel)
+    if(actor->float_xvel() != 0)
         DoSkullMove(actor);
     else
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
@@ -355,7 +355,7 @@ int DoSkullJump(DSWActor* actor)
         DoFall(actor);
 
         // jump/fall type
-        if (actor->spr.xvel)
+        if(actor->float_xvel() != 0)
         {
 
             int dist,a,b,c;
@@ -710,7 +710,7 @@ int DoBettyBeginDeath(DSWActor* actor)
 
 int DoBettyJump(DSWActor* actor)
 {
-    if (actor->spr.xvel)
+    if(actor->float_xvel() != 0)
         DoBettyMove(actor);
     else
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
@@ -724,7 +724,7 @@ int DoBettyJump(DSWActor* actor)
         DoFall(actor);
 
         // jump/fall type
-        if (actor->spr.xvel)
+        if(actor->float_xvel() != 0)
         {
             int dist,a,b,c;
 

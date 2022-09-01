@@ -349,7 +349,7 @@ int DoBloodSpray(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    if (actor->spr.xvel <= 2)
+    if (actor->int_xvel() <= 2)
     {
         // special stuff for blood worm
         actor->spr.pos.Z += actor->user.change.Z * 0.5;

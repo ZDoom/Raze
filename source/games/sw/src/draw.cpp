@@ -1592,7 +1592,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
             {
                 if (Player[p].actor == actor)
                 {
-                    if (actor->spr.xvel > 16)
+                    if (actor->int_xvel() > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
                     sprisplayer = true;
 

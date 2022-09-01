@@ -628,7 +628,7 @@ void movecrane(DDukeActor *actor, int crane)
 	//actor->temp_data[0] = state
 	//actor->temp_data[1] = checking sector number
 
-	if (actor->spr.xvel) getglobalz(actor);
+	if(actor->float_xvel() != 0) getglobalz(actor);
 
 	if (actor->temp_data[0] == 0) //Waiting to check the sector
 	{
@@ -651,7 +651,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 	else if (actor->temp_data[0] == 1)
 	{
-		if (actor->spr.xvel < 184)
+		if (actor->int_xvel() < 184)
 		{
 			actor->spr.picnum = crane + 1;
 			actor->spr.xvel += 8;
@@ -748,7 +748,7 @@ void movecrane(DDukeActor *actor, int crane)
 	}
 	else if (actor->temp_data[0] == 6)
 	{
-		if (actor->spr.xvel < 192)
+		if (actor->int_xvel() < 192)
 			actor->spr.xvel += 8;
 		actor->spr.angle = VecToAngle(cpt.pos.XY() - actor->spr.pos.XY());
 		ssp(actor, CLIPMASK0);
@@ -1029,7 +1029,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 	{
 		makeitfall(actor);
 		ssp(actor, CLIPMASK0);
-		if (actor->spr.xvel > 0) actor->spr.xvel -= 2;
+		if(actor->float_xvel() > 0) actor->spr.xvel -= 2;
 
 		if (actor->float_zvel() == 0)
 		{
@@ -1434,7 +1434,7 @@ bool rat(DDukeActor* actor, bool makesound)
 		}
 		else actor->set_int_ang((krand() & 2047));
 	}
-	if (actor->spr.xvel < 128)
+	if (actor->int_xvel() < 128)
 		actor->spr.xvel += 2;
 	actor->add_int_ang((krand() & 3) - 6);
 	return true;
@@ -1448,7 +1448,7 @@ bool rat(DDukeActor* actor, bool makesound)
 
 bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 {
-	if (actor->spr.xvel)
+	if(actor->float_xvel() != 0)
 	{
 		DukeStatIterator it(STAT_DEFAULT);
 		while (auto aa = it.Next())
@@ -1481,7 +1481,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 
 		actor->spr.xvel--;
-		if (actor->spr.xvel < 0) actor->clear_xvel();
+		if(actor->float_xvel() < 0) actor->clear_xvel();
 		if (actor->spr.picnum == stripeball)
 		{
 			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1686,7 +1686,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
 		actor->temp_data[3] = 0;
-		if (actor->spr.xvel > 0) actor->spr.xvel -= 16;
+		if(actor->float_xvel() > 0) actor->spr.xvel -= 16;
 		else actor->clear_xvel();
 
 		if (actor->temp_data[0] == 2)
@@ -1730,10 +1730,10 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			else
 			{
 				// Control speed here
-				if (l > 1524) { if (actor->spr.xvel < 256) actor->spr.xvel += 32; }
+				if (l > 1524) { if (actor->int_xvel() < 256) actor->spr.xvel += 32; }
 				else
 				{
-					if (actor->spr.xvel > 0) actor->spr.xvel -= 16;
+					if(actor->float_xvel() > 0) actor->spr.xvel -= 16;
 					else actor->clear_xvel();
 				}
 			}
@@ -2152,7 +2152,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 {
 	auto sectp = actor->sector();
 
-	if (actor->spr.xvel > 0) actor->spr.xvel--;
+	if(actor->float_xvel() > 0) actor->spr.xvel--;
 	else actor->clear_xvel();
 
 	if (timeout)
@@ -2383,7 +2383,7 @@ void shell(DDukeActor* actor, bool morecheck)
 		}
 		if (actor->float_zvel() < 0.5) actor->add_int_zvel( (gs.gravity / 13)); // 8
 		else actor->add_int_zvel(- 64);
-		if (actor->spr.xvel > 0)
+		if(actor->float_xvel() > 0)
 			actor->spr.xvel -= 4;
 		else actor->clear_xvel();
 	}
@@ -2397,7 +2397,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0] &= 3;
 		}
 		if (actor->float_zvel() < 2) actor->add_int_zvel( (gs.gravity / 3)); // 52;
-		if (actor->spr.xvel > 0)
+		if(actor->float_xvel() > 0)
 			actor->spr.xvel--;
 		else
 		{
@@ -2442,7 +2442,7 @@ void glasspieces(DDukeActor* actor)
 		return;
 	}
 
-	if (actor->spr.xvel > 0)
+	if(actor->float_xvel() > 0)
 	{
 		actor->spr.xvel -= 2;
 		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
@@ -2463,7 +2463,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 {
 	auto sectp = actor->sector();
 
-	if (actor->spr.xvel > 0)
+	if(actor->float_xvel() > 0)
 		actor->spr.xvel--;
 	else actor->clear_xvel();
 
@@ -2769,7 +2769,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	}
 
 	Owner = actor->GetOwner();
-	if (actor->spr.xvel)
+	if(actor->float_xvel() != 0)
 	{
 		int x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 		int q = getincangle(actor->int_ang(), x) >> 3;
@@ -2799,12 +2799,12 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 		}
 
-		if (actor->spr.xvel <= 64 && statstate)
+		if (actor->int_xvel() <= 64 && statstate)
 			S_StopSound(actor->tempsound, actor);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
-			if (ud.clipping == 0 && actor->spr.xvel >= 192)
+			if (ud.clipping == 0 && actor->int_xvel() >=  192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				{
 					auto psp = ps[p].GetActor();
@@ -2887,7 +2887,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
-			if (ud.clipping == 0 && actor->spr.xvel >= 192)
+			if (ud.clipping == 0 && actor->int_xvel() >=  192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				{
 					if (ps[p].GetActor()->spr.extra > 0)
@@ -2956,7 +2956,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			{
 				if (actor->spr.xvel == 0)
 					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), -1);
-				if (actor->spr.xvel < 256)
+				if (actor->int_xvel() < 256)
 					actor->spr.xvel += 16;
 			}
 		}
@@ -2967,7 +2967,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			if (l <= 128)
 				actor->clear_xvel();
 
-			if (actor->spr.xvel > 0)
+			if(actor->float_xvel() > 0)
 				actor->spr.xvel -= 16;
 			else
 			{
@@ -2981,7 +2981,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		}
 	}
 
-	if (actor->spr.xvel)
+	if(actor->float_xvel() != 0)
 	{
 		int l = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
 		int x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
@@ -4116,7 +4116,7 @@ void handle_se20(DDukeActor* actor)
 	if (actor->temp_data[0] == 1) actor->spr.xvel = 8;
 	else actor->spr.xvel = -8;
 
-	if (actor->spr.xvel) //Moving
+	if(actor->float_xvel() != 0) //Moving
 	{
 		int x = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
 		int l = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);

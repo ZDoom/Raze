@@ -3048,7 +3048,7 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (pact->spr.xvel > 16)
+		if (pact->int_xvel() > 16)
 		{
 			if (psectlotag != 1 && psectlotag != 2 && p->on_ground)
 			{

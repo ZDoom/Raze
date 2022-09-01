@@ -3883,7 +3883,7 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (pact->spr.xvel > 16)
+		if (pact->int_xvel() > 16)
 		{
 			if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground && (!isRRRA() || !p->sea_sick_stat))
 			{

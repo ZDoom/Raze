@@ -394,7 +394,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
-							if (act2->spr.xvel < 0) act2->clear_xvel();
+							if (act2->int_xvel() < 0) act2->clear_xvel();
 							act2->spr.xvel += (actor->spr.extra << 2);
 						}
 
@@ -755,7 +755,7 @@ void movefallers_d(void)
 			}
 			else
 			{
-				if (act->spr.xvel > 0)
+				if (act->int_xvel() > 0)
 				{
 					act->spr.xvel -= 8;
 					ssp(act, CLIPMASK0);
@@ -2226,7 +2226,7 @@ static void greenslime(DDukeActor *actor)
 		return;
 	}
 
-	else if (actor->spr.xvel < 64 && x < 768)
+	else if (actor->int_xvel() < 64 && x < 768)
 	{
 		if (ps[p].somethingonplayer == nullptr)
 		{
@@ -2367,14 +2367,14 @@ static void greenslime(DDukeActor *actor)
 
 		if (everyothertime & 1) ssp(actor, CLIPMASK0);
 
-		if (actor->spr.xvel > 96)
+		if (actor->int_xvel() > 96)
 		{
 			actor->spr.xvel -= 2;
 			return;
 		}
 		else
 		{
-			if (actor->spr.xvel < 32) actor->spr.xvel += 4;
+			if (actor->int_xvel() < 32) actor->spr.xvel += 4;
 			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
 
 			actor->add_int_ang(getincangle(actor->int_ang(),
@@ -2626,13 +2626,13 @@ static void heavyhbomb(DDukeActor *actor)
 		l = Owner->PlayerIndex();
 	else l = -1;
 
-	if (actor->spr.xvel > 0)
+	if(actor->float_xvel() > 0)
 	{
 		actor->spr.xvel -= 5;
 		if (sectp->lotag == 2)
 			actor->spr.xvel -= 10;
 
-		if (actor->spr.xvel < 0)
+		if(actor->float_xvel() < 0)
 			actor->clear_xvel();
 		if (actor->spr.xvel & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
@@ -3560,7 +3560,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (actor->spr.picnum != APLAYER)
 		alterang(a, actor, playernum);
 
-	if (actor->spr.xvel > -6 && actor->spr.xvel < 6) actor->clear_xvel();
+	if (actor->int_xvel() > -6 && actor->int_xvel() < 6) actor->clear_xvel();
 
 	a = badguy(actor);
 
