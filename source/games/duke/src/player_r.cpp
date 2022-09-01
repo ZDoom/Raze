@@ -4106,8 +4106,6 @@ void OffMotorcycle(player_struct *p)
 		if (spawned)
 		{
 			spawned->spr.angle = p->angle.ang;
-			spawned->add_int_xvel( p->angle.ang.Cos() * (1 << 7));
-			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4171,8 +4169,6 @@ void OffBoat(player_struct *p)
 		if (spawned)
 		{
 			spawned->spr.angle = p->angle.ang;
-			spawned->add_int_xvel( p->angle.ang.Cos() * (1 << 7));
-			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}
