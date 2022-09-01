@@ -457,9 +457,9 @@ void UpdateAimVector(PLAYER* pPlayer)
 			if (pWeaponTrack->seeker)
 			{
 				int t = DivScale(nDist, pWeaponTrack->seeker, 12);
-				x2 += (actor->__int_vel.X * t) >> 12;
-				y2 += (actor->__int_vel.Y * t) >> 12;
-				z2 += (actor->__int_vel.Z * t) >> 8;
+				x2 += (actor->int_vel().X * t) >> 12;
+				y2 += (actor->int_vel().Y * t) >> 12;
+				z2 += (actor->int_vel().Z * t) >> 8;
 			}
 			int lx = x + MulScale(Cos(plActor->int_ang()), nDist, 30);
 			int ly = y + MulScale(Sin(plActor->int_ang()), nDist, 30);

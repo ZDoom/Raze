@@ -84,9 +84,9 @@ void sub_71BD4(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->__int_vel.X * t) >> 12;
-			y2 += (actor->__int_vel.Y * t) >> 12;
-			z2 += (actor->__int_vel.Z * t) >> 8;
+			x2 += (actor->int_vel().X * t) >> 12;
+			y2 += (actor->int_vel().Y * t) >> 12;
+			z2 += (actor->int_vel().Z * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
 		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
@@ -156,9 +156,9 @@ void sub_720AC(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->__int_vel.X * t) >> 12;
-			y2 += (actor->__int_vel.Y * t) >> 12;
-			z2 += (actor->__int_vel.Z * t) >> 8;
+			x2 += (actor->int_vel().X * t) >> 12;
+			y2 += (actor->int_vel().Y * t) >> 12;
+			z2 += (actor->int_vel().Z * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
 		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);

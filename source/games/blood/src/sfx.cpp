@@ -92,7 +92,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 			auto actor = (DBloodActor*)source;
 
 			// Engine expects velocity in units per second, not units per tic.
-			if (vel) *vel = { actor->__int_vel.X * (30 / 65536.f), actor->__int_vel.Z * (-30 / 65536.f), actor->__int_vel.Y * (-30 / 65536.f) };
+			if (vel) *vel = { actor->int_vel().X * (30 / 65536.f), actor->int_vel().Z * (-30 / 65536.f), actor->int_vel().Y * (-30 / 65536.f) };
 			*pos = GetSoundPos(actor->int_pos());
 		}
 		else if (type == SOURCE_Ambient)

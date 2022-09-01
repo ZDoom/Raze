@@ -246,6 +246,11 @@ public:
 		__int_vel.Y += x;
 	}
 
+	void clear_vel_xy()
+	{
+		__int_vel.X = __int_vel.Y = 0;
+	}
+
 	void add_int_bvel_z(int x)
 	{
 		__int_vel.Z += x;

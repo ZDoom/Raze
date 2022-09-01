@@ -253,8 +253,8 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	int vc = getincangle(actor->int_ang(), a3);
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int dx = actor->__int_vel.X;
-	int dy = actor->__int_vel.Y;
+	int dx = actor->int_vel().X;
+	int dy = actor->int_vel().Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int vsi = ((t1 * 15) >> 12) / 2;
 	int v8 = 341;
@@ -339,8 +339,8 @@ void aiMoveDodge(DBloodActor* actor)
 	{
 		int nCos = Cos(actor->int_ang());
 		int nSin = Sin(actor->int_ang());
-		int dx = actor->__int_vel.X;
-		int dy = actor->__int_vel.Y;
+		int dx = actor->int_vel().X;
+		int dy = actor->int_vel().Y;
 		int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 		int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 		if (actor->xspr.dodgeDir > 0)

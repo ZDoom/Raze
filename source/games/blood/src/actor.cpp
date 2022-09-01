@@ -6403,9 +6403,9 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	fired->__int_vel.X = MulScale(a6, Cos(fired->int_ang()), 30);
 	fired->__int_vel.Y = MulScale(a6, Sin(fired->int_ang()), 30);
 	fired->__int_vel.Z = MulScale(a6, a4, 14);
-	fired->__int_vel.X += actor->__int_vel.X / 2;
-	fired->__int_vel.Y += actor->__int_vel.Y / 2;
-	fired->__int_vel.Z += actor->__int_vel.Z / 2;
+	fired->__int_vel.X += actor->int_vel().X / 2;
+	fired->__int_vel.Y += actor->int_vel().Y / 2;
+	fired->__int_vel.Z += actor->int_vel().Z / 2;
 	return fired;
 }
 
@@ -6448,9 +6448,9 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFlameHound:
 		seqSpawn(27, spawned, -1);
-		spawned->__int_vel.X += actor->__int_vel.X / 2 + Random2(0x11111);
-		spawned->__int_vel.Y += actor->__int_vel.Y / 2 + Random2(0x11111);
-		spawned->__int_vel.Z += actor->__int_vel.Z / 2 + Random2(0x11111);
+		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFireballCerberus:
 		seqSpawn(61, spawned, dword_2192E0);
@@ -6458,16 +6458,16 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFireballTchernobog:
 		seqSpawn(23, spawned, dword_2192D8);
-		spawned->__int_vel.X += actor->__int_vel.X / 2 + Random2(0x11111);
-		spawned->__int_vel.Y += actor->__int_vel.Y / 2 + Random2(0x11111);
-		spawned->__int_vel.Z += actor->__int_vel.Z / 2 + Random2(0x11111);
+		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFlameSpray:
 		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
 		else seqSpawn(1, spawned, -1);
-		spawned->__int_vel.X += actor->__int_vel.X / 2 + Random2(0x11111);
-		spawned->__int_vel.Y += actor->__int_vel.Y / 2 + Random2(0x11111);
-		spawned->__int_vel.Z += actor->__int_vel.Z / 2 + Random2(0x11111);
+		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFlareAlt:
 		evPostActor(spawned, 30, kCallbackFXFlareBurst);
@@ -6926,7 +6926,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_11, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->__int_vel;
+		pFX->__int_vel = actor->int_vel();
 	}
 }
 
@@ -6935,7 +6935,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_12, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->__int_vel;
+		pFX->__int_vel = actor->int_vel();
 	}
 }
 
@@ -6944,7 +6944,7 @@ void Fx32Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->__int_vel;
+		pFX->__int_vel = actor->int_vel();
 	}
 }
 
@@ -6953,7 +6953,7 @@ void Fx33Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_33, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->__int_vel;
+		pFX->__int_vel = actor->int_vel();
 	}
 }
 
