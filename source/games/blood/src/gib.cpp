@@ -302,7 +302,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 			{
 				pFX->set_int_bvel_x(pVel->vx + Random2(pGFX->atd));
 				pFX->set_int_bvel_y(pVel->vy + Random2(pGFX->atd));
-				pFX->__int_vel.Z = pVel->vz - Random(pGFX->at11);
+				pFX->set_int_bvel_z(pVel->vz - Random(pGFX->at11));
 			}
 			else
 			{
@@ -311,23 +311,23 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
 				case 16:
-					pFX->__int_vel.Z = Random2((pGFX->at11 << 18) / 120);
+					pFX->set_int_bvel_z(Random2((pGFX->at11 << 18) / 120));
 					break;
 				default:
 					if (dz2 < dz1 && dz2 < 0x4000)
 					{
-						pFX->__int_vel.Z = 0;
+						pFX->set_int_bvel_z(0);
 					}
 					else if (dz2 > dz1 && dz1 < 0x4000)
 					{
-						pFX->__int_vel.Z = -(int)Random((abs(pGFX->at11) << 18) / 120);
+						pFX->set_int_bvel_z(-(int)Random((abs(pGFX->at11) << 18) / 120));
 					}
 					else
 					{
 						if ((pGFX->at11 << 18) / 120 < 0)
-							pFX->__int_vel.Z = -(int)Random((abs(pGFX->at11) << 18) / 120);
+							pFX->set_int_bvel_z(-(int)Random((abs(pGFX->at11) << 18) / 120));
 						else
-							pFX->__int_vel.Z = Random2((pGFX->at11 << 18) / 120);
+							pFX->set_int_bvel_z(Random2((pGFX->at11 << 18) / 120));
 					}
 					break;
 				}
@@ -383,7 +383,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 		{
 			gibactor->set_int_bvel_x(pVel->vx + Random2(pGThing->atc));
 			gibactor->set_int_bvel_y(pVel->vy + Random2(pGThing->atc));
-			gibactor->__int_vel.Z = pVel->vz - Random(pGThing->at10);
+			gibactor->set_int_bvel_z(pVel->vz - Random(pGThing->at10));
 		}
 		else
 		{
@@ -392,20 +392,20 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case 16:
-				gibactor->__int_vel.Z = Random2((pGThing->at10 << 18) / 120);
+				gibactor->set_int_bvel_z(Random2((pGThing->at10 << 18) / 120));
 				break;
 			default:
 				if (dz2 < dz1 && dz2 < 0x4000)
 				{
-					gibactor->__int_vel.Z = 0;
+					gibactor->set_int_bvel_z(0);
 				}
 				else if (dz2 > dz1 && dz1 < 0x4000)
 				{
-					gibactor->__int_vel.Z = -(int)Random((pGThing->at10 << 18) / 120);
+					gibactor->set_int_bvel_z(-(int)Random((pGThing->at10 << 18) / 120));
 				}
 				else
 				{
-					gibactor->__int_vel.Z = Random2((pGThing->at10 << 18) / 120);
+					gibactor->set_int_bvel_z(Random2((pGThing->at10 << 18) / 120));
 				}
 				break;
 			}
@@ -466,13 +466,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVel
 			{
 				pGib->set_int_bvel_x(Random2((pGFX->atd << 18) / 120));
 				pGib->set_int_bvel_y(Random2((pGFX->atd << 18) / 120));
-				pGib->__int_vel.Z = -(int)Random((pGFX->at11 << 18) / 120);
+				pGib->set_int_bvel_z(-(int)Random((pGFX->at11 << 18) / 120));
 			}
 			else
 			{
 				pGib->set_int_bvel_x(Random2((pVel->vx << 18) / 120));
 				pGib->set_int_bvel_y(Random2((pVel->vy << 18) / 120));
-				pGib->__int_vel.Z = -(int)Random((pVel->vz << 18) / 120);
+				pGib->set_int_bvel_z(-(int)Random((pVel->vz << 18) / 120));
 			}
 		}
 	}

@@ -1061,7 +1061,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 
 		val = -MulScale(factor * 64, 0x10000, 16);
 		if (actor->__int_vel.Z >= 0) actor->add_int_bvel_z(val);
-		else actor->__int_vel.Z = val;
+		else actor->set_int_bvel_z(val);
 
 		actor->add_int_z(actor->int_vel().Z >> 12);
 
@@ -1618,7 +1618,7 @@ void debrisBubble(DBloodActor* actor)
 		if (pFX) {
 			pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 			pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
-			pFX->__int_vel.Z = actor->int_vel().Z + Random2(0x1aaaa);
+			pFX->set_int_bvel_z(actor->int_vel().Z + Random2(0x1aaaa));
 		}
 
 	}
@@ -1786,11 +1786,11 @@ void debrisMove(int listIndex)
 		{
 			actor->xspr.physAttr |= kPhysFalling;
 			actFloorBounceVector(&actor->__int_vel.X, &actor->__int_vel.Y, &v30, actor->sector(), tmpFraction);
-			actor->__int_vel.Z = v30;
+			actor->set_int_bvel_z(v30);
 
 			if (abs(actor->int_vel().Z) < 0x10000)
 			{
-				actor->__int_vel.Z = actor->sector()->velFloor;
+				actor->set_int_bvel_z(actor->sector()->velFloor);
 				actor->xspr.physAttr &= ~kPhysFalling;
 			}
 
@@ -1806,7 +1806,7 @@ void debrisMove(int listIndex)
 					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
 					pFX2->set_int_bvel_x(Random2(0x6aaaa));
 					pFX2->set_int_bvel_y(Random2(0x6aaaa));
-					pFX2->__int_vel.Z = -(int)Random(0xd5555);
+					pFX2->set_int_bvel_z(-(int)Random(0xd5555));
 				}
 				break;
 			case kSurfWater:
@@ -1832,7 +1832,7 @@ void debrisMove(int listIndex)
 		actor->hit.ceilhit = moveHit = ceilColl;
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
 		if (actor->__int_vel.Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
-			actor->__int_vel.Z = MulScale(-actor->int_vel().Z, 0x2000, 16);
+			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x2000, 16));
 
 	}
 	else
@@ -3126,7 +3126,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		{
 			pSprite->set_int_bvel_x(xv);
 			pSprite->set_int_bvel_y(yv);
-			pSprite->__int_vel.Z = zv;
+			pSprite->set_int_bvel_z(zv);
 		}
 
 		vAng = getVelocityAngle(pSprite);
@@ -3291,7 +3291,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
-			actor->__int_vel.Z = 0;
+			actor->set_int_bvel_z(0);
 	}
 
 	if (sourceactor->xspr.data2 == 1)
@@ -6570,7 +6570,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 			int velocity = sourceactor->xspr.data2 << 12;
 			missileactor->set_int_bvel_x(MulScale(velocity, dx, 14));
 			missileactor->set_int_bvel_y(MulScale(velocity, dy, 14));
-			missileactor->__int_vel.Z = MulScale(velocity, dz, 14);
+			missileactor->set_int_bvel_z(MulScale(velocity, dz, 14));
 		}
 
 		// add bursting for missiles
@@ -8176,7 +8176,7 @@ void aiPatrolMove(DBloodActor* actor)
 	if (pExtra->flying || spriteIsUnderwater(actor))
 	{
 		goalAng >>= 1;
-		actor->__int_vel.Z = dz;
+		actor->set_int_bvel_z(dz);
 		if (actor->spr.flags & kPhysGravity)
 			actor->spr.flags &= ~kPhysGravity;
 	}
@@ -8814,7 +8814,7 @@ void aiPatrolThink(DBloodActor* actor)
 		if (actor->xspr.stateTimer > 0 || markeractor->xspr.data1 == markeractor->xspr.data2)
 		{
 			if (pExtra->flying)
-				actor->__int_vel.Z = Random2(0x8000);
+				actor->set_int_bvel_z(Random2(0x8000));
 
 			// turn while waiting
 			if (markeractor->spr.flags & kModernTypeFlag16)

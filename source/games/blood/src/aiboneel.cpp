@@ -231,7 +231,7 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = -0x8000;
+	actor->set_int_bvel_z(-0x8000);
 }
 
 static void eelMoveDodgeDown(DBloodActor* actor)
@@ -256,7 +256,7 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = 0x44444;
+	actor->set_int_bvel_z(0x44444);
 }
 
 static void eelThinkChase(DBloodActor* actor)
@@ -368,7 +368,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = 0x22222;
+	actor->set_int_bvel_z(0x22222);
 }
 
 static void eelMoveAscend(DBloodActor* actor)
@@ -394,7 +394,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = -0x8000;
+	actor->set_int_bvel_z(-0x8000);
 }
 
 void eelMoveToCeil(DBloodActor* actor)

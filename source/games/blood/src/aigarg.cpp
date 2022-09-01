@@ -292,7 +292,7 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = -0x1d555;
+	actor->set_int_bvel_z(-0x1d555);
 }
 
 static void gargMoveDodgeDown(DBloodActor* actor)
@@ -320,7 +320,7 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = 0x44444;
+	actor->set_int_bvel_z(0x44444);
 }
 
 static void gargThinkChase(DBloodActor* actor)
@@ -578,10 +578,10 @@ static void gargMoveSlow(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-		actor->__int_vel.Z = 0x44444;
+		actor->set_int_bvel_z(0x44444);
 		break;
 	case kDudeGargoyleStone:
-		actor->__int_vel.Z = 0x35555;
+		actor->set_int_bvel_z(0x35555);
 		break;
 	}
 }
@@ -617,10 +617,10 @@ static void gargMoveSwoop(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-		actor->__int_vel.Z = t1;
+		actor->set_int_bvel_z(t1);
 		break;
 	case kDudeGargoyleStone:
-		actor->__int_vel.Z = t1;
+		actor->set_int_bvel_z(t1);
 		break;
 	}
 }
@@ -656,10 +656,10 @@ static void gargMoveFly(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-		actor->__int_vel.Z = -t1;
+		actor->set_int_bvel_z(-t1);
 		break;
 	case kDudeGargoyleStone:
-		actor->__int_vel.Z = -t1;
+		actor->set_int_bvel_z(-t1);
 		break;
 	}
 }

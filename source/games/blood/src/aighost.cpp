@@ -271,7 +271,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = -0x1d555;
+	actor->set_int_bvel_z(-0x1d555);
 }
 
 static void ghostMoveDodgeDown(DBloodActor* actor)
@@ -299,7 +299,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	actor->__int_vel.Z = 0x44444;
+	actor->set_int_bvel_z(0x44444);
 }
 
 static void ghostThinkChase(DBloodActor* actor)
@@ -474,7 +474,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->__int_vel.Z = 0x44444;
+		actor->set_int_bvel_z(0x44444);
 		break;
 	}
 }
@@ -510,7 +510,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->__int_vel.Z = t1;
+		actor->set_int_bvel_z(t1);
 		break;
 	}
 }
@@ -546,7 +546,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->__int_vel.Z = -t1;
+		actor->set_int_bvel_z(-t1);
 		break;
 	}
 }

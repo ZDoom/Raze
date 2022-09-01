@@ -1671,8 +1671,8 @@ void ProcessInput(PLAYER* pPlayer)
 #endif
 				sfxPlay3DSound(actor, 700, 0, 0);
 
-			if (packItemActive(pPlayer, 4)) actor->__int_vel.Z = pPosture->pwupJumpZ; //-0x175555;
-			else actor->__int_vel.Z = pPosture->normalJumpZ; //-0xbaaaa;
+			if (packItemActive(pPlayer, 4)) actor->set_int_bvel_z(pPosture->pwupJumpZ); //-0x175555;
+			else actor->set_int_bvel_z(pPosture->normalJumpZ); //-0xbaaaa;
 			pPlayer->cantJump = 1;
 		}
 
@@ -1766,7 +1766,7 @@ void ProcessInput(PLAYER* pPlayer)
 				int y = bsin(pPlayer->actor->int_ang());
 				spawned->set_int_bvel_x(pPlayer->actor->int_vel().X + MulScale(0x155555, x, 14));
 				spawned->set_int_bvel_y(pPlayer->actor->int_vel().Y + MulScale(0x155555, y, 14));
-				spawned->__int_vel.Z = pPlayer->actor->__int_vel.Z;
+				spawned->set_int_bvel_z(pPlayer->actor->int_vel().Z);
 			}
 			pPlayer->hand = 0;
 		}
