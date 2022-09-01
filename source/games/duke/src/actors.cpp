@@ -1000,7 +1000,7 @@ void movemasterswitch(DDukeActor *actor)
 
 void movetrash(DDukeActor *actor)
 {
-	if (actor->spr.xvel == 0) actor->spr.xvel = 1;
+	if (actor->int_xvel() == 0) actor->spr.xvel = 1;
 	if (ssp(actor, CLIPMASK0))
 	{
 		makeitfall(actor);
@@ -1480,12 +1480,12 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 			fi.checkhitsprite(actor, coll.actor());
 		}
 
-		actor->spr.xvel--;
+		actor->add_int_xvel(-1);
 		if(actor->float_xvel() < 0) actor->clear_xvel();
 		if (actor->spr.picnum == stripeball)
 		{
 			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-			actor->spr.cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & ESpriteFlags::FromInt(actor->spr.xvel);
+			actor->spr.cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & ESpriteFlags::FromInt(int(actor->float_xvel() / 16.)); // special hack edition...
 		}
 	}
 	else
@@ -2152,7 +2152,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 {
 	auto sectp = actor->sector();
 
-	if(actor->float_xvel() > 0) actor->spr.xvel--;
+	if(actor->float_xvel() > 0) actor->add_int_xvel(-1);
 	else actor->clear_xvel();
 
 	if (timeout)
@@ -2398,7 +2398,7 @@ void shell(DDukeActor* actor, bool morecheck)
 		}
 		if (actor->float_zvel() < 2) actor->add_int_zvel( (gs.gravity / 3)); // 52;
 		if(actor->float_xvel() > 0)
-			actor->spr.xvel--;
+			actor->add_int_xvel(-1);
 		else
 		{
 			deletesprite(actor);
@@ -2464,7 +2464,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 	auto sectp = actor->sector();
 
 	if(actor->float_xvel() > 0)
-		actor->spr.xvel--;
+		actor->add_int_xvel(-1);
 	else actor->clear_xvel();
 
 	if (actor->float_zvel() > 4 && actor->float_zvel() < 5)
@@ -2779,7 +2779,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		actor->add_int_ang(q);
 
 		bool statstate = (!checkstat || ((sc->floorstat & CSTAT_SECTOR_SKY) == 0 && (sc->ceilingstat & CSTAT_SECTOR_SKY) == 0));
-		if (actor->spr.xvel == sc->extra)
+		if (actor->int_xvel() == sc->extra)
 		{
 			if (statstate)
 			{
@@ -2954,7 +2954,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->temp_data[4] = 2;
 			else
 			{
-				if (actor->spr.xvel == 0)
+				if (actor->int_xvel() == 0)
 					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), -1);
 				if (actor->int_xvel() < 256)
 					actor->spr.xvel += 16;

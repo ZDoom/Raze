@@ -612,7 +612,7 @@ void Gravity(DExhumedActor* pActor)
 
 Collision MoveCreature(DExhumedActor* pActor)
 {
-    return movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->int_zvel(), 15360, -5120, CLIPMASK0);
+    return movesprite(pActor, pActor->int_xvel() << 8, pActor->spr.yvel << 8, pActor->int_zvel(), 15360, -5120, CLIPMASK0);
 }
 
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
@@ -1352,7 +1352,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     auto pSector = pActor->sector();
     pActor->spr.pal = pSector->ceilingpal;
 
-    auto nVal = movesprite(pActor, pActor->spr.xvel << 10, pActor->spr.yvel << 10, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
+    auto nVal = movesprite(pActor, pActor->int_xvel() << 10, pActor->spr.yvel << 10, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
 
     if (pActor->spr.pos.Z >= pSector->floorz)
     {

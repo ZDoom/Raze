@@ -2493,7 +2493,7 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->int_xvel() == 0)
 		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
@@ -2590,7 +2590,7 @@ static int henstand(DDukeActor *actor)
 				}
 			}
 		}
-		actor->spr.xvel--;
+		actor->add_int_xvel(-1);
 		if(actor->float_xvel() < 0) actor->clear_xvel();
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
@@ -2853,7 +2853,7 @@ void moveactors_r(void)
 							MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
 							MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
 							act->int_zvel(),CLIPMASK0, coll);
-						act->spr.xvel--;
+						act->add_int_xvel(-1);
 					}
 				break;
 
