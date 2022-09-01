@@ -53,7 +53,7 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->__int_vel.X = actor->int_vel().X + Random2(-dx);
+			pFX->set_int_bvel_x(actor->int_vel().X + Random2(-dx));
 			pFX->__int_vel.Y = actor->int_vel().Y + Random2(-dy);
 			pFX->__int_vel.Z = actor->int_vel().Z - Random(0x1aaaa);
 		}
@@ -128,7 +128,7 @@ void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 		pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
 		pFX->__int_vel.Z = actor->int_vel().Z - Random(0x1aaaa);
 	}
@@ -147,7 +147,7 @@ void fxFlareSparkLite(DBloodActor* actor, sectortype*) // 4
 	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 		pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
 		pFX->__int_vel.Z = actor->int_vel().Z - Random(0x1aaaa);
 	}
@@ -169,7 +169,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), DVector3(actor->spr.pos.XY(), top), 0);
 	if (pFX)
 	{
-		pFX->__int_vel.X = actor->int_vel().X + Random2(0x11111);
+		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x11111));
 		pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x11111);
 		pFX->__int_vel.Z = actor->int_vel().Z - 0x6aaaa;
 	}
@@ -199,7 +199,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	if (pFX)
 	{
 		pFX->set_int_ang(0);
-		pFX->__int_vel.X = actor->int_vel().X >> 8;
+		pFX->set_int_bvel_x(actor->int_vel().X >> 8);
 		pFX->__int_vel.Y = actor->int_vel().Y >> 8;
 		pFX->__int_vel.Z = actor->int_vel().Z >> 8;
 	}
@@ -218,7 +218,7 @@ void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 	auto pFX = gFX.fxSpawnActor(FX_15, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel.X = actor->int_vel().X + Random2(0x10000);
+		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x10000));
 		pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x10000);
 		pFX->__int_vel.Z = actor->int_vel().Z - Random(0x1aaaa);
 	}
@@ -243,9 +243,9 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->__int_vel.X = actor->__int_vel.X;
-			pFX->__int_vel.Y = actor->__int_vel.Y;
-			pFX->__int_vel.Z = actor->__int_vel.Z;
+			pFX->set_int_bvel_x(actor->int_vel().X);
+			pFX->__int_vel.Y = actor->int_vel().Y;
+			pFX->__int_vel.Z = actor->int_vel().Z;
 		}
 	}
 	evPostActor(actor, 12, kCallbackFXDynPuff);
@@ -367,7 +367,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 			if (pFX)
 			{
-				pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+				pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 				pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
 				pFX->__int_vel.Z = actor->int_vel().Z + Random2(0x1aaaa);
 			}
@@ -397,7 +397,7 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+			pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 			pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
 			pFX->__int_vel.Z = actor->int_vel().Z + Random2(0x1aaaa);
 		}
@@ -494,7 +494,7 @@ void fxTeslaAlt(DBloodActor* actor, sectortype*) // 15
 	auto pFX = gFX.fxSpawnActor(FX_49, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
 		pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
 		pFX->__int_vel.Z = actor->int_vel().Z - Random(0x1aaaa);
 	}
@@ -626,7 +626,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 	if (pFX)
 	{
 		pFX->set_int_ang(0);
-		pFX->__int_vel.X = actor->int_vel().X >> 8;
+		pFX->set_int_bvel_x(actor->int_vel().X >> 8);
 		pFX->__int_vel.Y = actor->int_vel().Y >> 8;
 		pFX->__int_vel.Z = actor->int_vel().Z >> 8;
 	}

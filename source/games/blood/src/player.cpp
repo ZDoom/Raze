@@ -1764,7 +1764,7 @@ void ProcessInput(PLAYER* pPlayer)
 				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);
 				int x = bcos(pPlayer->actor->int_ang());
 				int y = bsin(pPlayer->actor->int_ang());
-				spawned->__int_vel.X = pPlayer->actor->int_vel().X + MulScale(0x155555, x, 14);
+				spawned->set_int_bvel_x(pPlayer->actor->int_vel().X + MulScale(0x155555, x, 14));
 				spawned->__int_vel.Y = pPlayer->actor->int_vel().Y + MulScale(0x155555, y, 14);
 				spawned->__int_vel.Z = pPlayer->actor->__int_vel.Z;
 			}

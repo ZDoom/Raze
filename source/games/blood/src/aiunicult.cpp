@@ -1136,7 +1136,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 			t1 += nAccel;
 		else
 			t1 += nAccel >> 1;
-		actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+		actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
 		actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 	else
