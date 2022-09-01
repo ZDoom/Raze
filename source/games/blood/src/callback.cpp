@@ -87,7 +87,7 @@ void Remove(DBloodActor* actor, sectortype*) // 1
 void FlareBurst(DBloodActor* actor, sectortype*) // 2
 {
 	if (!actor) return;
-	int nAngle = getangle(actor->__int_vel.X, actor->__int_vel.Y);
+	int nAngle = getangle(actor->int_vel().X, actor->int_vel().Y);
 	int nRadius = 0x55555;
 	for (int i = 0; i < 8; i++)
 	{

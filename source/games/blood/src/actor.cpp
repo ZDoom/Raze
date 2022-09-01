@@ -4090,7 +4090,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 {
-	int nSpeed = ClipLow(approxDist(kicker->__int_vel.X, kicker->__int_vel.Y) * 2, 0xaaaaa);
+	int nSpeed = ClipLow(approxDist(kicker->int_vel().X, kicker->int_vel().Y) * 2, 0xaaaaa);
 	kicked->__int_vel.X = MulScale(nSpeed, Cos(kicker->int_ang() + Random2(85)), 30);
 	kicked->__int_vel.Y = MulScale(nSpeed, Sin(kicker->int_ang() + Random2(85)), 30);
 	kicked->__int_vel.Z = MulScale(nSpeed, -0x2000, 14);
@@ -4272,7 +4272,7 @@ static void checkHit(DBloodActor* actor)
 					{
 						actKickObject(actor, actor2);
 						sfxPlay3DSound(actor, 357, -1, 1);
-						int dmg = (mass1 - mass2) + abs(FixedToInt(actor->__int_vel.X));
+						int dmg = (mass1 - mass2) + abs(FixedToInt(actor->int_vel().X));
 						if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 					}
 				}
@@ -4501,9 +4501,9 @@ void actAirDrag(DBloodActor* actor, int a2)
 			wind_y = MulScale(wind, Sin(pXSector->windAng), 30);
 		}
 	}
-	actor->__int_vel.X += MulScale(wind_x - actor->__int_vel.X, a2, 16);
-	actor->__int_vel.Y += MulScale(wind_y - actor->__int_vel.Y, a2, 16);
-	actor->__int_vel.Z -= MulScale(actor->__int_vel.Z, a2, 16);
+	actor->__int_vel.X += MulScale(wind_x - actor->int_vel().X, a2, 16);
+	actor->__int_vel.Y += MulScale(wind_y - actor->int_vel().Y, a2, 16);
+	actor->__int_vel.Z -= MulScale(actor->int_vel().Z, a2, 16);
 }
 
 //---------------------------------------------------------------------------
@@ -4525,7 +4525,7 @@ static Collision MoveThing(DBloodActor* actor)
 	lhit.setNone();
 	GetActorExtents(actor, &top, &bottom);
 	const int bakCompat = enginecompatibility_mode;
-	if (actor->__int_vel.X || actor->__int_vel.Y)
+	if (actor->__int_vel.X || actor->int_vel().Y)
 	{
 		auto bakCstat = actor->spr.cstat;
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4663,9 +4663,9 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
 		if (actor->__int_vel.Z < 0)
 		{
-			actor->__int_vel.X = MulScale(actor->__int_vel.X, 0xc000, 16);
-			actor->__int_vel.Y = MulScale(actor->__int_vel.Y, 0xc000, 16);
-			actor->__int_vel.Z = MulScale(-actor->__int_vel.Z, 0x4000, 16);
+			actor->__int_vel.X = MulScale(actor->int_vel().X, 0xc000, 16);
+			actor->__int_vel.Y = MulScale(actor->int_vel().Y, 0xc000, 16);
+			actor->__int_vel.Z = MulScale(-actor->int_vel().Z, 0x4000, 16);
 
 			switch (actor->spr.type)
 			{
@@ -4688,7 +4688,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if (bottom >= floorZ)
 	{
-		int nVel = approxDist(actor->__int_vel.X, actor->__int_vel.Y);
+		int nVel = approxDist(actor->int_vel().X, actor->int_vel().Y);
 		int nVelClipped = ClipHigh(nVel, 0x11111);
 		Collision& coll = floorColl;
 
@@ -4705,12 +4705,12 @@ static Collision MoveThing(DBloodActor* actor)
 		if (nVel > 0)
 		{
 			int t = DivScale(nVelClipped, nVel, 16);
-			actor->__int_vel.X -= MulScale(t, actor->__int_vel.X, 16);
-			actor->__int_vel.Y -= MulScale(t, actor->__int_vel.Y, 16);
+			actor->__int_vel.X -= MulScale(t, actor->int_vel().X, 16);
+			actor->__int_vel.Y -= MulScale(t, actor->int_vel().Y, 16);
 		}
 	}
-	if (actor->__int_vel.X || actor->__int_vel.Y)
-		actor->spr.angle = VecToAngle(actor->__int_vel.X, actor->__int_vel.Y);
+	if (actor->__int_vel.X || actor->int_vel().Y)
+		actor->spr.angle = VecToAngle(actor->int_vel().X, actor->int_vel().Y);
 	return lhit;
 }
 
@@ -4741,7 +4741,7 @@ void MoveDude(DBloodActor* actor)
 
 	assert(pSector);
 
-	if (actor->__int_vel.X || actor->__int_vel.Y)
+	if (actor->__int_vel.X || actor->int_vel().Y)
 	{
 		if (pPlayer && gNoClip)
 		{
@@ -5165,7 +5165,7 @@ void MoveDude(DBloodActor* actor)
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
 
 		if (actor->__int_vel.Z <= 0 && (actor->spr.flags & 4))
-			actor->__int_vel.Z = MulScale(-actor->__int_vel.Z, 0x2000, 16);
+			actor->__int_vel.Z = MulScale(-actor->int_vel().Z, 0x2000, 16);
 	}
 	else
 		actor->hit.ceilhit.setNone();
@@ -5173,7 +5173,7 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 
 	actor->xspr.height = ClipLow(floorZ - bottom, 0) >> 8;
-	if (actor->__int_vel.X || actor->__int_vel.Y)
+	if (actor->__int_vel.X || actor->int_vel().Y)
 	{
 		if (floorColl.type == kHitSprite)
 		{
@@ -5192,10 +5192,10 @@ void MoveDude(DBloodActor* actor)
 		int nDrag = gDudeDrag;
 		if (actor->xspr.height > 0)
 			nDrag -= Scale(gDudeDrag, actor->xspr.height, 0x100);
-		actor->__int_vel.X -= mulscale16r(actor->__int_vel.X, nDrag);
-		actor->__int_vel.Y -= mulscale16r(actor->__int_vel.Y, nDrag);
+		actor->__int_vel.X -= mulscale16r(actor->int_vel().X, nDrag);
+		actor->__int_vel.Y -= mulscale16r(actor->int_vel().Y, nDrag);
 
-		if (approxDist(actor->__int_vel.X, actor->__int_vel.Y) < 0x1000)
+		if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
 			actor->__int_vel.X = actor->__int_vel.Y = 0;
 	}
 }
@@ -6054,7 +6054,7 @@ static void actCheckDudes()
 					else
 						pPlayer->chokeEffect = 0;
 
-					if (actor->__int_vel.X || actor->__int_vel.Y)
+					if (actor->__int_vel.X || actor->int_vel().Y)
 						sfxPlay3DSound(actor, 709, 100, 2);
 
 					pPlayer->bubbleTime = ClipLow(pPlayer->bubbleTime - 4, 0);
