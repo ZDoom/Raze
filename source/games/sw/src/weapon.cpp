@@ -12982,7 +12982,6 @@ int InitZillaRail(DSWActor* actor)
 int InitRocket(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
     int zvel;
 
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
@@ -13007,15 +13006,12 @@ int InitRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 90;
@@ -13113,16 +13109,12 @@ int InitBunnyRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    //nz = pp->posz + pp->int_bob_z() + Z(12);
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 64;
