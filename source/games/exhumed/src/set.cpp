@@ -395,7 +395,7 @@ void AISet::Tick(RunListEvent* ev)
             if (pActor->nIndex2)
             {
                 pActor->mul_int_xvel(2);
-                pActor->spr.yvel *= 2;
+                pActor->mul_int_yvel(2);
             }
 
             if (nMov.type == kHitWall)
@@ -547,7 +547,7 @@ void AISet::Tick(RunListEvent* ev)
     case 9:
     {
         pActor->mul_int_xvel(0.5);
-        pActor->spr.yvel >>= 1;
+        pActor->mul_int_yvel(0.5);
 
         if (bVal)
         {

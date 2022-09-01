@@ -222,34 +222,34 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
         }
 
-        if (pActor->float_xvel() != 0 || pActor->spr.yvel)
+        if (pActor->float_xvel() != 0 || pActor->float_yvel() != 0)
         {
-            if (pActor->int_xvel() > 0)
+            if (pActor->float_xvel() > 0)
             {
                 pActor->add_int_xvel(-1024);
-                if (pActor->int_xvel() < 0) {
+                if (pActor->float_xvel() < 0) {
                     pActor->clear_xvel();
                 }
             }
-            else if (pActor->int_xvel() < 0)
+            else if (pActor->float_xvel() < 0)
             {
                 pActor->add_int_xvel( 1024);
-                if (pActor->int_xvel() > 0) {
+                if (pActor->float_xvel() > 0) {
                     pActor->clear_xvel();
                 }
             }
 
-            if (pActor->spr.yvel > 0)
+            if (pActor->float_yvel() > 0)
             {
-                pActor->spr.yvel -= 1024;
-                if (pActor->spr.yvel < 0) {
+                pActor->add_int_yvel(-1024);
+                if (pActor->float_yvel() < 0) {
                     pActor->clear_yvel();
                 }
             }
-            else if (pActor->spr.yvel < 0)
+            else if (pActor->float_yvel() < 0)
             {
-                pActor->spr.yvel += 1024;
-                if (pActor->spr.yvel > 0) {
+                pActor->add_int_yvel(1024);
+                if (pActor->float_yvel() > 0) {
                     pActor->clear_yvel();
                 }
             }
@@ -374,7 +374,7 @@ void AIMummy::Tick(RunListEvent* ev)
         if (nMov.exbits)
         {
             pActor->mul_int_xvel(0.5);
-            pActor->spr.yvel >>= 1;
+            pActor->mul_int_yvel(0.5);
         }
 
         if (bVal)
