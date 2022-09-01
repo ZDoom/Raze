@@ -389,9 +389,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 {
 	DVector2 b1, b2, b3, b4, v1, v2, v3, v4;
 	DAngle an;
-	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
-	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-	int xrepeat, yrepeat, tilenum;
+	int i, j, xoff, yoff;
+	int xspan, yspan, sprx, spry;
+	int tilenum;
 	int xvect, yvect;
 	int p;
 	PalEntry col;
