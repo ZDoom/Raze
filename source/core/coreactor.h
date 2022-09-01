@@ -216,6 +216,40 @@ public:
 		return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(vel.Z) };
 	}
 
+	vec3_t int_vel() const
+	{
+		return vel;
+	}
+
+	void set_int_bvel_x(int x)
+	{
+		vel.X = x;
+	}
+
+	void set_int_bvel_y(int x)
+	{
+		vel.Y = x;
+	}
+
+	void set_int_bvel_z(int x)
+	{
+		vel.Z = x;
+	}
+
+	void add_int_bvel_x(int x)
+	{
+		vel.X += x;
+	}
+
+	void add_int_bvel_y(int x)
+	{
+		vel.Y += x;
+	}
+
+	void add_int_bvel_z(int x)
+	{
+		vel.Z += x;
+	}
 
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
