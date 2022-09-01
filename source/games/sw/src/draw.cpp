@@ -1572,6 +1572,8 @@ bool GameInterface::GenerateSavePic()
 
 bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, const double czoom, const DAngle cang, double const smoothratio)
 {
+    DVector2 b1, b2, b3, b4, v1, v2, v3, v4;
+    DAngle an;
     int k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum;
@@ -1587,6 +1589,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 
     int xdim = twod->GetWidth() << 11;
     int ydim = twod->GetHeight() << 11;
+
+    auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
+    auto cp = DVector2(cposx, cposy) * inttoworld;
 
     // Draw sprites
     auto peekActor = Player[screenpeek].actor;
@@ -1626,21 +1631,18 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
                     spry = actor->__interpolatedy(smoothratio);
                 }
 
+                auto sp = DVector2(sprx, spry) * inttoworld;
+
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
-                case 0:  // Regular sprite
+                case CSTAT_SPRITE_ALIGNMENT_FACING:  // Regular sprite
                     if (Player[p].actor == actor)
                     {
-                        ox = mx - cposx;
-                        oy = my - cposy;
-                        x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-                        y1 = DMulScale(oy, xvect, ox, yvect, 16);
-                        int xx = twod->GetWidth() / 2. + x1 / 4096.;
-                        int yy = twod->GetHeight() / 2. + y1 / 4096.;
-
                         if (czoom > 192)
                         {
+                            an = -cang;
                             const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
+                            auto vect = OutAutomapVector(DVector2(mx, my) * inttoworld - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;
@@ -1656,45 +1658,32 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
                             double sc = czoom * (actor->spr.yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
                                     DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),
                                     DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
                             }
                         }
                     }
                     break;
-                case 16: // Rotated sprite
-                    x1 = sprx;
-                    y1 = spry;
+                case CSTAT_SPRITE_ALIGNMENT_WALL: // Rotated sprite
                     tilenum = actor->spr.picnum;
                     xoff = (int)tileLeftOffset(tilenum) + (int)actor->spr.xoffset;
                     if ((actor->spr.cstat & CSTAT_SPRITE_XFLIP) > 0)
                         xoff = -xoff;
-                    k = actor->int_ang();
-                    l = actor->spr.xrepeat;
-                    dax = bsin(k) * l;
-                    day = -bcos(k) * l;
-                    l = tileWidth(tilenum);
-                    k = (l >> 1) + xoff;
-                    x1 -= MulScale(dax, k, 16);
-                    x2 = x1 + MulScale(dax, l, 16);
-                    y1 -= MulScale(day, k, 16);
-                    y2 = y1 + MulScale(day, l, 16);
 
-                    ox = x1 - cposx;
-                    oy = y1 - cposy;
-                    x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
+                    xspan = tileWidth(tilenum);
 
-                    ox = x2 - cposx;
-                    oy = y2 - cposy;
-                    x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
+                    an = -cang;
+                    b1 = actor->spr.angle.ToVector().Rotated90CW() * actor->spr.xrepeat * (1. / 64.);
+                    b2 = sp - b1 * ((xspan * 0.5) + xoff);
+                    b3 = b2 + b1 * xspan;
 
-                    drawlinergb(x1 + xdim, y1 + ydim, x2 + xdim, y2 + ydim, col);
+                    v1 = OutAutomapVector(b2 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+                    v2 = OutAutomapVector(b3 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
 
+                    drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
                     break;
-                case 32:    // Floor sprite
+                case CSTAT_SPRITE_ALIGNMENT_FLOOR:    // Floor sprite
                     if (automapMode == am_overlay)
                     {
                         tilenum = actor->spr.picnum;
@@ -1705,61 +1694,34 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
                         if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
-                        k = actor->int_ang();
-                        cosang = bcos(k);
-                        sinang = bsin(k);
+                        an = -cang;
+
+                        auto acos = actor->spr.angle.Cos();
+                        auto asin = actor->spr.angle.Sin();
+
                         xspan = tileWidth(tilenum);
-                        xrepeat = actor->spr.xrepeat;
+                        auto xrep = actor->spr.xrepeat * (1. / 64.);
                         yspan = tileHeight(tilenum);
-                        yrepeat = actor->spr.yrepeat;
+                        auto yrep = actor->spr.yrepeat * (1. / 64.);
 
-                        dax = ((xspan >> 1) + xoff) * xrepeat;
-                        day = ((yspan >> 1) + yoff) * yrepeat;
-                        x1 = sprx + MulScale(sinang, dax, 16) + MulScale(cosang, day, 16);
-                        y1 = spry + MulScale(sinang, day, 16) - MulScale(cosang, dax, 16);
-                        l = xspan * xrepeat;
-                        x2 = x1 - MulScale(sinang, l, 16);
-                        y2 = y1 + MulScale(cosang, l, 16);
-                        l = yspan * yrepeat;
-                        k = -MulScale(cosang, l, 16);
-                        x3 = x2 + k;
-                        x4 = x1 + k;
-                        k = -MulScale(sinang, l, 16);
-                        y3 = y2 + k;
-                        y4 = y1 + k;
+                        auto xscale = DVector2(-asin * xspan * xrep, +acos * xspan * xrep);
+                        auto yscale = DVector2(-acos * yspan * yrep, -asin * yspan * yrep);
 
-                        ox = x1 - cposx;
-                        oy = y1 - cposy;
-                        x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
+                        auto b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
+                        b1 = sp + (b0 * asin) + (b0.Rotated90CW() * acos);
+                        b2 = b1 + xscale;
+                        b3 = b2 + yscale;
+                        b4 = b1 + yscale;
 
-                        ox = x2 - cposx;
-                        oy = y2 - cposy;
-                        x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
+                        v1 = OutAutomapVector(-(b1 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+                        v2 = OutAutomapVector(-(b2 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+                        v3 = OutAutomapVector(-(b3 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+                        v4 = OutAutomapVector(-(b4 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
 
-                        ox = x3 - cposx;
-                        oy = y3 - cposy;
-                        x3 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y3 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
-
-                        ox = x4 - cposx;
-                        oy = y4 - cposy;
-                        x4 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y4 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
-
-                        drawlinergb(x1 + xdim, y1 + ydim,
-                            x2 + xdim, y2 + ydim, col);
-
-                        drawlinergb(x2 + xdim, y2 + ydim,
-                            x3 + xdim, y3 + ydim, col);
-
-                        drawlinergb(x3 + xdim, y3 + ydim,
-                            x4 + xdim, y4 + ydim, col);
-
-                        drawlinergb(x4 + xdim, y4 + ydim,
-                            x1 + xdim, y1 + ydim, col);
-
+                        drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
+                        drawlinergb(v2.X, v2.Y, v3.X, v3.Y, col);
+                        drawlinergb(v3.X, v3.Y, v4.X, v4.Y, col);
+                        drawlinergb(v4.X, v4.Y, v1.X, v1.Y, col);
                     }
                     break;
                 }
