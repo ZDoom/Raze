@@ -1321,7 +1321,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     if (bSpecial)
     {
         pActor->mul_int_xvel(4);
-        pActor->spr.yvel *= 4;
+        pActor->mul_int_yvel(4);
         pActor->mul_int_zvel(2);
     }
 
@@ -1380,7 +1380,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             if (nVal.exbits & kHitAux1)
             {
                 pActor->mul_int_xvel(0.5);
-                pActor->spr.yvel >>= 1;
+                pActor->mul_int_yvel(0.5);
                 pActor->set_int_zvel(-pActor->int_zvel());
                 return;
             }
@@ -1398,7 +1398,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
 
             // loc_16E0C
-            int nSqrt = lsqrt(((pActor->spr.yvel >> 10) * (pActor->spr.yvel >> 10)
+            int nSqrt = lsqrt(((pActor->int_yvel() >> 10) * (pActor->int_yvel() >> 10)
                 + (pActor->int_xvel() >> 10) * (pActor->int_xvel() >> 10)) >> 8);
 
             pActor->set_int_xvel(bcos(nAngle) * (nSqrt >> 1));

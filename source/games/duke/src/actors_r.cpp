@@ -1000,7 +1000,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 
 	if (targ->spr.picnum == APLAYER)
 	{
-		int p = targ->spr.yvel;
+		int p = targ->PlayerIndex();
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
 		if (proj->spr.picnum == SPIT)
@@ -1429,7 +1429,7 @@ void movetransports_r(void)
 
 				if (act2->GetOwner())
 				{
-					p = act2->spr.yvel;
+					p = act2->PlayerIndex();
 
 					ps[p].on_warping_sector = 1;
 

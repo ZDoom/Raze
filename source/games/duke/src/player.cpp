@@ -242,7 +242,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	if (actor->isPlayer())
 	{
 		auto* plr = &ps[actor->PlayerIndex()];
-		int autoaim = Autoaim(actor->spr.yvel);
+		int autoaim = Autoaim(actor->PlayerIndex());
 		if (!autoaim)
 		{
 			// Some fudging to avoid aim randomization when autoaim is off.

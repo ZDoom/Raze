@@ -831,7 +831,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 
 	if (actor->isPlayer())
 	{
-		p = actor->spr.yvel;
+		p = actor->PlayerIndex();
 
 		sx = ps[p].player_int_pos().X;
 		sy = ps[p].player_int_pos().Y;
@@ -1258,7 +1258,7 @@ int doincrements_r(player_struct* p)
 		}
 	}
 
-	snum = p->GetActor()->spr.yvel;
+	snum = p->GetActor()->PlayerIndex();
 
 	p->player_par++;
 	if (p->yehaa_timer)

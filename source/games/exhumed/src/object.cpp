@@ -1897,7 +1897,7 @@ void AIObject::Tick(RunListEvent* ev)
             if (nMov.exbits & kHitAux2)
             {
                 pActor->add_int_xvel(-pActor->int_xvel() >> 3);
-                pActor->spr.yvel -= pActor->spr.yvel >> 3;
+                pActor->add_int_yvel(-pActor->int_yvel() >> 3);
             }
 
             if (nMov.type == kHitSprite)
@@ -2038,7 +2038,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {
             pActor->mul_int_xvel(0.5);
-            pActor->spr.yvel >>= 1;
+            pActor->mul_int_yvel(0.5);
             pActor->mul_int_zvel(0.5);
         }
 

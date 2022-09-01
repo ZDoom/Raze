@@ -2370,7 +2370,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 			if (targ->spr.statnum == 10)
 			{
-				p = targ->spr.yvel;
+				p = targ->PlayerIndex();
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;

@@ -603,7 +603,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			{
 				if (ud.god && actor->attackertype != SHRINKSPARK) return -1;
 
-				p = actor->spr.yvel;
+				p = actor->PlayerIndex();
 
 				if (hitowner &&
 					hitowner->spr.picnum == APLAYER &&
@@ -1314,7 +1314,6 @@ static bool movefireball(DDukeActor* actor)
 				actor->temp_actor = ball;
 
 				ball->set_int_xvel(actor->int_xvel());
-				ball->spr.yvel = actor->spr.yvel;
 				ball->set_int_zvel(actor->int_zvel());
 				if (actor->temp_data[0] > 1)
 				{
@@ -1323,7 +1322,6 @@ static bool movefireball(DDukeActor* actor)
 						FireProj* proj = &trail->fproj;
 						ball->spr.pos = trail->temp_pos;
 						ball->set_int_xvel(proj->vel.X);
-						ball->spr.yvel = proj->vel.Y;
 						ball->set_int_zvel(proj->vel.Z);
 					}
 				}
@@ -1332,7 +1330,7 @@ static bool movefireball(DDukeActor* actor)
 				ball->spr.extra = 0;
 
 				ball->temp_pos = ball->spr.pos;
-				ball->fproj.vel = { ball->int_xvel(), ball->spr.yvel, ball->int_zvel()};
+				ball->fproj.vel = { ball->int_xvel(), 0, ball->int_zvel()};
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}

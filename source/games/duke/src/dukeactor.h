@@ -16,7 +16,7 @@ inline DDukeActor* player_struct::GetActor()
 
 inline int player_struct::GetPlayerNum()
 {
-	return actor->spr.yvel;
+	return actor->PlayerIndex();
 }
 
 DDukeActor* spawn(DDukeActor* spawner, int type);

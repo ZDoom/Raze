@@ -435,7 +435,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 
 		if (actj->isPlayer())
 		{
-			snum = actj->spr.yvel;
+			snum = actj->PlayerIndex();
 			ang = ps[snum].angle.ang - DAngle::fromBuild((krand() & 63) + 8);  //Fine tune
 
 			act->temp_data[0] = krand() & 1;

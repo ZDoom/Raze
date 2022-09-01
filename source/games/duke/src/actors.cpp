@@ -3790,7 +3790,7 @@ void handle_se17(DDukeActor* actor)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	double q = actor->temp_data[0] * actor->spr.yvel * (4 * zinttoworld);
+	double q = actor->temp_data[0] * actor->spr.yvel * (1 / 64.);
 
 	sc->addceilingz(q);
 	sc->addfloorz(q);
@@ -3851,7 +3851,7 @@ void handle_se17(DDukeActor* actor)
 		{
 			if (act3->spr.statnum == STAT_PLAYER && act3->GetOwner())
 			{
-				int p = act3->spr.yvel;
+				int p = act3->PlayerIndex();
 
 				ps[p].pos.X += act2->spr.pos.X - actor->spr.pos.X;
 				ps[p].pos.Y += act2->spr.pos.Y - actor->spr.pos.Y;
@@ -4412,7 +4412,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 
 	if (actor->spr.shade)
 	{
-		sec->add_int_ceilingz(actor->spr.yvel << 4);
+		sec->addceilingz(actor->spr.yvel);
 		if (sec->ceilingz > sec->floorz)
 		{
 			sec->setceilingz(sec->floorz);
@@ -4422,7 +4422,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	}
 	else
 	{
-		sec->add_int_ceilingz(-actor->spr.yvel << 4);
+		sec->addceilingz(-actor->spr.yvel);
 		if (sec->int_ceilingz() < actor->temp_data[t_index])
 		{
 			sec->set_int_ceilingz(actor->temp_data[t_index]);
@@ -4457,7 +4457,7 @@ void handle_se32(DDukeActor *actor)
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->int_ceilingz()) * actor->spr.yvel);
+				else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
 			}
 			else
 			{
@@ -4482,7 +4482,7 @@ void handle_se32(DDukeActor *actor)
 				callsound(actor->sector(), actor);
 				sc->setceilingz(actor->spr.pos.Z);
 			}
-			else sc->add_int_ceilingz(Sgn(actor->int_pos().Z - sc->int_ceilingz()) * actor->spr.yvel);
+			else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yvel);
 		}
 		else
 		{
@@ -4648,7 +4648,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yvel;
+					int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yvel;
 					sec->add_int_floorz(l);
 
 					DukeSectIterator it(actor->sector());

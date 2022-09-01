@@ -996,7 +996,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
 	if (actor->isPlayer())
 	{
-		p = actor->spr.yvel;
+		p = actor->PlayerIndex();
 	}
 	else
 	{
@@ -1435,7 +1435,7 @@ int doincrements_d(player_struct* p)
 	int snum;
 
 	auto pact = p->GetActor();
-	snum = pact->spr.yvel;
+	snum = pact->PlayerIndex();
 
 	p->player_par++;
 
@@ -1639,7 +1639,7 @@ void checkweapons_d(player_struct* p)
 
 	if (isWW2GI())
 	{
-		int snum = p->GetActor()->spr.yvel;
+		int snum = p->GetActor()->PlayerIndex();
 		cw = aplWeaponWorksLike(p->curr_weapon, snum);
 	}
 	else 

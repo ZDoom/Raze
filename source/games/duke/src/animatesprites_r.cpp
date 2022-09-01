@@ -339,7 +339,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 
 		case APLAYER:
 
-			p = h->spr.yvel;
+			p = h->PlayerIndex();
 
 			if (t->pal == 1) t->pos.Z -= 18;
 
@@ -924,7 +924,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 			{
 				if (OwnerAc->spr.picnum == APLAYER)
 					if (ud.cameraactor == nullptr)
-						if (screenpeek == OwnerAc->spr.yvel && display_mirror == 0)
+						if (screenpeek == OwnerAc->PlayerIndex() && display_mirror == 0)
 						{
 							t->ownerActor = nullptr;
 							break;

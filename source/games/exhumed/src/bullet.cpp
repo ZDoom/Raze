@@ -236,7 +236,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
             else
             {
                 int xVel = pHitActor->int_xvel();
-                int yVel = pHitActor->spr.yvel;
+                int yVel = pHitActor->int_yvel();
 
                 pHitActor->set_int_xvel(bcos(pActor->int_ang(), -2));
                 pHitActor->set_int_yvel(bsin(pActor->int_ang(), -2));
@@ -714,7 +714,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 if (pTarget->spr.statnum != 100)
                 {
                     x += (pTarget->int_xvel() * 20) >> 6;
-                    y += (pTarget->spr.yvel * 20) >> 6;
+                    y += (pTarget->int_yvel() * 20) >> 6;
                 }
                 else
                 {

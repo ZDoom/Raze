@@ -365,7 +365,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.exbits & kHitAux2)
         {
             pActor->mul_int_xvel(0.5);
-            pActor->spr.yvel >>= 1;
+            pActor->mul_int_yvel(0.5);
         }
 
         return;
