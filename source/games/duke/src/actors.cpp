@@ -1005,7 +1005,7 @@ void movetrash(DDukeActor *actor)
 	{
 		makeitfall(actor);
 		if (krand() & 1) actor->add_int_zvel(- 256);
-		if (abs(actor->spr.xvel) < 48)
+		if (abs(actor->int_xvel()) < 48)
 			actor->add_int_xvel( (krand() & 3));
 	}
 	else deletesprite(actor);
@@ -4984,7 +4984,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	aang = actor->int_ang();
 
-	actor->add_int_xvel( (*moveptr - actor->spr.xvel) / 5);
+	actor->add_int_xvel( (*moveptr - actor->int_xvel()) / 5);
 	if (actor->float_zvel() < (648/256.)) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
 
 	if (isRRRA() && (ang & windang))

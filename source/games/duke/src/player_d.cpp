@@ -186,7 +186,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		// WTF???
 		DAngle myang = (DAngle90 - (DAngle180 - fabs(fabs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180)));
 		if (ps[p].GetActor()->spr.xvel != 0)
-			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->spr.xvel) + 400);
+			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->int_xvel()) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
@@ -647,7 +647,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			spawned->spr.shade = 0;
 			if (actor->spr.picnum == BOSS2)
 			{
-				l = spawned->spr.xvel;
+				l = spawned->int_xvel();
 				spawned->set_int_xvel(1024);
 				ssp(spawned, CLIPMASK0);
 				spawned->set_int_xvel(l);
@@ -2827,7 +2827,7 @@ void processinput_d(int snum)
 	if (p->GetActor()->spr.xrepeat < 40 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += p->GetActor()->spr.xvel;
+		p->fistsign += p->GetActor()->int_xvel();
 	}
 
 	if (p->transporter_hold > 0)
@@ -2860,7 +2860,7 @@ void processinput_d(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	p->playerweaponsway(pact->spr.xvel);
+	p->playerweaponsway(pact->int_xvel());
 
 	pact->set_int_xvel(int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint));
 	if (p->on_ground) p->bobcounter += p->GetActor()->int_xvel() >> 1;
@@ -3054,7 +3054,7 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff = DAngle::fromBuild(p->pycount).Sin() * pact->spr.xvel;
+				p->pyoff = DAngle::fromBuild(p->pycount).Sin() * pact->int_xvel();
 
 				const double factor = 64. / 1596; // What is 1596?
 				p->pyoff = abs(pact->spr.xvel * DAngle::fromBuild(p->pycount).Sin()) * factor;

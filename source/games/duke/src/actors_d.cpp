@@ -3551,7 +3551,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->add_int_xvel( (*moveptr - actor->spr.xvel) >> 1);
+	if (a & geth) actor->add_int_xvel( (*moveptr - actor->int_xvel()) >> 1);
 	if (a & getv) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1);
 
 	if (a & dodgebullet)

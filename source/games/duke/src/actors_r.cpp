@@ -2595,21 +2595,21 @@ static int henstand(DDukeActor *actor)
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
 		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(actor->spr.xvel);
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(actor->spr.xvel);
+			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
 			if (krand() & 1)
 				actor->spr.picnum = BOWLINGPIN + 1;
 		}
 		else if (actor->spr.picnum == HENSTAND)
 		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(actor->spr.xvel);
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(actor->spr.xvel);
+			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
 			if (krand() & 1)
 				actor->spr.picnum = HENSTAND + 1;
-			if (!actor->spr.xvel)
+			if (!actor->int_xvel())
 				return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
-		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && !actor->spr.xvel))
+		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && !actor->int_xvel()))
 		{
 			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
@@ -2766,7 +2766,7 @@ void moveactors_r(void)
 				}
 				break;
 			case BOWLINGBALL:
-				if (act->spr.xvel)
+				if (act->int_xvel())
 				{
 					if(!S_CheckSoundPlaying(356))
 						S_PlayActorSound(356,act);
@@ -2847,7 +2847,7 @@ void moveactors_r(void)
 
 			case POWDERKEG:
 				if (!isRRRA() || (sectp->lotag != 1 && sectp->lotag != 160))
-					if (act->spr.xvel)
+					if (act->int_xvel())
 					{
 						movesprite_ex(act,
 							MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
@@ -3620,7 +3620,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->add_int_xvel( (*moveptr - actor->spr.xvel) >> 1);
+	if (a & geth) actor->add_int_xvel( (*moveptr - actor->int_xvel()) >> 1);
 	if (a & getv) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1);
 
 	if (a & dodgebullet)

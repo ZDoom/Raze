@@ -3579,7 +3579,7 @@ void processinput_r(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	p->playerweaponsway(pact->spr.xvel);
+	p->playerweaponsway(pact->int_xvel());
 
 	pact->set_int_xvel(int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint));
 	if (p->on_ground) p->bobcounter += p->GetActor()->int_xvel() >> 1;
