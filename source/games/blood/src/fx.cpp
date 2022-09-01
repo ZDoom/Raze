@@ -260,7 +260,7 @@ void CFX::fxProcess(void)
 				continue;
 			}
 		}
-		actor->__int_vel.Z += pFXData->gravity;
+		actor->add_int_bvel_z(pFXData->gravity);
 	}
 }
 

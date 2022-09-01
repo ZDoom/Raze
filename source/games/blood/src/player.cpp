@@ -1453,7 +1453,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 					int t2 = DivScale(0xccccc, nMass, 8);
 					hitactor->add_int_bvel_x(MulScale(x, t2, 16));
 					hitactor->add_int_bvel_y(MulScale(y, t2, 16));
-					hitactor->__int_vel.Z += MulScale(z, t2, 16);
+					hitactor->add_int_bvel_z(MulScale(z, t2, 16));
 				}
 				if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
 					trTriggerSprite(hitactor, kCmdSpritePush);
@@ -1658,7 +1658,7 @@ void ProcessInput(PLAYER* pPlayer)
 		if (pInput->actions & SB_JUMP)
 			actor->__int_vel.Z -= pPosture->normalJumpZ;//0x5b05;
 		if (pInput->actions & SB_CROUCH)
-			actor->__int_vel.Z += pPosture->normalJumpZ;//0x5b05;
+			actor->add_int_bvel_z(pPosture->normalJumpZ);//0x5b05;
 		break;
 	case 2:
 		if (!(pInput->actions & SB_CROUCH))

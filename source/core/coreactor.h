@@ -246,14 +246,14 @@ public:
 		__int_vel .Y += x;
 	}
 
+	void add_int_bvel_z(int x)
+	{
+		__int_vel .Z += x;
+	}
+
 	void clear_vel_xy()
 	{
 		__int_vel .X = __int_vel .Y = 0;
-	}
-
-	void add_int_bvel_z(int x)
-	{
-		__int_vel.Z += x;
 	}
 
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.

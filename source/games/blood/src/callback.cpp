@@ -110,7 +110,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		RotateVector(&dx, &dy, nAngle);
 		spawnedactor->add_int_bvel_x(dx);
 		spawnedactor->add_int_bvel_y(dy);
-		spawnedactor->__int_vel.Z += dz;
+		spawnedactor->add_int_bvel_z(dz);
 		evPostActor(spawnedactor, 960, kCallbackRemove);
 	}
 	evPostActor(actor, 0, kCallbackRemove);

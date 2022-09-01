@@ -1054,13 +1054,13 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (maxZfound && actor->int_pos().Z <= maxZ)
 		{
 			zdiff = actor->int_pos().Z - maxZ;
-			if (actor->__int_vel.Z < 0) actor->__int_vel.Z += MulScale(actor->int_vel().Z >> 4, zdiff, 16);
+			if (actor->__int_vel.Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
 			continue;
 
 		}
 
 		val = -MulScale(factor * 64, 0x10000, 16);
-		if (actor->__int_vel.Z >= 0) actor->__int_vel.Z += val;
+		if (actor->__int_vel.Z >= 0) actor->add_int_bvel_z(val);
 		else actor->__int_vel.Z = val;
 
 		actor->add_int_z(actor->int_vel().Z >> 12);
@@ -1583,7 +1583,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 
 				actor->add_int_bvel_x(MulScale(t, dx, 16));
 				actor->add_int_bvel_y(MulScale(t, dy, 16));
-				actor->__int_vel.Z += MulScale(t, dz, 16);
+				actor->add_int_bvel_z(MulScale(t, dz, 16));
 			}
 
 			if (thing)
@@ -1734,14 +1734,14 @@ void debrisMove(int listIndex)
 		if (vc)
 		{
 			actor->add_int_z(((vc << 2) >> 1) >> 8);
-			actor->__int_vel.Z += vc;
+			actor->add_int_bvel_z(vc);
 		}
 
 	}
 	else if ((actor->xspr.physAttr & kPhysGravity) && bottom < floorZ)
 	{
 		actor->spr.pos.Z += 1.777;
-		actor->__int_vel.Z += 58254;
+		actor->add_int_bvel_z(58254);
 
 	}
 
@@ -3120,7 +3120,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		{
 			pSprite->add_int_bvel_x(xv);
 			pSprite->add_int_bvel_y(yv);
-			pSprite->__int_vel.Z += zv;
+			pSprite->add_int_bvel_z(zv);
 		}
 		else
 		{
@@ -9234,7 +9234,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		RotateVector(&dx, &dy, nAngle);
 		burstactor->add_int_bvel_x(dx);
 		burstactor->add_int_bvel_y(dy);
-		burstactor->__int_vel.Z += dz;
+		burstactor->add_int_bvel_z(dz);
 		evPostActor(burstactor, 960, kCallbackRemove);
 	}
 	evPostActor(actor, 0, kCallbackRemove);

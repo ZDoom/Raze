@@ -2577,7 +2577,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 			int t = Scale(damage, size, mass);
 			actor->add_int_bvel_x((int)MulScaleF(t, vect.X, 12));
 			actor->add_int_bvel_y((int)MulScaleF(t, vect.Y, 12));
-			actor->__int_vel.Z += (int)MulScaleF(t, vect.Z, 12);
+			actor->add_int_bvel_z((int)MulScaleF(t, vect.Z, 12));
 		}
 	}
 	actDamageSprite(source, actor, kDamageExplode, damage);
@@ -4577,7 +4577,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if ((actor->spr.flags & 2) && bottom < floorZ)
 	{
 		actor->spr.pos.Z += 1.777;
-		actor->__int_vel.Z += 58254;
+		actor->add_int_bvel_z(58254);
 		if (actor->spr.type == kThingZombieHead)
 		{
 			auto* fxActor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
@@ -4905,7 +4905,7 @@ void MoveDude(DBloodActor* actor)
 		if (vc)
 		{
 			actor->add_int_z(((vc * 4) / 2) >> 8);
-			actor->__int_vel.Z += vc;
+			actor->add_int_bvel_z(vc);
 		}
 	}
 	if (pPlayer && actor->__int_vel.Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
@@ -5238,7 +5238,7 @@ int MoveMissile(DBloodActor* actor)
 
 			int deltaz = dz / 10;
 			if (target->int_pos().Z < actor->int_pos().Z) deltaz = -deltaz;
-			actor->__int_vel.Z += deltaz;
+			actor->add_int_bvel_z(deltaz);
 		}
 	}
 	auto vel = actor->fVel();
@@ -6405,7 +6405,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	fired->__int_vel.Z = MulScale(a6, a4, 14);
 	fired->add_int_bvel_x(actor->int_vel().X / 2);
 	fired->add_int_bvel_y(actor->int_vel().Y / 2);
-	fired->__int_vel.Z += actor->int_vel().Z / 2;
+	fired->add_int_bvel_z(actor->int_vel().Z / 2);
 	return fired;
 }
 
@@ -6450,7 +6450,7 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		seqSpawn(27, spawned, -1);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
+		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
 		break;
 	case kMissileFireballCerberus:
 		seqSpawn(61, spawned, dword_2192E0);
@@ -6460,14 +6460,14 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		seqSpawn(23, spawned, dword_2192D8);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
+		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
 		break;
 	case kMissileFlameSpray:
 		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
 		else seqSpawn(1, spawned, -1);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
+		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
 		break;
 	case kMissileFlareAlt:
 		evPostActor(spawned, 30, kCallbackFXFlareBurst);
@@ -6771,7 +6771,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					int t2 = DivScale(pVectorData->impulse, t, 8);
 					actor->add_int_bvel_x(MulScale(a4, t2, 16));
 					actor->add_int_bvel_y(MulScale(a5, t2, 16));
-					actor->__int_vel.Z += MulScale(a6, t2, 16);
+					actor->add_int_bvel_z(MulScale(a6, t2, 16));
 				}
 				if (pVectorData->burnTime)
 				{
@@ -6801,7 +6801,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					int t2 = DivScale(pVectorData->impulse, t, 8);
 					actor->add_int_bvel_x(MulScale(a4, t2, 16));
 					actor->add_int_bvel_y(MulScale(a5, t2, 16));
-					actor->__int_vel.Z += MulScale(a6, t2, 16);
+					actor->add_int_bvel_z(MulScale(a6, t2, 16));
 				}
 				if (pVectorData->burnTime)
 				{
@@ -6859,7 +6859,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 						int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
 						actor->add_int_bvel_x(MulScale(a4, impulse, 16));
 						actor->add_int_bvel_y(MulScale(a5, impulse, 16));
-						actor->__int_vel.Z += MulScale(a6, impulse, 16);
+						actor->add_int_bvel_z(MulScale(a6, impulse, 16));
 
 						if (pVectorData->burnTime != 0) {
 							if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
