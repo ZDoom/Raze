@@ -1399,7 +1399,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
             // loc_16E0C
             int nSqrt = lsqrt(((pActor->spr.yvel >> 10) * (pActor->spr.yvel >> 10)
-                + (pActor->spr.xvel >> 10) * (pActor->spr.xvel >> 10)) >> 8);
+                + (pActor->int_xvel() >> 10) * (pActor->int_xvel() >> 10)) >> 8);
 
             pActor->set_int_xvel(bcos(nAngle) * (nSqrt >> 1));
             pActor->spr.yvel = bsin(nAngle) * (nSqrt >> 1);

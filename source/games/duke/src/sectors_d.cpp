@@ -1040,7 +1040,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case STRIPEBALL:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
+			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
 			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
 			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)

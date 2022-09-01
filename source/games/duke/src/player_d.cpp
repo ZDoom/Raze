@@ -2863,7 +2863,7 @@ void processinput_d(int snum)
 	p->playerweaponsway(pact->spr.xvel);
 
 	pact->set_int_xvel(int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint));
-	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
+	if (p->on_ground) p->bobcounter += p->GetActor()->int_xvel() >> 1;
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
 

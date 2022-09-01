@@ -9365,7 +9365,7 @@ int DoUziBullet(DSWActor* actor)
     // otherwize the moves are in too big an increment
     for (i = 0; i < 2; i++)
     {
-		auto vec = MOVExy((actor->spr.xvel >> 1), actor->spr.angle);
+		auto vec = MOVExy((actor->int_xvel() >> 1), actor->spr.angle);
 		double daz = (actor->int_zvel() >> 1) * zinttoworld;
 
         sx = actor->int_pos().X;
@@ -11171,7 +11171,7 @@ int DoSerpRing(DSWActor* actor)
                     actor->user.ID = SKULL_R0;
                     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
                     actor->set_int_xvel(dist>>5);
-                    actor->spr.xvel += (actor->spr.xvel >> 1);
+                    actor->spr.xvel += (actor->int_xvel() >> 1);
                     actor->spr.xvel += (RANDOM_P2(128<<8)>>8);
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
@@ -15865,7 +15865,7 @@ int InitGrenade(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
+        actorNew->spr.xvel -= (actorNew->int_xvel() >> 2);
     }
 
     actorNew->user.RotNum = 5;

@@ -1511,7 +1511,7 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
-		k = proj->spr.xvel >> 1;
+		k = proj->int_xvel() >> 1;
 		ll = proj->int_zvel() >> 1;
 	}
 	else
@@ -1980,7 +1980,7 @@ void movetransports_d(void)
 								auto k = spawn(act2, WATERSPLASH2);
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									k->set_int_xvel(act2->spr.xvel >> 1);
+									k->set_int_xvel(act2->int_xvel() >> 1);
 									k->spr.angle = act2->spr.angle;
 									ssp(k, CLIPMASK0);
 								}

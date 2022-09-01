@@ -2063,7 +2063,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			EGS(targ->sector(), targ->int_pos().X, targ->int_pos().Y, targ->int_pos().Z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
-		proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
+		proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
 		proj->add_int_ang(-(krand() & 16));
 		S_PlayActorSound(355, targ);
 		break;
@@ -2076,7 +2076,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case HENSTAND + 1:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
+			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
 			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
 			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
@@ -2084,14 +2084,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
-			proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
+			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
 			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 64));
 			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
-			proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
+			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
 			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 16));
 			targ->set_int_ang((targ->int_ang() + krand()) & 16);
 			S_PlayActorSound(355, targ);

@@ -1172,7 +1172,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121)
     {
         actorNew->user.Radius = 2000;
-        actorNew->user.change.XY() = MOVExy(actorNew->spr.xvel >> 2, actorNew->spr.angle);
+        actorNew->user.change.XY() = MOVExy(actorNew->int_xvel() >> 2, actorNew->spr.angle);
         actorNew->set_int_zvel(Z(1) + RANDOM_P2(Z(2)));
     }
     else
@@ -1227,7 +1227,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
+        actorNew->spr.xvel -= (actorNew->int_xvel() >> 2);
     }
 
 //    actorNew->user.RotNum = 5;
@@ -1578,7 +1578,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->spr.xvel -= (actorNew->spr.xvel >> 2);
+        actorNew->spr.xvel -= (actorNew->int_xvel() >> 2);
     }
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);

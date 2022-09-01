@@ -1177,12 +1177,12 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
-		k = proj->spr.xvel >> 1;
+		k = proj->int_xvel() >> 1;
 		ll = proj->int_zvel() >> 1;
 	}
 	else if (isRRRA() && proj->spr.picnum == RPG2 && proj->sector()->lotag == 2)
 	{
-		k = proj->spr.xvel >> 1;
+		k = proj->int_xvel() >> 1;
 		ll = proj->int_zvel() >> 1;
 	}
 	else
@@ -1657,7 +1657,7 @@ void movetransports_r(void)
 								auto spawned = spawn(act2, WATERSPLASH2);
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									spawned->set_int_xvel(act2->spr.xvel >> 1);
+									spawned->set_int_xvel(act2->int_xvel() >> 1);
 									spawned->spr.angle = act2->spr.angle;
 									ssp(spawned, CLIPMASK0);
 								}
