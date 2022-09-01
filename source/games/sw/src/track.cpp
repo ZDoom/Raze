@@ -3060,7 +3060,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_OPERATE:
     case TRACK_ACTOR_QUICK_OPERATE:
     {
-        HitInfo near;
+        HitInfo near{};
         double z[2];
 
         if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
