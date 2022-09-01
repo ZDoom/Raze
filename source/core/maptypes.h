@@ -292,6 +292,8 @@ struct sectortype
 	uint8_t portalflags;
 	int8_t portalnum;
 
+	DAngle angle; // this is SW only. GCC is stupid and does not allow it inside an anonmyous struct.
+
 	// Game specific extensions. Due to how sectors are used they need to be defined in the global class. :(
 	union
 	{
@@ -329,7 +331,6 @@ struct sectortype
 			int flags;
 			int depth_fixed;
 			short stag;    // ST? tag number - for certain things it helps to know it
-			DAngle angle;
 			short height;
 			short speed;
 			short damage;
