@@ -3928,9 +3928,13 @@ int DoShrapDamage(DSWActor* actor)
     return 0;
 }
 
-int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z)
+int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVector3* hit_pos)
 {
+    DVector3 hitpos;
     int i;
+
+    if (hit_pos) hitpos = *hit_pos;
+    else hitpos = {};
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
     // random_disperse, ang_range;
@@ -3988,14 +3992,14 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
     };
 #endif
 
-    short dang = 0;
+    DAngle dangl = nullAngle;
 
     SHRAP* p = UziBlood;
     short shrap_shade = -15;
     short shrap_xsize = 20, shrap_ysize = 20;
     short retval = true;
     short shrap_pal = PALETTE_DEFAULT;
-    short start_ang = 0;
+    DAngle start_angle = nullAngle;
 
     switch (actor->user.ID)
     {
@@ -4020,78 +4024,70 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             if (actor == weapActor)
             {
                 p = HariKariBlood;
-                hit_ang = actor->int_ang();
-                hit_x = actor->int_pos().X;
-                hit_y = actor->int_pos().Y;
-                hit_z = int_ActorZOfTop(weapActor) + (int_ActorSizeZ(weapActor) >> 4);
+                hit_angle = actor->spr.angle;
+                hitpos = ActorVectOfTop(actor).plusZ(ActorSizeZ(actor) * (1./16.));
             }
             else
             {
                 p = ExtraBlood;
-                hit_ang = NORM_ANGLE(weapActor->int_ang() + 1024);
-                hit_x = actor->int_pos().X;
-                hit_y = actor->int_pos().Y;
-                hit_z = int_ActorZOfTop(weapActor) + (int_ActorSizeZ(weapActor) >> 2);
+                hit_angle = weapActor->spr.angle + DAngle180;
+                hitpos.XY() = actor->spr.pos.XY();
+                hitpos.Z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) * 0.25);
             }
             break;
         case SERP_RUN_R0:
             p = ExtraBlood;
-            hit_ang = NORM_ANGLE(weapActor->int_ang() + 1024);
-            hit_x = actor->int_pos().X;
-            hit_y = actor->int_pos().Y;
-            hit_z = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
+            hit_angle = weapActor->spr.angle + DAngle180;
+            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
             break;
         case BLADE1:
         case BLADE2:
         case BLADE3:
         case 5011:
             p = SmallBlood;
-            hit_ang = NORM_ANGLE(AngToSprite(actor, weapActor) + 1024);
-            hit_x = actor->int_pos().X;
-            hit_y = actor->int_pos().Y;
-            hit_z = weapActor->int_pos().Z - (int_ActorSizeZ(weapActor) >> 1);
+            hit_angle = DAngle::fromBuild(AngToSprite(actor, weapActor) + 1024);
+            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.Z = weapActor->spr.pos.Z + (ActorSizeZ(weapActor) * 0.5);
             break;
         case STAR1:
         case CROSSBOLT:
             p = SomeBlood;
-            hit_ang = NORM_ANGLE(weapActor->int_ang() + 1024);
-            hit_x = actor->int_pos().X;
-            hit_y = actor->int_pos().Y;
-            hit_z = weapActor->int_pos().Z;
+            hit_angle = weapActor->spr.angle + DAngle180;
+            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.Z = weapActor->spr.pos.Z;
             break;
         case PLASMA_FOUNTAIN:
             p = PlasmaFountainBlood;
-            hit_ang = weapActor->int_ang();
-            hit_x = actor->int_pos().X;
-            hit_y = actor->int_pos().Y;
-            hit_z = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
+            hit_angle = weapActor->spr.angle;
+            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
             break;
         default:
             p = SomeBlood;
-            hit_ang = NORM_ANGLE(weapActor->int_ang() + 1024);
-            hit_x = actor->int_pos().X;
-            hit_y = actor->int_pos().Y;
-            hit_z = int_ActorZOfTop(weapActor) + (int_ActorSizeZ(weapActor) >> 2);
+            hit_angle = weapActor->spr.angle + DAngle180;
+            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.Z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) * 0.25);
             break;
         }
     }
     else
     {
-        hit_ang = NORM_ANGLE(hit_ang + 1024);
+        hit_angle += DAngle180;
     }
 
     for (; p->state; p++)
     {
+        auto ang_range = DAngle::fromBuild(p->ang_range);
         if (!p->random_disperse)
         {
-            start_ang = NORM_ANGLE(hit_ang - (p->ang_range >> 1) + 1024);
-            dang = (p->ang_range / p->num);
+            start_angle = hit_angle - (ang_range * 0.5) + DAngle180;
+            dangl = (ang_range / p->num);
         }
 
         for (i = 0; i < p->num; i++)
         {
-            auto actorNew = SpawnActor(STAT_SKIP4, p->id, p->state, actor->sector(),
-                              hit_x, hit_y, hit_z, hit_ang, 0);
+            auto actorNew = SpawnActor(STAT_SKIP4, p->id, p->state, actor->sector(), hitpos, hit_angle, 0);
 
             switch (actorNew->user.ID)
             {
@@ -4117,11 +4113,11 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
             if (p->random_disperse)
             {
-                actorNew->set_int_ang(NORM_ANGLE(hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1)));
+                actorNew->spr.angle = hit_angle + DAngle::fromBuild((RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1));
             }
             else
             {
-                actorNew->set_int_ang(NORM_ANGLE(start_ang + (i * dang)));
+                actorNew->spr.angle = start_angle + (dangl * i);
             }
 
             actorNew->user.Flags |= (SPR_BOUNCE);
@@ -5467,7 +5463,7 @@ int StarBlood(DSWActor* actor, DSWActor* weapActor)
         blood_num = 4;
 
     for (i = 0; i < blood_num; i++)
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
     return 0;
 }
 
@@ -5498,7 +5494,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     // don't hit a dead player
     if (actor->user.PlayerP && (actor->user.PlayerP->Flags & PF_DEAD))
     {
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
         return 0;
     }
 
@@ -5513,7 +5509,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     if (actor->user.Flags & (SPR_DEAD))
     {
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
         return 0;
     }
 
@@ -5621,7 +5617,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5653,7 +5649,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5711,7 +5707,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5746,7 +5742,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5780,7 +5776,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5813,7 +5809,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5841,9 +5837,9 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
+        SpawnBlood(actor, weapActor);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5886,7 +5882,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         break;
 
@@ -5954,7 +5950,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         weapActor->user.ID = 0;
         SetSuicide(weapActor);
@@ -5985,7 +5981,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         weapActor->user.ID = 0;
         SetSuicide(weapActor);
@@ -6016,7 +6012,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor);
 
         weapActor->user.ID = 0;
         SetSuicide(weapActor);
@@ -6071,7 +6067,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             }
         }
 
-        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        //SpawnBlood(actor, weapActor);
         // reset id so no more damage is taken
         weapActor->user.ID = 0;
         break;
@@ -6103,7 +6099,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        //SpawnBlood(actor, weapActor);
         switch (actor->user.ID)
         {
         case TRASHCAN:
@@ -7955,7 +7951,7 @@ int DoPlasmaFountain(DSWActor* actor)
 
         if (!actor->user.Counter)
         {
-            SpawnBlood(attachActor, actor, 0, 0, 0, 0);
+            SpawnBlood(attachActor, actor);
             if (RandomRange(1000) > 600)
                 InitBloodSpray(attachActor, false, 105);
         }
@@ -14794,15 +14790,18 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
         {
             if (!hitActor->user.PlayerP)
-                SpawnBlood(hitActor, nullptr, actor->int_ang(), hit_x, hit_y, hit_z);
+                SpawnBlood(hitActor, nullptr, actor->spr.angle, &hit_pos);
             else
-                SpawnBlood(hitActor, nullptr, actor->int_ang(), hit_x, hit_y, hit_z+Z(20));
+            {
+                auto hpp = hit_pos.plusZ(20);
+                SpawnBlood(hitActor, nullptr, actor->spr.angle, &hpp);
+            }
 
             // blood comes out the other side?
             if ((RANDOM_P2(1024<<5)>>5) < 256)
             {
                 if (!hitActor->user.PlayerP)
-                    SpawnBlood(hitActor, nullptr, NORM_ANGLE(actor->int_ang() + 1024),hit_x, hit_y, hit_z);
+                    SpawnBlood(hitActor, nullptr, actor->spr.angle + DAngle180, &hit_pos);
                 if (hitActor->user.ID != TRASHCAN && hitActor->user.ID != ZILLA_RUN_R0)
                     QueueWallBlood(hitActor, actor->int_ang());  //QueueWallBlood needs bullet angle.
             }

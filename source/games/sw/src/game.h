@@ -1751,7 +1751,7 @@ void SetAttach(DSWActor*, DSWActor*);
 void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang);
 void CollectPortals();
 
-int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
+int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle = nullAngle, const DVector3* hitpos = nullptr);
 
 enum
 {

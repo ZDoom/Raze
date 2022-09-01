@@ -1945,7 +1945,7 @@ int DoNinjaHariKari(DSWActor* actor)
 
     PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_follow);
 
-    SpawnBlood(actor, actor, -1, -1, -1, -1);
+    SpawnBlood(actor, actor);
 
     int cnt = RandomRange(4)+1;
     for (int i=0; i<=cnt; i++)

@@ -136,7 +136,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             if (weapActor->user.WeaponNum != WPN_FIST)
             {
                 if (sw_ninjahack)
-                    SpawnBlood(actor, actor, -1, -1, -1, -1);
+                    SpawnBlood(actor, actor);
                 InitPlasmaFountain(weapActor, actor);
                 InitPlasmaFountain(weapActor, actor);
                 PlaySound(DIGI_NINJAINHALF, actor, v3df_none);
