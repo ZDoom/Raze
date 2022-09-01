@@ -214,7 +214,7 @@ void CFX::fxProcess(void)
 		assert(actor->spr.type < kFXMax);
 		FXDATA* pFXData = &gFXData[actor->spr.type];
 		actAirDrag(actor, pFXData->drag);
-		actor->add_int_pos({ actor->__int_vel.X >> 12, actor->__int_vel.Y >> 12, actor->__int_vel.Z >> 8 });
+		actor->add_int_pos({ actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->int_vel().Z >> 8 });
 		// Weird...
 		if (actor->__int_vel.X || (actor->__int_vel.Y && actor->spr.pos.Z >= actor->sector()->floorz))
 		{
@@ -240,7 +240,7 @@ void CFX::fxProcess(void)
 				ChangeActorSect(actor, pSector);
 			}
 		}
-		if (actor->__int_vel.X || actor->__int_vel.Y || actor->__int_vel.Z)
+		if (actor->__int_vel.X || actor->__int_vel.Y || actor->int_vel().Z)
 		{
 			int32_t floorZ, ceilZ;
 			getzsofslopeptr(pSector, actor->spr.pos, &ceilZ, &floorZ);
@@ -341,7 +341,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pBrass->__int_vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pBrass->__int_vel.Y = MulScale(nDist, Sin(nAngle), 30);
-		pBrass->__int_vel.Z = actor->__int_vel.Z - (0x20000 + (Random2(40) << 18) / 120);
+		pBrass->__int_vel.Z = actor->int_vel().Z - (0x20000 + (Random2(40) << 18) / 120);
 	}
 }
 
@@ -366,7 +366,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pShell->__int_vel.X = MulScale(nDist, Cos(nAngle), 30);
 		pShell->__int_vel.Y = MulScale(nDist, Sin(nAngle), 30);
-		pShell->__int_vel.Z = actor->__int_vel.Z - (0x20000 + (Random2(20) << 18) / 120);
+		pShell->__int_vel.Z = actor->int_vel().Z - (0x20000 + (Random2(20) << 18) / 120);
 	}
 }
 

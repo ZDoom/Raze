@@ -213,7 +213,7 @@ public:
 
 	DVector3 fVel() const
 	{
-		return { FixedToFloat(__int_vel.X), FixedToFloat(__int_vel.Y), FixedToFloat(__int_vel.Z) };
+		return { FixedToFloat(__int_vel.X), FixedToFloat(__int_vel.Y), FixedToFloat(int_vel().Z) };
 	}
 
 	vec3_t int_vel() const

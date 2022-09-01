@@ -1764,8 +1764,8 @@ void ProcessInput(PLAYER* pPlayer)
 				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);
 				int x = bcos(pPlayer->actor->int_ang());
 				int y = bsin(pPlayer->actor->int_ang());
-				spawned->__int_vel.X = pPlayer->actor->__int_vel.X + MulScale(0x155555, x, 14);
-				spawned->__int_vel.Y = pPlayer->actor->__int_vel.Y + MulScale(0x155555, y, 14);
+				spawned->__int_vel.X = pPlayer->actor->int_vel().X + MulScale(0x155555, x, 14);
+				spawned->__int_vel.Y = pPlayer->actor->int_vel().Y + MulScale(0x155555, y, 14);
 				spawned->__int_vel.Z = pPlayer->actor->__int_vel.Z;
 			}
 			pPlayer->hand = 0;
@@ -2173,7 +2173,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 				double top, bottom;
 				GetActorExtents(pActor, &top, &bottom);
 				DVector3 gibPos(pActor->spr.pos.XY(), top);
-				CGibVelocity gibVel(pActor->__int_vel.X >> 1, pActor->__int_vel.Y >> 1, -0xccccc);
+				CGibVelocity gibVel(pActor->int_vel().X >> 1, pActor->int_vel().Y >> 1, -0xccccc);
 				GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
 				GibSprite(pActor, GIBTYPE_7, NULL, NULL);
 				fxSpawnBlood(pActor, nDamage << 4);

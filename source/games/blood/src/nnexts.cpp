@@ -1040,7 +1040,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		case kStatFree:
 			continue;
 		case kStatFX:
-			if (actor->__int_vel.Z) break;
+			if (actor->int_vel().Z) break;
 			continue;
 		case kStatThing:
 		case kStatDude:
@@ -1054,7 +1054,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (maxZfound && actor->int_pos().Z <= maxZ)
 		{
 			zdiff = actor->int_pos().Z - maxZ;
-			if (actor->__int_vel.Z < 0) actor->__int_vel.Z += MulScale(actor->__int_vel.Z >> 4, zdiff, 16);
+			if (actor->__int_vel.Z < 0) actor->__int_vel.Z += MulScale(actor->int_vel().Z >> 4, zdiff, 16);
 			continue;
 
 		}
@@ -1063,7 +1063,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (actor->__int_vel.Z >= 0) actor->__int_vel.Z += val;
 		else actor->__int_vel.Z = val;
 
-		actor->add_int_z(actor->__int_vel.Z >> 12);
+		actor->add_int_z(actor->int_vel().Z >> 12);
 
 	}
 
@@ -1616,9 +1616,9 @@ void debrisBubble(DBloodActor* actor)
 		int z = bottom - Random(bottom - top);
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 		if (pFX) {
-			pFX->__int_vel.X = actor->__int_vel.X + Random2(0x1aaaa);
-			pFX->__int_vel.Y = actor->__int_vel.Y + Random2(0x1aaaa);
-			pFX->__int_vel.Z = actor->__int_vel.Z + Random2(0x1aaaa);
+			pFX->__int_vel.X = actor->int_vel().X + Random2(0x1aaaa);
+			pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
+			pFX->__int_vel.Z = actor->int_vel().Z + Random2(0x1aaaa);
 		}
 
 	}
@@ -1668,8 +1668,8 @@ void debrisMove(int listIndex)
 		auto oldcstat = actor->spr.cstat;
 		actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		ClipMove(actor->spr.pos, &pSector, actor->__int_vel.X >> 12,
-			actor->__int_vel.Y >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
+		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12,
+			actor->int_vel().Y >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
 		actor->hit.hit = moveHit;
 
 		actor->spr.cstat = oldcstat;
@@ -1709,8 +1709,8 @@ void debrisMove(int listIndex)
 	if (pSector->hasX())
 		uwater = pSector->xs().Underwater;
 
-	if (actor->__int_vel.Z)
-		actor->add_int_z(actor->__int_vel.Z >> 8);
+	if (actor->int_vel().Z)
+		actor->add_int_z(actor->int_vel().Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -1780,7 +1780,7 @@ void debrisMove(int listIndex)
 	if (floorZ <= bottom) {
 
 		actor->hit.florhit = floorColl;
-		int v30 = actor->__int_vel.Z - actor->sector()->velFloor;
+		int v30 = actor->int_vel().Z - actor->sector()->velFloor;
 
 		if (v30 > 0)
 		{
@@ -1788,7 +1788,7 @@ void debrisMove(int listIndex)
 			actFloorBounceVector(&actor->__int_vel.X, &actor->__int_vel.Y, &v30, actor->sector(), tmpFraction);
 			actor->__int_vel.Z = v30;
 
-			if (abs(actor->__int_vel.Z) < 0x10000)
+			if (abs(actor->int_vel().Z) < 0x10000)
 			{
 				actor->__int_vel.Z = actor->sector()->velFloor;
 				actor->xspr.physAttr &= ~kPhysFalling;
@@ -2782,7 +2782,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
 						// set random goal ang for swimming so they start turning
-						if ((flags & kPhysDebrisSwim) && !targetactor->__int_vel.X && !targetactor->__int_vel.Y && !targetactor->__int_vel.Z)
+						if ((flags & kPhysDebrisSwim) && !targetactor->__int_vel.X && !targetactor->__int_vel.Y && !targetactor->int_vel().Z)
 							targetactor->xspr.goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
@@ -4617,10 +4617,10 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				else if (arg1 == 2) return condCmp(objActor->__int_vel.Y, arg1, arg2, cmpOp);
 				else if (arg1 == 3) return condCmp(objActor->__int_vel.Z, arg1, arg2, cmpOp);
 			}
-			else if (arg1 == 0) return (objActor->__int_vel.X || objActor->__int_vel.Y || objActor->__int_vel.Z);
+			else if (arg1 == 0) return (objActor->__int_vel.X || objActor->__int_vel.Y || objActor->int_vel().Z);
 			else if (arg1 == 1) return (objActor->__int_vel.X);
 			else if (arg1 == 2) return (objActor->__int_vel.Y);
-			else if (arg1 == 3) return (objActor->__int_vel.Z);
+			else if (arg1 == 3) return (objActor->int_vel().Z);
 			break;
 		case 30:
 			if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
@@ -8575,8 +8575,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			{
 				DBloodActor* act = pPlayer->actor;
 				itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-				if (act && itCanHear && nDist < feelDist && (act->__int_vel.X || act->__int_vel.Y || act->__int_vel.Z))
-					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->__int_vel.X) + abs(act->__int_vel.Y) + abs(act->__int_vel.Z))) >> 6, 0)), 0);
+				if (act && itCanHear && nDist < feelDist && (act->__int_vel.X || act->__int_vel.Y || act->int_vel().Z))
+					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->__int_vel.X) + abs(act->__int_vel.Y) + abs(act->int_vel().Z))) >> 6, 0)), 0);
 			}
 
 			if (seeDist)
@@ -9333,7 +9333,7 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 
 int getVelocityAngle(DBloodActor* pSpr)
 {
-	return getangle(pSpr->__int_vel.X >> 12, pSpr->__int_vel.Y >> 12);
+	return getangle(pSpr->int_vel().X >> 12, pSpr->int_vel().Y >> 12);
 }
 
 #if 0

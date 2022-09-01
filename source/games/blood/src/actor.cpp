@@ -2977,7 +2977,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 				double top, bottom;
 				GetActorExtents(actor, &top, &bottom);
 				DVector3 gibPos(actor->spr.pos.XY(), top);
-				CGibVelocity gibVel(actor->__int_vel.X >> 1, actor->__int_vel.Y >> 1, -0xccccc);
+				CGibVelocity gibVel(actor->int_vel().X >> 1, actor->int_vel().Y >> 1, -0xccccc);
 				GibSprite(actor, nGibType, &gibPos, &gibVel);
 			}
 		}
@@ -3215,7 +3215,7 @@ static void spawnGibs(DBloodActor* actor, int type, int velz)
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	DVector3 gibPos(actor->spr.pos.XY(), top);
-	CGibVelocity gibVel(actor->__int_vel.X >> 1, actor->__int_vel.Y >> 1, velz);
+	CGibVelocity gibVel(actor->int_vel().X >> 1, actor->int_vel().Y >> 1, velz);
 	GibSprite(actor, GIBTYPE_27, &gibPos, &gibVel);
 }
 
@@ -4531,7 +4531,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->__int_vel.X >> 12, actor->__int_vel.Y >> 12, actor->spr.clipdist << 2, (actor->int_pos().Z - top) / 4, (bottom - actor->int_pos().Z) / 4, CLIPMASK0, lhit);
+		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->spr.clipdist << 2, (actor->int_pos().Z - top) / 4, (bottom - actor->int_pos().Z) / 4, CLIPMASK0, lhit);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
@@ -4567,7 +4567,7 @@ static Collision MoveThing(DBloodActor* actor)
 		if (pSector2) pSector = pSector2;
 	}
 
-	actor->add_int_z(actor->__int_vel.Z >> 8);
+	actor->add_int_z(actor->int_vel().Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4592,9 +4592,9 @@ static Collision MoveThing(DBloodActor* actor)
 				RotateVector(&v2c, &v28, vbx);
 				RotateVector(&v2c, &v24, v30);
 				RotateVector(&v28, &v24, v34);
-				fxActor->__int_vel.X = actor->__int_vel.X + v2c;
-				fxActor->__int_vel.Y = actor->__int_vel.Y + v28;
-				fxActor->__int_vel.Z = actor->__int_vel.Z + v24;
+				fxActor->__int_vel.X = actor->int_vel().X + v2c;
+				fxActor->__int_vel.Y = actor->int_vel().Y + v28;
+				fxActor->__int_vel.Z = actor->int_vel().Z + v24;
 			}
 		}
 	}
@@ -4607,7 +4607,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->hit.florhit = floorColl;
 		actor->add_int_z(floorZ - bottom);
 
-		int v20 = actor->__int_vel.Z - actor->sector()->velFloor;
+		int v20 = actor->int_vel().Z - actor->sector()->velFloor;
 		if (v20 > 0)
 		{
 
@@ -4617,7 +4617,7 @@ static Collision MoveThing(DBloodActor* actor)
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
 			actor->__int_vel.Z = v20;
-			if (actor->sector()->velFloor == 0 && abs(actor->__int_vel.Z) < 0x10000)
+			if (actor->sector()->velFloor == 0 && abs(actor->int_vel().Z) < 0x10000)
 			{
 				actor->__int_vel.Z = 0;
 				actor->spr.flags &= ~4;
@@ -4630,7 +4630,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingZombieHead:
-				if (abs(actor->__int_vel.Z) > 0x80000)
+				if (abs(actor->int_vel().Z) > 0x80000)
 				{
 					sfxPlay3DSound(actor, 607, 0, 0);
 					actDamageSprite(nullptr, actor, kDamageFall, 80);
@@ -4638,7 +4638,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingKickablePail:
-				if (abs(actor->__int_vel.Z) > 0x80000)
+				if (abs(actor->int_vel().Z) > 0x80000)
 					sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			}
@@ -4670,7 +4670,7 @@ static Collision MoveThing(DBloodActor* actor)
 			switch (actor->spr.type)
 			{
 			case kThingZombieHead:
-				if (abs(actor->__int_vel.Z) > 0x80000)
+				if (abs(actor->int_vel().Z) > 0x80000)
 				{
 					sfxPlay3DSound(actor, 607, 0, 0);
 					actDamageSprite(nullptr, actor, kDamageFall, 80);
@@ -4678,7 +4678,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingKickablePail:
-				if (abs(actor->__int_vel.Z) > 0x80000)
+				if (abs(actor->int_vel().Z) > 0x80000)
 					sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			}
@@ -4745,7 +4745,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		if (pPlayer && gNoClip)
 		{
-			actor->add_int_pos({ actor->__int_vel.X >> 12, actor->__int_vel.Y >> 12, 0 });
+			actor->add_int_pos({ actor->int_vel().X >> 12, actor->int_vel().Y >> 12, 0 });
 			updatesector(actor->spr.pos, &pSector);
 			if (!pSector) pSector = actor->sector();
 		}
@@ -4753,7 +4753,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			auto bakCstat = actor->spr.cstat;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-			ClipMove(actor->spr.pos, &pSector, actor->__int_vel.X >> 12, actor->__int_vel.Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
+			ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
 				pSector = actor->sector();
@@ -4868,7 +4868,7 @@ void MoveDude(DBloodActor* actor)
 	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
-	if (actor->__int_vel.Z) actor->add_int_z(actor->__int_vel.Z >> 8);
+	if (actor->int_vel().Z) actor->add_int_z(actor->int_vel().Z >> 8);
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4996,7 +4996,7 @@ void MoveDude(DBloodActor* actor)
 
 				pPlayer->posture = 1;
 				actor->xspr.burnTime = 0;
-				pPlayer->bubbleTime = abs(actor->__int_vel.Z) >> 12;
+				pPlayer->bubbleTime = abs(actor->int_vel().Z) >> 12;
 				evPostActor(actor, 0, kCallbackPlayerBubble);
 				sfxPlay3DSound(actor, 720, -1, 0);
 			}
@@ -5096,7 +5096,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		actor->hit.florhit = floorColl;
 		actor->add_int_z(floorZ - bottom);
-		int v30 = actor->__int_vel.Z - actor->sector()->velFloor;
+		int v30 = actor->int_vel().Z - actor->sector()->velFloor;
 		if (v30 > 0)
 		{
 			int vax = actFloorBounceVector((int*)&actor->__int_vel.X, (int*)&actor->__int_vel.Y, (int*)&v30, actor->sector(), 0);
@@ -5114,7 +5114,7 @@ void MoveDude(DBloodActor* actor)
 			if (nDamage > 0)
 				actDamageSprite(actor, actor, kDamageFall, nDamage);
 			actor->__int_vel.Z = v30;
-			if (abs(actor->__int_vel.Z) < 0x10000)
+			if (abs(actor->int_vel().Z) < 0x10000)
 			{
 				actor->__int_vel.Z = actor->sector()->velFloor;
 				actor->spr.flags &= ~4;
@@ -5222,7 +5222,7 @@ int MoveMissile(DBloodActor* actor)
 	gHitInfo.clearObj();
 	if (actor->spr.type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
-	if (actor->GetTarget() != nullptr && (actor->__int_vel.X || actor->__int_vel.Y || actor->__int_vel.Z))
+	if (actor->GetTarget() != nullptr && (actor->__int_vel.X || actor->__int_vel.Y || actor->int_vel().Z))
 	{
 		auto target = actor->GetTarget();
 
