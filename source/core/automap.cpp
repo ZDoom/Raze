@@ -404,8 +404,8 @@ static void drawredlines(const DVector2& cpos, const double sine, const double c
 
 			if (ShowRedLine(wallnum(&wal), i))
 			{
-				auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, xydim, gZoom);
-				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, xydim, gZoom);
+				auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
+				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
 				drawlinergb(v1.X, v1.Y, v2.X, v2.Y, RedLineColor());
 			}
 		}
@@ -432,8 +432,8 @@ static void drawwhitelines(const DVector2& cpos, const double sine, const double
 			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, xydim, gZoom);
-			auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, xydim, gZoom);
+			auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
+			auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
 			drawlinergb(v1.X, v1.Y, v2.X, v2.Y, WhiteLineColor());
 		}
 	}
@@ -532,7 +532,7 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 			vertices.Resize(mesh->vertices.Size());
 			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{
-				auto v = OutAutomapVector(DVector2(mesh->vertices[j].X - cpos.X, -mesh->vertices[j].Y - cpos.Y), sine, cosine, xydim, gZoom);
+				auto v = OutAutomapVector(DVector2(mesh->vertices[j].X - cpos.X, -mesh->vertices[j].Y - cpos.Y), sine, cosine, gZoom, xydim);
 				vertices[j] = { float(v.X), float(v.Y), mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
 
@@ -558,7 +558,7 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 
 		for (unsigned j = 0; j < 4; j++)
 		{
-			auto v = OutAutomapVector(pp[j] - cpos, sine, cosine, xydim, gZoom);
+			auto v = OutAutomapVector(pp[j] - cpos, sine, cosine, gZoom, xydim);
 			vertices[j] = { float(v.X), float(v.Y), j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;

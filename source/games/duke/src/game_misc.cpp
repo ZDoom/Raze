@@ -387,6 +387,8 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 
 bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, const double czoom, const DAngle cang, double const smoothratio)
 {
+	DVector2 v1, v2, v3, v4;
+	DAngle an;
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
 	int xrepeat, yrepeat, tilenum;
@@ -416,27 +418,18 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 			sprx = act->int_pos().X;
 			spry = act->int_pos().Y;
 
+			auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
+
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case CSTAT_SPRITE_ALIGNMENT_FACING:
-				//break;
+				an = -cang;
+				v1 = OutAutomapVector(DVector2(sprx - cposx, spry - cposy) * inttoworld, an.Sin(), an.Cos(), czoom / 1024.);
+				v2 = OutAutomapVector(act->spr.angle.ToVector() * 8., an.Sin(), an.Cos(), czoom / 1024.);
 
-				ox = sprx - cposx;
-				oy = spry - cposy;
-				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y1 = DMulScale(oy, xvect, ox, yvect, 16);
-
-				ox = bcos(act->int_ang(), -7);
-				oy = bsin(act->int_ang(), -7);
-				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y2 = DMulScale(oy, xvect, ox, yvect, 16);
-
-				x3 = x2;
-				y3 = y2;
-
-				drawlinergb(x1 - x2 + xdim, y1 - y3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
-				drawlinergb(x1 - y2 + xdim, y1 + x3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
-				drawlinergb(x1 + y2 + xdim, y1 - x3 + ydim, x1 + x2 + xdim, y1 + y3 + ydim, col);
+				drawlinergb(v1.X - v2.X + xydim.X, v1.Y - v2.Y + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
+				drawlinergb(v1.X - v2.Y + xydim.X, v1.Y + v2.X + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
+				drawlinergb(v1.X + v2.Y + xydim.X, v1.Y - v2.X + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:

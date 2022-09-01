@@ -25,7 +25,7 @@ inline void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry
 	drawlinergb(x1 / 4096., y1 / 4096., x2 / 4096., y2 / 4096., p);
 }
 
-inline DVector2 OutAutomapVector(const DVector2& pos, const double sine, const double cosine, const DVector2& xydim, const double zoom = 1.)
+inline DVector2 OutAutomapVector(const DVector2& pos, const double sine, const double cosine, const double zoom = 1., const DVector2& xydim = { 0, 0 })
 {
 	return pos.Rotated(cosine, sine).Rotated90CW() * zoom + xydim;
 }
