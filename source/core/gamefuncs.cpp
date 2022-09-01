@@ -613,9 +613,9 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->sectp = actor->spr.sectp;
 	tspr->statnum = actor->spr.statnum;
 	tspr->angle = actor->spr.angle;
-	tspr->xvel = actor->spr.xvel;
-	tspr->yvel = actor->spr.yvel;
-	tspr->inittype = actor->spr.inittype;
+	tspr->xint = actor->spr.xint;
+	tspr->yint = actor->spr.yint;
+	tspr->inittype = actor->spr.inittype; // not used by tsprites.
 	tspr->lotag = actor->spr.lotag;
 	tspr->hitag = actor->spr.hitag;
 	tspr->extra = actor->spr.extra;

@@ -141,6 +141,43 @@ public:
 	{
 		spr.inittype = int(spr.inittype * v);
 	}
+
+	void clear_xyvel()
+	{
+		spr.xint = spr.yint = 0;
+	}
+
+	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
+	int int_xvel() const
+	{
+		return spr.xint;
+	}
+
+	double float_xvel() const
+	{
+		return spr.xint * inttoworld;
+	}
+
+	void clear_xvel()
+	{
+		spr.xint = 0;
+	}
+
+	void set_int_xvel(int v)
+	{
+		spr.xint = v;
+	}
+
+	void add_int_xvel(int v)
+	{
+		spr.xint += v;
+	}
+
+	void mul_int_xvel(double v)
+	{
+		spr.xint = int(spr.xint * v);
+	}
+
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)
