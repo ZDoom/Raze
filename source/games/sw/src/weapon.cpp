@@ -13831,7 +13831,7 @@ int InitSerpSpell(DSWActor* actor)
 
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 1500);
 
-        actorNew->set_int_z(int_ActorZOfTop(actor));
+        actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
@@ -13926,7 +13926,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 500);
 
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
-        actorNew->set_int_z(int_ActorZOfTop(actor));
+        actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
