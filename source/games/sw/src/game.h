@@ -993,7 +993,7 @@ struct USER
     int16_t jump_grav;
 
     // clipmove
-    int16_t lo_step;
+    double lo_step;
     int active_range;
     sectortype* hi_sectp, *lo_sectp;
 

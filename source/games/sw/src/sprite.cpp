@@ -4542,7 +4542,7 @@ bool ActorDrop(DSWActor* actor, const DVector3& pos, sectortype* new_sector, dou
 }
 
 // Primarily used in ai.c for now - need to get rid of
-bool DropAhead(DSWActor* actor, int  min_height)
+bool DropAhead(DSWActor* actor, double min_height)
 {
     auto vect = actor->spr.pos + MOVExy(256, actor->spr.angle);
 
@@ -4550,7 +4550,7 @@ bool DropAhead(DSWActor* actor, int  min_height)
     updatesector(vect, &newsector);
 
     // look straight down for a drop
-    if (ActorDrop(actor, vect, newsector, min_height * zinttoworld))
+    if (ActorDrop(actor, vect, newsector, min_height))
         return true;
 
     return false;
@@ -4600,7 +4600,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     // try and determine whether you moved > lo_step in the z direction
     if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING)))
     {
-        if (abs(actor->spr.pos.Z - globloz) > actor->user.lo_step * zinttoworld)
+        if (abs(actor->spr.pos.Z - globloz) > actor->user.lo_step)
         {
             // cancel move
             actor->spr.pos = apos;
@@ -4616,7 +4616,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(actor, actor->spr.pos, actor->sector(), actor->user.lo_step * zinttoworld))
+        if (ActorDrop(actor, actor->spr.pos, actor->sector(), actor->user.lo_step))
         {
             // cancel move
             actor->spr.pos = apos;
