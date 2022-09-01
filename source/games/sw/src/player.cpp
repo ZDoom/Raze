@@ -1244,10 +1244,8 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
 void DoPlayerResetMovement(PLAYER* pp)
 {
-    pp->vect.X = pp->ovect.X = 0;
-    pp->vect.Y = pp->ovect.Y = 0;
-    pp->slide_vect.X = 0;
-    pp->slide_vect.Y = 0;
+    pp->vect = pp->ovect = { 0, 0 };
+    pp->slide_vect = { 0, 0 };
     pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
@@ -4984,12 +4982,9 @@ void PlayerToRemote(PLAYER* pp)
 
     pp->remote.pos = pp->pos;
 
-    pp->remote.vect.X = pp->vect.X;
-    pp->remote.vect.Y = pp->vect.Y;
-    pp->remote.ovect.Y = pp->ovect.X;
-    pp->remote.ovect.Y = pp->ovect.Y;
-    pp->remote.slide_vect.X = pp->slide_vect.X;
-    pp->remote.slide_vect.Y = pp->slide_vect.Y;
+    pp->remote.vect = pp->vect;
+    pp->remote.ovect = pp->ovect;
+    pp->remote.slide_vect = pp->slide_vect;
 }
 
 void RemoteToPlayer(PLAYER* pp)
@@ -4999,12 +4994,9 @@ void RemoteToPlayer(PLAYER* pp)
 
     pp->pos = pp->remote.pos;
 
-    pp->vect.X = pp->remote.vect.X;
-    pp->vect.Y = pp->remote.vect.Y;
-    pp->ovect.X = pp->remote.ovect.Y;
-    pp->ovect.Y = pp->remote.ovect.Y;
-    pp->slide_vect.X = pp->remote.slide_vect.X;
-    pp->slide_vect.Y = pp->remote.slide_vect.Y;
+    pp->vect = pp->remote.vect;
+    pp->ovect = pp->remote.ovect;
+    pp->slide_vect = pp->remote.slide_vect;
 }
 
 void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
@@ -5016,19 +5008,16 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->pos.XY() = rsp->spr.pos.XY();
     pp->pos.Z = sect->floorz - PLAYER_HEIGHTF;
 
-    pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = pp->slide_vect.X = pp->slide_vect.Y = 0;
+    pp->vect = pp->ovect = pp->slide_vect = { 0,0 };
 
     UpdatePlayerSprite(pp);
 }
 
 void PlayerRemoteInit(PLAYER* pp)
 {
-    pp->remote.vect.X        = 0;
-    pp->remote.vect.Y        = 0;
-    pp->remote.ovect.Y       = 0;
-    pp->remote.ovect.Y       = 0;
-    pp->remote.slide_vect.X  = 0;
-    pp->remote.slide_vect.Y  = 0;
+    pp->remote.vect = { 0,0 };
+    pp->remote.ovect = { 0,0 };
+    pp->remote.slide_vect = { 0,0 };
 }
 
 void DoPlayerStopOperate(PLAYER* pp)
@@ -5437,7 +5426,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
-    pp->slide_vect.X = pp->slide_vect.Y = 0;
+    pp->slide_vect = { 0,0 };
     pp->p_floor_dist = PLAYER_WADE_FLOOR_DIST;
     pp->p_ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));
