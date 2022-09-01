@@ -1607,8 +1607,7 @@ void DoPlayerBob(PLAYER* pp)
     pp->bcnt &= 2047;
 
     // move pp->q16horiz up and down from 100 using sintable
-    //pp->bob_z = Z((8 * bsin(pp->bcnt)) >> 14);
-    pp->bob_z = MulScale(Z(amt), bsin(pp->bcnt), 14);
+    pp->bob_z = amt * DAngle::fromBuild(pp->bcnt).Sin();
 }
 
 void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
@@ -1661,7 +1660,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     ASSERT(act_over->hasU());
 
     // dont bother spawning if you ain't really in the water
-    water_level_z = act_over->sector()->floorz; // - Z(pp->WadeDepth);
+    water_level_z = act_over->sector()->floorz;
 
     // if not below water
     above_water = (ActorZOfBottom(act_over) <= water_level_z);
@@ -1737,13 +1736,6 @@ void UpdatePlayerSprite(PLAYER* pp)
         actor->spr.pos.Z = pp->pos.Z + PLAYER_CRAWL_HEIGHTF;
         ChangeActorSect(pp->actor, pp->cursector);
     }
-#if 0
-    else if (pp->DoPlayerAction == DoPlayerSwim)
-    {
-        actor->spr.z = pp->loz - Z(pp->WadeDepth) + Z(1);
-        ChangeActorSect(pp->actor, pp->cursector);
-    }
-#endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
         actor->spr.pos.Z = pp->pos.Z + PLAYER_HEIGHTF;
@@ -1977,7 +1969,7 @@ void DoPlayerMove(PLAYER* pp)
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
     {
-        friction -= pp->WadeDepth * 100L;
+        friction -= pp->WadeDepth * 100;
     }
 
     pp->vect.X  = MulScale(pp->vect.X, friction, 16);

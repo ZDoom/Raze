@@ -1206,7 +1206,6 @@ int DoRadiationCloud(DSWActor* actor)
 int PlayerInitChemBomb(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int nx, ny, nz;
     short oclipdist;
 
 
@@ -1215,14 +1214,11 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector, pos, pp->angle.ang, CHEMBOMB_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1560,7 +1556,6 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 int PlayerInitCaltrops(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int nx, ny, nz;
     short oclipdist;
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1568,12 +1563,9 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
-    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->angle.ang, (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))

@@ -221,7 +221,7 @@ struct SWPlayer native
     native double pbob_amt;
     native int16 bob_ndx;
     native int16 bcnt; // bob count
-    native int bob_z, obob_z;
+    native double bob_z, obob_z;
 
     // must start out as 0
     native int playerreadyflag;

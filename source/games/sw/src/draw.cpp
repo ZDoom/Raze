@@ -1465,7 +1465,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         if (cl_viewbob)
         {
             tz += bob_amt;
-            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio);
+            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio) * zworldtoint;
         }
 
         // recoil only when not in camera

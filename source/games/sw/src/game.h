@@ -664,7 +664,8 @@ struct PLAYER
     int16_t WadeDepth;
     int16_t bob_ndx;
     int16_t bcnt; // bob count
-    int bob_z, obob_z;
+    double bob_z, obob_z;
+	int int_bob_z() const { return bob_z * worldtoint; }
 
     //Multiplayer variables
     InputPacket input;

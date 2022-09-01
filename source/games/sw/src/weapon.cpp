@@ -12369,7 +12369,7 @@ int InitStar(PLAYER* pp)
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -12607,7 +12607,7 @@ int InitShotgun(PLAYER* pp)
 
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
-    daz = nz = pp->int_ppos().Z + pp->bob_z;
+    daz = nz = pp->int_ppos().Z + pp->int_bob_z();
 
     daang = 64;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
@@ -12762,7 +12762,7 @@ int InitLaser(PLAYER* pp)
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -12862,7 +12862,7 @@ int InitRail(PLAYER* pp)
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(11);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(11);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13025,7 +13025,7 @@ int InitRocket(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
 
@@ -13131,8 +13131,8 @@ int InitBunnyRocket(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    //nz = pp->posz + pp->bob_z + Z(12);
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    //nz = pp->posz + pp->int_bob_z() + Z(12);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.Buildang(), ROCKET_VELOCITY);
 
@@ -13233,7 +13233,7 @@ int InitNuke(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.Buildang(), 700);
 
@@ -13409,7 +13409,7 @@ int InitMicro(PLAYER* pp)
             ang = pp->angle.ang.Buildang();
         }
 
-        nz = pp->int_ppos().Z + pp->bob_z + Z(14);
+        nz = pp->int_ppos().Z + pp->int_bob_z() + Z(14);
         nz += Z(RandomRange(20)) - Z(10);
 
         // Spawn a shot
@@ -14733,8 +14733,8 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    nz = pp->int_ppos().Z + pp->bob_z;
-    daz = pp->int_ppos().Z + pp->bob_z;
+    nz = pp->int_ppos().Z + pp->int_bob_z();
+    daz = pp->int_ppos().Z + pp->int_bob_z();
     daang = 32;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
@@ -15854,7 +15854,7 @@ int InitGrenade(PLAYER* pp)
 
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -15988,7 +15988,7 @@ int InitMine(PLAYER* pp)
 
     nx = pp->int_ppos().X;
     ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->bob_z + Z(8);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -16114,7 +16114,7 @@ int InitFireball(PLAYER* pp)
     nx += pp->int_ppos().X;
     ny += pp->int_ppos().Y;
 
-    nz = pp->int_ppos().Z + pp->bob_z + Z(15);
+    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(15);
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.Buildang(), FIREBALL_VELOCITY);
 
