@@ -12238,23 +12238,22 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 
         if (dist != 0)
         {
-            int tos, diff, siz;
-
-            tos = int_ActorZOfTop(hitActor);
-            diff = missileActor->int_pos().Z - tos;
-            siz = int_ActorSizeZ(hitActor);
+            double zh;
+            double tos = ActorZOfTop(hitActor);
+            double diff = missileActor->spr.pos.Z - tos;
+            double siz = ActorSizeZ(hitActor);
 
             // hit_sprite is below
-            if (diff < -Z(50))
-                zh = tos + (siz >> 1);
+            if (diff < -50)
+                zh = tos + (siz * 0.5);
             else
                 // hit_sprite is above
-                if (diff > Z(50))
-                    zh = tos + (siz >> 3);
+                if (diff > 50)
+                    zh = tos + (siz * 0.125);
                 else
-                    zh = tos + (siz >> 2);
+                    zh = tos + (siz * 0.25);
 
-            *zvel = (missileActor->spr.xvel * (zh - missileActor->int_pos().Z)) / dist;
+            *zvel = int((missileActor->spr.xvel * (zh - missileActor->spr.pos.Z)) / dist * (zworldtoint));
         }
         return 0;
     }
