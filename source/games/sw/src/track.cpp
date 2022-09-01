@@ -696,28 +696,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
         KillActor(BoundActor);
     }
 
-#if 0
-    // look for players on sector object
-    PLAYER* pp;
-    short pnum;
-    TRAVERSE_CONNECT(pnum)
-    {
-        pp = &Player[pnum];
-
-        if (pp->posx > xlow && pp->posx < xhigh && pp->posy > ylow && pp->posy < yhigh)
-        {
-            pp->RevolveAng = pp->angle.ang;
-            pp->Revolve.X = pp->pos.X;
-            pp->Revolve.Y = pp->pos.Y;
-            pp->RevolveDeltaAng = nullAngle;
-            pp->Flags |= (PF_PLAYER_RIDING);
-
-            pp->sop_riding = sop;
-        }
-    }
-#endif
-
-
     // look through all sectors for whole sectors that are IN bounds
     for (auto&sec: sector)
     {
@@ -1497,8 +1475,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.X = pp->int_ppos().X;
-        pp->Revolve.Y = pp->int_ppos().Y;
+        pp->Revolve.XY() = pp->pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1520,8 +1497,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.X = pp->int_ppos().X;
-        pp->Revolve.Y = pp->int_ppos().Y;
+        pp->Revolve.XY() = pp->pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1531,8 +1507,8 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // Player is NOT moving
 
         // Move saved x&y variables
-        pp->Revolve.X += nx;
-        pp->Revolve.Y += ny;
+        pp->Revolve.X += nx * inttoworld;
+        pp->Revolve.Y += ny * inttoworld;
 
         // Last known angle is now adjusted by the delta angle
         pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->angle.ang);
@@ -1541,7 +1517,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng += GlobSpeedSO;
 
-    pp->pos.XY() = rotatepoint(sop->pmid.XY(), {pp->Revolve.X * inttoworld, pp->Revolve.Y * inttoworld}, pp->RevolveDeltaAng);
+    pp->pos.XY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector

@@ -651,7 +651,7 @@ struct PLAYER
     int16_t recoil_ndx;
     fixed_t recoil_ohorizoff, recoil_horizoff;
 
-    vec3_t Revolve;
+    DVector3 Revolve;
     DAngle RevolveDeltaAng;
     DAngle RevolveAng;
 
