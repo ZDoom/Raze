@@ -4310,7 +4310,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
         if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
         {
-            if (labs(actor->int_pos().Z - sectp->int_ceilingz()) < int_ActorSizeZ(actor))
+            if (abs(actor->spr.pos.Z - sectp->ceilingz) < ActorSizeZ(actor))
             {
                 SetSuicide(actor);
                 return true;
@@ -8715,7 +8715,7 @@ int DoMine(DSWActor* actor)
 
             SetMineStuck(actor);
             // Set the Z position
-            actor->set_int_z(hitActor->int_pos().Z - (int_ActorSizeZ(hitActor) >> 1));
+            actor->spr.pos.Z = hitActor->spr.pos.Z - (ActorSizeZ(hitActor) * 0.5);
 
             // If it's not alive, don't stick it
             if (hitActor->hasU() && hitActor->user.Health <= 0) return false;    // JBF: added null check
@@ -10967,7 +10967,7 @@ int DoRing(DSWActor* actor)
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
     PLAYER* pp = own->user.PlayerP;;
-    int cz,fz;
+    double cz,fz;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
@@ -11026,14 +11026,14 @@ int DoRing(DSWActor* actor)
     getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
-    if (actor->int_pos().Z > fz)
+    if (actor->spr.pos.Z > fz)
     {
-        actor->set_int_z(fz);
+        actor->spr.pos.Z = fz;
     }
 
-    if (actor->int_pos().Z < cz + int_ActorSizeZ(actor))
+    if (actor->spr.pos.Z < cz + ActorSizeZ(actor))
     {
-        actor->set_int_z(cz + int_ActorSizeZ(actor));
+        actor->spr.pos.Z = (cz + ActorSizeZ(actor));
     }
 
     // Done last - check for damage
@@ -11102,7 +11102,7 @@ void InitSpellRing(PLAYER* pp)
 int DoSerpRing(DSWActor* actor)
 {
     int dist,a,b,c;
-    int cz,fz;
+    double cz,fz;
 
     auto own = GetOwner(actor);
     // if Owner does not exist or he's dead on the floor
@@ -11152,14 +11152,14 @@ int DoSerpRing(DSWActor* actor)
     getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
-    if (actor->int_pos().Z > fz)
+    if (actor->spr.pos.Z > fz)
     {
-        actor->set_int_z(fz);
+        actor->spr.pos.Z = fz;
     }
 
-    if (actor->int_pos().Z < cz + int_ActorSizeZ(actor))
+    if (actor->spr.pos.Z < cz + ActorSizeZ(actor))
     {
-        actor->set_int_z(cz + int_ActorSizeZ(actor));
+        actor->spr.pos.Z = cz + ActorSizeZ(actor);
     }
 
     if (actor->user.Counter2 > 0)
@@ -12209,7 +12209,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
     int dist;
-    int zh;
 
 #if 0
     //formula for leading a player
