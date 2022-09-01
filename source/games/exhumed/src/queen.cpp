@@ -453,7 +453,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     {
         pActor2->spr.xrepeat = 60;
         pActor2->spr.yrepeat = 60;
-        pActor2->spr.xvel = 0;
+        pActor2->clear_xvel();
         pActor2->spr.yvel = 0;
         pActor2->set_int_zvel(-2000);
         pActor2->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -816,7 +816,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
 
                 if (pActor->float_zvel() == 0)
@@ -1098,7 +1098,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
     pActor->set_int_ang(nAngle);
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -1222,7 +1222,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 if (QueenList[nQueen].nIndex <= 0)
                 {
                     QueenList[nQueen].nFrame = 0;
-                    pActor->spr.xvel = 0;
+                    pActor->clear_xvel();
                     pActor->spr.yvel = 0;
                     QueenList[nQueen].nAction = si + 4;
                     QueenList[nQueen].nIndex = RandomSize(6) + 30;
@@ -1290,7 +1290,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 QueenList[nQueen].nIndex = 100;
                 QueenList[nQueen].pTarget = nullptr;
 
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
             }
         }
@@ -1419,7 +1419,7 @@ void AIQueen::Damage(RunListEvent* ev)
 
         if (QueenList[nQueen].nHealth <= 0)
         {
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
             pActor->clear_zvel();
 

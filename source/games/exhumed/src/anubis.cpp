@@ -68,7 +68,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, in
     ap->set_int_ang(nAngle);
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;
-    ap->spr.xvel = 0;
+    ap->clear_xvel();
     ap->spr.yvel = 0;
     ap->clear_zvel();
     ap->spr.hitag = 0;
@@ -214,7 +214,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     if (cansee(ap->spr.pos.plusZ(-GetActorHeightF(ap)), ap->sector(),
                         pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
                     {
-                        ap->spr.xvel = 0;
+                        ap->clear_xvel();
                         ap->spr.yvel = 0;
                         ap->spr.angle = VecToAngle(pTarget->spr.pos - ap->spr.pos);
 
@@ -276,7 +276,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     case 4:
     case 5:
     {
-        ap->spr.xvel = 0;
+        ap->clear_xvel();
         ap->spr.yvel = 0;
 
         if (bVal)
@@ -307,7 +307,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nAction = nAction + 2;
             ap->nFrame = 0;
 
-            ap->spr.xvel = 0;
+            ap->clear_xvel();
             ap->spr.yvel = 0;
         }
         return;
@@ -333,7 +333,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nCount = 100;
             ap->pTarget = nullptr;
 
-            ap->spr.xvel = 0;
+            ap->clear_xvel();
             ap->spr.yvel = 0;
         }
     }
@@ -413,7 +413,7 @@ void AIAnubis::Damage(RunListEvent* ev)
         else
         {
             // he ded.
-            ap->spr.xvel = 0;
+            ap->clear_xvel();
             ap->spr.yvel = 0;
             ap->clear_zvel();
 			ap->spr.pos.Z = ap->sector()->floorz;

@@ -54,7 +54,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     spp->spr.shade = -12;
     spp->spr.clipdist = 15;
-    spp->spr.xvel = 0;
+    spp->clear_xvel();
     spp->spr.yvel = 0;
     spp->clear_zvel();
     spp->spr.xrepeat = 40;
@@ -198,7 +198,7 @@ void AISpider::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    spp->spr.xvel = 0;
+                    spp->clear_xvel();
                     spp->spr.yvel = 0;
                 }
 
@@ -256,7 +256,7 @@ void AISpider::Tick(RunListEvent* ev)
             else
             {
                 spp->nAction = 0;
-                spp->spr.xvel = 0;
+                spp->clear_xvel();
                 spp->spr.yvel = 0;
             }
 
@@ -271,7 +271,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->nAction = 0;
         spp->nFrame = 0;
 
-        spp->spr.xvel = 0;
+        spp->clear_xvel();
         spp->spr.yvel = 0;
     }
 

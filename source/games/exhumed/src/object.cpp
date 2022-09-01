@@ -1202,7 +1202,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     ChangeActorStat(pActor, 0);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.extra = -1;
@@ -1446,7 +1446,7 @@ void AISpark::Tick(RunListEvent* ev)
         }
     }
 
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
 
@@ -1583,7 +1583,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     pActor->spr.xrepeat = nRepeat;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.extra = -1;
@@ -1784,7 +1784,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
     pActor->spr.cstat = (pActor->spr.cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.extra = -1;
@@ -1903,7 +1903,7 @@ void AIObject::Tick(RunListEvent* ev)
             if (nMov.type == kHitSprite)
             {
                 pActor->spr.yvel = 0;
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
             }
         }
 
@@ -2031,7 +2031,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
         if (pActor->spr.statnum == kStatExplodeTarget)
         {
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
             pActor->clear_zvel();
         }

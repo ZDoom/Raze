@@ -59,7 +59,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->set_int_ang(angle);
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.hitag = 0;
@@ -130,7 +130,7 @@ void AIRoach::Damage(RunListEvent* ev)
         pActor->nHealth -= dmgAdjust(ev->nDamage);
         if (pActor->nHealth <= 0)
         {
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
             pActor->clear_zvel();
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -271,7 +271,7 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nIndex = RandomSize(2) + 1;
                 pActor->nAction = 3;
 
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
                 pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
@@ -300,7 +300,7 @@ void AIRoach::Tick(RunListEvent* ev)
                 pActor->nIndex = RandomSize(2) + 1;
                 pActor->nAction = 3;
 
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
 				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
@@ -314,7 +314,7 @@ void AIRoach::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nCount = 100;
             pActor->pTarget = nullptr;
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
         }
 

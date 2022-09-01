@@ -86,7 +86,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
     pActor->set_int_ang(0);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->backuppos();

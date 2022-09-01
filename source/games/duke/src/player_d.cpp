@@ -299,7 +299,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				splash->spr.angle = ps[p].angle.ang; // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, CLIPMASK0);
-				splash->spr.xvel = 0;
+				splash->clear_xvel();
 			}
 
 		}
@@ -2841,7 +2841,8 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->vel.X = p->vel.Y = pact->spr.xvel = 0;
+		p->vel.X = p->vel.Y = 0;
+		pact->clear_xvel();
 
 		fi.doincrements(p);
 

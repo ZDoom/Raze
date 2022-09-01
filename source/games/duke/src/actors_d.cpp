@@ -237,7 +237,7 @@ bool ifsquished(DDukeActor* actor, int p)
 		FTA(QUOTE_SQUISHED, &ps[p]);
 
 		if (badguy(actor))
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 
 		if (actor->spr.pal == 1)
 		{
@@ -394,7 +394,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
-							if (act2->spr.xvel < 0) act2->spr.xvel = 0;
+							if (act2->spr.xvel < 0) act2->clear_xvel();
 							act2->spr.xvel += (actor->spr.extra << 2);
 						}
 
@@ -1604,7 +1604,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			{
 				return;
 			}
-			proj->spr.xvel = 0;
+			proj->clear_xvel();
 			proj->clear_zvel();
 		}
 
@@ -2297,7 +2297,7 @@ static void greenslime(DDukeActor *actor)
 		makeitfall(actor);
 		if (s5)
 		{
-			s5->spr.xvel = 0;
+			s5->clear_xvel();
 			
 			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
@@ -2405,7 +2405,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
 			actor->spr.pos.Z = actor->ceilingz + 16;
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 			actor->temp_data[0] = 2;
 		}
 	}
@@ -2431,7 +2431,7 @@ static void greenslime(DDukeActor *actor)
 		{
 			actor->spr.pos.Z = actor->floorz - 8;
 			actor->temp_data[0] = 0;
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 		}
 	}
 }
@@ -2501,7 +2501,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	if (coll.type != 0) {
-		actor->spr.xvel = actor->spr.yvel = 0;
+		actor->clear_xyvel();
 		actor->clear_zvel();
 		if (coll.type == kHitSprite)
 		{
@@ -2571,7 +2571,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->temp_data[3] = 1;
 			actor->temp_data[4] = 0;
 			l = 0;
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 			goto DETONATEB;
 		}
 	}
@@ -2618,7 +2618,7 @@ static void heavyhbomb(DDukeActor *actor)
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
 		l = 0;
-		actor->spr.xvel = 0;
+		actor->clear_xvel();
 		goto DETONATEB;
 	}
 
@@ -2633,7 +2633,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->spr.xvel -= 10;
 
 		if (actor->spr.xvel < 0)
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 		if (actor->spr.xvel & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
@@ -3166,7 +3166,7 @@ void handle_se06_d(DDukeActor* actor)
 		if (actor->temp_data[4] >= (k - (k >> 3)))
 			actor->spr.xvel -= (k >> 5);
 		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 		if (actor->temp_data[4] < (k >> 1))
 			actor->spr.xvel += (k >> 5);
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
@@ -3560,7 +3560,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (actor->spr.picnum != APLAYER)
 		alterang(a, actor, playernum);
 
-	if (actor->spr.xvel > -6 && actor->spr.xvel < 6) actor->spr.xvel = 0;
+	if (actor->spr.xvel > -6 && actor->spr.xvel < 6) actor->clear_xvel();
 
 	a = badguy(actor);
 

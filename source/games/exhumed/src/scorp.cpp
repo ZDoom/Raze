@@ -62,7 +62,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->set_int_ang(nAngle);
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -127,7 +127,7 @@ void AIScorp::Damage(RunListEvent* ev)
         pActor->nFrame = 0;
         pActor->nCount = 10;
 
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->spr.yvel = 0;
         pActor->clear_zvel();
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -426,7 +426,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             if (cansee(pActor->spr.pos.plusZ(-GetActorHeightF(pActor)), pActor->sector(),
                 pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
             {
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
 				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
@@ -455,7 +455,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->nCount = 30;
         pActor->pTarget = nullptr;
 
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->spr.yvel = 0;
     }
 }

@@ -440,7 +440,7 @@ int DoSkullWait(DSWActor* actor)
         // look for closest player every once in a while
         if (dist < 3500)
         {
-            actor->spr.xvel = 0;
+            actor->clear_xvel();
             actor->user.jump_speed = -600;
             NewStateGroup(actor, sg_SkullJump);
             DoBeginJump(actor);
@@ -802,7 +802,7 @@ int DoBettyWait(DSWActor* actor)
         // look for closest player every once in a while
         if (dist < 3500)
         {
-            actor->spr.xvel = 0;
+            actor->clear_xvel();
             actor->user.jump_speed = -600;
             NewStateGroup(actor, sg_BettyJump);
             DoBeginJump(actor);

@@ -90,7 +90,7 @@ void BuildRa(int nPlayer)
     auto pActor = insertActor(pPlayerActor->sector(), 203);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.extra = -1;

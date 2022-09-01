@@ -215,7 +215,7 @@ void BuildSnake(int nPlayer, int zVal)
             pActor->spr.xoffset = 0;
             pActor->spr.yoffset = 0;
             pActor->spr.angle = pPlayerActor->spr.angle;
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
             pActor->clear_zvel();
             pActor->spr.hitag = 0;

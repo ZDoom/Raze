@@ -1359,7 +1359,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
         pSector = pActor->sector();
 
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->spr.yvel = 0;
         pActor->clear_zvel();
         pActor->spr.pos.Z = pSector->floorz;

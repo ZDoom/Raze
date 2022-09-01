@@ -741,7 +741,7 @@ void movecrane(DDukeActor *actor, int crane)
 		if (actor->spr.pos.Z < cpt.pos.Z)
 		{
 			actor->temp_data[0]++;
-			actor->spr.xvel = 0;
+			actor->clear_xvel();
 		}
 		else
 			actor->spr.pos.Z -= 6;
@@ -1481,7 +1481,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 
 		actor->spr.xvel--;
-		if (actor->spr.xvel < 0) actor->spr.xvel = 0;
+		if (actor->spr.xvel < 0) actor->clear_xvel();
 		if (actor->spr.picnum == stripeball)
 		{
 			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1687,7 +1687,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	{
 		actor->temp_data[3] = 0;
 		if (actor->spr.xvel > 0) actor->spr.xvel -= 16;
-		else actor->spr.xvel = 0;
+		else actor->clear_xvel();
 
 		if (actor->temp_data[0] == 2)
 		{
@@ -1734,7 +1734,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				else
 				{
 					if (actor->spr.xvel > 0) actor->spr.xvel -= 16;
-					else actor->spr.xvel = 0;
+					else actor->clear_xvel();
 				}
 			}
 
@@ -2153,7 +2153,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	auto sectp = actor->sector();
 
 	if (actor->spr.xvel > 0) actor->spr.xvel--;
-	else actor->spr.xvel = 0;
+	else actor->clear_xvel();
 
 	if (timeout)
 	{
@@ -2252,7 +2252,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		double ll = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 
 		actor->spr.pos.Z = ll - 2;
-		actor->spr.xvel = 0;
+		actor->clear_xvel();
 
 		if (actor->spr.picnum == JIBS6)
 		{
@@ -2385,7 +2385,7 @@ void shell(DDukeActor* actor, bool morecheck)
 		else actor->add_int_zvel(- 64);
 		if (actor->spr.xvel > 0)
 			actor->spr.xvel -= 4;
-		else actor->spr.xvel = 0;
+		else actor->clear_xvel();
 	}
 	else
 	{
@@ -2448,7 +2448,7 @@ void glasspieces(DDukeActor* actor)
 		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
 		actor->spr.cstat = flips[actor->spr.xvel & 3];
 	}
-	else actor->spr.xvel = 0;
+	else actor->clear_xvel();
 
 	ssp(actor, CLIPMASK0);
 }
@@ -2465,7 +2465,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 
 	if (actor->spr.xvel > 0)
 		actor->spr.xvel--;
-	else actor->spr.xvel = 0;
+	else actor->clear_xvel();
 
 	if (actor->float_zvel() > 4 && actor->float_zvel() < 5)
 	{
@@ -2965,13 +2965,13 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			int l = FindDistance2D(Owner->int_pos().vec2 - actor->int_pos().vec2);
 
 			if (l <= 128)
-				actor->spr.xvel = 0;
+				actor->clear_xvel();
 
 			if (actor->spr.xvel > 0)
 				actor->spr.xvel -= 16;
 			else
 			{
-				actor->spr.xvel = 0;
+				actor->clear_xvel();
 				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], -1);
 				actor->SetOwner(nullptr);
 				actor->add_int_ang(1024);

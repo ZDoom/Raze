@@ -97,7 +97,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->set_int_ang(nAngle);
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -171,7 +171,7 @@ void AIRat::Damage(RunListEvent* ev)
     if (ev->nDamage)
     {
         pActor->spr.cstat = 0;
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->spr.yvel = 0;
         pActor->nAction = 3;
         pActor->nFrame = 0;
@@ -234,7 +234,7 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
             return;
         }
@@ -272,7 +272,7 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
         }
 
@@ -299,7 +299,7 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
         pActor->nPhase = RandomSize(3);
 
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->spr.yvel = 0;
         return;
     }
@@ -319,7 +319,7 @@ void AIRat::Tick(RunListEvent* ev)
                 pActor->nCount = RandomSize(6);
                 if (pActor->spr.xvel || pActor->spr.yvel)
                 {
-                    pActor->spr.xvel = 0;
+                    pActor->clear_xvel();
                     pActor->spr.yvel = 0;
                     return;
                 }

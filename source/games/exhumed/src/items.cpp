@@ -423,7 +423,7 @@ void DoRegenerates()
         pActor->spr.xint = 0;
 
         pActor->spr.yvel = 0;
-        pActor->spr.xvel = 0;
+        pActor->clear_xvel();
         pActor->clear_zvel();
 
 

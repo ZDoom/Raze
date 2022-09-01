@@ -527,7 +527,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 10;
-		act->spr.xvel = 0;
+		act->clear_xvel();
 		ChangeActorStat(act, 1);
 		break;
 	case BOWLINGPIN:

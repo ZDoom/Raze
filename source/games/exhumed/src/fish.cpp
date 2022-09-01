@@ -122,7 +122,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         auto coll = movesprite(pActor, pActor->spr.xvel << 8, pActor->spr.yvel << 8, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
         if (coll.type != kHitNone)
         {
-            pActor->spr.xvel = 0;
+            pActor->clear_xvel();
             pActor->spr.yvel = 0;
         }
     }
@@ -160,7 +160,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
     pActor->spr.yvel = 0;
     pActor->clear_zvel();
     pActor->set_int_ang(nAngle);
@@ -378,7 +378,7 @@ void AIFish::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->spr.xvel = 0;
+                pActor->clear_xvel();
                 pActor->spr.yvel = 0;
             }
 

@@ -17798,7 +17798,7 @@ int DoItemFly(DSWActor* actor)
             {
                 actor->spr.pos.Z = actor->user.loz;
                 actor->user.Counter = 0;
-                actor->spr.xvel = 0;
+                actor->clear_xvel();
                 actor->user.change.Zero();
                 return false;
             }

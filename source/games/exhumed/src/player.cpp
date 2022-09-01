@@ -300,7 +300,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
 	int nHeight = GetActorHeight(pActor);
-	pActor->spr.xvel = 0;
+	pActor->clear_xvel();
 	pActor->spr.yvel = 0;
 	pActor->clear_zvel();
 
@@ -546,7 +546,7 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
     DExhumedActor* pActor = PlayerList[nPlayer].pActor;
 
     pActor->spr.yvel = 0;
-    pActor->spr.xvel = 0;
+    pActor->clear_xvel();
 
     PlayerList[nPlayer].bIsMummified = bIsMummified;
 
@@ -923,7 +923,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             lPlayerXVel = 0;
             lPlayerYVel = 0;
 
-            pPlayerActor->spr.xvel = 0;
+            pPlayerActor->clear_xvel();
             pPlayerActor->spr.yvel = 0;
             pPlayerActor->clear_zvel();
 
@@ -976,7 +976,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                 if (PlayerList[nPlayer].nHealth <= 0)
                 {
-                    pPlayerActor->spr.xvel = 0;
+                    pPlayerActor->clear_xvel();
                     pPlayerActor->spr.yvel = 0;
 
                     StopActorSound(pPlayerActor);
