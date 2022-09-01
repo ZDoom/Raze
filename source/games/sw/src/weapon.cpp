@@ -7637,10 +7637,6 @@ DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 
 int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    int zh;
-    short ang2tgt, delta_ang;
-
-
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
 
@@ -7672,33 +7668,14 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
     if (goal != nullptr)
     {
         // move to correct angle
-        ang2tgt = getangle(goal->int_pos().X - actor->int_pos().X, goal->int_pos().Y - actor->int_pos().Y);
+        auto ang2tgt = VecToAngle(goal->spr.pos - actor->spr.pos);
+        auto delta_ang = clamp(deltaangle(ang2tgt, actor->spr.angle), -DAngle45 / 8, DAngle45 / 8);
+        actor->spr.angle -= delta_ang;
 
-        delta_ang = getincangle(ang2tgt, actor->int_ang());
+        double zh = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
+        auto vel = clamp((zh - actor->spr.pos.Z)* 0.5, -16., 16.);
 
-        if (labs(delta_ang) > 32)
-        {
-            if (delta_ang > 0)
-                delta_ang = 32;
-            else
-                delta_ang = -32;
-        } 
-
-        actor->add_int_ang(-delta_ang);
-
-        zh = int_ActorZOfTop(actor) + (int_ActorSizeZ(actor) >> 2);
-
-        delta_ang = (zh - actor->int_pos().Z)>>1;
-
-        if (labs(delta_ang) > Z(16))
-        {
-            if (delta_ang > 0)
-                delta_ang = Z(16);
-            else
-                delta_ang = -Z(16);
-        }
-
-        actor->spr.zvel = delta_ang;
+        actor->spr.zvel = vel * zworldtoint;
 
 		UpdateChange(actor);
     }
