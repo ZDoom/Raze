@@ -158,7 +158,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->pTarget = pTarget;
 
                 ap->set_int_xvel(bcos(ap->int_ang(), -2));
-                ap->spr.yvel = bsin(ap->int_ang(), -2);
+                ap->set_int_yvel(bsin(ap->int_ang(), -2));
             }
         }
         return;
@@ -171,7 +171,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 
             int nAngle = ap->int_ang() & 0xFFF8;
             ap->set_int_xvel(bcos(nAngle, -2));
-            ap->spr.yvel = bsin(nAngle, -2);
+            ap->set_int_yvel(bsin(nAngle, -2));
         }
 
         switch (move.type)
@@ -195,7 +195,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->set_int_ang((ap->int_ang() + 256) & kAngleMask);
             ap->set_int_xvel(bcos(ap->int_ang(), -2));
-            ap->spr.yvel = bsin(ap->int_ang(), -2);
+            ap->set_int_yvel(bsin(ap->int_ang(), -2));
             break;
         }
 
@@ -259,7 +259,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nAction = 1;
 
             ap->set_int_xvel(bcos(ap->int_ang(), -2));
-            ap->spr.yvel = bsin(ap->int_ang(), -2);
+            ap->set_int_yvel(bsin(ap->int_ang(), -2));
             ap->nFrame = 0;
         }
         else

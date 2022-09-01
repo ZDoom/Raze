@@ -639,7 +639,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
             pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-            pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+            pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
             Collision c;
             c.setNone();
             return c;
@@ -1315,7 +1315,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     pActor->spr.pal = 0;
 
     pActor->set_int_xvel((RandomSize(5) - 16) << 7);
-    pActor->spr.yvel = (RandomSize(5) - 16) << 7;
+    pActor->set_int_yvel((RandomSize(5) - 16) << 7);
     pActor->set_int_zvel((-(RandomSize(8) + 512)) << 3);
 
     if (bSpecial)
@@ -1402,7 +1402,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
                 + (pActor->int_xvel() >> 10) * (pActor->int_xvel() >> 10)) >> 8);
 
             pActor->set_int_xvel(bcos(nAngle) * (nSqrt >> 1));
-            pActor->spr.yvel = bsin(nAngle) * (nSqrt >> 1);
+            pActor->set_int_yvel(bsin(nAngle) * (nSqrt >> 1));
             return;
         }
     }

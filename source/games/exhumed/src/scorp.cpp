@@ -218,7 +218,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
                     pActor->nFrame = 0;
                     pActor->set_int_xvel(bcos(pActor->int_ang()));
-                    pActor->spr.yvel = bsin(pActor->int_ang());
+                    pActor->set_int_yvel(bsin(pActor->int_ang()));
 
                     pActor->nAction = 1;
                     pActor->pTarget = pTarget;
@@ -303,7 +303,7 @@ void AIScorp::Tick(RunListEvent* ev)
                 pActor->nAction = 1;
 
                 pActor->set_int_xvel(bcos(pActor->int_ang()));
-                pActor->spr.yvel = bsin(pActor->int_ang());
+                pActor->set_int_yvel(bsin(pActor->int_ang()));
 
                 pActor->nFrame = 0;
                 return;
@@ -372,7 +372,7 @@ void AIScorp::Tick(RunListEvent* ev)
             int nVel = RandomSize(5) + 1;
 
             pSpiderActor->set_int_xvel(bcos(pSpiderActor->int_ang(), -8) * nVel);
-            pSpiderActor->spr.yvel = bsin(pSpiderActor->int_ang(), -8) * nVel;
+            pSpiderActor->set_int_yvel(bsin(pSpiderActor->int_ang(), -8) * nVel);
             pSpiderActor->set_int_zvel((-(RandomSize(5) + 3)) << 8);
         }
 
@@ -411,7 +411,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->norm_ang();
 
         pActor->set_int_xvel(bcos(pActor->int_ang()));
-        pActor->spr.yvel = bsin(pActor->int_ang());
+        pActor->set_int_yvel(bsin(pActor->int_ang()));
     }
     if (mode <= 1)
     {

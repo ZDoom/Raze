@@ -222,7 +222,7 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
 
                 pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-                pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+                pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
 
                 D3PlayFX(StaticSound[kSound48], pActor);
 
@@ -256,7 +256,7 @@ void AIRex::Tick(RunListEvent* ev)
                 {
                     int nAngle = pActor->int_ang() & 0xFFF8;
                     pActor->set_int_xvel(bcos(nAngle, -2));
-                    pActor->spr.yvel = bsin(nAngle, -2);
+                    pActor->set_int_yvel(bsin(nAngle, -2));
                 }
                 else
                 {
@@ -288,7 +288,7 @@ void AIRex::Tick(RunListEvent* ev)
         {
             pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
             pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-            pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+            pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
             pActor->nAction = 1;
             pActor->nFrame = 0;
             nAction = 1;
@@ -307,7 +307,7 @@ void AIRex::Tick(RunListEvent* ev)
             PlotCourseToSprite(pActor, pTarget);
 
             pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-            pActor->spr.yvel = bsin(pActor->int_ang(), -1);
+            pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
 
             auto nMov = MoveCreatureWithCaution(pActor);
 
@@ -320,7 +320,7 @@ void AIRex::Tick(RunListEvent* ev)
 
                 pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
                 pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-                pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+                pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
                 nAction = 1;

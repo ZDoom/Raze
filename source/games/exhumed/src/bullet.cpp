@@ -230,7 +230,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 int nAngle = (pActor->int_ang() + 256) - RandomSize(9);
 
                 pHitActor->set_int_xvel(bcos(nAngle, 1));
-                pHitActor->spr.yvel = bsin(nAngle, 1);
+                pHitActor->set_int_yvel(bsin(nAngle, 1));
                 pHitActor->set_int_zvel((-(RandomSize(3) + 1)) << 8);
             }
             else
@@ -239,12 +239,12 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 int yVel = pHitActor->spr.yvel;
 
                 pHitActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-                pHitActor->spr.yvel = bsin(pActor->int_ang(), -2);
+                pHitActor->set_int_yvel(bsin(pActor->int_ang(), -2));
 
                 MoveCreature(pHitActor);
 
                 pHitActor->set_int_xvel(xVel);
-                pHitActor->spr.yvel = yVel;
+                pHitActor->set_int_yvel(yVel);
             }
 
             break;

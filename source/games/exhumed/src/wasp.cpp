@@ -37,7 +37,7 @@ static actionSeq WaspSeq[] = {
 void SetWaspVel(DExhumedActor* pActor)
 {
     pActor->set_int_xvel(bcos(pActor->int_ang()));
-    pActor->spr.yvel = bsin(pActor->int_ang());
+    pActor->set_int_yvel(bsin(pActor->int_ang()));
 }
 
 DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, bool bEggWasp)

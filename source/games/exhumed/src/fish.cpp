@@ -52,7 +52,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.shade = -12;
     pChunkActor->spr.pal = 0;
     pChunkActor->set_int_xvel((RandomSize(5) - 16) << 8);
-    pChunkActor->spr.yvel = (RandomSize(5) - 16) << 8;
+    pChunkActor->set_int_yvel((RandomSize(5) - 16) << 8);
     pChunkActor->spr.xrepeat = 64;
     pChunkActor->spr.yrepeat = 64;
     pChunkActor->spr.xoffset = 0;
@@ -188,7 +188,7 @@ void IdleFish(DExhumedActor* pActor, int edx)
     pActor->norm_ang();
 
     pActor->set_int_xvel(bcos(pActor->int_ang(), -8));
-    pActor->spr.yvel = bsin(pActor->int_ang(), -8);
+    pActor->set_int_yvel(bsin(pActor->int_ang(), -8));
 
     pActor->nAction = 0;
     pActor->nFrame = 0;
@@ -374,7 +374,7 @@ void AIFish::Tick(RunListEvent* ev)
             if (z <= nHeight)
             {
                 pActor->set_int_xvel(bcos(pActor->int_ang(), -5) - bcos(pActor->int_ang(), -7));
-                pActor->spr.yvel = bsin(pActor->int_ang(), -5) - bsin(pActor->int_ang(), -7);
+                pActor->set_int_yvel(bsin(pActor->int_ang(), -5) - bsin(pActor->int_ang(), -7));
             }
             else
             {

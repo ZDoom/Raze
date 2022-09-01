@@ -177,7 +177,7 @@ void AIMummy::Tick(RunListEvent* ev)
                     pActor->nCount = 90;
 
                     pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-                    pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+                    pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
                 }
             }
         }
@@ -219,7 +219,7 @@ void AIMummy::Tick(RunListEvent* ev)
         if (!pActor->nFrame)
         {
             pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-            pActor->spr.yvel = bsin(pActor->int_ang(), -1);
+            pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
         }
 
         if (pActor->float_xvel() != 0 || pActor->spr.yvel)
@@ -261,7 +261,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
             pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-            pActor->spr.yvel = bsin(pActor->int_ang(), -2);
+            pActor->set_int_yvel(bsin(pActor->int_ang(), -2));
             return;
         }
 
