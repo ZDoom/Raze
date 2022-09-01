@@ -301,7 +301,7 @@ static void sub_65D04(DBloodActor* actor)
 	else
 		t1 += nAccel >> 2;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 }
 
 static void sub_65F44(DBloodActor* actor)
@@ -335,7 +335,7 @@ static void sub_65F44(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = -dz;
 }
 
@@ -370,7 +370,7 @@ static void sub_661E0(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = dz;
 }
 

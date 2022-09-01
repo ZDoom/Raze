@@ -1617,7 +1617,7 @@ void debrisBubble(DBloodActor* actor)
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 		if (pFX) {
 			pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-			pFX->__int_vel.Y = actor->int_vel().Y + Random2(0x1aaaa);
+			pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
 			pFX->__int_vel.Z = actor->int_vel().Z + Random2(0x1aaaa);
 		}
 
@@ -1805,7 +1805,7 @@ void debrisMove(int listIndex)
 				{
 					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
 					pFX2->set_int_bvel_x(Random2(0x6aaaa));
-					pFX2->__int_vel.Y = Random2(0x6aaaa);
+					pFX2->set_int_bvel_y(Random2(0x6aaaa));
 					pFX2->__int_vel.Z = -(int)Random(0xd5555);
 				}
 				break;
@@ -3125,7 +3125,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		else
 		{
 			pSprite->set_int_bvel_x(xv);
-			pSprite->__int_vel.Y = yv;
+			pSprite->set_int_bvel_y(yv);
 			pSprite->__int_vel.Z = zv;
 		}
 
@@ -6569,7 +6569,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			int velocity = sourceactor->xspr.data2 << 12;
 			missileactor->set_int_bvel_x(MulScale(velocity, dx, 14));
-			missileactor->__int_vel.Y = MulScale(velocity, dy, 14);
+			missileactor->set_int_bvel_y(MulScale(velocity, dy, 14));
 			missileactor->__int_vel.Z = MulScale(velocity, dz, 14);
 		}
 
@@ -8191,8 +8191,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
-		actor->set_int_bvel_x(0);
-		actor->__int_vel.Y = 0;
+		actor->clear_vel_xy();
 		return;
 	}
 
@@ -8229,7 +8228,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
 	actor->set_int_bvel_x(ClipRange(actor->int_vel().X, -vel, vel));
-	actor->__int_vel.Y = ClipRange(actor->int_vel().Y, -vel, vel);
+	actor->set_int_bvel_y(ClipRange(actor->int_vel().Y, -vel, vel));
 }
 
 //---------------------------------------------------------------------------

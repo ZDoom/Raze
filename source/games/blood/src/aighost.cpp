@@ -270,7 +270,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = -0x1d555;
 }
 
@@ -298,7 +298,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = 0x44444;
 }
 
@@ -439,7 +439,7 @@ static void ghostMoveForward(DBloodActor* actor)
 	else
 		t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 }
 
 static void ghostMoveSlow(DBloodActor* actor)
@@ -471,7 +471,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	t1 = nAccel >> 1;
 	t2 >>= 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
 		actor->__int_vel.Z = 0x44444;
@@ -507,7 +507,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
 		actor->__int_vel.Z = t1;
@@ -543,7 +543,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	switch (actor->spr.type) {
 	case kDudePhantasm:
 		actor->__int_vel.Z = -t1;

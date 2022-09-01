@@ -215,7 +215,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = -0x52aaa;
 }
 
@@ -240,7 +240,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 		t2 -= pDudeInfo->sideSpeed;
 
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = 0x44444;
 }
 
@@ -330,7 +330,7 @@ static void batMoveForward(DBloodActor* actor)
 	else
 		t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 }
 
 static void batMoveSwoop(DBloodActor* actor)
@@ -358,7 +358,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = 0x44444;
 }
 
@@ -387,7 +387,7 @@ static void batMoveFly(DBloodActor* actor)
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
 	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->__int_vel.Z = -0x2d555;
 }
 

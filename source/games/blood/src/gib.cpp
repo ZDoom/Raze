@@ -301,13 +301,13 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 			if (pVel)
 			{
 				pFX->set_int_bvel_x(pVel->vx + Random2(pGFX->atd));
-				pFX->__int_vel.Y = pVel->vy + Random2(pGFX->atd);
+				pFX->set_int_bvel_y(pVel->vy + Random2(pGFX->atd));
 				pFX->__int_vel.Z = pVel->vz - Random(pGFX->at11);
 			}
 			else
 			{
 				pFX->set_int_bvel_x(Random2((pGFX->atd << 18) / 120));
-				pFX->__int_vel.Y = Random2((pGFX->atd << 18) / 120);
+				pFX->set_int_bvel_y(Random2((pGFX->atd << 18) / 120));
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
 				case 16:
@@ -382,13 +382,13 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 		if (pVel)
 		{
 			gibactor->set_int_bvel_x(pVel->vx + Random2(pGThing->atc));
-			gibactor->__int_vel.Y = pVel->vy + Random2(pGThing->atc);
+			gibactor->set_int_bvel_y(pVel->vy + Random2(pGThing->atc));
 			gibactor->__int_vel.Z = pVel->vz - Random(pGThing->at10);
 		}
 		else
 		{
 			gibactor->set_int_bvel_x(Random2((pGThing->atc << 18) / 120));
-			gibactor->__int_vel.Y = Random2((pGThing->atc << 18) / 120);
+			gibactor->set_int_bvel_y(Random2((pGThing->atc << 18) / 120));
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case 16:
@@ -465,13 +465,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVel
 			if (!pVel)
 			{
 				pGib->set_int_bvel_x(Random2((pGFX->atd << 18) / 120));
-				pGib->__int_vel.Y = Random2((pGFX->atd << 18) / 120);
+				pGib->set_int_bvel_y(Random2((pGFX->atd << 18) / 120));
 				pGib->__int_vel.Z = -(int)Random((pGFX->at11 << 18) / 120);
 			}
 			else
 			{
 				pGib->set_int_bvel_x(Random2((pVel->vx << 18) / 120));
-				pGib->__int_vel.Y = Random2((pVel->vy << 18) / 120);
+				pGib->set_int_bvel_y(Random2((pVel->vy << 18) / 120));
 				pGib->__int_vel.Z = -(int)Random((pVel->vz << 18) / 120);
 			}
 		}
