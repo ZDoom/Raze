@@ -2979,7 +2979,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					{
 
 						j->set_int_ang((j->int_ang() + 1024) & 2047);
-						j->spr.xvel += 32;
+						j->add_int_xvel( 32);
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
 					}
@@ -4106,7 +4106,7 @@ void OffMotorcycle(player_struct *p)
 		if (spawned)
 		{
 			spawned->spr.angle = p->angle.ang;
-			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
+			spawned->add_int_xvel( p->angle.ang.Cos() * (1 << 7));
 			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
@@ -4171,7 +4171,7 @@ void OffBoat(player_struct *p)
 		if (spawned)
 		{
 			spawned->spr.angle = p->angle.ang;
-			spawned->spr.xvel += p->angle.ang.Cos() * (1 << 7);
+			spawned->add_int_xvel( p->angle.ang.Cos() * (1 << 7));
 			spawned->spr.yvel += p->angle.ang.Sin() * (1 << 7);
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}

@@ -654,7 +654,7 @@ void movecrane(DDukeActor *actor, int crane)
 		if (actor->int_xvel() < 184)
 		{
 			actor->spr.picnum = crane + 1;
-			actor->spr.xvel += 8;
+			actor->add_int_xvel( 8);
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(actor, CLIPMASK0);
@@ -749,7 +749,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (actor->temp_data[0] == 6)
 	{
 		if (actor->int_xvel() < 192)
-			actor->spr.xvel += 8;
+			actor->add_int_xvel( 8);
 		actor->spr.angle = VecToAngle(cpt.pos.XY() - actor->spr.pos.XY());
 		ssp(actor, CLIPMASK0);
 		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (8 * 8))
@@ -1006,7 +1006,7 @@ void movetrash(DDukeActor *actor)
 		makeitfall(actor);
 		if (krand() & 1) actor->add_int_zvel(- 256);
 		if (abs(actor->spr.xvel) < 48)
-			actor->spr.xvel += (krand() & 3);
+			actor->add_int_xvel( (krand() & 3));
 	}
 	else deletesprite(actor);
 }
@@ -1435,7 +1435,7 @@ bool rat(DDukeActor* actor, bool makesound)
 		else actor->set_int_ang((krand() & 2047));
 	}
 	if (actor->int_xvel() < 128)
-		actor->spr.xvel += 2;
+		actor->add_int_xvel( 2);
 	actor->add_int_ang((krand() & 3) - 6);
 	return true;
 }
@@ -1730,7 +1730,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			else
 			{
 				// Control speed here
-				if (l > 1524) { if (actor->int_xvel() < 256) actor->spr.xvel += 32; }
+				if (l > 1524) { if (actor->int_xvel() < 256) actor->add_int_xvel( 32); }
 				else
 				{
 					if(actor->float_xvel() > 0) actor->spr.xvel -= 16;
@@ -2957,7 +2957,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				if (actor->int_xvel() == 0)
 					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), -1);
 				if (actor->int_xvel() < 256)
-					actor->spr.xvel += 16;
+					actor->add_int_xvel( 16);
 			}
 		}
 		if (actor->temp_data[4] == 2)
@@ -4984,7 +4984,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	aang = actor->int_ang();
 
-	actor->spr.xvel += (*moveptr - actor->spr.xvel) / 5;
+	actor->add_int_xvel( (*moveptr - actor->spr.xvel) / 5);
 	if (actor->float_zvel() < (648/256.)) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
 
 	if (isRRRA() && (ang & windang))

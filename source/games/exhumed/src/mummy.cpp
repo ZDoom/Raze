@@ -233,7 +233,7 @@ void AIMummy::Tick(RunListEvent* ev)
             }
             else if (pActor->int_xvel() < 0)
             {
-                pActor->spr.xvel += 1024;
+                pActor->add_int_xvel( 1024);
                 if (pActor->int_xvel() > 0) {
                     pActor->clear_xvel();
                 }

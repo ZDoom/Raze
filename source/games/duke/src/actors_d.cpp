@@ -395,7 +395,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
 							if (act2->int_xvel() < 0) act2->clear_xvel();
-							act2->spr.xvel += (actor->spr.extra << 2);
+							act2->add_int_xvel( (actor->spr.extra << 2));
 						}
 
 						if (actorflag(act2, SFLAG_HITRADIUSCHECK))
@@ -2374,7 +2374,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else
 		{
-			if (actor->int_xvel() < 32) actor->spr.xvel += 4;
+			if (actor->int_xvel() < 32) actor->add_int_xvel( 4);
 			actor->set_int_xvel(64 - bcos(actor->temp_data[1], -9));
 
 			actor->add_int_ang(getincangle(actor->int_ang(),
@@ -3168,7 +3168,7 @@ void handle_se06_d(DDukeActor* actor)
 		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
 			actor->clear_xvel();
 		if (actor->temp_data[4] < (k >> 1))
-			actor->spr.xvel += (k >> 5);
+			actor->add_int_xvel( (k >> 5));
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
 		{
 			actor->temp_data[4] = 0;
@@ -3190,7 +3190,7 @@ void handle_se06_d(DDukeActor* actor)
 				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
 				if (act2->spr.extra)
 					x = -x;
-				actor->spr.xvel += x;
+				actor->add_int_xvel( x);
 			}
 			act2->temp_data[4] = actor->temp_data[4];
 		}
@@ -3551,7 +3551,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->spr.xvel += (*moveptr - actor->spr.xvel) >> 1;
+	if (a & geth) actor->add_int_xvel( (*moveptr - actor->spr.xvel) >> 1);
 	if (a & getv) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1);
 
 	if (a & dodgebullet)

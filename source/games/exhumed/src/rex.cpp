@@ -351,7 +351,7 @@ void AIRex::Tick(RunListEvent* ev)
                     }
                     else
                     {
-                        pHitActor->spr.xvel += (xVel >> 3);
+                        pHitActor->add_int_xvel( (xVel >> 3));
                         pHitActor->spr.yvel += (yVel >> 3);
                         pHitActor->set_int_zvel(-2880);
                     }

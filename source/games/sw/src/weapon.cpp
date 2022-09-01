@@ -3766,7 +3766,7 @@ AutoShrap:
             actor->spr.pal = actor->user.spal = uint8_t(shrap_pal);
 
             actor->set_int_xvel(p->min_vel*2);
-            actor->spr.xvel += RandomRange(p->max_vel - p->min_vel);
+            actor->add_int_xvel( RandomRange(p->max_vel - p->min_vel));
 
             actor->user.floor_dist = 2;
             actor->user.ceiling_dist = 2;
@@ -4130,12 +4130,12 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
 
             actorNew->set_int_xvel(p->min_vel);
-            actorNew->spr.xvel += RandomRange(p->max_vel - p->min_vel);
+            actorNew->add_int_xvel( RandomRange(p->max_vel - p->min_vel));
 
             // special case
             // blood coming off of actors should have the acceleration of the actor
             // so add it in
-            actorNew->spr.xvel += actor->int_xvel();
+            actorNew->add_int_xvel( actor->int_xvel());
 
             actorNew->user.ceiling_dist = actorNew->user.floor_dist = 2;
             actorNew->user.jump_speed = p->min_jspeed;
@@ -9133,7 +9133,7 @@ int DoRail(DSWActor* actor)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 20);
 
-            actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
+            actorNew->add_int_xvel( (RandomRange(140)-RandomRange(140)));
             actorNew->add_int_zvel( (RandomRange(140)-RandomRange(140)));
 
             actorNew->user.RotNum = 5;
@@ -11171,8 +11171,8 @@ int DoSerpRing(DSWActor* actor)
                     actor->user.ID = SKULL_R0;
                     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
                     actor->set_int_xvel(dist>>5);
-                    actor->spr.xvel += (actor->int_xvel() >> 1);
-                    actor->spr.xvel += (RANDOM_P2(128<<8)>>8);
+                    actor->add_int_xvel( (actor->int_xvel() >> 1));
+                    actor->add_int_xvel( (RANDOM_P2(128<<8)>>8));
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
                     NewStateGroup(actor, sg_SkullJump);
