@@ -12581,8 +12581,6 @@ int InitShotgun(PLAYER* pp)
     short daang,ndaang, i;
     HitInfo hit{};
     int daz, ndaz;
-    int nx,ny,nz;
-    int xvect,yvect,zvect;
     short cstat = 0;
 
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
@@ -12601,9 +12599,8 @@ int InitShotgun(PLAYER* pp)
         }
     }
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    daz = nz = pp->int_ppos().Z + pp->int_bob_z();
+    auto pos = pp->pos.plusZ(pp->bob_z);
+    daz = pos.Z * zworldtoint;
 
     daang = 64;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
@@ -12628,12 +12625,16 @@ int InitShotgun(PLAYER* pp)
             ndaang = NORM_ANGLE(daang + (RandomRange(70) - 30));
         }
 
-        xvect = bcos(ndaang);
-        yvect = bsin(ndaang);
-        zvect = ndaz;
-        FAFhitscan(nx, ny, nz, pp->cursector,               // Start position
-                   xvect, yvect, zvect,
-                   hit, CLIPMASK_MISSILE);
+        DVector3 vect;
+        vect.XY() = DAngle::fromBuild(ndaang).ToVector() * 1024;
+        vect.Z = ndaz * zinttoworld;
+        FAFhitscan(pos, pp->cursector, vect, hit, CLIPMASK_MISSILE);
+
+        // still needed. Must go away later
+        int xvect = bcos(ndaang);
+        int yvect = bsin(ndaang);
+        int zvect = ndaz;
+
 
         if (hit.hitSector == nullptr)
         {
