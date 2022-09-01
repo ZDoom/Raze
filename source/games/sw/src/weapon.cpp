@@ -12352,10 +12352,9 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
 int InitStar(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int nx, ny, nz;
     int zvel;
 
-    static short dang[] = {-12, 12};
+    static DAngle dang[] = { DAngle::fromBuild(-12), DAngle::fromBuild(12) };
     const int STAR_REPEAT = 26;
     const int STAR_HORIZ_ADJ = 100;
 
@@ -12366,15 +12365,12 @@ int InitStar(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.Buildang(), STAR_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, pos, pp->angle.ang, STAR_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
@@ -12415,7 +12411,7 @@ int InitStar(PLAYER* pp)
 
     for (size_t i = 0; i < countof(dang); i++)
     {
-        auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, NORM_ANGLE(actorNew->int_ang() + dang[i]), actorNew->int_xvel());
+        auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector,pos, actorNew->spr.angle + dang[i], actorNew->int_xvel());
 
         SetOwner(GetOwner(actorNew), actorNew2);
         actorNew2->spr.yrepeat = actorNew2->spr.xrepeat = STAR_REPEAT;
