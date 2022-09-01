@@ -1896,7 +1896,7 @@ void AIObject::Tick(RunListEvent* ev)
 
             if (nMov.exbits & kHitAux2)
             {
-                pActor->spr.xvel -= pActor->int_xvel() >> 3;
+                pActor->add_int_xvel(-pActor->int_xvel() >> 3);
                 pActor->spr.yvel -= pActor->spr.yvel >> 3;
             }
 

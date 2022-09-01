@@ -757,7 +757,7 @@ void movefallers_d(void)
 			{
 				if (act->int_xvel() > 0)
 				{
-					act->spr.xvel -= 8;
+					act->add_int_xvel(-8);
 					ssp(act, CLIPMASK0);
 				}
 
@@ -2369,7 +2369,7 @@ static void greenslime(DDukeActor *actor)
 
 		if (actor->int_xvel() > 96)
 		{
-			actor->spr.xvel -= 2;
+			actor->add_int_xvel(-2);
 			return;
 		}
 		else
@@ -2628,9 +2628,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if(actor->float_xvel() > 0)
 	{
-		actor->spr.xvel -= 5;
+		actor->add_int_xvel(-5);
 		if (sectp->lotag == 2)
-			actor->spr.xvel -= 10;
+			actor->add_int_xvel(-10);
 
 		if(actor->float_xvel() < 0)
 			actor->clear_xvel();
@@ -3164,7 +3164,7 @@ void handle_se06_d(DDukeActor* actor)
 	{
 		actor->temp_data[4]--;
 		if (actor->temp_data[4] >= (k - (k >> 3)))
-			actor->spr.xvel -= (k >> 5);
+			actor->add_int_xvel(-(k >> 5));
 		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
 			actor->clear_xvel();
 		if (actor->temp_data[4] < (k >> 1))

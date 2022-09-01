@@ -1227,7 +1227,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->spr.xvel -= (actorNew->int_xvel() >> 2);
+        actorNew->add_int_xvel(-(actorNew->int_xvel() >> 2));
     }
 
 //    actorNew->user.RotNum = 5;
@@ -1578,7 +1578,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->spr.xvel -= (actorNew->int_xvel() >> 2);
+        actorNew->add_int_xvel(-(actorNew->int_xvel() >> 2));
     }
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);

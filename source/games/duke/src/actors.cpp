@@ -1029,7 +1029,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 	{
 		makeitfall(actor);
 		ssp(actor, CLIPMASK0);
-		if(actor->float_xvel() > 0) actor->spr.xvel -= 2;
+		if(actor->float_xvel() > 0) actor->add_int_xvel(-2);
 
 		if (actor->float_zvel() == 0)
 		{
@@ -1686,7 +1686,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
 		actor->temp_data[3] = 0;
-		if(actor->float_xvel() > 0) actor->spr.xvel -= 16;
+		if(actor->float_xvel() > 0) actor->add_int_xvel(-16);
 		else actor->clear_xvel();
 
 		if (actor->temp_data[0] == 2)
@@ -1733,7 +1733,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				if (l > 1524) { if (actor->int_xvel() < 256) actor->add_int_xvel( 32); }
 				else
 				{
-					if(actor->float_xvel() > 0) actor->spr.xvel -= 16;
+					if(actor->float_xvel() > 0) actor->add_int_xvel(-16);
 					else actor->clear_xvel();
 				}
 			}
@@ -2384,7 +2384,7 @@ void shell(DDukeActor* actor, bool morecheck)
 		if (actor->float_zvel() < 0.5) actor->add_int_zvel( (gs.gravity / 13)); // 8
 		else actor->add_int_zvel(- 64);
 		if(actor->float_xvel() > 0)
-			actor->spr.xvel -= 4;
+			actor->add_int_xvel(-4);
 		else actor->clear_xvel();
 	}
 	else
@@ -2444,7 +2444,7 @@ void glasspieces(DDukeActor* actor)
 
 	if(actor->float_xvel() > 0)
 	{
-		actor->spr.xvel -= 2;
+		actor->add_int_xvel(-2);
 		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
 		actor->spr.cstat = flips[actor->spr.xvel & 3];
 	}
@@ -2968,7 +2968,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->clear_xvel();
 
 			if(actor->float_xvel() > 0)
-				actor->spr.xvel -= 16;
+				actor->add_int_xvel(-16);
 			else
 			{
 				actor->clear_xvel();
