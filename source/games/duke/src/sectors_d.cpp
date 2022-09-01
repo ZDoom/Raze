@@ -1040,7 +1040,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case STRIPEBALL:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
+			proj->set_int_xvel((targ->spr.xvel >> 1) + (targ->spr.xvel >> 2));
 			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
 			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
@@ -1050,7 +1050,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			if (krand() & 3)
 			{
-				targ->spr.xvel = 164;
+				targ->set_int_xvel(164);
 				targ->spr.angle = proj->spr.angle;
 			}
 			else
@@ -1367,7 +1367,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
 								spawned->spr.pos.Z += 4;
-								spawned->spr.xvel = 16;
+								spawned->set_int_xvel(16);
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->add_int_ang(32 - (krand() & 63));
 							}
@@ -1388,7 +1388,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				{
 					if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 						targ->set_int_ang((proj->int_ang() + 1024) & 2047);
-					targ->spr.xvel = -(proj->spr.extra << 2);
+					targ->set_int_xvel(-(proj->spr.extra << 2));
 					auto sp = targ->sector();
 					pushmove(targ, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
 					if (sp != targ->sector() && sp != nullptr)

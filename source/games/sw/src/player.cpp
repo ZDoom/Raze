@@ -2001,7 +2001,7 @@ void DoPlayerMove(PLAYER* pp)
     if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
         pp->vect.X = pp->vect.Y = 0;
 
-    actor->spr.xvel = FindDistance2D(pp->vect.X,pp->vect.Y)>>14;
+    actor->set_int_xvel(FindDistance2D(pp->vect.X,pp->vect.Y)>>14);
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {

@@ -747,7 +747,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     PlayerList[nPlayer].horizon.resetadjustment();
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel;
 
-    pPlayerActor->spr.xvel = sPlayerInput[nPlayer].xVel >> 14;
+    pPlayerActor->set_int_xvel(sPlayerInput[nPlayer].xVel >> 14);
     pPlayerActor->spr.yvel = sPlayerInput[nPlayer].yVel >> 14;
 
     if (sPlayerInput[nPlayer].nItem > -1)

@@ -894,7 +894,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
     spawnedActor->spr.xrepeat = 64;
     spawnedActor->spr.yrepeat = 64;
     spawnedActor->spr.angle = init_ang;
-    spawnedActor->spr.xvel = vel;
+    spawnedActor->set_int_xvel(vel);
 
     return spawnedActor;
 }
@@ -1829,7 +1829,7 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->clear_xvel();
                     else
-                        actor->spr.xvel = actor->spr.lotag;
+                        actor->set_int_xvel(actor->spr.lotag);
 
                     StartInterpolation(actor->sector(), Interp_Sect_FloorPanX);
                     StartInterpolation(actor->sector(), Interp_Sect_FloorPanY);
@@ -1843,7 +1843,7 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->clear_xvel();
                     else
-                        actor->spr.xvel = actor->spr.lotag;
+                        actor->set_int_xvel(actor->spr.lotag);
                     StartInterpolation(actor->sector(), Interp_Sect_CeilingPanX);
                     StartInterpolation(actor->sector(), Interp_Sect_CeilingPanY);
                     change_actor_stat(actor, STAT_CEILING_PAN);
@@ -1869,7 +1869,7 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->clear_xvel();
                     else
-                        actor->spr.xvel = actor->spr.lotag;
+                        actor->set_int_xvel(actor->spr.lotag);
                     actor->set_int_ang(SP_TAG6(actor));
                     // attach to the sector that contains the wall
                     ChangeActorSect(actor, hit.hitSector);
@@ -2845,21 +2845,6 @@ KeyMain:
 
         case FIRE_FLY0:
 
-            /*
-             * SpawnUser(actor, FIRE_FLY0, nullptr);
-             *
-             * actor->user.State = actor->user.StateStart = &s_FireFly[0]; actor->user.RotNum = 0;
-             *
-             * actor->spr.angle = 0; actor->spr.xvel = 4;
-             *
-             * if (labs(actor->spr.z - actor->sector()->int_floorz()) < Z(32)) actor->spr.z =
-             * actor->sector()->int_floorz() - Z(32);
-             *
-             * actor->user.sz = actor->spr.z;
-             *
-             * change_actor_stat(actor, STAT_MISC);
-             */
-
             break;
 
         case ICON_REPAIR_KIT:
@@ -3492,7 +3477,7 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         actor->user.floor_dist = (0);
         actor->user.Counter = 0;
 
-        actor->spr.xvel = (int)SP_TAG7(spawner)<<2;
+        actor->set_int_xvel((int)SP_TAG7(spawner)<<2);
         actor->set_int_zvel(-(((int)SP_TAG8(spawner))<<5));
 
 		UpdateChange(actor);

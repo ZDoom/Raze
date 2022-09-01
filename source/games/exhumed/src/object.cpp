@@ -1384,12 +1384,12 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
         if (nVal)
         {
-            pSpark->spr.xvel = bcos(nAngle, -5);
+            pSpark->set_int_xvel(bcos(nAngle, -5));
             pSpark->spr.yvel = bsin(nAngle, -5);
         }
         else
         {
-            pSpark->spr.xvel = bcos(nAngle, -6);
+            pSpark->set_int_xvel(bcos(nAngle, -6));
             pSpark->spr.yvel = bsin(nAngle, -6);
         }
 

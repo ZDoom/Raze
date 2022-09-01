@@ -280,7 +280,7 @@ void SetHeadVel(DExhumedActor* pActor)
 {
     int nAngle = pActor->int_ang();
 
-    pActor->spr.xvel = bcos(nAngle, nVelShift);
+    pActor->set_int_xvel(bcos(nAngle, nVelShift));
     pActor->spr.yvel = bsin(nAngle, nVelShift);
 }
 
@@ -444,7 +444,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     {
         pActor2->spr.xrepeat = 30;
         pActor2->spr.yrepeat = 30;
-        pActor2->spr.xvel = bcos(pActor2->int_ang());
+        pActor2->set_int_xvel(bcos(pActor2->int_ang()));
         pActor2->spr.yvel = bsin(pActor2->int_ang());
         pActor2->set_int_zvel(-6000);
         pActor2->spr.cstat = 0;
@@ -571,7 +571,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
 
             pActor->set_int_ang(nAngle);
-            pActor->spr.xvel = bcos(nAngle, -1);
+            pActor->set_int_xvel(bcos(nAngle, -1));
             pActor->spr.yvel = bsin(nAngle, -1);
         }
 
@@ -604,7 +604,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         case kHitWall:
             pActor->set_int_ang((RandomSize(9) + 768));
             pActor->norm_ang();
-            pActor->spr.xvel = bcos(pActor->int_ang(), -3);
+            pActor->set_int_xvel(bcos(pActor->int_ang(), -3));
             pActor->spr.yvel = bsin(pActor->int_ang(), -3);
             pActor->set_int_zvel(-RandomSize(5));
             break;
@@ -1128,7 +1128,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
 void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
 {
-    pActor->spr.xvel = bcos(pActor->int_ang(), -(2 - nSpeed));
+    pActor->set_int_xvel(bcos(pActor->int_ang(), -(2 - nSpeed)));
     pActor->spr.yvel = bsin(pActor->int_ang(), -(2 - nSpeed));
 }
 

@@ -91,7 +91,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 
 void GoRoach(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->int_ang(), -1) - bcos(pActor->int_ang(), -3);
+    pActor->set_int_xvel(bcos(pActor->int_ang(), -1) - bcos(pActor->int_ang(), -3));
     pActor->spr.yvel = bsin(pActor->int_ang(), -1) - bsin(pActor->int_ang(), -3);
 }
 

@@ -115,9 +115,9 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
     actor->user.speed = speed;
 
     if (ActorFlaming(actor))
-        actor->spr.xvel = actor->user.Attrib->Speed[speed] + (actor->user.Attrib->Speed[speed] >> 1);
+        actor->set_int_xvel(actor->user.Attrib->Speed[speed] + (actor->user.Attrib->Speed[speed] >> 1));
     else
-        actor->spr.xvel = actor->user.Attrib->Speed[speed];
+        actor->set_int_xvel(actor->user.Attrib->Speed[speed]);
 }
 
 /*

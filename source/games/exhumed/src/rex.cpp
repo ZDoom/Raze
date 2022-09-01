@@ -221,7 +221,7 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
 
-                pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
                 pActor->spr.yvel = bsin(pActor->int_ang(), -2);
 
                 D3PlayFX(StaticSound[kSound48], pActor);
@@ -255,7 +255,7 @@ void AIRex::Tick(RunListEvent* ev)
                 if (((PlotCourseToSprite(pActor, pTarget) >> 8) >= 60) || pActor->nCount > 0)
                 {
                     int nAngle = pActor->int_ang() & 0xFFF8;
-                    pActor->spr.xvel = bcos(nAngle, -2);
+                    pActor->set_int_xvel(bcos(nAngle, -2));
                     pActor->spr.yvel = bsin(nAngle, -2);
                 }
                 else
@@ -287,7 +287,7 @@ void AIRex::Tick(RunListEvent* ev)
         case kHitWall:
         {
             pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-            pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+            pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
             pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             pActor->nAction = 1;
             pActor->nFrame = 0;
@@ -306,7 +306,7 @@ void AIRex::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(pActor, pTarget);
 
-            pActor->spr.xvel = bcos(pActor->int_ang(), -1);
+            pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
             pActor->spr.yvel = bsin(pActor->int_ang(), -1);
 
             auto nMov = MoveCreatureWithCaution(pActor);
@@ -319,7 +319,7 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nCount = 60;
 
                 pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-                pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
                 pActor->spr.yvel = bsin(pActor->int_ang(), -2);
                 pActor->nAction = 1;
                 pActor->nFrame = 0;

@@ -3448,7 +3448,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             }
 
             // update the real velocity
-            actor->spr.xvel = (actor->user.track_vel) >> 8;
+            actor->set_int_xvel((actor->user.track_vel) >> 8);
         }
         else if (actor->user.Flags & (SPR_SLOW_DOWN))
         {
@@ -3458,7 +3458,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 actor->user.Flags &= ~(SOBJ_SLOW_DOWN);
             }
 
-            actor->spr.xvel = (actor->user.track_vel) >> 8;
+            actor->set_int_xvel((actor->user.track_vel) >> 8);
         }
 
 

@@ -187,7 +187,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
 				splash->spr.angle = ps[p].angle.ang; // Total tweek
-				splash->spr.xvel = 32;
+				splash->set_int_xvel(32);
 				ssp(actor, 0);
 				splash->clear_xvel();
 			}
@@ -335,7 +335,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				if (l)
 				{
 					l->spr.pos.Z += 4;
-					l->spr.xvel = 16;
+					l->set_int_xvel(16);
 					l->spr.xrepeat = l->spr.yrepeat = 24;
 					l->add_int_ang(64 - (krand() & 127));
 				}
@@ -409,7 +409,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							auto hole = spawn(spark, BULLETHOLE);
 							if (hole)
 							{
-								hole->spr.xvel = -1;
+								hole->set_int_xvel(-1);
 								hole->set_int_ang(getangle(-hit.hitWall->delta()) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
@@ -891,7 +891,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		auto j = spawn(actor, atwith);
 		if (j)
 		{
-			j->spr.xvel = 32;
+			j->set_int_xvel(32);
 			j->spr.angle = actor->spr.angle;
 			j->spr.pos.Z -= 5;
 		}
@@ -902,7 +902,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		auto j = spawn(actor, atwith);
 		if (j)
 		{
-			j->spr.xvel = 250;
+			j->set_int_xvel(250);
 			j->spr.angle = actor->spr.angle;
 			j->spr.pos.Z -= 15;
 		}
@@ -3581,7 +3581,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(pact->spr.xvel);
 
-	pact->spr.xvel = int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint);
+	pact->set_int_xvel(int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint));
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));

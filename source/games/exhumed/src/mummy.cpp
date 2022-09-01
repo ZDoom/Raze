@@ -176,7 +176,7 @@ void AIMummy::Tick(RunListEvent* ev)
                     pActor->nAction = 1;
                     pActor->nCount = 90;
 
-                    pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+                    pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
                     pActor->spr.yvel = bsin(pActor->int_ang(), -2);
                 }
             }
@@ -218,7 +218,7 @@ void AIMummy::Tick(RunListEvent* ev)
         // loc_2B5A8
         if (!pActor->nFrame)
         {
-            pActor->spr.xvel = bcos(pActor->int_ang(), -1);
+            pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
             pActor->spr.yvel = bsin(pActor->int_ang(), -1);
         }
 
@@ -260,7 +260,7 @@ void AIMummy::Tick(RunListEvent* ev)
         case kHitWall:
         {
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
-            pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+            pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
             pActor->spr.yvel = bsin(pActor->int_ang(), -2);
             return;
         }

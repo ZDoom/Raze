@@ -1164,7 +1164,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     //actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.angle = RANDOM_ANGLE();
-    actorNew->spr.xvel = RANDOM_P2(32);
+    actorNew->set_int_xvel(RANDOM_P2(32));
 
     actorNew->user.Counter = 0;
     actorNew->user.Counter2 = 0;

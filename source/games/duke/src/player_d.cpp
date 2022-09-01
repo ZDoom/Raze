@@ -195,7 +195,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	{
 		spawned = spawn(actor, FLAMETHROWERFLAME);
 		if (!spawned) return;
-		spawned->spr.xvel = (short)(vel * worldtoint);
+		spawned->set_int_xvel(vel * worldtoint);
 		spawned->set_int_zvel(zvel * 256);
 	}
 
@@ -297,7 +297,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
 				splash->spr.angle = ps[p].angle.ang; // Total tweek
-				splash->spr.xvel = 32;
+				splash->set_int_xvel(32);
 				ssp(actor, CLIPMASK0);
 				splash->clear_xvel();
 			}
@@ -442,7 +442,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				if (jib)
 				{
 					jib->spr.pos.Z += 4;
-					jib->spr.xvel = 16;
+					jib->set_int_xvel(16);
 					jib->spr.xrepeat = jib->spr.yrepeat = 24;
 					jib->add_int_ang(64 - (krand() & 127));
 				}
@@ -512,7 +512,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							auto hole = spawn(spark, BULLETHOLE);
 							if (hole)
 							{
-								hole->spr.xvel = -1;
+								hole->set_int_xvel(-1);
 								hole->set_int_ang(getangle(-hit.hitWall->delta()) + 512);
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
@@ -648,9 +648,9 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			if (actor->spr.picnum == BOSS2)
 			{
 				l = spawned->spr.xvel;
-				spawned->spr.xvel = 1024;
+				spawned->set_int_xvel(1024);
 				ssp(spawned, CLIPMASK0);
-				spawned->spr.xvel = l;
+				spawned->set_int_xvel(l);
 				spawned->add_int_ang(128 - (krand() & 255));
 			}
 		}
@@ -885,7 +885,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
 			bomb->spr.hitag = ud.bomb_tag;
 			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
-			bomb->spr.xvel = -20;
+			bomb->set_int_xvel(-20);
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
@@ -1064,7 +1064,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 				k->setsector(sect);
 				k->spr.pos = spos;
 				k->spr.angle = sang;
-				k->spr.xvel = 500;
+				k->set_int_xvel(500);
 				k->clear_zvel();
 			}
 			return;
@@ -2862,7 +2862,7 @@ void processinput_d(int snum)
 
 	p->playerweaponsway(pact->spr.xvel);
 
-	pact->spr.xvel = int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint);
+	pact->set_int_xvel(int(clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.) * worldtoint));
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));

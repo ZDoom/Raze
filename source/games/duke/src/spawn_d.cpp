@@ -204,7 +204,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.angle = actj->spr.angle;
 		act->spr.pos.Z -= gs.playerheight;
 		act->set_int_zvel(256 - (krand() & 511));
-		act->spr.xvel = 64 - (krand() & 127);
+		act->set_int_xvel(64 - (krand() & 127));
 		ChangeActorStat(act, 4);
 		break;
 	case NATURALLIGHTNING:
@@ -336,7 +336,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
 		act->spr.hitag = ud.bomb_tag;
 
-		act->spr.xvel = 16;
+		act->set_int_xvel(16);
 		ssp(act, CLIPMASK0);
 		act->temp_data[0] = 17;
 		act->temp_data[2] = 0;
@@ -515,10 +515,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case DUKECAR:
 	case HELECOPT:
-		//                if(act->spr.picnum == HELECOPT || act->spr.picnum == DUKECAR) act->spr.xvel = 1024;
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
-		act->spr.xvel = 292;
+		act->set_int_xvel(292);
 		act->set_int_zvel(360);
 		[[fallthrough]];
 	case RESPAWNMARKERRED:
@@ -1108,7 +1107,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.xrepeat = act->spr.yrepeat = 1;
-			act->spr.xvel = -8;
+			act->set_int_xvel(-8);
 			ssp(act, CLIPMASK0);
 		}
 		[[fallthrough]];
@@ -1163,7 +1162,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		act->SetOwner(act);
 		ChangeActorStat(act, STAT_STANDABLE);
-		act->spr.xvel = 8;
+		act->set_int_xvel(8);
 		ssp(act, CLIPMASK0);
 		break;
 

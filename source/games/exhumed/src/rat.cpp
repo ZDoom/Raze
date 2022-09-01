@@ -69,7 +69,7 @@ void InitRats()
 
 void SetRatVel(DExhumedActor* pActor)
 {
-    pActor->spr.xvel = bcos(pActor->int_ang(), -2);
+    pActor->set_int_xvel(bcos(pActor->int_ang(), -2));
     pActor->spr.yvel = bsin(pActor->int_ang(), -2);
 }
 

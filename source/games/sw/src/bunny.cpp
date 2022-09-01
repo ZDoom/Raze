@@ -1195,7 +1195,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->spr.xvel = 150 + RandomRange(1000);
+        actorNew->set_int_xvel(150 + RandomRange(1000));
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
         actorNew->add_int_ang(-RandomRange(128));
         actorNew->add_int_ang(RandomRange(128));

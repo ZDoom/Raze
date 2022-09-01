@@ -3765,7 +3765,7 @@ AutoShrap:
 
             actor->spr.pal = actor->user.spal = uint8_t(shrap_pal);
 
-            actor->spr.xvel = p->min_vel*2;
+            actor->set_int_xvel(p->min_vel*2);
             actor->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
             actor->user.floor_dist = 2;
@@ -4129,7 +4129,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 
             actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
 
-            actorNew->spr.xvel = p->min_vel;
+            actorNew->set_int_xvel(p->min_vel);
             actorNew->spr.xvel += RandomRange(p->max_vel - p->min_vel);
 
             // special case
@@ -10885,7 +10885,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
-    actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
+    actor->set_int_xvel(short((dist * 6) / MISSILEMOVETICS));
     actor->set_int_zvel(short((actor->int_zvel() * 6) / MISSILEMOVETICS));
 
     // some Weapon Animators use this
@@ -10898,7 +10898,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 
     // reset values
 	actor->user.change = oldc;
-    actor->spr.xvel = oldvel;
+    actor->set_int_xvel(oldvel);
     actor->set_int_zvel(oldzvel);
 
     // update for interpolation
@@ -10918,7 +10918,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     oldzvel = actor->int_zvel();
 
     // make missile move in smaller increments
-    actor->spr.xvel = short((dist * 6) / MISSILEMOVETICS);
+    actor->set_int_xvel(short((dist * 6) / MISSILEMOVETICS));
     zvel = short((zvel*6) / MISSILEMOVETICS);
 
     // some Weapon Animators use this
@@ -10932,7 +10932,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 
     // reset values
 	actor->user.change = oldc;
-    actor->spr.xvel = oldvel;
+    actor->set_int_xvel(oldvel);
     actor->set_int_zvel(oldzvel);
 
     // update for interpolation
@@ -11058,7 +11058,7 @@ void InitSpellRing(PLAYER* pp)
         auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, DAngle::fromBuild(ang), 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
-        actorNew->spr.xvel = 500;
+        actorNew->set_int_xvel(500);
         SetOwner(pp->actor, actorNew);
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 32;
@@ -11170,7 +11170,7 @@ int DoSerpRing(DSWActor* actor)
                     extern STATE* sg_SkullJump[];
                     actor->user.ID = SKULL_R0;
                     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
-                    actor->spr.xvel = dist>>5;
+                    actor->set_int_xvel(dist>>5);
                     actor->spr.xvel += (actor->spr.xvel >> 1);
                     actor->spr.xvel += (RANDOM_P2(128<<8)>>8);
                     actor->user.jump_speed = -800;
@@ -11330,7 +11330,7 @@ int InitSerpRing(DSWActor* actor)
     {
         auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, DAngle::fromBuild(ang), 0);
 
-        actorNew->spr.xvel = 500;
+        actorNew->set_int_xvel(500);
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -20;
         actorNew->spr.xrepeat = 64;
@@ -12031,7 +12031,7 @@ int InitSumoSkull(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), DVector3(actor->spr.pos, ActorZOfMiddle(actor)), actor->spr.angle, 0);
 		
-    actorNew->spr.xvel = 500;
+    actorNew->set_int_xvel(500);
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -20;
     actorNew->spr.xrepeat = 64;
@@ -16079,7 +16079,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
     auto old_xvel = actor->int_xvel();
     auto old_clipdist = actor->spr.clipdist;
 
-    actor->spr.xvel = dist;
+    actor->set_int_xvel(dist);
 	
 	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
 
@@ -16087,7 +16087,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 
     actor->user.coll = move_missile(actor, DVector3(vec, 0), 16, 16, 0, 1);
 
-    actor->spr.xvel = old_xvel;
+    actor->set_int_xvel(old_xvel);
     actor->spr.clipdist = old_clipdist;
 
     actor->backuppos();
@@ -16683,7 +16683,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.angle = RANDOM_ANGLE();
-    actorNew->spr.xvel = RANDOM_P2(32);
+    actorNew->set_int_xvel(RANDOM_P2(32));
 	UpdateChangeXY(actorNew);
     actorNew->set_int_zvel(Z(4) + RANDOM_P2(Z(4)));
 
@@ -16707,7 +16707,7 @@ int SpawnSmokePuff(DSWActor* actor)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.angle = RANDOM_ANGLE();
-    actorNew->spr.xvel = RANDOM_P2(32);
+    actorNew->set_int_xvel(RANDOM_P2(32));
 	UpdateChangeXY(actorNew);
     actorNew->set_int_zvel(Z(1) + RANDOM_P2(Z(2)));
 

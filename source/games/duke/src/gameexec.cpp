@@ -1237,7 +1237,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.intowner, sActor, sPlayer);
 		break;
 	case ACTOR_XVEL:
-		if (bSet) act->spr.xvel = lValue;
+		if (bSet) act->set_int_xvel(lValue);
 		else SetGameVarID(lVar2, act->int_xvel(), sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
@@ -1612,7 +1612,7 @@ int ParseState::parse(void)
 
 	case concmd_rndmove:
 		g_ac->set_int_ang(krand() & 2047);
-		g_ac->spr.xvel = 25;
+		g_ac->set_int_xvel(25);
 		insptr++;
 		break;
 	case concmd_mamatrigger:

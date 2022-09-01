@@ -217,7 +217,7 @@ void AIScorp::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound41], pActor);
 
                     pActor->nFrame = 0;
-                    pActor->spr.xvel = bcos(pActor->int_ang());
+                    pActor->set_int_xvel(bcos(pActor->int_ang()));
                     pActor->spr.yvel = bsin(pActor->int_ang());
 
                     pActor->nAction = 1;
@@ -302,7 +302,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 1;
 
-                pActor->spr.xvel = bcos(pActor->int_ang());
+                pActor->set_int_xvel(bcos(pActor->int_ang()));
                 pActor->spr.yvel = bsin(pActor->int_ang());
 
                 pActor->nFrame = 0;
@@ -371,7 +371,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
             int nVel = RandomSize(5) + 1;
 
-            pSpiderActor->spr.xvel = bcos(pSpiderActor->int_ang(), -8) * nVel;
+            pSpiderActor->set_int_xvel(bcos(pSpiderActor->int_ang(), -8) * nVel);
             pSpiderActor->spr.yvel = bsin(pSpiderActor->int_ang(), -8) * nVel;
             pSpiderActor->set_int_zvel((-(RandomSize(5) + 3)) << 8);
         }
@@ -410,7 +410,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->add_int_ang(RandomSize(7) - 63);
         pActor->norm_ang();
 
-        pActor->spr.xvel = bcos(pActor->int_ang());
+        pActor->set_int_xvel(bcos(pActor->int_ang()));
         pActor->spr.yvel = bsin(pActor->int_ang());
     }
     if (mode <= 1)

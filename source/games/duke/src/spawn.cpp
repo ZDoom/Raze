@@ -71,7 +71,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.pal = 0;
 
 	act->set_int_ang(s_a);
-	act->spr.xvel = s_ve;
+	act->set_int_xvel(s_ve);
 	act->set_int_zvel(s_zv);
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
@@ -328,7 +328,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 	act->spr.angle = actj->spr.angle;
 
-	act->spr.xvel = 128;
+	act->set_int_xvel(128);
 	ChangeActorStat(act, STAT_MISC);
 	ssp(act, CLIPMASK0);
 	SetActor(act, act->spr.pos);
@@ -456,12 +456,12 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		{
 			// to the right, with feeling
 			act->spr.angle = ang + DAngle90;
-			act->spr.xvel = 30;
+			act->set_int_xvel(30);
 		}
 		else
 		{
 			act->spr.angle = ang - DAngle90;
-			act->spr.xvel = 20;
+			act->set_int_xvel(20);
 		}
 
 		act->spr.xrepeat = act->spr.yrepeat = isRR() && isshell? 2 : 4;
@@ -534,7 +534,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		}
 		else actor->spr.pos.Z -= 13;
 		actor->spr.angle = VecToAngle(ps[connecthead].pos.XY() - actor->spr.pos.XY());
-		actor->spr.xvel = 48 - (krand() & 31);
+		actor->set_int_xvel(48 - (krand() & 31));
 		ssp(actor, CLIPMASK0);
 	}
 	else if (!actj)

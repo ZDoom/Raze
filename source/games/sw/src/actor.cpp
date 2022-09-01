@@ -155,7 +155,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                 ChangeState(actor, actor->user.StateEnd);
                 actor->user.RotNum = 0;
                 actor->user.ActorActionFunc = nullptr;
-                actor->spr.xvel = 200 + RandomRange(200);
+                actor->set_int_xvel(200 + RandomRange(200));
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
                 actor->spr.angle = weapActor->spr.angle;
@@ -223,12 +223,12 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
         {
-            actor->spr.xvel = 75 + RandomRange(100);
+            actor->set_int_xvel(75 + RandomRange(100));
             actor->user.jump_speed = -100 - RandomRange(150);
         }
         else
         {
-            actor->spr.xvel = 100 + RandomRange(200);
+            actor->set_int_xvel(100 + RandomRange(200));
             actor->user.jump_speed = -100 - RandomRange(250);
         }
         DoActorBeginJump(actor);
@@ -256,7 +256,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             ChangeState(actor, actor->user.StateEnd);
             actor->user.RotNum = 0;
             actor->user.ActorActionFunc = nullptr;
-            actor->spr.xvel = 300 + RandomRange(400);
+            actor->set_int_xvel(300 + RandomRange(400));
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
             actor->spr.angle = weapActor->spr.angle;

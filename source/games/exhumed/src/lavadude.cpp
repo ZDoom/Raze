@@ -45,7 +45,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
     pLimbActor->spr.cstat = 0;
     pLimbActor->spr.shade = -127;
     pLimbActor->spr.pal = 1;
-    pLimbActor->spr.xvel = (RandomSize(5) - 16) << 8;
+    pLimbActor->set_int_xvel((RandomSize(5) - 16) << 8);
     pLimbActor->spr.yvel = (RandomSize(5) - 16) << 8;
     pLimbActor->set_int_zvel(2560 - (RandomSize(5) << 8));
     pLimbActor->spr.xoffset = 0;
@@ -264,7 +264,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->set_int_xvel(bcos(pActor->int_ang()));
             pActor->spr.yvel = bsin(pActor->int_ang());
 
             if (pTarget && !RandomSize(1))
@@ -288,7 +288,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 			pActor->spr.pos = pos;
 
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
-            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->set_int_xvel(bcos(pActor->int_ang()));
             pActor->spr.yvel = bsin(pActor->int_ang());
             break;
         }
@@ -300,7 +300,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (coll.type == kHitWall)
         {
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
-            pActor->spr.xvel = bcos(pActor->int_ang());
+            pActor->set_int_xvel(bcos(pActor->int_ang()));
             pActor->spr.yvel = bsin(pActor->int_ang());
             break;
         }

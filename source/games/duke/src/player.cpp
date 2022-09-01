@@ -1056,7 +1056,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				auto spawned = spawn(actor, atwith);
 				if (spawned)
 				{
-					spawned->spr.xvel = -12;
+					spawned->set_int_xvel(-12);
 					spawned->set_int_ang(getangle(-hit.hitWall->delta()) + 512); // note the '-' sign here!
 					spawned->spr.pos = hit.hitpos;
 					spawned->spr.cstat |= randomXFlip();

@@ -286,7 +286,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.angle = actj->spr.angle;
 		act->spr.pos.Z -= gs.playerheight;
 		act->set_int_zvel(256 - (krand() & 511));
-		act->spr.xvel = 64 - (krand() & 127);
+		act->set_int_xvel(64 - (krand() & 127));
 		ChangeActorStat(act, 4);
 		break;
 	case TRANSPORTERSTAR:
@@ -487,7 +487,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 32;
 		act->spr.yrepeat = 26;
-		act->spr.xvel = 32;
+		act->set_int_xvel(32);
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3120:
@@ -495,7 +495,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 12;
 		act->spr.yrepeat = 10;
-		act->spr.xvel = 32;
+		act->set_int_xvel(32);
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3122:
@@ -503,7 +503,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 2;
 		act->spr.xrepeat = 8;
 		act->spr.yrepeat = 6;
-		act->spr.xvel = 16;
+		act->set_int_xvel(16);
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3123:
@@ -511,7 +511,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 13;
-		act->spr.xvel = 16;
+		act->set_int_xvel(16);
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3124:
@@ -519,7 +519,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 17;
 		act->spr.yrepeat = 12;
-		act->spr.xvel = 32;
+		act->set_int_xvel(32);
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3132:
@@ -547,7 +547,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
-		act->spr.xvel = 292;
+		act->set_int_xvel(292);
 		act->set_int_zvel(360);
 		[[fallthrough]];
 	case RESPAWNMARKERRED:
@@ -1277,7 +1277,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 11;
 			act->spr.yrepeat = 11;
 			act->spr.yvel = 4;
-			act->spr.xvel = 32;
+			act->set_int_xvel(32);
 			break;
 		case RPGSPRITE:
 			act->spr.xrepeat = 16;
@@ -1358,7 +1358,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.xrepeat = act->spr.yrepeat = 1;
-			act->spr.xvel = -8;
+			act->set_int_xvel(-8);
 			ssp(act, CLIPMASK0);
 		}
 		[[fallthrough]];
@@ -1400,7 +1400,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		act->SetOwner(act);
 		ChangeActorStat(act, STAT_STANDABLE);
-		act->spr.xvel = 8;
+		act->set_int_xvel(8);
 		ssp(act, CLIPMASK0);
 		break;
 

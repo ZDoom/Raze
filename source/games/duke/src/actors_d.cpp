@@ -749,7 +749,7 @@ void movefallers_d(void)
 				act->spr.lotag-=3;
 				if (act->spr.lotag <= 0)
 				{
-					act->spr.xvel = (32 + (krand() & 63));
+					act->set_int_xvel((32 + (krand() & 63)));
 					act->set_int_zvel(-(1024 + (krand() & 1023)));
 				}
 			}
@@ -832,7 +832,7 @@ static void movetripbomb(DDukeActor *actor)
 			if (spawned)
 			{
 				spawned->spr.angle = actor->spr.angle;
-				spawned->spr.xvel = 348;
+				spawned->set_int_xvel(348);
 				ssp(spawned, CLIPMASK0);
 			}
 
@@ -1313,7 +1313,7 @@ static bool movefireball(DDukeActor* actor)
 			{
 				actor->temp_actor = ball;
 
-				ball->spr.xvel = actor->int_xvel();
+				ball->set_int_xvel(actor->int_xvel());
 				ball->spr.yvel = actor->spr.yvel;
 				ball->set_int_zvel(actor->int_zvel());
 				if (actor->temp_data[0] > 1)
@@ -1322,7 +1322,7 @@ static bool movefireball(DDukeActor* actor)
 					{
 						FireProj* proj = &trail->fproj;
 						ball->spr.pos = trail->temp_pos;
-						ball->spr.xvel = proj->vel.X;
+						ball->set_int_xvel(proj->vel.X);
 						ball->spr.yvel = proj->vel.Y;
 						ball->set_int_zvel(proj->vel.Z);
 					}
@@ -1980,7 +1980,7 @@ void movetransports_d(void)
 								auto k = spawn(act2, WATERSPLASH2);
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									k->spr.xvel = act2->spr.xvel >> 1;
+									k->set_int_xvel(act2->spr.xvel >> 1);
 									k->spr.angle = act2->spr.angle;
 									ssp(k, CLIPMASK0);
 								}
@@ -2375,7 +2375,7 @@ static void greenslime(DDukeActor *actor)
 		else
 		{
 			if (actor->int_xvel() < 32) actor->spr.xvel += 4;
-			actor->spr.xvel = 64 - bcos(actor->temp_data[1], -9);
+			actor->set_int_xvel(64 - bcos(actor->temp_data[1], -9));
 
 			actor->add_int_ang(getincangle(actor->int_ang(),
 				getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
@@ -3172,17 +3172,17 @@ void handle_se06_d(DDukeActor* actor)
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
 		{
 			actor->temp_data[4] = 0;
-			actor->spr.xvel = k;
+			actor->set_int_xvel(k);
 		}
 	}
-	else actor->spr.xvel = k;
+	else actor->set_int_xvel(k);
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
 		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
-			act2->spr.xvel = actor->int_xvel();
+			act2->set_int_xvel(actor->int_xvel());
 			//if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)

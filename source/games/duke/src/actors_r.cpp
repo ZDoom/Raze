@@ -667,7 +667,7 @@ void movefallers_r(void)
 			if (act->spr.lotag > 0)
 			{
 				act->spr.lotag -= 3;
-				act->spr.xvel = ((64 + krand()) & 127);
+				act->set_int_xvel(((64 + krand()) & 127));
 				act->set_int_zvel(-(1024 + (krand() & 1023)));
 			}
 			else
@@ -1657,7 +1657,7 @@ void movetransports_r(void)
 								auto spawned = spawn(act2, WATERSPLASH2);
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									spawned->spr.xvel = act2->spr.xvel >> 1;
+									spawned->set_int_xvel(act2->spr.xvel >> 1);
 									spawned->spr.angle = act2->spr.angle;
 									ssp(spawned, CLIPMASK0);
 								}
@@ -2583,7 +2583,7 @@ static int henstand(DDukeActor *actor)
 					deletesprite(hitact);
 					if (ns)
 					{
-						ns->spr.xvel = 32;
+						ns->set_int_xvel(32);
 						ns->spr.lotag = 40;
 						ns->spr.angle = actor->spr.angle;
 					}
@@ -3159,7 +3159,7 @@ void handle_se06_r(DDukeActor *actor)
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
 		{
 			actor->temp_data[4] = 0;
-			actor->spr.xvel = k;
+			actor->set_int_xvel(k);
 			if ((!isRRRA() || lastlevel) && hulkspawn)
 			{
 				hulkspawn--;
@@ -3194,7 +3194,7 @@ void handle_se06_r(DDukeActor *actor)
 	}
 	else
 	{
-		actor->spr.xvel = k;
+		actor->set_int_xvel(k);
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
@@ -3234,7 +3234,7 @@ void handle_se06_r(DDukeActor *actor)
 	{
 		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
-			act2->spr.xvel = actor->int_xvel();
+			act2->set_int_xvel(actor->int_xvel());
 			//						if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)

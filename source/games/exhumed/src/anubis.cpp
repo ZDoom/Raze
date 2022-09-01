@@ -157,7 +157,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
 
-                ap->spr.xvel = bcos(ap->int_ang(), -2);
+                ap->set_int_xvel(bcos(ap->int_ang(), -2));
                 ap->spr.yvel = bsin(ap->int_ang(), -2);
             }
         }
@@ -170,7 +170,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             PlotCourseToSprite(ap, pTarget);
 
             int nAngle = ap->int_ang() & 0xFFF8;
-            ap->spr.xvel = bcos(nAngle, -2);
+            ap->set_int_xvel(bcos(nAngle, -2));
             ap->spr.yvel = bsin(nAngle, -2);
         }
 
@@ -194,7 +194,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         case kHitWall:
         {
             ap->set_int_ang((ap->int_ang() + 256) & kAngleMask);
-            ap->spr.xvel = bcos(ap->int_ang(), -2);
+            ap->set_int_xvel(bcos(ap->int_ang(), -2));
             ap->spr.yvel = bsin(ap->int_ang(), -2);
             break;
         }
@@ -258,7 +258,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->nAction = 1;
 
-            ap->spr.xvel = bcos(ap->int_ang(), -2);
+            ap->set_int_xvel(bcos(ap->int_ang(), -2));
             ap->spr.yvel = bsin(ap->int_ang(), -2);
             ap->nFrame = 0;
         }
