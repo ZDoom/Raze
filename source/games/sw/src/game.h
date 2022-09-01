@@ -606,7 +606,7 @@ struct PLAYER
     TObjPtr<DSWActor*> last_camera_act;
 
     // holds last valid move position
-    vec3_t lv;
+    DVector3 lv;
 
     REMOTE_CONTROL remote;
     SECTOR_OBJECT* sop_remote;

@@ -5844,13 +5844,13 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->actor, pp->lv_sector);
-        pp->set_int_ppos_XY(pp->lv.XY());
+        pp->pos.XY() = pp->lv.XY();
 		plActor->spr.pos.XY() = pp->pos.XY();
     }
     else
     {
         pp->lv_sector = sect;
-        pp->lv.XY() = pp->int_ppos().XY();
+        pp->lv.XY() = pp->pos.XY();
     }
 }
 
