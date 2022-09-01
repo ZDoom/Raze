@@ -11199,7 +11199,7 @@ void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = fal
     if (dist != 0)
     {
         double zdist = (ActorUpperZ(actor->user.targetActor) - actorNew->spr.pos.Z - offset) / dist;
-        double change = zdist * actorNew->spr.xvel * inttoworld;
+        double change = zdist * actorNew->int_xvel() * inttoworld;
         actorNew->set_int_zvel((change * zworldtoint));
         if (setchange) actorNew->user.change.Z = change;
     }
@@ -12175,7 +12175,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
             else
                 zh = tos + (siz * 0.25);
 
-            mislActor->set_int_zvel(int((mislActor->spr.xvel * (zh - mislActor->spr.pos.Z)) / dist) * (zworldtoint / worldtoint));
+            mislActor->set_int_zvel(int((mislActor->int_xvel() * (zh - mislActor->spr.pos.Z)) / dist) * (zworldtoint / worldtoint));
         }
         return 0;
     }
@@ -12229,7 +12229,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
                 else
                     zh = tos + (siz * 0.25);
 
-            *zvel = int((missileActor->spr.xvel * (zh - missileActor->spr.pos.Z)) / dist * (zworldtoint));
+            *zvel = int((missileActor->int_xvel() * (zh - missileActor->spr.pos.Z)) / dist * (zworldtoint));
         }
         return 0;
     }
@@ -13475,7 +13475,7 @@ int InitMicro(PLAYER* pp)
             if (dist != 0)
             {
                 double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
-                actorNew->set_int_zvel((actorNew->spr.xvel * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
+                actorNew->set_int_zvel((actorNew->int_xvel() * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
@@ -14493,7 +14493,7 @@ int InitTracerUzi(PLAYER* pp)
         return 0;
     }
 
-    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.)));
+    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->int_xvel() * (1. / 8.)));
 
     plActor->spr.clipdist = oclipdist;
 
@@ -14534,7 +14534,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->set_int_zvel(int(-MulScaleF(q16horiz, actorNew->spr.xvel * (1. / 8.), 16)));
+    actorNew->set_int_zvel(int(-MulScaleF(q16horiz, actorNew->int_xvel() * (1. / 8.), 16)));
 
     WeaponAutoAim(actor, actorNew, 32, false);
 
@@ -14919,7 +14919,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.)));
+    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->int_xvel() * (1. / 8.)));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
@@ -15012,7 +15012,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
             if (dist != 0)
             {
                 double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
-                actorNew->set_int_zvel((actorNew->spr.xvel * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
+                actorNew->set_int_zvel((actorNew->int_xvel() * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
@@ -15051,7 +15051,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.)));
+    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->int_xvel() * (1. / 8.)));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
@@ -15085,7 +15085,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->spr.xvel * (1. / 8.)));
+    actorNew->set_int_zvel(int(-pp->horizon.horiz.asbuildf() * actorNew->int_xvel() * (1. / 8.)));
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness

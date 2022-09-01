@@ -1349,7 +1349,7 @@ void moveweapons_r(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (proj->spr.yvel < 1 || proj->spr.extra < 2 || (proj->spr.xvel | proj->int_zvel()) == 0)
+			if (proj->spr.yvel < 1 || proj->spr.extra < 2 || (proj->int_xvel() == 0 && proj->int_zvel() == 0))
 			{
 				auto star = spawn(proj, TRANSPORTERSTAR);
 				if (star)
@@ -2441,7 +2441,7 @@ static void heavyhbomb(DDukeActor *actor)
 			goto DETONATEB;
 		}
 		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
-		actor->spr.xvel >>= 1;
+		actor->mul_int_xvel(0.5);
 	}
 
 DETONATEB:
@@ -3633,7 +3633,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->spr.xvel || actor->float_zvel() != 0)
+	if (actor->float_xvel() != 0 || actor->float_zvel() != 0)
 	{
 		if (a)
 		{

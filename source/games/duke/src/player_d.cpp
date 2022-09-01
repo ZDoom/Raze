@@ -185,7 +185,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		
 		// WTF???
 		DAngle myang = (DAngle90 - (DAngle180 - fabs(fabs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180)));
-		if (ps[p].GetActor()->spr.xvel != 0)
+		if (ps[p].GetActor()->float_xvel() != 0)
 			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->int_xvel()) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -2227,7 +2227,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			{
 				spawned->add_int_ang(1024);
 				spawned->mul_int_zvel(1./3.);
-				spawned->spr.xvel /= 3;
+				spawned->mul_int_xvel(1./3.);
 			}
 
 			p->hbomb_on = 1;
@@ -3057,7 +3057,7 @@ HORIZONLY:
 				p->pyoff = DAngle::fromBuild(p->pycount).Sin() * pact->int_xvel();
 
 				const double factor = 64. / 1596; // What is 1596?
-				p->pyoff = abs(pact->spr.xvel * DAngle::fromBuild(p->pycount).Sin()) * factor;
+				p->pyoff = abs(pact->int_xvel() * DAngle::fromBuild(p->pycount).Sin()) * factor;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)
@@ -3073,7 +3073,7 @@ HORIZONLY:
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
-			if (secact && secact->spr.xvel && secact->temp_data[0] == 0)
+			if (secact && secact->float_xvel() != 0 && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;

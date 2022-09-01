@@ -3564,7 +3564,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->spr.xvel || actor->int_zvel())
+	if (actor->float_xvel() != 0 || actor->int_zvel())
 	{
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{

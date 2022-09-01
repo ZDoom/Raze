@@ -368,7 +368,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				{
 					j->add_int_ang(1024);
 					j->mul_int_zvel(1./3.);
-					j->spr.xvel /= 3;
+					j->mul_int_xvel(1./3.);
 				}
 
 				p->hbomb_on = 1;

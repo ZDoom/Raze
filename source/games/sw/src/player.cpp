@@ -5766,7 +5766,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
                 plActor->user.slide_ang = getangle(plActor->int_pos().X - itActor->int_pos().X, plActor->int_pos().Y - itActor->int_pos().Y);
                 plActor->user.slide_ang = NORM_ANGLE(plActor->user.slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
-                plActor->user.slide_vel = itActor->spr.xvel<<1;
+                plActor->user.slide_vel = itActor->int_xvel() << 1;
                 plActor->user.Flags &= ~(SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->actor, sg_PlayerHeadFly);

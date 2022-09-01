@@ -415,7 +415,7 @@ int InitHornetCircle(DSWActor* actor)
     // set to really fast
     actor->set_int_xvel(400);
     // angle adjuster
-    actor->user.Counter2 = actor->spr.xvel/3;
+    actor->user.Counter2 = actor->int_xvel() / 3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         actor->user.Counter2 = -actor->user.Counter2;

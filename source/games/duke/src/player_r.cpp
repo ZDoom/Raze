@@ -2764,7 +2764,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				{
 					spawned->add_int_ang(1024);
 					spawned->mul_int_zvel(1./3.);
-					spawned->spr.xvel /= 3;
+					spawned->mul_int_xvel(1./3.);
 				}
 
 				p->hbomb_on = 1;
@@ -3890,7 +3890,7 @@ HORIZONLY:
 				p->pycount += 52;
 				p->pycount &= 2047;
 				const double factor = 64. / 1596; // What is 1596?
-				p->pyoff = abs(pact->spr.xvel * DAngle::fromBuild(p->pycount).Sin()) * factor;
+				p->pyoff = abs(pact->int_xvel() * DAngle::fromBuild(p->pycount).Sin()) * factor;
 			}
 		}
 		else if (psectlotag != ST_2_UNDERWATER && psectlotag != 1 && (!isRRRA() || !p->sea_sick_stat))
@@ -3913,7 +3913,7 @@ HORIZONLY:
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
 			auto act = barrier_cast<DDukeActor*>(psectp->hitagactor);
-			if (act && act->spr.xvel && act->temp_data[0] == 0)
+			if (act && act->float_xvel() != 0 && act->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;

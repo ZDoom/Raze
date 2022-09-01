@@ -2446,7 +2446,7 @@ void glasspieces(DDukeActor* actor)
 	{
 		actor->add_int_xvel(-2);
 		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
-		actor->spr.cstat = flips[actor->spr.xvel & 3];
+		actor->spr.cstat = flips[int(actor->float_xvel() * 16) & 3];
 	}
 	else actor->clear_xvel();
 
@@ -5005,7 +5005,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		else
 			goalang = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
-		if (actor->spr.xvel && actor->spr.picnum != TILE_DRONE)
+		if (actor->float_xvel() != 0 && actor->spr.picnum != TILE_DRONE)
 		{
 			angdif = getincangle(aang, goalang);
 

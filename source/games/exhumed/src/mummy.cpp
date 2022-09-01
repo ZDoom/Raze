@@ -222,7 +222,7 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->spr.yvel = bsin(pActor->int_ang(), -1);
         }
 
-        if (pActor->spr.xvel || pActor->spr.yvel)
+        if (pActor->float_xvel() != 0 || pActor->spr.yvel)
         {
             if (pActor->int_xvel() > 0)
             {

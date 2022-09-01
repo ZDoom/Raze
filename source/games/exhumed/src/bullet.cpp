@@ -713,7 +713,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
                 if (pTarget->spr.statnum != 100)
                 {
-                    x += (pTarget->spr.xvel * 20) >> 6;
+                    x += (pTarget->int_xvel() * 20) >> 6;
                     y += (pTarget->spr.yvel * 20) >> 6;
                 }
                 else
